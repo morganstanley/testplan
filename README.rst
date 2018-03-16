@@ -1,4 +1,4 @@
-.. image:: http://link/to/github/images/logo/testplan.png
+.. image:: https://github.com/Morgan-Stanley/testplan/blob/master/doc/images/logo/testplan.png
 
 a multi-testing framework
 -------------------------
@@ -154,7 +154,7 @@ A persistent and human readable test evidence PDF report:
     [TCPConnections] -> Pass
     PDF generated at report.pdf
 
-.. image:: http://link/to/images/pdf/readme_server_client.png
+.. image:: https://github.com/Morgan-Stanley/testplan/blob/master/doc/images/pdf/readme_server_client.png
 
 
 Documentation
