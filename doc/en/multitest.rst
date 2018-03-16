@@ -1,0 +1,1398 @@
+.. _MultiTest:
+
+MultiTest
+*********
+
+Introduction
+============
+MultiTest is a functional testing framework. Unlike unit testing frameworks,
+it can be used to drive many processes at once, and interact with them from the
+outside, for example through tcp connections.
+
+MultiTest testcases are written in `Python <http://www.python.org>`_ and are not
+inherently limited to a set of APIs or functionalities. While the library
+provides a large amount of drivers and assertions, users can easily provide
+their own as well.
+
+It is possible to use MultiTest to run unit test binaries that require an
+external environment to be present. The MultiTest environment is helpful to
+bring up the right drivers in a dynamic manner, and information can be passed to
+the unit tests to let them interact with that environment in the way they find
+necessary. This is particularly helpful when implementing a client API in a
+particular language when the server is written in a different language for
+example.
+
+For API documentation see the
+:py:class:`MultiTest <testplan.testing.multitest.base.MultiTest>` class reference.
+
+
+Usage
+=====
+A MultiTest instance can be constructed from the following parameters:
+
+* **Name**: The name is internal to Testplan, and is used as a handle on the
+  test, for example when using the ``--patterns`` command line option to filter
+  tests, or in the report. It must be unique inside a given Testplan. Note that
+  you can select individual testcases in a MultiTest suite by separating them
+  from the suite name with a semicolon.
+  For example: ``--patterns MultiTestSuite:testcase``.
+
+* **Description**: The description will be printed in the report, below the test
+  status. It's a free-form string, spaces and line returns will be displayed as
+  they are specified.
+
+* **Suites**: MultiTest suites are simply objects (one or more can be passed)
+  that must:
+
+  - be decorated with :py:func:`@testsuite <testplan.testing.multitest.suite.testsuite>`.
+  - have one or more methods decorated with
+    :py:func:`@testcase <testplan.testing.multitest.suite.testcase>`. @testcase will
+    enforce at import time that the method designated as a testcase has the
+    following signature:
+
+    .. code-block:: python
+
+      @testcase
+      def a_testcase_method(self, env, result):
+        ...
+
+   In addition suites can have setup() and teardown() methods. The setup method
+   will be executed on suite entry, prior to any testcase if present. The
+   teardown method will be executed on suite exit, after setup and all
+   ``@testcase``-decorated testcases have executed.
+
+   Again, the signature of those methods is checked at import time, and must be
+   as follows:
+
+   .. code-block:: python
+
+     def setup(self, env):
+         ...
+
+     def teardown(self, env):
+         ...
+
+   The result object can be optionally used to perform logging and basic
+   assertions:
+
+   .. code-block:: python
+
+     def setup(self, env, result):
+         ...
+
+     def teardown(self, env, result):
+         ...
+
+   To signal that either setup or teardown hasn't completed correctly, you must
+   raise an exception. Raising an exception in ``setup()`` will abort the
+   execution of the testsuite, raising one in ``teardown()`` will be logged in
+   the report but will not prevent the execution of the next testsuite.
+
+   The :py:func:`@testcase <testplan.testing.multitest.suite.testcase>` decorated
+   methods will execute in the order in which they are defined. If more than
+   one suite is passed, the suites will be executed in the order in which they
+   are placed in the list that is used to pass them to the constructor. To
+   change testsuite and testcase execution order, click
+   :ref:`here <ordering_tests>` .
+
+   Testsuites are normally identified in the report by their class name.
+   However, they can also have ``suite_name()`` method. If this is present,
+   then their name is composed of the class name and the return value of this
+   method. This name is set after all the tests and the teardown method
+   (if it exists) have run.
+
+* **Environment**: The environment is a list of
+  :py:class:`drivers <testplan.testing.multitest.driver.base.Driver>`. Drivers are
+  typically implementations of messaging, protocols or external executables. If
+  a testcase is intended to test an executable, a driver for that executable
+  would typically be defined, as well as drivers for the interfaces that are
+  required for interacting with it, such as network connections.
+
+* **Initial Context**: The initial context is an optional way to pass
+  information to be used by drivers and fro mwithin testcases. When drivers are
+  added, they are provided with access to the driver environment that also
+  contains the initial_context input. This mechanism is useful to let drivers
+  know for example how to connect to other drivers. It is possible to use the
+  initial context to pass global values that will be available to all drivers
+  during startup and testcases during execution.
+
+
+Example
+=======
+
+
+This is an example MultiTest that will start an environment of three drivers
+and execute three testsuites that contain testcases. From within the testcases,
+the interaction with the drivers is done with the ``env`` argument.
+
+.. code-block:: python
+
+    @testsuite
+    class DriverInteraction(object):
+
+        @testcase
+        def restart_app(self, env, result):
+            env.converter.restart()
+            env.server.accept_connection()
+            env.client.restart()
+
+            size = env.server.send_text('hello')
+            result.equal('Hello', env.client.receive_text(size=size))
+
+    ...
+
+    MultiTest(name='TestConnections',
+              environment=[
+                   TCPServer(name='server'),
+                   Bridge(name='bridge',
+                          binary=os.path.join(os.getcwd(), 'run_bridge.py')),
+                   TCPClient(name='client',
+                             host=context(converter_name, '{{host}}'),
+                             port=context(converter_name, '{{port}}'))
+              ],
+              suites=[BasicTests(), EdgeCases(), DriverInteraction()])
+
+
+Many more commented examples are available :ref:`here <download>`.
+
+
+Testsuites & Testcases
+======================
+
+Testsuites are :py:func:`@testsuite <testplan.testing.multitest.suite.testsuite>`
+decorated classes that contain
+:py:func:`@testcase <testplan.testing.multitest.suite.testcase>` decorated methods that
+are representing the actual tests in which assertions are performed.
+
+Multitest accepts a list of testsuites. This may be very useful in case
+different suites share the same environment. The lifetime of the drivers in
+respect to multiple suites is the following:
+
+    1. Start each driver in the environment in sequence
+    2. Run ``Suite1``
+    3. Run ``Suite2`` and any others
+    4. Stop each driver in reverse order
+
+
+Listing
+-------
+
+Testplan supports listing of all defined tests by command line or programmatic
+means. Test listing is also compatible with test filters and sorters, meaning
+you can see how the various filtering / ordering rules would affect your tests,
+before actually running your plan.
+
+
+Command line Listing
+++++++++++++++++++++
+
+The simplest usage ``--list`` will list all tests in readable & indented format.
+
+This is also a shortcut for ``--info name``. The output will be trimmed per
+suite if number of testcases exceed a certain number (This is most likely to
+happen when testcase parametrization is used). ``--info name-full`` argument
+will display the full list of all testcases, without trimming the output.
+
+.. code-block:: bash
+
+    $ test_plan.py --list
+    Primary
+      AlphaSuite
+        testcase_a
+        testcase_b
+        ...
+
+
+``--info pattern`` argument will list the testcases in a format that is
+compatible with the ``--patterns`` and ``--tags`` / ``--tags-all`` arguments.
+Again some testcases may be trimmed (per suite) if they exceed a certain number,
+and ``--info pattern-full`` argument will display the full list of all testcases
+without any trimming the output.
+
+.. code-block:: bash
+
+    $ test_plan.py --info pattern
+    Primary
+    Primary:AlphaSuite
+      Primary:AlphaSuite:testcase_a
+      Primary:AlphaSuite:testcase_b
+      ...
+
+
+``--info count`` is a rather short way of listing tests, it will just print out
+the list of multitests and the number of testsuites & testcases:
+
+.. code-block:: bash
+
+  $ test_plan.py --info count
+  Primary: (2 suites, 6 testcases)
+  Secondary: (1 suite, 3 testcases)
+
+
+More examples on command line test listing can be seen
+:ref:`here <example_multitest_listing_basic>`.
+
+
+Programmatic Listing
+++++++++++++++++++++
+
+Similar test listing functionality can be achieved by passing test lister
+objects to ``@test_plan`` decorator via ``test_lister`` argument:
+
+
+.. code-block:: python
+
+    from testplan import test_plan
+    from testplan.testing.listing import PatternLister
+
+    # equivalent to `--list` or `--info name`
+    @test_plan(test_lister=NameLister()):
+    def main(plan):
+      ....
+
+.. code-block:: python
+
+    from testplan import test_plan
+    from testplan.testing.listing import NameLister
+
+
+    # equivalent to `--info pattern`
+    @test_plan(test_lister=PatternLister()):
+    def main(plan):
+      ....
+
+
+More examples on programmatic test listing can be seen
+:ref:`here <example_multitest_listing_basic>`.
+
+
+Custom Test Listers
++++++++++++++++++++
+
+A custom test lister can be implemented by subclassing
+:py:class:`testplan.testing.listing.BaseLister <testplan.testing.listing.BaseLister>`
+and overriding ``get_output`` method.
+
+An example implementation of custom test lister can be seen
+:ref:`here <example_multitest_listing_custom>`.
+
+
+.. warning::
+
+  For filtering / ordering / listing operations, programmatic declarations will
+  take precedence over command line arguments, meaning command line arguments
+  will **NOT** take on effect if there is an explicit
+  ``test-filter``/``test_sorter``/``test_lister`` argument in the ``@test_plan``
+  declaration.
+
+
+Filtering
+---------
+
+Testplan provides a flexible and customizable interface for test filtering
+(e.g. running a subset of tests). It has built-in logic for *tag* and
+*pattern* based test filtering, which can further be expanded by implementing
+custom test filters.
+
+
+Command line filtering
+++++++++++++++++++++++
+
+The simplest way to filter tests is to use pattern (``--patterns``) or tag
+(``--tags`` / ``--tags-all``) filters via command line options.
+
+For pattern filtering individual tests or sets of tests to run can be selected
+by passing their name or a glob pattern, for example ``\*string\*`` will match
+all testcases whose name includes string.
+
+Note that for MultiTest, the ``:`` separator can be used to select individual
+testsuites and individual testcase methods inside those testsuites;
+e.g. ``--patterns MyMultiTest:Suite:test_method``. This can of course be
+combined with wildcarding; e.g. ``--patterns MyMultiTest:Suite:test_*`` or
+``--patterns MyMultiTest:*:test_*``.
+
+Details regarding the supported patterns can be found
+`here <http://docs.python.org/library/fnmatch.html>`_ , they're essentially
+identical to traditional UNIX shell globbing.
+
+It is also possible to run tests for particular tag(s) using ``--tags``
+or ``--tags-all`` arguments. (e.g. ``--tags tag1 tag-group=tag1,tag2,tag3``).
+``--tags`` will run tests that match **ANY** of the tag parameters whereas
+``--tags-all`` will only run the tests that match **ALL** tag parameters.
+
+When ``--patterns`` and ``--tags`` parameters are used together, Testplan
+will only run the tests that match **BOTH** the pattern and the tag arguments.
+
+View :ref:`tagging` section and :ref:`example_multitest_tagging_filtering`
+downloadable examples for more detailed information on tagging and command line
+filtering usage.
+
+
+Programmatic Filtering
+++++++++++++++++++++++
+
+It is also possible to filter out tests to be run via programmatic means by
+passing a filter object to the ``@test_plan`` decorator as ``test_filter``
+argument. This feature enables more complex filtering logic. For the pattern and
+tag filters mentioned above, their equivalent programmatic declarations would be:
+
+.. code-block:: python
+
+    from testplan import test_plan
+    from testplan.testing.filtering import Tags, Pattern
+
+    # equivalent to `--patterns MyMultiTest:Suite:test_method`
+    @test_plan(test_filter=Pattern('MyMultiTest:Suite:test_method')):
+    def main(plan):
+        ....
+
+    # equivalent to `--tags tag1 tag-group=tag1,tag2,tag3`
+    @test_plan(test_filter=Tags({
+        'simple': 'tag1',
+        'tag-group': ('tag1', 'tag2', 'tag3')
+    })):
+    def main(plan):
+        ....
+
+Programmatic filters can be composed via bitwise operators, so it is possible
+to apply more complex filtering logic which may not be supported via command
+line options only.
+
+.. code-block:: python
+
+    from testplan import test_plan
+    from testplan.testing.filtering import Tags, Pattern
+
+    # equivalent to `--patterns MyMultiTest --tags server'
+    @test_plan(test_filter=Pattern('MyMultiTest') & Tags('server')):
+    def main(plan):
+         ....
+
+    # no command line equivalent, run tests that match the pattern OR the tag
+    @test_plan(test_filter=Pattern('MyMultiTest') | Tags('server')):
+    def main(plan):
+        ....
+
+    # no command line equivalent, run tests that DO NOT match the tag `server`
+    @test_plan(test_filter=~Tags('server')):
+    def main(plan):
+         ....
+
+
+See some :ref:`examples <example_multitest_tagging_filtering>` demonstrating
+programmatic test filtering.
+
+
+Multi-level Filtering
++++++++++++++++++++++
+
+For more granular test filtering, you can pass test filter objects to MultiTest
+instances as well. These lower level filtering rules will override plan level
+filters.
+
+.. code-block:: python
+
+    from testplan import test_plan
+    from testplan.testing.filtering import Tags, Pattern
+    from testplan.testing.multitest import MultiTest
+
+    # Plan level test filter that will run tests tagged with `client`
+    @test_plan(test_filter=Tags('client')):
+    def main(plan):
+        multitest_1 = MultiTest(name='Primary', ...)
+        # Multitest level test filter overrides plan level filter and runs
+        # tests tagged with `server`
+        multitest_2 = MultiTest(name='Secondary', test_filter=Tags('server'))
+
+
+See some :ref:`examples <example_multitest_tagging_multi>` explaining
+multi-level programmatic test filtering.
+
+
+Custom Test Filters
++++++++++++++++++++
+
+Testplan supports custom test filters, which can be implemented by subclassing
+:py:class:`testplan.testing.filtering.Filter <testplan.testing.filtering.Filter>`
+and overriding ``filter_instance``, ``filter_testsuite`` and ``filter_testcase``
+methods.
+
+Example implementations can be seen
+:ref:`here <example_multitest_tagging_custom_filters>`.
+
+
+.. _ordering_tests:
+
+Ordering Tests
+--------------
+
+By default Testplan runs the tests in the following order:
+
+    * Test instances (e.g. MultiTests) are being executed in the order they are
+      added to the plan object with
+      :py:meth:`plan.add() <testplan.runnable.TestRunner.add>` method.
+    * Test suites are run in the order they are added to the test instance via
+      ``suites`` list.
+    * Testcase methods are run in their declaration order in the testsuite class.
+
+This logic can be changed by use of custom or built-in test sorters.
+
+Command line ordering
++++++++++++++++++++++
+
+Currently Testplan supports only shuffle ordering via command line options.
+Sample usage includes:
+
+.. code-block:: bash
+
+    $ test_plan.py --shuffle testcases
+    $ test_plan.py --shuffle suites testcases --shuffle-seed 932
+    $ test_plan.py --shuffle all
+
+Please see the section on :ref:`shuffling` for more detailed information and
+benefits of shuffling your test run order.
+
+
+Programmatic Ordering
++++++++++++++++++++++
+
+To modify test run order programmatically, we can pass a test sorter instance
+to ``@test_plan`` decorator via ``test_sorter`` argument.
+
+.. code-block:: python
+
+    from testplan import test_plan
+    from testplan.testing.ordering import ShuffleSorter
+
+    # equivalent to `--shuffle all --shuffle-seed 15.2`
+    @test_plan(test_sorter=ShuffleSorter(shuffle_type='all', seed=15.2)):
+    def main(plan):
+        ....
+
+.. code-block:: python
+
+    from testplan import test_plan
+    from testplan.testing.ordering import AlphanumericalSorter
+
+    # no command line equivalent, sort everything alphabetically
+    @test_plan(test_sorter=AlphanumericalSorter(sort_type='all')):
+    def main(plan):
+        ....
+
+More examples explaining programmatic test ordering can be seen
+:ref:`here <example_multitest_ordering_basic>`.
+
+
+Custom Test Sorters
++++++++++++++++++++
+A custom test sorter can easily be implemented by subclassing
+:py:class:`testplan.testing.ordering.TypedSorter <testplan.testing.ordering.TypedSorter>`
+and overriding ``sort_instances``, ``sort_testsuites``, ``sort__testcases``
+methods.
+
+An example implementation of custom test sorter can be seen
+:ref:`here <example_multitest_ordering_custom>`.
+
+
+Multi-level Test Ordering
++++++++++++++++++++++++++
+
+For more granular test ordering, test sorters can be passed to MultiTest objects
+via ``test_sorter`` argument as well. These lower level ordering rules
+will override plan level sorters.
+
+.. code-block:: python
+
+    from testplan import test_plan
+    from testplan.testing.ordering import ShuffleSorter, AlphanumericalSorter
+    from testplan.testing.multitest import MultiTest
+
+    # Shuffle all testcases of all tests
+    @test_plan(test_sorter=ShuffleSorter('testcases')):
+    def main(plan):
+        multitest_1 = MultiTest(name='Primary',
+                                ...)
+        # Run test cases in alphabetical ordering, override plan level sorter
+        multitest_2 = MultiTest(name='Secondary',
+                                test_sorter=AlphanumericalSorter('testcases'),
+                                ...)
+
+
+More examples explaining multi-level programmatic test ordering
+can be seen :ref:`here <example_multitest_ordering_multi>`.
+
+
+.. _shuffling:
+
+Shuffling
+---------
+
+Testplan provides command line shuffling functionality via ``--shuffle`` and
+``--shuffle-seed`` arguments. These can be used to randomise the order in which
+tests are run. We strongly recommend to use them in routine cases.
+
+Why is this useful?
+
+    1. Some bugs may only appear in some states of the application under test.
+    2. Some tests may not finish cleanly but because of their position in a
+       testsuite that error remains unseen.
+    3. Some tests may make assumptions on the availability of data that are only
+       valid thanks to other tests being run first.
+
+All these cases can be invisible when tests are always run in the same order.
+Randomizing the order in which tests are run can help unmask these issues.
+
+What does it do?
+   Given the following tests definitions:
+
+   .. code-block:: python
+
+         @testsuite
+         class TestSuite1(object):
+             @testcase
+             def test11(self, env, result):
+                 pass
+
+             @testcase
+             def test12(self, env, result):
+                 pass
+
+         @testsuite
+         class TestSuite2(object):
+             @testcase
+             def test21(self, env, result):
+                 pass
+             @testcase
+             def test22(self, env, result):
+                 pass
+
+         @testsuite
+         class TestSuite3(object):
+             @testcase
+             def test31(self, env, result):
+                 pass
+             @testcase
+             def test32(self, env, result):
+                 pass
+
+         @testsuite
+         class TestSuite4(object):
+             @testcase
+             def test41(self, env, result):
+                 pass
+             @testcase
+             def test42(self, env, result):
+                 pass
+
+         plan.add(MultiTest(name="A",
+                            description="A Description",
+                            suites=[TestSuite1(), TestSuite2()]))
+         plan.add(MultiTest(name="B",
+                            description="B description",
+                            suites=[TestSuite3(), TestSuite4()]))
+
+
+   * ``--shuffle instances`` will shuffle the order in which
+     :py:class:`MultiTest <testplan.testing.multitest.base.MultiTest>` instances are
+     executed. The following definitions will be executed as ``A`` then ``B`` or
+     ``B`` then ``A``, with the order of the suites in each preserved, and the
+     order of testcases in suites is also preserved. This is useful if the
+     environment is shared between the instances and you want to make sure that
+     there is no cross-contamination.
+
+
+   * ``--shuffle suites`` will preserve the order of the
+     :py:class:`MultiTest <testplan.testing.multitest.base.MultiTest>` instances, the
+     order of testcases but shuffle the order of the suites inside each
+     :py:class:`MultiTest <testplan.testing.multitest.base.MultiTest>` instance. So the
+     execution of the above snippet would be for instance:
+
+        A:
+          - TestSuite2 : test21, test22
+          - TestSuite1 : test11, test12
+        B:
+          - TestSuite3 : test31, test32
+          - TestSuite4 : test41, test42
+
+   * ``--shuffle testcases`` will preserve the order of
+     :py:class:`MultiTest <testplan.testing.multitest.base.MultiTest>` instances and
+     suites but will change the order of testcases.
+
+        A:
+          - TestSuite1 : test12, test11
+          - TestSuite2 : test21, test22
+        B:
+          - TestSuite3 : test32, test31
+          - TestSuite4 : test42, test41
+
+   * ``--shuffle all`` will randomise all
+     :py:class:`MultiTest <testplan.testing.multitest.base.MultiTest>`, suites and cases.
+
+           B:
+             - TestSuite4 : test42, test41
+             - TestSuite3 : test32, test31
+           A:
+             - TestSuite1 : test11, test12
+             - TestSuite2 : test21, test22
+
+How can I troubleshoot a problem?
+
+    The goal of ``--shuffle`` being to find out problems only detectable in random
+    execution ordering, sometimes one needs to be able to replicate the ordering
+    from a past run. When using the ``--shuffle`` option, testplan will output the
+    seed with which the randomizer was initialised. Passing that seed back to
+    ``--shuffle-seed`` will make sure your tests are run in the order that
+    uncovered the problem again. The output looks as follow :
+    ``Shuffle seed: 9151.0, to run again in the same order pass --shuffle all --shuffle-seed 9151.0``
+
+
+.. _tagging:
+
+
+Tagging
+-------
+
+Testplan has support for suite and testcase level tagging (Suite level tags are
+also implicitly applied to each testcase of that suite). It's possible to run
+subset of tests using ``--tags`` or ``--tags-all`` arguments. The difference
+between ``--tags`` and ``--tags-all`` is that ``--tags tagA tagB`` will run any
+test case that is tagged with ``tagA`` **OR** ``tagB`` whereas
+``--tags-all tagA tagB`` will run test cases that are tagged with both
+``tagA`` **AND** ``tagB``.
+
+.. note::
+
+    If you apply the same tag value both on suite level and testcase level, the
+    tag filtering will still work as expected. However you will also get warnings,
+    as applying the same testsuite tag explicitly to a testcase is a redundant
+    operation.
+
+There are multiple ways to assign tags to a target:
+
+    * Assign a simple tag: ``@testcase(tags='tagA')``
+    * Assign multiple simple tags: ``@testcase(tags=('tagA', 'tagB'))``
+    * Assign a named tag: ``@testcase(tags={'tag_name': 'tagC'})``
+    * Assign multiple named tags: ``@testcase(tags={'tag_name': ('tagC', 'tagD'), 'tag_name_2': 'tagE'})``
+
+While passing command line arguments use tag values directly for simple tag matches and
+``<TAG_NAME>=<TAG_VALUE_1>,<TAG_VALUE_2>...`` convention for named tag matches:
+
+    * Filter on a single simple tag: ``--tags tagA``
+    * Filter on multiple simple tags ``--tags tagA tagB``
+    * Filter on single named tag: ``--tags tag_name_1=tagC``
+    * Filter on multiple named tags: ``--tags tag_name_1=tagC,tagD tag_name_2=tagE``
+    * Filter on both simple and named tags: ``--tags tagA tagB tag_name_1=tagC,tagD``
+
+Tag format
+++++++++++
+Tag values and names can consist of alphanumerical characters, as well as dash
+('`-`') and underscore ('`_`') and whitespace. However they cannot start & end
+with these special characters.
+
+    * Valid: ``tagA``, ``tag-A``, ``tag_A``
+    * Invalid: ``-tagA``, ``_tagA_``, ``' tagA '``
+
+
+Simple tags vs named tags
++++++++++++++++++++++++++
+It's up to the developer to decide on the tagging strategy, both simple and
+named tags have different advantages:
+
+    * Simple tags are easier to use and have a simpler API, whereas named tagging
+      needs a little bit of extra typing.
+
+    * Named tags let you categorize tags into different groups and enables finer
+      tuning on test filtering. (E.g run all tests for a particular regulation on
+      a particular protocol: ``--tags-all regulation=EMIR protocol=TCP``).
+
+    * Simple tags may cause confusion within different contexts:
+      e.g. ``@testcase(tags='slow')``, is this a testcase with slow startup time,
+      or does it test a piece of code that runs slowly?
+
+A general piece of advice would be to use simple tags when introducing this
+functionality to your tests, and gradually upgrade to named tags after you feel
+more comfortable.
+
+
+Example
++++++++
+
+.. code-block:: python
+
+  @testsuite(tags='tagA')
+  class SampleTestAlpha(object):
+
+      @testcase
+      def method_1(self, env, result):
+          ...
+
+      @testcase(tags='tagB')
+      def method_2(self, env, result):
+          ...
+
+      @testcase(tags={'category': 'tagC')
+      def method_3(self, env, result):
+          ...
+
+      @testcase(tags='category': 'tagD')
+      def method_4(self, env, result):
+          ...
+
+
+  @testsuite(tags='tagB')
+  class SampleTestBeta(object):
+
+      @testcase
+      def method_1(self, env, result):
+        ...
+
+      @testcase(tags=('tagA', 'tagC'))
+      def method_2(self, env, result):
+        ...
+
+      @testcase(tags={'category': ['tagC', 'tagD'])
+      def method_3(self, env, result):
+        ...
+
+
+Runs all testcases from ``SampleTestAlpha`` (suite level match),
+``SampleTestBeta.test_method_2``, ``SampleTestBeta.test_method_3``
+(testcase level match):
+
+.. code-block:: bash
+
+    $ ./test_plan.py --tags tagA
+
+Runs all tests from both ``SampleTestAlpha`` and ``SampleTestBeta``
+(suite level match):
+
+.. code-block:: bash
+
+    $ ./test_plan.py --tags tagA tagB
+
+``--tags-all`` runs the test **if and only if** all tags match. Runs
+``SampleTestAlpha.test_method_2``, ``SampleTestBeta.test_method_2``,
+``SampleTestBeta.test_method_3``:
+
+.. code-block:: bash
+
+    $ ./test_plan.py --tags-all tagA tagB
+
+Runs ``SampleTestAlpha.test_method_3``, ``SampleTestAlpha.test_method_4``,
+``SampleTestBeta.test_method_3``:
+
+.. code-block:: bash
+
+    $ ./test_plan.py --tags category=tagC,tagD
+
+Runs ``SampleTestBeta.test_method_3`` (both tag values must match):
+
+.. code-block:: bash
+
+  $ ./test_plan.py --tags-all category=tagC,tagD
+
+For more detailed examples, see
+:ref:`here <example_multitest_tagging_filtering>`.
+
+Tag based multiple reports
+++++++++++++++++++++++++++
+
+Multiple PDF reports can be created for tag combinations. See a
+:ref:`downloadable example <example_tagged_filtered_pdf>` that demonstrates
+how this can be done programmatically and via command line.
+
+.. _parametrization:
+
+Parametrization
+---------------
+
+Testplan makes it possible to write more compact testcases via use of
+``@testcase(parameters=...)`` syntax. There are 2 types of parametrization:
+:ref:`simple <parametrization_simple>` and
+:ref:`combinatorial <parametrization_combinatorial>`. In both cases you need to:
+
+    1. Add extra arguments to the testcase method declaration.
+    2. Pass either a dictionary of lists/tuples or list of dictionaries/tuples
+       as ``parameters`` value.
+
+See also the :ref:`a downloadable example <example_multitest_parametrization>`.
+
+
+.. _parametrization_simple:
+
+Simple Parametrization
+++++++++++++++++++++++
+
+You can add simple parametrization support to a testcase by passing a ``list``/``tuple``
+of items as ``parameters`` value. Each item of the tuple must either be:
+
+    * A ``tuple`` / ``list`` with positional values that correspond to the
+      parametrized argument names in the method definition.
+    * A ``dict`` that has matching keys & values to the parametrized argument names.
+    * A single value (that is not a ``tuple``, or ``list``) `if and only if` there
+      is a single parametrization argument. This is more of a shortcut for readability.
+
+The ``@testcase`` decorator will generate 2 testcase methods using each element
+in the ``parameters`` tuple below:
+
+.. code-block:: python
+
+    @testsuite
+    class SampleTest(object):
+
+      @testcase(
+          parameters=(
+              # Tuple notation, assigns values to `a`, `b`, `expected` positionally
+              (5, 10, 15),
+              (-2, 3, 1),
+              (2.2, 4.1, 6.3),
+              # Dict notation, assigns values to `a`, `b`, `expected` explicitly
+              {'b': 2, 'expected': 12, 'a': 10},
+              {'a': 'foo', 'b': 'bar', 'expected': 'foobar'}
+          )
+      )
+      def addition(self, env, result, a, b, expected):
+          result.equal(a + b, expected)
+          # The call order for the generated methods will be as follows:
+          # result.equal(5 + 10, 15)
+          # result.equal(-2 + 3, 1)
+          # result.equal(2.2 + 4.1, 6.3)
+          # result.equal(10 + 2, 12)
+          # result.equal('foo' + 'bar', 'foobar')
+
+      #  Shortcut notation that uses single values for single argument parametrization
+      #  Assigns 1, 2, 3, 4 to `value` for each generated test case
+      #  Verbose notation would be `parameters=((2,), (4,), (6,), (8,))` which
+      #  is not that readable.
+      @testcase(parameters=(2, 4, 6, 8))
+      def is_even(self, env, result, value):
+          result.equal(value % 2)(0)
+
+
+.. _parametrization_combinatorial:
+
+Combinatorial Parametrization
++++++++++++++++++++++++++++++
+
+If you pass a dictionary of lists/tuples as ``parameters`` value, ``@testcase``
+decorator will then generate new test methods using a cartesian product of all
+of the values from each element. This can be useful if you would like to run a
+test using a combination of all possible values.
+
+The example below will generate 27 (3 x 3 x 3) test case methods for each possible
+combination of the values from each dict item.
+
+.. code-block:: python
+
+    @testsuite
+    class SampleTest(object):
+
+      @testcase(parameters={
+          'first_name': ['Ben', 'Michael', 'John'],
+          'middle_name': ['Richard', 'P.', None],
+          'last_name': ['Brown', 'van der Heide', "O'Connell"]
+      })
+      def form_validation(self, env, result, first_name, middle_name, last_name):
+          """Test if form validation accepts a variety of inputs"""
+          form = NameForm()
+          form.validate(first_name, middle_name, last_name)
+
+          # The call order for the generated methods will be:
+          # form.validate('Ben', 'Richard', 'Brown')
+          # form.validate('Ben', 'Richard', 'van der Heide')
+          # form.validate('Ben', 'Richard', "O'Connell")
+          # form.validate('Ben', 'P.', 'Brown')
+          # ...
+          # ...
+          # form.validate('John', None, 'van der Heide')
+          # form.validate('John', None, "O'Connell")
+
+This is equivalent to declaring each method call explicitly:
+
+.. code-block:: python
+
+    @testsuite
+    class SampleTest(object):
+
+      @testcase(parameters={
+          ('Ben', 'Richard', 'Brown'),
+          ('Ben', 'Richard', 'van der Heide'),
+          ('Ben', 'Richard', "O'Connell"),
+          ('Ben', 'P.', "Brown"),
+          ...
+      ))
+      def form_validation(self, env, result, first_name, middle_name, last_name):
+          """Test if form validation accepts a variety of inputs"""
+          ...
+
+
+See the :ref:`addition_associativity <example_multitest_parametrization>` test
+in the downloadable example.
+
+If a :py:func:`pre_testcase <testplan.testing.multitest.suite.pre_testcase>`/
+:py:func:`post_testcase <testplan.testing.multitest.suite.post_testcase>` function is
+used along with parameterized testcases, then its arguments should contain
+``kwargs`` to access the parameters of the associated testcase.
+
+.. code-block:: python
+
+  # To be used in pre_testcase/post_testcase
+  def function(name, self, env, result, **kwargs):
+      ...
+
+.. _parametrization_default_values:
+
+Default Values
+++++++++++++++
+
+You can provide partial parametrization context assuming that the decorated
+method has default values assigned to the parametrized arguments:
+
+.. code-block:: python
+
+    @testsuite
+    class SampleTest(object):
+
+        @testcase(parameters=(
+            (5,),  # b=5, expected=10
+            (3, 7)  # expected=10
+            {'a': 10, 'expected': 15},  # b=5
+        ))
+        def addition(self, env, result, a, b=5, expected=10):
+            result.equal(expected)(a + b)
+
+
+.. _parametrization_custom_name_func:
+
+Testcase name generation
+++++++++++++++++++++++++
+
+When you use parametrization, Testplan will try to generate a legible name for
+the test case methods generated. By default the name format is
+``<original_method_name>__<arg_1_name>_<arg_1_value>__...__<arg_n_name>_<arg_n_value>``.
+If the generated method name is longer than 255 characters or does not have a
+valid Python attribute name format (alphanumeric with underscores), Testplan
+will fall back to simple format: ``<original_method_name>__<integer_suffix>``.
+
+In the example below, 2 new testcases will be generated, with the names being
+``'test_add_list__number_list_[1, 2, 3]__expected_6'`` and
+``'test_add_list__number_list_[6, 7, 8, 9]__expected_30'``. These are not valid
+Python attribute names, so Testplan will fall back to ``'test_add_list__0'`` and
+``'test_add_list__1'``.
+
+.. code-block:: python
+
+    @testsuite
+    class SampleTest(object):
+
+      @testcase(parameters=(
+          ([1, 2, 3], 6),
+          (range(6, 10), 30),
+      )
+    )
+    def add_list(self, env, result, number_list, expected):
+        result.equal(expected, sum(number_list))
+
+
+However you can provide custom name generation functions to override this
+functionality via ``@testcase(parameters=..., name_func=custom_name_func)``
+syntax. You just need to implement a function that accepts
+``func_name`` and ``kwargs`` as arguments, ``func_name`` being a string and
+``kwargs`` being an ``OrderedDict``.
+See
+:py:func:`default_name_func <testplan.testing.multitest.parametrization.default_name_func>`
+for sample implementation.
+
+.. code-block:: python
+
+  def custom_name_func(func_name, kwargs):
+      """
+      Will generate names like: method_name__numbers_1_2_3__result_6
+      """
+      number_list = kwargs['number_list']
+
+      return '{func_name}__numbers_{joined_list}__result_{expected}'.format(
+          func_name=func_name,
+          joined_list='_'.join(map(str, number_list)),
+          expected=kwargs['expected']
+      )
+
+  @testsuite
+  class SampleTest(object):
+
+    @testcase(
+        parameters=(
+            ([1, 2, 3], 6),
+            (range(6, 10), 30),
+        ),
+        name_func=custom_name_func
+    )
+    def add_list(self, env, result, number_list, expected):
+        ...
+
+.. note::
+
+  If your custom name function ends up generating duplicate method names for the
+  given arguments, Testplan will implicitly add integer suffixes to ensure unique
+  names.
+
+
+.. _parametrization_docstring_func:
+
+Testcase docstring generation
++++++++++++++++++++++++++++++
+
+Similar to testcase name generation, you can also build custom docstrings for
+generated testcases via ``@testcase(parameters=...,
+docstring_func=custom_docstring_func)`` syntax.
+
+Testplan will then use these docstrings as test descriptions while generating
+the test reports.
+
+The ``custom_docstring_func`` function should accept ``docstring`` and
+``kwargs`` arguments, ``docstring`` being a  ``string`` or ``None`` and
+``kwargs`` being an ``OrderedDict``.
+
+.. code-block:: python
+
+    import os
+
+    def custom_docstring_func(docstring, kwargs):
+      """
+      Returns original docstring (if available) and
+      parametrization arguments in the format ``key: value``.
+      """
+      kwargs_items = [
+          '{}: {}'.format(arg_name, arg_value)
+          for arg_name, arg_value in kwargs.items()
+      ]
+
+      kwargs_string = os.linesep.join(kwargs_items)
+
+      if docstring:
+          return '{}{}{}'.format(docstring, os.linesep, kwargs_string)
+      return kwargs_string
+
+    @testsuite
+    class SampleTest(object):
+
+        @testcase(
+            parameters=(
+                ([1, 2, 3], 6),
+                (range(6, 10), 30),
+            ),
+            docstring_func=custom_docstring_func
+        )
+        def add_list(self, env, result, number_list, expected):
+            ...
+
+.. _parametrization_tagging:
+
+Tagging Generated Test Cases
+++++++++++++++++++++++++++++
+
+You can tag generated testcases, all you need to do is to pass ``tags`` argument
+along with ``parameters``:
+
+.. code-block:: python
+
+  @testsuite
+  class SampleTest(object):
+
+      @testcase(
+          tags=('tagA', 'tagB'),
+          parameters=(
+              (1, 2),
+              (3, 4),
+          )
+      )
+      def addition(self, env, result, a, b):
+          ...
+
+.. _parametrization_tag_func:
+
+It is also possible to use parametrization values to assign tags dynamically,
+via ``tag_func`` argument. The ``tag_func`` should accept a single argument
+(``kwargs``) which will be the parametrized keyword argument dictionary for that
+particular generated testcase.
+
+.. code-block:: python
+
+    def custom_tag_func(kwargs):
+        """
+        Returns a dictionary that is interpreted as named tag context.
+        A string or list of strings will be interpreted as simple tags.
+        """
+        region_map = {
+          'EU': 'Europe',
+          'AS': 'Asia',
+          'US': 'United States'
+        }
+
+        return {
+          'product': kwargs['product'].title(),
+          'region': region_map.get(kwargs['region'], 'Other')
+        }
+
+    @testsuite
+    class SampleTest(object):
+
+        @testcase(
+            parameters=(
+                ('productA', 'US'),  # tags: product=ProductA, region=United States
+                ('productA', 'EU'),  # tags: product=ProductA, region=Europe
+                ('productB', 'EMEA'),  # tags: product=ProductB, region=Other
+                ('productC', 'BR')  # tags: product=ProductC, region=Other
+            ),
+            tag_func=custom_tag_func
+        )
+        def product(self, env, result, product, region):
+            ...
+
+.. note::
+
+  If you use ``tag_func`` along with ``tags`` argument, testplan will merge the
+  dynamically generated tag context with the explicitly passed tag values.
+
+
+.. _parametrization_decorating:
+
+Decorating Parametrized Testcases
++++++++++++++++++++++++++++++++++
+
+Decorating parametrized testcases uses a different syntax than usual python
+decorator convention: You need to pass your decorators via ``custom_wrappers``
+argument instead of decorating the testcase via ``@decorator`` syntax. If you
+implement custom decorators, please make sure you use
+:py:func:`testplan.common.utils.callable.wraps`, instead of ``@functools.wraps``.
+
+.. code-block:: python
+
+    from testplan.common.utils.callable import wraps
+
+    def my_custom_decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            ...
+
+    @testsuite
+    class SampleTest(object):
+
+        # Decorating a normal testcase, can use `@decorator` syntax.
+        @my_custom_decorator
+        @testcase
+        def normal_test(self, env, result):
+            ...
+
+        # For parametrized testcases, need to use `custom_wrappers` argument.
+        @testcase(
+            parameters=(
+                (1, 2),
+                (3, 4),
+            ),
+            custom_wrappers=my_custom_decorator  # can pass a single decorator
+                                                 # instead of a list with
+                                                 # single element
+        )
+        def addition(self, env, result, a, b):
+            ...
+
+.. _multitest_drivers:
+
+Drivers
+=======
+
+MultiTest provides a dynamic driver configuration system, around the two
+following properties:
+
+    * Drivers can depend on other drivers.
+    * Driver configuration is not required to exist until the driver starts.
+
+Dependencies between drivers are expressed very simply: any driver in the
+environment list passed to MultiTest is allowed to depend on any other driver
+appearing earlier than itself in the list.
+
+Specifying dependencies this way is sufficiently flexible to cover all cases
+while remaining simple enough to understand and easily express.
+
+Dependent values can be created either through the
+:py:func:`context() <testplan.common.utils.context.context>` call, or using
+pairs of double curly brackets in configuration files (MultiTest is using the
+`Tempita <http://pythonpaste.org/tempita/>`_ templating library).
+
+.. code-block:: python
+
+    # Example environment of three dynamically connecting drivers.
+    #  --------------         -----------------         ---------------
+    #  |            | ------> |               | ------> |             |
+    #  |   Client   |         |  Application  |         |   Service   |
+    #  |            | <------ |               | <------ |             |
+    #  --------------         -----------------         ---------------
+
+    environment=[
+        Service(name='service'),
+        Application(name='app',
+                    host=context('service', '{{host}}')
+                    port=context('service', '{{port}}'))
+        Client(name='client',
+               host=context('app', '{{host}}')
+               port=context('app', '{{port}}'))
+    ]
+
+
+Configuration
+-------------
+
+Context
+-------
+Context at any point during the MultiTest startup is defined as the state of the
+set of drivers that have already started. As soon as a driver has completed its
+start step successfully, all of its attributes become part of the context and
+are thus made available to all drivers that will start after it.
+
+In practice the context is often used to communicate hostnames, port values,
+file paths, and other such values dynamically generated at runtime to avoid
+collisions between setups that must be shared between the various drivers to
+communicate meaningfully.
+
+Any context value from any process can be accessed by the
+:py:func:`context() <testplan.common.utils.context.context>` call, taking a
+driver name and a tempita expression that must be valid on that driver name.
+This call effectively creates a late-bound value that drivers will resolve at
+startup, against the current context.
+
+Those expressions can also be used in the configuration of the drivers that
+support them, for example
+:py:class:`App <testplan.testing.multitest.driver.app.App>`. In the case of
+configurations, the values of the driver that is being configured are available
+in the global scope, and other drivers can be accessed through the special
+'context' object.
+
+Network dependencies
+--------------------
+Probably one of the most common use-cases of the context is the passing of
+network addresses between processes. For robustness reasons, it is much
+preferable to neither hardcode hosts nor ports in test setups. Ports can
+typically be assigned by the operating system in such a way that collisions
+between instances are avoided.
+
+This is a simple example of a server and a client, where the server is binding
+to ``localhost:0`` and communicating at runtime to the client where it is in
+fact listening. As long as there are dynamic ports available on the host, this
+setup will start reliably and will not collide with other already running
+applications.
+
+.. code-block:: python
+
+    # Example environment of a Server and 2 Clients.
+    #
+    #      +--------- client1
+    #      |
+    #   server
+    #      |
+    #      +--------- client2
+    #
+    # Client will have access to the server host, port
+    # after server starts.
+
+    [
+        TCPServer('server'),
+        TCPClient(
+            'client1',
+            context('server', '{{host}}'),
+            context('server', '{{port}}')
+        )
+        TCPClient(
+            'client2',
+            context('server', '{{host}}'),
+            context('server', '{{port}}')
+        )
+    ]
+
+Users are strongly encouraged to follow this practice rather than hardcode host
+names and port numbers in their test setups.
+
+.. _multitest_builtin_drivers:
+
+Built-in drivers
+----------------
+
+    * :py:class:`Driver <testplan.testing.multitest.driver.base.Driver>` baseclass
+      which provides the most common functionality features and all other
+      drivers inherit .
+
+    * :py:class:`App <testplan.testing.multitest.driver.app.App>` that handles
+      application binaries. See an example demonstrating how App driver
+      can be used on an fxconverter python application
+      :ref:`here <example_fxconverter>`.
+
+    * :py:class:`TCPServer <testplan.testing.multitest.driver.tcp.server.TCPServer>` and
+      :py:class:`TCPClient <testplan.testing.multitest.driver.tcp.client.TCPClient>` to
+      create TCP connections on the Multitest local environment and can often
+      used to mock services. See some examples :ref:`here <example_tcp>`.
+
+    * :py:class:`ZMQServer <testplan.testing.multitest.driver.zmq.server.ZMQServer>` and
+      :py:class:`ZMQClient <testplan.testing.multitest.driver.zmq.client.ZMQClient>` to
+      create ZMQ connections on the Multitest local environment.
+      See some examples demonstrating PAIR and PUB/SUB connections
+      :ref:`here <example_zmq>`.
+
+    * :py:class:`FixServer <testplan.testing.multitest.driver.fix.server.FixServer>` and
+      :py:class:`FixClient <testplan.testing.multitest.driver.fix.client.FixClient>` to
+      enable FIX protocol communication i.e between trading applications and
+      exchanges.
+      See some examples demonstrating FIX communication :ref:`here <example_fix>`.
+
+    * :py:class:`Sqlite3 <testplan.testing.multitest.driver.sqlite.Sqlite3>`
+      to connect to a database and perform sql queries etc. Examples can be
+      found :ref:`here <example_sqlite3>`.
+
+.. _multitest_custom_drivers:
+
+Custom
+------
+
+New drivers can be created to drive custom applications and services,
+manage database connections, represent mocks etc. These can inherit existing
+ones (or the base :py:class:`Driver <testplan.testing.multitest.driver.base.Driver>`)
+and customize some of its methods i.e (``__init__``, ``starting``, ``stopping``,
+etc).
+The :py:class:`~testplan.testing.multitest.driver.base.Driver` base class
+contains most common functionality that a MultiTest environment driver requires,
+including ability to provide file templates that will be instantiated using
+the context information on runtime and mechanisms to extract values from
+logfiles to retrieve dynamic values assigned (like host/port listening).
+
+A generic :py:class:`Application <testplan.testing.multitest.driver.app.App>`
+driver inherits the base driver class and extends it with logic to start/stop
+a binary as a sub-process.
+
+Here is a custom driver inherits the built-in
+:py:class:`App <testplan.testing.multitest.driver.app.App>` driver and overwrites
+:py:meth:`App.started_check <testplan.testing.multitest.driver.app.App.started_check>`
+method to expose ``host`` and ``port`` attributes that was written in the
+logfile by the application binary.
+
+.. code-block:: python
+
+    from testplan.testing.multitest.driver.app import App
+
+    class ServerApp(App):
+
+        def __init__(self, **options):
+            super(ServerApp, self).__init__(**options)
+            self.host = None
+            self.port = None
+
+        def started_check(self, timeout=None):
+            super(ServerApp, self).started_check(timeout=timeout)
+            # In this example, log_regexps contain:
+            #     re.compile(r'.*Listener on: (?P<listen_address>.*)')
+            # and the logfile will contain a line like:
+            #     Listener on: 127.0.0.1:10000
+            self.host, self.port = self.extracts['listen_address'].split(':')
+            # so self.host value will be: '127.0.0.1'
+            # and self.port value will be: '10000'
+
+See also the full
+:ref:`downloadable example <example_fxconverter>` for this custom app.

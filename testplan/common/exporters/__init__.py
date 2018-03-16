@@ -1,0 +1,51 @@
+"""TODO."""
+import inspect
+
+from testplan.common.config import Config, Configurable
+from testplan.common.utils.exceptions import format_trace
+
+
+class ExporterResult(object):
+
+    def __init__(self, exporter, type):
+        self.exporter = exporter
+        self.type = type
+        self.traceback = None
+
+    @property
+    def success(self):
+        return not self.traceback
+
+    @classmethod
+    def run_exporter(cls, exporter, source, type):
+        result = ExporterResult(exporter=exporter, type=type)
+
+        try:
+            exporter.export(source)
+        except Exception as exc:
+            result.traceback = format_trace(inspect.trace(), exc)
+        return result
+
+
+class ExporterConfig(Config):
+    def configuration_schema(self):
+        return {}
+
+
+class BaseExporter(Configurable):
+    """Base exporter class."""
+
+    CONFIG = ExporterConfig
+
+    def __init__(self, **options):
+        """TODO."""
+        self._cfg = self.CONFIG(**options)
+        self.url = None
+
+    @property
+    def cfg(self):
+        """Exporter configuration."""
+        return self._cfg
+
+    def export(self, report):
+        raise NotImplementedError('Exporter must define export().')

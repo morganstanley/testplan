@@ -1,0 +1,1 @@
+find -name '*.py' | xargs /ms/dist/python/PROJ/pylint/1.5.2-py34/bin/pylint

@@ -1,0 +1,1336 @@
+.. _Assertions:
+
+Assertions
+**********
+
+Introduction
+============
+Multitest's assertion logic can be accessed via the ``result`` argument of the
+testcase methods. Assertion methods can be called directly from the result object
+(e.g. ``result.<assertion_method>`` or from its namespaces
+``result.<namespace>.<assertion_method>``.
+
+The content below contains testcase snippets, for complete
+examples please see please see :ref:`here <example_assertions>`.
+
+
+Basic Assertions
+================
+Basic assertions can be used for common test cases, and accessible directly
+from the ``result`` object.
+
+
+:py:meth:`result.true <testplan.testing.multitest.result.Result.true>`
+----------------------------------------------------------------------
+
+Checks if the ``value`` is `truthy`.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.true((isinstance(5, int), description='Truthiness check')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Truthiness check - Pass
+          ...
+
+
+:py:meth:`result.false <testplan.testing.multitest.result.Result.false>`
+------------------------------------------------------------------------
+
+Checks if the ``value`` is `falsy`.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.false(isinstance(5, str), description='Falsiness check')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Falsiness check - Pass
+          ...
+
+:py:meth:`result.fail <testplan.testing.multitest.result.Result.fail>`
+----------------------------------------------------------------------
+
+Creates an explicit failure, a common use case is to use it with conditions.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          ...
+          if unexpected_result:
+              result.fail('Invalid outcome, result: {}'.format(unexpected_result))
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Invalid outcome, result: ... - Fail
+          ...
+
+:py:meth:`result.equal / result.eq <testplan.testing.multitest.result.Result.equal>`
+------------------------------------------------------------------------------------
+
+Equality assertion, checks if ``reference`` is equal to the ``value``.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.equal('foo', 'foo', description='Equality example')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Equality example - Pass
+            foo == foo
+          ...
+
+:py:meth:`result.not_equal / result.ne <testplan.testing.multitest.result.Result.not_equal>`
+--------------------------------------------------------------------------------------------
+
+Inequality assertion, checks if ``reference`` is not equal to the ``value``.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.equal('foo', 'bar', description='Inequality example')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Inequality example - Pass
+            foo != bar
+          ...
+
+:py:meth:`result.less / result.lt <testplan.testing.multitest.result.Result.less>`
+----------------------------------------------------------------------------------
+
+Comparison assertion, checks if ``reference`` is less than the ``value``.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.less(2, 12, description='Less comparison example')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Less comparison example - Pass
+            2 < 12
+          ...
+
+
+:py:meth:`result.less_equal / result.le <testplan.testing.multitest.result.Result.less_equal>`
+----------------------------------------------------------------------------------------------
+
+Comparison assertion, checks if ``reference`` is less than or equal to the ``value``.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.less_equal(2, 12, description='Less equal comparison example')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Less equal comparison example - Pass
+            2 <= 12
+          ...
+
+
+:py:meth:`result.greater / result.gt <testplan.testing.multitest.result.Result.greater>`
+----------------------------------------------------------------------------------------
+
+Comparison assertion, checks if ``reference`` is greater than the ``value``.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.greater(10, 5, description='Greater comparison example')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Greater comparison example - Pass
+            10 > 5
+          ...
+
+
+:py:meth:`result.greater_equal / result.ge <testplan.testing.multitest.result.Result.greater_equal>`
+----------------------------------------------------------------------------------------------------
+
+Comparison assertion, checks if ``reference`` is greater than or equal the ``value``.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.greater_equal(10, 5, description='Greater equal comparison example')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Greater equal comparison example - Pass
+            10 >= 5
+          ...
+
+
+:py:meth:`result.contain <testplan.testing.multitest.result.Result.contain>`
+----------------------------------------------------------------------------
+
+Membership assertion, checks if ``member`` is in the ``container``.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.contain('foo', ['foo', 'bar', 'baz'], description='List membership example')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          List membership example - Pass
+            'foo' in ['foo', 'bar', 'baz']
+          ...
+
+
+:py:meth:`result.not_contain <testplan.testing.multitest.result.Result.not_contain>`
+------------------------------------------------------------------------------------
+
+Membership assertion, checks if ``member`` is not in the  ``container``.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.not_contain('foo', {'bar': 1, 'baz': 2}, description='Dict membership example')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Dict membership example - Pass
+            'foo' not in {'bar': 1, 'baz': 2}
+          ...
+
+
+:py:meth:`result.equal_slices <testplan.testing.multitest.result.Result.equal_slices>`
+--------------------------------------------------------------------------------------
+
+Equality assertion on iterable slices, checks if slices of ``reference`` is equal to slices of  the ``value``.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+        result.equal_slices(
+            [1, 2, 3, 4, 5, 6, 7, 8],
+            ['a', 'b', 3, 4, 'c', 'd', 7, 8],
+            slices=[slice(2, 4), slice(6, 8)],
+            description='Comparison of slices'
+        )
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Comparison of slices - Pass
+            slice(2, 4, None)
+              Actual:	[3, 4]
+              Expected:	[3, 4]
+            slice(6, 8, None)
+              Actual:	[7, 8]
+              Expected:	[7, 8]
+          ...
+
+:py:meth:`result.equal_exclude_slices <testplan.testing.multitest.result.Result.equal_exclude_slices>`
+------------------------------------------------------------------------------------------------------
+
+Equality assertion on iterables, checks if the items of ``reference`` and ``value`` which are outside the given slices match.
+
+    .. code-block:: python
+
+        result.equal_exclude_slices(
+            [1, 2, 3, 4, 5],
+            ['a', 'b', 3, 4, 5],
+            slices=[slice(0, 2)],
+            description='Comparison of slices (exclusion)'
+        )
+
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Comparison of slices (exclusion) - Pass
+            slice(0, 2, None)
+              Actual:	[3, 4, 5]
+              Expected:	[3, 4, 5]
+          ...
+
+
+:py:meth:`result.raises <testplan.testing.multitest.result.Result.raises>`
+--------------------------------------------------------------------------
+
+Should be used as a context manager, checks if the block of code raises any of the given error types.
+Supports additional checks via ``pattern`` and ``func`` arguments.
+
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          with result.raises(KeyError):
+              {'foo': 3}['bar']
+
+          # Exception message pattern check (`re.search` is used implicitly)
+
+          with result.raises(
+              ValueError,
+              pattern='foobar',
+              description='Exception raised with custom pattern.'
+          ):
+              raise ValueError('abc foobar xyz')
+
+          # Custom function check (func should accept
+          # exception object as a single arg)
+
+          class MyException(Exception):
+
+              def __init__(self, value):
+                  self.value = value
+
+          def custom_func(exc):
+              return exc.value % 2 == 0
+
+          with result.raises(
+              MyException,
+              func=custom_func,
+              description='Exception raised with custom func.'
+          ):
+              raise MyException(4)
+
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Exception Raised - Pass
+            <type 'exceptions.KeyError'> instance of KeyError
+          Exception raised with custom pattern. - Pass
+            <type 'exceptions.ValueError'> instance of ValueError
+             Pattern: foobar
+             Exception message: abc foobar xyz
+          Exception raised with custom func. - Pass
+            <class '__main__.MyException'> instance of MyException
+             Function: <function custom_func at 0x7fe66809b140>
+          ...
+
+
+:py:meth:`result.not_raises <testplan.testing.multitest.result.Result.not_raises>`
+----------------------------------------------------------------------------------
+
+Should be used as a context manager, checks if the block of code `does not` raise any of the given error types.
+Supports additional checks via ``pattern`` and ``func`` arguments, meaning it can also check if a certain type
+of exception has been raised without matching the given ``pattern`` or ``func``.
+
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+
+          class MyException(Exception):
+
+              def __init__(self, value):
+                  self.value = value
+
+          def custom_func(exc):
+              return exc.value % 2 == 0
+
+          # `not_raises` passes when raised exception
+          # type does match any of the declared exception classes
+          # It is logically inverse of `result.raises`.
+
+          with result.not_raises(TypeError):
+              {'foo': 3}['bar']
+
+          # `not_raises` can also check if a certain exception has been raised
+          # WITHOUT matching the given `pattern` or `func`
+
+          # Exception type matches but pattern does not -> Pass
+          with result.not_raises(
+              ValueError,
+              pattern='foobar',
+              description='Exception not raised with custom pattern.'
+          ):
+              raise ValueError('abc')
+
+          # Exception type matches but func does not -> Pass
+          with result.not_raises(
+              MyException,
+              func=custom_func,
+              description='Exception not raised with custom func.'
+          ):
+              raise MyException(5)
+
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Exception Not Raised - Pass
+            <type 'exceptions.KeyError'> not instance of TypeError
+          Exception not raised with custom pattern. - Pass
+            <type 'exceptions.ValueError'> not instance of ValueError
+             Pattern: foobar
+             Exception message: abc
+          Exception not raised with custom func. - Pass
+            <class '__main__.MyException'> not instance of MyException
+             Function: <function custom_func at 0x7fcddcb171b8>
+          ...
+
+
+:py:meth:`result.log <testplan.testing.multitest.result.Result.log>`
+--------------------------------------------------------------------
+
+Add a log entry in the console output and the report to make the output
+more human readable.
+
+    .. code-block:: python
+
+        result.log(
+            'Database file "{}" of driver "{}" created at "{}"'.format(
+                env.db.cfg.db_name, env.db.cfg.name, env.db.db_path))
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Database file "mydb" of driver "db" created at "path/to/mydb"
+
+:py:meth:`result.matplot <testplan.testing.multitest.result.Result.matplot>`
+----------------------------------------------------------------------------
+
+Displays a Matplotlib plot in the report. Downloadable examples that use
+matplot assertion and contain output sample images can be found
+:ref:`here <example_basic_models>`.
+
+Assertion Groups
+================
+While writing assertions, it's possible to group them together for formatting purposes.
+Some exporters (e.g. JSON, PDF) may make use of these groups to display assertion data in a certain format.
+
+Console output will omit assertion groups and render assertion in flat format.
+
+    .. code-block:: python
+
+      @testcase
+      def assertion_group_sample(self, env, result):
+          result.equal(1, 1, description='Equality assertion outside the group')
+
+          with result.group(description='Custom group description') as group:
+              group.not_equal(2, 3, description='Assertion within a group')
+              group.greater(5, 3)
+
+              # Groups can have sub groups as well:
+              with group.group(description='This is a sub group') as sub_group:
+                  sub_group.less(6, 3, description='Assertion within sub group')
+
+          result.equal(
+              'foo', 'foo', description='Final assertion outside all groups')
+
+
+Assertion Summaries
+===================
+Testplan supports summarization of assertion data, which is quite useful if
+there are testcases that contain a large number of assertions. It is possible to enable
+summarization at testcase level (via testcase parameters) or block level (via assertion groups).
+
+It is possible to control number of passing / failing assertions per category per assertion type
+via ``num_passing`` and ``num_failing`` optional arguments.
+
+
+    .. code-block:: python
+
+      @testcase(summarize=True)
+      def testcase_summarization(self, env, result):
+          # Result data will contain a subset of failing / passing assertions
+          for i in range(5000):
+              result.equal(i, i)
+              result.equal(i, i + 1)
+
+
+      @testcase
+      def block_summarization(self, env, result):
+
+          result.equal('foo', 'bar', 'Assertion outside summary context')
+
+          with result.group(
+              summarize=True,
+              num_passing=1,
+              num_failing=2,
+              description='Block level summary description',
+          ) as group:
+              for i in range(5000):
+                  result.equal(i, i)
+                  result.less(i, i + 1)
+
+
+Normally Testplan will group all assertions of the same type under ``DEFAULT`` category,
+however this can be overridden by explicitly passing ``category`` argument while declaring assertions:
+
+    .. code-block:: python
+
+      @testcase(summarize=True)
+      def testcase_summarization(self, env, result):
+
+          for i in range(5000):
+              # Assertions will be summarized under DEFAULT - Equal
+              result.equal(i, i)
+              # Assertions will be summarized under Multiples - Equal
+              result.equal(i * 2, i * 2, category='Multiples')
+
+
+
+For further examples on summarization, please see the :ref:`a downloadable example <example_assertions_summary>`.
+
+
+
+Assertion Namespaces
+====================
+The ``result`` argument of a testcase method contains namespaces for more specialized assertion operations.
+
+These namespace objects have API similar to ``result`` object when it comes to
+writing assertions (e.g. ``result.<namespace>.<assertion_method>``)
+
+
+Regex Assertions (``result.regex``)
+===================================
+Contains assertion methods for regular expression based checks.
+
+:py:meth:`result.regex.match <testplan.testing.multitest.result.RegexNamespace.match>`
+--------------------------------------------------------------------------------------
+
+Checks if the given ``regexp`` (``string pattern`` or compiled ``re`` object) matches (``re.match``) the ``value``.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.regex.match(
+              regexp='foo',
+              value='foobar', description='string pattern match')
+
+          result.regex.match(
+              regexp=re.compile('foo'),
+              value='foobar', description='SRE match')
+
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          string pattern match - Pass
+            foobar
+          SRE match - Pass
+            foobar
+          ...
+
+
+:py:meth:`result.regex.multiline_match <testplan.testing.multitest.result.RegexNamespace.multiline_match>`
+----------------------------------------------------------------------------------------------------------
+
+Checks if the given ``regexp`` matches (``re.match``) the ``value``, uses (``re.DOTALL`` and ``re.MULTILINE``) flags implicitly.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.regex.multiline_match(
+              regexp='first line.*second',
+              value=os.linesep.join([
+                  'first line',
+                  'second line',
+                  'third line'
+              ]),
+              description='Multiline match example'
+          )
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Multiline match example - Pass
+            first line
+            second line
+            third line
+          ...
+
+
+:py:meth:`result.regex.not_match <testplan.testing.multitest.result.RegexNamespace.not_match>`
+----------------------------------------------------------------------------------------------
+
+Checks if the given ``regexp`` does not match the ``value``.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.regex.not_match('baz', 'foobar')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Regex Match Not Exists - Pass
+            Pattern: `baz`, String: `foobar`
+          ...
+
+
+:py:meth:`result.regex.multiline_not_match <testplan.testing.multitest.result.RegexNamespace.multiline_not_match>`
+------------------------------------------------------------------------------------------------------------------
+Checks if the given ``regexp`` does not match the ``value``, uses (``re.DOTALL`` and ``re.MULTILINE``) flags implicitly.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.regex.multiline_not_match(
+              regexp='foobar',
+              value=os.linesep.join([
+                  'first line',
+                  'second line',
+                  'third line'
+              ]),
+              description='Multiline not match example'
+          )
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Multiline not match example - Pass
+            Pattern: `foobar`, String: `first line
+            second line
+            third line
+          ...
+
+:py:meth:`result.regex.search <testplan.testing.multitest.result.RegexNamespace.search>`
+----------------------------------------------------------------------------------------
+
+Checks if ``re.search`` operation on the given text returns a match.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.regex.search('bar', 'foobarbaz')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Regex Search - Pass
+            foobarbaz
+          ...
+
+
+:py:meth:`result.regex.search_empty <testplan.testing.multitest.result.RegexNamespace.search_empty>`
+----------------------------------------------------------------------------------------------------
+
+Checks if ``re.search`` operation on the given text does not return a match.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.regex.search_empty('aaa', 'foobarbaz')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Passing search empty - Pass
+            Pattern: `aaa`, String: `foobarbaz`
+          ...
+
+:py:meth:`result.regex.findall <testplan.testing.multitest.result.RegexNamespace.findall>`
+------------------------------------------------------------------------------------------
+
+Checks if given ``regexp`` exists in the ``value`` via ``re.finditer``
+and optionally runs a ``condition`` callable against the number of matches.
+
+    .. code-block:: python
+
+      from testplan.common.utils import comparison
+
+      @testcase
+      def sample_testcase(self, env, result):
+          text = 'foo foo foo bar bar foo bar'
+
+          result.regex.findall(
+              regexp='foo',
+              value=text,
+              condition=lambda num_matches: 2 < num_matches < 5,
+              description='Find all with lambda condition',
+          )
+
+          # Equivalent assertion with more readable output
+          result.regex.findall(
+              regexp='foo',
+              value=text,
+              condition=comparison.Greater(2) & comparison.Less(5),
+              description='Find all with readable condition'
+          )
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Find all with lambda condition - Pass
+            foo foo foo bar bar foo bar
+            Condition: <function <lambda> at 0x7fa42e6cfcf8>
+          Find all with readable condition - Pass
+            foo foo foo bar bar foo bar
+            Condition: (<value> > 2 and <value> < 5)
+          ...
+
+
+:py:meth:`result.regex.matchline <testplan.testing.multitest.result.RegexNamespace.matchline>`
+----------------------------------------------------------------------------------------------
+
+Checks if the given ``regexp`` returns a match (``re.match``) for any of the lines in the ``value``.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+         result.regex.matchline(
+              regexp=re.compile(r'\w+ line$'),
+              value=os.linesep.join([
+                  'first line',
+                  'second aaa',
+                  'third line'
+              ]),
+          )
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Regex Match Line - Pass
+            first line
+            second aaa
+            third line
+          ...
+
+
+Table Assertions (``result.table``)
+===================================
+Contains assertion logic for comparing tables. A table may be represented as
+a list of dictionaries with uniform keys or a list of lists with the first item
+representing the column names and the rest corresponding to the rows.
+
+:py:meth:`result.table.match <testplan.testing.multitest.result.TableNamespace.match>`
+--------------------------------------------------------------------------------------
+
+Compares two tables, uses equality for each table cell for plain
+values and supports regex / custom comparators as well.
+
+    .. code-block:: python
+
+      from testplan.common.utils import comparison
+
+      @testcase
+      def sample_testcase(self, env, result):
+
+          # Table in list of lists format
+          actual_table = [
+              ['name', 'age'],
+              ['Bob', 32],
+              ['Susan', 24],
+              ['Rick', 67]
+          ]
+
+        # Compare table with itself, plain comparison for each cell
+        result.table.match(actual_table, actual_table)
+
+        # Another table with regexes & custom comparators
+        expected_table = [
+            ['name', 'age'],
+            [
+                re.compile(r'\w{3}'),
+                comparison.Greater(30) & comparison.Less(40)
+            ],
+            ['Susan', 24],
+            [comparison.In(['David', 'Helen', 'Rick']), 67]
+        ]
+
+        result.table.match(
+            actual_table, expected_table,
+            description='Table match with custom comparators'
+        )
+
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Table Match - Pass
+            +----------------+----------+
+            | name           | age      |
+            +----------------+----------+
+            | Bob == Bob     | 32 == 32 |
+            | Susan == Susan | 24 == 24 |
+            | Rick == Rick   | 67 == 67 |
+            +----------------+----------+
+          Table match with custom comparators - Pass
+            +-----------------------------------------------+---------------------------------------+
+            | name                                          | age                                   |
+            +-----------------------------------------------+---------------------------------------+
+            | Bob == REGEX('\w{3}')                         | 32 == (<value> > 30 and <value> < 40) |
+            | Susan == Susan                                | 24 == 24                              |
+            | Rick == <value> in ['David', 'Helen', 'Rick'] | 67 == 67                              |
+            +-----------------------------------------------+---------------------------------------+
+
+          ...
+
+:py:meth:`result.table.log <testplan.testing.multitest.result.TableNamespace.log>`
+----------------------------------------------------------------------------------
+
+Logs a table to console output and the report.
+
+    .. code-block:: python
+
+        sample_table = [
+              ['symbol', 'amount'],
+              ['AAPL', 12],
+              ['GOOG', 21],
+              ['FB', 32],
+              ['AMZN', 5],
+              ['MSFT', 42]
+        ]
+
+        result.table.log(sample_table, description='My table.')
+
+    .. code-block:: bash
+
+        My table.
+          +--------+--------+
+          | symbol | amount |
+          +--------+--------+
+          | AAPL   | 12     |
+          | GOOG   | 21     |
+          | FB     | 32     |
+          | AMZN   | 5      |
+          | MSFT   | 42     |
+          +--------+--------+
+
+:py:meth:`result.table.column_contain <testplan.testing.multitest.result.TableNamespace.column_contain>`
+--------------------------------------------------------------------------------------------------------
+
+Can be used for checking if all of the values of a table's column contain values from a given list.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          sample_table = [
+              ['symbol', 'amount'],
+              ['AAPL', 12],
+              ['GOOG', 21],
+              ['FB', 32],
+              ['AMZN', 5],
+              ['MSFT', 42]
+        ]
+
+        result.table.column_contain(
+            values=['AAPL', 'AMZN'],
+            table=sample_table,
+            column='symbol',
+        )
+
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Column Contain - Fail
+            File: ..../test_plan.py
+            Line: 361
+            Values: AAPL, AMZN
+            +--------+--------+
+            | symbol | Passed |
+            +--------+--------+
+            |  AAPL  | Pass   |
+            |  GOOG  | Fail   |
+            |  FB    | Fail   |
+            |  AMZN  | Pass   |
+            |  MSFT  | Fail   |
+            +--------+--------+
+
+Dict Assertions (``result.dict``)
+=================================
+
+Contains assertion methods that operate on dictionaries.
+
+:py:meth:`result.dict.check <testplan.testing.multitest.result.DictNamespace.check>`
+------------------------------------------------------------------------------------
+
+Checks existence / absence of keys of a dictionary.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+
+          result.dict.check(
+              dictionary={
+                  'foo': 1, 'bar': 2, 'baz': 3,
+              },
+              has_keys=['foo', 'alpha'],
+              absent_keys=['bar', 'beta']
+          )
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Dict Check - Fail
+          File: .../test_plan.py
+          Line: 440
+          Existence check: ['foo', 'alpha']
+            Missing keys: ['alpha']
+          Absence check: ['bar', 'beta']
+            Key should be absent: ['bar']
+
+
+:py:meth:`result.dict.match <testplan.testing.multitest.result.DictNamespace.match>`
+------------------------------------------------------------------------------------
+
+Matches two (nested) dictionaries against each other.
+``expected`` dictionary can contain custom comparators as values.
+
+    .. code-block:: python
+
+      from testplan.common.utils import comparison
+
+      @testcase
+      def sample_testcase(self, env, result):
+
+          actual = {
+             'foo': 1,
+              'bar': 2,
+          }
+
+          expected = {
+              'foo': 1,
+              'bar': 5,
+              'extra-key': 10,
+          }
+
+          result.dict.match(actual, expected, description='Simple dict match')
+
+          actual = {
+              'foo': {
+                  'alpha': [1, 2, 3],
+                  'beta': {'color': 'red'}
+              }
+          }
+
+          expected = {
+              'foo': {
+                  'alpha': [1, 2],
+                  'beta': {'color': 'blue'}
+              }
+          }
+
+          result.dict.match(actual, expected, description='Nested dict match')
+
+          actual = {
+              'foo': [1, 2, 3],
+              'bar': {'color': 'blue'},
+              'baz': 'hello world',
+          }
+
+          expected = {
+              'foo': [1, 2, lambda v: isinstance(v, int)],
+              'bar': {
+                  'color': comparison.In(['blue', 'red', 'yellow'])
+              },
+              'baz': re.compile(r'\w+ world'),
+          }
+
+          result.dict.match(
+              actual, expected, description='Dict match: Custom comparators')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Simple dict match - Fail
+            File: .../test_plan.py
+            Line: 394
+            (Passed)  Key(foo),    1 <int> == 1 <int>
+            (Failed)  Key(bar),    2 <int> != 5 <int>
+            (Failed)  Key(extra-key),    ABSENT <None> != 10 <int>
+
+          Nested dict match - Fail
+            File: .../test_plan.py
+            Line: 412
+            (Failed)  Key(foo),
+            (Failed)      Key(alpha),
+            (Passed)          1 <int> == 1 <int>
+            (Passed)          2 <int> == 2 <int>
+            (Failed)          3 <int> != None <None>
+            (Failed)      Key(beta),
+            (Failed)          Key(color),    red <str> != blue <str>
+
+          Dict match: Custom comparators - Pass
+            (Passed)  Key(baz),    hello world <str> == \w+ world <REGEX>
+            (Passed)  Key(foo),
+            (Passed)      1 <int> == 1 <int>
+            (Passed)      2 <int> == 2 <int>
+            (Passed)      3 <int> == <lambda> <func>
+            (Passed)  Key(bar),
+            (Passed)      Key(color),    blue <str> == <value> in ['blue', 'red', 'yellow'] <func>
+
+Fix Assertions (``result.fix``)
+===============================
+
+Contains assertion methods that operate on `Fix messages <https://en.wikipedia.org/wiki/Financial_Information_eXchange>`_.
+
+:py:meth:`result.fix.check <testplan.testing.multitest.result.FixNamespace.check>`
+----------------------------------------------------------------------------------
+
+Checks existence / absence of tags in a Fix message.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          # Fix msg can be represented as a dictionary
+          fix_msg = {
+              36: 6,
+              22: 5,
+              55: 2,
+              38: 5,
+              555: [ .. more nested data here ... ]
+          }
+
+          result.fix.check(
+              msg=fix_msg,
+              has_tags=[26, 22, 11],
+              absent_tags=[444, 555],
+          )
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Fix Check - Fail
+            File: .../test_plan.py
+            Line: 525
+            Existence check: [26, 22, 11]
+                Missing keys: [26, 11]
+            Absence check: [444, 555]
+                Key should be absent: [555]
+
+:py:meth:`result.fix.match <testplan.testing.multitest.result.FixNamespace.match>`
+----------------------------------------------------------------------------------
+
+Similar to ``result.dict.match``, matches 2 (nested) fix messages, ``expected`` message supports custom comparators as well.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          fix_msg_1 = {
+              36: 6,
+              22: 5,
+              55: 2,
+              38: 5,
+              555: [
+                  {
+                      600: 'A',
+                      601: 'A',
+                      683: [
+                          {
+                              688: 'a',
+                              689: 'a'
+                          },
+                          {
+                              688: 'b',
+                              689: 'b'
+                          }
+                      ]
+                  },
+                  {
+                      600: 'B',
+                      601: 'B',
+                      683: [
+                          {
+                              688: 'c',
+                              689: 'c'
+                          },
+                          {
+                              688: 'd',
+                              689: 'd'
+                          }
+                      ]
+                  }
+              ]
+          }
+
+          fix_msg_2 = {
+              36: 6,
+              22: 5,
+              55: 2,
+              38: comparison.GreaterEqual(4),
+              555: [
+                  {
+                      600: 'A',
+                      601: 'B',
+                      683: [
+                          {
+                              688: 'a',
+                              689: re.compile(r'[a-z]')
+                          },
+                          {
+                              688: 'b',
+                              689: 'b'
+                          }
+                      ]
+                  },
+                  {
+                      600: 'C',
+                      601: 'B',
+                      683: [
+                          {
+                              688: 'c',
+                              689: comparison.In(('c', 'd'))
+                          },
+                          {
+                              688: 'd',
+                              689: 'd'
+                          }
+                      ]
+                  }
+              ]
+          }
+          result.fix.match(fix_msg_1, fix_msg_2)
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Fix Match - Fail
+            File: .../test_plan.py
+            Line: 527
+            (Failed)  Key(555),
+            (Failed)
+            (Passed)      Key(600),    A <str> == A <str>
+            (Failed)      Key(601),    A <str> != B <str>
+            (Passed)      Key(683),
+            (Passed)
+            (Passed)          Key(688),    a <str> == a <str>
+            (Passed)          Key(689),    a <str> == [a-z] <REGEX>
+            (Passed)
+            (Passed)          Key(688),    b <str> == b <str>
+            (Passed)          Key(689),    b <str> == b <str>
+            (Failed)
+            (Failed)      Key(600),    B <str> != C <str>
+            (Passed)      Key(601),    B <str> == B <str>
+            (Passed)      Key(683),
+            (Passed)
+            (Passed)          Key(688),    c <str> == c <str>
+            (Passed)          Key(689),    c <str> == <value> in ('c', 'd') <func>
+            (Passed)
+            (Passed)          Key(688),    d <str> == d <str>
+            (Passed)          Key(689),    d <str> == d <str>
+            (Passed)  Key(36),    6 <int> == 6 <int>
+            (Passed)  Key(38),    5 <int> == <value> >= 4 <func>
+            (Passed)  Key(22),    5 <int> == 5 <int>
+            (Passed)  Key(55),    2 <int> == 2 <int>
+
+XML Assertions (``result.xml``)
+===============================
+Contains assertion methods that operate on XML strings.
+
+:py:meth:`result.xml.check <testplan.testing.multitest.result.XMLNamespace.check>`
+----------------------------------------------------------------------------------
+
+Checks if given tags / paths exist in the XML string, supports namespace lookups and value/regex matching for tag values.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          xml_1 = '''
+              <Root>
+                  <Test>Foo</Test>
+              </Root>
+          '''
+
+          result.xml.check(
+              element=xml_1,
+              xpath='/Root/Test',
+              description='Simple XML check for existence of xpath.'
+          )
+
+          xml_2 = '''
+              <Root>
+                  <Test>Value1</Test>
+                  <Test>Value2</Test>
+              </Root>
+          '''
+
+          result.xml.check(
+              element=xml_2,
+              xpath='/Root/Test',
+              tags=['Value1', 'Value2'],
+              description='XML check for tags in the given xpath.'
+          )
+
+          xml_3 = '''
+              <SOAP-ENV:Envelope
+                xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+                  <SOAP-ENV:Header/>
+                  <SOAP-ENV:Body>
+                      <ns0:message
+                        xmlns:ns0="http://testplan">Hello world!</ns0:message>
+                  </SOAP-ENV:Body>
+              </SOAP-ENV:Envelope>
+          '''
+
+          result.xml.check(
+              element=xml_3,
+              xpath='//*/a:message',
+              tags=[re.compile(r'Hello*')],
+              namespaces={"a": "http://testplan"},
+              description='XML check with namespace matching.'
+          )
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Simple XML check for existence of xpath. - Pass
+            xpath: /Root/Test
+            xpath: `/Root/Test` exists in the XML.
+          XML check for tags in the given xpath. - Pass
+            xpath: /Root/Test
+            Tags:
+              Value1 == Value1
+              Value2 == Value2
+          XML check with namespace matching. - Pass
+            xpath: //*/a:message
+            Namespaces: {'a': 'http://testplan'}
+            Tags:
+              Hello world! == REGEX('Hello*')
+          ...
+
+
+Custom Comparators
+==================
+Some assertion methods can make use of custom comparators, which are located at ``testplan.common.utils.comparison`` module.
+
+These utilities are simple, composable and callable objects and produce more readable output compared to plain ``lambda`` functions.
+
+    .. code-block:: python
+
+      >>> from testplan.common.utils import comparison
+
+      >>> plain_comparator = lambda value: 2 < value < 5
+      >>> custom_comparator = comparison.Greater(2) & comparison.Less(5)
+
+      >>> plain_comparator(3) == custom_comparator(3) == True
+      True
+
+      >>> str(plain_comparator)
+      '<function <lambda> at 0xf6994a74>'
+
+      >>> str(custom_comparator)
+      (<value> > 2 and <value> < 5)
