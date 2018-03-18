@@ -1,13 +1,6 @@
 testplan.testing.cpp package
 ============================
 
-Subpackages
------------
-
-.. toctree::
-
-    testplan.testing.cpp.driver
-
 
 Submodules
 ----------

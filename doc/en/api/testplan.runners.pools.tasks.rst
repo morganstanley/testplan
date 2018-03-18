@@ -4,13 +4,6 @@ testplan.runners.pools.tasks package
 Submodules
 ----------
 
-testplan.runners.pools.tasks.abstract module
-++++++++++++++++++++++++++++++++++++++++++++
-
-.. automodule:: testplan.runners.pools.tasks.abstract
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 testplan.runners.pools.tasks.base module
 ++++++++++++++++++++++++++++++++++++++++

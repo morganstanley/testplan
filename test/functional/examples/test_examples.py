@@ -14,9 +14,12 @@ KNOWN_EXCEPTIONS = [
     "TclError: Can't find a usable init\.tcl in the following directories:",
     "ImportError: No module named Tkinter",
     "ImportError: lib.*\.so\..+: cannot open shared object file: No such file or directory",
-    "RuntimeError: Download pyfixmsg library .*",
-    "No spec file set\. You should download .*",
-    "AttributeError: 'module' object has no attribute 'poll'"
+    "ImportError: No module named sklearn.*", # Missing lib sklearn. Will skip Data Science example.
+    "ImportError: No module named _tkinter.*", # Missing module tkinder. Will skip Data Science example.
+    "RuntimeError: Download pyfixmsg library .*", # Missing lib pyfixmsg. Will skip FIX example.
+    "No spec file set\. You should download .*", # Missing FIX spec file. Will skip FIX example.
+    "AttributeError: 'module' object has no attribute 'poll'",
+    "RuntimeError: You need to compile test binary first." # Need to compile cpp binary first. Will skip GTest example.
 ]
 
 SKIP_ON_WINDOWS = [
@@ -76,8 +79,6 @@ def test_example(root, filename):
             subprocess.check_output(
                 [
                     sys.executable,
-                    _relative_dir(os.path.join('ms', 'scripts', 'bin',
-                                               'run_testplan.py')),
                     filename
                 ],
                 stderr=subprocess.STDOUT
