@@ -19,6 +19,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score, classification_report
 from sklearn.cluster import KMeans
 from sklearn import datasets, linear_model, svm
+
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plot
 import numpy as np
 

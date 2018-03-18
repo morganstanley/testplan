@@ -1,4 +1,6 @@
 """Test Multitest - Test Suite - Result - Test Report - Exporter integration"""
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plot
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase

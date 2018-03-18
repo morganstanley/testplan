@@ -85,10 +85,10 @@ testplan.common.utils.path module
     :undoc-members:
     :show-inheritance:
 
-testplan.common.utils.proc module
-+++++++++++++++++++++++++++++++++
+testplan.common.utils.process module
+++++++++++++++++++++++++++++++++++++
 
-.. automodule:: testplan.common.utils.proc
+.. automodule:: testplan.common.utils.process
     :members:
     :undoc-members:
     :show-inheritance:

@@ -20,6 +20,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import cross_val_score
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plot
 import numpy as np
 
