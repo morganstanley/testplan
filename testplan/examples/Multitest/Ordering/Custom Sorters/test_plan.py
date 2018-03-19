@@ -100,7 +100,7 @@ custom_sorter_2 = ReverseNameLengthSorter(
     name='Custom Sorter Example',
     test_sorter=noop_sorter,
     # Using testcase level stdout so we can see sorted testcases
-    stdout_style=Style('testcase', 'testcase')
+    stdout_style=Style('case', 'case')
 )
 def main(plan):
 

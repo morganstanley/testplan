@@ -66,7 +66,7 @@ class Gamma(object):
     name='Multi-level Filtering',
     test_filter=Pattern('*:*:test_3'),
     # Using testcase level stdout so we can see filtered testcases
-    stdout_style=Style('testcase', 'testcase')
+    stdout_style=Style('case', 'case')
 )
 def main(plan):
 

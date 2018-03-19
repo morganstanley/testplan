@@ -149,11 +149,11 @@ class Test(Runnable):
     def should_log_test_result(self, depth, test_obj, style):
         if isinstance(test_obj, TestGroupReport):
             if depth == 0:
-                return style.display_multitest
+                return style.display_test
             elif test_obj.category == 'suite':
                 return style.display_suite
         elif isinstance(test_obj, TestCaseReport):
-            return style.display_testcase
+            return style.display_case
         elif isinstance(test_obj, dict) and test_obj['type'] == 'RawAssertion':
             return style.display_assertion
         raise TypeError('Unsupported test object: {}'.format(test_obj))

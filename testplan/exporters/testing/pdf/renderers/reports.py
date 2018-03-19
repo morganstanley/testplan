@@ -245,8 +245,8 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         if source.category == Categories.SUITE:
             return style.display_suite
         elif source.category == Categories.PARAMETRIZATION:
-            return style.display_testcase
-        return style.display_multitest
+            return style.display_case
+        return style.display_test
 
 
 @registry.bind(TestCaseReport)
@@ -264,7 +264,7 @@ class TestCaseRowBuilder(TestRowRenderer):
         return 0.5, colors.lightgrey
 
     def should_display(self, source):
-        return self.get_style(source).display_testcase
+        return self.get_style(source).display_case
 
 
 @registry.bind((TestGroupReport, Categories.MULTITEST))

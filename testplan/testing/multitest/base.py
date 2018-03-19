@@ -183,7 +183,7 @@ class MultiTest(Test):
                     next_suite, testcases = ctx.pop(0)
                 except IndexError:
                     style = self.get_stdout_style(self.report.passed)
-                    if style.display_multitest:
+                    if style.display_test:
                         log_multitest_status(self.report)
 
                     break
@@ -321,7 +321,7 @@ class MultiTest(Test):
 
         # native assertion objects -> dict form
         testcase_report.extend(case_result.serialized_entries)
-        if self.get_stdout_style(testcase_report.passed).display_testcase:
+        if self.get_stdout_style(testcase_report.passed).display_case:
             log_testcase_status(testcase_report)
         return testcase_report
 
