@@ -161,7 +161,7 @@ Documentation
 =============
 
 For complete documentation that includes downloadable examples, visit this
-`link <http://link/to/testplan/read_the_docs>`_.
+`link <http://testplan.readthedocs.io>`_.
 
 To generate the documentation locally:
 
@@ -174,7 +174,8 @@ Contribution
 ============
 
 A step by step guide to contribute to Testplan framework can be found
-`here <http://link/to/testplan/read_the_docs/about#contributing>`_.
+`here <http://testplan.readthedocs.io/en/latest/about.html#contributing>`_.
+
 
 License
 =======

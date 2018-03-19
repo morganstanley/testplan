@@ -20,7 +20,7 @@ Contributing to Testplan framework is easy.
 
       b. Include docstrings for the new modules/classes/functions and the functionality is fully described in the `documentation <https://github.com/Morgan-Stanley/testplan/tree/master/doc/en>`_.
 
-  4. Follow the contributing `instructions <https://github.com/Morgan-Stanley/testplan/tree/master/dco/blob/master/CONTRIBUTING.rst>`_ and make sure you include the "Covered by <dco>" line in the commits.
+  4. Follow the contributing `instructions <https://github.com/Morgan-Stanley/testplan/blob/master/CONTRIBUTING.rst>`_ and make sure you include the "Covered by <dco>" line in the commits.
 
   5. Make a pull request.
 
