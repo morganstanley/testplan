@@ -444,8 +444,49 @@ Some features that should be highlighted are:
 Getting started
 ===============
 
-The easiest way to getting started is to download some
-:ref:`downloadable examples <download>` and expand them as per use case.
+Few sample steps to run you first plan:
+
+  1. Optionally create a virtual environment, i.e
+     using `virtualenv <https://virtualenv.pypa.io>`_:
+
+    .. code-block:: bash
+
+      $ virtualenv env1
+      $ cd env1
+      $ source bin/activate
+
+  2. Clone the github `repo <https://github.com/Morgan-Stanley/testplan>`_.
+
+    .. code-block:: bash
+
+      $ git clone https://github.com/Morgan-Stanley/testplan.git
+      $ cd testplan
+
+  3. Install the project dependencies. (You can also customize the *setup.py* file).
+
+    .. code-block:: bash
+
+      $ python setup.py install
+
+  4. Execute a ready made example from *testplan/examples* directory, i.e:
+
+    .. code-block:: bash
+
+      $ cd testplan/examples/Assertions/Basic
+      $ python test_plan.py
+
+  5. Execute the project tests.
+
+    .. code-block:: bash
+
+      $ py.test test --verbose
+
+.. note:: You may need to install packages like ``python-tk`` for tests that
+          make use of matplotlib library. You can also disable optional
+          packages mentioned in *setup.py* file that are not required by the
+          core functionality.
+
+These are all the :ref:`downloadable examples <download>` provided right now.
 
 Writing custom drivers
 ----------------------
@@ -456,3 +497,4 @@ how to create drivers for
 :ref:`custom applications and services <multitest_custom_drivers>`.
 You can contribute missing drivers or improvements to the existing ones by
 following the :ref:`contribution <contributing>` process.
+
