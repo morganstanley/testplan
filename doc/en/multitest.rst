@@ -414,7 +414,7 @@ Custom Test Filters
 
 Testplan supports custom test filters, which can be implemented by subclassing
 :py:class:`testplan.testing.filtering.Filter <testplan.testing.filtering.Filter>`
-and overriding ``filter_instance``, ``filter_testsuite`` and ``filter_testcase``
+and overriding ``filter_test``, ``filter_suite`` and ``filter_case``
 methods.
 
 Example implementations can be seen

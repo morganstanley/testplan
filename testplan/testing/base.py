@@ -86,7 +86,8 @@ class Test(Runnable):
     CONFIG = TestConfig
     RESULT = TestResult
 
-    enable_deep_filtering = False
+    # Base test class only allows Test (top level) filtering
+    filter_levels = [filtering.FilterLevel.TEST]
 
     def __init__(self, **options):
         self._test_context = None
@@ -94,6 +95,12 @@ class Test(Runnable):
 
     def __str__(self):
         return '{}[{}]'.format(self.__class__.__name__, self.name)
+
+    def get_filter_levels(self):
+        if not self.filter_levels:
+            raise ValueError(
+                '`filter_levels` is not defined by {}'.format(self))
+        return self.filter_levels
 
     @property
     def name(self):

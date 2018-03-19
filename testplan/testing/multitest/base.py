@@ -14,7 +14,7 @@ from testplan.logger import TESTPLAN_LOGGER, get_test_status_message
 from testplan.report import TestGroupReport, TestCaseReport
 from testplan.report.testing import Status
 
-from testplan.testing import tagging
+from testplan.testing import tagging, filtering
 
 from .entries.base import Summary
 from .result import Result
@@ -116,7 +116,12 @@ class MultiTest(Test):
     """
     CONFIG = MultiTestConfig
 
-    enable_deep_filtering = True
+    # MultiTest allows deep filtering
+    filter_levels = [
+        filtering.FilterLevel.TEST,
+        filtering.FilterLevel.SUITE,
+        filtering.FilterLevel.CASE,
+    ]
 
     def __init__(self, **options):
         super(MultiTest, self).__init__(**options)
@@ -159,10 +164,11 @@ class MultiTest(Test):
             sorted_testcases = test_sorter.sorted_testcases(
                 suite.get_testcases().values())
 
-            testcases_to_run = [case for case in sorted_testcases
-                                if test_filter.filter(instance=self,
-                                                      testsuite=suite,
-                                                      testcase=case)]
+            testcases_to_run = [
+                case for case in sorted_testcases
+                if test_filter.filter(
+                    test=self, suite=suite, case=case)]
+
             if testcases_to_run:
                 ctx.append((suite, testcases_to_run))
         return ctx
