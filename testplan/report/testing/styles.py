@@ -29,9 +29,9 @@ class StyleEnum(ArgMixin, Enum):
     """
 
     RESULT = 0
-    MULTITEST = 1
+    TEST = 1
     SUITE = 2
-    TESTCASE = 3
+    CASE = 3
     ASSERTION = 4
     ASSERTION_DETAIL = 5
 
@@ -47,19 +47,19 @@ class StyleFlag(object):
 
     Usage:
 
-        StyleFlag(StyleEnum.TESTCASE)
+        StyleFlag(StyleEnum.CASE)
 
     Alternative Usage:
 
-        StyleFlag('testcase')
+        StyleFlag('case')
 
     Produces:
 
         StyleFlag
             display_result = True
-            display_multitest = True
+            display_test = True
             display_suite = True
-            display_testcase = True
+            display_case = True
             display_assertion = False
             display_assertion_detail = False
     """
@@ -145,12 +145,12 @@ class StyleArg(ArgMixin, Enum):
     )
 
     SUMMARY = Style(
-        passing=StyleEnum.MULTITEST,
-        failing=StyleEnum.MULTITEST,
+        passing=StyleEnum.TEST,
+        failing=StyleEnum.TEST,
     )
 
     EXTENDED_SUMMARY = Style(
-        passing=StyleEnum.TESTCASE,
+        passing=StyleEnum.CASE,
         failing=StyleEnum.ASSERTION_DETAIL,
     )
 

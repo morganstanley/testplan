@@ -22,8 +22,7 @@ expected_report = TestReport(
                             name='test_matplot',
                             entries=[
                                 {
-                                    'image_file_path': lambda val: re.match(
-                                        '^\/var\/tmp\/.+.png$', val),
+                                    'image_file_path': re.compile('^.+\.png$'),
                                     'width': 2.0,
                                     'height': 2.0,
                                     'type': 'MatPlot',

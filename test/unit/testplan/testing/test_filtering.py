@@ -88,9 +88,9 @@ class TestTags(object):
             )
         )
     )
-    def test_filter_instance(self, tags, multitest, expected):
+    def test_filter_test(self, tags, multitest, expected):
         filter_obj = filtering.Tags(tags=tags)
-        assert bool(filter_obj.filter_instance(multitest)) == expected
+        assert bool(filter_obj.filter_test(multitest)) == expected
 
     @pytest.mark.parametrize(
         'tags, testsuite_obj, expected',
@@ -108,9 +108,9 @@ class TestTags(object):
             ),
         )
     )
-    def test_filter_testsuite(self, tags, testsuite_obj, expected):
+    def test_filter_suite(self, tags, testsuite_obj, expected):
         filter_obj = filtering.Tags(tags=tags)
-        assert bool(filter_obj.filter_testsuite(testsuite_obj)) == expected
+        assert bool(filter_obj.filter_suite(testsuite_obj)) == expected
 
     @pytest.mark.parametrize(
         'tags, testcase_obj, expected',
@@ -127,9 +127,9 @@ class TestTags(object):
             (('one', 'two', 'three'), Gamma().test_four, False),
         )
     )
-    def test_filter_testcase(self, tags, testcase_obj, expected):
+    def test_filter_case(self, tags, testcase_obj, expected):
         filter_obj = filtering.Tags(tags=tags)
-        assert bool(filter_obj.filter_testcase(testcase_obj)) == expected
+        assert bool(filter_obj.filter_case(testcase_obj)) == expected
 
 
 class TestTagsAll(object):
@@ -152,9 +152,9 @@ class TestTagsAll(object):
             )
         )
     )
-    def test_filter_instance(self, tags, multitest, expected):
+    def test_filter_test(self, tags, multitest, expected):
         filter_obj = filtering.TagsAll(tags=tags)
-        assert bool(filter_obj.filter_instance(multitest)) == expected
+        assert bool(filter_obj.filter_test(multitest)) == expected
 
     @pytest.mark.parametrize(
         'tags, testsuite_obj, expected',
@@ -172,9 +172,9 @@ class TestTagsAll(object):
             ),
         )
     )
-    def test_filter_testsuite(self, tags, testsuite_obj, expected):
+    def test_filter_suite(self, tags, testsuite_obj, expected):
         filter_obj = filtering.TagsAll(tags=tags)
-        assert bool(filter_obj.filter_testsuite(testsuite_obj)) == expected
+        assert bool(filter_obj.filter_suite(testsuite_obj)) == expected
 
     @pytest.mark.parametrize(
         'tags, testcase_obj, expected',
@@ -192,9 +192,9 @@ class TestTagsAll(object):
             (('foo', 'baz'), Gamma().test_four, True),
         )
     )
-    def test_filter_testcase(self, tags, testcase_obj, expected):
+    def test_filter_case(self, tags, testcase_obj, expected):
         filter_obj = filtering.TagsAll(tags=tags)
-        assert bool(filter_obj.filter_testcase(testcase_obj)) == expected
+        assert bool(filter_obj.filter_case(testcase_obj)) == expected
 
 
 class TestPattern(object):
@@ -211,9 +211,9 @@ class TestPattern(object):
             ('AAA:foo:bar', multitest_A, True),
         )
     )
-    def test_filter_instance(self, pattern, multitest, expected):
+    def test_filter_test(self, pattern, multitest, expected):
         filter_obj = filtering.Pattern(pattern)
-        assert bool(filter_obj.filter_instance(multitest)) == expected
+        assert bool(filter_obj.filter_test(multitest)) == expected
 
     @pytest.mark.parametrize(
         'pattern, testsuite_obj, expected',
@@ -233,9 +233,9 @@ class TestPattern(object):
             ('*:Beta - Custom:*', Beta(), True),
         )
     )
-    def test_filter_testsuite(self, pattern, testsuite_obj, expected):
+    def test_filter_suite(self, pattern, testsuite_obj, expected):
         filter_obj = filtering.Pattern(pattern=pattern)
-        assert bool(filter_obj.filter_testsuite(testsuite_obj)) == expected
+        assert bool(filter_obj.filter_suite(testsuite_obj)) == expected
 
     @pytest.mark.parametrize(
         'pattern, testcase_obj, expected',
@@ -249,9 +249,9 @@ class TestPattern(object):
             ('*:*:test_two', Alpha().test_one, False),
         )
     )
-    def test_filter_testcase(self, pattern, testcase_obj, expected):
+    def test_filter_case(self, pattern, testcase_obj, expected):
         filter_obj = filtering.Pattern(pattern=pattern)
-        assert bool(filter_obj.filter_testcase(testcase_obj)) == expected
+        assert bool(filter_obj.filter_case(testcase_obj)) == expected
 
     def test_filter_initialization_error(self):
         """

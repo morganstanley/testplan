@@ -86,7 +86,8 @@ class Test(Runnable):
     CONFIG = TestConfig
     RESULT = TestResult
 
-    enable_deep_filtering = False
+    # Base test class only allows Test (top level) filtering
+    filter_levels = [filtering.FilterLevel.TEST]
 
     def __init__(self, **options):
         self._test_context = None
@@ -94,6 +95,12 @@ class Test(Runnable):
 
     def __str__(self):
         return '{}[{}]'.format(self.__class__.__name__, self.name)
+
+    def get_filter_levels(self):
+        if not self.filter_levels:
+            raise ValueError(
+                '`filter_levels` is not defined by {}'.format(self))
+        return self.filter_levels
 
     @property
     def name(self):
@@ -142,11 +149,11 @@ class Test(Runnable):
     def should_log_test_result(self, depth, test_obj, style):
         if isinstance(test_obj, TestGroupReport):
             if depth == 0:
-                return style.display_multitest
+                return style.display_test
             elif test_obj.category == 'suite':
                 return style.display_suite
         elif isinstance(test_obj, TestCaseReport):
-            return style.display_testcase
+            return style.display_case
         elif isinstance(test_obj, dict) and test_obj['type'] == 'RawAssertion':
             return style.display_assertion
         raise TypeError('Unsupported test object: {}'.format(test_obj))

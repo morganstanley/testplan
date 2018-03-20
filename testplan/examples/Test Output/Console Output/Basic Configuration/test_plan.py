@@ -88,26 +88,26 @@ style_1_b = Style(
 
 # Testcase names for passing testcases
 # Assertion descriptions / names for failing assertions
-style_2_a = Style(passing='testcase', failing='assertion')
+style_2_a = Style(passing='case', failing='assertion')
 style_2_b = Style(
-    passing=StyleEnum.TESTCASE,
+    passing=StyleEnum.CASE,
     failing=StyleEnum.ASSERTION
 )
 
 # Suite names for passing suites
 # Testcase names for failing testcases
-style_3_a = Style(passing='suite', failing='testcase')
+style_3_a = Style(passing='suite', failing='case')
 style_3_b = Style(
     passing=StyleEnum.SUITE,
-    failing=StyleEnum.TESTCASE
+    failing=StyleEnum.CASE
 )
 
 # Multitest names for passing multitest instances
 # Suite names for failing suites
 
-style_4_a = Style(passing='multitest', failing='suite')
+style_4_a = Style(passing='test', failing='suite')
 style_4_b = Style(
-    passing=StyleEnum.MULTITEST,
+    passing=StyleEnum.TEST,
     failing=StyleEnum.SUITE
 )
 
@@ -116,7 +116,7 @@ style_4_b = Style(
 # console output styling options via `--stdout-style` argument:
 
 # `--stdout-style result-only`: Displays final test plan result only.
-# `--stdout-style summary`: Multitest level pass/fail status.
+# `--stdout-style summary`: Test level pass/fail status.
 # `--stdout-style extended-summary`: Assertion details for failing
 #                                    tests, testcase names for passing ones.
 # `--stdout-style detailed`: Assertion details of both passing/failing tests.

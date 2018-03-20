@@ -76,11 +76,17 @@ def test_example(root, filename):
     with change_directory(root), open(filename) as file_obj:
         first_line = file_obj.readline()
         try:
-            subprocess.check_output(
-                [
+            if os.environ.get('TEST_PLAN_RUNNER_PATH'):
+                args = [
                     sys.executable,
+                    os.environ['TEST_PLAN_RUNNER_PATH'],
                     filename
-                ],
+                ]
+            else:
+                args = [sys.executable, filename]
+
+            subprocess.check_output(
+                args,
                 stderr=subprocess.STDOUT
             )
         except subprocess.CalledProcessError as e:

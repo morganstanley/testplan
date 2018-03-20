@@ -106,7 +106,7 @@ class Delta(object):
 @test_plan(
     name='Composite Filters (Command line)',
     # Using testcase level stdout so we can see filtered testcases
-    stdout_style=Style('testcase', 'testcase')
+    stdout_style=Style('case', 'case')
 )
 def main(plan):
 

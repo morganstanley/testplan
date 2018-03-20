@@ -62,7 +62,7 @@ class BetaSuite(object):
 
 @test_plan(
     name='Multi-level command line output configuration example',
-    stdout_style=Style(passing='testcase', failing='assertion-detail'),
+    stdout_style=Style(passing='case', failing='assertion-detail'),
 )
 def main(plan):
 

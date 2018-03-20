@@ -168,15 +168,15 @@ formatting.
 A style object can be initialized with 2 arguments, corresponding display levels for
 passing and failing tests. These levels should be one of
 :py:class:`StyleEnum <testplan.report.testing.styles.StyleEnum>` values
-(e.g. ``StyleEnum.TESTCASE``) or their lowercase string representations (e.g. ``'testcase'``)
+(e.g. ``StyleEnum.CASE``) or their lowercase string representations (e.g. ``'case'``)
 
 .. code-block:: python
 
     from testplan.report.testing.styles import Style, StyleEnum
 
     # These style declarations are equivalent.
-    style_1_a = Style(passing=StyleEnum.MULTITEST, failing=StyleEnum.TESTCASE)
-    style_1_b = Style(passing='multitest', failing='testcase')
+    style_1_a = Style(passing=StyleEnum.TEST, failing=StyleEnum.CASE)
+    style_1_b = Style(passing='test', failing='case')
 
 
 Style levels are incremental, going from the least verbose to the most verbose:
@@ -184,9 +184,9 @@ Style levels are incremental, going from the least verbose to the most verbose:
 .. code-block:: python
 
     RESULT = 0  #  Plan level output, the least verbose
-    MULTITEST = 1
+    TEST = 1
     SUITE = 2
-    TESTCASE = 3
+    CASE = 3
     ASSERTION = 4
     ASSERTION_DETAIL = 5  #  Assertion detail level output, the most verbose
 
@@ -201,11 +201,11 @@ Here's a simple schema that highlights minimum required styling level for viewin
 
     Testplan -> StyleEnum.RESULT
     |
-    +---- MultiTest 1  -> StyleEnum.MULTITEST
+    +---- MultiTest 1  -> StyleEnum.TEST
     |     |
     |     +---- Suite 1  -> StyleEnum.SUITE
     |     |     |
-    |     |     +--- testcase_method_1  -> StyleEnum.TESTCASE
+    |     |     +--- testcase_method_1  -> StyleEnum.CASE
     |     |     |    |
     |     |     |    +---- assertion statement  -> StyleEnum.ASSERTION
     |     |     |    +---- assertion statement
@@ -232,7 +232,7 @@ Here is a sample usage of styling objects:
       # Display down to testcase level for passing tests
       # Display all details for failing tests
       stdout_style=Style(
-        passing=StyleEnum.TESTCASE,
+        passing=StyleEnum.CASE,
         failing=StyleEnum.ASSERTION_DETAIL
       ),
       pdf_path='my-report.pdf',

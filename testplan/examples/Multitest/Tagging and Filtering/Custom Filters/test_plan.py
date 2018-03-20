@@ -88,8 +88,8 @@ class Gamma(object):
 
 class PriorityFilter(Filter):
     """
-        Filters testcases with a priority
-        that falls between the given interval.
+    Filters testcases with a priority
+    that falls between the given interval.
     """
 
     def __init__(self, minimum, maximum=None):
@@ -100,19 +100,19 @@ class PriorityFilter(Filter):
         self.minimum = minimum
         self.maximum = maximum
 
-    def filter_testcase(self, testcase):
-        if not hasattr(testcase, 'priority'):
+    def filter_case(self, case):
+        if not hasattr(case, 'priority'):
             return False
 
         if self.maximum is not None:
-            return self.minimum <= testcase.priority <= self.maximum
-        return self.minimum <= testcase.priority
+            return self.minimum <= case.priority <= self.maximum
+        return self.minimum <= case.priority
 
 
 class SubclassFilter(Filter):
     """
-        Suite level filter that runs suites
-        that inherit from the given base class.
+    Suite level filter that runs suites
+    that inherit from the given base class.
     """
     def __init__(self, base_kls):
         assert isinstance(base_kls, type), \
@@ -121,8 +121,8 @@ class SubclassFilter(Filter):
 
         self.base_kls = base_kls
 
-    def filter_testsuite(self, testsuite):
-        return isinstance(testsuite, self.base_kls)
+    def filter_suite(self, suite):
+        return isinstance(suite, self.base_kls)
 
 
 # Run test cases that have a minimum priority of 5
@@ -162,7 +162,7 @@ composed_filter_3 = subclass_filter & Pattern('*:*:test_2')
     name='Custom Test Filters',
     test_filter=priority_filter_1,
     # Using testcase level stdout so we can see filtered testcases
-    stdout_style=Style('testcase', 'testcase')
+    stdout_style=Style('case', 'case')
 )
 def main(plan):
 

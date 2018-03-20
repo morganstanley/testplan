@@ -82,7 +82,7 @@ class BetaSuite(object):
 @test_plan(
     name='Basic PDF Report Example',
     pdf_path=os.path.join(os.path.dirname(__file__), 'report.pdf'),
-    pdf_style=Style(passing='testcase', failing='assertion-detail'),
+    pdf_style=Style(passing='case', failing='assertion-detail'),
 )
 def main(plan):
 
