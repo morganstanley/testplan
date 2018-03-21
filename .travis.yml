@@ -6,6 +6,6 @@ python:
 virtualenv:
   system_site_packages: true
 install:
-  - python setup install
+  - python setup.py install
 script:
   - py.test test --verbose

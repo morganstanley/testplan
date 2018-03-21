@@ -1,3 +1,6 @@
+[![Documentation Status](https://readthedocs.org/projects/testplan/badge/?version=latest)](http://testplan.readthedocs.io/en/latest/?badge=latest)
+[![Build Status](https://travis-ci.org/Morgan-Stanley/testplan.svg?branch=master)](https://travis-ci.org/Morgan-Stanley/testplan)
+
 .. image:: https://github.com/Morgan-Stanley/testplan/blob/master/doc/images/logo/testplan.png
 
 a multi-testing framework
