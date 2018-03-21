@@ -1,3 +1,5 @@
+|ReadTheDocs| |TravisCI|
+
 .. image:: https://github.com/Morgan-Stanley/testplan/blob/master/doc/images/logo/testplan.png
 
 a multi-testing framework
@@ -181,3 +183,7 @@ License
 =======
 
 License information `here <https://github.com/Morgan-Stanley/testplan/blob/master/LICENSE.rst>`_.
+
+.. |ReadTheDocs| image:: https://readthedocs.org/projects/testplan/badge/?version=latest
+.. |TravisCI| image:: https://travis-ci.org/Morgan-Stanley/testplan.svg?branch=master 
+
