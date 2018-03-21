@@ -4,9 +4,11 @@ Setup testplan and dependencies.
 
 Example usage:
   # Basic setup - some functionality missing
-  $ python setup.py install
+  $ python setup.py install --type basic
 
   # Full setup
+  $ python setup.py install
+  # or
   $ python setup.py install --type full
 '''
 
@@ -52,7 +54,7 @@ class InstallCommand(Command):
         assert self.type in (None, 'basic', 'full'), 'Invalid setup type!'
 
     def run(self):
-        if self.type == 'full':
+        if self.type != 'basic':
             easy_install.main([
                 'sklearn',
                 'numpy',
