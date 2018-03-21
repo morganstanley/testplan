@@ -8,8 +8,9 @@ from schema import Use
 
 from testplan.common.config import ConfigOption, validate_func
 from testplan.common.entity import Resource, Runnable
-from testplan.common.utils.interface import (check_signature,
-                                             MethodSignatureMismatch)
+from testplan.common.utils.interface import (
+    check_signature, MethodSignatureMismatch
+)
 from testplan.logger import TESTPLAN_LOGGER, get_test_status_message
 from testplan.report import TestGroupReport, TestCaseReport
 from testplan.report.testing import Status
@@ -18,7 +19,7 @@ from testplan.testing import tagging, filtering
 
 from .entries.base import Summary
 from .result import Result
-from .suite import set_testsuite_testcases
+from .suite import set_testsuite_testcases, propagate_tag_indices
 
 from ..base import Test, TestConfig
 
@@ -124,6 +125,8 @@ class MultiTest(Test):
     ]
 
     def __init__(self, **options):
+        self._tags_index = None
+
         super(MultiTest, self).__init__(**options)
 
         for resource in self.cfg.environment:
@@ -131,24 +134,29 @@ class MultiTest(Test):
             resource.cfg.parent = self.cfg
             self.resources.add(resource)
 
-        self.result.report = TestGroupReport(
-            name=self.cfg.name,
-            category=Categories.MULTITEST,
-            description=self.cfg.description,
-            tags=tagging.get_native_test_tags(self),
-            tags_index=tagging.get_test_tags(self),
-        )
+        # For all suite instances (and their bound testcase methods,
+        # along with parametrization template methods)
+        # update tag indices with native tags of this instance.
 
-        self._suite_unique_name = {}
-        self._mark_suite_index()
-        self.tags = {}
-
-        self._test_context = None
+        if self.cfg.tags:
+            for suite in self.suites:
+                propagate_tag_indices(suite, self.cfg.tags)
 
     @property
     def suites(self):
         """Input list of suites."""
         return self.cfg.suites
+
+    def get_tags_index(self):
+        """
+        Tags index for a multitest is its native tags merged with tag indices
+        from all of its suites. (Suite tag indices will also contain tag indices
+        from their testcases as well).
+        """
+        if self._tags_index is None:
+            self._tags_index = tagging.merge_tag_dicts(
+                self.cfg.tags or {}, *[s.__tags_index__ for s in self.suites])
+        return self._tags_index
 
     def get_test_context(self):
         """
@@ -162,7 +170,7 @@ class MultiTest(Test):
 
         for suite in sorted_suites:
             sorted_testcases = test_sorter.sorted_testcases(
-                suite.get_testcases().values())
+                suite.get_testcases())
 
             testcases_to_run = [
                 case for case in sorted_testcases
@@ -192,25 +200,12 @@ class MultiTest(Test):
                         name=next_suite.__class__.__name__,
                         description=next_suite.__class__.__doc__,
                         category=Categories.SUITE,
-                        tags=tagging.get_native_suite_tags(next_suite),
-                        tags_index=tagging.get_suite_tags(next_suite),
+                        tags=next_suite.__tags__,
+                        tags_index=next_suite.__tags_index__,
                     )
                     self.report.append(testsuite_report)
                     self._run_suite(next_suite, testcases, testsuite_report)
             time.sleep(self.cfg.active_loop_sleep)
-
-    def _mark_suite_index(self):
-        """
-        Sets a unique suite name to be used by reporting, formed with the
-        name of the class and the index of the suite in this MultiTest instance
-        """
-        for idx, testsuite in enumerate(self.cfg.suites):
-            if hasattr(testsuite, 'suite_name'):
-                classname = '{}_{}'.format(testsuite.__class__.__name__,
-                                           testsuite.suite_name())
-            else:
-                classname = testsuite.__class__.__name__
-            self._suite_unique_name[testsuite] = '{}_{}'.format(classname, idx)
 
     def _run_suite(self, testsuite, testcases, testsuite_report):
         """Runs a testsuite object and populates its report object."""
@@ -222,7 +217,8 @@ class MultiTest(Test):
 
         if not testsuite_report.passed:
             with testsuite_report.logged_exceptions():
-                self._run_suite_related(testsuite, 'teardown', testsuite_report)
+                self._run_suite_related(
+                    testsuite, 'teardown', testsuite_report)
             return
 
         param_rep_lookup = {}
@@ -247,12 +243,8 @@ class MultiTest(Test):
                                 name=param_template,
                                 description=param_method.__doc__,
                                 category=Categories.PARAMETRIZATION,
-                                tags=tagging.get_native_testcase_tags(
-                                    param_method),
-                                tags_index=tagging.merge_tag_dicts(
-                                    param_method.generated_tags,
-                                    tagging.get_native_suite_tags(testsuite)
-                                )
+                                tags=param_method.__tags__,
+                                tags_index=param_method.__tags_index__,
                             )
                             param_rep_lookup[param_template] = param_report
                             testsuite_report.append(param_report)
@@ -291,8 +283,8 @@ class MultiTest(Test):
         testcase_report = TestCaseReport(
             name=testcase.__name__,
             description=testcase.__doc__,
-            tags=tagging.get_native_testcase_tags(testcase),
-            tags_index=tagging.get_testcase_tags(testcase)
+            tags=testcase.__tags__,
+            tags_index=testcase.__tags_index__,
         )
 
         def _run_case_related(method):

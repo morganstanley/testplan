@@ -61,8 +61,8 @@ def generate_path_for_tags(config, tag_dict, filter_type):
       >>> generate_pdf_path(
       ...   filter_type='all',
       ...   tag_arg_dict={
-      ...     'simple': frozenset(['foo', 'bar']),
-      ...     'hello': frozenset(['world', 'mars'])
+      ...     'simple': {'foo', 'bar'},
+      ...     'hello': {'world', 'mars'}
       ...   }
       ... )
 

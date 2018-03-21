@@ -87,6 +87,7 @@ class TagFilteredExporter(Exporter):
             # Check against denormalized tag data
             if not hasattr(obj, 'tags_index'):
                 return True  # include everything that doesn't have tags
+
             return filter_func(
                 tag_arg_dict=tag_dict,
                 target_tag_dict=obj.tags_index)

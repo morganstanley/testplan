@@ -1,6 +1,7 @@
 """Filtering logic for Multitest, Suites and testcase methods (of Suites)"""
 import argparse
 import collections
+import operator
 import fnmatch
 
 from enum import Enum, unique
@@ -210,15 +211,16 @@ class BaseTagFilter(Filter):
 
     def filter_test(self, test):
         return self._check_tags(
-            obj=test, tag_getter=tagging.get_test_tags)
+            obj=test,
+            tag_getter=operator.methodcaller('get_tags_index'))
 
     def filter_suite(self, suite):
         return self._check_tags(
-            obj=suite, tag_getter=tagging.get_suite_tags)
+            obj=suite, tag_getter=operator.attrgetter('__tags_index__'))
 
     def filter_case(self, case):
         return self._check_tags(
-            obj=case, tag_getter=tagging.get_testcase_tags)
+            obj=case, tag_getter=operator.attrgetter('__tags_index__'))
 
 
 class Tags(BaseTagFilter):
@@ -325,12 +327,12 @@ class TagsAction(argparse.Action):
 
         [
             Tags({
-                'simple': frozenset({'foo', 'bar'}),
-                'hello': frozenset({'world'}),
+                'simple': {'foo', 'bar'},
+                'hello': {'world'},
             }),
             Tags({
-                'simple': frozenset({'baz'}),
-                'hello': frozenset({'mars'}),
+                'simple': {'baz'},
+                'hello': {'mars'},
             })
         ]
     """
@@ -355,12 +357,12 @@ class TagsAllAction(TagsAction):
 
         [
             TagsAll({
-                'simple': frozenset({'foo', 'bar'}),
-                'hello': frozenset({'world'}),
+                'simple': {'foo', 'bar'},
+                'hello': {'world'},
             }),
             TagsAll({
-                'simple': frozenset({'baz'}),
-                'hello': frozenset({'mars'}),
+                'simple': {'baz'},
+                'hello': {'mars'},
             })
         ]
     """
@@ -385,8 +387,8 @@ def parse_filter_args(parsed_args, arg_names):
         And(
             Pattern('my_pattern'),
             Or(
-                Tags({'simple': frozenset({'foo'})),
-                TagsAll({'simple': frozenset({'bar', 'baz'})),
+                Tags({'simple': {'foo'}}),
+                TagsAll({'simple': {'bar', 'baz'}}),
             )
         )
     """

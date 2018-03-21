@@ -10,8 +10,11 @@ from testplan.testing.multitest.parametrization import (
 )
 
 from testplan import Testplan
-from testplan.common.utils.testing import check_report, warnings_suppressed
+from testplan.common.utils.testing import (
+    check_report, warnings_suppressed, log_propagation_disabled
+)
 from testplan.report.testing import TestReport, TestGroupReport, TestCaseReport
+from testplan.logger import TESTPLAN_LOGGER
 
 
 LOGGER = logging.getLogger()
@@ -25,7 +28,8 @@ def check_parametrization(suite_kls, parametrization_group):
     plan = Testplan(name='plan', parse_cmdline=False)
     plan.add(multitest)
 
-    plan.run()
+    with log_propagation_disabled(TESTPLAN_LOGGER):
+        plan.run()
 
     expected_report = TestReport(
         name='plan',
@@ -227,9 +231,7 @@ def test_combinatorial_parametrization():
 )
 def test_invalid_parametrization(val, msg):
 
-    LOGGER.info(msg)
-
-    with pytest.raises(ParametrizationError):
+    with pytest.raises(ParametrizationError, message=msg):
         @testsuite
         class MySuite(object):
 
@@ -336,9 +338,7 @@ def test_name_func_fallback(name_func, testcase_names, msg):
 )
 def test_invalid_name_func(name_func, msg):
 
-    LOGGER.info(msg)
-
-    with pytest.raises(ParametrizationError):
+    with pytest.raises(ParametrizationError, message=msg):
         @testsuite
         class MySuite(object):
 
@@ -373,22 +373,24 @@ def test_custom_wrapper():
 
 
 @pytest.mark.parametrize(
-    'tag_func, expected_tags',
+    'tag_func, expected_tags, expected_tags_index',
     (
         (
             lambda kwargs: kwargs['product'],
-            {'simple': frozenset(['foo', 'productA'])},
+            {'simple': {'productA'}},
+            {'simple': {'foo', 'productA'}},
         ),
         (
             lambda kwargs: {'product': kwargs['product']},
+            {'product': {'productA'}},
             {
-                'product': frozenset(['productA']),
-                'simple': frozenset(['foo'])
+                'product': {'productA'},
+                'simple': {'foo'}
             }
         )
     )
 )
-def test_tag_func(tag_func, expected_tags):
+def test_tag_func(tag_func, expected_tags, expected_tags_index):
 
     @testsuite
     class MySuite(object):
@@ -403,7 +405,9 @@ def test_tag_func(tag_func, expected_tags):
         )
         def adder_test(self, env, result, product, category):
             pass
-    assert MySuite.dummy_name.tags == expected_tags
+
+    assert MySuite.dummy_name.__tags__ == expected_tags
+    assert MySuite.dummy_name.__tags_index__ == expected_tags_index
 
 
 @pytest.mark.parametrize(
@@ -454,51 +458,47 @@ def test_parametrization_tagging():
         def dummy_test(self, env, result, color):
             pass
 
-
     all_tags_index = {
-        'simple': frozenset({'foo', 'alpha'}),
-        'color': frozenset({'red', 'blue', 'green'})
+        'simple': {'foo', 'alpha'},
+        'color': {'red', 'blue', 'green'}
     }
 
     parametrization_group = TestGroupReport(
         name='dummy_test',
         category=Categories.PARAMETRIZATION,
         tags={
-            'simple': frozenset({'alpha'}),
+            'simple': {'alpha'},
         },
         tags_index=all_tags_index,
         entries=[
             TestCaseReport(
                 name='dummy_test__color_red',
                 tags={
-                    'simple': frozenset({'alpha'}),
-                    'color': frozenset({'red'})
+                    'color': {'red'}
                 },
                 tags_index={
-                    'simple': frozenset({'foo', 'alpha'}),
-                    'color': frozenset({'red'})
+                    'simple': {'foo', 'alpha'},
+                    'color': {'red'}
                 }
             ),
             TestCaseReport(
                 name='dummy_test__color_blue',
                 tags={
-                    'simple': frozenset({'alpha'}),
-                    'color': frozenset({'blue'})
+                    'color': {'blue'}
                 },
                 tags_index={
-                    'simple': frozenset({'foo', 'alpha'}),
-                    'color': frozenset({'blue'})
+                    'simple': {'foo', 'alpha'},
+                    'color': {'blue'}
                 }
             ),
             TestCaseReport(
                 name='dummy_test__color_green',
                 tags={
-                    'simple': frozenset({'alpha'}),
-                    'color': frozenset({'green'})
+                    'color': {'green'}
                 },
                 tags_index={
-                    'simple': frozenset({'foo', 'alpha'}),
-                    'color': frozenset({'green'})
+                    'simple': {'foo', 'alpha'},
+                    'color': {'green'}
                 }
             ),
         ]
@@ -510,7 +510,8 @@ def test_parametrization_tagging():
     plan = Testplan(name='plan', parse_cmdline=False)
     plan.add(multitest)
 
-    plan.run()
+    with log_propagation_disabled(TESTPLAN_LOGGER):
+        plan.run()
 
     expected_report = TestReport(
         name='plan',
@@ -522,7 +523,7 @@ def test_parametrization_tagging():
                 entries=[
                     TestGroupReport(
                         name='DummySuite',
-                        tags={'simple': frozenset({'foo'})},
+                        tags={'simple': {'foo'}},
                         tags_index=all_tags_index,
                         category=Categories.SUITE,
                         entries=[parametrization_group]

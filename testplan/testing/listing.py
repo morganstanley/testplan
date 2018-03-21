@@ -106,29 +106,28 @@ class ExpandedPatternLister(ExpandedNameLister):
     def format_instance(self, instance):
         return instance.name
 
+    def apply_tag_label(self, pattern, obj):
+        if obj.__tags__:
+            return '{}  --tags {}'.format(
+                pattern, tagging.tag_label(obj.__tags__))
+        return pattern
+
     def format_suite(self, instance, suite):
 
         if not isinstance(instance, MultiTest):
             return '{}:{}'.format(instance.name, suite)
 
         pattern = '{}:{}'.format(instance.name, suite.__class__.__name__)
-        tag_label = tagging.tag_label(
-            tagging.get_native_suite_tags(suite))
-        if tag_label:
-            return '{}  --tags {}'.format(pattern, tag_label)
-        return pattern
+        return self.apply_tag_label(pattern, suite)
 
     def format_testcase(self, instance, suite, testcase):
+
         if not isinstance(instance, MultiTest):
             return '{}:{}:{}'.format(instance.name, suite, testcase)
 
         pattern = '{}:{}:{}'.format(
             instance.name, suite.__class__.__name__, testcase.__name__)
-        tag_label = tagging.tag_label(
-            tagging.get_native_testcase_tags(testcase))
-        if tag_label:
-            return '{}  --tags {}'.format(pattern, tag_label)
-        return pattern
+        return self.apply_tag_label(pattern, testcase)
 
 
 class TrimMixin(object):

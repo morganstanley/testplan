@@ -5,7 +5,7 @@ expected_report = TestReport(
     entries=[
         TestGroupReport(
             name='MyGTest',
-            category='GTest',
+            category='gtest',
             entries=[
                 TestGroupReport(
                     name='SquareRootTest',

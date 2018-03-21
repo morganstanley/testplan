@@ -5,7 +5,7 @@ expected_report = TestReport(
     entries=[
         TestGroupReport(
             name='MyTest',
-            category='DummyTest',
+            category='dummytest',
             entries=[]
         ),
     ]

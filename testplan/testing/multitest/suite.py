@@ -2,21 +2,98 @@
 import functools
 import inspect
 import traceback
-from collections import defaultdict, OrderedDict
+import types
+
+from collections import defaultdict
 
 from testplan import defaults
-from testplan.common.utils.callable import getargspec, wraps
+from testplan.common.utils.callable import getargspec, wraps, update_wrapper
 from testplan.common.utils.interface import (method, MethodSignature,
                                              static_method,
                                              MethodSignatureMismatch)
 from testplan.common.utils.strings import format_description
 from testplan.testing import tagging
-from . import parametrization
 
+from . import parametrization
 
 __GENERATED_TESTCASES__ = []
 __TESTCASES__ = []
 __SKIP__ = defaultdict(tuple)
+
+
+def update_tag_index(obj, tag_dict):
+    """
+    Utility for updating ``__tags_index__`` attribute of an object.
+    """
+    if isinstance(obj, types.MethodType):
+        obj = obj.__func__
+
+    obj.__tags_index__ = tagging.merge_tag_dicts(
+        tag_dict, getattr(obj, '__tags_index__', {}))
+
+
+def collect_testcase_tags(testcases):
+    return tagging.merge_tag_dicts(
+        *[tc.__tags_index__ for tc in testcases])
+
+
+def propagate_tag_indices(suite, tag_dict):
+    """
+    Update tag indices of the suite instance / class and its children (e.g.
+    testcases, parametrization templates).
+
+    For multitest we support multiple levels of tagging:
+
+    1- Multitest (top) level
+    2- Suite level
+    3- Testcase / parametrization level
+
+    When a test suite class is defined, the native tags of
+    the suite is used for updating test indices of
+    unbound testcase methods and vice versa. These
+    test indices are shared among all instances of
+    this suite.
+
+    Later on when an instance of the suite class
+    is initialized and added to a multitest, test
+    indices of the suite object and its bound testcase
+    methods are updated multitest object's native tags.
+
+    This means different instances of the same suite
+    class may end up having different tag indices if they
+    are added to different multitests that have different native tags.
+
+    E.g. when we have a suite & testcases with native tags like:
+
+    MySuite -> {'color': 'red'}
+        testcase_one -> no tags
+        testcase_two -> {'color': 'blue', 'speed': 'fast'}
+        parametrized_testcase -> {'color': 'yellow'}
+            generated_testcase_1 -> no tags
+            generated_testcase_2 -> no tags
+
+    We will have the following tag indices:
+
+    MySuite -> {'color': {'red', 'blue', 'yellow'}, 'speed': {'fast'}}
+        testcase_one -> {'color': 'red'}
+        testcase_two -> {'color': {'blue', 'red'}, 'speed': 'fast'}
+        parametrized_testcase -> {'color': {'yellow', 'red'}}
+            generated_testcase_1 -> {'color': {'yellow', 'red'}}
+            generated_testcase_2 -> {'color': {'yellow', 'red'}}
+
+    """
+    testcases = get_testcase_methods(suite)
+
+    suite_attrs = (
+        getattr(suite, attr_name) for attr_name in dir(suite))
+    param_templates = [
+        obj for obj in suite_attrs
+        if getattr(obj, '__parametrization_template__', False)]
+
+    update_tag_index(suite, tag_dict)
+
+    for child in testcases + param_templates:
+        update_tag_index(child, tag_dict)
 
 
 def get_testsuite_name(suite):
@@ -102,32 +179,17 @@ def get_testcase_desc(suite, testcase_name):
     return format_description(desc.rstrip()) if desc else ''
 
 
-@classmethod
-def get_testsuite_testcase_methods(testsuite_kls):
+def get_testcase_methods(suite):
     """
     Return the unbound method objects marked as a testcase
     from a testsuite class.
     """
 
-    if not hasattr(testsuite_kls, '__testcases__'):
-        raise AttributeError('Testsuite does not have any testcases set yet.')
-
-    return OrderedDict([(testcase_name, getattr(testsuite_kls, testcase_name))
-                        for testcase_name in testsuite_kls.__testcases__
-                        if callable(getattr(testsuite_kls, testcase_name))])
-
-
-def get_testsuite_testcases(suite):
-    """
-    Return bound method objects from a test suite instance.
-
-    The dictionary returned by this function may have different keys
-    than the one that's returned by :py:func:`get_testsuite_testcase_methods`,
-    as ``__testcases__`` per instance can change after filtering / shuffling
-    logic is applied.
-    """
-    return OrderedDict((testcase_name, getattr(suite, testcase_name))
-                       for testcase_name in suite.__testcases__)
+    return [
+        getattr(suite, testcase_name)
+        for testcase_name in suite.__testcases__
+        if callable(getattr(suite, testcase_name))
+    ]
 
 
 def _selective_call(decorator_func, meta_func, wrapper_func):
@@ -193,19 +255,38 @@ def _testsuite(klass):
     global __GENERATED_TESTCASES__
     global __TESTCASES__
     global __SKIP__
+
     klass.__testcases__ = __TESTCASES__
     klass.__skip__ = __SKIP__
 
-    # Dynamically add a method for getting unbound & bound testcase methods
-    klass.get_testcase_methods = get_testsuite_testcase_methods
-    klass.get_testcases = get_testsuite_testcases
+    if not hasattr(klass, '__tags__'):
+        klass.__tags__ = {}  # used for UI
+        klass.__tags_index__ = {}  # used for actual filtering
+
+    klass.get_testcases = get_testcase_methods
 
     for func in __GENERATED_TESTCASES__:
         setattr(klass, func.__name__, func)
 
+    testcase_methods = get_testcase_methods(klass)
+
+    # propagate suite's native tags onto itself, which
+    # will propagate them further to the suite's
+    # children (testcases, parametrization template methods)
+    propagate_tag_indices(klass, klass.__tags__)
+
+    # Collect tag indices from testcase methods and update suite's tag index.
+    # These indices will also contain tag data from parametrization
+    # templates as well, so we don't have to go over parametrization
+    # template methods separately.
+    update_tag_index(
+        obj=klass,
+        tag_dict=collect_testcase_tags(testcase_methods))
+
     __GENERATED_TESTCASES__ = []
     __TESTCASES__ = []
     __SKIP__ = defaultdict(tuple)
+
     return klass
 
 
@@ -218,12 +299,12 @@ def _testsuite_meta(tags=None):
     @functools.wraps(_testsuite)
     def wrapper(klass):
         """Meta logic for suite goes here"""
-        # need to create the suite first
-        # as following functionality depends on attached methods
+        if tags:
+            klass.__tags__ = tagging.validate_tag_value(tags)
+            klass.__tags_index__ = klass.__tags__.copy()
+
         suite = _testsuite(klass)
 
-        if tags:
-            tagging.attach_suite_tags(suite, tags)
         return suite
     return wrapper
 
@@ -272,6 +353,10 @@ def _mark_function_as_testcase(func):
 
 def _testcase(func):
     """Actual decorator that validates & registers a method as a testcase."""
+    if not hasattr(func, '__tags__'):
+        func.__tags__ = {}
+        func.__tags_index__ = {}
+
     _validate_testcase(func)
     _mark_function_as_testcase(func)
     __TESTCASES__.append(func.__name__)
@@ -297,10 +382,13 @@ def _testcase_meta(
     def wrapper(function):
         """Meta logic for test case goes here"""
 
-        if tags:
-            tagging.attach_testcase_tags(function, tags)
+        tag_dict = tagging.validate_tag_value(tags) if tags else {}
+        function.__tags__ = tag_dict.copy()
+        function.__tags_index__ = tag_dict.copy()
 
         if parameters is not None:  # Empty tuple / dict checks happen later
+
+            function.__parametrization_template__ = True
 
             functions = parametrization.generate_functions(
                 function=function,
@@ -308,7 +396,7 @@ def _testcase_meta(
                 name_func=name_func,
                 docstring_func=docstring_func,
                 tag_func=tag_func,
-                tags=tags,
+                tag_dict=tag_dict,
                 summarize=summarize,
                 num_passing=defaults.SUMMARY_NUM_PASSING,
                 num_failing=defaults.SUMMARY_NUM_FAILING
@@ -335,10 +423,15 @@ def _testcase_meta(
                 __TESTCASES__.append(func.__name__)
                 __GENERATED_TESTCASES__.append(func)
 
-            # Assign tags (native & tags collected from generated functions)
-            function.generated_tags = tagging.merge_tag_dicts(*[
-                tagging.get_native_testcase_tags(func)
-                for func in functions])
+            # Update template method's tag index with generated
+            # testcases' tag indices. This will have no effect of test
+            # filtering logic, however generated test reports
+            # may need this data for report filtering.
+            if tag_func:
+                update_tag_index(
+                    function,
+                    tag_dict=collect_testcase_tags(functions))
+
             return function
         else:
             function.summarize = summarize
@@ -444,7 +537,7 @@ def _gen_testcase_with_pre(testcase_method, preludes):
 
     :return: testcase with prelude attached
     """
-    wraps(testcase_method)
+    @wraps(testcase_method)
     def testcase_with_pre(*args, **kwargs):
         """
         Testcase with prelude
@@ -493,6 +586,8 @@ def _gen_testcase_with_post(testcase_method, epilogues):
         else:
             run_epilogues(epilogues, testcase_method.__name__,
                           *args, **epilogue_kwargs)
+
+
     return testcase_with_post
 
 
@@ -510,7 +605,7 @@ def skip_if_testcase(*predicates):
     """
     def _skip_if_testcase_inner(klass):
         _validate_skip_if_predicates(predicates)
-        for testcase_method in klass.get_testcase_methods().values():
+        for testcase_method in get_testcase_methods(klass):
             klass.__skip__[testcase_method.__name__] += predicates
         return klass
     return _skip_if_testcase_inner
@@ -529,7 +624,7 @@ def pre_testcase(*functions):
         """
         Inner part of class decorator
         """
-        for testcase_method in klass.get_testcase_methods().values():
+        for testcase_method in get_testcase_methods(klass):
             twp = _gen_testcase_with_pre(testcase_method, functions)
             setattr(klass, testcase_method.__name__, twp)
         return klass
@@ -550,7 +645,7 @@ def post_testcase(*functions):
         """
         Inner part of class decorator
         """
-        for testcase_method in klass.get_testcase_methods().values():
+        for testcase_method in get_testcase_methods(klass):
             twp = _gen_testcase_with_post(testcase_method, functions)
             setattr(klass, testcase_method.__name__, twp)
         return klass

@@ -89,24 +89,24 @@ def test_tag_filtered_pdf(tmpdir):
                 name='Multitest 1',
                 category='multitest',
                 tags_index={
-                    'simple': frozenset(['foo', 'bar']),
-                    'color': frozenset(['red'])
+                    'simple': {'foo', 'bar'},
+                    'color': {'red'}
                 },
             ),
             TestGroupReport(
                 name='Multitest 2',
                 category='multitest',
                 tags_index={
-                    'simple': frozenset(['foo',]),
-                    'color': frozenset(['blue'])
+                    'simple': {'foo'},
+                    'color': {'blue'}
                 },
             ),
             TestGroupReport(
                 name='Multitest 3',
                 category='multitest',
                 tags_index={
-                    'simple': frozenset(['bar']),
-                    'color': frozenset(['green'])
+                    'simple': {'bar'},
+                    'color': {'green'}
                 },
             ),
         ]

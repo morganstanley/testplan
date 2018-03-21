@@ -22,23 +22,23 @@ def default_runpath(entity):
 
 @contextlib.contextmanager
 def change_directory(directory):
-  """
-  A context manager that changes working directory and returns to original on
-  exit.
+    """
+    A context manager that changes working directory and returns to original on
+    exit.
 
-  :param directory: Directory to change into.
-  :type directory: ``str``
-  """
-  old_directory = os.getcwd()
-  os.chdir(directory)
-  if 'PWD' in os.environ:
-      os.environ['PWD'] = directory
-  try:
-      yield
-  finally:
-      os.chdir(old_directory)
-      if 'PWD' in os.environ:
-          os.environ['PWD'] = old_directory
+    :param directory: Directory to change into.
+    :type directory: ``str``
+    """
+    old_directory = os.getcwd()
+    os.chdir(directory)
+    if 'PWD' in os.environ:
+        os.environ['PWD'] = directory
+    try:
+        yield
+    finally:
+        os.chdir(old_directory)
+        if 'PWD' in os.environ:
+            os.environ['PWD'] = old_directory
 
 
 def makedirs(path):
