@@ -1,4 +1,7 @@
-"""Demostrates Sqlite3 driver usage from within the testcases."""
+#!/usr/bin/env python
+"""
+Demostrates Sqlite3 driver usage from within the testcases.
+"""
 
 import sys
 

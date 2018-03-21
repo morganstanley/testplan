@@ -17,3 +17,5 @@ Makefile
 
 /test/functional/**/runTests
 /testplan/examples/**/runTests
+
+/ms

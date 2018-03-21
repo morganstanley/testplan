@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This example shows how you can apply different test filters on different levels
 (e.g. plan, multitest level)

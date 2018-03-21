@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This example is to test the converter.py binary application with the following
 functionality:

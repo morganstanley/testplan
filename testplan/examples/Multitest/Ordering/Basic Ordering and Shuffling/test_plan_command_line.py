@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This example shows how the run order for your suites / testcases
 can be configured via command line options.
