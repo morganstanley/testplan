@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
     This example shows how the suites / test cases
     of a test plan can be listed via command line arguments.

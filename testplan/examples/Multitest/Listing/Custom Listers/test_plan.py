@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
     This example shows how to implement a custom lister for
     displaying test context of a test plan.

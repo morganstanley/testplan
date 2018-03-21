@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This example shows how to implement a custom sorter class.
 """

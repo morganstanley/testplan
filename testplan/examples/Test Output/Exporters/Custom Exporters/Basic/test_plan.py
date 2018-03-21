@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # This plan contains tests that demonstrate failures as well.
 """
 This example shows how to implement a custom test report exporter and

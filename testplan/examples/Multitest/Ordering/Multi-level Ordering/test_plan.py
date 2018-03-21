@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This example shows how different sorting logic can be applied
 on different testing levels (e.g. plan, multitest)

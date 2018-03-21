@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Testplan to run all ZMQ examples.
 """

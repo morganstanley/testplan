@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This example is to demonstrate parallel test execution in a thread pool.
 """

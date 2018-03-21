@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This example shows how test filters can be composed via command line arguments.
 """

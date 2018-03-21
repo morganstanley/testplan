@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This example demonstrates FIX communication via FixServer and FixClient drivers.
 """

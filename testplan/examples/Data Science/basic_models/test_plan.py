@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This example shows how to display various data modelling techniques and their
 associated statistics in Testplan. The models used are:

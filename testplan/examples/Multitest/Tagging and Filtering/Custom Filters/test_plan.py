@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This example shows how you can implement custom filtering logic for your tests.
 """
