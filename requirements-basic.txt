@@ -19,10 +19,19 @@ terminaltables
 pyparsing
 cycler
 Pillow
-sphinx
-sphinx_rtd_theme
-matplotlib
-numpy
-sklearn
-scipy
 functools32; python_version <= '2.7'
+
+# Documentation
+# ---------------
+# sphinx
+# sphinx_rtd_theme
+
+# matplot assertion
+# -----------------
+# matplotlib
+# numpy
+
+# Data science
+# ------------
+# sklearn
+# scipy
