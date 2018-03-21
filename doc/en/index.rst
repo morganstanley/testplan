@@ -171,7 +171,7 @@ A step by step guide on how to contribute to Testplan framework can be found
 License
 =======
 
-License information `here <https://github.com/Morgan-Stanley/testplan/blob/master/LICENSE.rst>`_.
+License information `here <https://github.com/Morgan-Stanley/testplan/blob/master/LICENSE.md>`_.
 
 .. toctree::
    :maxdepth: 2

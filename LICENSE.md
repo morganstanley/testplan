@@ -1,13 +1,8 @@
-Testplan. Copyright © 2018 Contributor.
-All rights reserved.
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
 
-THIS PROGRAM IS SUBJECT TO THE TERMS OF THE APACHE LICENSE,
-VERSION 2.0 AS PUBLISHED BY THE FREE SOFTWARE FOUNDATION.
-
-Apache License - Version 2.0, January 2004
-http://www.apache.org/licenses/
-
-TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
    1. Definitions.
 
@@ -191,7 +186,7 @@ TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2016 Morgan Stanley
+   Copyright [2018] [Morgan Stanley]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -248,6 +243,3 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-

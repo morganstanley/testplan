@@ -30,7 +30,7 @@ ROOT_DIR_CONTENTS = [
     "setup.py",
     "requirements.txt",
     "README.rst",
-    "LICENSE.rst"
+    "LICENSE.md"
 ]
 
 
