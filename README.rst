@@ -1,4 +1,4 @@
-|ReadTheDocs| |TravisCI|
+|ReadTheDocs|_ |TravisCI|_
 
 .. image:: https://github.com/Morgan-Stanley/testplan/blob/master/doc/images/logo/testplan.png
 
@@ -182,8 +182,9 @@ A step by step guide to contribute to Testplan framework can be found
 License
 =======
 
-License information `here <https://github.com/Morgan-Stanley/testplan/blob/master/LICENSE.rst>`_.
+License information `here <https://github.com/Morgan-Stanley/testplan/blob/master/LICENSE.md>`_.
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/testplan/badge/?version=latest
+.. _ReadTheDocs: http://testplan.readthedocs.io/en/latest/
 .. |TravisCI| image:: https://travis-ci.org/Morgan-Stanley/testplan.svg?branch=master 
-
+.. _TravisCI: https://travis-ci.org/Morgan-Stanley/testplan
