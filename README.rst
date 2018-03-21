@@ -1,5 +1,4 @@
-[![Documentation Status](https://readthedocs.org/projects/testplan/badge/?version=latest)](http://testplan.readthedocs.io/en/latest/?badge=latest)
-[![Build Status](https://travis-ci.org/Morgan-Stanley/testplan.svg?branch=master)](https://travis-ci.org/Morgan-Stanley/testplan)
+|ReadTheDocs| |TravisCI|
 
 .. image:: https://github.com/Morgan-Stanley/testplan/blob/master/doc/images/logo/testplan.png
 
@@ -184,3 +183,7 @@ License
 =======
 
 License information `here <https://github.com/Morgan-Stanley/testplan/blob/master/LICENSE.rst>`_.
+
+.. |ReadTheDocs| image:: https://readthedocs.org/projects/testplan/badge/?version=latest
+.. |TravisCI| image:: https://travis-ci.org/Morgan-Stanley/testplan.svg?branch=master 
+
