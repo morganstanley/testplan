@@ -1,4 +1,4 @@
-|ReadTheDocs| |TravisCI|
+|ReadTheDocs|_ |TravisCI|_
 
 .. image:: https://github.com/Morgan-Stanley/testplan/blob/master/doc/images/logo/testplan.png
 
@@ -185,5 +185,6 @@ License
 License information `here <https://github.com/Morgan-Stanley/testplan/blob/master/LICENSE.rst>`_.
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/testplan/badge/?version=latest
+.. _ReadTheDocs: http://testplan.readthedocs.io/en/latest/
 .. |TravisCI| image:: https://travis-ci.org/Morgan-Stanley/testplan.svg?branch=master 
-
+.. _TravisCI: https://travis-ci.org/Morgan-Stanley/testplan
