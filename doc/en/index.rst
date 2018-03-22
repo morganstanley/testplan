@@ -178,6 +178,7 @@ License information `here <https://github.com/Morgan-Stanley/testplan/blob/maste
    :hidden:
 
    introduction
+   getting_started
    multitest
    assertions
    output
