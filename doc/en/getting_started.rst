@@ -145,45 +145,6 @@ You may also need to ``sudo apt-get install`` some packages
 like: ``python-tk``/``python3-tk``.
 
 
-Run examples
-````````````
-
-You can run some ready made examples from inside the repo.
-
-    .. code-block:: bash
-      
-      # These are all the examples categories.  
-      cd testplan/examples
-      ls
-
-      # Run an example demonstrating testplan assertions.
-      cd Assertions/Basic
-      ./test_plan.py
-
-    .. code-block:: bash
-      
-      # Create a pdf report and open in automatically.
-      ./test_plan.py --pdf report.pdf -b
-
-
-Also find all our downloadable examples :ref:`here <download>`.
-
-
-Run the tests
-`````````````
-
-You can run the unit/functional tests to verify the correct repo setup.
-Some tests may be skipped due to optional dependency packages.
-
-    .. code-block:: bash
-      
-        cd test
-
-        # Unit tests.
-        py.test unit --verbose
-
-        # Functional tests.
-        py.test functional --verbose
 
 MacOS
 -----
@@ -344,17 +305,41 @@ Installation using a `virtualenv <https://virtualenv.pypa.io/en/stable>`_:
           pip install -r requirements-basic.txt
           python setup.py develop --no-deps
 
+Run testplan
+============
 
-Run examples
-````````````
+Our examples
+------------
 
-You can run some ready made examples from inside the repo.
+There are some ready made examples demonstrating testplan
+functonality/features and can be found within the
+`repo <https://github.com/Morgan-Stanley/testplan>`_ under
+``testplan/examples`` directory.
+
+On Ubuntu/MacOS/etc:
+
+    .. code-block:: bash
+      
+      # See all the examples categories.  
+      cd testplan/examples
+      ls
+
+      # Run an example demonstrating testplan assertions.
+      cd Assertions/Basic
+      ./test_plan.py
+
+    .. code-block:: bash
+      
+      # Create a pdf report and open in automatically.
+      ./test_plan.py --pdf report.pdf -b
+
+On Windows:
 
     .. code-block:: text
       
-      # These are all the examples categories.  
+      # See all the examples categories.  
       cd testplan\examples
-      ls
+      dir
 
       # Run an example demonstrating testplan assertions.
       cd Assertions\Basic
@@ -369,11 +354,12 @@ You can run some ready made examples from inside the repo.
 Also find all our downloadable examples :ref:`here <download>`.
 
 
-Run the tests
-`````````````
+Internal tests
+--------------
 
-You can run the unit/functional tests to verify the correct repo setup.
-Some tests may be skipped due to optional dependency packages.
+To verify the correct setup process you can execute the internal unit/functional
+tests. Some tests may be skipped due to optional dependency packages
+(i.e sklearn used on 'Data Science' examples category).
 
     .. code-block:: text
       
