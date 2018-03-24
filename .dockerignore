@@ -1,0 +1,9 @@
+Dockerfile
+.git
+.dockerignore
+.travis.yml
+.*swp
+.gitignore
+scripts/docker/build.sh
+scripts/utils/*
+doc/*

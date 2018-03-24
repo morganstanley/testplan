@@ -305,6 +305,94 @@ Installation using a `virtualenv <https://virtualenv.pypa.io/en/stable>`_:
           pip install -r requirements-basic.txt
           python setup.py develop --no-deps
 
+Docker
+-------
+
+Available images
+++++++++++++++++
+
+Docker images for testplan are provided for two python versions, ``python2`` and
+``python3``.
+
+The images can be retrieved with the following commands:
+
+    .. code-block:: bash
+
+        # Python 2
+        docker pull mhristof/testplan:2
+
+        # Python 3
+        docker pull mhristof/testplan:3
+
+
+Installation
+++++++++++++
+
+To install docker, you can follow the instructions for your OS from this list:
+
+    1. Ubuntu/Debian. For the latest available instructions, please visit the official `docker installation instructions for Ubuntu/Debian <https://docs.docker.com/install/linux/docker-ce/ubuntu/>`_.
+
+        .. code-block:: bash
+
+            sudo apt-get update
+            sudo apt-get remove docker docker-engine docker.io
+            sudo  apt-get install apt-transport-https ca-certificates curl software-properties-common
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+            sudo apt-get update
+            sudo apt-get install docker-ce
+            # after this command you'll need to logout and login.
+            sudo usermod -aG docker $USER
+
+
+    2. MacOS. For the latest available instructions, please visit the official `docker installation instructions for MacOS <https://docs.docker.com/docker-for-mac/install/>`_.
+
+    3. Windows. For the latest available instructions, please visit the official `docker installation instructions for Windows <https://docs.docker.com/docker-for-windows/install/>`_.
+
+
+Interactive mode
+++++++++++++++++
+
+To launch testplan in test mode, you can type:
+
+    .. code-block:: bash
+
+        docker run -it mhristof/testplan:2 bash
+
+The source code is available to explore in ``/work``.
+
+Batch execution mode
+++++++++++++++++++++
+
+To run testplan docker image in batch mode, you'll need to add your code as a
+docker volume when running the image. If the code to test is in ``/home/user/code``,
+the docker command will be:
+
+    .. code-block:: bash
+
+        docker run -v /home/user/code:/work -it mhristof/testplan:2
+
+
+If your testplan file has a name other than ``test_plan.py``, you can add it as an
+argument in the ``docker run`` command:
+
+    .. code-block:: bash
+
+        docker run -v /home/user/code:/work -it mhristof/testplan:2 ./my_test_plan.py
+
+
+ If you require special arguments for ``test_plan.py``, you can just append them
+ after the docker image:
+
+    .. code-block:: bash
+
+        # default test_plan.py
+        docker run -v /home/user/code:/work -it mhristof/testplan:2 --pdf test.pdf
+
+        # custom my_test_plan.py
+        docker run -v /home/user/code:/work -it mhristof/testplan:2 ./my_test_plan.py --pdf test.pdf
+
+
 Run testplan
 ============
 
