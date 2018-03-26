@@ -305,28 +305,11 @@ Installation using a `virtualenv <https://virtualenv.pypa.io/en/stable>`_:
           pip install -r requirements-basic.txt
           python setup.py develop --no-deps
 
-Docker
--------
-
-Available images
-++++++++++++++++
-
-Docker images for testplan are provided for two python versions, ``python2`` and
-``python3``.
-
-The images can be retrieved with the following commands:
-
-    .. code-block:: bash
-
-        # Python 2
-        docker pull mhristof/testplan:2
-
-        # Python 3
-        docker pull mhristof/testplan:3
-
+Via Docker
+==========
 
 Installation
-++++++++++++
+------------
 
 To install docker, you can follow the instructions for your OS from this list:
 
@@ -341,8 +324,9 @@ To install docker, you can follow the instructions for your OS from this list:
             sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
             sudo apt-get update
             sudo apt-get install docker-ce
-            # after this command you'll need to logout and login.
+
             sudo usermod -aG docker $USER
+            # now LOGOUT and LOGIN again!
 
 
     2. MacOS. For the latest available instructions, please visit the official `docker installation instructions for MacOS <https://docs.docker.com/docker-for-mac/install/>`_.
@@ -350,27 +334,49 @@ To install docker, you can follow the instructions for your OS from this list:
     3. Windows. For the latest available instructions, please visit the official `docker installation instructions for Windows <https://docs.docker.com/docker-for-windows/install/>`_.
 
 
-Interactive mode
-++++++++++++++++
+Available images
+----------------
 
-To launch testplan in test mode, you can type:
+Docker images for testplan are provided for two python versions, ``python2`` and
+``python3``.
+
+The images can be retrieved with the following commands:
 
     .. code-block:: bash
 
-        docker run -it mhristof/testplan:2 bash
+        # Python 2
+        docker pull chiotis/testplan:2
+
+        # Python 3
+        docker pull chiotis/testplan:3
+
+
+
+Interactive docker session
+--------------------------
+
+To try testplan in an interactive docker session, you can type:
+
+    .. code-block:: bash
+
+        docker run -it chiotis/testplan:2 bash
 
 The source code is available to explore in ``/work``.
 
-Batch execution mode
-++++++++++++++++++++
+
+Docker batch execution
+----------------------
 
 To run testplan docker image in batch mode, you'll need to add your code as a
-docker volume when running the image. If the code to test is in ``/home/user/code``,
-the docker command will be:
+docker volume when running the image. If the  ``test_plan.py`` file is in ``$PWD``,
+directory, the docker command will be:
 
     .. code-block:: bash
 
-        docker run -v /home/user/code:/work -it mhristof/testplan:2
+        # Example directory that contains test_plan.py file.
+        cd testplan/examples/Assertions/Basic
+
+        docker run -v $PWD:/work -it chiotis/testplan:2
 
 
 If your testplan file has a name other than ``test_plan.py``, you can add it as an
@@ -378,19 +384,22 @@ argument in the ``docker run`` command:
 
     .. code-block:: bash
 
-        docker run -v /home/user/code:/work -it mhristof/testplan:2 ./my_test_plan.py
+        # Example directory that contains test_plan.py file.
+        cd testplan/examples/Assertions/Basic
+
+        docker run -v $PWD:/work -it chiotis/testplan:2 ./my_test_plan.py
 
 
- If you require special arguments for ``test_plan.py``, you can just append them
- after the docker image:
+If you require special arguments for ``test_plan.py``, you can just append them
+after the docker image:
 
     .. code-block:: bash
 
         # default test_plan.py
-        docker run -v /home/user/code:/work -it mhristof/testplan:2 --pdf test.pdf
+        docker run -v $PWD:/work -it chiotis/testplan:2 --pdf test.pdf
 
         # custom my_test_plan.py
-        docker run -v /home/user/code:/work -it mhristof/testplan:2 ./my_test_plan.py --pdf test.pdf
+        docker run -v $PWD:/work -it chiotis/testplan:2 ./my_test_plan.py --pdf test.pdf
 
 
 Run testplan
