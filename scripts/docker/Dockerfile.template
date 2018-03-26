@@ -1,5 +1,5 @@
 FROM python:%{PYTHON_VERSION}
-MAINTAINER Mike Christof <mhristof@gmail.com>
+MAINTAINER John Chiotis <john.chiotis@morganstanley.com>
 
 ADD . /work
 RUN pip install /work

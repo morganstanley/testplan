@@ -21,7 +21,7 @@ EOF
 }
 
 PUSH=0
-DOCKER_IMAGE=mhristof/testplan
+DOCKER_IMAGE=chiotis/testplan
 
 while getopts "i:ph" OPTION
 do
