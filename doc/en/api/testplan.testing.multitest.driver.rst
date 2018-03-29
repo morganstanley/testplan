@@ -8,6 +8,7 @@ Subpackages
 
     testplan.testing.multitest.driver.tcp
     testplan.testing.multitest.driver.zmq
+    testplan.testing.multitest.driver.fix
 
 
 Submodules
