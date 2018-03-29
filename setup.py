@@ -34,7 +34,8 @@ REQUIRED = [
     'numpy',
     'matplotlib',
     'sphinx',
-    'sphinx_rtd_theme'
+    'sphinx_rtd_theme',
+    'requests>=2.4.3'
 ]
 
 
