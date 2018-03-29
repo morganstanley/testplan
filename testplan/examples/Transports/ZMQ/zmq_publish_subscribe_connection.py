@@ -58,16 +58,20 @@ class ZMQTestsuite(object):
 
         # Server 2 sends a unique message to client 1.
         msg2 = b'Hello 2'
-        result.log('Server 2 is responding: {}'.format(msg2))
+        result.log('Server 2 is sending: {}'.format(msg2))
         env.server2.send(data=msg2, timeout=self.timeout)
 
-        # Client 1 receives it's first message (from server 1).
+        # Client 1 receives it's first message.
         received1 = env.client1.receive(timeout=self.timeout)
-        result.equal(received1, msg1, 'Client 1 received')
 
-        # Client 1 receives it's first message (from server 2).
+        # Client 1 receives it's second message.
         received2 = env.client1.receive(timeout=self.timeout)
-        result.equal(received2, msg2, 'Client 1 received')
+
+        # Check the sent messages are the same as the received messages. Note
+        # the messages may arrive in a different order.
+        sent_msgs = set([msg1, msg2])
+        received_msgs = set([received1, received2])
+        result.equal(received_msgs, sent_msgs, 'Client 1 received')
 
     @testcase
     def one_publish_many_subscribe(self, env, result):
