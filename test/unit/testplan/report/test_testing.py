@@ -283,3 +283,52 @@ def test_report_json_serialization(dummy_test_plan_report):
     data = test_plan_schema.dumps(dummy_test_plan_report).data
     deserialized_report = test_plan_schema.loads(data).data
     assert deserialized_report == dummy_test_plan_report
+
+
+def test_tag_propagation():
+    """
+    Tag propagation should update tag indices
+    of the children/parents recursively.
+    """
+
+    tg_report_1 = TestGroupReport(
+        name='My Group',
+        tags={'simple': {'foo'}},
+        tags_index={'simple': {'foo'}},
+    )
+
+    tg_report_2 = TestGroupReport(
+        name='My Group 2',
+        tags={'simple': {'bar'}},
+        tags_index={'simple': {'bar'}},
+    )
+
+    tc_report_1 = TestCaseReport(
+        name='My Test Case',
+        tags={'simple': {'baz'}},
+        tags_index={'simple': {'baz'}}
+    )
+
+    tc_report_2 = TestCaseReport(
+        name='My Test Case',
+        tags={'simple': {'bat'}},
+        tags_index={'simple': {'bat'}}
+    )
+
+    tg_report_1.append(tg_report_2)
+    tg_report_2.append(tc_report_1)
+    tg_report_2.append(tc_report_2)
+
+    tg_report_1.propagate_tag_indices()
+
+    assert tg_report_1.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
+    assert tg_report_1.tags == {'simple': {'foo'}}
+
+    assert tg_report_2.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
+    assert tg_report_2.tags == {'simple': {'bar'}}
+
+    assert tc_report_1.tags_index == {'simple': {'foo', 'bar', 'baz'}}
+    assert tc_report_1.tags == {'simple': {'baz'}}
+
+    assert tc_report_2.tags_index == {'simple': {'foo', 'bar', 'bat'}}
+    assert tc_report_2.tags == {'simple': {'bat'}}

@@ -3,7 +3,6 @@
 import re
 import six
 import argparse
-import warnings
 import functools
 import collections
 

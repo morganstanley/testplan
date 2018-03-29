@@ -42,9 +42,11 @@ TestReport(name='MyPlan')
 import collections
 import inspect
 
-from testplan.common.report import ExceptionLogger, Report, ReportGroup
+from testplan.common.report import (
+    ExceptionLogger as ExceptionLoggerBase, Report, ReportGroup)
 from testplan.common.utils import timing
 from testplan.common.utils.exceptions import format_trace
+from testplan.testing import tagging
 
 
 class Status(object):
@@ -71,14 +73,14 @@ class Status(object):
     @classmethod
     def precedent(cls, stats, rule=STATUS_PRECEDENCE):
         """
-          Return the precedent status from a list of statuses, using the
-          ordering of statuses in `rule`.
+        Return the precedent status from a list of statuses, using the
+        ordering of statuses in `rule`.
 
-          :param stats: List of statuses of which we want to get the precedent.
-          :type stats: ``sequence``
+        :param stats: List of statuses of which we want to get the precedent.
+        :type stats: ``sequence``
 
-          :param rule: Precedence rules for the given statuses.
-          :type rule: ``sequence``
+        :param rule: Precedence rules for the given statuses.
+        :type rule: ``sequence``
         """
         return min(stats, key=lambda stat: rule.index(stat))
 
@@ -86,11 +88,11 @@ class Status(object):
 TestCount = collections.namedtuple('TestCount', Status.STATUS_PRECEDENCE)
 
 
-class ExceptionLogger(ExceptionLogger):
+class ExceptionLogger(ExceptionLoggerBase):
     """
-      When we run tests, we always want to return a report object,
-      However we also want to mark the test as failed if an
-      exception is raised (unless kwargs['fail'] is `False`).
+    When we run tests, we always want to return a report object,
+    However we also want to mark the test as failed if an
+    exception is raised (unless kwargs['fail'] is `False`).
     """
 
     def __init__(self, *exception_classes, **kwargs):
@@ -133,13 +135,13 @@ class BaseReportGroup(ReportGroup):
     @property
     def status(self):
         """
-          Status of the report, will be used to decide
-          if a Testplan run has completed successfully or not.
+        Status of the report, will be used to decide
+        if a Testplan run has completed successfully or not.
 
-          `status_override` always takes precedence,
-          otherwise we fall back to precedent status from `self.entries`.
+        `status_override` always takes precedence,
+        otherwise we fall back to precedent status from `self.entries`.
 
-          If a report group has no children, it is assumed to be passing.
+        If a report group has no children, it is assumed to be passing.
         """
         if self.status_override:
             return self.status_override
@@ -151,15 +153,15 @@ class BaseReportGroup(ReportGroup):
 
     def merge_children(self, report, strict=True):
         """
-          For report groups, we call `merge` on each child report
-          and later merge basic attributes.
+        For report groups, we call `merge` on each child report
+        and later merge basic attributes.
 
-          However sometimes original report may not have matching child reports.
-          For example this happens when the test target's test cases cannot be
-          inspected on initialization time (e.g. GTest).
+        However sometimes original report may not have matching child reports.
+        For example this happens when the test target's test cases cannot be
+        inspected on initialization time (e.g. GTest).
 
-          In this case we can merge with `strict=False` so that child reports
-          are directly appended to original report's entries.
+        In this case we can merge with `strict=False` so that child reports
+        are directly appended to original report's entries.
         """
         if strict:
             super(BaseReportGroup, self).merge_children(report, strict=strict)
@@ -198,11 +200,29 @@ class BaseReportGroup(ReportGroup):
         return TestCount(*[_get_counts(self, stat)
                            for stat in Status.STATUS_PRECEDENCE])
 
+    def filter_by_tags(self, tag_value, all_tags=False):
+        """Shortcut method for filtering the report by given tags."""
+        def _filter_func(obj):
+            # Include all testcase entries, which are in dict form
+            if isinstance(obj, dict):
+                return True
+
+            tag_dict = tagging.validate_tag_value(tag_value)
+            if all_tags:
+                match_func = tagging.check_all_matching_tags
+            else:
+                match_func = tagging.check_any_matching_tags
+
+            return match_func(
+                tag_arg_dict=tag_dict, target_tag_dict=obj.tags_index)
+
+        return self.filter(_filter_func)
+
 
 class TestReport(BaseReportGroup):
     """
-      Report for a Testplan test run, sits at the root of the report tree.
-      Only contains TestGroupReports as children.
+    Report for a Testplan test run, sits at the root of the report tree.
+    Only contains TestGroupReports as children.
     """
 
     def __init__(self, meta=None, *args, **kwargs):
@@ -213,14 +233,14 @@ class TestReport(BaseReportGroup):
     @property
     def tags_index(self):
         """
-          Root report only has tag indexes, which is only useful when
-          we run searches against multiple test reports.
-          (e.g Give me all test runs from all projects that have these tags)
+        Root report only has tag indexes, which is only useful when
+        we run searches against multiple test reports.
+        (e.g Give me all test runs from all projects that have these tags)
         """
         from testplan.testing.tagging import merge_tag_dicts
         if self._tags_index is None:
-            self._tags_index = merge_tag_dicts(*[child.tags_index
-                                                 for child in self])
+            self._tags_index = merge_tag_dicts(
+                *[child.tags_index for child in self])
         return self._tags_index
 
     def _get_comparison_attrs(self):
@@ -311,10 +331,38 @@ class TestGroupReport(BaseReportGroup):
         from .schemas import TestGroupReportSchema
         return TestGroupReportSchema(strict=True).load(data).data
 
+    def _collect_tag_indices(self):
+        """Collect tag indices from the current report and its children."""
+        tag_dicts = [self.tags_index]
+        for child in self:
+            if isinstance(child, TestCaseReport):
+                tag_dicts.append(child.tags_index)
+            elif isinstance(child, TestGroupReport):
+                tag_dicts.append(child._collect_tag_indices())
+        return tagging.merge_tag_dicts(*tag_dicts)
+
+    def propagate_tag_indices(self):
+        """
+        When a test is run and test instance report is populated with children
+        we may need to tag indices of the report tree.
+
+        This is more likely to happen for tests that are
+        run via 3rd party testing libraries.
+        """
+        for child in self:
+            if isinstance(child, (TestGroupReport, TestCaseReport)):
+                child.tags_index = tagging.merge_tag_dicts(
+                    self.tags_index, child.tags_index)
+
+            if isinstance(child, TestGroupReport):
+                child.propagate_tag_indices()
+
+        self.tags_index = self._collect_tag_indices()
+
 
 class TestCaseReport(Report):
     """
-      Leaf of the report tree, contains serialized assertion / log entries.
+    Leaf of the report tree, contains serialized assertion / log entries.
     """
 
     exception_logger = ExceptionLogger
@@ -344,10 +392,10 @@ class TestCaseReport(Report):
     @property
     def status(self):
         """
-          Entries in this context correspond to serialized (raw)
-          assertions / custom logs in dictionary form.
-          Assertion dicts will have a `passed` key
-          which will be set to `False` for failed assertions.
+        Entries in this context correspond to serialized (raw)
+        assertions / custom logs in dictionary form.
+        Assertion dicts will have a `passed` key
+        which will be set to `False` for failed assertions.
         """
         if self.status_override:
             return self.status_override

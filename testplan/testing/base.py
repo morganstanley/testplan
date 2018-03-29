@@ -212,6 +212,15 @@ class Test(Runnable):
                     )
                 )
 
+    def propagate_tag_indices(self):
+        """
+        Basic step for propagating tag indices of the test report tree.
+        This step may be necessary if the report
+        tree is created in parts and then added up.
+        """
+        if len(self.report):
+            self.report.propagate_tag_indices()
+
 
 class ProcessRunnerTestConfig(TestConfig):
     """
@@ -481,6 +490,7 @@ class ProcessRunnerTest(Test):
     def main_batch_steps(self):
         self._add_step(self.run_tests)
         self._add_step(self.update_test_report)
+        self._add_step(self.propagate_tag_indices)
         self._add_step(self.log_test_results)
 
     def aborting(self):

@@ -145,12 +145,13 @@ def test_tag_filtered_pdf(tmpdir):
 
     for path in should_exist:
         path = os.path.join(pdf_dir, path)
-        assert os.path.exists(path)
+        assert os.path.exists(path), 'Could not generate PDF: {}'.format(path)
         assert os.stat(path).st_size > 0
 
     for path in should_not_exist:
         path = os.path.join(pdf_dir, path)
-        assert not os.path.exists(path)
+        assert not os.path.exists(path), (
+            'Should not have been generated PDF: {}'.format(path))
 
 
 def test_implicit_exporter_initialization(tmpdir):
