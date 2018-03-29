@@ -8,7 +8,11 @@ from testplan import Testplan
 from testplan.common.entity.base import Environment, ResourceStatus
 from testplan.common.utils.context import context
 from testplan.common.utils.path import default_runpath
+from testplan.common.utils.testing import log_propagation_disabled
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
+
+from testplan.logger import TESTPLAN_LOGGER
+
 
 
 def runpath_maker(obj):
@@ -117,9 +121,10 @@ def test_multitest_drivers_in_testplan():
         assert server.status.tag == ResourceStatus.NONE
         assert client.status.tag == ResourceStatus.NONE
 
-        plan.run()
-        res = plan.result
+        with log_propagation_disabled(TESTPLAN_LOGGER):
+            plan.run()
 
+        res = plan.result
         assert res.run is True
         if idx == 0:
             assert plan.runpath == runpath_maker(None)
