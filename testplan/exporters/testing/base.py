@@ -25,13 +25,13 @@ class TagFilteredExporterConfig(ExporterConfig):
 
 class TagFilteredExporter(Exporter):
     """
-        This is a meta exporter that generates tag filtered clones
-        of the original test report and calls `export` operation on a new
-        instance of `exporter_class`.
+    This is a meta exporter that generates tag filtered clones
+    of the original test report and calls `export` operation on a new
+    instance of `exporter_class`.
 
-        Basically multiple sub-export operations will be
-        run for each generated clone report, however if the clone report
-        is empty the export operation will be skipped.
+    Basically multiple sub-export operations will be
+    run for each generated clone report, however if the clone report
+    is empty the export operation will be skipped.
     """
     ALL = 'all'
     ANY = 'any'
@@ -46,7 +46,9 @@ class TagFilteredExporter(Exporter):
         should be valid arguments in line with `exporter_class`'s config.
 
         :param tag_dict: Tag context for the current sub-export operation.
+        :type tag_dict: ``dict`` of ``set``
         :param filter_type: all / any
+        :type filter_type: ``str``
         :return: dict of keyword arguments
         """
         return {}
@@ -69,39 +71,37 @@ class TagFilteredExporter(Exporter):
 
     def get_filtered_source(self, source, tag_dict, filter_type):
         """
-            Create a clone of the original report and
-            filter it with the given filter type & tag context.
+        Create a clone of the original report and
+        filter it with the given filter type & tag context.
 
-            Also populate cloned report's meta
-            attribute with the tag label.
+        Also populate cloned report's meta
+        attribute with the tag label.
+
+        :param source: Original test report.
+        :type source: :py:class:`~testplan.report.testing.base.TestReport`
+        :param tag_dict: Tag context for the current filtered test report.
+        :type tag_dict: ``dict`` of ``set``
+        :param filter_type: all / any
+        :type filter_type: ``str``
         """
-
-        if filter_type == self.ANY:
-            filter_func = tagging.check_any_matching_tags
-        elif filter_type == self.ALL:
-            filter_func = tagging.check_all_matching_tags
-        else:
-            raise ValueError('Invalid filter_type: `{}`'.format(filter_type))
-
-        def _tag_filter(obj):
-            # Check against denormalized tag data
-            if not hasattr(obj, 'tags_index'):
-                return True  # include everything that doesn't have tags
-            return filter_func(
-                tag_arg_dict=tag_dict,
-                target_tag_dict=obj.tags_index)
-
-        result = source.filter(_tag_filter)
         tag_label = tagging.tag_label(tag_dict)
+        result = source.filter_by_tags(
+            tag_dict,
+            all_tags=filter_type == self.ALL
+        )
         result.meta['report_tags_{}'.format(filter_type)] = tag_label
         return result
 
     def get_skip_message(self, source, tag_dict, filter_type):
         """
         :param source: Cloned test report.
+        :type source: :py:class:`~testplan.report.testing.base.TestReport`
         :param tag_dict: Tag context for the current filtered test report.
+        :type tag_dict: ``dict`` of ``set``
         :param filter_type: all / any
+        :type filter_type: ``str``
         :return: String message to be displayed on skipped export operations.
+        :rtype: ``str``
         """
         return (
             'Empty report for tags: `{tag_label}`, filter_type:'
@@ -118,16 +118,21 @@ class TagFilteredExporter(Exporter):
         operation, if the clone report is not empty.
 
         :param source: Original test report.
+        :type source: :py:class:`~testplan.report.testing.base.TestReport`
         :param tag_dicts: List of tag dictionaries, a new export operation
                           will be run for each dict in the list.
+        :type tag_dicts: ``list`` of ``dict``
         :param filter_type: all / any, will be used for tag filtering strategy.
+        :type filter_type: ``str``
         :return: None
         """
+        if filter_type not in [self.ALL, self.ANY]:
+            raise ValueError('Invalid filter type: {}'.format(filter_type))
 
         for tag_dict in tag_dicts:
             clone = self.get_filtered_source(source, tag_dict, filter_type)
 
-            if clone:
+            if clone is not None:
                 params = self.get_params(tag_dict, filter_type)
                 exporter = self.get_exporter(**params)
                 exporter.export(clone)
@@ -145,6 +150,7 @@ class TagFilteredExporter(Exporter):
         Run export operation for exact (all) and any matching tag groups.
 
         :param source: Test report.
+        :type source: :py:class:`~testplan.report.testing.base.TestReport`
         :return: None
         """
         self.export_clones(

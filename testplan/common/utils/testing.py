@@ -213,7 +213,24 @@ def check_report(expected, actual, skip=None):
         act_value = getattr(actual, attr)
 
         if isinstance(act_value, (list, dict, tuple)):
-            check_iterable(exp_value, act_value)
+            try:
+                check_iterable(exp_value, act_value)
+            except AssertionError as err:
+                msg = (
+                    'Report name: {report_name}{linesep}'
+                    'Attribute: {attr}{linesep}'
+                ).format(
+                    linesep=os.linesep,
+                    attr=attr,
+                    report_name=actual.name,
+                )
+                raise AssertionError(
+                    '{linesep}{report_msg}{error_msg}'.format(
+                        linesep=os.linesep,
+                        report_msg=msg,
+                        error_msg=err.msg
+                    )
+                )
         else:
             msg = 'Mismatch: "{}", `{}` != `{}`'.format(
                 attr, exp_value, act_value)

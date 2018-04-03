@@ -6,9 +6,12 @@
 /testplan/examples/**/*report.txt
 
 .idea/
+build/
+dist/
+*.egg-info/
 
 .cache/
-
+.pytest_cache/
 
 CMakeFiles/
 CMakeCache.txt

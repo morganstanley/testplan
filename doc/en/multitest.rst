@@ -652,19 +652,22 @@ How can I troubleshoot a problem?
 Tagging
 -------
 
-Testplan has support for suite and testcase level tagging (Suite level tags are
-also implicitly applied to each testcase of that suite). It's possible to run
-subset of tests using ``--tags`` or ``--tags-all`` arguments. The difference
-between ``--tags`` and ``--tags-all`` is that ``--tags tagA tagB`` will run any
-test case that is tagged with ``tagA`` **OR** ``tagB`` whereas
-``--tags-all tagA tagB`` will run test cases that are tagged with both
+Testplan supports test filtering via tags, which can be assigned to top level
+tests via ``tags`` argument (e.g. ``GTest(name='CPP Tests', tags='TagA')``,
+``MultiTest(name='My Test', tags=('TagB', 'TagC')``). MultiTest framework also
+has further support for suite and testcase level tagging as well.
+
+It's possible to run subset of tests using ``--tags`` or ``--tags-all`` arguments.
+The difference between ``--tags`` and ``--tags-all`` is that
+``--tags tagA tagB`` will run any test that is tagged with ``tagA`` **OR**
+``tagB`` whereas ``--tags-all tagA tagB`` will run tests that are tagged with both
 ``tagA`` **AND** ``tagB``.
 
 .. note::
 
     If you apply the same tag value both on suite level and testcase level, the
-    tag filtering will still work as expected. However you will also get warnings,
-    as applying the same testsuite tag explicitly to a testcase is a redundant
+    tag filtering will still work as expected. However keep in mind that
+    applying the same testsuite tag explicitly to a testcase is a redundant
     operation.
 
 There are multiple ways to assign tags to a target:
@@ -719,6 +722,11 @@ Example
 
 .. code-block:: python
 
+  # Top level test instance tagging
+  my_gtest = GTest(name='My GTest', tags='tagA')
+
+  # Testsuite & test case level tagging
+
   @testsuite(tags='tagA')
   class SampleTestAlpha(object):
 
@@ -753,6 +761,11 @@ Example
       @testcase(tags={'category': ['tagC', 'tagD'])
       def method_3(self, env, result):
         ...
+
+
+  my_multitest = MultiTest(
+      name='My MultiTest', tags=['tagE', 'tagF']
+      suites=[SampleTestAlpha(), SampleTestBeta()])
 
 
 Runs all testcases from ``SampleTestAlpha`` (suite level match),

@@ -15,7 +15,10 @@ DummyReportGroup = functools.partial(BaseReportGroup, name='dummy')
 
 
 def test_report_status_precedent():
-    """`precedent` should return the value with the highest precedence (the lowest index)."""
+    """
+    `precedent` should return the value with the
+    highest precedence (the lowest index).
+    """
     rule = ['alpha', 'beta', 'gamma']
 
     assert 'alpha' == Status.precedent(['alpha', 'beta'], rule=rule)
@@ -63,7 +66,10 @@ class TestBaseReportGroup(object):
         (
             ([Status.ERROR, Status.FAILED, Status.PASSED], Status.ERROR),
             ([Status.FAILED, Status.PASSED], Status.FAILED),
-            ([Status.INCOMPLETE, Status.PASSED, Status.SKIPPED], Status.INCOMPLETE),
+            (
+                [Status.INCOMPLETE, Status.PASSED, Status.SKIPPED],
+                Status.INCOMPLETE
+            ),
             ([Status.SKIPPED, Status.PASSED], Status.PASSED),
             ([Status.INCOMPLETE, Status.FAILED], Status.FAILED),
         )
@@ -71,20 +77,30 @@ class TestBaseReportGroup(object):
     def test_status(self, statuses, expected):
         """Should return the precedent status from children."""
 
-        reports = [DummyStatusReport(uid=idx, status=status) for idx, status in enumerate(statuses)]
+        reports = [
+            DummyStatusReport(uid=idx, status=status)
+            for idx, status in enumerate(statuses)
+        ]
         group = DummyReportGroup(entries=reports)
         assert group.status == expected
 
     def test_status_no_entries(self):
-        """Should return Status.PASSED `status_override` is None and report has no entries."""
+        """
+        Should return Status.PASSED `status_override`
+        is None and report has no entries.
+        """
         group = DummyReportGroup()
 
         assert group.status_override is None
         assert group.status == Status.PASSED
 
     def test_status_override(self):
-        """`status_override` of a group should take precedence over child statuses."""
-        group = DummyReportGroup(entries=[DummyStatusReport(status=Status.FAILED)])
+        """
+        `status_override` of a group should take
+        precedence over child statuses.
+        """
+        group = DummyReportGroup(
+            entries=[DummyStatusReport(status=Status.FAILED)])
 
         assert group.status == Status.FAILED
 
@@ -93,7 +109,10 @@ class TestBaseReportGroup(object):
         assert group.status == Status.PASSED
 
     def test_merge(self):
-        """Should merge children and set `status_override` using `report.status_override` precedence."""
+        """
+        Should merge children and set `status_override`
+        using `report.status_override` precedence.
+        """
         report_orig = DummyReportGroup(uid=0)
         report_clone = DummyReportGroup(uid=0)
 
@@ -103,7 +122,8 @@ class TestBaseReportGroup(object):
 
         with mock.patch.object(report_orig, 'merge_children'):
             report_orig.merge(report_clone)
-            report_orig.merge_children.assert_called_once_with(report_clone, strict=True)
+            report_orig.merge_children.assert_called_once_with(
+                report_clone, strict=True)
             assert report_orig.status_override == report_clone.status_override
 
     def test_merge_children_not_strict(self):
@@ -113,7 +133,8 @@ class TestBaseReportGroup(object):
         """
         child_clone_1 = DummyReport(uid=1)
         child_clone_2 = DummyReport(uid=2)
-        parent_clone = DummyReportGroup(uid=0, entries=[child_clone_1, child_clone_2])
+        parent_clone = DummyReportGroup(
+            uid=0, entries=[child_clone_1, child_clone_2])
 
         child_orig_1 = DummyReport(uid=1)
         parent_orig = DummyReportGroup(uid=0, entries=[child_orig_1])
@@ -159,7 +180,10 @@ class TestTestCaseReport(object):
         )
     )
     def test_status_override(self, entries, status_override):
-        """TestCaseReport `status_override` should take precedence over `status` logic."""
+        """
+        TestCaseReport `status_override` should
+        take precedence over `status` logic.
+        """
         rep = TestCaseReport(name='foo', entries=entries)
         rep.status_override = status_override
         assert rep.status == status_override
@@ -188,8 +212,8 @@ class TestTestCaseReport(object):
 @pytest.fixture
 def dummy_test_plan_report():
 
-    tag_data_1 = {'tagname': frozenset(['tag1', 'tag2'])}
-    tag_data_2 = {'other_tagname': frozenset(['tag4', 'tag5'])}
+    tag_data_1 = {'tagname': {'tag1', 'tag2'}}
+    tag_data_2 = {'other_tagname': {'tag4', 'tag5'}}
     all_tag_data = dict(tag_data_1, **tag_data_2)
 
     tc_1 = TestCaseReport(
@@ -259,3 +283,52 @@ def test_report_json_serialization(dummy_test_plan_report):
     data = test_plan_schema.dumps(dummy_test_plan_report).data
     deserialized_report = test_plan_schema.loads(data).data
     assert deserialized_report == dummy_test_plan_report
+
+
+def test_tag_propagation():
+    """
+    Tag propagation should update tag indices
+    of the children/parents recursively.
+    """
+
+    tg_report_1 = TestGroupReport(
+        name='My Group',
+        tags={'simple': {'foo'}},
+        tags_index={'simple': {'foo'}},
+    )
+
+    tg_report_2 = TestGroupReport(
+        name='My Group 2',
+        tags={'simple': {'bar'}},
+        tags_index={'simple': {'bar'}},
+    )
+
+    tc_report_1 = TestCaseReport(
+        name='My Test Case',
+        tags={'simple': {'baz'}},
+        tags_index={'simple': {'baz'}}
+    )
+
+    tc_report_2 = TestCaseReport(
+        name='My Test Case',
+        tags={'simple': {'bat'}},
+        tags_index={'simple': {'bat'}}
+    )
+
+    tg_report_1.append(tg_report_2)
+    tg_report_2.append(tc_report_1)
+    tg_report_2.append(tc_report_2)
+
+    tg_report_1.propagate_tag_indices()
+
+    assert tg_report_1.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
+    assert tg_report_1.tags == {'simple': {'foo'}}
+
+    assert tg_report_2.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
+    assert tg_report_2.tags == {'simple': {'bar'}}
+
+    assert tc_report_1.tags_index == {'simple': {'foo', 'bar', 'baz'}}
+    assert tc_report_1.tags == {'simple': {'baz'}}
+
+    assert tc_report_2.tags_index == {'simple': {'foo', 'bar', 'bat'}}
+    assert tc_report_2.tags == {'simple': {'bat'}}

@@ -7,8 +7,11 @@ import pytest
 from testplan.common.utils.exceptions import should_raise
 from testplan.common.utils.interface import MethodSignatureMismatch
 from testplan.common.utils.strings import format_description
-from testplan.testing.multitest.suite import (testcase, testsuite, skip_if,
-                                              post_testcase, pre_testcase)
+from testplan.testing.multitest.suite import (
+    testcase, testsuite, skip_if, post_testcase,
+    pre_testcase, get_testcase_methods
+)
+from testplan.testing import tagging
 
 
 def ptestcase(name, self, env, result, **kwargs):
@@ -58,37 +61,46 @@ class MySuite3(object):
 
 def test_basic_suites():
     mysuite = MySuite1()
+
     cases = ('case1', 'case2', 'case3')
     assert tuple(mysuite.__testcases__) == cases
     assert tuple(mysuite.__skip__) == ('case2',)
-    for case, meth in mysuite.get_testcase_methods().items():
-        assert case in cases
-        assert callable(meth)
-    for case, meth in mysuite.get_testcases().items():
-        assert case in cases
-        assert callable(meth)
+
+    for method in get_testcase_methods(MySuite1):
+        assert method.__name__ in cases
+        assert callable(method)
+
+    for method in mysuite.get_testcases():
+        assert method.__name__ in cases
+        assert callable(method)
 
 
 def test_basic_parametrization():
     mysuite = MySuite3()
     cases = ('case__param_1', 'case__param_2', 'case__param_3')
     assert tuple(mysuite.__testcases__) == cases
-    for case, meth in mysuite.get_testcase_methods().items():
-        assert case in cases
-        assert callable(meth)
+
+    for method in mysuite.get_testcases():
+        assert method.__name__ in cases
+        assert callable(method)
 
 
 def test_basic_suite_tags():
     mysuite = MySuite2()
-    assert mysuite.__TAGS__ == {'simple': frozenset(['A'])}
-    case_dict = {'case1': {'simple': frozenset(['B'])},
-                 'case2': {'c': frozenset(['C'])},
-                 'case3': {'d': frozenset(['D2', 'D1'])}}
-    for case, meth in mysuite.get_testcase_methods().items():
-        assert meth.tags == case_dict[case]
+
+    assert mysuite.__tags__ == {'simple': {'A'}}
+
+    case_dict = {'case1': {'simple': {'B'}},
+                 'case2': {'c': {'C'}},
+                 'case3': {'d': {'D2', 'D1'}}}
+
+    for method in mysuite.get_testcases():
+        assert method.__tags__ == case_dict[method.__name__]
+        assert method.__tags_index__ == tagging.merge_tag_dicts(
+            case_dict[method.__name__], mysuite.__tags__)
 
 
-def incorrent_case_signature1():
+def incorrect_case_signature1():
     @testsuite
     class _(object):
         @testcase
@@ -96,7 +108,7 @@ def incorrent_case_signature1():
             pass
 
 
-def incorrent_case_signature2():
+def incorrect_case_signature2():
     @testsuite
     class _(object):
         @testcase
@@ -107,11 +119,11 @@ def incorrent_case_signature2():
 def test_testcase_signature():
     pattern = re.compile((r'.*Expected case1\(self, env, result\), '
                           'not case1\(self, envs, result\).*'))
-    should_raise(MethodSignatureMismatch, incorrent_case_signature1,
+    should_raise(MethodSignatureMismatch, incorrect_case_signature1,
                  pattern=pattern)
     pattern = re.compile((r'.*Expected case1\(self, env, result\), '
                           'not case1\(self, env, results\).*'))
-    should_raise(MethodSignatureMismatch, incorrent_case_signature2,
+    should_raise(MethodSignatureMismatch, incorrect_case_signature2,
              pattern=pattern)
 
 

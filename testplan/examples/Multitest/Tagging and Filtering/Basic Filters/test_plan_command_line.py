@@ -2,7 +2,7 @@
 """
 This example shows:
 
-* How the test cases and test suites can be tagged.
+* How the tests, test cases and test suites can be tagged.
 
 * How tests / suites/ testcases can be filtered by
   patterns and tags via command line options.
@@ -128,7 +128,12 @@ class Gamma(object):
 )
 def main(plan):
 
-    multi_test_1 = MultiTest(name='Primary', suites=[Alpha(), Beta()])
+    multi_test_1 = MultiTest(
+        name='Primary',
+        suites=[Alpha(), Beta()],
+        tags={'color': 'white'}
+    )
+
     multi_test_2 = MultiTest(name='Secondary', suites=[Gamma()])
     plan.add(multi_test_1)
     plan.add(multi_test_2)

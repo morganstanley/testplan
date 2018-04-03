@@ -21,7 +21,7 @@ Components
 The three main components of a Testplan are:
 
   1. **Test** (:py:class:`~testplan.testing.multitest.base.MultiTest`,
-     (:py:class:`~testplan.testing.cpp.gtest.GTest`)
+     :py:class:`~testplan.testing.cpp.gtest.GTest`)
      is defined as a runnable that will be executed
      by :py:class:`~testplan.base.Testplan` and create a
      :py:class:`~testplan.report.testing.base.TestReport`. Multiple tests can be

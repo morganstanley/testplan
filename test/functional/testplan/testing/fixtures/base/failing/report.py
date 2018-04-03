@@ -3,7 +3,7 @@ from testplan.report.testing import TestReport, TestGroupReport, Status
 
 my_test_report = TestGroupReport(
     name='MyTest',
-    category='DummyTest',
+    category='dummytest',
     entries=[],
 )
 

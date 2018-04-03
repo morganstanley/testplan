@@ -4,7 +4,7 @@ import argparse
 class ReportTagsAction(argparse.Action):
     """
         Argparse action for parsing multiple report tag
-        arguments, builds up a list of dictionary of frozensets.
+        arguments, builds up a list of dictionary of sets.
 
         In:
             --report-tags foo bar hello=world --report-tags one two color=red
@@ -13,12 +13,12 @@ class ReportTagsAction(argparse.Action):
 
             [
                 {
-                    'simple': frozenset(['foo', 'bar']),
-                    'hello': frozenset(['world'])
+                    'simple': {'foo', 'bar'},
+                    'hello': {'world'}
                 },
                 {
-                    'simple': frozenset(['one', 'two']),
-                    'color': frozenset(['red']),
+                    'simple': {'one', 'two'},
+                    'color': {'red'},
                 }
             ]
     """

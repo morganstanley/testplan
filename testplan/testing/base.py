@@ -9,7 +9,7 @@ from schema import Or, Use
 from testplan import defaults
 from testplan.common.config import ConfigOption
 
-from testplan.testing import filtering, ordering
+from testplan.testing import filtering, ordering, tagging
 
 from testplan.common.entity import Runnable, RunnableResult, RunnableConfig
 from testplan.common.utils.process import subprocess_popen
@@ -42,7 +42,11 @@ class TestConfig(RunnableConfig):
             ConfigOption(
                 'stdout_style',
                 default=defaults.STDOUT_STYLE
-            ): test_styles.Style
+            ): test_styles.Style,
+            ConfigOption(
+                'tags',
+                default=None
+            ): Or(None, Use(tagging.validate_tag_value))
         }
         return self.inherit_schema(overrides, super(TestConfig, self))
 
@@ -90,11 +94,29 @@ class Test(Runnable):
     filter_levels = [filtering.FilterLevel.TEST]
 
     def __init__(self, **options):
-        self._test_context = None
         super(Test, self).__init__(**options)
+
+        self._test_context = None
+        self.result.report = TestGroupReport(
+            name=self.cfg.name,
+            category=self.__class__.__name__.lower(),
+            description=self.cfg.description,
+            tags=self.cfg.tags,
+            tags_index=self.get_tags_index(),
+        )
 
     def __str__(self):
         return '{}[{}]'.format(self.__class__.__name__, self.name)
+
+    def get_tags_index(self):
+        """
+        Return the tag index that will be used for filtering.
+        By default this is equal to the native tags for this object.
+
+        However subclasses may build larger tag indices
+        by collecting tags from their children for example.
+        """
+        return self.cfg.tags
 
     def get_filter_levels(self):
         if not self.filter_levels:
@@ -190,6 +212,15 @@ class Test(Runnable):
                     )
                 )
 
+    def propagate_tag_indices(self):
+        """
+        Basic step for propagating tag indices of the test report tree.
+        This step may be necessary if the report
+        tree is created in parts and then added up.
+        """
+        if len(self.report):
+            self.report.propagate_tag_indices()
+
 
 class ProcessRunnerTestConfig(TestConfig):
     """
@@ -253,15 +284,9 @@ class ProcessRunnerTest(Test):
 
         self._test_context = None
         self._test_process = None  # will be set by `self.run_tests`
-        self._test_process_retcode = None # will be set by `self.run_tests`
+        self._test_process_retcode = None  # will be set by `self.run_tests`
         self._test_process_killed = False
         self._test_has_run = False
-
-        self.result.report = TestGroupReport(
-            name=self.cfg.name,
-            category=self.__class__.__name__,
-            description=self.cfg.description,
-        )
 
     @property
     def stderr(self):
@@ -465,6 +490,7 @@ class ProcessRunnerTest(Test):
     def main_batch_steps(self):
         self._add_step(self.run_tests)
         self._add_step(self.update_test_report)
+        self._add_step(self.propagate_tag_indices)
         self._add_step(self.log_test_results)
 
     def aborting(self):

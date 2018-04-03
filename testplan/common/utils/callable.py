@@ -5,7 +5,9 @@ import functools
 
 
 WRAPPER_ASSIGNMENTS = functools.WRAPPER_ASSIGNMENTS + (
-    'tags', 'wrapper_of',
+    '__tags__',
+    '__tags_index__',
+    'wrapper_of',
     'summarize',
     'summarize_num_passing',
     'summarize_num_failing'

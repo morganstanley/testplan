@@ -33,7 +33,7 @@ class IntervalSchema(Schema):
 
 
 class TagField(fields.Field):
-    """Field for serializing tag data, which is a ``dict`` of ``frozenset``."""
+    """Field for serializing tag data, which is a ``dict`` of ``set``."""
 
     def _serialize(self, value, attr, obj):
         return {
@@ -43,7 +43,7 @@ class TagField(fields.Field):
 
     def _deserialize(self, value, attr, data):
         return {
-            tag_name: frozenset(tag_values)
+            tag_name: set(tag_values)
             for tag_name, tag_values in value.items()
         }
 

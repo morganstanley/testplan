@@ -185,7 +185,7 @@ def _ensure_unique_names(functions):
             dupe_counter[name] += 1
 
 
-def _generate_func(function, name_func, tag_func, docstring_func, tags, kwargs):
+def _generate_func(function, name_func, tag_func, docstring_func, tag_dict, kwargs):
     """
     Generates a new function using the original function, name generation
     function and parametrized kwargs.
@@ -197,16 +197,19 @@ def _generate_func(function, name_func, tag_func, docstring_func, tags, kwargs):
 
     _generated.__doc__ = docstring_func(function.__doc__, kwargs)\
         if docstring_func else None
+
     _generated.__name__ = _name_func_wrapper(
         name_func=name_func,
         func_name=function.__name__,
         kwargs=kwargs)
 
-    # Tagging
-    parametrized_tags = tagging.validate_tag_value(tag_func(kwargs))\
+    # Tags generated via `tag_func` will be assigned as native tags
+    _generated.__tags__ = tagging.validate_tag_value(tag_func(kwargs)) \
         if tag_func else {}
-    tagging.attach_testcase_tags(
-        _generated, tagging.merge_tag_dicts(tags, parametrized_tags))
+
+    # Tags index will be merged tag ctx of tag_dict & generated tags
+    _generated.__tags_index__ = tagging.merge_tag_dicts(
+        _generated.__tags__, tag_dict)
 
     _generated._parametrization_template = function.__name__
 
@@ -326,7 +329,7 @@ def generate_functions(
     function,
     parameters,
     name_func,
-    tags,
+    tag_dict,
     tag_func,
     docstring_func,
     summarize,
@@ -360,8 +363,8 @@ def generate_functions(
                      parametrization kwargs. Should accept ``kwargs`` as
                      parameter.
     :type tag_func: ``callable``
-    :param tags: Tag annotations to be used for each generated testcase.
-    :type tag_func: ``dict`` of ``frozenset``
+    :param tag_dict: Tag annotations to be used for each generated testcase.
+    :type tag_dict: ``dict`` of ``set``
     :param summarize: Flag for enabling testcase level
                       summarization of all assertions.
     :type summarize: ``bool``
@@ -388,9 +391,6 @@ def generate_functions(
     required_args = args[:-len(defaults)] if defaults else args
     default_args = dict(zip(args[len(required_args):], defaults))
 
-    # Need to validate beforehand so we can merge with parametrized_tags
-    tags = tagging.validate_tag_value(tags) if tags else {}
-
     kwarg_list = _generate_kwarg_list(parameters, args, required_args,
                                       default_args)
 
@@ -399,7 +399,7 @@ def generate_functions(
         name_func=name_func,
         tag_func=tag_func,
         docstring_func=docstring_func,
-        tags=tags,
+        tag_dict=tag_dict,
         kwargs=kwargs
     ) for kwargs in kwarg_list]
 

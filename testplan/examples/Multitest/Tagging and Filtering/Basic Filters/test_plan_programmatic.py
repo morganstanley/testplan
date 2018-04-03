@@ -2,7 +2,7 @@
 """
 This example shows:
 
-* How the test cases and test suites can be tagged.
+* How test instances (e.g. multitest), test cases and test suites can be tagged.
 
 * How tests / suites/ testcases can be filtered
   by patterns and tags programmatically.
@@ -17,7 +17,8 @@ from testplan.report.testing.styles import Style
 from testplan.testing.filtering import Filter, Pattern, Tags, TagsAll
 
 
-# A suite with no tags, will be filtered out if we apply any tag based filters
+# A suite with no tags, can still inherit tag data
+# if it is added to a multitest with tags.
 @testsuite
 class Alpha(object):
 
@@ -107,9 +108,17 @@ tag_filter_4 = Tags({'simple': 'server', 'color': ('red', 'blue')})
 # Multi tag filtering, run all testcases tagged with `server` AND `client`.
 tag_filter_5 = TagsAll(('server', 'client'))
 
+# Run all tests that are tagged with `color` = `white`.
+# None of the suite classes and their testcases have such tag,
+# however in the plan declaration below we use a multitest level tag
+# for `multi_test_1`, which propagates `color` = `white` to the instances of
+# Alpha and Beta suites (and to their testcases). This only affects the
+# instances of the suites and the original classes' tag indices
+# remain unchanged.
+tag_filter_6 = Tags({'color': 'white'})
+
 # Replace the `test_filter` argument with the
 # filters declared above to see how they work.
-
 @test_plan(
     name='Tagging & Filtering (Programmatic)',
     test_filter=default_filter,
@@ -118,7 +127,11 @@ tag_filter_5 = TagsAll(('server', 'client'))
 )
 def main(plan):
 
-    multi_test_1 = MultiTest(name='Primary', suites=[Alpha(), Beta()])
+    multi_test_1 = MultiTest(
+        name='Primary',
+        suites=[Alpha(), Beta()],
+        tags={'color': 'white'}
+    )
     multi_test_2 = MultiTest(name='Secondary', suites=[Gamma()])
     plan.add(multi_test_1)
     plan.add(multi_test_2)
