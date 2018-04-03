@@ -1,14 +1,12 @@
 language: python
 
-virtualenv:
-  system_site_packages: true
-
 python:
   - "2.7"
   - "3.4"
 
 install:
-  - python setup.py install
+  - pip install -r requirements.txt
+  - python setup.py develop
 
 script:
   - py.test test --verbose
