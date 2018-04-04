@@ -12,7 +12,7 @@ templates based on dynamic resource assignments and provides fixtures
 like setup, teardown, after_start, after_stop etc. to customize the tests.
 
 A typical use case is to start an application, connect it to other services,
-perform some operations via the application and services
+perform some operations via the application and service
 :ref:`drivers <multitest_drivers>` and assert on expected results.
 
 Components
@@ -56,7 +56,7 @@ The three main components of a Testplan are:
      By default all tests add added to the default
      :py:class:`~testplan.runners.local.LocalRunner` executor that executes
      them sequentially in the order added. For parallel test execution,
-     testplan uses :ref:`pools <Pools>` of workers mechanisms (i.e
+     testplan uses :ref:`pools <Pools>` of workers (i.e
      :py:class:`ThreadPool <testplan.runners.pools.base.Pool>`,
      :py:class:`ProcessPool <testplan.runners.pools.process.ProcessPool>`).
 
@@ -283,8 +283,8 @@ A list of self-explanatory **downloadable examples** can be found
 Configuration
 =============
 
-Most of the objects in testplan are taking ``**options`` as parameters and these
-are validated using a ``schema`` at initialization stage.
+Most of the objects in testplan take ``**options`` as parameters and these are
+validated using a ``schema`` at initialization stage.
 For example, :py:class:`~testplan.base.Testplan` validates all input options
 using a ``schema`` defined in the :py:class:`~testplan.base.TestplanConfig`
 that inherits the schema of a
@@ -316,7 +316,7 @@ Command line
 
     Arguments can be provided in a ``test_plan.py`` application:
 
-    optional arguments:
+    Information:
       -h, --help            show this help message and exit
       --list                Shortcut for `--info name`
       --info                (default: None)

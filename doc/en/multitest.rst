@@ -1356,6 +1356,11 @@ Built-in drivers
       exchanges.
       See some examples demonstrating FIX communication :ref:`here <example_fix>`.
 
+    * :py:class:`HTTPServer <testplan.testing.multitest.driver.http.server.HTTPServer>` and
+      :py:class:`HTTPClient <testplan.testing.multitest.driver.http.client.HTTPClient>` to
+      enable HTTP communication.
+      See some examples demonstrating HTTP communication :ref:`here <example_http>`.
+
     * :py:class:`Sqlite3 <testplan.testing.multitest.driver.sqlite.Sqlite3>`
       to connect to a database and perform sql queries etc. Examples can be
       found :ref:`here <example_sqlite3>`.
