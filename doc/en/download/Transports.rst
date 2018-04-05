@@ -88,7 +88,7 @@ Required files:
 
 test_plan.py
 ++++++++++++
-.. literalinclude:: ../../../testplan/examples/Transports/TCP/test_plan.py
+.. literalinclude:: ../../../testplan/examples/Transports/HTTP/test_plan.py
 
 http_basic.py
 +++++++++++++
