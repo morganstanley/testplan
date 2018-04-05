@@ -90,7 +90,7 @@ def test_example(root, filename):
             out = e.output.decode()
             for exception in KNOWN_EXCEPTIONS:
                 if re.search(exception, out):
-                    pytest.skip()
+                    pytest.xfail()
             assert 'Exception in test_plan definition' not in out, \
                 'Exception raised in test_plan definition.'
             assert 'Traceback (most recent call last):' not in out, \
