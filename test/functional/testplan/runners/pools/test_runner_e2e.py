@@ -92,7 +92,7 @@ def test_local_pool_integration(
 
     for log in plan.report.flattened_logs:
         if all(word in log['message'] for word in ['tkinter', 'TclError']):
-            pytest.skip('Tkinter not installed properly')
+            pytest.xfail(reason='Tkinter not installed properly')
 
     check_report(expected=expected_report, actual=plan.report)
 
@@ -166,7 +166,7 @@ def test_process_pool_integration(
 
     for log in plan.report.flattened_logs:
         if all(word in log['message'] for word in ['tkinter', 'TclError']):
-            pytest.skip('Tkinter not installed properly')
+            pytest.xfail(reason='Tkinter not installed properly')
 
     check_report(expected=expected_report, actual=plan.report)
 
