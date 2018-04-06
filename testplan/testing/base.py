@@ -393,6 +393,9 @@ class ProcessRunnerTest(Test):
 
             test_cmd = self.test_command()
 
+            self.result.report.logger.debug(
+                'Running {} - Command: {}'.format(self, test_cmd))
+
             if not test_cmd:
                 raise ValueError(
                     'Invalid test command generated for: {}'.format(self))
