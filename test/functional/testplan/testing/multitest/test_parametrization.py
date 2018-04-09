@@ -466,40 +466,19 @@ def test_parametrization_tagging():
     parametrization_group = TestGroupReport(
         name='dummy_test',
         category=Categories.PARAMETRIZATION,
-        tags={
-            'simple': {'alpha'},
-        },
-        tags_index=all_tags_index,
+        tags={'simple': {'alpha'}},
         entries=[
             TestCaseReport(
                 name='dummy_test__color_red',
-                tags={
-                    'color': {'red'}
-                },
-                tags_index={
-                    'simple': {'foo', 'alpha'},
-                    'color': {'red'}
-                }
+                tags={'color': {'red'}},
             ),
             TestCaseReport(
                 name='dummy_test__color_blue',
-                tags={
-                    'color': {'blue'}
-                },
-                tags_index={
-                    'simple': {'foo', 'alpha'},
-                    'color': {'blue'}
-                }
+                tags={'color': {'blue'}},
             ),
             TestCaseReport(
                 name='dummy_test__color_green',
-                tags={
-                    'color': {'green'}
-                },
-                tags_index={
-                    'simple': {'foo', 'alpha'},
-                    'color': {'green'}
-                }
+                tags={'color': {'green'}},
             ),
         ]
     )
@@ -518,13 +497,11 @@ def test_parametrization_tagging():
         entries=[
             TestGroupReport(
                 name='MyMultitest',
-                tags_index=all_tags_index,
                 category=Categories.MULTITEST,
                 entries=[
                     TestGroupReport(
                         name='DummySuite',
                         tags={'simple': {'foo'}},
-                        tags_index=all_tags_index,
                         category=Categories.SUITE,
                         entries=[parametrization_group]
                     )

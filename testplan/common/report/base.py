@@ -193,7 +193,9 @@ class ReportGroup(Report):
 
     def build_index(self, recursive=False):
         """
-        Build (refresh) indexes for this report and optionally for each child report.
+        Build (refresh) indexes for this report and
+        optionally for each child report.
+
         This should be called explicitly if `self.entries` is changed.
 
         :param recursive: Flag for triggering index build on children.
@@ -269,7 +271,8 @@ class ReportGroup(Report):
 
     def filter(self, *functions, **kwargs):
         """Recursively filter report entries and sub-entries."""
-        report_obj = copy.deepcopy(self) if kwargs.get('__copy', True) else self
+        is_root = kwargs.get('__copy', True)
+        report_obj = copy.deepcopy(self) if is_root else self
 
         entries = []
         for entry in report_obj.entries:
@@ -281,6 +284,9 @@ class ReportGroup(Report):
                 entries.append(entry)
 
         report_obj.entries = entries
+        if is_root:
+            report_obj.build_index(recursive=True)
+
         return report_obj
 
     def flatten(self, depths=False):

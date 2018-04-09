@@ -5,9 +5,11 @@ import mock
 
 from testplan.common.utils.testing import disable_log_propagation
 
-from testplan.report.testing.base import Status, BaseReportGroup, TestCaseReport, TestGroupReport, TestReport
+from testplan.report.testing.base import (
+    Status, BaseReportGroup, TestCaseReport, TestGroupReport, TestReport)
 from testplan.report.testing.schemas import TestReportSchema
 from testplan.common import report
+from testplan.common.utils.testing import check_report
 
 
 DummyReport = functools.partial(report.Report, name='dummy')
@@ -214,13 +216,11 @@ def dummy_test_plan_report():
 
     tag_data_1 = {'tagname': {'tag1', 'tag2'}}
     tag_data_2 = {'other_tagname': {'tag4', 'tag5'}}
-    all_tag_data = dict(tag_data_1, **tag_data_2)
 
     tc_1 = TestCaseReport(
         name='test_case_1',
         description='test case 1 description',
         tags=tag_data_1,
-        tags_index=all_tag_data,
     )
 
     with tc_1.logged_exceptions():
@@ -230,7 +230,6 @@ def dummy_test_plan_report():
         name='test_case_2',
         description='test case 2 description',
         tags={},
-        tags_index={},
     )
 
     tg_1 = TestGroupReport(
@@ -238,14 +237,12 @@ def dummy_test_plan_report():
         description='Test Group 1 description',
         entries=[tc_1, tc_2],
         tags=tag_data_2,
-        tags_index=all_tag_data,
     )
 
     tc_3 = TestCaseReport(
         name='test_case_3',
         description='test case 3 description',
         tags=tag_data_2,
-        tags_index={},
     )
 
     tc_3.status_override = Status.PASSED
@@ -255,7 +252,6 @@ def dummy_test_plan_report():
         description='Test Group 2 description',
         entries=[tg_1, tc_3],
         tags={},
-        tags_index=all_tag_data,
     )
 
     rep = TestReport(
@@ -274,7 +270,7 @@ def test_report_serialization(dummy_test_plan_report):
     """Serialized & deserialized reports should be equal."""
     data = dummy_test_plan_report.serialize()
     deserialized_report = TestReport.deserialize(data)
-    assert deserialized_report == dummy_test_plan_report
+    check_report(actual=deserialized_report, expected=dummy_test_plan_report)
 
 
 def test_report_json_serialization(dummy_test_plan_report):
@@ -282,53 +278,119 @@ def test_report_json_serialization(dummy_test_plan_report):
     test_plan_schema = TestReportSchema(strict=True)
     data = test_plan_schema.dumps(dummy_test_plan_report).data
     deserialized_report = test_plan_schema.loads(data).data
-    assert deserialized_report == dummy_test_plan_report
+    check_report(actual=deserialized_report, expected=dummy_test_plan_report)
 
 
-def test_tag_propagation():
-    """
-    Tag propagation should update tag indices
-    of the children/parents recursively.
-    """
+class TestReportTags(object):
 
-    tg_report_1 = TestGroupReport(
-        name='My Group',
-        tags={'simple': {'foo'}},
-        tags_index={'simple': {'foo'}},
-    )
+    def get_reports(self):
+        tc_report_1 = TestCaseReport(
+            name='My Test Case',
+            tags={'simple': {'baz'}},
+        )
 
-    tg_report_2 = TestGroupReport(
-        name='My Group 2',
-        tags={'simple': {'bar'}},
-        tags_index={'simple': {'bar'}},
-    )
+        tc_report_2 = TestCaseReport(
+            name='My Test Case 2',
+            tags={'simple': {'bat'}},
+        )
 
-    tc_report_1 = TestCaseReport(
-        name='My Test Case',
-        tags={'simple': {'baz'}},
-        tags_index={'simple': {'baz'}}
-    )
+        tg_report_3 = TestGroupReport(
+            name='My Group 3',
+            tags={},
+        )
 
-    tc_report_2 = TestCaseReport(
-        name='My Test Case',
-        tags={'simple': {'bat'}},
-        tags_index={'simple': {'bat'}}
-    )
+        tg_report_2 = TestGroupReport(
+            name='My Group 2',
+            tags={'simple': {'bar'}},
+            entries=[tc_report_1, tc_report_2]
+        )
 
-    tg_report_1.append(tg_report_2)
-    tg_report_2.append(tc_report_1)
-    tg_report_2.append(tc_report_2)
+        tg_report_1 = TestGroupReport(
+            name='My Group',
+            tags={'simple': {'foo'}},
+            entries=[tg_report_2, tg_report_3]
+        )
 
-    tg_report_1.propagate_tag_indices()
+        return tg_report_1, tg_report_2, tg_report_3, tc_report_1, tc_report_2
 
-    assert tg_report_1.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
-    assert tg_report_1.tags == {'simple': {'foo'}}
+    def test_tag_propagation_on_init(self):
+        """
+        Tag propagation should update tag indices
+        of the children/parents recursively.
+        """
+        tg_rep_1, tg_rep_2, tg_rep_3, tc_rep_1, tc_rep_2 = self.get_reports()
 
-    assert tg_report_2.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
-    assert tg_report_2.tags == {'simple': {'bar'}}
+        assert tg_rep_1.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
+        assert tg_rep_1.tags == {'simple': {'foo'}}
 
-    assert tc_report_1.tags_index == {'simple': {'foo', 'bar', 'baz'}}
-    assert tc_report_1.tags == {'simple': {'baz'}}
+        assert tg_rep_2.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
+        assert tg_rep_2.tags == {'simple': {'bar'}}
 
-    assert tc_report_2.tags_index == {'simple': {'foo', 'bar', 'bat'}}
-    assert tc_report_2.tags == {'simple': {'bat'}}
+        assert tg_rep_3.tags_index == {'simple': {'foo'}}
+        assert tg_rep_3.tags == {}
+
+        assert tc_rep_1.tags_index == {'simple': {'foo', 'bar', 'baz'}}
+        assert tc_rep_1.tags == {'simple': {'baz'}}
+
+        assert tc_rep_2.tags_index == {'simple': {'foo', 'bar', 'bat'}}
+        assert tc_rep_2.tags == {'simple': {'bat'}}
+
+    def test_tag_propagation_on_append(self):
+        """
+        After append operation, tag propagation should
+        be triggered from the target node.
+        """
+        tg_rep_1, tg_rep_2, tg_rep_3, tc_rep_1, tc_rep_2 = self.get_reports()
+
+        tc_report_3 = TestCaseReport(
+            name='My Test Case 3',
+            tags={'color': {'blue'}}
+        )
+
+        # root node
+        tg_rep_1.append(tc_report_3)
+
+        assert tg_rep_1.tags_index == {
+            'simple': {'foo', 'bar', 'baz', 'bat'},
+            'color': {'blue'}
+        }
+
+        assert tc_report_3.tags_index == {
+            'simple': {'foo'},
+            'color': {'blue'}
+        }
+
+    def test_tag_propagation_on_filter(self):
+        """
+        Tag indices should be updated after filter operations
+        (starting with the original node that is getting filtered).
+        """
+
+        def filter_func(obj):
+            """
+            Keep all test groups, discard testcase
+            report with name `My Test Case 2`
+            """
+            return isinstance(obj, TestGroupReport)\
+                or (isinstance(obj, TestCaseReport) and
+                    obj.name != 'My Test Case 2')
+
+        tg_rep_1, tg_rep_2, tg_rep_3, tc_rep_1, tc_rep_2 = self.get_reports()
+
+        new_tg_rep_1 = tg_rep_1.filter(filter_func)
+
+        new_tg_rep_2, new_tg_rep_3 = new_tg_rep_1
+        new_tc_rep_1 = new_tg_rep_2[0]
+
+        assert new_tc_rep_1.name == 'My Test Case'
+
+        assert new_tg_rep_1.tags_index == {'simple': {'foo', 'bar', 'baz'}}
+        assert new_tg_rep_2.tags_index == {'simple': {'foo', 'bar', 'baz'}}
+        assert new_tg_rep_3.tags_index == {'simple': {'foo'}}
+
+        # tag indices from the original should have stayed same
+        assert tg_rep_1.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
+        assert tg_rep_2.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
+        assert tg_rep_3.tags_index == {'simple': {'foo'}}
+        assert tc_rep_1.tags_index == {'simple': {'foo', 'bar', 'baz'}}
+        assert tc_rep_2.tags_index == {'simple': {'foo', 'bar', 'bat'}}

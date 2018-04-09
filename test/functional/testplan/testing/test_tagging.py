@@ -67,47 +67,20 @@ class GammaSuite(object):
 report_for_multitest_without_tags = TestGroupReport(
     name='MyMultitest',
     category='multitest',
-    tags={},
-    tags_index={
-        'simple': {'foo', 'bar'},
-        'symbol': {'aaa', 'bbb'},
-        'speed': {'slow', 'fast'},
-        'color': {'red', 'blue', 'yellow', 'green'},
-    },
     entries=[
         TestGroupReport(
             name='AlphaSuite',
             category='suite',
             tags={'color': {'red', 'blue'}},
-            tags_index={
-                'color': {'red', 'blue', 'green'},
-                'simple': {'foo', 'bar'},
-            },
             entries=[
-                TestCaseReport(
-                    name='test_method_0',
-                    tags={},
-                    tags_index={
-                        'color': {'red', 'blue'},
-                    },
-                ),
+                TestCaseReport(name='test_method_0'),
                 TestCaseReport(
                     name='test_method_1',
-                    tags={
-                        'simple': {'foo', 'bar'},
-                    },
-                    tags_index={
-                        'color': {'red', 'blue'},
-                    },
+                    tags={'simple': {'foo', 'bar'}},
                 ),
                 TestCaseReport(
                     name='test_method_2',
-                    tags={
-                        'color': {'green'},
-                    },
-                    tags_index={
-                        'color': {'red', 'blue', 'green'}
-                    }
+                    tags={'color': {'green'}},
                 ),
             ]
         ),
@@ -115,110 +88,45 @@ report_for_multitest_without_tags = TestGroupReport(
             name='BetaSuite',
             category='suite',
             tags={'color': {'yellow'}},
-            tags_index={
-                'color': {'yellow', 'red'},
-                'simple': {'foo'}
-            },
             entries=[
-                TestCaseReport(
-                    name='test_method_0',
-                    tags={},
-                    tags_index={
-                        'color': {'yellow'},
-                    },
-                ),
+                TestCaseReport(name='test_method_0'),
                 TestCaseReport(
                     name='test_method_1',
-                    tags={
-                        'simple': {'foo'},
-                    },
-                    tags_index={
-                        'color': {'yellow'},
-                        'simple': {'foo'}
-                    },
+                    tags={'simple': {'foo'}},
                 ),
                 TestCaseReport(
                     name='test_method_2',
-                    tags={
-                        'color': {'red'},
-                    },
-                    tags_index={
-                        'color': {'yellow', 'red'},
-                    },
+                    tags={'color': {'red'}},
                 ),
             ],
         ),
         TestGroupReport(
             name='GammaSuite',
             category='suite',
-            tags={},
-            tags_index={
-                'symbol': {'aaa', 'bbb'},
-                'speed': {'slow', 'fast'}
-            },
             entries=[
-                TestCaseReport(
-                    name='test_method_0',
-                    tags={},
-                    tags_index={},
-                ),
+                TestCaseReport(name='test_method_0'),
                 TestGroupReport(
                     name='test_param',
                     category='parametrization',
-                    tags={
-                        'speed': {'slow'},
-                    },
-                    tags_index={
-                        'speed': {'slow'},
-                        'symbol': {'aaa', 'bbb'},
-                    },
+                    tags={'speed': {'slow'}},
                     entries=[
                         TestCaseReport(
                             name='test_param__value_AAA',
-                            tags={
-                                'symbol': {'aaa'},
-                            },
-                            tags_index={
-                                'speed': {'slow'},
-                                'symbol': {'aaa'},
-                            }
+                            tags={'symbol': {'aaa'}},
                         ),
                         TestCaseReport(
                             name='test_param__value_BBB',
-                            tags={
-                                'symbol': {'bbb'},
-                            },
-                            tags_index={
-                                'speed': {'slow'},
-                                'symbol': {'bbb'},
-                            }
+                            tags={'symbol': {'bbb'}},
                         ),
                     ]
                 ),
                 TestGroupReport(
                     name='test_param_2',
                     category='parametrization',
-                    tags={
-                        'speed': {'fast'},
-                    },
-                    tags_index={
-                        'speed': {'fast'},
-                    },
+                    tags={'speed': {'fast'}},
                     entries=[
-                        TestCaseReport(
-                            name='test_param_2__value_XXX',
-                            tags={},
-                            tags_index={
-                                'speed': {'fast'},
-                            }
-                        ),
-                        TestCaseReport(
-                            name='test_param_2__value_YYY',
-                            tags={},
-                            tags_index={
-                                'speed': {'fast'},
-                            }
-                        ),
+                        TestCaseReport(name='test_param_2__value_XXX'),
+                        TestCaseReport(name='test_param_2__value_YYY'),
                     ]
                 )
             ]
@@ -234,50 +142,20 @@ report_for_multitest_with_tags = TestGroupReport(
         'color': {'orange'},
         'environment': {'server'}
     },
-    tags_index={
-        'simple': {'foo', 'bar'},
-        'symbol': {'aaa', 'bbb'},
-        'speed': {'slow', 'fast'},
-        'color': {'orange', 'red', 'blue', 'yellow', 'green'},
-        'environment': {'server'}
-    },
     entries=[
         TestGroupReport(
             name='AlphaSuite',
             category='suite',
             tags={'color': {'red', 'blue'}},
-            tags_index={
-                'color': {'red', 'blue', 'orange', 'green'},
-                'simple': {'foo', 'bar'},
-                'environment': {'server'}
-            },
             entries=[
-                TestCaseReport(
-                    name='test_method_0',
-                    tags={},
-                    tags_index={
-                        'color': {'red', 'blue', 'orange'},
-                        'environment': {'server'}
-                    },
-                ),
+                TestCaseReport(name='test_method_0'),
                 TestCaseReport(
                     name='test_method_1',
-                    tags={
-                        'simple': {'foo', 'bar'},
-                    },
-                    tags_index={
-                        'color': {'red', 'blue', 'orange'},
-                        'environment': {'server'}
-                    },
+                    tags={'simple': {'foo', 'bar'}},
                 ),
                 TestCaseReport(
                     name='test_method_2',
-                    tags={
-                        'color': {'green'},
-                    },
-                    tags_index={
-                        'environment': {'server'},
-                        'color': {'red', 'blue', 'orange', 'green'}}
+                    tags={'color': {'green'}},
                 ),
             ]
         ),
@@ -285,128 +163,45 @@ report_for_multitest_with_tags = TestGroupReport(
             name='BetaSuite',
             category='suite',
             tags={'color': {'yellow'}},
-            tags_index={
-                'color': {'yellow', 'orange', 'red'},
-                'environment': {'server'},
-                'simple': {'foo'}
-            },
             entries=[
-                TestCaseReport(
-                    name='test_method_0',
-                    tags={},
-                    tags_index={
-                        'color': {'yellow', 'orange'},
-                        'environment': {'server'},
-                    },
-                ),
+                TestCaseReport(name='test_method_0'),
                 TestCaseReport(
                     name='test_method_1',
-                    tags={
-                        'simple': {'foo'},
-                    },
-                    tags_index={
-                        'color': {'yellow', 'orange'},
-                        'environment': {'server'},
-                        'simple': {'foo'}
-                    },
+                    tags={'simple': {'foo'}},
                 ),
                 TestCaseReport(
                     name='test_method_2',
-                    tags={
-                        'color': {'red'},
-                    },
-                    tags_index={
-                        'color': {'yellow', 'orange', 'red'},
-                        'environment': {'server'},
-                    },
+                    tags={'color': {'red'}},
                 ),
             ]
         ),
         TestGroupReport(
             name='GammaSuite',
             category='suite',
-            tags={},
-            tags_index={
-                'color': {'orange'},
-                'environment': {'server'},
-                'symbol': {'aaa', 'bbb'},
-                'speed': {'slow', 'fast'}
-            },
             entries=[
-                TestCaseReport(
-                    name='test_method_0',
-                    tags={},
-                    tags_index={
-                        'color': {'orange'},
-                        'environment': {'server'},
-                    },
-                ),
+                TestCaseReport(name='test_method_0'),
                 TestGroupReport(
                     name='test_param',
                     category='parametrization',
-                    tags={
-                        'speed': {'slow'},
-                    },
-                    tags_index={
-                        'speed': {'slow'},
-                        'symbol': {'aaa', 'bbb'},
-                        'color': {'orange'},
-                        'environment': {'server'},
-                    },
+                    tags={'speed': {'slow'}},
                     entries=[
                         TestCaseReport(
                             name='test_param__value_AAA',
-                            tags={
-                                'symbol': {'aaa'},
-                            },
-                            tags_index={
-                                'speed': {'slow'},
-                                'symbol': {'aaa'},
-                                'color': {'orange'},
-                                'environment': {'server'},
-                            }
+                            tags={'symbol': {'aaa'}},
                         ),
                         TestCaseReport(
                             name='test_param__value_BBB',
-                            tags={
-                                'symbol': {'bbb'},
-                            },
-                            tags_index={
-                                'speed': {'slow'},
-                                'symbol': {'bbb'},
-                                'color': {'orange'},
-                                'environment': {'server'},
-                            }
+                            tags={'symbol': {'bbb'}},
                         ),
                     ]
                 ),
                 TestGroupReport(
                     name='test_param_2',
                     category='parametrization',
-                    tags={
-                        'speed': {'fast'},
-                    },
-                    tags_index={
-                        'speed': {'fast'},
-                        'color': {'orange'},
-                    },
+                    tags={'speed': {'fast'}},
                     entries=[
-                        TestCaseReport(
-                            name='test_param_2__value_XXX',
-                            tags={},
-                            tags_index={
-                                'speed': {'fast'},
-                                'color': {'orange'},
-                            }
-                        ),
-                        TestCaseReport(
-                            name='test_param_2__value_YYY',
-                            tags={},
-                            tags_index={
-                                'speed': {'fast'},
-                                'color': {'orange'},
-                            }
-                        ),
+                        TestCaseReport(name='test_param_2__value_XXX'),
+                        TestCaseReport(name='test_param_2__value_YYY'),
                     ]
                 )
             ]

@@ -3,6 +3,7 @@ import functools
 import inspect
 import traceback
 import types
+import copy
 
 from collections import defaultdict
 
@@ -30,11 +31,6 @@ def update_tag_index(obj, tag_dict):
 
     obj.__tags_index__ = tagging.merge_tag_dicts(
         tag_dict, getattr(obj, '__tags_index__', {}))
-
-
-def collect_testcase_tags(testcases):
-    return tagging.merge_tag_dicts(
-        *[tc.__tags_index__ for tc in testcases])
 
 
 def propagate_tag_indices(suite, tag_dict):
@@ -77,22 +73,17 @@ def propagate_tag_indices(suite, tag_dict):
     MySuite -> {'color': {'red', 'blue', 'yellow'}, 'speed': {'fast'}}
         testcase_one -> {'color': 'red'}
         testcase_two -> {'color': {'blue', 'red'}, 'speed': 'fast'}
-        parametrized_testcase -> {'color': {'yellow', 'red'}}
+        parametrized_testcase -> NO TAG INDEX
             generated_testcase_1 -> {'color': {'yellow', 'red'}}
             generated_testcase_2 -> {'color': {'yellow', 'red'}}
 
+    Parametrization method templates do not have tag index attribute, as
+    they are not run as tests and their tags are propagated to generated
+    testcases (and eventually up to the suite index).
     """
-    testcases = get_testcase_methods(suite)
-
-    suite_attrs = (
-        getattr(suite, attr_name) for attr_name in dir(suite))
-    param_templates = [
-        obj for obj in suite_attrs
-        if getattr(obj, '__parametrization_template__', False)]
-
     update_tag_index(suite, tag_dict)
 
-    for child in testcases + param_templates:
+    for child in get_testcase_methods(suite):
         update_tag_index(child, tag_dict)
 
 
@@ -271,17 +262,14 @@ def _testsuite(klass):
     testcase_methods = get_testcase_methods(klass)
 
     # propagate suite's native tags onto itself, which
-    # will propagate them further to the suite's
-    # children (testcases, parametrization template methods)
+    # will propagate them further to the suite's testcases
     propagate_tag_indices(klass, klass.__tags__)
 
     # Collect tag indices from testcase methods and update suite's tag index.
-    # These indices will also contain tag data from parametrization
-    # templates as well, so we don't have to go over parametrization
-    # template methods separately.
     update_tag_index(
         obj=klass,
-        tag_dict=collect_testcase_tags(testcase_methods))
+        tag_dict=tagging.merge_tag_dicts(
+            *[tc.__tags_index__ for tc in testcase_methods]))
 
     __GENERATED_TESTCASES__ = []
     __TESTCASES__ = []
@@ -301,7 +289,7 @@ def _testsuite_meta(tags=None):
         """Meta logic for suite goes here"""
         if tags:
             klass.__tags__ = tagging.validate_tag_value(tags)
-            klass.__tags_index__ = klass.__tags__.copy()
+            klass.__tags_index__ = copy.deepcopy(klass.__tags__)
 
         suite = _testsuite(klass)
 
@@ -383,8 +371,7 @@ def _testcase_meta(
         """Meta logic for test case goes here"""
 
         tag_dict = tagging.validate_tag_value(tags) if tags else {}
-        function.__tags__ = tag_dict.copy()
-        function.__tags_index__ = tag_dict.copy()
+        function.__tags__ = copy.deepcopy(tag_dict)
 
         if parameters is not None:  # Empty tuple / dict checks happen later
 
@@ -423,20 +410,12 @@ def _testcase_meta(
                 __TESTCASES__.append(func.__name__)
                 __GENERATED_TESTCASES__.append(func)
 
-            # Update template method's tag index with generated
-            # testcases' tag indices. This will have no effect of test
-            # filtering logic, however generated test reports
-            # may need this data for report filtering.
-            if tag_func:
-                update_tag_index(
-                    function,
-                    tag_dict=collect_testcase_tags(functions))
-
             return function
         else:
             function.summarize = summarize
             function.summarize_num_passing = num_passing
             function.summarize_num_failing = num_failing
+            function.__tags_index__ = copy.deepcopy(tag_dict)
 
             return _testcase(function)
     return wrapper
