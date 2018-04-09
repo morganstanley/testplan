@@ -62,8 +62,9 @@ class MultiTestConfig(TestConfig):
 
         def iterable_suites(obj):
             """Create an iterable suites object."""
-            suites = [obj] if not isinstance(obj,
-                                             collections.Iterable) else obj
+            suites = [obj] if not isinstance(
+                obj, collections.Iterable) else obj
+
             for suite in suites:
                 set_testsuite_testcases(suite)
             return suites
@@ -201,7 +202,6 @@ class MultiTest(Test):
                         description=next_suite.__class__.__doc__,
                         category=Categories.SUITE,
                         tags=next_suite.__tags__,
-                        tags_index=next_suite.__tags_index__,
                     )
                     self.report.append(testsuite_report)
                     self._run_suite(next_suite, testcases, testsuite_report)
@@ -244,7 +244,6 @@ class MultiTest(Test):
                                 description=param_method.__doc__,
                                 category=Categories.PARAMETRIZATION,
                                 tags=param_method.__tags__,
-                                tags_index=param_method.__tags_index__,
                             )
                             param_rep_lookup[param_template] = param_report
                             testsuite_report.append(param_report)
@@ -284,7 +283,6 @@ class MultiTest(Test):
             name=testcase.__name__,
             description=testcase.__doc__,
             tags=testcase.__tags__,
-            tags_index=testcase.__tags_index__,
         )
 
         def _run_case_related(method):
@@ -370,7 +368,10 @@ class MultiTest(Test):
         if self.cfg.after_start:
             # TODO add TestGroupReport + TestCaseReport
             self._add_step(self.cfg.after_start, self.resources)
+
         self._add_step(self.run_tests)
+        self._add_step(self.propagate_tag_indices)
+
         if self.cfg.before_stop:
             # TODO add TestGroupReport + TestCaseReport
             self._add_step(self.cfg.before_stop, self.resources, self.report)

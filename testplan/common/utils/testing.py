@@ -228,7 +228,7 @@ def check_report(expected, actual, skip=None):
                     '{linesep}{report_msg}{error_msg}'.format(
                         linesep=os.linesep,
                         report_msg=msg,
-                        error_msg=err.msg
+                        error_msg=str(err)
                     )
                 )
         else:

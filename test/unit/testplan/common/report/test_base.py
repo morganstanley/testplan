@@ -1,7 +1,5 @@
 import logging
-import traceback
 import functools
-import os
 import re
 
 import pytest
@@ -24,12 +22,6 @@ def test_exception_logger_suppression():
 
     with rep.logged_exceptions():
         raise Exception('foo')
-
-    expected_log = {
-        'levelname': 'ERROR',
-        'levelno': logging.ERROR,
-        'message': exc_str,
-    }
 
     original_log = rep.logs[0]
 
@@ -123,7 +115,10 @@ class TestReport(object):
             rep_1._check_report(rep_2)
 
     def test_merge_logs(self):
-        """Log merge should update `_logs` dict with report's `local_uid` and should be idempotent."""
+        """
+        Log merge should update `_logs` dict with
+        report's `local_uid` and should be idempotent.
+        """
         rep_1 = DummyReport(uid=5)
         rep_2 = DummyReport(uid=5)
 
@@ -144,7 +139,10 @@ class TestReport(object):
         assert rep_1.logs == expected
 
     def test_filter(self):
-        """Filter operation should return a copy of original report with filtered entries."""
+        """
+        Filter operation should return a copy of
+        original report with filtered entries.
+        """
         rep = DummyReport(entries=[1, 2, ['foo'], ['bar', 'baz'], {'hello': 'world'}])
 
         rep_copy_1 = rep.filter(lambda val: isinstance(val, int))
@@ -167,7 +165,10 @@ class TestReport(object):
 class TestReportGroup(object):
 
     def test_build_index(self):
-        """Should set `_index` attribute with child report `ids` as keys and child report as values."""
+        """
+        Should set `_index` attribute with child
+        report `ids` as keys and child report as values.
+        """
         parent = DummyReportGroup()
         children = [DummyReport() for idx in range(3)]
 

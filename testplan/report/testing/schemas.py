@@ -39,13 +39,13 @@ class TagField(fields.Field):
         return {
             tag_name: list(tag_values)
             for tag_name, tag_values in value.items()
-        }
+            }
 
     def _deserialize(self, value, attr, data):
         return {
             tag_name: set(tag_values)
             for tag_name, tag_values in value.items()
-        }
+            }
 
 
 class TimerField(fields.Field):
@@ -58,7 +58,7 @@ class TimerField(fields.Field):
         return {
             k: IntervalSchema(strict=True).dump(v).data
             for k, v in value.items()
-        }
+            }
 
     def _deserialize(self, value, attr, data):
         return timing.Timer({
@@ -79,7 +79,6 @@ class TestCaseReportSchema(ReportSchema):
     status = fields.String(dump_only=True)
     timer = TimerField()
     tags = TagField()
-    tags_index = TagField()
 
     @post_load
     def make_report(self, data):
@@ -111,6 +110,15 @@ class TestGroupReportSchema(TestCaseReportSchema):
         },
         many=True
     )
+
+    @post_load
+    def make_report(self, data):
+        """
+        Propagate tag indices after deserialization
+        """
+        rep = super(TestGroupReportSchema, self).make_report(data)
+        rep.propagate_tag_indices()
+        return rep
 
 
 class TestReportSchema(Schema):
@@ -147,6 +155,8 @@ class TestReportSchema(Schema):
 
         test_plan_report = TestReport(**data)
         test_plan_report.entries = [load_tree(c_data) for c_data in entry_data]
+        test_plan_report.propagate_tag_indices()
+
         test_plan_report.status_override = status_override
         test_plan_report.timer = timer
         return test_plan_report

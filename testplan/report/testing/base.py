@@ -23,7 +23,7 @@ TestReport(name='MyPlan')
     TestGroupReport(name='A-1', category='TestSuite')
       TestCaseReport(name='test_method_a_1_x')
       TestCaseReport(name='test_method_a_1_y')
-      TestGroupReport(name='test_method_a_1_z', category='ParametrizedTestCase')
+      TestGroupReport(name='test_method_a_1_z', category='parametrization')
         TestCaseReport(name='test_method_a_1_z_1')
         TestCaseReport(name='test_method_a_1_z_2')
         TestCaseReport(name='test_method_a_1_z_3')
@@ -39,6 +39,7 @@ TestReport(name='MyPlan')
                                                      GTest is run
     ...
 """
+import copy
 import collections
 import inspect
 
@@ -125,7 +126,7 @@ class BaseReportGroup(ReportGroup):
 
     def _get_comparison_attrs(self):
         return super(BaseReportGroup, self)._get_comparison_attrs() +\
-               ['status_override', 'timer']
+            ['status_override', 'timer']
 
     @property
     def passed(self):
@@ -200,6 +201,22 @@ class BaseReportGroup(ReportGroup):
         return TestCount(*[_get_counts(self, stat)
                            for stat in Status.STATUS_PRECEDENCE])
 
+    def filter(self, *functions, **kwargs):
+        """
+        Tag indices are updated after filter operations.
+        """
+        result = super(BaseReportGroup, self).filter(*functions, **kwargs)
+
+        # We'd like to call tag propagation before returning the root node,
+        # so we rely on absence of implicit `__copy` arg to decide if we should
+        # trigger tag index propagation or not. If we don't do this check
+        # then tag propagation will be called for each filter call on
+        # sub-nodes which is going to be a redundant operation.
+
+        if kwargs.get('__copy', True):
+            result.propagate_tag_indices()
+        return result
+
     def filter_by_tags(self, tag_value, all_tags=False):
         """Shortcut method for filtering the report by given tags."""
         def _filter_func(obj):
@@ -243,9 +260,20 @@ class TestReport(BaseReportGroup):
                 *[child.tags_index for child in self])
         return self._tags_index
 
+    def propagate_tag_indices(self):
+        """
+        TestReport does not have native tag data,
+        so it just triggers children's tag updates.
+        """
+        for child in self:
+            child.propagate_tag_indices()
+
+        # reset tags index, so it gets repopulated on the next call
+        self._tags_index = None
+
     def _get_comparison_attrs(self):
         return super(TestReport, self)._get_comparison_attrs() +\
-               ['tags_index', 'meta']
+            ['tags_index', 'meta']
 
     def serialize(self):
         """
@@ -271,35 +299,39 @@ class TestGroupReport(BaseReportGroup):
     """
 
     def __init__(
-          self, name, description=None,
-          category=None, uid=None, entries=None,
-          tags=None, tags_index=None
+        self, name, description=None,
+        category=None, uid=None, entries=None,
+        tags=None
     ):
         super(TestGroupReport, self).__init__(
             name=name, uid=uid, entries=entries, description=description)
-        self.category = category  # This will be used for distinguishing test
-        # type (Multitest, GTest etc)
 
-        self.tags = tags or {}
-        self.tags_index = tags_index or {}
+        # This will be used for distinguishing test
+        # type (Multitest, GTest etc)
+        self.category = category
+
+        self.tags = tagging.validate_tag_value(tags) if tags else {}
+        self.tags_index = copy.deepcopy(self.tags)
+
+        if entries:
+            self.propagate_tag_indices()
 
     def __str__(self):
         return (
             '{kls}(name="{name}", category="{category}", id="{uid}"),'
-            ' tags={tags}, tags_index={tags_index})'
+            ' tags={tags})'
         ).format(
             kls=self.__class__.__name__,
             name=self.name,
             category=self.category,
             uid=self.uid,
             tags=self.tags or None,
-            tags_index=self.tags_index or None
         )
 
     def __repr__(self):
         return (
             '{kls}(name="{name}", category="{category}", id="{uid}",'
-            ' entries={entries}, tags={tags}, tags_index={tags_index})'
+            ' entries={entries}, tags={tags})'
         ).format(
             kls=self.__class__.__name__,
             name=self.name,
@@ -307,12 +339,17 @@ class TestGroupReport(BaseReportGroup):
             uid=self.uid,
             entries=repr(self.entries),
             tags=self.tags or None,
-            tags_index=self.tags_index or None
         )
 
     def _get_comparison_attrs(self):
         return super(TestGroupReport, self)._get_comparison_attrs() +\
-               ['category', 'tags', 'tags_index']
+            ['category', 'tags', 'tags_index']
+
+    def append(self, item):
+        """Update tag indices if item or self has tag data."""
+        super(TestGroupReport, self).append(item)
+        if self.tags_index or item.tags_index:
+            self.propagate_tag_indices()
 
     def serialize(self):
         """
@@ -325,39 +362,47 @@ class TestGroupReport(BaseReportGroup):
     @classmethod
     def deserialize(cls, data):
         """
-        Shortcut for instantiating ``TestGroupReport`` object (and its children)
-        from nested python dictionaries.
+        Shortcut for instantiating ``TestGroupReport`` object
+        (and its children) from nested python dictionaries.
         """
         from .schemas import TestGroupReportSchema
         return TestGroupReportSchema(strict=True).load(data).data
 
     def _collect_tag_indices(self):
-        """Collect tag indices from the current report and its children."""
-        tag_dicts = [self.tags_index]
+        """
+        Recursively collect tag indices from children (and their children etc)
+        """
+        tag_dicts = [self.tags]
+
         for child in self:
-            if isinstance(child, TestCaseReport):
-                tag_dicts.append(child.tags_index)
-            elif isinstance(child, TestGroupReport):
+            if isinstance(child, TestGroupReport):
                 tag_dicts.append(child._collect_tag_indices())
+            elif isinstance(child, TestCaseReport):
+                tag_dicts.append(child.tags)
         return tagging.merge_tag_dicts(*tag_dicts)
 
-    def propagate_tag_indices(self):
+    def propagate_tag_indices(self, parent_tags=None):
         """
-        When a test is run and test instance report is populated with children
-        we may need to tag indices of the report tree.
+        Distribute native tag data onto `tags_index` attributes on the nodes
+        of the test report. This distribution happens 2 ways.
+        """
+        tags_index = tagging.merge_tag_dicts(self.tags, parent_tags or {})
 
-        This is more likely to happen for tests that are
-        run via 3rd party testing libraries.
-        """
         for child in self:
-            if isinstance(child, (TestGroupReport, TestCaseReport)):
-                child.tags_index = tagging.merge_tag_dicts(
-                    self.tags_index, child.tags_index)
-
             if isinstance(child, TestGroupReport):
-                child.propagate_tag_indices()
+                child.propagate_tag_indices(parent_tags=tags_index)
 
-        self.tags_index = self._collect_tag_indices()
+            elif isinstance(child, TestCaseReport):
+                child.tags_index = tagging.merge_tag_dicts(
+                    child.tags, tags_index)
+
+        self.tags_index = tagging.merge_tag_dicts(
+            tags_index, self._collect_tag_indices())
+
+    def merge(self, report, strict=True):
+        """Propagate tag indices after merge operations."""
+        super(BaseReportGroup, self).merge(report, strict=strict)
+        self.propagate_tag_indices()
 
 
 class TestCaseReport(Report):
@@ -368,14 +413,15 @@ class TestCaseReport(Report):
     exception_logger = ExceptionLogger
 
     def __init__(
-          self, name, description=None,
-          uid=None, entries=None,
-          tags=None, tags_index=None):
+        self, name, description=None,
+        uid=None, entries=None,
+        tags=None
+    ):
         super(TestCaseReport, self).__init__(
             name=name, uid=uid, entries=entries, description=description)
 
-        self.tags = tags or {}
-        self.tags_index = tags_index or {}
+        self.tags = tagging.validate_tag_value(tags) if tags else {}
+        self.tags_index = copy.deepcopy(self.tags)
 
         self.status_override = None
         self.timer = timing.Timer()

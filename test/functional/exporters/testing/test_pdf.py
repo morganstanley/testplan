@@ -88,7 +88,7 @@ def test_tag_filtered_pdf(tmpdir):
             TestGroupReport(
                 name='Multitest 1',
                 category='multitest',
-                tags_index={
+                tags={
                     'simple': {'foo', 'bar'},
                     'color': {'red'}
                 },
@@ -96,7 +96,7 @@ def test_tag_filtered_pdf(tmpdir):
             TestGroupReport(
                 name='Multitest 2',
                 category='multitest',
-                tags_index={
+                tags={
                     'simple': {'foo'},
                     'color': {'blue'}
                 },
@@ -104,7 +104,7 @@ def test_tag_filtered_pdf(tmpdir):
             TestGroupReport(
                 name='Multitest 3',
                 category='multitest',
-                tags_index={
+                tags={
                     'simple': {'bar'},
                     'color': {'green'}
                 },

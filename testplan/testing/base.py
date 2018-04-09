@@ -5,7 +5,6 @@ import subprocess
 from lxml import objectify
 from schema import Or, Use
 
-
 from testplan import defaults
 from testplan.common.config import ConfigOption
 
@@ -102,7 +101,6 @@ class Test(Runnable):
             category=self.__class__.__name__.lower(),
             description=self.cfg.description,
             tags=self.cfg.tags,
-            tags_index=self.get_tags_index(),
         )
 
     def __str__(self):
@@ -392,6 +390,9 @@ class ProcessRunnerTest(Test):
                 open(self.stdout, 'w') as stdout:
 
             test_cmd = self.test_command()
+
+            self.result.report.logger.debug(
+                'Running {} - Command: {}'.format(self, test_cmd))
 
             if not test_cmd:
                 raise ValueError(
