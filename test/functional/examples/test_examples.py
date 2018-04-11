@@ -8,6 +8,9 @@ from testplan.common.utils.path import change_directory
 
 import platform
 
+
+FILE_DIR = os.path.dirname(__file__)
+
 ON_WINDOWS = platform.system() == 'Windows'
 
 KNOWN_EXCEPTIONS = [
@@ -35,7 +38,7 @@ ROOT_DIR_CONTENTS = [
 
 
 def _depth_from_repo_root():
-    cwd = os.getcwd()
+    cwd = FILE_DIR
     depth = []
     while True:
         contents = os.listdir(cwd)
@@ -49,8 +52,8 @@ def _depth_from_repo_root():
 
 
 def _relative_dir(directory):
-    path_args = _depth_from_repo_root() + [directory]
-    return os.path.join(*path_args)
+    path_args = [FILE_DIR] + _depth_from_repo_root() + [directory]
+    return os.path.abspath(os.path.join(*path_args))
 
 
 def _param_formatter(param):
