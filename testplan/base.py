@@ -136,35 +136,39 @@ class Testplan(RunnableManager):
         testplan_result.__dict__ = testrunner_result.__dict__
         return testplan_result
 
-
-def test_plan(**options):
-    """
-    A simple decorator to make test plans short and sweet. It accepts all
-    arguments of a :py:class:`~testplan.base.Testplan` entity.
-    """
-
-    def test_plan_inner(definition):
+    @classmethod
+    def main_wrapper(cls, **options):
         """
-        This is being passed the user-defined testplan entry point.
-        """
+        Decorator that will be used for wrapping `main` methods in test scripts.
 
-        def test_plan_inner_inner():
+        It accepts all arguments of a
+        :py:class:`~testplan.base.Testplan` entity.
+        """
+        def test_plan_inner(definition):
             """
-            This is the callable returned in the end, it executes the plan
-            and the associated reporting
+            This is being passed the user-defined testplan entry point.
             """
-            plan = Testplan(**options)
-            try:
-                if arity(definition) == 2:
-                    returned = definition(plan, plan.parser)
-                else:
-                    returned = definition(plan)
-            except Exception:
-                print('Exception in test_plan definition, aborting plan..')
-                plan.abort()
-                raise
-            plan_result = plan.run()
-            plan_result.decorated_value = returned
-            return plan_result
-        return test_plan_inner_inner
-    return test_plan_inner
+
+            def test_plan_inner_inner():
+                """
+                This is the callable returned in the end, it executes the plan
+                and the associated reporting
+                """
+                plan = cls(**options)
+                try:
+                    if arity(definition) == 2:
+                        returned = definition(plan, plan.parser)
+                    else:
+                        returned = definition(plan)
+                except Exception:
+                    print('Exception in test_plan definition, aborting plan..')
+                    plan.abort()
+                    raise
+                plan_result = plan.run()
+                plan_result.decorated_value = returned
+                return plan_result
+            return test_plan_inner_inner
+        return test_plan_inner
+
+
+test_plan = Testplan.main_wrapper
