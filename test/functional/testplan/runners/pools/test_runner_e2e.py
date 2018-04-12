@@ -26,6 +26,18 @@ else:
     matplot_expected_report = matplotlib.report.expected_report
 
 
+def importorxfail(dependency):
+    """
+    Try to import dependency, mark test as xfail if not.
+
+    :param dependency: Dependency to try importing.
+    :type dependency: ``str``
+    """
+    try:
+        __import__(dependency)
+    except ImportError as e:
+        pytest.xfail(str(e))
+
 @pytest.fixture(scope='session')
 def report_dir(tmpdir_factory):
     """
@@ -71,7 +83,7 @@ def test_local_pool_integration(
     expected_plan_result, dependant_module
 ):
     if dependant_module:
-        pytest.importorskip(dependant_module)
+        importorxfail(dependant_module)
 
     pdf_path = report_dir.join('test_report_local_{}.pdf'.format(
         pdf_title)).strpath
@@ -134,7 +146,7 @@ def test_process_pool_integration(
     expected_plan_result, dependant_module
 ):
     if dependant_module:
-        pytest.importorskip(dependant_module)
+        importorxfail(dependant_module)
 
     pool = ProcessPool(name='MyPool', size=1)
     pdf_path = report_dir.join('test_report_process_{}.pdf'.format(
