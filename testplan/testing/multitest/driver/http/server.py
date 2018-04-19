@@ -125,16 +125,14 @@ class HTTPServer(Driver):
         """Start the HTTPServer."""
         super(HTTPServer, self).starting()
         self._setup_file_logger(self.logpath)
-        self._host = self.cfg.host
-        self._port = self.cfg.port
         self.request_handler = self.cfg.request_handler
         self.handler_attributes = self.cfg.handler_attributes
         self.timeout = self.cfg.timeout
         self.requests = queue.Queue()
         self.responses = queue.Queue()
 
-        self._server_thread = _HTTPServerThread(host=self._host,
-                                                port=self._port,
+        self._server_thread = _HTTPServerThread(host=self.cfg.host,
+                                                port=self.cfg.port,
                                                 requests_queue=self.requests,
                                                 responses_queue=self.responses,
                                                 handler_attributes=self.handler_attributes,
@@ -146,7 +144,7 @@ class HTTPServer(Driver):
 
         while not hasattr(self._server_thread.server, 'server_port'):
             time.sleep(0.1)
-        self._port = self._server_thread.server.server_port
+        self._host, self._port = self._server_thread.server.server_address
         self.file_logger.debug(
             'Started HTTPServer listening on http://{host}:{port}'.format(
                 host=self.host,
