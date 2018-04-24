@@ -13,10 +13,11 @@ def make_tuple(value, convert_none=False):
 
 def sort_and_group(iterable, key):
     """Sort an iterable and group the items by the given key func"""
-    return [
+    groups = [
         (k, list(g)) for k, g in
         itertools.groupby(sorted(iterable, key=key), key=key)
     ]
+    return groups
 
 
 def nested_groups(iterable, key_funcs):

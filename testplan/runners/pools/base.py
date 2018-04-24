@@ -227,8 +227,8 @@ class Worker(Resource):
     def starting(self):
         """Starts the daemonic worker loop."""
         self.make_runpath_dirs()
-        self._loop_handler = threading.Thread(target=self._loop,
-                                         args=(self._transport,))
+        self._loop_handler = threading.Thread(
+            target=self._loop, args=(self._transport,))
         self._loop_handler.daemon = True
         self._loop_handler.start()
 
@@ -603,13 +603,8 @@ class Pool(Executor):
         else:
             self.logger.test_info('{} -> {}'.format(name, Color.red('Fail')))
 
-    def starting(self):
-        """Starting the pool and workers."""
-        super(Pool, self).starting()
-        self.make_runpath_dirs()
-
-        self._metadata['runpath'] = self.runpath
-
+    def _add_workers(self):
+        """TODO."""
         for idx in (str(i) for i in range(self.cfg.size)):
             worker = self.cfg.worker_type(index=idx)
             self.logger.debug('Created {}'.format(worker))
@@ -618,6 +613,13 @@ class Pool(Executor):
             self._workers.add(worker, uid=idx)
             # print('Added worker with id {}'.format(idx))
             self._conn.register(worker)
+
+    def starting(self):
+        """Starting the pool and workers."""
+        super(Pool, self).starting()
+        self.make_runpath_dirs()
+        self._metadata['runpath'] = self.runpath
+        self._add_workers()
         self._workers.start()
         if self._workers.start_exceptions:
             for msg in self._workers.start_exceptions.values():

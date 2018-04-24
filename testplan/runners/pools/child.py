@@ -1,12 +1,14 @@
 """Child worker process module."""
 
 import os
+import io
 import sys
 import time
 import pickle
 import signal
 import socket
 import argparse
+import platform
 import threading
 
 
@@ -16,8 +18,13 @@ def parse_cmdline():
     parser.add_argument('--address', action="store")
     parser.add_argument('--index', action="store")
     parser.add_argument('--testplan', action="store")
+    parser.add_argument('--testplan-deps', action="store", default=None)
+    parser.add_argument('--wd', action="store")
     parser.add_argument('--type', action="store")
     parser.add_argument('--log-level', action="store", default=0, type=int)
+    parser.add_argument('--remote-pool-type', action="store", default='thread')
+    parser.add_argument('--remote-pool-size', action="store", default=1)
+
     return parser.parse_args()
 
 
@@ -84,10 +91,12 @@ class ChildLoop(object):
     thread pool to execute the tasks received.
     """
 
-    def __init__(self, index, transport, pool_type, worker_type, logger):
+    def __init__(self, index, transport, pool_type, pool_size,
+                 worker_type, logger):
         self._metadata = {'index': index, 'pid': os.getpid()}
         self._transport = transport
         self._pool_type = pool_type
+        self._pool_size = int(pool_size)
         self._worker_type = worker_type
         self._to_heartbeat = float(0)
         self.logger = logger
@@ -117,8 +126,8 @@ class ChildLoop(object):
         # Local thread pool will not cleanup the previous layer runpath.
         self._pool = self._pool_type(
             name='Pool_{}'.format(self._metadata['pid']),
-            worker_type=self._worker_type, worker_heartbeat=0, size=1,
-            runpath=self.runpath, path_cleanup=False)
+            worker_type=self._worker_type, worker_heartbeat=0,
+            size=self._pool_size, runpath=self.runpath, path_cleanup=False)
         self._pool.parent = self
         self._pool.cfg.parent = pool_cfg
         return self._pool
@@ -130,6 +139,18 @@ class ChildLoop(object):
             self._pool.abort()
             os.kill(os.getpid(), 9)
             self.logger.debug('Pool {} aborted.'.format(self._pool))
+
+    def _setup_logfiles(self):
+        if not os.path.exists(self.runpath):
+            os.makedirs(self.runpath)
+        for fdesc in range(3):
+            os.close(fdesc)
+
+        mode = 'w' if  platform.python_version().startswith('3') else 'wb'
+        sys.stdout = io.open(os.path.join(
+            self.runpath, '{}_stdout'.format(self._metadata['index'])), mode)
+        sys.stderr = io.open(os.path.join(
+            self.runpath, '{}_stderr'.format(self._metadata['index'])), mode)
 
     def worker_loop(self):
         """
@@ -152,7 +173,9 @@ class ChildLoop(object):
 
         pool_metadata = response.sender_metadata
 
-        self.runpath = pool_metadata['runpath']
+        self.runpath = str(pool_metadata['runpath'])
+
+        self._setup_logfiles()
 
         with self._child_pool(pool_cfg):
             if pool_cfg.worker_heartbeat:
@@ -216,10 +239,22 @@ if __name__ == '__main__':
     To start an external child process worker.
     """
     ARGS = parse_cmdline()
-    sys.path.append(ARGS.testplan)
+    if ARGS.wd:
+        os.chdir(ARGS.wd)
 
-    # This will also import dependencies from $TESTPLAN_DEPENDENCIES_PATH
+    sys.path.append(ARGS.testplan)
+    if ARGS.testplan_deps:
+        sys.path.append(ARGS.testplan_deps)
+    try:
+        import dependencies
+        # This will also import dependencies from $TESTPLAN_DEPENDENCIES_PATH
+    except ImportError:
+        pass
+
     import testplan
+    if ARGS.testplan_deps:
+        os.environ[testplan.TESTPLAN_DEPENDENCIES_PATH] = ARGS.testplan_deps
+
     if ARGS.log_level:
         from testplan.logger import TESTPLAN_LOGGER
         TESTPLAN_LOGGER.setLevel(ARGS.log_level)
@@ -228,7 +263,10 @@ if __name__ == '__main__':
     print('Starting child process worker on {}, {} with parent {}'.format(
         socket.gethostname(), os.getpid(), psutil.Process(os.getpid()).ppid()))
 
-    from testplan.runners.pools.base import Pool, Worker, Transport
+    from testplan.runners.pools.base import (
+        Pool, Worker, Transport)
+    from testplan.runners.pools.process import (
+        ProcessPool, ProcessWorker, ProcessTransport)
 
     class ChildTransport(ZMQTransport, Transport):
         """Transport that supports message serialization."""
@@ -236,6 +274,7 @@ if __name__ == '__main__':
     class NoRunpathPool(Pool):
         """
         Pool that creates no runpath directory.
+        Has only one worker.
         Will use the one already created by parent process.
         """
         # To eliminate a not needed runpath layer.
@@ -259,8 +298,41 @@ if __name__ == '__main__':
             self._conn.register(worker)
             self._workers.start()
 
+    class NoRunpathThreadPool(Pool):
+        """
+        Pool that creates no runpath directory.
+        Will use the one already created by parent process.
+        Supports multiple thread workers.
+        """
+        # To eliminate a not needed runpath layer.
+        def make_runpath_dirs(self):
+            self._runpath = self.cfg.runpath
+
+    class NoRunpathProcessPool(ProcessPool):
+        """
+        Pool that creates no runpath directory.
+        Will use the one already created by parent process.
+        Supports multiple process workers.
+        """
+        # To eliminate a not needed runpath layer.
+        def make_runpath_dirs(self):
+            self._runpath = self.cfg.runpath
+
+
     if ARGS.type == 'process_worker':
         transport = ChildTransport(address=ARGS.address)
-        loop = ChildLoop(ARGS.index, transport, NoRunpathPool, Worker,
+        loop = ChildLoop(ARGS.index, transport, NoRunpathPool, 1, Worker,
                          TESTPLAN_LOGGER)
+        loop.worker_loop()
+
+    elif ARGS.type == 'remote_worker':
+        if ARGS.remote_pool_type == 'process':
+            pool_type = NoRunpathProcessPool
+            worker_type = ProcessWorker
+        else:
+            pool_type = NoRunpathThreadPool
+            worker_type = Worker
+        transport = ChildTransport(address=ARGS.address)
+        loop = ChildLoop(ARGS.index, transport, pool_type,
+                         ARGS.remote_pool_size, worker_type, TESTPLAN_LOGGER)
         loop.worker_loop()

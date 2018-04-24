@@ -30,8 +30,7 @@ class DefaultValueWrapper(object):
     def __repr__(self):
         return '{}(value={}{})'.format(
             self.__class__.__name__, repr(self.value),
-            ', prefer parent\'s default option' \
-                if self.low_precedence else ''
+            ', prefer parent\'s default option' if self.low_precedence else ''
         )
 
 
@@ -69,13 +68,10 @@ def update_options(target, source):
     """
     Given a target and source dictionary, update the target dict in place
     using the keys in source dict, if the keys do not exist in target.
-
     This is not simple dict update as in we can have target and source
     dicts like this:
-
     >>> target = {ConfigOption('foo'): int}
     >>> source = {'foo': int}
-
     For the example above, target will not be updated as the 'names' of the
     keys are the same, even if they don't have the same hash.
     """
@@ -105,7 +101,6 @@ class Config(object):
     that can define default values and support inheritance.
     Configurations can have a parent-child relationship so that
     options not defined in the child, can be retrieved from parent.
-
     Supports composition of multiple config options via multiple inheritance.
     """
 
@@ -162,10 +157,14 @@ class Config(object):
         Create new config object that inherits all explicit attributes from
         its parents as well.
         """
-        # TODO dicuss problem validating DefaultValueWrapper values
+        # TODO discuss problem validating DefaultValueWrapper values
         new_options = {}
         for key in self._options:
-            new_options[copy.deepcopy(key)] = copy.deepcopy(getattr(self, key))
+            value = getattr(self, key)
+            if inspect.isclass(value) or inspect.isroutine(value):
+                # Skipping non-serializable classes and routines.
+                continue
+            new_options[copy.deepcopy(key)] = copy.deepcopy(value)
         new = self.__class__(**new_options)
         return new
 
@@ -186,7 +185,7 @@ class Config(object):
         parents = [
             p for p in inspect.getmro(cls)[1:]
             if issubclass(p, Config) and p != Config
-        ]
+            ]
 
         for p in parents:
             update_options(target=config_options, source=p.get_options())

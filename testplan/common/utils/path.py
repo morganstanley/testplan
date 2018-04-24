@@ -11,6 +11,30 @@ from .strings import slugify
 from testplan.vendor.tempita import Template
 
 
+def fix_home_prefix(path, user=None):
+    """Replace /a/path/user with /symlink/path/user."""
+    path = path.replace(' ', '\ ')
+    user = user or getpass.getuser()
+    if user not in path.split(os.sep):
+        return path
+    userhome = os.path.expanduser('~')
+    try:
+        realhome = os.readlink(userhome)
+    except (AttributeError, OSError):
+        return path
+    return path.replace(realhome, userhome)
+
+
+def module_abspath(module, user=None):
+    """Returns file path of a python module."""
+    return fix_home_prefix(module.__file__, user=user)
+
+
+def pwd():
+    """Working directory path."""
+    return fix_home_prefix(os.getcwd())
+
+
 def default_runpath(entity):
     """
     Returns default runpath for an

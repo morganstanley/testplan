@@ -221,90 +221,92 @@ class MultiTest(Test):
         """Test execution loop."""
         ctx = self.test_context[:]
 
-        while self.active:
-            if self.status.tag == Runnable.STATUS.RUNNING:
-                try:
-                    next_suite, testcases = ctx.pop(0)
-                except IndexError:
-                    style = self.get_stdout_style(self.report.passed)
-                    if style.display_test:
-                        log_multitest_status(self.report)
-
-                    break
-                else:
-                    testsuite_report = TestGroupReport(
-                        name=next_suite.__class__.__name__,
-                        description=next_suite.__class__.__doc__,
-                        category=Categories.SUITE,
-                        tags=next_suite.__tags__,
-                    )
-                    self.report.append(testsuite_report)
-                    self._run_suite(next_suite, testcases, testsuite_report)
-            time.sleep(self.cfg.active_loop_sleep)
+        with self.report.timer.record('run'):
+            while self.active:
+                if self.status.tag == Runnable.STATUS.RUNNING:
+                    try:
+                        next_suite, testcases = ctx.pop(0)
+                    except IndexError:
+                        style = self.get_stdout_style(self.report.passed)
+                        if style.display_test:
+                            log_multitest_status(self.report)
+                        break
+                    else:
+                        testsuite_report = TestGroupReport(
+                            name=next_suite.__class__.__name__,
+                            description=next_suite.__class__.__doc__,
+                            category=Categories.SUITE,
+                            tags=next_suite.__tags__,
+                        )
+                        self.report.append(testsuite_report)
+                        self._run_suite(next_suite, testcases, testsuite_report)
+                time.sleep(self.cfg.active_loop_sleep)
 
     def _run_suite(self, testsuite, testcases, testsuite_report):
         """Runs a testsuite object and populates its report object."""
         post_testcase = getattr(testsuite, 'post_testcase', None)
         pre_testcase = getattr(testsuite, 'pre_testcase', None)
 
-        with testsuite_report.logged_exceptions():
-            self._run_suite_related(testsuite, 'setup', testsuite_report)
-
-        if not testsuite_report.passed:
+        with testsuite_report.timer.record('run'):
             with testsuite_report.logged_exceptions():
-                self._run_suite_related(
-                    testsuite, 'teardown', testsuite_report)
-            return
+                self._run_suite_related(testsuite, 'setup', testsuite_report)
 
-        param_rep_lookup = {}
+            if not testsuite_report.passed:
+                with testsuite_report.logged_exceptions():
+                    self._run_suite_related(
+                        testsuite, 'teardown', testsuite_report)
+                return
 
-        while self.active:
-            if self.status.tag == Runnable.STATUS.RUNNING:
-                try:
-                    testcase = testcases.pop(0)
-                except IndexError:
-                    with testsuite_report.logged_exceptions():
-                        self._run_suite_related(testsuite, 'teardown',
-                                                testsuite_report)
-                    break
-                else:
-                    param_template = getattr(
-                        testcase, '_parametrization_template', None)
+            param_rep_lookup = {}
 
-                    if param_template:
-                        if param_template not in param_rep_lookup:
-                            param_method = getattr(testsuite, param_template)
-                            param_report = TestGroupReport(
-                                name=param_template,
-                                description=param_method.__doc__,
-                                category=Categories.PARAMETRIZATION,
-                                tags=param_method.__tags__,
-                            )
-                            param_rep_lookup[param_template] = param_report
-                            testsuite_report.append(param_report)
-
-                        parent_report = param_rep_lookup[param_template]
-                    else:
-                        parent_report = testsuite_report
-
-                    testcase_report = self._run_testcase(
-                        testcase=testcase,
-                        pre_testcase=pre_testcase,
-                        post_testcase=post_testcase
-                    )
-
-                    parent_report.append(testcase_report)
-                    # Break the suite execution if a testcase raised.
-                    if testcase_report.status == Status.ERROR:
+            while self.active:
+                if self.status.tag == Runnable.STATUS.RUNNING:
+                    try:
+                        testcase = testcases.pop(0)
+                    except IndexError:
                         with testsuite_report.logged_exceptions():
                             self._run_suite_related(testsuite, 'teardown',
                                                     testsuite_report)
                         break
+                    else:
+                        param_template = getattr(
+                            testcase, '_parametrization_template', None)
 
-            time.sleep(self.cfg.active_loop_sleep)
+                        if param_template:
+                            if param_template not in param_rep_lookup:
+                                param_method = getattr(testsuite,
+                                                       param_template)
+                                param_report = TestGroupReport(
+                                    name=param_template,
+                                    description=param_method.__doc__,
+                                    category=Categories.PARAMETRIZATION,
+                                    tags=param_method.__tags__,
+                                )
+                                param_rep_lookup[param_template] = param_report
+                                testsuite_report.append(param_report)
 
-        if self.get_stdout_style(testsuite_report.passed).display_suite:
-            log_suite_status(testsuite_report)
+                            parent_report = param_rep_lookup[param_template]
+                        else:
+                            parent_report = testsuite_report
+
+                        testcase_report = self._run_testcase(
+                            testcase=testcase,
+                            pre_testcase=pre_testcase,
+                            post_testcase=post_testcase
+                        )
+
+                        parent_report.append(testcase_report)
+                        # Break the suite execution if a testcase raised.
+                        if testcase_report.status == Status.ERROR:
+                            with testsuite_report.logged_exceptions():
+                                self._run_suite_related(testsuite, 'teardown',
+                                                        testsuite_report)
+                            break
+
+                time.sleep(self.cfg.active_loop_sleep)
+
+            if self.get_stdout_style(testsuite_report.passed).display_suite:
+                log_suite_status(testsuite_report)
 
     def _run_testcase(self, testcase, pre_testcase, post_testcase):
         """Runs a testcase method and populates its report object."""
@@ -341,7 +343,8 @@ class MultiTest(Test):
             case_result.entries = [Summary(
                 entries=case_result.entries,
                 num_passing=testcase.summarize_num_passing,
-                num_failing=testcase.summarize_num_failing
+                num_failing=testcase.summarize_num_failing,
+                key_combs_limit=testcase.summarize_key_combs_limit
             )]
 
         # native assertion objects -> dict form

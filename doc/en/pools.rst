@@ -114,9 +114,8 @@ These are the current built-in pool types that can be added to a plan:
 
   1. :ref:`Thread pool <ThreadPool>`
   2. :ref:`Process pool <ProcessPool>`
+  3. :ref:`Remote pool <RemotePool>`
 
-Future work includes the addition of a remote pool to execute the tasks in
-multiple remote hosts.
 
 .. _ThreadPool:
 
@@ -143,8 +142,7 @@ back to the main pool.
         # Schedule 10 tasks to the thread pool to execute them 4 in parallel.
         for idx in range(10):
             task = Task(target='make_multitest',
-                        module='tasks',
-                        kwargs={'index': idx}))
+                        module='tasks')
             plan.schedule(task, resource='MyPool')
 
 See a downloadable example of a :ref:`thread pool <example_pool_thread>`.
@@ -176,11 +174,45 @@ arguments need to support that as well.
             # All Task arguments need to be serializable.
             task = Task(target='make_multitest',
                         module='tasks',
-                        path=os.path.dirname(os.path.abspath(__file__)),
-                        kwargs={'index': idx})
+                        path='.')
             plan.schedule(task, resource='MyPool')
 
 See a downloadable example of a :ref:`process pool <example_pool_process>`.
+
+.. _RemotePool:
+
+RemotePool
+++++++++++
+
+Remote pool is using ssh to start remote worker interpreters that are
+communicating with the local pool with the
+:py:class:`ZMQ <testplan.runners.pools.child.ZMQTransport>` transport as well.
+During this process, the local workspace will be transferred to the remote
+workers (if needed) and the workers will start local 'thread' or 'process'
+pools, based on their configuration.
+
+.. code-block:: python
+
+    from testplan.runners.pools import RemotePool
+
+    @test_plan(name='RemotePoolPlan')
+    def main(plan):
+        # A pool with 2 remote workers.
+        # One with 2 local workers and the other with 1.
+        pool = RemotePool(name='MyPool',
+                          hosts={'hostname1': 2,
+                                 'hostname2': 1})
+        plan.add_resource(pool)
+
+        # Schedule 10 tasks to the remote pool to execute them 3 in parallel.
+        for idx in range(10):
+            # All Task arguments need to be serializable.
+            task = Task(target='make_multitest',
+                        module='tasks',
+                        path='.')
+            plan.schedule(task, resource='MyPool')
+
+See a downloadable example of a :ref:`remote pool <example_pool_remote>`.
 
 Fault tolerance
 ---------------

@@ -67,7 +67,6 @@ class Server(object):
         self._server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if self._input_port != 0:
             self._server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
         self._server.bind((self._input_host, self._input_port))
         self._ip, self._port = self._server.getsockname()
 
@@ -209,7 +208,8 @@ class Server(object):
         """Closes the server and listen thread."""
         self._listening = False
         # self._serving may be stuck in select.select
-        self._server_thread.join(timeout=0.1)
+        if self._server_thread:
+            self._server_thread.join(timeout=0.1)
 
     def _validate_connection_idx(self, conn_idx):
         """

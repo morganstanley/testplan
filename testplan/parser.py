@@ -79,7 +79,7 @@ class TestplanParser(object):
 
         filter_group.add_argument(
             '--patterns', action=filtering.PatternAction,
-            default=[], nargs='+', metavar='TEST_FILTER',
+            default=[], nargs='+', metavar='TEST_FILTER', type=str,
             help=os.linesep.join([
                 'Test filter, supports glob notation & multiple arguments.',
                 '',

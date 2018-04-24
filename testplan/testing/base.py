@@ -3,7 +3,7 @@ import os
 import subprocess
 
 from lxml import objectify
-from schema import Or, Use
+from schema import Or, Use, And
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
@@ -25,6 +25,7 @@ class TestConfig(RunnableConfig):
     @classmethod
     def get_options(cls):
         return {
+            # 'name': And(str, lambda s: s.count(' ') == 0),
             'name': str,
             ConfigOption('description', default=None): str,
             ConfigOption(
@@ -370,6 +371,18 @@ class ProcessRunnerTest(Test):
                     timeout=format_duration(self.cfg.timeout),
                 ))
 
+    # DEFAULT
+    def get_proc_env(self):
+        return self.cfg.proc_env
+
+    # HOBBBES TEST
+    def get_proc_env(self):
+        self._json_ouput = os.path.join(self.runpath, 'output.json')
+        self.logger.debug('Json output: {}'.format(self._json_ouput))
+        env = {'JSON_REPORT': self._json_ouput}
+        env.update(self.cfg.proc_env)
+        return env
+
     def run_tests(self):
         """
         Run the tests in a subprocess, record stdout & stderr on runpath.
@@ -406,7 +419,7 @@ class ProcessRunnerTest(Test):
                 stderr=stderr,
                 stdout=stdout,
                 cwd=self.cfg.proc_cwd,
-                env=self.cfg.proc_env,
+                env=self.get_proc_env(),
             )
 
             if self.cfg.timeout:

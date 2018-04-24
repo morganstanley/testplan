@@ -706,9 +706,10 @@ class DictNamespace(AssertionNamespace):
         :type include_keys: ``list`` of ``object`` (items must be hashable)
         :param exclude_keys: Keys to ignore in the comparison.
         :type include_keys: ``list`` of ``object`` (items must be hashable)
-        :param report_all: Formatting flag, includes even
-                           ignored keys in report if True.
-        :type report_all: ``bool``
+        :param report_all: If a bool is used its a formatting flag to include
+          even ignored keys in report. If a list is used, it will trim all
+          passing keys that are not present in the given list.
+        :type report_all: ``bool`` or ``list`` of keys.
         :param actual_description: Column header description for original dict.
         :type actual_description: ``str``
         :param expected_description: Column header
@@ -876,9 +877,10 @@ class FixNamespace(AssertionNamespace):
         :type include_tags: ``list`` of ``object`` (items must be hashable)
         :param exclude_tags: Keys to ignore in the comparison.
         :type exclude_tags: ``list`` of ``object`` (items must be hashable)
-        :param report_all: Formatting flag, includes even
-                           ignored tags in report if True.
-        :type report_all: ``bool``
+        :param report_all: If a bool is used its a formatting flag to include
+          even ignored keys in report. If a list is used, it will trim all
+          passing keys that are not present in the given list.
+        :type report_all: ``bool`` or ``list`` of keys.
         :param actual_description: Column header description for original msg.
         :type actual_description: ``str``
         :param expected_description: Column header
