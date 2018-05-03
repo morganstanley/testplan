@@ -17,13 +17,15 @@ class TCPServerConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.tcp.server.TCPServer` driver.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {ConfigOption('host', default='localhost'): str,
-                     ConfigOption('port', default=0): Use(int)}
-        return self.inherit_schema(overrides, super(TCPServerConfig, self))
+        return {
+            ConfigOption('host', default='localhost'): str,
+            ConfigOption('port', default=0): Use(int)
+        }
 
 
 class TCPServer(Driver):

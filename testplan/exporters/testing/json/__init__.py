@@ -25,11 +25,11 @@ MAX_FILENAME_LENGTH = 100
 
 class JSONExporterConfig(ExporterConfig):
 
-    def configuration_schema(self):
-        overrides = Schema({
+    @classmethod
+    def get_options(cls):
+        return {
             ConfigOption('json_path', default=defaults.JSON_PATH): str
-        })
-        return self.inherit_schema(overrides, super(JSONExporterConfig, self))
+        }
 
 
 class JSONExporter(Exporter):

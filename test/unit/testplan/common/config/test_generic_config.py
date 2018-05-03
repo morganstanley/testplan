@@ -8,32 +8,43 @@ from testplan.common.utils.exceptions import should_raise
 
 
 class LambdaConfig(Config):
-    def configuration_schema(self):
-        return Schema({ConfigOption('a', default=0.5):
-                           lambda x: 0 < x < 1,
-                       ConfigOption('b', default=2):
-                           lambda x: isinstance(x, (int, float))})
+
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption('a', default=0.5): lambda x: 0 < x < 1,
+            ConfigOption('b', default=2):
+                lambda x: isinstance(x, (int, float))
+        }
 
 
 class First(Config):
-    def configuration_schema(self):
-        return Schema({ConfigOption('a', default=1): int,
-                       ConfigOption('b', default=2): int})
+
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption('a', default=1): int,
+            ConfigOption('b', default=2): int
+        }
 
 
 class Second(First):
-    def configuration_schema(self):
-        new = Schema({ConfigOption('a', default=6.0): float,
-                      ConfigOption('c'):
-                          lambda x: isinstance(x, (int, float))})
-        return self.inherit_schema(new, super(Second, self))
+
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption('a', default=6.0): float,
+            ConfigOption('c'): lambda x: isinstance(x, (int, float))
+        }
 
 
 class Third(Second):
-    def configuration_schema(self):
-        default = LambdaConfig()
-        new = Schema({ConfigOption('a', default=default): Config})
-        return self.inherit_schema(new, super(Third, self))
+
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption('a', default=LambdaConfig()): Config
+        }
 
 
 def test_basic_config():
@@ -44,13 +55,10 @@ def test_basic_config():
     item = First(a=2)
     assert (2, 2) == (item.a, item.b)
 
-    # Copied configs
-    three = item.copy(b=3)
-    assert (2, 3) == (three.a, three.b)
-
-    four = three.copy()
-    assert id(four) != id(three)
-    assert (four.a, four.b) == (three.a, three.b)
+    clone = item.denormalize()
+    assert id(clone) != id(item)
+    assert clone.parent is None
+    assert (clone.a, clone.b) == (item.a, item.b)
 
 
 def test_basic_schema_fail():
@@ -101,25 +109,33 @@ def test_config_inheritance():
 
 
 class Root(Config):
-    def configuration_schema(self):
-        return Schema({ConfigOption('foo', default=5): int})
+
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption('foo', default=5): int
+        }
 
 
 class Branch(Config):
-    def configuration_schema(self):
-        return Schema({
+
+    @classmethod
+    def get_options(cls):
+        return {
             ConfigOption('foo', default=50): int,
             ConfigOption('bar', default=30): int,
-        })
+        }
 
 
 class Leaf(Config):
-    def configuration_schema(self):
-        return Schema({
+
+    @classmethod
+    def get_options(cls):
+        return {
             ConfigOption('foo', default=500): int,
             ConfigOption('bar', default=300): int,
             ConfigOption('baz', default='alpha'): str,
-        })
+        }
 
 
 def test_getattr_propagation():

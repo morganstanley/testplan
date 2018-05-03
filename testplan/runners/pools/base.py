@@ -167,15 +167,15 @@ class WorkerConfig(ResourceConfig):
     options.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {
+        return {
             'index': Or(int, str),
             ConfigOption('transport', default=Transport): object,
         }
-        return self.inherit_schema(overrides, super(WorkerConfig, self))
 
 
 class Worker(Resource):
@@ -334,11 +334,12 @@ class PoolConfig(ExecutorConfig):
     options.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {
+        return {
             'name': str,
             ConfigOption('size', default=4): And(int, lambda x: x > 0),
             ConfigOption('worker_type', default=Worker): object,
@@ -348,7 +349,6 @@ class PoolConfig(ExecutorConfig):
             ConfigOption('heartbeats_miss_limit', default=3): int,
             ConfigOption('task_retries_limit', default=3): int,
         }
-        return self.inherit_schema(overrides, super(PoolConfig, self))
 
 
 class Pool(Executor):
@@ -449,7 +449,7 @@ class Pool(Executor):
         if not self.active or self.status.tag == self.STATUS.STOPPING:
             worker.respond(response.make(Message.Stop))
         elif request.cmd == Message.ConfigRequest:
-            options = self.cfg.copy()
+            options = self.cfg.denormalize()
             worker.respond(response.make(Message.ConfigSending,
                                          data=options))
         elif request.cmd == Message.TaskPullRequest:

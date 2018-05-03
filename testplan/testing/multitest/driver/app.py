@@ -24,19 +24,20 @@ class AppConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.app.App` resource.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {'binary': str,
-                     ConfigOption('pre_args', default=None): Or(None, list),
-                     ConfigOption('args', default=None): Or(None, list),
-                     ConfigOption('shell', default=False): bool,
-                     ConfigOption('env', default=None): Or(None, dict),
-                     ConfigOption('binary_copy', default=False): bool,
-                     ConfigOption('app_dir_name', default=None): Or(None, str),
-                     }
-        return self.inherit_schema(overrides, super(AppConfig, self))
+        return {
+            'binary': str,
+            ConfigOption('pre_args', default=None): Or(None, list),
+            ConfigOption('args', default=None): Or(None, list),
+            ConfigOption('shell', default=False): bool,
+            ConfigOption('env', default=None): Or(None, dict),
+            ConfigOption('binary_copy', default=False): bool,
+            ConfigOption('app_dir_name', default=None): Or(None, str),
+        }
 
 
 class App(Driver):

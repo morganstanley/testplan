@@ -22,12 +22,9 @@ from testplan.logger import TESTPLAN_LOGGER, get_test_status_message
 class TestConfig(RunnableConfig):
     """Configuration object for :py:class:`~testplan.testing.base.Test`."""
 
-    def configuration_schema(self):
-        """
-        Schema for options validation and assignment of default values.
-        """
-
-        overrides = {
+    @classmethod
+    def get_options(cls):
+        return {
             'name': str,
             ConfigOption('description', default=None): str,
             ConfigOption(
@@ -47,7 +44,6 @@ class TestConfig(RunnableConfig):
                 default=None
             ): Or(None, Use(tagging.validate_tag_value))
         }
-        return self.inherit_schema(overrides, super(TestConfig, self))
 
 
 class TestResult(RunnableResult):
@@ -226,12 +222,9 @@ class ProcessRunnerTestConfig(TestConfig):
     :py:class:`~testplan.testing.base.ProcessRunnerTest`.
     """
 
-    def configuration_schema(self):
-        """
-        Schema for options validation and assignment of default values.
-        """
-
-        overrides = {
+    @classmethod
+    def get_options(cls):
+        return {
             'driver': str,
             ConfigOption('proc_env', default={}): dict,
             ConfigOption('proc_cwd', default=None): Or(str, None),
@@ -240,8 +233,6 @@ class ProcessRunnerTestConfig(TestConfig):
             ),
             ConfigOption('ignore_exit_codes', default=[]): [int]
         }
-        return self.inherit_schema(
-            overrides, super(ProcessRunnerTestConfig, self))
 
 
 class ProcessRunnerTest(Test):

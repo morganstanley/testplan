@@ -12,15 +12,14 @@ class Exporter(BaseExporter):
 
 class TagFilteredExporterConfig(ExporterConfig):
 
-    def configuration_schema(self):
-        overrides = Schema({
+    @classmethod
+    def get_options(cls):
+        return {
             ConfigOption('report_tags', default=[]):
                 [Use(tagging.validate_tag_value)],
             ConfigOption('report_tags_all', default=[]):
                 [Use(tagging.validate_tag_value)]
-        })
-        return self.inherit_schema(
-            overrides, super(TagFilteredExporterConfig, self))
+        }
 
 
 class TagFilteredExporter(Exporter):
