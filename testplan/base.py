@@ -20,16 +20,16 @@ class TestplanConfig(RunnableManagerConfig, TestRunnerConfig):
     :py:class:`~testplan.base.Testplan` entity.
     """
 
-    def configuration_schema(self):
-        """
-        Schema for options validation and assignment of default values.
-        """
-        overrides = {ConfigOption('runnable', default=TestRunner): TestRunner,
-                     ConfigOption('resources', default=[]): [Resource],
-                     ConfigOption('parser', default=TestplanParser):
-                         lambda par: callable(
-                             getattr(par(name='test'), 'parse_args', None))}
-        return self.inherit_schema(overrides, super(TestplanConfig, self))
+    @classmethod
+    def get_options(cls):
+        """Additional config options for Testplan class"""
+        return {
+            ConfigOption('runnable', default=TestRunner): TestRunner,
+            ConfigOption('resources', default=[]): [Resource],
+            ConfigOption('parser', default=TestplanParser):
+                lambda par: callable(
+                    getattr(par(name='test'), 'parse_args', None))
+        }
 
 
 class TestplanResult(TestRunnerResult):

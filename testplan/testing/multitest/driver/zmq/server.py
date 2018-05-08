@@ -15,15 +15,17 @@ class ZMQServerConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.zmq.server.ZMQServer` driver.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {Optional('host', default='localhost'): str,
-                     Optional('port', default=0): Use(int),
-                     Optional('message_pattern', default=zmq.PAIR):
-                         Or(zmq.PAIR, zmq.REP, zmq.PUB, zmq.PUSH)}
-        return self.inherit_schema(overrides, super(ZMQServerConfig, self))
+        return {
+            Optional('host', default='localhost'): str,
+            Optional('port', default=0): Use(int),
+            Optional('message_pattern', default=zmq.PAIR):
+                Or(zmq.PAIR, zmq.REP, zmq.PUB, zmq.PUSH)
+        }
 
 
 class ZMQServer(Driver):

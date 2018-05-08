@@ -3,6 +3,7 @@ Module containing configuration objects and utilities.
 """
 
 import copy
+import inspect
 
 from schema import Schema, Optional, And, Or, Use
 
@@ -55,20 +56,48 @@ class Configurable(object):
         return cls, config
 
 
+def update_options(target, source):
+    """
+    Given a target and source dictionary, update the target dict in place
+    using the keys in source dict, if the keys do not exist in target.
+
+    This is not simple dict update as in we can have target and source
+    dicts like this:
+
+    >>> target = {ConfigOption('foo'): int}
+    >>> source = {'foo': int}
+
+    For the example above, target will not be updated as the 'names' of the
+    keys are the same, even if they don't have the same hash.
+    """
+    def get_key_str(option):
+        """Will be used for getting name from ConfigOption keys."""
+        return option._schema if isinstance(option, Optional) else option
+
+    target_raw_keys = {get_key_str(k) for k in target}
+    source_key_mapping = {get_key_str(k): k for k in source}
+
+    for raw_key, key in source_key_mapping.items():
+        if raw_key not in target_raw_keys:
+            target[key] = source[key]
+
+
 class Config(object):
     """
     Base class for creating a configuration object with a schema
     that can define default values and support inheritance.
     Configurations can have a parent-child relationship so that
     options not defined in the child, can be retrieved from parent.
+
+    Supports composition of multiple config options via multiple inheritance.
     """
+
+    ignore_extra_keys = False
 
     def __init__(self, **options):
         self._parent = None
         self._cfg_input = options
-        sch = self.configuration_schema()
-        cschema = sch if isinstance(sch, Schema) else Schema(sch)
-        self._options = cschema.validate(options)
+        self._options = self.build_schema().validate(options)
 
     def __getattr__(self, name):
         options = self.__getattribute__('_options')
@@ -94,11 +123,6 @@ class Config(object):
                              self._cfg_input or self._options)
 
     @property
-    def schema(self):
-        """Returns the raw schema."""
-        return self._schema
-
-    @property
     def parent(self):
         """Returns the parent configuration."""
         return self._parent
@@ -111,66 +135,41 @@ class Config(object):
                 self._parent))
         self._parent = value
 
-    def copy(self, **options):
+    def denormalize(self):
         """
-        Create a new configuration object and replace its options with
-        the given option values.
+        Create new config object that inherits all explicit attributes from
+        its parents as well.
         """
         # TODO dicuss problem validating DefaultValueWrapper values
         new_options = {}
         for key in self._options:
             new_options[copy.deepcopy(key)] = copy.deepcopy(getattr(self, key))
-        new_options.update(options)
         new = self.__class__(**new_options)
-        # parent makes the object non-serializable
-        # new.parent = self.parent
         return new
 
-    # API support
-    replace = copy
-
-    def configuration_schema(self):
-        """
-        To be implemented by the subclasses and return the config schema.
-        """
+    @classmethod
+    def get_options(cls):
+        """Override this classmethod to provide extra config arguments."""
         raise NotImplementedError
 
-    @staticmethod
-    def inherit_schema(target, source):
+    @classmethod
+    def build_schema(cls):
         """
-        Returns a schema after overriding source options with target options.
-
-        :param target: Configuration options overrides.
-        :type target: ``Schema`` or ``dict``
-        :param source: Source object with configuration schema.
-        :type source: subclass of
-                      :py:class:`Config <testplan.common.config.base.Config>`
-        :return: Schema for the configuration validation.
-        :rtype: ``Schema``
+        Build a validation schema using the config options defined in
+        this class and its parent classes.
         """
-        if isinstance(target, Schema):
-            target_schema_dict = getattr(target, '_schema').copy()
-        else:
-            # dictionary expected
-            target_schema_dict = target
+        config_options = cls.get_options().copy()
 
-        parent_schema = source.configuration_schema()
-        if isinstance(parent_schema, Schema):
-            parent_schema_dict = getattr(parent_schema, '_schema').copy()
-        else:
-            parent_schema_dict = parent_schema
+        # All parent classes that are subclasses of Config
+        parents = [
+            p for p in inspect.getmro(cls)[1:]
+            if issubclass(p, Config) and p != Config
+        ]
 
-        for parent_key in parent_schema_dict:
-            real_parent_key = getattr(parent_key, '_schema', parent_key)
-            found = False
-            for target_key in list(target_schema_dict.keys()):
-                real_target_key = getattr(target_key, '_schema', target_key)
-                if real_parent_key == real_target_key:
-                    found = True
-                    break
-            if not found:
-                target_schema_dict[parent_key] = parent_schema_dict[parent_key]
+        for p in parents:
+            update_options(target=config_options, source=p.get_options())
 
-        ignore_extra_keys = getattr(target, '_ignore_extra_keys', False)
-        return Schema(target_schema_dict,
-                      ignore_extra_keys=ignore_extra_keys)
+        return Schema(
+            config_options,
+            ignore_extra_keys=cls.ignore_extra_keys
+        )

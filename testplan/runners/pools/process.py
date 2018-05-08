@@ -54,14 +54,14 @@ class ProcessWorkerConfig(WorkerConfig):
     options.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {
+        return {
             ConfigOption('transport', default=ProcessTransport): object,
         }
-        return self.inherit_schema(overrides, super(ProcessWorkerConfig, self))
 
 
 class ProcessWorker(Worker):
@@ -132,11 +132,12 @@ class ProcessPoolConfig(PoolConfig):
     options.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {
+        return {
             ConfigOption('abort_signals', default=[signal.SIGINT,
                                                    signal.SIGTERM]): [int],
             ConfigOption('worker_type', default=ProcessWorker): object,
@@ -144,7 +145,6 @@ class ProcessPoolConfig(PoolConfig):
             ConfigOption('port', default=0): int,
             ConfigOption('worker_heartbeat', default=5): Or(int, float, None)
         }
-        return self.inherit_schema(overrides, super(ProcessPoolConfig, self))
 
 
 class TCPConnectionManager(ConnectionManager):

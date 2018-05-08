@@ -48,6 +48,16 @@ class Categories(object):
     SUITE = 'suite'
 
 
+def iterable_suites(obj):
+    """Create an iterable suites object."""
+    suites = [obj] if not isinstance(
+        obj, collections.Iterable) else obj
+
+    for suite in suites:
+        set_testsuite_testcases(suite)
+    return suites
+
+
 class MultiTestConfig(TestConfig):
     """
     Configuration object for
@@ -55,21 +65,9 @@ class MultiTestConfig(TestConfig):
     test execution framework.
     """
 
-    def configuration_schema(self):
-        """
-        Schema for options validation and assignment of default values.
-        """
-
-        def iterable_suites(obj):
-            """Create an iterable suites object."""
-            suites = [obj] if not isinstance(
-                obj, collections.Iterable) else obj
-
-            for suite in suites:
-                set_testsuite_testcases(suite)
-            return suites
-
-        overrides = {
+    @classmethod
+    def get_options(cls):
+        return {
             'suites': Use(iterable_suites),
             ConfigOption('environment', default=[]): [Resource],
             ConfigOption('before_start', default=None): validate_func(['env']),
@@ -81,7 +79,6 @@ class MultiTestConfig(TestConfig):
             ConfigOption(
                 'result', default=Result): lambda r: isinstance(r(), Result),
         }
-        return self.inherit_schema(overrides, super(MultiTestConfig, self))
 
 
 class MultiTest(Test):

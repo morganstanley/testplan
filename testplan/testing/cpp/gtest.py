@@ -14,11 +14,8 @@ class GTestConfig(ProcessRunnerTestConfig):
     Configuration object for
     :py:class:`~testplan.testing.cpp.gtest.GTest`.
     """
-
-    def configuration_schema(self):
-        """
-        Schema for options validation and assignment of default values.
-        """
+    @classmethod
+    def get_options(cls):
         # `gtest_output` is implicitly overridden to generate xml output
         # on the test instance's runpath.
 
@@ -29,7 +26,7 @@ class GTestConfig(ProcessRunnerTestConfig):
         # supported as running GTest with a debugger
         # is not possible within Testplan.
 
-        overrides = {
+        return {
             ConfigOption('gtest_filter', default=''): str,
             ConfigOption('gtest_also_run_disabled_tests', default=False): bool,
 
@@ -46,7 +43,6 @@ class GTestConfig(ProcessRunnerTestConfig):
                 'fast', 'threadsafe'
             ),
         }
-        return self.inherit_schema(overrides, super(GTestConfig, self))
 
 
 class GTest(ProcessRunnerTest):

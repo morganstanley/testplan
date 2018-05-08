@@ -141,38 +141,36 @@ def create_pdf(source, config):
     template.build(tables)
 
 
-def get_pdf_opts(config_opts):
-    common_options = {
-        ConfigOption('timestamp', default=None): Or(str, None),
-        ConfigOption('pdf_style', default=defaults.PDF_STYLE): Style,
-    }
-    config_opts.update(common_options)
-    return config_opts
+class BasePDFExporterConfig(ExporterConfig):
+
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption('timestamp', default=None): Or(str, None),
+            ConfigOption('pdf_style', default=defaults.PDF_STYLE): Style,
+        }
 
 
-class PDFExporterConfig(ExporterConfig):
+class PDFExporterConfig(BasePDFExporterConfig):
     """TODO"""
 
-    def configuration_schema(self):
-        overrides = Schema(
-            get_pdf_opts({
-                ConfigOption(
-                    'pdf_path', default=defaults.PDF_PATH): str,
-            })
-        )
-        return self.inherit_schema(overrides, super(PDFExporterConfig, self))
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption('pdf_path', default=defaults.PDF_PATH): str
+        }
 
 
-class TagFilteredPDFExporterConfig(TagFilteredExporterConfig):
+class TagFilteredPDFExporterConfig(
+    TagFilteredExporterConfig,
+    BasePDFExporterConfig
+):
 
-    def configuration_schema(self):
-        overrides = Schema(
-            get_pdf_opts({
-                ConfigOption('report_dir', default=defaults.REPORT_DIR): str
-            })
-        )
-        return self.inherit_schema(
-            overrides, super(TagFilteredPDFExporterConfig, self))
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption('report_dir', default=defaults.REPORT_DIR): str
+        }
 
 
 class PDFExporter(Exporter):

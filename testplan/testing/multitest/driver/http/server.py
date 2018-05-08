@@ -18,23 +18,155 @@ from testplan.common.utils.strings import slugify
 from ..base import Driver, DriverConfig
 
 
+class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
+    """
+    Responds to any HTTP request with response in queue. If empty send an error
+    message in response.
+    """
+    def _send_header(self, status_code=200, headers=None):
+        """
+        Send a header response.
+
+        :param status_code: The returned status code.
+        :type status_code: ``int``
+        :param headers: The returned headers.
+        :type headers: ``dict``
+
+        :return: ``None``
+        :rtype: ``NoneType``
+        """
+        if headers is None:
+            headers = {'Content-type': 'text/plain'}
+        self.send_response(code=int(status_code))
+        for keyword, value in headers.items():
+            self.send_header(keyword, value)
+        self.end_headers()
+
+    def _send_content(self, content):
+        """
+        Send the content response.
+
+        :param content: A list of strings to be sent back.
+        :type content: ``list``
+        """
+        for line in content:
+            try:
+                line = line.encode('utf-8')
+            except AttributeError:
+                pass
+            self.wfile.write(line)
+
+    def _parse_request(self):
+        """
+        Put the request into the HTTPServer's requests queue. Get the response
+        from the HTTPServer's response queue. If there is no response send an
+        error message back.
+
+        :return: ``None``
+        :rtype: ``NoneType``
+        """
+        response = self.get_response(request=self.path)
+        if not isinstance(response, HTTPResponse):
+            raise TypeError('Response must be of type HTTPResponse')
+
+        self._send_header(status_code=response.status_code,
+                         headers=response.headers)
+        self._send_content(response.content)
+        self.server.log_callback(
+            'Sent response with:\n  status code {}\n  headers {}'.format(
+                response.status_code,
+                response.headers
+            )
+        )
+
+    def log_message(self, format, *args):
+        """Log messages from the BaseHTTPRequestHandler class."""
+        self.server.log_callback('BASE CLASS: {}'.format(format%args))
+
+    def get_response(self, request):
+        """
+        Parse the request and return the response.
+
+        :param request:
+        :return:
+        """
+        self.server.requests.put(request)
+
+        timeout = time.time() + self.server.timeout
+        while time.time() < timeout:
+            try:
+                response = self.server.responses.get(False)
+            except queue.Empty:
+                response = HTTPResponse(
+                    status_code=500,
+                    content=['No response in driver queue.']
+                )
+                self.server.log_callback(
+                    'No response found in queue.'
+                )
+            else:
+                self.server.log_callback('Response popped from queue.')
+                break
+            time.sleep(0.01)
+        if response.status_code == 500:
+            self.server.log_callback('Responding with 500 error.')
+        return response
+
+    def do_HEAD(self):
+        """Handles a HEAD request."""
+        self._send_header()
+        self.server.log_callback('Sending response to HEAD request.')
+
+    def do_GET(self):
+        """Handles a GET request."""
+        self._parse_request()
+        self.server.log_callback('Sending response to GET request.')
+
+    def do_POST(self):
+        """Handles a POST request."""
+        self._parse_request()
+        self.server.log_callback('Sending response to POST request.')
+
+    def do_PUT(self):
+        """Handles a PUT request."""
+        self._parse_request()
+        self.server.log_callback('Sending response to PUT request.')
+
+    def do_DELETE(self):
+        """Handles a DELETE request."""
+        self._parse_request()
+        self.server.log_callback('Sending response to DELETE request.')
+
+    def do_PATCH(self):
+        """Handles a PATCH request."""
+        self._parse_request()
+        self.server.log_callback('Sending response to PATCH request.')
+
+    def do_OPTIONS(self):
+        """Handles a OPTIONS request."""
+        self._parse_request()
+        self.server.log_callback('Sending response to OPTIONS request.')
+
+
 class HTTPServerConfig(DriverConfig):
     """
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.http.server.HTTPServer` driver.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {Optional('host', default='localhost'): str,
-                     Optional('port', default=0): Use(int),
-                     Optional('request_handler', default=HTTPRequestHandler):
-                         lambda v: issubclass(v, http_server.BaseHTTPRequestHandler),
-                     Optional('handler_attributes', default={}): dict,
-                     Optional('timeout', default=5): Use(int)}
-        return self.inherit_schema(overrides, super(HTTPServerConfig, self))
+        return {
+            Optional('host', default='localhost'): str,
+            Optional('port', default=0): Use(int),
+            Optional('request_handler', default=HTTPRequestHandler):
+                lambda v: issubclass(v, http_server.BaseHTTPRequestHandler),
+            Optional('handler_attributes', default={}): dict,
+            Optional('timeout', default=5): Use(int)
+        }
 
 
 class HTTPServer(Driver):
@@ -167,137 +299,6 @@ class HTTPServer(Driver):
         """Abort logic that stops the server."""
         self._stop()
         self.file_logger.debug('Aborted HTTPServer.')
-
-
-
-class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
-    """
-    Responds to any HTTP request with response in queue. If empty send an error
-    message in response.
-    """
-    def _send_header(self, status_code=200, headers=None):
-        """
-        Send a header response.
-
-        :param status_code: The returned status code.
-        :type status_code: ``int``
-        :param headers: The returned headers.
-        :type headers: ``dict``
-
-        :return: ``None``
-        :rtype: ``NoneType``
-        """
-        if headers is None:
-            headers = {'Content-type': 'text/plain'}
-        self.send_response(code=int(status_code))
-        for keyword, value in headers.items():
-            self.send_header(keyword, value)
-        self.end_headers()
-
-    def _send_content(self, content):
-        """
-        Send the content response.
-
-        :param content: A list of strings to be sent back.
-        :type content: ``list``
-        """
-        for line in content:
-            try:
-                line = line.encode('utf-8')
-            except AttributeError:
-                pass
-            self.wfile.write(line)
-
-    def _parse_request(self):
-        """
-        Put the request into the HTTPServer's requests queue. Get the response
-        from the HTTPServer's response queue. If there is no response send an
-        error message back.
-
-        :return: ``None``
-        :rtype: ``NoneType``
-        """
-        response = self.get_response(request=self.path)
-        if not isinstance(response, HTTPResponse):
-            raise TypeError('Response must be of type HTTPResponse')
-
-        self._send_header(status_code=response.status_code,
-                         headers=response.headers)
-        self._send_content(response.content)
-        self.server.log_callback(
-            'Sent response with:\n  status code {}\n  headers {}'.format(
-                response.status_code,
-                response.headers
-            )
-        )
-
-    def log_message(self, format, *args):
-        """Log messages from the BaseHTTPRequestHandler class."""
-        self.server.log_callback('BASE CLASS: {}'.format(format%args))
-
-    def get_response(self, request):
-        """
-        Parse the request and return the response.
-
-        :param request:
-        :return:
-        """
-        self.server.requests.put(request)
-
-        timeout = time.time() + self.server.timeout
-        while time.time() < timeout:
-            try:
-                response = self.server.responses.get(False)
-            except queue.Empty:
-                response = HTTPResponse(
-                    status_code=500,
-                    content=['No response in driver queue.']
-                )
-                self.server.log_callback(
-                    'No response found in queue.'
-                )
-            else:
-                self.server.log_callback('Response popped from queue.')
-                break
-            time.sleep(0.01)
-        if response.status_code == 500:
-            self.server.log_callback('Responding with 500 error.')
-        return response
-
-    def do_HEAD(self):
-        """Handles a HEAD request."""
-        self._send_header()
-        self.server.log_callback('Sending response to HEAD request.')
-
-    def do_GET(self):
-        """Handles a GET request."""
-        self._parse_request()
-        self.server.log_callback('Sending response to GET request.')
-
-    def do_POST(self):
-        """Handles a POST request."""
-        self._parse_request()
-        self.server.log_callback('Sending response to POST request.')
-
-    def do_PUT(self):
-        """Handles a PUT request."""
-        self._parse_request()
-        self.server.log_callback('Sending response to PUT request.')
-
-    def do_DELETE(self):
-        """Handles a DELETE request."""
-        self._parse_request()
-        self.server.log_callback('Sending response to DELETE request.')
-
-    def do_PATCH(self):
-        """Handles a PATCH request."""
-        self._parse_request()
-        self.server.log_callback('Sending response to PATCH request.')
-
-    def do_OPTIONS(self):
-        """Handles a OPTIONS request."""
-        self._parse_request()
-        self.server.log_callback('Sending response to OPTIONS request.')
 
 
 class HTTPResponse(object):

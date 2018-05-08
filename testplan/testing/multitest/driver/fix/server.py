@@ -21,16 +21,18 @@ class FixServerConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.fix.server.FixServer` driver.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {'msgclass': type,
-                     'codec': object,
-                     ConfigOption('host', default='localhost'): str,
-                     ConfigOption('port', default=0): Use(int),
-                     ConfigOption('version', default='FIX.4.2'): str}
-        return self.inherit_schema(overrides, super(FixServerConfig, self))
+        return {
+            'msgclass': type,
+            'codec': object,
+            ConfigOption('host', default='localhost'): str,
+            ConfigOption('port', default=0): Use(int),
+            ConfigOption('version', default='FIX.4.2'): str
+        }
 
 
 class FixServer(Driver):

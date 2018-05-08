@@ -257,8 +257,10 @@ class EntityStatus(object):
         Returns all legal transitions of the status of the
         :py:class:`Entity <testplan.common.entity.base.Entity>`.
         """
-        return {self.PAUSING: set([self.PAUSED]),
-                self.PAUSED: set([self.RESUMING])}
+        return {
+            self.PAUSING: {self.PAUSED},
+            self.PAUSED: {self.RESUMING}
+        }
 
 
 class EntityConfig(Config):
@@ -271,17 +273,18 @@ class EntityConfig(Config):
     configuration that inherits this ones schema.
     """
 
-    def configuration_schema(self):
-        """
-        Schema for options validation and assignment of default values.
-        """
-        return {ConfigOption('runpath', default=None):
-                    Or(None, str, lambda x: callable(x)),
-                ConfigOption('initial_context', default={}): dict,
-                ConfigOption('path_cleanup', default=None): Or(None, bool),
-                ConfigOption('status_wait_timeout', default=3600): int,
-                ConfigOption('abort_wait_timeout', default=30): int,
-                ConfigOption('active_loop_sleep', default=0.001): float}
+    @classmethod
+    def get_options(cls):
+        """Config options for base Entity class."""
+        return {
+            ConfigOption('runpath', default=None):
+                Or(None, str, lambda x: callable(x)),
+            ConfigOption('initial_context', default={}): dict,
+            ConfigOption('path_cleanup', default=None): Or(None, bool),
+            ConfigOption('status_wait_timeout', default=3600): int,
+            ConfigOption('abort_wait_timeout', default=30): int,
+            ConfigOption('active_loop_sleep', default=0.001): float
+        }
 
 
 class Entity(object):
@@ -477,17 +480,12 @@ class RunnableConfig(EntityConfig):
     :py:class:`~testplan.common.entity.base.Runnable` entity.
     """
 
-    def configuration_schema(self):
-        """
-        Schema to validate
-        :py:class:`Runnable <testplan.common.entity.base.Runnable>`
-        object input configuration options.
-        """
-
-        overrides = {
-            ConfigOption('interactive', default=False): bool,
+    @classmethod
+    def get_options(cls):
+        """Runnable specific config options."""
+        return {
+            ConfigOption('interactive', default=False): bool
         }
-        return self.inherit_schema(overrides, super(RunnableConfig, self))
 
 
 class RunnableStatus(EntityStatus):
@@ -508,14 +506,15 @@ class RunnableStatus(EntityStatus):
         :py:class:`Runnable <testplan.common.entity.base.Runnable>` entity.
         """
         transitions = super(RunnableStatus, self).transitions()
-        overrides = {self.NONE: set([self.RUNNING]),
-                     self.RUNNING: set([self.FINISHED, self.EXECUTING,
-                                        self.PAUSING]),
-                     self.EXECUTING: set([self.RUNNING]),
-                     self.PAUSING: set([self.PAUSED]),
-                     self.PAUSED: set([self.RESUMING]),
-                     self.RESUMING: set([self.RUNNING]),
-                     self.FINISHED: set([self.RUNNING])}
+        overrides = {
+            self.NONE: {self.RUNNING},
+            self.RUNNING: {self.FINISHED, self.EXECUTING, self.PAUSING},
+            self.EXECUTING: {self.RUNNING},
+            self.PAUSING: {self.PAUSED},
+            self.PAUSED: {self.RESUMING},
+            self.RESUMING: {self.RUNNING},
+            self.FINISHED: {self.RUNNING}
+        }
         transitions.update(overrides)
         return transitions
 
@@ -728,12 +727,12 @@ class ResourceConfig(EntityConfig):
     :py:class:`~testplan.common.entity.base.Resource` entity.
     """
 
-    def configuration_schema(self):
-        """
-        Schema for options validation and assignment of default values.
-        """
-        overrides = {ConfigOption('async_start', default=True): bool}
-        return self.inherit_schema(overrides, super(ResourceConfig, self))
+    @classmethod
+    def get_options(cls):
+        """Resource specific config options."""
+        return {
+            ConfigOption('async_start', default=True): bool
+        }
 
 
 class ResourceStatus(EntityStatus):
@@ -753,14 +752,16 @@ class ResourceStatus(EntityStatus):
         :py:class:`Resource <testplan.common.entity.base.Resource>` entity.
         """
         transitions = super(ResourceStatus, self).transitions()
-        overrides = {self.NONE: set([self.STARTING]),
-                     self.STARTING: set([self.STARTED, self.STOPPING]),
-                     self.STARTED: set([self.PAUSING, self.STOPPING]),
-                     self.PAUSING: set([self.PAUSED]),
-                     self.PAUSED: set([self.RESUMING, self.STOPPING]),
-                     self.RESUMING: set([self.STARTED]),
-                     self.STOPPING: set([self.STOPPED]),
-                     self.STOPPED: set([self.STARTING])}
+        overrides = {
+            self.NONE: {self.STARTING},
+            self.STARTING: {self.STARTED, self.STOPPING},
+            self.STARTED: {self.PAUSING, self.STOPPING},
+            self.PAUSING: {self.PAUSED},
+            self.PAUSED: {self.RESUMING, self.STOPPING},
+            self.RESUMING: {self.STARTED},
+            self.STOPPING: {self.STOPPED},
+            self.STOPPED: {self.STARTING}
+        }
         transitions.update(overrides)
         return transitions
 
@@ -870,21 +871,18 @@ class RunnableManagerConfig(EntityConfig):
     entity.
     """
 
-    def configuration_schema(self):
-        """
-        Schema for options validation and assignment of default values.
-        """
-        overrides = {
+    @classmethod
+    def get_options(cls):
+        """RunnableManager specific config options."""
+        return {
             ConfigOption('parse_cmdline', default=True): bool,
             ConfigOption('port', default=None):
                 Or(None,
                    And(Use(int),
                        lambda n: n > 0)),
-            ConfigOption('abort_signals', default=[signal.SIGINT,
-                                                   signal.SIGTERM]): [int]
+            ConfigOption('abort_signals', default=[
+                signal.SIGINT, signal.SIGTERM]): [int]
         }
-        return self.inherit_schema(overrides,
-                                   super(RunnableManagerConfig, self))
 
 
 class RunnableManager(Entity):

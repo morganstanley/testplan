@@ -28,7 +28,9 @@ class ExporterResult(object):
 
 
 class ExporterConfig(Config):
-    def configuration_schema(self):
+
+    @classmethod
+    def get_options(cls):
         return {}
 
 
@@ -38,9 +40,7 @@ class BaseExporter(Configurable):
     CONFIG = ExporterConfig
 
     def __init__(self, **options):
-        """TODO."""
         self._cfg = self.CONFIG(**options)
-        self.url = None
 
     @property
     def cfg(self):

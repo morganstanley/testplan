@@ -41,6 +41,7 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
     _log = functools.partial(_log_proc, output=output)
 
     retcode = proc.poll()
+
     if retcode is not None:
         return retcode
 
@@ -73,7 +74,7 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
             _log(msg='Binary still alive, killing it')
             proc.kill()
             proc.wait()
-        except OSError as error:
+        except (RuntimeError, OSError) as error:
             _log(
                 msg='Could not kill process - {}'.format(error),
                 warn=True

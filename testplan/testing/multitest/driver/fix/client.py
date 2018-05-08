@@ -22,29 +22,28 @@ class FixClientConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.fix.client.FixClient` driver.
     """
 
-    def configuration_schema(self):
-        """
-        Schema for options validation and assignment of default values.
-        """
-        overrides = {'msgclass': type,
-                     'codec': object,
-                     'host': Or(str,
-                                lambda x: is_context(x)),
-                     'port': Or(Use(int), lambda x: is_context(x)),
-                     'sender': str,
-                     'target': str,
-                     ConfigOption('sendersub', default=None): str,
-                     ConfigOption('interface', default=None): tuple,
-                     ConfigOption('connect_at_start', default=True): bool,
-                     ConfigOption('logon_at_start', default=True): bool,
-                     ConfigOption('custom_logon_tags', default=None): object,
-                     ConfigOption('receive_timeout', default=30):
-                        Or(int, float),
-                     ConfigOption('logon_timeout', default=10):
-                         Or(int, float),
-                     ConfigOption('logoff_timeout', default=3):
-                         Or(int, float)}
-        return self.inherit_schema(overrides, super(FixClientConfig, self))
+    @classmethod
+    def get_options(cls):
+        return {
+            'msgclass': type,
+            'codec': object,
+            'host': Or(str,
+                       lambda x: is_context(x)),
+            'port': Or(Use(int), lambda x: is_context(x)),
+            'sender': str,
+            'target': str,
+            ConfigOption('sendersub', default=None): str,
+            ConfigOption('interface', default=None): tuple,
+            ConfigOption('connect_at_start', default=True): bool,
+            ConfigOption('logon_at_start', default=True): bool,
+            ConfigOption('custom_logon_tags', default=None): object,
+            ConfigOption('receive_timeout', default=30):
+                Or(int, float),
+            ConfigOption('logon_timeout', default=10):
+                Or(int, float),
+            ConfigOption('logoff_timeout', default=3):
+                Or(int, float)
+        }
 
 
 class FixClient(Driver):

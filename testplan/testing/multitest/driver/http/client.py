@@ -24,15 +24,17 @@ class HTTPClientConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.http.client.HTTPClient` driver.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {'host': Or(str, lambda x: is_context(x)),
-                     'port': Or(Use(int), lambda x: is_context(x)),
-                     Optional('timeout', default=5): Use(int),
-                     Optional('interval', default=0.01): Use(float)}
-        return self.inherit_schema(overrides, super(HTTPClientConfig, self))
+        return {
+            'host': Or(str, lambda x: is_context(x)),
+            'port': Or(Use(int), lambda x: is_context(x)),
+            Optional('timeout', default=5): Use(int),
+            Optional('interval', default=0.01): Use(float)
+        }
 
 
 class HTTPClient(Driver):

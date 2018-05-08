@@ -17,13 +17,15 @@ class Sqlite3Config(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.sqlite.Sqlite3` resource.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {'db_name': str,
-                     ConfigOption('connect_at_start', default=True): bool}
-        return self.inherit_schema(overrides, super(Sqlite3Config, self))
+        return {
+            'db_name': str,
+            ConfigOption('connect_at_start', default=True): bool
+        }
 
 
 def _rollback_on_error(func):

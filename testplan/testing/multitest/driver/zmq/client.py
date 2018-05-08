@@ -17,16 +17,18 @@ class ZMQClientConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.zmq.client.ZMQClient` driver.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {'hosts': Or(*make_iterables([str, ContextValue])),
-                     'ports': Or(*make_iterables([int, ContextValue])),
-                     Optional('message_pattern', default=zmq.PAIR):
-                         Or(zmq.PAIR, zmq.REQ, zmq.SUB, zmq.PULL),
-                     Optional('connect_at_start', default=True): bool}
-        return self.inherit_schema(overrides, super(ZMQClientConfig, self))
+        return {
+            'hosts': Or(*make_iterables([str, ContextValue])),
+            'ports': Or(*make_iterables([int, ContextValue])),
+            Optional('message_pattern', default=zmq.PAIR):
+                Or(zmq.PAIR, zmq.REQ, zmq.SUB, zmq.PULL),
+            Optional('connect_at_start', default=True): bool
+        }
 
 
 class ZMQClient(Driver):

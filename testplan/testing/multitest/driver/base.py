@@ -44,25 +44,26 @@ class DriverConfig(ResourceConfig):
     :py:class:`~testplan.testing.multitest.driver.base.Driver` resource.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {'name': str,
-                     ConfigOption('install_files', default=None):
-                         Or(None, list),
-                     ConfigOption('timeout', default=5): int,
-                     ConfigOption('logfile', default=None):
-                         Or(None, str),
-                     ConfigOption('log_regexps', default=None):
-                         Or(None, list),
-                     ConfigOption('stdout_regexps', default=None):
-                         Or(None, list),
-                     ConfigOption('stderr_regexps', default=None):
-                         Or(None, list),
-                     ConfigOption('async_start', default=False): bool
-                     }
-        return self.inherit_schema(overrides, super(DriverConfig, self))
+        return {
+            'name': str,
+            ConfigOption('install_files', default=None):
+                Or(None, list),
+            ConfigOption('timeout', default=5): int,
+            ConfigOption('logfile', default=None):
+                Or(None, str),
+            ConfigOption('log_regexps', default=None):
+                Or(None, list),
+            ConfigOption('stdout_regexps', default=None):
+                Or(None, list),
+            ConfigOption('stderr_regexps', default=None):
+                Or(None, list),
+            ConfigOption('async_start', default=False): bool
+        }
 
 
 class Driver(Resource):

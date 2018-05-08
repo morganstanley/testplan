@@ -124,11 +124,11 @@ class MultiTestRenderer(object):
 class XMLExporterConfig(ExporterConfig):
     """TODO"""
 
-    def configuration_schema(self):
-        overrides = Schema({
-            ConfigOption('xml_dir', default=defaults.XML_DIR): str,
-        })
-        return self.inherit_schema(overrides, super(XMLExporterConfig, self))
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption('xml_dir', default=defaults.XML_DIR): str
+        }
 
 
 class XMLExporter(Exporter):

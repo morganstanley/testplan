@@ -89,12 +89,11 @@ class TestRunnerConfig(RunnableConfig):
     Configuration object for
     :py:class:`~testplan.runnable.TestRunner` runnable object.
     """
+    ignore_extra_keys = True
 
-    def configuration_schema(self):
-        """
-        Schema for options validation and assignment of default values.
-        """
-        overrides = Schema({
+    @classmethod
+    def get_options(cls):
+        return {
             'name': str,
             ConfigOption('logger_level', default=TEST_INFO): int,
             ConfigOption('runpath', default=default_runpath):
@@ -131,8 +130,7 @@ class TestRunnerConfig(RunnableConfig):
             # list tests, not run them
             ConfigOption('test_lister', default=None):
                 Or(None, listing.BaseLister)
-        }, ignore_extra_keys=True)
-        return self.inherit_schema(overrides, super(TestRunnerConfig, self))
+        }
 
 
 class TestRunnerStatus(RunnableStatus):
