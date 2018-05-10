@@ -1,9 +1,11 @@
+sphinx==1.6.5
+sphinx_rtd_theme<0.3
+setuptools==37.0.0
 pytest
 py
 psutil
 six
 future
-setuptools
 schema
 pytz
 lxml
@@ -19,8 +21,6 @@ terminaltables
 pyparsing
 cycler
 Pillow
-sphinx==1.6.5
-sphinx_rtd_theme<0.3
 matplotlib
 numpy
 sklearn

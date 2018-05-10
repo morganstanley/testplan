@@ -9,12 +9,14 @@ from setuptools import setup, find_packages
 
 
 REQUIRED = [
+    'sphinx==1.6.5',
+    'sphinx_rtd_theme<0.3',
+    'setuptools==37.0.0',
     'pytest',
     'py',
     'psutil',
     'six',
     'future',
-    'setuptools',
     'schema',
     'pytz',
     'lxml',
@@ -33,8 +35,6 @@ REQUIRED = [
     'sklearn',
     'numpy',
     'matplotlib',
-    'sphinx==1.6.5',
-    'sphinx_rtd_theme<0.3',
     'requests>=2.4.3'
 ]
 
