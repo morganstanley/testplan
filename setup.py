@@ -33,8 +33,8 @@ REQUIRED = [
     'sklearn',
     'numpy',
     'matplotlib',
-    'sphinx',
-    'sphinx_rtd_theme',
+    'sphinx==1.6.5',
+    'sphinx_rtd_theme<0.3',
     'requests>=2.4.3'
 ]
 

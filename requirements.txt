@@ -19,8 +19,8 @@ terminaltables
 pyparsing
 cycler
 Pillow
-sphinx
-sphinx_rtd_theme
+sphinx==1.6.5
+sphinx_rtd_theme<0.3
 matplotlib
 numpy
 sklearn
