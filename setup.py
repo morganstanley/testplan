@@ -9,9 +9,9 @@ from setuptools import setup, find_packages
 
 
 REQUIRED = [
-    'sphinx==1.6.5',
-    'sphinx_rtd_theme<0.3',
-    'setuptools==37.0.0',
+    'sphinx',
+    #'sphinx_rtd_theme<0.3',
+    'setuptools',
     'pytest',
     'py',
     'psutil',
