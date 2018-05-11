@@ -554,10 +554,11 @@ class Runnable(Entity):
     CONFIG = RunnableConfig
     STATUS = RunnableStatus
     RESULT = RunnableResult
+    ENVIRONMENT = Environment
 
     def __init__(self, **options):
         super(Runnable, self).__init__(**options)
-        self._environment = Environment(parent=self)
+        self._environment = self.__class__.ENVIRONMENT(parent=self)
         self._result = self.__class__.RESULT()
         self._steps = deque()
 
