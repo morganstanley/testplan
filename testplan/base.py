@@ -5,6 +5,7 @@ from .common.config import ConfigOption
 from .common.entity import (RunnableManager, RunnableManagerConfig, Resource)
 
 from .common.utils.callable import arity
+from .common.utils.validation import is_subclass, has_method
 
 from .runnable import TestRunnerConfig, TestRunnerResult, TestRunner
 from .parser import TestplanParser
@@ -24,11 +25,11 @@ class TestplanConfig(RunnableManagerConfig, TestRunnerConfig):
     def get_options(cls):
         """Additional config options for Testplan class"""
         return {
-            ConfigOption('runnable', default=TestRunner): TestRunner,
+            ConfigOption(
+                'runnable', default=TestRunner): is_subclass(TestRunner),
             ConfigOption('resources', default=[]): [Resource],
-            ConfigOption('parser', default=TestplanParser):
-                lambda par: callable(
-                    getattr(par(name='test'), 'parse_args', None))
+            ConfigOption(
+                'parser', default=TestplanParser): has_method('parse_args')
         }
 
 
