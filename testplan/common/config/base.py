@@ -13,9 +13,9 @@ from testplan.common.utils.interface import check_signature
 ABSENT = Optional._MARKER
 
 
-def validate_func(args_list):
+def validate_func(*arg_names):
     """Validate given function signature."""
-    return lambda x: callable(x) and check_signature(x, args_list)
+    return lambda x: callable(x) and check_signature(x, list(arg_names))
 
 
 class DefaultValueWrapper(object):

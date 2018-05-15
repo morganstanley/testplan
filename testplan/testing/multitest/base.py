@@ -1,10 +1,11 @@
 """Multitest main test execution framework."""
 
+import inspect
 import collections
 import functools
 import time
 
-from schema import Use
+from schema import Use, Or
 
 from testplan.common.config import ConfigOption, validate_func
 from testplan.common.entity import Resource, Runnable
@@ -67,15 +68,19 @@ class MultiTestConfig(TestConfig):
 
     @classmethod
     def get_options(cls):
+        start_stop_signature = Or(
+            None,
+            validate_func('env'),
+            validate_func('env', 'result'),
+        )
+
         return {
             'suites': Use(iterable_suites),
             ConfigOption('environment', default=[]): [Resource],
-            ConfigOption('before_start', default=None): validate_func(['env']),
-            ConfigOption('after_start', default=None): validate_func(['env']),
-            ConfigOption(
-                'before_stop', default=None): validate_func(['env', 'result']),
-            ConfigOption(
-                'after_stop', default=None): validate_func(['env', 'result']),
+            ConfigOption('before_start', default=None): start_stop_signature,
+            ConfigOption('after_start', default=None): start_stop_signature,
+            ConfigOption('before_stop', default=None): start_stop_signature,
+            ConfigOption('after_stop', default=None): start_stop_signature,
             ConfigOption(
                 'result', default=Result): lambda r: isinstance(r(), Result),
         }
@@ -139,6 +144,21 @@ class MultiTest(Test):
         if self.cfg.tags:
             for suite in self.suites:
                 propagate_tag_indices(suite, self.cfg.tags)
+
+    def _execute_step(self, step, *args, **kwargs):
+        """
+        Full override of the base class, as we can rely on report object
+        for logging exceptions.
+        """
+        with self.report.logged_exceptions():
+            try:
+                res = step(*args, **kwargs)
+                self.result.step_results[step.__name__] = res
+                self.status.update_metadata(**{str(step): res})
+            except Exception as exc:
+                self.result.step_results[step.__name__] = exc
+                self.status.update_metadata(**{str(step): exc})
+                raise
 
     @property
     def suites(self):
@@ -332,6 +352,47 @@ class MultiTest(Test):
             attr(self.resources, case_result)
             method_report.extend(case_result.serialized_entries)
 
+    def _wrap_run_step(self, func, label):
+        """
+        Utility wrapper for special step related functions
+        (`before_start`, `after_stop` etc.).
+
+        This method wraps post/pre start/stop related functions so that the
+        user can optionally make use of assertions if the function accepts
+        both ``env`` and ``result`` arguments.
+
+        These functions are also run within report error logging context,
+        meaning that if something goes wrong we will have the stack trace
+        in the final report.
+        """
+        @functools.wraps(func)
+        def _wrapper():
+            case_result = self.cfg.result(
+                stdout_style=self.stdout_style,
+                _scratch=self.scratch,
+            )
+
+            testcase_report = TestCaseReport(
+                name='{} - {}'.format(label, func.__name__),
+                description=func.__doc__,
+            )
+
+            num_args = len(inspect.getargspec(func).args)
+            args = (self.resources,) if num_args == 1 else (
+                self.resources, case_result)
+
+            with testcase_report.timer.record('run'):
+                with testcase_report.logged_exceptions():
+                    func(*args)
+
+            testcase_report.extend(case_result.serialized_entries)
+
+            if self.get_stdout_style(testcase_report.passed).display_case:
+                log_testcase_status(testcase_report)
+
+            self.report.append(testcase_report)
+        return _wrapper
+
     def skip_step(self, step):
         """Step should be skipped."""
         if step in (self.resources.start, self.resources.stop):
@@ -357,27 +418,44 @@ class MultiTest(Test):
         """Runnable steps to be executed before environment starts."""
         self._add_step(self.make_runpath_dirs)
         if self.cfg.before_start:
-            # TODO add TestGroupReport + TestCaseReport
-            self._add_step(self.cfg.before_start, self.resources)
+            self._add_step(
+                self._wrap_run_step(
+                    label='before_start',
+                    func=self.cfg.before_start
+                )
+            )
 
     def main_batch_steps(self):
         """Runnable steps to be executed while environment is running."""
         if self.cfg.after_start:
-            # TODO add TestGroupReport + TestCaseReport
-            self._add_step(self.cfg.after_start, self.resources)
+            self._add_step(
+                self._wrap_run_step(
+                    label='after_start',
+                    func=self.cfg.after_start
+                )
+
+            )
 
         self._add_step(self.run_tests)
         self._add_step(self.propagate_tag_indices)
 
         if self.cfg.before_stop:
-            # TODO add TestGroupReport + TestCaseReport
-            self._add_step(self.cfg.before_stop, self.resources, self.report)
+            self._add_step(
+                self._wrap_run_step(
+                    label='before_stop',
+                    func=self.cfg.before_stop
+                )
+            )
 
     def post_resource_steps(self):
         """Runnable steps to be executed after environment stops."""
         if self.cfg.after_stop:
-            # TODO add TestGroupReport + TestCaseReport
-            self._add_step(self.cfg.after_stop, self.resources, self.report)
+            self._add_step(
+                self._wrap_run_step(
+                    label='after_stop',
+                    func=self.cfg.after_stop
+                )
+            )
 
     def should_run(self):
         """

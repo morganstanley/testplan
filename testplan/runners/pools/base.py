@@ -401,7 +401,7 @@ class Pool(Executor):
         :return: True if Task should be rescheduled else False.
         :rtype: ``bool``
         """
-        validate_func(['pool', 'task_result'])(check_reschedule)
+        validate_func('pool', 'task_result')(check_reschedule)
         self.should_reschedule = check_reschedule
 
     def _loop(self):
