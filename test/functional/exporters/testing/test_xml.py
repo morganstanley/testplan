@@ -82,8 +82,6 @@ def test_xml_exporter(tmpdir):
                         name='test_membership',
                         time=re.compile('\d+\.?\d*')
                     ),
-                    XC(tag='system-out'),
-                    XC(tag='system-err')
                 ]
             ),
         ]
@@ -127,8 +125,6 @@ def test_xml_exporter(tmpdir):
                             )
                         ]
                     ),
-                    XC(tag='system-out'),
-                    XC(tag='system-err')
                 ]
             )
         ]

@@ -1,3 +1,5 @@
+"""This module contains utilites for testing Testplan itself."""
+
 import sys
 import functools
 import logging
@@ -124,7 +126,10 @@ def suppress_warnings(func):
     return context_wrapper(warnings_suppressed)
 
 
-def check_iterable(expected, actual, curr_path='ROOT', _orig_exp=None, _orig_act=None):
+def check_iterable(
+    expected, actual, curr_path='ROOT',
+    _orig_exp=None, _orig_act=None
+):
     """
     Utility for checking an iterable, supports custom
     func assertions along with normal value matches.
@@ -232,8 +237,14 @@ def check_report(expected, actual, skip=None):
                     )
                 )
         else:
-            msg = 'Mismatch: "{}", `{}` != `{}`'.format(
-                attr, exp_value, act_value)
+            msg = '{}Expected: {} {}Actual: {}'.format(
+                os.linesep,
+                expected,
+                os.linesep,
+                actual
+            )
+            msg += '{}Mismatch: "{}", `{}` != `{}`'.format(
+                os.linesep, attr, exp_value, act_value)
             assert exp_value == act_value, msg
 
     if isinstance(expected, ReportGroup):
@@ -248,7 +259,12 @@ def check_report(expected, actual, skip=None):
             check_report(expected_child, actual_child, skip=skip)
 
     elif isinstance(expected, Report):
-        assert len(expected) == len(actual)
+        msg = '{} {} {}'.format(
+            pprint.pformat(expected.entries, indent=2),
+            os.linesep,
+            pprint.pformat(actual.entries, indent=2)
+        )
+        assert len(expected) == len(actual), msg
         for expected_entry, actual_entry in zip(
                 expected.entries, actual.entries):
             check_entry(expected_entry, actual_entry)
@@ -326,7 +342,7 @@ class XMLComparison(object):
         )
 
         with open('my_file.xml') as xml_file:
-            comparison.compare(xml_file)
+            comparison.compare(xml_file.read())
     """
 
     def __init__(self, tag, children=None, **kwargs):
@@ -335,7 +351,7 @@ class XMLComparison(object):
         self.attrib = kwargs
 
     def _compare_value(self, first, second, key):
-        msg='Attrib mismatch key: `{key}`, ' \
+        msg = 'Attrib mismatch key: `{key}`, ' \
             'expected: `{expected}`, actual: `{actual}`'
 
         if is_regex(first):
@@ -362,7 +378,11 @@ class XMLComparison(object):
         for curr_child, xml_child in zip(self.children, xml_children):
             curr_child._compare_obj(xml_child)
 
-    def compare(self, xml_str):
+    def compare(self, xml_str, encoding='utf-8'):
         """Compare with xml string input."""
-        xml_obj = objectify.fromstring(xml_str)
+        # fromstring complains when we have UTF declaration like
+        # `<?xml version="1.0" encoding="utf-8" ?>`, so we use bytes instead
+        # https://stackoverflow.com/a/38244227
+        xml_bytes = bytes(bytearray(xml_str, encoding=encoding))
+        xml_obj = objectify.fromstring(xml_bytes)
         self._compare_obj(xml_obj)

@@ -15,7 +15,7 @@ from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
 from testplan.common.utils.process import enforce_timeout, kill_process
 
-from testplan.report import test_styles, TestGroupReport, TestCaseReport
+from testplan.report import test_styles, TestGroupReport, TestCaseReport, Status
 from testplan.logger import TESTPLAN_LOGGER, get_test_status_message
 
 
@@ -444,12 +444,49 @@ class ProcessRunnerTest(Test):
         """
         raise NotImplementedError
 
+    def get_process_failure_report(self):
+        """
+        When running a process fails (e.g. binary crash, timeout etc)
+        we can still generate dummy testsuite / testcase reports with
+        a certain hierarchy compatible with exporters and XUnit conventions.
+        """
+        from testplan.testing.multitest.entries.assertions import RawAssertion
+
+        assertion_content = os.linesep.join([
+            'Process failure: {}'.format(self.cfg.driver),
+            'Exit code: {}'.format(self._test_process_retcode),
+            'stdout: {}'.format(self.stdout),
+            'stderr: {}'.format(self.stderr)
+        ])
+
+        testcase_report = TestCaseReport(
+            name='failure',
+            entries=[
+                RawAssertion(
+                    description='Process failure details',
+                    content=assertion_content,
+                    passed=False
+                ).serialize(),
+            ]
+        )
+
+        testcase_report.status_override = Status.ERROR
+
+        return TestGroupReport(
+            name='ProcessFailure',
+            category='suite',
+            entries=[
+                testcase_report
+            ]
+        )
+
     def update_test_report(self):
         """
         Update current instance's test report with generated sub reports from
         raw test data. Skip report updates if the process was killed.
         """
         if self._test_process_killed or not self._test_has_run:
+            self.result.report.append(self.get_process_failure_report())
             return
 
         if len(self.result.report):
@@ -471,9 +508,7 @@ class ProcessRunnerTest(Test):
                 and retcode not in self.cfg.ignore_exit_codes\
                 and not len(self.result.report):
             with self.result.report.logged_exceptions():
-                raise RuntimeError(
-                    'Test process of {}'
-                    ' exited with nonzero status: {}.'.format(self, retcode))
+                self.result.report.append(self.get_process_failure_report())
 
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""

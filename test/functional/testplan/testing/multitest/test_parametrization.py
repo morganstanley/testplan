@@ -429,7 +429,7 @@ def test_docstring_func(docstring_func, expected_docstring):
 
         @testcase(
             parameters=(
-                    ('foo', 'bar'),
+                ('foo', 'bar'),
             ),
             name_func=lambda func_name, kwargs: 'dummy_name',
             docstring_func=docstring_func,
@@ -457,11 +457,6 @@ def test_parametrization_tagging():
         )
         def dummy_test(self, env, result, color):
             pass
-
-    all_tags_index = {
-        'simple': {'foo', 'alpha'},
-        'color': {'red', 'blue', 'green'}
-    }
 
     parametrization_group = TestGroupReport(
         name='dummy_test',

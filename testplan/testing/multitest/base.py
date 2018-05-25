@@ -12,6 +12,7 @@ from testplan.common.entity import Resource, Runnable
 from testplan.common.utils.interface import (
     check_signature, MethodSignatureMismatch
 )
+from testplan.common.utils.validation import is_subclass
 from testplan.logger import TESTPLAN_LOGGER, get_test_status_message
 from testplan.report import TestGroupReport, TestCaseReport
 from testplan.report.testing import Status
@@ -81,8 +82,7 @@ class MultiTestConfig(TestConfig):
             ConfigOption('after_start', default=None): start_stop_signature,
             ConfigOption('before_stop', default=None): start_stop_signature,
             ConfigOption('after_stop', default=None): start_stop_signature,
-            ConfigOption(
-                'result', default=Result): lambda r: isinstance(r(), Result),
+            ConfigOption('result', default=Result): is_subclass(Result)
         }
 
 
@@ -145,6 +145,8 @@ class MultiTest(Test):
             for suite in self.suites:
                 propagate_tag_indices(suite, self.cfg.tags)
 
+        self._pre_post_step_report = None
+
     def _execute_step(self, step, *args, **kwargs):
         """
         Full override of the base class, as we can rely on report object
@@ -161,6 +163,22 @@ class MultiTest(Test):
                 raise
 
     @property
+    def pre_post_step_report(self):
+        if self._pre_post_step_report is None:
+            self._pre_post_step_report = TestGroupReport(
+                name='Pre/Post Step Checks',
+                category=Categories.SUITE)
+        return self._pre_post_step_report
+
+    def append_pre_post_step_report(self):
+        """
+        This will be called as a final step after multitest run is
+        complete, to group all step check results under a single report.
+        """
+        if self._pre_post_step_report is not None:
+            self.report.append(self._pre_post_step_report)
+
+    @property
     def suites(self):
         """Input list of suites."""
         return self.cfg.suites
@@ -168,8 +186,8 @@ class MultiTest(Test):
     def get_tags_index(self):
         """
         Tags index for a multitest is its native tags merged with tag indices
-        from all of its suites. (Suite tag indices will also contain tag indices
-        from their testcases as well).
+        from all of its suites. (Suite tag indices will also contain tag
+        indices from their testcases as well).
         """
         if self._tags_index is None:
             self._tags_index = tagging.merge_tag_dicts(
@@ -390,7 +408,7 @@ class MultiTest(Test):
             if self.get_stdout_style(testcase_report.passed).display_case:
                 log_testcase_status(testcase_report)
 
-            self.report.append(testcase_report)
+            self.pre_post_step_report.append(testcase_report)
         return _wrapper
 
     def skip_step(self, step):
@@ -456,6 +474,8 @@ class MultiTest(Test):
                     func=self.cfg.after_stop
                 )
             )
+
+        self._add_step(self.append_pre_post_step_report)
 
     def should_run(self):
         """
