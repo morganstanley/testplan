@@ -157,7 +157,7 @@ class GTest(ProcessRunnerTest):
         return result
 
     def parse_test_context(self, test_list_output):
-        """Parse GTest test output from report.xml"""
+        """Parse GTest test listing from stdout"""
         # Sample Test Declaration:
         #
         #     TEST(SquareRootTest, PositiveNos) {
@@ -199,3 +199,13 @@ class GTest(ProcessRunnerTest):
             else:
                 result[-1][1].append(line.strip())
         return result
+
+    def update_test_report(self):
+        """
+        Attach XML report contents to the report, which can be
+        used by XML exporters, but will be discarded by serializers.
+        """
+        super(GTest, self).update_test_report()
+
+        with open(self.report_path) as report_xml:
+            self.result.report.xml_string = report_xml.read()

@@ -86,7 +86,14 @@ class Status(object):
         return min(stats, key=lambda stat: rule.index(stat))
 
 
-TestCount = collections.namedtuple('TestCount', Status.STATUS_PRECEDENCE)
+_TestCount = collections.namedtuple('_TestCount', Status.STATUS_PRECEDENCE)
+
+
+class TestCount(_TestCount):
+
+    @property
+    def total(self):
+        return sum(getattr(self, attrname) for attrname in self._fields)
 
 
 class ExceptionLogger(ExceptionLoggerBase):

@@ -1,23 +1,37 @@
 import re
-from testplan.report.testing import TestReport, TestGroupReport, Status
 
-my_test_report = TestGroupReport(
-    name='MyTest',
-    category='dummytest',
-    entries=[],
+from testplan.report.testing import (
+  TestReport, TestGroupReport,
+  TestCaseReport, Status
 )
 
-my_test_report.status_override = Status.ERROR
+testcase_report = TestCaseReport(
+    name='failure',
+    entries=[
+        {
+            'type': 'RawAssertion',
+            'description': 'Process failure details',
+            # 'content': ''
+        }
+    ]
+)
 
-my_test_report.logs = [
-    {'message': re.compile(
-        r'RuntimeError: Test process of'
-        r' DummyTest\[MyTest\] exited with nonzero status: 5\.')
-    }
-]
+testcase_report.status_override = Status.ERROR
+
 
 expected_report = TestReport(
     name='plan',
-    entries=[my_test_report]
+    entries=[
+        TestGroupReport(
+            name='MyTest',
+            category='dummytest',
+            entries=[
+                TestGroupReport(
+                    name='ProcessFailure',
+                    category='suite',
+                    entries=[testcase_report]
+                )
+            ]
+        )
+    ]
 )
-

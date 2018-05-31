@@ -78,6 +78,11 @@ class BaseEntry(object):
 
     __nonzero__ = __bool__
 
+    def serialize(self):
+        """Shortcut method for serialization via schemas"""
+        from .schemas.base import registry
+        return registry.serialize(self)
+
 
 class Group(object):
 

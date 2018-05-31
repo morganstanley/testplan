@@ -879,7 +879,7 @@ in the ``parameters`` tuple below:
       #  is not that readable.
       @testcase(parameters=(2, 4, 6, 8))
       def is_even(self, env, result, value):
-          result.equal(value % 2)(0)
+          result.equal(value % 2, 0)
 
 
 .. _parametrization_combinatorial:
@@ -972,7 +972,7 @@ method has default values assigned to the parametrized arguments:
             {'a': 10, 'expected': 15},  # b=5
         ))
         def addition(self, env, result, a, b=5, expected=10):
-            result.equal(expected)(a + b)
+            result.equal(expected, a + b)
 
 
 .. _parametrization_custom_name_func:

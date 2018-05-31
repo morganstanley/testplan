@@ -1,10 +1,34 @@
 import re
-from testplan.report.testing import TestReport, TestGroupReport, Status
+
+from testplan.report.testing import (
+  TestReport, TestGroupReport,
+  TestCaseReport, Status
+)
+
+testcase_report = TestCaseReport(
+    name='failure',
+    entries=[
+        {
+            'type': 'RawAssertion',
+            'description': 'Process failure details',
+            # 'content': ''
+        }
+    ]
+)
+
+testcase_report.status_override = Status.ERROR
+
 
 my_test_report = TestGroupReport(
     name='MyTest',
     category='dummytest',
-    entries=[],
+    entries=[
+        TestGroupReport(
+            name='ProcessFailure',
+            category='suite',
+            entries=[testcase_report]
+        )
+    ],
 )
 
 my_test_report.logs = [
@@ -13,10 +37,11 @@ my_test_report.logs = [
         r" running DummyTest\[MyTest\] after 1 seconds\.")}
 ]
 
+
 my_test_report.status_override = Status.ERROR
+
 
 expected_report = TestReport(
     name='plan',
     entries=[my_test_report]
 )
-

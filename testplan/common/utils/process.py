@@ -50,7 +50,7 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
         try:
             child.send_signal(signal.SIGTERM)
         except Exception as exc:
-            _log (
+            _log(
                 msg='While terminating child proc - {}'.format(exc),
                 warn=True
             )
@@ -119,7 +119,7 @@ def subprocess_popen(
 
 
 def enforce_timeout(process, timeout=1, callback=None, output=None):
-    _log= functools.partial(_log_proc, output=output)
+    _log = functools.partial(_log_proc, output=output)
 
     def _inner():
         begin = time.time()
