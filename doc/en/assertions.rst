@@ -14,8 +14,31 @@ The content below contains testcase snippets, for complete
 examples please see please see :ref:`here <example_assertions>`.
 
 
+Execution Behavior
+==================
+
+In Testplan, the testcase execution does **NOT** stop after a failing assertion.
+This is because usually it is not easy to restart a heavy Multitest environment
+and simply re-run testcases to continue from the previous failures and it is more
+preferable to execute all assertions in advance.
+
+If some assertions rely on the result of previous ones and does not make sense
+to be executed if the previous failed, their boolean return values can be used
+like this example:
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          item = get_item()
+          passed = result.true(isinstance(item, dict), description='Check if dict')
+          if passed is True:
+              result.contain('key', item.keys(), description='.keys() used')
+
+
 Basic Assertions
 ================
+
 Basic assertions can be used for common test cases, and accessible directly
 from the ``result`` object.
 
@@ -29,7 +52,7 @@ Checks if the ``value`` is `truthy`.
 
       @testcase
       def sample_testcase(self, env, result):
-          result.true((isinstance(5, int), description='Truthiness check')
+          result.true(isinstance(5, int), description='Truthiness check')
 
     Sample output:
 
