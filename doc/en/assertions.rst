@@ -18,9 +18,11 @@ Execution Behavior
 ==================
 
 In Testplan, the testcase execution does **NOT** stop after a failing assertion.
-This is because usually it is not easy to restart a heavy Multitest environment
-and simply re-run testcases to continue from the previous failures and it is more
-preferable to execute all assertions in advance.
+This is because in our experience, assertions are used to check for correctness
+of output values rather than determining which execution path was taken.
+Consequently, we find that it is more efficient to execute all assertions within
+a testcase, because it avoids the typical problem of fixing one assertion simply
+to find another one later on.
 
 If some assertions rely on the result of previous ones and does not make sense
 to be executed if the previous failed, their boolean return values can be used
@@ -34,6 +36,21 @@ like this example:
           passed = result.true(isinstance(item, dict), description='Check if dict')
           if passed is True:
               result.contain('key', item.keys(), description='.keys() used')
+
+If the test should be stopped on an assertion failure, an exception can be raised
+or use a *return* statement like this example:
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+           passed = result.true(isinstance(5, float), description='Check if float')
+
+           if passed is False:
+               raise RuntimeError('5 is not a float.')
+               # Or
+               result.log('5 is not a float. Aborting testcase.')
+               return
 
 
 Basic Assertions
