@@ -69,6 +69,26 @@ class FunctionAssertionRenderer(AssertionRenderer):
 
 
 @registry.bind(
+    assertions.IsClose
+)
+class ApproximateEqualityAssertionRenderer(AssertionRenderer):
+
+    def get_assertion_details(self, entry):
+        """
+            Use a format like `99 ~= 100 (with rel_tol=0.1, abs_tol=0.0)`,
+            highlighting failing comparisons in red.
+        """
+        msg = '{} {} {} (rel_tol: {}, abs_tol: {})'.format(
+            entry.first,
+            entry.label,
+            entry.second,
+            entry.rel_tol,
+            entry.abs_tol
+        )
+        return msg if entry else Color.red(msg)
+
+
+@registry.bind(
     assertions.RegexMatch,
     assertions.RegexSearch,
 )

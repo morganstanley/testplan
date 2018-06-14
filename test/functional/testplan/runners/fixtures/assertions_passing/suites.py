@@ -27,6 +27,10 @@ class MySuite(object):
         result.greater_equal(2, 1)
 
     @testcase
+    def test_approximate_equality(self, env, result):
+        result.isclose(95, 100, 0, 5)
+
+    @testcase
     def test_membership(self, env, result):
         result.contain(1, [1, 2, 3])
         result.not_contain('foo', 'bar')

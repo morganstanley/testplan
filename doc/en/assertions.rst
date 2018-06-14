@@ -253,6 +253,28 @@ Comparison assertion, checks if ``reference`` is greater than or equal the ``val
           ...
 
 
+:py:meth:`result.isclose <testplan.testing.multitest.result.Result.isclose>`
+----------------------------------------------------------------------------
+
+Checks if ``first`` is close to ``second`` without requiring them to be exactly equal.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.isclose(100, 101, rel_tol=0.01, abs_tol=0.0, description='Approximate equality example')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Approximate equality example - Pass
+            100 ~= 101 (rel_tol: 0.01, abs_tol: 0.0)
+          ...
+
+
 :py:meth:`result.contain <testplan.testing.multitest.result.Result.contain>`
 ----------------------------------------------------------------------------
 

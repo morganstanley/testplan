@@ -9,6 +9,9 @@ import os
 import re
 import operator
 import collections
+import numbers
+import decimal
+import cmath
 
 import six
 import lxml
@@ -32,6 +35,7 @@ __all__ = [
     'LessEqual',
     'Greater',
     'GreaterEqual',
+    'IsClose',
     'Contain',
     'NotContain',
     'RegexAssertion',
@@ -158,6 +162,41 @@ class Greater(FuncAssertion):
 class GreaterEqual(FuncAssertion):
     label = '>='
     func = operator.ge
+
+
+class IsClose(Assertion):
+    label = '~='
+
+    def __init__(
+        self, first, second, rel_tol=1e-09, abs_tol=0.0,
+        description=None, category=None
+    ):
+        if not isinstance(first, numbers.Number) or \
+                not isinstance(second, numbers.Number):
+            raise ValueError('`first` and `second` must be numbers.')
+        if not isinstance(rel_tol, (numbers.Real, decimal.Decimal)) or \
+                not isinstance(abs_tol, (numbers.Real, decimal.Decimal)) or \
+                rel_tol < 0 or abs_tol < 0:
+            raise ValueError('`rel_tol` and `abs_tol` must be non-negative.')
+
+        self.first = first
+        self.second = second
+        self.rel_tol = rel_tol
+        self.abs_tol = abs_tol
+
+        super(IsClose, self).__init__(
+            description=description, category=category)
+
+    def evaluate(self):
+        if self.first == self.second:
+            return True
+        if cmath.isinf(self.first) or cmath.isinf(self.second):
+            return False
+
+        diff = abs(self.second - self.first)
+        return (((diff <= abs(self.rel_tol * self.first)) or
+                 (diff <= abs(self.rel_tol * self.second))) or
+                (diff <= self.abs_tol))
 
 
 class Contain(Assertion):
