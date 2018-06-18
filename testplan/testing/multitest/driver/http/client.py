@@ -31,7 +31,9 @@ class HTTPClientConfig(DriverConfig):
         """
         return {
             'host': Or(str, lambda x: is_context(x)),
-            'port': Or(Use(int), lambda x: is_context(x)),
+            Optional('port', default=None): Or(None, Use(int),
+                                               lambda x: is_context(x)),
+            Optional('https', default=False): bool,
             Optional('timeout', default=5): Use(int),
             Optional('interval', default=0.01): Use(float)
         }
@@ -43,8 +45,11 @@ class HTTPClient(Driver):
 
     :param host: Hostname to connect to.
     :type host: ``str`` or ``ContextValue``
-    :param port: Port to connect to.
+    :param port: Port to connect to. If using HTTP defaults to 80, if using
+      HTTPS defaults to 443.
     :type port: ``str`` or ``ContextValue``
+    :param https: Use HTTP or HTTPS protocol.
+    :type https: ``bool``
     :param timeout: Number of seconds to wait for a request.
     :type timeout: ``int``
     :param interval: Number of seconds to sleep whilst trying to receive a
@@ -58,6 +63,7 @@ class HTTPClient(Driver):
         super(HTTPClient, self).__init__(**options)
         self._host = None
         self._port = None
+        self.https = None
         self.timeout = None
         self.interval = None
         self.responses = None
@@ -83,14 +89,17 @@ class HTTPClient(Driver):
         Start the HTTPClient.
         """
         super(HTTPClient, self).starting()
+        default_port = 443 if self.cfg.https else 80
         self._setup_file_logger(self.logpath)
         self._host = expand(self.cfg.host, self.context)
-        self._port = expand(self.cfg.port, self.context, int)
+        self._port = expand(self.cfg.port, self.context, int) or default_port
+        self.https = self.cfg.https
         self.timeout = self.cfg.timeout
         self.interval = self.cfg.interval
         self.responses = Queue.Queue()
         self.file_logger.debug(
-            'Started HTTPClient sending requests to http://{}:{}'.format(
+            'Started HTTPClient sending requests to {}://{}:{}'.format(
+                'https' if self.https else 'http',
                 self.host,
                 self.port
             )
@@ -121,7 +130,8 @@ class HTTPClient(Driver):
         """
         http_method = getattr(requests, method, requests.get)
         api = api[1:] if api.startswith('/') else api
-        url = 'http://{host}:{port}/{api}'.format(
+        url = '{protocol}://{host}:{port}/{api}'.format(
+            protocol='https' if self.https else 'http',
             host=self.host,
             port=self.port,
             api=api

@@ -45,7 +45,8 @@ class HTTPTestsuite(object):
 
         # We are verifying the JSON sent back is the same as the one sent by the
         # HTTPServer.
-        result.equal(response.json(), json_content, 'JSON response from server')
+        result.dict.match(response.json(), json_content,
+                          'JSON response from server')
 
 
 def get_multitest(name):
