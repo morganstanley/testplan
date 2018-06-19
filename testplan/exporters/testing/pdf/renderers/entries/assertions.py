@@ -111,6 +111,30 @@ class FunctionAssertionRenderer(AssertionRenderer):
 
 
 @registry.bind(
+    assertions.IsClose
+)
+class ApproximateEqualityAssertionRenderer(AssertionRenderer):
+    """
+    Assertion renderer for serialized assertion entries:
+      * IsClose
+    """
+
+    def get_detail(self, source, depth, row_idx):
+        return RowData(
+            content=[
+                '{first} {label} {second}'
+                ' (rel_tol: {rel_tol}, abs_tol: {abs_tol})'.format(**source),
+                '', '', '',
+            ],
+            style=default_assertion_style(
+                passed=source['passed'],
+                depth=depth + 1
+            ),
+            start=row_idx,
+        )
+
+
+@registry.bind(
     assertions.RegexMatch,
     assertions.RegexSearch,
 )

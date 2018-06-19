@@ -1,5 +1,6 @@
 import collections
 import decimal
+import fractions
 import inspect
 import os
 import re
@@ -133,6 +134,73 @@ TestGreaterEqual = generate_function_assertion_test(
     assertion_kls=assertions.GreaterEqual,
     passing_params=GREATER_THAN_PARAMS + EQUALITY_PARAMS,
     failing_params=LESS_THAN_PARAMS
+)
+
+
+APPROXIMATE_EQUALITY_ASSERTION_PARAM_NAMES = 'first,second,rel_tol,abs_tol'
+IS_CLOSE_PARAMS = [
+    (0, 0, 0.0, 0.0),
+    (499, 500, 0.003, 0.0),
+    (1000, 1001.001, 0.001, 0.0),
+    (-500, -555.5, 0.1, 55.0),
+    (1e9, 9e8, 0.099, 1.0001e8),
+    (True, True, 1e-09, 0.0),
+    (False, False, 1e-09, 0.0),
+    (decimal.Decimal('0.999'), decimal.Decimal('0.9999'), 0, 0.001),
+    (fractions.Fraction(99, 100), fractions.Fraction(100, 101), 0.00010001, 0.0),
+    (3 + 4j, 3 + 5j, 0.18, 0.0),
+    (3 + 4j, 4 + 3j, 0.0, 1.42),
+    (0, 1e+100, 0.0, float('inf')),
+    (float('inf'), float('inf'), 0.0, 0.0),
+    (float('-inf'), float('-inf'), 0.0, 0.0),
+]
+
+IS_NOT_CLOSE_PARAMS = [
+    (0, 0.0001, 0.0, 0.0),
+    (499, 500, 0.001, 0.0),
+    (1000, 1001.01, 0.001, 0.0),
+    (-500, -555.5, 0.0999, 55.0),
+    (1e9, 9e8, 0.099, 0.9999e8),
+    (True, False, 1e-09, 0.5),
+    (decimal.Decimal('0.999'), decimal.Decimal('0.9999'), decimal.Decimal('0.0009'), 0.0),
+    (fractions.Fraction(99, 100), fractions.Fraction(100, 101), 0.00009999, 1e-05),
+    (3 + 4j, 3 + 2j, 0.18, 0.0),
+    (5 + 4j, 4 + 3j, 0.0, 1.41),
+    (float('inf'), float('-inf'), 0.0, float('inf')),
+    (float('inf'), 1.0, 0.0, float('inf')),
+    (float('nan'), float('inf'), 0.0, float('inf')),
+    (float('nan'), 1e+12, 0.0, float('inf')),
+]
+
+
+def generate_approximate_equality_assertion_test(
+    assertion_kls, passing_params, failing_params
+):
+    class ApproximateEqualityTest(object):
+
+        def _test_evaluate(self, first, second, rel_tol, abs_tol, expected):
+            assertion = assertion_kls(first, second, rel_tol, abs_tol)
+            assert assertion.first is first
+            assert assertion.second is second
+            assert assertion.rel_tol is rel_tol
+            assert assertion.abs_tol is abs_tol
+            assert bool(assertion) is expected
+
+        @pytest.mark.parametrize(APPROXIMATE_EQUALITY_ASSERTION_PARAM_NAMES, passing_params)
+        def test_evaluate_true(self, first, second, rel_tol, abs_tol):
+            self._test_evaluate(first, second, rel_tol, abs_tol, True)
+
+        @pytest.mark.parametrize(APPROXIMATE_EQUALITY_ASSERTION_PARAM_NAMES, failing_params)
+        def test_evaluate_false(self, first, second, rel_tol, abs_tol):
+            self._test_evaluate(first, second, rel_tol, abs_tol, False)
+
+    return ApproximateEqualityTest
+
+
+TestIsClose = generate_approximate_equality_assertion_test(
+    assertion_kls=assertions.IsClose,
+    passing_params=IS_CLOSE_PARAMS,
+    failing_params=IS_NOT_CLOSE_PARAMS
 )
 
 

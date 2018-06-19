@@ -71,6 +71,19 @@ expected_report = TestReport(
                             ]
                         ),
                         TestCaseReport(
+                            name='test_approximate_equality',
+                            entries=[
+                                {
+                                    'first': 95,
+                                    'second': 100,
+                                    'rel_tol': 0,
+                                    'abs_tol': 5,
+                                    'type': 'IsClose',
+                                    'passed': True
+                                }
+                            ]
+                        ),
+                        TestCaseReport(
                             name='test_membership',
                             entries=[
                                 {

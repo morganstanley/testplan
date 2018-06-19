@@ -45,6 +45,11 @@ class SampleSuite(object):
         result.le(10, 15)
         result.ge(15, 10)
 
+        # We can test if 2 numbers are close to each other within
+        # the relative tolerance or a minimum absolute tolerance level
+        result.isclose(100, 95, 0.1, 0.0)
+        result.isclose(100, 95, 0.01, 0.0)
+
         # `result` also has a `log` method that can be used
         # for adding extra information on the output
         result.log(

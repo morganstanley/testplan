@@ -41,6 +41,18 @@ class FuncAssertionSchema(AssertionSchema):
 
 
 @registry.bind(
+    asr.IsClose
+)
+class ApproximateEqualitySchema(AssertionSchema):
+
+    first = custom_fields.NativeOrPretty()
+    second = custom_fields.NativeOrPretty()
+    rel_tol = custom_fields.NativeOrPretty()
+    abs_tol = custom_fields.NativeOrPretty()
+    label = fields.String()
+
+
+@registry.bind(
     asr.IsTrue,
     asr.IsFalse
 )

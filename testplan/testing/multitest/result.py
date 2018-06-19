@@ -1342,6 +1342,32 @@ class Result(object):
     ge = greater_equal
 
     @bind_entry
+    def isclose(
+        self, first, second, rel_tol=1e-09, abs_tol=0.0,
+        description=None, category=None
+    ):
+        """
+        Checks if ``first`` and ``second`` are approximately equal.
+
+        .. code-block:: python
+
+            result.isclose(99.99, 100, 0.001, 0.0, 'Custom description')
+
+        :param first: The first item to be compared for approximate equality.
+        :type first: ``numbers.Number``
+        :param second: The second item to be compared for approximate equality.
+        :type second: ``numbers.Number``
+        :param rel_tol: The relative tolerance.
+        :type rel_tol: ``numbers.Real``
+        :param abs_tol: The minimum absolute tolerance level.
+        :type abs_tol: ``numbers.Real``
+        :return: Assertion pass status
+        :rtype: ``bool``
+        """
+        return assertions.IsClose(
+            first, second, rel_tol, abs_tol, description=description, category=category)
+
+    @bind_entry
     def contain(self, member, container, description=None, category=None):
         """
         Checks if ``member in container``.
