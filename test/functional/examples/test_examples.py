@@ -27,6 +27,7 @@ KNOWN_EXCEPTIONS = [
 
 SKIP_ON_WINDOWS = [
     os.path.join('Cpp', 'GTest', 'test_plan.py'),
+    os.path.join('Cpp', 'HobbesTest', 'test_plan.py'),
 ]
 
 ROOT_DIR_CONTENTS = [

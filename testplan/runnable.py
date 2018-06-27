@@ -332,7 +332,6 @@ class TestRunner(Runnable):
             target = runnable
 
         should_run = target.should_run()
-
         # --list always returns False
         if should_run and self.cfg.test_lister is not None:
             self.cfg.test_lister.log_test_info(target)

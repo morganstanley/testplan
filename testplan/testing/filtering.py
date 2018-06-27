@@ -249,7 +249,7 @@ class Pattern(Filter):
         <Multitest name>:*:<testcase name>
         *:<suite name>:*
     """
-
+ 
     MAX_LEVEL = 3
     DELIMITER = ':'
     ALL_MATCH = '*'
