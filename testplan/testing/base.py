@@ -156,10 +156,10 @@ class Test(Runnable):
 
     def should_run(self):
         return self.cfg.test_filter.filter(
-            instance=self,
+            test=self,
             # Instance level shallow filtering is applied by default
-            testsuite=None,
-            testcase=None,
+            suite=None,
+            case=None,
         ) and self.test_context
 
     def should_log_test_result(self, depth, test_obj, style):
@@ -372,13 +372,22 @@ class ProcessRunnerTest(Test):
         Run the tests in a subprocess, record stdout & stderr on runpath.
         Optionally enforce a timeout and log timeout related messages in
         the given timeout log path.
-
-        :return:
         """
 
         with self.result.report.logged_exceptions(), \
                 open(self.stderr, 'w') as stderr, \
                 open(self.stdout, 'w') as stdout:
+
+            if not os.path.exists(self.cfg.driver):
+                raise IOError('No runnable found at {} for {}'.format(
+                    self.cfg.driver,
+                    self
+                ))
+
+            # Need to use driver's absolute path if proc_cwd is specified,
+            # otherwise won't be able to find the driver.
+            if self.cfg.proc_cwd:
+                self.cfg.driver = os.path.abspath(self.cfg.driver)
 
             test_cmd = self.test_command()
 
@@ -388,12 +397,6 @@ class ProcessRunnerTest(Test):
             if not test_cmd:
                 raise ValueError(
                     'Invalid test command generated for: {}'.format(self))
-
-            if not os.path.exists(self.cfg.driver):
-                raise IOError('No runnable found at {} for {}'.format(
-                    self.cfg.driver,
-                    self
-                ))
 
             self._test_process = subprocess_popen(
                 self.test_command(),

@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+"""
+This is a mock of hobbes-test binary
+"""
+import argparse
+import json
+import sys
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Start a mock of hobbes-test binary')
+
+    parser.add_argument('--list_tests', action='store_true', help='List all tests')
+    parser.add_argument('--tests', metavar='TEST', nargs='+', help='Specify the tests to run')
+    parser.add_argument('--json', metavar='JSON_FILE', help='Specify the output json file')
+
+    args, _ = parser.parse_known_args()
+
+    with open('input.json') as fp:
+        test_data = json.load(fp)
+
+    if args.list_tests:
+        print('\n'.join([test['name'] for test in test_data]))
+        return
+
+    if args.tests:
+        for test in test_data:
+            if test['name'] not in args.tests:
+                for case in test['data']:
+                    case['status'] = 'skipped'
+                    case['duration'] = '0ns'
+
+    if args.json:
+        with open(args.json, 'w+') as fp:
+            json.dump(test_data, fp)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
