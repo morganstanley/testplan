@@ -76,3 +76,9 @@ class TestHTTP(object):
         assert requests.codes.ok == r.status_code
         assert 'text/plain' == r.headers['content-type']
         assert text == r.text.strip('\n')
+
+    def test_client_flush(self):
+        self.client.get('random/text')
+        self.client.flush()
+        msg = self.client.receive()
+        assert None == msg
