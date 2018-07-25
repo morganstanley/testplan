@@ -23,8 +23,9 @@ class First(Config):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('a', default=1): int,
-            ConfigOption('b', default=2): int
+            ConfigOption('a', default=1, low_precedence=True): int,
+            ConfigOption('b', default=2): int,
+            ConfigOption('c', default=3, low_precedence=True): int
         }
 
 
@@ -34,7 +35,8 @@ class Second(First):
     def get_options(cls):
         return {
             ConfigOption('a', default=6.0): float,
-            ConfigOption('c'): lambda x: isinstance(x, (int, float))
+            ConfigOption('c', default=9.0, low_precedence=False): float,
+            ConfigOption('d'): lambda x: isinstance(x, (int, float))
         }
 
 
@@ -43,22 +45,23 @@ class Third(Second):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('a', default=LambdaConfig()): Config
+            ConfigOption('a', default=LambdaConfig()): Config,
+            ConfigOption('c', default=-1): lambda x: x < 0
         }
 
 
 def test_basic_config():
     """Basic config operations."""
     item = First()
-    assert (1, 2) == (item.a, item.b)
+    assert (1, 2, 3) == (item.a, item.b, item.c)
 
-    item = First(a=2)
-    assert (2, 2) == (item.a, item.b)
+    item = First(a=5, b=4)
+    assert (5, 4, 3) == (item.a, item.b, item.c)
 
     clone = item.denormalize()
     assert id(clone) != id(item)
     assert clone.parent is None
-    assert (clone.a, clone.b) == (item.a, item.b)
+    assert (clone.a, clone.b, clone.c) == (item.a, item.b, item.c)
 
 
 def test_basic_schema_fail():
@@ -66,8 +69,8 @@ def test_basic_schema_fail():
     should_raise(SchemaError, First, kwargs=dict(a=1.0),
                  pattern=re.compile(r".*\n.*should be instance of 'int'.*",
                                     re.MULTILINE))
-    should_raise(SchemaError, First, kwargs=dict(c=1.0),
-                 pattern=re.compile(r".*Wrong keys 'c'.*"))
+    should_raise(SchemaError, First, kwargs=dict(d=1.0),
+                 pattern=re.compile(r".*Wrong keys 'd'.*"))
 
 
 def test_lambda_matching():
@@ -95,17 +98,23 @@ def test_lambda_failing():
 def test_config_inheritance():
     """Inheritance of config and schemas."""
     item = Second()
-    assert (6.0, 2) == (item.a, item.b)
+    assert (6.0, 2, 9.0) == (item.a, item.b, item.c)
+    assert item._options['a'].low_precedence == True
+    assert item._options['c'].low_precedence == False
 
     item = Second(a=5.0, b=4)
-    assert (5.0, 4) == (item.a, item.b)
+    assert (5.0, 4, 9.0) == (item.a, item.b, item.c)
+    assert item._options['c'].low_precedence == False
 
     item = Third()
-    assert (0.5, 2, 2) == (item.a.a, item.a.b, item.b)
+    assert (0.5, 2, 2, -1) == (item.a.a, item.a.b, item.b, item.c)
     assert isinstance(item.a, LambdaConfig)
+    assert item._options['a'].low_precedence == True
+    assert item._options['c'].low_precedence == False
 
-    item = Third(a=LambdaConfig(a=0.66, b=13), c=5)
-    assert (0.66, 13, 2, 5) == (item.a.a, item.a.b, item.b, item.c)
+    item = Third(a=LambdaConfig(a=0.66, b=13), d=5)
+    assert (0.66, 13, 2, 5) == (item.a.a, item.a.b, item.b, item.d)
+    assert item._options['c'].low_precedence == False
 
 
 class Root(Config):
@@ -113,7 +122,8 @@ class Root(Config):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('foo', default=5): int
+            ConfigOption('foo', default=5): int,
+            ConfigOption('bar', default=3): int
         }
 
 
@@ -123,7 +133,7 @@ class Branch(Config):
     def get_options(cls):
         return {
             ConfigOption('foo', default=50): int,
-            ConfigOption('bar', default=30): int,
+            ConfigOption('bar', default=30, low_precedence=True): int,
         }
 
 
@@ -132,8 +142,8 @@ class Leaf(Config):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('foo', default=500): int,
-            ConfigOption('bar', default=300): int,
+            ConfigOption('foo', default=500, low_precedence=True): int,
+            ConfigOption('bar', default=300, low_precedence=True): int,
             ConfigOption('baz', default='alpha'): str,
         }
 
@@ -142,38 +152,41 @@ def test_getattr_propagation():
     """
         Attribute retrieval should try explicitly set (local)
         values first (propagating from leaf to root), if nothing
-        is found it should try default values
-        (propagating from root to leaf)
+        is found it should try default values (also propagating from
+        leaf to root), but if attribute`low_precedence` of config option
+        is set to True, retrieve the value from parent class at first.
     """
     root = Root()
-    assert root.foo == 5
+    assert (root.foo, root.bar) == (5, 3)
 
     branch_1 = Branch()
+    # foo -> branch default, bar -> branch default
     assert (branch_1.foo, branch_1.bar) == (50, 30)
-    branch_1.parent = root
 
-    assert (branch_1.foo, branch_1.bar) == (5, 30)
+    branch_1.parent = root
+    # foo -> branch default, bar -> root default
+    assert (branch_1.foo, branch_1.bar) == (50, 3)
 
     branch_2 = Branch(foo=15)
     # foo -> branch local, bar -> branch default
     assert (branch_2.foo, branch_2.bar) == (15, 30)
 
     branch_2.parent = root
-    # foo -> branch local, bar -> branch default
-    assert (branch_2.foo, branch_2.bar) == (15, 30)
+    # foo -> branch local, bar -> root default
+    assert (branch_2.foo, branch_2.bar) == (15, 3)
 
     branch_3 = Branch(bar=40)
-
     # foo -> branch default, bar -> branch local
     assert (branch_3.foo, branch_3.bar) == (50, 40)
-    branch_3.parent = root
 
-    # foo -> root default, bar -> branch local
-    assert (branch_3.foo, branch_3.bar) == (5, 40)
+    branch_3.parent = root
+    # foo -> branch default, bar -> branch local
+    assert (branch_3.foo, branch_3.bar) == (50, 40)
 
     branch_4 = Branch(foo=123, bar=333)
     # foo -> branch local, bar -> branch local
     assert (branch_4.foo, branch_4.bar) == (123, 333)
+
     branch_4.parent = root
     # foo -> branch local, bar -> branch local
     assert (branch_4.foo, branch_4.bar) == (123, 333)
@@ -189,13 +202,34 @@ def test_getattr_propagation():
     leaf_3 = Leaf(bar=222)
     # foo -> leaf default, bar -> leaf local, baz -> leaf default
     assert (leaf_3.foo, leaf_3.bar, leaf_3.baz) == (500, 222, 'alpha')
+
+    leaf_2.parent = branch_2
+    # foo -> leaf local, bar -> root default, baz -> leaf default
+    assert (leaf_2.foo, leaf_2.bar, leaf_2.baz) == (111, 3, 'alpha')
+
+    leaf_2 = Leaf(foo=111)
+    leaf_2.parent = branch_3
+    # foo -> leaf local, bar -> branch local, baz -> leaf default
+    assert (leaf_2.foo, leaf_2.bar, leaf_2.baz) == (111, 40, 'alpha')
+
     leaf_3.parent = branch_2
     # foo -> branch local, bar -> leaf local, baz -> leaf default
     assert (leaf_3.foo, leaf_3.bar, leaf_3.baz) == (15, 222, 'alpha')
 
+    leaf_3 = Leaf(bar=222)
+    leaf_3.parent = branch_3
+    # foo -> branch default, bar -> leaf local, baz -> leaf default
+    assert (leaf_3.foo, leaf_3.bar, leaf_3.baz) == (50, 222, 'alpha')
+
     leaf_4 = Leaf(baz='beta')
     # foo -> leaf default, bar -> leaf default, baz -> leaf local
     assert (leaf_4.foo, leaf_4.bar, leaf_4.baz) == (500, 300, 'beta')
+
+    leaf_4.parent = branch_2
+    # foo -> branch local, bar -> root default, baz -> leaf local
+    assert (leaf_4.foo, leaf_4.bar, leaf_4.baz) == (15, 3, 'beta')
+
+    leaf_4 = Leaf(baz='beta')
     leaf_4.parent = branch_3
-    # foo -> root default, bar -> branch local, baz -> leaf local
-    assert (leaf_4.foo, leaf_4.bar, leaf_4.baz) == (5, 40, 'beta')
+    # foo -> branch default, bar -> branch local, baz -> leaf local
+    assert (leaf_4.foo, leaf_4.bar, leaf_4.baz) == (50, 40, 'beta')

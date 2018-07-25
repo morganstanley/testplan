@@ -282,7 +282,7 @@ An example implementation of custom test lister can be seen
   For filtering / ordering / listing operations, programmatic declarations will
   take precedence over command line arguments, meaning command line arguments
   will **NOT** take on effect if there is an explicit
-  ``test-filter``/``test_sorter``/``test_lister`` argument in the ``@test_plan``
+  ``test_filter``/``test_sorter``/``test_lister`` argument in the ``@test_plan``
   declaration.
 
 

@@ -96,8 +96,8 @@ class TestRunnerConfig(RunnableConfig):
         return {
             'name': str,
             ConfigOption('logger_level', default=TEST_INFO): int,
-            ConfigOption('runpath', default=default_runpath):
-                Or(None, str, lambda x: callable(x)),
+            ConfigOption(
+                'runpath', default=default_runpath): Or(None, str, lambda x: callable(x)),
             ConfigOption('path_cleanup', default=True): bool,
             ConfigOption('all_tasks_local', default=False): bool,
             ConfigOption('shuffle', default=[]): list,  # list of string choices
@@ -106,30 +106,38 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 'exporters', default=None): Use(get_exporters),
             ConfigOption(
-                'stdout_style',
-                default=defaults.STDOUT_STYLE): Style,
-            ConfigOption('report_dir', default=defaults.REPORT_DIR): str,
-            ConfigOption('xml_dir', default=None): Or(str, None),
-            ConfigOption('pdf_path', default=None): Or(str, None),
-            ConfigOption('json_path', default=None): Or(str, None),
+                'stdout_style', default=defaults.STDOUT_STYLE,
+                low_precedence=True): Style,
             ConfigOption(
-                'pdf_style',
-                default=defaults.PDF_STYLE): Style,
-            ConfigOption('report_tags', default=[]):
-                [Use(tagging.validate_tag_value)],
-            ConfigOption('report_tags_all', default=[]):
-                [Use(tagging.validate_tag_value)],
+                'report_dir', default=defaults.REPORT_DIR,
+                low_precedence=True): str,
+            ConfigOption(
+                'xml_dir', default=None,
+                low_precedence=True): Or(str, None),
+            ConfigOption(
+                'pdf_path', default=None,
+                low_precedence=True): Or(str, None),
+            ConfigOption(
+                'json_path', default=None,
+                low_precedence=True): Or(str, None),
+            ConfigOption(
+                'pdf_style', default=defaults.PDF_STYLE,
+                low_precedence=True): Style,
+            ConfigOption('report_tags', default=[],
+                low_precedence=True): [Use(tagging.validate_tag_value)],
+            ConfigOption('report_tags_all', default=[],
+                low_precedence=True): [Use(tagging.validate_tag_value)],
             ConfigOption('browse', default=False): bool,
             ConfigOption(
-                'test_filter', default=filtering.Filter()):
-                filtering.BaseFilter,
+                'test_filter', default=filtering.Filter(),
+                low_precedence=True): filtering.BaseFilter,
             ConfigOption(
-                'test_sorter', default=ordering.NoopSorter()):
-                ordering.BaseSorter,
+                'test_sorter', default=ordering.NoopSorter(),
+                low_precedence=True): ordering.BaseSorter,
             # Test lister is None by default, otherwise Testplan would
             # list tests, not run them
-            ConfigOption('test_lister', default=None):
-                Or(None, listing.BaseLister)
+            ConfigOption('test_lister', default=None,
+                low_precedence=True): Or(None, listing.BaseLister)
         }
 
 
