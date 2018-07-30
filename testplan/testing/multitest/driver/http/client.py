@@ -1,7 +1,7 @@
 """HTTPClient Driver."""
 
 from schema import Use, Or
-import threading
+from threading import Thread, Event
 import time
 import os
 try:
@@ -66,6 +66,7 @@ class HTTPClient(Driver):
         self.timeout = None
         self.interval = None
         self.responses = None
+        self.request_threads = []
         self._logname = '{0}.log'.format(slugify(self.cfg.name))
 
     @property
@@ -115,7 +116,7 @@ class HTTPClient(Driver):
         """Abort logic that stops the client."""
         self.file_logger.debug('Aborting HTTPClient.')
 
-    def _send_request(self, method, api, timeout, **kwargs):
+    def _send_request(self, method, api, drop_response, timeout, **kwargs):
         """
         Send a request using the requests module.
 
@@ -123,6 +124,10 @@ class HTTPClient(Driver):
         :type method: ``str``
         :param api: API to send request to.
         :type api: ``str``
+        :param drop_response: Whether to drop the response message (called by flush).
+        :type drop_response: ``threading._Event``
+        :param timeout: Number of seconds to wait for a request.
+        :type timeout: ``int``
         :param kwargs: Optional arguments for the request, look at the requests
           modules docs for these arguments.
         :type kwargs: Depends on the argument.
@@ -141,7 +146,8 @@ class HTTPClient(Driver):
             url
         ))
         response = http_method(url=url, timeout=timeout, **kwargs)
-        self.responses.put(response)
+        if not drop_response.is_set():
+            self.responses.put(response)
 
     def send(self, method, api, **kwargs):
         """
@@ -155,11 +161,15 @@ class HTTPClient(Driver):
           modules docs for these arguments.
         :type kwargs: Depends on the argument.
         """
-        threading.Thread(
+        drop_response = Event()
+        request_thread = Thread(
             target=self._send_request,
-            args=(method, api, self.timeout),
+            args=(method, api, drop_response, self.timeout),
             kwargs=kwargs
-        ).start()
+        )
+        request_thread.setDaemon(True)
+        request_thread.start()
+        self.request_threads.append((request_thread, drop_response))
 
     def head(self, api, **kwargs):
         """
@@ -255,24 +265,42 @@ class HTTPClient(Driver):
         """
         self.send('options', api, **kwargs)
 
-    def receive(self):
+    def receive(self, timeout=None):
         """
-        Wait to received a response.
+        Wait to receive a response.
+
+        :param timeout: Number of seconds to wait for a response,
+          overrides timeout from init.
+        :type timeout: ``int``
 
         :return: A request response or ``None``
         :rtype: ``requests.models.Response`` or ``NoneType``
         """
-        timeout = time.time() + self.timeout
-        # print('timeout', self.timeout)
+        timeout = time.time() + (timeout or self.timeout)
         while time.time() < timeout:
             try:
-                # print('Getting message')
                 response = self.responses.get(False)
             except Queue.Empty:
                 self.file_logger.debug('Waiting for response...')
                 response = None
             else:
+                self.responses.task_done()
                 self.file_logger.debug('Received response.')
                 break
             time.sleep(self.interval)
         return response
+
+    def flush(self):
+        """Drop any currently incoming messages and flush the received messages queue."""
+        for _, drop_message in self.request_threads:
+            drop_message.set()
+            self.file_logger.debug('Request thread set to drop response.')
+
+        timeout = time.time() + (5 * self.timeout)
+        while not self.responses.empty() and time.time() < timeout:
+            try:
+                self.responses.get(block=False)
+            except Queue.Empty:
+                self.file_logger.debug('Responses queue flushed.')
+            else:
+                self.responses.task_done()
