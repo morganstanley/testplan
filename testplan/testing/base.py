@@ -29,15 +29,18 @@ class TestConfig(RunnableConfig):
             ConfigOption('description', default=None): str,
             ConfigOption(
                 'test_filter',
-                default=filtering.Filter()
+                default=filtering.Filter(),
+                low_precedence=True
             ): filtering.BaseFilter,
             ConfigOption(
                 'test_sorter',
-                default=ordering.NoopSorter()
+                default=ordering.NoopSorter(),
+                low_precedence=True
             ): ordering.BaseSorter,
             ConfigOption(
                 'stdout_style',
-                default=defaults.STDOUT_STYLE
+                default=defaults.STDOUT_STYLE,
+                low_precedence=True
             ): test_styles.Style,
             ConfigOption(
                 'tags',

@@ -23,23 +23,32 @@ class DefaultValueWrapper(object):
     Utility class for distinguishing if a value is passed as schema default.
     """
 
-    def __init__(self, value):
+    def __init__(self, value, low_precedence=None):
         self.value = value
+        self.low_precedence = low_precedence
 
     def __repr__(self):
-        return '{}(value={})'.format(self.__class__.__name__, repr(self.value))
+        return '{}(value={}{})'.format(
+            self.__class__.__name__, repr(self.value),
+            ', prefer parent\'s default option' \
+                if self.low_precedence else ''
+        )
 
 
-def ConfigOption(key, default=ABSENT):
+def ConfigOption(key, default=ABSENT, low_precedence=None):
     """
     Wrapper around Optional, subclassing is not an option
     as Schema library does internal type checks as `type(obj) is Optional`.
+
+    With `low_precedence` set to True, the default value defined in parent
+    class has higher priority to be retrieved, unless explicitly set the
+    value rather than use default one.
     """
 
     optional = Optional(key, default=default)
     optional.is_optional = True
     if default is not ABSENT:
-        optional.default = DefaultValueWrapper(default)
+        optional.default = DefaultValueWrapper(default, low_precedence)
     return optional
 
 
@@ -74,12 +83,20 @@ def update_options(target, source):
         """Will be used for getting name from ConfigOption keys."""
         return option._schema if isinstance(option, Optional) else option
 
-    target_raw_keys = {get_key_str(k) for k in target}
+    target_key_mapping = {get_key_str(k): k for k in target}
     source_key_mapping = {get_key_str(k): k for k in source}
 
-    for raw_key, key in source_key_mapping.items():
-        if raw_key not in target_raw_keys:
-            target[key] = source[key]
+    for raw_key, source_key in source_key_mapping.items():
+        if raw_key not in target_key_mapping:
+            target[source_key] = source[source_key]
+        else:
+            target_key = target_key_mapping[raw_key]
+            if isinstance(source_key.default, DefaultValueWrapper) and \
+                    source_key.default.low_precedence is not None and \
+                    isinstance(target_key.default, DefaultValueWrapper) and \
+                    target_key.default.low_precedence is None:
+                target_key.default.low_precedence = \
+                        source_key.default.low_precedence
 
 
 class Config(object):
@@ -102,21 +119,26 @@ class Config(object):
     def __getattr__(self, name):
         options = self.__getattribute__('_options')
         local_val = options[name] if name in options else ABSENT
-        parent_val = getattr(self.parent, name,
-                             ABSENT) if self.parent else ABSENT
-
-        if local_val is ABSENT and parent_val is ABSENT:
-            raise AttributeError('Name: {}'.format(name))
+        parent_val = ABSENT
 
         if local_val is not ABSENT and not isinstance(local_val,
                                                       DefaultValueWrapper):
             return local_val
-        elif parent_val is not ABSENT:
+        elif local_val is ABSENT or getattr(local_val, 'low_precedence'):
+            parent_val = getattr(self.parent, name,
+                                 ABSENT) if self.parent else ABSENT
+
+        if local_val is ABSENT and parent_val is ABSENT: 
+            raise AttributeError('Name: {}'.format(name)) 
+
+        if parent_val is not ABSENT:
             return parent_val
         elif isinstance(local_val, DefaultValueWrapper):
             return local_val.value
+
         raise RuntimeError('Error fetching attribute ({}) from {}'.format(
             name, self))
+
 
     def __repr__(self):
         return '{}{}'.format(self.__class__.__name__,
