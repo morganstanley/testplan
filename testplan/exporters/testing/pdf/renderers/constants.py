@@ -38,7 +38,7 @@ FONT_SIZE_SMALL = 7
 FONT_SIZE_SMALLEST = 5.5
 
 # Indent size in pixels
-INDENT = 16
+INDENT = 10
 
 # Small indent size in pixels
 INDENT_SMALL = 8

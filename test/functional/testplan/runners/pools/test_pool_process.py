@@ -4,59 +4,20 @@ import os
 
 from testplan.common.utils.testing import log_propagation_disabled
 
-from testplan import Testplan
+
 from testplan.report.testing import Status
 from testplan.runners.pools import ProcessPool
 
+from testplan import Testplan
+
 from testplan.logger import TESTPLAN_LOGGER
 
-
-def schedule_tests_to_pool(pool, **pool_cfg):
-    pool_name = pool.__name__
-    plan = Testplan(
-        name='ProcPlan',
-        parse_cmdline=False,
-    )
-    pool = pool(name=pool_name, **pool_cfg)
-    plan.add_resource(pool)
-
-    dirname = os.path.dirname(os.path.abspath(__file__))
-
-    uids = []
-    for idx in range(1, 10):
-        uids.append(plan.schedule(target='get_mtest',
-                                  module='func_pool_base_tasks',
-                                  path=dirname, kwargs=dict(name=idx),
-                                  resource=pool_name))
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = plan.run()
-
-    assert res.run is True
-    assert res.success is True
-    assert plan.report.passed is True
-    assert plan.report.status == Status.PASSED
-    assert plan.report.counts.passed == 9
-    assert plan.report.counts.error == plan.report.counts.skipped == \
-           plan.report.counts.failed == plan.report.counts.incomplete == 0
-
-    names = sorted(['MTest{}'.format(x) for x in range(1, 10)])
-    assert sorted([entry.name for entry in plan.report.entries]) == names
-
-    assert isinstance(plan.report.serialize(), dict)
-
-    for idx in range(1, 10):
-        name = 'MTest{}'.format(idx)
-        assert plan.result.test_results[uids[idx-1]].report.name == name
-
-    # All tasks scheduled once
-    for uid in pool.task_assign_cnt:
-        assert pool.task_assign_cnt[uid] == 1
+from .func_pool_base_tasks import schedule_tests_to_pool
 
 
 def test_pool_basic():
     """Basic test scheduling."""
-    schedule_tests_to_pool(ProcessPool, size=9,
+    schedule_tests_to_pool('ProcPlan', ProcessPool,
                            worker_heartbeat=2,
                            heartbeats_miss_limit=2)
 

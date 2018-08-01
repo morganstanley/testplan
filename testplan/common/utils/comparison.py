@@ -487,7 +487,7 @@ def _cmp_dicts(lhs, rhs, ignore, only, coerce_values_to_string, report_all):
     match = Match.IGNORED
     for iter_key, lhs_val, rhs_val in _idictzip_all(lhs, rhs):
         if should_ignore_key(iter_key):
-            if report_all:
+            if report_all is True:
                 results.append(_build_res(
                     key=iter_key,
                     match=Match.IGNORED,
@@ -694,6 +694,14 @@ def compare(lhs, rhs, ignore=None, only=None, report_all=True):
 
     match, comparisons = _cmp_dicts(
         lhs, rhs, ignore, only, coerce_values_to_string, report_all)
+
+    # In report_all=[key1, key2] case we want to strip out all
+    # passed top level keys that are not in this list.
+    if not isinstance(report_all, bool):
+        for idx, comp in enumerate(comparisons):
+            if comp[1] == Match.PASS and comp[0] not in report_all:
+                comparisons[idx] = None
+        comparisons = [comp for comp in comparisons if comp is not None]
 
     # For the keys in only not matching anything,
     # we report them as absent in expected and value.

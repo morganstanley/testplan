@@ -127,16 +127,19 @@ class Summary(Group):
     def __init__(
         self, entries, description=None,
         num_passing=defaults.SUMMARY_NUM_PASSING,
-        num_failing=defaults.SUMMARY_NUM_FAILING
+        num_failing=defaults.SUMMARY_NUM_FAILING,
+        key_combs_limit=defaults.SUMMARY_KEY_COMB_LIMIT
     ):
         self.num_passing = num_passing
         self.num_failing = num_failing
+        self.key_combs_limit = key_combs_limit
 
         super(Summary, self).__init__(
             entries=self._summarize(
                 entries,
                 num_passing=num_passing,
-                num_failing=num_failing
+                num_failing=num_failing,
+                key_combs_limit=key_combs_limit
             ),
             description=description)
 
@@ -154,7 +157,7 @@ class Summary(Group):
             return result
         return _flatten(entries)
 
-    def _summarize(self, entries, num_passing, num_failing):
+    def _summarize(self, entries, num_passing, num_failing, key_combs_limit):
         # Circular imports
         from .assertions import Assertion
         from .summarization import registry
@@ -178,6 +181,9 @@ class Summary(Group):
         )
 
         result = []
+        limits = dict(num_passing=num_passing,
+                      num_failing=num_failing,
+                      key_combs_limit=key_combs_limit)
 
         for category, category_grouping in groups:
             cat_group = Group(
@@ -198,7 +204,7 @@ class Summary(Group):
                         class_name=class_name,
                         passed=pass_status,
                         entries=assertion_entries,
-                        limit=num_passing if pass_status else num_failing,
+                        limits=limits,
                     )
                     if len(summary_group.entries):
                         asr_group.entries.append(summary_group)

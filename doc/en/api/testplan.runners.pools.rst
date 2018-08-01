@@ -45,6 +45,13 @@ testplan.runners.pools.process module
     :undoc-members:
     :show-inheritance:
 
+testplan.runners.pools.remote module
+++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.runners.pools.remote
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 Module contents
 ---------------

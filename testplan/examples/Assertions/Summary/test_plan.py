@@ -122,7 +122,8 @@ class AssertionsSummary(object):
         parameters=range(2),
         summarize=True,
         num_passing=2,
-        num_failing=2
+        num_failing=2,
+        key_combs_limit=2
     )
     def parameterized_fixmatch_summary(self, env, result, idx):
         """

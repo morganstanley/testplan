@@ -4,7 +4,7 @@ from testplan.report.testing.styles import StyleArg
 
 SUMMARY_NUM_PASSING = 5
 SUMMARY_NUM_FAILING = 5
-
+SUMMARY_KEY_COMB_LIMIT = 10  # Number of failed key combinations to summary.
 
 # Make sure these values match the defaults in the parser.py,
 # otherwise we may end up with inconsistent behaviour re. defaults

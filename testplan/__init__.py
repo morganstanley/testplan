@@ -3,6 +3,8 @@
 import os
 import sys
 
+sys.dont_write_bytecode = True
+
 TESTPLAN_DEPENDENCIES_PATH = 'TESTPLAN_DEPENDENCIES_PATH'
 if TESTPLAN_DEPENDENCIES_PATH in os.environ:
     print('Importing testplan dependencies from: {}'.format(
