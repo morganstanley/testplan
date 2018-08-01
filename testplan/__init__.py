@@ -11,7 +11,7 @@ if TESTPLAN_DEPENDENCIES_PATH in os.environ:
         os.environ[TESTPLAN_DEPENDENCIES_PATH]))
     sys.path.insert(0, os.environ[TESTPLAN_DEPENDENCIES_PATH])
     import dependencies
-    sys.path.pop(0)
+    sys.path.remove(os.environ[TESTPLAN_DEPENDENCIES_PATH])
 
 from .base import Testplan, TestplanConfig, TestplanResult, test_plan
 from .runners.pools.tasks import Task, TaskResult
