@@ -85,7 +85,8 @@ class ProcessWorker(Worker):
                '--testplan', os.path.join(os.path.dirname(testplan.__file__),
                                           '..'),
                '--type', 'process_worker',
-               '--log-level', TESTPLAN_LOGGER.getEffectiveLevel()]
+               '--log-level', TESTPLAN_LOGGER.getEffectiveLevel(),
+               '--ng-alpha']
         if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
             cmd.extend(
                 ['--testplan-deps',
