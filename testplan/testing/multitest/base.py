@@ -96,7 +96,7 @@ class MultiTest(Test):
     :param suites: List of
         :py:func:`@testsuite <testplan.testing.multitest.suite.testsuite>`
         decorated class instances containing
-        :py:func:`@testcase <testplan..testing.multitest.suite.testcase>`
+        :py:func:`@testcase <testplan.testing.multitest.suite.testcase>`
         decorated methods representing the tests.
     :type suites: ``list``
     :param environment: List of

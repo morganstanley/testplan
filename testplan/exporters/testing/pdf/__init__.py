@@ -149,7 +149,7 @@ class BasePDFExporterConfig(ExporterConfig):
             ConfigOption('timestamp', default=None): Or(str, None),
             ConfigOption(
                 'pdf_style', default=defaults.PDF_STYLE,
-                low_precedence=True): Style,
+                block_propagation=False): Style
         }
 
 
@@ -160,10 +160,8 @@ class PDFExporterConfig(BasePDFExporterConfig):
     def get_options(cls):
         return {
             ConfigOption(
-                'pdf_path',
-                default=defaults.PDF_PATH,
-                low_precedence=True
-            ): str
+                'pdf_path', default=defaults.PDF_PATH,
+                block_propagation=False): str
         }
 
 
@@ -176,10 +174,8 @@ class TagFilteredPDFExporterConfig(
     def get_options(cls):
         return {
             ConfigOption(
-                'report_dir',
-                default=defaults.REPORT_DIR,
-                low_precedence=True
-            ): str
+                'report_dir', default=defaults.REPORT_DIR,
+                block_propagation=False): str
         }
 
 
