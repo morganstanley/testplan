@@ -29,10 +29,8 @@ class JSONExporterConfig(ExporterConfig):
     def get_options(cls):
         return {
             ConfigOption(
-                'json_path',
-                default=defaults.JSON_PATH,
-                low_precedence=True
-            ): str
+                'json_path', default=defaults.JSON_PATH,
+                block_propagation=False): str
         }
 
 

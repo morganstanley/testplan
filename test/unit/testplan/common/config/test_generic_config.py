@@ -23,9 +23,9 @@ class First(Config):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('a', default=1, low_precedence=True): int,
+            ConfigOption('a', default=1): int,
             ConfigOption('b', default=2): int,
-            ConfigOption('c', default=3, low_precedence=True): int
+            ConfigOption('c', default=3): int
         }
 
 
@@ -34,8 +34,8 @@ class Second(First):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('a', default=6.0): float,
-            ConfigOption('c', default=9.0, low_precedence=False): float,
+            ConfigOption('a', default=6.0, block_propagation=False): float,
+            ConfigOption('c', default=9.0, block_propagation=False): float,
             ConfigOption('d'): lambda x: isinstance(x, (int, float))
         }
 
@@ -45,7 +45,9 @@ class Third(Second):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('a', default=LambdaConfig()): Config,
+            ConfigOption(
+                'a', default=LambdaConfig(),
+                block_propagation=False): Config,
             ConfigOption('c', default=-1): lambda x: x < 0
         }
 
@@ -99,22 +101,22 @@ def test_config_inheritance():
     """Inheritance of config and schemas."""
     item = Second()
     assert (6.0, 2, 9.0) == (item.a, item.b, item.c)
-    assert item._options['a'].low_precedence == True
-    assert item._options['c'].low_precedence == False
+    assert item._options['a'].block_propagation == False
+    assert item._options['c'].block_propagation == False
 
     item = Second(a=5.0, b=4)
     assert (5.0, 4, 9.0) == (item.a, item.b, item.c)
-    assert item._options['c'].low_precedence == False
+    assert item._options['c'].block_propagation == False
 
     item = Third()
     assert (0.5, 2, 2, -1) == (item.a.a, item.a.b, item.b, item.c)
     assert isinstance(item.a, LambdaConfig)
-    assert item._options['a'].low_precedence == True
-    assert item._options['c'].low_precedence == False
+    assert item._options['a'].block_propagation == False
+    assert item._options['c'].block_propagation == True
 
     item = Third(a=LambdaConfig(a=0.66, b=13), d=5)
     assert (0.66, 13, 2, 5) == (item.a.a, item.a.b, item.b, item.d)
-    assert item._options['c'].low_precedence == False
+    assert item._options['c'].block_propagation == True
 
 
 class Root(Config):
@@ -133,7 +135,7 @@ class Branch(Config):
     def get_options(cls):
         return {
             ConfigOption('foo', default=50): int,
-            ConfigOption('bar', default=30, low_precedence=True): int,
+            ConfigOption('bar', default=30, block_propagation=False): int,
         }
 
 
@@ -142,8 +144,8 @@ class Leaf(Config):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('foo', default=500, low_precedence=True): int,
-            ConfigOption('bar', default=300, low_precedence=True): int,
+            ConfigOption('foo', default=500, block_propagation=False): int,
+            ConfigOption('bar', default=300, block_propagation=False): int,
             ConfigOption('baz', default='alpha'): str,
         }
 
@@ -153,8 +155,8 @@ def test_getattr_propagation():
         Attribute retrieval should try explicitly set (local)
         values first (propagating from leaf to root), if nothing
         is found it should try default values (also propagating from
-        leaf to root), but if attribute`low_precedence` of config option
-        is set to True, retrieve the value from parent class at first.
+        leaf to root), but if attribute`block_propagation` of config option
+        is set to False, retrieve the value from parent class at first.
     """
     root = Root()
     assert (root.foo, root.bar) == (5, 3)

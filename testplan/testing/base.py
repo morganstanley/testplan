@@ -31,17 +31,17 @@ class TestConfig(RunnableConfig):
             ConfigOption(
                 'test_filter',
                 default=filtering.Filter(),
-                low_precedence=True
+                block_propagation=False
             ): filtering.BaseFilter,
             ConfigOption(
                 'test_sorter',
                 default=ordering.NoopSorter(),
-                low_precedence=True
+                block_propagation=False
             ): ordering.BaseSorter,
             ConfigOption(
                 'stdout_style',
                 default=defaults.STDOUT_STYLE,
-                low_precedence=True
+                block_propagation=False
             ): test_styles.Style,
             ConfigOption(
                 'tags',

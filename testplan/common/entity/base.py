@@ -279,7 +279,7 @@ class EntityConfig(Config):
         return {
             ConfigOption(
                 'runpath', default=None,
-                low_precedence=True): Or(None, str, lambda x: callable(x)),
+                block_propagation=False): Or(None, str, lambda x: callable(x)),
             ConfigOption('initial_context', default={}): dict,
             ConfigOption('path_cleanup', default=None): Or(None, bool),
             ConfigOption('status_wait_timeout', default=3600): int,

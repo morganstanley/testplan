@@ -16,9 +16,9 @@ class TagFilteredExporterConfig(ExporterConfig):
     def get_options(cls):
         return {
             ConfigOption('report_tags', default=[],
-                low_precedence=True): [Use(tagging.validate_tag_value)],
+                block_propagation=False): [Use(tagging.validate_tag_value)],
             ConfigOption('report_tags_all', default=[],
-                low_precedence=True): [Use(tagging.validate_tag_value)]
+                block_propagation=False): [Use(tagging.validate_tag_value)]
         }
 
 
