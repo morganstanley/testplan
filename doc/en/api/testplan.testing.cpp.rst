@@ -14,3 +14,12 @@ testplan.testing.cpp.gtest module
     :undoc-members:
     :show-inheritance:
     :inherited-members:
+
+testplan.testing.cpp.hobbestest module
+++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.testing.cpp.hobbestest
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
