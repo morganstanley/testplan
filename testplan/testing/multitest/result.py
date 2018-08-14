@@ -992,7 +992,7 @@ class Result(object):
         _summarize=False,
         _num_passing=defaults.SUMMARY_NUM_PASSING,
         _num_failing=defaults.SUMMARY_NUM_FAILING,
-        _scratch = None,
+        _scratch=None,
     ):
 
         self.entries = []
@@ -1012,6 +1012,26 @@ class Result(object):
         self._num_passing = _num_passing
         self._num_failing = _num_failing
         self._scratch = _scratch
+
+    def subresult(self):
+        """Subresult object to append/prepend assertions on another."""
+        return self.__class__(
+            stdout_style=self.stdout_style,
+            continue_on_failure=self.continue_on_failure,
+            _group_description=self._group_description,
+            _parent=self._parent,
+            _summarize=self._summarize,
+            _num_passing=self._num_passing,
+            _num_failing=self._num_failing,
+            _scratch=self._scratch)
+
+    def append(self, result):
+        """Append entries from another result."""
+        self.entries += result.entries
+
+    def prepend(self, result):
+        """Prepend entries from another result."""
+        self.entries = result.entries + self.entries
 
     def __enter__(self):
         if self._parent is None:
