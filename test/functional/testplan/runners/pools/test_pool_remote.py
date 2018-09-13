@@ -17,7 +17,7 @@ def mock_ssh(host, command):
     return ['/bin/sh', '-c', command]
 
 
-def strip_host(source, target):
+def strip_host(source, target, **kwargs):
     """Avoid network connection."""
     if ':' in source:
         source = source.split(':')[1]

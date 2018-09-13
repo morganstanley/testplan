@@ -99,12 +99,12 @@ class ProcessWorker(Worker):
         cmd = self._proc_cmd()
         self.logger.debug('{} executes cmd: {}'.format(self, cmd))
 
+        self._handler = None
         with open(self.outfile, 'wb') as out:
-            with open(self.errfile, 'wb') as err:
-                self._handler = subprocess.Popen(
-                    [str(a) for a in cmd],
-                    stdout=out, stderr=err, stdin=subprocess.PIPE
-                )
+            self._handler = subprocess.Popen(
+                [str(a) for a in cmd],
+                stdout=out, stderr=out, stdin=subprocess.PIPE
+            )
 
         self._handler.stdin.write(bytes('y\n'.encode('utf-8')))
 
@@ -137,7 +137,7 @@ class ProcessWorker(Worker):
     def aborting(self):
         """Process worker abort logic."""
         self._transport.active = False
-        if self._handler:
+        if hasattr(self, '_handler') and self._handler:
             kill_process(self._handler)
             self._handler.wait()
 

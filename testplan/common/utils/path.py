@@ -40,7 +40,8 @@ def default_runpath(entity):
     Returns default runpath for an
     :py:class:`Entity <testplan.common.entity.base.Entity>` object.
     """
-    runpath = [os.sep, 'var', 'tmp', getpass.getuser(), slugify(entity.uid())]
+    runpath = [os.sep, 'var', 'tmp', getpass.getuser(),
+               'testplan', slugify(entity.uid())]
     return os.path.join(*runpath)
 
 

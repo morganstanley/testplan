@@ -18,10 +18,15 @@ def ssh_cmd(host, command):
     return [binary, '{}@{}'.format(getpass.getuser(), host), command]
 
 
-def copy_cmd(source, target):
+def copy_cmd(source, target, exclude=None):
     """Returns remote copy command."""
     if os.environ.get('RSYNC_BINARY'):
-        return [os.environ['RSYNC_BINARY'], '-r', source, target]
+        cmd = [os.environ['RSYNC_BINARY'], '-r']
+        if exclude is not None:
+            for item in exclude:
+                cmd.extend(['--exclude', item])
+        cmd.extend([source, target])
+        return cmd
     # Proceed with SCP.
     try:
         binary = os.environ['SCP_BINARY']

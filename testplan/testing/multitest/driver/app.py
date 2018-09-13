@@ -64,7 +64,7 @@ class App(Driver):
     :type app_dir_name: ``str``
 
     Also inherits all
-    :py:class:`~testplan.testing.multitest.driver.base.DriverConfig`` options.
+    :py:class:`~testplan.testing.multitest.driver.base.DriverConfig` options.
     """
 
     CONFIG = AppConfig

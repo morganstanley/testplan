@@ -143,7 +143,6 @@ class Config(object):
         raise RuntimeError('Error fetching attribute ({}) from {}'.format(
             name, self))
 
-
     def __repr__(self):
         return '{}{}'.format(self.__class__.__name__,
                              self._cfg_input or self._options)

@@ -62,7 +62,9 @@ def get_exporters(values):
             return exporter_cls(**params)
         raise TypeError('Invalid exporter value: {}'.format(value))
 
-    if isinstance(values, list):
+    if values is None:
+        return []
+    elif isinstance(values, list):
         return [get_exporter(v) for v in values]
     return [get_exporter(values)]
 
@@ -138,7 +140,11 @@ class TestRunnerConfig(RunnableConfig):
             # Test lister is None by default, otherwise Testplan would
             # list tests, not run them
             ConfigOption('test_lister', default=None,
-                block_propagation=False): Or(None, listing.BaseLister)
+                block_propagation=False): Or(None, listing.BaseLister),
+            ConfigOption('verbose', default=False,
+                         block_propagation=False): bool,
+            ConfigOption('debug', default=False,
+                         block_propagation=False): bool
         }
 
 
@@ -379,6 +385,7 @@ class TestRunner(Runnable):
     def _wait_ongoing(self):
         self.logger.info('{} runpath: {}'.format(self, self.runpath))
         if self.resources.start_exceptions:
+            self.logger.critical('Aborting due to start exceptions')
             self.abort()
             return
 

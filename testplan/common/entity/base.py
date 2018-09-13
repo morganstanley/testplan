@@ -281,7 +281,7 @@ class EntityConfig(Config):
                 'runpath', default=None,
                 block_propagation=False): Or(None, str, lambda x: callable(x)),
             ConfigOption('initial_context', default={}): dict,
-            ConfigOption('path_cleanup', default=None): Or(None, bool),
+            ConfigOption('path_cleanup', default=False): bool,
             ConfigOption('status_wait_timeout', default=3600): int,
             ConfigOption('abort_wait_timeout', default=30): int,
             ConfigOption('active_loop_sleep', default=0.001): float
@@ -300,7 +300,7 @@ class Entity(object):
     :param initial_context: Initial key: value pair context information.
     :type initial_context: ``dict``
     :param path_cleanup: Remove previous runpath created dirs/files.
-    :type path_cleanup: ``bool`` or ``None``
+    :type path_cleanup: ``bool``
     :param status_wait_timeout: Timeout for wait status events.
     :type status_wait_timeout: ``int``
     :param abort_wait_timeout: Timeout for entity abort.
@@ -466,8 +466,7 @@ class Entity(object):
                 self.__class__.__name__
             ))
 
-        path_cleanup = self.cfg.path_cleanup
-        if path_cleanup is False:
+        if self.cfg.path_cleanup is False:
             makedirs(self._runpath)
             makedirs(self._scratch)
         else:

@@ -7,11 +7,12 @@ Parallel test execution in a remote pool.
 import os
 import sys
 import socket
+import getpass
 
 from testplan import test_plan, Task
 from testplan.runners.pools import RemotePool
 
-from testplan.common.utils.path import module_abspath
+from testplan.common.utils.path import module_abspath, pwd
 
 from testplan.parser import TestplanParser
 from testplan.report.testing.styles import Style, StyleEnum
@@ -30,6 +31,23 @@ class CustomParser(TestplanParser):
                             action='store', type=int, default=4)
 
 
+# Function that creates a file with some content
+# to demonstrate custom file transferring.
+def make_file(filename, content):
+    temp_dir = os.path.join(os.sep, 'var', 'tmp', getpass.getuser())
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
+    path = os.path.join(temp_dir, filename)
+    with open(path, 'w') as fobj:
+        fobj.write(content)
+    return path
+
+
+def linux_paths(paths):
+    # In case of windows local host.
+    return ['/'.join(path.split(os.sep)) for path in paths]
+
+
 # Using a custom parser to support `--tasks-num` and `--pool-size` command
 # line arguments so that users can experiment with remote pool test execution.
 
@@ -39,7 +57,7 @@ class CustomParser(TestplanParser):
 # to ignore any command line arguments related to that functionality.
 @test_plan(name='RemotePoolExecution',
            parser=CustomParser,
-           pdf_path='report.pdf',
+           pdf_path=os.path.join(pwd(), 'report.pdf'),
            stdout_style=OUTPUT_STYLE,
            pdf_style=OUTPUT_STYLE)
 def main(plan):
@@ -55,10 +73,19 @@ def main(plan):
             os.path.dirname(module_abspath(testplan)),
             '..', '..'))
 
+    # Static local file examples.
+    source_files = [make_file('file1', 'File1'), make_file('file2', 'File2')]
+
     # Add a remote pool test execution resource to the plan of given size.
     pool = RemotePool(name='MyPool',
                       hosts={socket.gethostname(): 3},
+                      setup_script=['/usr/bin/ksh', 'setup_script.ksh'],
+                      env={'LOCAL_USER': getpass.getuser(),
+                           'LOCAL_WORKSPACE': workspace},
+                      workspace_exclude=['.git/', '.cache/', 'doc/', 'test/'],
+                      push=source_files,
                       workspace=workspace)
+
     plan.add_resource(pool)
 
     # Add a given number of similar tests to the remote pool
@@ -68,7 +95,8 @@ def main(plan):
         task = Task(target='make_multitest',
                     module='tasks',
                     path='.',
-                    kwargs={'index': idx})
+                    kwargs={'index': idx,
+                            'files': linux_paths(source_files)})
         plan.schedule(task, resource='MyPool')
 
 
