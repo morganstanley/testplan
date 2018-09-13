@@ -212,13 +212,7 @@ class Worker(Resource):
     def outfile(self):
         """Stdout file."""
         return os.path.join(self.parent.runpath,
-                            'worker_{}_stdout'.format(self.cfg.index))
-
-    @property
-    def errfile(self):
-        """Stderr file."""
-        return os.path.join(self.parent.runpath,
-                            'worker_{}_stderr'.format(self.cfg.index))
+                            '{}_startup'.format(self.cfg.index))
 
     def uid(self):
         """Worker unique index."""
@@ -329,6 +323,8 @@ class PoolConfig(ExecutorConfig):
     :type heartbeats_miss_limit: ``int``
     :param task_retries_limit: Maximum times a task can be re-assigned to pool.
     :type task_retries_limit: ``int``
+    :param max_active_loop_sleep: Maximum value for delay logic in active sleep.
+    :type max_active_loop_sleep: ``int`` or ``float``
 
     Also inherits all :py:class:`~testplan.runners.base.ExecutorConfig`
     options.
@@ -345,9 +341,10 @@ class PoolConfig(ExecutorConfig):
             ConfigOption('worker_type', default=Worker): object,
             ConfigOption('worker_heartbeat', default=None):
                 Or(int, float, None),
-            ConfigOption('heartbeat_init_window', default=300): int,
+            ConfigOption('heartbeat_init_window', default=1800): int,
             ConfigOption('heartbeats_miss_limit', default=3): int,
             ConfigOption('task_retries_limit', default=3): int,
+            ConfigOption('max_active_loop_sleep', default=5): Or(int, float)
         }
 
 
@@ -367,6 +364,7 @@ class Pool(Executor):
         self._workers = Environment(parent=self)
         self._conn = self.CONN_MANAGER(self._cfg)
         self._pool_lock = threading.Lock()
+        self._request_handlers = {}
         self._metadata = {}
 
     def uid(self):
@@ -449,7 +447,15 @@ class Pool(Executor):
         if not self.active or self.status.tag == self.STATUS.STOPPING:
             worker.respond(response.make(Message.Stop))
         elif request.cmd == Message.ConfigRequest:
-            options = self.cfg.denormalize()
+            options = []
+            cfg = self.cfg
+            while cfg:
+                try:
+                    options.append(cfg.denormalize())
+                except Exception as exc:
+                    self.logger.error('Could not denormalize: {} - {}'.format(
+                        cfg, exc))
+                cfg = cfg.parent
             worker.respond(response.make(Message.ConfigSending,
                                          data=options))
         elif request.cmd == Message.TaskPullRequest:
@@ -513,14 +519,23 @@ class Pool(Executor):
                     worker, request.data, time.time() - request.data))
             worker.respond(response.make(Message.Ack,
                                          data=worker.last_heartbeat))
+        elif request.cmd == Message.SetupFailed:
+            self.logger.test_info('Worker {} setup failed:{}{}'.format(
+                worker, os.linesep, request.data))
+            worker.respond(response.make(Message.Ack))
+            self._deco_worker(
+                worker, 'Aborting {}, setup failed.')
+        elif request.cmd in self._request_handlers:
+            self._request_handlers[request.cmd](worker, response)
         else:
-            print(request, dir(request), request.cmd, request.data)
+            self.logger.error('Unknown request: {} {} {} {}'.format(
+                request, dir(request), request.cmd, request.data))
+            worker.respond(response.make(Message.Ack))
 
     def _deco_worker(self, worker, message):
         self.logger.critical(message.format(worker))
-        for outfile in (worker.outfile, worker.errfile):
-            if os.path.exists(outfile):
-                self.logger.critical('\tlogfile: {}'.format(outfile))
+        if os.path.exists(worker.outfile):
+            self.logger.critical('\tlogfile: {}'.format(worker.outfile))
         while worker.assigned:
             uid = worker.assigned.pop()
             self.logger.test_info(
@@ -562,11 +577,12 @@ class Pool(Executor):
                     else:
                         w_active.add(worker)
 
-                if len(w_inactive) == self.cfg.size:
-                    self.logger.critical(
-                        'All workers of {} are inactive.'.format(self))
-                    self.abort()
-                    break
+                if w_total:
+                    if len(w_inactive) == len(w_total):
+                        self.logger.critical(
+                            'All workers of {} are inactive.'.format(self))
+                        self.abort()
+                        break
             try:
                 # For early finish of worker monitoring thread.
                 wait_until_predicate(lambda: not self._loop_handler.is_alive(),

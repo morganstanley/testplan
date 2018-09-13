@@ -21,8 +21,21 @@ def after_start(env):
 class TCPTestsuite(object):
     """TCP communication tests."""
 
-    def __init__(self):
+    def __init__(self, files):
         self._process_id = os.getpid()
+        self._files = files
+
+    def setup(self, env, result):
+        result.log('LOCAL_USER: {}'.format(os.environ['LOCAL_USER']))
+
+        # Check if the local workspace soft link could be created.
+        local_workspace = os.environ['LOCAL_WORKSPACE']
+        result.log('Local workspace {} exists: {} '.format(
+            local_workspace, os.path.exists(local_workspace)))
+
+        for _file in self._files:
+            with open(_file) as fobj:
+              result.log('Source file contents: {}'.format(fobj.read()))
 
     @testcase
     def send_and_receive_msg(self, env, result):
@@ -54,14 +67,14 @@ class TCPTestsuite(object):
         result.equal(received, response, 'Client received')
 
 
-def make_multitest(index=0):
+def make_multitest(index=0, files=None):
     """
     Creates a new MultiTest that runs TCP connection tests.
     This will be created inside a remote worker.
     """
     print('Creating a MultiTest on process id {}.'.format(os.getpid()))
     test = MultiTest(name='TCPMultiTest_{}'.format(index),
-                     suites=[TCPTestsuite()],
+                     suites=[TCPTestsuite(files)],
                      environment=[
                          TCPServer(name='server'),
                          TCPClient(name='client',

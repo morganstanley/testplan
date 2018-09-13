@@ -1,15 +1,18 @@
 """Child worker process module."""
 
 import os
-import io
 import sys
 import time
 import pickle
 import signal
 import socket
+import shutil
+import inspect
+import logging
 import argparse
 import platform
 import threading
+import subprocess
 
 
 def parse_cmdline():
@@ -20,6 +23,7 @@ def parse_cmdline():
     parser.add_argument('--testplan', action="store")
     parser.add_argument('--testplan-deps', action="store", default=None)
     parser.add_argument('--wd', action="store")
+    parser.add_argument('--runpath', action="store", default=None)
     parser.add_argument('--type', action="store")
     parser.add_argument('--log-level', action="store", default=0, type=int)
     parser.add_argument('--remote-pool-type', action="store", default='thread')
@@ -93,13 +97,15 @@ class ChildLoop(object):
     """
 
     def __init__(self, index, transport, pool_type, pool_size,
-                 worker_type, logger):
+                 worker_type, logger, runpath=None):
         self._metadata = {'index': index, 'pid': os.getpid()}
         self._transport = transport
         self._pool_type = pool_type
         self._pool_size = int(pool_size)
+        self._pool_cfg = None
         self._worker_type = worker_type
         self._to_heartbeat = float(0)
+        self.runpath = runpath
         self.logger = logger
 
     @property
@@ -123,14 +129,14 @@ class ChildLoop(object):
         heartbeat.daemon = True
         heartbeat.start()
 
-    def _child_pool(self, pool_cfg):
+    def _child_pool(self):
         # Local thread pool will not cleanup the previous layer runpath.
         self._pool = self._pool_type(
             name='Pool_{}'.format(self._metadata['pid']),
             worker_type=self._worker_type, worker_heartbeat=0,
-            size=self._pool_size, runpath=self.runpath, path_cleanup=False)
+            size=self._pool_size, runpath=self.runpath)
         self._pool.parent = self
-        self._pool.cfg.parent = pool_cfg
+        self._pool.cfg.parent = self._pool_cfg
         return self._pool
 
     def _handle_abort(self, signum, frame):
@@ -146,12 +152,44 @@ class ChildLoop(object):
             os.makedirs(self.runpath)
         for fdesc in range(3):
             os.close(fdesc)
+        mode = 'w' if platform.python_version().startswith('3') else 'wb'
 
-        mode = 'w' if  platform.python_version().startswith('3') else 'wb'
-        sys.stdout = io.open(os.path.join(
-            self.runpath, '{}_stdout'.format(self._metadata['index'])), mode)
-        sys.stderr = io.open(os.path.join(
+        sys.stderr = open(os.path.join(
             self.runpath, '{}_stderr'.format(self._metadata['index'])), mode)
+        fhandler = logging.FileHandler(os.path.join(
+                self.runpath, '{}_stdout'.format(self._metadata['index'])))
+        fhandler.setLevel(self.logger.level)
+        self.logger.addHandler = fhandler
+
+    def _send_and_expect(self, message, send, expect):
+        try:
+            return self._transport.send_and_receive(message.make(
+                send), expect=expect)
+        except AttributeError:
+            self.logger.critical('Pool seems dead, child exits.')
+            raise
+
+    def _pre_loop_setup(self, message):
+        response = self._send_and_expect(
+            message, message.ConfigRequest, message.ConfigSending)
+
+        # Response.data: [cfg, cfg.parent, cfg.parent.parent, ...]
+        pool_cfg = response.data[0]
+        for idx, cfg in enumerate(response.data):
+            try:
+                cfg.parent = response.data[idx + 1]
+                print(cfg.parent)
+            except IndexError:
+                break
+        self._pool_cfg = pool_cfg
+
+        for sig in self._pool_cfg.abort_signals:
+            signal.signal(sig,  self._handle_abort)
+
+        pool_metadata = response.sender_metadata
+
+        self.runpath = self.runpath or str(pool_metadata['runpath'])
+        self._setup_logfiles()
 
     def worker_loop(self):
         """
@@ -159,36 +197,30 @@ class ChildLoop(object):
         sends back results to the main pool.
         """
         from testplan.runners.pools.communication import Message
+        from testplan.common.utils.exceptions import format_trace
         message = Message(**self.metadata)
 
         try:
-            response = self._transport.send_and_receive(message.make(
-                message.ConfigRequest), expect=message.ConfigSending)
-        except AttributeError:
-            self.logger.critical('Pool seems dead, child exits.')
-        else:
-            pool_cfg = response.data
+            self._pre_loop_setup(message)
+        except Exception as exc:
+            self._transport.send_and_receive(message.make(
+                message.SetupFailed,
+                data=format_trace(inspect.trace(), exc)), expect=message.Ack)
+            return
 
-        for sig in pool_cfg.abort_signals:
-            signal.signal(sig,  self._handle_abort)
-
-        pool_metadata = response.sender_metadata
-
-        self.runpath = str(pool_metadata['runpath'])
-
-        self._setup_logfiles()
-
-        with self._child_pool(pool_cfg):
-            if pool_cfg.worker_heartbeat:
+        with self._child_pool():
+            if self._pool_cfg.worker_heartbeat:
                 self.heartbeat_setup()
             message = Message(**self.metadata)
+            next_possible_request = time.time()
+            request_delay = self._pool_cfg.active_loop_sleep
             while True:
-                if pool_cfg.worker_heartbeat and self._to_heartbeat <= 0:
+                if self._pool_cfg.worker_heartbeat and self._to_heartbeat <= 0:
                     hb_resp = self._transport.send_and_receive(message.make(
                         message.Heartbeat, data=time.time()))
                     if hb_resp is None:
                         self.logger.critical('Pool seems dead, child exits.')
-                        self._pool.abort()
+                        self.exit_loop()
                         break
                     else:
                         self.logger.debug(
@@ -196,7 +228,7 @@ class ChildLoop(object):
                             ' {} at {} before {}s.'.format(
                                 hb_resp.cmd, hb_resp.data,
                                 time.time() - hb_resp.data))
-                    self._to_heartbeat = pool_cfg.worker_heartbeat
+                    self._to_heartbeat = self._pool_cfg.worker_heartbeat
 
                 # Send back results
                 if self._pool.results:
@@ -213,15 +245,18 @@ class ChildLoop(object):
                 # Request new tasks
                 demand = self._pool.workers_requests() -\
                          len(self._pool.unassigned)
-                if demand > 0:
+
+                if demand > 0 and time.time() > next_possible_request:
                     received = self._transport.send_and_receive(message.make(
                         message.TaskPullRequest, data=demand))
 
                     if received is None or received.cmd == Message.Stop:
                         self.logger.critical('Child exits.')
-                        self._pool.abort()
+                        self.exit_loop()
                         break
                     elif received.cmd == Message.TaskSending:
+                        next_possible_request = time.time()
+                        request_delay = 0
                         for task in received.data:
                             self.logger.debug('Added {} to local pool'.format(
                                 task))
@@ -230,9 +265,60 @@ class ChildLoop(object):
                         for worker in self._pool._workers:
                             worker.requesting = 0
                     elif received.cmd == Message.Ack:
+                        request_delay = min(
+                            (request_delay + 0.2) * 1.5,
+                            self._pool_cfg.max_active_loop_sleep)
+                        next_possible_request = time.time() + request_delay
                         pass
-                time.sleep(pool_cfg.active_loop_sleep)
+                time.sleep(self._pool_cfg.active_loop_sleep)
         self.logger.info('Local pool {} stopped.'.format(self._pool))
+
+    def exit_loop(self):
+        self._pool.abort()
+
+
+class RemoteChildLoop(ChildLoop):
+    """
+    Child loop for remote workers.
+    This involved exchange of metadata for additional functionality.
+    """
+    def __int__(self, *args, **kwargs):
+        super(RemoteChildLoop, self).__init__(*args, **kwargs)
+        self._setup_metadata = None
+
+    def _pre_loop_setup(self, message):
+        super(RemoteChildLoop, self)._pre_loop_setup(message)
+        self._setup_metadata = self._send_and_expect(
+            message, message.MetadataPull, message.Metadata).data
+
+        if self._setup_metadata.env:
+            for key, value in self._setup_metadata.env.items():
+                os.environ[key] = value
+        os.environ['TESTPLAN_LOCAL_WORKSPACE'] = \
+            self._setup_metadata.workspace_paths['local']
+        os.environ['TESTPLAN_REMOTE_WORKSPACE'] = \
+            self._setup_metadata.workspace_paths['remote']
+
+        if self._setup_metadata.setup_script:
+            if subprocess.call(self._setup_metadata.setup_script,
+                               stdout=sys.stdout, stderr=sys.stderr):
+                raise RuntimeError('Setup script exited with non 0 code.')
+
+    def exit_loop(self):
+        if self._pool.cfg.delete_pushed:
+            for item in self._setup_metadata.push_dirs:
+                self.logger.test_info('Removing directory: {}'.format(item))
+                shutil.rmtree(item, ignore_errors=True)
+            for item in self._setup_metadata.push_files:
+                self.logger.test_info('Removing file: {}'.format(item))
+                os.remove(item)
+            # Only delete the source workspace if it was transferred.
+            if self._setup_metadata.workspace_pushed is True:
+                self.logger.test_info('Removing workspace: {}'.format(
+                    self._setup_metadata.workspace_paths['remote']))
+                shutil.rmtree(self._setup_metadata.workspace_paths['remote'],
+                              ignore_errors=True)
+        super(RemoteChildLoop, self).exit_loop()
 
 
 if __name__ == '__main__':
@@ -263,6 +349,10 @@ if __name__ == '__main__':
     import psutil
     print('Starting child process worker on {}, {} with parent {}'.format(
         socket.gethostname(), os.getpid(), psutil.Process(os.getpid()).ppid()))
+
+    if ARGS.runpath:
+        print('Removing old runpath: {}'.format(ARGS.runpath))
+        shutil.rmtree(ARGS.runpath, ignore_errors=True)
 
     from testplan.runners.pools.base import (
         Pool, Worker, Transport)
@@ -334,6 +424,8 @@ if __name__ == '__main__':
             pool_type = NoRunpathThreadPool
             worker_type = Worker
         transport = ChildTransport(address=ARGS.address)
-        loop = ChildLoop(ARGS.index, transport, pool_type,
-                         ARGS.remote_pool_size, worker_type, TESTPLAN_LOGGER)
+
+        loop = RemoteChildLoop(
+            ARGS.index, transport, pool_type, ARGS.remote_pool_size,
+            worker_type, TESTPLAN_LOGGER, runpath=ARGS.runpath)
         loop.worker_loop()

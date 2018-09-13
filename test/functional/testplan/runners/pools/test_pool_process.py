@@ -32,7 +32,8 @@ def test_kill_one_worker():
     pool_size = 4
     pool = ProcessPool(name=pool_name, size=pool_size,
                        worker_heartbeat=2,
-                       heartbeats_miss_limit=2)
+                       heartbeats_miss_limit=2,
+                       max_active_loop_sleep=1)
     pool_uid = plan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -81,7 +82,8 @@ def test_kill_all_workers():
     pool = ProcessPool(name=pool_name, size=pool_size,
                        task_retries_limit=pool_size,
                        worker_heartbeat=2,
-                       heartbeats_miss_limit=2)
+                       heartbeats_miss_limit=2,
+                       max_active_loop_sleep=1)
     pool_uid = plan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -116,7 +118,8 @@ def test_reassign_times_limit():
     pool = ProcessPool(name=pool_name, size=pool_size,
                        task_retries_limit=retries_limit,
                        worker_heartbeat=2,
-                       heartbeats_miss_limit=2)
+                       heartbeats_miss_limit=2,
+                       max_active_loop_sleep=1)
     pool_uid = plan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -155,7 +158,8 @@ def test_custom_reschedule_condition():
     pool_size = 4
     pool = ProcessPool(name=pool_name, size=pool_size,
                        worker_heartbeat=2,
-                       heartbeats_miss_limit=2)
+                       heartbeats_miss_limit=2,
+                       max_active_loop_sleep=1)
     pool.set_reschedule_check(custom_reschedule)
     pool_uid = plan.add_resource(pool)
 
