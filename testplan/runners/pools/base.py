@@ -341,7 +341,7 @@ class PoolConfig(ExecutorConfig):
             ConfigOption('worker_type', default=Worker): object,
             ConfigOption('worker_heartbeat', default=None):
                 Or(int, float, None),
-            ConfigOption('heartbeat_init_window', default=60): int,
+            ConfigOption('heartbeat_init_window', default=1800): int,
             ConfigOption('heartbeats_miss_limit', default=3): int,
             ConfigOption('task_retries_limit', default=3): int,
             ConfigOption('max_active_loop_sleep', default=5): Or(int, float)
@@ -452,8 +452,9 @@ class Pool(Executor):
             while cfg:
                 try:
                     options.append(cfg.denormalize())
-                except Exception as e:
-                    print(e)
+                except Exception as exc:
+                    self.logger.error('Could not denormalize: {} - {}'.format(
+                        cfg, exc))
                 cfg = cfg.parent
             worker.respond(response.make(Message.ConfigSending,
                                          data=options))
