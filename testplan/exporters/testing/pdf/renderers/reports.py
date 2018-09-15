@@ -1,11 +1,12 @@
 """PDF Renderer classes for test report objects"""
+import os
 import logging
 
 from reportlab.lib import colors
 
 from testplan.common.exporters.pdf import RowStyle
 from testplan.common.utils.registry import Registry
-from testplan.common.utils.strings import format_description, wrap
+from testplan.common.utils.strings import format_description, wrap, split_text
 from testplan.testing.multitest.base import Categories
 from testplan.report.testing import (
     Status, TestReport, TestGroupReport, TestCaseReport
@@ -193,6 +194,11 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         if source.tags:
             header_text += ' (Tags: {})'.format(tagging.tag_label(source.tags))
 
+        header_text = split_text(
+            header_text, font, font_size,
+            const.PAGE_WIDTH - (depth * const.INDENT)
+        )
+
         return RowData(
             start=row_idx,
             content=[header_text, '', '', format_status(source.status)],
@@ -206,7 +212,11 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         """
         return RowData(
             start=row_idx,
-            content=format_description(description),
+            content=split_text(
+                format_description(description),
+                const.FONT_ITALIC, const.FONT_SIZE_SMALL,
+                const.PAGE_WIDTH - (depth * const.INDENT),
+                keep_leading_whitespace=True),
             style=RowStyle(
                 font=(const.FONT_ITALIC, const.FONT_SIZE_SMALL),
                 left_padding=const.INDENT * depth,

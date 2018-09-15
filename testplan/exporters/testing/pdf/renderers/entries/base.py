@@ -5,6 +5,7 @@ from reportlab.platypus import Image
 from testplan.common.exporters.pdf import RowStyle, create_table
 from testplan.common.exporters.pdf import format_table_style
 from testplan.common.utils.registry import Registry
+from testplan.common.utils.strings import split_text
 from testplan.testing.multitest.entries import base
 
 from .. import constants
@@ -43,8 +44,11 @@ class SerializedEntryRenderer(BaseRowRenderer):
         """Display the description or type as the header."""
         styles = [RowStyle(font=(constants.FONT, constants.FONT_SIZE_SMALL),
                            left_padding=constants.INDENT * depth)]
-
-        header = source['description'] or source['type']
+        header = split_text(
+            source['description'] or source['type'],
+            constants.FONT, constants.FONT_SIZE_SMALL,
+            constants.PAGE_WIDTH - (depth * constants.INDENT)
+        )
         return RowData(content=[header, '', '', '' ],
                        style=styles,
                        start=row_idx)

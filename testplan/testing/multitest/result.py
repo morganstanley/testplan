@@ -1619,6 +1619,56 @@ class Result(object):
         )
 
     @bind_entry
+    def diff(
+        self, first, second,
+        ignore_space_change=False,
+        ignore_whitespaces=False,
+        ignore_blank_lines=False,
+        unified=False, context=False,
+        description=None, category=None
+    ):
+        """
+        Line diff assertion. Fail if at least one difference found.
+
+        .. code-block:: python
+
+            text1 = 'a  b  c\nd\n'
+            text2 = 'a b c\nd\t\n'
+            result.diff(text1, text2, ignore_space_change=True)
+
+        :param first: The first piece of textual content to be compared.
+        :type first: ``str`` or ``list``
+        :param second: The second piece of textual content to be compared.
+        :type second: ``str`` or ``list``
+        :param ignore_space_change: Ignore changes in the amount of whitespace.
+        :type ignore_space_change: ``bool``
+        :param ignore_whitespaces: Ignore all white space.
+        :type ignore_whitespaces: ``bool``
+        :param ignore_blank_lines: Ignore changes whose lines are all blank.
+        :type ignore_blank_lines: ``bool``
+        :param unified: If truth value, output differences in unified context.
+                        Use an integer to specify the number of lines of
+                        leading context before matching lines and trailing
+                        context after matching lines. Defaults to 3.
+        :type unified: ``bool`` or ``int``
+        :param context: If truth value, output differences in copied context.
+                        Use an integer to specify the number of lines of
+                        leading context before matching lines and trailing
+                        context after matching lines. Defaults to 3.
+        :type context: ``bool`` or ``int``
+        :return: Assertion pass status
+        :rtype: ``bool``
+        """
+        return assertions.LineDiff(
+            first, second,
+            ignore_space_change=ignore_space_change,
+            ignore_whitespaces=ignore_whitespaces,
+            ignore_blank_lines=ignore_blank_lines,
+            unified=unified, context=context,
+            description=description, category=category
+        )
+
+    @bind_entry
     def matplot(self, pyplot, width=2, height=2, description=None):
         """
         Displays a Matplotlib plot in the report.

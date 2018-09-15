@@ -17,7 +17,7 @@ import six
 import lxml
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
-from testplan.common.utils import comparison
+from testplan.common.utils import comparison, difflib
 
 from .base import BaseEntry, get_table
 
@@ -48,6 +48,7 @@ __all__ = [
     'ExceptionRaised',
     'EqualSlices',
     'EqualExcludeSlices',
+    'Diff',
     'ColumnContain',
     'TableMatch',
     'XMLCheck',
@@ -516,7 +517,7 @@ class EqualExcludeSlices(EqualSlices):
         # [2, 3, 4] == [2, 3, 4], so the overall assertion passes.
 
         ranges = [
-            range(*slice_.indices(len(self.expected))) #could just use method
+            range(*slice_.indices(len(self.expected)))  #could just use method
             for slice_ in self.slices
         ]
         excluded_indices = {idx for range_ in ranges for idx in range_}
@@ -526,6 +527,53 @@ class EqualExcludeSlices(EqualSlices):
             [actual[idx] == expected[idx]
              for idx in self.included_indices]
         )
+
+
+class LineDiff(Assertion):
+    """
+    Assertion that checks if 2 blocks of textual content have difference.
+
+    If difference found, generates a list of strings as data.
+    """
+    def __init__(
+        self, first, second,
+        ignore_space_change=False,
+        ignore_whitespaces=False,
+        ignore_blank_lines=False,
+        unified=False, context=False,
+        description=None, category=None
+    ):
+        if not isinstance(first, str) and not isinstance(first, list) or \
+                not isinstance(second, str) and not isinstance(second, list):
+            raise ValueError('`first` and `second` must be string or list.')
+        if isinstance(unified, int) and unified < 0:
+            raise ValueError('`unified` cannot be negative integer.')
+        if isinstance(context, int) and context < 0:
+            raise ValueError('`context` cannot be negative integer.')
+
+        self.first = first.splitlines(True) \
+                if isinstance(first, str) else first
+        self.second = second.splitlines(True) \
+                if isinstance(second, str) else second
+        self.ignore_space_change = ignore_space_change
+        self.ignore_whitespaces = ignore_whitespaces
+        self.ignore_blank_lines = ignore_blank_lines
+        self.unified = unified
+        self.context = context
+        self.delta = []  # will be populated via self.evaluate
+
+        super(LineDiff, self).__init__(
+            description=description, category=category)
+
+    def evaluate(self):
+        self.delta = list(difflib.diff(
+            self.first, self.second,
+            ignore_space_change=self.ignore_space_change,
+            ignore_whitespaces=self.ignore_whitespaces,
+            ignore_blank_lines=self.ignore_blank_lines,
+            unified=self.unified, context=self.context
+        ))
+        return self.delta == []
 
 
 ColumnContainComparison = collections.namedtuple(
