@@ -79,7 +79,7 @@ def main(plan):
     # Add a remote pool test execution resource to the plan of given size.
     pool = RemotePool(name='MyPool',
                       hosts={socket.gethostname(): 3},
-                      setup_script=['/usr/bin/ksh', 'setup_script.ksh'],
+                      setup_script=['/bin/bash', 'setup_script.ksh'],
                       env={'LOCAL_USER': getpass.getuser(),
                            'LOCAL_WORKSPACE': workspace},
                       workspace_exclude=['.git/', '.cache/', 'doc/', 'test/'],

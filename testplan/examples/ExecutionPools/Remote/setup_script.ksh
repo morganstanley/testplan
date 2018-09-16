@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 echo 'Executing setup commands.'
 
 echo 'Environment:'
