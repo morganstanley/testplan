@@ -91,6 +91,17 @@ class SampleSuite(object):
             description='Comparison of slices (exclusion)'
         )
 
+        # We can test if 2 blocks of textual content have differences with
+        # comparison option --ignore-space-change, --ignore-whitespaces and
+        # --ignore-blank-lines, also we can spefify output delta in unified
+        # or context mode.
+        result.diff('abc\nxyz\n', 'abc\nxyz\n\n', ignore_blank_lines=True)
+        result.diff(
+            '1\r\n1\r\n1\r\nabc\r\nxy z\r\n2\r\n2\r\n2\r\n',
+            '1\n1\n1\nabc \nxy\t\tz\n2\n2\n2\n',
+            ignore_space_change=True, unified=3
+        )
+
     @testcase
     def test_raised_exceptions(self, env, result):
         # `result` object has `raises` and `not_raises` methods that can be

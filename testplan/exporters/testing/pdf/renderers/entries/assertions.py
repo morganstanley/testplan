@@ -1,10 +1,13 @@
+import re
 from cgi import escape
 
 from reportlab.lib import colors
 from reportlab.platypus import Paragraph
+from reportlab.pdfbase.pdfmetrics import stringWidth
 
 from testplan.common.exporters.pdf import RowStyle, create_table
 from testplan.common.exporters.pdf import format_table_style, format_cell_data
+from testplan.common.utils.strings import wrap, split_line, split_text
 from testplan.common.utils.comparison import is_regex
 
 from testplan.report.testing import Status
@@ -49,10 +52,16 @@ class AssertionRenderer(SerializedEntryRenderer):
 
     def get_header(self, source, depth, row_idx):
         passed = source['passed']
+        header = split_text(
+            source['description'] or source['type'],
+            const.FONT if passed else const.FONT_BOLD,
+            const.FONT_SIZE_SMALL,
+            const.PAGE_WIDTH - (depth * const.INDENT)
+        )
 
         return RowData(
             content=[
-                source['description'] or source['type'],
+                header,
                 '',
                 '',
                 (Status.PASSED if passed else Status.FAILED).title()
@@ -867,7 +876,7 @@ class ExceptionRaisedRenderer(AssertionRenderer):
             )
             func_style = RowStyle(
                 left_padding=const.INDENT * (depth + 2),
-                span=()
+                span=tuple()
             )
             func_row = RowData(
                 content=[func_paragraph, '', '', ''],
@@ -892,7 +901,7 @@ class ExceptionRaisedRenderer(AssertionRenderer):
             )
             ptrn_style = RowStyle(
                 left_padding=const.INDENT * (depth + 2),
-                span=()
+                span=tuple()
             )
             exc_row += RowData(
                 content=[ptrn_paragraph, '', '', ''],
@@ -930,7 +939,7 @@ class EqualSlicesRenderer(AssertionRenderer):
             indices_style = RowStyle(
                 font=(const.FONT, const.FONT_SIZE_SMALL),
                 left_padding=const.INDENT * (depth + 2),
-                text_color = colors.black,
+                text_color=colors.black,
                 span=tuple()
             )
             indices = []
@@ -940,7 +949,7 @@ class EqualSlicesRenderer(AssertionRenderer):
                         mismatch_indices
                     )
                 )
-            indices.append('Actual:        {}'.format(actual))
+            indices.append('Actual:     {}'.format(actual))
             indices.append('Expected:   {}'.format(expected))
             indices_para = Paragraph(
                 text='<br />\n'.join(indices),
@@ -1012,6 +1021,87 @@ class EqualExcludeSlicesRenderer(AssertionRenderer):
             start=end_idx
         )
         return result + indices_row
+
+
+@registry.bind(assertions.LineDiff)
+class LineDiffRenderer(AssertionRenderer):
+    """LineDiff renderer for serialized assertion entries."""
+    def get_detail(self, source, depth, row_idx):
+        result = RowData(start=row_idx)
+        ellipsis = '    ...'
+        reserved = stringWidth(ellipsis, const.FONT, const.FONT_SIZE_SMALL)
+        max_width = const.PAGE_WIDTH - ((depth + 2) * const.INDENT) - reserved
+        get_width = lambda text, font=const.FONT, size=const.FONT_SIZE_SMALL: \
+            stringWidth(text, font, size)
+
+        options = ''
+        options += '-b ' if source['ignore_space_change'] else ''
+        options += '-w ' if source['ignore_whitespaces'] else ''
+        options += '-B ' if source['ignore_blank_lines'] else ''
+        options += '-u ' if source['unified'] else ''
+        options += '-c ' if source['context'] and not source['unified'] else ''
+        options = ' ( ' + options + ')' if options else ''
+
+        detailed_text = [] if source['passed'] else [
+            ('*** a.text ***',
+             self._get_truncated_lines(source['first'],
+                                       const.NUM_DISPLAYED_ROWS)),
+            ('*** b.text ***',
+             self._get_truncated_lines(source['second'],
+                                       const.NUM_DISPLAYED_ROWS))
+        ]
+        detailed_text.append(
+            ('No difference found{}'.format(options) if source['passed'] else
+                 'Differences{}:'.format(options),
+             [] if source['passed'] else
+                 self._get_truncated_lines(source['delta'],
+                                           const.NUM_DISPLAYED_ROWS * 5))
+        )
+
+        for title, body in detailed_text:
+            title_line = RowData(
+                content=title,
+                start=row_idx,
+                style= RowStyle(
+                    font=(const.FONT, const.FONT_SIZE_SMALL),
+                    left_padding=const.INDENT * (depth + 1),
+                    text_color=colors.black if source['passed'] else colors.red
+                )
+            )
+            result += title_line
+            row_idx = title_line.end
+
+            for flag, line in body:
+                lines = split_line(line, max_width, get_width)
+                body_text = RowData(
+                    content=[  # Be aware of the case len(line) == 0
+                        lines[0] + ellipsis if len(lines) > 1 else line,
+                        '', '', ''
+                    ],
+                    start=row_idx,
+                    style=RowStyle(
+                        font=(const.FONT, const.FONT_SIZE_SMALL),
+                        left_padding=const.INDENT * (depth + 2),
+                        top_padding=0,
+                        bottom_padding=const.COMPACT_LINE_SPACING,
+                        text_color=colors.gray if flag else colors.black
+                    )
+                )
+                result += body_text
+                row_idx = body_text.end
+
+        return result
+
+    def _get_truncated_lines(self, lines, n=0):
+        # At most keep n lines, n==0 means no truncation.
+        truncate_flag = True
+        for i, line in enumerate(lines):
+            if n > 0 and i >= n:
+                yield (truncate_flag,
+                       '[truncated after displaying first %d lines ...]' % n)
+                break
+            yield (not truncate_flag,
+                   re.sub(r'[\r\n]+$', '', line).replace('\t', '    '))
 
 
 @registry.bind(assertions.RawAssertion)

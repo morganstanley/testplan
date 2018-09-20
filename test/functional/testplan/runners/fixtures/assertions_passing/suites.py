@@ -99,6 +99,22 @@ class MySuite(object):
         )
 
     @testcase
+    def test_diff_assertions(self, env, result):
+        result.diff(
+            first='abc\nxyz\n',
+            second='abc\nxyz\n',
+            description = 'no difference found'
+        )
+
+        result.diff(
+            first='abc \nxy z\n',
+            second='abc\r\nxy\tz\r\n',
+            ignore_space_change=True,
+            context=True,
+            description = 'no difference found with option -b'
+        )
+
+    @testcase
     def test_column_contain(self, env, result):
         table = [
             ['foo', 'bar'],

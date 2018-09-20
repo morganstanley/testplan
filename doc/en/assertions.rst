@@ -504,6 +504,83 @@ of exception has been raised without matching the given ``pattern`` or ``func``.
           ...
 
 
+:py:meth:`result.diff <testplan.testing.multitest.result.Result.diff>`
+----------------------------------------------------------------------------
+
+Line diff assertion. Checks if textual content ``first`` and ``second`` have difference with given options.
+If difference found, generates a list of strings showing the delta.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          first, second = '', ''
+          with open('1.txt', 'r') as f1:
+              first = f1.read()
+          with open('2.txt', 'r') as f2:
+              second = f2.read()
+          result.diff(
+              first, second, unified=3,
+              description='Compare 1.txt and 2.txt in unified mode'
+          )
+          result.diff(
+              ['bacon\r\n', 'eggs\r\n', 'ham\r\n', 'guido\r\n'],
+              ['python\n', 'eggy\n', 'h a m\n', 'monty\n', '\tguido\n'],
+              ignore_whitespaces=True,
+              description='Compare 2 lists of text with whitespaces ignored'
+          )
+
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Compare 1.txt and 2.txt in unified mode - Pass
+            a.text:
+              aaa
+              bbb
+              ccc
+              ddd
+              eee
+              [truncated]...
+            b.text:
+              aaa
+              bbb
+              ccc
+              ddd
+              eee
+              [truncated]...
+            a.text == b.text
+          Compare 2 lists of text with whitespaces ignored - Fail
+            File: /d/d1/shared/yitaor/ets.testplan/ets/testplan/testplan/run/test_script.py
+            Line: 49
+            a.text:
+              bacon
+              eggs
+              ham
+              guido
+
+            b.text:
+              python
+              eggy
+              h a m
+              monty
+                  guido
+
+            Differences ( -w ):
+              1,2c1,2
+              < bacon
+              < eggs
+              ---
+              > python
+              > eggy
+              3a4
+              > monty
+          ...
+
+
 :py:meth:`result.log <testplan.testing.multitest.result.Result.log>`
 --------------------------------------------------------------------
 

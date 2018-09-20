@@ -311,6 +311,36 @@ expected_report = TestReport(
                             ]
                         ),
                         TestCaseReport(
+                            name='test_diff_assertions',
+                            entries=[
+                                {
+                                    'type': 'LineDiff',
+                                    'description': 'no difference found',
+                                    'first': ['abc\n', 'xyz\n'],
+                                    'second': ['abc\n', 'xyz\n'],
+                                    'ignore_space_change': False,
+                                    'ignore_whitespaces': False,
+                                    'ignore_blank_lines': False,
+                                    'unified': False,
+                                    'context': False,
+                                    'passed': True
+                                },
+                                {
+                                    'type': 'LineDiff',
+                                    'description': 'no difference found'
+                                                   ' with option -b',
+                                    'first': ['abc \n', 'xy z\n'],
+                                    'second': ['abc\r\n', 'xy\tz\r\n'],
+                                    'ignore_space_change': True,
+                                    'ignore_whitespaces': False,
+                                    'ignore_blank_lines': False,
+                                    'unified': False,
+                                    'context': True,
+                                    'passed': True
+                                },
+                            ]
+                        ),
+                        TestCaseReport(
                             name='test_column_contain',
                             entries=[
                                 {

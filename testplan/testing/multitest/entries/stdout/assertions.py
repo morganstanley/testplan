@@ -1,5 +1,6 @@
 """Loggers for assertion objects"""
 import os
+import re
 
 from terminaltables import AsciiTable
 
@@ -552,3 +553,57 @@ class EqualExcludeSlicesRenderer(AssertionRenderer):
         )
 
         return os.linesep.join(result)
+
+
+@registry.bind(assertions.LineDiff)
+class LineDiffRenderer(AssertionRenderer):
+    """
+    Display 2 blocks of textual content, truncate them if too long, also
+    display the difference between them if found.
+    """
+    def get_assertion_details(self, entry):
+        result = []
+
+        if not entry.passed:
+            result.append(Color.red('*** a.text ***' + os.linesep))
+            for line in self._get_truncated_lines(
+                    entry.first, n=constants.NUM_DISPLAYED_ROWS):
+                result.append('  {}'.format(line))
+            if not (result[-1].endswith(os.linesep) or result[-1][-1] == '\n'):
+                result[-1] += os.linesep
+
+            result.append(Color.red('*** b.text ***' + os.linesep))
+            for line in self._get_truncated_lines(
+                    entry.second, n=constants.NUM_DISPLAYED_ROWS):
+                result.append('  {}'.format(line))
+            if not (result[-1].endswith(os.linesep) or result[-1][-1] == '\n'):
+                result[-1] += os.linesep
+
+        options = ''
+        options += '-b ' if entry.ignore_space_change else ''
+        options += '-w ' if entry.ignore_whitespaces else ''
+        options += '-B ' if entry.ignore_blank_lines else ''
+        options += '-u ' if entry.unified else ''
+        options += '-c ' if entry.context and not entry.unified else ''
+        options = ' ( ' + options + ')' if options else ''
+
+        if entry.passed:
+            result.append('No difference found{}'.format(options))
+        else:
+            result.append(
+                Color.red('Differences{}:{}'.format(options, os.linesep))
+            )
+            for line in self._get_truncated_lines(
+                    entry.delta, n=constants.NUM_DISPLAYED_ROWS*5):
+                result.append('  {}'.format(line))
+            result[-1] = re.sub(r'[\r\n]+$', '', result[-1])
+
+        return ''.join(result)
+
+    def _get_truncated_lines(self, lines, n=0):
+        # At most keep n lines, n==0 means no truncation.
+        for i, line in enumerate(lines):
+            if n > 0 and i >= n:
+                yield '[truncated after displaying first %d lines ...]' % n
+                break
+            yield line

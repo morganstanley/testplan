@@ -89,12 +89,16 @@ DISPLAYED_TABLE_STYLE =[
                         colors.black))
 ]
 
+# Space between lines in a paragraph
+COMPACT_LINE_SPACING = 2
+
 PARAGRAPH_STYLE = ParagraphStyle(
     'default',
     fontSize=FONT_SIZE_SMALL,
     fontName=FONT,
     textColor=colors.black,
-    wordWrap=None
+    leading=max(FONT_SIZE, FONT_SIZE_SMALL + COMPACT_LINE_SPACING),
+    wordWrap='CJK'  # split a long line by length, don't care about words
 )
 
 # Space after a testplan heading
