@@ -107,7 +107,7 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
             else:
                 self.server.log_callback('Response popped from queue.')
                 break
-            time.sleep(0.01)
+            time.sleep(self.server.interval)
         if response.status_code == 500:
             self.server.log_callback('Responding with 500 error.')
         return response
@@ -165,7 +165,8 @@ class HTTPServerConfig(DriverConfig):
             Optional('request_handler', default=HTTPRequestHandler):
                 lambda v: issubclass(v, http_server.BaseHTTPRequestHandler),
             Optional('handler_attributes', default={}): dict,
-            Optional('timeout', default=5): Use(int)
+            Optional('timeout', default=5): Use(int),
+            Optional('interval', default=0.01): Use(float)
         }
 
 
@@ -188,6 +189,8 @@ class HTTPServer(Driver):
     :param timeout: Number of seconds to wait for a response from the queue in
       the request_handler.
     :type timeout: ``int``
+    :param interval: Time to wait between each attempt to get a response.
+    :type interval: ``int``
     """
 
     CONFIG = HTTPServerConfig
@@ -199,6 +202,7 @@ class HTTPServer(Driver):
         self.request_handler = None
         self.handler_attributes = None
         self.timeout = None
+        self.interval = None
         self.requests = None
         self.responses = None
         self._server_thread = None
@@ -260,6 +264,7 @@ class HTTPServer(Driver):
         self.request_handler = self.cfg.request_handler
         self.handler_attributes = self.cfg.handler_attributes
         self.timeout = self.cfg.timeout
+        self.interval = self.cfg.interval
         self.requests = queue.Queue()
         self.responses = queue.Queue()
 
@@ -337,13 +342,15 @@ class _HTTPServerThread(Thread):
     :type request_handler: subclass of ``http.server.BaseHTTPRequestHandler``
     :param timeout: Number of seconds to wait for a response from the queue in
       the request_handler.
+    :param interval: Time to wait between each attempt to get a response.
+    :type interval: ``int``
     :type timeout: ``int``
     :param logger: Logger for the driver.
     :type logger: ``logging.Logger``
     """
     def __init__(self, host, port, requests_queue, responses_queue,
                  handler_attributes, request_handler=None, timeout=5,
-                 logger=None):
+                 interval=0.01, logger=None):
         super(_HTTPServerThread, self).__init__()
         self.host = host
         self.port = port
@@ -352,6 +359,7 @@ class _HTTPServerThread(Thread):
         self.handler_attributes = handler_attributes
         self.request_handler = request_handler or HTTPRequestHandler
         self.timeout = timeout
+        self.interval = interval
         self.logger = logger
         self.server = None
 
@@ -365,6 +373,7 @@ class _HTTPServerThread(Thread):
         self.server.responses = self.responses_queue
         self.server.handler_attributes = self.handler_attributes
         self.server.timeout = self.timeout
+        self.server.interval = self.interval
         nothing = lambda msg: None
         self.server.log_callback = self.logger.debug if self.logger else nothing
         self.server.serve_forever()
