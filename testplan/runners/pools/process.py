@@ -76,10 +76,14 @@ class ProcessWorker(Worker):
 
     CONFIG = ProcessWorkerConfig
 
+    def _child_path(self):
+        dirname = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(dirname, 'child.py')
+
     def _proc_cmd(self):
         """Command to start child process."""
-        dirname = os.path.dirname(os.path.abspath(__file__))
-        cmd = [sys.executable, os.path.join(dirname, 'child.py'),
+        from testplan.common.utils.path import fix_home_prefix
+        cmd = [sys.executable, fix_home_prefix(self._child_path()),
                '--index', self.cfg.index,
                '--address', self.transport.address,
                '--testplan', os.path.join(os.path.dirname(testplan.__file__),
@@ -89,8 +93,8 @@ class ProcessWorker(Worker):
                '--ng-alpha']
         if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
             cmd.extend(
-                ['--testplan-deps',
-                 os.environ[testplan.TESTPLAN_DEPENDENCIES_PATH]])
+                ['--testplan-deps', fix_home_prefix(
+                    os.environ[testplan.TESTPLAN_DEPENDENCIES_PATH])])
         return cmd
 
     def starting(self):

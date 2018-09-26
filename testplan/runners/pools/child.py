@@ -76,8 +76,8 @@ class ZMQTransport(object):
                 received = self._sock.recv(flags=self._zmq.NOBLOCK)
                 try:
                     loaded = pickle.loads(received)
-                except Exception:
-                    print('Deserialization error.')
+                except Exception as exc:
+                    print('Deserialization error. - {}'.format(exc))
                     raise
                 else:
                     return loaded
@@ -321,38 +321,19 @@ class RemoteChildLoop(ChildLoop):
         super(RemoteChildLoop, self).exit_loop()
 
 
-if __name__ == '__main__':
-    """
-    To start an external child process worker.
-    """
-    ARGS = parse_cmdline()
-    if ARGS.wd:
-        os.chdir(ARGS.wd)
-
-    sys.path.append(ARGS.testplan)
-    if ARGS.testplan_deps:
-        sys.path.append(ARGS.testplan_deps)
-    try:
-        import dependencies
-        # This will also import dependencies from $TESTPLAN_DEPENDENCIES_PATH
-    except ImportError:
-        pass
-
-    import testplan
-    if ARGS.testplan_deps:
-        os.environ[testplan.TESTPLAN_DEPENDENCIES_PATH] = ARGS.testplan_deps
-
-    if ARGS.log_level:
+def child_logic(args):
+    """Able to be imported child logic."""
+    if args.log_level:
         from testplan.logger import TESTPLAN_LOGGER
-        TESTPLAN_LOGGER.setLevel(ARGS.log_level)
+        TESTPLAN_LOGGER.setLevel(args.log_level)
 
     import psutil
     print('Starting child process worker on {}, {} with parent {}'.format(
         socket.gethostname(), os.getpid(), psutil.Process(os.getpid()).ppid()))
 
-    if ARGS.runpath:
-        print('Removing old runpath: {}'.format(ARGS.runpath))
-        shutil.rmtree(ARGS.runpath, ignore_errors=True)
+    if args.runpath:
+        print('Removing old runpath: {}'.format(args.runpath))
+        shutil.rmtree(args.runpath, ignore_errors=True)
 
     from testplan.runners.pools.base import (
         Pool, Worker, Transport)
@@ -379,12 +360,12 @@ if __name__ == '__main__':
             self._metadata['runpath'] = self.runpath
 
             # Create a local thread worker with the process pool index
-            worker = self.cfg.worker_type(index=ARGS.index,
+            worker = self.cfg.worker_type(index=args.index,
                                           runpath=self.cfg.runpath)
             self.logger.info('Created {}'.format(worker))
             worker.parent = self
             worker.cfg.parent = self.cfg
-            self._workers.add(worker, uid=ARGS.index)
+            self._workers.add(worker, uid=args.index)
             # print('Added worker with id {}'.format(idx))
             self._conn.register(worker)
             self._workers.start()
@@ -409,23 +390,46 @@ if __name__ == '__main__':
         def make_runpath_dirs(self):
             self._runpath = self.cfg.runpath
 
-
-    if ARGS.type == 'process_worker':
-        transport = ChildTransport(address=ARGS.address)
-        loop = ChildLoop(ARGS.index, transport, NoRunpathPool, 1, Worker,
+    if args.type == 'process_worker':
+        transport = ChildTransport(address=args.address)
+        loop = ChildLoop(args.index, transport, NoRunpathPool, 1, Worker,
                          TESTPLAN_LOGGER)
         loop.worker_loop()
 
-    elif ARGS.type == 'remote_worker':
-        if ARGS.remote_pool_type == 'process':
+    elif args.type == 'remote_worker':
+        if args.remote_pool_type == 'process':
             pool_type = NoRunpathProcessPool
             worker_type = ProcessWorker
         else:
             pool_type = NoRunpathThreadPool
             worker_type = Worker
-        transport = ChildTransport(address=ARGS.address)
+        transport = ChildTransport(address=args.address)
 
         loop = RemoteChildLoop(
-            ARGS.index, transport, pool_type, ARGS.remote_pool_size,
-            worker_type, TESTPLAN_LOGGER, runpath=ARGS.runpath)
+            args.index, transport, pool_type, args.remote_pool_size,
+            worker_type, TESTPLAN_LOGGER, runpath=args.runpath)
         loop.worker_loop()
+
+
+if __name__ == '__main__':
+    """
+    To start an external child process worker.
+    """
+    ARGS = parse_cmdline()
+    if ARGS.wd:
+        os.chdir(ARGS.wd)
+
+    sys.path.append(ARGS.testplan)
+    if ARGS.testplan_deps:
+        sys.path.append(ARGS.testplan_deps)
+    try:
+        import dependencies
+        # This will also import dependencies from $TESTPLAN_DEPENDENCIES_PATH
+    except ImportError:
+        pass
+
+    import testplan
+    if ARGS.testplan_deps:
+        os.environ[testplan.TESTPLAN_DEPENDENCIES_PATH] = ARGS.testplan_deps
+
+    child_logic(ARGS)
