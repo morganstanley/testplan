@@ -1,6 +1,7 @@
 """Unit tests for the HTTPServer and HTTPClient drivers."""
 
 import uuid
+import time
 
 import requests
 import pytest
@@ -58,6 +59,25 @@ class TestHTTP(object):
         assert requests.codes.ok == r.status_code
         assert 'text/plain' == r.headers['content-type']
         assert text == r.text.strip('\n')
+
+    def test_wait_for_response(self):
+        # Send HTTP request
+        self.client.get('random/text')
+
+        # Send response
+        wait = 0.2
+        time.sleep(wait)
+        text = str(uuid.uuid4())
+        res = HTTPResponse(content=[text])
+        self.server.respond(res)
+
+        # Receive response
+        r = self.client.receive()
+
+        # Verify response
+        assert requests.codes.ok == r.status_code
+        assert 'text/plain' == r.headers['Content-type']
+        assert text == r.text
 
     @pytest.mark.parametrize(
         'method',
