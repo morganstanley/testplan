@@ -384,10 +384,13 @@ class TestRunner(Runnable):
 
     def _wait_ongoing(self):
         self.logger.info('{} runpath: {}'.format(self, self.runpath))
+        # TODO: if a pool fails to initialize we could reschedule the tasks.
         if self.resources.start_exceptions:
-            self.logger.critical('Aborting due to start exceptions')
-            self.abort()
-            return
+            for resource, exception in self.resources.start_exceptions.items():
+                self.logger.critical(
+                    'Aborting {} due to start exception:'.format(resource))
+                self.logger.error(exception)
+                resource.abort()
 
         while self.active:
             ongoing = False

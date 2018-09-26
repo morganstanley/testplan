@@ -22,7 +22,9 @@ KNOWN_EXCEPTIONS = [
     "RuntimeError: Download pyfixmsg library .*", # Missing module pyfixmsg. Will skip FIX example.
     "No spec file set\. You should download .*", # Missing FIX spec file. Will skip FIX example.
     "AttributeError: 'module' object has no attribute 'poll'",
-    "RuntimeError: You need to compile test binary first." # Need to compile cpp binary first. Will skip GTest example.
+    "RuntimeError: You need to compile test binary first.", # Need to compile cpp binary first. Will skip GTest example.
+    "FATAL ERROR: Network error: Connection refused", # We don't fail a pool test for connection incapability.
+    "lost connection"
 ]
 
 SKIP_ON_WINDOWS = [
