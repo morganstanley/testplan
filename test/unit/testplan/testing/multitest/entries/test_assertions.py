@@ -147,7 +147,8 @@ IS_CLOSE_PARAMS = [
     (True, True, 1e-09, 0.0),
     (False, False, 1e-09, 0.0),
     (decimal.Decimal('0.999'), decimal.Decimal('0.9999'), 0, 0.001),
-    (fractions.Fraction(99, 100), fractions.Fraction(100, 101), 0.00010001, 0.0),
+    (fractions.Fraction(99, 100), fractions.Fraction(100, 101),
+     0.00010001, 0.0),
     (3 + 4j, 3 + 5j, 0.18, 0.0),
     (3 + 4j, 4 + 3j, 0.0, 1.42),
     (0, 1e+100, 0.0, float('inf')),
@@ -162,8 +163,10 @@ IS_NOT_CLOSE_PARAMS = [
     (-500, -555.5, 0.0999, 55.0),
     (1e9, 9e8, 0.099, 0.9999e8),
     (True, False, 1e-09, 0.5),
-    (decimal.Decimal('0.999'), decimal.Decimal('0.9999'), decimal.Decimal('0.0009'), 0.0),
-    (fractions.Fraction(99, 100), fractions.Fraction(100, 101), 0.00009999, 1e-05),
+    (decimal.Decimal('0.999'), decimal.Decimal('0.9999'),
+     decimal.Decimal('0.0009'), 0.0),
+    (fractions.Fraction(99, 100), fractions.Fraction(100, 101),
+     0.00009999, 1e-05),
     (3 + 4j, 3 + 2j, 0.18, 0.0),
     (5 + 4j, 4 + 3j, 0.0, 1.41),
     (float('inf'), float('-inf'), 0.0, float('inf')),
@@ -779,8 +782,102 @@ TestExceptionNotRaised = generate_exception_raised_test(
 )
 
 
-COLUMN_CONTAIN_PARAM_NAMES = 'table,expected_data,values' \
-                             ',column,limit,report_fails_only'
+DIFF_ASSERTION_PARAM_NAMES = 'first,second,ignore_space_change,' \
+                             'ignore_whitespaces,ignore_blank_lines,' \
+                             'unified,context'
+NO_DIFFERENCE_PARAMS = [
+    ('abc\nxyz\n', 'abc\nxyz\n',
+     False, False, False, False, False),
+    ('abc\r\nxy z\r\n', 'abc \nxy\t\tz\n',
+     True, False, False, True, False),
+    (' abc\r\nxyz\r\n', 'abc \nx y\tz\n',
+     False, True, False, False, True),
+    ('abc\n\nxyz\n', 'abc\nxyz\n\n',
+     False, False, True, False, False),
+    ('abc\nxyz\n', 'abc\r\n\r\nxyz',
+     False, True, True, True, True),
+]
+
+DIFFERENCE_PARAMS = [
+    ('abc\nxyz\n', 'abcd\nxyz\n',
+     False, False, False, False, False),
+    ('abc\nxyz\n', ' abc\nxyz\n',
+     True, False, False, True, False),
+    (' abc\nxyz\n', 'abc\nxyz\n\n',
+     False, True, False, False, True),
+    ('abc\nxyz\n', 'abc\nxyz\n \n',
+     False, False, True, False, False),
+    (' abc\nxyz\n', 'abc\nxy z\nuvw',
+     True, False, True, True, True),
+]
+
+
+def generate_diff_assertion_test(
+    assertion_kls, passing_params, failing_params
+):
+    class DiffTest(object):
+
+        def _test_evaluate(
+            self, first, second, ignore_space_change, ignore_whitespaces,
+            ignore_blank_lines, unified, context, expected
+        ):
+            assertion = assertion_kls(
+                first, second, ignore_space_change, ignore_whitespaces,
+                ignore_blank_lines, unified, context
+            )
+            assert ''.join(assertion.first) == first
+            assert ''.join(assertion.second) == second
+            assert assertion.ignore_space_change is ignore_space_change
+            assert assertion.ignore_whitespaces is ignore_whitespaces
+            assert assertion.ignore_blank_lines is ignore_blank_lines
+            assert assertion.unified is unified
+            assert assertion.context is context
+            assert bool(assertion) is expected
+
+        @pytest.mark.parametrize(DIFF_ASSERTION_PARAM_NAMES, passing_params)
+        def test_evaluate_true(
+            self, first, second, ignore_space_change, ignore_whitespaces,
+            ignore_blank_lines, unified, context
+        ):
+            self._test_evaluate(
+                first=first,
+                second=second,
+                ignore_space_change=ignore_space_change,
+                ignore_whitespaces=ignore_whitespaces,
+                ignore_blank_lines=ignore_blank_lines,
+                unified=unified,
+                context=context,
+                expected=True
+            )
+
+        @pytest.mark.parametrize(DIFF_ASSERTION_PARAM_NAMES, failing_params)
+        def test_evaluate_false(
+            self, first, second, ignore_space_change, ignore_whitespaces,
+            ignore_blank_lines, unified, context
+        ):
+            self._test_evaluate(
+                first=first,
+                second=second,
+                ignore_space_change=ignore_space_change,
+                ignore_whitespaces=ignore_whitespaces,
+                ignore_blank_lines=ignore_blank_lines,
+                unified=unified,
+                context=context,
+                expected=False
+            )
+
+    return DiffTest
+
+
+TestDiff = generate_diff_assertion_test(
+    assertion_kls=assertions.LineDiff,
+    passing_params=NO_DIFFERENCE_PARAMS,
+    failing_params=DIFFERENCE_PARAMS
+)
+
+
+COLUMN_CONTAIN_PARAM_NAMES = 'table,expected_data,values,' \
+                             'column,limit,report_fails_only'
 
 COLUMN_CONTAIN_PASS_PARAMS = [
     # Scenario 1

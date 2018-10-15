@@ -623,12 +623,12 @@ class Pool(Executor):
         """TODO."""
         for idx in (str(i) for i in range(self.cfg.size)):
             worker = self.cfg.worker_type(index=idx)
-            self.logger.debug('Created {}'.format(worker))
+            self.logger.debug('Initialized {}.'.format(worker))
             worker.parent = self
             worker.cfg.parent = self.cfg
             self._workers.add(worker, uid=idx)
-            # print('Added worker with id {}'.format(idx))
             self._conn.register(worker)
+            self.logger.debug('Added {}.'.format(worker))
 
     def starting(self):
         """Starting the pool and workers."""

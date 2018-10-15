@@ -1,4 +1,5 @@
 """Test Multitest - Test Suite - Result - Test Report - Exporter integration"""
+import os
 import re
 
 from testplan.report.testing import TestReport, TestGroupReport, TestCaseReport
@@ -454,6 +455,73 @@ expected_report = TestReport(
                                         )
                                     ],
                                 }
+                            ]
+                        ),
+                        TestCaseReport(
+                            name='test_diff_assertions',
+                            entries=[
+                                {
+                                    'type': 'LineDiff',
+                                    'description': 'difference found',
+                                    'first': ['abc\n', 'xyz\n', 'uvw\n'],
+                                    'second': ['adc\n', 'xyz\n'],
+                                    'ignore_space_change': False,
+                                    'ignore_whitespaces': False,
+                                    'ignore_blank_lines': False,
+                                    'unified': False,
+                                    'context': False,
+                                    'delta': ['1c1{}'.format(os.linesep),
+                                              '< abc\n',
+                                              '---{}'.format(os.linesep),
+                                              '> adc\n',
+                                              '3d2{}'.format(os.linesep),
+                                              '< uvw\n'],
+                                    'passed': False
+                                },
+                                {
+                                    'type': 'LineDiff',
+                                    'description': 'difference found'
+                                                   ' with option -b',
+                                    'first': ['1\r\n', '1\r\n', '1\r\n',
+                                               'abc\r\n', 'uv w\r\n', 'xyz\r\n',
+                                               '2\r\n', '2\r\n', '2\r\n'],
+                                    'second': ['1\n', '1\n', '1\n',
+                                               ' abc\n', 'uv\tw\n', 'xy z\n',
+                                               '2\n', '2\n', '3'],
+                                    'ignore_space_change': True,
+                                    'ignore_whitespaces': False,
+                                    'ignore_blank_lines': False,
+                                    'unified': 2,
+                                    'context': False,
+                                    'delta':[
+                                        re.compile(
+                                            r'^--- a.text\t.+ UTC{}$'.format(
+                                                os.linesep
+                                            )
+                                        ),
+                                        re.compile(
+                                            r'^\+\+\+ b.text\t.+ UTC{}$'.format(
+                                                os.linesep
+                                            )
+                                        ),
+                                        '@@ -2,8 +2,8 @@{}'.format(os.linesep),
+                                        ' 1\r\n',
+                                        ' 1\r\n',
+                                        '-abc\r\n',
+                                        '+ abc\n',
+                                        ' uv w\r\n',
+                                        '-xyz\r\n',
+                                        '+xy z\n',
+                                        ' 2\r\n',
+                                        ' 2\r\n',
+                                        '-2\r\n',
+                                        '+3{}'.format(os.linesep),
+                                        '\ No newline at end of file{}'.format(
+                                            os.linesep
+                                        )
+                                    ],
+                                    'passed': False
+                                },
                             ]
                         ),
                         TestCaseReport(

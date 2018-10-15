@@ -36,7 +36,7 @@ def test_pool_basic():
     workspace = os.path.abspath(
         os.path.join(
             os.path.dirname(module_abspath(testplan)),
-            '..', '..'))
+            '..', '..', '..'))
 
     for remote_pool_type in ('thread', 'process'):
         schedule_tests_to_pool(

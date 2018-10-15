@@ -40,9 +40,7 @@ class FuncAssertionSchema(AssertionSchema):
     label = fields.String()
 
 
-@registry.bind(
-    asr.IsClose
-)
+@registry.bind(asr.IsClose)
 class ApproximateEqualitySchema(AssertionSchema):
 
     first = custom_fields.NativeOrPretty()
@@ -98,7 +96,10 @@ class RegexFindIterSchema(RegexSchema):
     condition = custom_fields.NativeOrPretty()
 
 
-@registry.bind(asr.ExceptionRaised, asr.ExceptionNotRaised)
+@registry.bind(
+    asr.ExceptionRaised,
+    asr.ExceptionNotRaised
+)
 class ExceptionRaisedSchema(AssertionSchema):
 
     raised_exception = custom_fields.ExceptionField()
@@ -112,13 +113,29 @@ class ExceptionRaisedSchema(AssertionSchema):
     pattern_match = fields.Boolean()
 
 
-@registry.bind(asr.EqualSlices, asr.EqualExcludeSlices)
+@registry.bind(
+    asr.EqualSlices,
+    asr.EqualExcludeSlices
+)
 class EqualSlicesSchema(AssertionSchema):
 
     data = fields.List(custom_fields.SliceComparisonField())
     included_indices = fields.List(fields.Integer())
     actual = fields.List(custom_fields.NativeOrPretty())
     expected = fields.List(custom_fields.NativeOrPretty())
+
+
+@registry.bind(asr.LineDiff)
+class LineDiffSchema(AssertionSchema):
+
+    first = fields.List(custom_fields.NativeOrPretty())
+    second = fields.List(custom_fields.NativeOrPretty())
+    ignore_space_change = custom_fields.NativeOrPretty()
+    ignore_whitespaces = custom_fields.NativeOrPretty()
+    ignore_blank_lines = custom_fields.NativeOrPretty()
+    unified = custom_fields.NativeOrPretty()
+    context = custom_fields.NativeOrPretty()
+    delta = fields.List(custom_fields.NativeOrPretty())
 
 
 class ProcessExitStatusSchema(AssertionSchema):
@@ -181,7 +198,10 @@ class DictCheckSchema(AssertionSchema):
     absent_keys_diff = fields.List(custom_fields.NativeOrPretty())
 
 
-@registry.bind(asr.DictMatch, asr.FixMatch)
+@registry.bind(
+    asr.DictMatch,
+    asr.FixMatch
+)
 class DictMatchSchema(AssertionSchema):
 
     include_keys = fields.List(custom_fields.NativeOrPretty())
@@ -191,7 +211,10 @@ class DictMatchSchema(AssertionSchema):
     comparison = fields.Raw()
 
 
-@registry.bind(asr.DictMatchAll, asr.FixMatchAll)
+@registry.bind(
+    asr.DictMatchAll,
+    asr.FixMatchAll
+)
 class DictMatchAllSchema(AssertionSchema):
 
     key_weightings = fields.Raw()

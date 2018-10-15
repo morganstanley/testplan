@@ -236,15 +236,16 @@ class TestplanParser(object):
                 seed=args['shuffle_seed'],
                 shuffle_type=args['shuffle']
             )
-        if args['debug'] is True:
-            args['logger_level'] = testplan.logger.DEBUG
-            testplan.logger.TESTPLAN_LOGGER.setLevel(testplan.logger.DEBUG)
-        elif args['verbose'] is True:
+
+        if args['verbose'] is True:
             args['logger_level'] = testplan.logger.INFO
             testplan.logger.TESTPLAN_LOGGER.setLevel(testplan.logger.INFO)
             args['stdout_style'] = styles.Style(
                 styles.StyleEnum.ASSERTION_DETAIL,
                 styles.StyleEnum.ASSERTION_DETAIL)
+        if args['debug'] is True:
+            args['logger_level'] = testplan.logger.DEBUG
+            testplan.logger.TESTPLAN_LOGGER.setLevel(testplan.logger.DEBUG)
 
         if args['list'] and 'info' not in args:
             args['test_lister'] = listing.NameLister()
