@@ -27,16 +27,27 @@ KNOWN_EXCEPTIONS = [
     "lost connection"
 ]
 
+SKIP = [
+    os.path.join('ExecutionPools', 'Remote', 'test_plan.py'),
+]
+
 SKIP_ON_WINDOWS = [
     os.path.join('Cpp', 'GTest', 'test_plan.py'),
     os.path.join('Cpp', 'HobbesTest', 'test_plan.py'),
 ]
 
-ROOT_DIR_CONTENTS = [
+# Contents of OSS repo.
+ROOT_DIR_CONTENTS_OSS = [
     "setup.py",
     "requirements.txt",
     "README.rst",
     "LICENSE.md"
+]
+
+# Contents after build process.
+ROOT_DIR_CONTENTS_BUILD = [
+    "testplan",
+    "test"
 ]
 
 
@@ -45,7 +56,8 @@ def _depth_from_repo_root():
     depth = []
     while True:
         contents = os.listdir(cwd)
-        if all([entry in contents for entry in ROOT_DIR_CONTENTS]):
+        if all([entry in contents for entry in ROOT_DIR_CONTENTS_OSS]) or \
+              all([entry in contents for entry in ROOT_DIR_CONTENTS_BUILD]):
             return depth
         parent_dir = os.path.dirname(cwd)
         if os.path.realpath(cwd) == os.path.realpath(parent_dir):
@@ -82,6 +94,8 @@ def test_example(root, filename):
     if ON_WINDOWS and any(
         [file_path.endswith(skip_name) for skip_name in SKIP_ON_WINDOWS]
     ):
+        pytest.skip()
+    elif any([file_path.endswith(skip_name) for skip_name in SKIP]):
         pytest.skip()
 
     with change_directory(root), open(filename) as file_obj:

@@ -137,19 +137,20 @@ class Task(object):
 
         elements = self._target.split('.')
         target_src = elements.pop(-1)
-        if len(elements):
-            mod = importlib.import_module('.'.join(elements))
-            target = getattr(mod, target_src)
-        else:
-            if self._module is None:
-                msg = 'Task parameters are not sufficient '\
-                      'for target {} materialization'.format(self._target)
-                raise TaskMaterializationError(msg)
-            mod = importlib.import_module(self._module)
-            target = getattr(mod, self._target)
-
-        if path_inserted is True:
-            sys.path.pop(0)
+        try:
+            if len(elements):
+                mod = importlib.import_module('.'.join(elements))
+                target = getattr(mod, target_src)
+            else:
+                if self._module is None:
+                    msg = 'Task parameters are not sufficient '\
+                          'for target {} materialization'.format(self._target)
+                    raise TaskMaterializationError(msg)
+                mod = importlib.import_module(self._module)
+                target = getattr(mod, self._target)
+        finally:
+            if path_inserted is True:
+                sys.path.pop(0)
         return target
 
     def dumps(self, check_loadable=False):

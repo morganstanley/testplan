@@ -21,7 +21,7 @@ def ssh_cmd(host, command):
 def copy_cmd(source, target, exclude=None):
     """Returns remote copy command."""
     if os.environ.get('RSYNC_BINARY'):
-        cmd = [os.environ['RSYNC_BINARY'], '-r']
+        cmd = [os.environ['RSYNC_BINARY'], '-r', '--links']
         if exclude is not None:
             for item in exclude:
                 cmd.extend(['--exclude', item])
