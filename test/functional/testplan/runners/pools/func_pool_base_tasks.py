@@ -80,7 +80,14 @@ def schedule_tests_to_pool(name, pool, **pool_cfg):
     plan.add_resource(pool)
 
     this_file = fix_home_prefix(os.path.dirname(os.path.abspath(__file__)))
-    path = os.path.relpath(this_file)
+
+    workspace = pool_cfg.get('workspace')
+    if workspace:
+        path = os.path.relpath(this_file, workspace)
+    else:
+        path = this_file
+
+    print('PATH = {}'.format(path))
 
     uids = []
     for idx in range(1, 10):
