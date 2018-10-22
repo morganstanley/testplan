@@ -33,10 +33,7 @@ def strip_host(source, target, **kwargs):
 def test_pool_basic():
     """Basic test scheduling."""
     import testplan
-    workspace = os.path.abspath(
-        os.path.join(
-            os.path.dirname(module_abspath(testplan)),
-            '..', '..', '..'))
+    workspace = os.path.dirname(module_abspath(testplan))
 
     for remote_pool_type in ('thread', 'process'):
         schedule_tests_to_pool(
