@@ -429,7 +429,8 @@ if __name__ == '__main__':
         sys.path.append('.')
 
     if ARGS.testplan:
-        sys.path.append(os.path.abspath(os.path.join(ARGS.testplan, os.pardir)))
+        sys.path.insert(
+            0, os.path.abspath(os.path.join(ARGS.testplan, os.pardir)))
     if ARGS.testplan_deps:
         sys.path.append(ARGS.testplan_deps)
     try:
