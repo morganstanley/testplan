@@ -69,8 +69,8 @@ def schedule_tests_to_pool(name, pool, **pool_cfg):
     pool_name = pool.__name__
 
     # Enable debug:
-    # from testplan.logger import DEBUG
-    # TESTPLAN_LOGGER.setLevel(DEBUG)
+    from testplan.logger import DEBUG
+    TESTPLAN_LOGGER.setLevel(DEBUG)
 
     plan = Testplan(
         name=name,
@@ -101,8 +101,7 @@ def schedule_tests_to_pool(name, pool, **pool_cfg):
                                   path=path, kwargs=dict(name=idx),
                                   resource=pool_name))
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = plan.run()
+    res = plan.run()
 
     assert res.run is True
     assert res.success is True
