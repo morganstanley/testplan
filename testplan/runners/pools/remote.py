@@ -23,6 +23,7 @@ from .base import Pool, PoolConfig
 from .process import ProcessWorker, ProcessWorkerConfig
 from .connection import TCPConnectionManager
 from .communication import Message
+from testplan.runners.pools import child
 
 
 class WorkerSetupMetadata(object):
@@ -65,6 +66,14 @@ class RemoteWorkerConfig(ProcessWorkerConfig):
         }
 
 
+class _LocationPaths(object):
+    """Store local and remote equivalent paths."""
+
+    def __init__(self):
+        self.local = None
+        self.remote = None
+
+
 class RemoteWorker(ProcessWorker):
     """
     Remote worker resource that pulls tasks from the transport provided,
@@ -75,15 +84,17 @@ class RemoteWorker(ProcessWorker):
 
     def __init__(self, **options):
         super(RemoteWorker, self).__init__(**options)
-        self._remote_testplan_path = None
+        self._remote_base_path = None
         self._user = getpass.getuser()
-        self._workspace_paths = {}
-        self._child_paths = {}
+        self._workspace_paths = _LocationPaths()
+        self._child_paths = _LocationPaths()
+        self._testplan_paths = _LocationPaths()
+        self._working_dirs = _LocationPaths()
         self._should_transfer_workspace = True
         self._remote_testplan_runpath = None
         self.setup_metadata = WorkerSetupMetadata()
 
-    def _execute_cmd(self, cmd, label=None):
+    def _execute_cmd(self, cmd, label=None, check=True):
         """Execute a subprocess command."""
         self.logger.debug('Executing command{}: {}'.format(
             ' [{}]'.format(label) if label else '', cmd))
@@ -96,44 +107,48 @@ class RemoteWorker(ProcessWorker):
         if label:
             self.logger.debug('Command [{}] finished in {}s.'.format(
                 label, time.time()-start_time))
+
+        # Check the return-code. By default we expect commands to return 0,
+        # check can be set to False if it is expected that commands may return
+        # non-zero exit codes.
+        if check and handler.returncode != 0:
+            raise RuntimeError(
+                'Remote command {cmd} exited with non-zero exit code {rc}'
+                .format(cmd=cmd, rc=handler.returncode))
+
         return handler.returncode
 
     def _define_remote_dirs(self):
         """Define mandatory directories in remote host."""
         testplan_path_dirs = ['', 'var', 'tmp', getpass.getuser(), 'testplan']
-        self._remote_testplan_path = '/'.join(
+        self._remote_base_path = '/'.join(
             testplan_path_dirs + ['remote_workspaces',
                                   slugify(self.cfg.parent.parent.name)])
         self._remote_testplan_runpath = '/'.join(
-            [self._remote_testplan_path, 'runpath', str(self.cfg.index)])
+            [self._remote_base_path, 'runpath', str(self.cfg.index)])
 
     def _create_remote_dirs(self):
         """Create mandatory directories in remote host."""
-        cmd = self.cfg.remote_mkdir + [self._remote_testplan_path]
+        cmd = self.cfg.remote_mkdir + [self._remote_base_path]
         self._execute_cmd(
             self.cfg.ssh_cmd(self.cfg.index, ' '.join([str(a) for a in cmd])),
             label='create remote dirs')
 
-    def _copy_child_script(self):
-        """Copy the remote worker executable file."""
-        self._child_paths['remote'] = '{}/child.py'.format(
-            self._remote_testplan_path)
-        self._transfer_data(
-            source=self._child_paths['local'],
-            target='{}@{}:{}'.format(
-                self._user, self.cfg.index, self._child_paths['remote']))
-
-    def _copy_dependencies_module(self):
+    def _copy_dependencies_modules(self):
         """Copy mandatory dependencies need to be imported before testplan."""
         path = os.environ.get('TESTPLAN_DEPENDENCIES_PATH')
         if path is None:
             return
-        local_path = '{}/dependencies.py'.format(path)
-        remote_path = '{}/dependencies.py'.format(self._remote_testplan_path)
+        self.logger.debug('Copying deps from path %s', path)
+
+        # Copy over the dependencies module.
+        filename = 'dependencies.py'
+        local_deps_path = '/'.join((path, filename))
+        remote_deps_path = '/'.join((self._remote_base_path, filename))
         self._transfer_data(
-            source=local_path,
-            target='{}@{}:{}'.format(
-                self._user, self.cfg.index, remote_path))
+            source=local_deps_path,
+            target=remote_deps_path,
+            remote_target=True)
 
     def _push_files(self):
         """Push files and directories to remote host."""
@@ -176,8 +191,8 @@ class RemoteWorker(ProcessWorker):
                 label='create push file dir')
             self._transfer_data(
                 source=_dir,
-                target='{}@{}:{}'.format(
-                    self._user, self.cfg.index, os.path.dirname(_dir)),
+                target=os.path.dirname(_dir),
+                remote_target=True,
                 exclude=self.cfg.push_exclude)
         for _file in push_files:
             dirname = '/'.join(os.path.dirname(_file).split(os.sep))
@@ -187,66 +202,189 @@ class RemoteWorker(ProcessWorker):
                 label='create empty file dir')
             self._transfer_data(
                 source=_file,
-                target='{}@{}:{}'.format(
-                    self._user, self.cfg.index,
-                    '/'.join(os.path.dirname(_file).split(os.sep))),
+                target='/'.join(os.path.dirname(_file).split(os.sep)),
+                remote_target=True,
                 exclude=self.cfg.push_exclude)
 
     def _copy_workspace(self):
         """Copy the local workspace to remote host."""
         self._transfer_data(
-            source=self._workspace_paths['local'],
-            target='{}@{}:{}'.format(
-                self._user, self.cfg.index, self._remote_testplan_path),
+            source=self._workspace_paths.local,
+            target=self._remote_base_path,
+            remote_target=True,
             exclude=self.cfg.workspace_exclude)
-        self._workspace_paths['remote'] = '{}/{}'.format(
-            self._remote_testplan_path,
-            self._workspace_paths['local'].split(os.sep)[-1])
+        self._workspace_paths.remote = '{}/{}'.format(
+            self._remote_base_path,
+            self._workspace_paths.local.split(os.sep)[-1])
+        self.logger.debug('Remote workspace = %s',
+                          self._workspace_paths.remote)
 
-    def _transfer_data(self, source, target, **copy_args):
+    def _transfer_data(self,
+                       source,
+                       target,
+                       remote_source=False,
+                       remote_target=False,
+                       check=True,
+                       **copy_args):
+        """
+        Copy files or directories. Set remote_source and/or remote_target to
+        True to copy from/to paths on the remote host.
+        """
+        def _remote_copy_path(path):
+            """
+            Return a path on the remote host in the format user@host:path,
+            suitable for use in a copy command such as `scp`.
+            """
+            return '{user}@{host}:{path}'.format(
+                user=self._user, host=self.cfg.index, path=path)
+
+        if remote_source:
+            source = _remote_copy_path(source)
+        if remote_target:
+            target = _remote_copy_path(target)
+        self.logger.debug('Copying %(source)s to %(target)s', locals())
         cmd = self.cfg.copy_cmd(source, target, **copy_args)
         self._execute_cmd(cmd, 'transfer data [..{}]'.format(
-            os.path.basename(target)))
+            os.path.basename(target)), check=check)
 
-    def _prepare_remote(self):
-        """Transfer local data to remote host."""
-        import testplan.runners.pools.child as child
-        self._child_paths['local'] = module_abspath(child, self._user)
-        self._working_dirs = {'local': pwd()}
-        self._workspace_paths['local'] = self.cfg.workspace
+    def _remote_filepath_exists(self, filepath):
+        """
+        :return: whether a filepath exists on the remote host.
+        :rtype: bool
+        """
+        cmd = remote_filepath_exists(self.cfg.ssh_cmd,
+                                     self.cfg.index,
+                                     filepath)
+        return self._execute_cmd(
+            cmd, label='remote filepath check', check=False) == 0
 
+    def _define_local_paths(self):
+        self._child_paths.local = module_abspath(child, self._user)
+        self._working_dirs.local = pwd()
+        self._workspace_paths.local = self.cfg.workspace
+        self._testplan_paths.local = os.path.dirname(
+            module_abspath(testplan, self._user))
+        self.logger.info('Local testplan path = %s', self._testplan_paths.local)
+
+    def _set_remote_testplan_path(self):
+        """
+        Check and set the remote testplan package path. The package will be
+        transferred from the local host if required.
+        """
+        if self._remote_filepath_exists(self._testplan_paths.local):
+            self._testplan_paths.remote = self._testplan_paths.local
+        else:
+            self._testplan_paths.remote = '/'.join((self._remote_base_path,
+                                                    'testplan'))
+            # To save multiple uploads, only transfer the package if it is not
+            # already present on the remote host.
+            if not self._remote_filepath_exists(self._testplan_paths.remote):
+                self.logger.debug('Copying testplan package to remote host...')
+                self._transfer_data(
+                    source=self._testplan_paths.local,
+                    target=self._remote_base_path,
+                    remote_target=True)
+        self.logger.debug('Testplan package on remote host at: %s',
+                          self._testplan_paths.remote)
+
+    def _set_remote_child_path(self):
+        """
+        Set the path to the remote child script. It should already exist under
+        the testplan package.
+        """
+        self._child_paths.remote = '/'.join((self._testplan_paths.remote,
+                                             'runners',
+                                             'pools',
+                                             'child.py'))
+        assert self._remote_filepath_exists(self._child_paths.remote)
+
+    def _set_remote_workspace_path(self):
+        """
+        Set the remote workspace path, transferring the local workspace over
+        if required. The workspace represents the tests we are running and their
+        dependencies.
+        """
+        # Check if the workspace needs transferring to the remote host.
         if self.cfg.copy_workspace_check:
+            self.logger.debug('Checking if we should copy workspace at %s',
+                              self._workspace_paths.local)
             cmd = self.cfg.copy_workspace_check(
                 self.cfg.ssh_cmd,
                 self.cfg.index,
-                self._workspace_paths['local'])
+                self._workspace_paths.local)
             self._should_transfer_workspace = self._execute_cmd(
-                cmd, label='copy workspace check') != 0
+                cmd, label='copy workspace check', check=False) != 0
+        else:
+            self.logger.warning('Not checking - just copying workspace.')
 
-        self._define_remote_dirs()
-
-        if self._should_transfer_workspace is True:
-            self._create_remote_dirs()
-            self._copy_child_script()
-            self._copy_dependencies_module()
+        # Transfer workspace if required and set the remote workspace path.
+        if self._should_transfer_workspace:
+            self.logger.debug('Copying over workspace...')
             if self.cfg.remote_workspace:
-                self._workspace_paths['remote'] = self.cfg.remote_workspace
+                self._workspace_paths.remote = self.cfg.remote_workspace
             else:
                 self._copy_workspace()
                 # Mark that workspace pushed is safe to delete. Not some NFS.
                 self.setup_metadata.workspace_pushed = True
-
-            self._working_dirs = {
-                'local': pwd(),
-                'remote': '{}{}'.format(
-                    self._workspace_paths['remote'],
-                    '/'.join(pwd().split(os.sep)).replace(
-                        '/'.join(self._workspace_paths['local'].split(os.sep)),
-                        ''))}
         else:
-            self._child_paths['remote'] = self._child_paths['local']
-            self._working_dirs['remote'] = self._working_dirs['local']
-            self._workspace_paths['remote'] = self._workspace_paths['local']
+            self.logger.debug('Workspace already present on remote host.')
+            self._workspace_paths.remote = self._workspace_paths.local
+
+    def _set_remote_working_dirs(self):
+        """
+        Set the remote working directory path. The local working directory is
+        expected to be within the local workspace - in this case the same
+        relative path is set from the remote workspace. We will not set a
+        working dir outside of the remote workspace - instead just default
+        to the workspace root and log a warning.
+        """
+        if self._is_subdir(self._working_dirs.local,
+                           self._workspace_paths.local):
+            self._working_dirs.remote = os.path.join(
+                self._workspace_paths.remote,
+                os.path.relpath(self._working_dirs.local,
+                                self._workspace_paths.remote))
+        else:
+            self.logger.warning(
+                'Current working dir is not within the workspace. Defaulting '
+                'remote working dir to the workspace root.')
+            self._working_dirs.remote = self._workspace_paths.remote
+
+        if not self._remote_filepath_exists(self._working_dirs.remote):
+            raise RuntimeError('Remote working dir "{}" does not exist'
+                               .format(self._working_dirs.remote))
+        else:
+            print("Remote working dir = {}".format(self._working_dirs.remote))
+
+    @staticmethod
+    def _is_subdir(child, parent):
+        """:return: True if the child path is a sub-directory of the parent."""
+        real_parent = os.path.realpath(parent)
+        real_child = os.path.realpath(child)
+        return real_child.startswith(real_parent)
+
+    def _prepare_remote(self):
+        """Transfer local data to remote host."""
+        self._define_local_paths()
+
+        # Define and create required remote directories.
+        self._define_remote_dirs()
+        self._create_remote_dirs()
+
+        # Ensure that the testplan package is available on the remote.
+        self._set_remote_testplan_path()
+
+        # Ensure the remote child script is present.
+        self._set_remote_child_path()
+
+        # Copy the dependencies modules.
+        self._copy_dependencies_modules()
+
+        # Ensure that the current workspace is available on the remote.
+        self._set_remote_workspace_path()
+
+        # Set the remote working directory.
+        self._set_remote_working_dirs()
 
         self._push_files()
         self.setup_metadata.setup_script = self.cfg.setup_script
@@ -265,7 +403,8 @@ class RemoteWorker(ProcessWorker):
                     dirname, exc))
             else:
                 self._transfer_data(
-                    source='{}@{}:{}'.format(self._user, self.cfg.index, entry),
+                    source=entry,
+                    remote_source=True,
                     target=dirname,
                     exclude=self.cfg.pull_exclude)
 
@@ -273,33 +412,9 @@ class RemoteWorker(ProcessWorker):
         """Fetch back to local host the results generated remotely."""
         self.logger.debug('Fetch results stage - {}'.format(self.cfg.index))
         self._transfer_data(
-            source='{}@{}:{}'.format(self._user, self.cfg.index,
-                                     self._remote_testplan_runpath),
+            source=self._remote_testplan_runpath,
+            remote_source=True,
             target=self.parent.runpath)
-
-    def _add_testplan_import_path(self, cmd, flag=None):
-        if self.cfg.testplan_path:
-            if flag is not None:
-                cmd.append(flag)
-            cmd.append(self.cfg.testplan_path)
-            return
-
-        import testplan
-        testplan_path = os.path.abspath(
-            os.path.join(
-                os.path.dirname(module_abspath(testplan)),
-                '..'))
-        # Import testplan from outside the local workspace
-        if not testplan_path.startswith(self._workspace_paths['local']):
-            return
-        common_prefix = os.path.commonprefix([testplan_path,
-                                              self._workspace_paths['local']])
-        if flag is not None:
-            cmd.append(flag)
-        cmd.append('{}/{}'.format(
-            self._workspace_paths['remote'],
-            '/'.join(os.path.relpath(
-                testplan_path, common_prefix).split(os.sep))))
 
     def _add_testplan_deps_import_path(self, cmd, flag=None):
         if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
@@ -317,19 +432,21 @@ class RemoteWorker(ProcessWorker):
         else:
             python_binary = sys.executable
         cmd = [python_binary, '-uB',
-               self._child_paths['remote'],
+               self._child_paths.remote,
                '--index', str(self.cfg.index),
                '--address', self.transport.address,
                '--type', 'remote_worker',
                '--log-level', str(TESTPLAN_LOGGER.getEffectiveLevel()),
-               '--wd', self._working_dirs['remote'],
+               '--wd', self._working_dirs.remote,
                '--runpath', self._remote_testplan_runpath,
                '--remote-pool-type', self.cfg.pool_type,
-               '--remote-pool-size', str(self.cfg.workers)]
-        self._add_testplan_import_path(cmd, flag='--testplan')
+               '--remote-pool-size', str(self.cfg.workers),
+               '--testplan', self._testplan_paths.remote]
         if not self._should_transfer_workspace:
             self._add_testplan_deps_import_path(cmd, flag='--testplan-deps')
-        return self.cfg.ssh_cmd(self.cfg.index, ' '.join(cmd))
+        ret_cmd = self.cfg.ssh_cmd(self.cfg.index, ' '.join(cmd))
+        self.logger.debug('Starting child processes with command: %s', ret_cmd)
+        return ret_cmd
 
     def starting(self):
         """Start a child remote worker."""
@@ -477,3 +594,4 @@ class RemotePool(Pool):
             self._workers.add(worker, uid=host)
             # print('Added worker with id {}'.format(idx))
             self._conn.register(worker)
+

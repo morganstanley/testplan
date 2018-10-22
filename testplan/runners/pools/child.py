@@ -28,7 +28,6 @@ def parse_cmdline():
     parser.add_argument('--log-level', action="store", default=0, type=int)
     parser.add_argument('--remote-pool-type', action="store", default='thread')
     parser.add_argument('--remote-pool-size', action="store", default=1)
-    parser.add_argument('--ng-alpha', action="store_true")
 
     return parser.parse_args()
 
@@ -53,6 +52,7 @@ class ZMQTransport(object):
         self._sock = self._context.socket(zmq.REQ)
         self._sock.connect("tcp://{}".format(address))
         self.active = True
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def send(self, message):
         """
@@ -150,14 +150,22 @@ class ChildLoop(object):
     def _setup_logfiles(self):
         if not os.path.exists(self.runpath):
             os.makedirs(self.runpath)
+
+        stderr_file = os.path.join(self.runpath, '{}_stderr'.format(self._metadata['index']))
+        log_file = os.path.join(self.runpath, '{}_stdout'.format(self._metadata['index']))
+        self.logger.info('stdout file = %(file)s (log level = %(lvl)s)',
+                         {'file': log_file, 'lvl': self.logger.level})
+        self.logger.info('stderr file = %s'.format(stderr_file))
+        self.logger.info(
+            'Closing stdin, stdout and stderr file descriptors...')
+
+        # This closes stdin, stdout and stderr for this process.
         for fdesc in range(3):
             os.close(fdesc)
         mode = 'w' if platform.python_version().startswith('3') else 'wb'
 
-        sys.stderr = open(os.path.join(
-            self.runpath, '{}_stderr'.format(self._metadata['index'])), mode)
-        fhandler = logging.FileHandler(os.path.join(
-                self.runpath, '{}_stdout'.format(self._metadata['index'])))
+        sys.stderr = open(stderr_file, mode)
+        fhandler = logging.FileHandler(log_file)
         fhandler.setLevel(self.logger.level)
         self.logger.addHandler = fhandler
 
@@ -282,7 +290,7 @@ class RemoteChildLoop(ChildLoop):
     Child loop for remote workers.
     This involved exchange of metadata for additional functionality.
     """
-    def __int__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(RemoteChildLoop, self).__init__(*args, **kwargs)
         self._setup_metadata = None
 
@@ -295,9 +303,9 @@ class RemoteChildLoop(ChildLoop):
             for key, value in self._setup_metadata.env.items():
                 os.environ[key] = value
         os.environ['TESTPLAN_LOCAL_WORKSPACE'] = \
-            self._setup_metadata.workspace_paths['local']
+            self._setup_metadata.workspace_paths.local
         os.environ['TESTPLAN_REMOTE_WORKSPACE'] = \
-            self._setup_metadata.workspace_paths['remote']
+            self._setup_metadata.workspace_paths.remote
 
         if self._setup_metadata.setup_script:
             if subprocess.call(self._setup_metadata.setup_script,
@@ -315,8 +323,8 @@ class RemoteChildLoop(ChildLoop):
             # Only delete the source workspace if it was transferred.
             if self._setup_metadata.workspace_pushed is True:
                 self.logger.test_info('Removing workspace: {}'.format(
-                    self._setup_metadata.workspace_paths['remote']))
-                shutil.rmtree(self._setup_metadata.workspace_paths['remote'],
+                    self._setup_metadata.workspace_paths.remote))
+                shutil.rmtree(self._setup_metadata.workspace_paths.remote,
                               ignore_errors=True)
         super(RemoteChildLoop, self).exit_loop()
 
@@ -418,15 +426,25 @@ if __name__ == '__main__':
     ARGS = parse_cmdline()
     if ARGS.wd:
         os.chdir(ARGS.wd)
+        sys.path.append('.')
 
-    sys.path.append(ARGS.testplan)
+    # We expect the testplan path to be the full /path/to/testplan directory, so
+    # add the parent /path/to dir to the sys.path so that the testplan package
+    # can be imported.
+    #
+    # We prepend the path instead of appending here in case there is another
+    # testplan installed on the sys path already, to ensure the expected version
+    # is used.
+    if ARGS.testplan:
+        sys.path.insert(
+            0, os.path.abspath(os.path.join(ARGS.testplan, os.pardir)))
     if ARGS.testplan_deps:
         sys.path.append(ARGS.testplan_deps)
     try:
         import dependencies
         # This will also import dependencies from $TESTPLAN_DEPENDENCIES_PATH
     except ImportError:
-        pass
+        dependencies = None
 
     import testplan
     if ARGS.testplan_deps:

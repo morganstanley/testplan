@@ -89,8 +89,7 @@ class ProcessWorker(Worker):
                '--testplan', os.path.join(os.path.dirname(testplan.__file__),
                                           '..'),
                '--type', 'process_worker',
-               '--log-level', TESTPLAN_LOGGER.getEffectiveLevel(),
-               '--ng-alpha']
+               '--log-level', TESTPLAN_LOGGER.getEffectiveLevel()]
         if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
             cmd.extend(
                 ['--testplan-deps', fix_home_prefix(
@@ -109,7 +108,7 @@ class ProcessWorker(Worker):
                 [str(a) for a in cmd],
                 stdout=out, stderr=out, stdin=subprocess.PIPE
             )
-
+        self.logger.debug('Started child process - output at %s', self.outfile)
         self._handler.stdin.write(bytes('y\n'.encode('utf-8')))
 
     def _wait_started(self, timeout=None):
@@ -125,8 +124,8 @@ class ProcessWorker(Worker):
                 return
             sleep_interval *= 2
         if self._handler.poll() is not None:
-            raise RuntimeError('{} process exited: {}'.format(
-                self, self._handler.poll()))
+            raise RuntimeError('{self} process exited: {rc}. See output at {out}'.format(
+                self=self, rc=self._handler.returncode, out=self.outfile))
         raise RuntimeError(
             'Could not match starting pattern in {}'.format(self.outfile))
 
