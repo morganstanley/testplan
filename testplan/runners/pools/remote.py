@@ -330,6 +330,39 @@ class RemoteWorker(ProcessWorker):
             self.logger.debug('Workspace already present on remote host.')
             self._workspace_paths.remote = self._workspace_paths.local
 
+    def _set_remote_working_dirs(self):
+        """
+        Set the remote working directory path. The local working directory is
+        expected to be within the local workspace - in this case the same
+        relative path is set from the remote workspace. We will not set a
+        working dir outside of the remote workspace - instead just default
+        to the workspace root and log a warning.
+        """
+        if self._is_subdir(self._working_dirs.local,
+                           self._workspace_paths.local):
+            self._working_dirs.remote = os.path.join(
+                self._workspace_paths.remote,
+                os.path.relpath(self._working_dirs.local,
+                                self._workspace_paths.remote))
+        else:
+            self.logger.warning(
+                'Current working dir is not within the workspace. Defaulting '
+                'remote working dir to the workspace root.')
+            self._working_dirs.remote = self._workspace_paths.remote
+
+        if not self._remote_filepath_exists(self._working_dirs.remote):
+            raise RuntimeError('Remote working dir "{}" does not exist'
+                               .format(self._working_dirs.remote))
+        else:
+            print("Remote working dir = {}".format(self._working_dirs.remote))
+
+    @staticmethod
+    def _is_subdir(child, parent):
+        """:return: True if the child path is a sub-directory of the parent."""
+        real_parent = os.path.realpath(parent)
+        real_child = os.path.realpath(child)
+        return real_child.startswith(real_parent)
+
     def _prepare_remote(self):
         """Transfer local data to remote host."""
         self._define_local_paths()
@@ -351,11 +384,7 @@ class RemoteWorker(ProcessWorker):
         self._set_remote_workspace_path()
 
         # Set the remote working directory.
-        self._working_dirs.remote = '{}{}'.format(
-            self._workspace_paths.remote,
-            '/'.join(pwd().split(os.sep)).replace(
-                '/'.join(self._workspace_paths.local.split(os.sep)),
-                ''))
+        self._set_remote_working_dirs()
 
         self._push_files()
         self.setup_metadata.setup_script = self.cfg.setup_script
