@@ -306,12 +306,16 @@ class RemoteWorker(ProcessWorker):
         """
         # Check if the workspace needs transferring to the remote host.
         if self.cfg.copy_workspace_check:
+            self.logger.debug('Checking if we should copy workspace at %s',
+                              self._workspace_paths.local)
             cmd = self.cfg.copy_workspace_check(
                 self.cfg.ssh_cmd,
                 self.cfg.index,
                 self._workspace_paths.local)
             self._should_transfer_workspace = self._execute_cmd(
                 cmd, label='copy workspace check', check=False) != 0
+        else:
+            self.logger.warning('Not checking - just copying workspace.')
 
         # Transfer workspace if required and set the remote workspace path.
         if self._should_transfer_workspace:
