@@ -383,30 +383,6 @@ class RemoteWorker(ProcessWorker):
             remote_source=True,
             target=self.parent.runpath)
 
-    def _add_testplan_import_path(self, cmd, flag=None):
-        if self.cfg.testplan_path:
-            if flag is not None:
-                cmd.append(flag)
-            cmd.append(self.cfg.testplan_path)
-            return
-
-        import testplan
-        testplan_path = os.path.abspath(
-            os.path.join(
-                os.path.dirname(module_abspath(testplan)),
-                '..'))
-        # Import testplan from outside the local workspace
-        if not testplan_path.startswith(self._workspace_paths.local):
-            return
-        common_prefix = os.path.commonprefix([testplan_path,
-                                              self._workspace_paths.local])
-        if flag is not None:
-            cmd.append(flag)
-        cmd.append('{}/{}'.format(
-            self._workspace_paths.remote,
-            '/'.join(os.path.relpath(
-                testplan_path, common_prefix).split(os.sep))))
-
     def _add_testplan_deps_import_path(self, cmd, flag=None):
         if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
             if flag is not None:
@@ -433,7 +409,6 @@ class RemoteWorker(ProcessWorker):
                '--remote-pool-type', self.cfg.pool_type,
                '--remote-pool-size', str(self.cfg.workers),
                '--testplan', self._testplan_paths.remote]
-        self._add_testplan_import_path(cmd, flag='--testplan')
         if not self._should_transfer_workspace:
             self._add_testplan_deps_import_path(cmd, flag='--testplan-deps')
         ret_cmd = self.cfg.ssh_cmd(self.cfg.index, ' '.join(cmd))
