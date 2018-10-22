@@ -4,6 +4,7 @@ import os
 import time
 import inspect
 import threading
+import logging
 
 from schema import Or, And
 
@@ -35,6 +36,7 @@ class Transport(object):
         self.requests = []
         self.responses = []
         self.active = True
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def send(self, message):
         """
@@ -95,11 +97,13 @@ class Transport(object):
         try:
             self.send(message)
         except Exception as exc:
+            self.logger.exception('Hit exception on transport send.')
             raise RuntimeError('On transport send - {}.'.format(exc))
 
         try:
             received = self.receive()
         except Exception as exc:
+            self.logger.exception('Hit exception on transport receive.')
             raise RuntimeError('On transport receive - {}.'.format(exc))
 
         if self.active and expect is not None:
@@ -623,9 +627,10 @@ class Pool(Executor):
         """TODO."""
         for idx in (str(i) for i in range(self.cfg.size)):
             worker = self.cfg.worker_type(index=idx)
-            self.logger.debug('Initialized {}.'.format(worker))
+            self.logger.debug('Initialized %s', worker)
             worker.parent = self
             worker.cfg.parent = self.cfg
+            self.logger.debug('Worker %(index)d outfile = %(outfile)s', {'index': idx, 'outfile': worker.outfile})
             self._workers.add(worker, uid=idx)
             self._conn.register(worker)
             self.logger.debug('Added {}.'.format(worker))
