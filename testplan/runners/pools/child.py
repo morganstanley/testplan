@@ -28,7 +28,6 @@ def parse_cmdline():
     parser.add_argument('--log-level', action="store", default=0, type=int)
     parser.add_argument('--remote-pool-type', action="store", default='thread')
     parser.add_argument('--remote-pool-size', action="store", default=1)
-    parser.add_argument('--ng-alpha', action="store_true")
 
     return parser.parse_args()
 
