@@ -66,6 +66,14 @@ class RemoteWorkerConfig(ProcessWorkerConfig):
         }
 
 
+class _LocationPaths(object):
+    """Store local and remote equivalent paths."""
+
+    def __init__(self):
+        self.local = None
+        self.remote = None
+
+
 class RemoteWorker(ProcessWorker):
     """
     Remote worker resource that pulls tasks from the transport provided,
@@ -78,14 +86,14 @@ class RemoteWorker(ProcessWorker):
         super(RemoteWorker, self).__init__(**options)
         self._remote_testplan_path = None
         self._user = getpass.getuser()
-        self._workspace_paths = {}
-        self._child_paths = {}
+        self._workspace_paths = _LocationPaths()
+        self._child_paths = _LocationPaths()
+        self._working_dirs = _LocationPaths()
         self._should_transfer_workspace = True
         self._remote_testplan_runpath = None
-        self._working_dirs = {}
         self.setup_metadata = WorkerSetupMetadata()
 
-    def _execute_cmd(self, cmd, label=None):
+    def _execute_cmd(self, cmd, label=None, check=True):
         """Execute a subprocess command."""
         self.logger.debug('Executing command{}: {}'.format(
             ' [{}]'.format(label) if label else '', cmd))
@@ -98,6 +106,12 @@ class RemoteWorker(ProcessWorker):
         if label:
             self.logger.debug('Command [{}] finished in {}s.'.format(
                 label, time.time()-start_time))
+
+        if check and handler.returncode != 0:
+            raise RuntimeError(
+                'Command "{cmd}" returned non-zero exit code {rc}'
+                .format(cmd=cmd, rc=handler.returncode))
+
         return handler.returncode
 
     def _define_remote_dirs(self):
@@ -118,12 +132,12 @@ class RemoteWorker(ProcessWorker):
 
     def _copy_child_script(self):
         """Copy the remote worker executable file."""
-        self._child_paths['remote'] = '{}/child.py'.format(
+        self._child_paths.remote = '{}/child.py'.format(
             self._remote_testplan_path)
         self._transfer_data(
-            source=self._child_paths['local'],
-            target='{}@{}:{}'.format(
-                self._user, self.cfg.index, self._child_paths['remote']))
+            source=self._child_paths.local,
+            target=self._child_paths.remote,
+            remote_target=True)
 
     def _copy_dependencies_module(self):
         """Copy mandatory dependencies need to be imported before testplan."""
@@ -134,8 +148,8 @@ class RemoteWorker(ProcessWorker):
         remote_path = '{}/dependencies.py'.format(self._remote_testplan_path)
         self._transfer_data(
             source=local_path,
-            target='{}@{}:{}'.format(
-                self._user, self.cfg.index, remote_path))
+            target=remote_path,
+            remote_target=True)
 
     def _push_files(self):
         """Push files and directories to remote host."""
@@ -178,8 +192,8 @@ class RemoteWorker(ProcessWorker):
                 label='create push file dir')
             self._transfer_data(
                 source=_dir,
-                target='{}@{}:{}'.format(
-                    self._user, self.cfg.index, os.path.dirname(_dir)),
+                target=os.path.dirname(_dir),
+                remote_target=True,
                 exclude=self.cfg.push_exclude)
         for _file in push_files:
             dirname = '/'.join(os.path.dirname(_file).split(os.sep))
@@ -189,16 +203,16 @@ class RemoteWorker(ProcessWorker):
                 label='create empty file dir')
             self._transfer_data(
                 source=_file,
-                target='{}@{}:{}'.format(
-                    self._user, self.cfg.index,
-                    '/'.join(os.path.dirname(_file).split(os.sep))),
+                target='/'.join(os.path.dirname(_file).split(os.sep)),
+                remote_target=True,
                 exclude=self.cfg.push_exclude)
 
     def _copy_workspace(self):
         """Copy the local workspace to remote host."""
-        self._workspace_paths['remote'] = '{}/{}'.format(
+
+        self._workspace_paths.remote = '{}/{}'.format(
             self._remote_testplan_path,
-            self._workspace_paths['local'].split(os.sep)[-1])
+            self._workspace_paths.local.split(os.sep)[-1])
         if self.cfg.remote_workspace:
             # User defined the remote workspace to be used.
             # Make a soft link instead of copying workspace.
@@ -206,14 +220,14 @@ class RemoteWorker(ProcessWorker):
                 self.cfg.index,
                 ' '.join(self.cfg.link_cmd(
                     path=fix_home_prefix(self.cfg.remote_workspace),
-                    link=self._workspace_paths['remote']))),
+                    link=self._workspace_paths.remote))),
                 label='linking to remote workspace (1).')
         elif self._should_transfer_workspace is True:
             # Workspace should be copied to remote.
             self._transfer_data(
-                source=self._workspace_paths['local'],
-                target='{}@{}:{}'.format(
-                    self._user, self.cfg.index, self._remote_testplan_path),
+                source=self._workspace_paths.local,
+                target=self._remote_testplan_path,
+                remote_target=True,
                 exclude=self.cfg.workspace_exclude)
             # Mark that workspace pushed is safe to delete. Not some NFS.
             self.setup_metadata.workspace_pushed = True
@@ -222,11 +236,29 @@ class RemoteWorker(ProcessWorker):
             self._execute_cmd(self.cfg.ssh_cmd(
                 self.cfg.index,
                 ' '.join(self.cfg.link_cmd(
-                    path=self._workspace_paths['local'],
-                    link=self._workspace_paths['remote']))),
+                    path=self._workspace_paths.local,
+                    link=self._workspace_paths.remote))),
                 label='linking to remote workspace (2).')
 
-    def _transfer_data(self, source, target, **copy_args):
+    def _remote_copy_path(self, path):
+        """
+        Return a path on the remote host in the format user@host:path,
+        suitable for use in a copy command such as `scp`.
+        """
+        return '{user}@{host}:{path}'.format(
+            user=self._user, host=self.cfg.index, path=path)
+
+    def _transfer_data(self,
+                       source,
+                       target,
+                       remote_source=False,
+                       remote_target=False,
+                       **copy_args):
+        if remote_source:
+            source = self._remote_copy_path(source)
+        if remote_target:
+            target = self._remote_copy_path(target)
+        self.logger.debug('Copying %(source)s to %(target)s', locals())
         cmd = self.cfg.copy_cmd(source, target, **copy_args)
         self._execute_cmd(cmd, 'transfer data [..{}]'.format(
             os.path.basename(target)))
@@ -244,34 +276,34 @@ class RemoteWorker(ProcessWorker):
     @property
     def _remote_working_dir(self):
         """Choose a working directory to use on the remote host."""
-        if not self._is_subdir(self._working_dirs['local'],
-                               self._workspace_paths['local']):
+        if not self._is_subdir(self._working_dirs.local,
+                               self._workspace_paths.local):
             raise RuntimeError(
                 'Current working dir is not within the workspace.\n'
                 'Workspace = {ws}\n'
                 'Working dir = {cwd}'
-                .format(ws=self._workspace_paths['local'],
-                        cwd=self._working_dirs['local']))
+                .format(ws=self._workspace_paths.local,
+                        cwd=self._working_dirs.local))
 
         # Current working directory is within the workspace - use the same
         # path relative to the remote workspace.
         return self._to_unix_path(os.path.join(
-            self._workspace_paths['remote'],
-            os.path.relpath(self._working_dirs['local'],
-                            self._workspace_paths['local'])))
+            self._workspace_paths.remote,
+            os.path.relpath(self._working_dirs.local,
+                            self._workspace_paths.local)))
 
     def _prepare_remote(self):
         """Transfer local data to remote host."""
-        self._child_paths['local'] = self._child_path()
-        self._workspace_paths['local'] = fix_home_prefix(self.cfg.workspace)
+        self._child_paths.local = self._child_path()
+        self._workspace_paths.local = fix_home_prefix(self.cfg.workspace)
 
         if self.cfg.copy_workspace_check:
             cmd = self.cfg.copy_workspace_check(
                 self.cfg.ssh_cmd,
                 self.cfg.index,
-                self._workspace_paths['local'])
+                self._workspace_paths.local)
             self._should_transfer_workspace = self._execute_cmd(
-                cmd, label='copy workspace check') != 0
+                cmd, label='copy workspace check', check=False) != 0
 
         self._define_remote_dirs()
         self._create_remote_dirs()
@@ -279,10 +311,10 @@ class RemoteWorker(ProcessWorker):
         self._copy_dependencies_module()
         self._copy_workspace()
 
-        self._working_dirs['local'] = pwd()
-        self._working_dirs['remote'] = self._remote_working_dir
+        self._working_dirs.local = pwd()
+        self._working_dirs.remote = self._remote_working_dir
         self.logger.debug('Remote working path = %s',
-                          self._working_dirs['remote'])
+                          self._working_dirs.remote)
 
         self._push_files()
         self.setup_metadata.setup_script = self.cfg.setup_script
@@ -301,7 +333,8 @@ class RemoteWorker(ProcessWorker):
                     dirname, exc))
             else:
                 self._transfer_data(
-                    source='{}@{}:{}'.format(self._user, self.cfg.index, entry),
+                    source=entry,
+                    remote_source=True,
                     target=dirname,
                     exclude=self.cfg.pull_exclude)
 
@@ -309,8 +342,8 @@ class RemoteWorker(ProcessWorker):
         """Fetch back to local host the results generated remotely."""
         self.logger.debug('Fetch results stage - {}'.format(self.cfg.index))
         self._transfer_data(
-            source='{}@{}:{}'.format(self._user, self.cfg.index,
-                                     self._remote_testplan_runpath),
+            source=self._remote_testplan_runpath,
+            remote_source=True,
             target=self.parent.runpath)
 
     def _add_testplan_import_path(self, cmd, flag=None):
@@ -326,14 +359,14 @@ class RemoteWorker(ProcessWorker):
                 os.path.dirname(module_abspath(testplan)),
                 '..'))
         # Import testplan from outside the local workspace
-        if not testplan_path.startswith(self._workspace_paths['local']):
+        if not testplan_path.startswith(self._workspace_paths.local):
             return
         common_prefix = os.path.commonprefix([testplan_path,
-                                              self._workspace_paths['local']])
+                                              self._workspace_paths.local])
         if flag is not None:
             cmd.append(flag)
         cmd.append('{}/{}'.format(
-            self._workspace_paths['remote'],
+            self._workspace_paths.remote,
             '/'.join(os.path.relpath(
                 testplan_path, common_prefix).split(os.sep))))
 
@@ -353,12 +386,12 @@ class RemoteWorker(ProcessWorker):
         else:
             python_binary = sys.executable
         cmd = [python_binary, '-uB',
-               self._child_paths['remote'],
+               self._child_paths.remote,
                '--index', str(self.cfg.index),
                '--address', self.transport.address,
                '--type', 'remote_worker',
                '--log-level', str(TESTPLAN_LOGGER.getEffectiveLevel()),
-               '--wd', self._working_dirs['remote'],
+               '--wd', self._working_dirs.remote,
                '--runpath', self._remote_testplan_runpath,
                '--remote-pool-type', self.cfg.pool_type,
                '--remote-pool-size', str(self.cfg.workers)]
@@ -517,3 +550,4 @@ class RemotePool(Pool):
             self._workers.add(worker, uid=host)
             # print('Added worker with id {}'.format(idx))
             self._conn.register(worker)
+
