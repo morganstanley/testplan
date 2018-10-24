@@ -96,6 +96,8 @@ class ChildLoop(object):
     thread pool to execute the tasks received.
     """
 
+    _WORKER_HEARTBEAT = 2
+
     def __init__(self, index, transport, pool_type, pool_size,
                  worker_type, logger, runpath=None):
         self._metadata = {'index': index, 'pid': os.getpid()}
@@ -133,8 +135,10 @@ class ChildLoop(object):
         # Local thread pool will not cleanup the previous layer runpath.
         self._pool = self._pool_type(
             name='Pool_{}'.format(self._metadata['pid']),
-            worker_type=self._worker_type, worker_heartbeat=0,
-            size=self._pool_size, runpath=self.runpath)
+            worker_type=self._worker_type,
+            worker_heartbeat=self._WORKER_HEARTBEAT,
+            size=self._pool_size,
+            runpath=self.runpath)
         self._pool.parent = self
         self._pool.cfg.parent = self._pool_cfg
         return self._pool
