@@ -210,8 +210,7 @@ class RemoteWorker(ProcessWorker):
 
     def _prepare_remote(self):
         """Transfer local data to remote host."""
-        import testplan.runners.pools.child as child
-        self._child_paths['local'] = module_abspath(child, self._user)
+        self._child_paths['local'] = self._child_path()
         self._working_dirs = {'local': pwd()}
         self._workspace_paths['local'] = self.cfg.workspace
 

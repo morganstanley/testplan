@@ -89,8 +89,7 @@ class ProcessWorker(Worker):
                '--testplan', os.path.join(os.path.dirname(testplan.__file__),
                                           '..'),
                '--type', 'process_worker',
-               '--log-level', TESTPLAN_LOGGER.getEffectiveLevel(),
-               '--ng-alpha']
+               '--log-level', TESTPLAN_LOGGER.getEffectiveLevel()]
         if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
             cmd.extend(
                 ['--testplan-deps', fix_home_prefix(
@@ -125,8 +124,9 @@ class ProcessWorker(Worker):
                 return
             sleep_interval *= 2
         if self._handler.poll() is not None:
-            raise RuntimeError('{} process exited: {}'.format(
-                self, self._handler.poll()))
+            raise RuntimeError(
+                '{proc} process exited: {rc} (logfile = {log})'.format(
+                    proc=self, rc=self._handler.returncode, log=self.outfile))
         raise RuntimeError(
             'Could not match starting pattern in {}'.format(self.outfile))
 
