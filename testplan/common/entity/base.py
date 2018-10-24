@@ -617,15 +617,16 @@ class Runnable(Entity):
             time.sleep(self.cfg.active_loop_sleep)
 
     def _run_batch_steps(self):
+        self._add_step(self.setup)
         self.pre_resource_steps()
-
         self._add_step(self.resources.start)
 
         self.main_batch_steps()
 
         self._add_step(self.resources.stop, reversed=True)
-
         self.post_resource_steps()
+        self._add_step(self.teardown)
+
         self._run()
 
     def _execute_step(self, step, *args, **kwargs):
@@ -684,12 +685,10 @@ class Runnable(Entity):
     def run(self):
         """Executes the defined steps and populates the result object."""
         try:
-            self._add_step(self.setup)
             if self.cfg.interactive is True:
                 raise
             else:
                 self._run_batch_steps()
-            self._add_step(self.teardown)
         except Exception as exc:
             self._result.run = exc
             self.logger.error(format_trace(inspect.trace(), exc))

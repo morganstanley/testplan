@@ -239,7 +239,9 @@ class MultiTest(Test):
                             tags=next_suite.__tags__,
                         )
                         self.report.append(testsuite_report)
-                        self._run_suite(next_suite, testcases, testsuite_report)
+                        with testsuite_report.logged_exceptions():
+                            self._run_suite(
+                                next_suite, testcases, testsuite_report)
                 time.sleep(self.cfg.active_loop_sleep)
 
     def _run_suite(self, testsuite, testcases, testsuite_report):
@@ -370,7 +372,8 @@ class MultiTest(Test):
             method_report = TestCaseReport(method)
             report.append(method_report)
             case_result = self.cfg.result(stdout_style=self.stdout_style)
-            attr(self.resources, case_result)
+            with method_report.logged_exceptions():
+                attr(self.resources, case_result)
             method_report.extend(case_result.serialized_entries)
 
     def _wrap_run_step(self, func, label):
