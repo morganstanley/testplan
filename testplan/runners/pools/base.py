@@ -652,6 +652,7 @@ class Pool(Executor):
         """Stop connections and workers."""
         self._conn.close()
         self._workers.stop()
+        super(Pool, self).stopping()
 
     def abort_dependencies(self):
         """Empty generator to override parent implementation."""

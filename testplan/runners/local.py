@@ -2,8 +2,6 @@
 
 import time
 
-from testplan.common.utils.thread import interruptible_join
-
 from .base import Executor
 
 class LocalRunner(Executor):
@@ -42,6 +40,3 @@ class LocalRunner(Executor):
     def aborting(self):
         """Suppressing not implemented debug log from parent class."""
 
-    def stopping(self):
-        """Stopping the LocalRunner."""
-        interruptible_join(self._loop_handler)

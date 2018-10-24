@@ -5,6 +5,7 @@ import threading
 from collections import OrderedDict
 
 from testplan.common.entity import Resource, ResourceConfig
+from testplan.common.utils.thread import interruptible_join
 
 
 class ExecutorConfig(ResourceConfig):
@@ -72,6 +73,8 @@ class Executor(Resource):
 
     def stopping(self):
         """Stop the executor."""
+        if self._loop_handler:
+            interruptible_join(self._loop_handler)
 
     def pausing(self):
         """Pause the executor."""
