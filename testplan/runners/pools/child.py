@@ -132,8 +132,9 @@ class ChildLoop(object):
         # Local thread pool will not cleanup the previous layer runpath.
         self._pool = self._pool_type(
             name='Pool_{}'.format(self._metadata['pid']),
-            worker_type=self._worker_type, worker_heartbeat=0,
-            size=self._pool_size, runpath=self.runpath)
+            worker_type=self._worker_type,
+            size=self._pool_size,
+            runpath=self.runpath)
         self._pool.parent = self
         self._pool.cfg.parent = self._pool_cfg
         return self._pool
