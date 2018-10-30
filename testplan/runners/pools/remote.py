@@ -17,7 +17,7 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils.path import module_abspath, pwd, makedirs
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.remote import (
-    ssh_cmd, copy_cmd, remote_filepath_exists)
+    ssh_cmd, copy_cmd, link_cmd, remote_filepath_exists)
 
 from .base import Pool, PoolConfig
 from .process import ProcessWorker, ProcessWorkerConfig
@@ -194,14 +194,35 @@ class RemoteWorker(ProcessWorker):
 
     def _copy_workspace(self):
         """Copy the local workspace to remote host."""
-        self._transfer_data(
-            source=self._workspace_paths['local'],
-            target='{}@{}:{}'.format(
-                self._user, self.cfg.index, self._remote_testplan_path),
-            exclude=self.cfg.workspace_exclude)
         self._workspace_paths['remote'] = '{}/{}'.format(
             self._remote_testplan_path,
             self._workspace_paths['local'].split(os.sep)[-1])
+        if self.cfg.remote_workspace:
+            # User defined the remote workspace to be used.
+            # Make a soft link instead of copying workspace.
+            self._execute_cmd(self.cfg.ssh_cmd(
+                self.cfg.index,
+                ' '.join(self.cfg.link_cmd(
+                    path=self.cfg.remote_workspace,
+                    link=self._workspace_paths['remote']))),
+                label='linking to remote workspace (1).')
+        elif self._should_transfer_workspace is True:
+            # Workspace should be copied to remote.
+            self._transfer_data(
+                source=self._workspace_paths['local'],
+                target='{}@{}:{}'.format(
+                    self._user, self.cfg.index, self._remote_testplan_path),
+                exclude=self.cfg.workspace_exclude)
+            # Mark that workspace pushed is safe to delete. Not some NFS.
+            self.setup_metadata.workspace_pushed = True
+        else:
+            # Make a soft link instead of copying workspace.
+            self._execute_cmd(self.cfg.ssh_cmd(
+                self.cfg.index,
+                ' '.join(self.cfg.link_cmd(
+                    path=self._workspace_paths['local'],
+                    link=self._workspace_paths['remote']))),
+                label='linking to remote workspace (2).')
 
     def _transfer_data(self, source, target, **copy_args):
         cmd = self.cfg.copy_cmd(source, target, **copy_args)
@@ -223,29 +244,18 @@ class RemoteWorker(ProcessWorker):
                 cmd, label='copy workspace check') != 0
 
         self._define_remote_dirs()
+        self._create_remote_dirs()
+        self._copy_child_script()
+        self._copy_dependencies_module()
+        self._copy_workspace()
 
-        if self._should_transfer_workspace is True:
-            self._create_remote_dirs()
-            self._copy_child_script()
-            self._copy_dependencies_module()
-            if self.cfg.remote_workspace:
-                self._workspace_paths['remote'] = self.cfg.remote_workspace
-            else:
-                self._copy_workspace()
-                # Mark that workspace pushed is safe to delete. Not some NFS.
-                self.setup_metadata.workspace_pushed = True
-
-            self._working_dirs = {
-                'local': pwd(),
-                'remote': '{}{}'.format(
-                    self._workspace_paths['remote'],
-                    '/'.join(pwd().split(os.sep)).replace(
-                        '/'.join(self._workspace_paths['local'].split(os.sep)),
-                        ''))}
-        else:
-            self._child_paths['remote'] = self._child_paths['local']
-            self._working_dirs['remote'] = self._working_dirs['local']
-            self._workspace_paths['remote'] = self._workspace_paths['local']
+        self._working_dirs = {
+            'local': pwd(),
+            'remote': '{}{}'.format(
+                self._workspace_paths['remote'],
+                '/'.join(pwd().split(os.sep)).replace(
+                    '/'.join(self._workspace_paths['local'].split(os.sep)),
+                    ''))}
 
         self._push_files()
         self.setup_metadata.setup_script = self.cfg.setup_script
@@ -374,6 +384,8 @@ class RemotePoolConfig(PoolConfig):
     :type port: ``int``
     :param copy_cmd: Creates the remote copy command.
     :type copy_cmd: ``callable``
+    :param link_cmd: Creates the solf link command.
+    :type link_cmd: ``callable``
     :param ssh_cmd: Creates the ssh command.
     :type ssh_cmd: ``callable``
     :param workspace: Current project workspace to be transferred.
@@ -424,6 +436,8 @@ class RemotePoolConfig(PoolConfig):
             ConfigOption('host', default=hostname): str,
             ConfigOption('port', default=0): int,
             ConfigOption('copy_cmd', default=copy_cmd):
+                lambda x: callable(x),
+            ConfigOption('link_cmd', default=link_cmd):
                 lambda x: callable(x),
             ConfigOption('ssh_cmd', default=ssh_cmd):
                 lambda x: callable(x),

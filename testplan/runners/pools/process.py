@@ -76,6 +76,14 @@ class ProcessWorker(Worker):
 
     CONFIG = ProcessWorkerConfig
 
+    def __init__(self, **options):
+        super(ProcessWorker, self).__init__(**options)
+        self._handler = None
+
+    @property
+    def handler(self):
+        return self._handler
+
     def _child_path(self):
         dirname = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(dirname, 'child.py')
@@ -102,7 +110,6 @@ class ProcessWorker(Worker):
         cmd = self._proc_cmd()
         self.logger.debug('{} executes cmd: {}'.format(self, cmd))
 
-        self._handler = None
         with open(self.outfile, 'wb') as out:
             self._handler = subprocess.Popen(
                 [str(a) for a in cmd],

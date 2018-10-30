@@ -39,6 +39,11 @@ def copy_cmd(source, target, exclude=None):
     return [binary, '-r', source, target]
 
 
+def link_cmd(path, link):
+    """Returns link creation command."""
+    return ['/usr/bin/ln', '-sf', path, link]
+
+
 def remote_filepath_exists(ssh_cmd, host, path):
     """Checks if filepath exists."""
     return ssh_cmd(host, 'test -e {}'.format(path))
