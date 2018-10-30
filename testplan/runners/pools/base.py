@@ -2,6 +2,7 @@
 
 import os
 import time
+import psutil
 import inspect
 import threading
 
@@ -342,6 +343,7 @@ class PoolConfig(ExecutorConfig):
             ConfigOption('worker_heartbeat', default=None):
                 Or(int, float, None),
             ConfigOption('heartbeat_init_window', default=1800): int,
+            ConfigOption('worker_inactivity_threshold', default=300): int,
             ConfigOption('heartbeats_miss_limit', default=3): int,
             ConfigOption('task_retries_limit', default=3): int,
             ConfigOption('max_active_loop_sleep', default=5): Or(int, float)
@@ -362,6 +364,7 @@ class Pool(Executor):
         self.task_assign_cnt = {}  # uid: times_assigned
         self.should_reschedule = default_check_reschedule
         self._workers = Environment(parent=self)
+        self._workers_last_result = {}
         self._conn = self.CONN_MANAGER(self._cfg)
         self._pool_lock = threading.Lock()
         self._request_handlers = {}
@@ -436,6 +439,8 @@ class Pool(Executor):
             self.logger.critical(
                 'Ignoring message {} - {} from inactive worker {}'.format(
                     request.cmd, request.data, worker))
+            # TODO check whether should we respond.
+            worker.respond(Message(**self._metadata).make(Message.Ack))
             return
         else:
             worker.last_heartbeat = time.time()
@@ -491,6 +496,8 @@ class Pool(Executor):
             for task_result in request.data:
                 uid = task_result.task.uid()
                 worker.assigned.remove(uid)
+                if worker not in self._workers_last_result:
+                    self._workers_last_result[worker] = time.time()
                 self.logger.test_info('De-assign {} from {}'.format(
                     task_result.task, worker))
 
@@ -544,6 +551,43 @@ class Pool(Executor):
             self.unassigned.append(uid)
         worker.abort()
 
+    def _workers_handler_monitoring(self, worker, workers_last_killed={}):
+        inactivity_threshold = self.cfg.worker_inactivity_threshold
+
+        if worker not in workers_last_killed:
+            workers_last_killed[worker] = time.time()
+
+        worker_last_killed = workers_last_killed[worker]
+        if not worker.assigned or\
+            time.time() - worker_last_killed < inactivity_threshold:
+            return
+
+        try:
+            proc = psutil.Process(worker.handler.pid)
+            children = list(proc.children(recursive=True))
+            worker_last_result = self._workers_last_result.get(worker, 0)
+            if len(children) == 1 and children[-1].status() == 'zombie' and\
+                    time.time() - worker_last_result > inactivity_threshold:
+                workers_last_killed[worker] = time.time()
+                try:
+                    while worker.assigned:
+                        uid = worker.assigned.pop()
+                        self.logger.test_info(
+                            'Re-assigning {} from {} to {}.'.format(
+                                self._input[uid], worker, self))
+                        self.unassigned.append(uid)
+                    self.logger.test_info(
+                        'Restarting worker: {}'.format(worker))
+                    worker.stop()
+                    worker.start()
+                except Exception as exc:
+                    self.logger.critical(
+                        'Worker {} failed to restart: {}'.format(worker, exc))
+                    self._deco_worker(
+                        worker, 'Aborting {}, due to defunct child process.')
+        except psutil.NoSuchProcess:
+            pass
+
     def _workers_monitoring(self):
         if not self.cfg.worker_heartbeat:
             # No heartbeat means no fault tolerance for worker.
@@ -562,6 +606,8 @@ class Pool(Executor):
             init_window = monitor_alive <= self.cfg.heartbeat_init_window
             with self._pool_lock:
                 for worker in self._workers:
+                    if getattr(worker, 'handler', None):
+                        self._workers_handler_monitoring(worker)
                     w_total.add(worker)
                     if not worker.active:
                         w_inactive.add(worker)
