@@ -14,7 +14,8 @@ from schema import Or
 import testplan
 from testplan.logger import TESTPLAN_LOGGER
 from testplan.common.config import ConfigOption
-from testplan.common.utils.path import module_abspath, pwd, makedirs
+from testplan.common.utils.path import (module_abspath,
+                                        pwd, makedirs, fix_home_prefix)
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.remote import (
     ssh_cmd, copy_cmd, link_cmd, remote_filepath_exists)
@@ -203,7 +204,7 @@ class RemoteWorker(ProcessWorker):
             self._execute_cmd(self.cfg.ssh_cmd(
                 self.cfg.index,
                 ' '.join(self.cfg.link_cmd(
-                    path=self.cfg.remote_workspace,
+                    path=fix_home_prefix(self.cfg.remote_workspace),
                     link=self._workspace_paths['remote']))),
                 label='linking to remote workspace (1).')
         elif self._should_transfer_workspace is True:
@@ -233,7 +234,7 @@ class RemoteWorker(ProcessWorker):
         """Transfer local data to remote host."""
         self._child_paths['local'] = self._child_path()
         self._working_dirs = {'local': pwd()}
-        self._workspace_paths['local'] = self.cfg.workspace
+        self._workspace_paths['local'] = fix_home_prefix(self.cfg.workspace)
 
         if self.cfg.copy_workspace_check:
             cmd = self.cfg.copy_workspace_check(
