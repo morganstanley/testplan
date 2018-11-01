@@ -82,6 +82,7 @@ class RemoteWorker(ProcessWorker):
         self._child_paths = {}
         self._should_transfer_workspace = True
         self._remote_testplan_runpath = None
+        self._working_dirs = {}
         self.setup_metadata = WorkerSetupMetadata()
 
     def _execute_cmd(self, cmd, label=None):
@@ -230,10 +231,38 @@ class RemoteWorker(ProcessWorker):
         self._execute_cmd(cmd, 'transfer data [..{}]'.format(
             os.path.basename(target)))
 
+    @staticmethod
+    def _to_unix_path(path):
+        """Convert a path from native OS to Unix format."""
+        return '/'.join(path.split(os.sep))
+
+    @staticmethod
+    def _is_subdir(dir, parent_dir):
+        """Check if dir as a sub-directory of the parent_dir."""
+        return dir.startswith(parent_dir)
+
+    @property
+    def _remote_working_dir(self):
+        """Choose a working directory to use on the remote host."""
+        if not self._is_subdir(self._working_dirs['local'],
+                               self._workspace_paths['local']):
+            raise RuntimeError(
+                'Current working dir is not within the workspace.\n'
+                'Workspace = {ws}\n'
+                'Working dir = {cwd}'
+                .format(ws=self._workspace_paths['local'],
+                        cwd=self._working_dirs['local']))
+
+        # Current working directory is within the workspace - use the same
+        # path relative to the remote workspace.
+        return self._to_unix_path(os.path.join(
+            self._workspace_paths['remote'],
+            os.path.relpath(self._working_dirs['local'],
+                            self._workspace_paths['local'])))
+
     def _prepare_remote(self):
         """Transfer local data to remote host."""
         self._child_paths['local'] = self._child_path()
-        self._working_dirs = {'local': pwd()}
         self._workspace_paths['local'] = fix_home_prefix(self.cfg.workspace)
 
         if self.cfg.copy_workspace_check:
@@ -250,13 +279,10 @@ class RemoteWorker(ProcessWorker):
         self._copy_dependencies_module()
         self._copy_workspace()
 
-        self._working_dirs = {
-            'local': pwd(),
-            'remote': '{}{}'.format(
-                self._workspace_paths['remote'],
-                '/'.join(pwd().split(os.sep)).replace(
-                    '/'.join(self._workspace_paths['local'].split(os.sep)),
-                    ''))}
+        self._working_dirs['local'] = pwd()
+        self._working_dirs['remote'] = self._remote_working_dir
+        self.logger.debug('Remote working path = %s',
+                          self._working_dirs['remote'])
 
         self._push_files()
         self.setup_metadata.setup_script = self.cfg.setup_script
