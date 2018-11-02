@@ -6,6 +6,7 @@
 """
 import operator
 import random
+import six
 from enum import Enum
 
 from testplan.common.utils.convert import make_tuple
@@ -30,7 +31,7 @@ class SortType(Enum):
                 (suites, instances)
         """
         def validate_single(v):
-            if isinstance(v, str):
+            if isinstance(v, six.string_types):
                 return SortType(v.lower()).value
             if isinstance(v, SortType):
                 return v.value
