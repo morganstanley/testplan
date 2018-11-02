@@ -65,7 +65,7 @@ def multitest_kills_worker():
     os.kill(os.getpid(), 9)
 
 
-def schedule_tests_to_pool(name, pool, **pool_cfg):
+def schedule_tests_to_pool(name, pool, schedule_path=None, **pool_cfg):
     pool_name = pool.__name__
 
     # Enable debug:
@@ -79,26 +79,15 @@ def schedule_tests_to_pool(name, pool, **pool_cfg):
     pool = pool(name=pool_name, **pool_cfg)
     plan.add_resource(pool)
 
-    this_file = fix_home_prefix(os.path.dirname(os.path.abspath(__file__)))
-    if pool_cfg.get('workspace'):  # Remote pool
-        ws = pool_cfg['workspace']
-        wd = fix_home_prefix(os.getcwd())
-        common = os.path.commonprefix(
-            [pool_cfg['workspace'], wd])
-
-        # Relative path tp the same file but from the remote workspace.
-        path = '/'.join(os.path.join(
-            os.path.relpath(common, wd),
-            os.path.relpath(this_file, ws)
-        ).split(os.sep))
-    else:
-        path = this_file
+    if schedule_path is None:
+        schedule_path = fix_home_prefix(
+            os.path.dirname(os.path.abspath(__file__)))
 
     uids = []
     for idx in range(1, 10):
         uids.append(plan.schedule(target='get_mtest',
                                   module='func_pool_base_tasks',
-                                  path=path, kwargs=dict(name=idx),
+                                  path=schedule_path, kwargs=dict(name=idx),
                                   resource=pool_name))
 
     with log_propagation_disabled(TESTPLAN_LOGGER):

@@ -418,6 +418,7 @@ if __name__ == '__main__':
     ARGS = parse_cmdline()
     if ARGS.wd:
         os.chdir(ARGS.wd)
+        sys.path.insert(0, ARGS.wd)
 
     sys.path.append(ARGS.testplan)
     if ARGS.testplan_deps:
