@@ -11,6 +11,7 @@ level multitest pass/fail status for passing test groups.
 """
 
 import os
+import six
 
 from enum import Enum, unique
 
@@ -67,7 +68,7 @@ class StyleFlag(object):
 
     def __init__(self, level):
 
-        if isinstance(level, str):
+        if isinstance(level, six.string_types):
             self.label = level
         elif isinstance(level, Enum):
             self.label = StyleEnum.enum_to_str(level)

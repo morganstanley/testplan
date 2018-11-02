@@ -12,7 +12,6 @@ import collections
 import numbers
 import decimal
 import cmath
-
 import six
 import lxml
 
@@ -543,8 +542,8 @@ class LineDiff(Assertion):
         unified=False, context=False,
         description=None, category=None
     ):
-        if not isinstance(first, str) and not isinstance(first, list) or \
-                not isinstance(second, str) and not isinstance(second, list):
+        if not isinstance(first, six.string_types) and not isinstance(first, list) or \
+                not isinstance(second, six.string_types) and not isinstance(second, list):
             raise ValueError('`first` and `second` must be string or list.')
         if isinstance(unified, int) and unified < 0:
             raise ValueError('`unified` cannot be negative integer.')
@@ -552,9 +551,9 @@ class LineDiff(Assertion):
             raise ValueError('`context` cannot be negative integer.')
 
         self.first = first.splitlines(True) \
-                if isinstance(first, str) else first
+                if isinstance(first, six.string_types) else first
         self.second = second.splitlines(True) \
-                if isinstance(second, str) else second
+                if isinstance(second, six.string_types) else second
         self.ignore_space_change = ignore_space_change
         self.ignore_whitespaces = ignore_whitespaces
         self.ignore_blank_lines = ignore_blank_lines
@@ -991,7 +990,7 @@ class XMLCheck(Assertion):
                               ' although the path exists.',
                         extra=None,
                     )
-                elif isinstance(tag, str) and re.match(tag, text):
+                elif isinstance(tag, six.string_types) and re.match(tag, text):
                     extra = tag if tag != text else None
                     xml_comp = XMLTagComparison(
                         tag=text, diff=None, error=None, extra=extra)

@@ -1,4 +1,5 @@
 """Utilities for working with tables."""
+import six
 import collections
 
 
@@ -28,7 +29,7 @@ class TableEntry(object):
             raise ValueError(error_msg)
 
         if is_list_of_list and table and not all(
-                isinstance(col, str) for col in table[0]):
+                isinstance(col, six.string_types) for col in table[0]):
             raise ValueError(
                 'For list of lists, first element must'
                 ' be the list column names: {}'.format(table))

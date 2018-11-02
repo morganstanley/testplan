@@ -29,6 +29,7 @@ Class Differ:
 import os
 import re
 import heapq
+import six
 from collections import namedtuple as _namedtuple
 from functools import reduce
 from datetime import datetime
@@ -1322,8 +1323,8 @@ def diff(a, b,
     - `context`: if True, output in context format, default False
     """
 
-    a = a.splitlines(True) if isinstance(a, str) else a
-    b = b.splitlines(True) if isinstance(b, str) else b
+    a = a.splitlines(True) if isinstance(a, six.string_types) else a
+    b = b.splitlines(True) if isinstance(b, six.string_types) else b
     assert isinstance(a, list) and isinstance(b, list)
 
     if unified:
