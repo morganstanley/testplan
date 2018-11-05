@@ -276,7 +276,7 @@ class Worker(Resource):
                 result = target()
             else:
                 result = target.run()
-        except Exception as exc:
+        except BaseException as exc:
             task_result = TaskResult(
                 task=task, result=None, status=False,
                 reason=format_trace(inspect.trace(), exc))
