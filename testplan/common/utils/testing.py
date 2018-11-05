@@ -210,7 +210,7 @@ def check_report(expected, actual, skip=None):
     skip = skip or []
     attrs = [
         attr for attr in expected._get_comparison_attrs()
-        if attr not in ['entries', 'uid', 'timer'] + skip
+        if attr not in ['entries', 'uid', 'timer', 'logs'] + skip
     ]
 
     for attr in attrs:
