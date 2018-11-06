@@ -115,7 +115,7 @@ class ProcessWorker(Worker):
                 [str(a) for a in cmd],
                 stdout=out, stderr=out, stdin=subprocess.PIPE
             )
-
+        self.logger.debug('Started child process - output at %s', self.outfile)
         self._handler.stdin.write(bytes('y\n'.encode('utf-8')))
 
     def _wait_started(self, timeout=None):
