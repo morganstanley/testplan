@@ -133,10 +133,12 @@ def enforce_timeout(process, timeout=1, callback=None, output=None):
                 _log(msg='Killing binary after'
                          ' reaching timeout value {}s'.format(timeout))
 
-                kill_process(process, output=output)
+                try:
+                    if callback:
+                        callback()
 
-                if callback:
-                    callback()
+                finally:
+                    kill_process(process, output=output)
                 break
             else:
                 delay = next(intervals)
