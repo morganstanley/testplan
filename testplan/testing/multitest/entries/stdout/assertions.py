@@ -324,8 +324,8 @@ def add_printable_dict_comparison(result, row):
 
 
 @registry.bind(
-    assertions.FixMatch,
-    assertions.DictMatch
+    assertions.DictMatch,
+    assertions.FixMatch
 )
 class DictMatchRenderer(AssertionRenderer):
     def get_assertion_details(self, entry):
@@ -368,10 +368,10 @@ class DictCheckRenderer(AssertionRenderer):
 
 
 @registry.bind(
-    assertions.FixMatchAll,
-    assertions.DictMatchAll
+    assertions.DictMatchAll,
+    assertions.FixMatchAll
 )
-class DictMatchRenderer(AssertionRenderer):
+class DictMatchAllRenderer(AssertionRenderer):
     def get_assertion_details(self, entry):
         """Return fix and dict match_all result representations"""
 

@@ -116,7 +116,7 @@ class TableEntry(object):
 
         # if ``list`` of ``list``, then we convert to ``list`` of ``dict``
         # with dict elements indexed by column_names
-        if isinstance(table[0], list):
+        if isinstance(table[0], (list, tuple)):
             column_names = table[0]
             for row in table[1:]:
                 tups = [

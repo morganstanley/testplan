@@ -7,6 +7,7 @@ import uuid
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
+
 from .entries import assertions, base
 from .entries.schemas.base import registry as schema_registry
 from .entries.stdout.base import registry as stdout_registry
@@ -536,6 +537,16 @@ class TableNamespace(AssertionNamespace):
         """
         Logs a table to the report.
 
+        .. code-block:: python
+
+            result.table.log(
+                table=[
+                    ['name', 'age', 'gender'],
+                    ['Bob', 32, 'M'],
+                    ['Susan', 24, 'F'],
+                ]
+            )
+
         :param table: Tabular data.
         :type table: ``list`` of ``list`` or ``list`` of ``dict``
         :param display_index: Flag whether to display row indices.
@@ -792,6 +803,31 @@ class DictNamespace(AssertionNamespace):
             category=category,
         )
 
+    @bind_entry
+    def log(self, dictionary, description=None):
+        """
+        Logs a dictionary to the report.
+
+        .. code-block:: python
+
+            result.dict.log(
+                dictionary={
+                    'foo': [1, 2, 3],
+                    'bar': {'color': 'blue'},
+                    'baz': 'hello world',
+                }
+            )
+
+        :param dictionary: Dict object to log.
+        :type dictionary: ``dict``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :return: Always returns True, this is not an assertion so it cannot
+                 fail.
+        :rtype: ``bool``
+        """
+        return base.DictLog(dictionary=dictionary, description=description)
+
 
 class FixNamespace(AssertionNamespace):
     """Contains assertion logic that operates on fix messages."""
@@ -967,6 +1003,33 @@ class FixNamespace(AssertionNamespace):
             category=category,
         )
 
+    @bind_entry
+    def log(self, msg, description=None):
+        """
+        Logs a fix message to the report.
+
+        .. code-block:: python
+
+            result.fix.log(
+                msg={
+                    36: 6,
+                    22: 5,
+                    55: 2,
+                    38: 5,
+                    555: [ .. more nested data here ... ]
+                }
+            )
+
+        :param msg: Fix message.
+        :type msg: ``dict`` or ``pyfixmsg.fixmessage.FixMessage``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :return: Always returns True, this is not an assertion so it cannot
+                 fail.
+        :rtype: ``bool``
+        """
+        return base.FixLog(msg=msg, description=description)
+
 
 class Result(object):
     """
@@ -1130,7 +1193,7 @@ class Result(object):
         return all(getattr(entry, 'passed', True) for entry in self.entries)
 
     @bind_entry
-    def log(self, message):
+    def log(self, message, description=None):
         """
         Create a string message entry, can be used for providing additional
         context related to test steps.
@@ -1140,12 +1203,13 @@ class Result(object):
             result.log('Custom log message ...')
 
         :param message: Log message
-        :type message: ``str``
+        :type message: ``str`` or instance
+        :param description: Text description for the assertion.
+        :type description: ``str``
         :return: ``True``
         :rtype: ``bool``
         """
-        # TODO: Generate different entries per obj type (dict, table etc)
-        return base.Log(message=message)
+        return base.Log(message=message, description=description)
 
     @bind_entry
     def fail(self, description, category=None):

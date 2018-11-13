@@ -589,15 +589,29 @@ more human readable.
 
     .. code-block:: python
 
-        result.log(
-            'Database file "{}" of driver "{}" created at "{}"'.format(
-                env.db.cfg.db_name, env.db.cfg.name, env.db.db_path))
+      @testcase
+      def sample_testcase(self, env, result):
+          result.log(
+              'Start driver "{}"'.format(env.db.cfg.name))
+
+          result.log(
+              'Database file "{}" of driver "{}" created at "{}"'.format(
+                  env.db.cfg.db_name, env.db.cfg.name, env.db.db_path),
+              description='Details of database file'))
+
+          data = {100: 'foo', 200: ['bar', 'baz']}
+          result.log(data, description='Log of raw data')
 
     .. code-block:: bash
 
       $ test_plan.py --verbose
           ...
-          Database file "mydb" of driver "db" created at "path/to/mydb"
+          Start driver "db"
+          Details of database file
+            Database file "mydb" of driver "db" created at "path/to/mydb"
+          Log of raw data
+            {100: 'foo', 200: ['bar', 'baz']}
+          ...
 
 :py:meth:`result.matplot <testplan.testing.multitest.result.Result.matplot>`
 ----------------------------------------------------------------------------
@@ -1117,7 +1131,6 @@ Checks existence / absence of keys of a dictionary.
           Absence check: ['bar', 'beta']
             Key should be absent: ['bar']
 
-
 :py:meth:`result.dict.match <testplan.testing.multitest.result.DictNamespace.match>`
 ------------------------------------------------------------------------------------
 
@@ -1209,6 +1222,57 @@ Matches two (nested) dictionaries against each other.
             (Passed)      3 <int> == <lambda> <func>
             (Passed)  Key(bar),
             (Passed)      Key(color),    blue <str> == <value> in ['blue', 'red', 'yellow'] <func>
+
+:py:meth:`result.dict.log <testplan.testing.multitest.result.DictNamespace.log>`
+--------------------------------------------------------------------------------
+
+Add a log entry of dictionary in the console output and the report to make
+the output more human readable.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          dictionary = {
+              'abc': ['a', ['b', 'c'], {'d': 'e', 'f': 'g'}],
+              'xyz': (True, False, None),
+              'alpha': ['foobar', {'f': 'foo', 'b': 'bar'}],
+              'beta': 'hello world'
+          }
+
+          result.dict.log({}, description='Log an empty dictionary')
+          result.dict.log(dictionary)
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Log an empty dictionary
+            (empty)
+
+          Dict Log
+            Key(alpha),
+                foobar <str>
+
+                Key(b),    bar <str>
+                Key(f),    foo <str>
+            Key(xyz),
+                True <bool>
+                False <bool>
+                None <None>
+            Key(abc),
+                a <str>
+
+                    b <str>
+                    c <str>
+
+                Key(d),    e <str>
+                Key(f),    g <str>
+            Key(beta),    hello world <str>
+
+          ...
 
 Fix Assertions (``result.fix``)
 ===============================
@@ -1371,6 +1435,75 @@ Similar to ``result.dict.match``, matches 2 (nested) fix messages, ``expected`` 
             (Passed)  Key(38),    5 <int> == <value> >= 4 <func>
             (Passed)  Key(22),    5 <int> == 5 <int>
             (Passed)  Key(55),    2 <int> == 2 <int>
+
+:py:meth:`result.fix.log <testplan.testing.multitest.result.FixNamespace.log>`
+------------------------------------------------------------------------------
+
+Add a log entry of fix message in the console output and the report to make
+the output more human readable.
+
+    .. code-block:: python
+
+      from pyfixmsg.fixmessage import FixMessage, FixFragment
+      from pyfixmsg.reference import FixSpec
+      from pyfixmsg.codecs.stringfix import Codec
+
+      spec_filename = '/ms/dist/fsf/PROJ/quickfix/1.14.3.1ms/common/gcc47_64/share/quickfix/FIX42.xml'
+      spec = FixSpec(spec_filename)
+      codec = Codec(spec=spec, fragment_class=FixFragment)
+
+      def fixmsg(*args, **kwargs):
+          returned = FixMessage(*args, **kwargs)
+          returned.codec = codec
+          return returned
+
+      @testcase
+      def sample_testcase(self, env, result):
+          data = (b'8=FIX.4.2|9=196|35=X|49=A|56=B|34=12|52=20100318-03:21:11.364'
+              b'|262=A|268=2|279=0|269=0|278=BID|55=EUR/USD|270=1.37215'
+              b'|15=EUR|271=2500000|346=1|279=0|269=1|278=OFFER|55=EUR/USD'
+              b'|270=1.37224|15=EUR|271=2503200|346=1|10=171|')
+
+          message = fixmsg().load_fix(data, separator='|')
+          result.fix.log(message, description='Log a fix message')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Log a fix message
+            Key(34),    12 <str>
+            Key(35),    X <str>
+            Key(262),    A <str>
+            Key(8),    FIX.4.2 <str>
+            Key(9),    196 <str>
+            Key(10),    171 <str>
+            Key(268),
+
+                Key(279),    0 <str>
+                Key(269),    0 <str>
+                Key(270),    1.37215 <str>
+                Key(15),    EUR <str>
+                Key(278),    BID <str>
+                Key(55),    EUR/USD <str>
+                Key(346),    1 <str>
+                Key(271),    2500000 <str>
+
+                Key(279),    0 <str>
+                Key(269),    1 <str>
+                Key(270),    1.37224 <str>
+                Key(15),    EUR <str>
+                Key(278),    OFFER <str>
+                Key(55),    EUR/USD <str>
+                Key(346),    1 <str>
+                Key(271),    2503200 <str>
+            Key(49),    A <str>
+            Key(52),    20100318-03:21:11.364 <str>
+            Key(56),    B <str>
+
+          ...
 
 XML Assertions (``result.xml``)
 ===============================

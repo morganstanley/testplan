@@ -126,6 +126,68 @@ def extract_values(comparison, position):
     return result
 
 
+def flatten_formatted_object(formatted_obj):
+    """
+    Flatten the formatted object which is the result of function
+    ``testplan.common.utils.reporting.fmt``.
+
+    :param formatted_obj: The formatted object
+
+    :return: List representation of flattened object
+    :rtype: ``list``
+    """
+
+    def flatten(obj, level=0, ignore_key=True):
+        if ignore_key:
+            key = ''
+        else:
+            key, obj = obj[0], obj[1]
+
+        if isinstance(obj, tuple):
+            if obj[0] == 0:
+                yield (level, key, (obj[1], obj[2]))
+            elif obj[0] in (1, 2):
+                yield (level, key, '')
+                for row in obj[1]:
+                    for new_row in flatten(
+                            row, level=level+1, ignore_key=(obj[0] == 1)):
+                        yield new_row
+            else:
+                raise ValueError('Invalid data found in formatted object')
+        else:
+            raise ValueError('Invalid data found in formatted object')
+
+    if formatted_obj[0] == 0:
+        return list(flatten(formatted_obj))
+    else:
+        result_table = []
+        for level, key, val in flatten(formatted_obj, level=-1):
+            result_table.append([level, key, val])
+
+        if formatted_obj[0] == 2:
+            for idx in range(1, len(result_table)):
+                if not result_table[idx][1]:  # no key
+                    result_table[idx][0] -= 1
+
+        while True:
+            level_decreased = False
+            prev_level = 0
+            for idx in range(1, len(result_table)):
+                level = result_table[idx][0]
+                if level > prev_level + 1:
+                    for inner_idx in range(idx, len(result_table)):
+                        if result_table[inner_idx][0] > prev_level:
+                            level_decreased = True
+                            result_table[inner_idx][0] -= 1
+                        else:
+                            break
+                prev_level = level
+            if level_decreased is False:
+                break
+
+        return result_table[1:]
+
+
 def flatten_dict_comparison(comparison):
     """
     Flatten the comparison object from dict/fix match into a list of rows.

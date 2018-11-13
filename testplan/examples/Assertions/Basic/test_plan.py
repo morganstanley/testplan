@@ -522,6 +522,16 @@ class SampleSuite(object):
             absent_keys=['bar', 'beta']
         )
 
+        # `dict.log` can be used to log a dictionary in human readable format.
+
+        result.dict.log(
+            dictionary={
+                'foo': [1, 2, 3],
+                'bar': {'color': 'blue'},
+                'baz': 'hello world',
+            }
+        )
+
     @testcase
     def test_fix_namespace(self, env, result):
         # `result.fix` namespace can be used for applying advanced
@@ -615,6 +625,21 @@ class SampleSuite(object):
             msg=fix_msg_1,
             has_tags=[26, 22, 11],
             absent_tags=[444, 555],
+        )
+
+        # `fix.log` can be used to log a fix message in human readable format.
+
+        result.fix.log(
+            msg={
+                36: 6,
+                22: 5,
+                55: 2,
+                38: 5,
+                555:[
+                    {556: 'USD', 624: 1},
+                    {556: 'EUR', 624: 2}
+                ]
+            }
         )
 
     @testcase
