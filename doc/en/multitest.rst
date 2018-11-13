@@ -1210,6 +1210,46 @@ implement custom decorators, please make sure you use
         def addition(self, env, result, a, b):
             ...
 
+.. _parallezation:
+
+Testcase Parallel Execution
+---------------------------
+
+It is possible to run testcases in parallel with a thread pool. This feature
+can be used to accelerate a group of testcases that spend a lot of time on IO
+or waiting. Due to Python global interpreter lock, the feature is not going to
+help CPU-bounded tasks, it also requires testcase written in a thread-safe way.
+
+To enable this feature, instantiate MultiTest with a non-zero ``thread_pool_size``
+and define ``execution_group`` for testcases you would like to run in parallel.
+Testcases in the same group will be executed concurrently.
+
+.. code-block:: python
+
+    @testsuite
+    class SampleTest(object):
+
+        @testcase(execution_group='first')
+        def test_g1_1(kwargs):
+            ...
+
+        @testcase(execution_group='second')
+        def test_g2_1(kwargs):
+            ...
+
+        @testcase(execution_group='first')
+        def test_g1_2(kwargs):
+            ...
+
+        @testcase(execution_group='second')
+        def test_g2_2(kwargs):
+            ...
+
+        my_multitest = MultiTest((name='Testcase Parallezation',
+                                  suites=[SampleTest()],
+                                  thread_pool_size=2))
+
+
 .. _multitest_drivers:
 
 Drivers

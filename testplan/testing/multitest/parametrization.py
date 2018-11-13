@@ -335,7 +335,8 @@ def generate_functions(
     summarize,
     num_passing,
     num_failing,
-    key_combs_limit
+    key_combs_limit,
+    execution_group
 ):
     """
     Generate test cases using the given parameter context, use the name_func
@@ -375,9 +376,12 @@ def generate_functions(
     :param num_failing: Max number of failing assertions
                        for testcase level assertion summary.
     :type num_failing: ``int``
-    :param key_combs_limit: Max number of failed key combinations on
-      fix/dict summaries that contain assertion details.
+    :param key_combs_limit: Max number of failed key combinations on fix/dict
+                            summaries that contain assertion details.
     :type key_combs_limit: ``int``
+    :param execution_group: Name of execution group in which the testcases
+                            can be executed in parallel.
+    :type execution_group: ``str``
     :return: List of functions that is testcase compliant
              (accepts ``self``, ``env``, ``result`` as arguments) and have
              unique names.
@@ -412,6 +416,7 @@ def generate_functions(
         func.summarize_num_passing = num_passing
         func.summarize_num_failing = num_failing
         func.summarize_key_combs_limit = key_combs_limit
+        func.execution_group = execution_group
 
     _ensure_unique_names(functions)
 

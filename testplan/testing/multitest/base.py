@@ -5,6 +5,12 @@ import collections
 import functools
 import time
 
+try:
+    from Queue import Queue, Empty
+except ImportError:
+    from queue import Queue, Empty
+
+from threading import Thread, Lock
 from schema import Use, Or
 
 from testplan.common.config import ConfigOption, validate_func
@@ -12,6 +18,7 @@ from testplan.common.entity import Resource, Runnable
 from testplan.common.utils.interface import (
     check_signature, MethodSignatureMismatch
 )
+from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.validation import is_subclass
 from testplan.logger import TESTPLAN_LOGGER, get_test_status_message
 from testplan.report import TestGroupReport, TestCaseReport
@@ -82,7 +89,9 @@ class MultiTestConfig(TestConfig):
             ConfigOption('after_start', default=None): start_stop_signature,
             ConfigOption('before_stop', default=None): start_stop_signature,
             ConfigOption('after_stop', default=None): start_stop_signature,
-            ConfigOption('result', default=Result): is_subclass(Result)
+            ConfigOption('result', default=Result): is_subclass(Result),
+            ConfigOption('thread_pool_size', default=0): int,
+            ConfigOption('max_thread_pool_size', default=10): int
         }
 
 
@@ -100,9 +109,12 @@ class MultiTest(Test):
         decorated methods representing the tests.
     :type suites: ``list``
     :param environment: List of
-      :py:class:`drivers <testplan.tesitng.multitest.driver.base.Driver>` to
-      be started and made available on tests execution.
+        :py:class:`drivers <testplan.tesitng.multitest.driver.base.Driver>` to
+        be started and made available on tests execution.
     :type environment: ``list``
+    :param result: Result class definition for result object made available
+        from within the testcases.
+    :type result: :py:class:`~testplan.testing.multitest.result.Result`
     :param before_start: Callable to execute before starting the environment.
     :type before_start: ``callable`` taking an environment argument.
     :param after_start: Callable to execute after starting the environment.
@@ -111,9 +123,11 @@ class MultiTest(Test):
     :type before_stop: ``callable`` taking environment and a result arguments.
     :param after_stop: Callable to execute after stopping the environment.
     :type after_stop: ``callable`` taking environment and a result arguments.
-    :param result: Result class definition for result object made available
-      from within the testcases.
-    :type result: :py:class:`~testplan.testing.multitest.result.Result`
+    :param thread_pool_size: Size of the thread pool which executes testcases
+        with execution_group specified in parallel (default 0 means no pool).
+    :type thread_pool_size: ``int``
+    :param max_thread_pool_size: Maximum number of threads allowed in the pool.
+    :type max_thread_pool_size: ``int``
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -146,6 +160,14 @@ class MultiTest(Test):
                 propagate_tag_indices(suite, self.cfg.tags)
 
         self._pre_post_step_report = None
+
+        # The following members are used for parallel execution of testcases
+        # which have been put in the same execution group.
+        self._testcase_queue = None
+        self._thread_pool = []
+        self._thread_pool_size = 0
+        self._thread_pool_active = False
+        self._thread_pool_available = False
 
     def _execute_step(self, step, *args, **kwargs):
         """
@@ -222,6 +244,15 @@ class MultiTest(Test):
         ctx = self.test_context[:]
 
         with self.report.timer.record('run'):
+            if any(getattr(testcase, 'execution_group', None)
+                    for pair in ctx for testcase in pair[1]):
+                with self.report.logged_exceptions():
+                    try:
+                        self._start_thread_pool()
+                    except:
+                        self._stop_thread_pool()
+                        raise
+
             while self.active:
                 if self.status.tag == Runnable.STATUS.RUNNING:
                     try:
@@ -242,12 +273,49 @@ class MultiTest(Test):
                         with testsuite_report.logged_exceptions():
                             self._run_suite(
                                 next_suite, testcases, testsuite_report)
+
+                        if self.get_stdout_style(
+                                testsuite_report.passed).display_suite:
+                            log_suite_status(testsuite_report)
+
                 time.sleep(self.cfg.active_loop_sleep)
+
+            if self._thread_pool_size > 0:
+                self._stop_thread_pool()
 
     def _run_suite(self, testsuite, testcases, testsuite_report):
         """Runs a testsuite object and populates its report object."""
-        post_testcase = getattr(testsuite, 'post_testcase', None)
         pre_testcase = getattr(testsuite, 'pre_testcase', None)
+        post_testcase = getattr(testsuite, 'post_testcase', None)
+
+        param_rep_lookup = {}
+        current_exec_group = ''
+        has_execution_group = False
+
+        def create_testcase_report(testcase):
+            """Creates report for testcase and append it to parent report."""
+            testcase_report = TestCaseReport(
+                name=testcase.__name__,
+                description=testcase.__doc__,
+                tags=testcase.__tags__,
+            )
+            param_template = getattr(
+                testcase, '_parametrization_template', None)
+            if param_template:
+                if param_template not in param_rep_lookup:
+                    param_method = getattr(testsuite, param_template)
+                    param_report = TestGroupReport(
+                        name=param_template,
+                        description=param_method.__doc__,
+                        category=Categories.PARAMETRIZATION,
+                        tags=param_method.__tags__,
+                    )
+                    param_rep_lookup[param_template] = param_report
+                    testsuite_report.append(param_report)
+                param_rep_lookup[param_template].append(testcase_report)
+            else:
+                testsuite_report.append(testcase_report)
+            return testcase_report
 
         with testsuite_report.timer.record('run'):
             with testsuite_report.logged_exceptions():
@@ -259,69 +327,82 @@ class MultiTest(Test):
                         testsuite, 'teardown', testsuite_report)
                 return
 
-            param_rep_lookup = {}
+            if any(getattr(testcase, 'execution_group', None)
+                   for testcase in testcases):
+                # Testcases not in execution group will run at the beginning
+                testcases.sort(
+                    key=lambda f: getattr(f, 'execution_group', None) or '')
+                has_execution_group = True
+                self._thread_pool_available = True
 
             while self.active:
                 if self.status.tag == Runnable.STATUS.RUNNING:
                     try:
                         testcase = testcases.pop(0)
                     except IndexError:
-                        with testsuite_report.logged_exceptions():
-                            self._run_suite_related(testsuite, 'teardown',
-                                                    testsuite_report)
                         break
                     else:
-                        param_template = getattr(
-                            testcase, '_parametrization_template', None)
-
-                        if param_template:
-                            if param_template not in param_rep_lookup:
-                                param_method = getattr(testsuite,
-                                                       param_template)
-                                param_report = TestGroupReport(
-                                    name=param_template,
-                                    description=param_method.__doc__,
-                                    category=Categories.PARAMETRIZATION,
-                                    tags=param_method.__tags__,
-                                )
-                                param_rep_lookup[param_template] = param_report
-                                testsuite_report.append(param_report)
-
-                            parent_report = param_rep_lookup[param_template]
+                        exec_group = getattr(testcase, 'execution_group', '')
+                        if exec_group:
+                            if exec_group != current_exec_group:
+                                self._interruptible_testcase_queue_join()
+                                current_exec_group = exec_group
+                            if not self._thread_pool_available:  # Error found
+                                break
+                            task = (testcase, pre_testcase, post_testcase,
+                                    create_testcase_report(testcase))
+                            self._testcase_queue.put(task)
                         else:
-                            parent_report = testsuite_report
-
-                        testcase_report = self._run_testcase(
-                            testcase=testcase,
-                            pre_testcase=pre_testcase,
-                            post_testcase=post_testcase
-                        )
-
-                        parent_report.append(testcase_report)
-                        # Break the suite execution if a testcase raised.
-                        if testcase_report.status == Status.ERROR:
-                            with testsuite_report.logged_exceptions():
-                                self._run_suite_related(testsuite, 'teardown',
-                                                        testsuite_report)
-                            break
+                            testcase_report = create_testcase_report(testcase)
+                            self._run_testcase(
+                                testcase=testcase,
+                                pre_testcase=pre_testcase,
+                                post_testcase=post_testcase,
+                                testcase_report=testcase_report
+                            )
+                            if testcase_report.status == Status.ERROR:
+                                self._thread_pool_available = False
+                                break
 
                 time.sleep(self.cfg.active_loop_sleep)
 
-            if self.get_stdout_style(testsuite_report.passed).display_suite:
-                log_suite_status(testsuite_report)
+            # Do nothing if testcase queue and thread pool not created
+            self._interruptible_testcase_queue_join()
 
-    def _run_testcase(self, testcase, pre_testcase, post_testcase):
+            with testsuite_report.logged_exceptions():
+                self._run_suite_related(
+                    testsuite, 'teardown', testsuite_report)
+
+            if has_execution_group:
+                self._check_testsuite_report(testsuite_report)
+
+    def _run_suite_related(self, object, method, report):
+        """Runs testsuite related special methods setup/teardown/etc."""
+        attr = getattr(object, method, None)
+        if attr is None:
+            return
+        elif not callable(attr):
+            raise RuntimeError('{} expected to be callable.'.format(method))
+
+        try:
+            check_signature(attr, ['self', 'env', 'result'])
+        except MethodSignatureMismatch:
+            check_signature(attr, ['self', 'env'])
+            attr(self.resources)
+        else:
+            method_report = TestCaseReport(method)
+            report.append(method_report)
+            case_result = self.cfg.result(stdout_style=self.stdout_style)
+            with method_report.logged_exceptions():
+                attr(self.resources, case_result)
+            method_report.extend(case_result.serialized_entries)
+
+    def _run_testcase(
+            self, testcase, pre_testcase, post_testcase, testcase_report):
         """Runs a testcase method and populates its report object."""
-
         case_result = self.cfg.result(
             stdout_style=self.stdout_style,
             _scratch=self.scratch,
-        )
-
-        testcase_report = TestCaseReport(
-            name=testcase.__name__,
-            description=testcase.__doc__,
-            tags=testcase.__tags__,
         )
 
         def _run_case_related(method):
@@ -353,28 +434,111 @@ class MultiTest(Test):
         testcase_report.extend(case_result.serialized_entries)
         if self.get_stdout_style(testcase_report.passed).display_case:
             log_testcase_status(testcase_report)
-        return testcase_report
 
-    def _run_suite_related(self, object, method, report):
-        """Runs testsuite related special methods setup/teardown/etc."""
-        attr = getattr(object, method, None)
-        if attr is None:
-            return
-        elif not callable(attr):
-            raise RuntimeError('{} expected to be callable.'.format(method))
+    def _run_testcase_in_separate_thread(self):
+        """Executes a testcase in a separate thread."""
+        while self._thread_pool_active and self.active:
+            if not self._thread_pool_available:
+                time.sleep(self.cfg.active_loop_sleep)
+                continue
 
-        try:
-            check_signature(attr, ['self', 'env', 'result'])
-        except MethodSignatureMismatch:
-            check_signature(attr, ['self', 'env'])
-            attr(self.resources)
-        else:
-            method_report = TestCaseReport(method)
-            report.append(method_report)
-            case_result = self.cfg.result(stdout_style=self.stdout_style)
-            with method_report.logged_exceptions():
-                attr(self.resources, case_result)
-            method_report.extend(case_result.serialized_entries)
+            try:
+                task = self._testcase_queue.get(
+                    timeout=self.cfg.active_loop_sleep)
+                testcase, pre_testcase, post_testcase, testcase_report = task
+            except Empty:
+                continue
+
+            self._run_testcase(
+                testcase, pre_testcase, post_testcase, testcase_report)
+
+            try:
+                self._testcase_queue.task_done()
+            except ValueError:
+                # When error occurs, testcase queue will be cleared and
+                # cannot accept 'task done' signal.
+                pass
+
+            if testcase_report.status == Status.ERROR:
+                self.logger.debug(
+                    'Error executing testcase {} - stop thread pool'.format(
+                        testcase.__name__))
+                self._thread_pool_available = False
+
+    def _start_thread_pool(self):
+        """Start a thread pool for executing testcases in parallel."""
+        if not self._testcase_queue:
+            self._testcase_queue = Queue()
+
+        self._thread_pool_size = min(self.cfg.thread_pool_size,
+                                     self.cfg.max_thread_pool_size) \
+            if self.cfg.thread_pool_size > 0 \
+            else max(int(self.cfg.max_thread_pool_size / 2), 2)
+        self._thread_pool_active = True
+
+        for _ in range(self._thread_pool_size):
+            thread = Thread(target=self._run_testcase_in_separate_thread)
+            thread.daemon = True
+            thread.start()
+            self._thread_pool.append(thread)
+
+        self._thread_pool_available = True
+
+    def _stop_thread_pool(self):
+        """Stop the thread pool after finish executing testcases."""
+        self._thread_pool_available = False
+        self._thread_pool_active = False
+
+        for thread in self._thread_pool:
+            interruptible_join(thread)
+
+        self._thread_pool = []
+        self._thread_pool_size = 0
+        self._interruptible_testcase_queue_join()
+
+    def _interruptible_testcase_queue_join(self):
+        """Joining a queue without ignoring signal interrupts."""
+        while self._thread_pool_active and self.active:
+            if not self._thread_pool_available or \
+                    not self._testcase_queue or \
+                    self._testcase_queue.unfinished_tasks == 0:
+                break
+            time.sleep(self.cfg.active_loop_sleep)
+
+        # Clear task queue and give up unfinished testcases
+        if self._testcase_queue and not self._testcase_queue.empty():
+            with self._testcase_queue.mutex:
+                self._testcase_queue.queue.clear()
+                self._testcase_queue.unfinished_tasks = 0
+                self._testcase_queue.all_tasks_done.notify_all()
+
+    def _check_testsuite_report(self, testsuite_report):
+        """Wipe off reports of testcases which have no chance to run."""
+        def _remove_testcase_report_if_not_run(
+                group_report, remove_empty_sub_group=True):
+            # If the content of report changed, return True, otherwise False.
+            changed = False
+            entries = []
+
+            for report in group_report:
+                if isinstance(report, TestGroupReport):
+                    changed = _remove_testcase_report_if_not_run(
+                        report, remove_empty_sub_group)
+                    if len(report.entries) > 0 or not remove_empty_sub_group:
+                        entries.append(report)
+                    else:
+                        changed = True
+                elif isinstance(report, TestCaseReport):
+                    if report.timer or report.name in ('setup', 'teardown'):
+                        entries.append(report)
+                    else:
+                        changed = True
+
+            group_report.entries = entries
+            return changed
+
+        if _remove_testcase_report_if_not_run(testsuite_report):
+            testsuite_report.build_index()
 
     def _wrap_run_step(self, func, label):
         """
@@ -491,3 +655,4 @@ class MultiTest(Test):
 
     def aborting(self):
         """Suppressing not implemented debug log from parent class."""
+
