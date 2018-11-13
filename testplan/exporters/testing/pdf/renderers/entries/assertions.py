@@ -422,17 +422,16 @@ def append_comparison_data(data, row, depth, start_idx):
 
 
 @registry.bind(
-    assertions.FixMatch,
-    assertions.DictMatch
+    assertions.DictMatch,
+    assertions.FixMatch
 )
-class FixMatchRenderer(AssertionRenderer):
+class DictMatchRenderer(AssertionRenderer):
     """FixMatch renderer for serialized assertion entries."""
 
     def get_detail(self, source, depth, row_idx):
         comparison = source['comparison']
 
         data = []
-
         for idx, row in enumerate(comparison):
             append_comparison_data(data, row, depth, row_idx + idx)
 
@@ -445,10 +444,10 @@ class FixMatchRenderer(AssertionRenderer):
 
 
 @registry.bind(
-    assertions.FixCheck,
-    assertions.DictCheck
+    assertions.DictCheck,
+    assertions.FixCheck
 )
-class FixCheckRenderer(AssertionRenderer):
+class DictCheckRenderer(AssertionRenderer):
     """FixCheck renderer for serialized assertion entries."""
 
     def get_detail(self, source, depth, row_idx):
@@ -512,10 +511,11 @@ class FixCheckRenderer(AssertionRenderer):
 
 
 @registry.bind(
-    assertions.FixMatchAll,
-    assertions.DictMatchAll
+    assertions.DictMatchAll,
+    assertions.FixMatchAll
+
 )
-class FixMatchAllRenderer(AssertionRenderer):
+class DictMatchAllRenderer(AssertionRenderer):
     """FixMatchAll renderer for serialized assertion entries."""
 
     def get_detail(self, source, depth, row_idx):

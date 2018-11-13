@@ -24,7 +24,13 @@ expected_report = TestReport(
                             entries=[
                                 {
                                     'type': 'Log',
-                                    'description': 'hello world'
+                                    'message': 'hello world',
+                                    'description': None
+                                },
+                                {
+                                    'type': 'Log',
+                                    'message': 'hello python',
+                                    'description': 'log description'
                                 }
                             ]
                         ),
@@ -612,6 +618,27 @@ expected_report = TestReport(
                                     'passed': True,
                                     'description':
                                         'basic unordered dict match all'
+                                },
+                            ]
+                        ),
+                        TestCaseReport(
+                            name='test_dict_log',
+                            entries=[
+                                {
+                                    'type': 'DictLog',
+                                    'flattened_dict': [],
+                                    'description': 'Log an empty dictionary'
+                                },
+                                {
+                                    'type': 'DictLog',
+                                    'flattened_dict': [
+                                        [0, 'alpha', ''],
+                                        [0, '', ('str', 'foobar')],
+                                        [0, '', ''],
+                                        [1, 'foo', ('str', 'bar')],
+                                        [0, 'beta', ('str', 'hello world')]
+                                    ],
+                                    'description': None
                                 },
                             ]
                         ),

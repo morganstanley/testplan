@@ -1,5 +1,6 @@
 """Test Multitest - Test Suite - Result - Test Report - Exporter integration"""
 import re
+from collections import OrderedDict
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
@@ -27,6 +28,7 @@ class MySuite(object):
     @testcase
     def test_log(self, env, result):
         result.log('hello world')
+        result.log('hello python', description='log description')
 
     @testcase
     def test_comparison(self, env, result):
@@ -473,6 +475,15 @@ class MySuite(object):
             ],
             description='failing dict match all'
         )
+
+    @testcase
+    def test_dict_log(self, env, result):
+        result.dict.log({}, description='Log an empty dictionary')
+
+        result.dict.log(OrderedDict([
+            ('alpha', ['foobar', {'foo': 'bar'}]),
+            ('beta', 'hello world')
+        ]))
 
     @testcase
     def test_fix_check(self, env, result):

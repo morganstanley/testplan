@@ -47,6 +47,12 @@ class GroupSchema(Schema):
     entries = GenericEntryList(allow_none=True)
 
 
+@registry.bind(base.Log)
+class LogSchema(BaseSchema):
+
+    message = fields.Raw()
+
+
 @registry.bind(base.MatPlot)
 class MatPlotSchema(BaseSchema):
 
@@ -62,3 +68,12 @@ class TableLogSchema(BaseSchema):
     indices = fields.List(fields.Integer(), allow_none=True)
     display_index = fields.Boolean()
     columns = fields.List(fields.String(), allow_none=False)
+
+
+@registry.bind(
+    base.DictLog,
+    base.FixLog
+)
+class DictLogSchema(BaseSchema):
+
+    flattened_dict = fields.Raw()

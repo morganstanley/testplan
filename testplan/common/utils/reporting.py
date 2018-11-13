@@ -11,7 +11,7 @@ if six.PY3:
 
 
 NATIVE_TYPES = six.string_types + six.integer_types + (
-    float, bool, buffer, bytes)
+    float, bool, buffer, bytes, bytearray)
 
 
 class AbsentType(object):
@@ -57,7 +57,7 @@ def fmt(obj):
     :param obj: The object to format
 
     :return: The plain old data representation
-            of "obj" that can be serialised to JSON
+             of "obj" that can be serialised to JSON
     :rtype: ``object`` or a ``(object, object)`` pair
     """
 

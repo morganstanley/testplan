@@ -8,6 +8,8 @@ import re
 from testplan.common.utils.convert import nested_groups
 from testplan.common.utils.timing import utcnow
 from testplan.common.utils.table import TableEntry
+from testplan.common.utils.reporting import fmt
+from testplan.common.utils.convert import flatten_formatted_object
 
 from testplan import defaults
 
@@ -45,8 +47,7 @@ def get_table(source, keep_column_order=True):
     if not source:
         return []
 
-    if not isinstance(source, TableEntry):
-        table = TableEntry(source)
+    table = source if isinstance(source, TableEntry) else TableEntry(source)
     return table.as_list_of_dict(keep_column_order=keep_column_order)
 
 
@@ -215,11 +216,10 @@ class Summary(Group):
 
 class Log(BaseEntry):
 
-    def __init__(self, message):
-        super(Log, self).__init__(description=message)
+    def __init__(self, message, description=None):
+        self.message = message
 
-    def __str__(self):
-        return self.description
+        super(Log, self).__init__(description=description)
 
 
 class MatPlot(BaseEntry):
@@ -245,3 +245,23 @@ class TableLog(BaseEntry):
         self.columns = self.table[0].keys()
 
         super(TableLog, self).__init__(description=description)
+
+
+class DictLog(BaseEntry):
+    """Log a dict object to the report."""
+    def __init__(self, dictionary, description=None):
+        formatted_obj = fmt(dictionary)
+        if len(formatted_obj) != 2 or formatted_obj[0] != 2:
+            raise ValueError('Require a formatted object of mapping type')
+        self.flattened_dict = flatten_formatted_object(formatted_obj)
+
+        super(DictLog, self).__init__(description=description)
+
+
+class FixLog(DictLog):
+    """Log a fix message to the report."""
+    def __init__(self, msg, description=None):
+        if not msg or not isinstance(msg, dict):
+            raise ValueError('Invalid format of fix message')
+
+        super(FixLog, self).__init__(msg, description=description)
