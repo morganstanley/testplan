@@ -3,6 +3,9 @@
 import time
 
 from .base import Executor
+from testplan.runners.pools import tasks
+from testplan.common import entity
+
 
 class LocalRunner(Executor):
     """
@@ -15,7 +18,20 @@ class LocalRunner(Executor):
 
     def _execute(self, uid):
         """Execute item implementation."""
-        result = self._input[uid].run()
+        # First retrieve the input from its UID.
+        target = self._input[uid]
+
+        # Inspect the input type. Tasks must be materialized before they can be
+        # run.
+        if isinstance(target, tasks.Task):
+            runnable = target.materialize()
+        elif isinstance(target, entity.Runnable):
+            runnable = target
+        else:
+            raise TypeError('Cannot execute target of type {}'
+                            .format(type(target)))
+
+        result = runnable.run()
         self._results[uid] = result
 
     def _loop(self):
