@@ -150,7 +150,7 @@ class Task(object):
                 target = getattr(mod, self._target)
         finally:
             if path_inserted is True:
-                sys.path.pop(0)
+                sys.path.remove(self._path)
         return target
 
     def dumps(self, check_loadable=False):

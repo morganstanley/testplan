@@ -570,7 +570,7 @@ class Pool(Executor):
             proc = psutil.Process(worker.handler.pid)
             children = list(proc.children(recursive=True))
             worker_last_result = self._workers_last_result.get(worker, 0)
-            if len(children) == 1 and children[-1].status() == 'zombie' and\
+            if all(item.status() == 'zombie' for item in children) and\
                     time.time() - worker_last_result > inactivity_threshold:
                 workers_last_killed[worker] = time.time()
                 try:
