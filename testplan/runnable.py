@@ -364,6 +364,10 @@ class TestRunner(Runnable):
     def _record_end(self):
         self.report.timer.end('run')
 
+    def make_runpath_dirs(self):
+        super(TestRunner, self).make_runpath_dirs()
+        self.logger.info('{} runpath: {}'.format(self, self.runpath))
+
     def pre_resource_steps(self):
         """Steps to be executed before resources started."""
         # self._add_step(self._runpath_initialization)
@@ -383,7 +387,6 @@ class TestRunner(Runnable):
         self._add_step(self._post_exporters)
 
     def _wait_ongoing(self):
-        self.logger.info('{} runpath: {}'.format(self, self.runpath))
         # TODO: if a pool fails to initialize we could reschedule the tasks.
         if self.resources.start_exceptions:
             for resource, exception in self.resources.start_exceptions.items():
