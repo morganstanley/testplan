@@ -5,10 +5,13 @@ import errno
 import shutil
 import getpass
 import contextlib
+import tempfile
 
 from .strings import slugify
 
 from testplan.vendor.tempita import Template
+
+VAR_TMP = os.path.join(os.sep, 'var', 'tmp')
 
 
 def fix_home_prefix(path, user=None):
@@ -40,10 +43,16 @@ def default_runpath(entity):
     Returns default runpath for an
     :py:class:`Entity <testplan.common.entity.base.Entity>` object.
     """
-    runpath = [os.sep, 'var', 'tmp', getpass.getuser(),
-               'testplan', slugify(entity.uid())]
-    return os.path.join(*runpath)
+    # On POSIX systems, use /var/tmp in preference to /tmp for the runpath if it
+    # exists.
+    if os.name == 'posix' and os.path.exists(VAR_TMP):
+        runpath_prefix = VAR_TMP
+    else:
+        runpath_prefix = tempfile.gettempdir()
 
+    runpath = os.path.join(
+        runpath_prefix, getpass.getuser(), 'testplan', slugify(entity.uid()))
+    return runpath
 
 @contextlib.contextmanager
 def change_directory(directory):
