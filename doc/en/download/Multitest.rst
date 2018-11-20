@@ -163,3 +163,29 @@ Required files:
 test_plan.py
 ````````````
 .. literalinclude:: ../../../testplan/examples/Multitest/Tagging and Filtering/Multi-level Filtering/test_plan.py
+
+Parallel
+--------
+
+.. _example_multitest_parallel_basic:
+
+Basic
++++++
+
+Required files:
+  - :download:`test_plan.py <../../../testplan/examples/Multitest/Parallel/test_plan.py>`
+  - :download:`parallel_tasks.py <../../../testplan/examples/Multitest/Parallel/parallel_tasks.py>`
+  - :download:`resource_manager.py <../../../testplan/examples/Multitest/Parallel/resource_manager.py>`
+
+test_plan.py
+````````````
+.. literalinclude:: ../../../testplan/examples/Multitest/Parallel/test_plan.py
+
+parallel_tasks.py
+`````````````````
+.. literalinclude:: ../../../testplan/examples/Multitest/Parallel/parallel_tasks.py
+
+resource_manager.py
+```````````````````
+.. literalinclude:: ../../../testplan/examples/Multitest/Parallel/resource_manager.py
+
