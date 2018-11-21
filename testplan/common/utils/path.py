@@ -203,3 +203,22 @@ def unique_name(name, names):
         base, ext = os.path.splitext(orig_name)
         name = "{base}{suffix}{ext}".format(base=base, suffix=suffix, ext=ext)
     return name
+
+
+def to_posix_path(from_path):
+    """
+    :param: File path, in local OS format.
+    :return: POSIX-formatted path.
+    """
+    return '/'.join(from_path.split(os.sep))
+
+
+def is_subdir(child, parent):
+    """
+    Check whether "parent" is a sub-directory of "child".
+
+    :param child: Child path.
+    :param parent: Parent directory to check against.
+    :return: True if child is a sub-directory of the parent.
+    """
+    return child.startswith(parent)

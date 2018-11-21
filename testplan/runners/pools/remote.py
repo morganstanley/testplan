@@ -8,6 +8,8 @@ import socket
 import getpass
 import platform
 import subprocess
+import six
+import itertools
 
 from schema import Or
 
@@ -19,6 +21,7 @@ from testplan.common.utils.path import (module_abspath,
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.remote import (
     ssh_cmd, copy_cmd, link_cmd, remote_filepath_exists)
+from testplan.common.utils import path as pathutils
 
 from .base import Pool, PoolConfig
 from .process import ProcessWorker, ProcessWorkerConfig
@@ -35,6 +38,7 @@ class WorkerSetupMetadata(object):
     def __init__(self):
         self.push_dirs = None
         self.push_files = None
+        self.push_dir = None
         self.setup_script = None
         self.env = None
         self.workspace_paths = None
@@ -69,9 +73,12 @@ class RemoteWorkerConfig(ProcessWorkerConfig):
 class _LocationPaths(object):
     """Store local and remote equivalent paths."""
 
-    def __init__(self):
-        self.local = None
-        self.remote = None
+    def __init__(self, local=None, remote=None):
+        self.local = local
+        self.remote = remote
+
+    def __iter__(self):
+        return iter((self.local, self.remote))
 
 
 class RemoteWorker(ProcessWorker):
@@ -92,15 +99,36 @@ class RemoteWorker(ProcessWorker):
         self._should_transfer_workspace = True
         self._remote_testplan_runpath = None
         self.setup_metadata = WorkerSetupMetadata()
+        self.remote_push_dir = None
 
-    def _execute_cmd(self, cmd, label=None, check=True):
-        """Execute a subprocess command."""
+    def _execute_cmd(
+            self, cmd, label=None, check=True, stdout=None, stderr=None):
+        """
+        Execute a subprocess command.
+
+        :param cmd: Command to execute - list of parameters.
+        :param label: Optional label for debugging
+        :param check: When True, check that the return code of the command is 0 to
+                ensure success - raises a RuntimeError otherwise. Defaults to
+                True - should be explicitly disabled for commands that may
+                legitimately return non-zero return codes.
+        :param stdout: Optional file-like object to redirect stdout to.
+        :param stderr: Optional file-like object to redirect stderr to.
+        :return: Return code of the command (always 0 unless check=False is
+                 set).
+        """
         self.logger.debug('Executing command{}: {}'.format(
             ' [{}]'.format(label) if label else '', cmd))
         start_time = time.time()
+
+        if stdout is None:
+            stdout = sys.stdout
+        if stderr is None:
+            stderr = sys.stderr
+
         handler = subprocess.Popen(
             [str(a) for a in cmd],
-            stdout=sys.stdout, stderr=sys.stderr, stdin=subprocess.PIPE)
+            stdout=stdout, stderr=stderr, stdin=subprocess.PIPE)
         handler.stdin.write(bytes('y\n'.encode('utf-8')))
         handler.wait()
         if label:
@@ -113,6 +141,35 @@ class RemoteWorker(ProcessWorker):
                 .format(cmd=cmd, rc=handler.returncode))
 
         return handler.returncode
+
+    def _execute_cmd_remote(self, cmd, label=None, check=True):
+        """
+        Execute a command on the remote host.
+
+        :param cmd: Remote command to execute - list of parameters.
+        :param label: Optional label for debugging.
+        :param check: Whether to check command return-code - defaults to True.
+                      See self._execute_cmd for more detail.
+        """
+        self._execute_cmd(
+            self.cfg.ssh_cmd(self.cfg.index, ' '.join([str(a) for a in cmd])),
+            label=label,
+            check=check)
+
+    def _mkdir_remote(self, remote_dir, label=None):
+        """
+        Create a directory path on the remote host.
+
+        :param remote_dir: Path to create.
+        :param label: Optional debug label.
+        """
+        if not label:
+            label = 'remote mkdir'
+
+        cmd = self.cfg.remote_mkdir + [remote_dir]
+        self._execute_cmd(self.cfg.ssh_cmd(
+            self.cfg.index, ' '.join([str(a) for a in cmd])),
+            label=label)
 
     def _define_remote_dirs(self):
         """Define mandatory directories in remote host."""
@@ -153,63 +210,139 @@ class RemoteWorker(ProcessWorker):
 
     def _push_files(self):
         """Push files and directories to remote host."""
+        # Short-circuit if we've been given no files to push.
         if not self.cfg.push:
+            if self.cfg.push_exclude or self.cfg.push_relative_dir:
+                self.logger.warning('Not been given any files to push - '
+                                    'ignoring push configuration options.')
             return
+
+        # First enumerate the files and directories to be pushed, including
+        # both their local source and remote destinations.
+        push_files, push_dirs = self._build_push_lists()
+
+        # Add the remote paths to the setup metadata.
+        self.setup_metadata.push_files = [path.remote for path in push_files]
+        self.setup_metadata.push_dirs = [path.remote for path in push_dirs]
+
+        # Now actually push the files to the remote host.
+        self._push_files_to_dst(push_files, push_dirs)
+
+    def _build_push_lists(self):
+        """
+        Create lists of the source and destination paths of files and
+        directories to be pushed. Eliminate duplication of sub-directories.
+
+        :return: Tuple containing lists of files and directories to be pushed.
+        """
+        # Inspect types. Push config may either be a list of string paths, e.g:
+        # ['/path/to/file1', '/path/to/file1']
+        #
+        # Or it may be a list of tuples where the destination for each source
+        # is specified also:
+        # [('/local/path/to/file1', '/remote/path/to/file1'),
+        #  ('/local/path/to/file2', '/remote/path/to/file2')]
+        if all(isinstance(cfg, six.string_types) for cfg in self.cfg.push):
+            push_sources = self.cfg.push
+            push_dsts = self._build_push_dests(push_sources)
+            push_locations = zip(push_sources, push_dsts)
+        else:
+            if not all(len(pair) == 2 for pair in self.cfg.push):
+                raise TypeError(
+                    'Expected either a list of 2-tuples or list of strings for '
+                    'push config.')
+            if self.cfg.push_relative_dir:
+                self.logger.warning(
+                    'Ignoring push_relative_dir configuration '
+                    'as explicit destination paths have been provided.')
+            push_locations = self.cfg.push
+
+        # Now seperate the push sources into lists of files and directories.
         push_files = []
         push_dirs = []
-        for item in self.cfg.push:
-            item = item.rstrip(os.sep)
-            if os.path.isfile(item):
-                if item not in push_files:
-                    push_files.append(item)
-            elif os.path.isdir(item):
-                if item not in push_dirs:
-                    push_dirs.append(item)
+
+        for source, dest in push_locations:
+            source = source.rstrip(os.sep)
+            if os.path.isfile(source):
+                push_files.append(_LocationPaths(source, dest))
+            elif os.path.isdir(source):
+                push_dirs.append(_LocationPaths(source, dest))
             else:
-                self.logger.error('Item "{}" cannot be pushed!'.format(item))
+                self.logger.error('Item "{}" cannot be pushed!'.format(source))
 
         # Eliminate push duplications
         if push_dirs and len(push_dirs) > 1:
-            push_dirs.sort()
+            push_dirs.sort(key=lambda x: x.local)
             for idx in range(len(push_dirs) - 1):
-                if push_dirs[idx + 1].startswith(push_dirs[idx]):
+                if push_dirs[idx + 1].local.startswith(push_dirs[idx].local):
                     push_dirs[idx] = None
             push_dirs = [_dir for _dir in push_dirs if _dir is not None]
 
-        self.setup_metadata.push_dirs = ['/'.join(
-            item.split(os.sep)) for item in push_dirs]
-        self.setup_metadata.push_files = ['/'.join(
-            item.split(os.sep)) for item in push_files]
+        return push_files, push_dirs
 
-        # Make parent dirs and copy data.
-        # Since we are only transfering to linux platforms, we split with
-        # possible windows path separator and join with linux.
-        for _dir in push_dirs:
-            dirname = '/'.join(os.path.dirname(_dir).split(os.sep))
-            cmd = self.cfg.remote_mkdir + [dirname]
-            self._execute_cmd(self.cfg.ssh_cmd(
-                self.cfg.index, ' '.join([str(a) for a in cmd])),
-                label='create push file dir')
+    def _build_push_dests(self, push_sources):
+        """
+        When the destination paths have not been explicitly specified, build
+        them automatically. By default we try to push to the same absolute path
+        on the remote host, converted to POSIX format. However if a relative
+        directory root has been configured we will build a remote destination
+        based on that.
+        """
+        if self.cfg.push_relative_dir:
+            self.logger.debug('local push dir = %s', self.cfg.push_relative_dir)
+
+            # Set up the remote push dir.
+            self._remote_push_dir = '/'.join(
+                (self._remote_testplan_path, 'push_files'))
+            self._mkdir_remote(self._remote_push_dir)
+            self.setup_metadata.push_dir = self._remote_push_dir
+            self.logger.debug('Created remote push dir %s',
+                                       self._remote_push_dir)
+
+            push_dsts = [self._to_relative_push_dest(path)
+                         for path in push_sources]
+        else:
+            push_dsts = [pathutils.to_posix_path(path)
+                         for path in push_sources]
+
+        return push_dsts
+
+    def _to_relative_push_dest(self, local_path):
+        """
+        :param local_path: Full local path in local OS format.
+        :return: Remote file and directory paths in POSIX format.
+        """
+        relative_root = self.cfg.push_relative_dir
+        if not pathutils.is_subdir(local_path, relative_root):
+            raise RuntimeError('Cannot push path {path} - is not within the '
+                               'specified local root {root}'
+                               .format(path=local_path, root=relative_root))
+
+        local_rel_path = os.path.relpath(local_path, relative_root)
+        return '/'.join((self._remote_push_dir,
+                                pathutils.to_posix_path(local_rel_path)))
+
+    def _push_files_to_dst(self, push_files, push_dirs):
+        """
+        Push files and directories to the remote host. Both the source and
+        destination paths should be specified.
+
+        :param push_files: Files to push.
+        :param push_dirs:  Directories to push.
+        """
+        for source, dest in itertools.chain(push_files, push_dirs):
+            remote_dir = dest.rpartition('/')[0]
+            self.logger.debug('Create remote dir: %s', remote_dir)
+            self._mkdir_remote(remote_dir)
+
             self._transfer_data(
-                source=_dir,
-                target=os.path.dirname(_dir),
-                remote_target=True,
-                exclude=self.cfg.push_exclude)
-        for _file in push_files:
-            dirname = '/'.join(os.path.dirname(_file).split(os.sep))
-            cmd = self.cfg.remote_mkdir + [dirname]
-            self._execute_cmd(self.cfg.ssh_cmd(
-                self.cfg.index, ' '.join([str(a) for a in cmd])),
-                label='create empty file dir')
-            self._transfer_data(
-                source=_file,
-                target='/'.join(os.path.dirname(_file).split(os.sep)),
+                source=source,
+                target=dest,
                 remote_target=True,
                 exclude=self.cfg.push_exclude)
 
     def _copy_workspace(self):
         """Copy the local workspace to remote host."""
-
         self._workspace_paths.remote = '{}/{}'.format(
             self._remote_testplan_path,
             self._workspace_paths.local.split(os.sep)[-1])
@@ -260,24 +393,17 @@ class RemoteWorker(ProcessWorker):
             target = self._remote_copy_path(target)
         self.logger.debug('Copying %(source)s to %(target)s', locals())
         cmd = self.cfg.copy_cmd(source, target, **copy_args)
-        self._execute_cmd(cmd, 'transfer data [..{}]'.format(
-            os.path.basename(target)))
-
-    @staticmethod
-    def _to_unix_path(path):
-        """Convert a path from native OS to Unix format."""
-        return '/'.join(path.split(os.sep))
-
-    @staticmethod
-    def _is_subdir(dir, parent_dir):
-        """Check if dir as a sub-directory of the parent_dir."""
-        return dir.startswith(parent_dir)
+        with open(os.devnull, 'w') as devnull:
+            self._execute_cmd(cmd,
+                              'transfer data [..{}]'.format(
+                                  os.path.basename(target)),
+                              stdout=devnull)
 
     @property
     def _remote_working_dir(self):
         """Choose a working directory to use on the remote host."""
-        if not self._is_subdir(self._working_dirs.local,
-                               self._workspace_paths.local):
+        if not pathutils.is_subdir(self._working_dirs.local,
+                                   self._workspace_paths.local):
             raise RuntimeError(
                 'Current working dir is not within the workspace.\n'
                 'Workspace = {ws}\n'
@@ -287,7 +413,7 @@ class RemoteWorker(ProcessWorker):
 
         # Current working directory is within the workspace - use the same
         # path relative to the remote workspace.
-        return self._to_unix_path(os.path.join(
+        return pathutils.to_posix_path(os.path.join(
             self._workspace_paths.remote,
             os.path.relpath(self._working_dirs.local,
                             self._workspace_paths.local)))
@@ -511,6 +637,7 @@ class RemotePoolConfig(PoolConfig):
             ConfigOption('setup_script', default=None): Or(list, None),
             ConfigOption('push', default=[]): Or(list, None),
             ConfigOption('push_exclude', default=[]): Or(list, None),
+            ConfigOption('push_relative_dir', default=None): Or(str, None),
             ConfigOption('delete_pushed', default=False): bool,
             ConfigOption('pull', default=[]): Or(list, None),
             ConfigOption('pull_exclude', default=[]): Or(list, None),
@@ -550,4 +677,3 @@ class RemotePool(Pool):
             self._workers.add(worker, uid=host)
             # print('Added worker with id {}'.format(idx))
             self._conn.register(worker)
-
