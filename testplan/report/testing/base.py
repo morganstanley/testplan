@@ -408,7 +408,7 @@ class TestGroupReport(BaseReportGroup):
 
     def merge(self, report, strict=True):
         """Propagate tag indices after merge operations."""
-        super(BaseReportGroup, self).merge(report, strict=strict)
+        super(TestGroupReport, self).merge(report, strict=strict)
         self.propagate_tag_indices()
 
 

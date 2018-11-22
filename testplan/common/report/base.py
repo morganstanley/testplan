@@ -142,7 +142,7 @@ class Report(object):
         """
         self._check_report(report)
         # Merge logs
-        log_ids = (rec['uid'] for rec in self.logs)
+        log_ids = [rec['uid'] for rec in self.logs]
         self.logs += [rec for rec in report.logs if rec['uid'] not in log_ids]
 
     def append(self, item):

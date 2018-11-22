@@ -252,7 +252,7 @@ class DictLog(BaseEntry):
     def __init__(self, dictionary, description=None):
         formatted_obj = fmt(dictionary)
         if len(formatted_obj) != 2 or formatted_obj[0] != 2:
-            raise ValueError('Require a formatted object of mapping type')
+            raise TypeError('Require a formatted object of mapping type')
         self.flattened_dict = flatten_formatted_object(formatted_obj)
 
         super(DictLog, self).__init__(description=description)
@@ -262,6 +262,6 @@ class FixLog(DictLog):
     """Log a fix message to the report."""
     def __init__(self, msg, description=None):
         if not msg or not isinstance(msg, dict):
-            raise ValueError('Invalid format of fix message')
+            raise TypeError('Invalid format of fix message')
 
         super(FixLog, self).__init__(msg, description=description)
