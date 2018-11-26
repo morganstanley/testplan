@@ -307,6 +307,8 @@ class RemoteChildLoop(ChildLoop):
             self._setup_metadata.workspace_paths.local
         os.environ['TESTPLAN_REMOTE_WORKSPACE'] = \
             self._setup_metadata.workspace_paths.remote
+        if self._setup_metadata.push_dir:
+            os.environ['TESTPLAN_PUSH_DIR'] = self._setup_metadata.push_dir
 
         if self._setup_metadata.setup_script:
             if subprocess.call(self._setup_metadata.setup_script,
