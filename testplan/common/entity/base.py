@@ -855,6 +855,14 @@ class Resource(Entity):
         self.stop()
         self.wait(self.STATUS.STOPPED)
 
+    @property
+    def is_alive(self):
+        """
+        Called to periodically poll the resource health. Default implementation
+        assumes the resource is always healthy.
+        """
+        return True
+
 
 class RunnableManagerStatus(EntityConfig):
     """
@@ -977,4 +985,3 @@ class RunnableManager(Entity):
     def aborting(self):
         """Suppressing not implemented debug log by parent class."""
         pass
-

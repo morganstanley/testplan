@@ -88,3 +88,8 @@ class Executor(Resource):
         """Abort items running before aborting self."""
         for uid in self.ongoing:
             yield self._input[uid]
+
+    @property
+    def is_alive(self):
+        """Poll the loop handler thread to check it is running as expected."""
+        return self._loop_handler.is_alive()
