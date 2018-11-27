@@ -241,6 +241,11 @@ class Worker(Resource):
         """Aborting logic, will not wait running tasks."""
         self._transport.active = False
 
+    @property
+    def is_alive(self):
+        """Poll the loop handler thread to check it is running as expected."""
+        return self._loop_handler.is_alive()
+
     def _loop(self, transport):
         message = Message(**self.metadata)
 

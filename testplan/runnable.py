@@ -401,6 +401,13 @@ class TestRunner(Runnable):
                 if resource.ongoing:
                     # Maybe print periodically ongoing resource
                     ongoing = True
+
+                # Poll the resource's health - if it has unexpectedly died
+                # then abort the entire test to avoid hanging.
+                if not resource.is_alive:
+                    self.abort()
+                    self.result.test_report.status_override = Status.ERROR
+
             if ongoing is False:
                 break
             time.sleep(self.cfg.active_loop_sleep)
