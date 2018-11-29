@@ -514,9 +514,7 @@ class TableNamespace(AssertionNamespace):
         :param fail_limit: Max number of failures before aborting
                            the comparison run. Useful for large
                            tables, when we want to stop after we have N rows
-                           that fail the comparison. The result will contain
-                           only failing comparisons if this argument
-                           is a positive integer.
+                           that fail the comparison.
         :type fail_limit: ``int``
         :param description: Text description for the assertion.
         :type description: ``str``
@@ -529,6 +527,86 @@ class TableNamespace(AssertionNamespace):
             table=actual, expected_table=expected,
             include_columns=include_columns, exclude_columns=exclude_columns,
             report_all=report_all, fail_limit=fail_limit,
+            description=description, category=category,
+        )
+
+    @bind_entry
+    def diff(
+        self, actual, expected,
+        description=None, category=None,
+        include_columns=None, exclude_columns=None,
+        report_all=True, fail_limit=0,
+    ):
+        """
+        Find differences of two tables, uses equality for each table cell
+        for plain values and supports regex / custom comparators as well.
+        The result will contain only failing comparisons.
+
+        If the columns of the two tables are not the same,
+        either ``include_columns`` or ``exclude_columns`` arguments
+        must be used to have column uniformity.
+
+        .. code-block:: python
+
+            result.table.diff(
+                actual=[
+                    ['name', 'age'],
+                    ['Bob', 32],
+                    ['Susan', 24],
+                ],
+                expected=[
+                    ['name', 'age'],
+                    ['Bob', 33],
+                    ['David', 24],
+                ]
+            )
+
+            result.table.diff(
+                actual=[
+                    ['name', 'age'],
+                    ['Bob', 32],
+                    ['Susan', 24],
+                ],
+                expected=[
+                    ['name', 'age'],
+                    [re.compile(r'^B\w+'), 33],
+                    ['David', lambda age: 20 < age < 50],
+                ]
+            )
+
+        :param actual: Tabular data
+        :type actual: ``list`` of ``list`` or ``list`` of ``dict``.
+        :param expected: Tabular data, which can contain custom comparators.
+        :type expected: ``list`` of ``list`` or ``list`` of ``dict``.
+        :param include_columns: List of columns to include
+                                in the comparison. Cannot be used
+                                with ``exclude_columns``.
+        :type include_columns: ``list`` of ``str``
+        :param exclude_columns: List of columns to exclude
+                                from the comparison. Cannot be used
+                                with ``include_columns``.
+        :type exclude_columns: ``list`` of ``str``
+        :param report_all: Boolean flag for configuring output.
+                           If True then all columns of the original
+                           table will be displayed.
+        :type report_all: ``bool``
+        :param fail_limit: Max number of failures before aborting
+                           the comparison run. Useful for large
+                           tables, when we want to stop after we have N rows
+                           that fail the comparison.
+        :type fail_limit: ``int``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :param category: Custom category that will be used for summarization.
+        :type category: ``str``
+        :return: Assertion pass status
+        :rtype: ``bool``
+        """
+        return assertions.TableDiff(
+            table=actual, expected_table=expected,
+            include_columns=include_columns, exclude_columns=exclude_columns,
+            report_all=report_all, fail_limit=fail_limit,
+            report_fail_only=True,
             description=description, category=category,
         )
 

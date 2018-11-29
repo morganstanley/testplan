@@ -50,6 +50,7 @@ __all__ = [
     'Diff',
     'ColumnContain',
     'TableMatch',
+    'TableDiff',
     'XMLCheck',
     'DictCheck',
     'DictMatch',
@@ -742,7 +743,7 @@ def get_comparison_columns(table_1, table_2, include_columns, exclude_columns):
 
 def compare_rows(
     table, expected_table, comparison_columns,
-    display_columns, strict=True, fail_limit=0
+    display_columns, strict=True, fail_limit=0, report_fails_only=False
 ):
     """
       Apply row by row comparison of two tables,
@@ -763,11 +764,13 @@ def compare_rows(
                       ``str`` for pattern if ``False``.
       :type strict: ``bool``
       :param fail_limit: Max number of failures before aborting
-                        the comparison run. Useful for large
-                        tables, when we want to stop after we have N rows
-                        that fail the comparison. The result will contain
-                         only failing comparisons if this argument is nonzero.
+                         the comparison run. Useful for large
+                         tables, when we want to stop after we have N rows
+                         that fail the comparison.
       :type fail_limit: ``int``
+      :param report_fails_only: If ``True``, only repoty the failures (used
+                                for diff typically)
+      :type report_fails_only: ``bool``
       :returns: overall passed status and RowComparison data.
     """
 
@@ -818,20 +821,14 @@ def compare_rows(
 
         row_comparison = RowComparison(idx, row_data, diff, errors, extra)
 
+        if not (report_fails_only and row_comparison.passed):
+            data.append(row_comparison)
+
         if not row_comparison.passed:
             num_failures += 1
 
-        # Include only failing comparisons if there is a limit
-        if fail_limit > 0:
-
-            if not row_comparison.passed:
-                data.append(row_comparison)
-
-            if num_failures >= fail_limit:
-                break
-
-        else:
-            data.append(row_comparison)
+        if fail_limit > 0 and num_failures >= fail_limit:
+            break
 
     return num_failures == 0, data
 
@@ -845,8 +842,8 @@ class TableMatch(Assertion):
     def __init__(
         self, table, expected_table,
         include_columns=None, exclude_columns=None,
-        report_all=True, fail_limit=0, strict=False,
-        description=None, category=None
+        report_all=True, fail_limit=0, report_fail_only=False,
+        strict=False, description=None, category=None
     ):
         self.table = get_table(table)
         self.expected_table = get_table(expected_table)
@@ -856,9 +853,10 @@ class TableMatch(Assertion):
         self.report_all = report_all
 
         self.fail_limit = fail_limit
+        self.report_fails_only = report_fail_only
 
         # these will populated by self.evaluate
-        self.display_columns = None
+        self.display_columns = []
         self.message = None
         self.data = []
 
@@ -900,8 +898,18 @@ class TableMatch(Assertion):
             display_columns=self.display_columns,
             strict=self.strict,
             fail_limit=self.fail_limit,
+            report_fails_only=self.report_fails_only,
         )
         return passed
+
+
+class TableDiff(TableMatch):
+    """
+      Match two tables using ``compare_rows`` but only keep
+      failing comparisons, may generate custom message if tables
+      cannot be compared for certain reasons.
+    """
+    pass
 
 
 _XMLTagComparison = collections.namedtuple(
@@ -1054,7 +1062,10 @@ class DictCheck(Assertion):
 
 
 class FixCheck(DictCheck):
-
+    """
+        Similar to DictCheck, however dict keys
+        will have fix tag info popups on web UI
+    """
     def __init__(
         self, msg, has_tags=None, absent_tags=None,
         description=None, category=None,
@@ -1069,7 +1080,10 @@ class FixCheck(DictCheck):
 
 
 class DictMatch(Assertion):
-
+    """
+      Match two dictionaries by comparing values under
+      each key recursively.
+    """
     def __init__(
         self, value, expected,
         include_keys=None, exclude_keys=None, report_all=True,

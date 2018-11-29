@@ -1018,6 +1018,66 @@ values and supports regex / custom comparators as well.
 
           ...
 
+:py:meth:`result.table.diff <testplan.testing.multitest.result.TableNamespace.diff>`
+--------------------------------------------------------------------------------------
+
+Find differences of two tables, uses equality for each table cell for plain
+values and supports regex / custom comparators as well.
+
+    .. code-block:: python
+
+      from testplan.common.utils import comparison
+
+      @testcase
+      def sample_testcase(self, env, result):
+
+          # Table in list of lists format
+          actual_table = [
+              ['name', 'age'],
+              ['Bob', 32],
+              ['Susan', 24],
+              ['Rick', 67]
+          ]
+
+        # Compare table with itself, plain comparison for each cell
+        result.table.diff(actual_table, actual_table)
+
+        # Another table with regexes & custom comparators
+        expected_table = [
+            ['name', 'age'],
+            [
+                re.compile(r'\w{3}'),
+                comparison.Greater(35) & comparison.Less(40)
+            ],
+            ['Susan', 24],
+            [comparison.In(['David', 'Helen']), 67]
+        ]
+
+        result.table.diff(
+            actual_table, expected_table,
+            description='Table diff with custom comparators'
+        )
+
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Table Diff - Pass
+          Table diff with custom comparators - Fail
+            File: .../test_plan.py
+            Line: 95
+            +-----+-----------------------------------+-------------------------------+
+            | row | name                              | age                           |
+            +-----+-----------------------------------+-------------------------------+
+            | 0   | Bob == REGEX('\w{3}')             | 32 != (VAL > 35 and VAL < 40) |
+            | 2   | Rick != VAL in ['David', 'Helen'] | 67 == 67                      |
+            +-----+-----------------------------------+-------------------------------+
+
+          ...
+
 :py:meth:`result.table.log <testplan.testing.multitest.result.TableNamespace.log>`
 ----------------------------------------------------------------------------------
 
