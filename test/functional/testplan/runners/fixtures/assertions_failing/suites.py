@@ -257,7 +257,95 @@ class MySuite(object):
             expected=[
                 ['name', 'value'],
                 ['aaa', 10],  # mismatch -> included
-                ['bbb', 2],   # match & fail_limit != None -> excluded
+                ['bbb', 2],   # match & fail_limit < 2 -> included
+                ['ccc', 30],  # mismatch -> included
+                ['ddd', 40],  # mismatch & fail_limit = 2 -> excluded
+            ],
+            include_columns=['name', 'value'],
+            fail_limit=2,
+        )
+
+    @testcase
+    def test_table_diff(self, env, result):
+        table = [
+            ['name', 'value'],
+            ['aaa', 1],
+            ['bbb', 2],
+            ['ccc', 3],
+            ['ddd', 4],
+        ]
+
+        result.table.diff(
+            actual=table,
+            expected=table,
+            description='basic table diff')
+
+        result.table.diff(
+            actual=table,
+            expected=table[:-1] + [[always_true, 4]])
+
+        result.table.diff(
+            actual=table,
+            expected=table[:-1] + [[re.compile(r'd+'), 4]])
+
+        result.table.diff(
+            actual=table,
+            expected=table[:-1] + [['xxx', 4]])
+
+        result.table.diff(
+            actual=table,
+            expected=table[:-1] + [[always_false, 4]])
+
+        result.table.diff(
+            actual=table,
+            expected=table[:-1] + [[re.compile(r'zzz'), 4]])
+
+        result.table.diff(
+            actual=table,
+            expected=table[:-1] + [[error_func, 4]])
+
+        table_2 = [
+            ['name', 'value', 'is_finished'],
+            ['aaa', 10, True],
+            ['bbb', 20, False],
+            ['ccc', 30, True],
+            ['ddd', 40, False],
+        ]
+
+        result.table.diff(
+            actual=table_2,
+            expected=table,
+            include_columns=['name'],
+            report_all=False
+        )
+
+        result.table.diff(
+            actual=table_2,
+            expected=table,
+            include_columns=['name'],
+            report_all=True,
+        )
+
+        result.table.diff(
+            actual=table_2,
+            expected=table,
+            exclude_columns=['value', 'is_finished'],
+            report_all=False,
+        )
+
+        result.table.diff(
+            actual=table_2,
+            expected=table,
+            exclude_columns=['value', 'is_finished'],
+            report_all=True,
+        )
+
+        result.table.diff(
+            actual=table,
+            expected=[
+                ['name', 'value'],
+                ['aaa', 10],  # mismatch -> included
+                ['bbb', 2],   # match & fail_limit < 2 -> included
                 ['ccc', 30],  # mismatch -> included
                 ['ddd', 40],  # mismatch & fail_limit = 2 -> excluded
             ],

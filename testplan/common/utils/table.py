@@ -16,7 +16,7 @@ class TableEntry(object):
 
     def _check_table(self, table):
         """Make the original table argument is a valid."""
-        error_msg = '`table` must a list of' \
+        error_msg = '`table` must be a list of' \
                     ' lists or list of dicts: {}'.format(table)
 
         if not isinstance(table, (list, tuple)):

@@ -156,7 +156,10 @@ class ColumnContainSchema(AssertionSchema):
     data = fields.List(custom_fields.ColumnContainComparisonField())
 
 
-@registry.bind(asr.TableMatch)
+@registry.bind(
+    asr.TableMatch,
+    asr.TableDiff
+)
 class TableMatchSchema(AssertionSchema):
 
     strict = fields.Boolean()
@@ -170,6 +173,7 @@ class TableMatchSchema(AssertionSchema):
     exclude_columns = fields.List(fields.String(), allow_none=True)
     message = fields.String(allow_none=True)
     fail_limit = fields.Integer()
+    report_fails_only = fields.Bool()
 
 
 @registry.bind(asr.XMLCheck)

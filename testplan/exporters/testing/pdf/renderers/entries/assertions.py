@@ -680,7 +680,10 @@ class XMLCheckRenderer(AssertionRenderer):
             return msg_row
 
 
-@registry.bind(assertions.TableMatch)
+@registry.bind(
+    assertions.TableMatch,
+    assertions.TableDiff
+)
 class TableMatchRenderer(AssertionRenderer):
     """
     Renders serialized tabular data in ReportLab table format.
@@ -772,19 +775,20 @@ class TableMatchRenderer(AssertionRenderer):
             colour_matrix.append(colour_row)
 
         max_width = const.PAGE_WIDTH - (depth * const.INDENT)
-        display_index = source['fail_limit'] > 0
         table = create_table(
             table=raw_table,
             columns=source['columns'],
             row_indices=row_indices,
-            display_index=display_index,
+            display_index=source['report_fails_only'],
             max_width=max_width,
             style=table_style,
             colour_matrix=colour_matrix
-        )
+        ) if raw_table else None
 
         if source['message']:
-            error_style = row_style + [RowStyle(textcolor=colors.red)]
+            error_style = row_style + [RowStyle(
+                font=(const.FONT, const.FONT_SIZE_SMALL),
+                textcolor=colors.black if source['passed'] else colors.red)]
             error = RowData(
                 content=source['message'],
                 start=row_idx,
@@ -795,9 +799,10 @@ class TableMatchRenderer(AssertionRenderer):
                 content=table,
                 start=error.end,
                 style=row_style
-            )
+            ) if table else error
         else:
-            return RowData(content=table, start=row_idx, style=row_style)
+            return RowData(content=table, start=row_idx, style=row_style) \
+                if table else None
 
 
 @registry.bind(assertions.ColumnContain)

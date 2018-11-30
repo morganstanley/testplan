@@ -129,8 +129,8 @@ class LogRenderer(SerializedEntryRenderer):
                 isinstance(source['message'], six.string_types):
             return header
 
-        log_msg = str(source['message']) if \
-            isinstance(source['message'], six.string_types) else \
+        log_msg = str(source['message']) \
+            if isinstance(source['message'], six.string_types) else \
             pprint.pformat(source['message'], depth=6)
         log_para = Paragraph(
             text='<br />\n'.join(log_msg.split('\n')),

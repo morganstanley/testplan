@@ -294,6 +294,21 @@ class SampleSuite(object):
             description='Table Match: list of dict vs list of list'
         )
 
+        result.table.diff(
+            list_of_lists, list_of_lists,
+            description='Table Diff: list of list vs list of list'
+        )
+
+        result.table.diff(
+            list_of_dicts, list_of_dicts,
+            description='Table Diff: list of dict vs list of dict'
+        )
+
+        result.table.diff(
+            list_of_dicts, list_of_lists,
+            description='Table Diff: list of dict vs list of list'
+        )
+
         # For table match, Testplan allows use of custom comparators
         # (callables & regex) instead of plain value matching
 
@@ -323,8 +338,14 @@ class SampleSuite(object):
             description='Table Match: simple comparators'
         )
 
+        result.table.diff(
+            actual_table, expected_table,
+            description='Table Diff: simple comparators'
+        )
+
         # Equivalent assertion as above, using Testplan's custom comparators
         # These utilities produce more readable output
+
         expected_table_2 = [
             ['name', 'age'],
             [
@@ -338,6 +359,11 @@ class SampleSuite(object):
         result.table.match(
             actual_table, expected_table_2,
             description='Table Match: readable comparators'
+        )
+
+        result.table.diff(
+            actual_table, expected_table_2,
+            description='Table Diff: readable comparators'
         )
 
         # While comparing tables with large number of columns
@@ -357,10 +383,23 @@ class SampleSuite(object):
             description='Table Match: Trimmed columns'
         )
 
-        # While comparing tables with large number of rows
-        # we can 'trim' some rows and display a limited number of failures only
+        result.table.diff(
+            table_with_many_columns,
+            table_with_many_columns,
+            include_columns=['column_1', 'column_2'],
+            report_all=False,
+            description='Table Diff: Trimmed columns'
+        )
 
-        matching_rows = [
+        # While comparing tables with large number of rows
+        # we can stop comparing if the number of failed rows exceeds the limit
+
+        matching_rows_1 = [
+            {'amount': idx * 10, 'product_id': random.randint(1000, 5000)}
+            for idx in range(5)
+        ]
+
+        matching_rows_2 = [
             {'amount': idx * 10, 'product_id': random.randint(1000, 5000)}
             for idx in range(500)
         ]
@@ -377,16 +416,25 @@ class SampleSuite(object):
             {'amount': 20, 'product_id': 5432},
         ]
 
-        table_a = matching_rows + row_diff_a + matching_rows
-        table_b = matching_rows + row_diff_b + matching_rows
+        table_a = matching_rows_1 + row_diff_a + matching_rows_2
+        table_b = matching_rows_1 + row_diff_b + matching_rows_2
 
-        # Only display mismatching rows, with a maximum limit of 2 rows
+        # We can 'trim' some rows and display at most 2 rows of failures
         result.table.match(
             table_a,
             table_b,
             fail_limit=2,
             report_all=False,
             description='Table Match: Trimmed rows'
+        )
+
+        # Only display mismatching rows, with a maximum limit of 2 rows
+        result.table.diff(
+            table_a,
+            table_b,
+            fail_limit=2,
+            report_all=False,
+            description='Table Diff: Trimmed rows'
         )
 
         # result.table.column_contain can be used for checking if all of the

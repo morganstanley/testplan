@@ -763,6 +763,134 @@ expected_report = TestReport(
                                             {'value': 10}, {}, {}
                                         ),
                                         (
+                                            1,
+                                            ['bbb', 2],
+                                            {}, {}, {}
+                                        ),
+                                        (
+                                            2,
+                                            ['ccc', 3],
+                                            {'value': 30}, {}, {}
+                                        ),
+                                    ]
+                                },
+                            ],
+                        ),
+                        TestCaseReport(
+                            name='test_table_diff',
+                            entries=[
+                                {
+                                    'type': 'TableDiff',
+                                    'description': 'basic table diff',
+                                    'columns': ['name', 'value'],
+                                    'include_columns': None,
+                                    'exclude_columns': None,
+                                    'message': None,
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'columns': ['name', 'value'],
+                                    'passed': False,
+                                    'data': [
+                                        (
+                                            3,
+                                            ['ddd', 4],
+                                            # diff populated
+                                            {'name': 'xxx'}, {}, {}
+                                        ),
+                                    ]
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'passed': False,
+                                    'data': [
+                                        (
+                                            3,
+                                            ['ddd', 4],
+                                            {'name': always_false.__name__},
+                                            {}, {}
+                                        ),
+                                    ]
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'passed': False,
+                                    'data': [
+                                        (
+                                            3,
+                                            ['ddd', 4],
+                                            {'name': 'REGEX(zzz)'},
+                                            {}, {}
+                                        ),
+                                    ]
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'passed': False,
+                                    'data': check_row_comparison_data([
+                                        (
+                                            3,
+                                            ['ddd', 4],
+                                            {},
+                                            # Check traceback msg
+                                            {'name': lambda v: ERROR_MSG in v},
+                                            {}
+                                        ),
+                                    ])
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'columns': ['name'],
+                                    'include_columns': ['name'],
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'columns': ['name', 'value', 'is_finished'],
+                                    'include_columns': ['name'],
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'columns': ['name'],
+                                    'exclude_columns': ['value', 'is_finished'],
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'columns': ['name', 'value', 'is_finished'],
+                                    'exclude_columns': ['value', 'is_finished'],
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'columns': ['name', 'value'],
+                                    'include_columns': ['name', 'value'],
+                                    'fail_limit': 2,
+                                    'passed': False,
+                                    'data': [
+                                        (
+                                            0,
+                                            ['aaa', 1],
+                                            {'value': 10}, {}, {}
+                                        ),
+                                        (
                                             2,
                                             ['ccc', 3],
                                             {'value': 30}, {}, {}

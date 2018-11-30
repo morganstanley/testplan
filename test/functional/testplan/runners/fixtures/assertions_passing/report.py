@@ -495,6 +495,59 @@ expected_report = TestReport(
                             ],
                         ),
                         TestCaseReport(
+                            name='test_table_diff',
+                            entries=[
+                                {
+                                    'type': 'TableDiff',
+                                    'description': 'basic table diff',
+                                    'columns': ['name', 'value'],
+                                    'include_columns': None,
+                                    'exclude_columns': None,
+                                    'message': None,
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'columns': ['name'],
+                                    'include_columns': ['name'],
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'columns': ['name', 'value', 'is_finished'],
+                                    'include_columns': ['name'],
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'columns': ['name'],
+                                    'exclude_columns': ['value', 'is_finished'],
+                                    'passed': True,
+                                    'data': []
+                                },
+                                {
+                                    'type': 'TableDiff',
+                                    'columns': ['name', 'value', 'is_finished'],
+                                    'exclude_columns': ['value', 'is_finished'],
+                                    'passed': True,
+                                    'data': []
+                                },
+                            ],
+                        ),
+                        TestCaseReport(
                             name='test_table_log',
                             entries=[
                                 {

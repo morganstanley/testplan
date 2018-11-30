@@ -1185,8 +1185,8 @@ GET_COMPARISON_COLUMNS_ERROR_PARAMS = [
 
 
 COMPARE_ROWS_PARAM_NAMES = (
-    'table,expected_table,comparison_columns,'
-    'display_columns,strict,fail_limit,expected_result'
+    'table,expected_table,comparison_columns,display_columns,'
+    'strict,fail_limit,report_fails_only,expected_result'
 )
 
 COMPARE_ROWS_PARAMS = [
@@ -1204,6 +1204,7 @@ COMPARE_ROWS_PARAMS = [
         ['foo', 'bar'],
         True,
         0,
+        False,
         (
             True,
             [
@@ -1226,6 +1227,7 @@ COMPARE_ROWS_PARAMS = [
         ['foo', 'bar'],
         True,
         0,
+        False,
         (
             False,
             [
@@ -1249,6 +1251,7 @@ COMPARE_ROWS_PARAMS = [
         ['foo', 'bar'],
         True,
         0,
+        False,
         (
             True,
             [
@@ -1280,6 +1283,7 @@ COMPARE_ROWS_PARAMS = [
         ['foo', 'bar'],
         True,
         0,
+        False,
         (
             False,
             [
@@ -1309,6 +1313,7 @@ COMPARE_ROWS_PARAMS = [
         ['first', 'second', 'fourth'],
         True,
         0,
+        False,
         (
             True,
             [
@@ -1325,34 +1330,34 @@ COMPARE_ROWS_PARAMS = [
         )
     ],
     # When fail_limit is used, the result should
-    #  include the first N failing comparisons only
+    # at most include the first N failing comparisons
     [
         [
             {'foo': 1, 'bar': 2},
             {'foo': 10, 'bar': 20},
             {'foo': 100, 'bar': 200},
             {'foo': 1000, 'bar': 2000},
+            {'foo': 10000, 'bar': 20000},
         ],
         [
-            {'foo': 2, 'bar': 3},
+            {'foo': 1, 'bar': 2},
             {'foo': 11, 'bar': 21},
             {'foo': 101, 'bar': 201},
             {'foo': 1001, 'bar': 2001},
+            {'foo': 10001, 'bar': 20001},
         ],
         ['foo', 'bar'],
         ['foo', 'bar'],
         True,
         3,
+        False,
         (
             False,
             [
                 assertions.RowComparison(
                     idx=0,
                     data=[1, 2],
-                    diff={
-                        'foo': 2,
-                        'bar': 3
-                    },
+                    diff={},
                     errors={},
                     extra={}
                 ),
@@ -1372,6 +1377,64 @@ COMPARE_ROWS_PARAMS = [
                     diff={
                         'foo': 101,
                         'bar': 201
+                    },
+                    errors={},
+                    extra={}
+                ),
+                assertions.RowComparison(
+                    idx=3,
+                    data=[1000, 2000],
+                    diff={
+                        'foo': 1001,
+                        'bar': 2001
+                    },
+                    errors={},
+                    extra={}
+                ),
+            ]
+        )
+    ],
+    # When report_fails_only is True, the result should
+    # only include the failing comparisons
+    [
+        [
+            {'foo': 1, 'bar': 2},
+            {'foo': 10, 'bar': 20},
+            {'foo': 100, 'bar': 200},
+            {'foo': 1000, 'bar': 2000},
+            {'foo': 10000, 'bar': 20000},
+        ],
+        [
+            {'foo': 1, 'bar': 2},
+            {'foo': 10, 'bar': 20},
+            {'foo': 101, 'bar': 201},
+            {'foo': 1000, 'bar': 2000},
+            {'foo': 10001, 'bar': 20001},
+        ],
+        ['foo', 'bar'],
+        ['foo', 'bar'],
+        True,
+        0,
+        True,
+        (
+            False,
+            [
+                assertions.RowComparison(
+                    idx=2,
+                    data=[100, 200],
+                    diff={
+                        'foo': 101,
+                        'bar': 201
+                    },
+                    errors={},
+                    extra={}
+                ),
+                assertions.RowComparison(
+                    idx=4,
+                    data=[10000, 20000],
+                    diff={
+                        'foo': 10001,
+                        'bar': 20001
                     },
                     errors={},
                     extra={}
@@ -1482,14 +1545,17 @@ class TestTableMatch(object):
 
     @pytest.mark.parametrize(COMPARE_ROWS_PARAM_NAMES, COMPARE_ROWS_PARAMS)
     def test_compare_rows(
-        self, table, expected_table, comparison_columns,
-        display_columns, strict, fail_limit, expected_result
+        self, table, expected_table, comparison_columns, display_columns,
+        strict, fail_limit, report_fails_only, expected_result
     ):
         assert assertions.compare_rows(
-            table=table, expected_table=expected_table,
+            table=table,
+            expected_table=expected_table,
             comparison_columns=comparison_columns,
             display_columns=display_columns,
-            strict=strict, fail_limit=fail_limit
+            strict=strict,
+            fail_limit=fail_limit,
+            report_fails_only=report_fails_only
         ) == expected_result
 
     def test_compare_rows_invalid_columns(self):
@@ -1566,7 +1632,6 @@ class TestTableMatch(object):
 
         assert bool(assertion) == expected_result
         assert assertion.message == expected_message
-        assert expected_message == expected_message
 
     @pytest.mark.parametrize(TABLEMATCH_COLUMN_NAMES, TABLEMATCH_PASS_PARAMS)
     def test_evaluate_true(
@@ -1579,6 +1644,52 @@ class TestTableMatch(object):
             expected_message=expected_message, expected_result=True)
 
     @pytest.mark.parametrize(TABLEMATCH_COLUMN_NAMES, TABLEMATCH_FAIL_PARAMS)
+    def test_evaluate_false(
+        self, table, expected_table, include_columns,
+        exclude_columns, expected_message
+    ):
+        self._test_evaluate(
+            table=table, expected_table=expected_table,
+            include_columns=include_columns, exclude_columns=exclude_columns,
+            expected_message=expected_message, expected_result=False)
+
+
+TABLEDIFF_COLUMN_NAMES = TABLEMATCH_COLUMN_NAMES
+
+TABLEDIFF_PASS_PARAMS = TABLEMATCH_PASS_PARAMS
+
+TABLEDIFF_FAIL_PARAMS = TABLEMATCH_FAIL_PARAMS
+
+class TestTableDiff(object):
+    """
+    Class `TableDiff` inherits class `TableMatch` and they work in
+    a similar way, functions invoked by them are almost the same.
+    """
+    def _test_evaluate(
+        self, table, expected_table, include_columns,
+        exclude_columns, expected_message, expected_result
+    ):
+        assertion = assertions.TableDiff(
+            table=table,
+            expected_table=expected_table,
+            include_columns=include_columns,
+            exclude_columns=exclude_columns,
+        )
+
+        assert bool(assertion) == expected_result
+        assert assertion.message == expected_message
+
+    @pytest.mark.parametrize(TABLEDIFF_COLUMN_NAMES, TABLEDIFF_PASS_PARAMS)
+    def test_evaluate_true(
+        self, table, expected_table, include_columns,
+        exclude_columns, expected_message
+    ):
+        self._test_evaluate(
+            table=table, expected_table=expected_table,
+            include_columns=include_columns, exclude_columns=exclude_columns,
+            expected_message=expected_message, expected_result=True)
+
+    @pytest.mark.parametrize(TABLEDIFF_COLUMN_NAMES, TABLEDIFF_FAIL_PARAMS)
     def test_evaluate_false(
         self, table, expected_table, include_columns,
         exclude_columns, expected_message

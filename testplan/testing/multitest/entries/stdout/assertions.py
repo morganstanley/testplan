@@ -190,7 +190,10 @@ class MembershipRenderer(AssertionRenderer):
         return '{} {} {}'.format(entry.member, op_label, entry.container)
 
 
-@registry.bind(assertions.TableMatch)
+@registry.bind(
+    assertions.TableMatch,
+    assertions.TableDiff
+)
 class TableMatchRenderer(AssertionRenderer):
     """
     Renders tabular data in ASCII table format
@@ -244,26 +247,27 @@ class TableMatchRenderer(AssertionRenderer):
     def get_assertion_details(self, entry):
         """Return row by row match results in tabular format"""
         if entry.message:
-            message = Color.red(entry.message) \
+            result = Color.red(entry.message) \
                 if not entry.passed else entry.message
-            result = '{}{}'.format(message, os.linesep)
         else:
             result = ''
-
-        display_index = entry.fail_limit > 0
 
         row_data = [
             self.get_row_data(
                 row_comparison,
                 entry.display_columns,
-                display_index=display_index
+                display_index=entry.report_fails_only
             )
             for row_comparison in entry.data
         ]
 
         columns = ['row'] + list(entry.display_columns) \
-            if display_index else entry.display_columns
-        return '{}{}'.format(result, AsciiTable([columns] + row_data).table)
+            if entry.report_fails_only else entry.display_columns
+        ascii_table = AsciiTable([columns] + row_data).table \
+            if row_data else ''
+
+        return '{}{}{}'.format(
+            result, os.linesep if result and ascii_table else '', ascii_table)
 
 
 @registry.bind(assertions.ColumnContain)
