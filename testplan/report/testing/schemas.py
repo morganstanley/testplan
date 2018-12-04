@@ -77,6 +77,7 @@ class TestCaseReportSchema(ReportSchema):
     entries = fields.List(fields.Raw())
 
     status = fields.String(dump_only=True)
+    suite_related = fields.Bool()
     timer = TimerField()
     tags = TagField()
 
@@ -102,6 +103,7 @@ class TestGroupReportSchema(TestCaseReportSchema):
 
     source_class = TestGroupReport
     category = fields.String(allow_none=True)
+    part = fields.List(fields.Integer, allow_none=True)
 
     entries = custom_fields.GenericNested(
         schema_context={

@@ -46,7 +46,12 @@ class TestConfig(RunnableConfig):
             ConfigOption(
                 'tags',
                 default=None
-            ): Or(None, Use(tagging.validate_tag_value))
+            ): Or(None, Use(tagging.validate_tag_value)),
+            ConfigOption(
+                'part',
+                default=None)
+            : Or(None, And((int,), lambda tp:
+                len(tp) == 2 and 0 <= tp[0] < tp[1] and tp[1] > 1))
         }
 
 
@@ -98,9 +103,11 @@ class Test(Runnable):
         self._test_context = None
         self.result.report = TestGroupReport(
             name=self.cfg.name,
-            category=self.__class__.__name__.lower(),
             description=self.cfg.description,
+            category=self.__class__.__name__.lower(),
+            uid=self.uid(),
             tags=self.cfg.tags,
+            part=self.cfg.part,
         )
 
     def __str__(self):

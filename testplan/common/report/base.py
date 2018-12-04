@@ -169,6 +169,13 @@ class Report(object):
 
         return report_obj
 
+    def reset_uid(self, uid=None):
+        """
+        Reset uid of the report, it can be useful when need to generate
+        a standard UUID instead of the current one.
+        """
+        self.uid = uuid.uuid4() if uid is None else uid
+
     def flattened_entries(self, depth):
         """
         Utility function that is used by `TestGroupReport.flatten`.
@@ -258,7 +265,7 @@ class ReportGroup(Report):
 
         if item.uid in self._index:
             raise ValueError(
-                'Child report with `uid` `{uid}`'
+                'Child report with `uid`: {uid}'
                 ' already exists in {self}'.format(uid=item.uid, self=self))
 
         self._index[item.uid] = item
@@ -288,6 +295,17 @@ class ReportGroup(Report):
             report_obj.build_index(recursive=True)
 
         return report_obj
+
+    def reset_uid(self, uid=None):
+        """
+        Reset uid of the report and all of its children, it can be useful
+        when need to generate standard UUIDs instead of the current ones.
+        """
+        self.uid = uuid.uuid4() if uid is None else uid
+        for entry in self:
+            if isinstance(entry, (Report, ReportGroup)):
+                entry.reset_uid()
+        self.build_index()
 
     def flatten(self, depths=False):
         """

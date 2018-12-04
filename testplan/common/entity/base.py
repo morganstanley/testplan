@@ -703,6 +703,10 @@ class Runnable(Entity):
         return all(not isinstance(val, Exception) and val is not False
                    for val in self._result.step_results.values())
 
+    def dry_run(self):
+        """A testing process that creates result for each step."""
+        raise NotImplementedError
+
 
 class FailedAction(object):
     """

@@ -54,3 +54,20 @@ test_plan.py
 tasks.py
 +++++++++
 .. literalinclude:: ../../../testplan/examples/ExecutionPools/Remote/tasks.py
+
+.. _example_multiTest_parts:
+
+MultiTest parts scheduling
+--------------------------
+
+Required files:
+  - :download:`test_plan.py <../../../testplan/examples/ExecutionPools/Parts/test_plan.py>`
+  - :download:`tasks.py <../../../testplan/examples/ExecutionPools/Parts/tasks.py>`
+
+test_plan.py
+++++++++++++
+.. literalinclude:: ../../../testplan/examples/ExecutionPools/Parts/test_plan.py
+
+tasks.py
++++++++++
+.. literalinclude:: ../../../testplan/examples/ExecutionPools/Parts/tasks.py

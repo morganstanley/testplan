@@ -15,6 +15,7 @@ from testplan.common.config import ConfigOption
 from testplan.common.entity import Entity, RunnableConfig, RunnableStatus, \
     RunnableResult, Runnable
 from testplan.common.exporters import BaseExporter, ExporterResult
+from testplan.common.report import MergeError
 from testplan.common.utils.path import default_runpath
 from testplan.exporters import testing as test_exporters
 from testplan.logger import log_test_status, TEST_INFO, TESTPLAN_LOGGER
@@ -130,6 +131,7 @@ class TestRunnerConfig(RunnableConfig):
                 block_propagation=False): [Use(tagging.validate_tag_value)],
             ConfigOption('report_tags_all', default=[],
                 block_propagation=False): [Use(tagging.validate_tag_value)],
+            ConfigOption('merge_scheduled_parts', default=False): bool,
             ConfigOption('browse', default=False): bool,
             ConfigOption(
                 'test_filter', default=filtering.Filter(),
@@ -221,6 +223,8 @@ class TestRunner(Runnable):
     :type report_tags: ``list``
     :param report_tags_all: Match tests marked with all of the given tags.
     :type report_tags_all: ``list``
+    :param merge_scheduled_parts: Merge report of scheduled MultiTest parts.
+    :type merge_scheduled_parts: ``bool``
     :param test_filter: Tests filtering class.
     :type test_filter: Subclass of
       :py:class:`BaseFilter <testplan.testing.filtering.BaseFilter>`
@@ -242,7 +246,8 @@ class TestRunner(Runnable):
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
         self._tests = OrderedDict()  # uid to resource
-        self._result.test_report = TestReport(name=self.cfg.name)
+        self._result.test_report = TestReport(
+            name=self.cfg.name, uid=self.cfg.name)
 
     @property
     def report(self):
@@ -415,9 +420,13 @@ class TestRunner(Runnable):
     def _create_result(self):
         step_result = True
         test_results = self._result.test_results
+        test_report = self._result.test_report
+        test_rep_lookup = {}
+
         for uid, resource in self._tests.items():
             if not isinstance(self.resources[resource], Executor):
                 continue
+
             resource_result = self.resources[resource].results[uid]
             if isinstance(resource_result, TaskResult):
                 if resource_result.status is False:
@@ -426,9 +435,98 @@ class TestRunner(Runnable):
                     test_results[uid] = resource_result.result
             else:
                 test_results[uid] = resource_result
-            self._result.test_report.append(test_results[uid].report)
+
+            report = test_results[uid].report
+            if report.part and self.cfg.merge_scheduled_parts:
+                # Save the report temporarily and later will merge it
+                test_rep_lookup.setdefault(report.uid, []).append(
+                    (test_results[uid].run, report))
+                try:
+                    test_report.get_by_uid(report.uid)
+                    continue
+                except KeyError:
+                    # A report will be created and then append as a placeholder
+                    if isinstance(resource_result, TaskResult):
+                        # 'target' should be an instance of MultiTest since the
+                        # corresponding report has 'part' defined. We can get
+                        # a full structured report by dry_run(), thus the order
+                        # of testcases can be retained in test report.
+                        target = resource_result.task.materialize()
+                        # TODO: Any idea to avoid accessing private members?
+                        target.cfg._options['part'] = None
+                        target._test_context = None
+                        report = target.dry_run(status=Status.SKIPPED).report
+                    else:
+                        report = report.__class__(report.name,
+                                                  category=report.category,
+                                                  uid=report.uid)
+            elif report.part:
+                report.name = '{} - part({}/{})'.format(
+                    report.name, report.part[0] + 1, report.part[1])
+                # Change report uid to avoid conflict during appending
+                report.uid = uuid.uuid4()
+
+            test_report.append(report)
             step_result = step_result and test_results[uid].run
+
+        if test_rep_lookup:
+            step_result = self._merge_reports(test_rep_lookup) and step_result
+
+        # The uids of a test report and all of its children
+        # should be comply with standard UUID form
+        test_report.reset_uid()
+
         return step_result
+
+    def _merge_reports(self, test_report_lookup):
+        """
+        Merge report of MultiTest parts into test runner report.
+        Return True if all parts are found and can be successfully merged.
+
+        Format of test_report_lookup:
+        {
+            'report_uid_1': [
+                (True, report_1_part_1), (True, report_1_part_2), ...
+            ],
+            'report_uid_2': [
+                (True, report_2_part_1), (False, report_2_part_2), ...
+            ],
+            ...
+        }
+        """
+        merge_result = True
+
+        for uid, reports in test_report_lookup.items():
+            count = reports[0][1].part[1]  # How many parts scheduled
+            placeholder_report = self._result.test_report.get_by_uid(uid)
+            reports.sort(key=lambda tup: tup[1].part[0])
+
+            with placeholder_report.logged_exceptions():
+                if len(reports) != count:
+                    raise MergeError(
+                        'Cannot merge parts for child report with '
+                        '`uid`: {uid}, not all MultiTest parts '
+                        'had been scheduled.'.format(uid=uid))
+
+                if any(sibling_report.part[0] != idx or
+                       sibling_report.part[1] != count
+                       for idx, (run, sibling_report) in enumerate(reports)):
+                        raise ValueError(
+                            'Cannot merge parts for child report with '
+                            '`uid`: {uid}, invalid parameter of part '
+                            'provided.'.format(uid=uid))
+
+            with placeholder_report.logged_exceptions():
+                for run, sibling_report in reports:
+                    if run and not isinstance(run, Exception):
+                        placeholder_report.merge(sibling_report, strict=False)
+                    else:
+                        placeholder_report.status_override = Status.ERROR
+
+            merge_result = merge_result and \
+                           placeholder_report.status != Status.ERROR
+
+        return merge_result
 
     def uid(self):
         """Entity uid."""

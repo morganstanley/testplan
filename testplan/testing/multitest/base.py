@@ -11,7 +11,7 @@ except ImportError:
     from queue import Queue, Empty
 
 from threading import Thread, Lock
-from schema import Use, Or
+from schema import Use, Or, And
 
 from testplan.common.config import ConfigOption, validate_func
 from testplan.common.entity import Resource, Runnable
@@ -123,6 +123,9 @@ class MultiTest(Test):
     :type before_stop: ``callable`` taking environment and a result arguments.
     :param after_stop: Callable to execute after stopping the environment.
     :type after_stop: ``callable`` taking environment and a result arguments.
+    :param part: Execute only a part of the total testcases. MultiTest needs to
+                 know which part of the total it is.
+    :type part: ``tuple`` of (``int``, ``int``)
     :param thread_pool_size: Size of the thread pool which executes testcases
         with execution_group specified in parallel (default 0 means no pool).
     :type thread_pool_size: ``int``
@@ -189,7 +192,9 @@ class MultiTest(Test):
         if self._pre_post_step_report is None:
             self._pre_post_step_report = TestGroupReport(
                 name='Pre/Post Step Checks',
-                category=Categories.SUITE)
+                category=Categories.SUITE,
+                uid='Pre/Post Step Checks',
+            )
         return self._pre_post_step_report
 
     def append_pre_post_step_report(self):
@@ -220,6 +225,9 @@ class MultiTest(Test):
         """
         Return filtered & sorted list of suites & testcases
         via `cfg.test_filter` & `cfg.test_sorter`.
+
+        :return: Test suites and testcases belong to them.
+        :rtype: ``list`` of ``tuple``
         """
         ctx = []
         test_filter = self.cfg.test_filter
@@ -235,13 +243,94 @@ class MultiTest(Test):
                 if test_filter.filter(
                     test=self, suite=suite, case=case)]
 
+            if self.cfg.part and self.cfg.part[1] > 1:
+                testcases_to_run = [
+                    testcase for (idx, testcase) in enumerate(testcases_to_run)
+                    if idx % self.cfg.part[1] == self.cfg.part[0]
+                ]
+
             if testcases_to_run:
                 ctx.append((suite, testcases_to_run))
+
         return ctx
+
+    def dry_run(self, status=None):
+        """
+        A testing process that creates a full structured report without
+        any assertion entry. Initial status of each entry can be set.
+        """
+        ctx = [(self.test_context[idx][0], self.test_context[idx][1][:])
+               for idx in range(len(self.test_context))]
+
+        self.result.report = TestGroupReport(
+            name=self.cfg.name,
+            description=self.cfg.description,
+            category=self.__class__.__name__.lower(),
+            uid=self.uid(),
+            tags=self.cfg.tags,
+        )
+
+        while len(ctx) > 0:
+            testsuite, testcases = ctx.pop(0)
+            testsuite_report = TestGroupReport(
+                name=testsuite.__class__.__name__,
+                description=testsuite.__class__.__doc__,
+                category=Categories.SUITE,
+                uid=testsuite.__class__.__name__,
+                tags=testsuite.__tags__,
+            )
+            self.result.report.append(testsuite_report)
+
+            if getattr(testsuite, 'setup', None):
+                testcase_report = TestCaseReport(
+                    'setup', uid='setup', suite_related=True)
+                testsuite_report.append(testcase_report)
+                if status:
+                    testcase_report.status_override = status
+
+            param_rep_lookup = {}
+            while len(testcases) > 0:
+                testcase = testcases.pop(0)
+                testcase_report = TestCaseReport(
+                    name=testcase.__name__,
+                    description=testcase.__doc__,
+                    uid=testcase.__name__,
+                    tags=testcase.__tags__,
+                )
+                if status:
+                    testcase_report.status_override = status
+
+                param_template = getattr(
+                    testcase, '_parametrization_template', None)
+                if param_template:
+                    if param_template not in param_rep_lookup:
+                        param_method = getattr(testsuite, param_template)
+                        param_report = TestGroupReport(
+                            name=param_template,
+                            description=param_method.__doc__,
+                            category=Categories.PARAMETRIZATION,
+                            uid=param_template,
+                            tags=param_method.__tags__,
+                        )
+                        param_rep_lookup[param_template] = param_report
+                        testsuite_report.append(param_report)
+                    param_rep_lookup[param_template].append(testcase_report)
+                else:
+                    testsuite_report.append(testcase_report)
+
+            if getattr(testsuite, 'teardown', None):
+                testcase_report= TestCaseReport(
+                    'teardown', uid='teardown', suite_related=True)
+                testsuite_report.append(testcase_report)
+                if status:
+                    testcase_report.status_override = status
+
+        return self.result
 
     def run_tests(self):
         """Test execution loop."""
-        ctx = self.test_context[:]
+        ctx = [(self.test_context[idx][0], self.test_context[idx][1][:])
+               for idx in range(len(self.test_context))]
 
         with self.report.timer.record('run'):
             if any(getattr(testcase, 'execution_group', None)
@@ -267,6 +356,7 @@ class MultiTest(Test):
                             name=next_suite.__class__.__name__,
                             description=next_suite.__class__.__doc__,
                             category=Categories.SUITE,
+                            uid=next_suite.__class__.__name__,
                             tags=next_suite.__tags__,
                         )
                         self.report.append(testsuite_report)
@@ -297,6 +387,7 @@ class MultiTest(Test):
             testcase_report = TestCaseReport(
                 name=testcase.__name__,
                 description=testcase.__doc__,
+                uid=testcase.__name__,
                 tags=testcase.__tags__,
             )
             param_template = getattr(
@@ -308,6 +399,7 @@ class MultiTest(Test):
                         name=param_template,
                         description=param_method.__doc__,
                         category=Categories.PARAMETRIZATION,
+                        uid=param_template,
                         tags=param_method.__tags__,
                     )
                     param_rep_lookup[param_template] = param_report
@@ -390,7 +482,8 @@ class MultiTest(Test):
             check_signature(attr, ['self', 'env'])
             attr(self.resources)
         else:
-            method_report = TestCaseReport(method)
+            method_report = TestCaseReport(
+                method, uid=method, suite_related=True)
             report.append(method_report)
             case_result = self.cfg.result(stdout_style=self.stdout_style)
             with method_report.logged_exceptions():

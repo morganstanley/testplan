@@ -259,3 +259,45 @@ failures and their behaviour is a part of
 
            # Add the pool to the plan.
            pool_uid = plan.add_resource(pool)
+
+.. _Multitest_parts_scheduling:
+
+MultiTest parts scheduling
+--------------------------
+
+A Task that returns a MultiTest can be scheduled in parts in one or more pools.
+Each MultiTest will have its own environment and will run a subtotal of testcases
+based on which part of the total number of parts it is. So each MultiTest part will
+produce its own report entry, these entries can be merged before exported.
+
+To split a MultiTest task into several parts, we can provide a tuple of 2 elements
+as a parameter, the first element indicates the sequence number of part, and the
+second one is the number of parts in total. For the tuple (M, N), make sure that
+N > 1 and 0 <= M < N, where M and N are both integers.
+
+.. code-block:: python
+
+    from testplan.runners.pools import ThreadPool
+
+    @test_plan(name='ThreadPoolPlan', merge_scheduled_parts=False)
+    def main(plan):
+        # Add a thread pool of 3 workers.
+        # Also you can use process pool or remote pool instead.
+        pool = ThreadPool(name='MyPool', size=3)
+        plan.add_resource(pool)
+
+        # Schedule 10 tasks to the thread pool.
+        # A parameter `part_tuple` is provided to indicate which part it is.
+        for idx in range(10):
+            task = Task(target='make_multitest',
+                        module='tasks',
+                        kwargs={'part_tuple': (i, 10)})
+            plan.schedule(task, resource='MyPool')
+
+If you set merge_scheduled_parts=True, please be sure that all parts of a MultiTest
+will be executed, for example, if a MultiTest is split into 3 parts, then 3 tasks
+containing MultiTest part should be scheduled, with the parameter tuple (0, 3),
+(1, 3) and (2, 3) for each task, also note that a MultiTest can only be schedule
+once, or there will be error during merging reports.
+
+See a downloadable example of :ref:`MultiTest parts scheduling <example_multiTest_parts>`.

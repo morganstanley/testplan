@@ -42,6 +42,7 @@ TestReport(name='MyPlan')
 import copy
 import collections
 import inspect
+import uuid
 
 from testplan.common.report import (
     ExceptionLogger as ExceptionLoggerBase, Report, ReportGroup)
@@ -308,10 +309,10 @@ class TestGroupReport(BaseReportGroup):
     def __init__(
         self, name, description=None,
         category=None, uid=None, entries=None,
-        tags=None
+        tags=None, part=None
     ):
         super(TestGroupReport, self).__init__(
-            name=name, uid=uid, entries=entries, description=description)
+            name=name, description=description, uid=uid, entries=entries)
 
         # This will be used for distinguishing test
         # type (Multitest, GTest etc)
@@ -319,6 +320,11 @@ class TestGroupReport(BaseReportGroup):
 
         self.tags = tagging.validate_tag_value(tags) if tags else {}
         self.tags_index = copy.deepcopy(self.tags)
+
+        # A test can be split into many parts and the report of each part
+        # can be hold back for merging (if necessary)
+        self.part = part  # i.e. (m, n), while 0 <= m < n and n > 1
+        self.part_report_lookup = {}
 
         if entries:
             self.propagate_tag_indices()
@@ -422,13 +428,14 @@ class TestCaseReport(Report):
     def __init__(
         self, name, description=None,
         uid=None, entries=None,
-        tags=None
+        tags=None, suite_related=False
     ):
         super(TestCaseReport, self).__init__(
             name=name, uid=uid, entries=entries, description=description)
 
         self.tags = tagging.validate_tag_value(tags) if tags else {}
         self.tags_index = copy.deepcopy(self.tags)
+        self.suite_related = suite_related
 
         self.status_override = None
         self.timer = timing.Timer()
@@ -460,10 +467,16 @@ class TestCaseReport(Report):
 
     def merge(self, report, strict=True):
         """
-          TestCaseReport merge overwrites everything in place,
-          as assertions of a test case won't be split among different runners.
+        TestCaseReport merge overwrites everything in place, as assertions
+        of a test case won't be split among different runners. For some special
+        test cases, choose the one whose status is of higher precedence.
         """
         self._check_report(report)
+        if self.suite_related and \
+                Status.precedent([self.status]) < \
+                Status.precedent([report.status]):
+            return
+
         self.status_override = report.status_override
         self.logs = report.logs
         self.entries = report.entries
