@@ -1249,7 +1249,6 @@ Testcases in the same group will be executed concurrently.
                                   suites=[SampleTest()],
                                   thread_pool_size=2))
 
-
 .. _multitest_drivers:
 
 Drivers
