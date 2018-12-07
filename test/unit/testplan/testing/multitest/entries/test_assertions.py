@@ -267,7 +267,7 @@ class BaseRegexTest(object):
         self, regexp, string, expected_match_indexes,
         expected, flags=0, *args, **kwargs
     ):
-        assertion = self.assertion_class(
+        assertion = self.assertion_class(  # pylint: disable=not-callable
             regexp=regexp, string=string, flags=flags, *args, **kwargs)
         pattern = regexp if isinstance(
             regexp, six.string_types) else regexp.pattern

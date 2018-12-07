@@ -513,9 +513,10 @@ class Pool(Executor):
                 if self.should_reschedule(self, task_result):
                     if self.task_assign_cnt[uid] >= self.cfg.task_retries_limit:
                         self.logger.test_info(
-                            'Will not reschedule {} again as it '
-                            'reached max retries'.format(
-                                self._input[uid], self.cfg.task_retries_limit))
+                            'Will not reschedule %(input)s again as it '
+                            'reached max retries %(retries)d',
+                            {'input': self._input[uid],
+                             'retries': self.cfg.task_retries_limit})
                     else:
                         self.logger.test_info(
                             'Rescheduling {} due to '

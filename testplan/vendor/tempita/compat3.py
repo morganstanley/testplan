@@ -16,7 +16,7 @@ if sys.version_info[0] < 3:
         return d.iteritems(**kw)
 
     b = bytes = str
-    basestring_ = basestring
+    basestring_ = basestring  # pylint: disable=undefined-variable
 
 else:
 
@@ -37,7 +37,7 @@ text = str
 
 def is_unicode(obj):
     if sys.version_info[0] < 3:
-        return isinstance(obj, unicode)
+        return isinstance(obj, unicode)  # pylint: disable=undefined-variable
     else:
         return isinstance(obj, str)
 
@@ -49,7 +49,7 @@ def coerce_text(v):
         else:
             attr = '__str__'
         if hasattr(v, attr):
-            return unicode(v)
+            return unicode(v)  # pylint: disable=undefined-variable
         else:
             return bytes(v)
     return v

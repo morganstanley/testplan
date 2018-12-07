@@ -10,7 +10,7 @@ if TESTPLAN_DEPENDENCIES_PATH in os.environ:
     print('Importing testplan dependencies from: {}'.format(
         os.environ[TESTPLAN_DEPENDENCIES_PATH]))
     sys.path.insert(0, os.environ[TESTPLAN_DEPENDENCIES_PATH])
-    import dependencies
+    import dependencies  # pylint: disable=import-error
     sys.path.remove(os.environ[TESTPLAN_DEPENDENCIES_PATH])
 
 from .base import Testplan, TestplanConfig, TestplanResult, test_plan

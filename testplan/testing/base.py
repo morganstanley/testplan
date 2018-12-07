@@ -378,11 +378,6 @@ class ProcessRunnerTest(Test):
                     timeout=format_duration(self.cfg.timeout),
                 ))
 
-    # DEFAULT
-    def get_proc_env(self):
-        return self.cfg.proc_env
-
-    # HOBBBES TEST
     def get_proc_env(self):
         self._json_ouput = os.path.join(self.runpath, 'output.json')
         self.logger.debug('Json output: {}'.format(self._json_ouput))

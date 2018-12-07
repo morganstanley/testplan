@@ -94,7 +94,7 @@ class OperatorCallable(Callable):
         self.reference = reference
 
     def __call__(self, value):
-        return self.func(value, self.reference)
+        return self.func(value, self.reference)  # pylint: disable=not-callable
 
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, repr(self.reference))

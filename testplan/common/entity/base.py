@@ -686,7 +686,8 @@ class Runnable(Entity):
         """Executes the defined steps and populates the result object."""
         try:
             if self.cfg.interactive is True:
-                raise
+                raise RuntimeError(
+                    'Cannot run batch execution in interactive mode.')
             else:
                 self._run_batch_steps()
         except Exception as exc:

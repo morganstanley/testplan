@@ -254,7 +254,7 @@ class HTTPServer(Driver):
         """
         try:
             return self.requests.get(False)
-        except Queue.Empty:
+        except queue.Empty:
             return None
 
     def starting(self):

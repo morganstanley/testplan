@@ -64,7 +64,7 @@ class MyPool(LocalRunner):  # Start is async
         self.name = name
 
     def uid(self):
-        return self.name or super(DummyTest, self).uid()
+        return self.name or super(MyPool, self).uid()
 
     def _execute(self, uid):
         func = self._input[uid]
@@ -144,11 +144,11 @@ def test_testplan_decorator():
     from testplan import test_plan
 
     @test_plan(name='MyPlan', port=800, parse_cmdline=False)
-    def main(plan):
+    def main1(plan):
         plan.add(DummyTest(name='bob'))
         return 123
 
-    res = main()
+    res = main1()  # pylint: disable=no-value-for-parameter
     assert isinstance(res, TestplanResult)
     assert res.decorated_value == 123
     assert res.run is True
@@ -157,7 +157,7 @@ def test_testplan_decorator():
     with argv_overridden('--pdf', pdf_path):
         with log_propagation_disabled(TESTPLAN_LOGGER):
             @test_plan(name='MyPlan', port=800)
-            def main(plan, parser):
+            def main2(plan, parser):
                     args = parser.parse_args()
 
                     assert args.verbose is False
@@ -165,7 +165,7 @@ def test_testplan_decorator():
                     assert plan.cfg.pdf_path == pdf_path
                     plan.add(DummyTest(name='bob'))
 
-            res = main()
+            res = main2()  # pylint:disable=assignment-from-no-return,no-value-for-parameter
             assert isinstance(res, TestplanResult)
             assert res.decorated_value is None
             assert res.run is True

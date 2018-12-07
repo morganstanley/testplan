@@ -40,7 +40,7 @@ def test_assertion_orders():
     expected = ['AssertionFirst1', 'AssertionFirst2', 'AssertionSecond',
                 'AssertionMain1', 'AssertionMain2', 'Report passed so far.']
     assertions = (entry for entry in mtest.report.flatten()
-        if isinstance(entry, dict) and entry['meta_type'] == 'assertion')
+        if isinstance(entry, dict) and entry['meta_type'] == 'assertion')  # pylint: disable=invalid-sequence-index
 
     for idx, entry in enumerate(assertions):
         assert entry['description'] == expected[idx]
