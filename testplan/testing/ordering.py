@@ -42,7 +42,8 @@ class SortType(Enum):
             if SortType.ALL.value in values and len(values) > 1:
                 raise ValueError(
                     'Passing extra shuffle types along with'
-                    ' `all` is a redundant operation.'.format(values))
+                    ' `all` is a redundant operation. values = {}'
+                    .format(values))
             return values
         return validate_single(value)
 

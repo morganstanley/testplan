@@ -47,7 +47,7 @@ __all__ = [
     'ExceptionRaised',
     'EqualSlices',
     'EqualExcludeSlices',
-    'Diff',
+    'LineDiff',
     'ColumnContain',
     'TableMatch',
     'TableDiff',
@@ -132,7 +132,7 @@ class FuncAssertion(Assertion):
             description=description, category=category)
 
     def evaluate(self):
-        return self.func(self.first, self.second)
+        return self.func(self.first, self.second)  # pylint: disable=not-callable
 
 
 class Equal(FuncAssertion):

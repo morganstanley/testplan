@@ -156,7 +156,7 @@ class ChildLoop(object):
         log_file = os.path.join(self.runpath, '{}_stdout'.format(self._metadata['index']))
         self.logger.info('stdout file = %(file)s (log level = %(lvl)s)',
                          {'file': log_file, 'lvl': self.logger.level})
-        self.logger.info('stderr file = %s'.format(stderr_file))
+        self.logger.info('stderr file = %s', stderr_file)
         self.logger.info(
             'Closing stdin, stdout and stderr file descriptors...')
 
@@ -365,7 +365,7 @@ def child_logic(args):
             self._runpath = self.cfg.runpath
 
         def starting(self):
-            super(Pool, self).starting()
+            super(Pool, self).starting()  # pylint: disable=bad-super-call
             self.make_runpath_dirs()
 
             self._metadata['runpath'] = self.runpath

@@ -55,7 +55,7 @@ class TableEntry(object):
             assert isinstance(self.table[0], list)
             return self.table[0]
 
-    @classmethod
+    @staticmethod
     def consolidate_columns(list_of_dict, placeholder='ABSENT'):
         """
         In some cases the raw DB results may return a

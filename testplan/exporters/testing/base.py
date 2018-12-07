@@ -64,7 +64,7 @@ class TagFilteredExporter(Exporter):
         if not self.exporter_class:
             raise AttributeError('`exporter_class` not set.')
 
-        exporter = self.exporter_class(**params)
+        exporter = self.exporter_class(**params)  # pylint: disable=not-callable
         exporter.cfg.parent = self.cfg
         return exporter
 
