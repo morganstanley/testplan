@@ -46,6 +46,31 @@ def test_app_env():
         assert fobj.read().startswith('VALUE')
 
 
+def run_app(cwd):
+    app = App(name='App', binary='echo',
+              args=['%cd%' if platform.system() == 'Windows' else '`pwd`'],
+              shell=True, working_dir=cwd)
+    with app:
+        app.proc.wait()
+    return app
+
+
+def test_app_cwd():
+    """Test working_dir usage."""
+    import tempfile
+    tempdir = tempfile.gettempdir()
+
+    # Cwd set to custom dir
+    app = run_app(cwd=tempdir)
+    with open(app.std.out_path, 'r') as fobj:
+        assert tempdir in fobj.read()
+
+    # Cwd not set
+    app = run_app(cwd=None)
+    with open(app.std.out_path, 'r') as fobj:
+        assert app.runpath in fobj.read()
+
+
 def test_app_logfile():
     app_dir = 'AppDir'
     logfile = 'file.log'

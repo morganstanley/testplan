@@ -37,6 +37,7 @@ class AppConfig(DriverConfig):
             ConfigOption('env', default=None): Or(None, dict),
             ConfigOption('binary_copy', default=False): bool,
             ConfigOption('app_dir_name', default=None): Or(None, str),
+            ConfigOption('working_dir', default=None): Or(None, str),
         }
 
 
@@ -61,7 +62,9 @@ class App(Driver):
     :param binary_copy: Copy binary to a local binary path.
     :type binary_copy: ``bool``
     :param app_dir_name: Application directory name.
-    :type app_dir_name: ``str``
+    :type app_dir_name: ``str`
+    :param working_dir: Application working directory. Default: runpath
+    :type working_dir: ``str`
 
     Also inherits all
     :py:class:`~testplan.testing.multitest.driver.base.DriverConfig` options.
@@ -176,6 +179,7 @@ class App(Driver):
             self._install_files()
 
         cmd = ' '.join(self.cmd) if self.cfg.shell else self.cmd
+        cwd = self.cfg.working_dir or self.runpath
         try:
             self.logger.debug('{driver} driver command: {cmd},{linesep}'
                               '\trunpath: {runpath}{linesep}'
@@ -185,7 +189,7 @@ class App(Driver):
                 out=self.std.out_path, err=self.std.err_path))
             self.proc = subprocess.Popen(cmd, shell=self.cfg.shell,
                 stdout=self.std.out, stderr=self.std.err,
-                cwd=self.runpath, env=self.cfg.env)
+                cwd=cwd, env=self.cfg.env)
         except Exception:
             TESTPLAN_LOGGER.error(
                 'Error while App[%s] driver executed command: %s',
