@@ -22,6 +22,8 @@ Makefile
 /testplan/examples/**/runTests
 
 /ms
+/venv
+/out
 
 # docker related stuff
 Dockerfile
