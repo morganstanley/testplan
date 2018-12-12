@@ -193,7 +193,7 @@ class App(Driver):
         except Exception:
             TESTPLAN_LOGGER.error(
                 'Error while App[%s] driver executed command: %s',
-                self.cfg.name, ' '.join(cmd))
+                self.cfg.name, cmd if self.cfg.shell else ' '.join(cmd))
             raise
 
     def stopping(self):

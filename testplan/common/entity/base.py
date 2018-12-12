@@ -148,10 +148,10 @@ class Environment(object):
 
         # Wait resources status to be STARTED.
         for resource in self._resources.values():
-            if resource.cfg.async_start is False:
-                continue
             if resource in self.start_exceptions:
                 break
+            if resource.cfg.async_start is False:
+                continue
             else:
                 resource.wait(resource.STATUS.STARTED)
 
