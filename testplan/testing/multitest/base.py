@@ -1,5 +1,6 @@
 """Multitest main test execution framework."""
 
+import os
 import inspect
 import collections
 import functools
@@ -694,6 +695,15 @@ class MultiTest(Test):
             for msg in exceptions.values():
                 self.result.report.logger.error(msg)
             self.result.report.status_override = Status.ERROR
+
+        if step == self.resources.stop:
+            drivers = set(self.resources.start_exceptions.keys())
+            drivers.update(self.resources.stop_exceptions.keys())
+            for driver in drivers:
+                if driver.cfg.report_errors_from_logs:
+                    error_log = os.linesep.join(driver.fetch_error_log())
+                    if error_log:
+                        self.result.report.logger.error(error_log)
 
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""

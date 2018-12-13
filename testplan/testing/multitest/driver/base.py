@@ -62,7 +62,9 @@ class DriverConfig(ResourceConfig):
                 Or(None, list),
             ConfigOption('stderr_regexps', default=None):
                 Or(None, list),
-            ConfigOption('async_start', default=False): bool
+            ConfigOption('async_start', default=False): bool,
+            ConfigOption('report_errors_from_logs', default=False): bool,
+            ConfigOption('error_logs_max_lines', default=10): int
         }
 
 
@@ -73,13 +75,13 @@ class Driver(Resource):
     :param name: Driver name. Also uid.
     :type name: ``str``
     :param install_files: List of filepaths, those files will be instantiated
-      and placed under path returned by ``_install_target`` method call. Among
-      other cases this is meant to be used with configuration files that may
-      need to be templated and expanded using the runtime context, i.e:
+        and placed under path returned by ``_install_target`` method call. Among
+        other cases this is meant to be used with configuration files that may
+        need to be templated and expanded using the runtime context, i.e:
 
-      .. code-block:: xml
+        .. code-block:: xml
 
-        <address>localhost:{{context['server'].port}}</address>
+            <address>localhost:{{context['server'].port}}</address>
 
     :type install_files: ``list`` of ``str``
     :param timeout: Timeout duration for status condition check.
@@ -87,8 +89,8 @@ class Driver(Resource):
     :param logfile: Driver logfile path.
     :type logfile: ``str``
     :param log_regexps: A list of regular expressions, any named groups matched
-      in the logfile will be made available through ``extracts`` attribute.
-      These will be start-up conditions.
+        in the logfile will be made available through ``extracts`` attribute.
+        These will be start-up conditions.
     :type log_regexps: ``list`` of ``_sre.SRE_Pattern``
     :param stdout_regexps: Same with log_regexps but matching stdout file.
     :type stdout_regexps: ``list`` of ``_sre.SRE_Pattern``
@@ -96,6 +98,13 @@ class Driver(Resource):
     :type stderr_regexps: ``list`` of ``_sre.SRE_Pattern``
     :param async_start: Enable driver asynchronous start within an environment.
     :type async_start: ``bool``
+    :param report_errors_from_logs: On startup/stop exception, report log
+        lines from tail of stdout/stderr/logfile logs if enabled.
+    :type report_errors_from_logs: ``bool``
+    :param error_logs_max_lines: Number of lines to be reported if using
+        `report_errors_from_logs` option.
+    :type error_logs_max_lines: ``int``
+
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Resource` options.
@@ -255,3 +264,44 @@ class Driver(Resource):
         self.file_logger = logger
         self.file_logger.propagate = False  # No console logs
 
+    def fetch_error_log(self):
+        """
+        Fetch error message from the log files of driver, at first we can
+        try `self.errpath`, if it does not exist, try `self.logpath`.
+        Typically, several lines from the tail of file will be selected.
+
+        :return: Text from log file.
+        :rtype: ``list`` of ``str``
+        """
+        content = []
+
+        def get_lines_at_tail(log_file, max_count):
+            """Fetch last n lines from a big file."""
+            if not os.path.exists(log_file):
+                return []
+
+            file_size = os.path.getsize(log_file)
+            # Assume that in average a line has 512 characters at most
+            block_size = max_count * 512 if max_count > 0 else file_size
+
+            with open(log_file, 'r') as file_handle:
+                if file_size > block_size > 0:
+                    max_seek_point = (file_size // block_size)
+                    file_handle.seek((max_seek_point - 1) * block_size)
+                elif file_size:
+                    file_handle.seek(0, os.SEEK_SET)
+                lines = file_handle.read().splitlines()
+                while lines and not lines[-1]:
+                    lines.pop()
+                return lines[-max_count:] if max_count > 0 else lines
+
+        for path in (self.errpath, self.outpath, self.logpath):
+            lines = get_lines_at_tail(
+                path, self.cfg.error_logs_max_lines) if path else []
+            if lines:
+                if content:
+                    content.append('')
+                content.append('Information from log file: {}'.format(path))
+                content.extend(['  {}'.format(line) for line in lines])
+
+        return content
