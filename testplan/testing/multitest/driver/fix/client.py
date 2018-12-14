@@ -104,7 +104,7 @@ class FixClient(Driver):
 
     @property
     def logpath(self):
-        """Fix server logfile in runpath."""
+        """Fix client logfile in runpath."""
         return os.path.join(self.runpath, self._logname)
 
     @property
