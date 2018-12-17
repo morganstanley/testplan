@@ -459,12 +459,12 @@ class Entity(object):
         """
         self._runpath = self.generate_runpath()
         self._scratch = os.path.join(self._runpath, 'scratch')
-        self.logger.debug('{} has {} runpath and pid {}'.format(
-            self.__class__.__name__, self.runpath, os.getpid()))
         if self.runpath is None:
             raise RuntimeError('{} runpath cannot be None'.format(
                 self.__class__.__name__
             ))
+        self.logger.debug('{} has {} runpath and pid {}'.format(
+            self.__class__.__name__, self.runpath, os.getpid()))
 
         if self.cfg.path_cleanup is False:
             makedirs(self._runpath)
