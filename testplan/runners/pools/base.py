@@ -682,7 +682,7 @@ class Pool(Executor):
             self.logger.debug('Initialized %s', worker)
             worker.parent = self
             worker.cfg.parent = self.cfg
-            self.logger.debug('Worker %(index)d outfile = %(outfile)s', {'index': idx, 'outfile': worker.outfile})
+            self.logger.debug('Worker %(index)s outfile = %(outfile)s', {'index': idx, 'outfile': worker.outfile})
             self._workers.add(worker, uid=idx)
             self._conn.register(worker)
             self.logger.debug('Added {}.'.format(worker))
