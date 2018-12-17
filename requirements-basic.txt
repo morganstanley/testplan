@@ -34,5 +34,5 @@ requests>=2.4.3
 
 # Data science
 # ------------
-# sklearn
+# scikit-learn
 # scipy

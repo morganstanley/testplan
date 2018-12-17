@@ -32,7 +32,7 @@ REQUIRED = [
     'pyparsing',
     'cycler',
     'scipy',
-    'sklearn',
+    'scikit-learn',
     'numpy',
     'matplotlib',
     'requests>=2.4.3'
