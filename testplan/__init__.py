@@ -13,5 +13,5 @@ if TESTPLAN_DEPENDENCIES_PATH in os.environ:
     import dependencies  # pylint: disable=import-error
     sys.path.remove(os.environ[TESTPLAN_DEPENDENCIES_PATH])
 
-from .base import Testplan, TestplanConfig, TestplanResult, test_plan
-from .runners.pools.tasks import Task, TaskResult
+from testplan.base import Testplan, TestplanConfig, TestplanResult, test_plan
+from testplan.runners.pools.tasks import Task, TaskResult
