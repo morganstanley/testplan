@@ -1,6 +1,7 @@
 """Base classes for all Tests"""
-import os
+import os, sys
 import subprocess
+import six
 
 from lxml import objectify
 from schema import Or, Use, And
@@ -339,8 +340,12 @@ class ProcessRunnerTest(Test):
             env=self.cfg.proc_env,
             stdout=subprocess.PIPE)
 
-        return self.parse_test_context(
-            test_list_output=proc.communicate()[0])
+        test_list_output = proc.communicate()[0]
+
+        if not isinstance(test_list_output, six.string_types):  # with python3, stdout is bytes
+            test_list_output = test_list_output.decode(sys.stdout.encoding)
+
+        return self.parse_test_context(test_list_output)
 
     def parse_test_context(self, test_list_output):
         """
