@@ -7,11 +7,7 @@ import testplan
 from testplan.testing import py_test
 
 
-# We specify a description for the testplan, as well as a database to which
-# the report should be committed. It is useful to specify a database, even
-# if you don't intend for the results to be persisted : the cost is negligible
-# and it provides an easily shared and detailed view of the test results.
-# noinspection PyUnresolvedReferences
+# Specify the name and description of the testplan via the decorator.
 @testplan.test_plan(name='PyTestExample',
                     description='PyTest basic example')
 def main(plan):
@@ -25,8 +21,7 @@ def main(plan):
 
 
 # Finally we trigger our main function when the script is run, and
-# set the return status. Note that it has to be inverted because it's
-# a boolean value.
+# set the return status.
 if __name__ == '__main__':
     res = main()
     sys.exit(res.exit_code)
