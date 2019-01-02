@@ -92,3 +92,21 @@ expected_report = TestReport(
                                 u'type': 'RawAssertion'}])],
                     tags=None)],
             tags=None)])
+
+expected_output =\
+'''MyHobbesTest
+  Arrays
+  Compiler
+  Definitions
+  Existentials
+  Hog
+  Matching
+  Net
+  Objects
+  Prelude
+  Recursives
+  Storage
+  Structs
+  TypeInf
+  Variants
+'''
