@@ -2,6 +2,7 @@
 
 import os
 import re
+import tempfile
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
@@ -16,10 +17,12 @@ from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 from testplan.logger import TESTPLAN_LOGGER
 
 
+CUSTOM_RUNPATH = os.path.join(tempfile.gettempdir(),
+                              'test_multitest_drivers_runpath')
 
-def runpath_maker(obj):
-    """TODO."""
-    return '{sep}tmp{sep}'.format(sep=os.sep)
+def runpath_maker(_):
+    """Return a custom runpath location."""
+    return CUSTOM_RUNPATH
 
 
 @testsuite
