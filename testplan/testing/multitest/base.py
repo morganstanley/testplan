@@ -371,6 +371,12 @@ class MultiTest(Test):
 
                 time.sleep(self.cfg.active_loop_sleep)
 
+            if ctx:  # Execution aborted and still some suites left there
+                self.report.logger.error('Not all of the suites are done.')
+                st = Status.precedent([self.report.status, Status.INCOMPLETE])
+                if st != self.report.status:
+                    self.report.status_override = Status.INCOMPLETE
+
             if self._thread_pool_size > 0:
                 self._stop_thread_pool()
 

@@ -130,7 +130,34 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
             ]
         )
 
+        # Error logs that are higher than ERROR level
+        log_data = self.get_logs(source, depth=depth+1, row_idx=row_data.end)
+        if log_data:
+            row_data += log_data
+
         return row_data
+
+    def get_logs(self, source, depth, row_idx, lvl=logging.ERROR):
+        """
+        Get logs created by the `report.logger` object.
+        Only select the logs with severity level equal to or higher than `lvl`.
+        """
+        font_size = const.FONT_SIZE_SMALL
+        width = const.WRAP_LIMITS[font_size]
+        logs = [log for log in source.logs if log['levelno'] >= lvl]
+
+        return RowData(
+            start=row_idx,
+            content=[
+                [wrap(log['message'], width=width), '', '', '']
+                for log in logs
+            ],
+            style=RowStyle(
+                font=(const.FONT, font_size),
+                left_padding=const.INDENT * depth,
+                text_color=colors.gray,
+            )
+        ) if logs else None
 
 
 @registry.bind(TestGroupReport)
@@ -149,11 +176,10 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
                 depth=depth,
                 row_idx=row_data.end)
 
-        # Display logs that are higher than ERROR level
-        logs = [log for log in source.logs if log['levelno'] >= logging.ERROR]
-        if logs:
-            row_data += self.get_logs(
-                logs=source.logs, depth=depth + 1, row_idx=row_data.end)
+        # Error logs that are higher than ERROR level
+        log_data = self.get_logs(source, depth=depth+1, row_idx=row_data.end)
+        if log_data:
+            row_data += log_data
 
         return row_data
 
@@ -224,10 +250,14 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
             )
         )
 
-    def get_logs(self, logs, depth, row_idx):
-        """Logs created by the `report.logger` object."""
+    def get_logs(self, source, depth, row_idx, lvl=logging.ERROR):
+        """
+        Get logs created by the `report.logger` object.
+        Only select the logs with severity level equal to or higher than `lvl`.
+        """
         font_size = const.FONT_SIZE_SMALL
         width = const.WRAP_LIMITS[font_size]
+        logs = [log for log in source.logs if log['levelno'] >= lvl]
 
         return RowData(
             start=row_idx,
@@ -240,7 +270,7 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
                 left_padding=const.INDENT * depth,
                 text_color=colors.gray,
             )
-        )
+        ) if logs else None
 
     def get_style(self, source):
         if source.passed:

@@ -8,7 +8,7 @@ import webbrowser
 
 from collections import OrderedDict
 
-from schema import Schema, Or, Use
+from schema import Schema, Or, And, Use
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
@@ -22,8 +22,7 @@ from testplan.logger import log_test_status, TEST_INFO, TESTPLAN_LOGGER
 
 from testplan.testing.base import TestResult
 
-from testplan.report import TestReport
-from testplan.report.testing import TestGroupReport, Status
+from testplan.report.testing import TestReport, TestGroupReport, Status
 from testplan.report.testing.styles import Style
 from testplan.testing import listing, filtering, ordering, tagging
 
@@ -141,12 +140,16 @@ class TestRunnerConfig(RunnableConfig):
                 block_propagation=False): ordering.BaseSorter,
             # Test lister is None by default, otherwise Testplan would
             # list tests, not run them
-            ConfigOption('test_lister', default=None,
-                block_propagation=False): Or(None, listing.BaseLister),
-            ConfigOption('verbose', default=False,
-                         block_propagation=False): bool,
-            ConfigOption('debug', default=False,
-                         block_propagation=False): bool
+            ConfigOption(
+                'test_lister', default=None,
+                block_propagation=False):Or(None, listing.BaseLister),
+            ConfigOption(
+                'verbose', default=False, block_propagation=False): bool,
+            ConfigOption(
+                'debug', default=False, block_propagation=False): bool,
+            ConfigOption(
+                'timeout', default=None): Or(
+                None, And(Or(int, float), lambda t: t >= 0))
         }
 
 
@@ -245,6 +248,7 @@ class TestRunner(Runnable):
 
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
+        self._start_time = time.time()
         self._tests = OrderedDict()  # uid to resource
         self._result.test_report = TestReport(
             name=self.cfg.name, uid=self.cfg.name)
@@ -401,6 +405,17 @@ class TestRunner(Runnable):
                 resource.abort()
 
         while self.active:
+            if self.cfg.timeout and \
+                    time.time() - self._start_time > self.cfg.timeout:
+                self.result.test_report.logger.error(
+                    'Timeout: Aborting execution after {} seconds'.format(
+                        self.cfg.timeout))
+                # Abort dependencies, wait sometime till test reports are ready
+                for dep in self.abort_dependencies():
+                    self._abort_entity(dep)
+                time.sleep(self.cfg.abort_wait_timeout)
+                break
+
             ongoing = False
             for resource in self.resources:
                 if resource.ongoing:
@@ -410,6 +425,9 @@ class TestRunner(Runnable):
                 # Poll the resource's health - if it has unexpectedly died
                 # then abort the entire test to avoid hanging.
                 if not resource.is_alive:
+                    self.result.test_report.logger.critical(
+                        'Aborting {} - {} unexpectedly died'.format(
+                            self, resource))
                     self.abort()
                     self.result.test_report.status_override = Status.ERROR
 
@@ -427,8 +445,13 @@ class TestRunner(Runnable):
             if not isinstance(self.resources[resource], Executor):
                 continue
 
-            resource_result = self.resources[resource].results[uid]
-            if isinstance(resource_result, TaskResult):
+            resource_result = self.resources[resource].results.get(uid)
+            # Tasks may not been executed (i.e. timeout), although the thread
+            # will wait for a buffer period until the follow up work finishes.
+            # But for insurance we assume that still some uids are missing.
+            if not resource_result:
+                continue
+            elif isinstance(resource_result, TaskResult):
                 if resource_result.status is False:
                     test_results[uid] = result_for_failed_task(resource_result)
                 else:
@@ -502,7 +525,7 @@ class TestRunner(Runnable):
             reports.sort(key=lambda tup: tup[1].part[0])
 
             with placeholder_report.logged_exceptions():
-                if len(reports) != count:
+                if len(reports) < count:
                     raise MergeError(
                         'Cannot merge parts for child report with '
                         '`uid`: {uid}, not all MultiTest parts '
