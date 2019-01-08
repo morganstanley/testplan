@@ -11,12 +11,15 @@ from testplan.common.config import ConfigOption
 
 from testplan.testing import filtering, ordering, tagging
 
-from testplan.common.entity import Runnable, RunnableResult, RunnableConfig
+from testplan.common.entity import (
+    Resource, Runnable, RunnableResult, RunnableConfig)
 from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
 from testplan.common.utils.process import enforce_timeout, kill_process
+from testplan.common.utils.strings import slugify
 
-from testplan.report import test_styles, TestGroupReport, TestCaseReport, Status
+from testplan.report import (
+    test_styles, TestGroupReport, TestCaseReport, Status)
 from testplan.logger import TESTPLAN_LOGGER, get_test_status_message
 
 
@@ -29,6 +32,7 @@ class TestConfig(RunnableConfig):
             # 'name': And(str, lambda s: s.count(' ') == 0),
             'name': str,
             ConfigOption('description', default=None): str,
+            ConfigOption('environment', default=[]): [Resource],
             ConfigOption(
                 'test_filter',
                 default=filtering.Filter(),
@@ -47,12 +51,7 @@ class TestConfig(RunnableConfig):
             ConfigOption(
                 'tags',
                 default=None
-            ): Or(None, Use(tagging.validate_tag_value)),
-            ConfigOption(
-                'part',
-                default=None)
-            : Or(None, And((int,), lambda tp:
-                len(tp) == 2 and 0 <= tp[0] < tp[1] and tp[1] > 1))
+            ): Or(None, Use(tagging.validate_tag_value))
         }
 
 
@@ -81,12 +80,19 @@ class Test(Runnable):
     :type name: ``str``
     :param description: Description of test instance.
     :type description: ``str``
+    :param environment: List of
+        :py:class:`drivers <testplan.tesitng.multitest.driver.base.Driver>` to
+        be started and made available on tests execution.
+    :type environment: ``list``
     :param test_filter: Class with test filtering logic.
     :type test_filter: :py:class:`~testplan.testing.filtering.BaseFilter`
     :param test_sorter: Class with tests sorting logic.
     :type test_sorter: :py:class:`~testplan.testing.ordering.BaseSorter`
     :param stdout_style: Console output style.
     :type stdout_style: :py:class:`~testplan.report.testing.styles.Style`
+    :param tags: User defined tag value.
+    :type tags: ``string``, ``iterable`` of ``string``, or a ``dict`` with
+        ``string`` keys and ``string`` or ``iterable`` of ``string`` as values.
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Runnable` options.
@@ -101,18 +107,24 @@ class Test(Runnable):
     def __init__(self, **options):
         super(Test, self).__init__(**options)
 
+        for resource in self.cfg.environment:
+            resource.parent = self
+            resource.cfg.parent = self.cfg
+            self.resources.add(resource)
+
         self._test_context = None
+        self._init_test_report()
+
+    def __str__(self):
+        return '{}[{}]'.format(self.__class__.__name__, self.name)
+
+    def _init_test_report(self):
         self.result.report = TestGroupReport(
             name=self.cfg.name,
             description=self.cfg.description,
             category=self.__class__.__name__.lower(),
-            uid=self.uid(),
             tags=self.cfg.tags,
-            part=self.cfg.part,
         )
-
-    def __str__(self):
-        return '{}[{}]'.format(self.__class__.__name__, self.name)
 
     def get_tags_index(self):
         """
@@ -387,7 +399,20 @@ class ProcessRunnerTest(Test):
         self._json_ouput = os.path.join(self.runpath, 'output.json')
         self.logger.debug('Json output: {}'.format(self._json_ouput))
         env = {'JSON_REPORT': self._json_ouput}
-        env.update(self.cfg.proc_env)
+        env.update(
+            {key.upper(): val for key, val in self.cfg.proc_env.items()}
+        )
+
+        for driver in self.resources:
+            driver_name = driver.uid()
+            for attr in dir(driver):
+                value = getattr(driver, attr)
+                if attr.startswith('_') or callable(value):
+                    continue
+                env['DRIVER_{}_ATTR_{}'.format(
+                    slugify(driver_name).replace('-', '_'),
+                    slugify(attr).replace('-', '_')).upper()] = str(value)
+
         return env
 
     def run_tests(self):
@@ -422,7 +447,7 @@ class ProcessRunnerTest(Test):
                     'Invalid test command generated for: {}'.format(self))
 
             self._test_process = subprocess_popen(
-                self.test_command(),
+                test_cmd,
                 stderr=stderr,
                 stdout=stdout,
                 cwd=self.cfg.proc_cwd,

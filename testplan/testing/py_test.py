@@ -28,8 +28,6 @@ class PyTestConfig(testing.TestConfig):
             config.ConfigOption('select', default=''): str,
             config.ConfigOption('extra_args', default=None): schema.Or(
                 [str], None),
-            config.ConfigOption('environment', default=None): schema.Or(
-                [entity.Resource], None),
             config.ConfigOption('quiet', default=True): bool
         }
 
@@ -44,15 +42,6 @@ class PyTest(testing.Test):
 
     def __init__(self, **options):
         super(PyTest, self).__init__(**options)
-
-        # Add the environment to our list of resources.
-        if self.cfg.environment is None:
-            self.cfg.environment = []
-
-        for resource in self.cfg.environment:
-            resource.parent = self
-            resource.cfg.parent = self.cfg
-            self.resources.add(resource)
 
         # Initialise a seperate plugin object to pass to PyTest. This avoids
         # namespace clashes with the PyTest object, since PyTest will scan for
