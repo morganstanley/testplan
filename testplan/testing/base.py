@@ -1,5 +1,6 @@
 """Base classes for all Tests"""
-import os, sys
+import os
+import sys
 import subprocess
 import six
 
@@ -192,43 +193,54 @@ class Test(Runnable):
                 return style.display_test
             elif test_obj.category == 'suite':
                 return style.display_suite
+            elif test_obj.category == 'parametrization':
+                return False  # DO NOT display
         elif isinstance(test_obj, TestCaseReport):
             return style.display_case
-        elif isinstance(test_obj, dict) and test_obj['type'] == 'RawAssertion':
+        elif isinstance(test_obj, dict):
             return style.display_assertion
         raise TypeError('Unsupported test object: {}'.format(test_obj))
 
     def log_test_results(self):
-
+        """
+        Log test results. i.e. ProcessRunnerTest or PyTest
+        """
         report = self.result.report
         items = report.flatten(depths=True)
 
         for depth, obj in items:
             name = obj['description'] if isinstance(obj, dict) else obj.name
-            passed = obj['passed'] if isinstance(obj, dict) else obj.passed
+            try:
+                passed = obj['passed'] if isinstance(obj, dict) else obj.passed
+            except KeyError:
+                passed = True  # Some report entries (i.e. Log) always pass
 
             style = self.get_stdout_style(passed)
+            indent = (depth + 1) * 2 * ' '
 
             if self.should_log_test_result(depth, obj, style):
-                indent = (depth + 1) * 2 * ' '
-                msg = get_test_status_message(
-                    name=name,
-                    passed=passed
-                )
-                if isinstance(obj, dict) and style.display_assertion_detail:
-                    detail_indent = indent + (2 * ' ')
-                    detail_str = os.linesep.join(
-                        '{}{}'.format(detail_indent, line)
-                        for line in obj['content'].splitlines())
+                if isinstance(obj, dict):
+                    if obj['type'] == 'RawAssertion':
+                        header = obj['description']
+                        details = obj['content']
+                    elif 'stdout_header' in obj and 'stdout_details' in obj:
+                        header = obj['stdout_header']
+                        details = obj['stdout_details']
+                    else:
+                        continue
 
-                    msg = '{}{}{}'.format(msg, os.linesep, detail_str)
-
-                TESTPLAN_LOGGER.test_info(
-                    '{indent}{msg}'.format(
-                        indent=indent,
-                        msg=msg
+                    if style.display_assertion:
+                        TESTPLAN_LOGGER.test_info(indent + header)
+                    if details and style.display_assertion_detail:
+                        details = os.linesep.join(indent + 2 * ' ' + line
+                            for line in details.split(os.linesep))
+                        TESTPLAN_LOGGER.test_info(details)
+                else:
+                    msg = get_test_status_message(
+                        name=name,
+                        passed=passed
                     )
-                )
+                    TESTPLAN_LOGGER.test_info(indent + msg)
 
     def propagate_tag_indices(self):
         """

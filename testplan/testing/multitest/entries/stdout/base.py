@@ -10,8 +10,6 @@ import re
 import six
 import pprint
 
-from collections import Mapping, Iterable
-
 from terminaltables import AsciiTable
 
 from testplan.common.utils.registry import Registry
