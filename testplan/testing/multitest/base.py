@@ -21,6 +21,7 @@ from testplan.common.utils.interface import (
 )
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.validation import is_subclass
+from testplan.common.utils.monitor import EventMonitor
 from testplan.logger import TESTPLAN_LOGGER, get_test_status_message
 from testplan.report import TestGroupReport, TestCaseReport
 from testplan.report.testing import Status
@@ -92,7 +93,8 @@ class MultiTestConfig(TestConfig):
             ConfigOption('after_stop', default=None): start_stop_signature,
             ConfigOption('result', default=Result): is_subclass(Result),
             ConfigOption('thread_pool_size', default=0): int,
-            ConfigOption('max_thread_pool_size', default=10): int
+            ConfigOption('max_thread_pool_size', default=10): int,
+            ConfigOption('resource_monitor', default=False, block_propagation=False): bool,
         }
 
 
@@ -333,6 +335,10 @@ class MultiTest(Test):
         ctx = [(self.test_context[idx][0], self.test_context[idx][1][:])
                for idx in range(len(self.test_context))]
 
+        if self.cfg.resource_monitor:
+            event_monitor = EventMonitor()
+            entity_uuid = event_monitor.started('multitest', {'name': self.name})
+
         with self.report.timer.record('run'):
             if any(getattr(testcase, 'execution_group', None)
                     for pair in ctx for testcase in pair[1]):
@@ -373,6 +379,10 @@ class MultiTest(Test):
 
             if self._thread_pool_size > 0:
                 self._stop_thread_pool()
+
+        if self.cfg.resource_monitor:
+            event_monitor.stopped(entity_uuid, {'passed': self.report.passed})
+            event_monitor.save(self.scratch)
 
     def _run_suite(self, testsuite, testcases, testsuite_report):
         """Runs a testsuite object and populates its report object."""

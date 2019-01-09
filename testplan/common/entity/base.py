@@ -458,6 +458,8 @@ class Entity(object):
         Creates runpath related directories.
         """
         self._runpath = self.generate_runpath()
+        # Update self.cfg.runpath if use the default runpath
+        self.cfg.runpath = self._runpath
         self._scratch = os.path.join(self._runpath, 'scratch')
         if self.runpath is None:
             raise RuntimeError('{} runpath cannot be None'.format(
@@ -561,6 +563,7 @@ class Runnable(Entity):
         self._environment = self.__class__.ENVIRONMENT(parent=self)
         self._result = self.__class__.RESULT()
         self._steps = deque()
+        self.resource_monitor = None
 
     @property
     def result(self):

@@ -17,7 +17,7 @@ from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils.strings import Color
 from testplan.common.utils.timing import wait_until_predicate
-
+from testplan.common.utils.monitor import EventMonitor, ResourceMonitor
 from .communication import Message
 from testplan.runners.base import Executor, ExecutorConfig
 from .tasks import Task, TaskResult
@@ -355,7 +355,8 @@ class PoolConfig(ExecutorConfig):
             ConfigOption('worker_inactivity_threshold', default=300): int,
             ConfigOption('heartbeats_miss_limit', default=3): int,
             ConfigOption('task_retries_limit', default=3): int,
-            ConfigOption('max_active_loop_sleep', default=5): Or(int, float)
+            ConfigOption('max_active_loop_sleep', default=5): Or(int, float),
+            ConfigOption('resource_monitor', default=False, block_propagation=False): bool,
         }
 
 
@@ -378,6 +379,8 @@ class Pool(Executor):
         self._pool_lock = threading.Lock()
         self._request_handlers = {}
         self._metadata = {}
+        self.resource_monitor = None
+        self.event_uid = None
 
     def uid(self):
         """Pool name."""
@@ -692,6 +695,10 @@ class Pool(Executor):
         super(Pool, self).starting()
         self.make_runpath_dirs()
         self._metadata['runpath'] = self.runpath
+        if self.cfg.resource_monitor:
+            if not self.resource_monitor:
+                self.resource_monitor = EventMonitor()
+            self.event_uid = self.resource_monitor.started('pool', {'name': self.__class__.__name__})
         self._add_workers()
         self._workers.start()
         if self._workers.start_exceptions:
@@ -709,6 +716,10 @@ class Pool(Executor):
         """Stop connections and workers."""
         self._conn.close()
         self._workers.stop()
+        if self.event_uid:
+            self.resource_monitor.stopped(self.event_uid)
+            self.event_uid = None
+            self.resource_monitor.save(self.scratch)
         super(Pool, self).stopping()
 
     def abort_dependencies(self):

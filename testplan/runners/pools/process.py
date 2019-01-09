@@ -98,6 +98,8 @@ class ProcessWorker(Worker):
                                           '..'),
                '--type', 'process_worker',
                '--log-level', TESTPLAN_LOGGER.getEffectiveLevel()]
+        if self.cfg.resource_monitor:
+            cmd.extend(['--resource-monitor', ])
         if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
             cmd.extend(
                 ['--testplan-deps', fix_home_prefix(

@@ -17,6 +17,7 @@ from testplan.common.entity import Entity, RunnableConfig, RunnableStatus, \
 from testplan.common.exporters import BaseExporter, ExporterResult
 from testplan.common.report import MergeError
 from testplan.common.utils.path import default_runpath
+from testplan.common.utils.monitor import ResourceMonitor
 from testplan.exporters import testing as test_exporters
 from testplan.logger import log_test_status, TEST_INFO, TESTPLAN_LOGGER
 
@@ -45,6 +46,8 @@ def get_default_exporters(config):
         result.append(test_exporters.JSONExporter())
     if config.xml_dir:
         result.append(test_exporters.XMLExporter())
+    if config.resource_monitor:
+        result.append(test_exporters.ResourceExporter())
     return result
 
 
@@ -146,7 +149,8 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption('verbose', default=False,
                          block_propagation=False): bool,
             ConfigOption('debug', default=False,
-                         block_propagation=False): bool
+                         block_propagation=False): bool,
+            ConfigOption('resource_monitor', default=False): bool,
         }
 
 
@@ -248,6 +252,8 @@ class TestRunner(Runnable):
         self._tests = OrderedDict()  # uid to resource
         self._result.test_report = TestReport(
             name=self.cfg.name, uid=self.cfg.name)
+        if self.cfg.resource_monitor:
+            self.resource_monitor = ResourceMonitor()
 
     @property
     def report(self):
@@ -364,10 +370,15 @@ class TestRunner(Runnable):
             super(TestRunner, self)._add_step(step, *args, **kwargs)
 
     def _record_start(self):
+        if self.resource_monitor:
+            self.resource_monitor.start()
         self.report.timer.start('run')
 
     def _record_end(self):
         self.report.timer.end('run')
+        if self.resource_monitor:
+            self.resource_monitor.stop()
+            self.resource_monitor.save(self.scratch)
 
     def make_runpath_dirs(self):
         super(TestRunner, self).make_runpath_dirs()

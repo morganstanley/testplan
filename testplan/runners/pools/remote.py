@@ -521,6 +521,8 @@ class RemoteWorker(ProcessWorker):
                '--runpath', self._remote_testplan_runpath,
                '--remote-pool-type', self.cfg.pool_type,
                '--remote-pool-size', str(self.cfg.workers)]
+        if self.cfg.resource_monitor:
+            cmd.extend(['--resource-monitor', ])
         self._add_testplan_import_path(cmd, flag='--testplan')
         if not self._should_transfer_workspace:
             self._add_testplan_deps_import_path(cmd, flag='--testplan-deps')

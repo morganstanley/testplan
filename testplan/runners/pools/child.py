@@ -28,6 +28,7 @@ def parse_cmdline():
     parser.add_argument('--log-level', action="store", default=0, type=int)
     parser.add_argument('--remote-pool-type', action="store", default='thread')
     parser.add_argument('--remote-pool-size', action="store", default=1)
+    parser.add_argument('--resource-monitor', action="store_true", default=False)
 
     return parser.parse_args()
 
@@ -97,7 +98,7 @@ class ChildLoop(object):
     """
 
     def __init__(self, index, transport, pool_type, pool_size,
-                 worker_type, logger, runpath=None):
+                 worker_type, logger, runpath=None, event_monitor=False):
         self._metadata = {'index': index, 'pid': os.getpid()}
         self._transport = transport
         self._pool_type = pool_type
@@ -107,6 +108,11 @@ class ChildLoop(object):
         self._to_heartbeat = float(0)
         self.runpath = runpath
         self.logger = logger
+        self.event_monitor = None
+        self.event_uid = None
+        if event_monitor:
+            from testplan.common.utils.monitor import EventMonitor
+            self.event_monitor = EventMonitor()
 
     @property
     def metadata(self):
@@ -140,11 +146,18 @@ class ChildLoop(object):
         self._pool.cfg.parent = self._pool_cfg
         return self._pool
 
+    def _stop_event_monitor(self):
+        if self.event_uid:
+            self.event_monitor.stopped(self.event_uid)
+            self.event_monitor.save(self.runpath)
+            self.event_uid = None
+
     def _handle_abort(self, signum, frame):
         self.logger.debug('Signal handler called for signal {} from {}'.format(
             signum, threading.current_thread()))
         if self._pool:
             self._pool.abort()
+            self._stop_event_monitor()
             os.kill(os.getpid(), 9)
             self.logger.debug('Pool {} aborted.'.format(self._pool))
 
@@ -208,6 +221,9 @@ class ChildLoop(object):
         from testplan.runners.pools.communication import Message
         from testplan.common.utils.exceptions import format_trace
         message = Message(**self.metadata)
+
+        if self.event_monitor:
+            self.event_uid = self.event_monitor.started('ChildLoop', {'name': self._metadata['index']})
 
         try:
             self._pre_loop_setup(message)
@@ -279,11 +295,14 @@ class ChildLoop(object):
                             self._pool_cfg.max_active_loop_sleep)
                         next_possible_request = time.time() + request_delay
                         pass
+                if self.event_monitor:
+                    self.event_monitor.save(self._pool.scratch)
                 time.sleep(self._pool_cfg.active_loop_sleep)
         self.logger.info('Local pool {} stopped.'.format(self._pool))
 
     def exit_loop(self):
         self._pool.abort()
+        self._stop_event_monitor()
 
 
 class RemoteChildLoop(ChildLoop):
@@ -294,6 +313,10 @@ class RemoteChildLoop(ChildLoop):
     def __init__(self, *args, **kwargs):
         super(RemoteChildLoop, self).__init__(*args, **kwargs)
         self._setup_metadata = None
+        if self.event_monitor:
+            from testplan.common.utils.monitor import ResourceMonitor
+            self.event_monitor = ResourceMonitor()
+            self.event_monitor.start()
 
     def _pre_loop_setup(self, message):
         super(RemoteChildLoop, self)._pre_loop_setup(message)
@@ -363,6 +386,7 @@ def child_logic(args):
         # To eliminate a not needed runpath layer.
         def make_runpath_dirs(self):
             self._runpath = self.cfg.runpath
+            self._scratch = os.path.join(self._runpath, 'scratch')
 
         def starting(self):
             super(Pool, self).starting()  # pylint: disable=bad-super-call
@@ -390,6 +414,7 @@ def child_logic(args):
         # To eliminate a not needed runpath layer.
         def make_runpath_dirs(self):
             self._runpath = self.cfg.runpath
+            self._scratch = os.path.join(self._runpath, 'scratch')
 
     class NoRunpathProcessPool(ProcessPool):
         """
@@ -400,11 +425,12 @@ def child_logic(args):
         # To eliminate a not needed runpath layer.
         def make_runpath_dirs(self):
             self._runpath = self.cfg.runpath
+            self._scratch = os.path.join(self._runpath, 'scratch')
 
     if args.type == 'process_worker':
         transport = ChildTransport(address=args.address)
         loop = ChildLoop(args.index, transport, NoRunpathPool, 1, Worker,
-                         TESTPLAN_LOGGER)
+                         TESTPLAN_LOGGER, event_monitor=args.resource_monitor)
         loop.worker_loop()
 
     elif args.type == 'remote_worker':
@@ -418,7 +444,7 @@ def child_logic(args):
 
         loop = RemoteChildLoop(
             args.index, transport, pool_type, args.remote_pool_size,
-            worker_type, TESTPLAN_LOGGER, runpath=args.runpath)
+            worker_type, TESTPLAN_LOGGER, runpath=args.runpath, event_monitor=args.resource_monitor)
         loop.worker_loop()
 
 
