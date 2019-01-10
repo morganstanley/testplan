@@ -367,8 +367,21 @@ class Server(object):
           target)
         :rtype: ``list`` of ``tuple`` of ``str`` and ``str``
         """
+
+        # from PEP-0469 (common subset of Python 2 and 3)
+        try:
+            dict.iteritems
+        except AttributeError:
+            # Python 3
+            def itervalues(d):
+                return iter(d.values())
+        else:
+            # Python 2
+            def itervalues(d):
+                return d.itervalues()
+
         return [detail.name
-                for detail in self._conndetails_by_fd.itervalues()
+                for detail in itervalues(self._conndetails_by_fd)
                 if detail.name is not None]
 
     def is_connection_active(self, conn_name):
