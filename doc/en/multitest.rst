@@ -1364,6 +1364,32 @@ applications.
 Users are strongly encouraged to follow this practice rather than hardcode host
 names and port numbers in their test setups.
 
+Work with unit test
+-------------------
+Drivers can also be useful while working with other unit testing frameworks like
+like GTest or Hobbes Test. Testplan will export environment variables for newly
+started test process. Have a look at the following code:
+
+.. code-block:: python
+
+    plan.add(GTest(
+        name='My GTest',
+        driver=BINARY_PATH,
+        environment=[
+            TCPServer(name='my server'),
+            TCPClient(name='client-101',
+                host=context('server', '{{host}}'),
+                port=context('server', '{{port}}')
+            )
+        ]
+    )
+
+In your unit test process, you can find an environment variable named
+'DRIVER_MY_SERVER_ATTR_HOST', likewise, 'DRIVER_CLIENT_101_ATTR_PORT' is also
+available. It is easy to understand that the string is formatted in uppercase,
+like 'DRIVER_<uid of driver>_ATTR_<attribute name>', while hyphens and spaces
+are replaced by underscores.
+
 .. _multitest_builtin_drivers:
 
 Built-in drivers

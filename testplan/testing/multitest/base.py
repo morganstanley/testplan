@@ -15,7 +15,7 @@ from threading import Thread, Lock
 from schema import Use, Or, And
 
 from testplan.common.config import ConfigOption, validate_func
-from testplan.common.entity import Resource, Runnable
+from testplan.common.entity import Runnable
 from testplan.common.utils.interface import (
     check_signature, MethodSignatureMismatch
 )
@@ -32,12 +32,7 @@ from .result import Result
 from .suite import set_testsuite_testcases, propagate_tag_indices
 
 from ..base import Test, TestConfig
-
-
-MULTITEST_INDENT = 2
-SUITE_INDENT = 4
-TESTCASE_INDENT = 6
-ASSERTION_INDENT = 8
+from ..base import TEST_INST_INDENT, SUITE_INDENT, TESTCASE_INDENT
 
 
 def log_status(report, indent):
@@ -48,7 +43,7 @@ def log_status(report, indent):
 
 log_testcase_status = functools.partial(log_status, indent=TESTCASE_INDENT)
 log_suite_status = functools.partial(log_status, indent=SUITE_INDENT)
-log_multitest_status = functools.partial(log_status, indent=MULTITEST_INDENT)
+log_multitest_status = functools.partial(log_status, indent=TEST_INST_INDENT)
 
 
 class Categories(object):
@@ -85,14 +80,15 @@ class MultiTestConfig(TestConfig):
 
         return {
             'suites': Use(iterable_suites),
-            ConfigOption('environment', default=[]): [Resource],
+            ConfigOption('result', default=Result): is_subclass(Result),
             ConfigOption('before_start', default=None): start_stop_signature,
             ConfigOption('after_start', default=None): start_stop_signature,
             ConfigOption('before_stop', default=None): start_stop_signature,
             ConfigOption('after_stop', default=None): start_stop_signature,
-            ConfigOption('result', default=Result): is_subclass(Result),
             ConfigOption('thread_pool_size', default=0): int,
-            ConfigOption('max_thread_pool_size', default=10): int
+            ConfigOption('max_thread_pool_size', default=10): int,
+            ConfigOption('part', default=None): Or(None, And((int,),
+                lambda tp: len(tp) == 2 and 0 <= tp[0] < tp[1] and tp[1] > 1))
         }
 
 
@@ -109,10 +105,6 @@ class MultiTest(Test):
         :py:func:`@testcase <testplan.testing.multitest.suite.testcase>`
         decorated methods representing the tests.
     :type suites: ``list``
-    :param environment: List of
-        :py:class:`drivers <testplan.tesitng.multitest.driver.base.Driver>` to
-        be started and made available on tests execution.
-    :type environment: ``list``
     :param result: Result class definition for result object made available
         from within the testcases.
     :type result: :py:class:`~testplan.testing.multitest.result.Result`
@@ -124,14 +116,14 @@ class MultiTest(Test):
     :type before_stop: ``callable`` taking environment and a result arguments.
     :param after_stop: Callable to execute after stopping the environment.
     :type after_stop: ``callable`` taking environment and a result arguments.
-    :param part: Execute only a part of the total testcases. MultiTest needs to
-                 know which part of the total it is.
-    :type part: ``tuple`` of (``int``, ``int``)
     :param thread_pool_size: Size of the thread pool which executes testcases
         with execution_group specified in parallel (default 0 means no pool).
     :type thread_pool_size: ``int``
     :param max_thread_pool_size: Maximum number of threads allowed in the pool.
     :type max_thread_pool_size: ``int``
+    :param part: Execute only a part of the total testcases. MultiTest needs to
+        know which part of the total it is. Only works with Multitest.
+    :type part: ``tuple`` of (``int``, ``int``)
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -150,11 +142,6 @@ class MultiTest(Test):
 
         super(MultiTest, self).__init__(**options)
 
-        for resource in self.cfg.environment:
-            resource.parent = self
-            resource.cfg.parent = self.cfg
-            self.resources.add(resource)
-
         # For all suite instances (and their bound testcase methods,
         # along with parametrization template methods)
         # update tag indices with native tags of this instance.
@@ -172,6 +159,17 @@ class MultiTest(Test):
         self._thread_pool_size = 0
         self._thread_pool_active = False
         self._thread_pool_available = False
+
+    def _init_test_report(self):
+        """Overwrite parent's."""
+        self.result.report = TestGroupReport(
+            name=self.cfg.name,
+            description=self.cfg.description,
+            category=self.__class__.__name__.lower(),
+            uid=self.uid(),
+            tags=self.cfg.tags,
+            part=self.cfg.part,
+        )
 
     def _execute_step(self, step, *args, **kwargs):
         """

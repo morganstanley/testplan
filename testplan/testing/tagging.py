@@ -76,7 +76,7 @@ def validate_tag_value(tag_value):
     :param tag_value: User defined tag value.
     :type tag_value: ``string``, ``iterable`` of ``string`` or
                      a ``dict`` with ``string`` keys
-                     and ``string`` or ``iterable`` of ``strings`` as values.
+                     and ``string`` or ``iterable`` of ``string`` as values.
 
     :return: Internal representation of the tag context.
     :rtype: ``dict`` of ``set``

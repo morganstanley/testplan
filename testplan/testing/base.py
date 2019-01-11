@@ -1,5 +1,6 @@
 """Base classes for all Tests"""
-import os, sys
+import os
+import sys
 import subprocess
 import six
 
@@ -11,13 +12,22 @@ from testplan.common.config import ConfigOption
 
 from testplan.testing import filtering, ordering, tagging
 
-from testplan.common.entity import Runnable, RunnableResult, RunnableConfig
+from testplan.common.entity import (
+    Resource, Runnable, RunnableResult, RunnableConfig)
 from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
 from testplan.common.utils.process import enforce_timeout, kill_process
+from testplan.common.utils.strings import slugify
 
-from testplan.report import test_styles, TestGroupReport, TestCaseReport, Status
+from testplan.report import (
+    test_styles, TestGroupReport, TestCaseReport, Status)
 from testplan.logger import TESTPLAN_LOGGER, get_test_status_message
+
+
+TEST_INST_INDENT = 2
+SUITE_INDENT = 4
+TESTCASE_INDENT = 6
+ASSERTION_INDENT = 8
 
 
 class TestConfig(RunnableConfig):
@@ -29,6 +39,7 @@ class TestConfig(RunnableConfig):
             # 'name': And(str, lambda s: s.count(' ') == 0),
             'name': str,
             ConfigOption('description', default=None): str,
+            ConfigOption('environment', default=[]): [Resource],
             ConfigOption(
                 'test_filter',
                 default=filtering.Filter(),
@@ -47,12 +58,7 @@ class TestConfig(RunnableConfig):
             ConfigOption(
                 'tags',
                 default=None
-            ): Or(None, Use(tagging.validate_tag_value)),
-            ConfigOption(
-                'part',
-                default=None)
-            : Or(None, And((int,), lambda tp:
-                len(tp) == 2 and 0 <= tp[0] < tp[1] and tp[1] > 1))
+            ): Or(None, Use(tagging.validate_tag_value))
         }
 
 
@@ -81,12 +87,19 @@ class Test(Runnable):
     :type name: ``str``
     :param description: Description of test instance.
     :type description: ``str``
+    :param environment: List of
+        :py:class:`drivers <testplan.tesitng.multitest.driver.base.Driver>` to
+        be started and made available on tests execution.
+    :type environment: ``list``
     :param test_filter: Class with test filtering logic.
     :type test_filter: :py:class:`~testplan.testing.filtering.BaseFilter`
     :param test_sorter: Class with tests sorting logic.
     :type test_sorter: :py:class:`~testplan.testing.ordering.BaseSorter`
     :param stdout_style: Console output style.
     :type stdout_style: :py:class:`~testplan.report.testing.styles.Style`
+    :param tags: User defined tag value.
+    :type tags: ``string``, ``iterable`` of ``string``, or a ``dict`` with
+        ``string`` keys and ``string`` or ``iterable`` of ``string`` as values.
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Runnable` options.
@@ -101,18 +114,24 @@ class Test(Runnable):
     def __init__(self, **options):
         super(Test, self).__init__(**options)
 
+        for resource in self.cfg.environment:
+            resource.parent = self
+            resource.cfg.parent = self.cfg
+            self.resources.add(resource)
+
         self._test_context = None
+        self._init_test_report()
+
+    def __str__(self):
+        return '{}[{}]'.format(self.__class__.__name__, self.name)
+
+    def _init_test_report(self):
         self.result.report = TestGroupReport(
             name=self.cfg.name,
             description=self.cfg.description,
             category=self.__class__.__name__.lower(),
-            uid=self.uid(),
             tags=self.cfg.tags,
-            part=self.cfg.part,
         )
-
-    def __str__(self):
-        return '{}[{}]'.format(self.__class__.__name__, self.name)
 
     def get_tags_index(self):
         """
@@ -175,48 +194,79 @@ class Test(Runnable):
         ) and self.test_context
 
     def should_log_test_result(self, depth, test_obj, style):
+        """
+        Return a tuple in which the first element indicates if need to log
+        test results (Suite report, Testcase report, or result of assertions).
+        The second one is the indent that should be kept at start of lines.
+        """
         if isinstance(test_obj, TestGroupReport):
             if depth == 0:
-                return style.display_test
+                return style.display_test, TEST_INST_INDENT
             elif test_obj.category == 'suite':
-                return style.display_suite
+                return style.display_suite, SUITE_INDENT
+            elif test_obj.category == 'parametrization':
+                return False, 0  # DO NOT display
         elif isinstance(test_obj, TestCaseReport):
-            return style.display_case
-        elif isinstance(test_obj, dict) and test_obj['type'] == 'RawAssertion':
-            return style.display_assertion
+            return style.display_case, TESTCASE_INDENT
+        elif isinstance(test_obj, dict):
+            return style.display_assertion, ASSERTION_INDENT
         raise TypeError('Unsupported test object: {}'.format(test_obj))
 
-    def log_test_results(self):
+    def log_test_results(self, top_down=True):
+        """
+        Log test results. i.e. ProcessRunnerTest or PyTest
 
+        :param top_down: Flag logging test results using a top-down approach
+            or a bottom-up approach.
+        :type top_down: ``bool``
+        """
         report = self.result.report
         items = report.flatten(depths=True)
+        entries = []  # Composed of (depth, report obj)
 
-        for depth, obj in items:
+        def log_entry(depth, obj):
             name = obj['description'] if isinstance(obj, dict) else obj.name
-            passed = obj['passed'] if isinstance(obj, dict) else obj.passed
+            try:
+                passed = obj['passed'] if isinstance(obj, dict) else obj.passed
+            except KeyError:
+                passed = True  # Some report entries (i.e. Log) always pass
 
             style = self.get_stdout_style(passed)
+            display, indent = self.should_log_test_result(depth, obj, style)
 
-            if self.should_log_test_result(depth, obj, style):
-                indent = (depth + 1) * 2 * ' '
-                msg = get_test_status_message(
-                    name=name,
-                    passed=passed
-                )
-                if isinstance(obj, dict) and style.display_assertion_detail:
-                    detail_indent = indent + (2 * ' ')
-                    detail_str = os.linesep.join(
-                        '{}{}'.format(detail_indent, line)
-                        for line in obj['content'].splitlines())
-
-                    msg = '{}{}{}'.format(msg, os.linesep, detail_str)
-
-                TESTPLAN_LOGGER.test_info(
-                    '{indent}{msg}'.format(
-                        indent=indent,
-                        msg=msg
+            if display:
+                if isinstance(obj, dict):
+                    if obj['type'] == 'RawAssertion':
+                        header = obj['description']
+                        details = obj['content']
+                    elif 'stdout_header' in obj and 'stdout_details' in obj:
+                        header = obj['stdout_header']
+                        details = obj['stdout_details']
+                    else:
+                        return
+                    if style.display_assertion:
+                        TESTPLAN_LOGGER.test_info(indent * ' ' + header)
+                    if details and style.display_assertion_detail:
+                        details = os.linesep.join((indent + 2) * ' ' + line
+                            for line in details.split(os.linesep))
+                        TESTPLAN_LOGGER.test_info(details)
+                else:
+                    msg = get_test_status_message(
+                        name=name,
+                        passed=passed
                     )
-                )
+                    TESTPLAN_LOGGER.test_info(indent * ' ' + msg)
+
+        for depth, obj in items:
+            if top_down:
+                log_entry(depth, obj)
+            else:
+                while entries and depth <= entries[-1][0]:
+                    log_entry(*(entries.pop()))
+                entries.append((depth, obj))
+
+        while entries:
+            log_entry(*(entries.pop()))
 
     def propagate_tag_indices(self):
         """
@@ -387,7 +437,20 @@ class ProcessRunnerTest(Test):
         self._json_ouput = os.path.join(self.runpath, 'output.json')
         self.logger.debug('Json output: {}'.format(self._json_ouput))
         env = {'JSON_REPORT': self._json_ouput}
-        env.update(self.cfg.proc_env)
+        env.update(
+            {key.upper(): val for key, val in self.cfg.proc_env.items()}
+        )
+
+        for driver in self.resources:
+            driver_name = driver.uid()
+            for attr in dir(driver):
+                value = getattr(driver, attr)
+                if attr.startswith('_') or callable(value):
+                    continue
+                env['DRIVER_{}_ATTR_{}'.format(
+                    slugify(driver_name).replace('-', '_'),
+                    slugify(attr).replace('-', '_')).upper()] = str(value)
+
         return env
 
     def run_tests(self):
@@ -422,7 +485,7 @@ class ProcessRunnerTest(Test):
                     'Invalid test command generated for: {}'.format(self))
 
             self._test_process = subprocess_popen(
-                self.test_command(),
+                test_cmd,
                 stderr=stderr,
                 stdout=stdout,
                 cwd=self.cfg.proc_cwd,
@@ -544,7 +607,7 @@ class ProcessRunnerTest(Test):
         self._add_step(self.run_tests)
         self._add_step(self.update_test_report)
         self._add_step(self.propagate_tag_indices)
-        self._add_step(self.log_test_results)
+        self._add_step(self.log_test_results, top_down=False)
 
     def aborting(self):
         kill_process(self._test_process)
