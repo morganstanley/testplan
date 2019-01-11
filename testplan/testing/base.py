@@ -24,6 +24,12 @@ from testplan.report import (
 from testplan.logger import TESTPLAN_LOGGER, get_test_status_message
 
 
+TEST_INST_INDENT = 2
+SUITE_INDENT = 4
+TESTCASE_INDENT = 6
+ASSERTION_INDENT = 8
+
+
 class TestConfig(RunnableConfig):
     """Configuration object for :py:class:`~testplan.testing.base.Test`."""
 
@@ -188,27 +194,37 @@ class Test(Runnable):
         ) and self.test_context
 
     def should_log_test_result(self, depth, test_obj, style):
+        """
+        Return a tuple in which the first element indicates if need to log
+        test results (Suite report, Testcase report, or result of assertions).
+        The second one is the indent that should be kept at start of lines.
+        """
         if isinstance(test_obj, TestGroupReport):
             if depth == 0:
-                return style.display_test
+                return style.display_test, TEST_INST_INDENT
             elif test_obj.category == 'suite':
-                return style.display_suite
+                return style.display_suite, SUITE_INDENT
             elif test_obj.category == 'parametrization':
-                return False  # DO NOT display
+                return False, 0  # DO NOT display
         elif isinstance(test_obj, TestCaseReport):
-            return style.display_case
+            return style.display_case, TESTCASE_INDENT
         elif isinstance(test_obj, dict):
-            return style.display_assertion
+            return style.display_assertion, ASSERTION_INDENT
         raise TypeError('Unsupported test object: {}'.format(test_obj))
 
-    def log_test_results(self):
+    def log_test_results(self, top_down=True):
         """
         Log test results. i.e. ProcessRunnerTest or PyTest
+
+        :param top_down: Flag logging test results using a top-down approach
+            or a bottom-up approach.
+        :type top_down: ``bool``
         """
         report = self.result.report
         items = report.flatten(depths=True)
+        entries = []  # Composed of (depth, report obj)
 
-        for depth, obj in items:
+        def log_entry(depth, obj):
             name = obj['description'] if isinstance(obj, dict) else obj.name
             try:
                 passed = obj['passed'] if isinstance(obj, dict) else obj.passed
@@ -216,9 +232,9 @@ class Test(Runnable):
                 passed = True  # Some report entries (i.e. Log) always pass
 
             style = self.get_stdout_style(passed)
-            indent = (depth + 1) * 2 * ' '
+            display, indent = self.should_log_test_result(depth, obj, style)
 
-            if self.should_log_test_result(depth, obj, style):
+            if display:
                 if isinstance(obj, dict):
                     if obj['type'] == 'RawAssertion':
                         header = obj['description']
@@ -227,12 +243,11 @@ class Test(Runnable):
                         header = obj['stdout_header']
                         details = obj['stdout_details']
                     else:
-                        continue
-
+                        return
                     if style.display_assertion:
-                        TESTPLAN_LOGGER.test_info(indent + header)
+                        TESTPLAN_LOGGER.test_info(indent * ' ' + header)
                     if details and style.display_assertion_detail:
-                        details = os.linesep.join(indent + 2 * ' ' + line
+                        details = os.linesep.join((indent + 2) * ' ' + line
                             for line in details.split(os.linesep))
                         TESTPLAN_LOGGER.test_info(details)
                 else:
@@ -240,7 +255,18 @@ class Test(Runnable):
                         name=name,
                         passed=passed
                     )
-                    TESTPLAN_LOGGER.test_info(indent + msg)
+                    TESTPLAN_LOGGER.test_info(indent * ' ' + msg)
+
+        for depth, obj in items:
+            if top_down:
+                log_entry(depth, obj)
+            else:
+                while entries and depth <= entries[-1][0]:
+                    log_entry(*(entries.pop()))
+                entries.append((depth, obj))
+
+        while entries:
+            log_entry(*(entries.pop()))
 
     def propagate_tag_indices(self):
         """
@@ -581,7 +607,7 @@ class ProcessRunnerTest(Test):
         self._add_step(self.run_tests)
         self._add_step(self.update_test_report)
         self._add_step(self.propagate_tag_indices)
-        self._add_step(self.log_test_results)
+        self._add_step(self.log_test_results, top_down=False)
 
     def aborting(self):
         kill_process(self._test_process)

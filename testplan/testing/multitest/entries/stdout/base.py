@@ -32,7 +32,7 @@ class StdOutRegistry(Registry):
         return os.linesep.join(parts)
 
     def log_entry(self, entry, stdout_style):
-        from testplan.testing.multitest.base import ASSERTION_INDENT
+        from testplan.testing.base import ASSERTION_INDENT
         logger = self[entry]()
         header = logger.get_header(entry)
         details = logger.get_details(entry) or ''

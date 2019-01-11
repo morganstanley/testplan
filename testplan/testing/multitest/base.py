@@ -32,12 +32,7 @@ from .result import Result
 from .suite import set_testsuite_testcases, propagate_tag_indices
 
 from ..base import Test, TestConfig
-
-
-MULTITEST_INDENT = 2
-SUITE_INDENT = 4
-TESTCASE_INDENT = 6
-ASSERTION_INDENT = 8
+from ..base import TEST_INST_INDENT, SUITE_INDENT, TESTCASE_INDENT
 
 
 def log_status(report, indent):
@@ -48,7 +43,7 @@ def log_status(report, indent):
 
 log_testcase_status = functools.partial(log_status, indent=TESTCASE_INDENT)
 log_suite_status = functools.partial(log_status, indent=SUITE_INDENT)
-log_multitest_status = functools.partial(log_status, indent=MULTITEST_INDENT)
+log_multitest_status = functools.partial(log_status, indent=TEST_INST_INDENT)
 
 
 class Categories(object):

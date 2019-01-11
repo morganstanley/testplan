@@ -53,7 +53,7 @@ class PyTest(testing.Test):
     def main_batch_steps(self):
         """Specify the test steps: run the tests, then log the results."""
         self._add_step(self.run_tests)
-        self._add_step(self.log_test_results)
+        self._add_step(self.log_test_results, top_down=False)
 
     def setup(self):
         """Setup the PyTest plugin for the suite."""
