@@ -5,6 +5,8 @@ import time
 from .base import Executor
 from testplan.runners.pools import tasks
 from testplan.common import entity
+from testplan.testing.base import TestResult
+from testplan.report.testing import TestGroupReport, Status
 
 
 class LocalRunner(Executor):
@@ -54,5 +56,19 @@ class LocalRunner(Executor):
             time.sleep(self.cfg.active_loop_sleep)
 
     def aborting(self):
-        """Suppressing not implemented debug log from parent class."""
+        """Aborting logic."""
+        self.logger.critical('Discard pending tasks of {}.'.format(self))
+        # Will announce that all the ongoing tasks fail, but there is a buffer
+        # period and some tasks might be finished, so, copy the uids of ongoing
+        # tasks and set test result, although the report could be overwritten.
+        ongoing = self.ongoing[:]
+        while ongoing:
+            uid = ongoing.pop(0)
+            result = TestResult()
+            result.run = False
+            result.report = TestGroupReport(name=uid)
+            result.report.status_override = Status.ERROR
+            result.report.logger.critical(
+                'Task discarding due to executor {} abort.'.format(self))
+            self._results[uid] = result
 

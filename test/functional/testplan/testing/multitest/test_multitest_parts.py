@@ -40,7 +40,7 @@ def get_mtest(part_tuple=None):
                      part=part_tuple)
     return test
 
-'''
+
 def test_multi_parts_not_merged():
     """Execute MultiTest parts but do not merge report."""
     plan = Testplan(name='plan', parse_cmdline=False,
@@ -154,7 +154,7 @@ def test_multi_parts_invalid_parameter_2():
     assert plan.report.entries[0].entries[1].status == Status.FAILED  # Suite2
     assert 'invalid parameter of part provided' in \
            plan.report.entries[0].logs[0]['message']
-'''
+
 
 def test_multi_parts_missing_parts():
     """

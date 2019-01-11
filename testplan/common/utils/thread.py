@@ -29,7 +29,7 @@ def execute_as_thread(target, args=None, kwargs=None, daemon=False, join=True,
     :type timeout: :py:class:`~testplan.common.utils.timing.TimeoutException`
     """
     thr = threading.Thread(target=target, args=args or tuple(),
-                        kwargs=kwargs or {})
+                           kwargs=kwargs or {})
     thr.daemon = daemon
     thr.start()
     if join is True:
@@ -37,10 +37,9 @@ def execute_as_thread(target, args=None, kwargs=None, daemon=False, join=True,
         while True:
             if not thr.isAlive():
                 return
-            elif break_join is not None:
-                if break_join():
-                    break
-            elif timeout and time.time() - start_time > timeout:
+            if break_join is not None and break_join():
+                break
+            if timeout and time.time() - start_time > timeout:
                 raise TimeoutException('Thread {} timeout after {}s'.format(
                     thr, timeout))
             time.sleep(join_sleep)

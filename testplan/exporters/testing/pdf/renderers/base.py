@@ -80,4 +80,3 @@ class MetadataMixin(object):
             for key, label in self.get_metadata_labels()
             if source.meta.get(key)
         ])
-

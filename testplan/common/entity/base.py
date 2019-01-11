@@ -399,7 +399,7 @@ class Entity(object):
 
     def _abort_entity(self, entity, wait_timeout=None):
         """Method to abort an entity and log exceptions."""
-        timeout = wait_timeout   or self.cfg.abort_wait_timeout
+        timeout = wait_timeout or self.cfg.abort_wait_timeout
         try:
             self.logger.debug('Aborting {}'.format(entity))
             entity.abort()
@@ -869,14 +869,6 @@ class Resource(Entity):
         return True
 
 
-class RunnableManagerStatus(EntityConfig):
-    """
-    Status of a
-    :py:class:`RunnableManager <testplan.common.entity.base.RunnableManager>`
-    entity.
-    """
-
-
 class RunnableManagerConfig(EntityConfig):
     """
     Configuration object for
@@ -956,7 +948,7 @@ class RunnableManager(Entity):
         :rtype: :py:class:`RunnableResult <testplan.common.entity.base.RunnableResult>`
         """
         for sig in self._cfg.abort_signals:
-            signal.signal(sig,  self._handle_abort)
+            signal.signal(sig, self._handle_abort)
         execute_as_thread(self._runnable.run, daemon=True, join=True,
                           break_join=lambda: self.aborted is True)
         if isinstance(self._runnable.result, Exception):
@@ -970,7 +962,7 @@ class RunnableManager(Entity):
 
     def _handle_abort(self, signum, frame):
         for sig in self._cfg.abort_signals:
-            signal.signal(sig,  signal.SIG_IGN)
+            signal.signal(sig, signal.SIG_IGN)
         self.logger.debug('Signal handler called for signal {} from {}'.format(
             signum, threading.current_thread()))
         self.abort()
