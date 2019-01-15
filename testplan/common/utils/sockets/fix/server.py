@@ -367,8 +367,9 @@ class Server(object):
           target)
         :rtype: ``list`` of ``tuple`` of ``str`` and ``str``
         """
+
         return [detail.name
-                for detail in self._conndetails_by_fd.itervalues()
+                for detail in self._conndetails_by_fd.values()
                 if detail.name is not None]
 
     def is_connection_active(self, conn_name):
