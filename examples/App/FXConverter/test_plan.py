@@ -72,7 +72,9 @@ def converter_environment():
                                 os.path.dirname(os.path.abspath(__file__)),
                                 'converter.py'),
                             args=[config],
-                            install_files=[config],
+                            install_files=[os.path.join(
+                                os.path.dirname(os.path.abspath(__file__)),
+                                config)],
                             log_regexps=regexps)
 
     # Client that connects to the converted application using host/port

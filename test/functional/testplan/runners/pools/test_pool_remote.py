@@ -58,7 +58,7 @@ def setup_workspace():
     # Next copy the test dir. "test" is a generic name so we don't want to rely
     # on "import test" here - instead rely on the test directory being 4 levels
     # above the directory this script is in.
-    script_dir = os.path.dirname(__file__)
+    script_dir = os.path.dirname(os.path.realpath(__file__))
     orig_test_dir = os.path.abspath(
         os.path.join(script_dir, *(os.pardir for _ in range(4))))
     tmp_test_dir = os.path.join(workspace, 'test')
