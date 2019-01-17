@@ -374,7 +374,7 @@ directory, the docker command will be:
     .. code-block:: bash
 
         # Example directory that contains test_plan.py file.
-        cd testplan/examples/Assertions/Basic
+        cd examples/Assertions/Basic
 
         docker run -v $PWD:/work -it chiotis/testplan:2
 
@@ -385,7 +385,7 @@ argument in the ``docker run`` command:
     .. code-block:: bash
 
         # Example directory that contains test_plan.py file.
-        cd testplan/examples/Assertions/Basic
+        cd examples/Assertions/Basic
 
         docker run -v $PWD:/work -it chiotis/testplan:2 ./my_test_plan.py
 
@@ -411,14 +411,14 @@ Our examples
 There are some ready made examples demonstrating testplan
 functonality/features and can be found within the
 `repo <https://github.com/Morgan-Stanley/testplan>`_ under
-``testplan/examples`` directory.
+``examples`` directory.
 
 On Ubuntu/MacOS/etc:
 
     .. code-block:: bash
       
       # See all the examples categories.  
-      cd testplan/examples
+      cd examples
       ls
 
       # Run an example demonstrating testplan assertions.
@@ -435,7 +435,7 @@ On Windows:
     .. code-block:: text
       
       # See all the examples categories.  
-      cd testplan\examples
+      cd examples
       dir
 
       # Run an example demonstrating testplan assertions.

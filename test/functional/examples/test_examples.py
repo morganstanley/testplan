@@ -36,39 +36,12 @@ SKIP_ON_WINDOWS = [
     os.path.join('Cpp', 'HobbesTest', 'test_plan.py'),
 ]
 
-# Contents of OSS repo.
-ROOT_DIR_CONTENTS_OSS = [
-    "setup.py",
-    "requirements.txt",
-    "README.rst",
-    "LICENSE.md"
+# Contents to look for under root dir.
+ROOT_DIR_CONTENTS = [
+    'examples',
+    'test',
+    'testplan',
 ]
-
-# Contents after build process.
-ROOT_DIR_CONTENTS_BUILD = [
-    "testplan",
-    "test"
-]
-
-
-def _depth_from_repo_root():
-    cwd = FILE_DIR
-    depth = []
-    while True:
-        contents = os.listdir(cwd)
-        if all([entry in contents for entry in ROOT_DIR_CONTENTS_OSS]) or \
-              all([entry in contents for entry in ROOT_DIR_CONTENTS_BUILD]):
-            return depth
-        parent_dir = os.path.dirname(cwd)
-        if os.path.realpath(cwd) == os.path.realpath(parent_dir):
-            raise RuntimeError('Could not find repo directory')
-        depth.append(os.pardir)
-        cwd = parent_dir
-
-
-def _relative_dir(directory):
-    path_args = [FILE_DIR] + _depth_from_repo_root() + [directory]
-    return os.path.abspath(os.path.join(*path_args))
 
 
 def _param_formatter(param):
@@ -77,12 +50,33 @@ def _param_formatter(param):
     return repr(param)
 
 
+def _examples_root():
+    """
+    Find the examples directory that sits next to test & testplan
+    """
+
+    cwd = FILE_DIR
+    while True:
+        contents = os.listdir(cwd)
+        if all([entry in contents for entry in ROOT_DIR_CONTENTS]):
+            break
+        parent_dir = os.path.dirname(cwd)
+        if os.path.realpath(cwd) == os.path.realpath(parent_dir):
+            raise RuntimeError('Could not find repo directory')
+        cwd = parent_dir
+
+    return os.path.abspath(os.path.join(
+        cwd,
+        'examples'
+    ))
+
+
 @pytest.mark.parametrize(
     'root,filename',
     [
         (os.path.abspath(root), filename)
         for root, _, files in os.walk(
-            _relative_dir(os.path.join('testplan', 'examples')))
+            _examples_root(), followlinks=True)
         for filename in files
         if 'test_plan' in filename
     ],

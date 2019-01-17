@@ -7,32 +7,32 @@ Google Test
 .. _example_gtest:
 
 Required files:
-  - :download:`test_plan.py <../../../testplan/examples/Cpp/GTest/test_plan.py>`
-  - :download:`app.cpp <../../../testplan/examples/Cpp/GTest/test/app.cpp>`
-  - :download:`tests.cpp <../../../testplan/examples/Cpp/GTest/test/tests.cpp>`
-  - :download:`CMakeLists.txt <../../../testplan/examples/Cpp/GTest/test/CMakeLists.txt>`
+  - :download:`test_plan.py <../../../examples/Cpp/GTest/test_plan.py>`
+  - :download:`app.cpp <../../../examples/Cpp/GTest/test/app.cpp>`
+  - :download:`tests.cpp <../../../examples/Cpp/GTest/test/tests.cpp>`
+  - :download:`CMakeLists.txt <../../../examples/Cpp/GTest/test/CMakeLists.txt>`
 
 test_plan.py
 ++++++++++++
 
-.. literalinclude:: ../../../testplan/examples/Cpp/GTest/test_plan.py
+.. literalinclude:: ../../../examples/Cpp/GTest/test_plan.py
 
 app.cpp
 +++++++
 
-.. literalinclude:: ../../../testplan/examples/Cpp/GTest/test/app.cpp
+.. literalinclude:: ../../../examples/Cpp/GTest/test/app.cpp
 
 
 tests.cpp
 +++++++++
 
-.. literalinclude:: ../../../testplan/examples/Cpp/GTest/test/tests.cpp
+.. literalinclude:: ../../../examples/Cpp/GTest/test/tests.cpp
 
 
 CMakeLists.txt
 ++++++++++++++
 
-.. literalinclude:: ../../../testplan/examples/Cpp/GTest/test/CMakeLists.txt
+.. literalinclude:: ../../../examples/Cpp/GTest/test/CMakeLists.txt
 
 
 Hobbes Test
@@ -45,13 +45,13 @@ dynamic expression evaluation, data storage and analysis. Note: after downloadin
 with the actual test binary.
 
 Required files:
-  - :download:`test_plan.py <../../../testplan/examples/Cpp/HobbesTest/HobbesTest.py>`
-  - :download:`hobbes-test <../../../testplan/examples/Cpp/HobbesTest/test/hobbes-test>`
-  - :download:`input.json <../../../testplan/examples/Cpp/HobbesTest/test/input.json>`
+  - :download:`test_plan.py <../../../examples/Cpp/HobbesTest/HobbesTest.py>`
+  - :download:`hobbes-test <../../../examples/Cpp/HobbesTest/test/hobbes-test>`
+  - :download:`input.json <../../../examples/Cpp/HobbesTest/test/input.json>`
 
 test_plan.py
 ++++++++++++
 
-.. literalinclude:: ../../../testplan/examples/Cpp/HobbesTest/HobbesTest.py
+.. literalinclude:: ../../../examples/Cpp/HobbesTest/HobbesTest.py
 
 
