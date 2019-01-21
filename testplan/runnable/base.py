@@ -5,29 +5,26 @@ import random
 import time
 import uuid
 import webbrowser
-
 from collections import OrderedDict
 
-from schema import Schema, Or, And, Use
+from schema import Or, And, Use
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
-from testplan.common.entity import Entity, RunnableConfig, RunnableStatus, \
-    RunnableResult, Runnable
+from testplan.common.entity import (Entity, RunnableConfig, RunnableStatus,
+    RunnableResult, Runnable)
 from testplan.common.exporters import BaseExporter, ExporterResult
 from testplan.common.report import MergeError
 from testplan.common.utils.path import default_runpath
 from testplan.exporters import testing as test_exporters
 from testplan.logger import log_test_status, TEST_INFO, TESTPLAN_LOGGER
-
-from testplan.testing.base import TestResult
-
 from testplan.report.testing import TestReport, TestGroupReport, Status
 from testplan.report.testing.styles import Style
+from testplan.runnable.interactive import TestRunnerIHandler
+from testplan.runners.base import Executor
+from testplan.runners.pools.tasks import Task, TaskResult
 from testplan.testing import listing, filtering, ordering, tagging
-
-from .runners.base import Executor
-from .runners.pools.tasks import Task, TaskResult
+from testplan.testing.base import TestResult
 
 
 def get_default_exporters(config):
@@ -149,7 +146,9 @@ class TestRunnerConfig(RunnableConfig):
                 'debug', default=False, block_propagation=False): bool,
             ConfigOption(
                 'timeout', default=None): Or(
-                None, And(Or(int, float), lambda t: t >= 0))
+                None, And(Or(int, float), lambda t: t >= 0)),
+            ConfigOption('interactive_handler', default=TestRunnerIHandler):
+                object
         }
 
 
@@ -237,6 +236,11 @@ class TestRunner(Runnable):
     :param test_lister: Tests listing class.
     :type test_lister: Subclass of
       :py:class:`BaseLister <testplan.testing.listing.BaseLister>`
+    :param timeout: Timeout value for test execution.
+    :type timeout: ``None`` or ``int`` or ``float`` greater than 0.
+    :param interactive_handler: Handler for interactive mode execution.
+    :type interactive_handler: Subclass of
+      :py:class:`TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Runnable` options.
@@ -248,6 +252,8 @@ class TestRunner(Runnable):
 
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
+        if self.logger.getEffectiveLevel() != self.cfg.logger_level:
+            self.logger.setLevel(self.cfg.logger_level)
         self._start_time = time.time()
         self._tests = OrderedDict()  # uid to resource
         self._result.test_report = TestReport(
@@ -257,6 +263,26 @@ class TestRunner(Runnable):
     def report(self):
         """Tests report."""
         return self._result.test_report
+
+    def add_environment(self, env, resource=None):
+        """
+        Adds an environment to the target resource holder.
+
+        :param env: Environment creator instance.
+        :type env: Subclass of
+          :py:class:`~testplan.environment.EnvironmentCreator`
+        :param resource: Target environments holder resource.
+        :param resource: Subclass of
+          :py:class:`~testplan.environment.Environments`
+        :return: Environment uid.
+        :rtype: ``str``
+        """
+        resource = self.resources[resource]\
+            if resource else self.resources.environments
+        target = env.create(parent=self)
+        env_uid = env.uid()
+        resource.add(target, env_uid)
+        return env_uid
 
     def add_resource(self, resource, uid=None):
         """
@@ -389,6 +415,7 @@ class TestRunner(Runnable):
 
     def post_resource_steps(self):
         """Steps to be executed after resources stopped."""
+        print(self.result.report.uid)
         self._add_step(self._create_result)
         self._add_step(self._log_test_status)
         self._add_step(self._record_end)  # needs to happen before export

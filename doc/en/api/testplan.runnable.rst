@@ -1,31 +1,30 @@
-testplan.runners package
-========================
-
+testplan.runnable package
+=========================
 
 Subpackages
 -----------
 
 .. toctree::
 
-    testplan.runners.pools
+    testplan.runnable.interactive
 
 
 Submodules
 ----------
 
-testplan.runners.base module
-++++++++++++++++++++++++++++
+testplan.runnable.base module
++++++++++++++++++++++++++++++
 
-.. automodule:: testplan.runners.base
+.. automodule:: testplan.runnable.base
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-testplan.runners.local module
+testplan.runnable.http module
 +++++++++++++++++++++++++++++
 
-.. automodule:: testplan.runners.local
+.. automodule:: testplan.runnable.http
     :members:
     :undoc-members:
     :show-inheritance:
@@ -34,7 +33,7 @@ testplan.runners.local module
 Module contents
 ---------------
 
-.. automodule:: testplan.runners
+.. automodule:: testplan.runnable
     :members:
     :undoc-members:
     :show-inheritance:

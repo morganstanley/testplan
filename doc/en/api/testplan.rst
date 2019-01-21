@@ -12,6 +12,7 @@ Subpackages
     testplan.testing
     testplan.report
     testplan.runners
+    testplan.runnable
 
 
 testplan.base module
@@ -46,15 +47,6 @@ testplan.parser module
     :members:
     :undoc-members:
     :show-inheritance:
-
-testplan.runnable module
-++++++++++++++++++++++++
-
-.. automodule:: testplan.runnable
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
 
 
 Module contents

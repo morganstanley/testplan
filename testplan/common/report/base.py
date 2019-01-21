@@ -287,7 +287,6 @@ class ReportGroup(Report):
 
                 if isinstance(entry, Report):
                     entry = entry.filter(*functions, __copy=False)
-
                 entries.append(entry)
 
         report_obj.entries = entries

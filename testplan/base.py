@@ -1,16 +1,15 @@
 """Testplan base module."""
 
 import testplan.common.globals
+from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
 from .common.config import ConfigOption
 from .common.entity import (RunnableManager, RunnableManagerConfig, Resource)
-
 from .common.utils.callable import arity
 from .common.utils.validation import is_subclass, has_method
-
-from .runnable import TestRunnerConfig, TestRunnerResult, TestRunner
+from .logger import TESTPLAN_LOGGER
 from .parser import TestplanParser
 from .runners import LocalRunner
-from .logger import TESTPLAN_LOGGER
+from .environment import Environments
 
 testplan.common.globals.LOGGER = TESTPLAN_LOGGER
 
@@ -76,7 +75,8 @@ class Testplan(RunnableManager):
 
     :param runnable: Test runner.
     :type runnable: :py:class:`~testplan.runnable.TestRunner`
-    :param resources: Enable interactive execution mode.
+    :param resources: Initial resources. By default, one LocalRunner is added to
+      execute the Tests.
     :type resources:
       ``list`` of :py:class:`resources <testplan.common.entity.base.Resource>`
     :param parser: Command line parser.
@@ -93,7 +93,12 @@ class Testplan(RunnableManager):
         super(Testplan, self).__init__(**options)
         for resource in self._cfg.resources:
             self._runnable.add_resource(resource)
+
+        # Stores local tests.
         self._runnable.add_resource(LocalRunner(), uid='local_runner')
+
+        # Stores independent environments.
+        self._runnable.add_resource(Environments(), uid='environments')
 
     @property
     def parser(self):
@@ -127,15 +132,18 @@ class Testplan(RunnableManager):
 
     def run(self):
         """
+        TODO
         Runs the tests added and returns the result object.
 
         :return: Result containing tests and execution steps results.
         :rtype: :py:class:`~testplan.base.TestplanResult`
         """
-        testrunner_result = super(Testplan, self).run()
-        testplan_result = TestplanResult()
-        testplan_result.__dict__ = testrunner_result.__dict__
-        return testplan_result
+        result = super(Testplan, self).run()
+        if isinstance(result, TestRunnerResult):
+            testplan_result = TestplanResult()
+            testplan_result.__dict__ = result.__dict__
+            return testplan_result
+        return result
 
     @classmethod
     def main_wrapper(cls, **options):

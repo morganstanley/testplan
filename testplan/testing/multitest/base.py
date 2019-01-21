@@ -14,8 +14,8 @@ except ImportError:
 from threading import Thread, Lock
 from schema import Use, Or, And
 
-from testplan.common.config import ConfigOption, validate_func
-from testplan.common.entity import Runnable
+from testplan.common.config import ConfigOption
+from testplan.common.entity import Runnable, RunnableIRunner
 from testplan.common.utils.interface import (
     check_signature, MethodSignatureMismatch
 )
@@ -26,12 +26,14 @@ from testplan.report import TestGroupReport, TestCaseReport
 from testplan.report.testing import Status
 
 from testplan.testing import tagging, filtering
+from testplan.testing.filtering import Pattern
 
 from .entries.base import Summary
 from .result import Result
-from .suite import set_testsuite_testcases, propagate_tag_indices
+from .suite import (
+    set_testsuite_testcases, propagate_tag_indices, get_testsuite_name)
 
-from ..base import Test, TestConfig
+from ..base import Test, TestConfig, TestIRunner
 from ..base import TEST_INST_INDENT, SUITE_INDENT, TESTCASE_INDENT
 
 
@@ -63,6 +65,32 @@ def iterable_suites(obj):
     return suites
 
 
+class MultitestIRunner(TestIRunner):
+    """
+    Interactive runner of MultiTest class.
+    """
+
+    @TestIRunner.set_run_status
+    def dry_run(self):
+        """
+        Generator for dry_run execution.
+        """
+        yield (self._runnable.dry_run,
+               RunnableIRunner.EMPTY_TUPLE, dict(status=Status.INCOMPLETE))
+
+    @TestIRunner.set_run_status
+    def run(self, suite='*', case='*'):
+        """
+        Generator for run execution.
+        """
+        pattern = Pattern('*:{}:{}'.format(suite, case))
+        for entry in self._runnable.get_test_context(test_filter=pattern):
+            for case in entry[1]:
+                yield (self._runnable.run_tests,
+                       RunnableIRunner.EMPTY_TUPLE,
+                       dict(patch_report=True, ctx=[(entry[0], [case])]))
+
+
 class MultiTestConfig(TestConfig):
     """
     Configuration object for
@@ -72,23 +100,15 @@ class MultiTestConfig(TestConfig):
 
     @classmethod
     def get_options(cls):
-        start_stop_signature = Or(
-            None,
-            validate_func('env'),
-            validate_func('env', 'result'),
-        )
-
         return {
             'suites': Use(iterable_suites),
             ConfigOption('result', default=Result): is_subclass(Result),
-            ConfigOption('before_start', default=None): start_stop_signature,
-            ConfigOption('after_start', default=None): start_stop_signature,
-            ConfigOption('before_stop', default=None): start_stop_signature,
-            ConfigOption('after_stop', default=None): start_stop_signature,
             ConfigOption('thread_pool_size', default=0): int,
             ConfigOption('max_thread_pool_size', default=10): int,
             ConfigOption('part', default=None): Or(None, And((int,),
-                lambda tp: len(tp) == 2 and 0 <= tp[0] < tp[1] and tp[1] > 1))
+                lambda tp: len(tp) == 2 and 0 <= tp[0] < tp[1] and tp[1] > 1)),
+            ConfigOption('interactive_runner', default=MultitestIRunner):
+                object
         }
 
 
@@ -160,9 +180,8 @@ class MultiTest(Test):
         self._thread_pool_active = False
         self._thread_pool_available = False
 
-    def _init_test_report(self):
-        """Overwrite parent's."""
-        self.result.report = TestGroupReport(
+    def _new_test_report(self):
+        return TestGroupReport(
             name=self.cfg.name,
             description=self.cfg.description,
             category=self.__class__.__name__.lower(),
@@ -220,7 +239,7 @@ class MultiTest(Test):
                 self.cfg.tags or {}, *[s.__tags_index__ for s in self.suites])
         return self._tags_index
 
-    def get_test_context(self):
+    def get_test_context(self, test_filter=None):
         """
         Return filtered & sorted list of suites & testcases
         via `cfg.test_filter` & `cfg.test_sorter`.
@@ -229,7 +248,7 @@ class MultiTest(Test):
         :rtype: ``list`` of ``tuple``
         """
         ctx = []
-        test_filter = self.cfg.test_filter
+        test_filter = test_filter or self.cfg.test_filter
         test_sorter = self.cfg.test_sorter
         sorted_suites = test_sorter.sorted_testsuites(self.cfg.suites)
 
@@ -271,11 +290,12 @@ class MultiTest(Test):
 
         while len(ctx) > 0:
             testsuite, testcases = ctx.pop(0)
+
             testsuite_report = TestGroupReport(
-                name=testsuite.__class__.__name__,
+                name=get_testsuite_name(testsuite),
                 description=testsuite.__class__.__doc__,
                 category=Categories.SUITE,
-                uid=testsuite.__class__.__name__,
+                uid=get_testsuite_name(testsuite),
                 tags=testsuite.__tags__,
             )
             self.result.report.append(testsuite_report)
@@ -326,15 +346,21 @@ class MultiTest(Test):
 
         return self.result
 
-    def run_tests(self):
+    def run_tests(self, ctx=None, patch_report=False):
         """Test execution loop."""
-        ctx = [(self.test_context[idx][0], self.test_context[idx][1][:])
-               for idx in range(len(self.test_context))]
+        ctx = ctx or [(self.test_context[idx][0], self.test_context[idx][1][:])
+                      for idx in range(len(self.test_context))]
 
-        with self.report.timer.record('run'):
+        if patch_report is False:
+            self._init_test_report()
+            report = self.report
+        else:
+            report = self._new_test_report()
+
+        with report.timer.record('run'):
             if any(getattr(testcase, 'execution_group', None)
                     for pair in ctx for testcase in pair[1]):
-                with self.report.logged_exceptions():
+                with report.logged_exceptions():
                     try:
                         self._start_thread_pool()
                     except:
@@ -346,37 +372,41 @@ class MultiTest(Test):
                     try:
                         next_suite, testcases = ctx.pop(0)
                     except IndexError:
-                        style = self.get_stdout_style(self.report.passed)
+                        style = self.get_stdout_style(report.passed)
                         if style.display_test:
-                            log_multitest_status(self.report)
+                            log_multitest_status(report)
                         break
                     else:
                         testsuite_report = TestGroupReport(
-                            name=next_suite.__class__.__name__,
+                            name=get_testsuite_name(next_suite),
                             description=next_suite.__class__.__doc__,
                             category=Categories.SUITE,
-                            uid=next_suite.__class__.__name__,
+                            uid=get_testsuite_name(next_suite),
                             tags=next_suite.__tags__,
                         )
-                        self.report.append(testsuite_report)
+                        report.append(testsuite_report)
                         with testsuite_report.logged_exceptions():
                             self._run_suite(
                                 next_suite, testcases, testsuite_report)
 
                         if self.get_stdout_style(
-                                testsuite_report.passed).display_suite:
+                              testsuite_report.passed).display_suite:
                             log_suite_status(testsuite_report)
-
                 time.sleep(self.cfg.active_loop_sleep)
 
             if ctx:  # Execution aborted and still some suites left there
-                self.report.logger.error('Not all of the suites are done.')
-                st = Status.precedent([self.report.status, Status.INCOMPLETE])
-                if st != self.report.status:
-                    self.report.status_override = Status.INCOMPLETE
+                report.logger.error('Not all of the suites are done.')
+                st = Status.precedent([report.status, Status.INCOMPLETE])
+                if st != report.status:
+                    report.status_override = Status.INCOMPLETE
 
             if self._thread_pool_size > 0:
                 self._stop_thread_pool()
+
+        if patch_report is True:
+            self.report.merge(report)
+
+        return report
 
     def _run_suite(self, testsuite, testcases, testsuite_report):
         """Runs a testsuite object and populates its report object."""
