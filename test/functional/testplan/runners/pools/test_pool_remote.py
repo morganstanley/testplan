@@ -62,7 +62,7 @@ def setup_workspace():
     orig_test_dir = os.path.abspath(
         os.path.join(script_dir, *(os.pardir for _ in range(4))))
     tmp_test_dir = os.path.join(workspace, 'test')
-    copytree(orig_test_dir, workspace)
+    copytree('{}/'.format(orig_test_dir), tmp_test_dir)
 
     # We need to schedule tests from the directory of this script but within
     # the workspace.
