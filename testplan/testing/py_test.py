@@ -74,9 +74,9 @@ class PyTest(testing.Test):
 
         # Execute pytest with self as a plugin for hook support
         return_code = pytest.main(pytest_args, plugins=[self._pytest_plugin])
-
         if return_code != 0:
-            self.logger.info('pytest exited with return code %d', return_code)
+            self.result.report.status_override = Status.ERROR
+            self.logger.error('pytest exited with return code %d', return_code)
 
 
 class _PyTestPlugin(object):
