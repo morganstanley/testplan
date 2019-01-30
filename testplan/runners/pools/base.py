@@ -442,6 +442,7 @@ class Pool(Executor):
         :param request: Worker request.
         :type request: :py:class:`~testplan.runners.pools.communication.Message`
         """
+
         sender_index = request.sender_metadata['index']
         worker = self._workers[sender_index]
         if not worker.active:
@@ -451,8 +452,6 @@ class Pool(Executor):
             # TODO check whether should we respond.
             worker.respond(Message(**self._metadata).make(Message.Ack))
             return
-        else:
-            worker.last_heartbeat = time.time()
 
         self.logger.debug('Pool {} request received by {} - {}, {}'.format(
             self.cfg.name, worker, request.cmd, request.data))
@@ -542,8 +541,9 @@ class Pool(Executor):
             worker.respond(response.make(Message.Ack))
             self._deco_worker(
                 worker, 'Aborting {}, setup failed.')
+
         elif request.cmd in self._request_handlers:
-            self._request_handlers[request.cmd](worker, response)
+            self._request_handlers[request.cmd](worker, request, response)
         else:
             self.logger.error('Unknown request: {} {} {} {}'.format(
                 request, dir(request), request.cmd, request.data))
@@ -687,13 +687,17 @@ class Pool(Executor):
             self._conn.register(worker)
             self.logger.debug('Added {}.'.format(worker))
 
+    def _start_workers(self):
+        """Start all workers of the pool"""
+        self._workers.start()
+
     def starting(self):
         """Starting the pool and workers."""
         super(Pool, self).starting()
         self.make_runpath_dirs()
         self._metadata['runpath'] = self.runpath
         self._add_workers()
-        self._workers.start()
+        self._start_workers()
         if self._workers.start_exceptions:
             for msg in self._workers.start_exceptions.values():
                 self.logger.error(msg)

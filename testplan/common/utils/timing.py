@@ -310,3 +310,47 @@ def exponential_interval(initial=0.1, multiplier=2, maximum=None, minimum=None):
         else:
             yield val
             val *= multiplier
+
+
+def get_sleeper(interval, timeout=10, raise_timeout_with_msg=None, timeout_info=False):
+    """
+    Generator that implements sleep steps for replacing *while True: do task; time.sleep()* code blocks.
+    Depending on the interval argument, it can sleeps with constant interval or start with min_interval
+    and then doubles the interval in each iteration up to max_interval.
+
+    It yields True until timeout is reached where it then yields False or raises a TimeoutException based on
+    input arguments.
+
+    :param interval: Sleep time between each yield in seconds.
+    :type interval: ``float`` or tuple of ``float`` as (min_interval, max_interval)
+    :param timeout: Timeout in seconds
+    :type timeout: ``float``
+    :param raise_timeout_with_msg: Message or Function to be used for raising an optional TimeoutException.
+    :type raise_timeout_with_msg: ``NoneType`` or ``str`` or ``callable``
+    :param timeout_info: Include timeout exception timing information in exception message raised.
+    :type timeout_info: ``bool``
+    """
+    start = time.time()
+    timeout_info_obj = TimeoutExceptionInfo(start)
+    end = start + timeout
+
+    incr_interval = False
+    if isinstance(interval, tuple):
+        interval, max_interval = interval
+        incr_interval = True
+
+    while True:
+        yield True
+        time.sleep(interval)
+        if time.time() > end:
+            if raise_timeout_with_msg:
+                msg = raise_timeout_with_msg() if callable(raise_timeout_with_msg) else raise_timeout_with_msg
+                if timeout_info:
+                    msg = '{}. {}'.format(raise_timeout_with_msg, timeout_info_obj.msg())
+                raise TimeoutException(msg)
+            break
+
+        if incr_interval:
+            interval = min(interval*2, max_interval)
+
+    yield False

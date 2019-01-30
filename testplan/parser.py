@@ -7,7 +7,6 @@ import sys
 
 import testplan.logger
 from testplan import defaults
-
 from testplan.report.testing import styles, ReportTagsAction
 from testplan.testing import listing, filtering, ordering
 

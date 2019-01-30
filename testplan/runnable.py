@@ -10,7 +10,7 @@ from collections import OrderedDict
 
 from schema import Schema, Or, And, Use
 
-from testplan import defaults
+from .defaults import *
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Entity, RunnableConfig, RunnableStatus, \
     RunnableResult, Runnable
@@ -109,10 +109,10 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 'exporters', default=None): Use(get_exporters),
             ConfigOption(
-                'stdout_style', default=defaults.STDOUT_STYLE,
+                'stdout_style', default=STDOUT_STYLE,
                 block_propagation=False): Style,
             ConfigOption(
-                'report_dir', default=defaults.REPORT_DIR,
+                'report_dir', default=REPORT_DIR,
                 block_propagation=False): str,
             ConfigOption(
                 'xml_dir', default=None,
@@ -124,7 +124,7 @@ class TestRunnerConfig(RunnableConfig):
                 'json_path', default=None,
                 block_propagation=False): Or(str, None),
             ConfigOption(
-                'pdf_style', default=defaults.PDF_STYLE,
+                'pdf_style', default=PDF_STYLE,
                 block_propagation=False): Style,
             ConfigOption('report_tags', default=[],
                 block_propagation=False): [Use(tagging.validate_tag_value)],

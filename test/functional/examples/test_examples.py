@@ -29,6 +29,7 @@ KNOWN_EXCEPTIONS = [
 
 SKIP = [
     os.path.join('ExecutionPools', 'Remote', 'test_plan.py'),
+    os.path.join('ExecutionPools', 'Treadmill', 'test_plan.py'),
 ]
 
 SKIP_ON_WINDOWS = [

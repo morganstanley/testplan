@@ -16,7 +16,7 @@ from testplan.common.utils.process import kill_process
 from testplan.common.utils.match import match_regexps_in_file
 
 from .base import Pool, PoolConfig, Worker, WorkerConfig
-from .connection import TCPConnectionManager
+from .connection import ZMQConnectionServer
 
 
 class ProcessTransport(object):
@@ -196,4 +196,4 @@ class ProcessPool(Pool):
     """
 
     CONFIG = ProcessPoolConfig
-    CONN_MANAGER = TCPConnectionManager
+    CONN_MANAGER = ZMQConnectionServer

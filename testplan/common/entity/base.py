@@ -195,6 +195,9 @@ class Environment(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
 
+    def __len__(self):
+        return len(self._resources)
+
 
 class StatusTransitionException(Exception):
     """To be raised on illegal state transition attempt."""

@@ -12,10 +12,12 @@ class Message(object):
     Metadata = 'Metadata'
     Stop = 'Stop'
     Heartbeat = 'Heartbeat'
+    KeepAlive = 'KeepAlive'     # similar to Heartbeat, but not monitored
     Message = 'Message'
     ConfigRequest = 'ConfigRequest'
     ConfigSending = 'ConfigSending'
     SetupFailed = 'SetupFailed'
+    InitRequest = 'InitRequest'
 
     def __init__(self, **sender_metadata):
         """
