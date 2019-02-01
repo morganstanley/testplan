@@ -35,7 +35,9 @@ REQUIRED = [
     'scikit-learn',
     'numpy',
     'matplotlib',
-    'requests>=2.4.3'
+    'requests>=2.4.3',
+    'flask',
+    'flask_restplus'
 ]
 
 
