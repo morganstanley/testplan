@@ -363,18 +363,22 @@ class ProcessRunnerTest(Test):
 
     def test_command(self):
         """
-        Override this to generate the shell
-        command that will run the test process.
+        Override this to add extra options to the test command.
+
+        :return: command to run test process
+        :rtype: List[str]
         """
         return [self.cfg.driver]
 
     def list_command(self):
         """
-        Override this to generate the shell command
-        that will cause the testing framework to list the
-        tests available on stdout.
+        Override this to generate the shell command that will cause the
+        testing framework to list the tests available on stdout.
+
+        :return: command to list tests
+        :rtype: Optional[List[str]]
         """
-        raise NotImplementedError
+        return None
 
     def get_test_context(self):
         """
@@ -384,23 +388,29 @@ class ProcessRunnerTest(Test):
         :return: Result returned by `parse_test_context`.
         :rtype: ``list`` of ``list``
         """
+        cmd = self.list_command()
+        if cmd is None:
+            return []
+
         proc = subprocess_popen(
-            self.list_command(),
+            cmd,
             cwd=self.cfg.proc_cwd,
             env=self.cfg.proc_env,
             stdout=subprocess.PIPE)
 
         test_list_output = proc.communicate()[0]
 
-        if not isinstance(test_list_output, six.string_types):  # with python3, stdout is bytes
+        # with python3, stdout is bytes so need to decode.
+        if not isinstance(test_list_output, six.string_types):
             test_list_output = test_list_output.decode(sys.stdout.encoding)
 
         return self.parse_test_context(test_list_output)
 
     def parse_test_context(self, test_list_output):
         """
-        Override this to generate a nested
-        list of test suite and test case context.
+        Override this to generate a nested list of test suite and test case
+        context. Only required if `list_command` is overridden to return a
+        command.
 
         The result will later on be used by test listers to generate the
         test context output for this test instance.
@@ -412,6 +422,8 @@ class ProcessRunnerTest(Test):
             ['SuiteBeta', ['testcase_one', 'testcase_two'],
         ]
 
+        :param test_list_output: stdout from the list command
+        :type test_list_output: bytes
         :return: Parsed test context from command line
                  output of the 3rd party testing library.
         :rtype: ``list`` of ``list``
@@ -610,5 +622,7 @@ class ProcessRunnerTest(Test):
         self._add_step(self.log_test_results, top_down=False)
 
     def aborting(self):
-        kill_process(self._test_process)
-        self._test_process_killed = True
+        if self._test_process is not None:
+            kill_process(self._test_process)
+            self._test_process_killed = True
+

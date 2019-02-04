@@ -20,19 +20,18 @@ class TableEntry(object):
                     ' lists or list of dicts: {}'.format(table)
 
         if not isinstance(table, (list, tuple)):
-            raise ValueError(error_msg)
+            raise TypeError(error_msg)
 
         is_list_of_list = all(isinstance(obj, (list, tuple)) for obj in table)
         is_list_of_dict = all(isinstance(obj, dict) for obj in table)
 
         if not (is_list_of_dict or is_list_of_list) and table:
-            raise ValueError(error_msg)
+            raise TypeError(error_msg)
 
         if is_list_of_list and table and not all(
                 isinstance(col, six.string_types) for col in table[0]):
-            raise ValueError(
-                'For list of lists, first element must'
-                ' be the list column names: {}'.format(table))
+            raise TypeError(
+                'Table headers must all be strings - got {}'.format(table[0]))
 
     def __len__(self):
         if not self.table:

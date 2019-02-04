@@ -9,6 +9,7 @@ import time
 import uuid
 import threading
 import inspect
+import psutil
 
 from collections import deque, OrderedDict
 
@@ -142,6 +143,7 @@ class Environment(object):
                 msg = 'While starting resource [{}]{}{}'.format(
                     resource.cfg.name, os.linesep,
                     format_trace(inspect.trace(), exc))
+                self.logger.error(msg)
                 self.start_exceptions[resource] = msg
                 # Environment start failure. Won't start the rest.
                 break
@@ -165,7 +167,8 @@ class Environment(object):
 
         # Stop all resources
         for resource in resources:
-            if resource.status.tag is None:
+            if (resource.status.tag is None) or (
+                    resource.status.tag == resource.STATUS.STOPPED):
                 # Skip resources not even triggered to start.
                 continue
             try:
@@ -617,6 +620,8 @@ class Runnable(Entity):
             time.sleep(self.cfg.active_loop_sleep)
 
     def _run_batch_steps(self):
+        start_threads, start_procs = self._get_start_info()
+
         self._add_step(self.setup)
         self.pre_resource_steps()
         self._add_step(self.resources.start)
@@ -628,6 +633,49 @@ class Runnable(Entity):
         self._add_step(self.teardown)
 
         self._run()
+
+        self._post_run_checks(start_threads, start_procs)
+
+    def _get_start_info(self):
+        """
+        :return: lists of threads and child processes, to be passed to the
+            _post_run_checks method after the run has finished.
+        """
+        start_threads = threading.enumerate()
+        current_proc = psutil.Process()
+        start_children = current_proc.children()
+
+        return start_threads, start_children
+
+    def _post_run_checks(self, start_threads, start_procs):
+        """
+        Compare the current running threads and processes to those that were
+        alive before we were run. If there are any differences that indicates
+        we have either gained or lost threads or processes during the run,
+        which may indicate insufficient cleanup. Warnings will be logged.
+        """
+        end_threads = threading.enumerate()
+        if start_threads != end_threads:
+            new_threads = [
+                thr for thr in end_threads if thr not in start_threads]
+            self.logger.warning('New threads are still alive after run: %s',
+                                new_threads)
+            dead_threads = [
+                thr for thr in start_threads if thr not in end_threads]
+            self.logger.warning('Threads have died during run: %s',
+                                dead_threads)
+
+        current_proc = psutil.Process()
+        end_procs = current_proc.children()
+        if start_procs != end_procs:
+            new_procs = [
+                proc for proc in end_procs if proc not in start_procs]
+            self.logger.warning('New processes are still alive after run: %s',
+                                new_procs)
+            dead_procs = [
+                thr for thr in start_procs if thr not in end_procs]
+            self.logger.warning('Child processes have died during run: %s',
+                                dead_procs)
 
     def _execute_step(self, step, *args, **kwargs):
         try:
