@@ -15,6 +15,7 @@ from testplan.testing.multitest.entries.schemas.base import registry as schema_r
 from testplan.testing.multitest.entries.stdout.base import registry as stdout_registry
 from testplan.report.testing import TestGroupReport, TestCaseReport, Status
 from testplan.common.utils.exceptions import format_trace
+from testplan.common.utils import validation
 
 
 class PyTestConfig(testing.TestConfig):
@@ -30,7 +31,9 @@ class PyTestConfig(testing.TestConfig):
             config.ConfigOption('select', default=''): str,
             config.ConfigOption('extra_args', default=None): schema.Or(
                 [str], None),
-            config.ConfigOption('quiet', default=True): bool
+            config.ConfigOption('quiet', default=True): bool,
+            config.ConfigOption('result', default=MultiTestResult):
+                validation.is_subclass(MultiTestResult),
         }
 
 
@@ -77,6 +80,10 @@ class PyTest(testing.Test):
         if return_code != 0:
             self.result.report.status_override = Status.ERROR
             self.logger.error('pytest exited with return code %d', return_code)
+
+    def get_test_context(self):
+        """TODO find out if we can inspect suites/testcases."""
+        return []
 
 
 class _PyTestPlugin(object):
@@ -218,7 +225,7 @@ class _PyTestPlugin(object):
                     item.function).split(os.linesep))
 
         self._current_case_report = report
-        self._current_result_obj = MultiTestResult(
+        self._current_result_obj = self._parent.cfg.result(
             stdout_style=self._parent.stdout_style,
             _scratch=self._parent.scratch
         )

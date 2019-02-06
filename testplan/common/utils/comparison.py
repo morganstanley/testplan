@@ -326,6 +326,11 @@ class RegexAdapter(object):
     def match(cls, regex, value):
         return Match.from_bool(bool(regex.match(value)))
 
+    @staticmethod
+    def compare(lhs, rhs):
+        """Compare two regular expressions - just do string equality."""
+        return Match.from_bool(lhs == rhs)
+
 
 class Category(object):
     """
@@ -475,12 +480,10 @@ def _cmp_dicts(lhs, rhs, ignore, only, coerce_values_to_string, report_all):
         """
         if key in ignore:
             should_ignore = True
-        elif only == []:  # Ignore everything
-            should_ignore = True
-        elif only is True:
-            should_ignore = key not in lhs
+        elif only is not None:
+            should_ignore = key not in only
         else:
-            should_ignore = bool(only and (key not in only))
+            should_ignore = False
         return should_ignore
 
     results = []

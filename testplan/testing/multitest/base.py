@@ -380,6 +380,11 @@ class MultiTest(Test):
 
     def _run_suite(self, testsuite, testcases, testsuite_report):
         """Runs a testsuite object and populates its report object."""
+        for tc in testcases:
+            if not getattr(tc, '__testcase__', False):
+                raise TypeError('Function {} is not marked as a testcase.'
+                                .format(tc))
+
         pre_testcase = getattr(testsuite, 'pre_testcase', None)
         post_testcase = getattr(testsuite, 'post_testcase', None)
 

@@ -62,3 +62,7 @@ class PyUnit(testing.Test):
             testcase_report.append(
                 schemas.base.registry.serialize(assertion_obj))
             self.result.report.entries.append(testcase_report)
+
+    def get_test_context(self):
+        """TODO find out if we can inspect suites/testcases."""
+        return []

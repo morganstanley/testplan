@@ -16,7 +16,7 @@ class TestTableEntry(object):
         )
     )
     def test_validation_failure(self, value):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             TableEntry(table=value)
 
     @pytest.mark.parametrize(
