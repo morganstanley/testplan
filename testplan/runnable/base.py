@@ -415,7 +415,6 @@ class TestRunner(Runnable):
 
     def post_resource_steps(self):
         """Steps to be executed after resources stopped."""
-        print(self.result.report.uid)
         self._add_step(self._create_result)
         self._add_step(self._log_test_status)
         self._add_step(self._record_end)  # needs to happen before export
@@ -443,11 +442,11 @@ class TestRunner(Runnable):
                 time.sleep(self.cfg.abort_wait_timeout)
                 break
 
-            ongoing = False
+            pending_work = False
             for resource in self.resources:
-                if resource.ongoing:
-                    # Maybe print periodically ongoing resource
-                    ongoing = True
+                # Check if any resource has pending work.
+                # Maybe print periodically the pending work of resource.
+                pending_work = resource.pending_work() or pending_work
 
                 # Poll the resource's health - if it has unexpectedly died
                 # then abort the entire test to avoid hanging.
@@ -458,7 +457,7 @@ class TestRunner(Runnable):
                     self.abort()
                     self.result.test_report.status_override = Status.ERROR
 
-            if ongoing is False:
+            if pending_work is False:
                 break
             time.sleep(self.cfg.active_loop_sleep)
 

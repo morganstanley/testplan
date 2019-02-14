@@ -11,11 +11,11 @@ import threading
 if six.PY2:
     from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
     from SocketServer import ThreadingMixIn
-    from urlparse import urlparse, parse_qs
+    from urlparse import urlparse
 else:
     from http.server import HTTPServer, BaseHTTPRequestHandler
     from socketserver import ThreadingMixIn
-    from urllib.parse import urlparse, parse_qs
+    from urllib.parse import urlparse
 
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.config import ConfigOption
@@ -113,19 +113,16 @@ class TestRunnerHTTPHandler(Entity):
 
             def _async_result(self, uid):
                 if uid not in self.EXEC_STATE:
-                    response = self._make_response(
+                    response = dict(
                         error=True,
                         message='{} not recognised.'.format(uid))
-                    self.send_response(404)
                 elif uid not in self.RESULTS:
-                    response = self._make_response(
+                    response = dict(
                         error=True,
                         message='{} not finished.'.format(uid),
                         state=self.EXEC_STATE[uid])
-                    self.send_response(404)
                 else:
-                    self.send_response(200)
-                    response = self._make_response(
+                    response = dict(
                         message='{} finished.'.format(uid),
                         result=self.RESULTS[uid],
                         state=self.EXEC_STATE[uid])
@@ -142,7 +139,8 @@ class TestRunnerHTTPHandler(Entity):
                 self.end_headers()
 
             def _write_json(self, response):
-                return self.wfile.write(response)
+                encoded = json.dumps(response).encode()
+                return self.wfile.write(encoded)
 
             def _extract_mode_method(self, path):
                 if path.count('/') == 1:
@@ -156,27 +154,35 @@ class TestRunnerHTTPHandler(Entity):
                 """
                 Handle post requests.
                 """
-                response = {}
                 outer.logger.debug('path: {}'.format(self.path))
                 url = urlparse(self.path)
                 outer.logger.debug('url: {}'.format(url))
-                query_params = parse_qs(url.query)
-                outer.logger.debug('query params: {}'.format(query_params))
 
                 try:
-                    length = int(self.headers.getheader('content-length'))
-                    request = json.loads(self.rfile.read(length))
+                    length = int(self.headers.get('content-length'))
+                    request = {}
+                    content = self.rfile.read(length).decode()
+                    for key, value in json.loads(content).items():
+                        request[str(key)] = str(value)\
+                            if isinstance(value, six.string_types) else value
+
                     mode, method = self._extract_mode_method(self.path)
                     if mode not in self.MODES:
                         raise ValueError('Execution {} not valid: {}'.format(
                             mode, self.MODES))
                     if mode == 'sync':
-                        response['result'] = self.sync(method, **request)
+                        result = self.sync(method, **request)
+                        msg = 'Sync operation performed: {}'.format(method)
+                        response = self._make_response(msg, result=result)
                     elif mode == 'async':
-                        response['result'] = self.async(method, **request)
+                        result = self.async(method, **request)
+                        msg = 'Async operation performed: {}'.format(method)
+                        response = self._make_response(msg, result=result)
                     elif mode == 'async_result':
-                        response = self._async_result(**request)
-                    self._header_json()
+                        res_dict = self._async_result(**request)
+                        response = self._make_response(**res_dict)
+                    self._header_json(
+                        code=200 if not response['error'] else 400)
                 except Exception as exc:
                     msg = '{} exception in do_POST: {}'.format(
                         outer.__class__.__name__, exc)

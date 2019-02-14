@@ -582,6 +582,11 @@ class RunnableIHandler(Entity):
         return http_handler
 
     @property
+    def http_handler_info(self):
+        """Connection information for http handler."""
+        return self._http_handler.ip, self._http_handler.port
+
+    @property
     def target(self):
         return self._cfg.target
 
@@ -1121,6 +1126,10 @@ class Resource(Entity):
         assumes the resource is always healthy.
         """
         return True
+
+    def pending_work(self):
+        """Resource has pending work."""
+        return False
 
 
 class RunnableManagerConfig(EntityConfig):

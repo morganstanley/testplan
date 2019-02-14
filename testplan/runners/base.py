@@ -97,3 +97,7 @@ class Executor(Resource):
     def is_alive(self):
         """Poll the loop handler thread to check it is running as expected."""
         return self._loop_handler.is_alive()
+
+    def pending_work(self):
+        """Resource has pending work."""
+        return len(self.ongoing) > 0

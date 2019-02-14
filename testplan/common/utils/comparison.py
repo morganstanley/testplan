@@ -324,6 +324,7 @@ class RegexAdapter(object):
 
     @classmethod
     def match(cls, regex, value):
+
         return Match.from_bool(bool(regex.match(value)))
 
     @staticmethod

@@ -8,8 +8,9 @@ from testplan.common.config import ConfigOption
 from testplan.common.entity import (RunnableIHandler, RunnableIHandlerConfig,
                                     ResourceStatus)
 from testplan.report.testing import TestReport
-from testplan.runnable.http import TestRunnerHTTPHandler
+from testplan.runnable.interactive.http import TestRunnerHTTPHandler
 from testplan.runners.base import Executor
+
 
 class TestRunnerIHandlerConfig(RunnableIHandlerConfig):
     """
@@ -51,7 +52,7 @@ class TestRunnerIHandler(RunnableIHandler):
     def _execute_operations(self, generator):
         while self.active and self.target.active:
             try:
-                operation, args, kwargs = generator.next()
+                operation, args, kwargs = next(generator)
             except StopIteration:
                 break
             else:
@@ -59,19 +60,20 @@ class TestRunnerIHandler(RunnableIHandler):
                 res = self._wait_result(op_id)
                 self.logger.debug('Operation result: {}'.format(res))
 
-    @property
-    def report(self):
+    def report(self, serialized=False):
         """Get the top level Test report."""
         report = TestReport(name=self.cfg.name, uid=self.cfg.name)
         all_tests = self.all_tests()
         while self.active and self.target.active:
             try:
-                test_uid, real_runner_uid = all_tests.next()
+                test_uid, real_runner_uid = next(all_tests)
             except StopIteration:
                 break
             else:
                 test = self.test(test_uid, runner_uid=real_runner_uid)
                 report.append(test.result.report)
+        if serialized is True:
+            return report.serialize()
         return report
 
     def get_environment(self, env_uid):
@@ -79,7 +81,7 @@ class TestRunnerIHandler(RunnableIHandler):
         return self.target.resources.environments[env_uid]
 
     def get_environment_resource(self, env_uid, resource_uid):
-        """Get a resourve from an environment."""
+        """Get a resource from an environment."""
         return self.target.resources.environments[env_uid][resource_uid]
 
     def get_resource(self, runner_uid=None):
@@ -212,8 +214,8 @@ class TestRunnerIHandler(RunnableIHandler):
 
     def environment_resource_context(self, env_uid, resource_uid, **kwargs):
         """Get the context info of an environment resource."""
-        return self.environment_context(
-            env_uid=env_uid, resource_uid=resource_uid, **kwargs)
+        return self.get_environment_context(
+            env_uid=env_uid, resource_uid=resource_uid, **kwargs)[resource_uid]
 
     def environment_resource_start(self, env_uid, resource_uid):
         """Start an environment resource."""
@@ -253,7 +255,7 @@ class TestRunnerIHandler(RunnableIHandler):
         test = self.test(test_uid, runner_uid=runner_uid)
         test_irunner = test.cfg.interactive_runner(test)
         test_dry_run_generator = test_irunner.dry_run()
-        operation, args, kwargs = test_dry_run_generator.next()
+        operation, args, kwargs = next(test_dry_run_generator)
         op_id = self.add_operation(operation, *args, **kwargs)
         _ = self._wait_result(op_id)
 
@@ -262,7 +264,7 @@ class TestRunnerIHandler(RunnableIHandler):
         all_tests = self.all_tests(runner_uid)
         while self.active and self.target.active:
             try:
-                test_uid, real_runner_uid = all_tests.next()
+                test_uid, real_runner_uid = next(all_tests)
             except StopIteration:
                 break
             else:
@@ -306,7 +308,7 @@ class TestRunnerIHandler(RunnableIHandler):
         test_run_generator = irunner.run(suite=suite_uid, case=case_uid)
         while self.active and self.target.active:
             try:
-                operation, args, kwargs = test_run_generator.next()
+                operation, args, kwargs = next(test_run_generator)
             except StopIteration:
                 break
             else:
@@ -324,7 +326,7 @@ class TestRunnerIHandler(RunnableIHandler):
         test_run_generator = irunner.run(suite=suite_uid)
         while self.active and self.target.active:
             try:
-                operation, args, kwargs = test_run_generator.next()
+                operation, args, kwargs = next(test_run_generator)
             except StopIteration:
                 break
             else:
@@ -340,7 +342,7 @@ class TestRunnerIHandler(RunnableIHandler):
         test_run_generator = irunner.run()
         while self.active and self.target.active:
             try:
-                operation, args, kwargs = test_run_generator.next()
+                operation, args, kwargs = next(test_run_generator)
             except StopIteration:
                 break
             else:
@@ -374,7 +376,7 @@ class TestRunnerIHandler(RunnableIHandler):
         all_tests = self.all_tests(runner_uid)
         while self.active and self.target.active:
             try:
-                test_uid, real_runner_uid = all_tests.next()
+                test_uid, real_runner_uid = next(all_tests)
             except StopIteration:
                 break
             else:
@@ -437,7 +439,7 @@ class TestRunnerIHandler(RunnableIHandler):
             resource = target_class(**final_kwargs)
             self._created_environments[env_uid].add_resource(resource)
         else:
-            raise Exception('123')
+            raise Exception('Add from source file is not yet supported.')
 
     def reload_environment_resource(self, env_uid, target_class_name,
                                     source_file=None, **kwargs):

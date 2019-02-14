@@ -310,3 +310,56 @@ def exponential_interval(initial=0.1, multiplier=2, maximum=None, minimum=None):
         else:
             yield val
             val *= multiplier
+
+
+def get_sleeper(interval, timeout=10, raise_timeout_with_msg=None,
+                timeout_info=False, constant_interval=None):
+    """
+    Generator that implements sleep steps for replacing
+    *while True: do task; time.sleep()* code blocks.
+    It starts sleeping with smaller values up to the given interval.
+
+    It yields True until timeout is reached where it then yields False or raises
+    a TimeoutException based on input arguments.
+
+    :param interval: For sleeping every time up to that value.
+    :type interval: ``float``
+    :param timeout: Timeout in seconds.
+    :type timeout: ``float``
+    :param raise_timeout_with_msg: Message or Function to be used for raising
+      an optional TimeoutException.
+    :type raise_timeout_with_msg: ``NoneType`` or ``str`` or ``callable``
+    :param timeout_info: Include timeout exception timing information in
+      exception message raised.
+    :type timeout_info: ``bool``
+    :param constant_interval: Constant sleep interval.
+    :type constant_interval: ``None`` or ``float``
+    :raises TimeoutException: When reaching timeout value,
+      if raise_timeout_with_msg param is used.
+    """
+    started = time.time()
+    timeout_info_obj = TimeoutExceptionInfo(started)
+    finish_at = started + timeout
+
+    yield True  # First yield is being done immediately without any sleep delay.
+
+    max_interval = interval
+    interval /= 100.0
+    while True:
+        if constant_interval:
+            time.sleep(constant_interval)
+        else:
+            interval = max(0.005, min(interval * 1.5, max_interval))
+            time.sleep(interval)
+
+        if time.time() > finish_at:
+            if raise_timeout_with_msg:
+                msg = raise_timeout_with_msg() if callable(
+                    raise_timeout_with_msg) else raise_timeout_with_msg
+                if timeout_info:
+                    msg = '{}. {}'.format(
+                        raise_timeout_with_msg, timeout_info_obj.msg())
+                raise TimeoutException(msg)
+            break
+        yield True
+    yield False

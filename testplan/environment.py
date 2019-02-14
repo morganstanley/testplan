@@ -99,6 +99,6 @@ class Environments(Resource):
 
     def abort_dependencies(self):
         """Abort all resources on all environments."""
-        for env in self._envs:
+        for env in self._envs.values():
             for resource in env:
                 yield resource

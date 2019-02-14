@@ -1,2 +1,2 @@
 # TODO -> define objects exposed
-from base import *
+from testplan.runnable.base import *
