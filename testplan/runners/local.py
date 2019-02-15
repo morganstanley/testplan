@@ -17,6 +17,9 @@ class LocalRunner(Executor):
     :py:class:`ExecutorConfig <testplan.runners.base.ExecutorConfig>`
     options.
     """
+    def __init__(self, **options):
+        super(LocalRunner, self).__init__(**options)
+        self._uid = 'local_runner'
 
     def _execute(self, uid):
         """Execute item implementation."""
@@ -47,8 +50,18 @@ class LocalRunner(Executor):
                 except IndexError:
                     pass
                 else:
-                    self._execute(next_uid)
-                    self.ongoing.pop(0)
+                    try:
+                        self._execute(next_uid)
+                    except Exception as exc:
+                        result = TestResult()
+                        result.report = TestGroupReport(name=next_uid)
+                        result.report.status_override = Status.ERROR
+                        result.report.logger.critical(
+                            'Exception for {} on {} execution: {}'.format(
+                                next_uid, self, exc))
+                        self._results[next_uid] = result
+                    finally:
+                        self.ongoing.pop(0)
 
             elif self.status.tag == self.status.STOPPING:
                 self.status.change(self.status.STOPPED)
@@ -65,10 +78,9 @@ class LocalRunner(Executor):
         while ongoing:
             uid = ongoing.pop(0)
             result = TestResult()
-            result.run = False
             result.report = TestGroupReport(name=uid)
             result.report.status_override = Status.ERROR
             result.report.logger.critical(
-                'Task discarding due to executor {} abort.'.format(self))
+                'Item {} discarding due to {} abort.'.format(uid, self.uid()))
             self._results[uid] = result
 

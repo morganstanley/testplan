@@ -41,6 +41,15 @@ class Executor(Resource):
         """Items results."""
         return self._results
 
+    @property
+    def added_items(self):
+        """Returns added items."""
+        return self._input
+
+    def added_item(self, uid):
+        """Returns the added item."""
+        return self._input[uid]
+
     def add(self, item, uid):
         """
         Adds an item for execution.
@@ -64,9 +73,12 @@ class Executor(Resource):
     def _execute(self, uid):
         raise NotImplementedError()
 
+    def _prepopulate_runnables(self):
+        self.ongoing = list(self._input.keys())
+
     def starting(self):
         """Starts the execution loop."""
-        self.ongoing = list(self._input.keys())
+        self._prepopulate_runnables()
         self._loop_handler = threading.Thread(target=self._loop)
         self._loop_handler.daemon = True
         self._loop_handler.start()
@@ -75,14 +87,6 @@ class Executor(Resource):
         """Stop the executor."""
         if self._loop_handler:
             interruptible_join(self._loop_handler)
-
-    def pausing(self):
-        """Pause the executor."""
-        self.status.change(self.status.PAUSED)
-
-    def resuming(self):
-        """Resume the executor."""
-        self.status.change(self.status.STARTED)
 
     def abort_dependencies(self):
         """Abort items running before aborting self."""
@@ -93,3 +97,7 @@ class Executor(Resource):
     def is_alive(self):
         """Poll the loop handler thread to check it is running as expected."""
         return self._loop_handler.is_alive()
+
+    def pending_work(self):
+        """Resource has pending work."""
+        return len(self.ongoing) > 0

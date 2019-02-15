@@ -10,6 +10,7 @@ import uuid
 import threading
 import inspect
 import psutil
+import functools
 
 from collections import deque, OrderedDict
 
@@ -124,7 +125,7 @@ class Environment(object):
         """
         Check all resources has target status.
         """
-        return all(resource.status.tag == target
+        return all(self._resources[resource].status.tag == target
                    for resource in self._resources)
 
     def start(self):
@@ -287,7 +288,9 @@ class EntityConfig(Config):
             ConfigOption('path_cleanup', default=False): bool,
             ConfigOption('status_wait_timeout', default=3600): int,
             ConfigOption('abort_wait_timeout', default=30): int,
-            ConfigOption('active_loop_sleep', default=0.001): float
+            # active_loop_sleep impacts cpu usage in interactive mode
+            ConfigOption('active_loop_sleep', default=0.005): float,
+            ConfigOption('interactive', default=False): bool
         }
 
 
@@ -477,20 +480,6 @@ class Entity(object):
             makeemptydirs(self._scratch)
 
 
-class RunnableConfig(EntityConfig):
-    """
-    Configuration object for
-    :py:class:`~testplan.common.entity.base.Runnable` entity.
-    """
-
-    @classmethod
-    def get_options(cls):
-        """Runnable specific config options."""
-        return {
-            ConfigOption('interactive', default=False): bool
-        }
-
-
 class RunnableStatus(EntityStatus):
     """
     Status of a
@@ -522,6 +511,198 @@ class RunnableStatus(EntityStatus):
         return transitions
 
 
+class RunnableIHandlerConfig(Config):
+    """
+    Configuration object for
+    :py:class:`RunnableIHandler <testplan.common.entity.base.RunnableIHandler>` object.
+    """
+    @classmethod
+    def get_options(cls):
+        return {'target': object,
+                ConfigOption('http_handler', default=None): object,
+                ConfigOption('http_handler_startup_timeout', default=10): int,
+                ConfigOption('max_operations', default=5):
+                    And(Use(int), lambda n: n > 0)}
+
+
+class RunnableIRunner(object):
+    EMPTY_DICT = dict()
+    EMPTY_TUPLE = tuple()
+
+    def __init__(self, runnable):
+        self._runnable = runnable
+
+    @staticmethod
+    def set_run_status(func):
+        @functools.wraps(func)
+        def wrapper(self, *args, **kwargs):
+            self._runnable.status.change(Runnable.STATUS.RUNNING)
+            for result in func(self, *args, **kwargs):
+                yield result
+            self._runnable.status.change(Runnable.STATUS.FINISHED)
+        return wrapper
+
+    def run(self):
+        yield self._runnable.run, tuple(), dict()
+
+
+class RunnableIHandler(Entity):
+    """
+    Interactive base handler for a runnable object.
+
+    :param target: Target runnable object.
+    :type target: Subclass of
+      :py:class:`~testplan.common.entity.base.Runnable`.
+    :param http_handler: Optional HTTP requests handler.
+    :type http_handler: ``Object``.
+    :param http_handler_startup_timeout: Timeout value on starting the handler.
+    :type http_handler_startup_timeout: ``int``
+    :param max_operations: Max simultaneous operations.
+    :type max_operations: ``int`` greater than 0.
+
+    Also inherits all
+    :py:class:`~testplan.common.entity.base.Entity` options.
+    """
+    CONFIG = RunnableIHandlerConfig
+    STATUS = RunnableStatus
+
+    def __init__(self, **options):
+        super(RunnableIHandler, self).__init__(**options)
+        self._cfg.parent = self.target.cfg
+        self._queue = []  # Stores uids
+        self._operations = {}  # Ops uid - > (method, args, kwargs)
+        self._results = {}  # Ops uid -> result
+        self._next_uid = 0
+        self._http_handler = self._setup_http_handler()
+
+    def _setup_http_handler(self):
+        http_handler = self.cfg.http_handler(ihandler=self)\
+            if self.cfg.http_handler else None
+        http_handler.cfg.parent = self.cfg
+        return http_handler
+
+    @property
+    def http_handler_info(self):
+        """Connection information for http handler."""
+        return self._http_handler.ip, self._http_handler.port
+
+    @property
+    def target(self):
+        return self._cfg.target
+
+    def abort_dependencies(self):
+        yield self.target
+
+    def add_operation(self, operation, *args, **kwargs):
+        if len(list(self._operations.keys())) >= self.cfg.max_operations:
+            raise RuntimeError('Max operations ({}) reached.'.format(
+                self.cfg.max_operations))
+        uid = self._next_uid
+        self._next_uid = (self._next_uid + 1) % self.cfg.max_operations
+        self._operations[uid] = (operation, args, kwargs)
+        self._queue.append(uid)
+        return uid
+
+    def _get_result(self, uid):
+        result = self._results[uid]
+        del self._results[uid]
+        return result
+
+    def _wait_result(self, uid):
+        while self.active and self.target.active:
+            try:
+                result = self._get_result(uid)
+            except KeyError:
+                time.sleep(self.cfg.active_loop_sleep)
+            else:
+                return result
+
+    def _start_http_handler(self):
+        thread = threading.Thread(target=self._http_handler.run)
+        thread.daemon = True
+        thread.start()
+        wait(lambda: self._http_handler.port is not None,
+             self.cfg.http_handler_startup_timeout,
+             raise_on_timeout=True )
+        self.logger.test_info('{} listening on: {}:{}'.format(
+            self._http_handler.__class__.__name__,
+            self._http_handler.ip, self._http_handler.port))
+
+    def __call__(self, *args, **kwargs):
+        self.status.change(RunnableStatus.RUNNING)
+        self.logger.test_info('Starting {} for {}'.format(
+            self.__class__.__name__, self.target))
+        if self._http_handler is not None:
+            self._start_http_handler()
+
+        while self.active and self.target.active:
+            if self.status.tag == RunnableStatus.RUNNING:
+                try:
+                    uid = self._queue.pop(0)
+                    operation, args, kwargs = self._operations[uid]
+                except IndexError:
+                    time.sleep(self.cfg.active_loop_sleep)
+                else:
+                    try:
+                        try:
+                            owner = '{}.{}, '.format(
+                                self, operation.im_class.__name__)
+                        except AttributeError:
+                            owner = ''
+                        self.logger.debug(
+                            'Performing operation:{}{}'.format(
+                                owner, operation.__name__))
+                        start_time = time.time()
+                        result = operation(*args, **kwargs)
+                        self._results[uid] = result
+                        self.logger.debug(
+                            'Finished operation {}{} - {}s'.format(
+                                owner, operation.__name__,
+                                round(time.time() - start_time, 5)))
+                    except Exception as exc:
+                        self.logger.test_info(
+                            format_trace(inspect.trace(), exc))
+                        self._results[uid] = exc
+                    finally:
+                        del self._operations[uid]
+
+        self.status.change(RunnableStatus.FINISHED)
+
+    def pausing(self):
+        """Set pausing status."""
+        self.status.change(RunnableStatus.PAUSED)
+
+    def resuming(self):
+        """Set resuming status."""
+        self.status.change(RunnableStatus.RUNNING)
+
+    def aborting(self):
+        """
+        Aborting logic for self.
+        """
+        pass
+
+
+class RunnableConfig(EntityConfig):
+    """
+    Configuration object for
+    :py:class:`~testplan.common.entity.base.Runnable` entity.
+    """
+
+    @classmethod
+    def get_options(cls):
+        """Runnable specific config options."""
+        return {
+            # Interactive needs to have blocked propagation.
+            # IHandlers explicitly enable interactive mode of runnables.
+            ConfigOption('interactive', default=False): bool,
+            ConfigOption('interactive_handler', default=RunnableIHandler):
+                object,
+            ConfigOption('interactive_runner', default=RunnableIRunner):
+                object
+        }
+
+
 class RunnableResult(object):
     """
     Result object of a
@@ -550,6 +731,9 @@ class Runnable(Entity):
 
     :param interactive: Enable interactive execution mode.
     :type interactive: ``bool``
+    :param interactive_handler: Handler of interactive mode of the object.
+    :type interactive_handler: Subclass of
+      :py:class:`~testplan.common.entity.base.RunnableIHandler`
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.
@@ -564,6 +748,7 @@ class Runnable(Entity):
         self._environment = self.__class__.ENVIRONMENT(parent=self)
         self._result = self.__class__.RESULT()
         self._steps = deque()
+        self._ihandler = None
 
     @property
     def result(self):
@@ -581,6 +766,16 @@ class Runnable(Entity):
         of :py:class:`Resources <testplan.common.entity.base.Resource>`.
         """
         return self._environment
+
+    @property
+    def interactive(self):
+        """
+        TODO
+        """
+        return self._ihandler
+
+    # Shortcut for interactive handler
+    i = interactive
 
     def _add_step(self, step, *args, **kwargs):
         self._steps.append((step, args, kwargs))
@@ -734,8 +929,16 @@ class Runnable(Entity):
         """Executes the defined steps and populates the result object."""
         try:
             if self.cfg.interactive is True:
-                raise RuntimeError(
-                    'Cannot run batch execution in interactive mode.')
+                if self._ihandler is not None:
+                    raise RuntimeError('{} already has an active {}'.format(
+                        self, self._ihandler))
+                self.logger.test_info(
+                    'Starting {} in interactive mode'.format(self))
+                self._ihandler = self.cfg.interactive_handler(target=self)
+                thread = threading.Thread(target=self._ihandler)
+                thread.daemon = True
+                thread.start()
+                return self._ihandler
             else:
                 self._run_batch_steps()
         except Exception as exc:
@@ -892,6 +1095,14 @@ class Resource(Entity):
         """
         raise NotImplementedError()
 
+    def pausing(self):
+        """Pause the resource."""
+        self.status.change(self.status.PAUSED)
+
+    def resuming(self):
+        """Resume the resource."""
+        self.status.change(self.status.STARTED)
+
     def restart(self, timeout=None):
         """Stop and start the resource."""
         self.stop()
@@ -915,6 +1126,10 @@ class Resource(Entity):
         assumes the resource is always healthy.
         """
         return True
+
+    def pending_work(self):
+        """Resource has pending work."""
+        return False
 
 
 class RunnableManagerConfig(EntityConfig):
@@ -988,8 +1203,14 @@ class RunnableManager(Entity):
         """Expose the runnable status."""
         return self._runnable.status
 
+    @property
+    def active(self):
+        """Expose the runnable active attribute."""
+        return self._runnable.active
+
     def run(self):
         """
+        TODO
         Executes target runnable defined in configuration in a separate thread.
 
         :return: Runnable result object.
@@ -999,6 +1220,8 @@ class RunnableManager(Entity):
             signal.signal(sig, self._handle_abort)
         execute_as_thread(self._runnable.run, daemon=True, join=True,
                           break_join=lambda: self.aborted is True)
+        if self._runnable.interactive is not None:
+            return self._runnable.interactive
         if isinstance(self._runnable.result, Exception):
             raise self._runnable.result
         return self._runnable.result

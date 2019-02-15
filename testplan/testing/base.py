@@ -3,17 +3,18 @@ import os
 import sys
 import subprocess
 import six
+import functools
 
 from lxml import objectify
 from schema import Or, Use, And
 
 from testplan import defaults
-from testplan.common.config import ConfigOption
+from testplan.common.config import ConfigOption, validate_func
 
 from testplan.testing import filtering, ordering, tagging
 
 from testplan.common.entity import (
-    Resource, Runnable, RunnableResult, RunnableConfig)
+    Resource, Runnable, RunnableResult, RunnableConfig, RunnableIRunner)
 from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
 from testplan.common.utils.process import enforce_timeout, kill_process
@@ -30,16 +31,66 @@ TESTCASE_INDENT = 6
 ASSERTION_INDENT = 8
 
 
+class TestIRunner(RunnableIRunner):
+    """
+    Interactive runner for Test case class.
+    """
+
+    @RunnableIRunner.set_run_status
+    def start_resources(self):
+        """
+        Generator to start Test resources.
+        """
+        if self._runnable.cfg.before_start:
+            yield (self._runnable.cfg.before_start,
+                   (self._runnable.resources,), RunnableIRunner.EMPTY_DICT)
+        for resource in self._runnable.resources:
+            yield (resource.start,
+                   RunnableIRunner.EMPTY_TUPLE, RunnableIRunner.EMPTY_DICT)
+            yield (resource._wait_started,
+                   RunnableIRunner.EMPTY_TUPLE, RunnableIRunner.EMPTY_DICT)
+        if self._runnable.cfg.after_start:
+            yield (self._runnable.cfg.after_start,
+                   (self._runnable.resources,), RunnableIRunner.EMPTY_DICT)
+
+    @RunnableIRunner.set_run_status
+    def stop_resources(self):
+        """
+        Generator to stop Test resources.
+        """
+        if self._runnable.cfg.before_stop:
+            yield (self._runnable.cfg.before_stop,
+                   (self._runnable.resources,), RunnableIRunner.EMPTY_DICT)
+        for resource in self._runnable.resources:
+            yield (resource.stop,
+                   RunnableIRunner.EMPTY_TUPLE, RunnableIRunner.EMPTY_DICT)
+            yield (resource._wait_stopped,
+                   RunnableIRunner.EMPTY_TUPLE, RunnableIRunner.EMPTY_DICT)
+        if self._runnable.cfg.after_stop:
+            yield (self._runnable.cfg.after_stop,
+                   (self._runnable.resources,), RunnableIRunner.EMPTY_DICT)
+
+
 class TestConfig(RunnableConfig):
     """Configuration object for :py:class:`~testplan.testing.base.Test`."""
 
     @classmethod
     def get_options(cls):
+        start_stop_signature = Or(
+            None,
+            validate_func('env'),
+            validate_func('env', 'result'),
+        )
+
         return {
             # 'name': And(str, lambda s: s.count(' ') == 0),
             'name': str,
             ConfigOption('description', default=None): str,
             ConfigOption('environment', default=[]): [Resource],
+            ConfigOption('before_start', default=None): start_stop_signature,
+            ConfigOption('after_start', default=None): start_stop_signature,
+            ConfigOption('before_stop', default=None): start_stop_signature,
+            ConfigOption('after_stop', default=None): start_stop_signature,
             ConfigOption(
                 'test_filter',
                 default=filtering.Filter(),
@@ -125,13 +176,16 @@ class Test(Runnable):
     def __str__(self):
         return '{}[{}]'.format(self.__class__.__name__, self.name)
 
-    def _init_test_report(self):
-        self.result.report = TestGroupReport(
+    def _new_test_report(self):
+         return TestGroupReport(
             name=self.cfg.name,
             description=self.cfg.description,
             category=self.__class__.__name__.lower(),
-            tags=self.cfg.tags,
+            tags=self.cfg.tags
         )
+
+    def _init_test_report(self):
+        self.result.report = self._new_test_report()
 
     def get_tags_index(self):
         """
@@ -614,12 +668,23 @@ class ProcessRunnerTest(Test):
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
         self._add_step(self.make_runpath_dirs)
+        if self.cfg.before_start:
+            self._add_step(self.cfg.before_start)
 
     def main_batch_steps(self):
+        if self.cfg.after_start:
+            self._add_step(self.cfg.after_start)
         self._add_step(self.run_tests)
         self._add_step(self.update_test_report)
         self._add_step(self.propagate_tag_indices)
         self._add_step(self.log_test_results, top_down=False)
+        if self.cfg.before_stop:
+            self._add_step(self.cfg.before_stop)
+
+    def post_resource_steps(self):
+        """Runnable steps to be executed after environment stops."""
+        if self.cfg.after_stop:
+            self._add_step(self.cfg.after_stop)
 
     def aborting(self):
         if self._test_process is not None:

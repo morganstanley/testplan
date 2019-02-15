@@ -1,21 +1,19 @@
 """TODO."""
 
 import os
-import sys
 import uuid
 
 from testplan import Testplan, TestplanResult
 from testplan.common.entity import (Resource, ResourceStatus,
                                     Runnable, RunnableResult)
-from testplan.common.utils.path import default_runpath
-from testplan.runners.local import LocalRunner
-from testplan.runnable import TestRunnerStatus, TestRunner
 from testplan.common.utils.exceptions import should_raise
-from testplan.report import TestGroupReport
-
+from testplan.common.utils.path import default_runpath
 from testplan.common.utils.testing import (
     argv_overridden, log_propagation_disabled)
 from testplan.logger import TESTPLAN_LOGGER
+from testplan.report import TestGroupReport
+from testplan.runnable import TestRunnerStatus, TestRunner
+from testplan.runners.local import LocalRunner
 
 
 class DummyDriver(Resource):

@@ -128,7 +128,7 @@ class TestReportSchema(Schema):
 
     timer = TimerField()
     name = fields.String()
-    uid = fields.UUID()
+    uid = fields.String()
     meta = fields.Dict()
 
     status = fields.String(dump_only=True)

@@ -36,7 +36,7 @@ class ReportSchema(schemas.TreeNodeSchema):
     description = fields.String(allow_none=True)
     entries = fields.List(custom_fields.NativeOrPretty())
 
-    uid = fields.UUID()
+    uid = fields.String()
     logs = fields.Nested(ReportLogSchema, many=True)
 
     @post_load

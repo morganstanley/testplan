@@ -364,13 +364,13 @@ class TestGroupReport(BaseReportGroup):
         if self.tags_index or item.tags_index:
             self.propagate_tag_indices()
 
-    def serialize(self):
+    def serialize(self, strict=True):
         """
         Shortcut for serializing TestGroupReport data to nested python
         dictionaries.
         """
         from .schemas import TestGroupReportSchema
-        return TestGroupReportSchema(strict=True).dump(self).data
+        return TestGroupReportSchema(strict=strict).dump(self).data
 
     @classmethod
     def deserialize(cls, data):

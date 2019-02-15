@@ -52,12 +52,12 @@ def test_runner_timeout():
     assert entries[4].status == Status.ERROR   # testcase 'test_contain' raised
     assert entries[1].name == 'MTest2'
     assert entries[1].status == Status.ERROR   # timeout
-    assert entries[1].logs[0]['message'].startswith('Task discarding')
+    assert ' discarding due to ' in entries[1].logs[0]['message']
     assert entries[3].name == 'Task[get_mtest4]'
     assert entries[3].status == Status.ERROR   # timeout
     assert entries[3].logs[0]['message'].startswith('_target: get_mtest4')
-    assert entries[3].logs[1]['message'].startswith('Task discarding')
+    assert ' discarding due to ' in entries[3].logs[1]['message']
     assert entries[5].name == 'Task[get_mtest6]'
     assert entries[5].status == Status.ERROR   # timeout
     assert entries[5].logs[0]['message'].startswith('_target: get_mtest6')
-    assert entries[5].logs[1]['message'].startswith('Task discarding')
+    assert ' discarding due to ' in entries[5].logs[1]['message']

@@ -1,14 +1,16 @@
 """HTTPServer Driver."""
 
-from schema import Use, Or
-from threading import Thread
-import time
 import os
+import time
+from threading import Thread
+
+from schema import Use
+
 try:
   import BaseHTTPServer as http_server
   import Queue as queue
 except ImportError:
-  import http.server as http_server
+  from testplan.runnable.interactive import http as http_server
   import queue
 
 
