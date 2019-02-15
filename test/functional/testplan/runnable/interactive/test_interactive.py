@@ -94,7 +94,8 @@ def make_multitest(idx=''):
 def test_top_level_tests():
     with log_propagation_disabled(TESTPLAN_LOGGER):
         with InteractivePlan(
-              name='InteractivePlan', interactive=True,
+              name='InteractivePlan',
+              interactive=True, interactive_block=False,
               parse_cmdline=False, logger_level=TEST_INFO) as plan:
             plan.add(make_multitest(1))
             plan.run()
@@ -151,7 +152,8 @@ def test_top_level_tests():
 def test_top_level_environment():
     with log_propagation_disabled(TESTPLAN_LOGGER):
         with InteractivePlan(
-              name='InteractivePlan', interactive=True,
+              name='InteractivePlan',
+              interactive=True, interactive_block=False,
               parse_cmdline=False, logger_level=TEST_INFO) as plan:
             plan.add_environment(
                 LocalEnvironment(
@@ -228,7 +230,8 @@ def post_request(url, data):
 def test_http_operate_tests_sync():
     with log_propagation_disabled(TESTPLAN_LOGGER):
         with InteractivePlan(
-              name='InteractivePlan', interactive=True,
+              name='InteractivePlan',
+              interactive=True, interactive_block=False,
               parse_cmdline=False, logger_level=TEST_INFO) as plan:
             plan.run()
             wait(lambda: any(plan.i.http_handler_info),
@@ -326,13 +329,14 @@ def test_http_operate_tests_sync():
                 'result': plan.i.test_report('Test1'),
                 'error': False, 'metadata': {}, 'trace': None,
                 'message': 'Sync operation performed: test_report'}
-            assert compare(response, expected_response)[0]is True
+            assert compare(response, expected_response)[0] is True
 
 
 def test_http_operate_tests_async():
     with log_propagation_disabled(TESTPLAN_LOGGER):
         with InteractivePlan(
-              name='InteractivePlan', interactive=True,
+              name='InteractivePlan',
+              interactive=True, interactive_block=False,
               parse_cmdline=False, logger_level=TEST_INFO) as plan:
             plan.run()
             wait(lambda: any(plan.i.http_handler_info),
@@ -385,7 +389,8 @@ def test_http_operate_tests_async():
 def test_http_dynamic_environments():
     with log_propagation_disabled(TESTPLAN_LOGGER):
         with InteractivePlan(
-              name='InteractivePlan', interactive=True,
+              name='InteractivePlan',
+              interactive=True, interactive_block=False,
               parse_cmdline=False, logger_level=DEBUG) as plan:
             plan.run()
             wait(lambda: any(plan.i.http_handler_info),

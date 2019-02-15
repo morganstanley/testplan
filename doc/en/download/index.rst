@@ -10,6 +10,7 @@ Downloadable examples
     Multitest
     Assertions
     Test Output
+    Interactive
     App
     Transports
     Execution Pools

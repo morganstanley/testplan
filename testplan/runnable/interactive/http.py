@@ -76,13 +76,13 @@ class TestRunnerHTTPHandler(Entity):
             EXEC_STATE = {}
             RESULTS = {}
 
-            def sync(self, method, **kwargs):
+            def _sync(self, method, **kwargs):
                 """Perform a synchronous operation."""
                 outer.logger.debug('Calling {}(**{})'.format(method, kwargs))
                 with self.LOCK:
                     return getattr(outer.cfg.ihandler, method)(**kwargs)
 
-            def async(self, method, **kwargs):
+            def _async(self, method, **kwargs):
                 """Perform an asynchronous operation."""
                 uid = str(uuid.uuid4())
                 thread = threading.Thread(
@@ -159,23 +159,28 @@ class TestRunnerHTTPHandler(Entity):
                 outer.logger.debug('url: {}'.format(url))
 
                 try:
-                    length = int(self.headers.get('content-length'))
-                    request = {}
-                    content = self.rfile.read(length).decode()
-                    for key, value in json.loads(content).items():
-                        request[str(key)] = str(value)\
-                            if isinstance(value, six.string_types) else value
+                    try:
+                        length = int(self.headers.get('content-length'))
+                    except:
+                        # No data in request.
+                        request = {}
+                    else:
+                        request = {}
+                        content = self.rfile.read(length).decode()
+                        for key, value in json.loads(content).items():
+                            request[str(key)] = str(value) \
+                                if isinstance(value, six.string_types) else value
 
                     mode, method = self._extract_mode_method(self.path)
                     if mode not in self.MODES:
                         raise ValueError('Execution {} not valid: {}'.format(
                             mode, self.MODES))
                     if mode == 'sync':
-                        result = self.sync(method, **request)
+                        result = self._sync(method, **request)
                         msg = 'Sync operation performed: {}'.format(method)
                         response = self._make_response(msg, result=result)
                     elif mode == 'async':
-                        result = self.async(method, **request)
+                        result = self._async(method, **request)
                         msg = 'Async operation performed: {}'.format(method)
                         response = self._make_response(msg, result=result)
                     elif mode == 'async_result':

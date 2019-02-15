@@ -29,6 +29,7 @@ KNOWN_EXCEPTIONS = [
 
 SKIP = [
     os.path.join('ExecutionPools', 'Remote', 'test_plan.py'),
+    os.path.join('Interactive', 'Basic', 'test_plan.py'),
 ]
 
 SKIP_ON_WINDOWS = [
@@ -78,7 +79,7 @@ def _examples_root():
         for root, _, files in os.walk(
             _examples_root(), followlinks=True)
         for filename in files
-        if 'test_plan' in filename
+        if ('test_plan' in filename and filename.endswith('.py'))
     ],
     ids=_param_formatter,
 )
