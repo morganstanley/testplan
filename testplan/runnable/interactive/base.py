@@ -31,6 +31,36 @@ def _exclude_assertions_filter(obj):
         return True
 
 
+def auto_start_stop_environment(method):
+    """Auto start environment decorator logic."""
+    @functools.wraps(method)
+    def wrapped(self, test_uid, *args, **kwargs):
+        """
+        1. If the environment is not started -> Start it.
+        2. Run the method.
+        3. If the environment started during this operation. -> Stop it.
+        """
+        runner_uid = kwargs.get('runner_uid')
+        test = self.test(test_uid, runner_uid=runner_uid)
+
+        resources_started = False
+        if not test.resources.all_status(ResourceStatus.STARTED):
+            if not test.resources.all_status(ResourceStatus.STOPPED) and \
+                  not test.resources.all_status(ResourceStatus.NONE):
+                # State requires to reset all.
+                self.stop_test_resources(test_uid, runner_uid=runner_uid)
+            self.reset_test_report(test_uid, runner_uid=runner_uid)
+            self.start_test_resources(test_uid, runner_uid=runner_uid)
+            resources_started = True
+
+        method(self, test_uid, *args, **kwargs)
+
+        if resources_started is True:
+            self.stop_test_resources(test_uid, runner_uid=runner_uid)
+
+    return wrapped
+
+
 class TestRunnerIHandler(RunnableIHandler):
     """
     Runnable intective handler for
@@ -269,35 +299,6 @@ class TestRunnerIHandler(RunnableIHandler):
                 break
             else:
                 self.reset_test_report(test_uid, runner_uid=real_runner_uid)
-
-    def auto_start_stop_environment(method):
-        """Auto start environment decorator logic."""
-        @functools.wraps(method)
-        def wrapped(self, test_uid, *args, **kwargs):
-            """
-            1. If the environment is not started -> Start it.
-            2. Run the method.
-            3. If the environment started during this operation. -> Stop it.
-            """
-            runner_uid = kwargs.get('runner_uid')
-            test = self.test(test_uid, runner_uid=runner_uid)
-
-            resources_started = False
-            if not test.resources.all_status(ResourceStatus.STARTED):
-                if not test.resources.all_status(ResourceStatus.STOPPED) and\
-                      not test.resources.all_status(ResourceStatus.NONE):
-                    # State requires to reset all.
-                    self.stop_test_resources(test_uid, runner_uid=runner_uid)
-                self.reset_test_report(test_uid, runner_uid=runner_uid)
-                self.start_test_resources(test_uid, runner_uid=runner_uid)
-                resources_started = True
-
-            method(self, test_uid, *args, **kwargs)
-
-            if resources_started is True:
-                self.stop_test_resources(test_uid, runner_uid=runner_uid)
-
-        return wrapped
 
     @auto_start_stop_environment
     def run_test_case(self, test_uid, suite_uid, case_uid, runner_uid=None):

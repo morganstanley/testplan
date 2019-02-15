@@ -9,13 +9,13 @@ import inspect
 import threading
 
 if six.PY2:
-    from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-    from SocketServer import ThreadingMixIn
-    from urlparse import urlparse
+    from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler  # pylint: disable=no-name-in-module,import-error
+    from SocketServer import ThreadingMixIn  # pylint: disable=no-name-in-module,import-error
+    from urlparse import urlparse  # pylint: disable=no-name-in-module,import-error
 else:
-    from http.server import HTTPServer, BaseHTTPRequestHandler
-    from socketserver import ThreadingMixIn
-    from urllib.parse import urlparse
+    from http.server import HTTPServer, BaseHTTPRequestHandler  # pylint: disable=no-name-in-module,import-error
+    from socketserver import ThreadingMixIn  # pylint: disable=no-name-in-module,import-error
+    from urllib.parse import urlparse  # pylint: disable=no-name-in-module,import-error
 
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.config import ConfigOption
