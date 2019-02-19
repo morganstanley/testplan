@@ -70,6 +70,10 @@ class TestplanParser(object):
             **listing.ListingArg.get_parser_context(default=None)
         )
 
+        parser.add_argument(
+            '-i', '--interactive', action='store_true', dest='interactive',
+            default=False, help='Enable interactive mode.')
+
         general_group = parser.add_argument_group('General')
         general_group.add_argument(
             '--runpath', type=str, metavar='PATH',

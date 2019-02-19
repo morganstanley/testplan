@@ -21,15 +21,6 @@ testplan.runnable.base module
     :show-inheritance:
 
 
-testplan.runnable.http module
-+++++++++++++++++++++++++++++
-
-.. automodule:: testplan.runnable.http
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
 Module contents
 ---------------
 

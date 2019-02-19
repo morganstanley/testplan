@@ -10,6 +10,7 @@ from testplan.common.entity import (RunnableIHandler, RunnableIHandlerConfig,
 from testplan.report.testing import TestReport
 from testplan.runnable.interactive.http import TestRunnerHTTPHandler
 from testplan.runners.base import Executor
+from testplan.runnable.interactive.reloader import ModuleReloader
 
 
 class TestRunnerIHandlerConfig(RunnableIHandlerConfig):
@@ -78,6 +79,8 @@ class TestRunnerIHandler(RunnableIHandler):
     def __init__(self, **options):
         super(TestRunnerIHandler, self).__init__(**options)
         self._created_environments = {}
+        self._reloader = ModuleReloader(logger=self.logger,
+                                        extra_deps=self.cfg.extra_deps)
 
     def _execute_operations(self, generator):
         while self.active and self.target.active:
@@ -130,7 +133,8 @@ class TestRunnerIHandler(RunnableIHandler):
             if not isinstance(runner, Executor):
                 raise RuntimeError(
                     'Invalid runner executor: {}'.format(runner_uid))
-        return runner.added_item(test_uid)
+        item = runner.added_item(test_uid)
+        return item
 
     def test_resource(self, test_uid, resource_uid, runner_uid=None):
         """Get a resource of a Test instance."""
@@ -444,9 +448,17 @@ class TestRunnerIHandler(RunnableIHandler):
 
     def reload_environment_resource(self, env_uid, target_class_name,
                                     source_file=None, **kwargs):
+        # Placeholder for function to delele an existing and registering a new
+        # environment resource with probably altered source code.
         # This should access the already added Environment to plan.
         pass
 
     def add_created_environment(self, env_uid):
         """Add an environment from the created environment maker instance."""
         self.target.add_environment(self._created_environments[env_uid])
+
+    def reload(self, rebuild_dependencies=True):
+        """Reload test suites."""
+        tests = (self.test(test, runner_uid=runner_uid)
+                 for test, runner_uid in self.all_tests())
+        self._reloader.reload(tests, rebuild_dependencies=rebuild_dependencies)

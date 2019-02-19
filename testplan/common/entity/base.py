@@ -4,6 +4,7 @@ configuration, start/stop/run/abort, create results and have some state.
 """
 
 import os
+import sys
 import signal
 import time
 import uuid
@@ -289,8 +290,7 @@ class EntityConfig(Config):
             ConfigOption('status_wait_timeout', default=3600): int,
             ConfigOption('abort_wait_timeout', default=30): int,
             # active_loop_sleep impacts cpu usage in interactive mode
-            ConfigOption('active_loop_sleep', default=0.005): float,
-            ConfigOption('interactive', default=False): bool
+            ConfigOption('active_loop_sleep', default=0.005): float
         }
 
 
@@ -696,6 +696,9 @@ class RunnableConfig(EntityConfig):
             # Interactive needs to have blocked propagation.
             # IHandlers explicitly enable interactive mode of runnables.
             ConfigOption('interactive', default=False): bool,
+            ConfigOption(
+                'interactive_block',
+                default=hasattr(sys.modules['__main__'], '__file__')): bool,
             ConfigOption('interactive_handler', default=RunnableIHandler):
                 object,
             ConfigOption('interactive_runner', default=RunnableIRunner):
@@ -731,9 +734,14 @@ class Runnable(Entity):
 
     :param interactive: Enable interactive execution mode.
     :type interactive: ``bool``
+    :param interactive_no_block: Do not block on run() on interactive mode.
+    :type interactive_no_block: ``bool``
     :param interactive_handler: Handler of interactive mode of the object.
     :type interactive_handler: Subclass of
       :py:class:`~testplan.common.entity.base.RunnableIHandler`
+    :param interactive_runner: Interactive runner set for the runnable.
+    :type interactive_runner: Subclass of
+      :py:class:`~testplan.common.entity.base.RunnableIRunner`
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.
@@ -936,8 +944,11 @@ class Runnable(Entity):
                     'Starting {} in interactive mode'.format(self))
                 self._ihandler = self.cfg.interactive_handler(target=self)
                 thread = threading.Thread(target=self._ihandler)
-                thread.daemon = True
                 thread.start()
+                # Check if we are on interactive session.
+                if self.cfg.interactive_block is True:
+                    while self._ihandler.active:
+                        time.sleep(self.cfg.active_loop_sleep)
                 return self._ihandler
             else:
                 self._run_batch_steps()
@@ -1210,7 +1221,6 @@ class RunnableManager(Entity):
 
     def run(self):
         """
-        TODO
         Executes target runnable defined in configuration in a separate thread.
 
         :return: Runnable result object.

@@ -148,7 +148,8 @@ class TestRunnerConfig(RunnableConfig):
                 'timeout', default=None): Or(
                 None, And(Or(int, float), lambda t: t >= 0)),
             ConfigOption('interactive_handler', default=TestRunnerIHandler):
-                object
+                object,
+            ConfigOption('extra_deps', default=[]): list
         }
 
 
@@ -241,6 +242,8 @@ class TestRunner(Runnable):
     :param interactive_handler: Handler for interactive mode execution.
     :type interactive_handler: Subclass of
       :py:class:`TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
+    :param extra_deps: Extra module dependencies for interactive reload.
+    :type extra_deps: ``list`` of ``module``s
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Runnable` options.
@@ -360,10 +363,14 @@ class TestRunner(Runnable):
                 return None
 
         if resource is None:
-            resource = self.resources.first()
+            resource = self.resources.first()  # Implies local_runner
         if resource not in self.resources:
             raise RuntimeError('Resource "{}" does not exist.'.format(resource))
-        self.resources[resource].add(runnable, uid)
+        if self.cfg.interactive and isinstance(runnable, Task):
+            runnable = runnable.materialize()
+            self.resources[resource].add(runnable, runnable.uid() or uid)
+        else:
+            self.resources[resource].add(runnable, uid)
         self._tests[uid] = resource
         return uid
 
