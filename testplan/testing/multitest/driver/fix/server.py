@@ -113,6 +113,13 @@ class FixServer(Driver):
         return self._server.is_connection_active(conn_name)
     is_connection_active.__doc__ = Server.is_connection_active.__doc__
 
+    def wait_for_connection(self, timeout = 60, conn_name = None):
+        """
+        Docstring from Server.wait_for_connection
+        """
+        return self._server.wait_for_connection(conn_name)
+    wait_for_connection.__doc__ = Server.wait_for_connection.__doc__
+
     def send(self, msg, conn_name=(None, None)):
         """
         Docstring from Server.send

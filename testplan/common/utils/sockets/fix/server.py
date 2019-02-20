@@ -145,6 +145,7 @@ class Server(object):
         self._socket = None
         self._recv_thread = None
         self._lock = threading.Lock()
+        self._condvar = threading.Condition(self._lock)
         self._pobj = select.poll()
 
     @property
@@ -324,6 +325,7 @@ class Server(object):
         elif _has_logon_tag(msg):
             self._logon_connection(fdesc, conn_name)
             self._no_lock_send(msg, conn_name)
+            self._condvar.notify_all()
         else:
             raise Exception(
                 'Connection {} sent msg before logon'.format(conn_name))
@@ -383,6 +385,25 @@ class Server(object):
         :rtype: ``bool``
         """
         return conn_name in self._conndetails_by_name
+
+    def wait_for_connection(self, timeout = 60, conn_name = None):
+        """
+        Waits for the given connection to appear, or any connection if None.
+
+        :param timeout: Time in seconds to wait for connection.
+        :type timeout: float
+        :param conn_name: Connection name to waited for, or None for any connection.
+        :type conn_name: ``tuple`` of ``str`` and ``str``
+
+        :return: ``True`` if connection is active, ``False`` if timed out waiting for it.
+        :rtype: ``bool``
+        """
+        if conn_name:
+            f = lambda: self.is_connection_active(conn_name)
+        else:
+            f = lambda: self.active_connections()
+        with self._condvar:
+            return self._condvar.wait_for(f, timeout)
 
     def stop(self):
         """
