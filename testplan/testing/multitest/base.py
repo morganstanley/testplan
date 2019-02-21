@@ -404,7 +404,7 @@ class MultiTest(Test):
                 self._stop_thread_pool()
 
         if patch_report is True:
-            self.report.merge(report)
+            self.report.merge(report, strict=False)
 
         return report
 

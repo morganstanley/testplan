@@ -476,3 +476,28 @@ def test_http_dynamic_environments():
             _assert_http_response(
                 response, 'stop_environment', 'Sync',
                 result={'client': 'STOPPED', 'server': 'STOPPED'})
+
+
+def test_reload():
+    """Tests reload functionality."""
+    import sys
+    import inspect
+    import subprocess
+    import testplan
+
+    testplan_path = os.path.join(
+        os.path.dirname(inspect.getfile(testplan)), '..')
+
+    path_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), 'testplan_path.txt')
+
+    with open(path_file, 'w') as fobj:
+        fobj.write(testplan_path)
+
+    output = subprocess.check_output(
+        [sys.executable, 'interactive_executable.py'],
+        cwd=os.path.dirname(os.path.abspath(__file__)))
+
+    # Enable for test debug:
+    # for line in output.decode().split(os.linesep):
+    #     print(line)

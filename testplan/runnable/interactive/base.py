@@ -207,6 +207,14 @@ class TestRunnerIHandler(RunnableIHandler):
         op_id = self.add_operation(resource._wait_stopped)
         self._wait_result(op_id)
 
+    def test_resource_operation(self, test_uid, resource_uid, operation,
+                                runner_uid=None, **kwargs):
+        """Perform an operation on a test environment resource."""
+        test = self.test(test_uid, runner_uid=runner_uid)
+        resource = getattr(test.resources, resource_uid)
+        op_id = self.add_operation(getattr(resource, operation), **kwargs)
+        return self._wait_result(op_id)
+
     def test_resource_start(self, test_uid, resource_uid, runner_uid=None):
         """Start a resource of a Test instance."""
         resource = self.test_resource(

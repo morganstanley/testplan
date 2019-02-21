@@ -1,0 +1,7 @@
+from testplan.testing.multitest import MultiTest, testsuite, testcase
+
+@testsuite
+class SuiteTemplate(object):
+    @testcase
+    def basic_case(self, env, result):
+        result.equal(1, {VALUE}, description='Assertion')

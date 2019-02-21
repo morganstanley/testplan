@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys
 
 from testplan import test_plan
@@ -26,11 +28,11 @@ if __name__ == '__main__':
 # INTERACTIVE MODE DEMO:
 # ----------------------
 #
-# When HTTP handler starts listening on <IP>:<PORT>
+# When HTTP handler starts listening on <IP>:$PORT
 # use a tool like curl to send HTTP requests and execute/reload tests.
 #
 # First execute the tests:
-#     curl -X POST http://127.0.0.1:<PORT>/sync/run_tests
+#     curl -X POST http://127.0.0.1:$PORT/sync/run_tests
 #
 # Make an an edit in my_tests/dependency.py
 #   VALUE = 3
@@ -38,13 +40,13 @@ if __name__ == '__main__':
 #   VALUE = 1
 #
 # Reload the code:
-#     curl -X POST http://127.0.0.1:<PORT>/sync/reload
+#     curl -X POST http://127.0.0.1:$PORT/sync/reload
 #
 # Re-run the tests:
-#     curl -X POST http://127.0.0.1:<PORT>/sync/run_tests
+#     curl -X POST http://127.0.0.1:$PORT/sync/run_tests
 #
 # Run only one suite:
-#     curl -X POST http://127.0.0.1:<PORT>/sync/run_test_suite -d '{"test_uid": "Test1", "suite_uid": "BasicSuite"}'
+#     curl -X POST http://127.0.0.1:$PORT/sync/run_test_suite -d '{"test_uid": "Test1", "suite_uid": "BasicSuite"}'
 #
 # .. and all other operations that Testplan interactive provides.
 
