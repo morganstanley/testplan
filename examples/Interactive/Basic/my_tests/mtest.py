@@ -1,5 +1,5 @@
 from testplan.common.utils.context import context
-from testplan.testing.multitest import MultiTest, testsuite, testcase
+from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 from my_tests.basic import BasicSuite
