@@ -386,7 +386,7 @@ class Server(object):
         """
         return conn_name in self._conndetails_by_name
 
-    def wait_for_connection(self, timeout = 60, conn_name = None):
+    def accept_connection(self, timeout = 10, conn_name = None):
         """
         Waits for the given connection to appear, or any connection if None.
 
