@@ -260,6 +260,9 @@ class Test(Runnable):
                 return style.display_suite, SUITE_INDENT
             elif test_obj.category == 'parametrization':
                 return False, 0  # DO NOT display
+            else:
+                raise ValueError('Unexpected test group category: {}'
+                                 .format(test_obj.category))
         elif isinstance(test_obj, TestCaseReport):
             return style.display_case, TESTCASE_INDENT
         elif isinstance(test_obj, dict):
@@ -384,6 +387,12 @@ class ProcessRunnerTest(Test):
 
     CONFIG = ProcessRunnerTestConfig
 
+    # Some process runners might not have a simple way to list
+    # suites/testcases or might not even have the concept of test suites. If
+    # no list_command is specified we will store all testcase results in a
+    # single suite, with a default name.
+    _DEFAULT_SUITE_NAME = 'AllTests'
+
     def __init__(self, **options):
         super(ProcessRunnerTest, self).__init__(**options)
 
@@ -444,7 +453,7 @@ class ProcessRunnerTest(Test):
         """
         cmd = self.list_command()
         if cmd is None:
-            return []
+            return [(self._DEFAULT_SUITE_NAME, ())]
 
         proc = subprocess_popen(
             cmd,
