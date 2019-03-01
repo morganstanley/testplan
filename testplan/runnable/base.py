@@ -589,10 +589,14 @@ class TestRunner(Runnable):
         return self.cfg.name
 
     def _log_test_status(self):
-        log_test_status(
-            name=self.cfg.name,
-            passed=self._result.test_report.passed
-        )
+        if not self._result.test_report.entries:
+            self.logger.warning(
+                'No tests were run - check your filter patterns.')
+            self._result.test_report.status_override = Status.FAILED
+        else:
+            log_test_status(
+                name=self.cfg.name,
+                passed=self._result.test_report.passed)
 
     def _invoke_exporters(self):
         # Add this logic into a ReportExporter(Runnable)

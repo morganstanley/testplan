@@ -42,7 +42,6 @@ TestReport(name='MyPlan')
 import copy
 import collections
 import inspect
-import uuid
 
 from testplan.common.report import (
     ExceptionLogger as ExceptionLoggerBase, Report, ReportGroup)

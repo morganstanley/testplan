@@ -801,6 +801,7 @@ class Runnable(Entity):
         pass
 
     def _run(self):
+        self.logger.debug('Running %s', self)
         self.status.change(RunnableStatus.RUNNING)
         while self.active:
             if self.status.tag == RunnableStatus.RUNNING:
@@ -808,14 +809,18 @@ class Runnable(Entity):
                     func, args, kwargs = self._steps.popleft()
                     self.pre_step_call(func)
                     if self.skip_step(func) is False:
-                        self.logger.debug('Executing step of {} - {}'.format(
-                            self, func.__name__))
+                        self.logger.debug(
+                            'Executing step of %s - %s', self, func.__name__)
                         start_time = time.time()
                         self._execute_step(func, *args, **kwargs)
                         self.logger.debug(
-                            'Finished step of {}, {} - {}s'.format(
-                                self, func.__name__,
-                                round(time.time() - start_time, 5)))
+                            'Finished step of %s - %s. Took %ds',
+                            self,
+                            func.__name__,
+                            round(time.time() - start_time, 5))
+                    else:
+                        self.logger.debug(
+                            'Skipping step of %s - %s', self, func.__name__)
                     self.post_step_call(func)
                 except IndexError:
                     self.status.change(RunnableStatus.FINISHED)
