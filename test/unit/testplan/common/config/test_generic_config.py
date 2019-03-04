@@ -72,7 +72,7 @@ def test_basic_schema_fail():
                  pattern=re.compile(r".*\n.*should be instance of 'int'.*",
                                     re.MULTILINE))
     should_raise(SchemaError, First, kwargs=dict(d=1.0),
-                 pattern=re.compile(r".*Wrong keys 'd'.*"))
+                 pattern=re.compile(r".*Wrong keys? 'd'.*"))
 
 
 def test_lambda_matching():
