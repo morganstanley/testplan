@@ -389,6 +389,8 @@ class TestRunner(Runnable):
             target = runnable
 
         should_run = target.should_run()
+        self.logger.debug('should_run %s? %s', target.name, bool(should_run))
+
         # --list always returns False
         if should_run and self.cfg.test_lister is not None:
             self.cfg.test_lister.log_test_info(target)
@@ -589,10 +591,14 @@ class TestRunner(Runnable):
         return self.cfg.name
 
     def _log_test_status(self):
-        log_test_status(
-            name=self.cfg.name,
-            passed=self._result.test_report.passed
-        )
+        if not self._result.test_report.entries:
+            self.logger.warning(
+                'No tests were run - check your filter patterns.')
+            self._result.test_report.status_override = Status.FAILED
+        else:
+            log_test_status(
+                name=self.cfg.name,
+                passed=self._result.test_report.passed)
 
     def _invoke_exporters(self):
         # Add this logic into a ReportExporter(Runnable)
