@@ -61,15 +61,18 @@ class BaseRenderer(object):
         """
         Get testcases from a suite report, normally this is more or less
         equal to all children of the suite report, however certain test
-        runners (e.g. MultiTest) may have nested data that needs to be flattened.
+        runners (e.g. MultiTest) may have nested data that needs to be
+        flattened.
         """
-        testcase_reports = []
         for child in testsuite_report:
             if isinstance(child, TestCaseReport):
-                testcase_reports.append(child)
+                yield child
+            elif isinstance(child, TestGroupReport):
+                # Recurse - yield each of the testcases in this group.
+                for testcase in self.get_testcase_reports(child):
+                    yield testcase
             else:
                 raise TypeError('Unsupported report type: {}'.format(child))
-        return testcase_reports
 
     def render_testsuite(self, index, test_report, testsuite_report):
         """Render a single testsuite with its testcases within a `testsuite` tag."""
