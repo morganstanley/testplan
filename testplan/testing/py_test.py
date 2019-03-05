@@ -2,8 +2,9 @@
 import collections
 import inspect
 import os
-import pytest
 import re
+
+import pytest
 import schema
 import six
 
@@ -51,7 +52,9 @@ class PyTest(testing.Test):
         # Initialise a seperate plugin object to pass to PyTest. This avoids
         # namespace clashes with the PyTest object, since PyTest will scan for
         # methods that look like hooks in the plugin.
-        self._pytest_plugin = _PyTestPlugin(self, self.report, self.cfg.quiet)
+        self._pytest_plugin = _ReportPlugin(self, self.report, self.cfg.quiet)
+        self._collect_plugin = _CollectPlugin(self.cfg.quiet)
+        self._pytest_args = self._build_pytest_args()
 
     def main_batch_steps(self):
         """Specify the test steps: run the tests, then log the results."""
@@ -64,6 +67,39 @@ class PyTest(testing.Test):
 
     def run_tests(self):
         """Run pytest and wait for it to terminate."""
+        # Execute pytest with self as a plugin for hook support
+        return_code = pytest.main(self._pytest_args,
+                                  plugins=[self._pytest_plugin])
+        if return_code != 0:
+            self.result.report.status_override = Status.ERROR
+            self.logger.error('pytest exited with return code %d', return_code)
+
+    def get_test_context(self):
+        """
+        Inspect the test suites and cases by running PyTest with the
+        --collect-only flag and passing in our collection plugin.
+
+        :return: List containing pairs of suite name and testcase names.
+        :rtype: List[Tuple[str, List[str]]]
+        """
+        return_code = pytest.main(self._pytest_args + ['--collect-only'],
+                                  plugins=[self._collect_plugin])
+
+        if return_code != 0:
+            self.result.report.status_override = Status.ERROR
+            self.logger.error('Failed to collect tests, exit code = %d',
+                              return_code)
+            return []
+
+        # The plugin will handle converting PyTest tests into suites and
+        # testcase names.
+        return self._collect_plugin.collected
+
+    def _build_pytest_args(self):
+        """
+         :return: a list of the args to be passed to PyTest
+         :rtype: List[str]
+         """
         if isinstance(self.cfg.target, six.string_types):
             pytest_args = [self.cfg.target]
         else:
@@ -75,18 +111,10 @@ class PyTest(testing.Test):
         if self.cfg.extra_args:
             pytest_args.extend(self.cfg.extra_args)
 
-        # Execute pytest with self as a plugin for hook support
-        return_code = pytest.main(pytest_args, plugins=[self._pytest_plugin])
-        if return_code != 0:
-            self.result.report.status_override = Status.ERROR
-            self.logger.error('pytest exited with return code %d', return_code)
-
-    def get_test_context(self):
-        """TODO find out if we can inspect suites/testcases."""
-        return []
+        return pytest_args
 
 
-class _PyTestPlugin(object):
+class _ReportPlugin(object):
     """
     Plugin object passed to PyTest. Contains hooks used to update the Testplan
     report with the status of testcases.
@@ -338,3 +366,49 @@ class _PyTestPlugin(object):
                 suite_report.append(case)
 
             self._report.append(suite_report)
+
+
+class _CollectPlugin(object):
+    """
+    PyTest plugin used when collecting tests. Provides access to the collected
+    test suites and testcases via the `collected` property.
+    """
+
+    def __init__(self, quiet):
+        self._quiet = quiet
+        self._collected = collections.defaultdict(list)
+
+    @pytest.hookimpl(trylast=True)
+    def pytest_configure(self, config):
+        """
+        Hook called by pytest upon startup. Disable output to terminal.
+
+        :param config: pytest config object
+        """
+        if self._quiet:
+            config.pluginmanager.unregister(name='terminalreporter')
+
+    def pytest_collection_modifyitems(self, items):
+        """
+        PyTest hook. Despite the name we do not intend to modify any of the
+        collected items, but we will store off which tests have been collected
+        from each module.
+        """
+        for test in items:
+            self._collected[test.module.__name__].append(test.name)
+
+    @property
+    def collected(self):
+        """
+        Provide access to the test suites and functions collected, after running
+        PyTest with an instance of this class as a plugin.
+
+        PyTest allows either plain functions or methods on a class to be used
+        as testcases. For simplicity we always use the module name as the
+        suite name and ignore the class name for methods.
+
+        :return: list of tuples containing suite and test names - can be
+                 directly returned by get_test_context().
+        :rtype: List[Tuple[str, List[str]]]
+        """
+        return list(self._collected.items())
