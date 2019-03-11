@@ -4,9 +4,10 @@
 class ResourceLoader(object):
     """Load logic."""
 
-    def load(self, name):
+    def load(self, name, kwargs):
         """Load the registered object for the given name."""
-        return getattr(self, '_load_{}'.format(name))()
+        target_class = getattr(self, '_load_{}'.format(name))()
+        return target_class(**kwargs)
 
     def _load_TCPServer(self):
         from testplan.testing.multitest.driver.tcp import TCPServer

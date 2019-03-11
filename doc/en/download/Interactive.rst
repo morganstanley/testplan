@@ -42,3 +42,27 @@ test_plan.py
 my_tests/mtest.py
 +++++++++++++++++
 .. literalinclude:: ../../../examples/Interactive/Environments/my_tests/mtest.py
+
+
+.. _example_frameworks_java:
+
+Frameworks
+----------
+
+Java
+++++
+
+Required files:
+  - :download:`src/JavaCode.java <../../../examples/Interactive/Frameworks/Java/src/JavaCode.java>`
+  - :download:`src/testplan/Main.java <../../../examples/Interactive/Frameworks/Java/src/testplan/Main.java>`
+  - :download:`src/testplan/HttpRequests.java <../../../examples/Interactive/Frameworks/Java/src/testplan/HttpRequests.java>`
+  - :download:`src/testplan/TestplanInteractive.java <../../../examples/Interactive/Frameworks/Java/src/testplan/TestplanInteractive.java>`
+  - :download:`src/testplan/environment/Environment.java <../../../examples/Interactive/Frameworks/Java/src/testplan/environment/Environment.java>`
+  - :download:`src/testplan/environment/drivers/Driver.java <../../../examples/Interactive/Frameworks/Java/src/testplan/environment/drivers/Driver.java>`
+  - :download:`src/testplan/environment/drivers/DriverEntry.java <../../../examples/Interactive/Frameworks/Java/src/testplan/environment/drivers/DriverEntry.java>`
+  - :download:`test/JavaCodeTest.java <../../../examples/Interactive/Frameworks/Java/test/JavaCodeTest.java>`
+
+JavaCodeTest.java
+`````````````````
+.. literalinclude:: ../../../examples/Interactive/Frameworks/Java/test/JavaCodeTest.java
+  :language: java
