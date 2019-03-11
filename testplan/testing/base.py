@@ -22,7 +22,7 @@ from testplan.common.utils.strings import slugify
 
 from testplan.report import (
     test_styles, TestGroupReport, TestCaseReport, Status)
-from testplan.logger import TESTPLAN_LOGGER, get_test_status_message
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 TEST_INST_INDENT = 2
@@ -308,11 +308,7 @@ class Test(Runnable):
                             for line in details.split(os.linesep))
                         TESTPLAN_LOGGER.test_info(details)
                 else:
-                    msg = get_test_status_message(
-                        name=name,
-                        passed=passed
-                    )
-                    TESTPLAN_LOGGER.test_info(indent * ' ' + msg)
+                    self.logger.log_test_status(name, passed, indent=indent)
 
         for depth, obj in items:
             if top_down:

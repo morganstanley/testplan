@@ -149,6 +149,15 @@ testplan.common.utils.timing module
     :undoc-members:
     :show-inheritance:
 
+testplan.common.utils.logger module
+++++++++++++++++++++++
+
+.. automodule:: testplan.common.utils.logger
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Module contents
 ---------------
 
@@ -156,3 +165,4 @@ Module contents
     :members:
     :undoc-members:
     :show-inheritance:
+

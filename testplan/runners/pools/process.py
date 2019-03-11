@@ -10,7 +10,7 @@ import subprocess
 from schema import Or, And, Use
 
 import testplan
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.config import ConfigOption
 from testplan.common.utils.process import kill_process
 from testplan.common.utils.match import match_regexps_in_file

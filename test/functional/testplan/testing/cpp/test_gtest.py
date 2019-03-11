@@ -5,7 +5,7 @@ import pytest
 
 from testplan import Testplan
 from testplan.common.utils.testing import log_propagation_disabled, check_report
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing.cpp import GTest
 
 from test.functional.testplan.testing.fixtures.cpp import gtest

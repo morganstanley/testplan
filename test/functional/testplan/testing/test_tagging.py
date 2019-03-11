@@ -4,7 +4,7 @@ from testplan.common.utils.testing import check_report, log_propagation_disabled
 
 from testplan.report.testing import TestReport, TestGroupReport, TestCaseReport
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from testplan import Testplan
 

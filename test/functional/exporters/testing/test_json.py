@@ -7,7 +7,7 @@ from testplan.common.utils.testing import (
     log_propagation_disabled, argv_overridden
 )
 from testplan.exporters.testing import JSONExporter
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 @testsuite

@@ -1,6 +1,8 @@
+"""Provides Registry mapping utility."""
+from testplan.common.utils import logger
 
 
-class Registry(object):
+class Registry(logger.Loggable):
     """
     A utility that provides a decorator (`@registry.bind`) for
     mapping objects to another (decorated) class.
@@ -31,6 +33,7 @@ class Registry(object):
         self.data = {}
         self._default = None
         self._category_defaults = {}
+        super(Registry, self).__init__()
 
     @property
     def default(self):

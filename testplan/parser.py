@@ -1,13 +1,15 @@
-"""TODO."""
+"""
+Classes that parse command-line arguments used to control testplan behaviour.
+This module encodes the argument and option names, types and behaviours.
+"""
 import argparse
 import copy
 import os
 import random
 import sys
 
-import testplan.logger
+from testplan.common.utils import logger
 from testplan import defaults
-
 from testplan.report.testing import styles, ReportTagsAction
 from testplan.testing import listing, filtering, ordering
 
@@ -207,6 +209,14 @@ class TestplanParser(object):
             ])
         )
 
+        report_group.add_argument(
+            '--file-log-level',
+            choices=LogLevelAction.LEVELS.keys(),
+            default=logger.DEBUG,
+            action=LogLevelAction,
+            help='Specify log level for file logs. Set to NONE to disable file '
+                 'logging.')
+
         self.add_arguments(parser)
         return parser
 
@@ -241,17 +251,37 @@ class TestplanParser(object):
                 shuffle_type=args['shuffle']
             )
 
-        if args['verbose'] is True:
-            args['logger_level'] = testplan.logger.INFO
-            testplan.logger.TESTPLAN_LOGGER.setLevel(testplan.logger.INFO)
+        # Set stdout style and logging level options according to
+        # verbose/debug parameters. Debug output should be a superset of
+        # verbose output, i.e. running with just "-d" should automatically
+        # give you all "-v" output plus extra DEBUG logs.
+        if args['verbose'] or args['debug']:
             args['stdout_style'] = styles.Style(
                 styles.StyleEnum.ASSERTION_DETAIL,
                 styles.StyleEnum.ASSERTION_DETAIL)
-        if args['debug'] is True:
-            args['logger_level'] = testplan.logger.DEBUG
-            testplan.logger.TESTPLAN_LOGGER.setLevel(testplan.logger.DEBUG)
+            if args['debug']:
+                args['logger_level'] = logger.DEBUG
+            else:
+                args['logger_level'] = logger.INFO
 
         if args['list'] and 'info' not in args:
             args['test_lister'] = listing.NameLister()
 
         return args
+
+
+class LogLevelAction(argparse.Action):
+    """
+    Custom parser action to convert from a string log level to its int value,
+    e.g. "DEBUG" -> 10. The level can also be specified as "NONE", which will
+    be stored internally as None.
+    """
+
+    # Copy our logger levels but add a special-case value NONE to disable
+    # file logging entirely.
+    LEVELS = logger.TestplanLogger.LEVELS.copy()
+    LEVELS['NONE'] = None
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        """Store the log level value corresponding to the level's name."""
+        setattr(namespace, self.dest, self.LEVELS[values])

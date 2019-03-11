@@ -10,7 +10,7 @@ from testplan import Testplan
 from testplan.common.config import ConfigOption
 from testplan.common.utils.testing import log_propagation_disabled, check_report
 
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from .fixtures import base
 

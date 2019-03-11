@@ -12,18 +12,17 @@ import threading
 import inspect
 import psutil
 import functools
-
 from collections import deque, OrderedDict
 
 from schema import Or, And, Use
 
-from testplan.common.globals import get_logger
 from testplan.common.config import Config
 from testplan.common.config import ConfigOption
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils.thread import execute_as_thread
 from testplan.common.utils.timing import wait
 from testplan.common.utils.path import makeemptydirs, makedirs, default_runpath
+from testplan.common.utils import logger
 
 
 class Environment(object):
@@ -294,7 +293,7 @@ class EntityConfig(Config):
         }
 
 
-class Entity(object):
+class Entity(logger.Loggable):
     """
     Base class for :py:class:`Entity <testplan.common.entity.base.Entity>`
     and :py:class:`Resource <testplan.common.entity.base.Resource>` objects
@@ -318,6 +317,7 @@ class Entity(object):
     STATUS = EntityStatus
 
     def __init__(self, **options):
+        super(Entity, self).__init__()
         self._cfg = self.__class__.CONFIG(**options)
         self._status = self.__class__.STATUS()
         self._wait_handlers = {}
@@ -372,11 +372,6 @@ class Entity(object):
     def parent(self, value):
         """Reference to parent object."""
         self._parent = value
-
-    @property
-    def logger(self):
-        """Entity logger object."""
-        return get_logger()
 
     def pause(self):
         """Pause entity execution."""

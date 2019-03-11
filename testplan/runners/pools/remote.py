@@ -14,7 +14,7 @@ import itertools
 from schema import Or
 
 import testplan
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.config import ConfigOption
 from testplan.common.utils.path import (module_abspath,
                                         pwd, makedirs, fix_home_prefix)

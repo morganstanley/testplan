@@ -10,6 +10,7 @@ from collections import OrderedDict
 from schema import Or, And, Use
 
 from testplan import defaults
+from testplan.common.utils import logger
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (Entity, RunnableConfig, RunnableStatus,
     RunnableResult, Runnable)
@@ -17,7 +18,6 @@ from testplan.common.exporters import BaseExporter, ExporterResult
 from testplan.common.report import MergeError
 from testplan.common.utils.path import default_runpath
 from testplan.exporters import testing as test_exporters
-from testplan.logger import log_test_status, TEST_INFO, TESTPLAN_LOGGER
 from testplan.report.testing import TestReport, TestGroupReport, Status
 from testplan.report.testing.styles import Style
 from testplan.runnable.interactive import TestRunnerIHandler
@@ -94,7 +94,8 @@ class TestRunnerConfig(RunnableConfig):
     def get_options(cls):
         return {
             'name': str,
-            ConfigOption('logger_level', default=TEST_INFO): int,
+            ConfigOption('logger_level', default=logger.TEST_INFO): int,
+            ConfigOption('file_log_level', default=logger.DEBUG): Or(int, None),
             ConfigOption(
                 'runpath', default=default_runpath,
                 block_propagation=False): Or(None, str, lambda x: callable(x)),
@@ -196,8 +197,10 @@ class TestRunner(Runnable):
 
     :param name: Name of test runner.
     :type name: ``str``
-    :param logger_level: Logger level.
+    :param logger_level: Logger level for stdout.
     :type logger_level: ``int``
+    :param: file_log_level: Logger level for file.
+    :type file_log_level: ``int``
     :param runpath: Input runpath.
     :type runpath: ``str`` or ``callable``
     :param path_cleanup: Clean previous runpath entries.
@@ -255,12 +258,11 @@ class TestRunner(Runnable):
 
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
-        if self.logger.getEffectiveLevel() != self.cfg.logger_level:
-            self.logger.setLevel(self.cfg.logger_level)
         self._start_time = time.time()
         self._tests = OrderedDict()  # uid to resource
         self._result.test_report = TestReport(
             name=self.cfg.name, uid=self.cfg.name)
+        self._configure_stdout_logger()
 
     @property
     def report(self):
@@ -417,6 +419,7 @@ class TestRunner(Runnable):
         # self._add_step(self._runpath_initialization)
         self._add_step(self._record_start)
         self._add_step(self.make_runpath_dirs)
+        self._add_step(self._configure_file_logger)
 
     def main_batch_steps(self):
         """Steps to be executed while resources are running."""
@@ -596,9 +599,8 @@ class TestRunner(Runnable):
                 'No tests were run - check your filter patterns.')
             self._result.test_report.status_override = Status.FAILED
         else:
-            log_test_status(
-                name=self.cfg.name,
-                passed=self._result.test_report.passed)
+            self.logger.log_test_status(self.cfg.name,
+                                        self._result.test_report.passed)
 
     def _invoke_exporters(self):
         # Add this logic into a ReportExporter(Runnable)
@@ -621,7 +623,7 @@ class TestRunner(Runnable):
                 )
 
                 if not exp_result.success:
-                    TESTPLAN_LOGGER.error(exp_result.traceback)
+                    logger.TESTPLAN_LOGGER.error(exp_result.traceback)
                 self._result.exporter_results.append(exp_result)
             else:
                 raise NotImplementedError(
@@ -639,3 +641,23 @@ class TestRunner(Runnable):
     def aborting(self):
         """Suppressing not implemented debug log from parent class."""
         pass
+
+    def _configure_stdout_logger(self):
+        """Configure the stdout logger by setting the required level."""
+        logger.STDOUT_HANDLER.setLevel(self.cfg.logger_level)
+
+    def _configure_file_logger(self):
+        """
+        Configure the file logger to the specified log levels. A log file
+        will be created under the runpath (so runpath must be created before
+        this method is called).
+        """
+        if self.runpath is None:
+            raise RuntimeError(
+                'Need to set up runpath before configuring logger')
+
+        if self.cfg.file_log_level is None:
+            self.logger.debug('Not enabling file logging')
+        else:
+            logger.configure_file_logger(self.cfg.file_log_level,
+                                         self.runpath)

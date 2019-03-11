@@ -21,7 +21,7 @@ from testplan.common.utils.interface import (
 )
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.validation import is_subclass
-from testplan.logger import TESTPLAN_LOGGER, get_test_status_message
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report import TestGroupReport, TestCaseReport
 from testplan.report.testing import Status
 
@@ -35,17 +35,6 @@ from .suite import (
 
 from ..base import Test, TestConfig, TestIRunner
 from ..base import TEST_INST_INDENT, SUITE_INDENT, TESTCASE_INDENT
-
-
-def log_status(report, indent):
-    msg = indent * ' ' + get_test_status_message(
-        name=report.name, passed=report.passed)
-    TESTPLAN_LOGGER.test_info(msg)
-
-
-log_testcase_status = functools.partial(log_status, indent=TESTCASE_INDENT)
-log_suite_status = functools.partial(log_status, indent=SUITE_INDENT)
-log_multitest_status = functools.partial(log_status, indent=TEST_INST_INDENT)
 
 
 class Categories(object):
@@ -179,6 +168,13 @@ class MultiTest(Test):
         self._thread_pool_size = 0
         self._thread_pool_active = False
         self._thread_pool_available = False
+
+        self.log_testcase_status = functools.partial(
+            self._log_status, indent=TESTCASE_INDENT)
+        self.log_suite_status = functools.partial(
+            self._log_status, indent=SUITE_INDENT)
+        self.log_multitest_status = functools.partial(
+            self._log_status, indent=TEST_INST_INDENT)
 
     def _new_test_report(self):
         return TestGroupReport(
@@ -374,7 +370,7 @@ class MultiTest(Test):
                     except IndexError:
                         style = self.get_stdout_style(report.passed)
                         if style.display_test:
-                            log_multitest_status(report)
+                            self.log_multitest_status(report)
                         break
                     else:
                         testsuite_report = TestGroupReport(
@@ -391,7 +387,7 @@ class MultiTest(Test):
 
                         if self.get_stdout_style(
                               testsuite_report.passed).display_suite:
-                            log_suite_status(testsuite_report)
+                            self.log_suite_status(testsuite_report)
                 time.sleep(self.cfg.active_loop_sleep)
 
             if ctx:  # Execution aborted and still some suites left there
@@ -566,7 +562,7 @@ class MultiTest(Test):
         # native assertion objects -> dict form
         testcase_report.extend(case_result.serialized_entries)
         if self.get_stdout_style(testcase_report.passed).display_case:
-            log_testcase_status(testcase_report)
+            self.log_testcase_status(testcase_report)
 
     def _run_testcase_in_separate_thread(self):
         """Executes a testcase in a separate thread."""
@@ -709,7 +705,7 @@ class MultiTest(Test):
             testcase_report.extend(case_result.serialized_entries)
 
             if self.get_stdout_style(testcase_report.passed).display_case:
-                log_testcase_status(testcase_report)
+                self.log_testcase_status(testcase_report)
 
             self.pre_post_step_report.append(testcase_report)
         return _wrapper
@@ -798,3 +794,8 @@ class MultiTest(Test):
     def aborting(self):
         """Suppressing not implemented debug log from parent class."""
 
+    def _log_status(self, report, indent):
+        """Log the test status for a report at the given indent level."""
+        self.logger.log_test_status(name=report.name,
+                                    passed=report.passed,
+                                    indent=indent)

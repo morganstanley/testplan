@@ -10,7 +10,7 @@ from testplan.runners.pools import ProcessPool
 
 from testplan import Testplan
 
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from .func_pool_base_tasks import schedule_tests_to_pool
 

@@ -13,7 +13,7 @@ from testplan.common.utils.path import StdFiles, makedirs
 from testplan.common.utils.context import is_context, expand
 from testplan.common.utils.process import kill_process
 
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from .base import Driver, DriverConfig
 

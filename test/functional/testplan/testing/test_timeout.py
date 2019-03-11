@@ -5,7 +5,7 @@ from testplan.runners.pools import ThreadPool, ProcessPool
 from testplan.runners.pools.tasks import Task
 from testplan.report.testing import Status
 from testplan.common.utils.testing import log_propagation_disabled
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from test.functional.testplan.testing import func_basic_tasks
 

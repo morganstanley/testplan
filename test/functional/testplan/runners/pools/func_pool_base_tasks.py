@@ -4,7 +4,7 @@ import os
 import psutil
 
 from testplan import Testplan
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report.testing import Status
 from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.path import fix_home_prefix
@@ -69,7 +69,7 @@ def schedule_tests_to_pool(name, pool, schedule_path=None, **pool_cfg):
     pool_name = pool.__name__
 
     # Enable debug:
-    # from testplan.logger import DEBUG
+    # from testplan.common.utils.logger import DEBUG
     # TESTPLAN_LOGGER.setLevel(DEBUG)
 
     plan = Testplan(

@@ -13,7 +13,6 @@ import pprint
 from terminaltables import AsciiTable
 
 from testplan.common.utils.registry import Registry
-from testplan.logger import TESTPLAN_LOGGER
 from .. import base
 
 # Will be used for default conversion like: NotEqual -> Not Equal
@@ -51,10 +50,10 @@ class StdOutRegistry(Registry):
         details_msg = self.indented_msg(details, ASSERTION_INDENT + 2)
 
         if output_style.display_assertion:
-            TESTPLAN_LOGGER.test_info(header_msg)
+            self.logger.test_info(header_msg)
 
         if details and output_style.display_assertion_detail:
-            TESTPLAN_LOGGER.test_info(details_msg)
+            self.logger.test_info(details_msg)
 
 
 registry = StdOutRegistry()

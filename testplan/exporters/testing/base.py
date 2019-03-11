@@ -2,7 +2,7 @@ from schema import Schema, Use
 
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import BaseExporter, ExporterConfig
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing import tagging
 
 

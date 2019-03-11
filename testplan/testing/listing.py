@@ -6,7 +6,7 @@ from enum import Enum
 import six
 
 from testplan.common.utils.parser import ArgMixin
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from .multitest import MultiTest
 from .multitest.suite import get_testsuite_name
 from testplan.testing import tagging
