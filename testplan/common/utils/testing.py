@@ -11,8 +11,10 @@ import six
 from lxml import objectify
 
 from contextlib import contextmanager
+
 from ..report.base import Report, ReportGroup
 from ..utils.comparison import is_regex
+
 
 
 null_handler = logging.NullHandler()
@@ -78,9 +80,10 @@ def disable_log_propagation(logger):
 
 
 @contextmanager
-def captured_logging(logger):
+def captured_logging(logger, level=logging.INFO):
     """
-    Utility for capturing a logger object's output.
+    Utility for capturing a logger object's output at a specific level, with a
+    default level of INFO.
     Useful for command line output testing.
     """
 
@@ -100,6 +103,7 @@ def captured_logging(logger):
             return self._output
 
     log_wrapper = LogWrapper()
+    log_wrapper.stream_handler.setLevel(level)
     logger.addHandler(log_wrapper.stream_handler)
     yield log_wrapper
     logger.removeHandler(log_wrapper.stream_handler)

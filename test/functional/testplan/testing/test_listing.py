@@ -5,7 +5,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan import Testplan
 from testplan.common.utils.testing import \
     captured_logging, log_propagation_disabled, argv_overridden, to_stdout
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing import listing, filtering, ordering
 
 

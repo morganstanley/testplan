@@ -5,7 +5,7 @@ import pytest
 
 from testplan import Testplan
 from testplan.common.utils.testing import log_propagation_disabled, check_report, captured_logging, argv_overridden
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing.cpp import HobbesTest
 
 from test.functional.testplan.testing.fixtures.cpp import hobbestest

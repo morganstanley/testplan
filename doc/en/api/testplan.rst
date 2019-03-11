@@ -32,14 +32,6 @@ testplan.defaults module
     :undoc-members:
     :show-inheritance:
 
-testplan.logger module
-++++++++++++++++++++++
-
-.. automodule:: testplan.logger
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 testplan.parser module
 ++++++++++++++++++++++
 

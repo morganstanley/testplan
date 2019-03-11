@@ -14,19 +14,6 @@ Subpackages
     testplan.common.utils
 
 
-Submodules
-----------
-
-
-testplan.common.globals module
-++++++++++++++++++++++++++++++
-
-.. automodule:: testplan.common.globals
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
 Module contents
 ---------------
 
@@ -34,3 +21,4 @@ Module contents
     :members:
     :undoc-members:
     :show-inheritance:
+

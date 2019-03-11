@@ -8,7 +8,7 @@ from testplan.common.utils.testing import (
     log_propagation_disabled, argv_overridden, XMLComparison as XC
 )
 from testplan.exporters.testing import XMLExporter
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report.testing import TestReport, TestCaseReport, TestGroupReport
 
 FLOAT_PATTERN = '{d}+\.?d{d}+'

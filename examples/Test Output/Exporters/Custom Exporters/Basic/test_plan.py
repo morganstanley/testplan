@@ -11,7 +11,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import test_plan
 from testplan.exporters.testing import Exporter
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 @testsuite

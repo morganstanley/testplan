@@ -17,13 +17,14 @@ from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils.strings import Color
 from testplan.common.utils.timing import wait_until_predicate
+from testplan.common.utils import logger
 
 from .communication import Message
 from testplan.runners.base import Executor, ExecutorConfig
 from .tasks import Task, TaskResult
 
 
-class Transport(object):
+class Transport(logger.Loggable):
     """
     Transport layer for communication between a pool and a worker.
     Worker send messages, pool receives and send back responses.
@@ -33,11 +34,11 @@ class Transport(object):
     """
 
     def __init__(self, recv_sleep=0.05):
+        super(Transport, self).__init__()
         self._recv_sleep = recv_sleep
         self.requests = []
         self.responses = []
         self.active = True
-        self.logger = logging.getLogger(self.__class__.__name__)
 
     def send(self, message):
         """

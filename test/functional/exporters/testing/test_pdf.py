@@ -10,7 +10,7 @@ from testplan.common.utils.testing import (
     log_propagation_disabled, argv_overridden
 )
 from testplan.exporters.testing.pdf import PDFExporter, TagFilteredPDFExporter
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report.testing import TestReport, TestCaseReport, TestGroupReport
 from testplan.report.testing import styles
 from testplan.testing.multitest.entries import assertions

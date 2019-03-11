@@ -9,7 +9,7 @@ import json
 from schema import Schema
 
 from testplan import defaults
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import ExporterConfig

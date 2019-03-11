@@ -1,17 +1,13 @@
 """Testplan base module."""
 
-import testplan.common.globals
 from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
 from .common.config import ConfigOption
 from .common.entity import (RunnableManager, RunnableManagerConfig, Resource)
 from .common.utils.callable import arity
 from .common.utils.validation import is_subclass, has_method
-from .logger import TESTPLAN_LOGGER
 from .parser import TestplanParser
 from .runners import LocalRunner
 from .environment import Environments
-
-testplan.common.globals.LOGGER = TESTPLAN_LOGGER
 
 
 class TestplanConfig(RunnableManagerConfig, TestRunnerConfig):

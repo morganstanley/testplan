@@ -14,7 +14,7 @@ from testplan.common.utils.testing import log_propagation_disabled
 from testplan.testing.multitest.driver.base import Driver
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 CUSTOM_RUNPATH = os.path.join(tempfile.gettempdir(),

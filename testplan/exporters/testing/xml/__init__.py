@@ -9,7 +9,7 @@ from lxml import etree
 from lxml.builder import E
 
 from testplan import defaults
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import unique_name
 from testplan.common.utils.strings import slugify
 

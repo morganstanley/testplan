@@ -13,13 +13,13 @@ from testplan.common.utils.timing import get_sleeper
 from testplan.common.entity.base import Environment
 
 from testplan import Testplan
-from testplan.logger import TEST_INFO, DEBUG
+from testplan.common.utils.logger import TEST_INFO, DEBUG
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.environment import LocalEnvironment
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 from testplan.common.utils.testing import log_propagation_disabled
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))

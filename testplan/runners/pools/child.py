@@ -335,7 +335,7 @@ class RemoteChildLoop(ChildLoop):
 def child_logic(args):
     """Able to be imported child logic."""
     if args.log_level:
-        from testplan.logger import TESTPLAN_LOGGER
+        from testplan.common.utils.logger import TESTPLAN_LOGGER
         TESTPLAN_LOGGER.setLevel(args.log_level)
 
     import psutil

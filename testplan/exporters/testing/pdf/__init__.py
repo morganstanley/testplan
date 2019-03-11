@@ -25,7 +25,7 @@ except Exception as exc:
 
 
 from testplan import defaults
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from testplan.common.utils.strings import slugify
 from testplan.common.report import Report
