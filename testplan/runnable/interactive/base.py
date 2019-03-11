@@ -21,6 +21,7 @@ class TestRunnerIHandlerConfig(RunnableIHandlerConfig):
     """
     @classmethod
     def get_options(cls):
+
         return {ConfigOption('http_handler',
                              default=TestRunnerHTTPHandler): object}
 
@@ -81,6 +82,9 @@ class TestRunnerIHandler(RunnableIHandler):
         self._created_environments = {}
         self._reloader = ModuleReloader(logger=self.logger,
                                         extra_deps=self.cfg.extra_deps)
+
+        from testplan.runnable.interactive.resource_loader import ResourceLoader
+        self._resource_loader = ResourceLoader()
 
     def _execute_operations(self, generator):
         while self.active and self.target.active:
@@ -447,9 +451,8 @@ class TestRunnerIHandler(RunnableIHandler):
                 final_kwargs[key] = context(**context_params[key])
 
         if source_file is None:  # Invoke class loader
-            from testplan.runnable.interactive.resource_loader import ResourceLoader
-            target_class = ResourceLoader().load(target_class_name)
-            resource = target_class(**final_kwargs)
+            resource = self._resource_loader.load(
+                target_class_name, final_kwargs)
             self._created_environments[env_uid].add_resource(resource)
         else:
             raise Exception('Add from source file is not yet supported.')
