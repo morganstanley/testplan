@@ -16,7 +16,7 @@ def test_runner_timeout():
     Some of them will timeout and we'll get a report showing execution details.
     """
     plan = Testplan(name='plan', parse_cmdline=False,
-                    timeout=10, abort_wait_timeout=5)
+                    timeout=30, abort_wait_timeout=10)
     thread_pool_name = 'MyThreadPool'
     proc_pool_name = 'MyProcessPool'
     mod_path = os.path.dirname(os.path.abspath(__file__))
