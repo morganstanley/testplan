@@ -14,6 +14,7 @@ import decimal
 import cmath
 import six
 import lxml
+import copy
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
 from testplan.common.utils import comparison, difflib
@@ -1084,12 +1085,17 @@ class DictMatch(Assertion):
       Match two dictionaries by comparing values under
       each key recursively.
     """
-    def __init__(
-        self, value, expected,
-        include_keys=None, exclude_keys=None, report_all=True,
-        description=None, category=None,
-        actual_description=None, expected_description=None
-    ):
+    def __init__(self,
+                 value,
+                 expected,
+                 include_keys=None,
+                 exclude_keys=None,
+                 report_all=True,
+                 description=None,
+                 category=None,
+                 actual_description=None,
+                 expected_description=None,
+                 value_cmp_func=comparison.COMPARE_FUNCTIONS['native_equality']):
         self.value = value
         self.expected = expected
         self.include_keys = include_keys
@@ -1097,19 +1103,21 @@ class DictMatch(Assertion):
         self.actual_description = actual_description
         self.report_all = report_all
         self.expected_description = expected_description
+        self._value_cmp_func = value_cmp_func
 
         self.comparison = None  # will be set by evaluate
         super(DictMatch, self).__init__(
             description=description, category=category)
 
     def evaluate(self):
+        """Evaluate the dict match."""
         passed, cmp_result = comparison.compare(
             lhs=self.value,
             rhs=self.expected,
             ignore=self.exclude_keys,
             only=self.include_keys,
-            report_all=self.report_all
-        )
+            report_all=self.report_all,
+            value_cmp_func=self._value_cmp_func)
         self.comparison = flatten_dict_comparison(cmp_result)
         return passed
 
@@ -1125,6 +1133,18 @@ class FixMatch(DictMatch):
         description=None, category=None,
         actual_description=None, expected_description=None
     ):
+        """
+        If both FIX messages are typed, we enable strict type checking.
+        Otherwise, if either side is untyped we will compare the values as
+        strings.
+        """
+        typed_value = getattr(value, 'typed_values', False)
+        typed_expected = getattr(expected, 'typed_values', False)
+
+        if typed_value and typed_expected:
+            value_cmp_func = comparison.COMPARE_FUNCTIONS['check_types']
+        else:
+            value_cmp_func = comparison.COMPARE_FUNCTIONS['stringify']
 
         super(FixMatch, self).__init__(
             value=value, expected=expected,
@@ -1134,8 +1154,8 @@ class FixMatch(DictMatch):
             description=description,
             category=category,
             actual_description=actual_description,
-            expected_description=expected_description
-        )
+            expected_description=expected_description,
+            value_cmp_func=value_cmp_func)
 
 
 class DictMatchAll(Assertion):
