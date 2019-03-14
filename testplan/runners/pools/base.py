@@ -661,7 +661,8 @@ class Pool(Executor):
             uid = self.ongoing[0]
             self._results[uid] = TaskResult(
                 task=self._input[uid], status=False,
-                reason='Task discarding due to pool {} abort.'.format(self))
+                reason='Task [{}] discarding due to {} abort.'.format(
+                    self._input[uid]._target, self))
             self.ongoing.pop(0)
 
     def _print_test_result(self, task_result):

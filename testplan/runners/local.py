@@ -81,6 +81,7 @@ class LocalRunner(Executor):
             result.report = TestGroupReport(name=uid)
             result.report.status_override = Status.ERROR
             result.report.logger.critical(
-                'Item {} discarding due to {} abort.'.format(uid, self.uid()))
+                'Test [{}] discarding due to {} abort.'.format(
+                    uid, self.uid()))
             self._results[uid] = result
 
