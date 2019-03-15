@@ -7,7 +7,7 @@ from testplan.report.testing import Status
 from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
-from test.functional.testplan.testing import func_basic_tasks
+from test.functional.testplan import func_basic_tasks
 
 
 def test_runner_timeout():
@@ -16,15 +16,12 @@ def test_runner_timeout():
     Some of them will timeout and we'll get a report showing execution details.
     """
     plan = Testplan(name='plan', parse_cmdline=False,
-                    timeout=30, abort_wait_timeout=10)
+                    timeout=15, abort_wait_timeout=10)
     thread_pool_name = 'MyThreadPool'
-    proc_pool_name = 'MyProcessPool'
     mod_path = os.path.dirname(os.path.abspath(__file__))
 
     pool1 = ThreadPool(name=thread_pool_name, size=2)
-    pool2 = ProcessPool(name=proc_pool_name, size=2)
     plan.add_resource(pool1)
-    plan.add_resource(pool2)
     plan.add(func_basic_tasks.get_mtest1())
     plan.add(func_basic_tasks.get_mtest2())
 
@@ -34,8 +31,8 @@ def test_runner_timeout():
     task6 = Task(target='get_mtest6', module='func_basic_tasks', path=mod_path)
     plan.schedule(task3, resource=thread_pool_name)
     plan.schedule(task4, resource=thread_pool_name)
-    plan.schedule(task5, resource=proc_pool_name)
-    plan.schedule(task6, resource=proc_pool_name)
+    plan.schedule(task5, resource=thread_pool_name)
+    plan.schedule(task6, resource=thread_pool_name)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         assert plan.run().run is False
