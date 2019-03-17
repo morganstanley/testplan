@@ -122,6 +122,10 @@ class Testplan(RunnableManager):
         self._parsed_args = self.parser.parse_args()
         self._processed_args = self.parser.process_args(self._parsed_args)
         for key, value in self._processed_args.items():
+            if key in options:
+                self.logger.warning('WARNING: Command line argument for '
+                    '"{}" will be overridden by the one programmatically '
+                        'defined in {} constructor'.format(key, self))
             options.setdefault(key, value)
 
         return options

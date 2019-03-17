@@ -54,7 +54,7 @@ def ConfigOption(key, default=ABSENT, block_propagation=True):
     Think that you have a 'display_style' option in config, then you can
     customize the output. If multitests were added to testplan, where there is
     also such a 'display_style' option in its config, so we should apply the
-    ptions from their parent.
+    options from their parent.
 
     With `block_propagation` set to be False, the default value defined in
     parent class has higher priority to be retrieved.
