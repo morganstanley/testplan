@@ -661,6 +661,24 @@ expected_report = TestReport(
                                     'description':
                                         'match with regex & custom func',
                                 },
+                                {
+                                    'type': 'DictMatch',
+                                    'passed': True,
+                                    'description':
+                                        'dict match checking types',
+                                },
+                                {
+                                    'type': 'DictMatch',
+                                    'passed': True,
+                                    'description':
+                                        'comparison of different types',
+                                },
+                                {
+                                    'type': 'DictMatch',
+                                    'passed': True,
+                                    'description':
+                                        'match with stringify method',
+                                },
                             ]
                         ),
                         TestCaseReport(
@@ -728,6 +746,26 @@ expected_report = TestReport(
                                     'passed': True,
                                     'description':
                                         'match with regex & custom func',
+                                },
+                                {
+                                    'type': 'FixMatch',
+                                    'passed': True,
+                                    'description':
+                                        'default untyped fixmatch will '
+                                        'stringify',
+                                },
+                                {
+                                    'type': 'FixMatch',
+                                    'passed': True,
+                                    'description':
+                                        'typed fixmatch will compare types',
+                                },
+                                {
+                                    'type': 'FixMatch',
+                                    'passed': True,
+                                    'description':
+                                        'mixed fixmatch will compare string '
+                                        'values',
                                 },
                             ]
                         ),

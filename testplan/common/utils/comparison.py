@@ -1,8 +1,8 @@
 import operator
-import decimal
 import inspect
 from collections import Mapping, Iterable
 
+import enum
 import six
 
 from .exceptions import format_trace
@@ -467,7 +467,7 @@ def _partition(results):
     return lhs_vals, rhs_vals
 
 
-def _cmp_dicts(lhs, rhs, ignore, only, coerce_values_to_string, report_all):
+def _cmp_dicts(lhs, rhs, ignore, only, report_all, value_cmp_func):
     """
     Compares dictionaries
     """
@@ -499,19 +499,26 @@ def _cmp_dicts(lhs, rhs, ignore, only, coerce_values_to_string, report_all):
                     rhs=fmt(rhs_val)))
         else:
             result = _rec_compare(
-                lhs_val, rhs_val,
-                ignore, only, iter_key,
-                coerce_values_to_string, report_all=report_all)
+                lhs_val,
+                rhs_val,
+                ignore,
+                only,
+                iter_key,
+                value_cmp_func,
+                report_all=report_all)
             results.append(result)
             match = Match.combine(match, result[1])
     return match, results
 
 
-def _rec_compare(
-    lhs, rhs, ignore, only, key,
-    coerce_values_to_string, report_all=True,
-    _regex_adapter=RegexAdapter,
-):
+def _rec_compare(lhs,
+                 rhs,
+                 ignore,
+                 only,
+                 key,
+                 value_cmp_func,
+                 report_all=True,
+                 _regex_adapter=RegexAdapter):
     """
     Recursive deep comparison implementation
     """
@@ -582,18 +589,7 @@ def _rec_compare(
 
     ## VALUES
     if lhs_cat == rhs_cat == Category.VALUE:
-        lhs_cmp = str(lhs) if coerce_values_to_string else lhs
-        rhs_cmp = str(rhs) if coerce_values_to_string else rhs
-        response = (type(lhs_cmp) == type(rhs_cmp)) and (lhs_cmp == rhs_cmp)
-        if coerce_values_to_string:
-            if any(isinstance(val, float)
-                   or isinstance(val, decimal.Decimal) for val in (lhs, rhs)):
-                if not response:
-                    lhs_cmp = lhs_cmp.rstrip('0').rstrip('.')\
-                        if "." in lhs_cmp else lhs_cmp
-                    rhs_cmp = rhs_cmp.rstrip('0').rstrip('.')\
-                        if "." in rhs_cmp else rhs_cmp
-                    response = lhs_cmp == rhs_cmp
+        response = value_cmp_func(lhs, rhs)
 
         match = Match.from_bool(response)
         return _build_res(
@@ -609,8 +605,12 @@ def _rec_compare(
         for lhs_item, rhs_item in six.moves.zip_longest(lhs, rhs):
             # iterate all elems in both iterable non-mapping objects
             result = _rec_compare(
-                lhs_item, rhs_item, ignore, only,
-                key=None, coerce_values_to_string=coerce_values_to_string,
+                lhs_item,
+                rhs_item,
+                ignore,
+                only,
+                key=None,
+                value_cmp_func=value_cmp_func,
                 report_all=report_all)
 
             match = Match.combine(match, result[1])
@@ -628,7 +628,7 @@ def _rec_compare(
     ## DICTS
     if lhs_cat == rhs_cat == Category.DICT:
         match, results = _cmp_dicts(
-            lhs, rhs, ignore, only, coerce_values_to_string, report_all)
+            lhs, rhs, ignore, only, report_all, value_cmp_func)
         lhs_vals, rhs_vals = _partition(results)
         return _build_res(
             key=key,
@@ -645,10 +645,29 @@ def _rec_compare(
         rhs=fmt(rhs))
 
 
-def compare(lhs, rhs, ignore=None, only=None, report_all=True):
+# Built-in functions for comparing values in a dict.
+COMPARE_FUNCTIONS = {
+
+    # Compare values in their native types using operator.eq.
+    'native_equality': operator.eq,
+
+    # Enforce that object types must be strictly equal before comparing using
+    # operator.eq.
+    'check_types': lambda x, y: (type(x) == type(y)) and (x == y),
+
+    # Convert all objects to strings using str() before making the comparison.
+    'stringify': lambda x, y: str(x) == str(y)
+}
+
+def compare(lhs,
+            rhs,
+            ignore=None,
+            only=None,
+            report_all=True,
+            value_cmp_func=COMPARE_FUNCTIONS['native_equality']):
     """
-    Compare two iterable key, value object, return a status and a detailed
-    comparison table, useful for reporting.
+    Compare two iterable key, value objects (e.g. dict or dict-like mapping)
+    and return a status and a detailed comparison table, useful for reporting.
 
     Ignore has precedence over only.
 
@@ -661,7 +680,10 @@ def compare(lhs, rhs, ignore=None, only=None, report_all=True):
     :param only: list of keys to exclusively consider in the comparison
     :type only: ``list``
     :param report_all: include even ignored keys in report
-    :type only: ``bool`` or ``list``
+    :type report_all: ``bool`` or ``list``
+    :param value_cmp_func: function to compare values in a dict. Defaults
+        to COMPARE_FUNCTIONS['native_equality'].
+    :type value_cmp_func: Callable[[Any, Any], bool]
 
     :return: Tuple of comparison bool ``(passed: True, failed: False)`` and
              a description object for the testdb report
@@ -687,17 +709,8 @@ def compare(lhs, rhs, ignore=None, only=None, report_all=True):
 
     ignore = ignore or []
 
-    # if this is comparing fix objects where one object
-    #  supports typed values while the other does not, it's
-    #  necessary to first coerce values to strings.
-
-    lhs_typed_values = getattr(lhs, 'typed_values', False)
-    rhs_typed_values = getattr(rhs, 'typed_values', False)
-
-    coerce_values_to_string = not (lhs_typed_values and rhs_typed_values)
-
     match, comparisons = _cmp_dicts(
-        lhs, rhs, ignore, only, coerce_values_to_string, report_all)
+        lhs, rhs, ignore, only, report_all, value_cmp_func)
 
     # In report_all=[key1, key2] case we want to strip out all
     # passed top level keys that are not in this list.

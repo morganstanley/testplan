@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan.common.utils import comparison as cmp
+from testplan.common.utils import comparison as cmp, testing as test_utils
 
 
 def always_true(obj):
@@ -488,7 +488,6 @@ class MySuite(object):
 
     @testcase
     def test_dict_match(self, env, result):
-
         result.dict.match(
             actual={'foo': 1, 'bar': 2, 'baz': 2},
             expected={'foo': 1, 'bar': 2, 'bat': 3},
@@ -537,6 +536,12 @@ class MySuite(object):
             },
             description='error func'
         )
+
+        result.dict.match(
+            actual={'foo': 1, 'bar': 2},
+            expected={'foo': 1.0, 'bar': 2.0},
+            description='type checking fails',
+            value_cmp_func=cmp.COMPARE_FUNCTIONS['check_types'])
 
     @testcase
     def test_dict_match_all(self, env, result):
@@ -638,6 +643,15 @@ class MySuite(object):
             },
             description='error func'
         )
+
+        typed_fixmsg_actual = test_utils.FixMessage(
+            (('foo', 1), ('bar', 2.0)), typed_values=True)
+        typed_fixmsg_ex = test_utils.FixMessage(
+            (('foo', 1), ('bar', 2)), typed_values=True)
+        result.fix.match(
+            actual=typed_fixmsg_actual,
+            expected=typed_fixmsg_ex,
+            description='typed fixmsgs have different value types')
 
     @testcase
     def test_fix_match_all(self, env, result):

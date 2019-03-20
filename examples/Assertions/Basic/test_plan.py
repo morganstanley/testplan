@@ -559,6 +559,33 @@ class SampleSuite(object):
         result.dict.match(
             actual, expected, description='Dict match: Custom comparators')
 
+        # You can also specify a comparator function to apply to all values in
+        # your dict. Standard comparators are available under
+        # testplan.common.utils.comparison.COMPARE_FUNCTIONS but any function
+        # f(x: Any, y: Any) -> bool can be used.
+        actual = {'foo': 1, 'bar': 2, 'baz': 3}
+        expected = {'foo': 1.0, 'bar': 2.0, 'baz': 3.0}
+
+        result.dict.match(
+            actual,
+            expected,
+            description='default assertion passes because the values are '
+                        'numerically equal')
+        result.dict.match(
+            actual,
+            expected,
+            description='when we check types the assertion will fail',
+            value_cmp_func=comparison.COMPARE_FUNCTIONS['check_types'])
+
+        actual = {'foo': 1.02, 'bar': 2.28, 'baz': 3.50}
+        expected = {'foo': 0.98, 'bar': 2.33, 'baz': 3.46}
+        result.dict.match(
+            actual,
+            expected,
+            description='use a custom comparison function to check within a '
+                        'tolerance',
+            value_cmp_func=lambda x, y: abs(x - y) < 0.1)
+
         # `dict.check` can be used for checking existence / absence
         # of keys within a dictionary
 

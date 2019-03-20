@@ -7,6 +7,7 @@ import uuid
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
+from testplan.common.utils import comparison
 
 from .entries import assertions, base
 from .entries.schemas.base import registry as schema_registry
@@ -746,11 +747,17 @@ class DictNamespace(AssertionNamespace):
         )
 
     @bind_entry
-    def match(
-        self, actual, expected, description=None, category=None,
-        include_keys=None, exclude_keys=None, report_all=True,
-        actual_description=None, expected_description=None,
-    ):
+    def match(self,
+              actual,
+              expected,
+              description=None,
+              category=None,
+              include_keys=None,
+              exclude_keys=None,
+              report_all=True,
+              actual_description=None,
+              expected_description=None,
+              value_cmp_func=comparison.COMPARE_FUNCTIONS['native_equality']):
         """
         Matches two dictionaries, supports nested data. Custom
         comparators can be used as values on the ``expected`` dict.
@@ -821,7 +828,7 @@ class DictNamespace(AssertionNamespace):
             expected_description=expected_description,
             actual_description=actual_description,
             category=category,
-        )
+            value_cmp_func=value_cmp_func)
 
     @bind_entry
     def match_all(

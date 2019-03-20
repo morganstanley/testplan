@@ -390,3 +390,22 @@ class XMLComparison(object):
         xml_bytes = bytes(bytearray(xml_str, encoding=encoding))
         xml_obj = objectify.fromstring(xml_bytes)
         self._compare_obj(xml_obj)
+
+
+class FixMessage(dict):
+    """
+    Basic FIX message for testing. A FIX message may be either typed or
+    untyped. In other respects is acts like a plain dict.
+    """
+
+    def __init__(self, *args, **kwargs):
+        # Default to untyped if no typed_values kwarg was provided.
+        self.typed_values = kwargs.pop('typed_values', False)
+        super(FixMessage, self).__init__(*args, **kwargs)
+
+    def copy(self):
+        """
+        Override copy() to return another FixMessage, preserving the
+        typed_values attribute.
+        """
+        return FixMessage(self.items(), typed_values=self.typed_values)

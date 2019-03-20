@@ -1091,6 +1091,11 @@ expected_report = TestReport(
                                     'type': 'DictMatch',
                                     'passed': False,
                                     'description': 'error func',
+                                },
+                                {
+                                    'type': 'DictMatch',
+                                    'passed': False,
+                                    'description': 'type checking fails',
                                 }
                             ]
                         ),
@@ -1196,6 +1201,13 @@ expected_report = TestReport(
                                     'type': 'FixMatch',
                                     'passed': False,
                                     'description': 'error func',
+                                },
+                                {
+                                    'type': 'FixMatch',
+                                    'passed': False,
+                                    'description':
+                                        'typed fixmsgs have different value '
+                                        'types',
                                 }
                             ]
                         ),

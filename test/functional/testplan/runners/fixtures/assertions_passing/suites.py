@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan.common.utils import comparison as cmp
+from testplan.common.utils import comparison as cmp, testing as test_utils
 
 
 def always_true(obj):
@@ -347,6 +347,36 @@ class MySuite(object):
             description='match with regex & custom func'
         )
 
+        result.dict.match(
+            actual={'foo': 1, 'bar': '2'},
+            expected={'foo': 1, 'bar': '2'},
+            description='dict match checking types',
+            value_cmp_func=cmp.COMPARE_FUNCTIONS['check_types'])
+
+        class AlwaysComparesTrue(object):
+            """Object that compares equal to any other object."""
+
+            def __eq__(self, _):
+                return True
+
+        result.dict.match(
+            actual={'foo': 1, 'bar': 2},
+            expected={'foo': AlwaysComparesTrue(),
+                      'bar': AlwaysComparesTrue()},
+            description='comparison of different types')
+
+        class HelloObj(object):
+            """Object that returns 'hello' as its str() representation."""
+
+            def __str__(self):
+                return 'hello'
+
+        result.dict.match(
+            actual={'foo': 1, 'bar': 'hello'},
+            expected={'foo': '1', 'bar': HelloObj()},
+            description='match with stringify method',
+            value_cmp_func=cmp.COMPARE_FUNCTIONS['stringify'])
+
     @testcase
     def test_dict_match_all(self, env, result):
         result.dict.match_all(
@@ -399,6 +429,25 @@ class MySuite(object):
             },
             description='match with regex & custom func'
         )
+
+        result.fix.match(
+            actual={'foo': 1, 'bar': 1.54},
+            expected={'foo': '1', 'bar': '1.54'},
+            description='default untyped fixmatch will stringify')
+
+        typed_fixmsg = test_utils.FixMessage(
+            (('foo', 1), ('bar', 1.54)), typed_values=True)
+        result.fix.match(
+            actual=typed_fixmsg,
+            expected=typed_fixmsg.copy(),
+            description='typed fixmatch will compare types')
+
+        untyped_fixmsg = test_utils.FixMessage(
+            (('foo', '1'), ('bar', '1.54')), typed_values=False)
+        result.fix.match(
+            actual=typed_fixmsg,
+            expected=untyped_fixmsg,
+            description='mixed fixmatch will compare string values')
 
     @testcase
     def test_fix_match_all(self, env, result):
