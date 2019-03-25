@@ -74,12 +74,13 @@ class AssertionRenderer(SerializedEntryRenderer):
         )
 
     def get_detail(self, source, depth, row_idx):
-        pass
+        return None
 
     def get_row_data(self, source, depth, **kwargs):
         header = self.get_header(source, depth, **kwargs)
 
         if self.get_style(source).display_assertion_detail:
+            # pylint: disable=assignment-from-none
             detail = self.get_detail(source, depth, row_idx=header.end)
             if detail:
                 return header + detail

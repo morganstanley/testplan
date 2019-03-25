@@ -4,7 +4,10 @@ This module contains utilities that are mostly used
 """
 
 import six
-from collections import Mapping, Iterable
+try:
+    from collections.abc import Mapping, Iterable
+except ImportError:
+    from collections import Mapping, Iterable
 
 if six.PY3:
     buffer = memoryview

@@ -22,14 +22,14 @@ class AssertionRenderer(BaseRenderer):
         return Color.green('Pass') if entry else Color.red('Fail')
 
     def get_assertion_details(self, entry):
-        pass
+        return None
 
     def get_details(self, entry):
         """
             Return file & line no (failing entries only), along
              with the extra info returned by `get_assertion_details`.
         """
-        assertion_details = self.get_assertion_details(entry)
+        assertion_details = self.get_assertion_details(entry)  # pylint: disable=assignment-from-none
 
         if not entry:
             details = 'File: {}'.format(entry.file_path)

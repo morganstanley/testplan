@@ -447,7 +447,7 @@ class ProcessRunnerTest(Test):
         :return: Result returned by `parse_test_context`.
         :rtype: ``list`` of ``list``
         """
-        cmd = self.list_command()
+        cmd = self.list_command()  # pylint: disable=assignment-from-none
         if cmd is None:
             return [(self._DEFAULT_SUITE_NAME, ())]
 
