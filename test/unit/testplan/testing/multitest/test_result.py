@@ -1,5 +1,6 @@
 """Unit tests for the testplan.testing.multitest.result module."""
 
+import collections
 import mock
 import pytest
 
@@ -40,8 +41,10 @@ def test_assertion_orders():
 
     expected = ['AssertionFirst1', 'AssertionFirst2', 'AssertionSecond',
                 'AssertionMain1', 'AssertionMain2', 'Report passed so far.']
-    assertions = (entry for entry in mtest.report.flatten()
-        if isinstance(entry, dict) and entry['meta_type'] == 'assertion')  # pylint: disable=invalid-sequence-index
+    # pylint: disable=invalid-sequence-index
+    assertions = (
+        entry for entry in mtest.report.flatten()
+        if isinstance(entry, dict) and entry['meta_type'] == 'assertion')
 
     for idx, entry in enumerate(assertions):
         assert entry['description'] == expected[idx]
@@ -51,6 +54,7 @@ def test_assertion_orders():
 def dict_ns():
     """Dict namespace with a mocked out result object."""
     mock_result = mock.MagicMock()
+    mock_result.entries = collections.deque()
     return result_mod.DictNamespace(mock_result)
 
 
@@ -58,6 +62,7 @@ def dict_ns():
 def fix_ns():
     """FIX namespace with a mocked out result object."""
     mock_result = mock.MagicMock()
+    mock_result.entries = collections.deque()
     return result_mod.FixNamespace(mock_result)
 
 
@@ -148,6 +153,7 @@ class TestDictNamespace(object):
         actual = {'key': 174.87}
 
         tolerance = 1.0
+
         def cmp_with_tolerance(lhs, rhs):
             """Check that both values are within a given tolerance range."""
             return abs(lhs - rhs) < tolerance
@@ -162,6 +168,51 @@ class TestDictNamespace(object):
             expected,
             description='Values are equal within tolerance',
             value_cmp_func=cmp_with_tolerance)
+
+    def test_report_modes(self, dict_ns):
+        """Test controlling report modes for a dict match."""
+        expected = {'key{}'.format(i): i for i in range(10)}
+        actual = expected.copy()
+        expected['wrong'] = 'expected'
+        actual['wrong'] = 'actual'
+
+        assert not dict_ns.match(
+            actual,
+            expected,
+            description='Keep all comparisons by default')
+        assert len(dict_ns.result.entries) == 1
+        dict_assert = dict_ns.result.entries.popleft()
+        assert len(dict_assert.comparison) == 11
+
+        assert dict_ns.match(
+            actual,
+            expected,
+            description='Keep ignored comparisons',
+            include_keys=['key{}'.format(i) for i in range(3)])
+
+        assert len(dict_ns.result.entries) == 1
+        dict_assert = dict_ns.result.entries.popleft()
+        assert len(dict_assert.comparison) == 11
+
+        assert dict_ns.match(
+            actual,
+            expected,
+            description='Discard ignored comparisons',
+            include_keys=['key{}'.format(i) for i in range(3)],
+            report_mode=comparison.ReportOptions.NO_IGNORED)
+
+        assert len(dict_ns.result.entries) == 1
+        dict_assert = dict_ns.result.entries.popleft()
+        assert len(dict_assert.comparison) == 3
+
+        assert not dict_ns.match(
+            actual,
+            expected,
+            report_mode=comparison.ReportOptions.FAILS_ONLY,
+            description='Discard passing comparisons')
+        assert len(dict_ns.result.entries) == 1
+        dict_assert = dict_ns.result.entries.popleft()
+        assert len(dict_assert.comparison) == 1
 
 
 class TestFIXNamespace(object):
@@ -206,3 +257,48 @@ class TestFIXNamespace(object):
             typed_values=True)
 
         assert fix_ns.match(actual, expected, description='Mixed FIX match')
+
+    def test_report_modes(self, fix_ns):
+        """Test controlling report modes for FIX match."""
+        expected = testing.FixMessage((i, (25 * i) - 4) for i in range(10))
+        actual = expected.copy()
+        expected['wrong'] = 'expected'
+        actual['wrong'] = 'actual'
+
+        assert not fix_ns.match(
+            actual,
+            expected,
+            description='Keep all comparisons by default')
+        assert len(fix_ns.result.entries) == 1
+        dict_assert = fix_ns.result.entries.popleft()
+        assert len(dict_assert.comparison) == 11
+
+        assert fix_ns.match(
+            actual,
+            expected,
+            description='Keep ignored comparisons',
+            include_tags=[0, 1, 2])
+
+        assert len(fix_ns.result.entries) == 1
+        dict_assert = fix_ns.result.entries.popleft()
+        assert len(dict_assert.comparison) == 11
+
+        assert fix_ns.match(
+            actual,
+            expected,
+            description='Discard ignored comparisons',
+            include_tags=[0, 1, 2],
+            report_mode=comparison.ReportOptions.NO_IGNORED)
+
+        assert len(fix_ns.result.entries) == 1
+        dict_assert = fix_ns.result.entries.popleft()
+        assert len(dict_assert.comparison) == 3
+
+        assert not fix_ns.match(
+            actual,
+            expected,
+            report_mode=comparison.ReportOptions.FAILS_ONLY,
+            description='Discard passing comparisons')
+        assert len(fix_ns.result.entries) == 1
+        dict_assert = fix_ns.result.entries.popleft()
+        assert len(dict_assert.comparison) == 1

@@ -1090,7 +1090,7 @@ class DictMatch(Assertion):
                  expected,
                  include_keys=None,
                  exclude_keys=None,
-                 report_all=True,
+                 report_mode=comparison.ReportOptions.ALL,
                  description=None,
                  category=None,
                  actual_description=None,
@@ -1101,8 +1101,8 @@ class DictMatch(Assertion):
         self.include_keys = include_keys
         self.exclude_keys = exclude_keys
         self.actual_description = actual_description
-        self.report_all = report_all
         self.expected_description = expected_description
+        self._report_mode = report_mode
         self._value_cmp_func = value_cmp_func
 
         self.comparison = None  # will be set by evaluate
@@ -1116,7 +1116,7 @@ class DictMatch(Assertion):
             rhs=self.expected,
             ignore=self.exclude_keys,
             only=self.include_keys,
-            report_all=self.report_all,
+            report_mode=self._report_mode,
             value_cmp_func=self._value_cmp_func)
         self.comparison = flatten_dict_comparison(cmp_result)
         return passed
@@ -1127,12 +1127,16 @@ class FixMatch(DictMatch):
         Similar to DictMatch, however dict keys
         will have fix tag info popups on web UI
     """
-    def __init__(
-        self, value, expected,
-        include_tags=None, exclude_tags=None, report_all=True,
-        description=None, category=None,
-        actual_description=None, expected_description=None
-    ):
+    def __init__(self,
+                 value,
+                 expected,
+                 include_tags=None,
+                 exclude_tags=None,
+                 report_mode=comparison.ReportOptions.ALL,
+                 description=None,
+                 category=None,
+                 actual_description=None,
+                 expected_description=None):
         """
         If both FIX messages are typed, we enable strict type checking.
         Otherwise, if either side is untyped we will compare the values as
@@ -1150,7 +1154,7 @@ class FixMatch(DictMatch):
             value=value, expected=expected,
             include_keys=include_tags,
             exclude_keys=exclude_tags,
-            report_all=report_all,
+            report_mode=report_mode,
             description=description,
             category=category,
             actual_description=actual_description,
