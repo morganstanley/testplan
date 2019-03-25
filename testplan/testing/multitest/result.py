@@ -754,7 +754,7 @@ class DictNamespace(AssertionNamespace):
               category=None,
               include_keys=None,
               exclude_keys=None,
-              report_all=True,
+              report_mode=comparison.ReportOptions.ALL,
               actual_description=None,
               expected_description=None,
               value_cmp_func=comparison.COMPARE_FUNCTIONS['native_equality']):
@@ -802,10 +802,11 @@ class DictNamespace(AssertionNamespace):
         :type include_keys: ``list`` of ``object`` (items must be hashable)
         :param exclude_keys: Keys to ignore in the comparison.
         :type include_keys: ``list`` of ``object`` (items must be hashable)
-        :param report_all: If a bool is used its a formatting flag to include
-          even ignored keys in report. If a list is used, it will trim all
-          passing keys that are not present in the given list.
-        :type report_all: ``bool`` or ``list`` of keys.
+        :param report_mode: Specify which comparisons should be kept and
+                            reported. Default option is to report all
+                            comparisons but this can be restricted if desired.
+                            See ReportOptions enum for more detail.
+        :type report_mode: ``testplan.common.utils.comparison.ReportOptions``
         :param actual_description: Column header description for original dict.
         :type actual_description: ``str``
         :param expected_description: Column header
@@ -815,6 +816,16 @@ class DictNamespace(AssertionNamespace):
         :type description: ``str``
         :param category: Custom category that will be used for summarization.
         :type category: ``str``
+        :param value_cmp_func: Function to use to compare values in expected
+                               and actual dicts. Defaults to using
+                               `operator.eq()`.
+        :type value_cmp_func: ``Callable[[Any, Any], bool]``
+        :param discard_passing: Flag to discard passing comparisons from the
+                                result and only include failures, to reduce the
+                                size of the result when comparing very large
+                                dicts. Defaults to False.
+        :type discard_passing: ``bool``
+
         :return: Assertion pass status
         :rtype: ``bool``
         """
@@ -824,7 +835,7 @@ class DictNamespace(AssertionNamespace):
             description=description,
             include_keys=include_keys,
             exclude_keys=exclude_keys,
-            report_all=report_all,
+            report_mode=report_mode,
             expected_description=expected_description,
             actual_description=actual_description,
             category=category,
@@ -960,11 +971,16 @@ class FixNamespace(AssertionNamespace):
         )
 
     @bind_entry
-    def match(
-        self, actual, expected, description=None, category=None,
-        include_tags=None, exclude_tags=None, report_all=True,
-        actual_description=None, expected_description=None,
-    ):
+    def match(self,
+              actual,
+              expected,
+              description=None,
+              category=None,
+              include_tags=None,
+              exclude_tags=None,
+              report_mode=comparison.ReportOptions.ALL,
+              actual_description=None,
+              expected_description=None):
         """
         Matches two FIX messages, supports repeating groups (nested data).
         Custom comparators can be used as values on the ``expected`` msg.
@@ -998,10 +1014,11 @@ class FixNamespace(AssertionNamespace):
         :type include_tags: ``list`` of ``object`` (items must be hashable)
         :param exclude_tags: Keys to ignore in the comparison.
         :type exclude_tags: ``list`` of ``object`` (items must be hashable)
-        :param report_all: If a bool is used its a formatting flag to include
-          even ignored keys in report. If a list is used, it will trim all
-          passing keys that are not present in the given list.
-        :type report_all: ``bool`` or ``list`` of keys.
+        :param report_mode: Specify which comparisons should be kept and
+                            reported. Default option is to report all
+                            comparisons but this can be restricted if desired.
+                            See ReportOptions enum for more detail.
+        :type report_mode: ``testplan.common.utils.comparison.ReportOptions``
         :param actual_description: Column header description for original msg.
         :type actual_description: ``str``
         :param expected_description: Column header
@@ -1011,6 +1028,12 @@ class FixNamespace(AssertionNamespace):
         :type description: ``str``
         :param category: Custom category that will be used for summarization.
         :type category: ``str``
+        :param discard_passing: Flag to discard passing comparisons from the
+                                result and only include failures, to reduce the
+                                size of the result when comparing very large
+                                dicts. Defaults to False.
+        :type discard_passing: ``bool``
+
         :return: Assertion pass status
         :rtype: ``bool``
         """
@@ -1022,10 +1045,9 @@ class FixNamespace(AssertionNamespace):
             category=category,
             include_tags=include_tags,
             exclude_tags=exclude_tags,
-            report_all=report_all,
+            report_mode=report_mode,
             expected_description=expected_description,
-            actual_description=actual_description,
-        )
+            actual_description=actual_description)
 
     @bind_entry
     def match_all(

@@ -586,6 +586,20 @@ class SampleSuite(object):
                         'tolerance',
             value_cmp_func=lambda x, y: abs(x - y) < 0.1)
 
+        # The report_mode can be specified to limit the comparison
+        # information stored. By default all comparisons are stored and added
+        # to the report, but you can choose to discard some comparisons to
+        # reduce the size of the report when comparing very large dicts.
+        actual = {'key{}'.format(i): i for i in range(10)}
+        expected = actual.copy()
+        expected['bad_key'] = 'expected'
+        actual['bad_key'] = 'actual'
+        result.dict.match(
+            actual,
+            expected,
+            description='only report the failing comparison',
+            report_mode=comparison.ReportOptions.FAILS_ONLY)
+
         # `dict.check` can be used for checking existence / absence
         # of keys within a dictionary
 

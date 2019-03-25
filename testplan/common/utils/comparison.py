@@ -467,7 +467,7 @@ def _partition(results):
     return lhs_vals, rhs_vals
 
 
-def _cmp_dicts(lhs, rhs, ignore, only, report_all, value_cmp_func):
+def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
     """
     Compares dictionaries
     """
@@ -491,7 +491,7 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_all, value_cmp_func):
     match = Match.IGNORED
     for iter_key, lhs_val, rhs_val in _idictzip_all(lhs, rhs):
         if should_ignore_key(iter_key):
-            if report_all is True:
+            if report_mode == ReportOptions.ALL:
                 results.append(_build_res(
                     key=iter_key,
                     match=Match.IGNORED,
@@ -504,9 +504,20 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_all, value_cmp_func):
                 ignore,
                 only,
                 iter_key,
-                value_cmp_func,
-                report_all=report_all)
-            results.append(result)
+                report_mode,
+                value_cmp_func)
+
+            # Decide whether to keep or discard the result, depending on the
+            # reporting mode.
+            if report_mode in (ReportOptions.ALL, ReportOptions.NO_IGNORED):
+                keep_result = True
+            elif report_mode == ReportOptions.FAILS_ONLY:
+                keep_result = not Match.to_bool(result[1])
+            else:
+                raise ValueError('Invalid report mode {}'.format(report_mode))
+
+            if keep_result:
+                results.append(result)
             match = Match.combine(match, result[1])
     return match, results
 
@@ -516,8 +527,8 @@ def _rec_compare(lhs,
                  ignore,
                  only,
                  key,
+                 report_mode,
                  value_cmp_func,
-                 report_all=True,
                  _regex_adapter=RegexAdapter):
     """
     Recursive deep comparison implementation
@@ -610,8 +621,8 @@ def _rec_compare(lhs,
                 ignore,
                 only,
                 key=None,
-                value_cmp_func=value_cmp_func,
-                report_all=report_all)
+                report_mode=report_mode,
+                value_cmp_func=value_cmp_func)
 
             match = Match.combine(match, result[1])
             results.append(result)
@@ -628,7 +639,7 @@ def _rec_compare(lhs,
     ## DICTS
     if lhs_cat == rhs_cat == Category.DICT:
         match, results = _cmp_dicts(
-            lhs, rhs, ignore, only, report_all, value_cmp_func)
+            lhs, rhs, ignore, only, report_mode, value_cmp_func)
         lhs_vals, rhs_vals = _partition(results)
         return _build_res(
             key=key,
@@ -659,11 +670,33 @@ COMPARE_FUNCTIONS = {
     'stringify': lambda x, y: str(x) == str(y)
 }
 
+
+@enum.unique
+class ReportOptions(enum.Enum):
+    """
+    Options to control reporting behaviour for comparison results:
+
+    ALL: report all comparisons.
+    NO_IGNORED: do not report comparisons of ignored keys, include everything
+                else.
+    FAILS_ONLY: only report comparisons that have failed.
+
+    Control of reporting behaviour is provided for two main reasons. Firstly,
+    to give control of what information is included in the final report.
+    Secondly, as an optimization to allow comparison information to be
+    discarded when comparing very large collections.
+    """
+
+    ALL = 1
+    NO_IGNORED = 2
+    FAILS_ONLY = 3
+
+
 def compare(lhs,
             rhs,
             ignore=None,
             only=None,
-            report_all=True,
+            report_mode=ReportOptions.ALL,
             value_cmp_func=COMPARE_FUNCTIONS['native_equality']):
     """
     Compare two iterable key, value objects (e.g. dict or dict-like mapping)
@@ -679,8 +712,11 @@ def compare(lhs,
     :type ignore: ``list``
     :param only: list of keys to exclusively consider in the comparison
     :type only: ``list``
-    :param report_all: include even ignored keys in report
-    :type report_all: ``bool`` or ``list``
+    :param report_mode: Specify which comparisons should be kept and reported.
+                        Default option is to report all comparisons but this
+                        can be restricted if desired. See ReportOptions enum
+                        for more detail.
+    :type report_mode: ``ReportOptions``
     :param value_cmp_func: function to compare values in a dict. Defaults
         to COMPARE_FUNCTIONS['native_equality'].
     :type value_cmp_func: Callable[[Any, Any], bool]
@@ -710,15 +746,7 @@ def compare(lhs,
     ignore = ignore or []
 
     match, comparisons = _cmp_dicts(
-        lhs, rhs, ignore, only, report_all, value_cmp_func)
-
-    # In report_all=[key1, key2] case we want to strip out all
-    # passed top level keys that are not in this list.
-    if not isinstance(report_all, bool):
-        for idx, comp in enumerate(comparisons):
-            if comp[1] == Match.PASS and comp[0] not in report_all:
-                comparisons[idx] = None
-        comparisons = [comp for comp in comparisons if comp is not None]
+        lhs, rhs, ignore, only, report_mode, value_cmp_func)
 
     # For the keys in only not matching anything,
     # we report them as absent in expected and value.
