@@ -1,6 +1,10 @@
 import operator
 import inspect
-from collections import Mapping, Iterable
+try:
+    from collections.abc import Mapping, Iterable
+except ImportError:
+    from collections import Mapping, Iterable
+
 
 import enum
 import six

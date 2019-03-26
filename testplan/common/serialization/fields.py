@@ -197,7 +197,7 @@ class ClassName(fields.Field):
 
     _CHECK_ATTRIBUTE = False
 
-    class Meta:  # pylint: disable=old-style-class,missing-docstring,no-init
+    class Meta:  # pylint: disable=bad-option-value,old-style-class,missing-docstring,no-init
         dump_only = True
 
     def _serialize(self, value, attr, obj):
