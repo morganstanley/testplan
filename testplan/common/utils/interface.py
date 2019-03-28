@@ -1,7 +1,5 @@
 """Validates methods signature."""
 
-import inspect
-
 from six.moves import zip_longest
 
 from .callable import getargspec
@@ -11,20 +9,43 @@ class MethodSignature(object):
     """
     Encapsulates a method signature
     """
-    def __init__(self, name, argspec, function):
+    def __init__(self, name, args, varargs=None, keywords=None, defaults=None):
         """
-        Construct a method signature
+        Construct a MethodSignature.
 
         :param name: name
-        :type name: C{str}
-        :param argspec: argument specification
-        :type argspec: ``ArgSpec``
-        :param function: function
-        :type function: ``func``
+        :type name: ``str``
+        :param args: list of argument names
+        :type args: ``List[str]``
+        :param varargs: name of * parameter
+        :type varargs: ``Optional[str]``
+        :param keywords: name of ** parameter
+        :type keywords: ``Optional[str]``
         """
         self.name = name
-        self.argspec = argspec
-        self.function = function
+        self.args = args
+        self.varargs = varargs
+        self.keywords = keywords
+
+        if defaults is None:
+            self.defaults = []
+        else:
+            self.defaults = defaults
+
+    @classmethod
+    def from_callable(cls, func):
+        """
+        Construct a MethodSignature from a callable.
+
+        :param func: any callable object (function, method, class etc.)
+        :return: new MethodSignature instance
+        """
+        argspec = getargspec(func)
+        return cls(func.__name__,
+                   argspec.args,
+                   argspec.varargs,
+                   argspec.keywords,
+                   argspec.defaults)
 
     def __eq__(self, rhs):
         """
@@ -36,12 +57,10 @@ class MethodSignature(object):
         :return: True if self and rhs are equivalent, False otherwise
         :rtype: C{bool}
         """
-        (lhs_args, lhs_varargs, lhs_keywords, _) = self.argspec
-        (rhs_args, rhs_varargs, rhs_keywords, _) = rhs.argspec
         return ((self.name == rhs.name) and
-                (lhs_args == rhs_args) and
-                (lhs_varargs == rhs_varargs) and
-                (lhs_keywords == rhs_keywords))
+                (self.args == rhs.args) and
+                (self.varargs == rhs.varargs) and
+                (self.keywords == rhs.keywords))
 
     def __ne__(self, rhs):
         """
@@ -87,63 +106,23 @@ class MethodSignature(object):
                 :rtype: ``str``
                 """
                 return '{0}={1}'.format(arg, default) if default else arg
-            return ', '.join(reversed([argument(arg, default)
-                                       for arg, default
-                                       in zip_longest(
+            return ', '.join(reversed(
+                [argument(arg, default) for arg, default in zip_longest(
                     reversed(args),
-                    reversed(defaults if defaults else []))]
-                                      ))
+                    reversed(defaults))]))
 
         args = ''.join([
-            args_with_defaults(self.argspec.args, self.argspec.defaults),
+            args_with_defaults(self.args, self.defaults),
             ', *{0}'.format(
-                self.argspec.varargs) if self.argspec.varargs else '',
+                self.varargs) if self.varargs else '',
             ', **{0}'.format(
-                self.argspec.keywords) if self.argspec.keywords else ''
+                self.keywords) if self.keywords else ''
         ])
 
         return '{0}({1})'.format(self.name, args)
 
     def __repr__(self):
         return '<{}> - {}'.format(self.__class__.__name__, self.__str__())
-
-
-def static_method(name, args, varargs=None, keywords=None, defaults=None):
-    """
-    Syntactic sugar for static_method signature definition in an interface contract
-
-    :param name: method name
-    :param args: method args
-    :param varargs: method varargs
-    :param keywords: method keywords
-    :param defaults: method defaults
-
-    :return: a method signature
-    :rtype: :py:class:`MethodSignature`
-    """
-    return MethodSignature(name,
-                           inspect.ArgSpec(args, varargs, keywords, defaults),
-                           lambda x: x.__func__)
-
-
-def method(name, args, varargs=None, keywords=None, defaults=None):
-    """
-    Syntactic sugar for static_method signature definition in an interface
-    contract.
-
-    :param name: method name
-    :param args: method args
-    :param varargs: method varargs
-    :param keywords: method keywords
-    :param defaults: method defaults
-
-    :return: a method signature
-    :rtype: :py:class:`MethodSignature`
-    """
-    return MethodSignature(name,
-                           inspect.ArgSpec(['self'] + args, varargs,
-                                           keywords, defaults),
-                           lambda x: x)
 
 
 class NoSuchMethodInClass(Exception):
@@ -172,10 +151,8 @@ def check_signature(func, args_list):
     :return: ``None``
     :rtype: ``NoneType``
     """
-    refsig = static_method(func.__name__, args_list)
-    actualsig = MethodSignature(func.__name__,
-                                getargspec(func),
-                                lambda x: x)
+    refsig = MethodSignature(func.__name__, args_list)
+    actualsig = MethodSignature.from_callable(func)
     if refsig != actualsig:
         raise MethodSignatureMismatch('Expected {0}, not {1}'.format(
             refsig, actualsig))

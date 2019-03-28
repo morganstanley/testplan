@@ -11,7 +11,7 @@ from testplan.exporters.testing import XMLExporter
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report.testing import TestReport, TestCaseReport, TestGroupReport
 
-FLOAT_PATTERN = '{d}+\.?d{d}+'
+FLOAT_PATTERN = r'{d}+\.?d{d}+'
 
 
 @testsuite
@@ -74,13 +74,13 @@ def test_xml_exporter(tmpdir):
                         tag='testcase',
                         classname='Primary:Alpha:test_comparison',
                         name='test_comparison',
-                        time=re.compile('\d+\.?\d*')
+                        time=re.compile(r'\d+\.?\d*')
                     ),
                     XC(
                         tag='testcase',
                         classname='Primary:Alpha:test_membership',
                         name='test_membership',
-                        time=re.compile('\d+\.?\d*')
+                        time=re.compile(r'\d+\.?\d*')
                     ),
                 ]
             ),
@@ -101,7 +101,7 @@ def test_xml_exporter(tmpdir):
                         tag='testcase',
                         classname='Secondary:Beta:test_failure',
                         name='test_failure',
-                        time=re.compile('\d+\.?\d*'),
+                        time=re.compile(r'\d+\.?\d*'),
                         children=[
                             XC(
                                 tag='failure',
@@ -115,12 +115,12 @@ def test_xml_exporter(tmpdir):
                         tag='testcase',
                         classname='Secondary:Beta:test_error',
                         name='test_error',
-                        time=re.compile('\d+\.?\d*'),
+                        time=re.compile(r'\d+\.?\d*'),
                         children=[
                             XC(
                                 tag='error',
                                 message=re.compile(
-                                    'Traceback(.|\s)+Exception:\sfoo'
+                                    r'Traceback(.|\s)+Exception:\sfoo'
                                 )
                             )
                         ]

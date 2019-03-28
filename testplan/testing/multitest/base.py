@@ -22,6 +22,7 @@ from testplan.common.utils.interface import (
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.validation import is_subclass
 from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils import callable as callable_utils
 from testplan.report import TestGroupReport, TestCaseReport
 from testplan.report.testing import Status
 
@@ -694,7 +695,7 @@ class MultiTest(Test):
                 description=func.__doc__,
             )
 
-            num_args = len(inspect.getargspec(func).args)
+            num_args = len(callable_utils.getargspec(func).args)
             args = (self.resources,) if num_args == 1 else (
                 self.resources, case_result)
 

@@ -362,7 +362,7 @@ class RegexNamespace(AssertionNamespace):
     def matchline(
         self, regexp, value, description=None, category=None, flags=0
     ):
-        """
+        r"""
         Checks if the given ``regexp`` returns a match
         (``re.match``) for any of the lines in the ``value``.
 
@@ -460,7 +460,7 @@ class TableNamespace(AssertionNamespace):
         include_columns=None, exclude_columns=None,
         report_all=True, fail_limit=0,
     ):
-        """
+        r"""
         Compares two tables, uses equality for each table cell for plain
         values and supports regex / custom comparators as well.
 
@@ -538,7 +538,7 @@ class TableNamespace(AssertionNamespace):
         include_columns=None, exclude_columns=None,
         report_all=True, fail_limit=0,
     ):
-        """
+        r"""
         Find differences of two tables, uses equality for each table cell
         for plain values and supports regex / custom comparators as well.
         The result will contain only failing comparisons.
@@ -758,7 +758,7 @@ class DictNamespace(AssertionNamespace):
               actual_description=None,
               expected_description=None,
               value_cmp_func=comparison.COMPARE_FUNCTIONS['native_equality']):
-        """
+        r"""
         Matches two dictionaries, supports nested data. Custom
         comparators can be used as values on the ``expected`` dict.
 

@@ -306,7 +306,7 @@ def py_version_data(py2, py3):
 
 
 class XMLComparison(object):
-    """
+    r"""
     Testing utility for generated XML file contents.
 
     Recursively compares children as well,

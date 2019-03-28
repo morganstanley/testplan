@@ -2,7 +2,6 @@
 Parametrization support for test cases.
 """
 import collections
-import inspect
 import itertools
 import re
 import warnings
@@ -10,6 +9,7 @@ import warnings
 import six
 
 from testplan.common.utils.convert import make_tuple
+from testplan.common.utils import callable as callable_utils
 from testplan.testing import tagging
 
 # Although any string will be processed as normal, it's a good
@@ -224,7 +224,7 @@ def _check_name_func(name_func):
     if not callable(name_func):
         raise ParametrizationError('name_func must be a callable.')
 
-    argspec = inspect.getargspec(name_func)
+    argspec = callable_utils.getargspec(name_func)
 
     if len(argspec.args) == 2:
         arg_1, arg_2 = argspec.args
@@ -246,7 +246,7 @@ def _check_tag_func(tag_func):
     if not callable(tag_func):
         raise ParametrizationError('tag_func must be a callable.')
 
-    argspec = inspect.getargspec(tag_func)
+    argspec = callable_utils.getargspec(tag_func)
 
     if len(argspec.args) == 1:
         arg_1 = argspec.args[0]
@@ -392,7 +392,7 @@ def generate_functions(
 
     _check_name_func(name_func)
 
-    argspec = inspect.getargspec(function)
+    argspec = callable_utils.getargspec(function)
     args = argspec.args[3:]  # get rid of self, env, result
     defaults = (argspec.defaults or [])
 

@@ -8,10 +8,8 @@ import copy
 from collections import defaultdict
 
 from testplan import defaults
-from testplan.common.utils.callable import getargspec, wraps, update_wrapper
-from testplan.common.utils.interface import (method, MethodSignature,
-                                             static_method,
-                                             MethodSignatureMismatch)
+from testplan.common.utils.callable import wraps
+from testplan.common.utils import interface
 from testplan.common.utils.strings import format_description
 from testplan.testing import tagging
 
@@ -325,14 +323,8 @@ def testsuite(*args, **kwargs):
 
 
 def _validate_testcase(func):
-    refsig = method(func.__name__, ['env', 'result'])
-    actualsig = MethodSignature(func.__name__,
-                                getargspec(func),
-                                lambda x: x)
-
-    if refsig != actualsig:
-        raise MethodSignatureMismatch('Expected {0}, not {1}'.format(
-            refsig, actualsig))
+    """Validate the expected function signature of a testcase."""
+    interface.check_signature(func, ['self', 'env', 'result'])
 
 
 def _mark_function_as_testcase(func):
@@ -473,13 +465,7 @@ def _validate_skip_if_predicates(predicates):
     the testcase method.
     """
     for predicate in predicates:
-        refsig = static_method(predicate.__name__, ['suite'])
-        actualsig = MethodSignature(
-            predicate.__name__, getargspec(predicate), lambda x: x)
-
-        if refsig != actualsig:
-            raise MethodSignatureMismatch('Expected {0}, not {1}'.format(
-                refsig, actualsig))
+        interface.check_signature(predicate, ['suite'])
 
     return predicates
 

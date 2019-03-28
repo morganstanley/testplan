@@ -150,11 +150,11 @@ def incorrect_case_signature2():
 
 def test_testcase_signature():
     pattern = re.compile((r'.*Expected case1\(self, env, result\), '
-                          'not case1\(self, envs, result\).*'))
+                          r'not case1\(self, envs, result\).*'))
     should_raise(MethodSignatureMismatch, incorrect_case_signature1,
                  pattern=pattern)
     pattern = re.compile((r'.*Expected case1\(self, env, result\), '
-                          'not case1\(self, env, results\).*'))
+                          r'not case1\(self, env, results\).*'))
     should_raise(MethodSignatureMismatch, incorrect_case_signature2,
              pattern=pattern)
 

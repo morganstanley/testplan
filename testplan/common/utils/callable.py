@@ -1,7 +1,10 @@
-"""TODO."""
+"""Utilities related to python callables (functions, methods, classes etc.)"""
 
+from collections import namedtuple
 import inspect
 import functools
+
+import six
 
 
 WRAPPER_ASSIGNMENTS = functools.WRAPPER_ASSIGNMENTS + (
@@ -12,6 +15,10 @@ WRAPPER_ASSIGNMENTS = functools.WRAPPER_ASSIGNMENTS + (
     'summarize_num_passing',
     'summarize_num_failing'
 )
+
+# Local copy of inspect.ArgSpec namedtuple - see notes on inspect.getargspec()
+# deprecation within getargspec() below.
+ArgSpec = namedtuple('ArgSpec', ['args', 'varargs', 'keywords', 'defaults'])
 
 
 def arity(function):
@@ -24,7 +31,7 @@ def arity(function):
     :return: arity of the function
     :rtype: ``int``
     """
-    return len(inspect.getargspec(function).args)
+    return len(getargspec(function).args)
 
 
 def getargspec(callable_):
@@ -32,18 +39,40 @@ def getargspec(callable_):
     Return an Argspec for any callable object
 
     :param callable_: a callable object
-    :type callable_: ``callable``
+    :type callable_: ``Callable``
 
     :return: argspec for the callable
-    :rtype: ``inspect.ArgSpec``
+    :rtype: ``ArgSpec``
     """
-    if callable(callable_):
-        if inspect.ismethod(callable_) or inspect.isfunction(callable_):
-            return inspect.getargspec(callable_)
-        else:
-            return inspect.getargspec(callable_.__call__)
-    else:
+    if not callable(callable_):
         raise ValueError("{} is not callable".format(callable_))
+
+    if inspect.ismethod(callable_) or inspect.isfunction(callable_):
+        func = callable_
+    else:
+        func = callable_.__call__
+
+    # In Python 3.7 inspect.getargspec() is deprecated and will be removed in
+    # 3.8, due to the addition of keyword-only args and type annotations
+    # (see PEPs 3102 and 484 for more information). To retain backwards
+    # compatibility we convert from a FullArgSpec to a python2 ArgSpec.
+    if six.PY3:
+        full_argspec = inspect.getfullargspec(func)
+
+        # Raise a ValueError if the function has any keyword-only args defined,
+        # since we can't easily handle them in a way that is also python 2
+        # compatible. On the other hand, we can just discard any information on
+        # type annotations.
+        if full_argspec.kwonlyargs:
+            raise ValueError(
+                'Cannot get argspec for function with keyword-only args '
+                'defined: {}'.format(func))
+        return ArgSpec(args=full_argspec.args,
+                       varargs=full_argspec.varargs,
+                       keywords=full_argspec.varkw,
+                       defaults=full_argspec.defaults)
+    else:
+        return inspect.getargspec(func)
 
 
 # backport from python 3.6, 2.7 version does not catch AttributeError
