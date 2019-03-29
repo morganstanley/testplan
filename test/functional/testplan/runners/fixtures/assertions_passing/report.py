@@ -279,7 +279,7 @@ expected_report = TestReport(
                                 {
                                     'type': 'ExceptionRaised',
                                     'func': lambda val: re.match(
-                                        '<function[\w\s\.<>]+>', val),
+                                        r'<function[\w\s\.<>]+>', val),
                                     'passed': True,
                                 }
                             ]

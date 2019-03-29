@@ -409,7 +409,7 @@ expected_report = TestReport(
                                 {
                                     'type': 'ExceptionRaised',
                                     'func': lambda val: re.match(
-                                        '<function[\w\s\.<>]+>', val),
+                                        r'<function[\w\s\.<>]+>', val),
                                     'passed': True,
                                 }
                             ]
@@ -522,9 +522,8 @@ expected_report = TestReport(
                                         ' 2\r\n',
                                         '-2\r\n',
                                         '+3{}'.format(os.linesep),
-                                        '\ No newline at end of file{}'.format(
-                                            os.linesep
-                                        )
+                                        r'\ No newline at end of file{}'
+                                        .format(os.linesep)
                                     ],
                                     'passed': False
                                 },

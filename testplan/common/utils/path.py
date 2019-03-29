@@ -16,7 +16,7 @@ VAR_TMP = os.path.join(os.sep, 'var', 'tmp')
 
 def fix_home_prefix(path, user=None):
     """Replace /a/path/user with /symlink/path/user."""
-    path = path.replace(' ', '\ ')
+    path = path.replace(' ', r'\ ')
     user = user or getpass.getuser()
     if user not in path.split(os.sep):
         return path

@@ -101,7 +101,7 @@ class Color(object):
         return Color.green(msg) if check else Color.red(msg)
 
 
-INDENT_REGEX = re.compile('^\s*')
+INDENT_REGEX = re.compile(r'^\s*')
 
 
 def wrap(text, width=150):
