@@ -60,7 +60,7 @@ class MyTestRunner(TestRunner):
                 break
 
             if self.cfg.timeout and (timeout_flag or time.time() >
-                    self._start_time + min(self.cfg.timeout, 600)):
+                    self._start_time + max(self.cfg.timeout, 600)):
                 self.result.test_report.logger.error(
                     'Timeout: Aborting execution after {} seconds'.format(
                         self.cfg.timeout))
