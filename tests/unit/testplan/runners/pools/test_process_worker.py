@@ -45,6 +45,15 @@ class TestProcPool(object):
         assert proc_pool.get(example_task.uid()).result == 21
         assert proc_pool.results[example_task.uid()].result == 21
 
+    def test_add_main(self, proc_pool):
+        """
+        Test scheduling a Task from the __main__ module. This should not be
+        allowed, since __main__ is a different module for the child process.
+        """
+        main_task = tasks.Task(target='runnable', module='__main__')
+        with pytest.raises(ValueError):
+            proc_pool.add(main_task, main_task.uid())
+
     def test_start_stop(self, proc_pool):
         """Test basic start/stop of ProcessPool."""
         current_proc = psutil.Process()

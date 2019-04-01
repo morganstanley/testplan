@@ -103,6 +103,14 @@ class Task(object):
         """Task target kwargs."""
         return self._kwargs
 
+    @property
+    def module(self):
+        """Task target module."""
+        if callable(self._target):
+            return self._target.__module__
+        else:
+            return self._module
+
     def materialize(self, target=None):
         """
         Create the actual task target executable/runnable/callable object.
