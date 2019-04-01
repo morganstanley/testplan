@@ -32,6 +32,7 @@ class FixClientConfig(DriverConfig):
             'port': Or(Use(int), lambda x: is_context(x)),
             'sender': str,
             'target': str,
+            ConfigOption('version', default='FIX.4.2'): str,
             ConfigOption('sendersub', default=None): str,
             ConfigOption('interface', default=None): tuple,
             ConfigOption('connect_at_start', default=True): bool,
@@ -71,6 +72,8 @@ class FixClient(Driver):
     :type sender: ``str``
     :param target: FIX TargetCompID.
     :type target: ``str``
+    :param version: FIX version, defaults to "FIX.4.2".
+    :type version: ``str``
     :param sendersub: FIX SenderSubID.
     :type sendersub: ``str``
     :param interface: Interface to bind to.
@@ -163,6 +166,7 @@ class FixClient(Driver):
         self._client = Client(msgclass=self.cfg.msgclass, codec=self.cfg.codec,
                               host=server_host, port=server_port,
                               sender=self.cfg.sender, target=self.cfg.target,
+                              version=self.cfg.version,
                               sendersub=self.cfg.sendersub,
                               interface=self.cfg.interface,
                               logger=self.file_logger)
