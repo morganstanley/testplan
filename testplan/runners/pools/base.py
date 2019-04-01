@@ -394,7 +394,7 @@ class Pool(Executor):
         :type uid: ``str``
         """
         if not isinstance(task, Task):
-            raise ValueError('Task was expected, got {} instead.'.format(
+            raise TypeError('Task was expected, got {} instead.'.format(
                 type(task)))
         super(Pool, self).add(task, uid)
         self.unassigned.append(uid)
@@ -439,6 +439,8 @@ class Pool(Executor):
     def handle_request(self, request):
         """
         Handles a worker request. I.e TaskPull, TaskResults, Heartbeat etc.
+
+        TODO refactor me into sub-functions to handle each request type!
 
         :param request: Worker request.
         :type request: :py:class:`~testplan.runners.pools.communication.Message`

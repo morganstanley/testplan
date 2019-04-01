@@ -14,6 +14,7 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.config import ConfigOption
 from testplan.common.utils.process import kill_process
 from testplan.common.utils.match import match_regexps_in_file
+from testplan.runners.pools import tasks
 
 from .base import Pool, PoolConfig, Worker, WorkerConfig
 from .connection import TCPConnectionManager
@@ -197,3 +198,12 @@ class ProcessPool(Pool):
 
     CONFIG = ProcessPoolConfig
     CONN_MANAGER = TCPConnectionManager
+
+    def add(self, task, uid):
+        """
+        Before adding Tasks to a ProcessPool, check that the Task target does
+        not come from __main__.
+        """
+        if isinstance(task, tasks.Task) and task.module == '__main__':
+            raise ValueError('Cannot add Tasks from __main__ to ProcessPool')
+        super(ProcessPool, self).add(task, uid)
