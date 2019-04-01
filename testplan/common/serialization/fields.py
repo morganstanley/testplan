@@ -51,11 +51,17 @@ def native_or_pformat(value):
     elif callable(value):
         value = getattr(value, '__name__', _repr_obj(value))
 
-    result = value if isinstance(value, COMPATIBLE_TYPES) else pprint.pformat(value)
-    obj_repr = _repr_obj(result)
+    # For basic builtin types we return the value unchanged. All other types
+    # will be formatted as strings.
+    if type(value) in COMPATIBLE_TYPES:
+        result = value
+    else:
+        result = pprint.pformat(value)
 
+    obj_repr = _repr_obj(result)
     if len(obj_repr) > MAX_LENGTH:
         result = obj_repr[:MAX_LENGTH] + '[truncated]...'
+
     return result
 
 

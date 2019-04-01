@@ -11,6 +11,7 @@ from testplan.common.utils.path import fix_home_prefix
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.base import MultiTestConfig
 
+from test.unit.testplan.common.serialization.test_fields import UnPickleableInt
 
 @testsuite
 class MySuite(object):
@@ -22,6 +23,17 @@ class MySuite(object):
         assert isinstance(env.cfg, MultiTestConfig)
         assert os.path.exists(env.runpath) is True
         assert env.runpath.endswith(env.cfg.name)
+
+    @testcase
+    def test_serialize(self, env, result):
+        """Test serialization of test results."""
+        # As an edge case, store a deliberately "un-pickleable" type that
+        # inherits from int on the result. This should not cause an error
+        # since the value should be formatted as a string.
+        x = UnPickleableInt(42)
+        result.equal(actual=x,
+                     expected=42,
+                     description='Compare unpickleable type')
 
 
 def get_mtest(name):
@@ -97,7 +109,7 @@ def schedule_tests_to_pool(name, pool, schedule_path=None, **pool_cfg):
     assert res.success is True
     assert plan.report.passed is True
     assert plan.report.status == Status.PASSED
-    assert plan.report.counts.passed == 9
+    assert plan.report.counts.passed == 18  # 2 testcases * 9 iterations
     assert plan.report.counts.error == plan.report.counts.skipped == \
            plan.report.counts.failed == plan.report.counts.incomplete == 0
 
