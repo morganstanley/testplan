@@ -1,0 +1,513 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <DictLogAssertion
+    assertion={
+        Object {
+            "category": "DEFAULT",
+            "description": null,
+            "flattened_dict": Array [
+              Array [
+                0,
+                "baz",
+                Array [
+                  "str",
+                  "hello world",
+                ],
+              ],
+              Array [
+                0,
+                "foo",
+                "",
+              ],
+              Array [
+                0,
+                "",
+                Array [
+                  "int",
+                  "1",
+                ],
+              ],
+              Array [
+                0,
+                "",
+                Array [
+                  "int",
+                  "2",
+                ],
+              ],
+              Array [
+                0,
+                "",
+                Array [
+                  "int",
+                  "3",
+                ],
+              ],
+              Array [
+                0,
+                "bar",
+                "",
+              ],
+              Array [
+                1,
+                "color",
+                Array [
+                  "str",
+                  "blue",
+                ],
+              ],
+            ],
+            "line_no": 579,
+            "machine_time": "2019-02-12T17:41:43.302500+00:00",
+            "meta_type": "entry",
+            "type": "DictLog",
+            "utc_time": "2019-02-12T17:41:43.302494+00:00",
+          }
+    }
+/>,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "class",
+    "props": Object {
+      "buttonGroup": <SortButtonGroup
+        flattenedDict={
+                Array [
+                        Array [
+                          0,
+                          "baz",
+                          Array [
+                            "str",
+                            "hello world",
+                          ],
+                        ],
+                        Array [
+                          0,
+                          "foo",
+                          "",
+                        ],
+                        Array [
+                          0,
+                          "",
+                          Array [
+                            "int",
+                            "1",
+                          ],
+                        ],
+                        Array [
+                          0,
+                          "",
+                          Array [
+                            "int",
+                            "2",
+                          ],
+                        ],
+                        Array [
+                          0,
+                          "",
+                          Array [
+                            "int",
+                            "3",
+                          ],
+                        ],
+                        Array [
+                          0,
+                          "bar",
+                          "",
+                        ],
+                        Array [
+                          1,
+                          "color",
+                          Array [
+                            "str",
+                            "blue",
+                          ],
+                        ],
+                      ]
+        }
+        setRowData={[Function]}
+        sortTypeList={
+                Array [
+                        1,
+                        2,
+                      ]
+        }
+/>,
+      "columnDefs": Array [
+        Object {
+          "field": "descriptor",
+          "headerName": "Descriptor",
+          "hide": true,
+        },
+        Object {
+          "cellRendererFramework": [Function],
+          "cellStyle": [Function],
+          "field": "key",
+          "headerName": "Key",
+          "pinned": "left",
+          "suppressMovable": true,
+        },
+        Object {
+          "cellRendererFramework": [Function],
+          "cellStyle": [Function],
+          "field": "value",
+          "headerName": "Value",
+        },
+      ],
+      "rowData": Array [
+        Object {
+          "descriptor": Object {
+            "indent": 0,
+            "isEmptyLine": false,
+            "isListKey": false,
+            "lineNo": 579,
+            "status": undefined,
+          },
+          "key": Object {
+            "type": "key",
+            "value": "baz",
+          },
+          "value": Object {
+            "type": "str",
+            "value": "hello world",
+          },
+        },
+        Object {
+          "descriptor": Object {
+            "indent": 0,
+            "isEmptyLine": false,
+            "isListKey": true,
+            "lineNo": 579,
+            "status": undefined,
+          },
+          "key": Object {
+            "type": "key",
+            "value": "foo",
+          },
+        },
+        Object {
+          "descriptor": Object {
+            "indent": 0,
+            "isEmptyLine": false,
+            "isListKey": true,
+            "lineNo": 579,
+            "status": undefined,
+          },
+          "key": Object {
+            "type": "key",
+            "value": "",
+          },
+          "value": Object {
+            "type": "int",
+            "value": "1",
+          },
+        },
+        Object {
+          "descriptor": Object {
+            "indent": 0,
+            "isEmptyLine": false,
+            "isListKey": true,
+            "lineNo": 579,
+            "status": undefined,
+          },
+          "key": Object {
+            "type": "key",
+            "value": "",
+          },
+          "value": Object {
+            "type": "int",
+            "value": "2",
+          },
+        },
+        Object {
+          "descriptor": Object {
+            "indent": 0,
+            "isEmptyLine": false,
+            "isListKey": false,
+            "lineNo": 579,
+            "status": undefined,
+          },
+          "key": Object {
+            "type": "key",
+            "value": "",
+          },
+          "value": Object {
+            "type": "int",
+            "value": "3",
+          },
+        },
+        Object {
+          "descriptor": Object {
+            "indent": 0,
+            "isEmptyLine": false,
+            "isListKey": false,
+            "lineNo": 579,
+            "status": undefined,
+          },
+          "key": Object {
+            "type": "key",
+            "value": "bar",
+          },
+        },
+        Object {
+          "descriptor": Object {
+            "indent": 1,
+            "isEmptyLine": false,
+            "isListKey": undefined,
+            "lineNo": 579,
+            "status": undefined,
+          },
+          "key": Object {
+            "type": "key",
+            "value": "color",
+          },
+          "value": Object {
+            "type": "str",
+            "value": "blue",
+          },
+        },
+      ],
+    },
+    "ref": null,
+    "rendered": null,
+    "type": [Function],
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "class",
+      "props": Object {
+        "buttonGroup": <SortButtonGroup
+          flattenedDict={
+                    Array [
+                              Array [
+                                0,
+                                "baz",
+                                Array [
+                                  "str",
+                                  "hello world",
+                                ],
+                              ],
+                              Array [
+                                0,
+                                "foo",
+                                "",
+                              ],
+                              Array [
+                                0,
+                                "",
+                                Array [
+                                  "int",
+                                  "1",
+                                ],
+                              ],
+                              Array [
+                                0,
+                                "",
+                                Array [
+                                  "int",
+                                  "2",
+                                ],
+                              ],
+                              Array [
+                                0,
+                                "",
+                                Array [
+                                  "int",
+                                  "3",
+                                ],
+                              ],
+                              Array [
+                                0,
+                                "bar",
+                                "",
+                              ],
+                              Array [
+                                1,
+                                "color",
+                                Array [
+                                  "str",
+                                  "blue",
+                                ],
+                              ],
+                            ]
+          }
+          setRowData={[Function]}
+          sortTypeList={
+                    Array [
+                              1,
+                              2,
+                            ]
+          }
+/>,
+        "columnDefs": Array [
+          Object {
+            "field": "descriptor",
+            "headerName": "Descriptor",
+            "hide": true,
+          },
+          Object {
+            "cellRendererFramework": [Function],
+            "cellStyle": [Function],
+            "field": "key",
+            "headerName": "Key",
+            "pinned": "left",
+            "suppressMovable": true,
+          },
+          Object {
+            "cellRendererFramework": [Function],
+            "cellStyle": [Function],
+            "field": "value",
+            "headerName": "Value",
+          },
+        ],
+        "rowData": Array [
+          Object {
+            "descriptor": Object {
+              "indent": 0,
+              "isEmptyLine": false,
+              "isListKey": false,
+              "lineNo": 579,
+              "status": undefined,
+            },
+            "key": Object {
+              "type": "key",
+              "value": "baz",
+            },
+            "value": Object {
+              "type": "str",
+              "value": "hello world",
+            },
+          },
+          Object {
+            "descriptor": Object {
+              "indent": 0,
+              "isEmptyLine": false,
+              "isListKey": true,
+              "lineNo": 579,
+              "status": undefined,
+            },
+            "key": Object {
+              "type": "key",
+              "value": "foo",
+            },
+          },
+          Object {
+            "descriptor": Object {
+              "indent": 0,
+              "isEmptyLine": false,
+              "isListKey": true,
+              "lineNo": 579,
+              "status": undefined,
+            },
+            "key": Object {
+              "type": "key",
+              "value": "",
+            },
+            "value": Object {
+              "type": "int",
+              "value": "1",
+            },
+          },
+          Object {
+            "descriptor": Object {
+              "indent": 0,
+              "isEmptyLine": false,
+              "isListKey": true,
+              "lineNo": 579,
+              "status": undefined,
+            },
+            "key": Object {
+              "type": "key",
+              "value": "",
+            },
+            "value": Object {
+              "type": "int",
+              "value": "2",
+            },
+          },
+          Object {
+            "descriptor": Object {
+              "indent": 0,
+              "isEmptyLine": false,
+              "isListKey": false,
+              "lineNo": 579,
+              "status": undefined,
+            },
+            "key": Object {
+              "type": "key",
+              "value": "",
+            },
+            "value": Object {
+              "type": "int",
+              "value": "3",
+            },
+          },
+          Object {
+            "descriptor": Object {
+              "indent": 0,
+              "isEmptyLine": false,
+              "isListKey": false,
+              "lineNo": 579,
+              "status": undefined,
+            },
+            "key": Object {
+              "type": "key",
+              "value": "bar",
+            },
+          },
+          Object {
+            "descriptor": Object {
+              "indent": 1,
+              "isEmptyLine": false,
+              "isListKey": undefined,
+              "lineNo": 579,
+              "status": undefined,
+            },
+            "key": Object {
+              "type": "key",
+              "value": "color",
+            },
+            "value": Object {
+              "type": "str",
+              "value": "blue",
+            },
+          },
+        ],
+      },
+      "ref": null,
+      "rendered": null,
+      "type": [Function],
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getDerivedStateFromProps": true,
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+  },
+}
+`;

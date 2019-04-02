@@ -4,12 +4,10 @@
 """
 from __future__ import absolute_import
 
+import os
 import json
 
-from schema import Schema
-
 from testplan import defaults
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import ExporterConfig
@@ -17,10 +15,7 @@ from testplan.common.exporters import ExporterConfig
 from testplan.report.testing.schemas import TestReportSchema
 
 
-from ..base import Exporter
-
-
-MAX_FILENAME_LENGTH = 100
+from ..base import Exporter, save_attachments
 
 
 class JSONExporterConfig(ExporterConfig):
@@ -47,12 +42,20 @@ class JSONExporter(Exporter):
             test_plan_schema = TestReportSchema(strict=True)
             data = test_plan_schema.dump(source).data
 
+            # Save the Testplan report.
             with open(self.cfg.json_path, 'w') as json_file:
                 json.dump(data, json_file)
 
-            TESTPLAN_LOGGER.exporter_info(
+            # Save any attachments.
+            attachments_dir = os.path.join(
+                os.path.dirname(self.cfg.json_path),
+                defaults.ATTACHMENTS
+            )
+            save_attachments(report=source, directory=attachments_dir)
+
+            self.logger.exporter_info(
                 'JSON generated at {}'.format(self.cfg.json_path))
         else:
-            TESTPLAN_LOGGER.exporter_info(
+            self.logger.exporter_info(
                 'Skipping JSON creation'
                 ' for empty report: {}'.format(source.name))

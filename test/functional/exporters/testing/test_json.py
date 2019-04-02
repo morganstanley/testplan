@@ -3,9 +3,11 @@ import os
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import Testplan
+from testplan import defaults
 from testplan.common.utils.testing import (
     log_propagation_disabled, argv_overridden
 )
+from testplan.runnable import TestRunner
 from testplan.exporters.testing import JSONExporter
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 

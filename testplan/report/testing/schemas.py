@@ -104,6 +104,7 @@ class TestGroupReportSchema(TestCaseReportSchema):
     source_class = TestGroupReport
     category = fields.String(allow_none=True)
     part = fields.List(fields.Integer, allow_none=True)
+    fix_spec_path = fields.String(allow_none=True)
 
     entries = custom_fields.GenericNested(
         schema_context={
@@ -134,6 +135,8 @@ class TestReportSchema(Schema):
     status = fields.String(dump_only=True)
     tags_index = TagField(dump_only=True)
     status_override = fields.String(allow_none=True)
+
+    attachments = fields.Dict()
 
     entries = custom_fields.GenericNested(
         schema_context={

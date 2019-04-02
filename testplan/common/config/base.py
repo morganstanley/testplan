@@ -8,7 +8,7 @@ import inspect
 from schema import Schema, Optional, And, Or, Use
 
 from testplan.common.utils.interface import check_signature
-
+from testplan.common.utils import logger
 
 ABSENT = Optional._MARKER
 
@@ -67,7 +67,7 @@ def ConfigOption(key, default=ABSENT, block_propagation=True):
     return optional
 
 
-class Configurable(object):
+class Configurable(logger.Loggable):
     """
     To be inherited by objects that accept configuration.
     """

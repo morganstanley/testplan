@@ -41,6 +41,8 @@ def get_default_exporters(config):
         result.append(test_exporters.JSONExporter())
     if config.xml_dir:
         result.append(test_exporters.XMLExporter())
+    if config.ui_port:
+        result.append(test_exporters.WebServerExporter())
     return result
 
 
@@ -129,7 +131,10 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption('report_tags_all', default=[],
                 block_propagation=False): [Use(tagging.validate_tag_value)],
             ConfigOption('merge_scheduled_parts', default=False): bool,
-            ConfigOption('browse', default=False): bool,
+            ConfigOption('browse', default=None): Or(None, bool),
+            ConfigOption('ui_port', default=None): Or(None, int),
+            ConfigOption('web_server_startup_timeout',
+                         default=defaults.WEB_SERVER_TIMEOUT): int,
             ConfigOption(
                 'test_filter', default=filtering.Filter(),
                 block_propagation=False): filtering.BaseFilter,
@@ -263,6 +268,7 @@ class TestRunner(Runnable):
         self._result.test_report = TestReport(
             name=self.cfg.name, uid=self.cfg.name)
         self._configure_stdout_logger()
+        self._web_server_thread = None
 
     @property
     def report(self):
@@ -610,6 +616,9 @@ class TestRunner(Runnable):
         else:
             exporters = self.cfg.exporters
 
+        if hasattr(self._result.test_report, 'bubble_up_attachments'):
+            self._result.test_report.bubble_up_attachments()
+
         for exporter in exporters:
 
             if hasattr(exporter, 'cfg'):
@@ -631,16 +640,24 @@ class TestRunner(Runnable):
                     ' implemented for: {}'.format(type(exporter)))
 
     def _post_exporters(self):
-        if self.cfg.browse:
-            # Open exporter url to browse.
-            for result in self._result.exporter_results:
-                if result.exporter.url is not None:
-                    webbrowser.open(result.exporter.url)
-                    break
+        report_opened = False
+        for result in self._result.exporter_results:
+            if getattr(result.exporter, 'url', None) and self.cfg.browse:
+                webbrowser.open(result.exporter.url)
+                report_opened = True
+            if getattr(result.exporter, '_web_server_thread', None):
+                # Wait for web server to terminate.
+                self._web_server_thread = result.exporter._web_server_thread
+                self._web_server_thread.join()
+
+        if self.cfg.browse and not report_opened:
+            self.logger.warning(('No reports opened, could not find an '
+                                 'exported result to browse'))
 
     def aborting(self):
-        """Suppressing not implemented debug log from parent class."""
-        pass
+        """Stop the web server if it is running."""
+        if self._web_server_thread is not None:
+            self._web_server_thread.stop()
 
     def _configure_stdout_logger(self):
         """Configure the stdout logger by setting the required level."""

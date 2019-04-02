@@ -1,0 +1,2175 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <Toolbar
+    buttons={
+        Array [
+            Object {
+              "name": "pr",
+              "type": "print",
+            },
+            Object {
+              "name": "if",
+              "type": "info-circle",
+            },
+            Object {
+              "name": "qu",
+              "type": "question-circle",
+            },
+            Object {
+              "name": "fi",
+              "type": "filter",
+            },
+            Object {
+              "name": "ta",
+              "type": "tags",
+            },
+            Object {
+              "name": "ci",
+              "type": "circle",
+            },
+            Object {
+              "name": "jk",
+              "type": "male",
+            },
+            Object {
+              "name": "me",
+              "type": "table",
+            },
+            Object {
+              "name": "mo",
+              "type": "chart-bar",
+            },
+          ]
+    }
+    handleNavFilter={[Function]}
+    status="passed"
+/>,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": Array [
+        <FilterBox
+          handleNavFilter={[Function]}
+/>,
+        <div>
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="print"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="info-circle"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="question-circle"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="filter"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="tags"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="circle"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="male"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="table"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="chart-bar"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+</div>,
+      ],
+      "className": "toolbar_9n7rht-o_O-toolbarPassed_1bjpgj2",
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "class",
+        "props": Object {
+          "handleNavFilter": [Function],
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": Array [
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="print"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="info-circle"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="question-circle"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="filter"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="tags"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="circle"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="male"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="table"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="chart-bar"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+          ],
+        },
+        "ref": null,
+        "rendered": Array [
+          Object {
+            "instance": null,
+            "key": "print",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "print",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "info-circle",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "info-circle",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "question-circle",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "question-circle",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "filter",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "filter",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "tags",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "tags",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "circle",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "circle",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "male",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "male",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "table",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "table",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "chart-bar",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "chart-bar",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+        ],
+        "type": "div",
+      },
+    ],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          <FilterBox
+            handleNavFilter={[Function]}
+/>,
+          <div>
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="print"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="info-circle"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="question-circle"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="filter"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="tags"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="circle"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="male"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="table"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="chart-bar"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+</div>,
+        ],
+        "className": "toolbar_9n7rht-o_O-toolbarPassed_1bjpgj2",
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "handleNavFilter": [Function],
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": Array [
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="print"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="info-circle"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="question-circle"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="filter"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="tags"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="circle"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="male"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="table"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="chart-bar"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+            ],
+          },
+          "ref": null,
+          "rendered": Array [
+            Object {
+              "instance": null,
+              "key": "print",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "print",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "info-circle",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "info-circle",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "question-circle",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "question-circle",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "filter",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "filter",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "tags",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "tags",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "circle",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "circle",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "male",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "male",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "table",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "table",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "chart-bar",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "chart-bar",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+          ],
+          "type": "div",
+        },
+      ],
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getDerivedStateFromProps": true,
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`Toolbar shallow renders the correct HTML structure for interactive mode 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <Toolbar
+    buttons={
+        Array [
+            Object {
+              "name": "po",
+              "type": "fa-power-off",
+            },
+            Object {
+              "name": "bg",
+              "type": "fa-bug",
+            },
+            Object {
+              "name": "rf",
+              "type": "fa-refresh",
+            },
+            Object {
+              "name": "pl",
+              "type": "fa-play",
+            },
+            Object {
+              "name": "qu",
+              "type": "fa-question-circle",
+            },
+            Object {
+              "name": "fp",
+              "type": "fa-floppy-o",
+            },
+          ]
+    }
+    handleNavFilter={[Function]}
+    status="passed"
+/>,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": Array [
+        <FilterBox
+          handleNavFilter={[Function]}
+/>,
+        <div>
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="fa-power-off"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="fa-bug"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="fa-refresh"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="fa-play"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="fa-question-circle"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+          <FontAwesomeIcon
+                    border={false}
+                    className="nav-side-button"
+                    fixedWidth={true}
+                    flip={null}
+                    icon="fa-floppy-o"
+                    inverse={false}
+                    listItem={false}
+                    mask={null}
+                    pull={null}
+                    pulse={false}
+                    rotation={null}
+                    size={null}
+                    spin={false}
+                    symbol={false}
+                    title=""
+                    transform={null}
+          />
+</div>,
+      ],
+      "className": "toolbar_9n7rht-o_O-toolbarPassed_1bjpgj2",
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "class",
+        "props": Object {
+          "handleNavFilter": [Function],
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": Array [
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="fa-power-off"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="fa-bug"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="fa-refresh"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="fa-play"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="fa-question-circle"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+            <FontAwesomeIcon
+              border={false}
+              className="nav-side-button"
+              fixedWidth={true}
+              flip={null}
+              icon="fa-floppy-o"
+              inverse={false}
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title=""
+              transform={null}
+/>,
+          ],
+        },
+        "ref": null,
+        "rendered": Array [
+          Object {
+            "instance": null,
+            "key": "fa-power-off",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "fa-power-off",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "fa-bug",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "fa-bug",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "fa-refresh",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "fa-refresh",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "fa-play",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "fa-play",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "fa-question-circle",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "fa-question-circle",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": "fa-floppy-o",
+            "nodeType": "function",
+            "props": Object {
+              "border": false,
+              "className": "nav-side-button",
+              "fixedWidth": true,
+              "flip": null,
+              "icon": "fa-floppy-o",
+              "inverse": false,
+              "listItem": false,
+              "mask": null,
+              "pull": null,
+              "pulse": false,
+              "rotation": null,
+              "size": null,
+              "spin": false,
+              "symbol": false,
+              "title": "",
+              "transform": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+        ],
+        "type": "div",
+      },
+    ],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          <FilterBox
+            handleNavFilter={[Function]}
+/>,
+          <div>
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="fa-power-off"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="fa-bug"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="fa-refresh"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="fa-play"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="fa-question-circle"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+            <FontAwesomeIcon
+                        border={false}
+                        className="nav-side-button"
+                        fixedWidth={true}
+                        flip={null}
+                        icon="fa-floppy-o"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
+</div>,
+        ],
+        "className": "toolbar_9n7rht-o_O-toolbarPassed_1bjpgj2",
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "handleNavFilter": [Function],
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": Array [
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="fa-power-off"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="fa-bug"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="fa-refresh"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="fa-play"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="fa-question-circle"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+              <FontAwesomeIcon
+                border={false}
+                className="nav-side-button"
+                fixedWidth={true}
+                flip={null}
+                icon="fa-floppy-o"
+                inverse={false}
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title=""
+                transform={null}
+/>,
+            ],
+          },
+          "ref": null,
+          "rendered": Array [
+            Object {
+              "instance": null,
+              "key": "fa-power-off",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "fa-power-off",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "fa-bug",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "fa-bug",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "fa-refresh",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "fa-refresh",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "fa-play",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "fa-play",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "fa-question-circle",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "fa-question-circle",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": "fa-floppy-o",
+              "nodeType": "function",
+              "props": Object {
+                "border": false,
+                "className": "nav-side-button",
+                "fixedWidth": true,
+                "flip": null,
+                "icon": "fa-floppy-o",
+                "inverse": false,
+                "listItem": false,
+                "mask": null,
+                "pull": null,
+                "pulse": false,
+                "rotation": null,
+                "size": null,
+                "spin": false,
+                "symbol": false,
+                "title": "",
+                "transform": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+          ],
+          "type": "div",
+        },
+      ],
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getDerivedStateFromProps": true,
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+  },
+}
+`;

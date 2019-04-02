@@ -37,7 +37,8 @@ REQUIRED = [
     'matplotlib',
     'requests>=2.4.3',
     'flask',
-    'flask_restplus'
+    'flask_restplus',
+    'cheroot'
 ]
 
 
@@ -48,6 +49,7 @@ setup(name='Testplan',
   author_email='eti-testplan@morganstanley.com',
   url='https://github.com/Morgan-Stanley/testplan',
   packages=['testplan'] + find_packages(),
-  install_requires=REQUIRED
+  install_requires=REQUIRED,
+  scripts=['install-testplan-ui']
  )
 

@@ -189,7 +189,7 @@ class XMLElementField(fields.Field):
     """Custom field for `lxml.etree.Element serialization`."""
 
     def _serialize(self, value, attr, obj):
-        return etree.tostring(value, pretty_print=True)
+        return etree.tostring(value, pretty_print=True).decode('utf-8')
 
 
 class ClassName(fields.Field):

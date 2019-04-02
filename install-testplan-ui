@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+"""
+Install & Build the Testplan UI code.
+  * "npm install" - install the necessary dependencies under node_modules
+    directory.
+  * "npm run build" - build the Testplan UI, place it under build directory.
+"""
+import subprocess
+import argparse
+import logging
+import sys
+import os
+
+TESTPLAN_UI_DIR = os.path.join(
+    os.path.dirname(__file__),
+    'testplan',
+    'web_ui',
+    'testing'
+)
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+
+def parse_cli_args():
+    """Parse cli args."""
+    parser = argparse.ArgumentParser(description='Run this script to install & '
+                                                 'build the Testplan UI.')
+    parser.add_argument('-v', '--verbose', action='store_true', dest='verbose',
+                        help='Display verbose logs (stdout from npm commands).')
+    parser.add_argument('-d', '--dev', action='store_true', dest='dev',
+                        help='Install dev dependencies, use if developing UI.')
+    return parser.parse_args()
+
+
+def npm_installed():
+    """Check if npm has been installed."""
+    with open(os.devnull, 'w') as FNULL:
+        try:
+            subprocess.check_call('npm --version', shell=True, stdout=FNULL)
+        except subprocess.CalledProcessError:
+            return False
+        else:
+            return True
+
+
+def install_and_build_ui(dev=False, verbose=False):
+    """
+    Install dependencies & build JS code.
+
+    :param dev: Whether to install dev dependencies, use if developing UI.
+    :type dev: ``bool``
+    :param verbose: Display verbose logs (stdout and stderr from npm commands).
+    :type verbose: ``bool``
+    """
+
+    if not npm_installed():
+        logging.warning('='*54)
+        logging.warning('NPM NOT INSTALLED.')
+        logging.warning('Testplan UI is built using npm, please follow these')
+        logging.warning('instructions to install https://www.npmjs.com/get-npm')
+        logging.warning('='*54)
+        sys.exit(1)
+
+    with open(os.devnull, 'w') as FNULL:
+        output = FNULL
+        if verbose:
+            output = None
+
+        production_cmd = ' --production'
+        if dev:
+            production_cmd = ''
+
+        logging.info('Installing Testplan UI dependencies...')
+        subprocess.check_call('npm install{}'.format(production_cmd),
+                              shell=True, cwd=TESTPLAN_UI_DIR, stdout=output,
+                              stderr=subprocess.STDOUT)
+        logging.info('Building Testplan UI...')
+        subprocess.check_call('npm run build', shell=True, cwd=TESTPLAN_UI_DIR,
+                              stdout=output, stderr=subprocess.STDOUT)
+    logging.info('Testplan UI install & build have completed successfully.')
+
+
+if __name__ == '__main__':
+    args = parse_cli_args()
+    install_and_build_ui(dev=args.dev, verbose=args.verbose)

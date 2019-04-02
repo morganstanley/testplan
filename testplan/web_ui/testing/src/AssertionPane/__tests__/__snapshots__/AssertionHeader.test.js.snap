@@ -1,0 +1,329 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AssertionHeader shallow renders the correct HTML structure 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <AssertionHeader
+    assertion={
+        Object {
+            "category": "DEFAULT",
+            "description": null,
+            "first": "foo",
+            "label": "==",
+            "line_no": 25,
+            "machine_time": "2019-02-12T17:41:42.795536+00:00",
+            "meta_type": "assertion",
+            "passed": true,
+            "second": "foo",
+            "type": "Equal",
+            "utc_time": "2019-02-12T17:41:42.795530+00:00",
+          }
+    }
+    index={0}
+    onClick={[Function]}
+/>,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "function",
+    "props": Object {
+      "children": Array [
+        <FontAwesomeIcon
+          border={false}
+          className="icon_erbgzi"
+          fixedWidth={false}
+          flip={null}
+          icon="clock"
+          id="tooltip_0"
+          inverse={false}
+          listItem={false}
+          mask={null}
+          pull={null}
+          pulse={false}
+          rotation={null}
+          size="sm"
+          spin={false}
+          symbol={false}
+          title=""
+          transform={null}
+/>,
+        <Tooltip
+          autohide={true}
+          delay={
+                    Object {
+                              "hide": 250,
+                              "show": 0,
+                            }
+          }
+          hideArrow={false}
+          isOpen={false}
+          placement="bottom"
+          placementPrefix="bs-tooltip"
+          target="tooltip_0"
+          toggle={[Function]}
+>
+          Tue, 12 Feb 2019 17:41:42 GMT
+</Tooltip>,
+        <span>
+          <strong />
+          (
+          Equal
+          )
+</span>,
+      ],
+      "className": "cardHeader_1peii7j-o_O-cardHeaderColorPassed_1nxwz58",
+      "onClick": [Function],
+      "tag": "div",
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": "faClock",
+        "nodeType": "function",
+        "props": Object {
+          "border": false,
+          "className": "icon_erbgzi",
+          "fixedWidth": false,
+          "flip": null,
+          "icon": "clock",
+          "id": "tooltip_0",
+          "inverse": false,
+          "listItem": false,
+          "mask": null,
+          "pull": null,
+          "pulse": false,
+          "rotation": null,
+          "size": "sm",
+          "spin": false,
+          "symbol": false,
+          "title": "",
+          "transform": null,
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "class",
+        "props": Object {
+          "autohide": true,
+          "children": "Tue, 12 Feb 2019 17:41:42 GMT",
+          "delay": Object {
+            "hide": 250,
+            "show": 0,
+          },
+          "hideArrow": false,
+          "isOpen": false,
+          "placement": "bottom",
+          "placementPrefix": "bs-tooltip",
+          "target": "tooltip_0",
+          "toggle": [Function],
+        },
+        "ref": null,
+        "rendered": "Tue, 12 Feb 2019 17:41:42 GMT",
+        "type": [Function],
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": Array [
+            <strong />,
+            "(",
+            "Equal",
+            ")",
+          ],
+        },
+        "ref": null,
+        "rendered": Array [
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": null,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": "strong",
+          },
+          "(",
+          "Equal",
+          ")",
+        ],
+        "type": "span",
+      },
+    ],
+    "type": [Function],
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "function",
+      "props": Object {
+        "children": Array [
+          <FontAwesomeIcon
+            border={false}
+            className="icon_erbgzi"
+            fixedWidth={false}
+            flip={null}
+            icon="clock"
+            id="tooltip_0"
+            inverse={false}
+            listItem={false}
+            mask={null}
+            pull={null}
+            pulse={false}
+            rotation={null}
+            size="sm"
+            spin={false}
+            symbol={false}
+            title=""
+            transform={null}
+/>,
+          <Tooltip
+            autohide={true}
+            delay={
+                        Object {
+                                    "hide": 250,
+                                    "show": 0,
+                                  }
+            }
+            hideArrow={false}
+            isOpen={false}
+            placement="bottom"
+            placementPrefix="bs-tooltip"
+            target="tooltip_0"
+            toggle={[Function]}
+>
+            Tue, 12 Feb 2019 17:41:42 GMT
+</Tooltip>,
+          <span>
+            <strong />
+            (
+            Equal
+            )
+</span>,
+        ],
+        "className": "cardHeader_1peii7j-o_O-cardHeaderColorPassed_1nxwz58",
+        "onClick": [Function],
+        "tag": "div",
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": "faClock",
+          "nodeType": "function",
+          "props": Object {
+            "border": false,
+            "className": "icon_erbgzi",
+            "fixedWidth": false,
+            "flip": null,
+            "icon": "clock",
+            "id": "tooltip_0",
+            "inverse": false,
+            "listItem": false,
+            "mask": null,
+            "pull": null,
+            "pulse": false,
+            "rotation": null,
+            "size": "sm",
+            "spin": false,
+            "symbol": false,
+            "title": "",
+            "transform": null,
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "autohide": true,
+            "children": "Tue, 12 Feb 2019 17:41:42 GMT",
+            "delay": Object {
+              "hide": 250,
+              "show": 0,
+            },
+            "hideArrow": false,
+            "isOpen": false,
+            "placement": "bottom",
+            "placementPrefix": "bs-tooltip",
+            "target": "tooltip_0",
+            "toggle": [Function],
+          },
+          "ref": null,
+          "rendered": "Tue, 12 Feb 2019 17:41:42 GMT",
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": Array [
+              <strong />,
+              "(",
+              "Equal",
+              ")",
+            ],
+          },
+          "ref": null,
+          "rendered": Array [
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": null,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": "strong",
+            },
+            "(",
+            "Equal",
+            ")",
+          ],
+          "type": "span",
+        },
+      ],
+      "type": [Function],
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getDerivedStateFromProps": true,
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+  },
+}
+`;

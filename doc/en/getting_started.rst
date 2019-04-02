@@ -4,6 +4,7 @@ Getting started
 Here is a step by step guide in order to install and try Testplan
 in your local environment!
 
+.. _install_testplan:
 
 Install testplan
 ================
@@ -34,9 +35,11 @@ Install from archive.
 
       # For python 2.
       sudo pip install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+      install-testplan-ui
 
       # For python 3.
       sudo pip3 install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+      install-testplan-ui
 
 
 .. _using_virtualenv_ubuntu:
@@ -87,12 +90,14 @@ Python 2
           # skip heavy dependencies but miss some functionality
           pip install -r requirements-basic.txt
           python setup.py develop --no-deps
+          python install-testplan-ui
 
         .. code-block:: bash
 
           # make a full setup
           pip install -r requirements.txt
           python setup.py develop
+          python install-testplan-ui
 
 Python 3
 ````````
@@ -131,10 +136,12 @@ Python 3
           # Skip heavy dependencies but miss some functionality.
           pip3 install -r requirements-basic.txt
           python setup.py develop --no-deps
+          python install-testplan-ui
 
           # Or, make a full setup
           pip3 install -r requirements.txt
           python setup.py develop
+          python install-testplan-ui
 
 
 Full setup
@@ -179,9 +186,11 @@ Install from archive.
 
       # For python 2.
       sudo pip install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+      install-testplan-ui
 
       # For python 3.
       sudo pip3 install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+      install-testplan-ui
 
 
 .. _using_virtualenv_macos:
@@ -222,12 +231,14 @@ Using a virtualenv
           # skip heavy dependencies but miss some functionality
           pip install -r requirements-basic.txt
           python setup.py develop --no-deps
+          python install-testplan-ui
 
         .. code-block:: bash
 
           # make a full setup
           pip install -r requirements.txt
           python setup.py develop
+          python install-testplan-ui
 
 
 Windows
@@ -260,6 +271,15 @@ package management system:
         .. code-block:: text
 
           pip install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+
+.. warning::
+
+  The ``install-testplan-ui`` currently can't be called on Windows after
+  installing from archive. It will work if installed through virtualenv. If this
+  isn't installed the ``--ui`` arg will not work properly (the web server will
+  start but the UI won't load). Read more about the browser output
+  :ref:`here <Output_Browser>`. Raise a GitHub issue if further assistance is
+  needed.
 
 
 Using a virtualenv
@@ -304,6 +324,7 @@ Installation using a `virtualenv <https://virtualenv.pypa.io/en/stable>`_:
           # Skip heavy dependencies but miss some functionality.
           pip install -r requirements-basic.txt
           python setup.py develop --no-deps
+          python install-testplan-ui
 
 Via Docker
 ==========
