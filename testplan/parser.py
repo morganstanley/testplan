@@ -179,7 +179,15 @@ class TestplanParser(object):
 
         report_group.add_argument(
             '-b', '--browse', action='store_true', dest='browse',
-            help='Automatically open report to browse.')
+            help=('Automatically open report to browse. Must be specifed with '
+                  '"--pdf" or "--json --ui" or there will be nothing to open.'))
+
+        report_group.add_argument(
+            '-u', '--ui', dest='ui_port', nargs='?',
+            const=defaults.WEB_SERVER_PORT, type=int,
+            help=('Start the web server to view the Testplan UI. A port can be '
+                  'specified, otherwise defaults to {}. A JSON report will be '
+                  'saved locally.').format(defaults.WEB_SERVER_PORT))
 
         report_group.add_argument(
             '--report-tags', nargs='+',

@@ -18,11 +18,12 @@ pyzmq
 terminaltables
 pyparsing
 cycler
-Pillow
+Pillow<6.0.0
 functools32; python_version <= '2.7'
 requests>=2.4.3
 flask
 flask_restplus
+cheroot
 
 # Documentation
 # ---------------

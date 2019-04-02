@@ -1,8 +1,13 @@
+import os
+from shutil import copyfile
+
 from schema import Schema, Use
 
+from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import BaseExporter, ExporterConfig
 from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils.path import makedirs
 from testplan.testing import tagging
 
 
@@ -161,3 +166,18 @@ class TagFilteredExporter(Exporter):
             source=source,
             tag_dicts=self.cfg.report_tags_all,
             filter_type=self.ALL)
+
+def save_attachments(report, directory):
+    """
+    Save the report attachments to the given directory.
+    :param report: Testplan report.
+    :type report: ``testplan.testing.report.TestReport``
+    :param directory: Directory to save attachments in.
+    :type directory: ``str``
+    """
+    attachments = getattr(report, 'attachments', None)
+    if attachments:
+        for dst, src in attachments.items():
+            dst_path = os.path.join(directory, dst)
+            makedirs(os.path.dirname(dst_path))
+            copyfile(src=src, dst=dst_path)

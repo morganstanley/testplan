@@ -1,0 +1,152 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InfiniteScroll shallow renders the correct HTML structure 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <InfiniteScroll
+    globalIsOpen={false}
+    id="22758cc5-8a89-472b-bf67-b64dbc2c0b40"
+    items={Array []}
+    resetGlobalIsOpen={[Function]}
+/>,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "class",
+    "props": Object {
+      "autoHeight": false,
+      "autoHeightMax": 200,
+      "autoHeightMin": 0,
+      "autoHide": true,
+      "autoHideDuration": 200,
+      "autoHideTimeout": 1000,
+      "children": <div
+        style={
+                Object {
+                        "paddingRight": "2rem",
+                      }
+        }
+>
+        
+</div>,
+      "hideTracksWhenNotNeeded": false,
+      "onScroll": [Function],
+      "renderThumbHorizontal": [Function],
+      "renderThumbVertical": [Function],
+      "renderTrackHorizontal": [Function],
+      "renderTrackVertical": [Function],
+      "renderView": [Function],
+      "tagName": "div",
+      "thumbMinSize": 30,
+      "universal": false,
+    },
+    "ref": Object {
+      "current": null,
+    },
+    "rendered": Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          undefined,
+          false,
+        ],
+        "style": Object {
+          "paddingRight": "2rem",
+        },
+      },
+      "ref": null,
+      "rendered": Array [
+        undefined,
+        false,
+      ],
+      "type": "div",
+    },
+    "type": [Function],
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "class",
+      "props": Object {
+        "autoHeight": false,
+        "autoHeightMax": 200,
+        "autoHeightMin": 0,
+        "autoHide": true,
+        "autoHideDuration": 200,
+        "autoHideTimeout": 1000,
+        "children": <div
+          style={
+                    Object {
+                              "paddingRight": "2rem",
+                            }
+          }
+>
+          
+</div>,
+        "hideTracksWhenNotNeeded": false,
+        "onScroll": [Function],
+        "renderThumbHorizontal": [Function],
+        "renderThumbVertical": [Function],
+        "renderTrackHorizontal": [Function],
+        "renderTrackVertical": [Function],
+        "renderView": [Function],
+        "tagName": "div",
+        "thumbMinSize": 30,
+        "universal": false,
+      },
+      "ref": Object {
+        "current": null,
+      },
+      "rendered": Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": Array [
+            undefined,
+            false,
+          ],
+          "style": Object {
+            "paddingRight": "2rem",
+          },
+        },
+        "ref": null,
+        "rendered": Array [
+          undefined,
+          false,
+        ],
+        "type": "div",
+      },
+      "type": [Function],
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getDerivedStateFromProps": true,
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+  },
+}
+`;

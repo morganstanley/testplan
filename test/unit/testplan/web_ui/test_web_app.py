@@ -5,6 +5,7 @@ import tempfile
 
 import pytest
 
+from testplan import defaults
 from testplan.web_ui.web_app import app as tp_web_app
 
 STATIC_REPORTS = {
@@ -20,10 +21,12 @@ STATIC_REPORTS = {
 
 DATA_REPORTS = {
     'testplan': {
+        'report_name': 'report.json',
         'uid': str(uuid.uuid4()),
         'contents': str(uuid.uuid4()),
     },
     'monitor': {
+        'report_name': 'monitor_report.json',
         'uid': str(uuid.uuid4()),
         'contents': str(uuid.uuid4()),
     },
@@ -51,18 +54,18 @@ def _create_tmp_file(tmp_file, contents):
 def _create_tmp_static_files(base_dir):
     """
     Create fake static files to be sent by the Testplan web app.
-        <STATIC_PATH>/testplan/index.html
-        <STATIC_PATH>/testplan/static.file
-        <STATIC_PATH>/monitor/index.html
-        <STATIC_PATH>/monitor/static.file
+        <STATIC_PATH>/testplan/build/index.html
+        <STATIC_PATH>/testplan/build/static.file
+        <STATIC_PATH>/monitor/build/index.html
+        <STATIC_PATH>/monitor/build/static.file
 
     :param base_dir: The Testplan web app's STATIC_PATH directory.
     :type base_dir: ``str``
     """
     for report_type, report in list(STATIC_REPORTS.items()):
-        index_file = os.path.join(base_dir, report_type, 'index.html')
+        index_file = os.path.join(base_dir, report_type, 'build', 'index.html')
         _create_tmp_file(tmp_file=index_file, contents=report['contents'])
-        static_file = os.path.join(base_dir, report_type, 'static.file')
+        static_file = os.path.join(base_dir, report_type, 'build', 'static.file')
         _create_tmp_file(tmp_file=static_file, contents=report['contents'])
 
 
@@ -76,11 +79,10 @@ def _create_tmp_data_files(base_dir):
     :type base_dir: ``str``
     """
     for report_type, report in list(DATA_REPORTS.items()):
-        report_file = os.path.join(base_dir,
-                                   'reports',
-                                   '{}_{}'.format(report_type, report['uid']),
-                                   'report.json')
+        report_file = os.path.join(base_dir, report['report_name'])
         _create_tmp_file(tmp_file=report_file, contents=report['contents'])
+    attachment_file = os.path.join(base_dir, defaults.ATTACHMENTS, 'attached.file')
+    _create_tmp_file(tmp_file=attachment_file, contents=DATA_REPORTS['testplan']['contents'])
 
 
 class TestStaticEndpoints(object):
@@ -93,6 +95,7 @@ class TestStaticEndpoints(object):
         self.static_dir = tempfile.mkdtemp()
         _create_tmp_static_files(self.static_dir)
         tp_web_app.config['STATIC_PATH'] = self.static_dir
+        tp_web_app.config['TESTPLAN_REPORT_NAME'] = 'report.json'
         tp_web_app.config['TESTING'] = True
         self.client = tp_web_app.test_client()
 
@@ -103,50 +106,63 @@ class TestStaticEndpoints(object):
     def test_testplan_index(self):
         """Does /testplan/<uid> return the correct index.html page."""
         # Use correct UID, expect 200 response.
-        response = self.client.get('/testplan/{}'.format(STATIC_REPORTS['testing']['uid']))
+        response = self.client.get('/testplan/{}'.format(
+            STATIC_REPORTS['testing']['uid']))
+        expected_contents = str(STATIC_REPORTS['testing']['contents'])
         assert response.status_code == 200
-        assert str(STATIC_REPORTS['testing']['contents']) in str(response.data)
+        assert expected_contents in str(response.data)
 
         # Use incorrect UID, still expect 200 response.
         response = self.client.get('/testplan/123')
         assert response.status_code == 200
-        assert str(STATIC_REPORTS['testing']['contents']) in str(response.data)
+        assert expected_contents in str(response.data)
 
     def test_testplan_static(self):
-        """Does /testplan/static/static.file respond with the static.file file."""
+        """
+        Does /testplan/static/static.file respond with the static.file file.
+        """
         # Use correct UID, expect 200 response
-        response = self.client.get('/testplan/static/static.file'.format(STATIC_REPORTS['testing']['uid']))
+        response = self.client.get('/testplan/static/static.file')
+        expected_contents = str(STATIC_REPORTS['testing']['contents'])
         assert response.status_code == 200
-        assert str(STATIC_REPORTS['testing']['contents']) in str(response.data)
+        assert expected_contents in str(response.data)
 
-        # This endpoint should return the index.html page no matter what UID is sent
+        # This endpoint should return the index.html page no matter what UID is
+        # sent
         response = self.client.get('/testplan/static/123')
         assert response.status_code == 404
-        assert str(STATIC_REPORTS['testing']['contents']) not in str(response.data)
+        assert expected_contents not in str(response.data)
 
     def test_monitor_index(self):
         """Does /monitor/<uid> return the correct index.html page."""
         # Use correct UID, expect 200 response.
-        response = self.client.get('/monitor/{}'.format(STATIC_REPORTS['monitor']['uid']))
+        response = self.client.get('/monitor/{}'.format(
+            STATIC_REPORTS['monitor']['uid']))
+        expected_contents = str(STATIC_REPORTS['monitor']['contents'])
         assert response.status_code == 200
-        assert str(STATIC_REPORTS['monitor']['contents']) in str(response.data)
+        assert expected_contents in str(response.data)
 
         # Use incorrect UID, still expect 200 response.
         response = self.client.get('/monitor/123')
         assert response.status_code == 200
-        assert str(STATIC_REPORTS['monitor']['contents']) in str(response.data)
+        assert expected_contents in str(response.data)
 
     def test_monitor_static(self):
-        """Does /testplan/static/static.file respond with the static.file file."""
+        """
+        Does /testplan/static/static.file respond with the static.file file.
+        """
         # Use correct UID, expect 200 response
-        response = self.client.get('/monitor/static/static.file'.format(STATIC_REPORTS['monitor']['uid']))
+        response = self.client.get('/monitor/static/static.file'.format(
+            STATIC_REPORTS['monitor']['uid']))
+        expected_contents = str(STATIC_REPORTS['monitor']['contents'])
         assert response.status_code == 200
-        assert str(STATIC_REPORTS['monitor']['contents']) in str(response.data)
+        assert expected_contents in str(response.data)
 
-        # This endpoint should return the index.html page no matter what UID is sent
+        # This endpoint should return the index.html page no matter what UID is
+        # sent
         response = self.client.get('/monitor/static/123')
         assert response.status_code == 404
-        assert str(STATIC_REPORTS['monitor']['contents']) not in str(response.data)
+        assert expected_contents not in str(response.data)
 
 
 class TestDataEndpoints(object):
@@ -169,34 +185,47 @@ class TestDataEndpoints(object):
     def test_testplan_report(self):
         """Does /testplan/<uid>/report return the correct report.json file."""
         # Use correct UID, expect 200 response.
-        response = self.client.get('/testplan/{}/report'.format(DATA_REPORTS['testplan']['uid']))
+        path = '/testplan/{}/report'.format(DATA_REPORTS['testplan']['uid'])
+        response = self.client.get(path)
+        expected_contents = str(DATA_REPORTS['testplan']['contents'])
         assert response.status_code == 200
-        assert str(DATA_REPORTS['testplan']['contents']) in str(response.data)
+        assert expected_contents in str(response.data)
 
-        # Use incorrect UID, expect 404 response.
+        # Use incorrect UID, still expect 200 response.
         response = self.client.get('/testplan/123/report')
-        assert response.status_code == 404
-        assert str(DATA_REPORTS['testplan']['contents']) not in str(response.data)
+        assert response.status_code == 200
+        assert expected_contents in str(response.data)
 
     def test_testplan_assertions(self):
-        """Does sending anything to /testplan/<uid>/assertions/<uid> respond with 501."""
+        """
+        Does sending anything to /testplan/<uid>/assertions/<uid> respond with
+        501.
+        """
         response = self.client.get('testplan/123/assertions/123')
         assert response.status_code == 501
 
     def test_testplan_attachment(self):
-        """Does sending anything to /testplan/<uid>/attachment/<uid> respond with 501."""
-        response = self.client.get('testplan/123/attachment/123')
-        assert response.status_code == 501
+        """
+        Does sending anything to /testplan/<uid>/attachment/<uid> respond with
+        501.
+        """
+        path = '/testplan/123/attachment/attached.file'
+        response = self.client.get(path)
+        expected_contents = str(DATA_REPORTS['testplan']['contents'])
+        assert response.status_code == 200
+        assert expected_contents in str(response.data)
 
 
     def test_monitor_report(self):
         """Does /monitor/<uid>/report return the correct report.json file."""
         # Use correct UID, expect 200 response.
-        response = self.client.get('/monitor/{}/report'.format(DATA_REPORTS['monitor']['uid']))
+        path = '/monitor/{}/report'.format(DATA_REPORTS['monitor']['uid'])
+        response = self.client.get(path)
+        expected_contents = str(DATA_REPORTS['monitor']['contents'])
         assert response.status_code == 200
-        assert str(DATA_REPORTS['monitor']['contents']) in str(response.data)
+        assert expected_contents in str(response.data)
 
-        # Use incorrect UID, expect 404 response.
+        # Use incorrect UID, still expect 200 response.
         response = self.client.get('/monitor/123/report')
-        assert response.status_code == 404
-        assert str(DATA_REPORTS['monitor']['contents']) not in str(response.data)
+        assert response.status_code == 200
+        assert expected_contents in str(response.data)

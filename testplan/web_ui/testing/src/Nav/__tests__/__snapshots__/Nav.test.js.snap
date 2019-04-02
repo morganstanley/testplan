@@ -1,0 +1,418 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Nav shallow renders the correct HTML structure 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <Nav
+    report={
+        Array [
+            Object {
+              "entries": Array [
+                Object {
+                  "category": "multitest",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "category": "suite",
+                      "description": null,
+                      "entries": Array [
+                        Object {
+                          "description": null,
+                          "entries": Array [
+                            Object {
+                              "category": "DEFAULT",
+                              "description": "passing equality",
+                              "first": 1,
+                              "label": "==",
+                              "line_no": 24,
+                              "machine_time": "2018-10-15T15:30:11.010098+00:00",
+                              "meta_type": "assertion",
+                              "passed": true,
+                              "second": 1,
+                              "type": "Equal",
+                              "utc_time": "2018-10-15T14:30:11.010094+00:00",
+                            },
+                          ],
+                          "logs": Array [],
+                          "name": "test_equality_passing",
+                          "status": "passed",
+                          "status_override": null,
+                          "tags": Object {
+                            "colour": Array [
+                              "white",
+                            ],
+                          },
+                          "timer": Object {
+                            "run": Object {
+                              "end": "2018-10-15T14:30:11.132214+00:00",
+                              "start": "2018-10-15T14:30:11.010072+00:00",
+                            },
+                          },
+                          "type": "TestCaseReport",
+                          "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                        },
+                        Object {
+                          "description": null,
+                          "entries": Array [
+                            Object {
+                              "category": "DEFAULT",
+                              "description": "passing equality",
+                              "first": 1,
+                              "label": "==",
+                              "line_no": 24,
+                              "machine_time": "2018-10-15T15:30:11.510098+00:00",
+                              "meta_type": "assertion",
+                              "passed": true,
+                              "second": 1,
+                              "type": "Equal",
+                              "utc_time": "2018-10-15T14:30:11.510094+00:00",
+                            },
+                          ],
+                          "logs": Array [],
+                          "name": "test_equality_passing2",
+                          "status": "failed",
+                          "status_override": null,
+                          "tags": Object {},
+                          "timer": Object {
+                            "run": Object {
+                              "end": "2018-10-15T14:30:11.632214+00:00",
+                              "start": "2018-10-15T14:30:11.510072+00:00",
+                            },
+                          },
+                          "type": "TestCaseReport",
+                          "uid": "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                        },
+                      ],
+                      "logs": Array [],
+                      "name": "AlphaSuite",
+                      "status": "failed",
+                      "status_override": null,
+                      "tags": Object {
+                        "simple": Array [
+                          "server",
+                        ],
+                      },
+                      "timer": Object {
+                        "run": Object {
+                          "end": "2018-10-15T14:30:11.158224+00:00",
+                          "start": "2018-10-15T14:30:11.009872+00:00",
+                        },
+                      },
+                      "type": "TestGroupReport",
+                      "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                    },
+                    Object {
+                      "category": "suite",
+                      "description": null,
+                      "entries": Array [
+                        Object {
+                          "description": null,
+                          "entries": Array [
+                            Object {
+                              "category": "DEFAULT",
+                              "description": "passing equality",
+                              "first": 1,
+                              "label": "==",
+                              "line_no": 24,
+                              "machine_time": "2018-10-15T15:30:11.010098+00:00",
+                              "meta_type": "assertion",
+                              "passed": true,
+                              "second": 1,
+                              "type": "Equal",
+                              "utc_time": "2018-10-15T14:30:11.010094+00:00",
+                            },
+                          ],
+                          "logs": Array [],
+                          "name": "test_equality_passing",
+                          "status": "passed",
+                          "status_override": null,
+                          "tags": Object {},
+                          "timer": Object {
+                            "run": Object {
+                              "end": "2018-10-15T14:30:11.132214+00:00",
+                              "start": "2018-10-15T14:30:11.010072+00:00",
+                            },
+                          },
+                          "type": "TestCaseReport",
+                          "uid": "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                        },
+                      ],
+                      "logs": Array [],
+                      "name": "BetaSuite",
+                      "status": "passed",
+                      "status_override": null,
+                      "tags": Object {
+                        "simple": Array [
+                          "client",
+                        ],
+                      },
+                      "timer": Object {
+                        "run": Object {
+                          "end": "2018-10-15T14:30:11.158224+00:00",
+                          "start": "2018-10-15T14:30:11.009872+00:00",
+                        },
+                      },
+                      "type": "TestGroupReport",
+                      "uid": "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                    },
+                  ],
+                  "logs": Array [],
+                  "name": "Primary",
+                  "status": "failed",
+                  "status_override": null,
+                  "tags": Object {
+                    "simple": Array [
+                      "server",
+                    ],
+                  },
+                  "timer": Object {
+                    "run": Object {
+                      "end": "2018-10-15T14:30:11.159661+00:00",
+                      "start": "2018-10-15T14:30:11.009705+00:00",
+                    },
+                  },
+                  "type": "TestGroupReport",
+                  "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                },
+                Object {
+                  "category": "multitest",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "category": "suite",
+                      "description": null,
+                      "entries": Array [
+                        Object {
+                          "description": null,
+                          "entries": Array [
+                            Object {
+                              "category": "DEFAULT",
+                              "description": "passing equality",
+                              "first": 1,
+                              "label": "==",
+                              "line_no": 24,
+                              "machine_time": "2018-10-15T15:30:12.010098+00:00",
+                              "meta_type": "assertion",
+                              "passed": true,
+                              "second": 1,
+                              "type": "Equal",
+                              "utc_time": "2018-10-15T14:30:12.010094+00:00",
+                            },
+                          ],
+                          "logs": Array [],
+                          "name": "test_equality_passing",
+                          "status": "passed",
+                          "status_override": null,
+                          "tags": Object {},
+                          "timer": Object {
+                            "run": Object {
+                              "end": "2018-10-15T14:30:12.132214+00:00",
+                              "start": "2018-10-15T14:30:12.010072+00:00",
+                            },
+                          },
+                          "type": "TestCaseReport",
+                          "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                        },
+                      ],
+                      "logs": Array [],
+                      "name": "GammaSuite",
+                      "status": "passed",
+                      "status_override": null,
+                      "tags": Object {},
+                      "timer": Object {
+                        "run": Object {
+                          "end": "2018-10-15T14:30:12.158224+00:00",
+                          "start": "2018-10-15T14:30:12.009872+00:00",
+                        },
+                      },
+                      "type": "TestGroupReport",
+                      "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                    },
+                  ],
+                  "logs": Array [],
+                  "name": "Secondary",
+                  "status": "passed",
+                  "status_override": null,
+                  "tags": Object {},
+                  "timer": Object {
+                    "run": Object {
+                      "end": "2018-10-15T14:30:12.159661+00:00",
+                      "start": "2018-10-15T14:30:12.009705+00:00",
+                    },
+                  },
+                  "type": "TestGroupReport",
+                  "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                },
+              ],
+              "meta": Object {},
+              "name": "Sample Testplan",
+              "status": "failed",
+              "status_override": null,
+              "tags_index": Object {},
+              "timer": Object {
+                "run": Object {
+                  "end": "2018-10-15T14:30:11.296158+00:00",
+                  "start": "2018-10-15T14:30:10.998071+00:00",
+                },
+              },
+              "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+            },
+          ]
+    }
+    saveAssertions={[Function]}
+/>,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "function",
+    "props": Object {
+      "children": Array [
+        <NavBreadcrumbs
+          entries={Array []}
+          handleNavClick={[Function]}
+/>,
+        <NavList
+          autoSelect={[Function]}
+          breadcrumbLength={0}
+          entries={
+                    Array [
+                              Object {
+                                "name": "Sample Testplan",
+                                "status": "failed",
+                                "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+                              },
+                            ]
+          }
+          handleNavClick={[Function]}
+/>,
+      ],
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "class",
+        "props": Object {
+          "entries": Array [],
+          "handleNavClick": [Function],
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "class",
+        "props": Object {
+          "autoSelect": [Function],
+          "breadcrumbLength": 0,
+          "entries": Array [
+            Object {
+              "name": "Sample Testplan",
+              "status": "failed",
+              "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+            },
+          ],
+          "handleNavClick": [Function],
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+    ],
+    "type": Symbol(react.fragment),
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "function",
+      "props": Object {
+        "children": Array [
+          <NavBreadcrumbs
+            entries={Array []}
+            handleNavClick={[Function]}
+/>,
+          <NavList
+            autoSelect={[Function]}
+            breadcrumbLength={0}
+            entries={
+                        Array [
+                                    Object {
+                                      "name": "Sample Testplan",
+                                      "status": "failed",
+                                      "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+                                    },
+                                  ]
+            }
+            handleNavClick={[Function]}
+/>,
+        ],
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "entries": Array [],
+            "handleNavClick": [Function],
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "autoSelect": [Function],
+            "breadcrumbLength": 0,
+            "entries": Array [
+              Object {
+                "name": "Sample Testplan",
+                "status": "failed",
+                "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+              },
+            ],
+            "handleNavClick": [Function],
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+      ],
+      "type": Symbol(react.fragment),
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getDerivedStateFromProps": true,
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+  },
+}
+`;

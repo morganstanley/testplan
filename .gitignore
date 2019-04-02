@@ -27,3 +27,20 @@ Makefile
 
 # docker related stuff
 Dockerfile
+
+# Testplan UI
+/testplan/web_ui/testing/node_modules
+/testplan/web_ui/testing/coverage
+/testplan/web_ui/testing/build
+!/testplan/web_ui/testing/package.json
+!/testplan/web_ui/testing/.eslintrc.json
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.eslintcache
+testing/.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+Thumbs.db

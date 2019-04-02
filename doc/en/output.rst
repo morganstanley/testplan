@@ -25,6 +25,31 @@ the assertions/testcases/testsuites/Multitest level results will be printed on t
 
         .. image:: ../images/output/console/fix_assertions.png
 
+.. _Output_Browser:
+
+Browser
+=======
+
+Command line option ``--ui`` can be used to start a local web server after
+Testplan runs. Testplan will print a URL to console which can be used in a
+browser (Chrome, Firefox or Edge) to view the Testplan report in the browser UI.
+This exporter requires the ``install-testplan-ui`` script to have been run (see
+:ref:`Install Testplan <install_testplan>` in the Getting Started section). If
+this script hasn't been run the web server will start but the report won't load
+in the browser.
+
+    * **Basic** assertions Browser UI representation:
+
+        .. image:: ../images/output/browser/basic_assertions.png
+
+    * **Table** assertions Browser UI representation:
+
+        .. image:: ../images/output/browser/table_assertions.png
+
+    * **Fix/Dict** match assertions Browser UI represenation:
+
+        .. image:: ../images/output/browser/fix_assertions.png
+
 .. _Output_PDF:
 
 PDF
@@ -498,6 +523,39 @@ A more explicit usage is to initialize a JSON exporter directly:
 
 Examples for JSON report generation can be seen :ref:`here <example_test_output_exporters_json>`.
 
+
+WebServer
++++++++++
+
+The WebServer exporter stores the report locally as a JSON file and then starts
+a web server. You can start the web server via ``--ui`` arg. The port number
+can be specified after the arg if a specific port is needed:
+
+.. code-block:: bash
+
+    $ ./test_plan.py --ui 12345
+
+
+If defining programmatically, it is recommended to place this exporter last in
+the list. This exporter will cause Testplan to block after all the exporters
+have been run. It is recommended to place this exporter last in the list, if
+declaring programmatically, as other exporters might also have post exporter
+steps to be completed (e.g. PDF might be opened in the browser using
+``--browse``).
+
+.. code-block:: python
+
+    from testplan.exporters.testing import WebServerExporter
+
+    @test_plan(
+        name='Sample Plan',
+        exporters=[
+            ...,
+            WebServerExporter(ui_port=12345)
+        ]
+    )
+    def main(plan):
+        ...
 
 Custom
 ------

@@ -39,9 +39,11 @@ TestReport(name='MyPlan')
                                                      GTest is run
     ...
 """
+import os
 import copy
 import collections
 import inspect
+import hashlib
 
 from testplan.common.report import (
     ExceptionLogger as ExceptionLoggerBase, Report, ReportGroup)
@@ -249,9 +251,10 @@ class TestReport(BaseReportGroup):
     Only contains TestGroupReports as children.
     """
 
-    def __init__(self, meta=None, *args, **kwargs):
+    def __init__(self, meta=None, attachments=None, *args, **kwargs):
         self.meta = meta or {}
         self._tags_index = None
+        self.attachments = attachments or {}
         super(TestReport, self).__init__(*args, **kwargs)
 
     @property
@@ -277,6 +280,29 @@ class TestReport(BaseReportGroup):
 
         # reset tags index, so it gets repopulated on the next call
         self._tags_index = None
+
+    def bubble_up_attachments(self):
+        """
+        Attachments are saved at various levels of the report:
+          * Fix spec file attached to multitests.
+          * When implemented result.attach will attach files to assertions.
+        This iterates through the report entries and bubbles up all the
+        attachments to the top level. This top level dictionary of attachments
+        will be used by Exporters to export attachments as well as the report.
+        """
+        for child in self:
+            if getattr(child, 'fix_spec_path', None):
+                real_path = child.fix_spec_path
+                hash_dir = hashlib.md5(real_path.encode('utf-8')).hexdigest()
+                # I think the basename should be slugified?
+                hash_path = os.path.join(
+                    hash_dir,
+                    os.path.basename(child.fix_spec_path)
+                )
+                child.fix_spec_path = hash_path
+                self.attachments[hash_path] = real_path
+
+            # Add logic to find result.attach assertions.
 
     def _get_comparison_attrs(self):
         return super(TestReport, self)._get_comparison_attrs() +\
@@ -308,7 +334,7 @@ class TestGroupReport(BaseReportGroup):
     def __init__(
         self, name, description=None,
         category=None, uid=None, entries=None,
-        tags=None, part=None
+        tags=None, part=None, fix_spec_path=None
     ):
         super(TestGroupReport, self).__init__(
             name=name, description=description, uid=uid, entries=entries)
@@ -324,6 +350,8 @@ class TestGroupReport(BaseReportGroup):
         # can be hold back for merging (if necessary)
         self.part = part  # i.e. (m, n), while 0 <= m < n and n > 1
         self.part_report_lookup = {}
+
+        self.fix_spec_path = fix_spec_path
 
         if entries:
             self.propagate_tag_indices()

@@ -41,6 +41,7 @@ class BaseExporter(Configurable):
 
     def __init__(self, **options):
         self._cfg = self.CONFIG(**options)
+        super(BaseExporter, self).__init__()
 
     @property
     def cfg(self):

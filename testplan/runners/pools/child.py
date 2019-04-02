@@ -431,7 +431,8 @@ if __name__ == '__main__':
         os.chdir(ARGS.wd)
         sys.path.insert(0, ARGS.wd)
 
-    sys.path.append(ARGS.testplan)
+    if ARGS.testplan:
+        sys.path.append(ARGS.testplan)
     if ARGS.testplan_deps:
         sys.path.append(ARGS.testplan_deps)
     try:

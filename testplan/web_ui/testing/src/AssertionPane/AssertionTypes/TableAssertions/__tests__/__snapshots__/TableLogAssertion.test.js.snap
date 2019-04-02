@@ -1,0 +1,161 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <TableLogAssertion
+    assertion={
+        Object {
+            "category": "DEFAULT",
+            "columns": Array [
+              "age",
+              "name",
+            ],
+            "description": "Table Log: list of dicts",
+            "display_index": false,
+            "indices": Array [
+              0,
+              1,
+              2,
+            ],
+            "line_no": 472,
+            "machine_time": "2019-02-12T17:41:43.241786+00:00",
+            "meta_type": "entry",
+            "table": Array [
+              Object {
+                "age": 32,
+                "name": "Bob",
+              },
+              Object {
+                "age": 24,
+                "name": "Susan",
+              },
+              Object {
+                "age": 67,
+                "name": "Rick",
+              },
+            ],
+            "type": "TableLog",
+            "utc_time": "2019-02-12T17:41:43.241777+00:00",
+          }
+    }
+/>,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "class",
+    "props": Object {
+      "columnDefs": Array [
+        Object {
+          "field": "id",
+          "headerName": "ID",
+          "pinned": "left",
+          "suppressResize": true,
+          "suppressSizeToFit": true,
+          "width": 72,
+        },
+        Object {
+          "field": "age",
+          "headerName": "age",
+        },
+        Object {
+          "field": "name",
+          "headerName": "name",
+        },
+      ],
+      "rowData": Array [
+        Object {
+          "age": 32,
+          "id": 0,
+          "name": "Bob",
+        },
+        Object {
+          "age": 24,
+          "id": 1,
+          "name": "Susan",
+        },
+        Object {
+          "age": 67,
+          "id": 2,
+          "name": "Rick",
+        },
+      ],
+    },
+    "ref": null,
+    "rendered": null,
+    "type": [Function],
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "class",
+      "props": Object {
+        "columnDefs": Array [
+          Object {
+            "field": "id",
+            "headerName": "ID",
+            "pinned": "left",
+            "suppressResize": true,
+            "suppressSizeToFit": true,
+            "width": 72,
+          },
+          Object {
+            "field": "age",
+            "headerName": "age",
+          },
+          Object {
+            "field": "name",
+            "headerName": "name",
+          },
+        ],
+        "rowData": Array [
+          Object {
+            "age": 32,
+            "id": 0,
+            "name": "Bob",
+          },
+          Object {
+            "age": 24,
+            "id": 1,
+            "name": "Susan",
+          },
+          Object {
+            "age": 67,
+            "id": 2,
+            "name": "Rick",
+          },
+        ],
+      },
+      "ref": null,
+      "rendered": null,
+      "type": [Function],
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getDerivedStateFromProps": true,
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+  },
+}
+`;
