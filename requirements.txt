@@ -20,7 +20,7 @@ pyzmq
 terminaltables
 pyparsing
 cycler
-Pillow
+Pillow<6.0.0
 matplotlib
 numpy
 scikit-learn
