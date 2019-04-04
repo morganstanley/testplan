@@ -119,6 +119,15 @@ class App(Driver):
         return cmd
 
     @property
+    def env(self):
+        """Environment variables."""
+        if isinstance(self.cfg.env, dict):
+            return {key: expand(val, self.context, str) if is_context(val) else val
+                    for key, val in self.cfg.env.items()}
+        else:
+            return self.cfg.env
+
+    @property
     def logpath(self):
         """Path for log regex matching."""
         if self.cfg.logfile:
@@ -152,12 +161,11 @@ class App(Driver):
         """'etc' directory under runpath."""
         return self._etcpath
 
-    def starting(self):
+    def pre_start(self):
         """
-        Create mandatory directories, install files from given templates
-        using the drivers context and starts the application binary.
+        Create mandatory directories and install files from given templates
+        using the drivers context before starting the application binary.
         """
-        super(App, self).starting()
         self._make_dirs()
         if self.cfg.binary_copy:
             if self.cfg.path_cleanup is True:
@@ -178,6 +186,10 @@ class App(Driver):
         if self.cfg.install_files:
             self._install_files()
 
+    def starting(self):
+        """Starts the application binary."""
+        super(App, self).starting()
+
         cmd = ' '.join(self.cmd) if self.cfg.shell else self.cmd
         cwd = self.cfg.working_dir or self.runpath
         try:
@@ -189,7 +201,7 @@ class App(Driver):
                 out=self.std.out_path, err=self.std.err_path))
             self.proc = subprocess.Popen(cmd, shell=self.cfg.shell,
                 stdout=self.std.out, stderr=self.std.err,
-                cwd=cwd, env=self.cfg.env)
+                cwd=cwd, env=self.env)
         except Exception:
             TESTPLAN_LOGGER.error(
                 'Error while App[%s] driver executed command: %s',
