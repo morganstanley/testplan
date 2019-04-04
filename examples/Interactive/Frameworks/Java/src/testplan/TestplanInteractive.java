@@ -100,6 +100,52 @@ public class TestplanInteractive {
         this.envStart(env.getUid());
     }
 
+
+    /**
+     * Driver context value retrieval.
+     *
+     * @param envUid       Environment uid containing the driver.
+     * @param driverUid    Driver uid.
+     * @param context_item Target context item for lookup.
+     * @return             The context item value.
+     */
+    public Object getDriverContextValue(
+            String envUid, String driverUid, String context_item) throws Exception {
+        HashMap<String, Object> data = this.getEnvironment(envUid).getContextValueRequest(driverUid, context_item);
+        String operation = (String) data.get("operation");
+        data.remove("operation");
+        HashMap<String, Object> response = this.requests.sendPost(
+                "/sync/" + operation, data);
+        return response.get("result");
+    }
+
+    /**
+     * Add a driver in an environment.
+     *
+     * @param envUid Environment uid.
+     * @param driver Driver to be added.
+     */
+    public void addDriver(String envUid, DriverEntry driver) throws Exception {
+        HashMap<String, Object> data = this.getEnvironment(envUid).addDriverRequest(driver);
+        String operation = (String) data.get("operation");
+        data.remove("operation");
+        HashMap<String, Object> response = this.requests.sendPost(
+                "/sync/" + operation, data);
+    }
+
+    /**
+     * Add a driver in an environment and start it.
+     *
+     * @param envUid Environment uid.
+     * @param driverEntry Driver to be added and started.
+     */
+    public void addAndStartDriver(String envUid, DriverEntry driverEntry) throws Exception {
+        this.addDriver(envUid, driverEntry);
+
+        Driver driver = this.getDriver(envUid, driverEntry.getUid());
+        driver.method("start").exec();
+    }
+
     /**
      * Retrieves an environment from its uid.
      *

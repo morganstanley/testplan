@@ -53,7 +53,7 @@ public class Driver {
      * using .method() and .kwarg() methods and returns the result.
      */
     public Object exec() throws Exception {
-        HashMap<String, Object> data = env.DriverOpsRequest(
+        HashMap<String, Object> data = env.driverOpsRequest(
                 driverUid, this.operation, this.kwargs);
         return this.requests.sendPost(
                 "/sync/environment_resource_operation", data).get("result");

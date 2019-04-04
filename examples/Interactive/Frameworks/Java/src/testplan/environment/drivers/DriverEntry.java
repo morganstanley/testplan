@@ -26,6 +26,10 @@ public class DriverEntry {
         return this.type;
     }
 
+    public String getUid() {
+        return this.uid;
+    }
+
     public HashMap<String, Object> getKwargs() {
         return this.kwargs;
     }

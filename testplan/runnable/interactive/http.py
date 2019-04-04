@@ -25,7 +25,7 @@ from testplan.common.entity import Entity, EntityConfig
 class TestRunnerHTTPHandlerConfig(EntityConfig):
     """
     Configuration object for
-    :py:class:`~testplan.runnable.http.TestRunnerHTTPHandler` entity.
+    :py:class:`~testplan.runnable.interactive.http.TestRunnerHTTPHandler` entity.
     """
     @classmethod
     def get_options(cls):

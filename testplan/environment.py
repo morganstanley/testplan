@@ -102,3 +102,7 @@ class Environments(Resource):
         for env in self._envs.values():
             for resource in env:
                 yield resource
+
+    def aborting(self):
+        """Abort logic."""
+        pass

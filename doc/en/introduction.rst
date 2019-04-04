@@ -289,18 +289,18 @@ For example, :py:class:`~testplan.base.Testplan` validates all input options
 using a ``schema`` defined in the :py:class:`~testplan.base.TestplanConfig`
 that inherits the schema of a
 :py:class:`~testplan.common.entity.base.RunnableManagerConfig` and
-:py:class:`~testplan.runnable.TestRunnerConfig`. In this case,
+:py:class:`~testplan.runnable.base.TestRunnerConfig`. In this case,
 :py:class:`~testplan.base.Testplan` accepts all arguments of
 :py:class:`~testplan.common.entity.base.RunnableManager` entity and
-:py:class:`~testplan.runnable.TestRunner` entity.
+:py:class:`~testplan.runnable.base.TestRunner` entity.
 
 This is to avoid duplication of configuration options in similar components
 and enable re-usability and extendability of existing classes.
 
 Example Testplan initialization where all input parameters
 (``name``, ``pdf_path``, ``stdout_style``, ``pdf_style``) are part of
-:py:class:`~testplan.runnable.TestRunnerConfig` schema of
-:py:class:`~testplan.runnable.TestRunner` entity.
+:py:class:`~testplan.runnable.base.TestRunnerConfig` schema of
+:py:class:`~testplan.runnable.base.TestRunner` entity.
 
 .. code-block:: python
 
