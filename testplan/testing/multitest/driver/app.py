@@ -166,6 +166,8 @@ class App(Driver):
         Create mandatory directories and install files from given templates
         using the drivers context before starting the application binary.
         """
+        super(App, self).pre_start()
+
         self._make_dirs()
         if self.cfg.binary_copy:
             if self.cfg.path_cleanup is True:

@@ -126,8 +126,22 @@ class Driver(Resource):
         """Driver uid."""
         return self.cfg.name
 
+    def start(self):
+        """Start the driver."""
+        self.status.change(self.STATUS.STARTING)
+        self.pre_start()
+        self.starting()
+
+    def stop(self):
+        """Stop the driver."""
+        self.status.change(self.STATUS.STOPPING)
+        if self.active:
+            self.pre_stop()
+            self.stopping()
+
     def pre_start(self):
         """Callable to be executed right before driver starts."""
+        self.make_runpath_dirs()
 
     def post_start(self):
         """Callable to be executed right after driver starts."""
@@ -148,12 +162,9 @@ class Driver(Resource):
 
     def starting(self):
         """Trigger driver start."""
-        self.make_runpath_dirs()
-        self.pre_start()
 
     def stopping(self):
         """Trigger driver stop."""
-        self.pre_stop()
 
     def _wait_started(self, timeout=None):
         self.started_check(timeout=timeout)
