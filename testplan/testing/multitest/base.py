@@ -22,6 +22,7 @@ from testplan.common.utils.interface import (
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.validation import is_subclass
 from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils.timing import timeout as timeout_deco
 from testplan.common.utils import callable as callable_utils
 from testplan.report import TestGroupReport, TestCaseReport
 from testplan.report.testing import Status
@@ -548,7 +549,13 @@ class MultiTest(Test):
                 if pre_testcase and callable(pre_testcase):
                     _run_case_related(pre_testcase)
 
-                testcase(self.resources, case_result)
+                time_restriction = getattr(testcase, 'timeout', None)
+                if time_restriction:
+                    timeout_deco(
+                        time_restriction, 'Testcase timeout after {} seconds'
+                    )(testcase)(self.resources, case_result)
+                else:
+                    testcase(self.resources, case_result)
 
                 if post_testcase and callable(post_testcase):
                     _run_case_related(post_testcase)

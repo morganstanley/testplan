@@ -1,11 +1,14 @@
 """Time related utilities."""
 
 import pytz
+import sys
 import os
 import re
 import collections
+import functools
 import time
 import datetime
+import threading
 
 
 class TimeoutException(Exception):
@@ -40,6 +43,78 @@ class TimeoutExceptionInfo(object):
         duration = ended - self.started
         return 'Info[started at {}, raised at {} after {}s]'.format(
             started_wait, raised_date, round(duration, 2))
+
+
+class KThread(threading.Thread):
+    """
+    A subclass of threading.Thread, with a kill() method.
+    """
+    def __init__(self, *args, **kwargs):
+        threading.Thread.__init__(self, *args, **kwargs)
+        self._will_kill = False
+
+    def start(self):
+        """Start the thread."""
+        self.__run_backup = self.run
+        self.run = self.__run  # Force the Thread to install the trace
+        threading.Thread.start(self)
+
+    def __run(self):
+        """Hacked run function, which installs the trace."""
+        sys.settrace(self.globaltrace)
+        self.__run_backup()
+        self.run = self.__run_backup
+
+    def globaltrace(self, frame, event, arg):
+        return self.localtrace if event == 'call' else None
+
+    def localtrace(self, frame, event, arg):
+        if self._will_kill and event == 'line':
+            raise SystemExit()
+
+        return self.localtrace
+
+    def kill(self):
+        self._will_kill = True
+
+
+def timeout(seconds, err_msg='Timeout after {} seconds.'):
+    """
+    Decorator for a normal funtion to limit its execution time.
+
+    :param seconds: Time limit for task execution.
+    :type seconds: ``int``
+    :param err_msg: Error message on timeout.
+    :type err_msg: ``str``
+    :return: Decorated function.
+    :rtype: ``callable``
+    """
+    def timeout_decorator(func):
+        """"""
+        def _new_func(result, old_func, old_func_args, old_func_kwargs):
+            result.append(old_func(*old_func_args, **old_func_kwargs))
+
+        def wrapper(*args, **kwargs):
+            result = []
+            new_kwargs = {
+                'result': result,
+                'old_func': func,
+                'old_func_args': args,
+                'old_func_kwargs': kwargs
+            }
+            thd = KThread(target=_new_func, args=(), kwargs=new_kwargs)
+            thd.start()
+            thd.join(seconds)
+            if thd.isAlive():
+                thd.kill()
+                thd.join()
+                raise TimeoutException(err_msg.format(seconds))
+            else:
+                return result[0]
+
+        return functools.wraps(func)(wrapper)
+
+    return timeout_decorator
 
 
 def wait(predicate, timeout, interval=0.05, raise_on_timeout=False):

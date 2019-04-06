@@ -354,7 +354,8 @@ def _testcase_meta(
     num_passing=defaults.SUMMARY_NUM_PASSING,
     num_failing=defaults.SUMMARY_NUM_FAILING,
     key_combs_limit=defaults.SUMMARY_KEY_COMB_LIMIT,
-    execution_group=None
+    execution_group=None,
+    timeout=None
 ):
     """
     Wrapper function that allows us to call :py:func:`@testcase <testcase>`
@@ -382,7 +383,8 @@ def _testcase_meta(
                 num_passing=num_passing,
                 num_failing=num_failing,
                 key_combs_limit=key_combs_limit,
-                execution_group=execution_group
+                execution_group=execution_group,
+                timeout=timeout
             )
 
             # Register generated functions as test_cases
@@ -413,6 +415,7 @@ def _testcase_meta(
             function.summarize_num_failing = num_failing
             function.summarize_key_combs_limit = key_combs_limit
             function.execution_group = execution_group
+            function.timeout = timeout
             function.__tags_index__ = copy.deepcopy(tag_dict)
 
             return _testcase(function)
