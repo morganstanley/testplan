@@ -96,6 +96,7 @@ class MultiTestConfig(TestConfig):
             ConfigOption('result', default=Result): is_subclass(Result),
             ConfigOption('thread_pool_size', default=0): int,
             ConfigOption('max_thread_pool_size', default=10): int,
+            ConfigOption('stop_on_error', default=True): bool,
             ConfigOption('part', default=None): Or(None, And((int,),
                 lambda tp: len(tp) == 2 and 0 <= tp[0] < tp[1] and tp[1] > 1)),
             ConfigOption('interactive_runner', default=MultitestIRunner):
@@ -133,6 +134,9 @@ class MultiTest(Test):
     :type thread_pool_size: ``int``
     :param max_thread_pool_size: Maximum number of threads allowed in the pool.
     :type max_thread_pool_size: ``int``
+    :param stop_on_error: When exception raised, stop executing remaining
+        testcases in the current test suite. Default: True
+    :type stop_on_error: ``bool``
     :param part: Execute only a part of the total testcases. MultiTest needs to
         know which part of the total it is. Only works with Multitest.
     :type part: ``tuple`` of (``int``, ``int``)
@@ -493,8 +497,9 @@ class MultiTest(Test):
                                 testcase_report=testcase_report
                             )
                             if testcase_report.status == Status.ERROR:
-                                self._thread_pool_available = False
-                                break
+                                if self.cfg.stop_on_error:
+                                    self._thread_pool_available = False
+                                    break
 
                 time.sleep(self.cfg.active_loop_sleep)
 
@@ -591,18 +596,23 @@ class MultiTest(Test):
             self._run_testcase(
                 testcase, pre_testcase, post_testcase, testcase_report)
 
+            if testcase_report.status == Status.ERROR:
+                if self.cfg.stop_on_error:
+                    self.logger.debug(
+                        'Error executing testcase {}'
+                        ' - will stop thread pool'.format(testcase.__name__))
+                    self._thread_pool_available = False
+
             try:
+                # Call task_done() after setting thread pool unavailable, it
+                # makes sure that when self.cfg.stop_on_error is True and if
+                # a testcase in an execution group raises, no testcase in the
+                # next execution group has a chance to be put into task queue.
                 self._testcase_queue.task_done()
             except ValueError:
-                # When error occurs, testcase queue will be cleared and
-                # cannot accept 'task done' signal.
+                # When error occurs, testcase queue might already be cleared
+                # and cannot accept 'task done' signal.
                 pass
-
-            if testcase_report.status == Status.ERROR:
-                self.logger.debug(
-                    'Error executing testcase {} - stop thread pool'.format(
-                        testcase.__name__))
-                self._thread_pool_available = False
 
     def _start_thread_pool(self):
         """Start a thread pool for executing testcases in parallel."""
