@@ -336,7 +336,8 @@ def generate_functions(
     num_passing,
     num_failing,
     key_combs_limit,
-    execution_group
+    execution_group,
+    timeout
 ):
     """
     Generate test cases using the given parameter context, use the name_func
@@ -382,6 +383,8 @@ def generate_functions(
     :param execution_group: Name of execution group in which the testcases
                             can be executed in parallel.
     :type execution_group: ``str``
+    :param timeout: Timeout in seconds to wait for testcase to be finished.
+    :type timeout: ``int``
     :return: List of functions that is testcase compliant
              (accepts ``self``, ``env``, ``result`` as arguments) and have
              unique names.
@@ -417,6 +420,7 @@ def generate_functions(
         func.summarize_num_failing = num_failing
         func.summarize_key_combs_limit = key_combs_limit
         func.execution_group = execution_group
+        func.timeout = timeout
 
     _ensure_unique_names(functions)
 

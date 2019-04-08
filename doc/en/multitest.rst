@@ -1249,6 +1249,23 @@ Testcases in the same group will be executed concurrently.
                                   suites=[SampleTest()],
                                   thread_pool_size=2))
 
+.. _testcase_timeout:
+
+Testcase timeout
+----------------
+
+If testcases are susceptible to hanging, or not expected to be time consuming, you may want to spot this and abort those testcases early. You can achieve it by passing a "timeout" parameter to the testcase decorator, like:
+
+.. code-block:: python
+
+    @testcase(timeout=10*60)  # 10 minute timeout, given in seconds.
+    def test_hanging(self, env, result):
+        ...
+
+If the testcase times out it will raise a :py:class:`TimeoutException <testplan.common.utils.timing.TimeoutException>`, causing its status to be "ERROR". The timeout will be noted on the report in the same way as any other unhandled Exception. The timeout parameter can be combined with other testcase parameters (e.g. used with parametrized testcases) in the way you would expect - each individual parametrized testcase will be subject to a seperate timeout.
+
+Also keep in mind that testplan will take a little bit of effort to monitor execution time of testcases with ``timeout`` attribute, so it is better to allocate a little more seconds than you have estimated how long a testcase would need.
+
 .. _multitest_drivers:
 
 Drivers

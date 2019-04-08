@@ -1,4 +1,3 @@
-import os
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
