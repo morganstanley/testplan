@@ -33,3 +33,43 @@ def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
         ]
         return all(extracts_status), extracted_values, unmatched
     return all(extracts_status), extracted_values
+
+
+class LogMatcher(object):
+    """
+    Single line matcher for text files (usually log files). Once matched, it
+    remembers the line number of the match and subsequent matches are scanned
+    from the current line number. This can be useful when matched lines are not
+    unique for the entire log file.
+    """
+
+    def __init__(self, log_path):
+        """
+        :param log_path: Path to the log file.
+        :type log_path: ``str``
+        """
+
+        self.log_path = log_path
+        self.line_no = 0
+
+    def match(self, regex):
+        """
+        Matches each line in the log file from the current line number to the
+        end of the file. If a match is found the line number is stored and the
+        match is returned. If no match is found an Exception is raised.
+
+        :param regex: compiled regular expression (``re.compile``)
+        :type regex: ``re.Pattern``
+
+        :return: The regex match or raise an Exception if no match is found.
+        :rtype: ``re.Match``
+        """
+        with open(self.log_path, 'r') as log:
+            lines = log.readlines()
+            for line_no, line in enumerate(lines[self.line_no:], self.line_no):
+                match = regex.match(line)
+                if match:
+                    self.line_no = line_no + 1
+                    return match
+
+        raise ValueError('No matches found')

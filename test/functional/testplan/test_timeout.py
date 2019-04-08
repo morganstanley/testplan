@@ -79,7 +79,7 @@ def test_runner_timeout():
     """
     plan = Testplan(name='plan', parse_cmdline=False,
                     runnable=MyTestRunner,
-                    timeout=15, abort_wait_timeout=5)
+                    timeout=60, abort_wait_timeout=5)
     mod_path = os.path.dirname(os.path.abspath(__file__))
 
     THREAD_POOL = 'MyThreadPool'
