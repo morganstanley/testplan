@@ -364,23 +364,6 @@ def child_logic(args):
         def make_runpath_dirs(self):
             self._runpath = self.cfg.runpath
 
-        def starting(self):
-            super(Pool, self).starting()  # pylint: disable=bad-super-call
-            self.make_runpath_dirs()
-
-            self._metadata['runpath'] = self.runpath
-
-            # Create a local thread worker with the process pool index
-            worker = self.cfg.worker_type(index=args.index,
-                                          runpath=self.cfg.runpath)
-            self.logger.info('Created {}'.format(worker))
-            worker.parent = self
-            worker.cfg.parent = self.cfg
-            self._workers.add(worker, uid=args.index)
-            # print('Added worker with id {}'.format(idx))
-            self._conn.register(worker)
-            self._workers.start()
-
     class NoRunpathThreadPool(Pool):
         """
         Pool that creates no runpath directory.

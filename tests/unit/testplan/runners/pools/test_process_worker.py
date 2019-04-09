@@ -51,32 +51,18 @@ class TestProcPool(object):
         with pytest.raises(ValueError):
             proc_pool.add(main_task, main_task.uid())
 
-    def test_process_cleanup(self, proc_pool):
+    def test_start_stop(self, proc_pool):
+        """Test basic start/stop of ProcessPool."""
         current_proc = psutil.Process()
         start_children = current_proc.children()
         start_thread_count = threading.active_count()
 
-        proc_pool.start()
-        print('Pool started')
-        assert len(current_proc.children()) == len(start_children) + 2
-        print('Now have {} new threads.'.format(threading.active_count() - start_thread_count))
+        # Iterate 5 times to increase the chance of hitting a race condition.
+        for _ in range(5):
+            with proc_pool:
+                assert proc_pool.status.tag == proc_pool.status.STARTED
+                assert len(current_proc.children()) == len(start_children) + 2
 
-        proc_pool.stop()
-        print('Pool stopped')
-        assert len(current_proc.children()) == len(start_children)
-        assert threading.active_count() == start_thread_count
-
-    def test_repeated_start_stop(self, proc_pool):
-        for i in range(10):
-            print('\nIteration {}'.format(i))
-
-            print('Starting proc_pool...')
-            proc_pool.start()
-            proc_pool.wait(proc_pool.status.STARTED)
-            print('proc_pool started.')
-
-            print('Stopping proc_pool...')
-            proc_pool.stop()
-            proc_pool.wait(proc_pool.status.STOPPED)
-            print('proc_pool stopped.')
+            assert proc_pool.status.tag == proc_pool.status.STOPPED
+            assert len(current_proc.children()) == len(start_children)
 

@@ -135,11 +135,9 @@ class Environment(object):
         # Trigger start all resources
         for resource in self._resources.values():
             try:
-                self.logger.debug('Starting {}'.format(resource))
                 resource.start()
                 if resource.cfg.async_start is False:
                     resource.wait(resource.STATUS.STARTED)
-                self.logger.debug('Started {}'.format(resource))
             except Exception as exc:
                 msg = 'While starting resource [{}]{}{}'.format(
                     resource.cfg.name, os.linesep,
@@ -173,9 +171,7 @@ class Environment(object):
                 # Skip resources not even triggered to start.
                 continue
             try:
-                self.logger.debug('Stopping {}'.format(resource))
                 resource.stop()
-                self.logger.debug('Stopped {}'.format(resource))
             except Exception as exc:
                 msg = 'While stopping resource [{}]{}{}'.format(
                     resource.cfg.name, os.linesep,
@@ -1075,8 +1071,10 @@ class Resource(Entity):
         :py:meth:`Resource.starting <testplan.common.entity.base.Resource.starting>`
         method.
         """
+        self.logger.debug('Starting %r', self)
         self.status.change(self.STATUS.STARTING)
         self.starting()
+        self.logger.debug('Started %r', self)
 
     def stop(self):
         """
@@ -1084,9 +1082,11 @@ class Resource(Entity):
         :py:meth:`Resource.stopping <testplan.common.entity.base.Resource.stopping>`
         method.
         """
+        self.logger.debug('Stopping %r', self)
         self.status.change(self.STATUS.STOPPING)
         if self.active:
             self.stopping()
+        self.logger.debug('Stopped %r', self)
 
     def _wait_started(self, timeout=None):
         self.status.change(self.STATUS.STARTED)
