@@ -429,11 +429,20 @@ class Pool(Executor):
         self._conn = self.CONN_MANAGER()
         self._conn.parent = self
         self._pool_lock = threading.Lock()
-        self._request_handlers = {}
         self._metadata = {}
         self.make_runpath_dirs()
         self._metadata['runpath'] = self.runpath
         self._add_workers()
+
+        # Methods for handling different Message types. These are expected to
+        # take the worker, request and response objects as the only required
+        # positional args.
+        self._request_handlers = {
+            Message.ConfigRequest: self._handle_cfg_request,
+            Message.TaskPullRequest: self._handle_taskpull_request,
+            Message.TaskResults: self._handle_taskresults,
+            Message.Heartbeat: self._handle_heartbeat,
+            Message.SetupFailed: self._handle_setupfailed}
 
     def uid(self):
         """Pool name."""
@@ -475,11 +484,12 @@ class Pool(Executor):
         Main executor work loop - runs in a seperate thread when the Pool is
         started.
         """
-        # TODO just don't start a monitor thread if no heartbeat is
-        # configured?
-        worker_monitor = threading.Thread(target=self._workers_monitoring)
-        worker_monitor.daemon = True
-        worker_monitor.start()
+        # No heartbeat means no fault tolerance for worker.
+        if self.cfg.worker_heartbeat:
+            self.logger.debug('Starting worker monitor thread.')
+            worker_monitor = threading.Thread(target=self._workers_monitoring)
+            worker_monitor.daemon = True
+            worker_monitor.start()
 
         while self.active:
             curr_status = self.status.tag
@@ -526,100 +536,117 @@ class Pool(Executor):
 
         self.logger.debug('Pool {} request received by {} - {}, {}'.format(
             self.cfg.name, worker, request.cmd, request.data))
-        response = Message(**self._metadata)  # Pool metadata
+
+        response = Message(**self._metadata)
 
         if not self.active or self.status.tag == self.STATUS.STOPPING:
             worker.respond(response.make(Message.Stop))
-        elif request.cmd == Message.ConfigRequest:
-            options = []
-            cfg = self.cfg
-            while cfg:
-                try:
-                    options.append(cfg.denormalize())
-                except Exception as exc:
-                    self.logger.error('Could not denormalize: {} - {}'.format(
-                        cfg, exc))
-                cfg = cfg.parent
-            worker.respond(response.make(Message.ConfigSending,
-                                         data=options))
-        elif request.cmd == Message.TaskPullRequest:
-            tasks = []
-            if self.status.tag == self.status.STARTED:
-                for _ in range(request.data):
-                    try:
-                        uid = self.unassigned.pop(0)
-                    except IndexError:
-                        break
-                    if uid not in self.task_assign_cnt:
-                        self.task_assign_cnt[uid] = 0
-                    if self.task_assign_cnt[uid] >= self.cfg.task_retries_limit:
-                        self._discard_task(
-                            uid, '{} already reached max retries: {}'.format(
-                                self._input[uid], self.cfg.task_retries_limit))
-                        continue
-                    else:
-                        self.task_assign_cnt[uid] += 1
-                        task = self._input[uid]
-                        self.logger.test_info(
-                            'Scheduling {} to {}'.format(task, worker))
-                        worker.assigned.add(uid)
-                        tasks.append(task)
-                if tasks:
-                    worker.respond(response.make(
-                        Message.TaskSending, data=tasks))
-                    worker.requesting = request.data - len(tasks)
-                    return
-            worker.requesting = request.data
-            worker.respond(response.make(Message.Ack))
-        elif request.cmd == Message.TaskResults:
-            for task_result in request.data:
-                uid = task_result.task.uid()
-                worker.assigned.remove(uid)
-                if worker not in self._workers_last_result:
-                    self._workers_last_result[worker] = time.time()
-                self.logger.test_info('De-assign {} from {}'.format(
-                    task_result.task, worker))
-
-                if self.should_reschedule(self, task_result):
-                    if self.task_assign_cnt[uid] >= self.cfg.task_retries_limit:
-                        self.logger.test_info(
-                            'Will not reschedule %(input)s again as it '
-                            'reached max retries %(retries)d',
-                            {'input': self._input[uid],
-                             'retries': self.cfg.task_retries_limit})
-                    else:
-                        self.logger.test_info(
-                            'Rescheduling {} due to '
-                            'should_reschedule() cfg option of {}'.format(
-                                task_result.task, self))
-                        self.unassigned.append(uid)
-                        continue
-
-                self._print_test_result(task_result)
-                self._results[uid] = task_result
-                self.ongoing.remove(uid)
-            worker.respond(response.make(Message.Ack))
-        elif request.cmd == Message.Heartbeat:
-            worker.last_heartbeat = time.time()
-            self.logger.debug(
-                'Received heartbeat from {} at {} after {}s.'.format(
-                    worker, request.data, time.time() - request.data))
-            worker.respond(response.make(Message.Ack,
-                                         data=worker.last_heartbeat))
-        elif request.cmd == Message.SetupFailed:
-            self.logger.test_info('Worker {} setup failed:{}{}'.format(
-                worker, os.linesep, request.data))
-            worker.respond(response.make(Message.Ack))
-            self._deco_worker(
-                worker, 'Aborting {}, setup failed.')
         elif request.cmd in self._request_handlers:
-            self._request_handlers[request.cmd](worker, response)
+            self._request_handlers[request.cmd](worker, request, response)
         else:
             self.logger.error('Unknown request: {} {} {} {}'.format(
                 request, dir(request), request.cmd, request.data))
             worker.respond(response.make(Message.Ack))
 
+    def _handle_cfg_request(self, worker, _, response):
+        """Handle a ConfigRequest from a worker."""
+        options = []
+        cfg = self.cfg
+
+        while cfg:
+            try:
+                options.append(cfg.denormalize())
+            except Exception as exc:
+                self.logger.error('Could not denormalize: {} - {}'.format(
+                    cfg, exc))
+            cfg = cfg.parent
+
+        worker.respond(response.make(Message.ConfigSending,
+                                     data=options))
+
+    def _handle_taskpull_request(self, worker, request, response):
+        """Handle a TaskPullRequest from a worker."""
+        tasks = []
+
+        if self.status.tag == self.status.STARTED:
+            for _ in range(request.data):
+                try:
+                    uid = self.unassigned.pop(0)
+                except IndexError:
+                    break
+                if uid not in self.task_assign_cnt:
+                    self.task_assign_cnt[uid] = 0
+                if self.task_assign_cnt[uid] >= self.cfg.task_retries_limit:
+                    self._discard_task(
+                        uid, '{} already reached max retries: {}'.format(
+                            self._input[uid], self.cfg.task_retries_limit))
+                    continue
+                else:
+                    self.task_assign_cnt[uid] += 1
+                    task = self._input[uid]
+                    self.logger.test_info(
+                        'Scheduling {} to {}'.format(task, worker))
+                    worker.assigned.add(uid)
+                    tasks.append(task)
+            if tasks:
+                worker.respond(response.make(
+                    Message.TaskSending, data=tasks))
+                worker.requesting = request.data - len(tasks)
+                return
+
+        worker.requesting = request.data
+        worker.respond(response.make(Message.Ack))
+
+    def _handle_taskresults(self, worker, request, response):
+        """Handle a TaskResults message from a worker."""
+        for task_result in request.data:
+            uid = task_result.task.uid()
+            worker.assigned.remove(uid)
+            if worker not in self._workers_last_result:
+                self._workers_last_result[worker] = time.time()
+            self.logger.test_info('De-assign {} from {}'.format(
+                task_result.task, worker))
+
+            if self.should_reschedule(self, task_result):
+                if self.task_assign_cnt[uid] >= self.cfg.task_retries_limit:
+                    self.logger.test_info(
+                        'Will not reschedule %(input)s again as it '
+                        'reached max retries %(retries)d',
+                        {'input': self._input[uid],
+                         'retries': self.cfg.task_retries_limit})
+                else:
+                    self.logger.test_info(
+                        'Rescheduling {} due to '
+                        'should_reschedule() cfg option of {}'.format(
+                            task_result.task, self))
+                    self.unassigned.append(uid)
+                    continue
+
+            self._print_test_result(task_result)
+            self._results[uid] = task_result
+            self.ongoing.remove(uid)
+
+        worker.respond(response.make(Message.Ack))
+
+    def _handle_heartbeat(self, worker, request, response):
+        """Handle a Heartbeat message received from a worker."""
+        worker.last_heartbeat = time.time()
+        self.logger.debug(
+            'Received heartbeat from {} at {} after {}s.'.format(
+                worker, request.data, time.time() - request.data))
+        worker.respond(response.make(Message.Ack,
+                                     data=worker.last_heartbeat))
+
+    def _handle_setupfailed(self, worker, request, response):
+        """Handle a SetupFailed message received from a worker."""
+        self.logger.test_info('Worker {} setup failed:{}{}'.format(
+            worker, os.linesep, request.data))
+        worker.respond(response.make(Message.Ack))
+        self._deco_worker(
+            worker, 'Aborting {}, setup failed.')
+
     def _deco_worker(self, worker, message):
+        """Decomission a worker."""
         self.logger.critical(message.format(worker))
         if os.path.exists(worker.outfile):
             self.logger.critical('\tlogfile: {}'.format(worker.outfile))
@@ -673,9 +700,8 @@ class Pool(Executor):
         Monitor the health of workers in a loop. Executes in a separate thread.
         """
         if not self.cfg.worker_heartbeat:
-            # No heartbeat means no fault tolerance for worker.
-            self.logger.debug('Not monitoring workers.')
-            return
+            raise RuntimeError(
+                'Cannot monitor workers with no heartbeat configured.')
 
         monitor_started = time.time()
         loop_sleep = self.cfg.worker_heartbeat * self.cfg.heartbeats_miss_limit
