@@ -45,9 +45,19 @@ def execute_as_thread(target, args=None, kwargs=None, daemon=False, join=True,
             time.sleep(join_sleep)
 
 
-def interruptible_join(thread):
+def interruptible_join(thread, timeout=10):
     """Joining a thread without ignoring signal interrupts."""
-    while True:
+    if timeout:
+        start_time = time.time()
+        end_time = start_time + timeout
+    else:
+        start_time = end_time = None
+
+    while timeout is None or time.time() < end_time:
         time.sleep(0.1)
         if not thread.is_alive():
-            break
+            return
+
+    raise TimeoutException('Thread {} did not terminate in {}s.'
+                           .format(thread, timeout))
+

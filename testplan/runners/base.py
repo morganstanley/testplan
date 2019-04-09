@@ -6,6 +6,7 @@ from collections import OrderedDict
 
 from testplan.common.entity import Resource, ResourceConfig
 from testplan.common.utils.thread import interruptible_join
+from testplan.common.utils import timing
 
 
 class ExecutorConfig(ResourceConfig):
@@ -86,7 +87,11 @@ class Executor(Resource):
     def stopping(self):
         """Stop the executor."""
         if self._loop_handler:
-            interruptible_join(self._loop_handler)
+            try:
+                interruptible_join(self._loop_handler, timeout=10)
+            except timing.TimeoutException:
+                self.abort()
+                raise
 
     def abort_dependencies(self):
         """Abort items running before aborting self."""

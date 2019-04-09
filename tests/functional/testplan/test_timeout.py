@@ -10,7 +10,7 @@ from testplan.report.testing import Status
 from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
-from test.functional.testplan import func_basic_tasks
+from tests.functional.testplan import func_basic_tasks
 
 
 class MyTestRunner(TestRunner):
