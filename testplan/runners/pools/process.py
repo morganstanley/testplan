@@ -63,7 +63,7 @@ class ProcessWorkerConfig(WorkerConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            ConfigOption('start_timeout', default=30): int,
+            ConfigOption('start_timeout', default=120): int,
             ConfigOption('transport', default=ProcessTransport): object,
         }
 
