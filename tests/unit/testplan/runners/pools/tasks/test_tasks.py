@@ -134,15 +134,21 @@ class TestTaskInitAndMaterialization(object):
 
     def test_string_runnable_tgt_other_module(self):
         """TODO."""
-        task = Task('tasks.data.sample_tasks.Multiplier', args=(4,))
+        task = Task('tests.unit.testplan.runners.pools.tasks.data'
+                    '.sample_tasks.Multiplier',
+                    args=(4,))
         materialized_task_result(task, 8)
 
-        task = Task('Multiplier', module='tasks.data.sample_tasks',
+        task = Task('Multiplier',
+                    module='tests.unit.testplan.runners.pools.tasks.data'
+                           '.sample_tasks',
                     args=(5,))
         materialized_task_result(task, 10)
 
-        task = Task('tasks.data.sample_tasks.Multiplier',
-                    args=(4,), kwargs={'multiplier': 3})
+        task = Task('tests.unit.testplan.runners.pools.tasks.data'
+                    '.sample_tasks.Multiplier',
+                    args=(4,),
+                    kwargs={'multiplier': 3})
         materialized_task_result(task, 12)
 
     def test_callable_to_non_runnable_tgt(self):  # pylint: disable=R0201
@@ -151,7 +157,9 @@ class TestTaskInitAndMaterialization(object):
         for task in (Task(callable_to_non_runnable),
                      Task(sample_tasks.callable_to_non_runnable,
                           args=(2,)),
-                     Task('tasks.data.relative.sample_tasks.multiply', args=(2,))):
+                     Task('tests.unit.testplan.runners.pools.tasks.data'
+                          '.relative.sample_tasks.multiply',
+                          args=(2,))):
             try:
                 task.materialize()
                 raise Exception('Should raise.')
@@ -184,10 +192,13 @@ class TestTaskInitAndMaterialization(object):
                     module=__name__, args=(2,))
         materialized_task_result(task, 2)
 
-        task = Task('tasks.data.sample_tasks.callable_to_runnable', args=(2,))
+        task = Task('tests.unit.testplan.runners.pools.tasks.data.sample_tasks'
+                    '.callable_to_runnable',
+                    args=(2,))
         materialized_task_result(task, 4)
 
-        task = Task('tasks.data.sample_tasks.callable_to_adapted_runnable',
+        task = Task('tests.unit.testplan.runners.pools.tasks.data'
+                    '.sample_tasks.callable_to_adapted_runnable',
                     args=(2,))
         materialized_task_result(task, 4)
 
