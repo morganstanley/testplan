@@ -6,8 +6,6 @@ python:
 
 install:
   - pip install -r requirements.txt
-  - pip install pylint
-  - python setup.py develop
   - python install-testplan-ui --verbose --dev
 
 script:
