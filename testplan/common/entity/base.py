@@ -860,11 +860,11 @@ class Runnable(Entity):
         end_threads = threading.enumerate()
         if start_threads != end_threads:
             new_threads = [
-                thr for thr in end_threads if thr not in start_threads]
+                thr.name for thr in end_threads if thr not in start_threads]
             self.logger.warning('New threads are still alive after run: %s',
                                 new_threads)
             dead_threads = [
-                thr for thr in start_threads if thr not in end_threads]
+                thr.name for thr in start_threads if thr not in end_threads]
             self.logger.warning('Threads have died during run: %s',
                                 dead_threads)
 
@@ -876,7 +876,7 @@ class Runnable(Entity):
             self.logger.warning('New processes are still alive after run: %s',
                                 new_procs)
             dead_procs = [
-                thr for thr in start_procs if thr not in end_procs]
+                proc for proc in start_procs if proc not in end_procs]
             self.logger.warning('Child processes have died during run: %s',
                                 dead_procs)
 
