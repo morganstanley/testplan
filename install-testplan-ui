@@ -11,10 +11,10 @@ import logging
 import sys
 import os
 
+from testplan import web_ui
+
 TESTPLAN_UI_DIR = os.path.join(
-    os.path.dirname(__file__),
-    'testplan',
-    'web_ui',
+    os.path.dirname(web_ui.__file__),
     'testing'
 )
 
