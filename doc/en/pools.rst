@@ -13,7 +13,7 @@ the pools instead.
 .. image:: ../gif/worker_pool/worker_pool.gif
 
 Pools are resources that can be added in a plan using
-:py:meth:`~testplan.runnable.TestRunner.add_resource` method of the
+:py:meth:`~testplan.runnable.base.TestRunner.add_resource` method of the
 :py:class:`plan <testplan.base.Testplan>` object.
 
 .. code-block:: python
@@ -89,7 +89,8 @@ or the error that prevented the execution.
 plan.schedule
 -------------
 
-:py:meth:`plan.schedule <testplan.runnable.TestRunner>` is used to schedule a
+:py:meth:`plan.schedule <testplan.runnable.base.TestRunner.schedule>` is used to
+schedule a
 Task to a Pool and once it's scheduled and pool is started, it will be pulled
 and executed by a worker.
 

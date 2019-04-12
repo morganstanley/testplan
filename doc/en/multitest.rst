@@ -430,7 +430,7 @@ By default Testplan runs the tests in the following order:
 
     * Test instances (e.g. MultiTests) are being executed in the order they are
       added to the plan object with
-      :py:meth:`plan.add() <testplan.runnable.TestRunner.add>` method.
+      :py:meth:`plan.add() <testplan.runnable.base.TestRunner.add>` method.
     * Test suites are run in the order they are added to the test instance via
       ``suites`` list.
     * Testcase methods are run in their declaration order in the testsuite class.
@@ -1210,7 +1210,7 @@ implement custom decorators, please make sure you use
         def addition(self, env, result, a, b):
             ...
 
-.. _parallezation:
+.. _testcase_parallelization:
 
 Testcase Parallel Execution
 ---------------------------

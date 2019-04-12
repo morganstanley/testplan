@@ -121,6 +121,10 @@ class Testplan(RunnableManager):
         """
         self._parsed_args = self.parser.parse_args()
         self._processed_args = self.parser.process_args(self._parsed_args)
+        # Overwrite configuration options only if they are not specified
+        # programmatically. There is no easy way to know if an argument in
+        # processed_args is user command line input or a default value in the
+        # parser.
         for key, value in self._processed_args.items():
             if key in options:
                 self.logger.warning('WARNING: Command line argument for '

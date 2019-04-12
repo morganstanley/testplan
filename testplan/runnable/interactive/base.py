@@ -3,6 +3,8 @@ Interactive handler for TestRunner runnable class.
 """
 import functools
 import re
+import six
+import numbers
 
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (RunnableIHandler, RunnableIHandlerConfig,
@@ -16,7 +18,7 @@ from testplan.runnable.interactive.reloader import ModuleReloader
 class TestRunnerIHandlerConfig(RunnableIHandlerConfig):
     """
     Configuration object for
-    :py:class:`~testplan.runnable.interactive.TestRunnerIHandler` runnable
+    :py:class:`~testplan.runnable.interactive.base.TestRunnerIHandler` runnable
     interactive handler.
     """
     @classmethod
@@ -70,7 +72,7 @@ class TestRunnerIHandler(RunnableIHandler):
 
     :param http_handler: Http requests handler to be used.
     :type http_handler: Subclass of
-      :py:class:`~testplan.runnable.http.TestRunnerHTTPHandler`.
+      :py:class:`~testplan.runnable.interactive.http.TestRunnerHTTPHandler`.
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.RunnableIHandler` options.
@@ -251,17 +253,22 @@ class TestRunnerIHandler(RunnableIHandler):
                     continue
                 if exclude_callables and callable(value):
                     continue
-                result[item.uid()][key] = value
+                if isinstance(value, six.string_types) or isinstance(value, numbers.Number):
+                    result[item.uid()][key] = value
         if not result:
             if resource_uid is None:
                 raise ValueError('No result for {}'.format(env_uid))
             raise ValueError('No result for {}{}'.format(env_uid, resource_uid))
         return result
 
-    def environment_resource_context(self, env_uid, resource_uid, **kwargs):
+    def environment_resource_context(self, env_uid, resource_uid,
+                                     context_item=None, **kwargs):
         """Get the context info of an environment resource."""
-        return self.get_environment_context(
+        result = self.get_environment_context(
             env_uid=env_uid, resource_uid=resource_uid, **kwargs)[resource_uid]
+        if context_item:
+            return result[context_item]
+        return result
 
     def environment_resource_start(self, env_uid, resource_uid):
         """Start an environment resource."""
@@ -274,14 +281,14 @@ class TestRunnerIHandler(RunnableIHandler):
         self.stop_resource(resource)
 
     def environment_resource_operation(self, env_uid, resource_uid,
-                                       operation, **kwargs):
+                                       res_op, **kwargs):
         """Perform an operation on an environment resource."""
-        if hasattr(self, 'environment_resource_{}'.format(operation)):
-            method = getattr(self, 'environment_resource_{}'.format(operation))
+        if hasattr(self, 'environment_resource_{}'.format(res_op)):
+            method = getattr(self, 'environment_resource_{}'.format(res_op))
             return method(env_uid, resource_uid, **kwargs)
         else:
             resource = self.get_environment_resource(env_uid, resource_uid)
-            op_id = self.add_operation(getattr(resource, operation), **kwargs)
+            op_id = self.add_operation(getattr(resource, res_op), **kwargs)
             return self._wait_result(op_id)
 
     def start_test_resources(self, test_uid, runner_uid=None):
@@ -430,7 +437,9 @@ class TestRunnerIHandler(RunnableIHandler):
 
     def add_environment_resource(self, env_uid, target_class_name,
                                  source_file=None, **kwargs):
-        """Add a resource on the environment maker object."""
+        """
+        Add a resource to existing environment or to environment maker object.
+        """
         final_kwargs = {}
         compiled = re.compile(r'_ctx_(.+)_ctx_(.+)')
         context_params = {}
@@ -453,7 +462,10 @@ class TestRunnerIHandler(RunnableIHandler):
         if source_file is None:  # Invoke class loader
             resource = self._resource_loader.load(
                 target_class_name, final_kwargs)
-            self._created_environments[env_uid].add_resource(resource)
+            try:
+                self.get_environment(env_uid).add(resource)
+            except:
+                self._created_environments[env_uid].add_resource(resource)
         else:
             raise Exception('Add from source file is not yet supported.')
 

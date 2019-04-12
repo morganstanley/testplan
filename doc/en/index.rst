@@ -185,5 +185,6 @@ License information `here <https://github.com/Morgan-Stanley/testplan/blob/maste
    pools
    api
    download/index
+   design
    about
 

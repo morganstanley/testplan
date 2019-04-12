@@ -387,95 +387,151 @@ def test_http_operate_tests_async():
 
 
 def test_http_dynamic_environments():
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        with InteractivePlan(
-              name='InteractivePlan',
-              interactive=True, interactive_block=False,
-              parse_cmdline=False, logger_level=DEBUG) as plan:
-            plan.run()
-            wait(lambda: any(plan.i.http_handler_info),
-                 5, raise_on_timeout=True)
-            addr = 'http://{}:{}'.format(*plan.i.http_handler_info)
 
-            # CREATE NEW ENVIRONMENT CREATOR
-            response = post_request(
-                '{}/sync/create_new_environment'.format(addr),
-                {'env_uid': 'env1'}).json()
-            _assert_http_response(response, 'create_new_environment', 'Sync')
+    def add_second_client_after_environment_started():
+        # ADD A DRIVER IN EXISTING RUNNING ENVIRONMENT
+        response = post_request(
+            '{}/sync/add_environment_resource'.format(addr),
+            {'env_uid': 'env1',
+             'target_class_name': 'TCPClient',
+             'name': 'client2',
+             '_ctx_host_ctx_driver': 'server',
+             '_ctx_host_ctx_value': '{{host}}',
+             '_ctx_port_ctx_driver': 'server',
+             '_ctx_port_ctx_value': '{{port}}'}).json()
+        _assert_http_response(response, 'add_environment_resource', 'Sync')
 
-            # ADD A TCP SERVER TO ENVIRONMENT
-            response = post_request(
-                '{}/sync/add_environment_resource'.format(addr),
-                {'env_uid': 'env1',
-                 'target_class_name': 'TCPServer',
-                 'name': 'server'}).json()
-            _assert_http_response(response, 'add_environment_resource', 'Sync')
+        # START THE DRIVER
+        response = post_request(
+            '{}/sync/environment_resource_start'.format(addr),
+            {'env_uid': 'env1',
+             'resource_uid': 'client2'}).json()
+        _assert_http_response(response, 'environment_resource_start', 'Sync')
 
-            # ADD A TCP CLIENT TO ENVIRONMENT USING CONTEXT
-            response = post_request(
-                '{}/sync/add_environment_resource'.format(addr),
-                {'env_uid': 'env1',
-                 'target_class_name': 'TCPClient',
-                 'name': 'client',
-                 '_ctx_host_ctx_driver': 'server',
-                 '_ctx_host_ctx_value': '{{host}}',
-                 '_ctx_port_ctx_driver': 'server',
-                 '_ctx_port_ctx_value': '{{port}}'}).json()
-            _assert_http_response(response, 'add_environment_resource', 'Sync')
+        # SERVER ACCEPT CONNECTION
+        response = post_request(
+            '{}/sync/environment_resource_operation'.format(addr),
+            {'env_uid': 'env1',
+             'resource_uid': 'server',
+             'res_op': 'accept_connection'}).json()
+        _assert_http_response(
+            response, 'environment_resource_operation', 'Sync',
+            result=1)
 
-            # ADD THE ENVIRONMENT TO PLAN
-            response = post_request(
-                '{}/sync/add_created_environment'.format(addr),
-                {'env_uid': 'env1'}).json()
-            _assert_http_response(response, 'add_created_environment', 'Sync')
+        # CLIENT SENDS MESSAGE
+        msg = 'Hello world'
+        response = post_request(
+            '{}/sync/environment_resource_operation'.format(addr),
+            {'env_uid': 'env1',
+             'resource_uid': 'client2',
+             'res_op': 'send_text',
+             'msg': msg}).json()
+        _assert_http_response(
+            response, 'environment_resource_operation', 'Sync',
+            result=len(msg))
 
-            # START THE ENVIRONMENT
-            response = post_request(
-                '{}/sync/start_environment'.format(addr),
-                {'env_uid': 'env1'}).json()
-            _assert_http_response(
-                response, 'start_environment', 'Sync',
-                result={'client': 'STARTED', 'server': 'STARTED'})
+        # SERVER RECEIVES
+        response = post_request(
+            '{}/sync/environment_resource_operation'.format(addr),
+            {'env_uid': 'env1',
+             'resource_uid': 'server',
+             'res_op': 'receive_text'}).json()
+        _assert_http_response(
+            response, 'environment_resource_operation', 'Sync',
+            result=msg)
 
-            # SERVER ACCEPT CONNECTION
-            response = post_request(
-                '{}/sync/environment_resource_operation'.format(addr),
-                {'env_uid': 'env1',
-                 'resource_uid': 'server',
-                 'operation': 'accept_connection'}).json()
-            _assert_http_response(
-                response, 'environment_resource_operation', 'Sync',
-                result=0)
+    with InteractivePlan(
+          name='InteractivePlan',
+          interactive=True, interactive_block=False,
+          parse_cmdline=False, logger_level=DEBUG) as plan:
+        plan.run()
+        wait(lambda: any(plan.i.http_handler_info),
+             5, raise_on_timeout=True)
+        addr = 'http://{}:{}'.format(*plan.i.http_handler_info)
 
-            # CLIENT SENDS MESSAGE
-            msg = 'Hello world'
-            response = post_request(
-                '{}/sync/environment_resource_operation'.format(addr),
-                {'env_uid': 'env1',
-                 'resource_uid': 'client',
-                 'operation': 'send_text',
-                 'msg': msg}).json()
-            _assert_http_response(
-                response, 'environment_resource_operation', 'Sync',
-                result=len(msg))
+        # CREATE NEW ENVIRONMENT CREATOR
+        response = post_request(
+            '{}/sync/create_new_environment'.format(addr),
+            {'env_uid': 'env1'}).json()
+        _assert_http_response(response, 'create_new_environment', 'Sync')
 
-            # SERVER RECEIVES
-            response = post_request(
-                '{}/sync/environment_resource_operation'.format(addr),
-                {'env_uid': 'env1',
-                 'resource_uid': 'server',
-                 'operation': 'receive_text'}).json()
-            _assert_http_response(
-                response, 'environment_resource_operation', 'Sync',
-                result=msg)
+        # ADD A TCP SERVER TO ENVIRONMENT
+        response = post_request(
+            '{}/sync/add_environment_resource'.format(addr),
+            {'env_uid': 'env1',
+             'target_class_name': 'TCPServer',
+             'name': 'server'}).json()
+        _assert_http_response(response, 'add_environment_resource', 'Sync')
 
-            # STOP THE ENVIRONMENT
-            response = post_request(
-                '{}/sync/stop_environment'.format(addr),
-                {'env_uid': 'env1'}).json()
-            _assert_http_response(
-                response, 'stop_environment', 'Sync',
-                result={'client': 'STOPPED', 'server': 'STOPPED'})
+        # ADD A TCP CLIENT TO ENVIRONMENT USING CONTEXT
+        response = post_request(
+            '{}/sync/add_environment_resource'.format(addr),
+            {'env_uid': 'env1',
+             'target_class_name': 'TCPClient',
+             'name': 'client',
+             '_ctx_host_ctx_driver': 'server',
+             '_ctx_host_ctx_value': '{{host}}',
+             '_ctx_port_ctx_driver': 'server',
+             '_ctx_port_ctx_value': '{{port}}'}).json()
+        _assert_http_response(response, 'add_environment_resource', 'Sync')
+
+        # ADD THE ENVIRONMENT TO PLAN
+        response = post_request(
+            '{}/sync/add_created_environment'.format(addr),
+            {'env_uid': 'env1'}).json()
+        _assert_http_response(response, 'add_created_environment', 'Sync')
+        print(878)
+
+        # START THE ENVIRONMENT
+        response = post_request(
+            '{}/sync/start_environment'.format(addr),
+            {'env_uid': 'env1'}).json()
+        _assert_http_response(
+            response, 'start_environment', 'Sync',
+            result={'client': 'STARTED', 'server': 'STARTED'})
+
+        # SERVER ACCEPT CONNECTION
+        response = post_request(
+            '{}/sync/environment_resource_operation'.format(addr),
+            {'env_uid': 'env1',
+             'resource_uid': 'server',
+             'res_op': 'accept_connection'}).json()
+        _assert_http_response(
+            response, 'environment_resource_operation', 'Sync',
+            result=0)
+
+        # CLIENT SENDS MESSAGE
+        msg = 'Hello world'
+        response = post_request(
+            '{}/sync/environment_resource_operation'.format(addr),
+            {'env_uid': 'env1',
+             'resource_uid': 'client',
+             'res_op': 'send_text',
+             'msg': msg}).json()
+        _assert_http_response(
+            response, 'environment_resource_operation', 'Sync',
+            result=len(msg))
+
+        # SERVER RECEIVES
+        response = post_request(
+            '{}/sync/environment_resource_operation'.format(addr),
+            {'env_uid': 'env1',
+             'resource_uid': 'server',
+             'res_op': 'receive_text'}).json()
+        _assert_http_response(
+            response, 'environment_resource_operation', 'Sync',
+            result=msg)
+
+        add_second_client_after_environment_started()
+
+        # STOP THE ENVIRONMENT
+        response = post_request(
+            '{}/sync/stop_environment'.format(addr),
+            {'env_uid': 'env1'}).json()
+        _assert_http_response(
+            response, 'stop_environment', 'Sync',
+            result={'client': 'STOPPED', 'client2': 'STOPPED',
+                    'server': 'STOPPED'})
 
 
 def test_reload():
