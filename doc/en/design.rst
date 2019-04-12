@@ -357,7 +357,7 @@ IDE to test a java application that connects to this environment dynamically:
 
         // Make an instance of a java app to be tested connecting it to the
         / started environment.
-        JavaApp app = new JavaApp(port=serverPort.intValue());
+        JavaApp app = new JavaApp(port=serverPort);
         ...
 
         // Add client driver to the environment to connect to local java app.
