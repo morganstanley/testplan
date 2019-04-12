@@ -371,3 +371,80 @@ IDE to test a java application that connects to this environment dynamically:
                             this.put("port", app.port);  // Connect to Java app.
                         }}));
     }
+
+User Interface
+--------------
+
+The UI code was written using React (JSX), it is highly recommended to first
+read through the
+`React documentation <https://reactjs.org/docs/hello-world.html>`_, in
+particular the main concepts.
+
+Components
+++++++++++
+
+Each React component should have its own file. This file should contain
+everything the component uses to render the final HTML (JSX code + CSS). We have
+used `Aphrodite <https://github.com/Khan/aphrodite>`_ to keep the CSS
+inside the JS file. This improves readability, everything you need to know about
+a single component is in the one file (save for common utilities or defaults).
+Each component should be as general as possible to allow it to be reused. We
+should also strive for simple and small components to enhance readability.
+
+Each component should define its
+`PropTypes <https://reactjs.org/docs/typechecking-with-proptypes.html>`_.
+This allows us to typecheck whilst developing & testing, it won't cause issues
+in production. This could be extended in future to also work for state.
+
+Utilities & defaults
+++++++++++++++++++++
+
+Some common functions have been written in utility files. These are pure
+JavaScript functions that don't rely on React. Moving them to a separate file
+improves readability in the component files and allows them to be more easily
+reused.
+
+The components and utility functions shouldn't have hardcoded values, these
+should be placed in the common defaults file and imported when needed.
+
+Documentation
++++++++++++++
+
+Currently the UI code has docstrings on every:
+
+  * React component
+  * Prop type for a component
+  * Non React function within a component
+  * Utility function
+
+Each docstring has a description, list of parameters, the return of the function
+and whether the object is public or private. The docstrings should ideally be
+updated when the code is changed.
+
+Style
++++++
+
+It doesn't matter which style we use, as long as we are consistent with it. When
+writing JSX code refer to the
+`React documentation <https://reactjs.org/docs/hello-world.html>`_ to check
+what style to use. The pure JavaScript code is very similar. We use ESLint to
+check the code when it is built.
+
+For the directory structure, again only consistency matters:
+
+  * Directories are written in upper camel case (e.g. AssertionPane).
+  * Utility files are written in lower camel case (e.g. basicAssertionUtils.js).
+  * Component files are written in upper camel case (e.g. BasicAssertion.js).
+
+Tests
++++++
+
+Each component should have a corresponding test file under a ``__tests__``
+directory. We are using enzyme and jest for testing. Enzyme allows us to shallow
+mount the components, better for unit testing. Jest is a good framework for
+unit testing JavaScript code. Try not to have more than one snapshot test per
+component. The snapshot tests are used to quickly check the general HTML layout
+of the component is correct. We can then alter the props and check specific
+components have changed with other tests. This keeps the tests more readable,
+you can see what is meant to have changed easier when reading the tests.
+Currently only unit test in future we may want to do functional tests etc.
