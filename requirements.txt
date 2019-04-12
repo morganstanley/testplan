@@ -1,3 +1,5 @@
 -e .
 pylint
+pytest
+pytest-xdist
 

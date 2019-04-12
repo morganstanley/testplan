@@ -1,5 +1,7 @@
 language: python
 
+cache: pip
+
 python:
   - "2.7"
   - "3.4"
@@ -10,5 +12,5 @@ install:
 
 script:
   - pylint --rcfile pylintrc testplan
-  - pytest tests --verbose
+  - pytest tests --verbose -n 8
 
