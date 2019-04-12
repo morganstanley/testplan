@@ -6,7 +6,7 @@ from testplan.common.utils.path import default_runpath
 from testplan.runners.pools.base import Pool
 from testplan import Task
 
-from tasks.data.sample_tasks import Runnable
+from tests.unit.testplan.runners.pools.tasks.data.sample_tasks import Runnable
 
 
 def test_pool_basic():

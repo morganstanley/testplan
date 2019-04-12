@@ -1,18 +1,20 @@
 """Worker pool executor base classes."""
 
-import os
-import time
-import psutil
+import abc
 import inspect
-import threading
 import logging
+import numbers
+import os
+import psutil
+
+import threading
+import time
 
 from schema import Or, And
+import six
 
 from testplan.common.config import ConfigOption, validate_func
-from testplan.common.entity import (Resource, ResourceConfig,
-                                    Environment, Runnable)
-from testplan.common.entity import RunnableResult
+from testplan.common import entity
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils.strings import Color
@@ -116,29 +118,82 @@ class Transport(logger.Loggable):
         return received
 
 
-class ConnectionManager(object):
+@six.add_metaclass(abc.ABCMeta)
+class ConnectionManager(entity.Resource):
     """
-    Manages worker connections and performs round robin communication.
+    Abstract base class for classes that manage connections between Pools and
+    workers.
     """
 
-    def __init__(self, cfg):
+    def __init__(self):
+        super(ConnectionManager, self).__init__()
         self._workers = []
-        self._current = 1
 
     @property
     def workers(self):
-        """Returns workers assigned in self."""
+        """Returns workers this object manages connections for."""
         return self._workers
 
+    def starting(self):
+        """
+        Perform any connection setup - in the base class no setup is required.
+        """
+        self.status.change(self.status.STARTED)
+
+    def stopping(self):
+        """Unregister workers when stopping."""
+        self._unregister_workers()
+        self.status.change(self.status.STOPPED)
+
+    def aborting(self):
+        """Abort policy - no abort actions are required in the base class."""
+
     def register(self, worker):
-        """Register a new worker."""
+        """
+        Register a new worker. Workers should be registered after the
+        connection manager is started and will be automatically unregistered
+        when it is stopped.
+        """
+        if self.status.tag != self.status.STARTED:
+            raise RuntimeError(
+                'Can only register workers when started. Current state is {}'
+                .format(self.status.tag))
+
+        if worker in self._workers:
+            raise RuntimeError('Worker {} already in ConnectionManager'
+                               .format(worker))
         self._workers.append(worker)
+
+    @abc.abstractmethod
+    def accept(self):
+        """
+        Accepts a new message from worker. This method should not block - if
+        no message is queued for receiving it should return None.
+
+        :return: Message received from worker transport, or None.
+        :rtype: ``NoneType`` or
+            :py:class:`~testplan.runners.pools.communication.Message`
+        """
+        raise NotImplementedError
+
+    def _unregister_workers(self):
+        """Remove workers from this connection manager."""
+        self._workers = []
+
+
+class RoundRobinConnManager(ConnectionManager):
+    """Manages workers and performs round robin communication with each."""
+
+    def __init__(self):
+        super(RoundRobinConnManager, self).__init__()
+        self._current = 1
 
     def accept(self):
         """
-        Accepts a new message from worker.
+        Accepts a new message from the next worker, increments the current
+        worker index. Doesn't block if no message is queued for receiving.
 
-        :return: Message received from worker transport.
+        :return: Message received from worker transport, or None.
         :rtype: ``NoneType`` or
             :py:class:`~testplan.runners.pools.communication.Message`
         """
@@ -154,12 +209,8 @@ class ConnectionManager(object):
             self._current += 1
             return msg
 
-    def close(self):
-        """Closes the workers transport connections."""
-        pass
 
-
-class WorkerConfig(ResourceConfig):
+class WorkerConfig(entity.ResourceConfig):
     """
     Configuration object for
     :py:class:`~testplan.runners.pools.base.Worker` resource entity.
@@ -184,7 +235,7 @@ class WorkerConfig(ResourceConfig):
         }
 
 
-class Worker(Resource):
+class Worker(entity.Resource):
     """
     Worker resource that pulls tasks from the transport provided, executes them
     and sends back task results.
@@ -237,6 +288,7 @@ class Worker(Resource):
         self._transport.active = False
         if self._loop_handler:
             interruptible_join(self._loop_handler)
+        self._loop_handler = None
 
     def aborting(self):
         """Aborting logic, will not wait running tasks."""
@@ -276,7 +328,7 @@ class Worker(Resource):
         """
         try:
             target = task.materialize()
-            if isinstance(target, Runnable):
+            if isinstance(target, entity.Runnable):
                 if not target.parent:
                   target.parent = self
                 if not target.cfg.parent:
@@ -356,8 +408,7 @@ class PoolConfig(ExecutorConfig):
             ConfigOption('worker_inactivity_threshold', default=300): int,
             ConfigOption('heartbeats_miss_limit', default=3): int,
             ConfigOption('task_retries_limit', default=3): int,
-            ConfigOption('max_active_loop_sleep', default=5): Or(int, float)
-        }
+            ConfigOption('max_active_loop_sleep', default=5): numbers.Number}
 
 
 class Pool(Executor):
@@ -366,19 +417,23 @@ class Pool(Executor):
     """
 
     CONFIG = PoolConfig
-    CONN_MANAGER = ConnectionManager
+    CONN_MANAGER = RoundRobinConnManager
 
     def __init__(self, **options):
         super(Pool, self).__init__(**options)
         self.unassigned = []  # unassigned tasks
         self.task_assign_cnt = {}  # uid: times_assigned
         self.should_reschedule = default_check_reschedule
-        self._workers = Environment(parent=self)
+        self._workers = entity.Environment(parent=self)
         self._workers_last_result = {}
-        self._conn = self.CONN_MANAGER(self._cfg)
+        self._conn = self.CONN_MANAGER()
+        self._conn.parent = self
         self._pool_lock = threading.Lock()
         self._request_handlers = {}
         self._metadata = {}
+        self.make_runpath_dirs()
+        self._metadata['runpath'] = self.runpath
+        self._add_workers()
 
     def uid(self):
         """Pool name."""
@@ -416,24 +471,38 @@ class Pool(Executor):
         self.should_reschedule = check_reschedule
 
     def _loop(self):
+        """
+        Main executor work loop - runs in a seperate thread when the Pool is
+        started.
+        """
+        # TODO just don't start a monitor thread if no heartbeat is
+        # configured?
         worker_monitor = threading.Thread(target=self._workers_monitoring)
         worker_monitor.daemon = True
         worker_monitor.start()
 
         while self.active:
-            if self.status.tag == self.status.STARTING:
+            curr_status = self.status.tag
+
+            if curr_status == self.status.STARTING:
                 self.status.change(self.status.STARTED)
-            elif self.status.tag == self.status.STOPPING:
+            elif curr_status == self.status.STOPPING:
                 self.status.change(self.status.STOPPED)
                 break
+            elif curr_status != self.status.STARTED:
+                raise RuntimeError('Pool in unexpected state {}'
+                                   .format(curr_status))
             else:
                 msg = self._conn.accept()
                 if msg:
                     try:
+                        self.logger.debug('Received message from worker: %s.',
+                                          msg)
                         with self._pool_lock:
                             self.handle_request(msg)
                     except Exception as exc:
                         self.logger.error(format_trace(inspect.trace(), exc))
+
             time.sleep(self.cfg.active_loop_sleep)
 
     def handle_request(self, request):
@@ -600,8 +669,12 @@ class Pool(Executor):
             pass
 
     def _workers_monitoring(self):
+        """
+        Monitor the health of workers in a loop. Executes in a separate thread.
+        """
         if not self.cfg.worker_heartbeat:
             # No heartbeat means no fault tolerance for worker.
+            self.logger.debug('Not monitoring workers.')
             return
 
         monitor_started = time.time()
@@ -640,12 +713,13 @@ class Pool(Executor):
                             'All workers of {} are inactive.'.format(self))
                         self.abort()
                         break
+
             try:
                 # For early finish of worker monitoring thread.
                 wait_until_predicate(lambda: not self._loop_handler.is_alive(),
                                      timeout=loop_sleep, interval=0.05)
             except RuntimeError:
-                return
+                break
 
     def _discard_task(self, uid, reason):
         self.logger.critical('Discard task {} of {} - {}.'.format(
@@ -666,8 +740,8 @@ class Pool(Executor):
             self.ongoing.pop(0)
 
     def _print_test_result(self, task_result):
-        if not isinstance(task_result.result, RunnableResult) or\
-           not hasattr(task_result.result, 'report'):
+        if (not isinstance(task_result.result, entity.RunnableResult)) or (
+           not hasattr(task_result.result, 'report')):
             return
 
         # Currently prints report top level result and not details.
@@ -678,23 +752,21 @@ class Pool(Executor):
             self.logger.test_info('{} -> {}'.format(name, Color.red('Fail')))
 
     def _add_workers(self):
-        """TODO."""
+        """Initialise worker instances."""
         for idx in (str(i) for i in range(self.cfg.size)):
             worker = self.cfg.worker_type(index=idx)
-            self.logger.debug('Initialized %s', worker)
             worker.parent = self
             worker.cfg.parent = self.cfg
-            self.logger.debug('Worker %(index)s outfile = %(outfile)s', {'index': idx, 'outfile': worker.outfile})
             self._workers.add(worker, uid=idx)
-            self._conn.register(worker)
-            self.logger.debug('Added {}.'.format(worker))
+            self.logger.debug('Added worker %(index)s (outfile = %(outfile)s)',
+                              {'index': idx, 'outfile': worker.outfile})
 
     def starting(self):
         """Starting the pool and workers."""
         super(Pool, self).starting()
-        self.make_runpath_dirs()
-        self._metadata['runpath'] = self.runpath
-        self._add_workers()
+        self._conn.start()
+        for worker in self._workers:
+            self._conn.register(worker)
         self._workers.start()
         if self._workers.start_exceptions:
             for msg in self._workers.start_exceptions.values():
@@ -702,6 +774,7 @@ class Pool(Executor):
             self._workers.stop()
             raise RuntimeError('All workers of {} failed to start.'.format(
                 self))
+        self.logger.debug('%s started.', self.__class__.__name__)
 
     def workers_requests(self):
         """Count how many tasks workers are requesting."""
@@ -709,9 +782,11 @@ class Pool(Executor):
 
     def stopping(self):
         """Stop connections and workers."""
-        self._conn.close()
+        # Stop workers before stopping the connection manager.
         self._workers.stop()
+        self._conn.stop()
         super(Pool, self).stopping()
+        self.logger.debug('Stopped %s', self.__class__.__name__)
 
     def abort_dependencies(self):
         """Empty generator to override parent implementation."""
@@ -721,8 +796,9 @@ class Pool(Executor):
     def aborting(self):
         """Aborting logic."""
         self.logger.debug('Aborting pool {}'.format(self))
-        self._conn.close()
         for worker in self._workers:
             worker.abort()
+        self._conn.abort()
         self._discard_pending_tasks()
         self.logger.debug('Aborted pool {}'.format(self))
+
