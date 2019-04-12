@@ -8,7 +8,7 @@ from testplan.common.utils.testing import log_propagation_disabled, check_report
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing.cpp import HobbesTest
 
-from test.functional.testplan.testing.fixtures.cpp import hobbestest
+from tests.functional.testplan.testing.fixtures.cpp import hobbestest
 
 fixture_root = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
