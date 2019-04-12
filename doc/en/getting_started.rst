@@ -12,33 +12,30 @@ Install testplan
 Ubuntu/Debian
 -------------
 
+First install required packages - you will need root privileges.
+
+    .. code-block:: bash
+
+      # For python 2.
+      sudo apt-get install python python-pip rsync
+
+      # For python 3.
+      sudo apt-get install python3 python3-pip rsync
+
+
 Native pip install
 ++++++++++++++++++
 
-.. warning:: This will install testplan package with all the dependencies specified in the 
-             `requirements.txt <https://github.com/Morgan-Stanley/testplan/blob/master/requirements.txt>`_
-             file. For a quick basic installation, also check the :ref:`using_virtualenv_ubuntu` guide.
-
-Install `pip <https://pypi.python.org/pypi/pip>`_ package management system.
+Install from archive:
 
     .. code-block:: bash
 
       # For python 2.
-      sudo apt-get install python-pip
-
-      # For python 3.
-      sudo apt-get install python3-pip
-
-Install from archive.
-
-    .. code-block:: bash
-
-      # For python 2.
-      sudo pip install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+      pip install --user https://github.com/Morgan-Stanley/testplan/archive/master.zip
       install-testplan-ui
 
       # For python 3.
-      sudo pip3 install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+      pip3 install --user https://github.com/Morgan-Stanley/testplan/archive/master.zip
       install-testplan-ui
 
 
@@ -47,28 +44,16 @@ Install from archive.
 Using a virtualenv
 ++++++++++++++++++
 
-Install `git <https://git-scm.com/>`_.
-
-    .. code-block:: bash
-
-      sudo apt-get install git
-
 Python 2
 ````````
 
-    1. Install `pip <https://pypi.python.org/pypi/pip>`_.
-
-        .. code-block:: bash
-
-          sudo apt-get install python-pip
-
-    2. Install `virtualenv <https://virtualenv.pypa.io/en/stable>`_.
+    1. Install `virtualenv <https://virtualenv.pypa.io/en/stable>`_.
 
         .. code-block:: bash
 
           pip install virtualenv
 
-    3. Create a virtualenv.
+    2. Create a virtualenv.
 
         .. code-block:: bash
 
@@ -76,81 +61,39 @@ Python 2
           cd testplan-oss
           source bin/activate
 
-    4. Clone testplan `repo <https://github.com/Morgan-Stanley/testplan>`_.
+    3. Install testplan and its dependencies into the virtual env.
 
         .. code-block:: bash
 
-          git clone https://github.com/Morgan-Stanley/testplan.git
-          cd testplan
-
-    5. Install dependecies and setup.
-
-        .. code-block:: bash
-
-          # skip heavy dependencies but miss some functionality
-          pip install -r requirements-basic.txt
-          python setup.py develop --no-deps
-          python install-testplan-ui
-
-        .. code-block:: bash
-
-          # make a full setup
-          pip install -r requirements.txt
-          python setup.py develop
-          python install-testplan-ui
+          pip install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+          install-testplan-ui
 
 Python 3
 ````````
 
-    1. Install `pip3 <https://pypi.python.org/pypi/pip>`_.
-        
-        .. code-block:: bash
-
-          sudo apt-get install python3-pip
-
-    2. Install `virtualenv <https://virtualenv.pypa.io/en/stable>`_.
+    1. Create a virtualenv.
 
         .. code-block:: bash
 
-          pip3 install virtualenv
-
-    3. Create a virtualenv.
-
-        .. code-block:: bash
-
-          virtualenv -p python3 testplan-oss
+          python3 -m venv testplan-oss
           cd testplan-oss
           source bin/activate
 
-    4. Clone testplan `repo <https://github.com/Morgan-Stanley/testplan>`_.
+    2. Install testplan and its dependecies into the virtual env.
 
         .. code-block:: bash
 
-          git clone https://github.com/Morgan-Stanley/testplan.git
-          cd testplan
-
-    5. Install dependecies and setup.
-
-        .. code-block:: bash
-
-          # Skip heavy dependencies but miss some functionality.
-          pip3 install -r requirements-basic.txt
-          python setup.py develop --no-deps
-          python install-testplan-ui
-
-          # Or, make a full setup
-          pip3 install -r requirements.txt
-          python setup.py develop
-          python install-testplan-ui
+          pip install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+          install-testplan-ui
 
 
-Full setup
-``````````
-In order to setup testplan with all its dependencies you need to use
-``requirements.txt`` file instead of ``requirements-basic.txt``.
-You may also need to ``sudo apt-get install`` some packages
-like: ``python-tk``/``python3-tk``.
+Other Linux Distros
+-------------------
 
+For non-Debian Linux distributions you should be able to install using similar
+steps as for Ubuntu/Debian - just check the docs for your distro's package
+manager (e.g. yum, dnf, pacman) for how to install the required packages
+instead of using apt-get.
 
 
 MacOS
@@ -176,7 +119,7 @@ Install `python <http://docs.python-guide.org/en/latest/starting/install/osx>`_:
 Native pip install
 ++++++++++++++++++
 
-.. warning:: This will install testplan package with all the dependencies specified in the 
+.. warning:: This will install testplan package with all the dependencies specified in the
              `requirements.txt <https://github.com/Morgan-Stanley/testplan/blob/master/requirements.txt>`_
              file. For a quick basic installation, also check the :ref:`using_virtualenv_macos` guide.
 
@@ -228,17 +171,8 @@ Using a virtualenv
 
         .. code-block:: bash
 
-          # skip heavy dependencies but miss some functionality
-          pip install -r requirements-basic.txt
-          python setup.py develop --no-deps
-          python install-testplan-ui
-
-        .. code-block:: bash
-
-          # make a full setup
-          pip install -r requirements.txt
-          python setup.py develop
-          python install-testplan-ui
+          pip install .
+          install-testplan-ui
 
 
 Windows
@@ -263,7 +197,7 @@ package management system:
     4. Install `pip <https://pip.pypa.io/en/stable/installing>`_.
 
         .. code-block:: text
-      
+
           C:\path\to\installed\interpreter\python.exe get-pip.py
 
     5. Install from archive.
@@ -293,7 +227,7 @@ Installation using a `virtualenv <https://virtualenv.pypa.io/en/stable>`_:
     4. Install `pip <https://pip.pypa.io/en/stable/installing>`_.
 
         .. code-block:: text
-      
+
           C:\path\to\installed\interpreter\python.exe get-pip.py
 
     5. Install `virtualenv <https://virtualenv.pypa.io/en/stable>`_.
@@ -437,8 +371,8 @@ functonality/features and can be found within the
 On Ubuntu/MacOS/etc:
 
     .. code-block:: bash
-      
-      # See all the examples categories.  
+
+      # See all the examples categories.
       cd examples
       ls
 
@@ -447,15 +381,15 @@ On Ubuntu/MacOS/etc:
       ./test_plan.py
 
     .. code-block:: bash
-      
+
       # Create a pdf report and open in automatically.
       ./test_plan.py --pdf report.pdf -b
 
 On Windows:
 
     .. code-block:: text
-      
-      # See all the examples categories.  
+
+      # See all the examples categories.
       cd examples
       dir
 
@@ -464,7 +398,7 @@ On Windows:
       python test_plan.py
 
     .. code-block:: text
-      
+
       # Create a pdf report and open in automatically.
       python test_plan.py --pdf report.pdf -b
 
@@ -480,7 +414,7 @@ tests. Some tests may be skipped due to optional dependency packages
 (i.e sklearn used on 'Data Science' examples category).
 
     .. code-block:: text
-      
+
         cd test
 
         # Unit tests.
@@ -499,3 +433,34 @@ how to create drivers for
 :ref:`custom applications and services <multitest_custom_drivers>`.
 You can contribute missing drivers or improvements to the existing ones by
 following the :ref:`contribution <contributing>` process.
+
+Installing Testplan for development
+===================================
+
+If you would like to develop on testplan itself, great! You can follow the
+relevant instructions above for installing testplan on your platform (Linux,
+MacOS or Windows) - but instead of installing from the archive, clone the
+repo with ``git`` and make a development install like:
+
+    .. code-block:: bash
+
+        git clone https://github.com/Morgan-Stanley/testplan.git
+        cd testplan
+        pip install -r requirements.txt
+        install-testplan-ui --dev
+
+Alternatively, you can pull and run a portable testplan dev env using ``docker``.
+See section on ``docker`` above for instructions on installing ``docker`` itself,
+then you can simply run:
+
+    .. code-block:: bash
+
+        docker pull ryancollingham/dev_env:testplan
+        docker run -it ryancollingam/dev_env:testplan
+
+That will drop you into a shell with the testplan dependencies pre-installed,
+the testplan codebase checked out and installed in a development (i.e. editable)
+mode, and some other useful development tools installed. This dockerised environment
+is shell-only so you can use the installed ``vim`` editor to edit code
+(of course ``emacs`` developers are also welcome on testplan).
+

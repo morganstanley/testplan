@@ -5,12 +5,10 @@ python:
   - "3.4"
 
 install:
-  - pip install -r requirements.txt --upgrade
-  - pip install --upgrade pylint
-  - python setup.py develop
+  - pip install -r requirements.txt -U
   - python install-testplan-ui --verbose --dev
 
 script:
   - pylint --rcfile pylintrc testplan
-  - py.test test --verbose
+  - pytest test --verbose
 

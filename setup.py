@@ -31,16 +31,17 @@ REQUIRED = [
     'terminaltables',
     'pyparsing',
     'cycler',
-    'scipy',
-    'scikit-learn',
-    'numpy',
+    'Pillow<6.0.0',
     'matplotlib',
+    'numpy',
+    'scikit-learn',
+    'scipy',
+    "functools32; python_version <= '2.7'",
     'requests>=2.4.3',
     'flask',
     'flask_restplus',
     'cheroot'
 ]
-
 
 setup(name='Testplan',
   version='1.0',
