@@ -415,13 +415,13 @@ tests. Some tests may be skipped due to optional dependency packages
 
     .. code-block:: text
 
-        cd test
+        cd tests
 
         # Unit tests.
-        py.test unit --verbose
+        pytest unit --verbose
 
         # Functional tests.
-        py.test functional --verbose
+        pytest functional --verbose
 
 
 Writing custom drivers

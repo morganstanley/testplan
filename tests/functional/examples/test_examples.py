@@ -9,7 +9,13 @@ from testplan.common.utils.path import change_directory
 import platform
 
 
-FILE_DIR = os.path.dirname(__file__)
+_FILE_DIR = os.path.dirname(__file__)
+
+# This file is under tests/functional/examples, so the root directory is 3
+# levels up.
+_REPO_ROOT = os.path.abspath(os.path.join(
+    _FILE_DIR, *(os.pardir for _ in range(3))))
+_EXAMPLES_ROOT = os.path.join(_REPO_ROOT, 'examples')
 
 ON_WINDOWS = platform.system() == 'Windows'
 
@@ -52,33 +58,12 @@ def _param_formatter(param):
     return repr(param)
 
 
-def _examples_root():
-    """
-    Find the examples directory that sits next to test & testplan
-    """
-
-    cwd = FILE_DIR
-    while True:
-        contents = os.listdir(cwd)
-        if all([entry in contents for entry in ROOT_DIR_CONTENTS]):
-            break
-        parent_dir = os.path.dirname(cwd)
-        if os.path.realpath(cwd) == os.path.realpath(parent_dir):
-            raise RuntimeError('Could not find repo directory')
-        cwd = parent_dir
-
-    return os.path.abspath(os.path.join(
-        cwd,
-        'examples'
-    ))
-
-
 @pytest.mark.parametrize(
     'root,filename',
     [
         (os.path.abspath(root), filename)
         for root, _, files in os.walk(
-            _examples_root(), followlinks=True)
+            _EXAMPLES_ROOT, followlinks=True)
         for filename in files
         if ('test_plan' in filename and filename.endswith('.py'))
     ],
