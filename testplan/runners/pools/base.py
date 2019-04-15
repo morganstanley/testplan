@@ -492,28 +492,43 @@ class Pool(Executor):
             worker_monitor.start()
 
         while self.active:
-            curr_status = self.status.tag
+            with self._pool_lock:
+                should_continue = self._loop_process_work(self.status.tag)
 
-            if curr_status == self.status.STARTING:
-                self.status.change(self.status.STARTED)
-            elif curr_status == self.status.STOPPING:
-                self.status.change(self.status.STOPPED)
+            if not should_continue:
                 break
-            elif curr_status != self.status.STARTED:
-                raise RuntimeError('Pool in unexpected state {}'
-                                   .format(curr_status))
             else:
-                msg = self._conn.accept()
-                if msg:
-                    try:
-                        self.logger.debug('Received message from worker: %s.',
-                                          msg)
-                        with self._pool_lock:
-                            self.handle_request(msg)
-                    except Exception as exc:
-                        self.logger.error(format_trace(inspect.trace(), exc))
+                time.sleep(self.cfg.active_loop_sleep)
 
-            time.sleep(self.cfg.active_loop_sleep)
+    def _loop_process_work(self, curr_status):
+        """
+        Poll for work based on the current pool state and process the next item
+        if there is one.
+
+        :return: Whether to continue the main work loop.
+        :rtype: ``bool``
+        """
+        if curr_status == self.status.STARTING:
+            self.status.change(self.status.STARTED)
+        elif curr_status == self.status.STOPPING:
+            self.status.change(self.status.STOPPED)
+            return False  # Indicate to break from the main work loop.
+        elif curr_status != self.status.STARTED:
+            raise RuntimeError('Pool in unexpected state {}'
+                               .format(curr_status))
+        else:
+            msg = self._conn.accept()
+            if msg:
+                try:
+                    self.logger.debug('Received message from worker: %s.',
+                                      msg)
+                    self.handle_request(msg)
+                except Exception as exc:
+                    self.logger.error(format_trace(inspect.trace(), exc))
+
+        # The main work loop can continue.
+        return True
+
 
     def handle_request(self, request):
         """
@@ -789,17 +804,20 @@ class Pool(Executor):
 
     def starting(self):
         """Starting the pool and workers."""
-        super(Pool, self).starting()
-        self._conn.start()
-        for worker in self._workers:
-            self._conn.register(worker)
-        self._workers.start()
+        with self._pool_lock:
+            self._conn.start()
+            for worker in self._workers:
+                self._conn.register(worker)
+            self._workers.start()
+
         if self._workers.start_exceptions:
             for msg in self._workers.start_exceptions.values():
                 self.logger.error(msg)
             self._workers.stop()
             raise RuntimeError('All workers of {} failed to start.'.format(
-                self))
+            self))
+
+        super(Pool, self).starting()
         self.logger.debug('%s started.', self.__class__.__name__)
 
     def workers_requests(self):
@@ -809,8 +827,9 @@ class Pool(Executor):
     def stopping(self):
         """Stop connections and workers."""
         # Stop workers before stopping the connection manager.
-        self._workers.stop()
-        self._conn.stop()
+        with self._pool_lock:
+            self._workers.stop()
+            self._conn.stop()
         super(Pool, self).stopping()
         self.logger.debug('Stopped %s', self.__class__.__name__)
 
