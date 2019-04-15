@@ -658,16 +658,16 @@ class RemotePool(Pool):
 
     def __init__(self, **options):
         super(RemotePool, self).__init__(**options)
-        self._request_handlers[Message.MetadataPull] =\
-            self._worker_setup_metadata
+        self._request_handlers[
+            Message.MetadataPull] = self._worker_setup_metadata
 
     @staticmethod
-    def _worker_setup_metadata(worker, response):
+    def _worker_setup_metadata(worker, _, response):
         worker.respond(response.make(
             Message.Metadata, data=worker.setup_metadata))
 
     def _add_workers(self):
-        """TODO."""
+        """Initialise remote worker instances."""
         for host, workers in self.cfg.hosts.items():
             worker = self.cfg.worker_type(
                 index=host, workers=workers, pool_type=self.cfg.pool_type)
