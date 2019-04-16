@@ -41,7 +41,7 @@ def get_default_exporters(config):
         result.append(test_exporters.JSONExporter())
     if config.xml_dir:
         result.append(test_exporters.XMLExporter())
-    if config.ui_port:
+    if config.ui_port is not None:
         result.append(test_exporters.WebServerExporter())
     return result
 

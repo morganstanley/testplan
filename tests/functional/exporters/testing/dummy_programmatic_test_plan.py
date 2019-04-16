@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 
 from testplan import test_plan

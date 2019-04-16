@@ -14,7 +14,7 @@ from testplan.common.utils.timing import wait
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import ExporterConfig
 from testplan.report.testing.schemas import TestReportSchema
-from testplan.web_ui.web_app import _WebServer
+from testplan.web_ui.web_app import WebServer
 from ..base import Exporter, save_attachments
 
 
@@ -57,23 +57,23 @@ class WebServerExporter(Exporter):
                 'JSON generated at {}'.format(defaults.JSON_PATH))
 
             # Start the web server.
-            self._web_server_thread = _WebServer(
+            self._web_server_thread = WebServer(
                 port=self.cfg.ui_port,
                 data_path=data_path,
-                report_name=report_name
-            )
+                report_name=report_name)
+
             self._web_server_thread.start()
             wait(self._web_server_thread.ready,
                  self.cfg.web_server_startup_timeout,
                  raise_on_timeout=True)
 
+            (host, port) = self._web_server_thread.server.bind_addr
+
             self.url = 'http://{host}:{port}/testplan/local'.format(
-                host=defaults.WEB_SERVER_HOSTNAME,
-                port=self.cfg.ui_port
-            )
+                host=host,
+                port=port)
             self.logger.exporter_info(
-                'View the JSON report in the browser: {}'.format(self.url)
-            )
+                'View the JSON report in the browser: {}'.format(self.url))
         else:
             self.logger.exporter_info(
                 'Skipping starting web server'

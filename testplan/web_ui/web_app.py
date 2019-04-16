@@ -153,11 +153,11 @@ class MonitorStatic(Resource):
             raise exceptions.NotFound()
 
 
-class _WebServer(Thread):
+class WebServer(Thread):
     def __init__(self, port=defaults.WEB_SERVER_PORT,
                  static_path=TESTPLAN_UI_STATIC_DIR, data_path='./',
                  report_name=TESTPLAN_REPORT):
-        super(_WebServer, self).__init__()
+        super(WebServer, self).__init__()
         self.host = defaults.WEB_SERVER_HOSTNAME
         self.port = port
         self.static_path = static_path
@@ -203,5 +203,6 @@ if __name__ == '__main__':
     else:
         app.config['TESTPLAN_REPORT_NAME'] = 'report.json'
 
-    print('Running Testplan web app on 0.0.0.0:5000...')
+    print('Running Testplan web app on 0.0.0.0...')
     app.run(host='0.0.0.0', port=0)
+
