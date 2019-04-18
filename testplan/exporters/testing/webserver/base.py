@@ -24,13 +24,11 @@ class WebServerExporterConfig(ExporterConfig):
     def get_options(cls):
         return {
             ConfigOption(
-                'ui_port', default=defaults.WEB_SERVER_PORT,
-                block_propagation=False): Or(None, int),
+                'ui_port', default=defaults.WEB_SERVER_PORT): int,
             ConfigOption(
                 'web_server_startup_timeout',
                 default=defaults.WEB_SERVER_TIMEOUT): int,
         }
-
 
 class WebServerExporter(Exporter):
 
