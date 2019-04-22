@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DictLogAssertion shallow renders SortButtonGroup component 1`] = `
+exports[`DictLogAssertion shallow renders DictButtonGroup component 1`] = `
 ShallowWrapper {
   Symbol(enzyme.__root__): [Circular],
-  Symbol(enzyme.__unrendered__): <SortButtonGroup
+  Symbol(enzyme.__unrendered__): <DictButtonGroup
     defaultSortType={3}
     flattenedDict={
         Array [
@@ -73,80 +73,85 @@ ShallowWrapper {
     "nodeType": "function",
     "props": Object {
       "children": Array [
-        <Button
-          active={false}
-          color="secondary"
-          onClick={[Function]}
-          outline={true}
-          size="sm"
-          tag="button"
+        Array [
+          <Button
+            active={false}
+            color="secondary"
+            onClick={[Function]}
+            outline={true}
+            size="sm"
+            tag="button"
 >
-          <FontAwesomeIcon
-                    border={false}
-                    className=""
-                    fixedWidth={false}
-                    flip={null}
-                    icon="sort-amount-down"
-                    inverse={false}
-                    listItem={false}
-                    mask={null}
-                    pull={null}
-                    pulse={false}
-                    rotation={null}
-                    size="sm"
-                    spin={false}
-                    symbol={false}
-                    title=""
-                    transform={null}
-          />
+            <FontAwesomeIcon
+                        border={false}
+                        className=""
+                        fixedWidth={false}
+                        flip={null}
+                        icon="sort-amount-down"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size="sm"
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
 </Button>,
-        <Button
-          active={false}
-          color="secondary"
-          onClick={[Function]}
-          outline={true}
-          size="sm"
-          tag="button"
+          <Button
+            active={false}
+            color="secondary"
+            onClick={[Function]}
+            outline={true}
+            size="sm"
+            tag="button"
 >
-          <FontAwesomeIcon
-                    border={false}
-                    className=""
-                    fixedWidth={false}
-                    flip={null}
-                    icon="sort-amount-up"
-                    inverse={false}
-                    listItem={false}
-                    mask={null}
-                    pull={null}
-                    pulse={false}
-                    rotation={null}
-                    size="sm"
-                    spin={false}
-                    symbol={false}
-                    title=""
-                    transform={null}
-          />
+            <FontAwesomeIcon
+                        border={false}
+                        className=""
+                        fixedWidth={false}
+                        flip={null}
+                        icon="sort-amount-up"
+                        inverse={false}
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size="sm"
+                        spin={false}
+                        symbol={false}
+                        title=""
+                        transform={null}
+            />
 </Button>,
-        <Button
-          active={true}
-          color="secondary"
-          onClick={[Function]}
-          outline={true}
-          size="sm"
-          tag="button"
+          <Button
+            active={true}
+            color="secondary"
+            onClick={[Function]}
+            outline={true}
+            size="sm"
+            tag="button"
 >
-          Status
+            Status
 </Button>,
-        <Button
-          active={false}
-          color="secondary"
-          onClick={[Function]}
-          outline={true}
-          size="sm"
-          tag="button"
+          <Button
+            active={false}
+            color="secondary"
+            onClick={[Function]}
+            outline={true}
+            size="sm"
+            tag="button"
 >
-          Failures only
+            Failures only
 </Button>,
+        ],
+        <CopyButton
+          value="<table><tr><th>Key</th><th>Expected</th><th>Value</th></tr><tr><td></td><td><small></small></td><td><small></small></td></tr><tr style=\\"color: red;\\"><td></td><td><small></small></td><td><small></small></td></tr><tr style=\\"color: red;\\"><td></td><td><small></small></td><td><small></small></td></tr></table>"
+/>,
       ],
       "role": "group",
       "style": Object {
@@ -308,6 +313,17 @@ ShallowWrapper {
         "rendered": "Failures only",
         "type": [Function],
       },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "class",
+        "props": Object {
+          "value": "<table><tr><th>Key</th><th>Expected</th><th>Value</th></tr><tr><td></td><td><small></small></td><td><small></small></td></tr><tr style=\\"color: red;\\"><td></td><td><small></small></td><td><small></small></td></tr><tr style=\\"color: red;\\"><td></td><td><small></small></td><td><small></small></td></tr></table>",
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
     ],
     "type": [Function],
   },
@@ -318,80 +334,85 @@ ShallowWrapper {
       "nodeType": "function",
       "props": Object {
         "children": Array [
-          <Button
-            active={false}
-            color="secondary"
-            onClick={[Function]}
-            outline={true}
-            size="sm"
-            tag="button"
+          Array [
+            <Button
+              active={false}
+              color="secondary"
+              onClick={[Function]}
+              outline={true}
+              size="sm"
+              tag="button"
 >
-            <FontAwesomeIcon
-                        border={false}
-                        className=""
-                        fixedWidth={false}
-                        flip={null}
-                        icon="sort-amount-down"
-                        inverse={false}
-                        listItem={false}
-                        mask={null}
-                        pull={null}
-                        pulse={false}
-                        rotation={null}
-                        size="sm"
-                        spin={false}
-                        symbol={false}
-                        title=""
-                        transform={null}
-            />
+              <FontAwesomeIcon
+                            border={false}
+                            className=""
+                            fixedWidth={false}
+                            flip={null}
+                            icon="sort-amount-down"
+                            inverse={false}
+                            listItem={false}
+                            mask={null}
+                            pull={null}
+                            pulse={false}
+                            rotation={null}
+                            size="sm"
+                            spin={false}
+                            symbol={false}
+                            title=""
+                            transform={null}
+              />
 </Button>,
-          <Button
-            active={false}
-            color="secondary"
-            onClick={[Function]}
-            outline={true}
-            size="sm"
-            tag="button"
+            <Button
+              active={false}
+              color="secondary"
+              onClick={[Function]}
+              outline={true}
+              size="sm"
+              tag="button"
 >
-            <FontAwesomeIcon
-                        border={false}
-                        className=""
-                        fixedWidth={false}
-                        flip={null}
-                        icon="sort-amount-up"
-                        inverse={false}
-                        listItem={false}
-                        mask={null}
-                        pull={null}
-                        pulse={false}
-                        rotation={null}
-                        size="sm"
-                        spin={false}
-                        symbol={false}
-                        title=""
-                        transform={null}
-            />
+              <FontAwesomeIcon
+                            border={false}
+                            className=""
+                            fixedWidth={false}
+                            flip={null}
+                            icon="sort-amount-up"
+                            inverse={false}
+                            listItem={false}
+                            mask={null}
+                            pull={null}
+                            pulse={false}
+                            rotation={null}
+                            size="sm"
+                            spin={false}
+                            symbol={false}
+                            title=""
+                            transform={null}
+              />
 </Button>,
-          <Button
-            active={true}
-            color="secondary"
-            onClick={[Function]}
-            outline={true}
-            size="sm"
-            tag="button"
+            <Button
+              active={true}
+              color="secondary"
+              onClick={[Function]}
+              outline={true}
+              size="sm"
+              tag="button"
 >
-            Status
+              Status
 </Button>,
-          <Button
-            active={false}
-            color="secondary"
-            onClick={[Function]}
-            outline={true}
-            size="sm"
-            tag="button"
+            <Button
+              active={false}
+              color="secondary"
+              onClick={[Function]}
+              outline={true}
+              size="sm"
+              tag="button"
 >
-            Failures only
+              Failures only
 </Button>,
+          ],
+          <CopyButton
+            value="<table><tr><th>Key</th><th>Expected</th><th>Value</th></tr><tr><td></td><td><small></small></td><td><small></small></td></tr><tr style=\\"color: red;\\"><td></td><td><small></small></td><td><small></small></td></tr><tr style=\\"color: red;\\"><td></td><td><small></small></td><td><small></small></td></tr></table>"
+/>,
         ],
         "role": "group",
         "style": Object {
@@ -551,6 +572,17 @@ ShallowWrapper {
           },
           "ref": null,
           "rendered": "Failures only",
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "value": "<table><tr><th>Key</th><th>Expected</th><th>Value</th></tr><tr><td></td><td><small></small></td><td><small></small></td></tr><tr style=\\"color: red;\\"><td></td><td><small></small></td><td><small></small></td></tr><tr style=\\"color: red;\\"><td></td><td><small></small></td><td><small></small></td></tr></table>",
+          },
+          "ref": null,
+          "rendered": null,
           "type": [Function],
         },
       ],

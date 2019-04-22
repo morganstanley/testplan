@@ -307,7 +307,7 @@ ShallowWrapper {
     "key": undefined,
     "nodeType": "class",
     "props": Object {
-      "buttonGroup": <SortButtonGroup
+      "buttonGroup": <DictButtonGroup
         defaultSortType={3}
         flattenedDict={
                 Array [
@@ -1087,7 +1087,7 @@ ShallowWrapper {
       "key": undefined,
       "nodeType": "class",
       "props": Object {
-        "buttonGroup": <SortButtonGroup
+        "buttonGroup": <DictButtonGroup
           defaultSortType={3}
           flattenedDict={
                     Array [

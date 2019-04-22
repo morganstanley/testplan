@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import DictBaseAssertion from './DictBaseAssertion';
 import DictCellRenderer from './DictCellRenderer';
-import SortButtonGroup from './SortButtonGroup';
+import DictButtonGroup from './DictButtonGroup';
 import {
   prepareDictColumnDefs,
   prepareDictRowData,
@@ -67,7 +67,7 @@ class DictMatchAssertion extends Component {
 
   render() {
     let buttonGroup = (
-      <SortButtonGroup
+      <DictButtonGroup
         sortTypeList={[
           SORT_TYPES.ALPHABETICAL,
           SORT_TYPES.REVERSE_ALPHABETICAL,

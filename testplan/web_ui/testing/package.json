@@ -17,6 +17,7 @@
     "eslint": "5.10.0",
     "eslint-plugin-react": "7.11.1",
     "react": "16.6.0",
+    "react-copy-html-to-clipboard": "6.0.4",
     "react-custom-scrollbars": "4.2.1",
     "react-dom": "16.6.0",
     "react-portal-tooltip": "2.4.0",

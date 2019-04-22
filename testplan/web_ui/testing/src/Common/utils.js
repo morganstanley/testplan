@@ -98,6 +98,17 @@ function hashCode(str) {
   return hash;
 }
 
+/**
+ * Get the string representation of a HTML DOM node
+ * @param {object} dom - HTML DOM node
+ * @returns {string}
+ */
+function domToString(dom) {
+  let tmp = document.createElement("div");
+  tmp.appendChild(dom);
+  return tmp.innerHTML;
+}
+
 export {
   getNavEntryType,
   getNavEntryDisplayData,
@@ -105,4 +116,5 @@ export {
   sorted,
   uniqueId,
   hashCode,
+  domToString,
 };

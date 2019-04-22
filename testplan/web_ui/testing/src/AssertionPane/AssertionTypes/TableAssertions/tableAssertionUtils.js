@@ -1,5 +1,7 @@
 /** @module tableAssertionUtils */
 
+import {domToString} from './../../../Common/utils';
+
 /**
  * Function to prepare the column definitions for TableLog assertions.
  *
@@ -280,6 +282,41 @@ function calculateTableGridHeight(
 }
 
 
+/**
+ * Convert Ag-Grid columntDefs and row Data to HTML table DOM object
+ *
+ * @param {Array} columnDefs - Ag-Grid header
+ * @param {Array} rowData - Ag-Grid data
+ * @returns {string} - HTML Table
+ */
+function gridToDOM(columnDefs, rowData) {
+  let headerKey = [];
+  let table = document.createElement('table');
+
+  let header = document.createElement('tr');
+  columnDefs.forEach((el) => {
+    if (el.hide) {
+      return;
+    }
+    let th = document.createElement('th');
+    th.innerText = el.headerName;
+    header.appendChild(th);
+    headerKey.push(el.field);
+  });
+  table.appendChild(header);
+
+  rowData.forEach((el) => {
+    let tr = document.createElement('tr');
+    headerKey.forEach((key) => {
+      let td = document.createElement('td');
+      td.innerText = el[key];
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+  return domToString(table);
+}
+
 export {
   prepareTableLogColumnDefs,
   prepareTableLogRowData,
@@ -289,4 +326,5 @@ export {
   prepareTableColumnContainRowData,
   prepareTableColumnContainPreText,
   calculateTableGridHeight,
+  gridToDOM,
 };
