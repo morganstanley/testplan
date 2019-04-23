@@ -25,7 +25,7 @@ from testplan.common.utils import path as pathutils
 
 from .base import Pool, PoolConfig
 from .process import ProcessWorker, ProcessWorkerConfig
-from .connection import TCPConnectionManager
+from .connection import ZMQServer
 from .communication import Message
 
 
@@ -654,7 +654,7 @@ class RemotePool(Pool):
     """
 
     CONFIG = RemotePoolConfig
-    CONN_MANAGER = TCPConnectionManager
+    CONN_MANAGER = ZMQServer
 
     def __init__(self, **options):
         super(RemotePool, self).__init__(**options)
