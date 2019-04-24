@@ -1,17 +1,14 @@
 """Worker pool executor base classes."""
 
-import abc
+
 import inspect
-import logging
 import numbers
 import os
 import psutil
-
 import threading
 import time
 
 from schema import Or, And
-import six
 
 from testplan.common.config import ConfigOption, validate_func
 from testplan.common import entity
@@ -19,195 +16,11 @@ from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils.strings import Color
 from testplan.common.utils.timing import wait_until_predicate
-from testplan.common.utils import logger
+from testplan.runners.base import Executor, ExecutorConfig
 
 from .communication import Message
-from testplan.runners.base import Executor, ExecutorConfig
+from .connection import QueueClient, QueueServer
 from .tasks import Task, TaskResult
-
-
-class Transport(logger.Loggable):
-    """
-    Transport layer for communication between a pool and a worker.
-    Worker send messages, pool receives and send back responses.
-
-    :param recv_sleep: Sleep duration in msg receive loop.
-    :type recv_sleep: ``float``
-    """
-
-    def __init__(self, recv_sleep=0.05):
-        super(Transport, self).__init__()
-        self._recv_sleep = recv_sleep
-        self.requests = []
-        self.responses = []
-        self.active = True
-
-    def send(self, message):
-        """
-        Worker sends a message.
-
-        :param message: Message to be sent.
-        :type message: :py:class:`~testplan.runners.pools.communication.Message`
-        """
-        self.requests.append(message)
-
-    def receive(self):
-        """
-        Worker receives the response to the message sent.
-
-        :return: Response to the message sent.
-        :type: :py:class:`~testplan.runners.pools.communication.Message`
-        """
-        while self.active:
-            try:
-                return self.responses.pop()
-            except IndexError:
-                time.sleep(self._recv_sleep)
-
-    def accept(self):
-        """
-        Pool receives message sent by worker.
-
-        :return: Message pool received.
-        :type: :py:class:`~testplan.runners.pools.communication.Message`
-        """
-        return self.requests.pop()
-
-    def respond(self, message):
-        """
-        Used by :py:class:`~testplan.runners.pools.base.Pool` to respond to
-        worker request.
-
-        :param message: Respond message.
-        :type message: :py:class:`~testplan.runners.pools.communication.Message`
-        """
-        self.responses.append(message)
-
-    def send_and_receive(self, message, expect=None):
-        """
-        Send and receive shortcut. optionally assert that the response is
-        of the type expected. I.e For a TaskSending message, an Ack is expected.
-
-        :param message: Message sent.
-        :type message: :py:class:`~testplan.runners.pools.communication.Message`
-        :param expect: Assert message received command is the expected.
-        :type expect: ``NoneType`` or
-            :py:class:`~testplan.runners.pools.communication.Message`
-        :return: Message received.
-        :rtype: ``object``
-        """
-        if not self.active:
-            return None
-        try:
-            self.send(message)
-        except Exception as exc:
-            self.logger.exception('Hit exception on transport send.')
-            raise RuntimeError('On transport send - {}.'.format(exc))
-
-        try:
-            received = self.receive()
-        except Exception as exc:
-            self.logger.exception('Hit exception on transport receive.')
-            raise RuntimeError('On transport receive - {}.'.format(exc))
-
-        if self.active and expect is not None:
-            if received is None:
-                raise RuntimeError('Received None when {} was expected.'.format(
-                    expect))
-            assert received.cmd == expect
-        return received
-
-
-@six.add_metaclass(abc.ABCMeta)
-class ConnectionManager(entity.Resource):
-    """
-    Abstract base class for classes that manage connections between Pools and
-    workers.
-    """
-
-    def __init__(self):
-        super(ConnectionManager, self).__init__()
-        self._workers = []
-
-    @property
-    def workers(self):
-        """Returns workers this object manages connections for."""
-        return self._workers
-
-    def starting(self):
-        """
-        Perform any connection setup - in the base class no setup is required.
-        """
-        self.status.change(self.status.STARTED)
-
-    def stopping(self):
-        """Unregister workers when stopping."""
-        self._unregister_workers()
-        self.status.change(self.status.STOPPED)
-
-    def aborting(self):
-        """Abort policy - no abort actions are required in the base class."""
-
-    def register(self, worker):
-        """
-        Register a new worker. Workers should be registered after the
-        connection manager is started and will be automatically unregistered
-        when it is stopped.
-        """
-        if self.status.tag != self.status.STARTED:
-            raise RuntimeError(
-                'Can only register workers when started. Current state is {}'
-                .format(self.status.tag))
-
-        if worker in self._workers:
-            raise RuntimeError('Worker {} already in ConnectionManager'
-                               .format(worker))
-        self._workers.append(worker)
-
-    @abc.abstractmethod
-    def accept(self):
-        """
-        Accepts a new message from worker. This method should not block - if
-        no message is queued for receiving it should return None.
-
-        :return: Message received from worker transport, or None.
-        :rtype: ``NoneType`` or
-            :py:class:`~testplan.runners.pools.communication.Message`
-        """
-        raise NotImplementedError
-
-    def _unregister_workers(self):
-        """Remove workers from this connection manager."""
-        self._workers = []
-
-
-class RoundRobinConnManager(ConnectionManager):
-    """Manages workers and performs round robin communication with each."""
-
-    def __init__(self):
-        super(RoundRobinConnManager, self).__init__()
-        self._current = 1
-
-    def accept(self):
-        """
-        Accepts a new message from the next worker, increments the current
-        worker index. Doesn't block if no message is queued for receiving.
-
-        :return: Message received from worker transport, or None.
-        :rtype: ``NoneType`` or
-            :py:class:`~testplan.runners.pools.communication.Message`
-        """
-        if not self._workers:
-            return None
-        msg = None
-        try:
-            idx = (self._current % len(self._workers)) - 1
-            msg = self._workers[idx].transport.accept()
-        except IndexError:
-            pass
-        finally:
-            self._current += 1
-            return msg
 
 
 class WorkerConfig(entity.ResourceConfig):
@@ -217,8 +30,8 @@ class WorkerConfig(entity.ResourceConfig):
 
     :param index: Worker index id.
     :type index: ``int`` or ``str``
-    :param transport: Transport communication class definition.
-    :type transport: :py:class:`~testplan.runners.pools.base.Transport`
+    :param transport: Transport class for pool/worker communication.
+    :type transport: :py:class:`~testplan.runners.pools.connection.Client`
 
     Also inherits all :py:class:`~testplan.common.entity.base.ResourceConfig`
     options.
@@ -231,7 +44,7 @@ class WorkerConfig(entity.ResourceConfig):
         """
         return {
             'index': Or(int, str),
-            ConfigOption('transport', default=Transport): object,
+            ConfigOption('transport', default=QueueClient): object,
         }
 
 
@@ -254,7 +67,7 @@ class Worker(entity.Resource):
 
     @property
     def transport(self):
-        """Worker communication transport."""
+        """Pool/Worker communication transport."""
         return self._transport
 
     @property
@@ -348,7 +161,7 @@ class Worker(entity.Resource):
 
     def respond(self, msg):
         """
-        Method that the pull uses to respond with a message to the worker.
+        Method that the pool uses to respond with a message to the worker.
 
         :param msg: Response message.
         :type msg: :py:class:`~testplan.runners.pools.communication.Message`
@@ -417,7 +230,7 @@ class Pool(Executor):
     """
 
     CONFIG = PoolConfig
-    CONN_MANAGER = RoundRobinConnManager
+    CONN_MANAGER = QueueServer
 
     def __init__(self, **options):
         super(Pool, self).__init__(**options)
@@ -432,7 +245,6 @@ class Pool(Executor):
         self._metadata = {}
         self.make_runpath_dirs()
         self._metadata['runpath'] = self.runpath
-        self._add_workers()
 
         # Methods for handling different Message types. These are expected to
         # take the worker, request and response objects as the only required
@@ -799,6 +611,7 @@ class Pool(Executor):
             worker.parent = self
             worker.cfg.parent = self.cfg
             self._workers.add(worker, uid=idx)
+            self._conn.register(worker)
             self.logger.debug('Added worker %(index)s (outfile = %(outfile)s)',
                               {'index': idx, 'outfile': worker.outfile})
 
@@ -806,8 +619,8 @@ class Pool(Executor):
         """Starting the pool and workers."""
         with self._pool_lock:
             self._conn.start()
-            for worker in self._workers:
-                self._conn.register(worker)
+            if not len(self._workers):
+                self._add_workers()
             self._workers.start()
 
         if self._workers.start_exceptions:

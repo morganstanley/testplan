@@ -4,10 +4,9 @@ import os
 import re
 import sys
 import time
-import pickle
 import signal
 import subprocess
-from schema import Or, And, Use
+from schema import Or
 
 import testplan
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -16,31 +15,7 @@ from testplan.common.utils.process import kill_process
 from testplan.common.utils.match import match_regexps_in_file
 
 from .base import Pool, PoolConfig, Worker, WorkerConfig
-from .connection import TCPConnectionManager
-
-
-class ProcessTransport(object):
-    """
-    Transport layer for communication between a pool and a process worker.
-    Worker send serializable messages, pool receives and send back responses.
-
-    :param recv_sleep: Sleep duration in msg receive loop.
-    :type recv_sleep: ``float``
-    """
-
-    def __init__(self, recv_sleep=0.05):
-        self.connection = None
-        self.address = None
-
-    def respond(self, message):
-        """
-        Used by :py:class:`~testplan.runners.pools.base.Pool` to respond to
-        worker request.
-
-        :param message: Respond message.
-        :type message: :py:class:`~testplan.runners.pools.communication.Message`
-        """
-        self.connection.send(pickle.dumps(message))
+from .connection import ZMQClientProxy, ZMQServer
 
 
 class ProcessWorkerConfig(WorkerConfig):
@@ -50,8 +25,8 @@ class ProcessWorkerConfig(WorkerConfig):
 
     :param start_timeout: Timeout duration for worker to start.
     :type start_timeout: ``int``
-    :param transport: Transport communication class definition.
-    :type transport: :py:class:`~testplan.runners.pools.process.ProcessTransport`
+    :param transport: Transport class for pool/worker communication.
+    :type transport: :py:class:`~testplan.runners.pools.connection.Client`
 
     Also inherits all :py:class:`~testplan.runners.pools.base.WorkerConfig`
     options.
@@ -64,7 +39,7 @@ class ProcessWorkerConfig(WorkerConfig):
         """
         return {
             ConfigOption('start_timeout', default=120): int,
-            ConfigOption('transport', default=ProcessTransport): object,
+            ConfigOption('transport', default=ZMQClientProxy): object,
         }
 
 
@@ -196,4 +171,4 @@ class ProcessPool(Pool):
     """
 
     CONFIG = ProcessPoolConfig
-    CONN_MANAGER = TCPConnectionManager
+    CONN_MANAGER = ZMQServer

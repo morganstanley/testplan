@@ -121,6 +121,9 @@ class Environment(object):
             return '{}[{}]'.format(self.__class__.__name__,
                                    list(self._resources.items()))
 
+    def __len__(self):
+        return len(self._resources)
+
     def all_status(self, target):
         """
         Check all resources has target status.
@@ -383,6 +386,8 @@ class Entity(logger.Loggable):
         """
         Default abort policy. First abort all dependencies and then itself.
         """
+        if not self.active:
+            return
         self._should_abort = True
         for dep in self.abort_dependencies():
             self._abort_entity(dep)
