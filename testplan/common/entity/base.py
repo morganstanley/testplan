@@ -121,6 +121,9 @@ class Environment(object):
             return '{}[{}]'.format(self.__class__.__name__,
                                    list(self._resources.items()))
 
+    def __len__(self):
+        return len(self._resources)
+
     def all_status(self, target):
         """
         Check all resources has target status.

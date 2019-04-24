@@ -287,12 +287,9 @@ def child_logic(args):
         print('Removing old runpath: {}'.format(args.runpath))
         shutil.rmtree(args.runpath, ignore_errors=True)
 
-    from testplan.runners.pools.base import (
-        Pool, Worker)
-    from testplan.runners.pools.process import (
-        ProcessPool, ProcessWorker)
+    from testplan.runners.pools.base import (Pool, Worker)
+    from testplan.runners.pools.process import (ProcessPool, ProcessWorker)
     from testplan.runners.pools.connection import ZMQClient
-
 
     class NoRunpathPool(Pool):
         """
@@ -324,10 +321,10 @@ def child_logic(args):
         def make_runpath_dirs(self):
             self._runpath = self.cfg.runpath
 
+    transport = ZMQClient(address=args.address)
+
     if args.type == 'process_worker':
-        transport = ZMQClient(address=args.address)
-        loop = ChildLoop(args.index, transport, NoRunpathPool, 1, Worker,
-                         TESTPLAN_LOGGER)
+        loop = ChildLoop(args.index, transport, NoRunpathPool, 1, Worker,TESTPLAN_LOGGER)
         loop.worker_loop()
 
     elif args.type == 'remote_worker':
@@ -337,7 +334,6 @@ def child_logic(args):
         else:
             pool_type = NoRunpathThreadPool
             worker_type = Worker
-        transport = ZMQClient(address=args.address)
 
         loop = RemoteChildLoop(
             args.index, transport, pool_type, args.remote_pool_size,

@@ -675,4 +675,5 @@ class RemotePool(Pool):
             worker.parent = self
             worker.cfg.parent = self.cfg
             self._workers.add(worker, uid=host)
+            self._conn.register(worker)
 

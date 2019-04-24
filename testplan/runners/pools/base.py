@@ -16,10 +16,10 @@ from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils.strings import Color
 from testplan.common.utils.timing import wait_until_predicate
+from testplan.runners.base import Executor, ExecutorConfig
 
 from .communication import Message
 from .connection import QueueClient, QueueServer
-from testplan.runners.base import Executor, ExecutorConfig
 from .tasks import Task, TaskResult
 
 
@@ -30,8 +30,8 @@ class WorkerConfig(entity.ResourceConfig):
 
     :param index: Worker index id.
     :type index: ``int`` or ``str``
-    :param transport: Transport communication class definition.
-    :type transport: :py:class:`~testplan.runners.pools.base.ThreadTransport`
+    :param transport: Transport class for pool/worker communication.
+    :type transport: :py:class:`~testplan.runners.pools.connection.Client`
 
     Also inherits all :py:class:`~testplan.common.entity.base.ResourceConfig`
     options.
@@ -67,7 +67,7 @@ class Worker(entity.Resource):
 
     @property
     def transport(self):
-        """Worker communication transport."""
+        """Pool/Worker communication transport."""
         return self._transport
 
     @property
@@ -619,7 +619,8 @@ class Pool(Executor):
         """Starting the pool and workers."""
         with self._pool_lock:
             self._conn.start()
-            self._add_workers()
+            if not len(self._workers):
+                self._add_workers()
             self._workers.start()
 
         if self._workers.start_exceptions:

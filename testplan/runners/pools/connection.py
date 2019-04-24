@@ -6,11 +6,7 @@ import six
 import abc
 import zmq
 import time
-
-try:
-    from queue import Queue     # py3
-except ImportError:
-    from Queue import Queue     # py2
+from six.moves import queue
 
 from testplan.common import entity
 from testplan.common.utils import logger
@@ -19,7 +15,7 @@ from testplan.common.utils import logger
 @six.add_metaclass(abc.ABCMeta)
 class Client(logger.Loggable):
     """
-    Workers are considered Client in Pool/Worker communication.
+    Workers are Client in Pool/Worker communication.
     Abstract base class for workers to communicate with its pool."""
 
     def __init__(self):
@@ -38,7 +34,11 @@ class Client(logger.Loggable):
 
     @abc.abstractmethod
     def send(self, message):
-        """Sends a message to server"""
+        """
+        Sends a message to server
+        :param message: Message to be sent.
+        :type message: :py:class:`~testplan.runners.pools.communication.Message`
+        """
         pass
 
     @abc.abstractmethod
@@ -89,26 +89,34 @@ class QueueClient(Client):
         super(QueueClient, self).__init__()
         self._recv_sleep = recv_sleep
         self.requests = None
-        self.responses = []     # single-producer(worker) single-consumer(pool) FIFO queue
-        self.active = False
+        self.responses = []     # single-producer(pool) single-consumer(worker) FIFO queue
 
     def connect(self, requests):
-        """Connect to the request queue of Pool"""
+        """
+        Connect to the request queue of Pool
+        :param requests: request queue of pool that worker should write to.
+        :type requests: Queue
+        """
         self.requests = requests
         self.active = True
 
     def disconnect(self):
+        """Disconnect worker from pool"""
         self.active = False
         self.requests = None
 
     def send(self, message):
-        """Worker sends a message"""
+        """
+        Worker sends a message
+        :param message: Message to be sent.
+        :type message: :py:class:`~testplan.runners.pools.communication.Message`
+        """
         if self.active:
             self.requests.put(message)
 
     def receive(self):
         """
-        Worker receives response to the message sent
+        Worker receives response to the message sent, this method blocks.
         :return: Response to the message sent.
         :type: :py:class:`~testplan.runners.pools.communication.Message`
         """
@@ -126,7 +134,8 @@ class QueueClient(Client):
         :param message: Respond message.
         :type message: :py:class:`~testplan.runners.pools.communication.Message`
         """
-        self.responses.append(message)
+        if self.active:
+            self.responses.append(message)
 
 
 class ZMQClient(Client):
@@ -140,24 +149,28 @@ class ZMQClient(Client):
 
     def __init__(self, address, recv_sleep=0.05, recv_timeout=5):
         super(ZMQClient, self).__init__()
-        import zmq
-        self._zmq = zmq
+        self._address = address
         self._recv_sleep = recv_sleep
         self._recv_timeout = recv_timeout
-        self._address = address
-        self.active = False
+        self._context = None
+        self._sock = None
 
         self.connect()  # auto connect
 
     def connect(self):
+        """Connect to a ZMQ Server"""
         self._context = zmq.Context()
         self._sock = self._context.socket(zmq.REQ)
         self._sock.connect("tcp://{}".format(self._address))
         self.active = True
 
     def disconnect(self):
-        pass
-        #TODO
+        """Disconnect from Server"""
+        self.active = True
+        self._sock.close()
+        self._sock = None
+        self._context.destroy()
+        self._context = None
 
     def send(self, message):
         """
@@ -171,15 +184,16 @@ class ZMQClient(Client):
 
     def receive(self):
         """
-        Worker receives the response to the message sent.
+        Worker tries to receive the response to the message sent until timeout.
 
         :return: Response to the message sent.
         :type: :py:class:`~testplan.runners.pools.communication.Message`
         """
         start_time = time.time()
+
         while self.active:
             try:
-                received = self._sock.recv(flags=self._zmq.NOBLOCK)
+                received = self._sock.recv(flags=zmq.NOBLOCK)
                 try:
                     loaded = pickle.loads(received)
                 except Exception as exc:
@@ -187,7 +201,7 @@ class ZMQClient(Client):
                     raise
                 else:
                     return loaded
-            except self._zmq.Again:
+            except zmq.Again:
                 if time.time() - start_time > self._recv_timeout:
                     print('Transport receive timeout {}s reached!'.format(
                         self._recv_timeout))
@@ -226,6 +240,10 @@ class Server(entity.Resource):
         super(Server, self).__init__()
         self._workers = []
 
+    @property
+    def workers(self):
+        return self._workers
+
     def starting(self):
         """Server starting logic."""
         self.status.change(self.status.STARTED)
@@ -238,10 +256,7 @@ class Server(entity.Resource):
 
     def aborting(self):
         """Abort policy - no abort actions are required in the base class."""
-
-    @property
-    def workers(self):
-        return self._workers
+        pass
 
     @abc.abstractmethod
     def register(self, worker):
@@ -256,8 +271,7 @@ class Server(entity.Resource):
                 .format(self.status.tag))
 
         if worker in self._workers:
-            raise RuntimeError('Worker {} already in ConnectionManager'
-                               .format(worker))
+            raise RuntimeError('Worker {} already in ConnectionManager'.format(worker))
         self._workers.append(worker)
 
     @abc.abstractmethod
@@ -275,7 +289,7 @@ class Server(entity.Resource):
         :rtype: ``NoneType`` or
             :py:class:`~testplan.runners.pools.communication.Message`
         """
-        raise NotImplementedError
+        pass
 
 
 class QueueServer(Server):
@@ -283,7 +297,7 @@ class QueueServer(Server):
 
     def __init__(self):
         super(QueueServer, self).__init__()
-        self.requests = Queue()     # multi-producer(workers) single-consumer(pool) FIFO queue
+        self.requests = queue.Queue()     # multi-producer(workers) single-consumer(pool) FIFO queue
 
     def register(self, worker):
         super(QueueServer, self).register(worker)
@@ -296,14 +310,16 @@ class QueueServer(Server):
 
     def accept(self):
         """
-        Accepts a new message from the next worker, increments the current
-        worker index. Doesn't block if no message is queued for receiving.
+        Accepts the next request in the request queue.
 
         :return: Message received from worker transport, or None.
         :rtype: ``NoneType`` or
             :py:class:`~testplan.runners.pools.communication.Message`
         """
-        return self.requests.get()
+        try:
+            return self.requests.get()
+        except queue.Empty:
+            return None
 
 
 class ZMQServer(Server):

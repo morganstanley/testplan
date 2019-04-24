@@ -25,8 +25,8 @@ class ProcessWorkerConfig(WorkerConfig):
 
     :param start_timeout: Timeout duration for worker to start.
     :type start_timeout: ``int``
-    :param transport: Transport communication class definition.
-    :type transport: :py:class:`~testplan.runners.pools.process.ProcessTransport`
+    :param transport: Transport class for pool/worker communication.
+    :type transport: :py:class:`~testplan.runners.pools.connection.Client`
 
     Also inherits all :py:class:`~testplan.runners.pools.base.WorkerConfig`
     options.
