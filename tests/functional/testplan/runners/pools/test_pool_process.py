@@ -28,12 +28,15 @@ def test_kill_one_worker():
     plan = Testplan(
         name='ProcPlan',
         parse_cmdline=False,
+        # runpath='/var/tmp/yifan/testplan/kill_one_worker',
+        # logger_level=10
     )
     pool_size = 4
     pool = ProcessPool(name=pool_name, size=pool_size,
                        worker_heartbeat=2,
                        heartbeats_miss_limit=2,
-                       max_active_loop_sleep=1)
+                       max_active_loop_sleep=1,
+                       restart_count=0)
     pool_uid = plan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -77,13 +80,16 @@ def test_kill_all_workers():
     plan = Testplan(
         name='ProcPlan',
         parse_cmdline=False,
+        # runpath='/var/tmp/yifan/testplan/kill_one_worker',
+        # logger_level=10
     )
     pool_size = 4
     pool = ProcessPool(name=pool_name, size=pool_size,
                        task_retries_limit=pool_size,
                        worker_heartbeat=2,
                        heartbeats_miss_limit=2,
-                       max_active_loop_sleep=1)
+                       max_active_loop_sleep=1,
+                       restart_count=0)
     pool_uid = plan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -119,7 +125,8 @@ def test_reassign_times_limit():
                        task_retries_limit=retries_limit,
                        worker_heartbeat=2,
                        heartbeats_miss_limit=2,
-                       max_active_loop_sleep=1)
+                       max_active_loop_sleep=1,
+                       restart_count=0)
     pool_uid = plan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -146,6 +153,7 @@ def test_custom_reschedule_condition():
     plan = Testplan(
         name='ProcPlan',
         parse_cmdline=False,
+        logger_level=10
     )
     uid = 'custom_task_uid'
     max_reschedules = 2
@@ -159,7 +167,8 @@ def test_custom_reschedule_condition():
     pool = ProcessPool(name=pool_name, size=pool_size,
                        worker_heartbeat=2,
                        heartbeats_miss_limit=2,
-                       max_active_loop_sleep=1)
+                       max_active_loop_sleep=1,
+                       restart_count=0)
     pool.set_reschedule_check(custom_reschedule)
     pool_uid = plan.add_resource(pool)
 
@@ -173,7 +182,6 @@ def test_custom_reschedule_condition():
     with log_propagation_disabled(TESTPLAN_LOGGER):
         res = plan.run()
 
-    # Check that the worker killed by test was aborted
     assert len([worker for worker in plan.resources[pool_uid]._workers
                 if worker._aborted is True]) == 0
 

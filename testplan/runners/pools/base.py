@@ -4,9 +4,10 @@
 import inspect
 import numbers
 import os
-import psutil
 import threading
 import time
+import datetime
+import pprint
 
 from schema import Or, And
 
@@ -45,6 +46,7 @@ class WorkerConfig(entity.ResourceConfig):
         return {
             'index': Or(int, str),
             ConfigOption('transport', default=QueueClient): object,
+            ConfigOption('restart_count', default=3): int,
         }
 
 
@@ -60,10 +62,15 @@ class Worker(entity.Resource):
         super(Worker, self).__init__(**options)
         self._metadata = None
         self._transport = self.cfg.transport()
-        self._loop_handler = None
+        self._handler = None
         self.last_heartbeat = None
         self.assigned = set()
         self.requesting = 0
+        self.restart_count = self.cfg.restart_count
+
+    @property
+    def handler(self):
+        return self._handler
 
     @property
     def transport(self):
@@ -91,26 +98,28 @@ class Worker(entity.Resource):
     def starting(self):
         """Starts the daemonic worker loop."""
         self.make_runpath_dirs()
-        self._loop_handler = threading.Thread(
+        self._handler = threading.Thread(
             target=self._loop, args=(self._transport,))
-        self._loop_handler.daemon = True
-        self._loop_handler.start()
+        self._handler.daemon = True
+        self._handler.start()
+        self.status.change(self.STATUS.STARTED)
 
     def stopping(self):
         """Stops the worker."""
-        self._transport.active = False
-        if self._loop_handler:
-            interruptible_join(self._loop_handler)
-        self._loop_handler = None
+        self._transport.disconnect()
+        if self._handler:
+            interruptible_join(self._handler)
+        self._handler = None
+        self.status.change(self.STATUS.STOPPED)
 
     def aborting(self):
         """Aborting logic, will not wait running tasks."""
-        self._transport.active = False
+        self._transport.disconnect()
 
     @property
     def is_alive(self):
         """Poll the loop handler thread to check it is running as expected."""
-        return self._loop_handler.is_alive()
+        return self._handler.is_alive()
 
     def _loop(self, transport):
         message = Message(**self.metadata)
@@ -192,11 +201,6 @@ class PoolConfig(ExecutorConfig):
     :type worker_type: :py:class:`~testplan.runners.pools.base.Worker`
     :param worker_heartbeat: Worker heartbeat period.
     :type worker_heartbeat: ``int`` or ``float`` or ``NoneType``
-    :param heartbeat_init_window: Allowed seconds of missing heartbeats from
-      workers.
-    :type heartbeat_init_window: ``int``
-    :param heartbeats_miss_limit: Worker heartbeat period.
-    :type heartbeats_miss_limit: ``int``
     :param task_retries_limit: Maximum times a task can be re-assigned to pool.
     :type task_retries_limit: ``int``
     :param max_active_loop_sleep: Maximum value for delay logic in active sleep.
@@ -217,11 +221,11 @@ class PoolConfig(ExecutorConfig):
             ConfigOption('worker_type', default=Worker): object,
             ConfigOption('worker_heartbeat', default=None):
                 Or(int, float, None),
-            ConfigOption('heartbeat_init_window', default=1800): int,
-            ConfigOption('worker_inactivity_threshold', default=300): int,
             ConfigOption('heartbeats_miss_limit', default=3): int,
             ConfigOption('task_retries_limit', default=3): int,
-            ConfigOption('max_active_loop_sleep', default=5): numbers.Number}
+            ConfigOption('max_active_loop_sleep', default=5): numbers.Number,
+            ConfigOption('restart_count', default=3): int,
+        }
 
 
 class Pool(Executor):
@@ -296,51 +300,26 @@ class Pool(Executor):
         Main executor work loop - runs in a seperate thread when the Pool is
         started.
         """
-        # No heartbeat means no fault tolerance for worker.
-        if self.cfg.worker_heartbeat:
-            self.logger.debug('Starting worker monitor thread.')
-            worker_monitor = threading.Thread(target=self._workers_monitoring)
-            worker_monitor.daemon = True
-            worker_monitor.start()
 
-        while self.active:
-            with self._pool_lock:
-                should_continue = self._loop_process_work(self.status.tag)
+        self.logger.debug('Starting worker monitor thread.')
+        self._worker_monitor = threading.Thread(target=self._workers_monitoring)
+        self._worker_monitor.daemon = True
+        self._worker_monitor.start()
 
-            if not should_continue:
-                break
-            else:
-                time.sleep(self.cfg.active_loop_sleep)
+        while self.active and\
+            self.status.tag is not self.status.STOPPING and\
+            self.status.tag is not self.status.STOPPED:
 
-    def _loop_process_work(self, curr_status):
-        """
-        Poll for work based on the current pool state and process the next item
-        if there is one.
-
-        :return: Whether to continue the main work loop.
-        :rtype: ``bool``
-        """
-        if curr_status == self.status.STARTING:
-            self.status.change(self.status.STARTED)
-        elif curr_status == self.status.STOPPING:
-            self.status.change(self.status.STOPPED)
-            return False  # Indicate to break from the main work loop.
-        elif curr_status != self.status.STARTED:
-            raise RuntimeError('Pool in unexpected state {}'
-                               .format(curr_status))
-        else:
             msg = self._conn.accept()
             if msg:
                 try:
-                    self.logger.debug('Received message from worker: %s.',
-                                      msg)
-                    self.handle_request(msg)
+                    self.logger.debug('Received message from worker: %s.', msg)
+                    with self._pool_lock:
+                        self.handle_request(msg)
                 except Exception as exc:
                     self.logger.error(format_trace(inspect.trace(), exc))
 
-        # The main work loop can continue.
-        return True
-
+            time.sleep(self.cfg.active_loop_sleep)
 
     def handle_request(self, request):
         """
@@ -355,11 +334,7 @@ class Pool(Executor):
             self.logger.critical(
                 'Ignoring message {} - {} from inactive worker {}'.format(
                     request.cmd, request.data, worker))
-            # TODO check whether should we respond.
-            worker.respond(Message(**self._metadata).make(Message.Ack))
             return
-        else:
-            worker.last_heartbeat = time.time()
 
         self.logger.debug('Pool {} request received by {} - {}, {}'.format(
             self.cfg.name, worker, request.cmd, request.data))
@@ -426,6 +401,7 @@ class Pool(Executor):
 
     def _handle_taskresults(self, worker, request, response):
         """Handle a TaskResults message from a worker."""
+        worker.respond(response.make(Message.Ack))
         for task_result in request.data:
             uid = task_result.task.uid()
             worker.assigned.remove(uid)
@@ -453,7 +429,7 @@ class Pool(Executor):
             self._results[uid] = task_result
             self.ongoing.remove(uid)
 
-        worker.respond(response.make(Message.Ack))
+        # worker.respond(response.make(Message.Ack))
 
     def _handle_heartbeat(self, worker, request, response):
         """Handle a Heartbeat message received from a worker."""
@@ -473,7 +449,9 @@ class Pool(Executor):
             worker, 'Aborting {}, setup failed.')
 
     def _deco_worker(self, worker, message):
-        """Decomission a worker."""
+        """
+        Decommission a worker by move all assigned task back to pool
+        """
         self.logger.critical(message.format(worker))
         if os.path.exists(worker.outfile):
             self.logger.critical('\tlogfile: {}'.format(worker.outfile))
@@ -483,94 +461,82 @@ class Pool(Executor):
                 'Re-assigning {} from {} to {}.'.format(
                     self._input[uid], worker, self))
             self.unassigned.append(uid)
-        worker.abort()
-
-    def _workers_handler_monitoring(self, worker, workers_last_killed={}):
-        inactivity_threshold = self.cfg.worker_inactivity_threshold
-
-        if worker not in workers_last_killed:
-            workers_last_killed[worker] = time.time()
-
-        worker_last_killed = workers_last_killed[worker]
-        if not worker.assigned or\
-            time.time() - worker_last_killed < inactivity_threshold:
-            return
-
-        try:
-            proc = psutil.Process(worker.handler.pid)
-            children = list(proc.children(recursive=True))
-            worker_last_result = self._workers_last_result.get(worker, 0)
-            if all(item.status() == 'zombie' for item in children) and\
-                    time.time() - worker_last_result > inactivity_threshold:
-                workers_last_killed[worker] = time.time()
-                try:
-                    while worker.assigned:
-                        uid = worker.assigned.pop()
-                        self.logger.test_info(
-                            'Re-assigning {} from {} to {}.'.format(
-                                self._input[uid], worker, self))
-                        self.unassigned.append(uid)
-                    self.logger.test_info(
-                        'Restarting worker: {}'.format(worker))
-                    worker.stop()
-                    worker.start()
-                except Exception as exc:
-                    self.logger.critical(
-                        'Worker {} failed to restart: {}'.format(worker, exc))
-                    self._deco_worker(
-                        worker, 'Aborting {}, due to defunct child process.')
-        except psutil.NoSuchProcess:
-            pass
 
     def _workers_monitoring(self):
         """
-        Monitor the health of workers in a loop. Executes in a separate thread.
+        Worker fault tolerance logic. Check is based on:
+        1) handler status
+        2) heartbeat if available
         """
-        if not self.cfg.worker_heartbeat:
-            raise RuntimeError(
-                'Cannot monitor workers with no heartbeat configured.')
 
-        monitor_started = time.time()
-        loop_sleep = self.cfg.worker_heartbeat * self.cfg.heartbeats_miss_limit
+        def handle_inactive(worker, reason):
+            """
+            Handle an inactive worker.
+            """
+            hosts_status['inactive'].append(worker)
+            self._deco_worker(worker, reason)
+            if worker.restart_count:
+                worker.restart_count -= 1
+                try:
+                    import pdb
+                except Exception as exc:
+                    self.logger.critical(
+                        'Worker {} failed to restart: {}'.format(worker, exc))
+            else:
+                worker.abort()
 
-        while self._loop_handler.is_alive():
-            w_total = set()
-            w_uninitialized = set()
-            w_active = set()
-            w_inactive = set()
+        previous_status = {'active': [], 'inactive': [], 'initializing': []}
 
-            monitor_alive = time.time() - monitor_started
-            init_window = monitor_alive <= self.cfg.heartbeat_init_window
+        while self.is_alive and self.active:
+
+            hosts_status = {'active': [], 'inactive': [], 'initializing': []}
             with self._pool_lock:
                 for worker in self._workers:
-                    if getattr(worker, 'handler', None):
-                        self._workers_handler_monitoring(worker)
-                    w_total.add(worker)
-                    if not worker.active:
-                        w_inactive.add(worker)
-                    elif worker.last_heartbeat is None:
-                        w_uninitialized.add(worker)
-                        if not init_window:
-                            self._deco_worker(
-                                worker, 'Aborting {}, could not initialize.')
-                    elif time.time() - worker.last_heartbeat > loop_sleep:
-                        w_inactive.add(worker)
-                        self._deco_worker(
-                            worker, 'Aborting {}, failed to send heartbeats.')
-                    else:
-                        w_active.add(worker)
+                    if worker.status.tag == worker.status.NONE or worker.status.tag == worker.status.STARTING:
+                        hosts_status['initializing'].append(worker)  # TODO: worker name?
+                        continue
 
-                if w_total:
-                    if len(w_inactive) == len(w_total):
-                        self.logger.critical(
-                            'All workers of {} are inactive.'.format(self))
-                        self.abort()
-                        break
+                    if worker.status.tag == worker.status.STOPPING or worker.status.tag == worker.status.STOPPED:
+                        hosts_status['inactive'].append(worker)
+                        continue
+
+                    # else: worker is of STARTED status
+                    if not worker.is_alive:  # handler based monitoring
+                        handle_inactive(worker, 'Deco {}, handler no longer alive'.format(worker))
+                        continue
+
+                    if not self.cfg.worker_heartbeat:
+                        hosts_status['active'].append(worker)
+                        continue
+
+                    # else: do heartbeat based monitoring
+                    lag = time.time() - worker.last_heartbeat
+                    if lag > self.cfg.worker_heartbeat * self.cfg.heartbeats_miss_limit:
+                        handle_inactive(
+                            worker,
+                            'Has not been receiving heartbeat from {} for {} sec'.format(worker, lag))
+                        continue
+
+                    hosts_status['active'].append(worker)
+
+                if hosts_status != previous_status:
+                    self.logger.info('{} Hosts status update'.format(str(datetime.datetime.now())))
+                    self.logger.info(pprint.pformat(hosts_status))
+                    previous_status = hosts_status
+
+                if not hosts_status['active'] \
+                        and not hosts_status['initializing'] \
+                        and hosts_status['inactive']:
+                    self.logger.critical(
+                        'All workers of {} are inactive.'.format(self))
+                    self.abort()
+                    break
 
             try:
                 # For early finish of worker monitoring thread.
-                wait_until_predicate(lambda: not self._loop_handler.is_alive(),
-                                     timeout=loop_sleep, interval=0.05)
+                wait_until_predicate(lambda: not self.is_alive,
+                                     timeout=self.cfg.worker_heartbeat if self.cfg.worker_heartbeat else 5,
+                                     interval=0.05)
             except RuntimeError:
                 break
 
@@ -606,31 +572,38 @@ class Pool(Executor):
 
     def _add_workers(self):
         """Initialise worker instances."""
-        for idx in (str(i) for i in range(self.cfg.size)):
-            worker = self.cfg.worker_type(index=idx)
-            worker.parent = self
-            worker.cfg.parent = self.cfg
-            self._workers.add(worker, uid=idx)
+        if not self._workers:   # if workers are not already added
+            for idx in (str(i) for i in range(self.cfg.size)):
+                worker = self.cfg.worker_type(index=idx, restart_count=self.cfg.restart_count)
+                worker.parent = self
+                worker.cfg.parent = self.cfg
+                self._workers.add(worker, uid=idx)
+
+                self.logger.debug('Added worker %(index)s (outfile = %(outfile)s)',
+                                  {'index': idx, 'outfile': worker.outfile})
+
+    def _start_workers(self):
+        """Start all workers of the pool"""
+        for worker in self._workers:
             self._conn.register(worker)
-            self.logger.debug('Added worker %(index)s (outfile = %(outfile)s)',
-                              {'index': idx, 'outfile': worker.outfile})
+        self._workers.start()
 
     def starting(self):
         """Starting the pool and workers."""
-        with self._pool_lock:
-            self._conn.start()
-            if not len(self._workers):
-                self._add_workers()
-            self._workers.start()
+        # TODO do we need a lock here?
+        self._conn.start()
+        self._add_workers()
+        self._start_workers()
 
         if self._workers.start_exceptions:
             for msg in self._workers.start_exceptions.values():
                 self.logger.error(msg)
             self._workers.stop()
-            raise RuntimeError('All workers of {} failed to start.'.format(
-            self))
+            raise RuntimeError('All workers of {} failed to start.'.format(self))
 
-        super(Pool, self).starting()
+        super(Pool, self).starting()  # start the loop & monitor
+
+        self.status.change(self.status.STARTED)
         self.logger.debug('%s started.', self.__class__.__name__)
 
     def workers_requests(self):
@@ -639,11 +612,14 @@ class Pool(Executor):
 
     def stopping(self):
         """Stop connections and workers."""
-        # Stop workers before stopping the connection manager.
-        with self._pool_lock:
-            self._workers.stop()
-            self._conn.stop()
-        super(Pool, self).stopping()
+        # TODO do we need a lock here?
+
+        super(Pool, self).stopping()  # stop the loop and the monitor
+
+        self._workers.stop()
+        self._conn.stop()
+
+        self.status.change(self.status.STOPPED)
         self.logger.debug('Stopped %s', self.__class__.__name__)
 
     def abort_dependencies(self):
@@ -654,9 +630,12 @@ class Pool(Executor):
     def aborting(self):
         """Aborting logic."""
         self.logger.debug('Aborting pool {}'.format(self))
+
+        super(Pool, self).stopping()  # stop the loop and the monitor
         for worker in self._workers:
             worker.abort()
         self._conn.abort()
         self._discard_pending_tasks()
+
         self.logger.debug('Aborted pool {}'.format(self))
 

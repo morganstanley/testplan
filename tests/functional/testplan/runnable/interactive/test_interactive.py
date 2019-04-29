@@ -358,8 +358,7 @@ def test_http_operate_tests_async():
 
             # QUERY UID ASYNC OPERATION UNTIL FINISHED
             sleeper = get_sleeper(
-                0.6, raise_timeout_with_msg='Async result missing.',
-                constant_interval=True)
+                0.6, raise_timeout_with_msg='Async result missing.')
             while next(sleeper):
                 response = post_request(
                     '{}/async_result'.format(addr),

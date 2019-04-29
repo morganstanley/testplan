@@ -7,12 +7,14 @@ import time
 import signal
 import subprocess
 from schema import Or
+import psutil
 
 import testplan
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.config import ConfigOption
 from testplan.common.utils.process import kill_process
 from testplan.common.utils.match import match_regexps_in_file
+from testplan.common.utils.timing import get_sleeper
 
 from .base import Pool, PoolConfig, Worker, WorkerConfig
 from .connection import ZMQClientProxy, ZMQServer
@@ -53,11 +55,6 @@ class ProcessWorker(Worker):
 
     def __init__(self, **options):
         super(ProcessWorker, self).__init__(**options)
-        self._handler = None
-
-    @property
-    def handler(self):
-        return self._handler
 
     def _child_path(self):
         dirname = os.path.dirname(os.path.abspath(__file__))
@@ -95,26 +92,48 @@ class ProcessWorker(Worker):
 
     def _wait_started(self, timeout=None):
         """TODO."""
-        st_time = time.time()
-        sleep_interval = 0.04
-        while time.time() - st_time < self.cfg.start_timeout:
-            time.sleep(min(sleep_interval, 0.5))
+        sleeper = get_sleeper(
+            interval=(0.04, 0.5),
+            timeout=self.cfg.start_timeout,
+            raise_timeout_with_msg='Worker start timeout, logfile = {}'.format(self.outfile))
+        while next(sleeper):
             if match_regexps_in_file(
-                  self.outfile,
-                  [re.compile('Starting child process worker on')])[0] is True:
+                    self.outfile,
+                    [re.compile('Starting child process worker on')])[0] is True:
+                self.last_heartbeat = time.time() + 180  # add some courtesy time for the first heartbeat to come in
                 self.status.change(self.STATUS.STARTED)
                 return
-            sleep_interval *= 2
-        if self._handler.poll() is not None:
-            raise RuntimeError(
-                '{proc} process exited: {rc} (logfile = {log})'.format(
-                    proc=self, rc=self._handler.returncode, log=self.outfile))
-        raise RuntimeError(
-            'Could not match starting pattern in {}'.format(self.outfile))
+
+            if self._handler.poll() is not None:
+                raise RuntimeError(
+                    '{proc} process exited: {rc} (logfile = {log})'.format(
+                        proc=self, rc=self._handler.returncode, log=self.outfile))
+
+    @property
+    def is_alive(self):
+
+        if self._handler is None:
+            return False
+
+        if self._handler.poll() is not None:    # child process already terminated
+            self._handler = None
+            return False
+
+        try:
+            proc = psutil.Process(self._handler.pid)
+            children = list(proc.children(recursive=True))
+            if children and all(item.status() == 'zombie' for item in children):
+                return False
+
+        except psutil.NoSuchProcess:
+            self._handler = None
+            return False
+
+        return True
 
     def stopping(self):
         """Stop child process worker."""
-        self._transport.active = False
+        self._transport.disconnect()
         if self._handler:
             kill_process(self._handler)
             self._handler.wait()
@@ -122,10 +141,11 @@ class ProcessWorker(Worker):
 
     def aborting(self):
         """Process worker abort logic."""
-        self._transport.active = False
+        self._transport.disconnect()
         if hasattr(self, '_handler') and self._handler:
             kill_process(self._handler)
             self._handler.wait()
+            self._handler = None
 
 
 class ProcessPoolConfig(PoolConfig):

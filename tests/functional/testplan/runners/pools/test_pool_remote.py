@@ -36,7 +36,7 @@ def copytree(src, dst):
     https://bugs.python.org/issue21697 so use rsync instead.
     """
     subprocess.check_call(
-        ['rsync', '-rL', '--exclude=*.pyc', '--exclude=__pycache__', src, dst])
+        ['rsync', '-rL', '--exclude=.git', '--exclude=*.pyc', '--exclude=__pycache__', src, dst])
 
 
 def setup_workspace():
