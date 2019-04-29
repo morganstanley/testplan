@@ -37,7 +37,8 @@ class Client(logger.Loggable):
         """
         Sends a message to server
         :param message: Message to be sent.
-        :type message: :py:class:`~testplan.runners.pools.communication.Message`
+        :type message:
+            :py:class:`~testplan.runners.pools.communication.Message`
         """
         pass
 
@@ -49,10 +50,12 @@ class Client(logger.Loggable):
     def send_and_receive(self, message, expect=None):
         """
         Send and receive shortcut. Optionally assert that the response is
-        of the type expected. I.e For a TaskSending message, an Ack is expected.
+        of the type expected. I.e For a TaskSending message, an Ack is
+        expected.
 
         :param message: Message sent.
-        :type message: :py:class:`~testplan.runners.pools.communication.Message`
+        :type message:
+            :py:class:`~testplan.runners.pools.communication.Message`
         :param expect: Assert message received command is the expected.
         :type expect: ``NoneType`` or
             :py:class:`~testplan.runners.pools.communication.Message`
@@ -65,31 +68,36 @@ class Client(logger.Loggable):
         try:
             self.send(message)
         except Exception as exc:
-            self.logger.exception('Exception on transport send: {}.'.format(exc))
+            self.logger.exception('Exception on transport send: %s.', exc)
             raise RuntimeError('On transport send - {}.'.format(exc))
 
         try:
             received = self.receive()
         except Exception as exc:
-            self.logger.exception('Exception on transport receive: {}.'.format(exc))
+            self.logger.exception('Exception on transport receive: %s.', exc)
             raise RuntimeError('On transport receive - {}.'.format(exc))
 
         if expect is not None:
             if received is None:
-                raise RuntimeError('Received None when {} was expected.'.format(
-                    expect))
+                raise RuntimeError('Received None when {} was expected.'
+                                   .format(expect))
             assert received.cmd == expect
         return received
 
 
 class QueueClient(Client):
-    """Queue based client implementation, for thread pool workers to communicate with its pool."""
+    """
+    Queue based client implementation, for thread pool workers to
+    communicate with its pool.
+    """
 
     def __init__(self, recv_sleep=0.05):
         super(QueueClient, self).__init__()
         self._recv_sleep = recv_sleep
         self.requests = None
-        self.responses = []     # single-producer(pool) single-consumer(worker) FIFO queue
+
+        # single-producer(pool) single-consumer(worker) FIFO queue
+        self.responses = []
 
     def connect(self, requests):
         """
@@ -109,7 +117,8 @@ class QueueClient(Client):
         """
         Worker sends a message
         :param message: Message to be sent.
-        :type message: :py:class:`~testplan.runners.pools.communication.Message`
+        :type message:
+            :py:class:`~testplan.runners.pools.communication.Message`
         """
         if self.active:
             self.requests.put(message)
@@ -132,7 +141,8 @@ class QueueClient(Client):
         worker request.
 
         :param message: Respond message.
-        :type message: :py:class:`~testplan.runners.pools.communication.Message`
+        :type message:
+            :py:class:`~testplan.runners.pools.communication.Message`
         """
         if self.active:
             self.responses.append(message)
@@ -140,7 +150,9 @@ class QueueClient(Client):
 
 class ZMQClient(Client):
     """
-    ZMQ based client implementation for process worker to communicate with its pool.
+    ZMQ based client implementation for process worker to communicate
+    with its pool.
+
     :param address: Pool server address to connect to.
     :type address: ``float``
     :param recv_sleep: Sleep duration in msg receive loop.
@@ -177,7 +189,8 @@ class ZMQClient(Client):
         Worker sends a message.
 
         :param message: Message to be sent.
-        :type message: :py:class:`~testplan.runners.pools.communication.Message`
+        :type message:
+            :py:class:`~testplan.runners.pools.communication.Message`
         """
         if self.active:
             self._sock.send(pickle.dumps(message))
@@ -225,7 +238,8 @@ class ZMQClientProxy(object):
         worker request.
 
         :param message: Respond message.
-        :type message: :py:class:`~testplan.runners.pools.communication.Message`
+        :type message:
+            :py:class:`~testplan.runners.pools.communication.Message`
         """
         self.connection.send(pickle.dumps(message))
 
@@ -271,7 +285,8 @@ class Server(entity.Resource):
                 .format(self.status.tag))
 
         if worker in self._workers:
-            raise RuntimeError('Worker {} already in ConnectionManager'.format(worker))
+            raise RuntimeError('Worker {} already in ConnectionManager'
+                               .format(worker))
         self._workers.append(worker)
 
     @abc.abstractmethod
@@ -293,11 +308,16 @@ class Server(entity.Resource):
 
 
 class QueueServer(Server):
-    """Queue based server implementation, for thread pool to get requests from workers."""
+    """
+    Queue based server implementation, for thread pool to get requests
+    from workers.
+    """
 
     def __init__(self):
         super(QueueServer, self).__init__()
-        self.requests = queue.Queue()     # multi-producer(workers) single-consumer(pool) FIFO queue
+
+        # multi-producer(workers) single-consumer(pool) FIFO queue
+        self.requests = queue.Queue()
 
     def register(self, worker):
         super(QueueServer, self).register(worker)
@@ -324,7 +344,8 @@ class QueueServer(Server):
 
 class ZMQServer(Server):
     """
-    ZMQ based server implementation, for process/remote/treadmill pool to get request from workers.
+    ZMQ based server implementation, for process/remote/treadmill pool
+    to get request from workers.
     """
 
     def __init__(self):

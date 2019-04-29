@@ -194,7 +194,8 @@ class Summary(Group):
             for class_name, assertion_grouping in category_grouping:
                 asr_group = Group(
                     entries=[],
-                    description='Assertion type: {}'.format(readable_name(class_name))
+                    description='Assertion type: {}'.format(
+                        readable_name(class_name))
                 )
                 for pass_status, assertion_entries in assertion_grouping:
                     # Apply custom grouping, otherwise just trim the

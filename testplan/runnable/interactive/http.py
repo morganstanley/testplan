@@ -25,7 +25,8 @@ from testplan.common.entity import Entity, EntityConfig
 class TestRunnerHTTPHandlerConfig(EntityConfig):
     """
     Configuration object for
-    :py:class:`~testplan.runnable.interactive.http.TestRunnerHTTPHandler` entity.
+    :py:class:`~testplan.runnable.interactive.http.TestRunnerHTTPHandler`
+    entity.
     """
     @classmethod
     def get_options(cls):
@@ -39,8 +40,8 @@ class TestRunnerHTTPHandler(Entity):
     Server that invokes an interactive handler to perform dynamic operations.
 
     :param ihandler: Runnable interactive handler instance.
-    :type ihandler: Subclass of
-      :py:class:`RunnableIHandler <testplan.common.entity.base.RunnableIHandler>`
+    :type ihandler: Subclass of :py:class:
+        `RunnableIHandler <testplan.common.entity.base.RunnableIHandler>`
     :param host: Host to bind to.
     :type host: ``str``
     :param port: Port to bind to.
@@ -168,8 +169,10 @@ class TestRunnerHTTPHandler(Entity):
                         request = {}
                         content = self.rfile.read(length).decode()
                         for key, value in json.loads(content).items():
-                            request[str(key)] = str(value) \
-                                if isinstance(value, six.string_types) else value
+                            if isinstance(value, six.string_types):
+                                request[str(key)] = str(value)
+                            else:
+                                request[str(key)] = value
 
                     mode, method = self._extract_mode_method(self.path)
                     if mode not in self.MODES:

@@ -253,12 +253,13 @@ class TestRunnerIHandler(RunnableIHandler):
                     continue
                 if exclude_callables and callable(value):
                     continue
-                if isinstance(value, six.string_types) or isinstance(value, numbers.Number):
+                if isinstance(value, (six.string_types, numbers.Number)):
                     result[item.uid()][key] = value
         if not result:
             if resource_uid is None:
                 raise ValueError('No result for {}'.format(env_uid))
-            raise ValueError('No result for {}{}'.format(env_uid, resource_uid))
+            raise ValueError(
+                'No result for {}{}'.format(env_uid, resource_uid))
         return result
 
     def environment_resource_context(self, env_uid, resource_uid,
@@ -425,7 +426,8 @@ class TestRunnerIHandler(RunnableIHandler):
     def create_new_environment(self, env_uid, env_type='local_environment'):
         """Dynamically create an environment maker object."""
         if env_uid in self._created_environments:
-            raise RuntimeError('Environment {} already exists.'.format(env_uid))
+            raise RuntimeError(
+                'Environment {} already exists.'.format(env_uid))
 
         if env_type == 'local_environment':
             from testplan.environment import LocalEnvironment
@@ -485,3 +487,4 @@ class TestRunnerIHandler(RunnableIHandler):
         tests = (self.test(test, runner_uid=runner_uid)
                  for test, runner_uid in self.all_tests())
         self._reloader.reload(tests, rebuild_dependencies=rebuild_dependencies)
+

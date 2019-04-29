@@ -152,7 +152,8 @@ enable=syntax-error,
        fatal,
        astroid-error,
        parse-error,
-       method-check-failed
+       method-check-failed,
+       line-too-long
 
 
 [REPORTS]

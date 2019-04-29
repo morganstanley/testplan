@@ -1,5 +1,6 @@
 """
-Class based assertions, these will be serialized into native dicts via marshmallow schemas.
+Class based assertions, these will be serialized into native dicts via
+marshmallow schemas.
 
 An assertion object will call ``evaluate`` on instantiation and will
 use the result of that call to set its ``passed`` attribute.
@@ -536,16 +537,18 @@ class LineDiff(Assertion):
 
     If difference found, generates a list of strings as data.
     """
-    def __init__(
-        self, first, second,
-        ignore_space_change=False,
-        ignore_whitespaces=False,
-        ignore_blank_lines=False,
-        unified=False, context=False,
-        description=None, category=None
-    ):
-        if not isinstance(first, six.string_types) and not isinstance(first, list) or \
-                not isinstance(second, six.string_types) and not isinstance(second, list):
+    def __init__(self,
+                 first,
+                 second,
+                 ignore_space_change=False,
+                 ignore_whitespaces=False,
+                 ignore_blank_lines=False,
+                 unified=False,
+                 context=False,
+                 description=None,
+                 category=None):
+        if (not isinstance(first, (six.string_types, list))) or (
+                not isinstance(second, (six.string_types, list))):
             raise ValueError('`first` and `second` must be string or list.')
         if isinstance(unified, int) and unified < 0:
             raise ValueError('`unified` cannot be negative integer.')
@@ -1085,17 +1088,18 @@ class DictMatch(Assertion):
       Match two dictionaries by comparing values under
       each key recursively.
     """
-    def __init__(self,
-                 value,
-                 expected,
-                 include_keys=None,
-                 exclude_keys=None,
-                 report_mode=comparison.ReportOptions.ALL,
-                 description=None,
-                 category=None,
-                 actual_description=None,
-                 expected_description=None,
-                 value_cmp_func=comparison.COMPARE_FUNCTIONS['native_equality']):
+    def __init__(
+            self,
+            value,
+            expected,
+            include_keys=None,
+            exclude_keys=None,
+            report_mode=comparison.ReportOptions.ALL,
+            description=None,
+            category=None,
+            actual_description=None,
+            expected_description=None,
+            value_cmp_func=comparison.COMPARE_FUNCTIONS['native_equality']):
         self.value = value
         self.expected = expected
         self.include_keys = include_keys

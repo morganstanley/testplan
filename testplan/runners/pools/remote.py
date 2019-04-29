@@ -55,7 +55,8 @@ class RemoteWorkerConfig(ProcessWorkerConfig):
     :param pool_type: Remote pool type that child worker will use.
     :type pool_type: ``str``
 
-    Also inherits all :py:class:`~testplan.runners.pools.process.ProcessWorkerConfig`
+    Also inherits all
+    :py:class:`~testplan.runners.pools.process.ProcessWorkerConfig`
     options.
     """
 
@@ -108,9 +109,9 @@ class RemoteWorker(ProcessWorker):
 
         :param cmd: Command to execute - list of parameters.
         :param label: Optional label for debugging
-        :param check: When True, check that the return code of the command is 0 to
-                ensure success - raises a RuntimeError otherwise. Defaults to
-                True - should be explicitly disabled for commands that may
+        :param check: When True, check that the return code of the command is 0
+                to ensure success - raises a RuntimeError otherwise. Defaults
+                to True - should be explicitly disabled for commands that may
                 legitimately return non-zero return codes.
         :param stdout: Optional file-like object to redirect stdout to.
         :param stderr: Optional file-like object to redirect stderr to.

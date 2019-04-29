@@ -510,7 +510,8 @@ class RunnableStatus(EntityStatus):
 class RunnableIHandlerConfig(Config):
     """
     Configuration object for
-    :py:class:`RunnableIHandler <testplan.common.entity.base.RunnableIHandler>` object.
+    :py:class:`RunnableIHandler <testplan.common.entity.base.RunnableIHandler>`
+    object.
     """
     @classmethod
     def get_options(cls):
@@ -1073,7 +1074,8 @@ class Resource(Entity):
     def start(self):
         """
         Triggers the start logic of a Resource by executing
-        :py:meth:`Resource.starting <testplan.common.entity.base.Resource.starting>`
+        :py:meth:
+        `Resource.starting <testplan.common.entity.base.Resource.starting>`
         method.
         """
         self.logger.debug('Starting %r', self)
@@ -1084,7 +1086,8 @@ class Resource(Entity):
     def stop(self):
         """
         Triggers the stop logic of a Resource by executing
-        :py:meth:`Resource.stopping <testplan.common.entity.base.Resource.stopping>`
+        :py:meth:
+        `Resource.stopping <testplan.common.entity.base.Resource.stopping>`
         method.
         """
         self.logger.debug('Stopping %r', self)
@@ -1229,7 +1232,8 @@ class RunnableManager(Entity):
         Executes target runnable defined in configuration in a separate thread.
 
         :return: Runnable result object.
-        :rtype: :py:class:`RunnableResult <testplan.common.entity.base.RunnableResult>`
+        :rtype: :py:class:
+            `RunnableResult <testplan.common.entity.base.RunnableResult>`
         """
         for sig in self._cfg.abort_signals:
             signal.signal(sig, self._handle_abort)

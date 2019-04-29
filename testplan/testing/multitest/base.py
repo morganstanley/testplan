@@ -101,7 +101,8 @@ class MultiTestConfig(TestConfig):
                 lambda tp: len(tp) == 2 and 0 <= tp[0] < tp[1] and tp[1] > 1)),
             ConfigOption('interactive_runner', default=MultitestIRunner):
                 object,
-            ConfigOption('fix_spec_path', default=None): Or(None, And(str, os.path.exists))
+            ConfigOption('fix_spec_path', default=None): Or(
+                None, And(str, os.path.exists))
         }
 
 

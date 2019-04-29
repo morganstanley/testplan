@@ -126,8 +126,8 @@ def _initial_setup():
 
 # Ideally, objects should log by inheriting from "Loggable" and using
 # self.logger. However, for classes that don't inherit from Loggable or for
-# code outside of a class we provide the root testplan.common.utils.logger object here as
-# TESTPLAN_LOGGER.
+# code outside of a class we provide the root testplan.common.utils.logger
+# object here as TESTPLAN_LOGGER.
 TESTPLAN_LOGGER, STDOUT_HANDLER = _initial_setup()
 
 

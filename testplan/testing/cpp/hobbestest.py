@@ -24,13 +24,15 @@ class HobbesTestConfig(ProcessRunnerTestConfig):
 
 class HobbesTest(ProcessRunnerTest):
     """
-    Subprocess test runner for Hobbes Test: https://github.com/Morgan-Stanley/hobbes
+    Subprocess test runner for Hobbes Test:
+    https://github.com/Morgan-Stanley/hobbes
 
     :param tests: Run one or more specified test(s).
     :type tests: ``list``
-    :param json: Generate test report in JSON with the specified name. The report will be
-    placed under rundir unless user specifies an absolute path. The content of the report
-    will be parsed to generate testplan report.
+    :param json: Generate test report in JSON with the specified name. The
+        report will be placed under rundir unless user specifies an absolute
+        path. The content of the report will be parsed to generate testplan
+        report.
     :type json: ``str``
     :param other_args: Any other arguments to be passed to the test binary.
     :type other_args: ``list``

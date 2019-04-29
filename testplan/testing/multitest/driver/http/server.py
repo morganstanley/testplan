@@ -153,7 +153,8 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
 class HTTPServerConfig(DriverConfig):
     """
     Configuration object for
-    :py:class:`~testplan.testing.multitest.driver.http.server.HTTPServer` driver.
+    :py:class:`~testplan.testing.multitest.driver.http.server.HTTPServer`
+    driver.
     """
 
     @classmethod
@@ -270,14 +271,15 @@ class HTTPServer(Driver):
         self.requests = queue.Queue()
         self.responses = queue.Queue()
 
-        self._server_thread = _HTTPServerThread(host=self.cfg.host,
-                                                port=self.cfg.port,
-                                                requests_queue=self.requests,
-                                                responses_queue=self.responses,
-                                                handler_attributes=self.handler_attributes,
-                                                request_handler=self.request_handler,
-                                                timeout=self.timeout,
-                                                logger=self.file_logger)
+        self._server_thread = _HTTPServerThread(
+            host=self.cfg.host,
+            port=self.cfg.port,
+            requests_queue=self.requests,
+            responses_queue=self.responses,
+            handler_attributes=self.handler_attributes,
+            request_handler=self.request_handler,
+            timeout=self.timeout,
+            logger=self.file_logger)
         self._server_thread.setName(self.name)
         self._server_thread.start()
 
