@@ -146,6 +146,8 @@ class QueueClient(Client):
         """
         if self.active:
             self.responses.append(message)
+        else:
+            raise RuntimeError('Responding to inactive worker')
 
 
 class ZMQClient(Client):
@@ -178,11 +180,12 @@ class ZMQClient(Client):
 
     def disconnect(self):
         """Disconnect from Server"""
-        self.active = True
+        self.active = False
         self._sock.close()
         self._sock = None
         self._context.destroy()
         self._context = None
+        self._address = None
 
     def send(self, message):
         """
@@ -229,6 +232,17 @@ class ZMQClientProxy(object):
     """
 
     def __init__(self):
+        self.active = False
+        self.connection = None
+        self.address = None
+
+    def connect(self, server):
+        self.connection = server.sock
+        self.address = server.address
+        self.active = True
+
+    def disconnect(self):
+        self.active = False
         self.connection = None
         self.address = None
 
@@ -241,8 +255,10 @@ class ZMQClientProxy(object):
         :type message:
             :py:class:`~testplan.runners.pools.communication.Message`
         """
-        self.connection.send(pickle.dumps(message))
-
+        if self.active:
+            self.connection.send(pickle.dumps(message))
+        else:
+            raise RuntimeError('Responding to inactive worker')
 
 @six.add_metaclass(abc.ABCMeta)
 class Server(entity.Resource):
@@ -252,11 +268,6 @@ class Server(entity.Resource):
 
     def __init__(self):
         super(Server, self).__init__()
-        self._workers = []
-
-    @property
-    def workers(self):
-        return self._workers
 
     def starting(self):
         """Server starting logic."""
@@ -265,7 +276,6 @@ class Server(entity.Resource):
     def stopping(self):
         """Server stopping logic."""
 
-        self._unregister_workers()
         self.status.change(self.status.STOPPED)
 
     def aborting(self):
@@ -283,16 +293,6 @@ class Server(entity.Resource):
             raise RuntimeError(
                 'Can only register workers when started. Current state is {}'
                 .format(self.status.tag))
-
-        if worker in self._workers:
-            raise RuntimeError('Worker {} already in ConnectionManager'
-                               .format(worker))
-        self._workers.append(worker)
-
-    @abc.abstractmethod
-    def _unregister_workers(self):
-        """Remove workers from this connection manager."""
-        self._workers = []
 
     @abc.abstractmethod
     def accept(self):
@@ -323,11 +323,6 @@ class QueueServer(Server):
         super(QueueServer, self).register(worker)
         worker.transport.connect(self.requests)
 
-    def _unregister_workers(self):
-        for worker in self._workers:
-            worker.transport.disconnect()
-        super(QueueServer, self)._unregister_workers()
-
     def accept(self):
         """
         Accepts the next request in the request queue.
@@ -357,6 +352,14 @@ class ZMQServer(Server):
         self._zmq_context = None
         self._sock = None
         self._address = None
+
+    @property
+    def sock(self):
+        return self._sock
+
+    @property
+    def address(self):
+        return self._address
 
     def starting(self):
         """Create a ZMQ context and socket to handle TCP communication."""
@@ -402,18 +405,7 @@ class ZMQServer(Server):
     def register(self, worker):
         """Register a new worker."""
         super(ZMQServer, self).register(worker)
-        worker.transport.connection = self._sock
-        worker.transport.address = self._address
-
-    def _unregister_workers(self):
-        """Remove references to TCP connections from workers."""
-        for worker in self._workers:
-            if worker.status.tag != worker.status.STOPPED:
-                raise RuntimeError('Worker is not yet stopped - in state {}'
-                                   .format(worker.status.tag))
-            worker.transport.connection = None
-            worker.transport.address = None
-        super(ZMQServer, self)._unregister_workers()
+        worker.transport.connect(self)
 
     def accept(self):
         """
