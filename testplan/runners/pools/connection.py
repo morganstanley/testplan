@@ -146,6 +146,8 @@ class QueueClient(Client):
         """
         if self.active:
             self.responses.append(message)
+        else:
+            raise RuntimeError('Responding to inactive worker')
 
 
 class ZMQClient(Client):
@@ -255,7 +257,8 @@ class ZMQClientProxy(object):
         """
         if self.active:
             self.connection.send(pickle.dumps(message))
-
+        else:
+            raise RuntimeError('Responding to inactive worker')
 
 @six.add_metaclass(abc.ABCMeta)
 class Server(entity.Resource):

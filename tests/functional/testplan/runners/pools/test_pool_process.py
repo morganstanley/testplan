@@ -28,8 +28,6 @@ def test_kill_one_worker():
     plan = Testplan(
         name='ProcPlan',
         parse_cmdline=False,
-        # runpath='/var/tmp/yifan/testplan/kill_one_worker',
-        # logger_level=10
     )
     pool_size = 4
     pool = ProcessPool(name=pool_name, size=pool_size,
@@ -80,8 +78,6 @@ def test_kill_all_workers():
     plan = Testplan(
         name='ProcPlan',
         parse_cmdline=False,
-        # runpath='/var/tmp/yifan/testplan/kill_one_worker',
-        # logger_level=10
     )
     pool_size = 4
     pool = ProcessPool(name=pool_name, size=pool_size,

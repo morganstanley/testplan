@@ -1,6 +1,7 @@
 """Remote execution utilities."""
 
 import os
+import sys
 import getpass
 import subprocess
 
@@ -11,8 +12,8 @@ def ssh_cmd(ssh_cfg, command):
         binary = os.environ['SSH_BINARY']
     except KeyError:
         if os.name != 'nt':
-            binary = bytes(subprocess.check_output(
-                'which ssh', shell=True).strip()).decode('UTF-8')
+            binary = subprocess.check_output(
+                'which ssh', shell=True).decode(sys.stdout.encoding).strip()
         else:
             raise Exception('SSH binary not provided.')
 

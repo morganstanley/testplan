@@ -16,7 +16,7 @@ VAR_TMP = os.path.join(os.sep, 'var', 'tmp')
 
 def fix_home_prefix(path):
     """
-    Try to replace a real path(/a/hkn18f1/vol/...) with a symlink path(/v/campus/hk/cs/ets...),
+    Try to replace a real path(/a/path/user) with a symlink path(/symlink/path/user),
     with clue from userhome and pwd.
     """
 
@@ -34,7 +34,7 @@ def fix_home_prefix(path):
 
     return path
 
-def module_abspath(module, user=None):
+def module_abspath(module):
     """Returns file path of a python module."""
     return fix_home_prefix(module.__file__)
 

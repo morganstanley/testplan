@@ -306,9 +306,9 @@ class Pool(Executor):
         self._worker_monitor.daemon = True
         self._worker_monitor.start()
 
-        while self.active and\
-            self.status.tag is not self.status.STOPPING and\
-            self.status.tag is not self.status.STOPPED:
+        while (self.active
+               and self.status.tag is not self.status.STOPPING
+               and self.status.tag is not self.status.STOPPED):
 
             msg = self._conn.accept()
             if msg:
@@ -429,8 +429,6 @@ class Pool(Executor):
             self._results[uid] = task_result
             self.ongoing.remove(uid)
 
-        # worker.respond(response.make(Message.Ack))
-
     def _handle_heartbeat(self, worker, request, response):
         """Handle a Heartbeat message received from a worker."""
         worker.last_heartbeat = time.time()
@@ -478,7 +476,7 @@ class Pool(Executor):
             if worker.restart_count:
                 worker.restart_count -= 1
                 try:
-                    import pdb
+                    worker.restart()
                 except Exception as exc:
                     self.logger.critical(
                         'Worker {} failed to restart: {}'.format(worker, exc))
@@ -493,7 +491,7 @@ class Pool(Executor):
             with self._pool_lock:
                 for worker in self._workers:
                     if worker.status.tag == worker.status.NONE or worker.status.tag == worker.status.STARTING:
-                        hosts_status['initializing'].append(worker)  # TODO: worker name?
+                        hosts_status['initializing'].append(worker)
                         continue
 
                     if worker.status.tag == worker.status.STOPPING or worker.status.tag == worker.status.STOPPED:
@@ -572,15 +570,14 @@ class Pool(Executor):
 
     def _add_workers(self):
         """Initialise worker instances."""
-        if not self._workers:   # if workers are not already added
-            for idx in (str(i) for i in range(self.cfg.size)):
-                worker = self.cfg.worker_type(index=idx, restart_count=self.cfg.restart_count)
-                worker.parent = self
-                worker.cfg.parent = self.cfg
-                self._workers.add(worker, uid=idx)
+        for idx in (str(i) for i in range(self.cfg.size)):
+            worker = self.cfg.worker_type(index=idx, restart_count=self.cfg.restart_count)
+            worker.parent = self
+            worker.cfg.parent = self.cfg
+            self._workers.add(worker, uid=idx)
 
-                self.logger.debug('Added worker %(index)s (outfile = %(outfile)s)',
-                                  {'index': idx, 'outfile': worker.outfile})
+            self.logger.debug('Added worker %(index)s (outfile = %(outfile)s)',
+                              {'index': idx, 'outfile': worker.outfile})
 
     def _start_workers(self):
         """Start all workers of the pool"""
@@ -592,7 +589,8 @@ class Pool(Executor):
         """Starting the pool and workers."""
         # TODO do we need a lock here?
         self._conn.start()
-        self._add_workers()
+        if not self._workers:
+            self._add_workers()
         self._start_workers()
 
         if self._workers.start_exceptions:

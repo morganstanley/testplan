@@ -154,7 +154,7 @@ class RemoteWorker(ProcessWorker):
             logger=self.logger)
 
     def _set_child_script(self):
-        """Copy the remote worker executable file."""
+        """Specify the remote worker executable file."""
         self._child_paths.local = self._child_path()
         rel_path = os.path.relpath(self._child_paths.local, self._testplan_import_path.local)
         self._child_paths.remote = os.path.join(
@@ -682,8 +682,6 @@ class RemotePool(Pool):
             worker.parent = self
             worker.cfg.parent = self.cfg
             self._workers.add(worker, uid=instance['host'])
-            # print('Added worker with id {}'.format(idx))
-            self._conn.register(worker)
 
     def _start_workers(self):
         num_workers = len(self._workers)

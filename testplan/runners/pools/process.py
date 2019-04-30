@@ -100,7 +100,8 @@ class ProcessWorker(Worker):
             if match_regexps_in_file(
                     self.outfile,
                     [re.compile('Starting child process worker on')])[0] is True:
-                self.last_heartbeat = time.time() + 180  # add some courtesy time for the first heartbeat to come in
+                # self.last_heartbeat = time.time() + 180  # add some courtesy time for the first heartbeat to come in
+                self.last_heartbeat = time.time()
                 self.status.change(self.STATUS.STARTED)
                 return
 

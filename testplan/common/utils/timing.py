@@ -389,20 +389,24 @@ def exponential_interval(initial=0.1, multiplier=2, maximum=None, minimum=None):
 
 def get_sleeper(interval, timeout=10, raise_timeout_with_msg=None, timeout_info=False):
     """
-    Generator that implements sleep steps for replacing *while True: do task; time.sleep()* code blocks.
-    Depending on the interval argument, it can sleeps with constant interval or start with min_interval
+    Generator that implements sleep steps for replacing
+    *while True: do task; time.sleep()* code blocks. Depending on the interval
+    argument, it can sleeps with constant interval or start with min_interval
     and then doubles the interval in each iteration up to max_interval.
 
-    It yields True until timeout is reached where it then yields False or raises a TimeoutException based on
-    input arguments.
+    It yields True until timeout is reached where it then yields False or
+    raises a TimeoutException based on input arguments.
 
     :param interval: Sleep time between each yield in seconds.
-    :type interval: ``float`` or tuple of ``float`` as (min_interval, max_interval)
+    :type interval: ``float`` or tuple of ``float`` as
+                    (min_interval, max_interval)
     :param timeout: Timeout in seconds
     :type timeout: ``float``
-    :param raise_timeout_with_msg: Message or Function to be used for raising an optional TimeoutException.
+    :param raise_timeout_with_msg: Message or Function to be used for raising
+                                   an optional TimeoutException.
     :type raise_timeout_with_msg: ``NoneType`` or ``str`` or ``callable``
-    :param timeout_info: Include timeout exception timing information in exception message raised.
+    :param timeout_info: Include timeout exception timing information in
+                         exception message raised.
     :type timeout_info: ``bool``
     """
     start = time.time()

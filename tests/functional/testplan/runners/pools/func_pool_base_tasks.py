@@ -75,8 +75,6 @@ def schedule_tests_to_pool(name, pool, schedule_path=None, **pool_cfg):
     plan = Testplan(
         name=name,
         parse_cmdline=False,
-        # runpath='/var/tmp/yifan/testplan/test_pool_basic',
-        # logger_level=10
     )
     pool = pool(name=pool_name, **pool_cfg)
     plan.add_resource(pool)
