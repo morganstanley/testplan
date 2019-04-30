@@ -184,3 +184,47 @@ def test_custom_reschedule_condition():
     assert res.success is True
     assert pool.task_assign_cnt[uid] == max_reschedules
     assert plan.report.status == Status.PASSED
+
+
+def test_restart_worker():
+    pool_name = ProcessPool.__name__
+    plan = Testplan(
+        name='ProcPlan',
+        parse_cmdline=False,
+    )
+    pool_size = 4
+    retries_limit = int(pool_size / 2)
+    
+    pool = ProcessPool(name=pool_name, size=pool_size,
+                       task_retries_limit=retries_limit,
+                       worker_heartbeat=2,
+                       heartbeats_miss_limit=3,
+                       max_active_loop_sleep=1)
+    pool_uid = plan.add_resource(pool)
+
+    dirname = os.path.dirname(os.path.abspath(__file__))
+
+    kill_uid = plan.schedule(target='multitest_kill_one_worker',
+                             module='func_pool_base_tasks',
+                             path=dirname,
+                             args=('killer', os.getpid(),
+                                   pool_size),  # kills 4th worker
+                             resource=pool_name)
+
+    uids = []
+    for idx in range(1, 25):
+        uids.append(plan.schedule(target='get_mtest',
+                                  module='func_pool_base_tasks',
+                                  path=dirname, kwargs=dict(name=idx),
+                                  resource=pool_name))
+
+    with log_propagation_disabled(TESTPLAN_LOGGER):
+        res = plan.run()
+
+    # Check that all workers are restarted
+    assert len([worker for worker in plan.resources[pool_uid]._workers
+                if worker._aborted is True]) == 0
+
+    assert res.run is False
+    assert res.success is False
+    assert plan.report.status == Status.ERROR
