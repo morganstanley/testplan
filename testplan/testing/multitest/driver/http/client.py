@@ -1,15 +1,12 @@
 """HTTPClient Driver."""
 
-from schema import Use, Or
-from threading import Thread, Event
 import time
 import os
-try:
-  import Queue
-except ImportError:
-  import queue as Queue
+from threading import Thread, Event
 
 import requests
+from schema import Use, Or
+from six.moves import queue
 
 from testplan.common.config import ConfigOption as Optional
 from testplan.common.utils.context import expand, is_context
@@ -96,7 +93,7 @@ class HTTPClient(Driver):
         self.protocol = expand(self.cfg.protocol, self.context)
         self.timeout = self.cfg.timeout
         self.interval = self.cfg.interval
-        self.responses = Queue.Queue()
+        self.responses = queue.Queue()
         self.file_logger.debug(
             'Started HTTPClient sending requests to {}://{}{}'.format(
                 self.protocol,
@@ -280,7 +277,7 @@ class HTTPClient(Driver):
         while time.time() < timeout:
             try:
                 response = self.responses.get(False)
-            except Queue.Empty:
+            except queue.Empty:
                 self.file_logger.debug('Waiting for response...')
                 response = None
             else:
@@ -300,7 +297,7 @@ class HTTPClient(Driver):
         while not self.responses.empty() and time.time() < timeout:
             try:
                 self.responses.get(block=False)
-            except Queue.Empty:
+            except queue.Empty:
                 self.file_logger.debug('Responses queue flushed.')
             else:
                 self.responses.task_done()

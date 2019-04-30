@@ -8,14 +8,9 @@ import uuid
 import inspect
 import threading
 
-if six.PY2:
-    from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler  # pylint: disable=no-name-in-module,import-error
-    from SocketServer import ThreadingMixIn  # pylint: disable=no-name-in-module,import-error
-    from urlparse import urlparse  # pylint: disable=no-name-in-module,import-error
-else:
-    from http.server import HTTPServer, BaseHTTPRequestHandler  # pylint: disable=no-name-in-module,import-error
-    from socketserver import ThreadingMixIn  # pylint: disable=no-name-in-module,import-error
-    from urllib.parse import urlparse  # pylint: disable=no-name-in-module,import-error
+from six.moves.BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+from six.moves.socketserver import ThreadingMixIn
+from six.moves.urllib.parse import urlparse
 
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.config import ConfigOption

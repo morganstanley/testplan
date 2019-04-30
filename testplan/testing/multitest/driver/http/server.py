@@ -6,13 +6,8 @@ from threading import Thread
 
 from schema import Use
 
-try:
-  import BaseHTTPServer as http_server
-  import Queue as queue
-except ImportError:
-  from testplan.runnable.interactive import http as http_server
-  import queue
-
+import six.moves.BaseHTTPServer as http_server
+from six.moves import queue
 
 from testplan.common.config import ConfigOption as Optional
 from testplan.common.utils.strings import slugify
