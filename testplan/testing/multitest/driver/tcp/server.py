@@ -81,7 +81,8 @@ class TCPServer(Driver):
     def send_text(self, msg, standard='utf-8', **kwargs):
         """
         Encodes to bytes and calls
-        :py:meth:`TCPServer.send <testplan.testing.multitest.driver.tcp.server.TCPServer.send>`.
+        :py:meth:`TCPServer.send
+        <testplan.testing.multitest.driver.tcp.server.TCPServer.send>`.
         """
         return self.send(bytes(msg.encode(standard)), **kwargs)
 
@@ -93,7 +94,8 @@ class TCPServer(Driver):
     def receive_text(self, standard='utf-8', **kwargs):
         """
         Calls
-        :py:meth:`TCPServer.receive <testplan.testing.multitest.driver.tcp.server.TCPServer.receive>`
+        :py:meth:`TCPServer.receive
+        <testplan.testing.multitest.driver.tcp.server.TCPServer.receive>`
         and decodes received bytes.
         """
         return self.receive(**kwargs).decode(standard)

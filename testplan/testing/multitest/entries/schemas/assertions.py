@@ -1,9 +1,10 @@
 """
-  Schema definitions for serializing Assertion objects. This will be a one-way
-  conversion, meaning that the reports and exports will be using the serialized data directly.
+Schema definitions for serializing Assertion objects. This will be a one-way
+conversion, meaning that the reports and exports will be using the serialized
+data directly.
 
-  The reason being some assertion classes may have attributes that
-  cannot be deserialized (processes, exception objects etc).
+The reason being some assertion classes may have attributes that
+cannot be deserialized (processes, exception objects etc).
 """
 from marshmallow import fields
 from testplan.common.serialization import fields as custom_fields

@@ -51,7 +51,10 @@ def native_or_pformat(value):
     elif callable(value):
         value = getattr(value, '__name__', _repr_obj(value))
 
-    result = value if isinstance(value, COMPATIBLE_TYPES) else pprint.pformat(value)
+    if isinstance(value, COMPATIBLE_TYPES):
+        result = value
+    else:
+        result = pprint.pformat(value)
     obj_repr = _repr_obj(result)
 
     if len(obj_repr) > MAX_LENGTH:
@@ -251,7 +254,8 @@ class GenericNested(fields.Field):
         elif isinstance(schema_value, six.string_types):
 
             if schema_value == _RECURSIVE_NESTED:
-                return self.parent.__class__(many=self.many, context=parent_ctx)
+                return self.parent.__class__(
+                    many=self.many, context=parent_ctx)
             else:
                 schema_class = class_registry.get_class(schema_value)
                 return schema_class(many=self.many, context=parent_ctx)

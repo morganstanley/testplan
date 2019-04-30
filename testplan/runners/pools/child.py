@@ -93,8 +93,10 @@ class ChildLoop(object):
         if not os.path.exists(self.runpath):
             os.makedirs(self.runpath)
 
-        stderr_file = os.path.join(self.runpath, '{}_stderr'.format(self._metadata['index']))
-        log_file = os.path.join(self.runpath, '{}_stdout'.format(self._metadata['index']))
+        stderr_file = os.path.join(
+            self.runpath, '{}_stderr'.format(self._metadata['index']))
+        log_file = os.path.join(
+            self.runpath, '{}_stdout'.format(self._metadata['index']))
         self.logger.info('stdout file = %(file)s (log level = %(lvl)s)',
                          {'file': log_file, 'lvl': self.logger.level})
         self.logger.info('stderr file = %s', stderr_file)
@@ -324,7 +326,8 @@ def child_logic(args):
     transport = ZMQClient(address=args.address)
 
     if args.type == 'process_worker':
-        loop = ChildLoop(args.index, transport, NoRunpathPool, 1, Worker,TESTPLAN_LOGGER)
+        loop = ChildLoop(
+            args.index, transport, NoRunpathPool, 1, Worker,TESTPLAN_LOGGER)
         loop.worker_loop()
 
     elif args.type == 'remote_worker':

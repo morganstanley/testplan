@@ -46,10 +46,16 @@ class ExpandedNameLister(BaseLister):
         return instance.name
 
     def format_suite(self, instance, suite):
-        return suite if isinstance(suite, six.string_types) else get_testsuite_name(suite)
+        if isinstance(suite, six.string_types):
+            return suite
+        else:
+            return get_testsuite_name(suite)
 
     def format_testcase(self, instance, suite, testcase):
-        return testcase if isinstance(testcase, six.string_types) else testcase.__name__
+        if isinstance(testcase, six.string_types):
+            return testcase
+        else:
+            return testcase.__name__
 
     def get_testcase_outputs(self, instance, suite, testcases):
         result = ''
@@ -200,7 +206,8 @@ class ListingArg(ArgMixin, Enum):
     @classmethod
     def get_descriptions(cls):
         name_msg = 'List tests in readable format.'
-        pattern_msg = 'List tests in `--patterns` / `--tags` compatible format.'
+        pattern_msg = (
+            'List tests in `--patterns` / `--tags` compatible format.')
         max_testcases_msg = '\tMax {} testcases per ' \
                             'suite will be displayed'.format(MAX_TESTCASES)
         return {
@@ -219,3 +226,4 @@ class ListingArg(ArgMixin, Enum):
             cls.COUNT: 'Lists top level instances and total '
                        'number of suites & testcases per instance.'
         }
+

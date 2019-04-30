@@ -18,7 +18,8 @@ from ..base import Driver, DriverConfig
 class HTTPClientConfig(DriverConfig):
     """
     Configuration object for
-    :py:class:`~testplan.testing.multitest.driver.http.client.HTTPClient` driver.
+    :py:class:`~testplan.testing.multitest.driver.http.client.HTTPClient`
+    driver.
     """
 
     @classmethod
@@ -121,7 +122,8 @@ class HTTPClient(Driver):
         :type method: ``str``
         :param api: API to send request to.
         :type api: ``str``
-        :param drop_response: Whether to drop the response message (called by flush).
+        :param drop_response: Whether to drop the response message (called by
+            flush).
         :type drop_response: ``threading._Event``
         :param timeout: Number of seconds to wait for a request.
         :type timeout: ``int``
@@ -288,7 +290,10 @@ class HTTPClient(Driver):
         return response
 
     def flush(self):
-        """Drop any currently incoming messages and flush the received messages queue."""
+        """
+        Drop any currently incoming messages and flush the received messages
+        queue.
+        """
         for _, drop_message in self.request_threads:
             drop_message.set()
             self.file_logger.debug('Request thread set to drop response.')

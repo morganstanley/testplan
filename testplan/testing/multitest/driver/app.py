@@ -122,7 +122,8 @@ class App(Driver):
     def env(self):
         """Environment variables."""
         if isinstance(self.cfg.env, dict):
-            return {key: expand(val, self.context, str) if is_context(val) else val
+            return {key: expand(val, self.context, str)
+                    if is_context(val) else val
                     for key, val in self.cfg.env.items()}
         else:
             return self.cfg.env

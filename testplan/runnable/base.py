@@ -219,7 +219,8 @@ class TestRunner(Runnable):
     :param exporters: Exporters for reports creation.
     :type exporters: ``list``
     :param stdout_style: Styling output options.
-    :type stdout_style: :py:class:`Style <testplan.report.testing.styles.Style>`
+    :type stdout_style:
+        :py:class:`Style <testplan.report.testing.styles.Style>`
     :param report_dir: Report directory.
     :type report_dir: ``str``
     :param xml_dir: XML output directory.
@@ -248,8 +249,8 @@ class TestRunner(Runnable):
     :param timeout: Timeout value for test execution.
     :type timeout: ``None`` or ``int`` or ``float`` greater than 0.
     :param interactive_handler: Handler for interactive mode execution.
-    :type interactive_handler: Subclass of
-      :py:class:`TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
+    :type interactive_handler: Subclass of :py:class:
+        `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
     :param extra_deps: Extra module dependencies for interactive reload.
     :type extra_deps: ``list`` of ``module``s
 
@@ -336,8 +337,9 @@ class TestRunner(Runnable):
     def add(self, runnable, resource=None, uid=None):
         """
         Adds a
-        :py:class:`runnable <testplan.common.entity.base.Runnable>` tests entity
-        to an :py:class:`~testplan.runners.base.Executor` resource.
+        :py:class:`runnable <testplan.common.entity.base.Runnable>`
+        tests entity to a :py:class:`~testplan.runners.base.Executor`
+        resource.
 
         :param runnable: Test runner entity.
         :type runnable: :py:class:`~testplan.common.entity.base.Runnable`
@@ -373,7 +375,8 @@ class TestRunner(Runnable):
         if resource is None:
             resource = self.resources.first()  # Implies local_runner
         if resource not in self.resources:
-            raise RuntimeError('Resource "{}" does not exist.'.format(resource))
+            raise RuntimeError(
+                'Resource "{}" does not exist.'.format(resource))
         if self.cfg.interactive and isinstance(runnable, Task):
             runnable = runnable.materialize()
             self.resources[resource].add(runnable, runnable.uid() or uid)

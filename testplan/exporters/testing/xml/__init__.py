@@ -24,7 +24,8 @@ from ..base import Exporter
 
 class BaseRenderer(object):
     """
-    Basic renderer, will render a test group report with the following structure:
+    Basic renderer, will render a test group report with the following
+    structure:
 
     TestGroupReport(name=..., category='<test-category>')
         TestGroupReport(name=..., category='suite')
@@ -75,7 +76,10 @@ class BaseRenderer(object):
                 raise TypeError('Unsupported report type: {}'.format(child))
 
     def render_testsuite(self, index, test_report, testsuite_report):
-        """Render a single testsuite with its testcases within a `testsuite` tag."""
+        """
+        Render a single testsuite with its testcases within a `testsuite`
+        tag.
+        """
         cases = [
             self.render_testcase(
                 test_report,
@@ -97,9 +101,11 @@ class BaseRenderer(object):
         )
 
     def render_testcase(
-        self, test_report, testsuite_report, testcase_report
-    ):
-        """Render a testcase with errors & failures within a `testcase` tag."""
+        self, test_report, testsuite_report, testcase_report):
+        """
+        Render a testcase with errors & failures within a `testcase`
+        tag.
+        """
         # the xsd for junit only allows errors OR failures not both
         if testcase_report.status == Status.ERROR:
             details = self.render_testcase_errors(testcase_report)
@@ -121,7 +127,10 @@ class BaseRenderer(object):
         )
 
     def render_testcase_errors(self, testcase_report):
-        """Create an `error` tag that holds error information via testcase report's logs."""
+        """
+        Create an `error` tag that holds error information via testcase
+        report's logs.
+        """
         return [
             E.error(message=log['message'])
             for log in testcase_report.logs if log['levelname'] == 'ERROR'
@@ -181,7 +190,10 @@ class MultiTestRenderer(BaseRenderer):
     """
 
     def get_testcase_reports(self, testsuite_report):
-        """Multitest suites may have additional nested in case of parametrization."""
+        """
+        Multitest suites may have additional nested in case of
+        parametrization.
+        """
         testcase_reports = []
         for child in testsuite_report:
             if isinstance(child, TestCaseReport):
@@ -219,7 +231,10 @@ class XMLExporter(Exporter):
     }
 
     def export(self, source):
-        """Create multiple XML files in the given directory for each top level test group report."""
+        """
+        Create multiple XML files in the given directory for each top
+        level test group report.
+        """
         xml_dir = self.cfg.xml_dir
 
         if os.path.exists(xml_dir):
@@ -235,14 +250,17 @@ class XMLExporter(Exporter):
             files.add(filename)
             file_path = os.path.join(self.cfg.xml_dir, filename)
 
-            # If a report has XML string attribute it was mostly generated via parsing
-            # a JUnit compatible XML file already, meaning we don't need to re-generate
-            # the XML contents, but can directly write the contents to a file instead.
+            # If a report has XML string attribute it was mostly
+            # generated via parsing a JUnit compatible XML file
+            # already, meaning we don't need to re-generate the XML
+            # contents, but can directly write the contents to a file
+            # instead.
             if hasattr(child_report, 'xml_string'):
                 with open(file_path, 'w') as xml_target:
                     xml_target.write(child_report.xml_string)
             else:
-                renderer = self.renderer_map.get(child_report.category, BaseRenderer)()
+                renderer = self.renderer_map.get(child_report.category,
+                                                 BaseRenderer)()
                 element = etree.ElementTree(renderer.render(child_report))
                 element.write(
                     file_path,
@@ -253,3 +271,4 @@ class XMLExporter(Exporter):
 
         TESTPLAN_LOGGER.exporter_info(
             '%s XML files created at: %s', len(source), xml_dir)
+

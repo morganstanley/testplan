@@ -1558,7 +1558,12 @@ class Result(object):
         :rtype: ``bool``
         """
         return assertions.IsClose(
-            first, second, rel_tol, abs_tol, description=description, category=category)
+            first,
+            second,
+            rel_tol,
+            abs_tol,
+            description=description,
+            category=category)
 
     @bind_entry
     def contain(self, member, container, description=None, category=None):
