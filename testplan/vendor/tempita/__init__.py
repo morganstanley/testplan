@@ -30,16 +30,17 @@ from __future__ import absolute_import, division, print_function
 
 import re
 import sys
+import os
+import tokenize
+
 try:
-    from urllib.parse import quote as url_quote
     from io import StringIO
     from html import escape as html_escape
 except ImportError:
-    from urllib import quote as url_quote
     from cStringIO import StringIO
     from cgi import escape as html_escape
-import os
-import tokenize
+from six.moves.urllib.parse import quote as url_quote
+
 from ._looper import looper
 from .compat3 import (
     PY3, bytes, basestring_, next, is_unicode, coerce_text, iteritems)
