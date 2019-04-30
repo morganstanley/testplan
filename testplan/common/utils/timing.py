@@ -387,7 +387,8 @@ def exponential_interval(initial=0.1, multiplier=2, maximum=None, minimum=None):
             val *= multiplier
 
 
-def get_sleeper(interval, timeout=10, raise_timeout_with_msg=None, timeout_info=False):
+def get_sleeper(
+    interval, timeout=10, raise_timeout_with_msg=None, timeout_info=False):
     """
     Generator that implements sleep steps for replacing
     *while True: do task; time.sleep()* code blocks. Depending on the interval
@@ -423,9 +424,12 @@ def get_sleeper(interval, timeout=10, raise_timeout_with_msg=None, timeout_info=
         time.sleep(interval)
         if time.time() > end:
             if raise_timeout_with_msg:
-                msg = raise_timeout_with_msg() if callable(raise_timeout_with_msg) else raise_timeout_with_msg
+                if callable(raise_timeout_with_msg):
+                    msg = raise_timeout_with_msg()
+                else:
+                    msg = raise_timeout_with_msg
                 if timeout_info:
-                    msg = '{}. {}'.format(raise_timeout_with_msg, timeout_info_obj.msg())
+                    msg = '{}. {}'.format(msg, timeout_info_obj.msg())
                 raise TimeoutException(msg)
             break
 

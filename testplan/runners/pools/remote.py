@@ -156,7 +156,8 @@ class RemoteWorker(ProcessWorker):
     def _set_child_script(self):
         """Specify the remote worker executable file."""
         self._child_paths.local = self._child_path()
-        rel_path = os.path.relpath(self._child_paths.local, self._testplan_import_path.local)
+        rel_path = os.path.relpath(
+            self._child_paths.local, self._testplan_import_path.local)
         self._child_paths.remote = os.path.join(
             self._testplan_import_path.remote,
             rel_path)
@@ -480,7 +481,7 @@ class RemoteWorker(ProcessWorker):
 
     def _fetch_results(self):
         """Fetch back to local host the results generated remotely."""
-        self.logger.debug('Fetch results stage - {}'.format(self.cfg.remote_host))
+        self.logger.debug('Fetch results stage - %s', self.cfg.remote_host)
         self._transfer_data(
             source=self._remote_testplan_runpath,
             remote_source=True,
@@ -690,7 +691,8 @@ class RemotePool(Pool):
                 self.pool = ThreadPool(5 if num_workers > 5 else num_workers)
         except Exception as exc:
             if isinstance(exc, AttributeError):
-                self.logger.warning('Please upgrade to the suggested python interpreter.')
+                self.logger.warning(
+                    'Please upgrade to the suggested python interpreter.')
 
         super(RemotePool, self)._start_workers()
 

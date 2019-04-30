@@ -95,12 +95,12 @@ class ProcessWorker(Worker):
         sleeper = get_sleeper(
             interval=(0.04, 0.5),
             timeout=self.cfg.start_timeout,
-            raise_timeout_with_msg='Worker start timeout, logfile = {}'.format(self.outfile))
+            raise_timeout_with_msg='Worker start timeout, logfile = {}'
+                                   .format(self.outfile))
         while next(sleeper):
             if match_regexps_in_file(
                     self.outfile,
-                    [re.compile('Starting child process worker on')])[0] is True:
-                # self.last_heartbeat = time.time() + 180  # add some courtesy time for the first heartbeat to come in
+                    [re.compile('Starting child process worker on')])[0]:
                 self.last_heartbeat = time.time()
                 self.status.change(self.STATUS.STARTED)
                 return
@@ -108,7 +108,9 @@ class ProcessWorker(Worker):
             if self._handler.poll() is not None:
                 raise RuntimeError(
                     '{proc} process exited: {rc} (logfile = {log})'.format(
-                        proc=self, rc=self._handler.returncode, log=self.outfile))
+                        proc=self,
+                        rc=self._handler.returncode,
+                        log=self.outfile))
 
     @property
     def is_alive(self):
@@ -116,7 +118,8 @@ class ProcessWorker(Worker):
         if self._handler is None:
             return False
 
-        if self._handler.poll() is not None:    # child process already terminated
+        # Check if the child process already terminated.
+        if self._handler.poll() is not None:
             self._handler = None
             return False
 

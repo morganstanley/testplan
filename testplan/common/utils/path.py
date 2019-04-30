@@ -16,8 +16,9 @@ VAR_TMP = os.path.join(os.sep, 'var', 'tmp')
 
 def fix_home_prefix(path):
     """
-    Try to replace a real path(/a/path/user) with a symlink path(/symlink/path/user),
-    with clue from userhome and pwd.
+    Try to replace a real path (/a/path/user) with a symlink
+    path (/symlink/path/user), with clue from userhome and current working
+    directory.
     """
 
     path = path.replace(' ', r'\ ')

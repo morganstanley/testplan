@@ -466,59 +466,23 @@ class Pool(Executor):
         1) handler status
         2) heartbeat if available
         """
-
-        def handle_inactive(worker, reason):
-            """
-            Handle an inactive worker.
-            """
-            hosts_status['inactive'].append(worker)
-            self._deco_worker(worker, reason)
-            if worker.restart_count:
-                worker.restart_count -= 1
-                try:
-                    worker.restart()
-                except Exception as exc:
-                    self.logger.critical(
-                        'Worker {} failed to restart: {}'.format(worker, exc))
-            else:
-                worker.abort()
-
         previous_status = {'active': [], 'inactive': [], 'initializing': []}
+        if self.cfg.worker_heartbeat:
+            loop_interval = self.cfg.worker_heartbeat
+        else:
+            loop_inerval = 5  # seconds
 
         while self.is_alive and self.active:
 
             hosts_status = {'active': [], 'inactive': [], 'initializing': []}
             with self._pool_lock:
                 for worker in self._workers:
-                    if worker.status.tag == worker.status.NONE or worker.status.tag == worker.status.STARTING:
-                        hosts_status['initializing'].append(worker)
-                        continue
-
-                    if worker.status.tag == worker.status.STOPPING or worker.status.tag == worker.status.STOPPED:
-                        hosts_status['inactive'].append(worker)
-                        continue
-
-                    # else: worker is of STARTED status
-                    if not worker.is_alive:  # handler based monitoring
-                        handle_inactive(worker, 'Deco {}, handler no longer alive'.format(worker))
-                        continue
-
-                    if not self.cfg.worker_heartbeat:
-                        hosts_status['active'].append(worker)
-                        continue
-
-                    # else: do heartbeat based monitoring
-                    lag = time.time() - worker.last_heartbeat
-                    if lag > self.cfg.worker_heartbeat * self.cfg.heartbeats_miss_limit:
-                        handle_inactive(
-                            worker,
-                            'Has not been receiving heartbeat from {} for {} sec'.format(worker, lag))
-                        continue
-
-                    hosts_status['active'].append(worker)
+                    status = self._query_worker_status(worker)
+                    hosts_status[status].append(worker)
 
                 if hosts_status != previous_status:
-                    self.logger.info('{} Hosts status update'.format(str(datetime.datetime.now())))
+                    self.logger.info('%s Hosts status update',
+                                     datetime.datetime.now())
                     self.logger.info(pprint.pformat(hosts_status))
                     previous_status = hosts_status
 
@@ -533,10 +497,69 @@ class Pool(Executor):
             try:
                 # For early finish of worker monitoring thread.
                 wait_until_predicate(lambda: not self.is_alive,
-                                     timeout=self.cfg.worker_heartbeat if self.cfg.worker_heartbeat else 5,
+                                     timeout=loop_interval,
                                      interval=0.05)
             except RuntimeError:
                 break
+
+    def _query_worker_status(self, worker):
+        """
+        Query the current status of a worker. If heartbeat monitoring is
+        enabled, check the last heartbeat time is within threshold.
+        Decomission any inactie workers.
+
+        :param worker: Pool worker to query
+        :return: worker status string - one of 'initializing', 'inactive' or
+            'active'
+        """
+        if worker.status.tag in (worker.status.NONE, worker.status.STARTING):
+            return 'initializing'
+
+        if worker.status.tag in (
+                worker.status.STOPPING, worker.status.STOPPED):
+            return 'inactive'
+
+        # else: worker must be in state STARTED
+        if worker.status.tag != worker.status.STARTED:
+            raise RuntimeError('Worker in unexpected state {}'
+                               .format(worker.status.tag))
+
+        if not worker.is_alive:  # handler based monitoring
+            self._handle_inactive(
+                worker,
+                'Deco {}, handler no longer alive'.format(worker))
+            return 'inactive'
+
+        # If no heartbeart is configured, we treat the worker as "active"
+        # since it is in state STARTED and its handler is alive.
+        if not self.cfg.worker_heartbeat:
+            return 'active'
+
+        # else: do heartbeat based monitoring
+        lag = time.time() - worker.last_heartbeat
+        if lag > self.cfg.worker_heartbeat * self.cfg.heartbeats_miss_limit:
+            self._handle_inactive(
+                worker,
+                'Has not been receiving heartbeat from {} for {} sec'
+                .format(worker, lag))
+            return 'inactive'
+
+        return 'active'
+
+    def _handle_inactive(self, worker, reason):
+        """
+        Handle an inactive worker.
+        """
+        self._deco_worker(worker, reason)
+        if worker.restart_count:
+            worker.restart_count -= 1
+            try:
+                worker.restart()
+            except Exception as exc:
+                self.logger.critical(
+                    'Worker {} failed to restart: {}'.format(worker, exc))
+        else:
+            worker.abort()
 
     def _discard_task(self, uid, reason):
         self.logger.critical('Discard task {} of {} - {}.'.format(
@@ -571,7 +594,8 @@ class Pool(Executor):
     def _add_workers(self):
         """Initialise worker instances."""
         for idx in (str(i) for i in range(self.cfg.size)):
-            worker = self.cfg.worker_type(index=idx, restart_count=self.cfg.restart_count)
+            worker = self.cfg.worker_type(index=idx,
+                                          restart_count=self.cfg.restart_count)
             worker.parent = self
             worker.cfg.parent = self.cfg
             self._workers.add(worker, uid=idx)
@@ -597,7 +621,8 @@ class Pool(Executor):
             for msg in self._workers.start_exceptions.values():
                 self.logger.error(msg)
             self._workers.stop()
-            raise RuntimeError('All workers of {} failed to start.'.format(self))
+            raise RuntimeError(
+                'All workers of {} failed to start.'.format(self))
 
         super(Pool, self).starting()  # start the loop & monitor
 
