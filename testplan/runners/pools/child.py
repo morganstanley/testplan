@@ -3,7 +3,6 @@
 import os
 import sys
 import time
-import pickle
 import signal
 import socket
 import shutil
@@ -30,64 +29,6 @@ def parse_cmdline():
     parser.add_argument('--remote-pool-size', action="store", default=1)
 
     return parser.parse_args()
-
-
-class ZMQTransport(object):
-    """
-    Transport layer for communication between a pool and child process worker.
-    Worker send serializable messages, pool receives and send back responses.
-
-    :param address: Pool address to connect to.
-    :type address: ``float``
-    :param recv_sleep: Sleep duration in msg receive loop.
-    :type recv_sleep: ``float``
-    """
-
-    def __init__(self, address, recv_sleep=0.05, recv_timeout=5):
-        import zmq
-        self._zmq = zmq
-        self._recv_sleep = recv_sleep
-        self._recv_timeout = recv_timeout
-        self._context = zmq.Context()
-        self._sock = self._context.socket(zmq.REQ)
-        self._sock.connect("tcp://{}".format(address))
-        self.active = True
-        self.logger = logging.getLogger(self.__class__.__name__)
-
-    def send(self, message):
-        """
-        Worker sends a message.
-
-        :param message: Message to be sent.
-        :type message: :py:class:`~testplan.runners.pools.communication.Message`
-        """
-        self._sock.send(pickle.dumps(message))
-
-    def receive(self):
-        """
-        Worker receives the response to the message sent.
-
-        :return: Response to the message sent.
-        :type: :py:class:`~testplan.runners.pools.communication.Message`
-        """
-        start_time = time.time()
-        while self.active:
-            try:
-                received = self._sock.recv(flags=self._zmq.NOBLOCK)
-                try:
-                    loaded = pickle.loads(received)
-                except Exception as exc:
-                    print('Deserialization error. - {}'.format(exc))
-                    raise
-                else:
-                    return loaded
-            except self._zmq.Again:
-                if time.time() - start_time > self._recv_timeout:
-                    print('Transport receive timeout {}s reached!'.format(
-                        self._recv_timeout))
-                    return None
-                time.sleep(self._recv_sleep)
-        return None
 
 
 class ChildLoop(object):
@@ -152,8 +93,10 @@ class ChildLoop(object):
         if not os.path.exists(self.runpath):
             os.makedirs(self.runpath)
 
-        stderr_file = os.path.join(self.runpath, '{}_stderr'.format(self._metadata['index']))
-        log_file = os.path.join(self.runpath, '{}_stdout'.format(self._metadata['index']))
+        stderr_file = os.path.join(
+            self.runpath, '{}_stderr'.format(self._metadata['index']))
+        log_file = os.path.join(
+            self.runpath, '{}_stdout'.format(self._metadata['index']))
         self.logger.info('stdout file = %(file)s (log level = %(lvl)s)',
                          {'file': log_file, 'lvl': self.logger.level})
         self.logger.info('stderr file = %s', stderr_file)
@@ -346,13 +289,9 @@ def child_logic(args):
         print('Removing old runpath: {}'.format(args.runpath))
         shutil.rmtree(args.runpath, ignore_errors=True)
 
-    from testplan.runners.pools.base import (
-        Pool, Worker, Transport)
-    from testplan.runners.pools.process import (
-        ProcessPool, ProcessWorker, ProcessTransport)
-
-    class ChildTransport(ZMQTransport, Transport):
-        """Transport that supports message serialization."""
+    from testplan.runners.pools.base import (Pool, Worker)
+    from testplan.runners.pools.process import (ProcessPool, ProcessWorker)
+    from testplan.runners.pools.connection import ZMQClient
 
     class NoRunpathPool(Pool):
         """
@@ -384,10 +323,11 @@ def child_logic(args):
         def make_runpath_dirs(self):
             self._runpath = self.cfg.runpath
 
+    transport = ZMQClient(address=args.address)
+
     if args.type == 'process_worker':
-        transport = ChildTransport(address=args.address)
-        loop = ChildLoop(args.index, transport, NoRunpathPool, 1, Worker,
-                         TESTPLAN_LOGGER)
+        loop = ChildLoop(
+            args.index, transport, NoRunpathPool, 1, Worker,TESTPLAN_LOGGER)
         loop.worker_loop()
 
     elif args.type == 'remote_worker':
@@ -397,7 +337,6 @@ def child_logic(args):
         else:
             pool_type = NoRunpathThreadPool
             worker_type = Worker
-        transport = ChildTransport(address=args.address)
 
         loop = RemoteChildLoop(
             args.index, transport, pool_type, args.remote_pool_size,

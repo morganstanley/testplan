@@ -505,7 +505,9 @@ class SequenceMatcher(object):
 
         >>> s = SequenceMatcher(None, "abxcd", "abcd")
         >>> s.get_matching_blocks()
-        [Match(a=0, b=0, size=2), Match(a=3, b=2, size=2), Match(a=5, b=4, size=0)]
+        [Match(a=0, b=0, size=2),
+         Match(a=3, b=2, size=2),
+         Match(a=5, b=4, size=0)]
         """
 
         if self.matching_blocks is not None:
@@ -630,7 +632,9 @@ class SequenceMatcher(object):
         >>> b[23:28] = []      # Make a deletion
         >>> b[30] += 'y'       # Make another replacement
         >>> pprint(list(SequenceMatcher(None, a, b).get_grouped_opcodes()))
-        [[('equal', 5, 8, 5, 8), ('insert', 8, 8, 8, 9), ('equal', 8, 11, 9, 12)],
+        [[('equal', 5, 8, 5, 8),
+          ('insert', 8, 8, 8, 9),
+          ('equal', 8, 11, 9, 12)],
          [('equal', 16, 19, 17, 20),
           ('replace', 19, 20, 20, 21),
           ('equal', 20, 22, 21, 23),
@@ -1022,7 +1026,9 @@ class Differ(object):
         >>> b[23:28] = []      # Make a deletion
         >>> b[30] += 'y'       # Make another replacement
         >>> pprint(list(SequenceMatcher(None,a,b).get_grouped_opcodes()))
-        [[('equal', 5, 8, 5, 8), ('insert', 8, 8, 8, 9), ('equal', 8, 11, 9, 12)],
+        [[('equal', 5, 8, 5, 8),
+          ('insert', 8, 8, 8, 9),
+          ('equal', 8, 11, 9, 12)],
          [('equal', 16, 19, 17, 20),
           ('replace', 19, 20, 20, 21),
           ('equal', 20, 22, 21, 23),

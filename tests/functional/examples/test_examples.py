@@ -37,6 +37,7 @@ SKIP = [
     os.path.join('ExecutionPools', 'Remote', 'test_plan.py'),
     os.path.join('Interactive', 'Basic', 'test_plan.py'),
     os.path.join('Interactive', 'Environments', 'test_plan.py'),
+    os.path.join('ExecutionPools', 'Treadmill', 'test_plan.py'),
 ]
 
 SKIP_ON_WINDOWS = [

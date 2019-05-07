@@ -12,8 +12,10 @@ from testplan.testing import base as testing
 from testplan.common import config
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.result import Result as MultiTestResult
-from testplan.testing.multitest.entries.schemas.base import registry as schema_registry
-from testplan.testing.multitest.entries.stdout.base import registry as stdout_registry
+from testplan.testing.multitest.entries.schemas.base import (
+    registry as schema_registry)
+from testplan.testing.multitest.entries.stdout.base import (
+    registry as stdout_registry)
 from testplan.report.testing import TestGroupReport, TestCaseReport, Status
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils import validation

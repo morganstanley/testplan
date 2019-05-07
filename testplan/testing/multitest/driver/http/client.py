@@ -1,15 +1,12 @@
 """HTTPClient Driver."""
 
-from schema import Use, Or
-from threading import Thread, Event
 import time
 import os
-try:
-  import Queue
-except ImportError:
-  import queue as Queue
+from threading import Thread, Event
 
 import requests
+from schema import Use, Or
+from six.moves import queue
 
 from testplan.common.config import ConfigOption as Optional
 from testplan.common.utils.context import expand, is_context
@@ -21,7 +18,8 @@ from ..base import Driver, DriverConfig
 class HTTPClientConfig(DriverConfig):
     """
     Configuration object for
-    :py:class:`~testplan.testing.multitest.driver.http.client.HTTPClient` driver.
+    :py:class:`~testplan.testing.multitest.driver.http.client.HTTPClient`
+    driver.
     """
 
     @classmethod
@@ -96,7 +94,7 @@ class HTTPClient(Driver):
         self.protocol = expand(self.cfg.protocol, self.context)
         self.timeout = self.cfg.timeout
         self.interval = self.cfg.interval
-        self.responses = Queue.Queue()
+        self.responses = queue.Queue()
         self.file_logger.debug(
             'Started HTTPClient sending requests to {}://{}{}'.format(
                 self.protocol,
@@ -124,7 +122,8 @@ class HTTPClient(Driver):
         :type method: ``str``
         :param api: API to send request to.
         :type api: ``str``
-        :param drop_response: Whether to drop the response message (called by flush).
+        :param drop_response: Whether to drop the response message (called by
+            flush).
         :type drop_response: ``threading._Event``
         :param timeout: Number of seconds to wait for a request.
         :type timeout: ``int``
@@ -280,7 +279,7 @@ class HTTPClient(Driver):
         while time.time() < timeout:
             try:
                 response = self.responses.get(False)
-            except Queue.Empty:
+            except queue.Empty:
                 self.file_logger.debug('Waiting for response...')
                 response = None
             else:
@@ -291,7 +290,10 @@ class HTTPClient(Driver):
         return response
 
     def flush(self):
-        """Drop any currently incoming messages and flush the received messages queue."""
+        """
+        Drop any currently incoming messages and flush the received messages
+        queue.
+        """
         for _, drop_message in self.request_threads:
             drop_message.set()
             self.file_logger.debug('Request thread set to drop response.')
@@ -300,7 +302,7 @@ class HTTPClient(Driver):
         while not self.responses.empty() and time.time() < timeout:
             try:
                 self.responses.get(block=False)
-            except Queue.Empty:
+            except queue.Empty:
                 self.file_logger.debug('Responses queue flushed.')
             else:
                 self.responses.task_done()

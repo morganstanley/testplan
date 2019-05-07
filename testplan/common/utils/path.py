@@ -14,23 +14,30 @@ from testplan.vendor.tempita import Template
 VAR_TMP = os.path.join(os.sep, 'var', 'tmp')
 
 
-def fix_home_prefix(path, user=None):
-    """Replace /a/path/user with /symlink/path/user."""
+def fix_home_prefix(path):
+    """
+    Try to replace a real path (/a/path/user) with a symlink
+    path (/symlink/path/user), with clue from userhome and current working
+    directory.
+    """
+
     path = path.replace(' ', r'\ ')
-    user = user or getpass.getuser()
-    if user not in path.split(os.sep):
-        return path
     userhome = os.path.expanduser('~')
-    try:
-        realhome = os.readlink(userhome)
-    except (AttributeError, OSError):
-        return path
-    return path.replace(realhome, userhome)
+    realhome = os.path.realpath(userhome)
+    if path.startswith(realhome):
+        return path.replace(realhome, userhome)
 
+    pwd = os.environ.get('PWD')
+    if pwd:
+        realpwd = os.path.realpath(pwd)
+        if path.startswith(realpwd):
+            return path.replace(realpwd, pwd)
 
-def module_abspath(module, user=None):
+    return path
+
+def module_abspath(module):
     """Returns file path of a python module."""
-    return fix_home_prefix(module.__file__, user=user)
+    return fix_home_prefix(module.__file__)
 
 
 def pwd():
