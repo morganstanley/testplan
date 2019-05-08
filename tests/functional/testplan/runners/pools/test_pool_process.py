@@ -149,7 +149,6 @@ def test_custom_reschedule_condition():
     plan = Testplan(
         name='ProcPlan',
         parse_cmdline=False,
-        logger_level=10
     )
     uid = 'custom_task_uid'
     max_reschedules = 2
@@ -204,19 +203,16 @@ def test_restart_worker():
 
     dirname = os.path.dirname(os.path.abspath(__file__))
 
-    kill_uid = plan.schedule(target='multitest_kill_one_worker',
+    plan.schedule(target='multitest_kills_worker',
                              module='func_pool_base_tasks',
                              path=dirname,
-                             args=('killer', os.getpid(),
-                                   pool_size),  # kills 4th worker
                              resource=pool_name)
 
-    uids = []
     for idx in range(1, 25):
-        uids.append(plan.schedule(target='get_mtest',
-                                  module='func_pool_base_tasks',
-                                  path=dirname, kwargs=dict(name=idx),
-                                  resource=pool_name))
+        plan.schedule(target='get_mtest',
+                      module='func_pool_base_tasks',
+                      path=dirname, kwargs=dict(name=idx),
+                      resource=pool_name)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         res = plan.run()

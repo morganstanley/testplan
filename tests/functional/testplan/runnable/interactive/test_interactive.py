@@ -6,6 +6,7 @@ import re
 import pytest
 import six
 import requests
+import pytest
 
 from testplan.common.utils.timing import wait
 from testplan.common.utils.comparison import compare
