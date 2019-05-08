@@ -106,7 +106,6 @@ class Worker(entity.Resource):
 
     def stopping(self):
         """Stops the worker."""
-        self._transport.disconnect()
         if self._handler:
             interruptible_join(self._handler)
         self._handler = None
@@ -470,7 +469,7 @@ class Pool(Executor):
         if self.cfg.worker_heartbeat:
             loop_interval = self.cfg.worker_heartbeat
         else:
-            loop_inerval = 5  # seconds
+            loop_interval = 5  # seconds
 
         while self.is_alive and self.active:
 
@@ -525,9 +524,10 @@ class Pool(Executor):
                                .format(worker.status.tag))
 
         if not worker.is_alive:  # handler based monitoring
-            self._handle_inactive(
-                worker,
-                'Deco {}, handler no longer alive'.format(worker))
+            if self._handle_inactive(
+                    worker,
+                    'Deco {}, handler no longer alive'.format(worker)):
+                return 'active'
             return 'inactive'
 
         # If no heartbeart is configured, we treat the worker as "active"
@@ -538,10 +538,11 @@ class Pool(Executor):
         # else: do heartbeat based monitoring
         lag = time.time() - worker.last_heartbeat
         if lag > self.cfg.worker_heartbeat * self.cfg.heartbeats_miss_limit:
-            self._handle_inactive(
-                worker,
-                'Has not been receiving heartbeat from {} for {} sec'
-                .format(worker, lag))
+            if self._handle_inactive(
+                    worker,
+                    'Has not been receiving heartbeat from {} for {} sec'
+                    .format(worker, lag)):
+                return 'active'
             return 'inactive'
 
         return 'active'
@@ -549,17 +550,23 @@ class Pool(Executor):
     def _handle_inactive(self, worker, reason):
         """
         Handle an inactive worker.
+        :param worker: worker object
+        :param reason: reason of call this method
+        :return: True if worker restarted, else False
         """
         self._deco_worker(worker, reason)
         if worker.restart_count:
             worker.restart_count -= 1
             try:
                 worker.restart()
+                return True
             except Exception as exc:
                 self.logger.critical(
                     'Worker {} failed to restart: {}'.format(worker, exc))
         else:
             worker.abort()
+
+        return False
 
     def _discard_task(self, uid, reason):
         self.logger.critical('Discard task {} of {} - {}.'.format(
@@ -639,6 +646,8 @@ class Pool(Executor):
 
         super(Pool, self).stopping()  # stop the loop and the monitor
 
+        for worker in self._workers:
+            worker.transport.disconnect()
         self._workers.stop()
         self._conn.stop()
 

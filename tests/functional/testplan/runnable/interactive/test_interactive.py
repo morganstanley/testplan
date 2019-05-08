@@ -5,6 +5,7 @@ import re
 
 import six
 import requests
+import pytest
 
 from testplan.common.utils.timing import wait
 from testplan.common.utils.comparison import compare
@@ -533,6 +534,7 @@ def test_http_dynamic_environments():
                     'server': 'STOPPED'})
 
 
+@pytest.mark.skipif(True, reason='Unstable, needs work')
 def test_reload():
     """Tests reload functionality."""
     import sys

@@ -317,7 +317,11 @@ class QueueServer(Server):
         super(QueueServer, self).__init__()
 
         # multi-producer(workers) single-consumer(pool) FIFO queue
+        self.requests = None
+
+    def starting(self):
         self.requests = queue.Queue()
+        super(QueueServer, self).starting()
 
     def register(self, worker):
         super(QueueServer, self).register(worker)

@@ -137,7 +137,6 @@ class ProcessWorker(Worker):
 
     def stopping(self):
         """Stop child process worker."""
-        self._transport.disconnect()
         if self._handler:
             kill_process(self._handler)
             self._handler.wait()
