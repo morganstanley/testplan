@@ -3,6 +3,7 @@
 import os
 import re
 
+import pytest
 import six
 import requests
 import pytest
@@ -534,7 +535,7 @@ def test_http_dynamic_environments():
                     'server': 'STOPPED'})
 
 
-@pytest.mark.skipif(True, reason='Unstable, needs work')
+@pytest.mark.skipif(six.PY3, reason='Reload test is unstable on python 3')
 def test_reload():
     """Tests reload functionality."""
     import sys
@@ -558,3 +559,4 @@ def test_reload():
     # Enable for test debug:
     # for line in output.decode().split(os.linesep):
     #     print(line)
+
