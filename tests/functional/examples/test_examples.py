@@ -38,6 +38,9 @@ SKIP = [
     os.path.join('Interactive', 'Basic', 'test_plan.py'),
     os.path.join('Interactive', 'Environments', 'test_plan.py'),
     os.path.join('ExecutionPools', 'Treadmill', 'test_plan.py'),
+
+    # The FXConverter example is currently unstable - re-enable when fixed.
+    os.path.join('App', 'FXConverter', 'test_plan.py')
 ]
 
 SKIP_ON_WINDOWS = [
