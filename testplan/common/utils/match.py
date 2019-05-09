@@ -54,6 +54,40 @@ class LogMatcher(object):
 
         self.log_path = log_path
         self.position = 0
+        self.marks = {}
+
+    def seek(self, mark=None):
+        """
+        Sets current file position to the specified mark. The mark has to exist.
+        If the mark is None sets current file position to beginning of file.
+
+        :param mark: Name of the mark.
+        :type mark: ``str`` or ``None``
+        """
+        if mark is None:
+            self.position = 0
+        else:
+            self.position = self.marks[mark]
+
+    def seek_eof(self):
+        """Sets current file position to the current end of file."""
+        with open(self.log_path, "r") as log:
+            log.seek(0, os.SEEK_END)
+            self.position = log.tell()
+
+    def seek_sof(self):
+        """Sets current file position to the start of file."""
+        self.seek()
+
+    def mark(self, name):
+        """
+        Marks the current file position with the specified name. The mark name
+        can later be used to set the file position
+
+        :param name: Name of the mark.
+        :type name: ``str``
+        """
+        self.marks[name] = self.position
 
     def match(self, regex, timeout=5):
         """
