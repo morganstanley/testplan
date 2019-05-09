@@ -1,6 +1,8 @@
-"""Process worker pool unit tests."""
+"""Process worker pool functional tests."""
 
 import os
+
+import pytest
 
 from testplan.common.utils.testing import log_propagation_disabled
 
@@ -13,6 +15,9 @@ from testplan import Testplan
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from .func_pool_base_tasks import schedule_tests_to_pool
+
+
+pytestmark = pytest.mark.skip(reason='Process Pool tests are unstable')
 
 
 def test_pool_basic():
