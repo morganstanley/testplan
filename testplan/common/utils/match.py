@@ -2,6 +2,9 @@
 Module of utility types and functions that perform matching.
 """
 import os
+import time
+
+LOG_MATCHER_INTERVAL = 0.25
 
 
 def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
@@ -50,9 +53,9 @@ class LogMatcher(object):
         """
 
         self.log_path = log_path
-        self.line_no = 0
+        self.position = 0
 
-    def match(self, regex):
+    def match(self, regex, timeout=5):
         """
         Matches each line in the log file from the current line number to the
         end of the file. If a match is found the line number is stored and the
@@ -64,12 +67,22 @@ class LogMatcher(object):
         :return: The regex match or raise an Exception if no match is found.
         :rtype: ``re.Match``
         """
+        match = None
+        end_time = time.time() + timeout
         with open(self.log_path, 'r') as log:
-            lines = log.readlines()
-            for line_no, line in enumerate(lines[self.line_no:], self.line_no):
-                match = regex.match(line)
-                if match:
-                    self.line_no = line_no + 1
-                    return match
+            log.seek(self.position)
+            while match is None:
+                line = log.readline()
+                if line:
+                    match = regex.match(line)
+                    if match:
+                        self.position = log.tell()
+                        break
+                if time.time() > end_time:
+                    self.position = log.tell()
+                    break
+                time.sleep(LOG_MATCHER_INTERVAL)
 
-        raise ValueError('No matches found')
+        if match is None:
+            raise ValueError('No matches found in {}s'.format(timeout))
+        return match
