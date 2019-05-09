@@ -45,9 +45,29 @@ def execute_as_thread(target, args=None, kwargs=None, daemon=False, join=True,
             time.sleep(join_sleep)
 
 
-def interruptible_join(thread):
-    """Joining a thread without ignoring signal interrupts."""
-    while True:
+def interruptible_join(thread, timeout=None):
+    """
+    Joining a thread without ignoring signal interrupts.
+
+    :param thread: Thread object to wait to terminate.
+    :type thread: ``threading.Thread``
+    :param timeout: If specified, TimeoutException will be raised if the thread
+        does not terminate within the specified timeout.
+    :type timeout: ``Optional[numbers.Number]``
+    """
+    if timeout is None:
+        end_time = None
+    else:
+        end_time = time.time() + timeout
+
+    while end_time is None or time.time() < end_time:
         time.sleep(0.1)
         if not thread.is_alive():
+            thread.join()
             break
+
+    if thread.is_alive():
+        raise TimeoutException(
+            'Thread {thr} timed out after {timeout} seconds.'
+            .format(thr=thread, timeout=timeout))
+
