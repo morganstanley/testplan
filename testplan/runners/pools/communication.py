@@ -16,6 +16,8 @@ class Message(object):
     ConfigRequest = 'ConfigRequest'
     ConfigSending = 'ConfigSending'
     SetupFailed = 'SetupFailed'
+    InitRequest = 'InitRequest'
+    KeepAlive = 'KeepAlive'
 
     def __init__(self, **sender_metadata):
         """
