@@ -643,7 +643,6 @@ class Pool(Executor):
     def stopping(self):
         """Stop connections and workers."""
         # TODO do we need a lock here?
-
         super(Pool, self).stopping()  # stop the loop and the monitor
 
         for worker in self._workers:
