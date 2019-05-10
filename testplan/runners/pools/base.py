@@ -303,12 +303,19 @@ class Pool(Executor):
         started.
         """
 
+<<<<<<< 11e3231aac0425b19b4919be77d4044b610824dd
         if self._start_monitor_thread:
             self.logger.debug('Starting worker monitor thread.')
             self._worker_monitor = threading.Thread(
                 target=self._workers_monitoring)
             self._worker_monitor.daemon = True
             self._worker_monitor.start()
+=======
+        self.logger.debug('Starting worker monitor thread.')
+        self._worker_monitor = threading.Thread(target=self._workers_monitoring)
+        self._worker_monitor.daemon = True
+        self._worker_monitor.start()
+>>>>>>> Change pool start sequence: conn -> loop & monitor -> workers, stop is reverse.
 
         while self.active and not self._exit_loop:
             msg = self._conn.accept()
