@@ -3,7 +3,8 @@
 import os
 
 from testplan.common.utils.path import default_runpath
-from testplan.runners.pools.base import Pool
+from testplan.runners.pools import base as pools_base
+from testplan.runners.pools import communication
 from testplan import Task
 
 from tests.unit.testplan.runners.pools.tasks.data.sample_tasks import Runnable
@@ -20,7 +21,8 @@ def test_pool_basic():
     assert task1.materialize().run() == 10
     assert task2.materialize().run() == 30
 
-    pool = Pool(name='MyPool', size=4, runpath=default_runpath)
+    pool = pools_base.Pool(
+        name='MyPool', size=4, runpath=default_runpath)
     pool.add(task1, uid=task1.uid())
     pool.add(task2, uid=task2.uid())
     assert pool._input[task1.uid()] is task1
@@ -34,3 +36,94 @@ def test_pool_basic():
            pool.results[task1.uid()].result == 10
     assert pool.get(task2.uid()).result ==\
            pool.results[task2.uid()].result == 30
+
+
+class ControllableWorker(pools_base.Worker):
+    """
+    Custom worker tweaked to give the testbed fine-grained control of messages
+    sent to the pool.
+    """
+
+    def __init__(self, **kwargs):
+        self._is_alive = False
+        super(ControllableWorker, self).__init__(**kwargs)
+
+    def starting(self):
+        """Override starting() so that no work loop is started."""
+        self._is_alive = True
+        self.status.change(self.STATUS.STARTED)
+
+    def stopping(self):
+        """
+        Override stopping() so that it doesn't attempt to stop the work loop.
+        """
+        self._is_alive = False
+        self.status.change(self.STATUS.STOPPED)
+
+    @property
+    def is_alive(self):
+        """We control whether the Worker is alive."""
+        return self._is_alive
+
+
+class TestPoolIsolated():
+    """
+    Test the Pool class in isolation, using a custom testbed worker that allows
+    us to send in individual worker requests and check their responses.
+    """
+
+    def test_mainline(self):
+        """
+        Test mainline message flow between a worker and its Pool. The worker
+        polls for a task and when one is received, the worker sends back the
+        results of executing that task.
+        """
+        pool = pools_base.Pool(
+            name='MyPool', size=1, worker_type=ControllableWorker)
+
+        # Start the pool via its context manager - this starts the Pool's main
+        # work loop in a separate thread.
+        with pool:
+            assert pool.is_alive and pool.active
+            assert pool.status.tag == pool.status.STARTED
+
+            # Retrieve the only worker assigned to this pool.
+            assert len(pool._workers) == 1
+            worker = pool._workers['0']
+            assert worker.is_alive and worker.active
+            assert worker.status.tag == worker.status.STARTED
+
+            msg_factory = communication.Message(**worker.metadata)
+
+            # Send a TaskPullRequest from the worker to the Pool. The Pool
+            # should respond with an Ack since no Tasks have been added yet.
+            received = worker.transport.send_and_receive(
+                msg_factory.make(msg_factory.TaskPullRequest, data=1))
+            assert received.cmd == communication.Message.Ack
+
+            # Add a task to the pool.
+            task1 = Task(target=Runnable(5))
+            pool.add(task1, uid=task1.uid())
+
+            # Send in another TaskPullRequest - the Pool should respond with
+            # the task we just added.
+            received = worker.transport.send_and_receive(
+                msg_factory.make(msg_factory.TaskPullRequest, data=1))
+            assert received.cmd == communication.Message.TaskSending
+            assert len(received.data) == 1
+            assert received.data[0] == task1
+
+            # Execute the task and send back the TaskResults.
+            task_result = worker.execute(task1)
+            results = [task_result]
+            received = worker.transport.send_and_receive(
+                msg_factory.make(msg_factory.TaskResults, data=results))
+            assert received.cmd == communication.Message.Ack
+
+            # Check that the pool now has the results stored.
+            assert pool._results[task1.uid()] == task_result
+
+        # The Pool and its work loop should be stopped on exiting the context
+        # manager.
+        assert pool.status.tag == pool.status.STOPPED
+

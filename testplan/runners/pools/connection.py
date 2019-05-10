@@ -336,7 +336,7 @@ class QueueServer(Server):
             :py:class:`~testplan.runners.pools.communication.Message`
         """
         try:
-            return self.requests.get()
+            return self.requests.get_nowait()
         except queue.Empty:
             return None
 
