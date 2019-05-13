@@ -27,10 +27,17 @@ from testplan.common.utils import comparison
 # pylint: disable=unused-argument
 
 
-# JSON & pickle Serialization compatible types
-# types.NoneType is gone in python3
+# We explicitly enumerate types that are known to be safe to serialize by
+# pickle. All other types will be converted to strings before pickling.
+# types.NoneType is gone in python3 so we inspect the type of None directly.
 COMPATIBLE_TYPES = (
-    bool, float, type(None)) + six.string_types + six.integer_types
+    bool, float, type(None), str, bytes, int)
+
+# For Python 2 only, also consider unicode and long types to be pickle-safe.
+# These types are removed from Python 3.
+if six.PY2:
+    COMPATIBLE_TYPES += (unicode, long)  # pylint: disable=undefined-variable
+
 MAX_LENGTH = 1000  # this will be configurable
 
 
