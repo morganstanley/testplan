@@ -2,8 +2,7 @@
 
 import os
 
-from six.moves import queue as Queue
-
+from six.moves import queue
 from schema import Use
 
 from testplan.common.config import ConfigOption
@@ -150,7 +149,7 @@ class FixServer(Driver):
         timeout_info = TimeoutExceptionInfo()
         try:
             received = self._server.receive(conn_name, timeout=timeout or 0)
-        except Queue.Empty:
+        except queue.Empty:
             self.logger.debug(
                 'Timed out waiting for message for {} seconds'.format(
                     timeout or 0))

@@ -15,7 +15,7 @@ logger.TESTPLAN_LOGGER.setLevel(logger.DEBUG)
 
 @pytest.fixture
 def proc_pool():
-    return process.ProcessPool(name='ProcPool', size=2)
+    return process.ProcessPool(name='ProcPool', size=2, restart_count=0)
 
 
 class TestProcPool(object):

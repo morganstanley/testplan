@@ -85,7 +85,8 @@ class TCPClient(Driver):
     def send_text(self, msg, standard='utf-8'):
         """
         Encodes to bytes and calls
-        :py:meth:`TCPClient.send <testplan.testing.multitest.driver.tcp.client.TCPClient.send>`.
+        :py:meth:`TCPClient.send
+        <testplan.testing.multitest.driver.tcp.client.TCPClient.send>`.
         """
         return self.send(bytes(msg.encode(standard)))
 
@@ -117,7 +118,8 @@ class TCPClient(Driver):
     def receive_text(self, standard='utf-8', **kwargs):
         """
         Calls
-        :py:meth:`TCPClient.receive <testplan.testing.multitest.driver.tcp.server.TCPClient.receive>`
+        :py:meth:`TCPClient.receive
+        <testplan.testing.multitest.driver.tcp.server.TCPClient.receive>`
         and decodes received bytes.
         """
         return self.receive(**kwargs).decode(standard)

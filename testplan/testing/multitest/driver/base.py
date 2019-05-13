@@ -53,7 +53,7 @@ class DriverConfig(ResourceConfig):
             'name': str,
             ConfigOption('install_files', default=None):
                 Or(None, list),
-            ConfigOption('timeout', default=5): int,
+            ConfigOption('timeout', default=60): int,
             ConfigOption('logfile', default=None):
                 Or(None, str),
             ConfigOption('log_regexps', default=None):

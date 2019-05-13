@@ -1,17 +1,12 @@
 """Multitest main test execution framework."""
 
 import os
-import inspect
 import collections
 import functools
 import time
 
-try:
-    from Queue import Queue, Empty
-except ImportError:
-    from queue import Queue, Empty
-
-from threading import Thread, Lock
+from threading import Thread
+from six.moves import queue
 from schema import Use, Or, And
 
 from testplan.common.config import ConfigOption
@@ -101,7 +96,8 @@ class MultiTestConfig(TestConfig):
                 lambda tp: len(tp) == 2 and 0 <= tp[0] < tp[1] and tp[1] > 1)),
             ConfigOption('interactive_runner', default=MultitestIRunner):
                 object,
-            ConfigOption('fix_spec_path', default=None): Or(None, And(str, os.path.exists))
+            ConfigOption('fix_spec_path', default=None): Or(
+                None, And(str, os.path.exists))
         }
 
 
@@ -590,7 +586,7 @@ class MultiTest(Test):
                 task = self._testcase_queue.get(
                     timeout=self.cfg.active_loop_sleep)
                 testcase, pre_testcase, post_testcase, testcase_report = task
-            except Empty:
+            except queue.Empty:
                 continue
 
             self._run_testcase(
@@ -617,7 +613,7 @@ class MultiTest(Test):
     def _start_thread_pool(self):
         """Start a thread pool for executing testcases in parallel."""
         if not self._testcase_queue:
-            self._testcase_queue = Queue()
+            self._testcase_queue = queue.Queue()
 
         self._thread_pool_size = min(self.cfg.thread_pool_size,
                                      self.cfg.max_thread_pool_size) \

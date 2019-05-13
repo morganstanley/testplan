@@ -34,7 +34,6 @@ REQUIRED = [
     'Pillow<6.0.0',
     'matplotlib',
     'numpy',
-    'scikit-learn',
     'scipy',
     "functools32; python_version <= '2.7'",
     'requests>=2.4.3',

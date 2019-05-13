@@ -11,6 +11,7 @@ from testplan.common.utils.path import fix_home_prefix
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.base import MultiTestConfig
 
+
 @testsuite
 class MySuite(object):
 
@@ -72,7 +73,7 @@ def schedule_tests_to_pool(name, pool, schedule_path=None, **pool_cfg):
 
     plan = Testplan(
         name=name,
-        parse_cmdline=False
+        parse_cmdline=False,
     )
     pool = pool(name=pool_name, **pool_cfg)
     plan.add_resource(pool)
@@ -96,8 +97,8 @@ def schedule_tests_to_pool(name, pool, schedule_path=None, **pool_cfg):
     assert plan.report.passed is True
     assert plan.report.status == Status.PASSED
     assert plan.report.counts.passed == 9  # 1 testcase * 9 iterations
-    assert plan.report.counts.error == plan.report.counts.skipped == \
-           plan.report.counts.failed == plan.report.counts.incomplete == 0
+    assert (plan.report.counts.error == plan.report.counts.skipped ==
+            plan.report.counts.failed == plan.report.counts.incomplete == 0)
 
     names = sorted(['MTest{}'.format(x) for x in range(1, 10)])
     assert sorted([entry.name for entry in plan.report.entries]) == names
@@ -111,3 +112,4 @@ def schedule_tests_to_pool(name, pool, schedule_path=None, **pool_cfg):
     # All tasks scheduled once
     for uid in pool.task_assign_cnt:
         assert pool.task_assign_cnt[uid] == 1
+

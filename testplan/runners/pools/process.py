@@ -4,10 +4,10 @@ import os
 import re
 import sys
 import time
-import pickle
 import signal
 import subprocess
-from schema import Or, And, Use
+from schema import Or
+import psutil
 
 import testplan
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -15,33 +15,10 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils.process import kill_process
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.runners.pools import tasks
+from testplan.common.utils.timing import get_sleeper
 
 from .base import Pool, PoolConfig, Worker, WorkerConfig
-from .connection import TCPConnectionManager
-
-
-class ProcessTransport(object):
-    """
-    Transport layer for communication between a pool and a process worker.
-    Worker send serializable messages, pool receives and send back responses.
-
-    :param recv_sleep: Sleep duration in msg receive loop.
-    :type recv_sleep: ``float``
-    """
-
-    def __init__(self, recv_sleep=0.05):
-        self.connection = None
-        self.address = None
-
-    def respond(self, message):
-        """
-        Used by :py:class:`~testplan.runners.pools.base.Pool` to respond to
-        worker request.
-
-        :param message: Respond message.
-        :type message: :py:class:`~testplan.runners.pools.communication.Message`
-        """
-        self.connection.send(pickle.dumps(message))
+from .connection import ZMQClientProxy, ZMQServer
 
 
 class ProcessWorkerConfig(WorkerConfig):
@@ -51,8 +28,8 @@ class ProcessWorkerConfig(WorkerConfig):
 
     :param start_timeout: Timeout duration for worker to start.
     :type start_timeout: ``int``
-    :param transport: Transport communication class definition.
-    :type transport: :py:class:`~testplan.runners.pools.process.ProcessTransport`
+    :param transport: Transport class for pool/worker communication.
+    :type transport: :py:class:`~testplan.runners.pools.connection.Client`
 
     Also inherits all :py:class:`~testplan.runners.pools.base.WorkerConfig`
     options.
@@ -65,7 +42,7 @@ class ProcessWorkerConfig(WorkerConfig):
         """
         return {
             ConfigOption('start_timeout', default=120): int,
-            ConfigOption('transport', default=ProcessTransport): object,
+            ConfigOption('transport', default=ZMQClientProxy): object,
         }
 
 
@@ -79,11 +56,6 @@ class ProcessWorker(Worker):
 
     def __init__(self, **options):
         super(ProcessWorker, self).__init__(**options)
-        self._handler = None
-
-    @property
-    def handler(self):
-        return self._handler
 
     def _child_path(self):
         dirname = os.path.dirname(os.path.abspath(__file__))
@@ -121,26 +93,51 @@ class ProcessWorker(Worker):
 
     def _wait_started(self, timeout=None):
         """TODO."""
-        st_time = time.time()
-        sleep_interval = 0.04
-        while time.time() - st_time < self.cfg.start_timeout:
-            time.sleep(min(sleep_interval, 0.5))
+        sleeper = get_sleeper(
+            interval=(0.04, 0.5),
+            timeout=self.cfg.start_timeout,
+            raise_timeout_with_msg='Worker start timeout, logfile = {}'
+                                   .format(self.outfile))
+        while next(sleeper):
             if match_regexps_in_file(
-                  self.outfile,
-                  [re.compile('Starting child process worker on')])[0] is True:
+                    self.outfile,
+                    [re.compile('Starting child process worker on')])[0]:
+                self.last_heartbeat = time.time()
                 self.status.change(self.STATUS.STARTED)
                 return
-            sleep_interval *= 2
+
+            if self._handler.poll() is not None:
+                raise RuntimeError(
+                    '{proc} process exited: {rc} (logfile = {log})'.format(
+                        proc=self,
+                        rc=self._handler.returncode,
+                        log=self.outfile))
+
+    @property
+    def is_alive(self):
+
+        if self._handler is None:
+            return False
+
+        # Check if the child process already terminated.
         if self._handler.poll() is not None:
-            raise RuntimeError(
-                '{proc} process exited: {rc} (logfile = {log})'.format(
-                    proc=self, rc=self._handler.returncode, log=self.outfile))
-        raise RuntimeError(
-            'Could not match starting pattern in {}'.format(self.outfile))
+            self._handler = None
+            return False
+
+        try:
+            proc = psutil.Process(self._handler.pid)
+            children = list(proc.children(recursive=True))
+            if children and all(item.status() == 'zombie' for item in children):
+                return False
+
+        except psutil.NoSuchProcess:
+            self._handler = None
+            return False
+
+        return True
 
     def stopping(self):
         """Stop child process worker."""
-        self._transport.active = False
         if self._handler:
             kill_process(self._handler)
             self._handler.wait()
@@ -148,10 +145,11 @@ class ProcessWorker(Worker):
 
     def aborting(self):
         """Process worker abort logic."""
-        self._transport.active = False
+        self._transport.disconnect()
         if hasattr(self, '_handler') and self._handler:
             kill_process(self._handler)
             self._handler.wait()
+            self._handler = None
 
 
 class ProcessPoolConfig(PoolConfig):
@@ -197,7 +195,7 @@ class ProcessPool(Pool):
     """
 
     CONFIG = ProcessPoolConfig
-    CONN_MANAGER = TCPConnectionManager
+    CONN_MANAGER = ZMQServer
 
     def add(self, task, uid):
         """
@@ -207,3 +205,4 @@ class ProcessPool(Pool):
         if isinstance(task, tasks.Task) and task.module == '__main__':
             raise ValueError('Cannot add Tasks from __main__ to ProcessPool')
         super(ProcessPool, self).add(task, uid)
+

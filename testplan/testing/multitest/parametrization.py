@@ -185,7 +185,8 @@ def _ensure_unique_names(functions):
             dupe_counter[name] += 1
 
 
-def _generate_func(function, name_func, tag_func, docstring_func, tag_dict, kwargs):
+def _generate_func(
+     function, name_func, tag_func, docstring_func, tag_dict, kwargs):
     """
     Generates a new function using the original function, name generation
     function and parametrized kwargs.

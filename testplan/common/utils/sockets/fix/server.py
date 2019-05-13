@@ -4,7 +4,7 @@ import errno
 import socket
 import select
 import threading
-from six.moves import queue as Queue
+from six.moves import queue
 
 from testplan.common.utils.timing import (TimeoutException,
                                           TimeoutExceptionInfo,
@@ -351,7 +351,7 @@ class Server(object):
         """
         conndetails = self._conndetails_by_fd[fdesc]
         conndetails.name = conn_name
-        conndetails.queue = Queue.Queue()
+        conndetails.queue = queue.Queue()
         conndetails.in_seqno = 1
         conndetails.out_seqno = 1
         self._conndetails_by_name[conn_name] = conndetails
@@ -551,5 +551,5 @@ class Server(object):
         try:
             while True:
                 queue.get(False)
-        except Queue.Empty:
+        except queue.Empty:
             return

@@ -3,8 +3,10 @@
 import os
 import re
 
+import pytest
 import six
 import requests
+import pytest
 
 from testplan.common.utils.timing import wait
 from testplan.common.utils.comparison import compare
@@ -358,8 +360,7 @@ def test_http_operate_tests_async():
 
             # QUERY UID ASYNC OPERATION UNTIL FINISHED
             sleeper = get_sleeper(
-                0.6, raise_timeout_with_msg='Async result missing.',
-                constant_interval=True)
+                0.6, raise_timeout_with_msg='Async result missing.')
             while next(sleeper):
                 response = post_request(
                     '{}/async_result'.format(addr),
@@ -534,6 +535,7 @@ def test_http_dynamic_environments():
                     'server': 'STOPPED'})
 
 
+@pytest.mark.skipif(six.PY3, reason='Reload test is unstable on python 3')
 def test_reload():
     """Tests reload functionality."""
     import sys
@@ -557,3 +559,4 @@ def test_reload():
     # Enable for test debug:
     # for line in output.decode().split(os.linesep):
     #     print(line)
+

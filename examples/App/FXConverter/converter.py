@@ -12,10 +12,8 @@ import re
 import sys
 import socket
 import logging
-try:
-    from ConfigParser import ConfigParser
-except ImportError:
-    from configparser import ConfigParser
+
+from six.moves.configparser import ConfigParser
 
 
 logging.basicConfig(stream=sys.stdout, format='%(message)s')
