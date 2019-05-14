@@ -4,6 +4,9 @@ Module of utility types and functions that perform matching.
 import os
 import time
 
+from . import timing
+from . import logger
+
 LOG_MATCHER_INTERVAL = 0.25
 
 
@@ -38,7 +41,7 @@ def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
     return all(extracts_status), extracted_values
 
 
-class LogMatcher(object):
+class LogMatcher(logger.Loggable):
     """
     Single line matcher for text files (usually log files). Once matched, it
     remembers the line number of the match and subsequent matches are scanned
@@ -51,10 +54,10 @@ class LogMatcher(object):
         :param log_path: Path to the log file.
         :type log_path: ``str``
         """
-
         self.log_path = log_path
         self.position = 0
         self.marks = {}
+        super(LogMatcher, self).__init__()
 
     def seek(self, mark=None):
         """
@@ -102,21 +105,29 @@ class LogMatcher(object):
         :rtype: ``re.Match``
         """
         match = None
-        end_time = time.time() + timeout
+        start_time = time.time()
+        end_time = start_time + timeout
+
         with open(self.log_path, 'r') as log:
             log.seek(self.position)
+
             while match is None:
                 line = log.readline()
                 if line:
                     match = regex.match(line)
                     if match:
-                        self.position = log.tell()
                         break
-                if time.time() > end_time:
-                    self.position = log.tell()
-                    break
-                time.sleep(LOG_MATCHER_INTERVAL)
+                else:
+                    time.sleep(LOG_MATCHER_INTERVAL)
+                    if time.time() > end_time:
+                        break
+
+            self.position = log.tell()
 
         if match is None:
-            raise ValueError('No matches found in {}s'.format(timeout))
+            raise timing.TimeoutException(
+                'No matches found in {}s'.format(timeout))
+        else:
+            self.logger.debug('Match found in %ds', time.time() - start_time)
         return match
+
