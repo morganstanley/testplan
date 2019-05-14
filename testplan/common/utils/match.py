@@ -3,6 +3,9 @@ Module of utility types and functions that perform matching.
 """
 import os
 import time
+import re
+
+import six
 
 from . import timing
 from . import logger
@@ -98,8 +101,9 @@ class LogMatcher(logger.Loggable):
         end of the file. If a match is found the line number is stored and the
         match is returned. If no match is found an Exception is raised.
 
-        :param regex: compiled regular expression (``re.compile``)
-        :type regex: ``re.Pattern``
+        :param regex: regex string or compiled regular expression
+            (``re.compile``)
+        :type regex: ``Union[str, re.Pattern]``
 
         :return: The regex match or raise an Exception if no match is found.
         :rtype: ``re.Match``
@@ -107,6 +111,11 @@ class LogMatcher(logger.Loggable):
         match = None
         start_time = time.time()
         end_time = start_time + timeout
+
+        # As a convenience, we create the compiled regex if a string was
+        # passed.
+        if not hasattr(regex, 'match'):
+            regex = re.compile(regex)
 
         with open(self.log_path, 'r') as log:
             log.seek(self.position)

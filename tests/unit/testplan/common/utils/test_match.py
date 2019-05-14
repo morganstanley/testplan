@@ -86,12 +86,11 @@ class TestLogMatcher(object):
         logfile and return the match without timing out.
         """
         matcher = LogMatcher(log_path=large_logfile)
-        regex = re.compile(r'^Match me\!$')
 
         # Check that the LogMatcher can find the last 'Match me!' line in a
         # reasonable length of time. 30s is quite a generous timeout, most
         # of the time it should complete in <5s.
-        match = matcher.match(regex=regex, timeout=30)
+        match = matcher.match(regex=r'^Match me!$', timeout=30)
 
         assert match is not None
         assert match.group(0) == 'Match me!'
