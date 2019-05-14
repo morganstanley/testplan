@@ -4,12 +4,12 @@ import sys
 import os
 import re
 import threading
+from six.moves import queue
 
 import pytest
 import requests
 
 from testplan.common.utils.process import kill_process
-from testplan import defaults
 
 _TIMEOUT = 60
 _REQUEST_TIMEOUT = 0.1
@@ -34,11 +34,30 @@ def dummy_testplan(request):
     cwd = os.path.dirname(os.path.abspath(__file__))
     testplan_proc = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE)
 
-    yield testplan_proc
+    # Set up a thread to read from the process' stdout and write to a queue.
+    # This prevents the main thread from blocking when there is no output.
+    stdout_queue = queue.Queue()
+    thr = threading.Thread(target=_enqueue_output,
+                           args=(testplan_proc.stdout, stdout_queue))
+    thr.daemon = True
+    thr.start()
+
+    yield testplan_proc, stdout_queue
 
     if testplan_proc.poll() is None:
         kill_process(testplan_proc)
     assert testplan_proc.poll() is not None
+
+    thr.join(timeout=_TIMEOUT)
+    assert(not thr.isAlive())
+
+
+def _enqueue_output(out, queue):
+    """Enqueues lines from an output stream."""
+    for line in iter(out.readline, b''):
+        queue.put(line.decode('utf-8'))
+    out.close()
+
 
 def test_webserver_exporter(dummy_testplan):
     """
@@ -46,12 +65,23 @@ def test_webserver_exporter(dummy_testplan):
     Repeatedly send requests to the web server until it answers or timeout is
     hit.
     """
+    # Unpack the process and stdout queue.
+    proc, stdout_queue = dummy_testplan
+
     # By default Testplan will grab an ephemeral port to serve the UI, so we
     # must parse the stdout to find the URL.
     url = None
+    timeout = time.time() + _TIMEOUT
 
-    while (url is None) and (dummy_testplan.poll() is None):
-        stdout_line = dummy_testplan.stdout.readline().decode('ascii')
+    while (url is None) and (
+            proc.poll() is None) and (
+            (time.time() < timeout)):
+        try:
+            stdout_line = stdout_queue.get_nowait()
+        except queue.Empty:
+            time.sleep(0.1)
+            continue
+        print(stdout_line.rstrip('\n'))
         match = _URL_RE.match(stdout_line)
         if match:
             url = match.group('url')
@@ -73,5 +103,9 @@ def test_webserver_exporter(dummy_testplan):
         else:
             status_code = response.status_code
             break
-    assert status_code == 200
 
+    # Flush the stdout queue and print any remaining lines for debug.
+    while not stdout_queue.empty():
+        print(stdout_queue.get_nowait().rstrip('\n'))
+
+    assert status_code == 200

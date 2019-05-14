@@ -42,7 +42,7 @@ def get_default_exporters(config):
     if config.xml_dir:
         result.append(test_exporters.XMLExporter())
     if config.ui_port is not None:
-        result.append(test_exporters.WebServerExporter())
+        result.append(test_exporters.WebServerExporter(ui_port=config.ui_port))
     return result
 
 

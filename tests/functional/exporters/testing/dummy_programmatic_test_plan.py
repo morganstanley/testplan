@@ -3,7 +3,6 @@ import sys
 
 from testplan import test_plan
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan import defaults
 from testplan.exporters.testing import WebServerExporter
 
 @testsuite
@@ -15,7 +14,7 @@ class Alpha(object):
 
 @test_plan(
     name='Multiply',
-    exporters=WebServerExporter(ui_port=defaults.WEB_SERVER_PORT)
+    exporters=WebServerExporter()
 )
 def main(plan):
     test = MultiTest(name='MultiplyTest',
