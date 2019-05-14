@@ -30,8 +30,8 @@ def basic_logfile():
 def large_logfile():
     """Write a larger logfile for more realistic performance testing."""
     with tempfile.NamedTemporaryFile('w', delete=False) as logfile:
-        # Write 10,000 lines of 'blah' followed by one line 'Match me!'.
-        logfile.writelines('blah\n' for _ in  range(int(1e5)))
+        # Write 1 million lines of 'blah' followed by one line 'Match me!'.
+        logfile.writelines('blah\n' for _ in  range(int(1e6)))
         logfile.write('Match me!\n')
         filepath = logfile.name
 
@@ -88,9 +88,9 @@ class TestLogMatcher(object):
         matcher = LogMatcher(log_path=large_logfile)
 
         # Check that the LogMatcher can find the last 'Match me!' line in a
-        # reasonable length of time. 30s is quite a generous timeout, most
-        # of the time it should complete in <5s.
-        match = matcher.match(regex=r'^Match me!$', timeout=30)
+        # reasonable length of time. 10s is a very generous timeout, most
+        # of the time it should complete in <1s.
+        match = matcher.match(regex=r'^Match me!$', timeout=10)
 
         assert match is not None
         assert match.group(0) == 'Match me!'

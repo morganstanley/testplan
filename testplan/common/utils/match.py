@@ -137,6 +137,6 @@ class LogMatcher(logger.Loggable):
             raise timing.TimeoutException(
                 'No matches found in {}s'.format(timeout))
         else:
-            self.logger.debug('Match found in %ds', time.time() - start_time)
+            self.logger.debug('Match found in %.2fs', time.time() - start_time)
         return match
 
