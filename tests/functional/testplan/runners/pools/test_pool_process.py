@@ -5,16 +5,15 @@ import os
 import pytest
 
 from testplan.common.utils.testing import log_propagation_disabled
-
-
 from testplan.report.testing import Status
 from testplan.runners.pools import ProcessPool
-
 from testplan import Testplan
-
 from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.testing import multitest
 
-from .func_pool_base_tasks import schedule_tests_to_pool
+from tests.functional.testplan.runners.pools.func_pool_base_tasks import (
+    schedule_tests_to_pool)
+from tests.unit.testplan.common.serialization import test_fields
 
 
 pytestmark = pytest.mark.skipif(True, reason='Process Pool tests are unstable')
@@ -190,6 +189,70 @@ def test_custom_reschedule_condition():
     assert plan.report.status == Status.PASSED
 
 
+def test_schedule_from_main():
+    """
+    Test scheduling Tasks from __main__ - it should not be allowed for
+    ProcessPool.
+    """
+    # Set up a testplan and add a ProcessPool.
+    plan = Testplan(name='ProcPlan', parse_cmdline=False)
+    pool = ProcessPool(name='ProcPool', size=2)
+    plan.add_resource(pool)
+
+    # First check that scheduling a Task with module string of '__main__'
+    # raises the expected ValueError.
+    with pytest.raises(ValueError):
+        plan.schedule(target='target',
+                      module='__main__',
+                      resource='ProcPool')
+
+
+    # Secondly, check that scheduling a callable target with a __module__ attr
+    # of __main__ also raises a ValueError.
+    def callable_target():
+        raise RuntimeError
+
+    callable_target.__module__ = '__main__'
+
+    with pytest.raises(ValueError):
+        plan.schedule(target=callable_target, resource='ProcPool')
+
+@multitest.testsuite
+class SerializationSuite(object):
+
+    @multitest.testcase
+    def test_serialize(self, env, result):
+        """Test serialization of test results."""
+        # As an edge case, store a deliberately "un-pickleable" type that
+        # inherits from int on the result. This should not cause an error
+        # since the value should be formatted as a string.
+        x = test_fields.UnPickleableInt(42)
+        result.equal(actual=x,
+                     expected=42,
+                     description='Compare unpickleable type')
+
+def make_serialization_mtest():
+    """
+    Callable target to make a MultiTest containing the SerializationSuite
+    defined above.
+    """
+    return multitest.MultiTest(name='SerializationMTest',
+                               suites=[SerializationSuite()])
+
+
+def test_serialization():
+    """Test serialization of test results."""
+    plan = Testplan(name='SerializationPlan', parse_cmdline=False)
+    pool = ProcessPool(name='ProcPool', size=2)
+    plan.add_resource(pool)
+    plan.schedule(target='make_serialization_mtest',
+                  module='test_pool_process',
+                  path=os.path.dirname(__file__))
+
+    res = plan.run()
+    assert res.success
+
+
 def test_restart_worker():
     pool_name = ProcessPool.__name__
     plan = Testplan(
@@ -198,7 +261,7 @@ def test_restart_worker():
     )
     pool_size = 4
     retries_limit = int(pool_size / 2)
-    
+
     pool = ProcessPool(name=pool_name, size=pool_size,
                        task_retries_limit=retries_limit,
                        worker_heartbeat=2,
@@ -229,3 +292,4 @@ def test_restart_worker():
     assert res.run is False
     assert res.success is False
     assert plan.report.status == Status.ERROR
+
