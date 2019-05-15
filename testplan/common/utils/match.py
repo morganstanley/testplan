@@ -3,6 +3,12 @@ Module of utility types and functions that perform matching.
 """
 import os
 import time
+import re
+
+import six
+
+from . import timing
+from . import logger
 
 LOG_MATCHER_INTERVAL = 0.25
 
@@ -38,7 +44,7 @@ def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
     return all(extracts_status), extracted_values
 
 
-class LogMatcher(object):
+class LogMatcher(logger.Loggable):
     """
     Single line matcher for text files (usually log files). Once matched, it
     remembers the line number of the match and subsequent matches are scanned
@@ -51,10 +57,10 @@ class LogMatcher(object):
         :param log_path: Path to the log file.
         :type log_path: ``str``
         """
-
         self.log_path = log_path
         self.position = 0
         self.marks = {}
+        super(LogMatcher, self).__init__()
 
     def seek(self, mark=None):
         """
@@ -95,28 +101,42 @@ class LogMatcher(object):
         end of the file. If a match is found the line number is stored and the
         match is returned. If no match is found an Exception is raised.
 
-        :param regex: compiled regular expression (``re.compile``)
-        :type regex: ``re.Pattern``
+        :param regex: regex string or compiled regular expression
+            (``re.compile``)
+        :type regex: ``Union[str, re.Pattern]``
 
         :return: The regex match or raise an Exception if no match is found.
         :rtype: ``re.Match``
         """
         match = None
-        end_time = time.time() + timeout
+        start_time = time.time()
+        end_time = start_time + timeout
+
+        # As a convenience, we create the compiled regex if a string was
+        # passed.
+        if not hasattr(regex, 'match'):
+            regex = re.compile(regex)
+
         with open(self.log_path, 'r') as log:
             log.seek(self.position)
+
             while match is None:
                 line = log.readline()
                 if line:
                     match = regex.match(line)
                     if match:
-                        self.position = log.tell()
                         break
-                if time.time() > end_time:
-                    self.position = log.tell()
-                    break
-                time.sleep(LOG_MATCHER_INTERVAL)
+                else:
+                    time.sleep(LOG_MATCHER_INTERVAL)
+                    if time.time() > end_time:
+                        break
+
+            self.position = log.tell()
 
         if match is None:
-            raise ValueError('No matches found in {}s'.format(timeout))
+            raise timing.TimeoutException(
+                'No matches found in {}s'.format(timeout))
+        else:
+            self.logger.debug('Match found in %.2fs', time.time() - start_time)
         return match
+
