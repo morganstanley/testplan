@@ -250,6 +250,7 @@ class Pool(Executor):
         self.make_runpath_dirs()
         self._metadata['runpath'] = self.runpath
         self._exit_loop = False
+        self._start_monitor_thread = True
 
         # Methods for handling different Message types. These are expected to
         # take the worker, request and response objects as the only required
@@ -302,10 +303,12 @@ class Pool(Executor):
         started.
         """
 
-        self.logger.debug('Starting worker monitor thread.')
-        self._worker_monitor = threading.Thread(target=self._workers_monitoring)
-        self._worker_monitor.daemon = True
-        self._worker_monitor.start()
+        if self._start_monitor_thread:
+            self.logger.debug('Starting worker monitor thread.')
+            self._worker_monitor = threading.Thread(
+                target=self._workers_monitoring)
+            self._worker_monitor.daemon = True
+            self._worker_monitor.start()
 
         while self.active and not self._exit_loop:
             msg = self._conn.accept()
