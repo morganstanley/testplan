@@ -26,7 +26,7 @@ def test_runner_timeout():
     current_proc = psutil.Process()
     start_procs = current_proc.children()
 
-    _, output_json = tempfile.mkstemp(suffix='.json')
+    output_json = tempfile.NamedTemporaryFile(suffix='.json').name
 
     try:
         proc = subprocess.Popen(
