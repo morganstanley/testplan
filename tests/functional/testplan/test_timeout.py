@@ -23,7 +23,7 @@ def test_runner_timeout():
     current_proc = psutil.Process()
     start_procs = current_proc.children()
 
-    with tempfile.NamedTemporaryFile() as output_json:
+    with tempfile.NamedTemporaryFile(mode='r') as output_json:
         proc = subprocess.Popen(
             [sys.executable, testplan_script, '--json', output_json.name],
             stdout=subprocess.PIPE)
@@ -53,4 +53,3 @@ def test_runner_timeout():
 
     # Check that no extra child processes remain since before starting.
     assert current_proc.children() == start_procs
-
