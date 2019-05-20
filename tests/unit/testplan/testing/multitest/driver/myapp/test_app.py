@@ -133,12 +133,10 @@ def test_binary_copy():
     app = CustomApp(path_cleanup=True, **params)
     with app:
         # Will terminate the binary.
-        assert len(os.listdir(app.binpath)) == 1
         assert app.extracts['value'] == 'started'
 
     app = CustomApp(path_cleanup=False, **params)
     with app:
-        assert len(os.listdir(app.binpath)) == 2
         assert app.extracts['value'] == 'started'
 
 
