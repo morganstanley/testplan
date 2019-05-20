@@ -696,3 +696,8 @@ class RemotePool(Pool):
 
         super(RemotePool, self)._start_workers()
 
+    def stopping(self):
+        if self.pool:
+            self.pool.terminate()
+            self.pool = None
+        super(RemotePool, self).stopping()

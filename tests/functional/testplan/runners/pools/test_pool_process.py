@@ -16,7 +16,7 @@ from tests.functional.testplan.runners.pools.func_pool_base_tasks import (
 from tests.unit.testplan.common.serialization import test_fields
 
 
-pytestmark = pytest.mark.skipif(True, reason='Process Pool tests are unstable')
+# pytestmark = pytest.mark.skipif(True, reason='Process Pool tests are unstable')
 
 
 def test_pool_basic():

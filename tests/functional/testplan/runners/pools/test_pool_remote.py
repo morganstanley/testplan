@@ -14,7 +14,7 @@ from .func_pool_base_tasks import schedule_tests_to_pool
 
 IS_WIN = platform.system() == 'Windows'
 
-pytestmark = pytest.mark.skipif(True, reason='Remote Pool tests are unstable')
+# pytestmark = pytest.mark.skipif(True, reason='Remote Pool tests are unstable')
 
 
 def mock_ssh(host, command):

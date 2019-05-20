@@ -46,6 +46,7 @@ class ControllableWorker(pools_base.Worker):
 
     def __init__(self, **kwargs):
         self._is_alive = False
+        self._restart_count = 0
         super(ControllableWorker, self).__init__(**kwargs)
 
     def starting(self):
@@ -59,6 +60,10 @@ class ControllableWorker(pools_base.Worker):
         """
         self._is_alive = False
         self.status.change(self.STATUS.STOPPED)
+
+    def restart(self):
+        self._restart_count += 1
+        self._is_alive = True
 
     @property
     def is_alive(self):
@@ -127,3 +132,31 @@ class TestPoolIsolated():
         # manager.
         assert pool.status.tag == pool.status.STOPPED
 
+    def test_restart_worker_inactive(self):
+        pool = pools_base.Pool(
+            name='MyPool', size=1, worker_type=ControllableWorker)
+        pool._start_monitor_thread = False
+
+        with pool:
+
+            worker = pool._workers['0']
+            assert pool._query_worker_status(worker) == ('active', None)
+
+            worker._is_alive = False
+            assert pool._query_worker_status(worker) == \
+                   ('inactive',
+                    'Deco {}, handler no longer alive'.format(worker))
+
+            assert pool._handle_inactive(worker, 'test restart') == True
+            assert worker._restart_count == 1
+
+    def test_restart_pool_stopping(self):
+
+        pool = pools_base.Pool(
+            name='MyPool', size=1, worker_type=ControllableWorker)
+        pool._start_monitor_thread = False
+
+        with pool:
+            worker = pool._workers['0']
+
+        assert worker._restart_count == 0

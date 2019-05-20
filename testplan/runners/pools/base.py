@@ -22,7 +22,7 @@ from testplan.runners.base import Executor, ExecutorConfig
 from .communication import Message
 from .connection import QueueClient, QueueServer
 from .tasks import Task, TaskResult
-
+from testplan.common.entity import ResourceStatus
 
 class WorkerConfig(entity.ResourceConfig):
     """
@@ -123,7 +123,8 @@ class Worker(entity.Resource):
     def _loop(self, transport):
         message = Message(**self.metadata)
 
-        while self.active:
+        while (self.active and self.status.tag not in (self.status.STOPPING,
+                                                       self.status.STOPPED)):
             received = transport.send_and_receive(message.make(
                 message.TaskPullRequest, data=1))
             if received is None or received.cmd == Message.Stop:
@@ -248,6 +249,8 @@ class Pool(Executor):
         self._metadata = {}
         self.make_runpath_dirs()
         self._metadata['runpath'] = self.runpath
+        self._exit_loop = False
+        self._start_monitor_thread = True
 
         # Methods for handling different Message types. These are expected to
         # take the worker, request and response objects as the only required
@@ -300,21 +303,19 @@ class Pool(Executor):
         started.
         """
 
-        self.logger.debug('Starting worker monitor thread.')
-        self._worker_monitor = threading.Thread(target=self._workers_monitoring)
-        self._worker_monitor.daemon = True
-        self._worker_monitor.start()
+        if self._start_monitor_thread:
+            self.logger.debug('Starting worker monitor thread.')
+            self._worker_monitor = threading.Thread(
+                target=self._workers_monitoring)
+            self._worker_monitor.daemon = True
+            self._worker_monitor.start()
 
-        while (self.active
-               and self.status.tag is not self.status.STOPPING
-               and self.status.tag is not self.status.STOPPED):
-
+        while self.active and not self._exit_loop:
             msg = self._conn.accept()
             if msg:
                 try:
                     self.logger.debug('Received message from worker: %s.', msg)
-                    with self._pool_lock:
-                        self.handle_request(msg)
+                    self.handle_request(msg)
                 except Exception as exc:
                     self.logger.error(format_trace(inspect.trace(), exc))
 
@@ -330,10 +331,9 @@ class Pool(Executor):
         sender_index = request.sender_metadata['index']
         worker = self._workers[sender_index]
         if not worker.active:
-            self.logger.critical(
-                'Ignoring message {} - {} from inactive worker {}'.format(
+            self.logger.warning(
+                'Message {} - {} from inactive worker {}'.format(
                     request.cmd, request.data, worker))
-            return
 
         self.logger.debug('Pool {} request received by {} - {}, {}'.format(
             self.cfg.name, worker, request.cmd, request.data))
@@ -471,27 +471,42 @@ class Pool(Executor):
         else:
             loop_interval = 5  # seconds
 
-        while self.is_alive and self.active:
+        break_outer_loop = False
+        while self.active:
 
             hosts_status = {'active': [], 'inactive': [], 'initializing': []}
-            with self._pool_lock:
-                for worker in self._workers:
-                    status = self._query_worker_status(worker)
-                    hosts_status[status].append(worker)
 
-                if hosts_status != previous_status:
-                    self.logger.info('%s Hosts status update',
-                                     datetime.datetime.now())
-                    self.logger.info(pprint.pformat(hosts_status))
-                    previous_status = hosts_status
+            for worker in self._workers:
+                status, reason = self._query_worker_status(worker)
+                if status == 'inactive':
+                    with self._pool_lock:
+                        if self.active and self.status.tag not in (
+                                self.status.STOPPING, self.status.STOPPED):
+                            if self._handle_inactive(worker, reason):
+                                status = 'active'
+                        else:
+                            # if pool is aborting/stopping, exit monitor
+                            break_outer_loop = True
+                            break
 
-                if not hosts_status['active'] \
-                        and not hosts_status['initializing'] \
-                        and hosts_status['inactive']:
-                    self.logger.critical(
-                        'All workers of {} are inactive.'.format(self))
-                    self.abort()
-                    break
+                hosts_status[status].append(worker)
+
+            if break_outer_loop:
+                break
+
+            if hosts_status != previous_status:
+                self.logger.info('%s Hosts status update',
+                                 datetime.datetime.now())
+                self.logger.info(pprint.pformat(hosts_status))
+                previous_status = hosts_status
+
+            if not hosts_status['active'] \
+                    and not hosts_status['initializing'] \
+                    and hosts_status['inactive']:
+                self.logger.critical(
+                    'All workers of {} are inactive.'.format(self))
+                self.abort()
+                break
 
             try:
                 # For early finish of worker monitoring thread.
@@ -505,18 +520,18 @@ class Pool(Executor):
         """
         Query the current status of a worker. If heartbeat monitoring is
         enabled, check the last heartbeat time is within threshold.
-        Decomission any inactie workers.
 
         :param worker: Pool worker to query
         :return: worker status string - one of 'initializing', 'inactive' or
-            'active'
+            'active', and an optional reason string
         """
-        if worker.status.tag in (worker.status.NONE, worker.status.STARTING):
-            return 'initializing'
 
-        if worker.status.tag in (
+        if not worker.active or worker.status.tag in (
                 worker.status.STOPPING, worker.status.STOPPED):
-            return 'inactive'
+            return 'inactive', 'Worker in stop/abort status'
+
+        if worker.status.tag in (worker.status.NONE, worker.status.STARTING):
+            return 'initializing', None
 
         # else: worker must be in state STARTED
         if worker.status.tag != worker.status.STARTED:
@@ -524,37 +539,34 @@ class Pool(Executor):
                                .format(worker.status.tag))
 
         if not worker.is_alive:  # handler based monitoring
-            if self._handle_inactive(
-                    worker,
-                    'Deco {}, handler no longer alive'.format(worker)):
-                return 'active'
-            return 'inactive'
+            return 'inactive', 'Deco {}, handler no longer alive'.format(worker)
 
         # If no heartbeart is configured, we treat the worker as "active"
         # since it is in state STARTED and its handler is alive.
         if not self.cfg.worker_heartbeat:
-            return 'active'
+            return 'active', None
 
         # else: do heartbeat based monitoring
         lag = time.time() - worker.last_heartbeat
         if lag > self.cfg.worker_heartbeat * self.cfg.heartbeats_miss_limit:
-            if self._handle_inactive(
-                    worker,
-                    'Has not been receiving heartbeat from {} for {} sec'
-                    .format(worker, lag)):
-                return 'active'
-            return 'inactive'
+            return ('inactive',
+                    'Has not been receiving heartbeat from {} for {} '
+                    'sec'.format(worker, lag))
 
-        return 'active'
+        return 'active', None
 
     def _handle_inactive(self, worker, reason):
         """
         Handle an inactive worker.
         :param worker: worker object
-        :param reason: reason of call this method
+        :param reason: why worker is considered inactive
         :return: True if worker restarted, else False
         """
+        if worker.status.tag != worker.status.STARTED:
+            return
+
         self._deco_worker(worker, reason)
+
         if worker.restart_count:
             worker.restart_count -= 1
             try:
@@ -620,6 +632,14 @@ class Pool(Executor):
         """Starting the pool and workers."""
         # TODO do we need a lock here?
         self._conn.start()
+
+        for worker in self._workers:
+            # reset worker (if any) status
+            worker.status.change(ResourceStatus.STARTING)
+
+        self._exit_loop = False
+        super(Pool, self).starting()  # start the loop & monitor
+
         if not self._workers:
             self._add_workers()
         self._start_workers()
@@ -627,11 +647,9 @@ class Pool(Executor):
         if self._workers.start_exceptions:
             for msg in self._workers.start_exceptions.values():
                 self.logger.error(msg)
-            self._workers.stop()
+            self.abort()
             raise RuntimeError(
                 'All workers of {} failed to start.'.format(self))
-
-        super(Pool, self).starting()  # start the loop & monitor
 
         self.status.change(self.status.STARTED)
         self.logger.debug('%s started.', self.__class__.__name__)
@@ -643,11 +661,14 @@ class Pool(Executor):
     def stopping(self):
         """Stop connections and workers."""
         # TODO do we need a lock here?
+        with self._pool_lock:
+            self._workers.stop()
+            for worker in self._workers:
+                worker.transport.disconnect()
+
+        self._exit_loop = True
         super(Pool, self).stopping()  # stop the loop and the monitor
 
-        for worker in self._workers:
-            worker.transport.disconnect()
-        self._workers.stop()
         self._conn.stop()
 
         self.status.change(self.status.STOPPED)
@@ -662,11 +683,12 @@ class Pool(Executor):
         """Aborting logic."""
         self.logger.debug('Aborting pool {}'.format(self))
 
-        super(Pool, self).stopping()  # stop the loop and the monitor
         for worker in self._workers:
             worker.abort()
+
+        super(Pool, self).stopping()  # stop the loop and the monitor
+
         self._conn.abort()
         self._discard_pending_tasks()
 
         self.logger.debug('Aborted pool {}'.format(self))
-
