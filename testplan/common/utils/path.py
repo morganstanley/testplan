@@ -107,12 +107,17 @@ def makeemptydirs(path):
     :type path: ``str``
     """
     if os.path.isdir(path):
-        shutil.rmtree(path, ignore_errors=True)
+        shutil.rmtree(path)
     else:
         try:
             os.remove(path)
-        except OSError:
-            pass
+        except OSError as err:
+            if err.errno != errno.ENOENT:
+                raise
+
+    if os.path.exists(path):
+        raise RuntimeError('Could not remove existing path {}'.format(path))
+
     makedirs(path)
 
 
