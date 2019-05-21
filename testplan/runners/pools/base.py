@@ -563,7 +563,7 @@ class Pool(Executor):
         :return: True if worker restarted, else False
         """
         if worker.status.tag != worker.status.STARTED:
-            return
+            return False
 
         self._deco_worker(worker, reason)
 
