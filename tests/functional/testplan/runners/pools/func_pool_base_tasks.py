@@ -23,6 +23,7 @@ class MySuite(object):
         assert os.path.exists(env.runpath) is True
         assert env.runpath.endswith(env.cfg.name)
 
+
 def get_mtest(name):
     """TODO."""
     return MultiTest(name='MTest{}'.format(name), suites=[MySuite()])
