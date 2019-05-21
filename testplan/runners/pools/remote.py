@@ -510,7 +510,7 @@ class RemoteWorker(ProcessWorker):
                '--testplan', self._testplan_import_path.remote]
 
         if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
-            cmd.extend(['--testplan-deps', self._remote_testplan_runpath])
+            cmd.extend(['--testplan-deps', self._remote_testplan_path])
 
         return self.cfg.ssh_cmd(self.ssh_cfg, ' '.join(cmd))
 
