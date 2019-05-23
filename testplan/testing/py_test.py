@@ -266,6 +266,7 @@ class _ReportPlugin(object):
 
         :param item: the test item to tear down (see pytest documentation)
         """
+        self._current_case_report = None
         self._current_result_obj = None
 
     def pytest_runtest_logreport(self, report):
