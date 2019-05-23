@@ -276,12 +276,17 @@ class _ReportPlugin(object):
                        documentation)
         """
         if report.when == 'setup':
-            if report.skipped:
+            if report.skipped and self._current_case_report is not None:
                 # Status set to be SKIPPED if testcase is marked skip or xfail
                 # lower versioned PyTest does not support this feature
                 self._current_case_report.status_override = Status.SKIPPED
 
         elif report.when == 'call':
+            if self._current_case_report is None:
+                raise RuntimeError(
+                    'Cannot store testcase results to report: no report '
+                    'object was created.')
+
             # Add the assertion entry to the case report
             for entry in self._current_result_obj.entries:
                 stdout_renderer = stdout_registry[entry]()
@@ -304,13 +309,14 @@ class _ReportPlugin(object):
         :param call: PyTest CallInfo object
         :param report: PyTest TestReport or CollectReport object
         """
-        if call.when == 'memocollect':
-            # Failed to collect tests and log an entry in PyTest report
+        if call.when in ('memocollect', 'collect'):
+            # Failed to collect tests: log to console and mark the report as
+            # ERROR.
             self._report.logger.error(format_trace(
                 inspect.getinnerframes(call.excinfo.tb), call.excinfo.value))
             self._report.status_override = Status.ERROR
 
-        else:
+        elif self._current_case_report is not None:
             # Log assertion errors or exceptions in testcase report
             traceback = call.excinfo.traceback[-1]
             message = getattr(call.excinfo.value, 'message', None) or \
@@ -342,6 +348,12 @@ class _ReportPlugin(object):
             serialized_obj = schema_registry.serialize(assertion_obj)
             self._current_case_report.append(serialized_obj)
             self._current_case_report.status_override = Status.FAILED
+        else:
+            self._report.logger.error(
+                'Exception occured outside of a testcase: during %s',
+                call.when)
+            self._report.logger.error(format_trace(
+                inspect.getinnerframes(call.excinfo.tb), call.excinfo.value))
 
     @pytest.hookimpl(trylast=True)
     def pytest_configure(self, config):
