@@ -4,16 +4,16 @@ import {css, StyleSheet} from 'aphrodite';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
-  faMinusSquare,
-  faPlusSquare,
+  faMinusCircle,
+  faPlusCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
 import InfiniteScroll from './InfiniteScroll';
 import AssertionGroup from "./AssertionGroup";
 
 library.add(
-  faPlusSquare,
-  faMinusSquare
+  faPlusCircle,
+  faMinusCircle
 );
 
 /**
@@ -89,16 +89,16 @@ class AssertionPane extends Component {
         <div style={assertionPaneStyle}>
           <div className={css(styles.buttonsDiv)}>
             <FontAwesomeIcon
-              size='2x'
-              key='faPlusSquare'
-              icon='plus-square'
+              size='1x'
+              key='faPlusCircle'
+              icon='plus-circle'
               onClick={this.expandAllAssertions}
               className={css(styles.icon)}
             />
             <FontAwesomeIcon
-              size='2x'
-              key='faMinusSquare'
-              icon='minus-square'
+              size='1x'
+              key='faMinusCircle'
+              icon='minus-circle'
               onClick={this.collapseAllAssertions}
               className={css(styles.icon)}
             />
@@ -119,6 +119,7 @@ class AssertionPane extends Component {
                 entries={[]}
                 globalIsOpen={this.state.globalIsOpen}
                 resetGlobalIsOpen={this.resetGlobalIsOpen}
+                filter={this.props.filter}
               />
             </InfiniteScroll>
           </div>
@@ -136,6 +137,8 @@ AssertionPane.propTypes = {
   testcaseUid: PropTypes.string,
   /** Left positional value */
   left: PropTypes.number,
+  /** Assertion filter */
+  filter: PropTypes.string,
 };
 
 const styles = StyleSheet.create({

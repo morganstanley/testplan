@@ -469,7 +469,7 @@ function flattenedDictToDOM(flattenedDict) {
     });
   }
 
-  if (flattenedDict) {
+  if (flattenedDict && flattenedDict.length > 0) {
     const isLog = flattenedDict[0].length === 3;
     if (isLog) {
       logToDOM(flattenedDict, table);

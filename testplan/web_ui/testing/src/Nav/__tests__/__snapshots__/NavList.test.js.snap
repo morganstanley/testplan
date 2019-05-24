@@ -11,8 +11,11 @@ ShallowWrapper {
             Object {
               "case_count": Object {
                 "failed": 0,
-                "passed": 0,
+                "passed": 1,
               },
+              "displayEmpty": true,
+              "displayTags": true,
+              "filter": "all",
               "name": "test",
               "status": "passed",
               "type": "testplan",
@@ -46,7 +49,7 @@ ShallowWrapper {
         >
                 <NavEntry
                         caseCountFailed={0}
-                        caseCountPassed={0}
+                        caseCountPassed={1}
                         name="test"
                         status="passed"
                         type={undefined}
@@ -69,7 +72,7 @@ ShallowWrapper {
 >
             <NavEntry
                         caseCountFailed={0}
-                        caseCountPassed={0}
+                        caseCountPassed={1}
                         name="test"
                         status="passed"
                         type={undefined}
@@ -85,34 +88,40 @@ ShallowWrapper {
           "key": "123",
           "nodeType": "function",
           "props": Object {
-            "children": <NavEntry
-              caseCountFailed={0}
-              caseCountPassed={0}
-              name="test"
-              status="passed"
-              type={undefined}
+            "children": Array [
+              <NavEntry
+                caseCountFailed={0}
+                caseCountPassed={1}
+                name="test"
+                status="passed"
+                type={undefined}
 />,
+              undefined,
+            ],
             "className": "navButton_140hs3a-o_O-navButtonInteract_raa3h5",
             "onClick": [Function],
             "tabIndex": "1",
             "tag": "li",
           },
           "ref": null,
-          "rendered": Object {
-            "instance": null,
-            "key": undefined,
-            "nodeType": "class",
-            "props": Object {
-              "caseCountFailed": 0,
-              "caseCountPassed": 0,
-              "name": "test",
-              "status": "passed",
-              "type": undefined,
+          "rendered": Array [
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "class",
+              "props": Object {
+                "caseCountFailed": 0,
+                "caseCountPassed": 1,
+                "name": "test",
+                "status": "passed",
+                "type": undefined,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
             },
-            "ref": null,
-            "rendered": null,
-            "type": [Function],
-          },
+            undefined,
+          ],
           "type": [Function],
         },
       ],
@@ -137,7 +146,7 @@ ShallowWrapper {
           >
                     <NavEntry
                               caseCountFailed={0}
-                              caseCountPassed={0}
+                              caseCountPassed={1}
                               name="test"
                               status="passed"
                               type={undefined}
@@ -160,7 +169,7 @@ ShallowWrapper {
 >
               <NavEntry
                             caseCountFailed={0}
-                            caseCountPassed={0}
+                            caseCountPassed={1}
                             name="test"
                             status="passed"
                             type={undefined}
@@ -176,34 +185,40 @@ ShallowWrapper {
             "key": "123",
             "nodeType": "function",
             "props": Object {
-              "children": <NavEntry
-                caseCountFailed={0}
-                caseCountPassed={0}
-                name="test"
-                status="passed"
-                type={undefined}
+              "children": Array [
+                <NavEntry
+                  caseCountFailed={0}
+                  caseCountPassed={1}
+                  name="test"
+                  status="passed"
+                  type={undefined}
 />,
+                undefined,
+              ],
               "className": "navButton_140hs3a-o_O-navButtonInteract_raa3h5",
               "onClick": [Function],
               "tabIndex": "1",
               "tag": "li",
             },
             "ref": null,
-            "rendered": Object {
-              "instance": null,
-              "key": undefined,
-              "nodeType": "class",
-              "props": Object {
-                "caseCountFailed": 0,
-                "caseCountPassed": 0,
-                "name": "test",
-                "status": "passed",
-                "type": undefined,
+            "rendered": Array [
+              Object {
+                "instance": null,
+                "key": undefined,
+                "nodeType": "class",
+                "props": Object {
+                  "caseCountFailed": 0,
+                  "caseCountPassed": 1,
+                  "name": "test",
+                  "status": "passed",
+                  "type": undefined,
+                },
+                "ref": null,
+                "rendered": null,
+                "type": [Function],
               },
-              "ref": null,
-              "rendered": null,
-              "type": [Function],
-            },
+              undefined,
+            ],
             "type": [Function],
           },
         ],

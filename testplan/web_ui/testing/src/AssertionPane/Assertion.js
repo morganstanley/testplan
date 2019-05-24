@@ -104,6 +104,7 @@ class Assertion extends Component {
         entries={this.props.assertion.entries}
         globalIsOpen={this.props.globalIsOpen}
         resetGlobalIsOpen={this.props.resetGlobalIsOpen}
+        filter={this.props.filter}
       />;
     } else {
       let AssertionTypeComponent = this.assertionComponent(
@@ -154,6 +155,8 @@ Assertion.propTypes = {
   resetGlobalIsOpen: PropTypes.func,
   /** Index of the assertion */
   index: PropTypes.number,
+  /** Assertion filter */
+  filter: PropTypes.string,
 };
 
 const styles = StyleSheet.create({

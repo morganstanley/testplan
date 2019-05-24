@@ -78,7 +78,11 @@ class Nav extends Component {
           entries={selection.navList}
           breadcrumbLength={selection.navBreadcrumbs.length}
           handleNavClick={this.handleNavClick}
-          autoSelect={this.autoSelect} />
+          autoSelect={this.autoSelect}
+          filter={this.props.filter}
+          displayEmpty={this.props.displayEmpty}
+          displayTags={this.props.displayTags}
+        />
       </Fragment>
     );
   }
@@ -89,6 +93,12 @@ Nav.propTypes = {
   report: PropTypes.arrayOf(PropTypes.object),
   /** Function to handle saving the assertions found by the Nav */
   saveAssertions: PropTypes.func,
+  /** Entity filter */
+  filter: PropTypes.string,
+  /** Flag to display tags on navbar */
+  displayTags: PropTypes.bool,
+  /** Flag to display empty testcase on navbar */
+  displayEmpty: PropTypes.bool,
 };
 
 export default Nav;

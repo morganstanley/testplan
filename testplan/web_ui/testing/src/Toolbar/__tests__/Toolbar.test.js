@@ -59,14 +59,14 @@ describe('Toolbar', () => {
   it('uses the failed style when status is failed', () => {
     props.status = 'failed';
     const toolbar = renderToolbar();
-    const container = toolbar.find('div').get(0);
+    const container = toolbar.find('Collapse').get(0);
     expect(container.props.className).toMatch(/toolbar.+toolbarFailed/);
   });
 
   it('uses the neutral style when status is neither passed or failed', () => {
     props.status = undefined;
     const toolbar = renderToolbar();
-    const container = toolbar.find('div').get(0);
+    const container = toolbar.find('Collapse').get(0);
     expect(container.props.className).toMatch(/toolbar.+toolbarNeutral/);
   });
 
