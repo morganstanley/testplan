@@ -7,7 +7,8 @@ import {
   faSortAmountUp,
   faSortAmountDown,
 } from '@fortawesome/free-solid-svg-icons';
-import {sortFlattenedJSON} from './dictAssertionUtils';
+import CopyButton from './../CopyButton';
+import {sortFlattenedJSON, flattenedDictToDOM} from './dictAssertionUtils';
 import {SORT_TYPES} from './../../../Common/defaults';
 import {uniqueId} from './../../../Common/utils';
 
@@ -26,14 +27,15 @@ library.add(
  * dictAssertionUtils' {@link sortFlattenedJSON} function is called to sort
  * the table data to be displayed.
  */
-class SortButtonGroup extends Component {
+class DictButtonGroup extends Component {
   constructor(props) {
     super(props);
 
     this.uid = this.props.uid || uniqueId();
 
     this.state = {
-      selectedSortType: this.props.defaultSortType
+      selectedSortType: this.props.defaultSortType,
+      sortedData: this.props.flattenedDict,
     };
 
     this.buttonMap = {};
@@ -74,7 +76,8 @@ class SortButtonGroup extends Component {
     );
     this.props.setRowData(sortedData);
     this.setState({
-      selectedSortType: SORT_TYPES.ALPHABETICAL
+      selectedSortType: SORT_TYPES.ALPHABETICAL,
+      sortedData: sortedData
     });
   }
 
@@ -84,7 +87,8 @@ class SortButtonGroup extends Component {
     );
     this.props.setRowData(sortedData);
     this.setState({
-      selectedSortType: SORT_TYPES.REVERSE_ALPHABETICAL
+      selectedSortType: SORT_TYPES.REVERSE_ALPHABETICAL,
+      sortedData: sortedData
     });
   }
 
@@ -94,7 +98,8 @@ class SortButtonGroup extends Component {
     );
     this.props.setRowData(sortedData);
     this.setState({
-      selectedSortType: SORT_TYPES.BY_STATUS
+      selectedSortType: SORT_TYPES.BY_STATUS,
+      sortedData: sortedData
     });
   }
 
@@ -104,7 +109,8 @@ class SortButtonGroup extends Component {
     );
     this.props.setRowData(sortedData);
     this.setState({
-      selectedSortType: SORT_TYPES.ONLY_FAILURES
+      selectedSortType: SORT_TYPES.ONLY_FAILURES,
+      sortedData: sortedData
     });
   }
 
@@ -126,15 +132,18 @@ class SortButtonGroup extends Component {
       );
     }.bind(this));
 
+    let copyButton =
+      <CopyButton value={flattenedDictToDOM(this.state.sortedData)} />;
+
     return (
       <ButtonGroup style={{paddingBottom: '.5rem'}}>
-        {buttonGroup}
+        {buttonGroup}{copyButton}
       </ButtonGroup>
     );
   }
 }
 
-SortButtonGroup.propTypes = {
+DictButtonGroup.propTypes = {
   /** Types of button should be rendered.  */
   sortTypeList: PropTypes.arrayOf(
     PropTypes.number
@@ -150,4 +159,4 @@ SortButtonGroup.propTypes = {
 };
 
 
-export default SortButtonGroup;
+export default DictButtonGroup;

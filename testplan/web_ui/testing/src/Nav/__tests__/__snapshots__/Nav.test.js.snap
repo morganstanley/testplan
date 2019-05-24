@@ -282,6 +282,8 @@ ShallowWrapper {
         <NavList
           autoSelect={[Function]}
           breadcrumbLength={0}
+          displayEmpty={undefined}
+          displayTags={undefined}
           entries={
                     Array [
                               Object {
@@ -291,6 +293,7 @@ ShallowWrapper {
                               },
                             ]
           }
+          filter={undefined}
           handleNavClick={[Function]}
 />,
       ],
@@ -316,6 +319,8 @@ ShallowWrapper {
         "props": Object {
           "autoSelect": [Function],
           "breadcrumbLength": 0,
+          "displayEmpty": undefined,
+          "displayTags": undefined,
           "entries": Array [
             Object {
               "name": "Sample Testplan",
@@ -323,6 +328,7 @@ ShallowWrapper {
               "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
             },
           ],
+          "filter": undefined,
           "handleNavClick": [Function],
         },
         "ref": null,
@@ -346,6 +352,8 @@ ShallowWrapper {
           <NavList
             autoSelect={[Function]}
             breadcrumbLength={0}
+            displayEmpty={undefined}
+            displayTags={undefined}
             entries={
                         Array [
                                     Object {
@@ -355,6 +363,7 @@ ShallowWrapper {
                                     },
                                   ]
             }
+            filter={undefined}
             handleNavClick={[Function]}
 />,
         ],
@@ -380,6 +389,8 @@ ShallowWrapper {
           "props": Object {
             "autoSelect": [Function],
             "breadcrumbLength": 0,
+            "displayEmpty": undefined,
+            "displayTags": undefined,
             "entries": Array [
               Object {
                 "name": "Sample Testplan",
@@ -387,6 +398,7 @@ ShallowWrapper {
                 "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
               },
             ],
+            "filter": undefined,
             "handleNavClick": [Function],
           },
           "ref": null,

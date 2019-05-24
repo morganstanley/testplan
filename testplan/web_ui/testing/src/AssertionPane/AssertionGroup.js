@@ -9,13 +9,23 @@ import Assertion from './Assertion';
  */
 class AssertionGroup extends Component {
   render() {
-    return this.props.entries.map((assertion, index) =>
+    return this.props.entries.filter((assertion) => {
+      if (this.props.filter === 'pass') {
+        // Log assertion will be displayed
+        if (assertion.passed === false) return false;
+      } else if (this.props.filter === 'fail') {
+        // Log assertion will be displayed
+        if (assertion.passed === true) return false;
+      }
+      return true;
+    }).map((assertion, index) =>
       <Assertion
         key={'assertion_' + index}
         assertion={assertion}
         globalIsOpen={this.props.globalIsOpen}
         resetGlobalIsOpen={this.props.resetGlobalIsOpen}
         index={index}
+        filter={this.props.filter}
       />
     );
   }
@@ -29,6 +39,8 @@ AssertionGroup.propTypes = {
   /** Function to reset the expand all/collapse all state if an individual
    * assertion's visibility is changed */
   resetGlobalIsOpen: PropTypes.func,
+  /** Assertion filter */
+  filter: PropTypes.string,
 };
 
 export default AssertionGroup;

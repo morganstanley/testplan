@@ -4,7 +4,8 @@ import {css, StyleSheet} from 'aphrodite';
 import {AgGridReact} from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
-import {calculateTableGridHeight} from './tableAssertionUtils';
+import CopyButton from './../CopyButton';
+import {calculateTableGridHeight, gridToDOM} from './tableAssertionUtils';
 
 /**
  * Base assertion that are used to render table-like data.
@@ -46,10 +47,15 @@ class TableBaseAssertion extends Component {
   render() {
     const height = calculateTableGridHeight(this.props.rowData.length);
 
+    let copyValue = gridToDOM(this.props.columnDefs, this.props.rowData);
+
     return (
       <Fragment>
         <div className={css(styles.preText)}>
           {this.props.preText}
+        </div>
+         <div  className={css(styles.preText)}>
+          <CopyButton value={copyValue} />
         </div>
         <div className={
           `ag-theme-balham ${css(styles.isResizable)} ${css(styles.gridFont)}`

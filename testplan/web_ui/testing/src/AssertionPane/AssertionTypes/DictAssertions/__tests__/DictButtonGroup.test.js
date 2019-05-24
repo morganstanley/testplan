@@ -2,7 +2,7 @@ import React from 'react';
 import {shallow} from 'enzyme';
 import {StyleSheetTestUtils} from "aphrodite";
 
-import SortButtonGroup from '../SortButtonGroup';
+import DictButtonGroup from '../DictButtonGroup';
 
 function defaultProps() {
   return {
@@ -29,9 +29,9 @@ describe('DictLogAssertion', () => {
     shallowComponent = undefined;
   });
 
-  it('shallow renders SortButtonGroup component', () => {
+  it('shallow renders DictButtonGroup component', () => {
     props = defaultProps();
-    shallowComponent = shallow(<SortButtonGroup {...props} />);
+    shallowComponent = shallow(<DictButtonGroup {...props} />);
     expect(shallowComponent).toMatchSnapshot();
   });
 });

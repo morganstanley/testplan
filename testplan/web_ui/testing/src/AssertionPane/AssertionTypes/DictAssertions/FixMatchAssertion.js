@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import DictBaseAssertion from './DictBaseAssertion';
 import FixCellRenderer from './FixCellRenderer';
-import SortButtonGroup from './SortButtonGroup';
+import DictButtonGroup from './DictButtonGroup';
 import {
   prepareDictColumnDefs,
   prepareDictRowData,
@@ -70,7 +70,7 @@ class FixMatchAssertion extends Component {
 
   render() {
     let buttonGroup = (
-      <SortButtonGroup
+      <DictButtonGroup
         sortTypeList={[
           SORT_TYPES.ALPHABETICAL, 
           SORT_TYPES.REVERSE_ALPHABETICAL,

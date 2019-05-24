@@ -1,4 +1,4 @@
-import {any, sorted} from './../../../Common/utils';
+import {any, sorted, domToString} from './../../../Common/utils';
 import {DICT_GRID_STYLE} from './../../../Common/defaults';
 
 /** @module dictAssertionUtils */
@@ -327,6 +327,161 @@ function getFixInformation(fixTagInfo, cellValue, keyValue, colField) {
 }
 
 
+/**
+ * Convert flattened dict assertion data to HTML table string
+ *
+ * @param {Array} flattenedDict - flattened dict assertion data
+ * @returns {string} - HTML table
+ */
+function flattenedDictToDOM(flattenedDict) {
+  let table = document.createElement('table');
+
+  /**
+   * Convert DictLog/FixLog assertion data to HTML Table
+   *
+   * <table>
+   *   <tr>
+   *     <th>Key</th><th>Value</th>
+   *   </tr>
+   *   <tr>
+   *     <td>  alpha</td>
+   *     <td>blue<small>str</small></td>
+   *   </tr>
+   *   ...
+   * </table>
+   *
+   *  _________________________
+   * | Key        | Value      |
+   * |------------|------------|
+   * | foo        |            |
+   * |   alpha    | blue       |
+   * |   beta     | green      |
+   * | bar        | true       |
+   * |____________|____________|
+   *
+   */
+  function logToDOM(flattenedDict, table) {
+    let header = document.createElement('tr');
+    ['Key', 'Value'].forEach((el) => {
+      let th = document.createElement('th');
+      th.innerHTML = el;
+      header.appendChild(th);
+    });
+    table.appendChild(header);
+
+    flattenedDict.forEach((el) => {
+      let [level, key, value] = el;
+      // If key and value are string and length is 0, the current row is empty.
+      // Empty row will be ignored.
+      if (key.length === 0 && value.length === 0) {
+        return;
+      }
+      let tr = document.createElement('tr');
+      let keyTd = document.createElement('td');
+      let valueTd = document.createElement('td');
+      keyTd.innerText = '\u00A0\u00A0'.repeat(level) + key;
+      if (Array.isArray(value)) {
+        valueTd.innerText = value[1];
+        let valueType = document.createElement('small');
+        valueType.innerText = value[0];
+        valueTd.appendChild(valueType);
+      } else {
+        valueTd.innerText = value;
+      }
+
+      tr.appendChild(keyTd);
+      tr.appendChild(valueTd);
+      table.appendChild(tr);
+    });
+  }
+
+  /**
+   * Convert DictMatch/FixMatch assertion data to HTML Table
+   *
+   * <table>
+   *   <tr>
+   *     <th>Key</th><th>Expected</th><th>Value</th>
+   *   </tr>
+   *   <tr>
+   *     <td>  alpha</td>
+   *     <td>blue<small>str</small></td>
+   *     <td>red<small>str</small></td>
+   *   </tr>
+   *   ...
+   * </table>
+   *  _____________________________________
+   * | Key       | Expected   | Value      |
+   * |-----------|------------|------------|
+   * | foo       |            |            |
+   * |   alpha   | blue       | red        |
+   * |   beta    | green      | green      |
+   * | bar       | true       | true       |
+   * |___________|____________|____________|
+   *
+   */
+  function matchToDOM(flattenedDict, table) {
+    let header = document.createElement('tr');
+    ['Key', 'Expected', 'Value'].forEach((el) => {
+      let th = document.createElement('th');
+      th.innerHTML = el;
+      header.appendChild(th);
+    });
+    table.appendChild(header);
+
+    flattenedDict.forEach((el) => {
+      let [level, key, status, actualValue, expectedValue] = el;
+      // If key and value are string and length is 0, the current row is empty.
+      // Empty row will be ignored.
+      if (key.length === 0 && actualValue.length === 0) {
+        return;
+      }
+      let tr = document.createElement('tr');
+      let keyTd = document.createElement('td');
+      let valueTd = document.createElement('td');
+      let expectedTd = document.createElement('td');
+      keyTd.innerText = '\u00A0\u00A0'.repeat(level) + key;
+
+      if (Array.isArray(actualValue)) {
+        valueTd.innerText = actualValue[1];
+        let valueType = document.createElement('small');
+        valueType.innerText = actualValue[0];
+        valueTd.appendChild(valueType);
+      } else {
+        valueTd.innerText = actualValue;
+      }
+
+      if (Array.isArray(expectedValue)) {
+        expectedTd.innerText = expectedValue[1];
+        let valueType = document.createElement('small');
+        valueType.innerText = expectedValue[0];
+        expectedTd.appendChild(valueType);
+      } else {
+        expectedTd.innerText = expectedValue;
+      }
+
+      tr.appendChild(keyTd);
+      tr.appendChild(expectedTd);
+      tr.appendChild(valueTd);
+      if (status === 'Failed') {
+        tr.style.color = 'red';
+      }
+      table.appendChild(tr);
+    });
+  }
+
+  if (flattenedDict && flattenedDict.length > 0) {
+    const isLog = flattenedDict[0].length === 3;
+    if (isLog) {
+      logToDOM(flattenedDict, table);
+    } else {
+      matchToDOM(flattenedDict, table);
+    }
+  }
+
+  return domToString(table);
+}
+
+
 export {
   sortFlattenedJSON,
   prepareDictColumnDefs,
@@ -334,4 +489,5 @@ export {
   dictCellStyle,
   calculateDictGridHeight,
   getFixInformation,
+  flattenedDictToDOM,
 };

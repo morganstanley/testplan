@@ -12,9 +12,12 @@ function defaultProps() {
     status: 'passed',
     type: 'testplan',
     case_count: {
-      passed: 0,
+      passed: 1,
       failed: 0,
     },
+    filter: 'all',
+    displayEmpty: true,
+    displayTags: true,
   };
   return {
     entries: [entry],

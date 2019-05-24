@@ -19,11 +19,16 @@ ShallowWrapper {
     "props": Object {
       "children": Array [
         <Toolbar
-          buttons={Array []}
           handleNavFilter={[Function]}
           status="failed"
+          updateEmptyDisplayFunc={[Function]}
+          updateFilterFunc={[Function]}
+          updateTagsDisplayFunc={[Function]}
 />,
         <Nav
+          displayEmpty={true}
+          displayTags={false}
+          filter={undefined}
           report={
                     Array [
                               Object {
@@ -286,7 +291,7 @@ ShallowWrapper {
           message="Please select a testcase."
 />,
       ],
-      "className": "batchReport_y9ev9r",
+      "className": "batchReport_3hmsj",
     },
     "ref": null,
     "rendered": Array [
@@ -295,9 +300,11 @@ ShallowWrapper {
         "key": undefined,
         "nodeType": "class",
         "props": Object {
-          "buttons": Array [],
           "handleNavFilter": [Function],
           "status": "failed",
+          "updateEmptyDisplayFunc": [Function],
+          "updateFilterFunc": [Function],
+          "updateTagsDisplayFunc": [Function],
         },
         "ref": null,
         "rendered": null,
@@ -308,6 +315,9 @@ ShallowWrapper {
         "key": undefined,
         "nodeType": "class",
         "props": Object {
+          "displayEmpty": true,
+          "displayTags": false,
+          "filter": undefined,
           "report": Array [
             Object {
               "entries": Array [
@@ -590,11 +600,16 @@ ShallowWrapper {
       "props": Object {
         "children": Array [
           <Toolbar
-            buttons={Array []}
             handleNavFilter={[Function]}
             status="failed"
+            updateEmptyDisplayFunc={[Function]}
+            updateFilterFunc={[Function]}
+            updateTagsDisplayFunc={[Function]}
 />,
           <Nav
+            displayEmpty={true}
+            displayTags={false}
+            filter={undefined}
             report={
                         Array [
                                     Object {
@@ -857,7 +872,7 @@ ShallowWrapper {
             message="Please select a testcase."
 />,
         ],
-        "className": "batchReport_y9ev9r",
+        "className": "batchReport_3hmsj",
       },
       "ref": null,
       "rendered": Array [
@@ -866,9 +881,11 @@ ShallowWrapper {
           "key": undefined,
           "nodeType": "class",
           "props": Object {
-            "buttons": Array [],
             "handleNavFilter": [Function],
             "status": "failed",
+            "updateEmptyDisplayFunc": [Function],
+            "updateFilterFunc": [Function],
+            "updateTagsDisplayFunc": [Function],
           },
           "ref": null,
           "rendered": null,
@@ -879,6 +896,9 @@ ShallowWrapper {
           "key": undefined,
           "nodeType": "class",
           "props": Object {
+            "displayEmpty": true,
+            "displayTags": false,
+            "filter": undefined,
             "report": Array [
               Object {
                 "entries": Array [

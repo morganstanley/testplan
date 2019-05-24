@@ -4,6 +4,7 @@ import {ListGroup, ListGroupItem} from 'reactstrap';
 import {StyleSheet, css} from 'aphrodite';
 
 import NavEntry from './NavEntry';
+import TagList from './TagList';
 import Column from './Column';
 import {STATUS} from "../Common/defaults";
 import {getNavEntryType} from "../Common/utils";
@@ -32,6 +33,25 @@ class NavList extends Component {
     let navButtons = [];
     let tabIndex = 1;
     for (const entry of this.props.entries) {
+      if (this.props.filter === 'pass') {
+        if (entry.case_count.failed) continue;
+      } else if (this.props.filter === 'fail') {
+        if (!entry.case_count.failed) continue;
+      }
+
+      if (!this.props.displayEmpty) {
+        if (entry.type==='TestCaseReport') {
+          if (typeof entry.entries === 'undefined' || entry.entries.length===0)
+            continue;
+        } else {
+          if (entry.case_count.failed + entry.case_count.passed ===0) continue;
+        }
+      }
+
+      let tags = undefined;
+      if (this.props.displayTags && entry.tags) {
+        tags = <TagList entryName={entry.name} tags={entry.tags}/>;
+      }
       navButtons.push(
         <ListGroupItem
           tabIndex={tabIndex.toString()}
@@ -43,7 +63,9 @@ class NavList extends Component {
             status={entry.status}
             type={getNavEntryType(entry)}
             caseCountPassed={entry.case_count.passed}
-            caseCountFailed={entry.case_count.failed} />
+            caseCountFailed={entry.case_count.failed}
+          />
+          {tags}
         </ListGroupItem>
       );
       tabIndex += 1;
@@ -83,6 +105,12 @@ NavList.propTypes = {
   handleNavClick: PropTypes.func,
   /** Function to automatically select Nav entries */
   autoSelect: PropTypes.func,
+  /** Entity filter */
+  filter: PropTypes.string,
+  /** Flag to display tags on navbar */
+  displayEmpty: PropTypes.bool,
+  /** Flag to display empty testcase on navbar */
+  displayTags: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({

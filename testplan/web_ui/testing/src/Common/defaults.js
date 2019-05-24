@@ -89,7 +89,8 @@ const NAV_ENTRY_DISPLAY_DATA = [
   'type',
   'category',
   'status',
-  'case_count'
+  'case_count',
+  'tags',
 ];
 
 const BASIC_ASSERTION_TYPES = [

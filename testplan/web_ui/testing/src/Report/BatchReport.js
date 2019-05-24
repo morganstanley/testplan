@@ -21,6 +21,9 @@ class BatchReport extends Component {
     super(props);
     this.saveAssertions = this.saveAssertions.bind(this);
     this.handleNavFilter = this.handleNavFilter.bind(this);
+    this.updateFilter = this.updateFilter.bind(this);
+    this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
+    this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
 
     this.state = {
       navWidth: COLUMN_WIDTH,
@@ -28,7 +31,10 @@ class BatchReport extends Component {
       assertions: undefined,
       testcaseUid: undefined,
       loading: false,
-      error: undefined
+      error: undefined,
+      filter: undefined,
+      displayTags: false,
+      displayEmpty: true,
     };
   }
 
@@ -95,6 +101,24 @@ class BatchReport extends Component {
     // Save expressions to state.
   }
 
+  /**
+   * Update the global filter state of the entry.
+   *
+   * @param {string} filter - undefined, all, pass or fail.
+   * @public
+   */
+  updateFilter(filter) {
+    this.setState({filter: filter});
+  }
+
+  updateTagsDisplay(displayTags) {
+    this.setState({displayTags: displayTags});
+  }
+
+  updateDisplayEmpty(displayEmpty) {
+    this.setState({displayEmpty: displayEmpty});
+  }
+
   render() {
     let report = [];
     let reportStatus;
@@ -123,7 +147,9 @@ class BatchReport extends Component {
       centerPane = <AssertionPane
         assertions={this.state.assertions}
         left={this.state.navWidth + 1.5}
-        testcaseUid={this.state.testcaseUid} />;
+        testcaseUid={this.state.testcaseUid}
+        filter={this.state.filter}
+      />;
     } else if (reportFetchMessage !== undefined) {
       centerPane = <Message
         message={reportFetchMessage}
@@ -138,11 +164,18 @@ class BatchReport extends Component {
       <div className={css(styles.batchReport)}>
         <Toolbar
           status={reportStatus}
-          buttons={[]}
-          handleNavFilter={this.handleNavFilter} />
+          handleNavFilter={this.handleNavFilter}
+          updateFilterFunc={this.updateFilter}
+          updateEmptyDisplayFunc={this.updateDisplayEmpty}
+          updateTagsDisplayFunc={this.updateTagsDisplay}
+        />
         <Nav
           report={report}
-          saveAssertions={this.saveAssertions} />
+          saveAssertions={this.saveAssertions}
+          filter={this.state.filter}
+          displayEmpty={this.state.displayEmpty}
+          displayTags={this.state.displayTags}
+        />
         {centerPane}
       </div>
     );
@@ -151,7 +184,8 @@ class BatchReport extends Component {
 
 const styles = StyleSheet.create({
   batchReport: {
-    overflow: 'hidden'
+    /** overflow will hide dropdown div */
+    // overflow: 'hidden'
   }
 });
 
