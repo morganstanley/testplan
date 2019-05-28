@@ -24,7 +24,10 @@ def parse_cmdline():
     parser.add_argument('--wd', action="store")
     parser.add_argument('--runpath', action="store", default=None)
     parser.add_argument('--type', action="store")
-    parser.add_argument('--log-level', action="store", default=0, type=int)
+    parser.add_argument('--log-level',
+                        action="store",
+                        default=logging.DEBUG,
+                        type=int)
     parser.add_argument('--remote-pool-type', action="store", default='thread')
     parser.add_argument('--remote-pool-size', action="store", default=1)
 
@@ -277,9 +280,10 @@ class RemoteChildLoop(ChildLoop):
 
 def child_logic(args):
     """Able to be imported child logic."""
-    if args.log_level:
-        from testplan.common.utils.logger import TESTPLAN_LOGGER
-        TESTPLAN_LOGGER.setLevel(args.log_level)
+    from testplan.common.utils import logger
+
+    # Configure the child logger.
+    logger.setup_child_logger(level=args.log_level)
 
     import psutil
     print('Starting child process worker on {}, {} with parent {}'.format(
@@ -327,7 +331,12 @@ def child_logic(args):
 
     if args.type == 'process_worker':
         loop = ChildLoop(
-            args.index, transport, NoRunpathPool, 1, Worker,TESTPLAN_LOGGER)
+            args.index,
+            transport,
+            NoRunpathPool,
+            1,
+            Worker,
+            logger.TESTPLAN_LOGGER)
         loop.worker_loop()
 
     elif args.type == 'remote_worker':
@@ -340,7 +349,7 @@ def child_logic(args):
 
         loop = RemoteChildLoop(
             args.index, transport, pool_type, args.remote_pool_size,
-            worker_type, TESTPLAN_LOGGER, runpath=args.runpath)
+            worker_type, logger.TESTPLAN_LOGGER, runpath=args.runpath)
         loop.worker_loop()
 
 

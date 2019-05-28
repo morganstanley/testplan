@@ -6,6 +6,10 @@ import uuid
 import inspect
 import importlib
 from six.moves import cPickle
+import os
+import pprint
+
+from testplan.common.utils import logger
 
 
 class TaskMaterializationError(Exception):
@@ -20,7 +24,7 @@ class TaskDeserializationError(Exception):
     """Error on de-serializing task."""
 
 
-class Task(object):
+class Task(logger.Loggable):
     """
     Container of a target or path to a target that can be materialized into
     a runnable item. The arguments of the Task need to be serializable.
@@ -62,6 +66,7 @@ class Task(object):
 
     def __init__(self, target=None, module=None, path=None,
                  args=None, kwargs=None, uid=None):
+        super(Task, self).__init__()
         self._target = target
         self._path = path
         self._args = args or tuple()
@@ -147,42 +152,51 @@ class Task(object):
         target_src = elements.pop(-1)
         try:
             if len(elements):
-                mod = importlib.import_module('.'.join(elements))
+                mod = self._import_module('.'.join(elements))
                 target = getattr(mod, target_src)
             else:
                 if self._module is None:
                     msg = 'Task parameters are not sufficient '\
                           'for target {} materialization'.format(self._target)
                     raise TaskMaterializationError(msg)
-                mod = importlib.import_module(self._module)
+                mod = self._import_module(self._module)
                 target = getattr(mod, self._target)
         finally:
             if path_inserted is True:
                 sys.path.remove(self._path)
         return target
 
-    def dumps(self, check_loadable=False):
-        """Serialize a task."""
-        data = {}
-        for attr in self.all_attrs:
-            data[attr] = getattr(self, attr)
+    def _import_module(self, module):
+        """
+        Try to import and return a given module. If the import fails, log
+        information to help debug the failure before re-raising the error.
+        """
         try:
-            serialized = cPickle.dumps(data)
-            if check_loadable is True:
-                cPickle.loads(serialized)
-            return serialized
-        except Exception as exc:
-            raise TaskSerializationError(str(exc))
+            return importlib.import_module(module)
+        except ImportError:
+            # Import failed - log debug information. Since this is an error
+            # we log at level ERROR so that the information is always visible.
+            self.logger.exception('Error importing %s', module)
+            self.logger.error('Path = %s', self._path)
+            if self._path:
+                try:
+                    path_contents = os.listdir(self._path)
+                    self.logger.error('Path contents = %s', path_contents)
+                except OSError:
+                    self.logger.exception('Cannot access path')
+            self.logger.debug('sys.path = %s', pprint.pformat(sys.path))
 
-    def loads(self, obj):
+            # Re-raise the error so that it can be handled further up.
+            raise
+
+    def __getstate__(self):
+        """Get serializable attributes for pickling."""
+        return {attr: getattr(self, attr) for attr in self.all_attrs}
+
+    def __setstate__(self, state):
         """De-serialize a dumped task."""
-        try:
-            data = cPickle.loads(obj)
-        except Exception as exc:
-            raise TaskDeserializationError(str(exc))
-        for attr, value in data.items():
-            setattr(self, attr, value)
-        return self
+        super(Task, self).__init__()
+        self.__dict__.update(state)
 
 
 class TaskResult(object):

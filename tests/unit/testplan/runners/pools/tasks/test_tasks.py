@@ -1,6 +1,10 @@
 """Unit test for task classes."""
 
 import os
+import pickle
+
+import pytest
+
 from testplan.runners.pools.tasks import (Task, RunnableTaskAdaptor,
                                           TaskDeserializationError,
                                           TaskSerializationError)
@@ -85,9 +89,9 @@ def materialized_task_result(task, expected, serialize=False):
     """TODO."""
     assert isinstance(task, Task)
     materialized = task.materialize()
-    if serialize is True:
-        serialized = task.dumps()
-        task = Task().loads(serialized)
+    if serialize:
+        serialized = pickle.dumps(task)
+        task = pickle.loads(serialized)
     assert materialized.run() == expected
 
 
@@ -245,20 +249,7 @@ class TestTaskSerialization(object):
 
     def test_raise_on_serialization(self):
         """TODO."""
-        try:
+        with pytest.raises(Exception):
             task = Task(RunnableTaskAdaptor(lambda x: x * 2, 3))
             materialized_task_result(task, 6, serialize=True)
-            raise Exception('Should raise.')
-        except TaskSerializationError:
-            pass
 
-    def test_raise_on_deserialization(self):
-        """TODO."""
-        # To add a case of a serializable but not
-        # deserializable task.
-
-        try:
-            Task().loads(None)
-            raise Exception('Should raise.')
-        except TaskDeserializationError:
-            pass
