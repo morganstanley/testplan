@@ -35,6 +35,7 @@ def fix_home_prefix(path):
 
     return path
 
+
 def module_abspath(module):
     """Returns file path of a python module."""
     return fix_home_prefix(module.__file__)
@@ -43,6 +44,11 @@ def module_abspath(module):
 def pwd():
     """Working directory path."""
     return fix_home_prefix(os.getcwd())
+
+
+def workspace_root():
+    """Default workspace root is the current directory."""
+    return pwd()
 
 
 def default_runpath(entity):

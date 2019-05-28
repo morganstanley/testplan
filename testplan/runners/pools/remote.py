@@ -16,17 +16,18 @@ import testplan
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.config import ConfigOption
 from testplan.common.utils.path import (module_abspath,
-                                        pwd, makedirs, fix_home_prefix)
+                                        pwd, makedirs, fix_home_prefix,
+                                        workspace_root)
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.remote import (
     ssh_cmd, copy_cmd, link_cmd, remote_filepath_exists)
 from testplan.common.utils import path as pathutils
 from testplan.common.utils.process import execute_cmd
 
-from .base import Pool, PoolConfig
-from .process import ProcessWorker, ProcessWorkerConfig
-from .connection import ZMQServer
-from .communication import Message
+from testplan.runners.pools.base import Pool, PoolConfig
+from testplan.runners.pools.process import ProcessWorker, ProcessWorkerConfig
+from testplan.runners.pools.connection import ZMQServer
+from testplan.runners.pools.communication import Message
 
 
 class WorkerSetupMetadata(object):
@@ -622,7 +623,7 @@ class RemotePoolConfig(PoolConfig):
                 lambda x: callable(x),
             ConfigOption('ssh_cmd', default=ssh_cmd):
                 lambda x: callable(x),
-            ConfigOption('workspace', default=pwd()): str,
+            ConfigOption('workspace', default=workspace_root()): str,
             ConfigOption('workspace_exclude', default=[]): Or(list, None),
             ConfigOption('remote_workspace', default=None): Or(str, None),
             ConfigOption('copy_workspace_check',
