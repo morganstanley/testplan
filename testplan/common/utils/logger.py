@@ -168,19 +168,6 @@ def configure_file_logger(level, runpath):
 
         TESTPLAN_LOGGER.debug('Enabled logging to file: %s', logfile_path)
 
-def setup_child_logger(level):
-    """
-    Setup the logger for a child process. Child processes log only to stdout.
-    """
-    if level not in TestplanLogger.LEVELS.values():
-        raise ValueError(
-            'Unexpected log level {level} - expected one of {expected}'
-            .format(level=level, expected=TestplanLogger.LEVELS.values()))
-
-    STDOUT_HANDLER.setLevel(level)
-    formatter = logging.Formatter(_LOGFILE_FORMAT)
-    STDOUT_HANDLER.setFormatter(formatter)
-
 
 class Loggable(object):
     """

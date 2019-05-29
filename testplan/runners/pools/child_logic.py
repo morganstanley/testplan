@@ -266,10 +266,15 @@ class RemoteChildLoop(ChildLoop):
 
 
 def main(args):
-    """Main child process entry point."""
+    """
+    Main child process entry point.
 
-    # Configure the child logger.
-    logger.setup_child_logger(level=args.log_level)
+    :param args: Parsed cmdline args.
+    """
+
+    # Configure the stdout logger. Later we will configure to log to file
+    # instead, so this only applies to the startup phase.
+    logger.STDOUT_HANDLER.setLevel(args.log_level)
 
     print('Starting child process worker on {}, {} with parent {}'.format(
         socket.gethostname(), os.getpid(), psutil.Process(os.getpid()).ppid()))
