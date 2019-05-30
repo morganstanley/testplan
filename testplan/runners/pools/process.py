@@ -83,11 +83,20 @@ class ProcessWorker(Worker):
         cmd = self._proc_cmd()
         self.logger.debug('{} executes cmd: {}'.format(self, cmd))
 
+        # Set the PYTHONPATH environment variable for the child process
+        # with the contents of our current sys.path. This ensures that all
+        # packages and modules that were importable now are still importable in
+        # the child process.
+        proc_env = os.environ.copy()
+        proc_env['PYTHONPATH'] = ':'.join(sys.path)
+
         with open(self.outfile, 'wb') as out:
             self._handler = subprocess.Popen(
                 [str(a) for a in cmd],
-                stdout=out, stderr=out, stdin=subprocess.PIPE
-            )
+                stdout=out,
+                stderr=out,
+                stdin=subprocess.PIPE,
+                env=proc_env)
         self.logger.debug('Started child process - output at %s', self.outfile)
         self._handler.stdin.write(bytes('y\n'.encode('utf-8')))
 

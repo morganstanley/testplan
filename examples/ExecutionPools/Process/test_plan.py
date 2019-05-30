@@ -55,7 +55,6 @@ def main(plan):
         # All Task arguments need to be serializable.
         task = Task(target='make_multitest',
                     module='tasks',
-                    path=os.path.dirname(os.path.abspath(__file__)),
                     kwargs={'index': idx})
         plan.schedule(task, resource='MyPool')
 

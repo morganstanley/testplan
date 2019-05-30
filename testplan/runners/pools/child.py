@@ -348,10 +348,20 @@ if __name__ == '__main__':
     """
     To start an external child process worker.
     """
+    # The sys.path is initialised with the directory of this child.py script
+    # as the first element. Remove it - we don't want modules in this
+    # directory to override modules from other parts of the sys.path (in
+    # particular, "tasks.py" is a common name we don't want to clash with).
+    #
+    # The aim is for our sys.path to match with our parent's process - it
+    # should have set an appropriate PYTHONPATH for us.
+    assert(os.path.realpath(sys.path[0]) ==
+        os.path.realpath(os.path.dirname(__file__)))
+    sys.path.pop(0)
+
     ARGS = parse_cmdline()
     if ARGS.wd:
         os.chdir(ARGS.wd)
-        sys.path.insert(0, ARGS.wd)
 
     if ARGS.testplan:
         sys.path.append(ARGS.testplan)
