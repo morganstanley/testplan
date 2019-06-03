@@ -23,6 +23,7 @@ from testplan.common.utils.remote import (
     ssh_cmd, copy_cmd, link_cmd, remote_filepath_exists)
 from testplan.common.utils import path as pathutils
 from testplan.common.utils.process import execute_cmd
+from testplan.common.utils.timing import get_sleeper
 
 from testplan.runners.pools.base import Pool, PoolConfig
 from testplan.runners.pools.process import ProcessWorker, ProcessWorkerConfig
@@ -537,7 +538,7 @@ class RemoteWorker(ProcessWorker):
         """Start a child remote worker."""
         if self.parent.pool:
             self.cfg.async_start = True
-            self.parent.pool.apply_async(self._starting_impl())
+            self.parent.pool.apply_async(self._starting_impl)
         else:
             self._starting_impl()
 
@@ -703,19 +704,37 @@ class RemotePool(Pool):
             worker.cfg.parent = self.cfg
             self._workers.add(worker, uid=instance['host'])
 
-    def _start_workers(self):
-        num_workers = len(self._workers)
+    def _start_thread_pool(self):
+        size = self.cfg.size
         try:
-            if num_workers > 2:
-                self.pool = ThreadPool(5 if num_workers > 5 else num_workers)
+            if size > 2:
+                self.pool = ThreadPool(5 if size > 5 else size)
         except Exception as exc:
             if isinstance(exc, AttributeError):
                 self.logger.warning(
                     'Please upgrade to the suggested python interpreter.')
 
-        super(RemotePool, self)._start_workers()
+    def starting(self):
+        self._start_thread_pool()
+        super(RemotePool, self).starting()
 
     def stopping(self):
+        sleeper = get_sleeper(1, 300)
+
+        while next(sleeper):
+            if any([worker.status.tag == worker.status.STARTING
+                   for worker in self._workers]):
+                self.logger.info('Waiting for workers to quit starting')
+            else:
+                break
+        else:
+            self.logger.warning(
+                'Workers still alive after 5min: {}, '
+                'will ignore and proceed with stopping'.format(
+                    [worker for worker in self._workers
+                     if worker.status.tag == worker.status.STARTING]
+            ))
+
         if self.pool:
             self.pool.terminate()
             self.pool = None
