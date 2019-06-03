@@ -328,8 +328,10 @@ class Pool(Executor):
         :param request: Worker request.
         :type request: :py:class:`~testplan.runners.pools.communication.Message`
         """
+
         sender_index = request.sender_metadata['index']
         worker = self._workers[sender_index]
+
         if not worker.active:
             self.logger.warning(
                 'Message {} - {} from inactive worker {}'.format(

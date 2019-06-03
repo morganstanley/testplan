@@ -35,7 +35,8 @@ def copytree(src, dst):
     https://bugs.python.org/issue21697 so use rsync instead.
     """
     subprocess.check_call(
-        ['rsync', '-rL', '--exclude=.git', '--exclude=*.pyc', '--exclude=__pycache__', src, dst])
+        ['rsync', '-rL', '--exclude=.git', '--exclude=*.pyc',
+         '--exclude=*__pycache__*', src, dst])
 
 
 def setup_workspace():
@@ -49,24 +50,24 @@ def setup_workspace():
     # Set up the workspace in a temporary directory.
     workspace = tempfile.mkdtemp()
 
-    # First copy the testplan package into the "testplan" dir within the
-    # workspace.
-    orig_pkg_dir = os.path.dirname(testplan.__file__)
-    copytree(orig_pkg_dir, workspace)
+    # Copy the tests dir. "tests" is a generic name so we don't want to
+    # rely "import tests" here - instead navigate up to find the tests dir.
+    script_dir = os.path.dirname(__file__)
 
-    # Next copy the test dir. "test" is a generic name so we don't want to rely
-    # on "import test" here - instead rely on the test directory being 4 levels
-    # above the directory this script is in.
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    orig_test_dir = os.path.abspath(
-        os.path.join(script_dir, *(os.pardir for _ in range(4))))
-    tmp_test_dir = os.path.join(workspace, 'test')
-    copytree('{}{}'.format(orig_test_dir, os.path.sep), tmp_test_dir)
+    orig_tests_dir = script_dir
+    while os.path.basename(orig_tests_dir) != 'tests':
+        orig_tests_dir = os.path.abspath(
+            os.path.join(orig_tests_dir, os.pardir)
+        )
+
+    tmp_tests_dir = os.path.join(workspace, 'tests')
+
+    copytree('{}{}'.format(orig_tests_dir, os.path.sep), tmp_tests_dir)
 
     # We need to schedule tests from the directory of this script but within
     # the workspace.
-    schedule_path = os.path.join(tmp_test_dir,
-                                 os.path.relpath(script_dir, orig_test_dir))
+    schedule_path = os.path.join('tests',
+                                 os.path.relpath(script_dir, orig_tests_dir))
 
     return workspace, schedule_path
 
