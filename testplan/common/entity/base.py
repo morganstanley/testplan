@@ -159,6 +159,39 @@ class Environment(object):
             else:
                 resource.wait(resource.STATUS.STARTED)
 
+    def _log_exception(self, resource, func):
+
+        def wrapper(*args, **kargs):
+            try:
+                func(*args, **kargs)
+            except Exception as exe:
+                msg = 'While executing {} of resource [{}]{}{}'.format(
+                    func.__name__, resource.cfg.name, os.linesep,
+                    format_trace(inspect.trace(), exe))
+                self.logger.error(msg)
+                self.start_exceptions[resource] = msg
+
+        return wrapper
+
+    def start_in_pool(self, pool):
+        """
+        Start all resources concurrently in thread pool.
+        """
+
+        for resource in self._resources.values():
+            if resource.cfg.async_start is False:
+                raise RuntimeError(
+                    'Cannot start resource {} in thread pool, '
+                    'its async_start attr is set to False'.format(
+                        resource))
+
+        for resource in self._resources.values():
+            pool.apply_async(self._log_exception(resource, resource.start))
+
+        # Wait resources status to be STARTED.
+        for resource in self._resources.values():
+            resource.wait(resource.STATUS.STARTED)
+
     def stop(self, reversed=False):
         """
         Stop all resources in reverse order and log exceptions.
@@ -187,6 +220,31 @@ class Environment(object):
                 continue
             elif resource.status.tag is None:
                 # Skip resources not even triggered to start.
+                continue
+            else:
+                resource.wait(resource.STATUS.STOPPED)
+
+    def stop_in_pool(self, pool, reversed=False):
+        """
+        Stop all resources in reverse order and log exceptions.
+        """
+        resources = list(self._resources.values())
+        if reversed is True:
+            resources = resources[::-1]
+
+        # Stop all resources
+        for resource in resources:
+            # Skip resources not even triggered to start.
+            if (resource.status.tag is None) or (
+                    resource.status.tag == resource.STATUS.STOPPED):
+                continue
+
+            pool.apply_async(self._log_exception(resource, resource.stop))
+
+        # Wait resources status to be STOPPED.
+        for resource in resources:
+            # Skip resources not even triggered to start.
+            if resource.status.tag is None:
                 continue
             else:
                 resource.wait(resource.STATUS.STOPPED)

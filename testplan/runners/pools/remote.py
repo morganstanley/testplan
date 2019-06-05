@@ -484,10 +484,18 @@ class RemoteWorker(ProcessWorker):
     def _fetch_results(self):
         """Fetch back to local host the results generated remotely."""
         self.logger.debug('Fetch results stage - %s', self.cfg.remote_host)
-        self._transfer_data(
-            source=self._remote_testplan_runpath,
-            remote_source=True,
-            target=self.parent.runpath)
+        try:
+            self._transfer_data(
+                source=self._remote_testplan_runpath,
+                remote_source=True,
+                target=self.parent.runpath)
+            if self.cfg.pull:
+                self._pull_files()
+        except Exception as exe:
+            self.logger.error(
+                'While fetching result from worker [{}]: {}'.format(
+                    self, exe
+                ))
 
     def _proc_cmd(self):
         """Command to start child process."""
@@ -536,22 +544,25 @@ class RemoteWorker(ProcessWorker):
 
     def starting(self):
         """Start a child remote worker."""
-        if self.parent.pool:
-            self.cfg.async_start = True
-            self.parent.pool.apply_async(self._starting_impl)
-        else:
-            self._starting_impl()
-
-    def _starting_impl(self):
         self._prepare_remote()
         super(RemoteWorker, self).starting()
 
     def stopping(self):
         """Stop child process worker."""
         self._fetch_results()
-        if self.cfg.pull:
-            self._pull_files()
         super(RemoteWorker, self).stopping()
+
+    def _wait_stopped(self, timeout=None):
+        sleeper = get_sleeper(1, 300)
+        while next(sleeper):
+            if self.status.tag != self.status.STOPPED:
+                self.logger.info('Waiting for workers to stop')
+            else:
+                break
+        else:
+            self.logger.warning(
+                'Worker still alive after 5min: {}, '
+                'will ignore and proceed'.format(self))
 
     def aborting(self):
         """Abort child process worker."""
@@ -704,6 +715,22 @@ class RemotePool(Pool):
             worker.cfg.parent = self.cfg
             self._workers.add(worker, uid=instance['host'])
 
+    def _start_workers(self):
+        """Start all workers of the pool"""
+        for worker in self._workers:
+            self._conn.register(worker)
+        if self.pool:
+            self._workers.start_in_pool(self.pool)
+        else:
+            self._workers.start()
+
+    def _stop_workers(self):
+        if self.pool:
+            self._workers.stop_in_pool(self.pool)
+        else:
+            self._workers.stop()
+        # self._workers.stop()
+
     def _start_thread_pool(self):
         size = self.cfg.size
         try:
@@ -719,8 +746,8 @@ class RemotePool(Pool):
         super(RemotePool, self).starting()
 
     def stopping(self):
-        sleeper = get_sleeper(1, 300)
 
+        sleeper = get_sleeper(1, 300)
         while next(sleeper):
             if any([worker.status.tag == worker.status.STARTING
                    for worker in self._workers]):
@@ -735,7 +762,8 @@ class RemotePool(Pool):
                      if worker.status.tag == worker.status.STARTING]
             ))
 
+        super(RemotePool, self).stopping()
+
         if self.pool:
             self.pool.terminate()
             self.pool = None
-        super(RemotePool, self).stopping()

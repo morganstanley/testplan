@@ -115,7 +115,7 @@ class ProcessWorker(Worker):
                 self.status.change(self.STATUS.STARTED)
                 return
 
-            if self._handler.poll() is not None:
+            if self._handler and self._handler.poll() is not None:
                 raise RuntimeError(
                     '{proc} process exited: {rc} (logfile = {log})'.format(
                         proc=self,
