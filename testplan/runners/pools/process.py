@@ -8,6 +8,7 @@ import signal
 import subprocess
 from schema import Or
 import psutil
+import tempfile
 
 import testplan
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -70,7 +71,8 @@ class ProcessWorker(Worker):
                '--testplan', os.path.join(os.path.dirname(testplan.__file__),
                                           '..'),
                '--type', 'process_worker',
-               '--log-level', TESTPLAN_LOGGER.getEffectiveLevel()]
+               '--log-level', TESTPLAN_LOGGER.getEffectiveLevel(),
+               '--sys-path-file', self._write_syspath()]
         if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
             cmd.extend(
                 ['--testplan-deps', fix_home_prefix(
@@ -78,6 +80,13 @@ class ProcessWorker(Worker):
         if self.cfg.resource_monitor:
             cmd.extend(['--resource-monitor', ])
         return cmd
+
+    def _write_syspath(self):
+        """Write out our current sys.path to a file and return the filename."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write('\n'.join(sys.path))
+            self.logger.debug('Written sys.path to file: %s', f.name)
+            return f.name
 
     def starting(self):
         """Start a child process worker."""

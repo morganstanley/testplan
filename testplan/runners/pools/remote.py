@@ -508,12 +508,30 @@ class RemoteWorker(ProcessWorker):
                '--runpath', self._remote_testplan_runpath,
                '--remote-pool-type', self.cfg.pool_type,
                '--remote-pool-size', str(self.cfg.workers),
-               '--testplan', self._testplan_import_path.remote]
+               '--testplan', self._testplan_import_path.remote,
+               '--sys-path-file', self._write_syspath()]
 
         if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
             cmd.extend(['--testplan-deps', self._remote_testplan_path])
 
         return self.cfg.ssh_cmd(self.ssh_cfg, ' '.join(cmd))
+
+    def _write_syspath(self):
+        """
+        Write our current sys.path to a file and transfer it to the remote
+        host.
+        """
+        local_syspath_filepath = super(RemoteWorker, self)._write_syspath()
+        remote_syspath_filepath = os.path.join(
+            self._remote_testplan_path,
+            os.path.basename(local_syspath_filepath))
+        self._transfer_data(source=local_syspath_filepath,
+                            target=remote_syspath_filepath,
+                            remote_target=True)
+        os.remove(local_syspath_filepath)
+        self.logger.debug('Transferred sys.path to remote host at: %s',
+                          remote_syspath_filepath)
+        return remote_syspath_filepath
 
     def starting(self):
         """Start a child remote worker."""

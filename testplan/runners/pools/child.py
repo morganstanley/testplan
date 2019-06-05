@@ -27,12 +27,13 @@ def parse_cmdline():
     parser.add_argument('--log-level', action="store", default=0, type=int)
     parser.add_argument('--remote-pool-type', action="store", default='thread')
     parser.add_argument('--remote-pool-size', action="store", default=1)
+    parser.add_argument('--sys-path-file', action='store')
     parser.add_argument(
         '--resource-monitor',
         action="store_true",
         default=False
     )
-
+   
     return parser.parse_args()
 
 
@@ -374,6 +375,19 @@ def child_logic(args):
         loop.worker_loop()
 
 
+def _parse_syspath_file(filename):
+    """
+    Read and parse the syspath file, which should contain each sys.path entry
+    on a separate line. Remove the file once we have read it.
+    """
+    with open(filename) as f:
+        new_syspath = f.read().split('\n')
+
+    os.remove(filename)
+
+    return new_syspath
+
+
 if __name__ == '__main__':
     """
     To start an external child process worker.
@@ -381,7 +395,9 @@ if __name__ == '__main__':
     ARGS = parse_cmdline()
     if ARGS.wd:
         os.chdir(ARGS.wd)
-        sys.path.insert(0, ARGS.wd)
+
+    if ARGS.sys_path_file:
+        sys.path = _parse_syspath_file(ARGS.sys_path_file)
 
     if ARGS.testplan:
         sys.path.append(ARGS.testplan)

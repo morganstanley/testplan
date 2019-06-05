@@ -122,7 +122,6 @@ def main(plan):
         # All Task arguments need to be serializable.
         task = Task(target='make_multitest',
                     module='tasks',
-                    path='.',
 
                     # We specify the full paths to files as they will be found
                     # on the remote host.
