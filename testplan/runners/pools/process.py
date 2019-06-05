@@ -75,6 +75,8 @@ class ProcessWorker(Worker):
             cmd.extend(
                 ['--testplan-deps', fix_home_prefix(
                     os.environ[testplan.TESTPLAN_DEPENDENCIES_PATH])])
+        if self.cfg.resource_monitor:
+            cmd.extend(['--resource-monitor', ])
         return cmd
 
     def starting(self):

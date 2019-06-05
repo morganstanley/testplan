@@ -17,6 +17,7 @@ from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils.strings import Color
 from testplan.common.utils.timing import wait_until_predicate
+from testplan.common.utils.monitor import EventMonitor
 from testplan.runners.base import Executor, ExecutorConfig
 
 from .communication import Message
@@ -225,6 +226,11 @@ class PoolConfig(ExecutorConfig):
             ConfigOption('task_retries_limit', default=3): int,
             ConfigOption('max_active_loop_sleep', default=5): numbers.Number,
             ConfigOption('restart_count', default=3): int,
+            ConfigOption(
+                'resource_monitor',
+                default=False,
+                block_propagation=False
+            ): bool,
         }
 
 
@@ -251,6 +257,8 @@ class Pool(Executor):
         self._metadata['runpath'] = self.runpath
         self._exit_loop = False
         self._start_monitor_thread = True
+        self._resource_monitor = None
+        self._event_uuid = None
 
         # Methods for handling different Message types. These are expected to
         # take the worker, request and response objects as the only required
@@ -644,6 +652,13 @@ class Pool(Executor):
 
         if not self._workers:
             self._add_workers()
+
+        if self.cfg.resource_monitor:
+            self._resource_monitor = EventMonitor()
+            self._event_uuid = self._resource_monitor.started(
+                'pool',
+                {'name': self.__class__.__name__}
+            )
         self._start_workers()
 
         if self._workers.start_exceptions:
@@ -675,6 +690,10 @@ class Pool(Executor):
 
         self.status.change(self.status.STOPPED)
         self.logger.debug('Stopped %s', self.__class__.__name__)
+        if self._event_uuid:
+            self._resource_monitor.stop(self._event_uuid)
+            self._resource_monitor.save(self.scratch)
+            self._event_uuid = None
 
     def abort_dependencies(self):
         """Empty generator to override parent implementation."""

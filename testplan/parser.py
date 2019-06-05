@@ -225,6 +225,16 @@ class TestplanParser(object):
             help='Specify log level for file logs. Set to NONE to disable file '
                  'logging.')
 
+        report_group.add_argument(
+            '-r', '--resource-monitor',
+            action='store_true',
+            dest='resource_monitor',
+            help=os.linesep.join([
+                'Enable resource monitor that will record hosts resource',
+                'statistics and event start/stop times'
+            ])
+        )
+
         self.add_arguments(parser)
         return parser
 

@@ -19,6 +19,7 @@ from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
 from testplan.common.utils.process import enforce_timeout, kill_process
 from testplan.common.utils.strings import slugify
+from testplan.common.utils.monitor import EventMonitor
 
 from testplan.report import (
     test_styles, TestGroupReport, TestCaseReport, Status)
@@ -329,6 +330,24 @@ class Test(Runnable):
         """
         if len(self.report):
             self.report.propagate_tag_indices()
+
+    def _run_batch_steps(self):
+        event_monitor, entity_uuid = None, None
+        if self.cfg.resource_monitor:
+            event_monitor = EventMonitor()
+            entity_uuid = event_monitor.event_started(
+                self.__class__.__name__,
+                {'name': self.cfg.name}
+            )
+
+        super(Test, self)._run_batch_steps()
+
+        if event_monitor:
+            event_monitor.event_stopped(
+                entity_uuid,
+                {'passed': self.report.passed}
+            )
+            event_monitor.save(self.scratch)
 
 
 class ProcessRunnerTestConfig(TestConfig):

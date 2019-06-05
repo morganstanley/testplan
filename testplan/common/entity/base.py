@@ -699,7 +699,12 @@ class RunnableConfig(EntityConfig):
             ConfigOption('interactive_handler', default=RunnableIHandler):
                 object,
             ConfigOption('interactive_runner', default=RunnableIRunner):
-                object
+                object,
+            ConfigOption(
+                'resource_monitor',
+                default=False,
+                block_propagation=False
+            ): bool,
         }
 
 

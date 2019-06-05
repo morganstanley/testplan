@@ -25,14 +25,16 @@ from testplan.runners.base import Executor
 from testplan.runners.pools.tasks import Task, TaskResult
 from testplan.testing import listing, filtering, ordering, tagging
 from testplan.testing.base import TestResult
+from testplan.common.utils.monitor import ResourceMonitor
 
 
-def get_default_exporters(config):
+def get_default_exporters(test_runner):
     """
     Instantiate certain exporters if related cmdline argument (e.g. --pdf)
     is passed but there aren't any exporter declarations.
     """
     result = []
+    config = test_runner.cfg
     if config.pdf_path:
         result.append(test_exporters.PDFExporter())
     if config.report_tags or config.report_tags_all:
@@ -43,6 +45,9 @@ def get_default_exporters(config):
         result.append(test_exporters.XMLExporter())
     if config.ui_port is not None:
         result.append(test_exporters.WebServerExporter(ui_port=config.ui_port))
+    if config.resource_monitor:
+        result.append(test_exporters.MonitorExporter(
+            runpath=test_runner.runpath))
     return result
 
 
@@ -270,6 +275,9 @@ class TestRunner(Runnable):
             name=self.cfg.name, uid=self.cfg.name)
         self._configure_stdout_logger()
         self._web_server_thread = None
+        self.resource_monitor = None
+        if self.cfg.resource_monitor:
+            self.resource_monitor = ResourceMonitor()
 
     @property
     def report(self):
@@ -414,10 +422,15 @@ class TestRunner(Runnable):
             super(TestRunner, self)._add_step(step, *args, **kwargs)
 
     def _record_start(self):
+        if self.resource_monitor:
+            self.resource_monitor.start()
         self.report.timer.start('run')
 
     def _record_end(self):
         self.report.timer.end('run')
+        if self.resource_monitor:
+            self.resource_monitor.stop()
+            self.resource_monitor.save(self.scratch)
 
     def make_runpath_dirs(self):
         super(TestRunner, self).make_runpath_dirs()
@@ -615,7 +628,7 @@ class TestRunner(Runnable):
         # Add this logic into a ReportExporter(Runnable)
         # that will return a result containing errors
         if self.cfg.exporters is None:
-            exporters = get_default_exporters(self.cfg)
+            exporters = get_default_exporters(self)
         else:
             exporters = self.cfg.exporters
 
