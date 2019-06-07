@@ -5,43 +5,62 @@ import os
 import time
 import re
 
-import six
-
 from . import timing
 from . import logger
 
 LOG_MATCHER_INTERVAL = 0.25
 
 
-def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
+def wait_match_regexps_in_file(log_path, log_extracts, timeout=5):
     """
-    Return a boolean, dict pair indicating whether all log extracts matches,
-    as well as any named groups they might have matched.
+    Wait for all regexps to be matched in a file.
+
+    :param log_path: Path to the file to match
+    :type log_path: ``str``
+    :param log_extracts: Regular expressions to search in each log. A list of
+        either strings or compiled regex objects may be used.
+    :type log_extracts: ``List[Union[str, re.Pattern]]``
+    :param timeout: Timeout applied to each regexp individually.
+    :type timeout ``int``
+
+    :raises timing.TimeoutException: if the log regexps aren't matched within
+        the configured timeout.
+
+    :return: dictionary of extracted values for named groups.
+    :rtype: ``Dict[str, str]``
     """
     extracted_values = {}
 
-    if not os.path.exists(logpath):
-        if return_unmatched:
-            return False, extracted_values, log_extracts
-        return False, extracted_values
+    # Before attempting to match any log regexps, wait for the file to be
+    # created. This helps to avoid a race condition if this function is called
+    # immediately after a process that writes logs is started.
+    err_msg = 'File not found at {}'.format(log_path)
+    for _ in timing.get_sleeper(interval=LOG_MATCHER_INTERVAL,
+                                timeout=timeout,
+                                raise_timeout_with_msg=err_msg):
+        if os.path.isfile(log_path):
+            break
 
-    extracts_status = [False for _ in log_extracts]
+    # Match each log regex in turn. Note that we use a new LogMatcher instance
+    # for each regex: the effect of this is that we will iterate through the
+    # logfile from the start for each regex. If we could guarantee that the
+    # order of logs matched is deterministic we could optimize by using a
+    # single LogMatcher which remembers the position of each previous match.
+    # While a little inefficient, this approach is more flexible as the
+    # order of the regexps given does not matter greatly.
+    for i, regexp in enumerate(log_extracts):
+        matcher = LogMatcher(log_path)
+        try:
+            match = matcher.match(regexp, timeout=timeout)
+            extracted_values.update(match.groupdict())
+        except timing.TimeoutException:
+            unmatched = log_extracts[i:]
+            raise timing.TimeoutException(
+                'Timed out after {timeout}s waiting to match regexps in file '
+                '{file}.\nUnmatched regexps: {unmatched}'
+                .format(timeout=timeout, file=log_path, unmatched=unmatched))
 
-    with open(logpath, 'r') as log:
-        for line in log:
-            for pos, regexp in enumerate(log_extracts):
-                match = regexp.match(line)
-                if match:
-                    extracted_values.update(match.groupdict())
-                    extracts_status[pos] = True
-
-    if return_unmatched:
-        unmatched = [
-            exc for idx, exc in enumerate(log_extracts)
-            if not extracts_status[idx]
-        ]
-        return all(extracts_status), extracted_values, unmatched
-    return all(extracts_status), extracted_values
+    return extracted_values
 
 
 class LogMatcher(logger.Loggable):

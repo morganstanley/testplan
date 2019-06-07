@@ -14,9 +14,8 @@ import testplan
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.config import ConfigOption
 from testplan.common.utils.process import kill_process
-from testplan.common.utils.match import match_regexps_in_file
+from testplan.common.utils import match
 from testplan.runners.pools import tasks
-from testplan.common.utils.timing import get_sleeper
 
 from .base import Pool, PoolConfig, Worker, WorkerConfig
 from .connection import ZMQClientProxy, ZMQServer
@@ -101,26 +100,19 @@ class ProcessWorker(Worker):
         self._handler.stdin.write(bytes('y\n'.encode('utf-8')))
 
     def _wait_started(self, timeout=None):
-        """TODO."""
-        sleeper = get_sleeper(
-            interval=(0.04, 0.5),
-            timeout=self.cfg.start_timeout,
-            raise_timeout_with_msg='Worker start timeout, logfile = {}'
-                                   .format(self.outfile))
-        while next(sleeper):
-            if match_regexps_in_file(
-                    self.outfile,
-                    [re.compile('Starting child process worker on')])[0]:
-                self.last_heartbeat = time.time()
-                self.status.change(self.STATUS.STARTED)
-                return
+        """Wait for this ProcessWorker to start."""
+        match.wait_match_regexps_in_file(
+            self.outfile,
+            [re.compile('Starting child process worker on')])
+        self.last_heartbeat = time.time()
+        self.status.change(self.STATUS.STARTED)
 
-            if self._handler.poll() is not None:
-                raise RuntimeError(
-                    '{proc} process exited: {rc} (logfile = {log})'.format(
-                        proc=self,
-                        rc=self._handler.returncode,
-                        log=self.outfile))
+        if self._handler.poll() is not None:
+            raise RuntimeError(
+                '{proc} process exited: {rc} (logfile = {log})'.format(
+                    proc=self,
+                    rc=self._handler.returncode,
+                    log=self.outfile))
 
     @property
     def is_alive(self):

@@ -6,14 +6,17 @@ import sys
 import json
 import platform
 
-from testplan.common.utils.timing import wait
+from testplan.common.utils import timing
 
 from testplan.testing.multitest.driver.app import App
 
 
 class CustomApp(App):
     def started_check(self, timeout=None):
-        wait(lambda: self.extract_values(), 5, raise_on_timeout=False)
+        try:
+            self.extract_values()
+        except timing.TimeoutException:
+            pass
 
 
 class ProcWaitApp(App):
@@ -21,7 +24,7 @@ class ProcWaitApp(App):
         self.proc.wait()
 
     def stopped_check(self, timeout=None):
-        wait(lambda: self.proc is None, 10, raise_on_timeout=True)
+        timing.wait(lambda: self.proc is None, 10, raise_on_timeout=True)
 
 
 def test_app_cmd():
@@ -119,6 +122,27 @@ def test_extract_from_logfile_with_appdir():
     with app:
         assert app.extracts['a'] == a
         assert app.extracts['b'] == b
+
+def test_str_extract_from_logfile():
+    """
+    Test extracing logs with log_regexps as plain strings instead of compiled
+    regex objects.
+    """
+    logfile = 'file.log'
+    a = '1'
+    b = '23a'
+    message = 'Value a={a} b={b}'.format(a=a, b=b)
+    log_regexps = [r'.*a=(?P<a>[a-zA-Z0-9]*) .*',
+                   r'.*b=(?P<b>[a-zA-Z0-9]*).*']
+
+    app = CustomApp(name='App', binary='echo',
+                    args=[message, '>', logfile],
+                    logfile=logfile,
+                    log_regexps=log_regexps, shell=True)
+    with app:
+        assert app.extracts['a'] == a
+        assert app.extracts['b'] == b
+
 
 
 def test_binary_copy():

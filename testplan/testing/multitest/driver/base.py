@@ -7,9 +7,9 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Resource, ResourceConfig, FailedAction
-from testplan.common.utils.match import match_regexps_in_file
+from testplan.common.utils import match
 from testplan.common.utils.path import instantiate
-from testplan.common.utils.timing import wait
+from testplan.common.utils import timing
 
 
 def format_regexp_matches(name, regexps, unmatched):
@@ -148,8 +148,7 @@ class Driver(Resource):
 
     def started_check(self, timeout=None):
         """Driver started status condition check."""
-        wait(lambda: self.extract_values(), self.cfg.timeout,
-             raise_on_timeout=True)
+        self.extract_values()
 
     def pre_stop(self):
         """Callable to be executed right before driver stops."""
@@ -197,65 +196,25 @@ class Driver(Resource):
 
     def extract_values(self):
         """Extract matching values from input regex configuration options."""
-        log_unmatched = []
-        stdout_unmatched = []
-        stderr_unmatched = []
         result = True
 
         regex_sources = []
         if self.logpath and self.cfg.log_regexps:
             regex_sources.append(
-                (self.logpath, self.cfg.log_regexps, log_unmatched))
+                (self.logpath, self.cfg.log_regexps))
         if self.outpath and self.cfg.stdout_regexps:
             regex_sources.append(
-                (self.outpath, self.cfg.stdout_regexps, stdout_unmatched))
+                (self.outpath, self.cfg.stdout_regexps))
         if self.errpath and self.cfg.stderr_regexps:
             regex_sources.append(
-                (self.errpath, self.cfg.stderr_regexps, stderr_unmatched))
+                (self.errpath, self.cfg.stderr_regexps))
 
-        for outfile, regexps, unmatched in regex_sources:
-            file_result, file_extracts, file_unmatched = match_regexps_in_file(
-                logpath=outfile,
-                log_extracts=regexps,
-                return_unmatched=True
-            )
-            unmatched.extend(file_unmatched)
+        for outfile, regexps in regex_sources:
+            file_extracts = match.wait_match_regexps_in_file(
+                log_path=outfile,
+                log_extracts=regexps)
             self.extracts.update(file_extracts)
-            result = result and file_result
 
-        if log_unmatched or stdout_unmatched or stderr_unmatched:
-
-            err = (
-                "Timed out starting {}({}):"
-                " unmatched log_regexps in {}."
-            ).format(type(self).__name__, self.name, self.logpath)
-
-            err += format_regexp_matches(
-                name='log_regexps',
-                regexps=self.cfg.log_regexps,
-                unmatched=log_unmatched
-            )
-
-            err += format_regexp_matches(
-                name='stdout_regexps',
-                regexps=self.cfg.stdout_regexps,
-                unmatched=stdout_unmatched
-            )
-
-            err += format_regexp_matches(
-                name='stderr_regexps',
-                regexps=self.cfg.stderr_regexps,
-                unmatched=stderr_unmatched
-            )
-
-            if self.extracts:
-                err += '{newline}Matching groups:{newline}'.format(
-                    newline=os.linesep)
-                err += os.linesep.join([
-                    '\t{}: {}'.format(key, value)
-                    for key, value in self.extracts.items()
-                ])
-            return FailedAction(error_msg=err)
         return result
 
     def _install_target(self):
