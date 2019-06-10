@@ -7,21 +7,23 @@ import json
 import socket
 import logging
 import threading
-from testplan.common.utils.logger import TESTPLAN_LOGGER
+from collections import defaultdict
+from testplan.common.utils.logger import Loggable, TESTPLAN_LOGGER
 from testplan.common.utils.path import makedirs
 from .collectors import get_collector
 
 
-class EventMonitor(object):
+class EventMonitor(Loggable):
     """
     Event monitor will record event start and stop times(seconds)
     """
     def __init__(self, parent=None):
-        self.logger = TESTPLAN_LOGGER
+        super(EventMonitor, self).__init__()
         self.parent = parent
         self.hostname = socket.getfqdn()
         self.events_metadata = {}
-        self.events_data = {}
+        self.events_data = defaultdict(list)
+        # The lock protects self.events_metadata
         self.lock = threading.Lock()
         self.log_directory = None
         self.uid = str(uuid.uuid4())
@@ -42,7 +44,8 @@ class EventMonitor(object):
 
     def setup_logger(self, log_path=None):
         """
-        Sets up a unique logger for Monitor each time it is called. Should only be called once or logs will be directed
+        Sets up a unique logger for Monitor each time it is called. Should only
+        be called once or logs will be directed
         to new logger on subsequent call.
 
         :param log_path: Absolute path to file to save logs to.
@@ -51,7 +54,6 @@ class EventMonitor(object):
         :return: ``None``
         :rtype: ``NoneType``
         """
-        self.logger = logging.getLogger(str(uuid.uuid4()))
         if log_path:
             directory = log_path.rsplit(os.sep, 1)[0]
             self.log_directory = directory
@@ -59,15 +61,14 @@ class EventMonitor(object):
             file_handler = logging.FileHandler(filename=log_path)
         else:
             file_handler = logging.NullHandler()  # pylint: disable=bad-option-value
-        formatter = logging.Formatter('%(asctime)s-Monitor-%(levelname)-8s:  %(message)s')
+        formatter = logging.Formatter(
+            '%(asctime)s-Monitor-%(levelname)-8s:  %(message)s')
         file_handler.setFormatter(formatter)
         file_handler.setLevel(TESTPLAN_LOGGER.level)
         self.logger.setLevel(TESTPLAN_LOGGER.level)
         self.logger.addHandler(file_handler)
 
     def _record_event(self, event_uuid, event):
-        if event_uuid not in self.events_data:
-            self.events_data[event_uuid] = []
         self.events_data[event_uuid].append({
             'event': event,
             'time': time.time(),
@@ -92,7 +93,8 @@ class EventMonitor(object):
             elif isinstance(metadata, dict):
                 _metadata = metadata.copy()
             else:
-                raise TypeError('Event metadata must be a dictionary - not {}'.format(type(metadata)))
+                raise TypeError('Event metadata must be a dictionary - not {}'
+                                .format(type(metadata)))
             _metadata['type'] = event_type
             self.events_metadata[event_uuid] = _metadata
             self._record_event(event_uuid, 'start')
@@ -123,23 +125,32 @@ class EventMonitor(object):
         """
         return {
             'events_metadata': self.events_metadata,
-            'events_data': self.events_data,
+            'events_data': dict(self.events_data),
             'hostname': self.hostname,
-            'parent': self.pid,
+            'parent': self.parent,
             'thread_name': self.thread_name,
             'ppid': self.ppid,
             'pid': self.pid
         }
 
     def dump_data(self):
+        """
+        Convert the event data and metadata to a dictionary. These data are
+        sorted by start time.
+
+        :return: dict of internal data
+        :rtype: ``dict``
+        """
         _result = {
             'events_metadata': self.events_metadata,
             'events_data': [x for x in self.events_data.items()]
         }
         _result['events_data'].sort(key=lambda x: x[1][0]['time'])
-        _result['start_time'] = min([x[1][0]['time'] for x in _result['events_data']]) \
+        _result['start_time'] = min(
+            [x[1][0]['time'] for x in _result['events_data']]) \
             if _result['events_data'] else 0
-        _result['stop_time'] = max([x[1][-1]['time'] for x in _result['events_data']]) \
+        _result['stop_time'] = max(
+            [x[1][-1]['time'] for x in _result['events_data']]) \
             if _result['events_data'] else 0
         return _result
 
@@ -154,7 +165,8 @@ class EventMonitor(object):
 
     def save(self, scratch_path):
         """
-        Save the internal data as a JSON string in file_path. Will append an integer to filename
+        Save the internal data as a JSON string in file_path. Will append an
+        integer to filename
         ensuring it always writes to a new file
 
         :param scratch_path: file path to save internal data to
@@ -167,11 +179,11 @@ class EventMonitor(object):
         file_name = 'monitor-{}-{}.data'.format(self.hostname, self.uid)
         full_path = os.path.join(directory, file_name)
         if not os.path.exists(directory):
-            TESTPLAN_LOGGER.info('Creating directory %s', directory)
+            self.logger.info('Creating directory %s', directory)
             makedirs(directory)
         with open(full_path, 'w') as monitor_file:
             monitor_file.write(self.dumps())
-        TESTPLAN_LOGGER.debug('Monitor data saved to {}'.format(full_path))
+        self.logger.debug('Monitor data saved to {}'.format(full_path))
 
     def load(self, serial_json):
         """
@@ -189,15 +201,31 @@ class EventMonitor(object):
             _serial_json = serial_json
         for name, value in _serial_json.items():
             setattr(self, name, value)
-        TESTPLAN_LOGGER.info('Internal data loaded, previous internal data overwritten.')
+        TESTPLAN_LOGGER.info(
+            'Internal data loaded, previous internal data overwritten.')
 
-    def to_event_monitor(self):
-        return self
+    def copy(self):
+        """
+        Create a new EventMonitor instance and copy all attribute to the new
+        instance.
+
+        :return: New EventMonitor instance
+        :rtype: ``EventMonitor``
+        """
+        _event_monitor = EventMonitor()
+        _event_monitor.hostname = self.hostname
+        _event_monitor.pid = self.pid
+        _event_monitor.ppid = self.ppid
+        _event_monitor.thread_name = self.thread_name
+        _event_monitor.events_metadata = self.events_metadata
+        _event_monitor.events_data = self.events_data
+        return _event_monitor
 
 
 class ResourceMonitor(EventMonitor):
     """
-    Resource Monitor will collect the host hardware information(CPU, memory, disk etc.)
+    Resource Monitor will collect the host hardware information(CPU, memory,
+    disk etc.)
     and the metrics(the usage of CPU, memory and disk).
 
     """
@@ -254,6 +282,8 @@ class ResourceMonitor(EventMonitor):
         """
         if self._poll:
             self._poll_start = False
+            self._poll.join()
+            self._poll = None
             TESTPLAN_LOGGER.info('Resource polling stopped.')
 
     def to_dict(self):
@@ -261,16 +291,6 @@ class ResourceMonitor(EventMonitor):
         _result['host_metadata'] = self.host_metadata
         _result['monitor_metrics'] = self.monitor_metrics
         return _result
-
-    def to_event_monitor(self):
-        _event_monitor = EventMonitor()
-        _event_monitor.hostname = self.hostname
-        _event_monitor.pid = self.pid
-        _event_monitor.ppid = self.ppid
-        _event_monitor.thread_name = self.thread_name
-        _event_monitor.events_metadata = self.events_metadata
-        _event_monitor.events_data = self.events_data
-        return _event_monitor
 
 
 def load_monitor_from_json(serial_json):

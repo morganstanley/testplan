@@ -24,6 +24,35 @@ class Collector(object):
         # save last io counter per process
         self._io_counter = {}
 
+    def _read_io_info(self, raw_data):
+        counters = {
+            'io_counter': raw_data['io_counters'].read_count +
+                          raw_data['io_counters'].write_count,
+            'read_counter': raw_data['io_counters'].read_bytes,
+            'write_counter': raw_data['io_counters'].write_bytes,
+            'time': time.time()
+        }
+        iops = read = write = 0
+        if raw_data['pid'] in self._io_counter \
+                and self._io_counter[raw_data['pid']]['io_counter'] >= \
+                counters['io_counter']:
+            _io_counter = self._io_counter[raw_data['pid']]
+            _interval = counters['time'] - _io_counter['time']
+            iops = (counters['io_counter'] -
+                    _io_counter['io_counter']) / _interval
+            read = (counters['read_counter'] -
+                    _io_counter['read_counter']) / _interval
+            write = (counters['write_counter'] -
+                     _io_counter['write_counter']) / _interval
+        else:
+            _interval = counters['time'] - raw_data['create_time']
+            if _interval >= 1.0:
+                iops = counters['io_counter'] / _interval
+                read = counters['read_counter'] / _interval
+                write = counters['write_counter'] / _interval
+        self._io_counter[raw_data['pid']] = counters.copy()
+        return iops, read, write
+
     def monitor(self):
         parent = psutil.Process(self._pid)
         procs = parent.children(recursive=True)
@@ -51,36 +80,10 @@ class Collector(object):
 
             except psutil.NoSuchProcess:
                 continue
-            monitor_result['cpu'] += raw_data['cpu_percent'] \
-                if raw_data['cpu_percent'] > 0 else 0
+            monitor_result['cpu'] += raw_data['cpu_percent']
             monitor_result['memory'] += raw_data['memory_info'].rss
             try:
-                counters = {
-                    'io_counter': raw_data['io_counters'].read_count +
-                                  raw_data['io_counters'].write_count,
-                    'read_counter': raw_data['io_counters'].read_bytes,
-                    'write_counter': raw_data['io_counters'].write_bytes,
-                    'time': time.time()
-                }
-                iops = read = write = 0
-                if raw_data['pid'] in self._io_counter \
-                        and self._io_counter[raw_data['pid']]['io_counter'] >= \
-                        counters['io_counter']:
-                    _io_counter = self._io_counter[raw_data['pid']]
-                    _interval = counters['time'] - _io_counter['time']
-                    iops = (counters['io_counter'] -
-                            _io_counter['io_counter']) / _interval
-                    read = (counters['read_counter'] -
-                            _io_counter['read_counter']) / _interval
-                    write = (counters['write_counter'] -
-                             _io_counter['write_counter']) / _interval
-                else:
-                    _interval = counters['time'] - raw_data['create_time']
-                    if _interval >= 1.0:
-                        iops = counters['io_counter'] / _interval
-                        read = counters['read_counter'] / _interval
-                        write = counters['write_counter'] / _interval
-                self._io_counter[raw_data['pid']] = counters.copy()
+                iops, read, write = self._read_io_info(raw_data)
                 monitor_result['iops'] += iops
                 monitor_result['read'] += read
                 monitor_result['write'] += write
@@ -118,8 +121,7 @@ class LinuxContainerCollector(LinuxCollector):
 
 
 class WindowsCollector(Collector):
-    def __init__(self, director):
-        super(WindowsCollector, self).__init__(director)
+    pass
 
 
 def get_collector(director=None):

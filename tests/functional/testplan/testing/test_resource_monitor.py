@@ -1,5 +1,4 @@
 import os
-import sys
 import mock
 import time
 import json
@@ -37,7 +36,7 @@ class MockData:
     def memory_info():
         mem_info = namedtuple(
             'pmem', ['rss', 'vms', 'shared', 'text', 'lib', 'data', 'dirty'])
-        return mem_info(100, 101, 102, 103, 104, 105, 106)
+        return mem_info(1024*1024*1024, 101, 102, 103, 104, 105, 106)
 
     @staticmethod
     def cpu_percent(interval=0.1):
@@ -115,11 +114,11 @@ class Alpha(object):
 
     @testcase
     def test_memory_a(self, env, result):
-        _tmp = 'testplan' * 1024 * 1024 * (1024 // 8)  # 1GB memory
         time.sleep(10)
 
 
-def test_resource_monitor():
+@mock.patch('psutil.Process.as_dict', side_effect=MockData.as_dict)
+def test_resource_monitor(*args):
     plan = Testplan(name='plan', parse_cmdline=False,
                     resource_monitor=True)
 
@@ -134,8 +133,8 @@ def test_resource_monitor():
 
     assert hostname == resource_monitor.hostname
     assert isinstance(resource_monitor, ResourceMonitor) is True
-    big_size = sys.getsizeof('testplan' * 1024 * 1024 * (1024 // 8))
-    assert max(resource_monitor.monitor_metrics['memory']) >= big_size
+    assert max(resource_monitor.monitor_metrics['memory']) == \
+           MockData.memory_info().rss
 
     event_uuid = None
     events = monitor_json['data'][0]['process'][0]['data'][0]['data']
@@ -145,6 +144,6 @@ def test_resource_monitor():
     assert event_uuid is not None
 
     event_data = events['events_data'][0]
-    assert  event_data[0] == event_uuid
+    assert event_data[0] == event_uuid
     spent_time = event_data[1][-1]['time'] - event_data[1][0]['time']
     assert spent_time >= 10
