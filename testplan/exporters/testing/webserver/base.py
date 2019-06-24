@@ -4,6 +4,7 @@
 """
 from __future__ import absolute_import
 
+import ipaddress
 import os
 import json
 
@@ -80,6 +81,15 @@ class WebServerExporter(Exporter):
              raise_on_timeout=True)
 
         (host, port) = self._web_server_thread.server.bind_addr
+
+        # Check for an IPv6 address. Web browsers require IPv6 addresses to be
+        # enclosed in [].
+        try:
+            if ipaddress.ip_address(host).version == 6:
+                host = '[{}]'.format(host)
+        except ValueError:
+            # Expected if the host is a host name instead of an IP address.
+            pass
 
         self.url = 'http://{host}:{port}/testplan/local'.format(
             host=host,
