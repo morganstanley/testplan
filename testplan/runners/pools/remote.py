@@ -51,15 +51,6 @@ class RemoteWorkerConfig(ProcessWorkerConfig):
     """
     Configuration object for
     :py:class:`~testplan.runners.pools.remote.RemoteWorker` resource entity.
-
-    :param workers: Number of remote workers of remote pool of child worker.
-    :type workers: ``int``
-    :param pool_type: Remote pool type that child worker will use.
-    :type pool_type: ``str``
-
-    Also inherits all
-    :py:class:`~testplan.runners.pools.process.ProcessWorkerConfig`
-    options.
     """
 
     @classmethod
@@ -89,6 +80,17 @@ class RemoteWorker(ProcessWorker):
     """
     Remote worker resource that pulls tasks from the transport provided,
     executes them in a local pool of workers and sends back task results.
+
+    :param workers: Number of remote workers of remote pool of child worker.
+    :type workers: ``int``
+    :param pool_type: Remote pool type that child worker will use.
+    :type pool_type: ``str``
+    :param remote_host: Remote hostname to connect to.
+    :type remote_host: ``str``
+
+    Also inherits all
+    :py:class:`~testplan.runners.pools.process.ProcessWorkerConfig`
+    options.
     """
 
     CONFIG = RemoteWorkerConfig
@@ -577,19 +579,70 @@ class RemotePoolConfig(PoolConfig):
     Configuration object for
     :py:class:`~testplan.runners.pools.remote.RemotePool` executor
     resource entity.
+    """
+    default_hostname = socket.gethostbyname(socket.gethostname())
+    default_workspace_root = workspace_root()
 
+    @classmethod
+    def get_options(cls):
+        """
+        Schema for options validation and assignment of default values.
+        """
+        return {
+            'hosts': dict,
+            ConfigOption('abort_signals', default=[signal.SIGINT,
+                                                   signal.SIGTERM]): [int],
+            ConfigOption('worker_type', default=RemoteWorker): object,
+            ConfigOption('pool_type', default='thread'): str,
+            ConfigOption('host', default=cls.default_hostname): str,
+            ConfigOption('port', default=0): int,
+            ConfigOption('copy_cmd', default=copy_cmd):
+                lambda x: callable(x),
+            ConfigOption('link_cmd', default=link_cmd):
+                lambda x: callable(x),
+            ConfigOption('ssh_cmd', default=ssh_cmd):
+                lambda x: callable(x),
+            ConfigOption('workspace', default=cls.default_workspace_root): str,
+            ConfigOption('workspace_exclude', default=[]): Or(list, None),
+            ConfigOption('remote_workspace', default=None): Or(str, None),
+            ConfigOption('copy_workspace_check',
+                         default=remote_filepath_exists):
+                Or(lambda x: callable(x), None),
+            ConfigOption('env', default=None): Or(dict, None),
+            ConfigOption('setup_script', default=None): Or(list, None),
+            ConfigOption('push', default=[]): Or(list, None),
+            ConfigOption('push_exclude', default=[]): Or(list, None),
+            ConfigOption('push_relative_dir', default=None): Or(str, None),
+            ConfigOption('delete_pushed', default=False): bool,
+            ConfigOption('pull', default=[]): Or(list, None),
+            ConfigOption('pull_exclude', default=[]): Or(list, None),
+            ConfigOption('remote_mkdir', default=['/bin/mkdir', '-p']): list,
+            ConfigOption('testplan_path', default=None): Or(str, None),
+            ConfigOption('worker_heartbeat', default=30): Or(int, float, None)
+        }
+
+
+class RemotePool(Pool):
+    """
+    Pool task executor object that initializes remote workers and dispatches
+    tasks.
+
+    :param name: Pool name.
+    :type name: ``str``
     :param hosts: Map of host(ip): number of their local workers.
-      i.e {'hostname1': 2, '10.147.XX.XX': 4}
+        i.e {'hostname1': 2, '10.147.XX.XX': 4}
     :type hosts: ``dict`` of ``str``:``int``
+    :param size: Pool workers size. Default: 4
+    :type size: ``int``
     :param abort_signals: Signals to trigger abort logic. Default: INT, TERM.
     :type abort_signals: ``list`` of ``int``
     :param worker_type: Type of worker to be initialized.
     :type worker_type: :py:class:`~testplan.runners.pools.remote.RemoteWorker`
     :param pool_type: Local pool that will be initialized in remote workers.
-      i.e ``thread``, ``process``.
+        i.e ``thread``, ``process``.
     :type pool_type: ``str``
     :param host: Host that pool binds and listens for requests. Defaults to
-      local hostname.
+        local hostname.
     :type host: ``str``
     :param port: Port that pool binds. Default: 0 (random)
     :type port: ``int``
@@ -628,61 +681,43 @@ class RemotePoolConfig(PoolConfig):
     :param worker_heartbeat: Worker heartbeat period.
     :type worker_heartbeat: ``int`` or ``float`` or ``NoneType``
 
-    Also inherits all :py:class:`~testplan.runners.pools.base.PoolConfig`
-    options.
-    """
-
-    @classmethod
-    def get_options(cls):
-        """
-        Schema for options validation and assignment of default values.
-        """
-        hostname = socket.gethostbyname(socket.gethostname())
-        return {
-            'hosts': dict,
-            ConfigOption('abort_signals', default=[signal.SIGINT,
-                                                   signal.SIGTERM]): [int],
-            ConfigOption('worker_type', default=RemoteWorker): object,
-            ConfigOption('pool_type', default='thread'): str,
-            ConfigOption('host', default=hostname): str,
-            ConfigOption('port', default=0): int,
-            ConfigOption('copy_cmd', default=copy_cmd):
-                lambda x: callable(x),
-            ConfigOption('link_cmd', default=link_cmd):
-                lambda x: callable(x),
-            ConfigOption('ssh_cmd', default=ssh_cmd):
-                lambda x: callable(x),
-            ConfigOption('workspace', default=workspace_root()): str,
-            ConfigOption('workspace_exclude', default=[]): Or(list, None),
-            ConfigOption('remote_workspace', default=None): Or(str, None),
-            ConfigOption('copy_workspace_check',
-                         default=remote_filepath_exists):
-                Or(lambda x: callable(x), None),
-            ConfigOption('env', default=None): Or(dict, None),
-            ConfigOption('setup_script', default=None): Or(list, None),
-            ConfigOption('push', default=[]): Or(list, None),
-            ConfigOption('push_exclude', default=[]): Or(list, None),
-            ConfigOption('push_relative_dir', default=None): Or(str, None),
-            ConfigOption('delete_pushed', default=False): bool,
-            ConfigOption('pull', default=[]): Or(list, None),
-            ConfigOption('pull_exclude', default=[]): Or(list, None),
-            ConfigOption('remote_mkdir', default=['/bin/mkdir', '-p']): list,
-            ConfigOption('testplan_path', default=None): Or(str, None),
-            ConfigOption('worker_heartbeat', default=30): Or(int, float, None)
-        }
-
-
-class RemotePool(Pool):
-    """
-    Pool task executor object that initializes remote workers and dispatches
-    tasks.
+    Also inherits all :py:class:`~testplan.runners.pools.base.Pool` options.
     """
 
     CONFIG = RemotePoolConfig
     CONN_MANAGER = ZMQServer
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        hosts,
+        size=4,
+        abort_signals=None,
+        worker_type=RemoteWorker,
+        pool_type='thread',
+        host=CONFIG.default_hostname,
+        port=0,
+        copy_cmd=copy_cmd,
+        link_cmd=link_cmd,
+        ssh_cmd=ssh_cmd,
+        workspace=CONFIG.default_workspace_root,
+        workspace_exclude=None,
+        remote_workspace=None,
+        copy_workspace_check=remote_filepath_exists,
+        env=None,
+        setup_script=None,
+        push=None,
+        push_exclude=None,
+        push_relative_dir=None,
+        delete_pushed=False,
+        pull=None,
+        pull_exclude=None,
+        remote_mkdir=None,
+        testplan_path=None,
+        worker_heartbeat=30,
+        **options
+    ):
         self.pool = None
+        options.update(self.filter_locals(locals()))
         super(RemotePool, self).__init__(**options)
 
         self._request_handlers[

@@ -220,8 +220,10 @@ def unique_name(name, names):
 
 def to_posix_path(from_path):
     """
-    :param: File path, in local OS format.
+    :param from_path: File path, in local OS format.
+    :type from_path: ``str``
     :return: POSIX-formatted path.
+    :rtype: ``str``
     """
     return '/'.join(from_path.split(os.sep))
 
@@ -231,8 +233,11 @@ def is_subdir(child, parent):
     Check whether "parent" is a sub-directory of "child".
 
     :param child: Child path.
+    :type child: ``str``
     :param parent: Parent directory to check against.
+    :type parent: ``str``
     :return: True if child is a sub-directory of the parent.
+    :rtype: ``bool``
     """
     return child.startswith(parent)
 

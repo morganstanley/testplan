@@ -20,10 +20,10 @@ def is_regex(obj):
 
 def basic_compare(first, second, strict=False):
     """
-        Comparison used for custom match functions,
-        can do pattern matching, function evaluation or simple equality.
+    Comparison used for custom match functions,
+    can do pattern matching, function evaluation or simple equality.
 
-        Returns traceback if something goes wrong.
+    Returns traceback if something goes wrong.
     """
     try:
         if is_regex(second):
@@ -46,8 +46,8 @@ def is_comparator(value):
 
 def check_dict_keys(data, has_keys=None, absent_keys=None):
     """
-        Check if a dictionary contains given
-        keys and/or has given keys missing.
+    Check if a dictionary contains given
+    keys and/or has given keys missing.
     """
 
     if not (has_keys or absent_keys):
@@ -66,10 +66,10 @@ def check_dict_keys(data, has_keys=None, absent_keys=None):
 
 class Callable(object):
     """
-        Some of our assertions can make use of callables that accept a
-        single argument as comparator values. We also provide the helper
-        classes below that are composable (via bitwise operators
-        or meta callables) and reporting friendly.
+    Some of our assertions can make use of callables that accept a
+    single argument as comparator values. We also provide the helper
+    classes below that are composable (via bitwise operators
+    or meta callables) and reporting friendly.
     """
 
     def __call__(self, value):
@@ -1114,7 +1114,7 @@ class DictmatchAllResult(object):
 
       - ``passed``: a boolean indicating if the assertion passed completely
       - ``index_match_levels``: a list containing tuples of
-            index and match level:
+        index and match level:
 
         - ``MATCH``
         - ``MISMATCH``

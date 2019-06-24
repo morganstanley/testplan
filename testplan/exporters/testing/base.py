@@ -128,7 +128,8 @@ class TagFilteredExporter(Exporter):
         :type tag_dicts: ``list`` of ``dict``
         :param filter_type: all / any, will be used for tag filtering strategy.
         :type filter_type: ``str``
-        :return: None
+        :return: ``None``
+        :rtype: ``NoneType``
         """
         if filter_type not in [self.ALL, self.ANY]:
             raise ValueError('Invalid filter type: {}'.format(filter_type))
@@ -155,7 +156,8 @@ class TagFilteredExporter(Exporter):
 
         :param source: Test report.
         :type source: :py:class:`~testplan.report.testing.base.TestReport`
-        :return: None
+        :return: ``None``
+        :rtype: ``NoneType``
         """
         self.export_clones(
             source=source,

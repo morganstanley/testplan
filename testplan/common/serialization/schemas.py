@@ -13,9 +13,9 @@ def load_tree_data(
     type_field='type',
 ):
     """
-      marshmallow does not support tree serialization with different
-      node types, so we rely on this recursive function for traversing
-      tree data and instantiate node objects with the given schemas..
+    marshmallow does not support tree serialization with different
+    node types, so we rely on this recursive function for traversing
+    tree data and instantiate node objects with the given schemas.
     """
 
     node_type = node_schema.get_source_class().__name__

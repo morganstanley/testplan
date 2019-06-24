@@ -19,7 +19,11 @@ from ..base import Exporter, save_attachments
 
 
 class JSONExporterConfig(ExporterConfig):
-
+    """
+    Configuration object for
+    :py:class:`JSONExporter <testplan.exporters.testing.json.JSONExporter>`
+    object.
+    """
     @classmethod
     def get_options(cls):
         return {
@@ -30,7 +34,15 @@ class JSONExporterConfig(ExporterConfig):
 
 
 class JSONExporter(Exporter):
+    """
+    Json Exporter.
 
+    :param json_path: File path for saving json report.
+    :type json_path: ``str``
+
+    Also inherits all
+    :py:class:`~testplan.exporters.testing.base.Exporter` options.
+    """
     CONFIG = JSONExporterConfig
 
     def export(self, source):

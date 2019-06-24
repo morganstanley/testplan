@@ -96,6 +96,7 @@ class TestRunnerConfig(RunnableConfig):
     def get_options(cls):
         return {
             'name': str,
+            ConfigOption('description', default=None): Or(str, None),
             ConfigOption('logger_level', default=logger.TEST_INFO): int,
             ConfigOption('file_log_level', default=logger.DEBUG): Or(int, None),
             ConfigOption(
@@ -192,7 +193,7 @@ class TestRunnerResult(RunnableResult):
 
 
 class TestRunner(Runnable):
-    """
+    r"""
     Adds tests to test
     :py:class:`executor <testplan.runners.base.Executor>` resources
     and invoke report
@@ -202,6 +203,8 @@ class TestRunner(Runnable):
 
     :param name: Name of test runner.
     :type name: ``str``
+    :param description: Description of test runner.
+    :type description: ``str``
     :param logger_level: Logger level for stdout.
     :type logger_level: ``int``
     :param: file_log_level: Logger level for file.
@@ -237,6 +240,12 @@ class TestRunner(Runnable):
     :type report_tags_all: ``list``
     :param merge_scheduled_parts: Merge report of scheduled MultiTest parts.
     :type merge_scheduled_parts: ``bool``
+    :param browse: Open web browser to display the test report.
+    :type browse: ``bool`` or ``NoneType``
+    :param ui_port: Port of web server for displaying test report.
+    :type ui_port: ``int`` or ``NoneType``
+    :param web_server_startup_timeout: Timeout for starting web server.
+    :type web_server_startup_timeout: ``int``
     :param test_filter: Tests filtering class.
     :type test_filter: Subclass of
         :py:class:`BaseFilter <testplan.testing.filtering.BaseFilter>`
@@ -246,8 +255,12 @@ class TestRunner(Runnable):
     :param test_lister: Tests listing class.
     :type test_lister: Subclass of
         :py:class:`BaseLister <testplan.testing.listing.BaseLister>`
+    :param verbose: Enable or disable verbose mode.
+    :type verbose: ``bool``
+    :param debug: Enable or disable debug mode.
+    :type debug: ``bool``
     :param timeout: Timeout value for test execution.
-    :type timeout: ``None`` or ``int`` or ``float`` greater than 0.
+    :type timeout: ``NoneType`` or ``int`` or ``float`` greater than 0.
     :param interactive_handler: Handler for interactive mode execution.
     :type interactive_handler: Subclass of :py:class:
         `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
@@ -614,7 +627,7 @@ class TestRunner(Runnable):
     def _invoke_exporters(self):
         # Add this logic into a ReportExporter(Runnable)
         # that will return a result containing errors
-        if self.cfg.exporters is None:
+        if self.cfg.exporters is None or len(self.cfg.exporters) == 0:
             exporters = get_default_exporters(self.cfg)
         else:
             exporters = self.cfg.exporters

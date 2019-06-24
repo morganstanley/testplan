@@ -84,7 +84,7 @@ class TestConfig(RunnableConfig):
         return {
             # 'name': And(str, lambda s: s.count(' ') == 0),
             'name': str,
-            ConfigOption('description', default=None): str,
+            ConfigOption('description', default=None): Or(str, None),
             ConfigOption('environment', default=[]): [Resource],
             ConfigOption('before_start', default=None): start_stop_signature,
             ConfigOption('after_start', default=None): start_stop_signature,
@@ -145,6 +145,14 @@ class Test(Runnable):
     :type test_filter: :py:class:`~testplan.testing.filtering.BaseFilter`
     :param test_sorter: Class with tests sorting logic.
     :type test_sorter: :py:class:`~testplan.testing.ordering.BaseSorter`
+    :param before_start: Callable to execute before starting the environment.
+    :type before_start: ``callable`` taking an environment argument.
+    :param after_start: Callable to execute after starting the environment.
+    :type after_start: ``callable`` taking an environment argument.
+    :param before_stop: Callable to execute before stopping the environment.
+    :type before_stop: ``callable`` taking environment and a result arguments.
+    :param after_stop: Callable to execute after stopping the environment.
+    :type after_stop: ``callable`` taking environment and a result arguments.
     :param stdout_style: Console output style.
     :type stdout_style: :py:class:`~testplan.report.testing.styles.Style`
     :param tags: User defined tag value.
@@ -358,6 +366,8 @@ class ProcessRunnerTest(Test):
     Test report will be populated by parsing the generated report output file
     (report.xml file by default.)
 
+    :param driver: Path the to application binary.
+    :type driver: ``str``
     :param proc_env: Environment overrides for ``subprocess.Popen``.
     :type proc_env: ``dict``
     :param proc_cwd: Directory override for ``subprocess.Popen``.

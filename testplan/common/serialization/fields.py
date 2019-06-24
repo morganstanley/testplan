@@ -1,5 +1,5 @@
 """
-  Custom marshmallow fields.
+Custom marshmallow fields.
 """
 import pprint
 import six
@@ -74,8 +74,8 @@ def native_or_pformat(value):
 
 def native_or_pformat_dict(value):
     """
-        Converter utility for dictionaries,
-        converts values to JSON friendly format
+    Converter utility for dictionaries,
+    converts values to JSON friendly format
     """
     return {
         k: native_or_pformat(v) for k, v in value.items()
@@ -89,13 +89,13 @@ def native_or_pformat_list(value):
 
 class Unicode(fields.Field):
     """
-        Field that tries to convert value into a unicode
+    Field that tries to convert value into a unicode
 
-        object with the given codecs. Marshmallow internally decodes to
-        utf-8 encoding, however it fails on Python 2 for str values
-        like ``@t\xe9\xa7t\xfel\xe5\xf1``.
+    object with the given codecs. Marshmallow internally decodes to
+    utf-8 encoding, however it fails on Python 2 for str values
+    like ``@t\xe9\xa7t\xfel\xe5\xf1``.
 
-        So we have this field with explicit codecs instead.
+    So we have this field with explicit codecs instead.
     """
 
     codecs = ['utf-8', 'latin-1']  # Ideally we will let users override this
@@ -120,8 +120,8 @@ class Unicode(fields.Field):
 
 class NativeOrPretty(fields.Field):
     """
-        Uses serialization compatible native values
-        or pretty formatted str representation.
+    Uses serialization compatible native values
+    or pretty formatted str representation.
     """
 
     def _serialize(self, value, attr, obj):
@@ -130,9 +130,9 @@ class NativeOrPretty(fields.Field):
 
 class NativeOrPrettyDict(fields.Field):
     """
-      Dictionary serialization with native or pretty formatted values.
-      Keys should be JSON serializable (str type),
-      should be used for flat dicts only.
+    Dictionary serialization with native or pretty formatted values.
+    Keys should be JSON serializable (str type),
+    should be used for flat dicts only.
     """
     def _serialize(self, value, attr, obj):
         if not isinstance(value, dict):
@@ -226,17 +226,17 @@ class DictMatch(fields.Field):
 
 class GenericNested(fields.Field):
     """
-      Marshmallow does not support multiple schemas
-      for a single `Nested` field.
+    Marshmallow does not support multiple schemas
+    for a single `Nested` field.
 
-      There is a project (marshmallow-oneofschema)
-      that has similar functionality but it doesn't support
-      self-referencing schemas, which is
-      needed for serializing tree structures.
+    There is a project (marshmallow-oneofschema)
+    that has similar functionality but it doesn't support
+    self-referencing schemas, which is
+    needed for serializing tree structures.
 
-      This field should be used along with `ClassNameField`
-      to return the type (class name) of the objects,
-      so it can choose the correct schema during deserialization.
+    This field should be used along with `ClassNameField`
+    to return the type (class name) of the objects,
+    so it can choose the correct schema during deserialization.
     """
 
     def __init__(
@@ -320,19 +320,19 @@ class GenericNested(fields.Field):
 
 class UTCDateTime(fields.DateTime):
     """
-      While parsing timestamps, original `fields.Datetime` tries
-      to use ``dateutil`` if it's available.
+    While parsing timestamps, original `fields.Datetime` tries
+    to use ``dateutil`` if it's available.
 
-      Unfortunately, the way it does the check for ``dateutil``
-      availability is not compatible with our internal environment
+    Unfortunately, the way it does the check for ``dateutil``
+    availability is not compatible with our internal environment
 
-      If the ``dateutil`` is not available, it falls back to
-      ``datetime.datetime.strptime`` which leaves the
-      millisecond information out.
+    If the ``dateutil`` is not available, it falls back to
+    ``datetime.datetime.strptime`` which leaves the
+    millisecond information out.
 
-      So we specify the deserialization logic explicitly to
-      make use of dateutil. In addition we use ``pytz``
-      timezones instead of ``dateutil.tz``.
+    So we specify the deserialization logic explicitly to
+    make use of dateutil. In addition we use ``pytz``
+    timezones instead of ``dateutil.tz``.
     """
 
     def _deserialize(self, value, attr, data):
