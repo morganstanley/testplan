@@ -9,6 +9,7 @@ import Message from '../Common/Message';
 import {propagateIndices} from "./reportUtils";
 import {COLUMN_WIDTH} from "../Common/defaults";
 import {getNavEntryType} from "../Common/utils";
+import {fakeReportAssertions} from "../Common/fakeReport";
 
 /**
  * BatchReport component:
@@ -48,7 +49,13 @@ class BatchReport extends Component {
    */
   getReport() {
     const paths = window.location.pathname.split('/');
-    if (paths.length >= 3) {
+
+    // Inspect the URL to determine the report to render. As a special case,
+    // we will display a fake report for development purposes.
+    if ((paths.length >= 2) && (paths[1] === '_dev')) {
+      const r = propagateIndices([fakeReportAssertions]);
+      setTimeout(() => {this.setState({report: r, loading: false});}, 1500);
+    } else if (paths.length >= 3) {
       const uid = paths[2];
       axios.get(`/testplan/${uid}/report`)
         .then(response => propagateIndices([response.data]))
@@ -60,7 +67,7 @@ class BatchReport extends Component {
         .catch(error => this.setState({
           error,
           loading: false
-        }));
+          }));
     } else {
       this.setState({
         error: {message: 'Error retrieving UID from URL.'},
