@@ -49,7 +49,7 @@ def dummy_testplan(request):
     assert testplan_proc.poll() is not None
 
     thr.join(timeout=_TIMEOUT)
-    assert(not thr.isAlive())
+    assert(not thr.is_alive())
 
 
 def _enqueue_output(out, queue):

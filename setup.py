@@ -39,7 +39,8 @@ REQUIRED = [
     'requests>=2.4.3',
     'flask',
     'flask_restplus',
-    'cheroot'
+    'cheroot',
+    'ipaddress',
 ]
 
 setup(name='Testplan',
