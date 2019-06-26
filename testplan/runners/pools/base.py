@@ -247,7 +247,6 @@ class Pool(Executor):
         self._conn.parent = self
         self._pool_lock = threading.Lock()
         self._metadata = {}
-        self.make_runpath_dirs()
         self._metadata['runpath'] = self.runpath
         self._exit_loop = False
         self._start_monitor_thread = True
@@ -633,6 +632,7 @@ class Pool(Executor):
     def starting(self):
         """Starting the pool and workers."""
         # TODO do we need a lock here?
+        self.make_runpath_dirs()
         self._conn.start()
 
         for worker in self._workers:

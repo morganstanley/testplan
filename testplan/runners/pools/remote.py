@@ -732,7 +732,7 @@ class RemotePool(Pool):
         # self._workers.stop()
 
     def _start_thread_pool(self):
-        size = self.cfg.size
+        size = len(self._instances)
         try:
             if size > 2:
                 self.pool = ThreadPool(5 if size > 5 else size)
