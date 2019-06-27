@@ -27,12 +27,14 @@ class BaseRenderer(object):
     Basic renderer, will render a test group report with the following
     structure:
 
-    TestGroupReport(name=..., category='<test-category>')
-        TestGroupReport(name=..., category='suite')
-            TestCaseReport(name=...)  (failing)
-                RawAssertion (dict form)
-            TestCaseReport(name=...) (passing)
-            TestCaseReport(name=...) (passing)
+    .. code-block:: python
+
+      TestGroupReport(name=..., category='<test-category>')
+          TestGroupReport(name=..., category='suite')
+              TestCaseReport(name=...)  (failing)
+                  RawAssertion (dict form)
+              TestCaseReport(name=...) (passing)
+              TestCaseReport(name=...) (passing)
     """
 
     def render(self, source):
@@ -173,18 +175,20 @@ class MultiTestRenderer(BaseRenderer):
     """
     Source report represents a MultiTest with the following structure:
 
-    TestGroupReport(name=..., category='multitest')
-        TestGroupReport(name=..., category='suite')
-            TestCaseReport(name=...)
-                Assertion entry (dict)
-                Assertion entry (dict)
-            TestGroupReport(name='...', category='parametrization')
-                TestCaseReport(name=...)
-                    Assertion entry (dict)
-                    Assertion entry (dict)
-                TestCaseReport(name=...)
-                    Assertion entry (dict)
-                    Assertion entry (dict)
+    .. code-block:: python
+
+      TestGroupReport(name=..., category='multitest')
+          TestGroupReport(name=..., category='suite')
+              TestCaseReport(name=...)
+                  Assertion entry (dict)
+                  Assertion entry (dict)
+              TestGroupReport(name='...', category='parametrization')
+                  TestCaseReport(name=...)
+                      Assertion entry (dict)
+                      Assertion entry (dict)
+                  TestCaseReport(name=...)
+                      Assertion entry (dict)
+                      Assertion entry (dict)
 
     Final XML will have flattened testcase data from parametrization groups.
     """

@@ -237,8 +237,8 @@ class ReportGroup(Report):
 
     def merge_children(self, report, strict=True):
         """
-        Merge each children separately, raising
-        `MergeError` if `uid`s do not match.
+        Merge each children separately, raising ``MergeError`` if `uid`
+        does not match.
         """
         for entry in report:
             try:

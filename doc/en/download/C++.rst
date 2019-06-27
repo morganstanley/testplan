@@ -45,13 +45,13 @@ dynamic expression evaluation, data storage and analysis. Note: after downloadin
 with the actual test binary.
 
 Required files:
-  - :download:`test_plan.py <../../../examples/Cpp/HobbesTest/HobbesTest.py>`
+  - :download:`test_plan.py <../../../examples/Cpp/HobbesTest/test_plan.py>`
   - :download:`hobbes-test <../../../examples/Cpp/HobbesTest/test/hobbes-test>`
   - :download:`input.json <../../../examples/Cpp/HobbesTest/test/input.json>`
 
 test_plan.py
 ++++++++++++
 
-.. literalinclude:: ../../../examples/Cpp/HobbesTest/HobbesTest.py
+.. literalinclude:: ../../../examples/Cpp/HobbesTest/test_plan.py
 
 

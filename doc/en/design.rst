@@ -318,9 +318,9 @@ of runnables:
      the testsuite as one operation.
 
 The functional tests that demonstrate interactive mode usage are
-`here <https://github.com/Morgan-Stanley/testplan/blob/master/test/functional/testplan/runnable/interactive/test_interactive.py>`_
+`here <https://github.com/Morgan-Stanley/testplan/blob/master/test/functional/testplan/runnable/interactive/test_interactive.py>`__
 and the downloadable examples (including jupyter usage) are
-`here <https://github.com/Morgan-Stanley/testplan/tree/master/examples/Interactive>`_.
+`here <https://github.com/Morgan-Stanley/testplan/tree/master/examples/Interactive>`__.
 
 In interactive mode, a common use case is addition of standalone environments
 of drivers that are not associated with tests. This makes Testplan useful
@@ -328,7 +328,7 @@ but Testing frameworks of other languages that miss this functionality.
 
 And example **Java testplan-interactive** layer that has the capability to
 make use of Testplan environment is
-`here <https://github.com/Morgan-Stanley/testplan/tree/master/examples/Interactive/Frameworks/Java>`_.
+`here <https://github.com/Morgan-Stanley/testplan/tree/master/examples/Interactive/Frameworks/Java>`__.
 
 Using the aboe layer, this is the recipe of using Testplan environment in a Java
 IDE to test a java application that connects to this environment dynamically:

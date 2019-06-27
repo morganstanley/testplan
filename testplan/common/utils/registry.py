@@ -118,9 +118,10 @@ class Registry(logger.Loggable):
     def bind_default(self, category=None):
         """
         Decorator for binding a class as category based or absolute default.
+
         :param category: (optional) If provided, the decorated class will
-                        be the default for the given category, otherwise
-                        it will be the absolute default.
+                         be the default for the given category, otherwise
+                         it will be the absolute default.
         """
         def wrapper(value):
             if category:

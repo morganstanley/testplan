@@ -225,9 +225,9 @@ class TestRunner(Runnable):
     :type report_dir: ``str``
     :param xml_dir: XML output directory.
     :type xml_dir: ``str``
-    :param pdf_path: PDF output path ..path/*.pdf.
+    :param pdf_path: PDF output path <PATH>/\*.pdf.
     :type pdf_path: ``str``
-    :param json_path: JSON output path ..path/*.json.
+    :param json_path: JSON output path <PATH>/\*.json.
     :type json_path: ``str``
     :param pdf_style: PDF creation styling options.
     :type pdf_style: :py:class:`Style <testplan.report.testing.styles.Style>`
@@ -239,20 +239,20 @@ class TestRunner(Runnable):
     :type merge_scheduled_parts: ``bool``
     :param test_filter: Tests filtering class.
     :type test_filter: Subclass of
-      :py:class:`BaseFilter <testplan.testing.filtering.BaseFilter>`
+        :py:class:`BaseFilter <testplan.testing.filtering.BaseFilter>`
     :param test_sorter: Tests sorting class.
     :type test_sorter: Subclass of
-      :py:class:`BaseSorter <testplan.testing.ordering.BaseSorter>`
+        :py:class:`BaseSorter <testplan.testing.ordering.BaseSorter>`
     :param test_lister: Tests listing class.
     :type test_lister: Subclass of
-      :py:class:`BaseLister <testplan.testing.listing.BaseLister>`
+        :py:class:`BaseLister <testplan.testing.listing.BaseLister>`
     :param timeout: Timeout value for test execution.
     :type timeout: ``None`` or ``int`` or ``float`` greater than 0.
     :param interactive_handler: Handler for interactive mode execution.
     :type interactive_handler: Subclass of :py:class:
         `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
     :param extra_deps: Extra module dependencies for interactive reload.
-    :type extra_deps: ``list`` of ``module``s
+    :type extra_deps: ``list`` of ``module``
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Runnable` options.

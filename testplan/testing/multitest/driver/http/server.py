@@ -84,8 +84,10 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
         """
         Parse the request and return the response.
 
-        :param request:
-        :return:
+        :param request: The request path.
+        :type request: ``str``
+        :return: Http response.
+        :rtype: ``HTTPResponse``
         """
         self.server.requests.put(request)
 

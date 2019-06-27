@@ -3,40 +3,44 @@ Report classes that will store the test results.
 
 Assuming we have a Testplan setup like this:
 
-Testplan MyPlan
-  Multitest A
-    Suite A-1
-      TestCase test_method_a_1_x
-      TestCase test_method_a_1_y
-      TestCase (parametrized, with 3 scenarios) test_method_a_1_z
-    Suite A-2
-      Testcase test_method_a_2_x
-  Multitest B
-    Suite B-1
-      Testcase test_method_b_1_x
-  GTest C
+.. code-block:: python
+
+  Testplan MyPlan
+    Multitest A
+      Suite A-1
+        TestCase test_method_a_1_x
+        TestCase test_method_a_1_y
+        TestCase (parametrized, with 3 scenarios) test_method_a_1_z
+      Suite A-2
+        Testcase test_method_a_2_x
+    Multitest B
+      Suite B-1
+        Testcase test_method_b_1_x
+    GTest C
 
 We will have a report tree like:
 
-TestReport(name='MyPlan')
-  TestGroupReport(name='A', category='Multitest')
-    TestGroupReport(name='A-1', category='TestSuite')
-      TestCaseReport(name='test_method_a_1_x')
-      TestCaseReport(name='test_method_a_1_y')
-      TestGroupReport(name='test_method_a_1_z', category='parametrization')
-        TestCaseReport(name='test_method_a_1_z_1')
-        TestCaseReport(name='test_method_a_1_z_2')
-        TestCaseReport(name='test_method_a_1_z_3')
-    TestGroupReport(name='A-2', category='TestSuite')
-      TestCaseReport(name='test_method_a_2_x')
-  TestGroupReport(name='B', category='MultiTest')
-    TestGroupReport(name='B-1', category='TestSuite')
-      TestCaseReport(name='test_method_b_1_x')
-  TestGroupReport(name='C', category='GTest')
-    TestCaseReport(name='<first test of Gtest>') -> can only be retrieved after
-                                                    GTest is run
-    TestCaseReport(name='<second test of Gtest>') -> can only be retrieved after
-                                                     GTest is run
+.. code-block:: python
+
+  TestReport(name='MyPlan')
+    TestGroupReport(name='A', category='Multitest')
+      TestGroupReport(name='A-1', category='TestSuite')
+        TestCaseReport(name='test_method_a_1_x')
+        TestCaseReport(name='test_method_a_1_y')
+        TestGroupReport(name='test_method_a_1_z', category='parametrization')
+          TestCaseReport(name='test_method_a_1_z_1')
+          TestCaseReport(name='test_method_a_1_z_2')
+          TestCaseReport(name='test_method_a_1_z_3')
+      TestGroupReport(name='A-2', category='TestSuite')
+        TestCaseReport(name='test_method_a_2_x')
+    TestGroupReport(name='B', category='MultiTest')
+      TestGroupReport(name='B-1', category='TestSuite')
+        TestCaseReport(name='test_method_b_1_x')
+    TestGroupReport(name='C', category='GTest')
+      TestCaseReport(name='<first test of Gtest>') -> can only be retrieved
+                                                      after GTest is run
+      TestCaseReport(name='<second test of Gtest>') -> can only be retrieved
+                                                       after GTest is run
     ...
 """
 import os
@@ -81,7 +85,6 @@ class Status(object):
 
         :param stats: List of statuses of which we want to get the precedent.
         :type stats: ``sequence``
-
         :param rule: Precedence rules for the given statuses.
         :type rule: ``sequence``
         """
@@ -284,8 +287,10 @@ class TestReport(BaseReportGroup):
     def bubble_up_attachments(self):
         """
         Attachments are saved at various levels of the report:
+
           * Fix spec file attached to multitests.
           * When implemented result.attach will attach files to assertions.
+
         This iterates through the report entries and bubbles up all the
         attachments to the top level. This top level dictionary of attachments
         will be used by Exporters to export attachments as well as the report.
@@ -310,7 +315,8 @@ class TestReport(BaseReportGroup):
 
     def serialize(self):
         """
-        Shortcut for serializing test report data to nested python dictionaries.
+        Shortcut for serializing test report data
+        to nested python dictionaries.
         """
         from .schemas import TestReportSchema
         return TestReportSchema(strict=True).dump(self).data
@@ -494,8 +500,8 @@ class TestCaseReport(Report):
 
     def merge(self, report, strict=True):
         """
-        TestCaseReport merge overwrites everything in place, as assertions
-        of a test case won't be split among different runners. For some special
+        TestCaseReport merge overwrites everything in place, as assertions of
+        a test case won't be split among different runners. For some special
         test cases, choose the one whose status is of higher precedence.
         """
         self._check_report(report)
