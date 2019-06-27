@@ -105,7 +105,7 @@ Install `homebrew <https://brew.sh/>`_.
 
         /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-Install `python <http://docs.python-guide.org/en/latest/starting/install/osx>`_:
+Install `python <http://docs.python-guide.org/en/latest/starting/install/osx>`__:
 
    .. code-block:: bash
 
@@ -188,13 +188,13 @@ You can follow the ubuntu guide while using a windows
 Native pip install
 ++++++++++++++++++
 
-For native installation using `pip <https://pypi.python.org/pypi/pip>`_
+For native installation using `pip <https://pypi.python.org/pypi/pip>`__
 package management system:
 
     1. Install `git <https://git-scm.com/download/win>`_.
-    2. Install `python <https://www.python.org/downloads>`_.
+    2. Install `python <https://www.python.org/downloads>`__.
     3. Open the windows command prompt.
-    4. Install `pip <https://pip.pypa.io/en/stable/installing>`_.
+    4. Install `pip <https://pip.pypa.io/en/stable/installing>`__.
 
         .. code-block:: text
 
@@ -222,9 +222,9 @@ Using a virtualenv
 Installation using a `virtualenv <https://virtualenv.pypa.io/en/stable>`_:
 
     1. Install `git <https://git-scm.com/download/win>`_.
-    2. Install `python <https://www.python.org/downloads>`_.
+    2. Install `python <https://www.python.org/downloads>`__.
     3. Open the windows command prompt.
-    4. Install `pip <https://pip.pypa.io/en/stable/installing>`_.
+    4. Install `pip <https://pip.pypa.io/en/stable/installing>`__.
 
         .. code-block:: text
 

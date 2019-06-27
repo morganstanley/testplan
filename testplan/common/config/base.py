@@ -47,13 +47,14 @@ def ConfigOption(key, default=ABSENT, block_propagation=True):
     other MultiTest objects, thus, the TestplanConfig object can be set as
     the parent of these MultiTestConfig object. When we want to look up an
     option in those config objects, we have 2 ways:
-        local -> default -> parent local -> parent default
-        local -> parent local -> parent default -> default
+
+      * local -> default -> parent local -> parent default
+      * local -> parent local -> parent default -> default
 
     By default we apply the former strategy, but sometimes we need the latter.
-    Think that you have a 'display_style' option in config, then you can
+    Think that you have a `display_style` option in config, then you can
     customize the output. If multitests were added to testplan, where there is
-    also such a 'display_style' option in its config, so we should apply the
+    also such a `display_style` option in its config, so we should apply the
     options from their parent.
 
     With `block_propagation` set to be False, the default value defined in

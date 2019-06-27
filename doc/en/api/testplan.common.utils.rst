@@ -150,7 +150,7 @@ testplan.common.utils.timing module
     :show-inheritance:
 
 testplan.common.utils.logger module
-++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++
 
 .. automodule:: testplan.common.utils.logger
     :members:

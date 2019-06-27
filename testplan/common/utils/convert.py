@@ -191,22 +191,26 @@ def flatten_formatted_object(formatted_obj):
 def flatten_dict_comparison(comparison):
     """
     Flatten the comparison object from dict/fix match into a list of rows.
+
     Row elements: [level, key, status, left, right]
 
     i.e:
-    [
-        [0, 555, 'Passed', '', ''],
-        [0, '', 'Passed', '', ''],                       # Group result
-        [2, 600, 'Passed', ('str', 'A'), ('str', 'A')],
-        [2, 601, 'Passed', ('str', 'A'), ('str', 'A')],
-        [2, 683, 'Passed', '', ''],
-        [2, '', 'Passed', '', ''],                       # Group result
-        [4, 688, 'Passed', ('str', 'a'), ('str', 'a')],
-        [4, 689, 'Passed', ('str', 'a'), ('str', 'a')],
-        [2, '', 'Passed', '', ''],                       # Group result
-        [4, 688, 'Passed', ('str', 'b'), ('str', 'b')],
-        [4, 689, 'Passed', ('str', 'b'), ('str', 'b')]
-    ]
+
+    .. code-block:: python
+
+      [
+          [0, 555, 'Passed', '', ''],
+          [0, '', 'Passed', '', ''],                       # Group result
+          [2, 600, 'Passed', ('str', 'A'), ('str', 'A')],
+          [2, 601, 'Passed', ('str', 'A'), ('str', 'A')],
+          [2, 683, 'Passed', '', ''],
+          [2, '', 'Passed', '', ''],                       # Group result
+          [4, 688, 'Passed', ('str', 'a'), ('str', 'a')],
+          [4, 689, 'Passed', ('str', 'a'), ('str', 'a')],
+          [2, '', 'Passed', '', ''],                       # Group result
+          [4, 688, 'Passed', ('str', 'b'), ('str', 'b')],
+          [4, 689, 'Passed', ('str', 'b'), ('str', 'b')]
+      ]
     """
     result_table = []  # level, key, left, right, result
 

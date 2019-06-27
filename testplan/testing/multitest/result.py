@@ -1803,7 +1803,7 @@ class Result(object):
         unified=False, context=False,
         description=None, category=None
     ):
-        """
+        r"""
         Line diff assertion. Fail if at least one difference found.
 
         .. code-block:: python

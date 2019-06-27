@@ -3,7 +3,6 @@ import os
 import sys
 import subprocess
 import six
-import functools
 
 from lxml import objectify
 from schema import Or, Use, And
@@ -324,8 +323,8 @@ class Test(Runnable):
     def propagate_tag_indices(self):
         """
         Basic step for propagating tag indices of the test report tree.
-        This step may be necessary if the report
-        tree is created in parts and then added up.
+        This step may be necessary if the report tree is created
+        in parts and then added up.
         """
         if len(self.report):
             self.report.propagate_tag_indices()
@@ -476,10 +475,12 @@ class ProcessRunnerTest(Test):
 
         Sample output:
 
-        [
-            ['SuiteAlpha', ['testcase_one', 'testcase_two'],
-            ['SuiteBeta', ['testcase_one', 'testcase_two'],
-        ]
+        .. code-block:: python
+
+          [
+              ['SuiteAlpha', ['testcase_one', 'testcase_two'],
+              ['SuiteBeta', ['testcase_one', 'testcase_two'],
+          ]
 
         :param test_list_output: stdout from the list command
         :type test_list_output: bytes

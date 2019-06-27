@@ -35,6 +35,7 @@ class ZMQClient(Driver):
     """
     The ZMQClient can make multiple connections to different ZMQServers. The
     socket can be of type:
+
       * zmq.PAIR
       * zmq.REQ
       * zmq.SUB

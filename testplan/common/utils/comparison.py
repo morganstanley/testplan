@@ -258,16 +258,19 @@ class Not(Callable):
 
 class Custom(Callable):
     """
-        Utility that allows attaching descriptions to arbitrary functions.
+    Utility that allows attaching descriptions to arbitrary functions.
 
-        Useful if you are making use of lambda functions
-        and want to provide more context in the reports.
+    Useful if you are making use of lambda functions
+    and want to provide more context in the reports.
 
-        Usage:
-            Custom(
-                callable_obj=lambda value: value.custom_method() is True,
-                description='`value.custom_method()` returns True'
-            )
+    Usage:
+
+    .. code-block:: python
+
+        Custom(
+            callable_obj=lambda value: value.custom_method() is True,
+            description='`value.custom_method()` returns True'
+        )
     """
     def __init__(self, callable_obj, description):
         self.callable_obj = callable_obj
@@ -680,10 +683,10 @@ class ReportOptions(enum.Enum):
     """
     Options to control reporting behaviour for comparison results:
 
-    ALL: report all comparisons.
-    NO_IGNORED: do not report comparisons of ignored keys, include everything
-                else.
-    FAILS_ONLY: only report comparisons that have failed.
+      * ALL: report all comparisons.
+      * NO_IGNORED: do not report comparisons of ignored keys, include
+        everything else.
+      * FAILS_ONLY: only report comparisons that have failed.
 
     Control of reporting behaviour is provided for two main reasons. Firstly,
     to give control of what information is included in the final report.
@@ -937,19 +940,19 @@ def unordered_compare(
       ``len(values)`` and ``len(comparison)`` need not be the same.
 
     :param match_name: name that will appear on comparison report descriptions.
-      For example "fixmatch" will produce a comparison description such as
-      "unordered fixmatch 2/3: expected[2] vs values[1]"
+        For example "fixmatch" will produce a comparison description such as
+        "unordered fixmatch 2/3: expected[2] vs values[1]"
     :type match_name: ``str``
     :param values: Actual values: an iterable object
-                    (e.g. list or generator) of values.
-      Each value needs to support a dict-like interface.
+        (e.g. list or generator) of values.
+        Each value needs to support a dict-like interface.
     :type values: ``generator`` or ``list`` of ``dict``-like objects
     :param comparisons: Expected values and comparison flags.
     :type comparisons: ``list`` of ``Expected``
     :param description: Message used in each reported match.
     :type description: ``str``
     :param tag_weightings: Per-key overrides that specify a
-                            different weight for different keys.
+        different weight for different keys.
     :type tag_weightings: ``dict`` of ``str`` to ``int``
 
     :return: A list of test reports that can be appended to the result object
@@ -1110,8 +1113,8 @@ class DictmatchAllResult(object):
     This object exposes two fields:
 
       - ``passed``: a boolean indicating if the assertion passed completely
-      - ``index_match_levels``: a list containing
-            tuples of index and match level:
+      - ``index_match_levels``: a list containing tuples of
+            index and match level:
 
         - ``MATCH``
         - ``MISMATCH``
@@ -1149,9 +1152,10 @@ class DictmatchAllResult(object):
 
     Indices are to be read as mappings from RHS values to LHS values.
     i.e.:
-        [(1,..),(0,..),(2,..)]
-    maps: RHS:0 -> LHS:1, RHS:0 -> LHS:1, RHS:2 -> LHS:2.
 
+        [(1, ..),(0, ..),(2, ..)]
+
+    maps: RHS:0 -> LHS:1, RHS:0 -> LHS:1, RHS:2 -> LHS:2.
     """
 
     MATCH = 0

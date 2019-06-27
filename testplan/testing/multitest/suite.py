@@ -38,9 +38,9 @@ def propagate_tag_indices(suite, tag_dict):
 
     For multitest we support multiple levels of tagging:
 
-    1- Multitest (top) level
-    2- Suite level
-    3- Testcase / parametrization level
+      1. Multitest (top) level
+      2. Suite level
+      3. Testcase / parametrization level
 
     When a test suite class is defined, the native tags of
     the suite is used for updating test indices of
@@ -59,21 +59,25 @@ def propagate_tag_indices(suite, tag_dict):
 
     E.g. when we have a suite & testcases with native tags like:
 
-    MySuite -> {'color': 'red'}
-        testcase_one -> no tags
-        testcase_two -> {'color': 'blue', 'speed': 'fast'}
-        parametrized_testcase -> {'color': 'yellow'}
-            generated_testcase_1 -> no tags
-            generated_testcase_2 -> no tags
+    .. code-block:: text
+
+      MySuite -> {'color': 'red'}
+          testcase_one -> no tags
+          testcase_two -> {'color': 'blue', 'speed': 'fast'}
+          parametrized_testcase -> {'color': 'yellow'}
+              generated_testcase_1 -> no tags
+              generated_testcase_2 -> no tags
 
     We will have the following tag indices:
 
-    MySuite -> {'color': {'red', 'blue', 'yellow'}, 'speed': {'fast'}}
-        testcase_one -> {'color': 'red'}
-        testcase_two -> {'color': {'blue', 'red'}, 'speed': 'fast'}
-        parametrized_testcase -> NO TAG INDEX
-            generated_testcase_1 -> {'color': {'yellow', 'red'}}
-            generated_testcase_2 -> {'color': {'yellow', 'red'}}
+    .. code-block:: text
+
+      MySuite -> {'color': {'red', 'blue', 'yellow'}, 'speed': {'fast'}}
+          testcase_one -> {'color': 'red'}
+          testcase_two -> {'color': {'blue', 'red'}, 'speed': 'fast'}
+          parametrized_testcase -> NO TAG INDEX
+              generated_testcase_1 -> {'color': {'yellow', 'red'}}
+              generated_testcase_2 -> {'color': {'yellow', 'red'}}
 
     Parametrization method templates do not have tag index attribute, as
     they are not run as tests and their tags are propagated to generated
