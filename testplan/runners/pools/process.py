@@ -124,26 +124,18 @@ class ProcessWorker(Worker):
 
     @property
     def is_alive(self):
-
         if self._handler is None:
+            self.logger.debug('No worker process started')
             return False
 
         # Check if the child process already terminated.
         if self._handler.poll() is not None:
+            self.logger.critical('Worker process exited with code %d',
+                                 self._handler.returncode)
             self._handler = None
             return False
-
-        try:
-            proc = psutil.Process(self._handler.pid)
-            children = list(proc.children(recursive=True))
-            if children and all(item.status() == 'zombie' for item in children):
-                return False
-
-        except psutil.NoSuchProcess:
-            self._handler = None
-            return False
-
-        return True
+        else:
+            return True
 
     def stopping(self):
         """Stop child process worker."""
