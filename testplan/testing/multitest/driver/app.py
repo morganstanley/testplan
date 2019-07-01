@@ -62,9 +62,9 @@ class App(Driver):
     :param binary_copy: Copy binary to a local binary path.
     :type binary_copy: ``bool``
     :param app_dir_name: Application directory name.
-    :type app_dir_name: ``str`
+    :type app_dir_name: ``str``
     :param working_dir: Application working directory. Default: runpath
-    :type working_dir: ``str`
+    :type working_dir: ``str``
 
     Also inherits all
     :py:class:`~testplan.testing.multitest.driver.base.DriverConfig` options.

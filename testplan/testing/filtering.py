@@ -321,9 +321,13 @@ class TagsAction(argparse.Action):
 
     In:
 
+    .. code-block:: bash
+
         --tags foo bar hello=world --tags baz hello=mars
 
     Out:
+
+    .. code-block:: python
 
         [
             Tags({
@@ -351,9 +355,13 @@ class TagsAllAction(TagsAction):
 
     In:
 
+    .. code-block:: bash
+
         --tags-all foo bar hello=world --tags-all baz hello=mars
 
     Out:
+
+    .. code-block:: python
 
         [
             TagsAll({
@@ -380,9 +388,13 @@ def parse_filter_args(parsed_args, arg_names):
 
     In:
 
+    .. code-block:: bash
+
         --pattern my_pattern --tags foo --tags-all bar baz
 
     Out:
+
+    .. code-block:: python
 
         And(
             Pattern('my_pattern'),

@@ -257,6 +257,7 @@ def create_table(table, columns, row_indices, display_index, max_width,
                  style, colour_matrix=None):
     """
     Create a ReportLab table from a serialized entry. Table features are:
+
       * Cell values (rows and columns) cannot exceed the maximum number of
         characters (constanst.CELL_STRING_LENGTH). Values will stop before this
         maximum and be appended with '...'.
@@ -270,22 +271,22 @@ def create_table(table, columns, row_indices, display_index, max_width,
     :param table: The table containing all the data.
     :type table: ``list`` of ``dict``
     :param columns: List of the column names, maintains the display order.
-    :type columns ``list`` of ``str``
+    :type columns: ``list`` of ``str``
     :param row_indices: List of row indices for each row in the table.
     :type row_indices: ``list`` of ``int``
     :param display_index: If True display the row indices. This will
-                          automatically be set to True if the rows exceed the
-                          maximum allowed to display or the table is too wide
-                          (too many columns) to fit in a single table.
+        automatically be set to True if the rows exceed the maximum
+        allowed to display or the table is too wide (too many columns)
+        to fit in a single table.
     :type display_index: ``bool``
     :param max_width: The maximum allowed width the table can be.
     :type max_width: ``int``
     :param style: The style of the ReportLab table.
     :type style: ``list`` of ``tuple``
     :param colour_matrix: A matrix listing whether each cell has passed (P),
-                          failed (F) or ignored (I) which will result in the
-                          cell text being green, red or black respectively. If
-                          no matrix is passed all cells will be black.
+        failed (F) or ignored (I) which will result in the cell text being
+        green, red or black respectively. If no matrix is passed all cells
+        will be black.
     :type colour_matrix: ``list`` of ``list``
     :return: The formatted ReportLab table.
     :rtype: ``list``
@@ -386,53 +387,55 @@ def format_table_style(table_styles):
 
 class RowStyle(object):
     """
-      Helper class for managing styles for table rows.
+    Helper class for managing styles for table rows.
 
-      In Reportlab, table rows are styled using commands like:
+    In Reportlab, table rows are styled using commands like:
+
+    .. code-block:: python
 
       [
-        (
-            'BOTTOMPADDING',
-            (<start_column>, <start_row>),
-            (<end_column>, <end_row>),
-            5
-        ),
-        (
-            'FONT',
-            (<start_column>, <start_row>),
-            (<end_column>, <end_row>),
-            'Helvetica',
-            12
-        ),
-        (
-            'LEFTPADDING',
-            (<start_column>, <start_row>),
-            (<end_column>, <end_row>),
-            5
-        )
+          (
+              'BOTTOMPADDING',
+              (<start_column>, <start_row>),
+              (<end_column>, <end_row>),
+              5
+          ),
+          (
+              'FONT',
+              (<start_column>, <start_row>),
+              (<end_column>, <end_row>),
+              'Helvetica',
+              12
+          ),
+          (
+              'LEFTPADDING',
+              (<start_column>, <start_row>),
+              (<end_column>, <end_row>),
+              5
+          )
       ]
 
-      This gets messy as we have to repeat row & column indexes for
-      each command. For the styling example above, the equivalent
-      declaration would be:
+    This gets messy as we have to repeat row & column indexes for
+    each command. For the styling example above, the equivalent
+    declaration would be:
 
-      >>> row_style = RowStyle(
+    >>> row_style = RowStyle(
             bottom_padding=5,
             font=('Helvetica', 12),
             left_padding=5,
             start_column=<start_column>,
             end_column=<end_column>
-          )
+        )
 
-      >>> row_style.start_row = 10  # This is set by row data later
-      >>> row_style.end_row = 15  # This is set by row data later
-      >>> row_style.get_commands()
+    >>> row_style.start_row = 10  # This is set by row data later
+    >>> row_style.end_row = 15  # This is set by row data later
+    >>> row_style.get_commands()
 
-      Normally we'll just provide the column indexes and row
-      indexes will be provided implicitly by the ``RowData`` object
-      that makes use of this style.
+    Normally we'll just provide the column indexes and row
+    indexes will be provided implicitly by the ``RowData`` object
+    that makes use of this style.
 
-      More info: https://www.reportlab.com/docs/reportlab-userguide.pdf
+    More info: https://www.reportlab.com/docs/reportlab-userguide.pdf
     """
 
     def __init__(
@@ -508,13 +511,13 @@ class RowStyle(object):
 
     def get_commands(self):
         """
-          Return Reportlab compliant styling commands.
+        Return Reportlab compliant styling commands.
 
-          >>> row_style = RowStyle(
-            bottom_padding=5, start_column=1, end_column=3)
-          >>> row_style.start_row, row_style.end_row = 10, 20
-          >>> row_style.get_commands()
-          (('BOTTOMPADDING', (1, 10), (3, 20), 5))
+        >>> row_style = RowStyle(
+          bottom_padding=5, start_column=1, end_column=3)
+        >>> row_style.start_row, row_style.end_row = 10, 20
+        >>> row_style.get_commands()
+        (('BOTTOMPADDING', (1, 10), (3, 20), 5))
         """
         if self.start_row is None or self.end_row is None:
             raise AttributeError(
@@ -540,10 +543,10 @@ class RowStyle(object):
 
 class RowData(object):
     """
-      Container object that represents one or more `Table` rows.
+    Container object that represents one or more `Table` rows.
 
-      Manages row index implicitly, supports custom
-      styling via `RowStyle` objects.
+    Manages row index implicitly, supports custom styling
+    via `RowStyle` objects.
     """
 
     def __init__(self, num_columns, start=0, content=None, style=None):
@@ -598,8 +601,8 @@ class RowData(object):
     @property
     def style(self):
         """
-            Return Reportlab compatible styles (commands)
-            from the RowStyle objects.
+        Return Reportlab compatible styles (commands)
+        from the RowStyle objects.
         """
         return itertools.chain.from_iterable(
             [row_style.get_commands() for row_style in self._style_objs])
@@ -612,8 +615,8 @@ class RowData(object):
     @start.setter
     def start(self, value):
         """
-            Overwrite prevention if we have existing
-            `RowStyles` for this `RowData` object.
+        Overwrite prevention if we have existing
+        `RowStyles` for this `RowData` object.
         """
         if self._style_objs:
             raise ValueError(
@@ -624,21 +627,21 @@ class RowData(object):
     @property
     def end(self):
         """
-            End index of the current row data, will keep
-            increasing as more content is added.
+        End index of the current row data, will keep
+        increasing as more content is added.
         """
         return self.start + len(self)
 
     def append(self, content, style=None):
         """
-          Append one or more rows to the current row data,
-          with the given styles.
+        Append one or more rows to the current row data,
+        with the given styles.
 
-          >>> # Let's say we have 2 more rows created previously.
-          >>> row_data = RowData(start=2, num_columns=4)
-          >>> # # create new row data with red text.
-          >>> row_data.append('hello', style=RowStyle(text_color=colors.red))
-          >>> row_data.append(
+        >>> # Let's say we have 2 more rows created previously.
+        >>> row_data = RowData(start=2, num_columns=4)
+        >>> # # create new row data with red text.
+        >>> row_data.append('hello', style=RowStyle(text_color=colors.red))
+        >>> row_data.append(
                 content=[
                     [
                         'first column',
@@ -658,14 +661,14 @@ class RowData(object):
                     # Applies to last column only (0, 1, 2, [3])
                     RowStyle(text_color=colors.green, start_column=3)
                 ]
-          )
+            )
 
-          :param content: Row(s) to be added.
-          :type data: ``str`` or ``list`` of ``str``
-                      or ``list`` of ``list`` of ``str``
-          :param style: Style context for the given content.
-          :type style: ``RowStyle`` or ``list`` of ``RowStyle``
-          :return: ``None``
+        :param content: Row(s) to be added.
+        :type data: ``str`` or ``list`` of ``str``
+            or ``list`` of ``list`` of ``str``
+        :param style: Style context for the given content.
+        :type style: ``RowStyle`` or ``list`` of ``RowStyle``
+        :return: ``None``
         """
         if isinstance(content, six.string_types):
             content = [content] + [''] * (self.num_columns - 1)

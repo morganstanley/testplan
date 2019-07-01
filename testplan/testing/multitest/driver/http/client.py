@@ -123,7 +123,7 @@ class HTTPClient(Driver):
         :param api: API to send request to.
         :type api: ``str``
         :param drop_response: Whether to drop the response message (called by
-            flush).
+          flush).
         :type drop_response: ``threading._Event``
         :param timeout: Number of seconds to wait for a request.
         :type timeout: ``int``
@@ -172,12 +172,12 @@ class HTTPClient(Driver):
 
     def head(self, api, **kwargs):
         """
-        Send HEAD request.
+        Send HEAD request.ZMQClient
 
         :param api: API to send request to.
         :type api: ``str``
         :param kwargs: Optional arguments for the request, look at the requests
-        modules docs for these arguments.
+          modules docs for these arguments.
         :type kwargs: Depends on the argument.
         """
         self.send('head', api, **kwargs)

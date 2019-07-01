@@ -347,9 +347,9 @@ Command line
 
                             --pattern <Multitest Name>:<Suite Name>:<Testcase name>
 
-                            --pattern <Multitest Name>:*:<Testcase name>
+                            --pattern <Multitest Name>:\*:<Testcase name>
 
-                            --pattern *:<Suite Name>:<Testcase name>
+                            --pattern \*:<Suite Name>:<Testcase name>
 
       --tags                Test filter, runs tests that match ANY of the given tags.
 

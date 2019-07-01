@@ -110,7 +110,7 @@ the native report object can be deserialized from this JSON file as well.
 
 Sample JSON output:
 
-.. code-block:: json
+.. code-block:: python
 
   {"entries": [{
     "category": "multitest",
