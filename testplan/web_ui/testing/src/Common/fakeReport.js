@@ -626,10 +626,114 @@ var fakeReportAssertions = {
                                 "description": null,
                                 "line_no": 56,
                                 "meta_type": "entry",
-                                "Data": "This is a log message, it will be displayed along with other assertion details.",
+                                "data": [
+                                          {x: 0, y: 8},
+                                          {x: 1, y: 5},
+                                          {x: 2, y: 4},
+                                          {x: 3, y: 9},
+                                          {x: 4, y: 1},
+                                          {x: 5, y: 7},
+                                          {x: 6, y: 6},
+                                          {x: 7, y: 3},
+                                          {x: 8, y: 2},
+                                          {x: 9, y: 0}
+                                        ],
                                 "type": "Graph",
+                                "graph_type": "Line",
+                                "utc_time": "2019-02-12T17:41:43.045333+00:00"
+                             },{
+                                "category": "DEFAULT",
+                                "machine_time": "2019-02-12T17:41:43.045339+00:00",
+                                "description": null,
+                                "line_no": 56,
+                                "meta_type": "entry",
+                                "data": [
+                                  {x: 'A', y: 10},
+                                  {x: 'B', y: 5},
+                                  {x: 'C', y: 15}
+                                ],
+                                "type": "Graph",
+                                "graph_type": "Bar",
                                 "utc_time": "2019-02-12T17:41:43.045333+00:00"
                              }
+                             ,{
+                                "category": "DEFAULT",
+                                "machine_time": "2019-02-12T17:41:43.045339+00:00",
+                                "description": null,
+                                "line_no": 56,
+                                "meta_type": "entry",
+                                "data": [
+                                          {x: 0, y: 8},
+                                          {x: 1, y: 5},
+                                          {x: 2, y: 4},
+                                          {x: 3, y: 9},
+                                          {x: 4, y: 1},
+                                          {x: 5, y: 7},
+                                          {x: 6, y: 6},
+                                          {x: 7, y: 3},
+                                          {x: 8, y: 2},
+                                          {x: 9, y: 0}
+                                        ],
+                                "type": "Graph",
+                                "graph_type": "Hexbin",
+                                "utc_time": "2019-02-12T17:41:43.045333+00:00"
+                             }
+                              ,{
+                                "category": "DEFAULT",
+                                "machine_time": "2019-02-12T17:41:43.045339+00:00",
+                                "description": null,
+                                "line_no": 56,
+                                "meta_type": "entry",
+                                "data": [
+                                          {x: 0, y: 8},
+                                          {x: 1, y: 50},
+                                          {x: 2, y: 4},
+                                          {x: -10, y: 9},
+                                          {x: 4, y: 1},
+                                          {x: 5, y: 7},
+                                          {x: 6, y: -3},
+                                          {x: 7, y: 3},
+                                          {x: 100, y: 2},
+                                          {x: 9, y: 0}
+                                        ],
+                                "type": "Graph",
+                                "graph_type": "Contour",
+                                "utc_time": "2019-02-12T17:41:43.045333+00:00"
+                             }
+                             ,{
+                                "category": "DEFAULT",
+                                "machine_time": "2019-02-12T17:41:43.045339+00:00",
+                                "description": null,
+                                "line_no": 56,
+                                "meta_type": "entry",
+                                "data": [
+                                          {x: 1, y: 10, xVariance: 4, yVariance: 4},
+                                          {x: 1.7, y: 12, xVariance: 2, yVariance: 2},
+                                          {x: 2, y: 5, xVariance: 3, yVariance: 3},
+                                          {x: 3, y: 15, xVariance: 1, yVariance: 2},
+                                          {x: 2.5, y: 7, xVariance: 4, yVariance: 4}
+                                        ],
+                                "type": "Graph",
+                                "graph_type": "Whisker",
+                                "utc_time": "2019-02-12T17:41:43.045333+00:00"
+                             },{
+                                "category": "DEFAULT",
+                                "machine_time": "2019-02-12T17:41:43.045339+00:00",
+                                "description": null,
+                                "line_no": 56,
+                                "meta_type": "entry",
+                                "data": [
+                                        {angle: 1, color: '#89DAC1', name: 'green', opacity: 0.2},
+                                        {angle: 2, color: '#F6D18A', name: 'yellow'},
+                                        {angle: 5, color: '#1E96BE', name: 'cyan'},
+                                        {angle: 3, color: '#DA70BF', name: 'magenta'},
+                                        {angle: 5, color: '#F6D18A', name: 'yellow again'}
+                                      ],
+                                "type": "DiscreteChart",
+                                "graph_type": "Pie",
+                                "utc_time": "2019-02-12T17:41:43.045333+00:00"
+                             }
+
                         ],
                         "uid": "22758cc5-8a89-472b-bf67-b64dbc2c0b40",
                         "type": "TestCaseReport",
