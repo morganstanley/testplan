@@ -139,7 +139,7 @@ class Environment(object):
         for resource in self._resources.values():
             try:
                 resource.start()
-                if resource.cfg.async_start is False:
+                if not resource.cfg.async_start:
                     resource.wait(resource.STATUS.STARTED)
             except Exception as exc:
                 msg = 'While starting resource [{}]{}{}'.format(
@@ -179,7 +179,7 @@ class Environment(object):
         """
 
         for resource in self._resources.values():
-            if resource.cfg.async_start is False:
+            if not resource.cfg.async_start:
                 raise RuntimeError(
                     'Cannot start resource {} in thread pool, '
                     'its async_start attr is set to False'.format(
@@ -343,7 +343,7 @@ class EntityConfig(Config):
                 block_propagation=False): Or(None, str, lambda x: callable(x)),
             ConfigOption('initial_context', default={}): dict,
             ConfigOption('path_cleanup', default=False): bool,
-            ConfigOption('status_wait_timeout', default=3600): int,
+            ConfigOption('status_wait_timeout', default=600): int,
             ConfigOption('abort_wait_timeout', default=30): int,
             # active_loop_sleep impacts cpu usage in interactive mode
             ConfigOption('active_loop_sleep', default=0.005): float
@@ -1183,9 +1183,9 @@ class Resource(Entity):
     def restart(self, timeout=None):
         """Stop and start the resource."""
         self.stop()
-        self._wait_stopped(timeout=timeout)
+        self.wait(self.status.STOPPED)
         self.start()
-        self._wait_started(timeout=timeout)
+        self.wait(self.status.STARTED)
 
     def __enter__(self):
         self.start()

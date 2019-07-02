@@ -491,11 +491,9 @@ class RemoteWorker(ProcessWorker):
                 target=self.parent.runpath)
             if self.cfg.pull:
                 self._pull_files()
-        except Exception as exe:
-            self.logger.error(
-                'While fetching result from worker [{}]: {}'.format(
-                    self, exe
-                ))
+        except Exception as exc:
+            self.logger.exception(
+                'While fetching result from worker [%s]: %s', self, exc)
 
     def _proc_cmd(self):
         """Command to start child process."""
@@ -553,16 +551,17 @@ class RemoteWorker(ProcessWorker):
         super(RemoteWorker, self).stopping()
 
     def _wait_stopped(self, timeout=None):
-        sleeper = get_sleeper(1, 300)
+        sleeper = get_sleeper(1, timeout)
         while next(sleeper):
             if self.status.tag != self.status.STOPPED:
                 self.logger.info('Waiting for workers to stop')
             else:
                 break
         else:
-            self.logger.warning(
-                'Worker still alive after 5min: {}, '
-                'will ignore and proceed'.format(self))
+            raise RuntimeError('Not able to stop worker {} after {}s'.format(
+                self,
+                timeout
+            ))
 
     def aborting(self):
         """Abort child process worker."""
@@ -690,6 +689,7 @@ class RemotePool(Pool):
             Message.MetadataPull] = self._worker_setup_metadata
 
         self._instances = {}
+
         for host, number_of_workers in self.cfg.hosts.items():
             self._instances[host] = {
                 'host': host,
@@ -729,7 +729,6 @@ class RemotePool(Pool):
             self._workers.stop_in_pool(self.pool)
         else:
             self._workers.stop()
-        # self._workers.stop()
 
     def _start_thread_pool(self):
         size = len(self._instances)
@@ -746,21 +745,16 @@ class RemotePool(Pool):
         super(RemotePool, self).starting()
 
     def stopping(self):
-
-        sleeper = get_sleeper(1, 300)
-        while next(sleeper):
-            if any([worker.status.tag == worker.status.STARTING
-                   for worker in self._workers]):
-                self.logger.info('Waiting for workers to quit starting')
-            else:
-                break
-        else:
-            self.logger.warning(
-                'Workers still alive after 5min: {}, '
-                'will ignore and proceed with stopping'.format(
-                    [worker for worker in self._workers
-                     if worker.status.tag == worker.status.STARTING]
-            ))
+        for worker in self._workers:
+            if worker.status.tag == worker.status.STARTING:
+                try:
+                    worker.wait(worker.status.STARTED)
+                except Exception:
+                    self.logger.error(
+                        'Timeout waiting for worker {} to quit starting '
+                        'while pool {} is stopping'.format(
+                            worker,
+                            self.cfg.name))
 
         super(RemotePool, self).stopping()
 

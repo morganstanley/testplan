@@ -27,8 +27,6 @@ class ProcessWorkerConfig(WorkerConfig):
     Configuration object for
     :py:class:`~testplan.runners.pools.process.ProcessWorker` resource entity.
 
-    :param start_timeout: Timeout duration for worker to start.
-    :type start_timeout: ``int``
     :param transport: Transport class for pool/worker communication.
     :type transport: :py:class:`~testplan.runners.pools.connection.Client`
 
@@ -42,7 +40,6 @@ class ProcessWorkerConfig(WorkerConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            ConfigOption('start_timeout', default=120): int,
             ConfigOption('transport', default=ZMQClientProxy): object,
         }
 
@@ -104,7 +101,7 @@ class ProcessWorker(Worker):
         """TODO."""
         sleeper = get_sleeper(
             interval=(0.04, 0.5),
-            timeout=self.cfg.start_timeout,
+            timeout=timeout,
             raise_timeout_with_msg='Worker start timeout, logfile = {}'
                                    .format(self.outfile))
         while next(sleeper):
