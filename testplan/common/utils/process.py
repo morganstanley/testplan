@@ -147,48 +147,36 @@ def execute_cmd(
     if not label:
         label = hash(cmd_string) % 1000
 
-    read_stdout = False
     if stdout is None:
         stdout = subprocess.PIPE
-        read_stdout = True
 
-    read_stderr = False
     if stderr is None:
         stderr = subprocess.PIPE
-        read_stderr = True
 
-    logger.debug("Executing command [{}]: '{}'".format(label, cmd_string))
+    logger.debug("Executing command [%s]: '%s'", label, cmd_string)
     start_time = time.time()
 
-    handler = subprocess.Popen(
-        cmd,
-        stdout=stdout,
-        stderr=stderr,
-        stdin=subprocess.PIPE)
-    handler.stdin.write(bytes('y\n'.encode('utf-8')))
-    handler.wait()
-    elapsed = time.time()-start_time
+    handler = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+    stdout, stderr = handler.communicate()
+    elapsed = time.time() - start_time
 
     if handler.returncode != 0:
-        logger.debug('Failed executing command [{}] after {} sec.'.format(
-                label, elapsed))
+        logger.debug('Failed executing command [%s] after %.2f sec.',
+                     label,
+                     elapsed)
 
-        if read_stdout:
-            out = handler.stdout.read()
-            logger.debug('Stdout:\n{}'.format(out))
+        if stdout:
+            logger.debug('Stdout:\n%s', stdout)
 
-        if read_stderr:
-            err = handler.stderr.read()
-            logger.debug('Stderr:\n{}'.format(err))
+        if stderr:
+            logger.debug('Stderr:\n%s', stderr)
 
         if check:
             raise RuntimeError(
                 "Command '{}' returned with non-zero exit code {}"
                 .format(cmd_string, handler.returncode))
     else:
-        logger.debug('Command [{}] finished in {} sec'.format(
-            label, elapsed
-        ))
+        logger.debug('Command [%s] finished in %.2f sec', label, elapsed)
 
     return handler.returncode
 
