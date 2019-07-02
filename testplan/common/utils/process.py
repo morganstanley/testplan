@@ -47,7 +47,7 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
         return retcode
 
     parent = psutil.Process(proc.pid)
-    for child in parent.children():
+    for child in parent.children(recursive=True):
         try:
             child.send_signal(signal.SIGTERM)
         except Exception as exc:

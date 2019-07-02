@@ -189,6 +189,8 @@ class Loggable(object):
         # take up a lot of space in the logfile. For brevity we just use
         # "testplan.<class name>" as the logger name, since class names are
         # mostly unique.
+
         logger_name = '.'.join(('testplan', self.__class__.__name__))
         self.logger = logging.getLogger(logger_name)
+
         super(Loggable, self).__init__()
