@@ -76,7 +76,8 @@ class Assertion(BaseEntry):
         raise NotImplementedError
 
     def __bool__(self):
-        return self.passed
+        return
+
 
     __nonzero__ = __bool__
 

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import '../../../../node_modules/react-vis/dist/style.css';
+import 'react-vis/dist/style.css';
 import './App.css';
 import * as GraphUtil from './graphUtils';
 
@@ -20,31 +20,30 @@ VerticalBarSeries,
 /**
  * Component that are used to render a Graph (Data visualisations that require an XY axis).
  */
-class BasicGraphAssertion extends Component {
-
-        state = {
-            lastDrawLocation: null,
-            series: [
-              {
-                data: this.props.assertion.data,
-                title: 'Test'
-              }
-            ]
-         };
+class XYGraphAssertion extends Component {
+    state = {
+        lastDrawLocation: null,
+        series: [
+          {
+            data: this.props.assertion.data,
+            title: 'Test'
+          }
+        ]
+     };
 
     components = {
-    Line: LineSeries,
-    Hexbin: HexbinSeries,
-    Contour: ContourSeries,
-    Whisker: WhiskerSeries,
-    Bar: VerticalBarSeries
+        Line: LineSeries,
+        Hexbin: HexbinSeries,
+        Contour: ContourSeries,
+        Whisker: WhiskerSeries,
+        Bar: VerticalBarSeries
     }
 
   render() {
     let data = this.props.assertion.data;
     const {series, lastDrawLocation} = this.state;
     const graph_type = this.props.assertion.graph_type
-    const GraphType = this.components[graph_type];
+    const GraphComponent = this.components[graph_type];
     var x_range = [GraphUtil.getMinX(data, graph_type), GraphUtil.getMaxX(data, graph_type)];
     var y_range = [GraphUtil.getMinY(data, graph_type), GraphUtil.getMaxY(data, graph_type)];
     return (
@@ -74,7 +73,7 @@ class BasicGraphAssertion extends Component {
             <XAxis />
 
             {series.map(entry => (
-              <GraphType
+              <GraphComponent
               key={entry.title}
               data={entry.data}
               colorRange={['blue', 'purple', 'red']}
@@ -95,7 +94,6 @@ class BasicGraphAssertion extends Component {
                 });
               }}
             />
-
           </XYPlot>
         </div>
 
@@ -103,17 +101,17 @@ class BasicGraphAssertion extends Component {
           className="showcase-button"
           onClick={() => this.setState({lastDrawLocation: null})}
         >
-          Reset Zoom
+         Reset Zoom
         </button>
       </div>
     );
   }
 }
 
-BasicGraphAssertion.propTypes = {
+XYGraphAssertion.propTypes = {
   /** Assertion being rendered */
   assertion: PropTypes.object,
 };
 
 
-export default BasicGraphAssertion;
+export default XYGraphAssertion;

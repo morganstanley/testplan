@@ -20,7 +20,7 @@ import NotImplementedAssertion from './AssertionTypes/NotImplementedAssertion';
 import AssertionHeader from './AssertionHeader';
 import AssertionGroup from './AssertionGroup';
 import {BASIC_ASSERTION_TYPES} from '../Common/defaults';
-import BasicGraphAssertion from './AssertionTypes/GraphAssertions/GraphAssertion';
+import XYGraphAssertion from './AssertionTypes/GraphAssertions/XYGraphAssertion';
 import DiscreteChartAssertion from './AssertionTypes/GraphAssertions/DiscreteChartAssertion';
 /**
  * Component to render one assertion.
@@ -87,7 +87,7 @@ class Assertion extends Component {
       DictMatch: DictMatchAssertion,
       FixLog: FixLogAssertion,
       FixMatch: FixMatchAssertion,
-      Graph: BasicGraphAssertion,
+      Graph: XYGraphAssertion,
       DiscreteChart: DiscreteChartAssertion
     };
     if (assertionMap[assertionType]) {

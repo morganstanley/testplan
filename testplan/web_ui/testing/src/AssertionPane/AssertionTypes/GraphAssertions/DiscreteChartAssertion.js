@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import '../../../../node_modules/react-vis/dist/style.css';
+import 'react-vis/dist/style.css';
 import './App.css';
 import * as GraphUtil from './graphUtils';
-
 import {
   RadialChart
 } from 'react-vis';
@@ -21,10 +20,9 @@ class DiscreteChartAssertion extends Component  {
   render(){
   let data = this.props.assertion.data;
   const graph_type = this.props.assertion.graph_type
-  const GraphType = this.components[graph_type];
+  const GraphComponent = this.components[graph_type];
       return (
-        <GraphType
-
+       <GraphComponent
       colorType={'literal'}
       colorDomain={[0, 100]}
       colorRange={[0, 10]}
@@ -37,8 +35,8 @@ class DiscreteChartAssertion extends Component  {
       style={{stroke: '#fff', strokeWidth: 2}}
       width={400}
       height={300}
-    />
-      )
+       />
+     )
   }
 }
 DiscreteChartAssertion.propTypes = {
