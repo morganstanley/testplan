@@ -2,6 +2,54 @@
 
 import os
 import argparse
+import six
+import itertools
+
+USER_SPECIFIED_ARGS = '_user_specified_args'
+
+
+class TestplanActionMeta(type):
+    """
+    When a derived action is called, the `__call__` function defined gets
+    executed, and the value of `dest` in that action will be put into a set
+    named `USER_SPECIFIED_ARGS`, which will be placed in the parsed result.
+    """
+    def __new__(cls, name, bases, attrs):
+        if '__orig_call__' not in attrs:
+            if '__call__' in attrs:
+                attrs['__orig_call__'] = attrs['__call__']
+            else:
+                for base in itertools.chain(*[base.__mro__ for base in bases]):
+                    call_func = getattr(base, '__orig_call__', None) or \
+                                getattr(base, '__call__', None)
+                    if call_func:
+                        attrs['__orig_call__'] = call_func
+                        break
+                else:
+                    err_msg = '__call__() not found in {} or its base classes'
+                    raise TypeError(err_msg.format(name))
+
+            def new_call_func(
+                self, parser, namespace, values, option_string=None
+            ):
+                if not hasattr(namespace, USER_SPECIFIED_ARGS):
+                    setattr(namespace, USER_SPECIFIED_ARGS, set())
+                if self.dest is not argparse.SUPPRESS:
+                    getattr(namespace, USER_SPECIFIED_ARGS).add(self.dest)
+                self.__orig_call__(parser, namespace, values, option_string)
+
+            attrs['__call__'] = new_call_func
+
+        return super(TestplanActionMeta, cls).__new__(cls, name, bases, attrs)
+
+
+@six.add_metaclass(TestplanActionMeta)
+class TestplanAction(argparse.Action):
+    """
+    All customized actions for TestplanParser should inherit this class.
+    """
+    def __call__(self, parser, namespace, values, option_string=None):
+        raise NotImplementedError('TestplanAction.__call__() not defined')
 
 
 class ArgMixin(object):

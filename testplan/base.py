@@ -5,7 +5,7 @@ from .common.config import ConfigOption
 from .common.entity import (RunnableManager, RunnableManagerConfig, Resource)
 from .common.utils.callable import arity
 from .common.utils.validation import is_subclass, has_method
-from .parser import TestplanParser
+from .parser import TestplanParser, USER_SPECIFIED_ARGS
 from .runners import LocalRunner
 from .environment import Environments
 
@@ -121,16 +121,16 @@ class Testplan(RunnableManager):
         """
         self._parsed_args = self.parser.parse_args()
         self._processed_args = self.parser.process_args(self._parsed_args)
-        # Overwrite configuration options only if they are not specified
-        # programmatically. There is no easy way to know if an argument in
-        # processed_args is user command line input or a default value in the
-        # parser.
+        cmd_line_args = self._processed_args.get(USER_SPECIFIED_ARGS, set())
+
+        # Overwrite configuration options if they have been specified
+        # in command line. Or choose the programmatically defined ones.
+        # Default values are the last choice.
         for key, value in self._processed_args.items():
-            if key in options:
-                self.logger.warning('WARNING: Command line argument for '
-                    '"{}" will be overridden by the one programmatically '
-                        'defined in {} constructor'.format(key, self))
-            options.setdefault(key, value)
+            if key in cmd_line_args:
+                options[key] = value
+            else:
+                options.setdefault(key, value)
 
         return options
 
@@ -161,7 +161,6 @@ class Testplan(RunnableManager):
             """
             This is being passed the user-defined testplan entry point.
             """
-
             def test_plan_inner_inner():
                 """
                 This is the callable returned in the end, it executes the plan

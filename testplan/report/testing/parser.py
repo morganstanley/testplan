@@ -1,7 +1,7 @@
-import argparse
+from testplan.common.utils.parser import TestplanAction
 
 
-class ReportTagsAction(argparse.Action):
+class ReportTagsAction(TestplanAction):
     """
         Argparse action for parsing multiple report tag
         arguments, builds up a list of dictionary of sets.

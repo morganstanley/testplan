@@ -96,6 +96,7 @@ class TestRunnerConfig(RunnableConfig):
     def get_options(cls):
         return {
             'name': str,
+            ConfigOption('description', default=None): Or(str, None),
             ConfigOption('logger_level', default=logger.TEST_INFO): int,
             ConfigOption('file_log_level', default=logger.DEBUG): Or(int, None),
             ConfigOption(
@@ -614,7 +615,7 @@ class TestRunner(Runnable):
     def _invoke_exporters(self):
         # Add this logic into a ReportExporter(Runnable)
         # that will return a result containing errors
-        if self.cfg.exporters is None:
+        if self.cfg.exporters is None or len(self.cfg.exporters) == 0:
             exporters = get_default_exporters(self.cfg)
         else:
             exporters = self.cfg.exporters

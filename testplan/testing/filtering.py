@@ -1,11 +1,11 @@
 """Filtering logic for Multitest, Suites and testcase methods (of Suites)"""
-import argparse
 import collections
 import operator
 import fnmatch
 
 from enum import Enum, unique
 
+from testplan.common.utils.parser import TestplanAction
 from testplan.testing import tagging
 from testplan.testing.multitest.suite import get_testsuite_name
 
@@ -295,7 +295,7 @@ class Pattern(Filter):
         return Or(*[Pattern(pattern=pattern) for pattern in patterns])
 
 
-class PatternAction(argparse.Action):
+class PatternAction(TestplanAction):
     """
     Parser action for generating Pattern filters.
     Returns a list of `Pattern` filter objects.
@@ -310,12 +310,11 @@ class PatternAction(argparse.Action):
     """
     def __call__(self, parser, namespace, values, option_string=None):
         items = getattr(namespace, self.dest) or []
-
         items.extend([Pattern(value) for value in values])
         setattr(namespace, self.dest, items)
 
 
-class TagsAction(argparse.Action):
+class TagsAction(TestplanAction):
     """
     Parser action for generating tags (any) filters.
 

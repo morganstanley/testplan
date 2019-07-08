@@ -8,17 +8,46 @@ import os
 import random
 import sys
 
-from testplan.common.utils import logger
 from testplan import defaults
+from testplan.common.utils import logger
+from testplan.common.utils.parser import TestplanAction, USER_SPECIFIED_ARGS
 from testplan.report.testing import styles, ReportTagsAction
 from testplan.testing import listing, filtering, ordering
 
 
 class HelpParser(argparse.ArgumentParser):
     """
-    HelpParser extends ``ArgumentParser`` in order to print the help message
-    when parsing fails.
+    HelpParser extends ``ArgumentParser`` in order to:
+
+        1. Print the help messagewhen parsing fails.
+        2. Record which command line arguments are specified by user.
     """
+
+    def __init__(self, *args, **kwargs):
+        """
+        When each action is called, the value of its `dest` is put into a set
+        named `USER_SPECIFIED_ARGS`, which will be placed in the parsed result.
+        """
+        super(HelpParser, self).__init__(*args, **kwargs)
+        actions = self._registries.setdefault('action', {}).items()
+
+        for name, action in actions:
+            if hasattr(action, '__call__') and \
+                    not hasattr(action, '__orig_call__'):
+                action.__orig_call__ = action.__call__
+
+                def new_call_func(
+                    self, parser, namespace, values, option_string=None
+                ):
+                    if not hasattr(namespace, USER_SPECIFIED_ARGS):
+                        setattr(namespace, USER_SPECIFIED_ARGS, set())
+                    if self.dest is not argparse.SUPPRESS:
+                        getattr(namespace, USER_SPECIFIED_ARGS).add(self.dest)
+                    self.__orig_call__(
+                        parser, namespace, values, option_string)
+
+                action.__call__ = new_call_func
+                self.register('action', name, action)
 
     def error(self, message):
         """
@@ -89,13 +118,13 @@ class TestplanParser(object):
             help=os.linesep.join([
                 'Test filter, supports glob notation & multiple arguments.',
                 '',
-                '--pattern <Multitest Name>',
-                '--pattern <Multitest Name 1> <Multitest Name 2>',
-                '--pattern <Multitest Name 1> --pattern <Multitest Name 2>',
-                '--pattern <Multitest Name>:<Suite Name>',
-                '--pattern <Multitest Name>:<Suite Name>:<Testcase name>',
-                '--pattern <Multitest Name>:*:<Testcase name>',
-                '--pattern *:<Suite Name>:<Testcase name>',
+                '--patterns <Multitest Name>',
+                '--patterns <Multitest Name 1> <Multitest Name 2>',
+                '--patterns <Multitest Name 1> --patterns <Multitest Name 2>',
+                '--patterns <Multitest Name>:<Suite Name>',
+                '--patterns <Multitest Name>:<Suite Name>:<Testcase name>',
+                '--patterns <Multitest Name>:*:<Testcase name>',
+                '--patterns *:<Suite Name>:<Testcase name>',
             ])
         )
 
@@ -244,6 +273,7 @@ class TestplanParser(object):
         to initialize the configuration.
         """
         args = dict(**vars(namespace))
+        cmd_line_args = args.get(USER_SPECIFIED_ARGS, set())
 
         filter_args = filtering.parse_filter_args(
             parsed_args=args,
@@ -251,6 +281,7 @@ class TestplanParser(object):
 
         if filter_args:
             args['test_filter'] = filter_args
+            cmd_line_args.add('test_filter')
 
         # Cmdline supports shuffle ordering only for now
         if 'shuffle' in args:
@@ -258,6 +289,8 @@ class TestplanParser(object):
                 seed=args['shuffle_seed'],
                 shuffle_type=args['shuffle']
             )
+            if len(args['shuffle']) > 0:
+                cmd_line_args.add('test_sorter')
 
         # Set stdout style and logging level options according to
         # verbose/debug parameters. Debug output should be a superset of
@@ -267,18 +300,21 @@ class TestplanParser(object):
             args['stdout_style'] = styles.Style(
                 styles.StyleEnum.ASSERTION_DETAIL,
                 styles.StyleEnum.ASSERTION_DETAIL)
+            cmd_line_args.add('stdout_style')
             if args['debug']:
                 args['logger_level'] = logger.DEBUG
+                cmd_line_args.add('logger_level')
             else:
                 args['logger_level'] = logger.INFO
 
         if args['list'] and 'info' not in args:
             args['test_lister'] = listing.NameLister()
+            cmd_line_args.add('test_lister')
 
         return args
 
 
-class LogLevelAction(argparse.Action):
+class LogLevelAction(TestplanAction):
     """
     Custom parser action to convert from a string log level to its int value,
     e.g. "DEBUG" -> 10. The level can also be specified as "NONE", which will
