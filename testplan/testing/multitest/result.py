@@ -1882,11 +1882,11 @@ class Result(object):
         :param graph_type: Type of graph user wants to create
         :type graph_type: ``string``
         :param graph_data: Data to plot on the graph.
-        :type graph_data: ``JSON``
+        :type graph_data: ``List[Dictionaries]``
         :param description: Text description for the graph.
         :type description: ``str``
         :param options: customisation parameters for graph
-        :type options: ``function of input parameters`.
+        :type options: `Dictionary`.
         """
         return base.Graph(
             graph_type=graph_type,

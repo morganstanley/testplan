@@ -732,29 +732,7 @@ var fakeReportAssertions = {
                                 "type": "DiscreteChart",
                                 "graph_type": "Pie",
                                 "utc_time": "2019-02-12T17:41:43.045333+00:00"
-                             },{
-                                    "utc_time": "2019-07-09T10:52:23.324903+00:00",
-                                    "meta_type": "entry",
-                                    "type": "Graph",
-                                    "graph_data": [{
-                                            "x": 1,
-                                            "y": 2
-                                        }, {
-                                            "x": 3,
-                                            "y": 4
-                                        }
-                                    ],
-                                    "machine_time": "2019-07-09T10:52:23.324903+00:00",
-                                    "options": [{
-                                            "colour": "red"
-                                        }
-                                    ],
-                                    "graph_type": "Line",
-                                    "line_no": 32,
-                                    "description": "Desciptions :]",
-                                    "category": "DEFAULT"
-                                }
-
+                             }
                         ],
                         "uid": "22758cc5-8a89-472b-bf67-b64dbc2c0b40",
                         "type": "TestCaseReport",
