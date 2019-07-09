@@ -124,8 +124,14 @@ def test_summary():
 
 
 def test_graph():
+    """
+    base.Graph should display data based
+    without description or options,
+    however, data should never be empty and
+    type should be a valid string
+    """
 
-    graph1 = base.Graph(
+    validGraph1 = base.Graph(
                         'Line',
                         [
                           {'x': 0, 'y': 8},
@@ -143,7 +149,7 @@ def test_graph():
                         options=None
                       )
 
-    graph2 = base.Graph(
+    validGraph2 = base.Graph(
                         'Line',
                         [
                           {'x': 0, 'y': 8},
@@ -160,7 +166,7 @@ def test_graph():
                         description='This is a string description',
                         options=None
                       )
-    graph3 = base.Graph(
+    validGraph3 = base.Graph(
                         'Line',
                         [
                           {'x': 0, 'y': 8},
@@ -178,6 +184,20 @@ def test_graph():
                         options={'colour':'blue'}
                       )
 
-    assert isinstance(graph1, base.Graph)
-    assert isinstance(graph2, base.Graph)
-    assert isinstance(graph3, base.Graph)
+    assert isinstance(validGraph1, base.Graph)
+    assert isinstance(validGraph2, base.Graph)
+    assert isinstance(validGraph3, base.Graph)
+
+    invalidData = base.Graph(
+                        'Line',
+                        [],
+                        description='This is a string description',
+                        options={'colour':'blue'}
+                      )
+
+    invalidType = base.Graph(
+                        'En Passant',
+                        [],
+                        description='This is a string description',
+                        options={'colour':'blue'}
+                      )
