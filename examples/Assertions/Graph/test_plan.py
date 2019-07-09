@@ -1,18 +1,13 @@
 #!/usr/bin/env python
 # This plan contains tests that demonstrate failures as well.
 """
-This example shows usage of assertions,
-assertion groups and assertion namespaces.
+This example shows usage of graphs
 """
-import os
-import random
-import re
 import sys
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import test_plan
-from testplan.common.utils import comparison
 from testplan.report.testing.styles import Style, StyleEnum
 
 
@@ -21,7 +16,7 @@ class SampleSuite(object):
 
     @testcase
     def GRAPH_TESTS(self, env, result):
-        # Basic assertions contain equality, comparison, membership checks:
+        # Basic assertions for line graph:
         result.graph('Line',
                      [
                         {'x':1, 'y':2},
