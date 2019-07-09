@@ -123,3 +123,61 @@ def test_summary():
     assert len(alpha_category_less_failing.entries) == summary.num_failing
 
 
+def test_graph():
+
+    graph1 = base.Graph(
+                        'Line',
+                        [
+                          {'x': 0, 'y': 8},
+                          {'x': 1, 'y': 50},
+                          {'x': 2, 'y': 4},
+                          {'x': -10, 'y': 9},
+                          {'x': 4, 'y': 1},
+                          {'x': 5, 'y': 7},
+                          {'x': 6, 'y': -3},
+                          {'x': 7, 'y': 3},
+                          {'x': 100, 'y': 2},
+                          {'x': 9, 'y': 0}
+                        ],
+                        description=None,
+                        options=None
+                      )
+
+    graph2 = base.Graph(
+                        'Line',
+                        [
+                          {'x': 0, 'y': 8},
+                          {'x': 1, 'y': 50},
+                          {'x': 2, 'y': 4},
+                          {'x': -10, 'y': 9},
+                          {'x': 4, 'y': 1},
+                          {'x': 5, 'y': 7},
+                          {'x': 6, 'y': -3},
+                          {'x': 7, 'y': 3},
+                          {'x': 100, 'y': 2},
+                          {'x': 9, 'y': 0}
+                        ],
+                        description='This is a string description',
+                        options=None
+                      )
+    graph3 = base.Graph(
+                        'Line',
+                        [
+                          {'x': 0, 'y': 8},
+                          {'x': 1, 'y': 50},
+                          {'x': 2, 'y': 4},
+                          {'x': -10, 'y': 9},
+                          {'x': 4, 'y': 1},
+                          {'x': 5, 'y': 7},
+                          {'x': 6, 'y': -3},
+                          {'x': 7, 'y': 3},
+                          {'x': 100, 'y': 2},
+                          {'x': 9, 'y': 0}
+                        ],
+                        description='This is a string description',
+                        options={'colour':'blue'}
+                      )
+
+    assert isinstance(graph1, base.Graph)
+    assert isinstance(graph2, base.Graph)
+    assert isinstance(graph3, base.Graph)
