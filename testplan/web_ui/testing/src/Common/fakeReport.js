@@ -626,7 +626,7 @@ var fakeReportAssertions = {
                                 "description": null,
                                 "line_no": 56,
                                 "meta_type": "entry",
-                                "data": [
+                                "graph_data": [
                                           {x: 0, y: 8},
                                           {x: 1, y: 5},
                                           {x: 2, y: 4},
@@ -647,7 +647,7 @@ var fakeReportAssertions = {
                                 "description": null,
                                 "line_no": 56,
                                 "meta_type": "entry",
-                                "data": [
+                                "graph_data": [
                                   {x: 'A', y: 10},
                                   {x: 'B', y: 5},
                                   {x: 'C', y: 15}
@@ -657,34 +657,34 @@ var fakeReportAssertions = {
                                 "utc_time": "2019-02-12T17:41:43.045333+00:00"
                              }
                              ,{
-                                "category": "DEFAULT",
-                                "machine_time": "2019-02-12T17:41:43.045339+00:00",
-                                "description": null,
-                                "line_no": 56,
-                                "meta_type": "entry",
-                                "data": [
-                                          {x: 0, y: 8},
-                                          {x: 1, y: 5},
-                                          {x: 2, y: 4},
-                                          {x: 3, y: 9},
-                                          {x: 4, y: 1},
-                                          {x: 5, y: 7},
-                                          {x: 6, y: 6},
-                                          {x: 7, y: 3},
-                                          {x: 8, y: 2},
-                                          {x: 9, y: 0}
-                                        ],
-                                "type": "Graph",
-                                "graph_type": "Hexbin",
-                                "utc_time": "2019-02-12T17:41:43.045333+00:00"
-                             }
+                                    "machine_time": "2019-07-09T11:04:00.097707+00:00",
+                                    "description": "Desciptions :]",
+                                    "line_no": 32,
+                                    "utc_time": "2019-07-09T11:04:00.097707+00:00",
+                                    "meta_type": "entry",
+                                    "type": "Graph",
+                                    "graph_data": [{
+                                            "x": 1,
+                                            "y": 2
+                                        }, {
+                                            "x": 3,
+                                            "y": 4
+                                        }
+                                    ],
+                                    "options": [{
+                                            "colour": "red"
+                                        }
+                                    ],
+                                    "category": "DEFAULT",
+                                    "graph_type": "Line"
+                                }
                               ,{
                                 "category": "DEFAULT",
                                 "machine_time": "2019-02-12T17:41:43.045339+00:00",
                                 "description": null,
                                 "line_no": 56,
                                 "meta_type": "entry",
-                                "data": [
+                                "graph_data": [
                                           {x: 0, y: 8},
                                           {x: 1, y: 50},
                                           {x: 2, y: 4},
@@ -706,7 +706,7 @@ var fakeReportAssertions = {
                                 "description": null,
                                 "line_no": 56,
                                 "meta_type": "entry",
-                                "data": [
+                                "graph_data": [
                                           {x: 1, y: 10, xVariance: 4, yVariance: 4},
                                           {x: 1.7, y: 12, xVariance: 2, yVariance: 2},
                                           {x: 2, y: 5, xVariance: 3, yVariance: 3},
@@ -722,7 +722,7 @@ var fakeReportAssertions = {
                                 "description": null,
                                 "line_no": 56,
                                 "meta_type": "entry",
-                                "data": [
+                                "graph_data": [
                                         {angle: 1, color: '#89DAC1', name: 'green', opacity: 0.2},
                                         {angle: 2, color: '#F6D18A', name: 'yellow'},
                                         {angle: 5, color: '#1E96BE', name: 'cyan'},
@@ -732,7 +732,28 @@ var fakeReportAssertions = {
                                 "type": "DiscreteChart",
                                 "graph_type": "Pie",
                                 "utc_time": "2019-02-12T17:41:43.045333+00:00"
-                             }
+                             },{
+                                    "utc_time": "2019-07-09T10:52:23.324903+00:00",
+                                    "meta_type": "entry",
+                                    "type": "Graph",
+                                    "graph_data": [{
+                                            "x": 1,
+                                            "y": 2
+                                        }, {
+                                            "x": 3,
+                                            "y": 4
+                                        }
+                                    ],
+                                    "machine_time": "2019-07-09T10:52:23.324903+00:00",
+                                    "options": [{
+                                            "colour": "red"
+                                        }
+                                    ],
+                                    "graph_type": "Line",
+                                    "line_no": 32,
+                                    "description": "Desciptions :]",
+                                    "category": "DEFAULT"
+                                }
 
                         ],
                         "uid": "22758cc5-8a89-472b-bf67-b64dbc2c0b40",

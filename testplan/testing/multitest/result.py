@@ -1137,7 +1137,6 @@ class FixNamespace(AssertionNamespace):
         """
         return base.FixLog(msg=msg, description=description)
 
-
 class Result(object):
     """
     Contains assertion methods and namespaces for generating test data.
@@ -1869,6 +1868,31 @@ class Result(object):
             width=width,
             height=height,
             description=description
+        )
+
+    @bind_entry
+    def graph(self, graph_type, graph_data, description, options):
+        """
+        Displays a Graph in the report.
+
+         code-block:: python
+
+        result.graph('line', [ {x:1, y:2}, {x:3, y:4} ], 'line graph to show decrease in test failures over time',[{'colour' = 'red'}])
+
+        :param graph_type: Type of graph user wants to create
+        :type graph_type: ``string``
+        :param graph_data: Data to plot on the graph.
+        :type graph_data: ``JSON``
+        :param description: Text description for the graph.
+        :type description: ``str``
+        :param options: customisation parameters for graph
+        :type options: ``function of input parameters`.
+        """
+        return base.Graph(
+            graph_type=graph_type,
+            graph_data=graph_data,
+            description=description,
+            options=options
         )
 
     @property

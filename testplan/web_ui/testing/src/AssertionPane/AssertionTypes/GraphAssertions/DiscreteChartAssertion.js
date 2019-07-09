@@ -18,7 +18,7 @@ class DiscreteChartAssertion extends Component  {
     }
 
   render(){
-  let data = this.props.assertion.data;
+  let data = this.props.assertion.graph_data;
   const graph_type = this.props.assertion.graph_type
   const GraphComponent = this.components[graph_type];
       return (
