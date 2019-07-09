@@ -25,7 +25,7 @@ class XYGraphAssertion extends Component {
         lastDrawLocation: null,
         series: [
           {
-            data: this.props.assertion.data,
+            data: this.props.assertion.graph_data,
             title: 'Test'
           }
         ]
@@ -40,7 +40,7 @@ class XYGraphAssertion extends Component {
     }
 
   render() {
-    let data = this.props.assertion.data;
+    let data = this.props.assertion.graph_data;
     const {series, lastDrawLocation} = this.state;
     const graph_type = this.props.assertion.graph_type
     const GraphComponent = this.components[graph_type];
