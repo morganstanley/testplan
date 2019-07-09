@@ -26,7 +26,7 @@ class XYGraphAssertion extends Component {
         series: [
           {
             data: this.props.assertion.graph_data,
-            title: 'Test'
+            title: this.props.assertion.graph_type
           }
         ]
      };
