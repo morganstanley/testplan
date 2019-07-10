@@ -27,9 +27,27 @@ class SampleSuite(object):
                         {'x':3, 'y':4}
                      ],
                      description='Desciptions :]',
-                     #options=None
                      options={'colour':'red'}
         )
+
+        result.graph('Line',
+                     [
+                        {'x':1, 'y':2},
+                        {'x':3, 'y':4}
+                     ],
+                     description='Desciptions :]',
+                     options=None
+        )
+
+        result.graph('Line',
+                     [
+                        {'x':1, 'y':2},
+                        {'x':3, 'y':4}
+                     ],
+                     description=None,
+                     options=None
+        )
+
 
 
 @test_plan(
