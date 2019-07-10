@@ -41,6 +41,7 @@ class XYGraphAssertion extends Component {
 
   render() {
     let data = this.props.assertion.graph_data;
+    let options = this.props.assertion.options;
     const {series, lastDrawLocation} = this.state;
     const graph_type = this.props.assertion.graph_type
     const GraphComponent = this.components[graph_type];
@@ -76,7 +77,7 @@ class XYGraphAssertion extends Component {
               <GraphComponent
               key={entry.title}
               data={entry.data}
-              colorRange={['blue', 'purple', 'red']}
+              color={GraphUtil.returnColour(options)}
               style = {GraphUtil.returnStyle(graph_type)}
               radius = {GraphUtil.returnRadius(graph_type)}
               />

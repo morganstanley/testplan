@@ -24,7 +24,7 @@ class SampleSuite(object):
                      ],
                      description='Desciptions :]',
                      #options=None
-                     options={'colour':'red'}
+                     options={'colour':['red']}
         )
 
 
