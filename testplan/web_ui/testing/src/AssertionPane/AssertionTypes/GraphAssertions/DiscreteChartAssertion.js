@@ -19,22 +19,19 @@ class DiscreteChartAssertion extends Component  {
 
   render(){
   let data = this.props.assertion.graph_data;
+  let options = this.props.assertion.options;
   const graph_type = this.props.assertion.graph_type
   const GraphComponent = this.components[graph_type];
       return (
        <GraphComponent
-      colorType={'literal'}
-      colorDomain={[0, 100]}
-      colorRange={[0, 10]}
-      margin={{top: 100}}
-      getLabel={d => d.name}
+      colorType= {GraphUtil.returnColour(options)}
       data={data}
-      labelsRadiusMultiplier={1.1}
-      labelsStyle={{fontSize: 16, fill: '#222'}}
-      showLabels
-      style={{stroke: '#fff', strokeWidth: 2}}
       width={400}
       height={300}
+      getLabel={d => d.name}
+      labelsRadiusMultiplier={1.1}
+      labelsStyle={{fontSize: 16}}
+      showLabels
        />
      )
   }

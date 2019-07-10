@@ -671,10 +671,9 @@ var fakeReportAssertions = {
                                             "y": 4
                                         }
                                     ],
-                                    "options": [{
-                                            "colour": "red"
-                                        }
-                                    ],
+                                    "options": {
+                                            "colour": ["red"]
+                                    },
                                     "category": "DEFAULT",
                                     "graph_type": "Line"
                                 }
@@ -731,6 +730,9 @@ var fakeReportAssertions = {
                                       ],
                                 "type": "DiscreteChart",
                                 "graph_type": "Pie",
+                                "options": {
+                                            "colour": "literal"
+                                        },
                                 "utc_time": "2019-02-12T17:41:43.045333+00:00"
                              }
                         ],

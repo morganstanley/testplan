@@ -75,3 +75,12 @@ export function returnXType(graph_type){
        return("ordinal");
     }
 }
+
+export function returnColour(options){
+    if(options !== undefined){
+        if(options.colour !== undefined){
+            return options.colour;
+        }
+    }
+
+}
