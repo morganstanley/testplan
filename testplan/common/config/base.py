@@ -34,6 +34,24 @@ class DefaultValueWrapper(object):
         )
 
 
+def DEFAULT(value, upper_end_preferred=False):
+    """
+    Return a DefaultValueWrapper instance used as default value for arguments
+    in __init__ constructor of the public classes.
+
+    :param value: The default value.
+    :type value: ``object``
+    :param upper_end_preferred: If True, configurations of the parent takes
+        precedence over the corresponding default value defined locally.
+    :type upper_end_preferred: ``bool``
+    :return: A DefaultValueWrapper instance.
+    :rtype: :py:class:`~testplan.common.config.base.DefaultValueWrapper`
+    """
+
+    block_propagation = not upper_end_preferred
+    return DefaultValueWrapper(value, block_propagation)
+
+
 def ConfigOption(key, default=ABSENT, block_propagation=True):
     """
     Wrapper around Optional, subclassing is not an option
@@ -117,8 +135,11 @@ class Config(object):
 
     def __init__(self, **options):
         self._parent = None
-        self._cfg_input = options
-        self._options = self.build_schema().validate(options)
+        self._cfg_input = {
+            k: v for k, v in options.items()
+            if not isinstance(v, DefaultValueWrapper)
+        }
+        self._options = self.build_schema().validate(self._cfg_input)
 
     def __getattr__(self, name):
         options = self.__getattribute__('_options')
