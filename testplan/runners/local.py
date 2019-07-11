@@ -56,7 +56,7 @@ class LocalRunner(Executor):
                         result = TestResult()
                         result.report = TestGroupReport(name=next_uid)
                         result.report.status_override = Status.ERROR
-                        result.report.logger.critical(
+                        result.report.logger.exception(
                             'Exception for {} on {} execution: {}'.format(
                                 next_uid, self, exc))
                         self._results[next_uid] = result
