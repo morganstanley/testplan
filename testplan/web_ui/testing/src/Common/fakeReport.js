@@ -654,7 +654,8 @@ var fakeReportAssertions = {
                                 ],
                                 "type": "Graph",
                                 "graph_type": "Bar",
-                                "utc_time": "2019-02-12T17:41:43.045333+00:00"
+                                "utc_time": "2019-02-12T17:41:43.045333+00:00",
+                                "options" : null
                              }
                              ,{
                                     "machine_time": "2019-07-09T11:04:00.097707+00:00",

@@ -77,10 +77,11 @@ export function returnXType(graph_type){
 }
 
 export function returnColour(options){
-    if(options !== undefined){
-        if(options.colour !== undefined){
-            return options.colour;
-        }
+    if(options == null){
+        return
+    }
+    if(options.colour !== null){
+        return options.colour;
     }
 
 }
