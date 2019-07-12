@@ -1,5 +1,7 @@
 """Testplan base module."""
 
+import random
+
 from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
 from .common.config import ConfigOption
 from .common.entity import (RunnableManager, RunnableManagerConfig, Resource)
@@ -8,6 +10,11 @@ from .common.utils.validation import is_subclass, has_method
 from .parser import TestplanParser
 from .runners import LocalRunner
 from .environment import Environments
+from testplan.common.utils import logger
+from testplan.common.utils import path
+from testplan import defaults
+from testplan.testing import filtering
+from testplan.testing import ordering
 
 
 class TestplanConfig(RunnableManagerConfig, TestRunnerConfig):
@@ -85,8 +92,79 @@ class Testplan(RunnableManager):
 
     CONFIG = TestplanConfig
 
-    def __init__(self, **options):
-        super(Testplan, self).__init__(**options)
+    def __init__(self,
+                 name,
+                 logger_level=logger.TEST_INFO,
+                 file_log_level=logger.DEBUG,
+                 runpath=path.default_runpath,
+                 path_cleanup=True,
+                 all_tasks_local=False,
+                 shuffle=None,
+                 shuffle_seed=float(random.randint(1, 9999)),
+                 exporters=None,
+                 stdout_style=defaults.STDOUT_STYLE,
+                 report_dir=defaults.REPORT_DIR,
+                 xml_dir=None,
+                 pdf_path=None,
+                 json_path=None,
+                 pdf_style=defaults.PDF_STYLE,
+                 report_tags=None,
+                 report_tags_all=None,
+                 merge_schedule_parts=False,
+                 browse=None,
+                 ui_port=None,
+                 web_server_startup_timeout=defaults.WEB_SERVER_TIMEOUT,
+                 test_filter=filtering.Filter(),
+                 test_sorter=ordering.NoopSorter(),
+                 test_lister=None,
+                 verbose=False,
+                 debug=False,
+                 timeout=None,
+                 extra_deps=None,
+                 interactive=False,
+                 **options):
+
+        # TODO add a utility to reduce this boilerplate.
+        if shuffle is None:
+            shuffle = []
+        if extra_deps is None:
+            extra_deps = []
+        if report_tags is None:
+            report_tags = []
+        if report_tags_all is None:
+            report_tags_all = []
+
+        super(Testplan, self).__init__(
+            name=name,
+            logger_level=logger_level,
+            file_log_level=file_log_level,
+            runpath=runpath,
+            path_cleanup=path_cleanup,
+            all_tasks_local=all_tasks_local,
+            shuffle=shuffle,
+            shuffle_seed=shuffle_seed,
+            exporters=exporters,
+            stdout_style=stdout_style,
+            report_dir=report_dir,
+            xml_dir=xml_dir,
+            pdf_path=pdf_path,
+            json_path=json_path,
+            pdf_style=pdf_style,
+            report_tags=report_tags,
+            report_tags_all=report_tags_all,
+            merge_schedule_parts=merge_schedule_parts,
+            browse=browse,
+            ui_port=ui_port,
+            web_server_startup_timeout=web_server_startup_timeout,
+            test_filter=test_filter,
+            test_sorter=test_sorter,
+            test_lister=test_lister,
+            verbose=verbose,
+            debug=debug,
+            timeout=timeout,
+            extra_deps=extra_deps,
+            interactive=interactive,
+            **options)
         for resource in self._cfg.resources:
             self._runnable.add_resource(resource)
 
@@ -119,19 +197,9 @@ class Testplan(RunnableManager):
         already have an explicit programmatic declaration for a given
         keyword.
         """
-        self._parsed_args = self.parser.parse_args()
-        self._processed_args = self.parser.process_args(self._parsed_args)
-        # Overwrite configuration options only if they are not specified
-        # programmatically. There is no easy way to know if an argument in
-        # processed_args is user command line input or a default value in the
-        # parser.
-        for key, value in self._processed_args.items():
-            if key in options:
-                self.logger.warning('WARNING: Command line argument for '
-                    '"{}" will be overridden by the one programmatically '
-                        'defined in {} constructor'.format(key, self))
-            options.setdefault(key, value)
-
+        parser = self._cfg.parser(name=self._cfg.name, default_options=options)
+        self._parsed_args = parser.parse_args()
+        self._processed_args = parser.process_args(self._parsed_args)
         return options
 
     def run(self):

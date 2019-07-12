@@ -44,9 +44,10 @@ class TestplanParser(object):
     Wrapper around `argparse.ArgumentParser`, adds extra step for processing
     arguments, esp. if they are dependent on each other.
     """
-    def __init__(self, name):
+    def __init__(self, name, default_options):
         self.cmd_line = copy.copy(sys.argv)
         self.name = name
+        self._default_options = default_options
 
     def add_arguments(self, parser):
         """Virtual method to be overridden by custom parsers."""
@@ -69,68 +70,84 @@ class TestplanParser(object):
             '--info',
             dest='test_lister',
             metavar='TEST_INFO',
-            **listing.ListingArg.get_parser_context(default=None)
+            **listing.ListingArg.get_parser_context(
+                default=self._default_options["test_lister"])
         )
 
         parser.add_argument(
-            '-i', '--interactive', action='store_true', dest='interactive',
-            default=False, help='Enable interactive mode.')
+            '-i',
+            '--interactive',
+            action='store_true',
+            dest='interactive',
+            default=self._default_options["interactive"],
+            help='Enable interactive mode.')
 
         general_group = parser.add_argument_group('General')
         general_group.add_argument(
-            '--runpath', type=str, metavar='PATH',
+            '--runpath',
+            type=str,
+            metavar='PATH',
             help='Path under which all temp files and logs will be created')
 
         filter_group = parser.add_argument_group('Filtering')
 
         filter_group.add_argument(
-            '--patterns', action=filtering.PatternAction,
-            default=[], nargs='+', metavar='TEST_FILTER', type=str,
-            help=os.linesep.join([
-                'Test filter, supports glob notation & multiple arguments.',
-                '',
-                '--pattern <Multitest Name>',
-                '--pattern <Multitest Name 1> <Multitest Name 2>',
-                '--pattern <Multitest Name 1> --pattern <Multitest Name 2>',
-                '--pattern <Multitest Name>:<Suite Name>',
-                '--pattern <Multitest Name>:<Suite Name>:<Testcase name>',
-                '--pattern <Multitest Name>:*:<Testcase name>',
-                '--pattern *:<Suite Name>:<Testcase name>',
-            ])
-        )
+            '--patterns',
+            action=filtering.PatternAction,
+            default=[],
+            nargs='+',
+            metavar='TEST_FILTER',
+            type=str,
+            help="""\
+Test filter, supports glob notation & multiple arguments.
+
+--pattern <Multitest Name>
+--pattern <Multitest Name 1> <Multitest Name 2>
+--pattern <Multitest Name 1> --pattern <Multitest Name 2>
+--pattern <Multitest Name>:<Suite Name>
+--pattern <Multitest Name>:<Suite Name>:<Testcase name>
+--pattern <Multitest Name>:*:<Testcase name>
+--pattern *:<Suite Name>:<Testcase name>""")
 
         filter_group.add_argument(
-            '--tags', action=filtering.TagsAction,
-            default=[], nargs='+', metavar='TEST_FILTER',
-            help=os.linesep.join([
-                'Test filter, runs tests that match ANY of the given tags.',
-                '',
-                '--tags <tag_name_1> --tags <tag_name 2>',
-                '--tags <tag_name_1> <tag_category_1>=<tag_name_2>',
-            ])
-        )
+            '--tags',
+            action=filtering.TagsAction,
+            default=[],
+            nargs='+',
+            metavar='TEST_FILTER',
+            help="""\
+Test filter, runs tests that match ANY of the given tags.
+
+--tags <tag_name_1> --tags <tag_name 2>
+--tags <tag_name_1> <tag_category_1>=<tag_name_2>""")
 
         filter_group.add_argument(
-            '--tags-all', action=filtering.TagsAllAction,
-            default=[], nargs='+', metavar='TEST_FILTER',
-            help=os.linesep.join([
-                'Test filter, runs tests that match ALL of the given tags.',
-                '',
-                '--tags-all <tag_name_1> --tags <tag_name 2>',
-                '--tags-all <tag_name_1> <tag_category_1>=<tag_name_2>',
-            ])
-        )
+            '--tags-all',
+            action=filtering.TagsAllAction,
+            default=[],
+            nargs='+',
+            metavar='TEST_FILTER',
+            help="""\
+Test filter, runs tests that match ALL of the given tags.
+
+--tags-all <tag_name_1> --tags <tag_name 2>
+--tags-all <tag_name_1> <tag_category_1>=<tag_name_2>""")
 
         ordering_group = parser.add_argument_group('Ordering')
 
         ordering_group.add_argument(
-            '--shuffle', nargs='+', type=str, default=[],
+            '--shuffle',
+            nargs='+',
+            type=str,
+            default=self._default_options["shuffle"],
             choices=[enm.value for enm in ordering.SortType],
             help='Shuffle execution order')
 
         ordering_group.add_argument(
-            '--shuffle-seed', metavar='SEED', type=float,
-            default=float(random.randint(1, 9999)),
+            '--shuffle-seed',
+            metavar='SEED',
+            type=float,
+            default=self._default_options["shuffle_seed"],
             help='Seed shuffle with a specific value, useful to '
                  'reproduce a particular order.')
 
@@ -139,91 +156,107 @@ class TestplanParser(object):
         report_group.add_argument(
             '--stdout-style',
             **styles.StyleArg.get_parser_context(
-                default='summary'))
+                default=self._default_options["stdout_style"]))
 
         report_group.add_argument(
-            '--pdf', dest='pdf_path',
-            default=None, metavar='PATH',
-            help='Path for PDF report.'
-        )
+            '--pdf',
+            dest='pdf_path',
+            default=self._default_options["pdf_path"],
+            metavar='PATH',
+            help='Path for PDF report.')
 
         report_group.add_argument(
-            '--json', dest='json_path',
-            default=None, metavar='PATH',
-            help='Path for JSON report.'
-        )
+            '--json',
+            dest='json_path',
+            default=self._default_options["json_path"],
+            metavar='PATH',
+            help='Path for JSON report.')
 
         report_group.add_argument(
-            '--xml', dest='xml_dir',
-            default=None, metavar='DIRECTORY',
-            help='Directory path for XML reports.'
-        )
+            '--xml',
+            dest='xml_dir',
+            default=self._default_options["xml_dir"],
+            metavar='DIRECTORY',
+            help='Directory path for XML reports.')
 
         report_group.add_argument(
             '--report-dir',
             help='Target directory for tag filtered report output.',
-            default=defaults.REPORT_DIR, metavar='PATH')
+            default=self._default_options["report_dir"],
+            metavar='PATH')
 
         report_group.add_argument(
             '--pdf-style',
             **styles.StyleArg.get_parser_context(
-                default='extended-summary'))
+                default=self._default_options["pdf_style"]))
 
         report_group.add_argument(
-            '-v', '--verbose', action='store_true', dest='verbose',
+            '-v',
+            '--verbose',
+            action='store_true',
+            dest='verbose',
             help='Enable verbose mode that will also set the stdout-style '
                  'option to "detailed".')
+
         report_group.add_argument(
-            '-d', '--debug', action='store_true', dest='debug',
+            '-d',
+            '--debug',
+            action='store_true',
+            dest='debug',
             help='Enable debug mode.')
 
         report_group.add_argument(
-            '-b', '--browse', action='store_true', dest='browse',
-            help=('Automatically open report to browse. Must be specifed with '
-                  '"--pdf" or "--json --ui" or there will be nothing to open.'))
+            '-b',
+            '--browse',
+            action='store_true',
+            dest='browse',
+            help='Automatically open report to browse. Must be specifed with '
+                  '"--pdf" or "--json --ui" or there will be nothing to open.')
 
         report_group.add_argument(
-            '-u', '--ui', dest='ui_port', nargs='?',
-            const=defaults.WEB_SERVER_PORT, type=int,
-            help=('Start the web server to view the Testplan UI. A port can be '
-                  'specified, otherwise defaults to {}. A JSON report will be '
-                  'saved locally.').format(defaults.WEB_SERVER_PORT))
+            '-u',
+            '--ui',
+            dest='ui_port',
+            nargs='?',
+            default=self._default_options["ui_port"],
+            type=int,
+            help='Start the web server to view the Testplan UI. A port can be '
+                 'specified, otherwise defaults to {}. A JSON report will be '
+                 'saved locally.'.format(self._default_options["ui_port"]))
 
         report_group.add_argument(
-            '--report-tags', nargs='+',
+            '--report-tags',
+            nargs='+',
             action=ReportTagsAction,
-            default=[],
+            default=self._default_options["report_tags"],
             metavar='REPORT_FILTER',
-            help=os.linesep.join([
-                'Report filter, generates a separate report (PDF by default)',
-                'that match ANY of the given tags.',
-                '',
-                '--report-tags <tag_name_1> --report-tags <tag_name 2>',
-                '--report-tags <tag_name_1> <tag_category_1>=<tag_name_2>',
-            ])
-        )
+            help="""\
+Report filter, generates a separate report (PDF by default)
+that match ANY of the given tags.
+
+--report-tags <tag_name_1> --report-tags <tag_name 2>
+--report-tags <tag_name_1> <tag_category_1>=<tag_name_2>""")
 
         report_group.add_argument(
-            '--report-tags-all', nargs='+',
+            '--report-tags-all',
+            nargs='+',
             action=ReportTagsAction,
-            default=[],
+            default=self._default_options["report_tags_all"],
             metavar='REPORT_FILTER',
-            help=os.linesep.join([
-                'Report filter, generates a separate report (PDF by default)',
-                'that match ALL of the given tags.',
-                '',
-                '--report-tags-all <tag_name_1> --report-tags-all <tag_name 2>',
-                '--report-tags-all <tag_name_1> <tag_category_1>=<tag_name_2>',
-            ])
-        )
+            help="""\
+Report filter, generates a separate report (PDF by default)
+that match ALL of the given tags.
+
+--report-tags-all <tag_name_1> --report-tags-all <tag_name 2>
+--report-tags-all <tag_name_1> <tag_category_1>=<tag_name_2>""")
 
         report_group.add_argument(
             '--file-log-level',
             choices=LogLevelAction.LEVELS.keys(),
-            default=logger.DEBUG,
+            default=self._default_options["file_log_level"],
             action=LogLevelAction,
-            help='Specify log level for file logs. Set to NONE to disable file '
-                 'logging.')
+            help='Specify log level for file logs. Set to NONE to disable '
+                 'file logging.')
 
         self.add_arguments(parser)
         return parser
