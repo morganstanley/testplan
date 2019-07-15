@@ -82,6 +82,7 @@ class DictLogSchema(BaseSchema):
 @registry.bind(base.Graph)
 class GraphSchema(BaseSchema):
     graph_type = fields.String()
-    graph_data = fields.List(fields.Dict(), allow_none=True)
-    options = fields.Dict(allow_none=True)
+    graph_data = fields.Dict(fields.List(fields.Dict()))
+    series_options = fields.Dict(fields.Dict(), allow_none=True)
     type = fields.String()
+    graph_options = fields.Dict(allow_none=True)

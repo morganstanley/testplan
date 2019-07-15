@@ -270,10 +270,11 @@ class FixLog(DictLog):
 
 class Graph(BaseEntry):
     """Create a graph for the report."""
-    def __init__(self, graph_type, graph_data, description=None, options=None):
+    def __init__(self, graph_type, graph_data, description=None, series_options=None, graph_options=None):
         self.graph_type = graph_type
         self.graph_data = graph_data
-        self.options = options
+        self.series_options = series_options
+        self.graph_options = graph_options
         if graph_type != 'Pie':
             self.type = 'Graph'
         else:

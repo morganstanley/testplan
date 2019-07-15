@@ -1871,28 +1871,38 @@ class Result(object):
         )
 
     @bind_entry
-    def graph(self, graph_type, graph_data, description, options):
+    def graph(self, graph_type, graph_data, description, series_options, graph_options):
         """
         Displays a Graph in the report.
 
          code-block:: python
 
-        result.graph('line', [ {x:1, y:2}, {x:3, y:4} ], 'line graph to show decrease in test failures over time',[{'colour' = 'red'}])
+         result.graph('Line',
+                      {
+                          'graph 1':[{'x': 0, 'y': 8},{'x': 1, 'y': 5}]
+                      },
+                      description='Line Graph',
+                      individual_options={'graph 1':{"colour": "red"}},
+                      graph_options=None
+          )
 
         :param graph_type: Type of graph user wants to create
         :type graph_type: ``string``
-        :param graph_data: Data to plot on the graph.
-        :type graph_data: ``List[Dictionaries]``
+        :param graph_data: Data to plot on the graph, for each series.
+        :type graph_data: ``Dictionary[List[Dictionary]]``
         :param description: Text description for the graph.
         :type description: ``str``
-        :param options: customisation parameters for graph
-        :type options: `Dictionary`.
+        :param series_options: customisation parameters for each series
+        :type series_options: `Dictionary[Dictionary]`.
+        :param graph_options: customisation parameters for overall graph
+        :type graph_options: `Dictionary`.
         """
         return base.Graph(
             graph_type=graph_type,
             graph_data=graph_data,
             description=description,
-            options=options
+            series_options=series_options,
+            graph_options=graph_options
         )
 
     @property

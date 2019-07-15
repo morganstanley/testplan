@@ -7,29 +7,42 @@ import * as GraphUtil from './graphUtils';
 import {
   XAxis,
   YAxis,
+  DiscreteColorLegend,
   HorizontalGridLines,
   XYPlot,
   LineSeries,
-VerticalBarSeries,
+  VerticalBarSeries,
   Highlight,
   HexbinSeries,
   ContourSeries,
   WhiskerSeries
 } from 'react-vis';
 
+
 /**
  * Component that are used to render a Graph (Data visualisations that require an XY axis).
  */
 class XYGraphAssertion extends Component {
+    constructor(props) {
+      super(props);
+
+      this.series_colour = {}
+      let data = this.props.assertion.graph_data;
+      let series_options = this.props.assertion.series_options;
+      for (var key in data) {
+           if(series_options !== null){
+                var plot_options = series_options[key];
+            }
+          var plot_colour = GraphUtil.returnColour(plot_options);
+          this.series_colour[key] = plot_colour;
+      }
+    }
+
+
     state = {
-        lastDrawLocation: null,
-        series: [
-          {
-            data: this.props.assertion.graph_data,
-            title: this.props.assertion.graph_type
-          }
-        ]
+        lastDrawLocation: null
      };
+
 
     components = {
         Line: LineSeries,
@@ -39,27 +52,49 @@ class XYGraphAssertion extends Component {
         Bar: VerticalBarSeries
     }
 
+
   render() {
     let data = this.props.assertion.graph_data;
-    let options = this.props.assertion.options;
-    const {series, lastDrawLocation} = this.state;
+    let series_options = this.props.assertion.series_options;
+    let graph_options = this.props.assertion.graph_options;
+    const {lastDrawLocation} = this.state;
     const graph_type = this.props.assertion.graph_type
     const GraphComponent = this.components[graph_type];
-    var x_range = [GraphUtil.getMinX(data, graph_type), GraphUtil.getMaxX(data, graph_type)];
-    var y_range = [GraphUtil.getMinY(data, graph_type), GraphUtil.getMaxY(data, graph_type)];
+
+    var legend = [];
+    var plots = [];
+    var plot_options;
+    var plot_options;
+
+    for (var key in data) {
+        if(series_options !== null){
+          plot_options = series_options[key];
+        }
+        var series_colour = this.series_colour[key]
+        plots.push(
+                    <GraphComponent
+                      data={data[key]}
+                      color={series_colour}
+                      style = {GraphUtil.returnStyle(graph_type)}
+                      radius = {GraphUtil.returnRadius(graph_type)}
+                    />
+                  );
+        if((graph_options !== null) && graph_options.legend){
+            legend.push({title: key, color: series_colour})
+        }
+    }
+
     return (
       <div>
         <div>
           <XYPlot
             animation
-            xDomain={ x_range &&
-              lastDrawLocation && [
+            xDomain={lastDrawLocation && [
                 lastDrawLocation.left,
                 lastDrawLocation.right
               ]
             }
-            yDomain={ y_range &&
-              lastDrawLocation && [
+            yDomain={lastDrawLocation && [
                 lastDrawLocation.bottom,
                 lastDrawLocation.top
               ]
@@ -70,18 +105,11 @@ class XYGraphAssertion extends Component {
           >
             <HorizontalGridLines />
 
-            <YAxis />
-            <XAxis />
+            <YAxis title = {GraphUtil.returnXAxisTitle(graph_options)}/>
+            <XAxis title = {GraphUtil.returnYAxisTitle(graph_options)}/>
 
-            {series.map(entry => (
-              <GraphComponent
-              key={entry.title}
-              data={entry.data}
-              color={GraphUtil.returnColour(options)}
-              style = {GraphUtil.returnStyle(graph_type)}
-              radius = {GraphUtil.returnRadius(graph_type)}
-              />
-            ))}
+            {plots}
+
             <Highlight
               onBrushEnd={area => this.setState({lastDrawLocation: area})}
               onDrag={area => {
@@ -96,18 +124,13 @@ class XYGraphAssertion extends Component {
               }}
             />
           </XYPlot>
+          <DiscreteColorLegend orientation = 'horizontal' width={750} items={legend}/>
         </div>
-
-        <button
-          className="showcase-button"
-          onClick={() => this.setState({lastDrawLocation: null})}
-        >
-         Reset Zoom
-        </button>
       </div>
     );
   }
 }
+
 
 XYGraphAssertion.propTypes = {
   /** Assertion being rendered */

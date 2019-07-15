@@ -9,50 +9,6 @@
    }
  }
 
-export function getMinX(data, graph_type) {
-   checkDataIsEmpty(data)
-   switch(graph_type){
-        case 'Bar':
-            return 1;
-        default:
-            return data.reduce((min, p) => p.x < min ? p.x : min);
-   }
-}
-
-export function getMaxX(data, graph_type) {
-   checkDataIsEmpty(data)
-   switch(graph_type){
-        case 'Whisker':
-            return data.reduce((max, p) => (p.x + p.xVariance) > max ? (p.x + p.xVariance) : max);
-        case 'Bar':
-            return 1;
-        default:
-            return data.reduce((max, p) => p.x > max ? p.x : max);
-   }
-}
-
-export function getMinY(data, graph_type) {
-   checkDataIsEmpty(data)
-   switch(graph_type){
-        case 'Bar':
-            return 1;
-        default:
-            return data.reduce((min, p) => p.y < min ? p.y : min);
-   }
-}
-
-export function getMaxY(data, graph_type) {
-   checkDataIsEmpty(data)
-   switch(graph_type){
-        case 'Whisker':
-            return data.reduce((max, p) => (p.y + p.yVariance) > max ? (p.y + p.yVariance) : max);
-        case 'Bar':
-            return 1;
-        default:
-            return data.reduce((max, p) => p.y > max ? p.y : max);
-   }
-}
-
 export function returnStyle(graph_type){
     if(graph_type === 'Contour'){
        return(
@@ -78,10 +34,27 @@ export function returnXType(graph_type){
 
 export function returnColour(options){
     if(options == null){
-        return
+        return '#' + (Math.random().toString(16) + "000000").substring(2,8);
     }
     if(options.colour !== null){
         return options.colour;
     }
+}
 
+export function returnXAxisTitle(graph_options){
+    if(graph_options == null){
+        return;
+    }
+    if(graph_options.xAxisTitle !== null){
+        return graph_options.xAxisTitle;
+    }
+}
+
+export function returnYAxisTitle(graph_options){
+    if(graph_options == null){
+        return;
+    }
+    if(graph_options.yAxisTitle !== null){
+        return graph_options.yAxisTitle;
+    }
 }
