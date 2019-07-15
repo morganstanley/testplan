@@ -39,10 +39,28 @@ class SampleSuite(object):
                                             ]
                                   },
                      description='Line Graph',
-                     individual_options={
+                     series_options={
                                     'graph 1':{"colour": "red"},
                                     'graph 2':{"colour": "blue"},
                               },
+                     graph_options=None
+        )
+
+        result.graph('Bar',
+                     {
+                          'Bar 1':[
+                                     {'x': 'A', 'y': 10},
+                                     {'x': 'B', 'y': 5},
+                                     {'x': 'C', 'y': 15}
+                                    ],
+                         'Bar 3':[
+                                     {'x': 'A', 'y': 3},
+                                     {'x': 'B', 'y': 13},
+                                     {'x': 'C', 'y': 9}
+                                 ],
+                                  },
+                     description='Bar Graph',
+                     series_options=None,
                      graph_options=None
         )
 
