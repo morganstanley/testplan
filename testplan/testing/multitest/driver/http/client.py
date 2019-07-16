@@ -109,6 +109,7 @@ class HTTPClient(Driver):
         """
         super(HTTPClient, self).stopping()
         self.file_logger.debug('Stopped HTTPClient.')
+        self._close_file_logger()
 
     def aborting(self):
         """Abort logic that stops the client."""
