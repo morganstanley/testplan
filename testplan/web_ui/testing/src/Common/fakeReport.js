@@ -695,6 +695,51 @@ var fakeReportAssertions = {
                                     "graph_type": "Bar"
                                 }, {
                                     "meta_type": "entry",
+                                    "machine_time": "2019-07-15T14:48:21.106270+00:00",
+                                    "description": "Hexbin Graph",
+                                    "series_options": null,
+                                    "type": "Graph",
+                                    "category": "DEFAULT",
+                                    "graph_options": null,
+                                    "graph_data": {
+                                        "Data Name": [{
+                                                "x": 0,
+                                                "y": 8
+                                            }, {
+                                                "x": 1,
+                                                "y": 5
+                                            }, {
+                                                "x": 2,
+                                                "y": 4
+                                            }, {
+                                                "x": 3,
+                                                "y": 9
+                                            }, {
+                                                "x": 4,
+                                                "y": 1
+                                            }, {
+                                                "x": 5,
+                                                "y": 7
+                                            }, {
+                                                "x": 6,
+                                                "y": 6
+                                            }, {
+                                                "x": 7,
+                                                "y": 3
+                                            }, {
+                                                "x": 8,
+                                                "y": 2
+                                            }, {
+                                                "x": 9,
+                                                "y": 0
+                                            }
+                                        ]
+                                    },
+                                    "line_no": 69,
+                                    "utc_time": "2019-07-15T14:48:21.106270+00:00",
+                                    "graph_type": "Hexbin"
+                                }, {
+                                    "meta_type": "entry",
                                     "utc_time": "2019-07-12T12:36:09.787665+00:00",
                                     "machine_time": "2019-07-12T12:36:09.787665+00:00",
                                     "type": "Graph",
