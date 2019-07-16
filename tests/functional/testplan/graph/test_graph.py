@@ -10,7 +10,7 @@ import tempfile
 def test_graph():
     """Test the globsl Testplan timeout feature."""
     testplan_script = os.path.join(
-        os.path.dirname(__file__), 'test_plan_graph.py')
+        os.path.dirname(__file__), 'graph_example.py')
     assert os.path.isfile(testplan_script)
 
     cuurent_path = os.path.dirname(os.path.realpath(__file__))
