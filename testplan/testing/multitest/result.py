@@ -1871,7 +1871,8 @@ class Result(object):
         )
 
     @bind_entry
-    def graph(self, graph_type, graph_data, description, series_options, graph_options):
+    def graph(self, graph_type, graph_data, description,
+              series_options, graph_options):
         """
         Displays a Graph in the report.
 
