@@ -3,12 +3,6 @@
  *
  */
 
- function checkDataIsEmpty(data){
-    if(data.length === 0){
-     throw "No data inputted to graph";
-   }
- }
-
 export function returnStyle(graph_type){
     if(graph_type === 'Contour'){
        return(

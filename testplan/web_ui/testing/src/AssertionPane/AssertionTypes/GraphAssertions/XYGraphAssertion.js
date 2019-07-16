@@ -29,9 +29,11 @@ class XYGraphAssertion extends Component {
       this.series_colour = {}
       let data = this.props.assertion.graph_data;
       let series_options = this.props.assertion.series_options;
+
+      var plot_options;
       for (var key in data) {
            if(series_options !== null){
-                var plot_options = series_options[key];
+               plot_options = series_options[key];
             }
           var plot_colour = GraphUtil.returnColour(plot_options);
           this.series_colour[key] = plot_colour;
@@ -55,7 +57,7 @@ class XYGraphAssertion extends Component {
 
   render() {
     let data = this.props.assertion.graph_data;
-    let series_options = this.props.assertion.series_options;
+   // let series_options = this.props.assertion.series_options;
     let graph_options = this.props.assertion.graph_options;
     const {lastDrawLocation} = this.state;
     const graph_type = this.props.assertion.graph_type
@@ -63,13 +65,8 @@ class XYGraphAssertion extends Component {
 
     var legend = [];
     var plots = [];
-    var plot_options;
-    var plot_options;
 
     for (var key in data) {
-        if(series_options !== null){
-          plot_options = series_options[key];
-        }
         var series_colour = this.series_colour[key]
         plots.push(
                     <GraphComponent
