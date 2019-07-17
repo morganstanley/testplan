@@ -1,78 +1,76 @@
 """Unit tests for the HTTPServer and HTTPClient drivers."""
 
-import uuid
+import os
 import time
+import uuid
 
 import requests
 import pytest
 
-from testplan.testing.multitest.driver.http import HTTPServer, HTTPResponse, HTTPClient
+from testplan.testing.multitest.driver import http
 
 
-def create_server(name, host, port):
-    server = HTTPServer(name=name,
-                        host=host,
-                        port=port)
-    server.start()
-    server._wait_started()
-    return server
+@pytest.fixture(scope="module")
+def http_server(runpath):
+    """Start and yield an HTTP server driver."""
+    server = http.HTTPServer(
+        name="http_server",
+        host="localhost",
+        port=0,
+        runpath=os.path.join(runpath, "server"))
+
+    with server:
+        yield server
 
 
-def create_client(name, host, port, timeout):
-    client = HTTPClient(name=name,
-                        host=host,
-                        port=port,
-                        timeout=timeout)
-    client.start()
-    client._wait_started()
-    return client
+@pytest.fixture(scope="module")
+def http_client(http_server, runpath):
+    """Start and yield an HTTP client."""
+    client = http.HTTPClient(
+        name="http_client",
+        host=http_server.host,
+        port=http_server.port,
+        timeout=10,
+        runpath=os.path.join(runpath, "client"))
+
+    with client:
+        yield client
 
 
 class TestHTTP(object):
-
-    def setup_method(self, method):
-        self.server = create_server('http_server', 'localhost', 0)
-        self.client = create_client(
-            'http_client',
-            self.server.host,
-            self.server.port,
-            10
-        )
-
-    def teardown_method(self, method):
-        for device in [self.server, self.client]:
-            device.stop()
-            device._wait_stopped()
+    """Test the HTTP server and client drivers."""
 
     @pytest.mark.parametrize(
         'method',
         ('get', 'post', 'put', 'delete', 'patch', 'options')
     )
-    def test_server_method_request(self, method):
+    def test_server_method_request(self, method, http_server):
+        """Test making HTTP requests to the server directly using requests."""
         text = str(uuid.uuid4())
-        res = HTTPResponse(content=[text])
-        self.server.queue_response(res)
+        res = http.HTTPResponse(content=[text])
+        http_server.queue_response(res)
 
         method_request = getattr(requests, method)
-        url = 'http://{}:{}/'.format(self.server.host, self.server.port)
+        url = 'http://{}:{}/'.format(http_server.host, http_server.port)
         r = method_request(url)
         assert requests.codes.ok == r.status_code
         assert 'text/plain' == r.headers['content-type']
         assert text == r.text.strip('\n')
 
-    def test_wait_for_response(self):
+    def test_wait_for_response(self, http_server, http_client):
+        """Test waiting for a response from the server."""
         # Send HTTP request
-        self.client.get('random/text')
+        http_client.get('random/text')
 
         # Send response
         wait = 0.2
         time.sleep(wait)
         text = str(uuid.uuid4())
-        res = HTTPResponse(content=[text])
-        self.server.respond(res)
+        res = http.HTTPResponse(content=[text])
+        http_server.respond(res)
 
         # Receive response
-        r = self.client.receive()
+        r = http_client.receive()
 
         # Verify response
         assert requests.codes.ok == r.status_code
@@ -83,22 +81,25 @@ class TestHTTP(object):
         'method',
         ('get', 'post', 'put', 'delete', 'patch', 'options')
     )
-    def test_client_method_request(self, method):
-        method_request = getattr(self.client, method)
+    def test_client_method_request(self, method, http_server, http_client):
+        """Test making HTTP requests from client to server objects."""
+        method_request = getattr(http_client, method)
         method_request('random/text')
 
         text = str(uuid.uuid4())
-        res = HTTPResponse(content=[text])
-        self.server.queue_response(res)
+        res = http.HTTPResponse(content=[text])
+        http_server.queue_response(res)
 
-        r = self.client.receive()
+        r = http_client.receive()
 
         assert requests.codes.ok == r.status_code
         assert 'text/plain' == r.headers['content-type']
         assert text == r.text.strip('\n')
 
-    def test_client_flush(self):
-        self.client.get('random/text')
-        self.client.flush()
-        msg = self.client.receive()
-        assert None == msg
+    def test_client_flush(self, http_client):
+        """Test flushing the client receuve queue."""
+        http_client.get('random/text')
+        http_client.flush()
+        msg = http_client.receive(timeout=0.1)
+        assert msg is None
+

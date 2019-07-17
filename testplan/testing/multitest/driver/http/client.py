@@ -109,6 +109,7 @@ class HTTPClient(Driver):
         """
         super(HTTPClient, self).stopping()
         self.file_logger.debug('Stopped HTTPClient.')
+        self._close_file_logger()
 
     def aborting(self):
         """Abort logic that stops the client."""
@@ -276,6 +277,8 @@ class HTTPClient(Driver):
         :rtype: ``requests.models.Response`` or ``NoneType``
         """
         timeout = time.time() + (timeout or self.timeout)
+        response = None
+
         while time.time() < timeout:
             try:
                 response = self.responses.get(False)
@@ -287,6 +290,7 @@ class HTTPClient(Driver):
                 self.file_logger.debug('Received response.')
                 break
             time.sleep(self.interval)
+
         return response
 
     def flush(self):

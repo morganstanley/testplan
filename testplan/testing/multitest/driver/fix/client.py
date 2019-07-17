@@ -275,6 +275,7 @@ class FixClient(Driver):
             self._client.close()
             self._client = None
             self.file_logger.debug('Stopped client')
+            self._close_file_logger()
 
     def stopping(self):
         """Stops the FIX client."""
