@@ -1,5 +1,5 @@
 """
-    JSON exporter for Test reports, relies on `testplan.report.testing.schemas`
+    JSON exporter for test reports, relies on `testplan.report.testing.schemas`
     for `dict` serialization and JSON conversion.
 """
 from __future__ import absolute_import
