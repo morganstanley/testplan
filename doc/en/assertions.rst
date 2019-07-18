@@ -1647,11 +1647,12 @@ Checks if given tags / paths exist in the XML string, supports namespace lookups
 
 Graph Visualisation
 ===================
-This method will allow you to produce graphs and charts to visualise your data.
+This method will allow you to produce interactive graphs and charts visualise
+and plot your data in the Web Browser UI.
 
 This method takes 5 arguments:
 
-            Result.graph(``graph_type``, ``graph_data``, ``description``, ``series_options``, ``graph_options``)
+            ``result.graph(graph_type, graph_data, description, series_options, graph_options)``
 
     .. code-block:: python
 
@@ -1777,7 +1778,15 @@ Again, for one data set this format is still required:
 
 **Currently supported series options:**
 
-    1.  **'colour'** - `str` the colour of that data set on the graph (DEFAULT: Random colour)
+    1.  **'colour'** - `str` the colour of that data set on the graph
+
+        (DEFAULT: Random colour - if you do not like your randomly assigned colour,
+        refresh the page for a new one if you're feelin' lucky!)
+
+        Valid inputs for colour include:
+
+        - RGB colours e.g ('#8080ff', '#c6e486')
+        - Basic colour names e.g ('red', 'orange', 'yellow')
 
         e.g {'colour': 'red'}
 
@@ -1800,7 +1809,9 @@ The options for the entire graph
 
         e.g {'yAxisTitle': 'Volume'}
 
-    3.  **'legend'** - `bool` whether to display the data set name legend (DEFAULT: False)
+    3.  **'legend'** - `bool` whether to display the data set name legend
+
+        (DEFAULT: False)
 
         e.g {'legend': True}
 

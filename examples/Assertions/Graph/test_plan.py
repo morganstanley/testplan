@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# This plan contains tests that demonstrate failures as well.
 """
 These examples show usage of graphs
 """
@@ -16,7 +14,7 @@ class SampleSuite(object):
 
     # Basic graphing for singe series graphing:
     @testcase
-    def GRAPH_TESTS(self, env, result):
+    def graph_tests(self, env, result):
 
         # The last 3 arguments don't have to be keyword, however for clarity they are included.
         # A Basic single series line graph, where the line has been specified to be red,
@@ -75,7 +73,7 @@ class SampleSuite(object):
                      graph_options=None
                      )
 
-        # A Whisker graph where the data structure expects an 'xVarience' and 'yVarience' to produce the whiskers
+        # A Whisker graph where the data structure expects an 'xVariance' and 'yVariance' to produce the whiskers
         result.graph('Whisker',
                      {'Data Name':  [
                                      {'x': 1, 'y': 10, 'xVariance': 0.5, 'yVariance': 2},
@@ -132,7 +130,7 @@ class SampleSuite(object):
 
     # Some examples of multi series graphs:
     @testcase
-    def MULTISERIES_GRAPH_TESTS(self, env, result):
+    def multisereis_graph_tests(self, env, result):
 
         # This line graph has two data series 'graph 1' and 'graph 2' and will be plot on the same axis
         # NOTE: with multi series graphs you will often want the legend to be set to true

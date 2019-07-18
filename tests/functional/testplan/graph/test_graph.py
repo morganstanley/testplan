@@ -1,14 +1,12 @@
 import json
 import os
-import re
-import psutil
 import subprocess
 import sys
 import tempfile
 
 
 def test_graph():
-    """Test the globsl Testplan timeout feature."""
+    """Test the graphing feature."""
     testplan_script = os.path.join(
         os.path.dirname(__file__), 'graph_example.py')
     assert os.path.isfile(testplan_script)

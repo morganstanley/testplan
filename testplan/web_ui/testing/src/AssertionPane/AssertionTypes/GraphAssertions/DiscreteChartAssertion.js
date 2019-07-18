@@ -21,18 +21,17 @@ class DiscreteChartAssertion extends Component  {
     let data = this.props.assertion.graph_data;
     const graph_type = this.props.assertion.graph_type
     const GraphComponent = this.components[graph_type];
-    let series_options = this.props.assertion.series_options;
-   // let graph_options = this.props.assertion.graph_options;
+    const series_options = this.props.assertion.series_options;
+   // const graph_options = this.props.assertion.graph_options;
 
-    var plots = [];
-    var plot_options;
-    var series_colour;
+    let plots = [];
+    let plot_options;
 
-    for (var key in data) {
+    for (let key in data) {
         if(series_options !== null){
           plot_options = series_options[key];
         }
-        series_colour = GraphUtil.returnColour(plot_options)
+        let series_colour = GraphUtil.returnColour(plot_options)
         plots.push(
                      <GraphComponent
                       colorType= {series_colour}

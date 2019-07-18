@@ -26,17 +26,20 @@ class XYGraphAssertion extends Component {
     constructor(props) {
       super(props);
 
-      this.series_colour = {}
-      let data = this.props.assertion.graph_data;
-      let series_options = this.props.assertion.series_options;
+      this.state = {
+        series_colour:{}
+      }
 
-      var plot_options;
-      for (var key in data) {
+      let data = this.props.assertion.graph_data;
+      const series_options = this.props.assertion.series_options;
+
+      let plot_options;
+      for (let key in data) {
            if(series_options !== null){
                plot_options = series_options[key];
             }
-          var plot_colour = GraphUtil.returnColour(plot_options);
-          this.series_colour[key] = plot_colour;
+          let plot_colour = GraphUtil.returnColour(plot_options);
+          this.state.series_colour[key] = plot_colour;
       }
     }
 
@@ -56,24 +59,23 @@ class XYGraphAssertion extends Component {
 
 
   render() {
-    let data = this.props.assertion.graph_data;
-   // let series_options = this.props.assertion.series_options;
-    let graph_options = this.props.assertion.graph_options;
+    const data = this.props.assertion.graph_data;
+   // const series_options = this.props.assertion.series_options;
+    const graph_options = this.props.assertion.graph_options;
     const {lastDrawLocation} = this.state;
     const graph_type = this.props.assertion.graph_type
     const GraphComponent = this.components[graph_type];
 
-    var legend = [];
-    var plots = [];
+    let legend = [];
+    let plots = [];
 
-    for (var key in data) {
-        var series_colour = this.series_colour[key]
+    for (let key in data) {
+        let series_colour = this.state.series_colour[key]
         plots.push(
                     <GraphComponent
                       data={data[key]}
                       color={series_colour}
                       style = {GraphUtil.returnStyle(graph_type)}
-                      radius = {GraphUtil.returnRadius(graph_type)}
                     />
                   );
         if((graph_options !== null) && graph_options.legend){

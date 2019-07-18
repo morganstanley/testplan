@@ -328,30 +328,10 @@ class TestFIXNamespace(object):
                                                     },
                                         graph_options=None
                                     )
-        assert graph_assertion is True
 
-        graph = Graph(
-                        'Line',
-                        {'Data Name':  [
-                                     {'x': 0, 'y': 8},
-                                     {'x': 1, 'y': 5},
-                                     {'x': 2, 'y': 4},
-                                     {'x': 3, 'y': 9},
-                                     {'x': 4, 'y': 1},
-                                     {'x': 5, 'y': 7},
-                                     {'x': 6, 'y': 6},
-                                     {'x': 7, 'y': 3},
-                                     {'x': 8, 'y': 2},
-                                     {'x': 9, 'y': 0}
-                                        ]
-                        },
-                        description='Line Graph',
-                        series_options={
-                                         'Data Name': {"colour": "red"}
-                                    },
-                        graph_options=None
-                      )
-        assert graph.graph_type is 'Line'
-        assert type(graph.graph_data) is dict
-        assert type(graph.series_options) is dict
-        assert graph.graph_options is None
+        assert graph_assertion is True
+        assert len(result.entries) == 1
+        assert result.entries[0].graph_type is 'Line'
+        assert type(result.entries[0].graph_data) is dict
+        assert type(result.entries[0].series_options) is dict
+        assert result.entries[0].graph_options is None

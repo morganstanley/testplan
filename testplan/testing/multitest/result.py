@@ -1137,6 +1137,7 @@ class FixNamespace(AssertionNamespace):
         """
         return base.FixLog(msg=msg, description=description)
 
+
 class Result(object):
     """
     Contains assertion methods and namespaces for generating test data.
@@ -1876,27 +1877,27 @@ class Result(object):
         """
         Displays a Graph in the report.
 
-         code-block:: python
+         .. code-block:: python
 
-         result.graph('Line',
-                      {
-                          'graph 1':[{'x': 0, 'y': 8},{'x': 1, 'y': 5}]
-                      },
-                      description='Line Graph',
-                      individual_options={'graph 1':{"colour": "red"}},
-                      graph_options=None
-          )
+             result.graph('Line',
+                          {
+                              'graph 1':[{'x': 0, 'y': 8},{'x': 1, 'y': 5}]
+                          },
+                          description='Line Graph',
+                          series_options={'graph 1':{"colour": "red"}},
+                          graph_options=None
+              )
 
         :param graph_type: Type of graph user wants to create
-        :type graph_type: ``string``
+        :type graph_type: ``str``
         :param graph_data: Data to plot on the graph, for each series.
-        :type graph_data: ``Dictionary[List[Dictionary]]``
+        :type graph_data: ``dict[str, list]``
         :param description: Text description for the graph.
         :type description: ``str``
         :param series_options: customisation parameters for each series
-        :type series_options: `Dictionary[Dictionary]`.
+        :type series_options: ``dict[str, dict[str, object]]```.
         :param graph_options: customisation parameters for overall graph
-        :type graph_options: `Dictionary`.
+        :type graph_options: ``dict[str, object]``.
         """
         return base.Graph(
             graph_type=graph_type,
