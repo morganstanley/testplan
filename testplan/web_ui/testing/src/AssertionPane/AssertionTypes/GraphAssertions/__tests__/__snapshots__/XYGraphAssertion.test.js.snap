@@ -60,9 +60,9 @@ ShallowWrapper {
                 className=""
                 height={500}
                 width={750}
-                xDomain={null}
+                xDomain={undefined}
                 xType="ordinal"
-                yDomain={null}
+                yDomain={undefined}
         >
                 <HorizontalGridLines
                         attr="y"
@@ -99,7 +99,6 @@ ShallowWrapper {
                                         },
                                       ]
                         }
-                        radius={undefined}
                         stack={false}
                         style={Object {}}
                 />
@@ -149,9 +148,9 @@ ShallowWrapper {
             className=""
             height={500}
             width={750}
-            xDomain={null}
+            xDomain={undefined}
             xType="ordinal"
-            yDomain={null}
+            yDomain={undefined}
 >
             <HorizontalGridLines
                         attr="y"
@@ -188,7 +187,6 @@ ShallowWrapper {
                                                 },
                                               ]
                         }
-                        radius={undefined}
                         stack={false}
                         style={Object {}}
             />
@@ -271,7 +269,6 @@ ShallowWrapper {
                                                       },
                                                     ]
                   }
-                  radius={undefined}
                   stack={false}
                   style={Object {}}
 />,
@@ -289,9 +286,9 @@ ShallowWrapper {
             "className": "",
             "height": 500,
             "width": 750,
-            "xDomain": null,
+            "xDomain": undefined,
             "xType": "ordinal",
-            "yDomain": null,
+            "yDomain": undefined,
           },
           "ref": null,
           "rendered": Array [
@@ -356,7 +353,6 @@ ShallowWrapper {
                     "y": 15,
                   },
                 ],
-                "radius": undefined,
                 "stack": false,
                 "style": Object {},
               },
@@ -427,9 +423,9 @@ ShallowWrapper {
                     className=""
                     height={500}
                     width={750}
-                    xDomain={null}
+                    xDomain={undefined}
                     xType="ordinal"
-                    yDomain={null}
+                    yDomain={undefined}
           >
                     <HorizontalGridLines
                               attr="y"
@@ -466,7 +462,6 @@ ShallowWrapper {
                                                   },
                                                 ]
                               }
-                              radius={undefined}
                               stack={false}
                               style={Object {}}
                     />
@@ -516,9 +511,9 @@ ShallowWrapper {
               className=""
               height={500}
               width={750}
-              xDomain={null}
+              xDomain={undefined}
               xType="ordinal"
-              yDomain={null}
+              yDomain={undefined}
 >
               <HorizontalGridLines
                             attr="y"
@@ -555,7 +550,6 @@ ShallowWrapper {
                                                         },
                                                       ]
                             }
-                            radius={undefined}
                             stack={false}
                             style={Object {}}
               />
@@ -638,7 +632,6 @@ ShallowWrapper {
                                                             },
                                                           ]
                     }
-                    radius={undefined}
                     stack={false}
                     style={Object {}}
 />,
@@ -656,9 +649,9 @@ ShallowWrapper {
               "className": "",
               "height": 500,
               "width": 750,
-              "xDomain": null,
+              "xDomain": undefined,
               "xType": "ordinal",
-              "yDomain": null,
+              "yDomain": undefined,
             },
             "ref": null,
             "rendered": Array [
@@ -723,7 +716,6 @@ ShallowWrapper {
                       "y": 15,
                     },
                   ],
-                  "radius": undefined,
                   "stack": false,
                   "style": Object {},
                 },
