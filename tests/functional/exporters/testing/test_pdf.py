@@ -5,7 +5,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.entries import base
 from testplan.testing.multitest.entries.schemas.base import registry
 
-from testplan import Testplan
+from testplan import Testplan, defaults
 from testplan.common.utils.testing import (
     log_propagation_disabled, argv_overridden
 )
@@ -114,6 +114,7 @@ def test_tag_filtered_pdf(tmpdir):
 
     exporter = TagFilteredPDFExporter(
         report_dir=pdf_dir,
+        pdf_style=defaults.PDF_STYLE,
         report_tags=[
             'foo',
             'baz',  # this should be skipped

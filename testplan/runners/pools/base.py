@@ -356,11 +356,7 @@ class Pool(Executor):
         cfg = self.cfg
 
         while cfg:
-            try:
-                options.append(cfg.denormalize())
-            except Exception as exc:
-                self.logger.error('Could not denormalize: {} - {}'.format(
-                    cfg, exc))
+            options.append(cfg.denormalize())
             cfg = cfg.parent
 
         worker.respond(response.make(Message.ConfigSending,

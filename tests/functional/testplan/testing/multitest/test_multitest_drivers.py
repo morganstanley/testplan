@@ -2,11 +2,15 @@
 
 import os
 import re
+import getpass
 import tempfile
+
+from testplan.testing.filtering import Filter
+from testplan.testing.ordering import NoopSorter
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
+from testplan import Testplan, defaults
 from testplan.common.entity.base import Environment, ResourceStatus
 from testplan.common.utils.context import context
 from testplan.common.utils.path import StdFiles, default_runpath
@@ -18,6 +22,7 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 CUSTOM_RUNPATH = os.path.join(tempfile.gettempdir(),
+                              getpass.getuser(),
                               'test_multitest_drivers_runpath')
 
 def runpath_maker(_):
@@ -89,7 +94,10 @@ def test_multitest_drivers():
                            host=context(server.cfg.name, '{{host}}'),
                            port=context(server.cfg.name, '{{port}}'))
         opts.update(environment=[server, client],
-                    initial_context={'test_key': 'test_value'})
+                    initial_context={'test_key': 'test_value'},
+                    stdout_style=defaults.STDOUT_STYLE,
+                    test_filter=Filter(),
+                    test_sorter=NoopSorter())
         mtest = MultiTest(**opts)
         assert server.status.tag == ResourceStatus.NONE
         assert client.status.tag == ResourceStatus.NONE

@@ -36,13 +36,11 @@ default values or user input with \*\*options after performing a validation stag
 Config objects can inherit other Config objects and alter or define additional
 ConfigOption items:
 
-  * Config instances may have parent references that are used to retrieve a
+  * Config instances may have container references that are used to retrieve a
     config option value if this is not present in the current config.
     The ``__getattr__`` method in :py:class:`~testplan.common.config.base.Config`
-    contains the rules on whether current or parent config option will be used.
-  * ``block_propagation=True`` prevents retrieving the config option from the
-    parent.
-
+    contains the rules on whether current or container config option will be
+    used.
 
 Entity
 ``````
