@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
+exports[`DiscreteChartAssertion shallow renders the correct HTML structure 1`] = `
 ShallowWrapper {
   Symbol(enzyme.__root__): [Circular],
   Symbol(enzyme.__unrendered__): <DiscreteChartAssertion
