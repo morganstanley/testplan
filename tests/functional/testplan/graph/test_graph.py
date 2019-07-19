@@ -40,18 +40,28 @@ def test_graph():
         assert testcase1['graph_options'] is None
 
         testcase2 = report['entries'][0]['entries'][0]['entries'][0]['entries'][1]
-        assert testcase2['graph_type'] == 'Bar'
-        assert testcase2['series_options'] is None
+        assert testcase2['graph_type'] == 'Scatter'
+        assert type(testcase2['series_options']) is dict
         assert testcase2['graph_options'] is None
 
         testcase3 = report['entries'][0]['entries'][0]['entries'][0]['entries'][2]
-        assert testcase3['type'] == 'DiscreteChart'
-        assert type(testcase3['series_options']) is dict
+        assert testcase3['graph_type'] == 'Bar'
+        assert testcase3['series_options'] is None
         assert testcase3['graph_options'] is None
 
         testcase4 = report['entries'][0]['entries'][0]['entries'][0]['entries'][3]
-        assert type(testcase4['graph_data']) is dict
-        assert len(testcase4['graph_data']) is 2
+        assert testcase4['type'] == 'DiscreteChart'
+        assert type(testcase4['series_options']) is dict
+        assert testcase4['graph_options'] is None
+
+        testcase5 = report['entries'][0]['entries'][0]['entries'][0]['entries'][4]
+        assert testcase5['type'] == 'Graph'
+        assert testcase5['graph_type'] == 'Hexbin'
+        assert testcase5['graph_options'] is None
+
+        testcase6 = report['entries'][0]['entries'][0]['entries'][0]['entries'][5]
+        assert type(testcase6['graph_data']) is dict
+        assert len(testcase6['graph_data']) is 2
 
     finally:
         os.remove(output_json)
