@@ -196,19 +196,30 @@ class App(Driver):
         cmd = ' '.join(self.cmd) if self.cfg.shell else self.cmd
         cwd = self.cfg.working_dir or self.runpath
         try:
-            self.logger.debug('{driver} driver command: {cmd},{linesep}'
-                              '\trunpath: {runpath}{linesep}'
-                              '\tout/err files {out} - {err}'.format(
-                driver=self.uid(),
-                cmd=cmd, runpath=self.runpath, linesep=os.linesep,
-                out=self.std.out_path, err=self.std.err_path))
-            self.proc = subprocess.Popen(cmd, shell=self.cfg.shell,
-                stdout=self.std.out, stderr=self.std.err,
-                cwd=cwd, env=self.env)
+            self.logger.debug(
+                '%(driver)s driver command: %(cmd)s,\n'
+                '\trunpath: %(runpath)s\n'
+                '\tout/err files %(out)s - %(err)s',
+                {
+                    "driver": self.uid(),
+                    "cmd": cmd,
+                    "runpath": self.runpath,
+                    "out": self.std.out_path,
+                    "err": self.std.err_path,
+                })
+            self.proc = subprocess.Popen(
+                cmd,
+                shell=self.cfg.shell,
+                stdin=subprocess.PIPE,
+                stdout=self.std.out,
+                stderr=self.std.err,
+                cwd=cwd,
+                env=self.env)
         except Exception:
-            TESTPLAN_LOGGER.error(
+            self.logger.error(
                 'Error while App[%s] driver executed command: %s',
-                self.cfg.name, cmd if self.cfg.shell else ' '.join(cmd))
+                self.cfg.name,
+                cmd if self.cfg.shell else ' '.join(cmd))
             raise
 
     def stopping(self):
