@@ -1888,15 +1888,27 @@ class Result(object):
                           graph_options=None
               )
 
-        :param graph_type: Type of graph user wants to create
+        :param graph_type: Type of graph user wants to create.
+                          Currently implemented:
+                          'Line', 'Scatter', 'Bar', 'Hexbin',
+                          'Pie', 'Whisker', 'Contour'
         :type graph_type: ``str``
         :param graph_data: Data to plot on the graph, for each series.
         :type graph_data: ``dict[str, list]``
         :param description: Text description for the graph.
         :type description: ``str``
-        :param series_options: customisation parameters for each series
+        :param series_options: Customisation parameters for each
+                               individual series.
+                               Currently implemented:
+                               1){'Colour': ``str``} - colour of tgit hat series
+                               (str can be either basic colour name or RGB)
         :type series_options: ``dict[str, dict[str, object]]```.
-        :param graph_options: customisation parameters for overall graph
+        :param graph_options: Customisation parameters for overall graph
+                              Currently implemented:
+                               1){'xAxisTitle': ``str``} - x axis graph title
+                               2){'yAxisTitle': ``str``} - y axis graph title
+                               3){'legend': ``bool``} - to display legend
+                               legend (Default: false)
         :type graph_options: ``dict[str, object]``.
         """
         return base.Graph(

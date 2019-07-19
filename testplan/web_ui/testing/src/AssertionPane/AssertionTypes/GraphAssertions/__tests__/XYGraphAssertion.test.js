@@ -37,7 +37,7 @@ function defaultProps() {
 }
 
 
-describe('FixMatchAssertion', () => {
+describe('XYGraphAssertion', () => {
   let props;
   let shallowComponent;
 

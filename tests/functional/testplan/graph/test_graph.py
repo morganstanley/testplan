@@ -8,7 +8,7 @@ import tempfile
 def test_graph():
     """Test the graphing feature."""
     testplan_script = os.path.join(
-        os.path.dirname(__file__), 'graph_example.py')
+        os.path.dirname(__file__), '../../../../examples/Assertions/Graph/test_plan.py')
     assert os.path.isfile(testplan_script)
 
     cuurent_path = os.path.dirname(os.path.realpath(__file__))
@@ -37,7 +37,7 @@ def test_graph():
         assert type(testcase1['graph_data']) is dict
         assert testcase1['description'] == 'Line Graph'
         assert type(testcase1['series_options']) is dict
-        assert testcase1['graph_options'] is None
+        assert type(testcase1['graph_options']) is dict
 
         testcase2 = report['entries'][0]['entries'][0]['entries'][0]['entries'][1]
         assert testcase2['graph_type'] == 'Scatter'
@@ -50,18 +50,18 @@ def test_graph():
         assert testcase3['graph_options'] is None
 
         testcase4 = report['entries'][0]['entries'][0]['entries'][0]['entries'][3]
-        assert testcase4['type'] == 'DiscreteChart'
-        assert type(testcase4['series_options']) is dict
+        assert testcase4['type'] == 'Graph'
+        assert testcase4['series_options'] is None
         assert testcase4['graph_options'] is None
 
         testcase5 = report['entries'][0]['entries'][0]['entries'][0]['entries'][4]
         assert testcase5['type'] == 'Graph'
-        assert testcase5['graph_type'] == 'Hexbin'
+        assert testcase5['graph_type'] == 'Whisker'
         assert testcase5['graph_options'] is None
 
         testcase6 = report['entries'][0]['entries'][0]['entries'][0]['entries'][5]
         assert type(testcase6['graph_data']) is dict
-        assert len(testcase6['graph_data']) is 2
+        assert len(testcase6['graph_data']) is 1
 
     finally:
         os.remove(output_json)

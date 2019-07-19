@@ -50,7 +50,7 @@ function defaultProps() {
 }
 
 
-describe('FixMatchAssertion', () => {
+describe('DiscreteChartAssertion', () => {
   let props;
   let shallowComponent;
 

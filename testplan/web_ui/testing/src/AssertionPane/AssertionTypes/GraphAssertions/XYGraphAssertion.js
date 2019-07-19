@@ -62,7 +62,6 @@ class XYGraphAssertion extends Component {
 
   render() {
     const data = this.props.assertion.graph_data;
-   // const series_options = this.props.assertion.series_options;
     const graph_options = this.props.assertion.graph_options;
     const {lastDrawLocation} = this.state;
     const graph_type = this.props.assertion.graph_type

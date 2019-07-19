@@ -21,7 +21,6 @@ class DiscreteChartAssertion extends Component  {
     const graph_type = this.props.assertion.graph_type
     const GraphComponent = this.components[graph_type];
     const series_options = this.props.assertion.series_options;
-   // const graph_options = this.props.assertion.graph_options;
 
     let plots = [];
     let plot_options;
