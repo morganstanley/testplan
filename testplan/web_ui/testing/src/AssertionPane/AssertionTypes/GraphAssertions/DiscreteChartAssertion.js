@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import 'react-vis/dist/style.css';
-import './App.css';
 import * as GraphUtil from './graphUtils';
 import {
   RadialChart

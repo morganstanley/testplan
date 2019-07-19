@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import 'react-vis/dist/style.css';
-import './App.css';
 import * as GraphUtil from './graphUtils';
+import {css, StyleSheet} from 'aphrodite';
 
 import {
   XAxis,
@@ -87,7 +87,8 @@ class XYGraphAssertion extends Component {
 
     return (
       <div>
-        <div>
+        <div className={css(styles.centreComponent)}>
+
           <XYPlot
             animation
             xDomain={lastDrawLocation && [
@@ -138,5 +139,10 @@ XYGraphAssertion.propTypes = {
   assertion: PropTypes.object,
 };
 
+const styles = StyleSheet.create({
+  centreComponent: {
+    alignItems: 'center'
+  }
+});
 
 export default XYGraphAssertion;
