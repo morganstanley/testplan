@@ -15,7 +15,8 @@ import {
   Highlight,
   HexbinSeries,
   ContourSeries,
-  WhiskerSeries
+  WhiskerSeries,
+  MarkSeries
 } from 'react-vis';
 
 
@@ -54,7 +55,8 @@ class XYGraphAssertion extends Component {
         Hexbin: HexbinSeries,
         Contour: ContourSeries,
         Whisker: WhiskerSeries,
-        Bar: VerticalBarSeries
+        Bar: VerticalBarSeries,
+        Scatter: MarkSeries
     }
 
 

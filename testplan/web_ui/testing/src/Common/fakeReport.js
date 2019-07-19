@@ -669,6 +669,55 @@ var fakeReportAssertions = {
                                     "category": "DEFAULT",
                                     "graph_options": null,
                                     "graph_type": "Line"
+                                },{
+                                    "meta_type": "entry",
+                                    "utc_time": "2019-07-12T12:36:09.711865+00:00",
+                                    "machine_time": "2019-07-12T12:36:09.711865+00:00",
+                                    "type": "Graph",
+                                    "series_options": {
+                                        "Data Name": {
+                                            "colour": "black"
+                                        }
+                                    },
+                                    "line_no": 38,
+                                    "graph_data": {
+                                        "Data Name": [{
+                                                "x": 0,
+                                                "y": 8
+                                            }, {
+                                                "x": 1,
+                                                "y": 5
+                                            }, {
+                                                "x": 2,
+                                                "y": 4
+                                            }, {
+                                                "x": 3,
+                                                "y": 9
+                                            }, {
+                                                "x": 4,
+                                                "y": 1
+                                            }, {
+                                                "x": 5,
+                                                "y": 7
+                                            }, {
+                                                "x": 6,
+                                                "y": 6
+                                            }, {
+                                                "x": 7,
+                                                "y": 3
+                                            }, {
+                                                "x": 8,
+                                                "y": 2
+                                            }, {
+                                                "x": 9,
+                                                "y": 0
+                                            }
+                                        ]
+                                    },
+                                    "description": "Scatter Graph",
+                                    "category": "DEFAULT",
+                                    "graph_options": null,
+                                    "graph_type": "Scatter"
                                 }, {
                                     "meta_type": "entry",
                                     "utc_time": "2019-07-12T12:36:09.782759+00:00",

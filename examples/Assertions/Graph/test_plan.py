@@ -40,6 +40,28 @@ class SampleSuite(object):
                      graph_options={'xAxisTitle': 'Time', 'yAxisTitle': 'Failures'}
                      )
 
+        # A Basic single series scatter graph, where the points have been specified to be black
+        result.graph('Scatter',
+                     {'Data Name':  [
+                                     {'x': 0, 'y': 8},
+                                     {'x': 1, 'y': 50},
+                                     {'x': 2, 'y': 4},
+                                     {'x': -10, 'y': 9},
+                                     {'x': 4, 'y': 1},
+                                     {'x': 5, 'y': 7},
+                                     {'x': 6, 'y': -3},
+                                     {'x': 7, 'y': 3},
+                                     {'x': 100, 'y': 2},
+                                     {'x': 9, 'y': 0}
+                                    ]
+                      },
+                     description='Scatter Graph',
+                     series_options={
+                                         'Data Name': {"colour": "black"}
+                                    },
+                     graph_options=None
+                     )
+
         # A single series Bar Graph, with no colour or graph preference, so a random colour will be assigned
         result.graph('Bar',
                      {'Any Name You Want':  [

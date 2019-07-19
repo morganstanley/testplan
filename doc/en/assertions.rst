@@ -1685,6 +1685,7 @@ graph_type - `string`
 Specifies the type of graph displayed, there are currently six choices:
 
 ``Line``,
+``Scatter``,
 ``Bar``,
 ``Pie``,
 ``Hexbin``,
@@ -1707,7 +1708,7 @@ For one data set, this format is still required:
 
 The data format required for each type is shown below:
 
-    **Line, Hexbin and Contour**: `Array[ Dict{ 'x': int, 'y':int } ]`
+    **Line, Scatter, Hexbin and Contour**: `Array[ Dict{ 'x': int, 'y':int } ]`
 
         .. code-block:: python
 
