@@ -1900,7 +1900,7 @@ class Result(object):
         :param series_options: Customisation parameters for each
                                individual series.
                                Currently implemented:
-                               1){'Colour': ``str``} - colour of tgit hat series
+                               1){'Colour': ``str``} - colour of that series
                                (str can be either basic colour name or RGB)
         :type series_options: ``dict[str, dict[str, object]]```.
         :param graph_options: Customisation parameters for overall graph
