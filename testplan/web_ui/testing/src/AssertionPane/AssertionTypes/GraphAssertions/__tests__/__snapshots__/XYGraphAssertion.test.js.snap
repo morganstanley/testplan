@@ -54,7 +54,9 @@ ShallowWrapper {
     "key": undefined,
     "nodeType": "host",
     "props": Object {
-      "children": <div>
+      "children": <div
+        className="centreComponent_1moixrt"
+>
         <XYPlot
                 animation={true}
                 className=""
@@ -223,6 +225,7 @@ ShallowWrapper {
             width={750}
 />,
         ],
+        "className": "centreComponent_1moixrt",
       },
       "ref": null,
       "rendered": Array [
@@ -417,7 +420,9 @@ ShallowWrapper {
       "key": undefined,
       "nodeType": "host",
       "props": Object {
-        "children": <div>
+        "children": <div
+          className="centreComponent_1moixrt"
+>
           <XYPlot
                     animation={true}
                     className=""
@@ -586,6 +591,7 @@ ShallowWrapper {
               width={750}
 />,
           ],
+          "className": "centreComponent_1moixrt",
         },
         "ref": null,
         "rendered": Array [
