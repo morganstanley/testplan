@@ -1647,8 +1647,8 @@ Checks if given tags / paths exist in the XML string, supports namespace lookups
 
 Graph Visualisation
 ===================
-This method will allow you to produce interactive graphs and charts visualise
-and plot your data in the Web Browser UI.
+This graphing tool will allow you to produce interactive data visualisations
+inside the web UI
 
 This method takes 5 arguments:
 
