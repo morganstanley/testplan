@@ -9,6 +9,7 @@ Downloadable examples
 
     Multitest
     Assertions
+    Graphs
     Test Output
     Interactive
     App

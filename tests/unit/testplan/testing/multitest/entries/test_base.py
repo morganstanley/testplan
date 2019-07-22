@@ -121,5 +121,3 @@ def test_summary():
 
     assert len(alpha_category_less_passing.entries) == summary.num_passing
     assert len(alpha_category_less_failing.entries) == summary.num_failing
-
-

@@ -1,0 +1,345 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DiscreteChartAssertion shallow renders the correct HTML structure 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <DiscreteChartAssertion
+    assertion={
+        Object {
+            "category": "DEFAULT",
+            "description": "Pie Chart",
+            "graph_data": Object {
+              "Data Name": Array [
+                Object {
+                  "angle": 1,
+                  "color": "#89DAC1",
+                  "name": "green",
+                },
+                Object {
+                  "angle": 2,
+                  "color": "#F6D18A",
+                  "name": "yellow",
+                },
+                Object {
+                  "angle": 5,
+                  "color": "#1E96BE",
+                  "name": "cyan",
+                },
+                Object {
+                  "angle": 3,
+                  "color": "#DA70BF",
+                  "name": "magenta",
+                },
+                Object {
+                  "angle": 5,
+                  "color": "#F6D18A",
+                  "name": "yellow again",
+                },
+              ],
+            },
+            "graph_options": null,
+            "graph_type": "Pie",
+            "line_no": 101,
+            "machine_time": "2019-07-12T12:36:09.796381+00:00",
+            "meta_type": "entry",
+            "series_options": Object {
+              "Data Name": Object {
+                "colour": "literal",
+              },
+            },
+            "type": "DiscreteChart",
+            "utc_time": "2019-07-12T12:36:09.796381+00:00",
+          }
+    }
+/>,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": Array [
+        <RadialChart
+          className=""
+          colorRange={
+                    Array [
+                              "#12939A",
+                              "#79C7E3",
+                              "#1A3177",
+                              "#FF9833",
+                              "#EF5D28",
+                            ]
+          }
+          colorType="literal"
+          data={
+                    Array [
+                              Object {
+                                "angle": 1,
+                                "color": "#89DAC1",
+                                "name": "green",
+                              },
+                              Object {
+                                "angle": 2,
+                                "color": "#F6D18A",
+                                "name": "yellow",
+                              },
+                              Object {
+                                "angle": 5,
+                                "color": "#1E96BE",
+                                "name": "cyan",
+                              },
+                              Object {
+                                "angle": 3,
+                                "color": "#DA70BF",
+                                "name": "magenta",
+                              },
+                              Object {
+                                "angle": 5,
+                                "color": "#F6D18A",
+                                "name": "yellow again",
+                              },
+                            ]
+          }
+          getAngle={[Function]}
+          getAngle0={[Function]}
+          getLabel={[Function]}
+          getRadius={[Function]}
+          getRadius0={[Function]}
+          getSubLabel={[Function]}
+          height={300}
+          labelsRadiusMultiplier={1.1}
+          labelsStyle={
+                    Object {
+                              "fontSize": 16,
+                            }
+          }
+          padAngle={0}
+          showLabels={true}
+          width={400}
+/>,
+      ],
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "function",
+        "props": Object {
+          "className": "",
+          "colorRange": Array [
+            "#12939A",
+            "#79C7E3",
+            "#1A3177",
+            "#FF9833",
+            "#EF5D28",
+          ],
+          "colorType": "literal",
+          "data": Array [
+            Object {
+              "angle": 1,
+              "color": "#89DAC1",
+              "name": "green",
+            },
+            Object {
+              "angle": 2,
+              "color": "#F6D18A",
+              "name": "yellow",
+            },
+            Object {
+              "angle": 5,
+              "color": "#1E96BE",
+              "name": "cyan",
+            },
+            Object {
+              "angle": 3,
+              "color": "#DA70BF",
+              "name": "magenta",
+            },
+            Object {
+              "angle": 5,
+              "color": "#F6D18A",
+              "name": "yellow again",
+            },
+          ],
+          "getAngle": [Function],
+          "getAngle0": [Function],
+          "getLabel": [Function],
+          "getRadius": [Function],
+          "getRadius0": [Function],
+          "getSubLabel": [Function],
+          "height": 300,
+          "labelsRadiusMultiplier": 1.1,
+          "labelsStyle": Object {
+            "fontSize": 16,
+          },
+          "padAngle": 0,
+          "showLabels": true,
+          "width": 400,
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+    ],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          <RadialChart
+            className=""
+            colorRange={
+                        Array [
+                                    "#12939A",
+                                    "#79C7E3",
+                                    "#1A3177",
+                                    "#FF9833",
+                                    "#EF5D28",
+                                  ]
+            }
+            colorType="literal"
+            data={
+                        Array [
+                                    Object {
+                                      "angle": 1,
+                                      "color": "#89DAC1",
+                                      "name": "green",
+                                    },
+                                    Object {
+                                      "angle": 2,
+                                      "color": "#F6D18A",
+                                      "name": "yellow",
+                                    },
+                                    Object {
+                                      "angle": 5,
+                                      "color": "#1E96BE",
+                                      "name": "cyan",
+                                    },
+                                    Object {
+                                      "angle": 3,
+                                      "color": "#DA70BF",
+                                      "name": "magenta",
+                                    },
+                                    Object {
+                                      "angle": 5,
+                                      "color": "#F6D18A",
+                                      "name": "yellow again",
+                                    },
+                                  ]
+            }
+            getAngle={[Function]}
+            getAngle0={[Function]}
+            getLabel={[Function]}
+            getRadius={[Function]}
+            getRadius0={[Function]}
+            getSubLabel={[Function]}
+            height={300}
+            labelsRadiusMultiplier={1.1}
+            labelsStyle={
+                        Object {
+                                    "fontSize": 16,
+                                  }
+            }
+            padAngle={0}
+            showLabels={true}
+            width={400}
+/>,
+        ],
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "function",
+          "props": Object {
+            "className": "",
+            "colorRange": Array [
+              "#12939A",
+              "#79C7E3",
+              "#1A3177",
+              "#FF9833",
+              "#EF5D28",
+            ],
+            "colorType": "literal",
+            "data": Array [
+              Object {
+                "angle": 1,
+                "color": "#89DAC1",
+                "name": "green",
+              },
+              Object {
+                "angle": 2,
+                "color": "#F6D18A",
+                "name": "yellow",
+              },
+              Object {
+                "angle": 5,
+                "color": "#1E96BE",
+                "name": "cyan",
+              },
+              Object {
+                "angle": 3,
+                "color": "#DA70BF",
+                "name": "magenta",
+              },
+              Object {
+                "angle": 5,
+                "color": "#F6D18A",
+                "name": "yellow again",
+              },
+            ],
+            "getAngle": [Function],
+            "getAngle0": [Function],
+            "getLabel": [Function],
+            "getRadius": [Function],
+            "getRadius0": [Function],
+            "getSubLabel": [Function],
+            "height": 300,
+            "labelsRadiusMultiplier": 1.1,
+            "labelsStyle": Object {
+              "fontSize": 16,
+            },
+            "padAngle": 0,
+            "showLabels": true,
+            "width": 400,
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+      ],
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getDerivedStateFromProps": true,
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+  },
+}
+`;
