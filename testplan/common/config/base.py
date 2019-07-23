@@ -10,6 +10,8 @@ from schema import Schema, Optional, And, Or, Use
 from testplan.common.utils.interface import check_signature
 from testplan.common.utils import logger
 
+# A sentinel object meaning not defined, it is useful when you need to
+# handle arbitrary objects (including None).
 ABSENT = Optional._MARKER
 
 
@@ -96,7 +98,7 @@ class Config(object):
     def __init__(self, **options):
         self._parent = None
         self._cfg_input = options
-        self._options = self.build_schema().validate(options)
+        self._options = self.build_schema().validate(self._cfg_input)
 
     def __getattr__(self, name):
         options = self.__getattribute__('_options')
@@ -169,7 +171,7 @@ class Config(object):
         parents = [
             p for p in inspect.getmro(cls)[1:]
             if issubclass(p, Config) and p != Config
-            ]
+        ]
 
         for p in parents:
             update_options(target=config_options, source=p.get_options())

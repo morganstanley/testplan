@@ -15,8 +15,8 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.config import ConfigOption
 from testplan.common.utils.process import kill_process
 from testplan.common.utils.match import match_regexps_in_file
-from testplan.runners.pools import tasks
 from testplan.common.utils.timing import get_sleeper
+from testplan.runners.pools import tasks
 
 from .base import Pool, PoolConfig, Worker, WorkerConfig
 from .connection import ZMQClientProxy, ZMQServer
@@ -26,12 +26,6 @@ class ProcessWorkerConfig(WorkerConfig):
     """
     Configuration object for
     :py:class:`~testplan.runners.pools.process.ProcessWorker` resource entity.
-
-    :param transport: Transport class for pool/worker communication.
-    :type transport: :py:class:`~testplan.runners.pools.connection.Client`
-
-    Also inherits all :py:class:`~testplan.runners.pools.base.WorkerConfig`
-    options.
     """
 
     @classmethod
@@ -48,6 +42,11 @@ class ProcessWorker(Worker):
     """
     Process worker resource that pulls tasks from the transport provided,
     executes them and sends back task results.
+
+    :param transport: Transport class for pool/worker communication.
+    :type transport: :py:class:`~testplan.runners.pools.connection.Client`
+
+    Also inherits all :py:class:`~testplan.runners.pools.base.Worker` options.
     """
 
     CONFIG = ProcessWorkerConfig
@@ -155,20 +154,6 @@ class ProcessPoolConfig(PoolConfig):
     Configuration object for
     :py:class:`~testplan.runners.pools.process.ProcessPool` executor
     resource entity.
-
-    :param abort_signals: Signals to trigger abort logic. Default: INT, TERM.
-    :type abort_signals: ``list`` of ``int``
-    :param worker_type: Type of worker to be initialized.
-    :type worker_type: :py:class:`~testplan.runners.pools.process.ProcessWorker`
-    :param host: Host that pool binds and listens for requests.
-    :type host: ``str``
-    :param port: Port that pool binds. Default: 0 (random)
-    :type port: ``int``
-    :param worker_heartbeat: Worker heartbeat period.
-    :type worker_heartbeat: ``int`` or ``float`` or ``NoneType``
-
-    Also inherits all :py:class:`~testplan.runners.pools.base.PoolConfig`
-    options.
     """
 
     @classmethod
@@ -177,11 +162,11 @@ class ProcessPoolConfig(PoolConfig):
         Schema for options validation and assignment of default values.
         """
         return {
+            ConfigOption('host', default='127.0.0.1'): str,
+            ConfigOption('port', default=0): int,
             ConfigOption('abort_signals', default=[signal.SIGINT,
                                                    signal.SIGTERM]): [int],
             ConfigOption('worker_type', default=ProcessWorker): object,
-            ConfigOption('host', default='127.0.0.1'): str,
-            ConfigOption('port', default=0): int,
             ConfigOption('worker_heartbeat', default=5): Or(int, float, None)
         }
 
@@ -190,10 +175,40 @@ class ProcessPool(Pool):
     """
     Pool task executor object that initializes process workers and dispatches
     tasks.
+
+    :param name: Pool name.
+    :type name: ``str``
+    :param size: Pool workers size. Default: 4
+    :type size: ``int``
+    :param host: Host that pool binds and listens for requests.
+    :type host: ``str``
+    :param port: Port that pool binds. Default: 0 (random)
+    :type port: ``int``
+    :param abort_signals: Signals to trigger abort logic. Default: INT, TERM.
+    :type abort_signals: ``list`` of ``int``
+    :param worker_type: Type of worker to be initialized.
+    :type worker_type: :py:class:`~testplan.runners.pools.process.ProcessWorker`
+    :param worker_heartbeat: Worker heartbeat period.
+    :type worker_heartbeat: ``int`` or ``float`` or ``NoneType``
+
+    Also inherits all :py:class:`~testplan.runners.pools.base.Pool` options.
     """
 
     CONFIG = ProcessPoolConfig
     CONN_MANAGER = ZMQServer
+
+    def __init__(self,
+        name,
+        size=4,
+        host='127.0.0.1',
+        port=0,
+        abort_signals=None,
+        worker_type=ProcessWorker,
+        worker_heartbeat=5,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
+        super(ProcessPool, self).__init__(**options)
 
     def add(self, task, uid):
         """

@@ -14,10 +14,14 @@ import psutil
 import functools
 from collections import deque, OrderedDict
 
-from schema import Or, And, Use
+try:
+    from collections.abc import MutableMapping, MutableSequence, MutableSet
+except ImportError:
+    from collections import MutableMapping, MutableSequence, MutableSet
 
-from testplan.common.config import Config
-from testplan.common.config import ConfigOption
+from schema import Optional, Or, And, Use
+
+from testplan.common.config import Config, ConfigOption
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils.thread import execute_as_thread
 from testplan.common.utils.timing import wait
@@ -532,6 +536,48 @@ class Entity(logger.Loggable):
             makeemptydirs(self._runpath)
             makeemptydirs(self._scratch)
 
+    @classmethod
+    def filter_locals(cls, local_vars):
+        """
+        Filter out special variables from locals so that only the arguments
+        with explicit names are merged into `options` (or `kwargs`)
+        """
+        EXCLUDE = ('cls', 'self', 'kwargs', 'options', '__class__', '__dict__')
+        config_class = getattr(cls, 'CONFIG', None)
+        # Get all config classes that are subclasses of Config
+        config_classes = [
+            klass for klass in inspect.getmro(config_class)[::-1][1:]
+            if issubclass(klass, Config) and klass != Config
+        ] if config_class else []
+        default_value_mapping = {}
+
+        for klass in config_classes:
+            # Get all options, if an option defined in moren than on class then
+            # the one defined in child will overwrite that defined in parents.
+            default_value_mapping.update({
+                opt._schema: opt for opt in klass.get_options()
+                if isinstance(opt, Optional)
+            })
+
+        keys_of_dynamic_config_opts = {
+            key for key, opt in default_value_mapping.items()
+            if not getattr(opt.default, 'block_propagation', True)
+        }
+        default_value_mapping = {
+            key: opt.default.value
+            for key, opt in default_value_mapping.items()
+            if key not in keys_of_dynamic_config_opts and isinstance(
+            opt.default.value, (MutableMapping, MutableSequence, MutableSet))
+        }
+
+        # For those dynamic config options if default value None is found
+        # then they will be eliminated from the input **options.
+        return {
+            key: default_value_mapping.get(key) if value is None else value
+            for key, value in local_vars.items() if key not in EXCLUDE and (
+                key not in keys_of_dynamic_config_opts or value is not None)
+        }
+
 
 class RunnableStatus(EntityStatus):
     """
@@ -792,10 +838,10 @@ class Runnable(Entity):
     :type interactive_no_block: ``bool``
     :param interactive_handler: Handler of interactive mode of the object.
     :type interactive_handler: Subclass of
-      :py:class:`~testplan.common.entity.base.RunnableIHandler`
+        :py:class:`~testplan.common.entity.base.RunnableIHandler`
     :param interactive_runner: Interactive runner set for the runnable.
     :type interactive_runner: Subclass of
-      :py:class:`~testplan.common.entity.base.RunnableIRunner`
+        :py:class:`~testplan.common.entity.base.RunnableIRunner`
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.
@@ -1241,6 +1287,15 @@ class RunnableManager(Entity):
     :type port: ``bool``
     :param abort_signals: Signals to catch and trigger abort.
     :type abort_signals: ``list`` of signals
+
+    :param runnable: Test runner.
+    :type runnable: :py:class:`~testplan.runnable.TestRunner`
+    :param resources: Initial resources. By default, one LocalRunner is added to
+      execute the Tests.
+    :type resources:
+      ``list`` of :py:class:`resources <testplan.common.entity.base.Resource>`
+    :param parser: Command line parser.
+    :type parser: :py:class:`~testplan.parser.TestplanParser`
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.

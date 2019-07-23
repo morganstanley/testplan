@@ -175,7 +175,7 @@ class HTTPServer(Driver):
     Driver for a server that can send and receive messages over the HTTP
     protocol.
 
-    :param name: Name of the driver.
+    :param name: Name of HTTPServer.
     :type name: ``str``
     :param host: Hostname to connect to.
     :type host: ``str`` or ``ContextValue``
@@ -195,7 +195,17 @@ class HTTPServer(Driver):
 
     CONFIG = HTTPServerConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        host='localhost',
+        port=0,
+        request_handler=HTTPRequestHandler,
+        handler_attributes=None,
+        timeout=5,
+        interval=0.01,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(HTTPServer, self).__init__(**options)
         self._host = None
         self._port = None

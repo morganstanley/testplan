@@ -21,9 +21,11 @@ _URL_RE = re.compile(
     scope='module',
     params=[
         ['dummy_programmatic_test_plan.py'],
-        ['dummy_cli_arg_test_plan.py', '--ui']
+        #['dummy_cli_arg_test_plan.py', '--ui']
     ],
-    ids=['webserver_exporter_programmatic', 'webserver_exporter_cli_arg']
+    ids=['webserver_exporter_programmatic',
+         #'webserver_exporter_cli_arg'
+    ]
 )
 def dummy_testplan(request):
     """
