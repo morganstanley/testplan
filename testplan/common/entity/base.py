@@ -338,7 +338,7 @@ class EntityConfig(Config):
     def get_options(cls):
         """Config options for base Entity class."""
         return {
-            ConfigOption('runpath',): Or(None, str, lambda x: callable(x)),
+            ConfigOption('runpath',): Or(None, str, callable),
             ConfigOption('initial_context', default={}): dict,
             ConfigOption('path_cleanup', default=False): bool,
             ConfigOption('status_wait_timeout', default=600): int,
