@@ -18,53 +18,31 @@ def validate_func(*arg_names):
     return lambda x: callable(x) and check_signature(x, list(arg_names))
 
 
-class DefaultValueWrapper(object):
-    """
-    Utility class for distinguishing if a value is passed as schema default.
-    """
-
-    def __init__(self, value, block_propagation=True):
-        self.value = value
-        self.block_propagation = block_propagation
-
-    def __repr__(self):
-        return '{}(value={}{})'.format(
-            self.__class__.__name__, repr(self.value),
-            '' if self.block_propagation else ', propagation==True'
-        )
-
-
-def ConfigOption(key, default=ABSENT, block_propagation=True):
+def ConfigOption(key, default=ABSENT):
     """
     Wrapper around Optional, subclassing is not an option
     as Schema library does internal type checks as `type(obj) is Optional`.
 
-    A config option usually has a default value, if user explicitly sets a
-    value in config option, we call it local value. A config is composed of
-    many options, it can also have a parent. For example, a TestplanConfig
-    object belongs to a Testplan object, and a MultiTestConfig object belongs
-    to a MultiTest object, while the Testplan object could be the owner of
-    other MultiTest objects, thus, the TestplanConfig object can be set as
-    the parent of these MultiTestConfig object. When we want to look up an
-    option in those config objects, we have 2 ways:
+    User can specify a default value when defining a config option. If not
+    specified, it takes ABSENT as default value.
 
-      * local -> default -> parent local -> parent default
-      * local -> parent local -> parent default -> default
+    When accessing a config option of an entity, we will first look in the
+    config object of the entity itself (this also includes the options that
+    are inherited from its parent). If a particular option is not defined or
+    defined but only has an ABSENT value, we will recursively look in the
+    entity's container until we find it. Typical containing relationships
+    are like TestRunner contains Pool, TestRunner contains Multitest,
+    Pool contains worker etc.
 
-    By default we apply the former strategy, but sometimes we need the latter.
-    Think that you have a `display_style` option in config, then you can
-    customize the output. If multitests were added to testplan, where there is
-    also such a `display_style` option in its config, so we should apply the
-    options from their parent.
+    Thus a config option takes one of these values in descending precedence:
+        user specified -> a non-ABSENT default -> container's value
 
-    With `block_propagation` set to be False, the default value defined in
-    parent class has higher priority to be retrieved.
+    Exception will be throw if we cannot find a valid value for a config
+    option after we exhaust the entity's containers.
     """
 
     optional = Optional(key, default=default)
     optional.is_optional = True
-    if default is not ABSENT:
-        optional.default = DefaultValueWrapper(default, block_propagation)
     return optional
 
 
@@ -122,27 +100,18 @@ class Config(object):
 
     def __getattr__(self, name):
         options = self.__getattribute__('_options')
-        local_val = options[name] if name in options else ABSENT
-        parent_val = ABSENT
 
-        if local_val is not ABSENT and not isinstance(local_val,
-                                                      DefaultValueWrapper):
-            return local_val
-        elif local_val is ABSENT or not getattr(local_val,
-                                                'block_propagation', True):
-            parent_val = getattr(self.parent, name,
-                                 ABSENT) if self.parent else ABSENT
+        # this option is defined in current entity
+        if name in options:
+            # has user specified or valid default value
+            if options[name] is not ABSENT:
+                return options[name]
 
-        if local_val is ABSENT and parent_val is ABSENT: 
-            raise AttributeError('Name: {}'.format(name)) 
-
-        if parent_val is not ABSENT:
-            return parent_val
-        elif isinstance(local_val, DefaultValueWrapper):
-            return local_val.value
-
-        raise RuntimeError('Error fetching attribute ({}) from {}'.format(
-            name, self))
+        # else: try to get this option from the entity's container
+        if self.parent:
+            return getattr(self.parent, name)
+        else:
+            raise AttributeError('Name: {}'.format(name))
 
     def __repr__(self):
         return '{}{}'.format(self.__class__.__name__,
@@ -166,14 +135,20 @@ class Config(object):
         Create new config object that inherits all explicit attributes from
         its parents as well.
         """
-        # TODO discuss problem validating DefaultValueWrapper values
         new_options = {}
         for key in self._options:
             value = getattr(self, key)
             if inspect.isclass(value) or inspect.isroutine(value):
                 # Skipping non-serializable classes and routines.
+                logger.TESTPLAN_LOGGER.warning(
+                    'Skip denormalizing option: {}'.format(key))
                 continue
-            new_options[copy.deepcopy(key)] = copy.deepcopy(value)
+            try:
+                new_options[copy.deepcopy(key)] = copy.deepcopy(value)
+            except Exception as exc:
+                logger.TESTPLAN_LOGGER.warning(
+                    'Failed to denormalize option: {} - {}'.format(key, exc))
+
         new = self.__class__(**new_options)
         return new
 

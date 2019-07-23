@@ -216,9 +216,7 @@ class XMLExporterConfig(ExporterConfig):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption(
-                'xml_dir', default=defaults.XML_DIR,
-                block_propagation=False): str
+            ConfigOption('xml_dir'): str
         }
 
 

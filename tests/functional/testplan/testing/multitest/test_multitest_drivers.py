@@ -2,11 +2,15 @@
 
 import os
 import re
+import getpass
 import tempfile
+
+from testplan.testing.filtering import Filter
+from testplan.testing.ordering import NoopSorter
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
+from testplan import Testplan, defaults
 from testplan.common.entity.base import Environment, ResourceStatus
 from testplan.common.utils.context import context
 from testplan.common.utils.path import StdFiles, default_runpath
@@ -15,14 +19,6 @@ from testplan.testing.multitest.driver.base import Driver
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-
-
-CUSTOM_RUNPATH = os.path.join(tempfile.gettempdir(),
-                              'test_multitest_drivers_runpath')
-
-def runpath_maker(_):
-    """Return a custom runpath location."""
-    return CUSTOM_RUNPATH
 
 
 @testsuite
@@ -79,17 +75,20 @@ class MySuite(object):
         assert env is env.client.context
 
 
-def test_multitest_drivers():
+def test_multitest_drivers(runpath):
     """TODO."""
     for idx, opts in enumerate(
-          (dict(name='Mtest', suites=[MySuite()], runpath=runpath_maker),
+          (dict(name='Mtest', suites=[MySuite()], runpath=runpath),
            dict(name='Mtest', suites=[MySuite()]))):
         server = TCPServer(name='server')
         client = TCPClient(name='client',
                            host=context(server.cfg.name, '{{host}}'),
                            port=context(server.cfg.name, '{{port}}'))
         opts.update(environment=[server, client],
-                    initial_context={'test_key': 'test_value'})
+                    initial_context={'test_key': 'test_value'},
+                    stdout_style=defaults.STDOUT_STYLE,
+                    test_filter=Filter(),
+                    test_sorter=NoopSorter())
         mtest = MultiTest(**opts)
         assert server.status.tag == ResourceStatus.NONE
         assert client.status.tag == ResourceStatus.NONE
@@ -97,7 +96,7 @@ def test_multitest_drivers():
         res = mtest.result
         assert res.run is True
         if idx == 0:
-            assert mtest.runpath == runpath_maker(None)
+            assert mtest.runpath == runpath
         else:
             assert mtest.runpath == default_runpath(mtest)
         assert server.runpath == os.path.join(mtest.runpath, server.uid())
@@ -106,10 +105,10 @@ def test_multitest_drivers():
         assert client.status.tag == ResourceStatus.STOPPED
 
 
-def test_multitest_drivers_in_testplan():
+def test_multitest_drivers_in_testplan(runpath):
     """TODO."""
     for idx, opts in enumerate(
-          (dict(name='MyPlan', parse_cmdline=False, runpath=runpath_maker),
+          (dict(name='MyPlan', parse_cmdline=False, runpath=runpath),
            dict(name='MyPlan', parse_cmdline=False))):
         plan = Testplan(**opts)
         server = TCPServer(name='server')
@@ -132,7 +131,7 @@ def test_multitest_drivers_in_testplan():
         res = plan.result
         assert res.run is True
         if idx == 0:
-            assert plan.runpath == runpath_maker(None)
+            assert plan.runpath == runpath
         else:
             assert plan.runpath == default_runpath(plan._runnable)
         assert mtest.runpath == os.path.join(plan.runpath, mtest.uid())

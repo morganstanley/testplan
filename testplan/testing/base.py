@@ -7,7 +7,6 @@ import six
 from lxml import objectify
 from schema import Or, Use, And
 
-from testplan import defaults
 from testplan.common.config import ConfigOption, validate_func
 
 from testplan.testing import filtering, ordering, tagging
@@ -90,21 +89,9 @@ class TestConfig(RunnableConfig):
             ConfigOption('after_start', default=None): start_stop_signature,
             ConfigOption('before_stop', default=None): start_stop_signature,
             ConfigOption('after_stop', default=None): start_stop_signature,
-            ConfigOption(
-                'test_filter',
-                default=filtering.Filter(),
-                block_propagation=False
-            ): filtering.BaseFilter,
-            ConfigOption(
-                'test_sorter',
-                default=ordering.NoopSorter(),
-                block_propagation=False
-            ): ordering.BaseSorter,
-            ConfigOption(
-                'stdout_style',
-                default=defaults.STDOUT_STYLE,
-                block_propagation=False
-            ): test_styles.Style,
+            ConfigOption('test_filter'): filtering.BaseFilter,
+            ConfigOption('test_sorter'): ordering.BaseSorter,
+            ConfigOption('stdout_style'): test_styles.Style,
             ConfigOption(
                 'tags',
                 default=None
