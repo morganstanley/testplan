@@ -1,12 +1,12 @@
 import os
 import uuid
 import tempfile
-import matplotlib.pyplot as plot
 import numpy as np
 from reportlab.platypus import Image
 from reportlab.lib.units import inch
 import matplotlib
 matplotlib.use('Agg')
+import matplotlib.pyplot as plot
 
 
 """Convert a MatPlot plot into an image readable in the pdf"""
@@ -72,11 +72,15 @@ def show_legend(graph_options):
     return False
 
 
-"""calls appropriate plotting function based on whether a graph or chart is being plotted"""
+"""
+calls appropriate plotting function based on 
+whether a graph or chart is being plotted
+"""
 def get_matlib_plot(source):
     graph_type = source['graph_type']
 
-    valid_graph_types = ['Line', 'Scatter', 'Bar', 'Whisker', 'Contour', 'Hexbin']
+    valid_graph_types = ['Line', 'Scatter', 'Bar',
+                         'Whisker', 'Contour', 'Hexbin']
     valid_chart_types = ['Pie']
 
     if graph_type in valid_graph_types:
@@ -87,7 +91,10 @@ def get_matlib_plot(source):
         return None
 
 
-"""Creates MatPlot plot for any graph requiring axis that can use get_xy_coords function"""
+"""
+Creates MatPlot plot for any graph requiring 
+axis that can use get_xy_coords function
+"""
 def plot_graph(source, graph_type):
     data = source['graph_data']
     graph_options = source['graph_options']
@@ -109,7 +116,8 @@ def plot_graph(source, graph_type):
             plot.scatter(x_values, y_values, color=colour, label=entry)
         if graph_type is 'Bar':
             x = np.arange(len(x_values))
-            ax.bar(x + starting_placement, y_values, width, color=colour, label=entry)
+            ax.bar(x + starting_placement, y_values,
+                   width, color=colour, label=entry)
             starting_placement += width
             ax.set_xticks(x)
             ax.set_xticklabels(x_values)
@@ -123,7 +131,8 @@ def plot_graph(source, graph_type):
             for point in data[entry]:
                 x_err.append(point['xVariance'])
                 y_err.append(point['yVariance'])
-            plot.errorbar(x_values, y_values, color=colour, label=entry, xerr=x_err, yerr=y_err, fmt='x')
+            plot.errorbar(x_values, y_values, color=colour, label=entry,
+                          xerr=x_err, yerr=y_err, fmt='x')
 
     x_axis_label, y_axis_label = get_axis_labels(graph_options)
 

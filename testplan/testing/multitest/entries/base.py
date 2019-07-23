@@ -272,7 +272,8 @@ class Graph(BaseEntry):
     """Create a graph for the report."""
     def __init__(self, graph_type, graph_data, description=None,
                  series_options=None, graph_options=None):
-        valid_graph_types = ['Line', 'Scatter', 'Bar', 'Whisker', 'Contour', 'Hexbin']
+        valid_graph_types = ['Line', 'Scatter', 'Bar', 'Whisker',
+                             'Contour', 'Hexbin']
         valid_chart_types = ['Pie']
 
         self.graph_type = graph_type
