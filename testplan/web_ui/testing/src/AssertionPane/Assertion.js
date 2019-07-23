@@ -87,8 +87,7 @@ class Assertion extends Component {
       DictMatch: DictMatchAssertion,
       FixLog: FixLogAssertion,
       FixMatch: FixMatchAssertion,
-      Graph: XYGraphAssertion,
-      DiscreteChart: DiscreteChartAssertion
+      Graph: this.props.assertion.discrete_chart? DiscreteChartAssertion: XYGraphAssertion
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];

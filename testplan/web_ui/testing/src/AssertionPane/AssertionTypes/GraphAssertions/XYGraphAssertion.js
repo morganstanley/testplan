@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import 'react-vis/dist/style.css';
 import * as GraphUtil from './graphUtils';
 import {css, StyleSheet} from 'aphrodite';
-
 import {
   XAxis,
   YAxis,
@@ -64,7 +63,7 @@ class XYGraphAssertion extends Component {
     const data = this.props.assertion.graph_data;
     const graph_options = this.props.assertion.graph_options;
     const {lastDrawLocation} = this.state;
-    const graph_type = this.props.assertion.graph_type
+    const graph_type = this.props.assertion.graph_type;
     const GraphComponent = this.components[graph_type];
 
     let legend = [];
