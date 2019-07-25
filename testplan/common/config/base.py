@@ -98,7 +98,7 @@ class Config(object):
     def __init__(self, **options):
         self._parent = None
         self._cfg_input = options
-        self._options = self.build_schema().validate(self._cfg_input)
+        self._options = self.build_schema().validate(options)
 
     def __getattr__(self, name):
         options = self.__getattribute__('_options')

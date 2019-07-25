@@ -194,7 +194,7 @@ class Testplan(RunnableManager):
         extra_deps=None,
         **options
     ):
-        r"""
+        """
         Decorator that will be used for wrapping `main` methods in test scripts.
 
         It accepts all arguments of a
@@ -220,7 +220,7 @@ class Testplan(RunnableManager):
         :type runpath: ``str`` or ``callable``
         :param path_cleanup: Clean previous runpath entries.
         :type path_cleanup: ``bool``
-        :param all_tasks_local: All tasks are scheduled in local pool.
+        :param all_tasks_local: Schedule all tasks in local pool.
         :type all_tasks_local: ``bool``
         :param shuffle: Shuffle strategy.
         :type shuffle: ``list`` of ``str``

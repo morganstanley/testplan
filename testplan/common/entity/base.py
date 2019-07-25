@@ -14,11 +14,6 @@ import psutil
 import functools
 from collections import deque, OrderedDict
 
-try:
-    from collections.abc import MutableMapping, MutableSequence, MutableSet
-except ImportError:
-    from collections import MutableMapping, MutableSequence, MutableSet
-
 from schema import Optional, Or, And, Use
 
 from testplan.common.config import Config, ConfigOption
@@ -539,45 +534,15 @@ class Entity(logger.Loggable):
     @classmethod
     def filter_locals(cls, local_vars):
         """
-        Filter out special variables from locals so that only the arguments
-        with explicit names are merged into `options` (or `kwargs`)
+        Filter out init params of None value, they will take default value
+        defined in its ConfigOption object; also filter out special vars that
+        are not init params from local_vars.
         """
         EXCLUDE = ('cls', 'self', 'kwargs', 'options', '__class__', '__dict__')
-        config_class = getattr(cls, 'CONFIG', None)
-        # Get all config classes that are subclasses of Config
-        config_classes = [
-            klass for klass in inspect.getmro(config_class)[::-1][1:]
-            if issubclass(klass, Config) and klass != Config
-        ] if config_class else []
-        default_value_mapping = {}
-
-        for klass in config_classes:
-            # Get all options, if an option defined in moren than on class then
-            # the one defined in child will overwrite that defined in parents.
-            default_value_mapping.update({
-                opt._schema: opt for opt in klass.get_options()
-                if isinstance(opt, Optional)
-            })
-
-        keys_of_dynamic_config_opts = {
-            key for key, opt in default_value_mapping.items()
-            if not getattr(opt.default, 'block_propagation', True)
-        }
-        default_value_mapping = {
-            key: opt.default.value
-            for key, opt in default_value_mapping.items()
-            if key not in keys_of_dynamic_config_opts and isinstance(
-            opt.default.value, (MutableMapping, MutableSequence, MutableSet))
-        }
-
-        # For those dynamic config options if default value None is found
-        # then they will be eliminated from the input **options.
         return {
-            key: default_value_mapping.get(key) if value is None else value
-            for key, value in local_vars.items() if key not in EXCLUDE and (
-                key not in keys_of_dynamic_config_opts or value is not None)
+            key: value for key, value in local_vars.items()
+            if key not in EXCLUDE and value is not None
         }
-
 
 class RunnableStatus(EntityStatus):
     """

@@ -151,22 +151,22 @@ def test_testplan_decorator():
     assert res.decorated_value == 123
     assert res.run is True
 
-    # pdf_path = 'mypdf.pdf'
-    # with argv_overridden('--pdf', pdf_path):
-    #     with log_propagation_disabled(TESTPLAN_LOGGER):
-    #         @test_plan(name='MyPlan', port=800)
-    #         def main2(plan, parser):
-    #                 args = parser.parse_args()
-    #
-    #                 assert args.verbose is False
-    #                 assert args.pdf_path == pdf_path
-    #                 assert plan.cfg.pdf_path == pdf_path
-    #                 plan.add(DummyTest(name='bob'))
-    #
-    #         res = main2()  # pylint:disable=assignment-from-no-return,no-value-for-parameter
-    #         assert isinstance(res, TestplanResult)
-    #         assert res.decorated_value is None
-    #         assert res.run is True
+    pdf_path = 'mypdf.pdf'
+    with argv_overridden('--pdf', pdf_path):
+        with log_propagation_disabled(TESTPLAN_LOGGER):
+            @test_plan(name='MyPlan', port=800)
+            def main2(plan, parser):
+                    args = parser.parse_args()
+
+                    assert args.verbose is False
+                    assert args.pdf_path == pdf_path
+                    assert plan.cfg.pdf_path == pdf_path
+                    plan.add(DummyTest(name='bob'))
+
+            res = main2()  # pylint:disable=assignment-from-no-return,no-value-for-parameter
+            assert isinstance(res, TestplanResult)
+            assert res.decorated_value is None
+            assert res.run is True
 
 
 def test_testplan_runpath():

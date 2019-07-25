@@ -7,6 +7,7 @@ import warnings
 import subprocess
 
 from schema import Or
+from past.builtins import basestring
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.path import StdFiles, makedirs
@@ -30,7 +31,7 @@ class AppConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            'binary': str,
+            'binary': basestring,
             ConfigOption('pre_args', default=None): Or(None, list),
             ConfigOption('args', default=None): Or(None, list),
             ConfigOption('shell', default=False): bool,

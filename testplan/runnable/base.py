@@ -105,7 +105,7 @@ class TestRunnerConfig(RunnableConfig):
                 ): Or(None, str, lambda x: callable(x)),
             ConfigOption('path_cleanup', default=True): bool,
             ConfigOption('all_tasks_local', default=False): bool,
-            ConfigOption('shuffle', default=[]): list, # list of string choices
+            ConfigOption('shuffle', default=[]): list,  # list of string choices
             ConfigOption(
                 'shuffle_seed', default=float(random.randint(1, 9999))): float,
             ConfigOption(
@@ -199,7 +199,7 @@ class TestRunner(Runnable):
     :type runpath: ``str`` or ``callable``
     :param path_cleanup: Clean previous runpath entries.
     :type path_cleanup: ``bool``
-    :param all_tasks_local: TODO
+    :param all_tasks_local: Schedule all tasks in local pool
     :type all_tasks_local: ``bool``
     :param shuffle: Shuffle strategy.
     :type shuffle: ``list`` of ``str``

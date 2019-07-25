@@ -167,8 +167,8 @@ class TopConfig(Config):
         return {
             ConfigOption('foo', default=None): (int, None),
             ConfigOption('boo', default=None): (list, None),
-            ConfigOption('bar', default='hi', block_propagation=False): str,
-            ConfigOption('baz', default='hey', block_propagation=False): str
+            ConfigOption('bar', default='hi'): str,
+            ConfigOption('baz', default='hey'): str
         }
 
 
@@ -189,8 +189,8 @@ class MiddleConfig(TopConfig):
             ConfigOption('boo', default=[1, 2, 3]): list,
             ConfigOption('koo', default=99): int,
             ConfigOption('zoo', default={1: 'a', 2: 'b', 3: 'c'}): dict,
-            ConfigOption('bar', default='hello', block_propagation=False): str,
-            ConfigOption('baz', default='world', block_propagation=False): str
+            ConfigOption('bar', default='hello'): str,
+            ConfigOption('baz', default='world'): str
         }
 
 
@@ -227,14 +227,17 @@ class Bottom(Middle):
 
 def test_filter_locals():
     """Test that Entity.filter_locals() works correctly."""
-    bottom1 = Bottom('Bottom1')
+    bottom1 = Bottom('Bottom1', baz='you', bar='bye', boo=None)
     # Arguments defined explicitly in __init__() should appear and for mutable
     # type the origin values defined in config class will be retrieved.
     assert len(bottom1.options) == 4
     assert bottom1.options['name'] == 'Bottom1'
-    assert bottom1.options['description'] == None
+    assert bottom1.options['baz'] == 'you'
+    assert bottom1.options['bar'] == 'bye'
     assert bottom1.options['foo'] == 9
-    assert bottom1.options['boo'] == [1, 2, 3]
+
+    # takes the value of immediate container
+    assert bottom1.cfg.boo == [1, 2, 3]
 
     bottom2 = Bottom(
         'Bottom2', description='An example',
@@ -242,10 +245,8 @@ def test_filter_locals():
     )
     # Arguments defined explicitly in __init__() or passed to __init__()
     # should appear, explicitly passed values will overwrite the defaults.
-    assert len(bottom2.options) == 6
+    assert len(bottom2.options) == 5
     assert bottom2.options['name'] == 'Bottom2'
     assert bottom2.options['description'] == 'An example'
-    assert bottom1.options['foo'] == 9
-    assert bottom1.options['boo'] == [1, 2, 3]
     assert bottom2.options['zoo'] == {10: 'a', 20: 'b', 30: 'c'}
     assert bottom2.options['bar'] == 'barbar'
