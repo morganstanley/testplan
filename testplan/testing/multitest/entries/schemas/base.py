@@ -77,3 +77,12 @@ class TableLogSchema(BaseSchema):
 class DictLogSchema(BaseSchema):
 
     flattened_dict = fields.Raw()
+
+
+@registry.bind(base.Graph)
+class GraphSchema(BaseSchema):
+    graph_type = fields.String()
+    graph_data = fields.Dict(fields.List(fields.Dict()))
+    series_options = fields.Dict(fields.Dict(), allow_none=True)
+    type = fields.String()
+    graph_options = fields.Dict(allow_none=True)

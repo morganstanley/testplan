@@ -157,7 +157,7 @@ def test_process_pool_integration(
         parse_cmdline=False,
         exporters=[
             PDFExporter(pdf_path=pdf_path)
-        ]
+        ],
     )
     plan.add_resource(pool)
 

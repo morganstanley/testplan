@@ -1,0 +1,802 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`XYGraphAssertion shallow renders the correct HTML structure 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <XYGraphAssertion
+    assertion={
+        Object {
+            "category": "DEFAULT",
+            "description": "Bar Graph",
+            "graph_data": Object {
+              "Data Name": Array [
+                Object {
+                  "x": "A",
+                  "y": 10,
+                },
+                Object {
+                  "x": "B",
+                  "y": 5,
+                },
+                Object {
+                  "x": "C",
+                  "y": 15,
+                },
+              ],
+            },
+            "graph_options": Object {
+              "legend": true,
+            },
+            "graph_type": "Bar",
+            "line_no": 50,
+            "machine_time": "2019-07-12T12:36:09.782759+00:00",
+            "meta_type": "entry",
+            "series_options": Object {
+              "Data Name": Object {
+                "colour": "red",
+              },
+            },
+            "type": "Graph",
+            "utc_time": "2019-07-12T12:36:09.782759+00:00",
+          }
+    }
+/>,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": <div
+        className="centreComponent_1moixrt"
+>
+        <XYPlot
+                animation={true}
+                className=""
+                height={500}
+                width={750}
+                xDomain={undefined}
+                xType="ordinal"
+                yDomain={undefined}
+        >
+                <HorizontalGridLines
+                        attr="y"
+                        direction="horizontal"
+                />
+                <YAxis
+                        attr="y"
+                        attrAxis="x"
+                        orientation="left"
+                        title={undefined}
+                />
+                <XAxis
+                        attr="x"
+                        attrAxis="y"
+                        orientation="bottom"
+                        title={undefined}
+                />
+                <VerticalBarSeries
+                        className=""
+                        color="red"
+                        data={
+                                Array [
+                                        Object {
+                                          "x": "A",
+                                          "y": 10,
+                                        },
+                                        Object {
+                                          "x": "B",
+                                          "y": 5,
+                                        },
+                                        Object {
+                                          "x": "C",
+                                          "y": 15,
+                                        },
+                                      ]
+                        }
+                        stack={false}
+                        style={Object {}}
+                />
+                <HighlightOverlay
+                        className=""
+                        color="rgb(77, 182, 172)"
+                        enableX={true}
+                        enableY={true}
+                        onBrushEnd={[Function]}
+                        onDrag={[Function]}
+                        opacity={0.3}
+                />
+        </XYPlot>
+        <DiscreteColorLegendItem
+                className=""
+                colors={
+                        Array [
+                                "#12939A",
+                                "#79C7E3",
+                                "#1A3177",
+                                "#FF9833",
+                                "#EF5D28",
+                              ]
+                }
+                items={
+                        Array [
+                                Object {
+                                  "color": "red",
+                                  "title": "Data Name",
+                                },
+                              ]
+                }
+                orientation="horizontal"
+                width={750}
+        />
+</div>,
+    },
+    "ref": null,
+    "rendered": Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          <XYPlot
+            animation={true}
+            className=""
+            height={500}
+            width={750}
+            xDomain={undefined}
+            xType="ordinal"
+            yDomain={undefined}
+>
+            <HorizontalGridLines
+                        attr="y"
+                        direction="horizontal"
+            />
+            <YAxis
+                        attr="y"
+                        attrAxis="x"
+                        orientation="left"
+                        title={undefined}
+            />
+            <XAxis
+                        attr="x"
+                        attrAxis="y"
+                        orientation="bottom"
+                        title={undefined}
+            />
+            <VerticalBarSeries
+                        className=""
+                        color="red"
+                        data={
+                                    Array [
+                                                Object {
+                                                  "x": "A",
+                                                  "y": 10,
+                                                },
+                                                Object {
+                                                  "x": "B",
+                                                  "y": 5,
+                                                },
+                                                Object {
+                                                  "x": "C",
+                                                  "y": 15,
+                                                },
+                                              ]
+                        }
+                        stack={false}
+                        style={Object {}}
+            />
+            <HighlightOverlay
+                        className=""
+                        color="rgb(77, 182, 172)"
+                        enableX={true}
+                        enableY={true}
+                        onBrushEnd={[Function]}
+                        onDrag={[Function]}
+                        opacity={0.3}
+            />
+</XYPlot>,
+          <DiscreteColorLegendItem
+            className=""
+            colors={
+                        Array [
+                                    "#12939A",
+                                    "#79C7E3",
+                                    "#1A3177",
+                                    "#FF9833",
+                                    "#EF5D28",
+                                  ]
+            }
+            items={
+                        Array [
+                                    Object {
+                                      "color": "red",
+                                      "title": "Data Name",
+                                    },
+                                  ]
+            }
+            orientation="horizontal"
+            width={750}
+/>,
+        ],
+        "className": "centreComponent_1moixrt",
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "animation": true,
+            "children": Array [
+              <HorizontalGridLines
+                attr="y"
+                direction="horizontal"
+/>,
+              <YAxis
+                attr="y"
+                attrAxis="x"
+                orientation="left"
+                title={undefined}
+/>,
+              <XAxis
+                attr="x"
+                attrAxis="y"
+                orientation="bottom"
+                title={undefined}
+/>,
+              Array [
+                <VerticalBarSeries
+                  className=""
+                  color="red"
+                  data={
+                                    Array [
+                                                      Object {
+                                                        "x": "A",
+                                                        "y": 10,
+                                                      },
+                                                      Object {
+                                                        "x": "B",
+                                                        "y": 5,
+                                                      },
+                                                      Object {
+                                                        "x": "C",
+                                                        "y": 15,
+                                                      },
+                                                    ]
+                  }
+                  stack={false}
+                  style={Object {}}
+/>,
+              ],
+              <HighlightOverlay
+                className=""
+                color="rgb(77, 182, 172)"
+                enableX={true}
+                enableY={true}
+                onBrushEnd={[Function]}
+                onDrag={[Function]}
+                opacity={0.3}
+/>,
+            ],
+            "className": "",
+            "height": 500,
+            "width": 750,
+            "xDomain": undefined,
+            "xType": "ordinal",
+            "yDomain": undefined,
+          },
+          "ref": null,
+          "rendered": Array [
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "function",
+              "props": Object {
+                "attr": "y",
+                "direction": "horizontal",
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "function",
+              "props": Object {
+                "attr": "y",
+                "attrAxis": "x",
+                "orientation": "left",
+                "title": undefined,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "function",
+              "props": Object {
+                "attr": "x",
+                "attrAxis": "y",
+                "orientation": "bottom",
+                "title": undefined,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "class",
+              "props": Object {
+                "className": "",
+                "color": "red",
+                "data": Array [
+                  Object {
+                    "x": "A",
+                    "y": 10,
+                  },
+                  Object {
+                    "x": "B",
+                    "y": 5,
+                  },
+                  Object {
+                    "x": "C",
+                    "y": 15,
+                  },
+                ],
+                "stack": false,
+                "style": Object {},
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "class",
+              "props": Object {
+                "className": "",
+                "color": "rgb(77, 182, 172)",
+                "enableX": true,
+                "enableY": true,
+                "onBrushEnd": [Function],
+                "onDrag": [Function],
+                "opacity": 0.3,
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+          ],
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "function",
+          "props": Object {
+            "className": "",
+            "colors": Array [
+              "#12939A",
+              "#79C7E3",
+              "#1A3177",
+              "#FF9833",
+              "#EF5D28",
+            ],
+            "items": Array [
+              Object {
+                "color": "red",
+                "title": "Data Name",
+              },
+            ],
+            "orientation": "horizontal",
+            "width": 750,
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+      ],
+      "type": "div",
+    },
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": <div
+          className="centreComponent_1moixrt"
+>
+          <XYPlot
+                    animation={true}
+                    className=""
+                    height={500}
+                    width={750}
+                    xDomain={undefined}
+                    xType="ordinal"
+                    yDomain={undefined}
+          >
+                    <HorizontalGridLines
+                              attr="y"
+                              direction="horizontal"
+                    />
+                    <YAxis
+                              attr="y"
+                              attrAxis="x"
+                              orientation="left"
+                              title={undefined}
+                    />
+                    <XAxis
+                              attr="x"
+                              attrAxis="y"
+                              orientation="bottom"
+                              title={undefined}
+                    />
+                    <VerticalBarSeries
+                              className=""
+                              color="red"
+                              data={
+                                        Array [
+                                                  Object {
+                                                    "x": "A",
+                                                    "y": 10,
+                                                  },
+                                                  Object {
+                                                    "x": "B",
+                                                    "y": 5,
+                                                  },
+                                                  Object {
+                                                    "x": "C",
+                                                    "y": 15,
+                                                  },
+                                                ]
+                              }
+                              stack={false}
+                              style={Object {}}
+                    />
+                    <HighlightOverlay
+                              className=""
+                              color="rgb(77, 182, 172)"
+                              enableX={true}
+                              enableY={true}
+                              onBrushEnd={[Function]}
+                              onDrag={[Function]}
+                              opacity={0.3}
+                    />
+          </XYPlot>
+          <DiscreteColorLegendItem
+                    className=""
+                    colors={
+                              Array [
+                                        "#12939A",
+                                        "#79C7E3",
+                                        "#1A3177",
+                                        "#FF9833",
+                                        "#EF5D28",
+                                      ]
+                    }
+                    items={
+                              Array [
+                                        Object {
+                                          "color": "red",
+                                          "title": "Data Name",
+                                        },
+                                      ]
+                    }
+                    orientation="horizontal"
+                    width={750}
+          />
+</div>,
+      },
+      "ref": null,
+      "rendered": Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": Array [
+            <XYPlot
+              animation={true}
+              className=""
+              height={500}
+              width={750}
+              xDomain={undefined}
+              xType="ordinal"
+              yDomain={undefined}
+>
+              <HorizontalGridLines
+                            attr="y"
+                            direction="horizontal"
+              />
+              <YAxis
+                            attr="y"
+                            attrAxis="x"
+                            orientation="left"
+                            title={undefined}
+              />
+              <XAxis
+                            attr="x"
+                            attrAxis="y"
+                            orientation="bottom"
+                            title={undefined}
+              />
+              <VerticalBarSeries
+                            className=""
+                            color="red"
+                            data={
+                                          Array [
+                                                        Object {
+                                                          "x": "A",
+                                                          "y": 10,
+                                                        },
+                                                        Object {
+                                                          "x": "B",
+                                                          "y": 5,
+                                                        },
+                                                        Object {
+                                                          "x": "C",
+                                                          "y": 15,
+                                                        },
+                                                      ]
+                            }
+                            stack={false}
+                            style={Object {}}
+              />
+              <HighlightOverlay
+                            className=""
+                            color="rgb(77, 182, 172)"
+                            enableX={true}
+                            enableY={true}
+                            onBrushEnd={[Function]}
+                            onDrag={[Function]}
+                            opacity={0.3}
+              />
+</XYPlot>,
+            <DiscreteColorLegendItem
+              className=""
+              colors={
+                            Array [
+                                          "#12939A",
+                                          "#79C7E3",
+                                          "#1A3177",
+                                          "#FF9833",
+                                          "#EF5D28",
+                                        ]
+              }
+              items={
+                            Array [
+                                          Object {
+                                            "color": "red",
+                                            "title": "Data Name",
+                                          },
+                                        ]
+              }
+              orientation="horizontal"
+              width={750}
+/>,
+          ],
+          "className": "centreComponent_1moixrt",
+        },
+        "ref": null,
+        "rendered": Array [
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "class",
+            "props": Object {
+              "animation": true,
+              "children": Array [
+                <HorizontalGridLines
+                  attr="y"
+                  direction="horizontal"
+/>,
+                <YAxis
+                  attr="y"
+                  attrAxis="x"
+                  orientation="left"
+                  title={undefined}
+/>,
+                <XAxis
+                  attr="x"
+                  attrAxis="y"
+                  orientation="bottom"
+                  title={undefined}
+/>,
+                Array [
+                  <VerticalBarSeries
+                    className=""
+                    color="red"
+                    data={
+                                        Array [
+                                                            Object {
+                                                              "x": "A",
+                                                              "y": 10,
+                                                            },
+                                                            Object {
+                                                              "x": "B",
+                                                              "y": 5,
+                                                            },
+                                                            Object {
+                                                              "x": "C",
+                                                              "y": 15,
+                                                            },
+                                                          ]
+                    }
+                    stack={false}
+                    style={Object {}}
+/>,
+                ],
+                <HighlightOverlay
+                  className=""
+                  color="rgb(77, 182, 172)"
+                  enableX={true}
+                  enableY={true}
+                  onBrushEnd={[Function]}
+                  onDrag={[Function]}
+                  opacity={0.3}
+/>,
+              ],
+              "className": "",
+              "height": 500,
+              "width": 750,
+              "xDomain": undefined,
+              "xType": "ordinal",
+              "yDomain": undefined,
+            },
+            "ref": null,
+            "rendered": Array [
+              Object {
+                "instance": null,
+                "key": undefined,
+                "nodeType": "function",
+                "props": Object {
+                  "attr": "y",
+                  "direction": "horizontal",
+                },
+                "ref": null,
+                "rendered": null,
+                "type": [Function],
+              },
+              Object {
+                "instance": null,
+                "key": undefined,
+                "nodeType": "function",
+                "props": Object {
+                  "attr": "y",
+                  "attrAxis": "x",
+                  "orientation": "left",
+                  "title": undefined,
+                },
+                "ref": null,
+                "rendered": null,
+                "type": [Function],
+              },
+              Object {
+                "instance": null,
+                "key": undefined,
+                "nodeType": "function",
+                "props": Object {
+                  "attr": "x",
+                  "attrAxis": "y",
+                  "orientation": "bottom",
+                  "title": undefined,
+                },
+                "ref": null,
+                "rendered": null,
+                "type": [Function],
+              },
+              Object {
+                "instance": null,
+                "key": undefined,
+                "nodeType": "class",
+                "props": Object {
+                  "className": "",
+                  "color": "red",
+                  "data": Array [
+                    Object {
+                      "x": "A",
+                      "y": 10,
+                    },
+                    Object {
+                      "x": "B",
+                      "y": 5,
+                    },
+                    Object {
+                      "x": "C",
+                      "y": 15,
+                    },
+                  ],
+                  "stack": false,
+                  "style": Object {},
+                },
+                "ref": null,
+                "rendered": null,
+                "type": [Function],
+              },
+              Object {
+                "instance": null,
+                "key": undefined,
+                "nodeType": "class",
+                "props": Object {
+                  "className": "",
+                  "color": "rgb(77, 182, 172)",
+                  "enableX": true,
+                  "enableY": true,
+                  "onBrushEnd": [Function],
+                  "onDrag": [Function],
+                  "opacity": 0.3,
+                },
+                "ref": null,
+                "rendered": null,
+                "type": [Function],
+              },
+            ],
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "function",
+            "props": Object {
+              "className": "",
+              "colors": Array [
+                "#12939A",
+                "#79C7E3",
+                "#1A3177",
+                "#FF9833",
+                "#EF5D28",
+              ],
+              "items": Array [
+                Object {
+                  "color": "red",
+                  "title": "Data Name",
+                },
+              ],
+              "orientation": "horizontal",
+              "width": 750,
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+        ],
+        "type": "div",
+      },
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getDerivedStateFromProps": true,
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+  },
+}
+`;

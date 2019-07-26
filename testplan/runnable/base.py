@@ -99,8 +99,9 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption('logger_level', default=logger.TEST_INFO): int,
             ConfigOption('file_log_level', default=logger.DEBUG): Or(int, None),
             ConfigOption(
-                'runpath', default=default_runpath,
-                block_propagation=False): Or(None, str, lambda x: callable(x)),
+                'runpath',
+                default=default_runpath,
+                ): Or(None, str, lambda x: callable(x)),
             ConfigOption('path_cleanup', default=True): bool,
             ConfigOption('all_tasks_local', default=False): bool,
             ConfigOption('shuffle', default=[]): list, # list of string choices
@@ -109,47 +110,32 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 'exporters', default=None): Use(get_exporters),
             ConfigOption(
-                'stdout_style', default=defaults.STDOUT_STYLE,
-                block_propagation=False): Style,
+                'stdout_style', default=defaults.STDOUT_STYLE,): Style,
             ConfigOption(
-                'report_dir', default=defaults.REPORT_DIR,
-                block_propagation=False): str,
-            ConfigOption(
-                'xml_dir', default=None,
-                block_propagation=False): Or(str, None),
-            ConfigOption(
-                'pdf_path', default=None,
-                block_propagation=False): Or(str, None),
-            ConfigOption(
-                'json_path', default=None,
-                block_propagation=False): Or(str, None),
-            ConfigOption(
-                'pdf_style', default=defaults.PDF_STYLE,
-                block_propagation=False): Style,
-            ConfigOption('report_tags', default=[],
-                block_propagation=False): [Use(tagging.validate_tag_value)],
-            ConfigOption('report_tags_all', default=[],
-                block_propagation=False): [Use(tagging.validate_tag_value)],
+                'report_dir', default=defaults.REPORT_DIR,): str,
+            ConfigOption('xml_dir', default=None,): Or(str, None),
+            ConfigOption('pdf_path', default=None,): Or(str, None),
+            ConfigOption('json_path', default=None,): Or(str, None),
+            ConfigOption('pdf_style', default=defaults.PDF_STYLE,): Style,
+            ConfigOption('report_tags', default=[]
+                         ): [Use(tagging.validate_tag_value)],
+            ConfigOption('report_tags_all', default=[]
+                         ): [Use(tagging.validate_tag_value)],
             ConfigOption('merge_scheduled_parts', default=False): bool,
             ConfigOption('browse', default=None): Or(None, bool),
             ConfigOption('ui_port', default=None): Or(None, int),
             ConfigOption('web_server_startup_timeout',
                          default=defaults.WEB_SERVER_TIMEOUT): int,
-            ConfigOption(
-                'test_filter', default=filtering.Filter(),
-                block_propagation=False): filtering.BaseFilter,
-            ConfigOption(
-                'test_sorter', default=ordering.NoopSorter(),
-                block_propagation=False): ordering.BaseSorter,
+            ConfigOption('test_filter', default=filtering.Filter()
+                        ): filtering.BaseFilter,
+            ConfigOption('test_sorter', default=ordering.NoopSorter()
+                         ): ordering.BaseSorter,
             # Test lister is None by default, otherwise Testplan would
             # list tests, not run them
-            ConfigOption(
-                'test_lister', default=None,
-                block_propagation=False):Or(None, listing.BaseLister),
-            ConfigOption(
-                'verbose', default=False, block_propagation=False): bool,
-            ConfigOption(
-                'debug', default=False, block_propagation=False): bool,
+            ConfigOption('test_lister', default=None
+                         ):Or(None, listing.BaseLister),
+            ConfigOption('verbose', default=False): bool,
+            ConfigOption('debug', default=False): bool,
             ConfigOption(
                 'timeout', default=None): Or(
                 None, And(Or(int, float), lambda t: t >= 0)),
@@ -270,6 +256,7 @@ class TestRunner(Runnable):
             name=self.cfg.name, uid=self.cfg.name)
         self._configure_stdout_logger()
         self._web_server_thread = None
+        self._file_log_handler = None
 
     @property
     def report(self):
@@ -441,6 +428,7 @@ class TestRunner(Runnable):
         self._add_step(self._record_end)  # needs to happen before export
         self._add_step(self._invoke_exporters)
         self._add_step(self._post_exporters)
+        self._add_step(self._close_file_logger)
 
     def _wait_ongoing(self):
         # TODO: if a pool fails to initialize we could reschedule the tasks.
@@ -679,5 +667,16 @@ class TestRunner(Runnable):
         if self.cfg.file_log_level is None:
             self.logger.debug('Not enabling file logging')
         else:
-            logger.configure_file_logger(self.cfg.file_log_level,
-                                         self.runpath)
+            self._file_log_handler = logger.configure_file_logger(
+                self.cfg.file_log_level, self.runpath)
+
+    def _close_file_logger(self):
+        """
+        Closes the file logger, releasing all file handles. This is necessary to
+        avoid permissions errors on Windows.
+        """
+        if self._file_log_handler is not None:
+            self._file_log_handler.flush()
+            self._file_log_handler.close()
+            logger.TESTPLAN_LOGGER.removeHandler(self._file_log_handler)
+            self._file_log_handler = None

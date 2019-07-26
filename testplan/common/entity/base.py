@@ -338,9 +338,7 @@ class EntityConfig(Config):
     def get_options(cls):
         """Config options for base Entity class."""
         return {
-            ConfigOption(
-                'runpath', default=None,
-                block_propagation=False): Or(None, str, lambda x: callable(x)),
+            ConfigOption('runpath',): Or(None, str, callable),
             ConfigOption('initial_context', default={}): dict,
             ConfigOption('path_cleanup', default=False): bool,
             ConfigOption('status_wait_timeout', default=600): int,
@@ -507,7 +505,8 @@ class Entity(logger.Loggable):
         if self.parent and self.parent.runpath:
             return os.path.join(self.parent.runpath, self.uid())
 
-        runpath = self.cfg.runpath
+        runpath = getattr(self.cfg, 'runpath', None)
+
         if runpath:
             return self.cfg.runpath(self) if callable(runpath) else runpath
         else:

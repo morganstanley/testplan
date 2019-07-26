@@ -23,6 +23,7 @@
     "react-portal-tooltip": "2.4.0",
     "react-scripts": "1.1.1",
     "react-test-renderer": "16.6.0",
+    "react-vis": "^1.11.7",
     "reactstrap": "6.3.0"
   },
   "devDependencies": {
