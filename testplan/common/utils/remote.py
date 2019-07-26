@@ -32,7 +32,7 @@ def copy_cmd(source, target, exclude=None, port=None, deref_links=False):
     """Returns remote copy command."""
     if os.environ.get('RSYNC_BINARY'):
         cmd = [os.environ['RSYNC_BINARY'], '-r']
-        cmd.append('-l' if deref_links else '-L')
+        cmd.append('-L' if deref_links else '-l')
 
         if exclude is not None:
             for item in exclude:

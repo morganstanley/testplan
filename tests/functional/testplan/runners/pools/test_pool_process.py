@@ -247,8 +247,8 @@ def test_serialization():
     plan.add_resource(pool)
     plan.schedule(target='make_serialization_mtest',
                   module='test_pool_process',
-                  path=os.path.dirname(__file__))
-
+                  path=os.path.dirname(__file__),
+                  resource='ProcPool')
     res = plan.run()
     assert res.success
 

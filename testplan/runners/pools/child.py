@@ -324,7 +324,7 @@ def child_logic(args):
         def make_runpath_dirs(self):
             self._runpath = self.cfg.runpath
 
-    transport = ZMQClient(address=args.address)
+    transport = ZMQClient(address=args.address, recv_timeout=30)
 
     if args.type == 'process_worker':
         loop = ChildLoop(
@@ -345,7 +345,7 @@ def child_logic(args):
         loop.worker_loop()
 
 
-def _parse_syspath_file(filename):
+def parse_syspath_file(filename):
     """
     Read and parse the syspath file, which should contain each sys.path entry
     on a separate line. Remove the file once we have read it.
@@ -367,7 +367,7 @@ if __name__ == '__main__':
         os.chdir(ARGS.wd)
 
     if ARGS.sys_path_file:
-        sys.path = _parse_syspath_file(ARGS.sys_path_file)
+        sys.path = parse_syspath_file(ARGS.sys_path_file)
 
     if ARGS.testplan:
         sys.path.append(ARGS.testplan)

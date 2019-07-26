@@ -160,6 +160,7 @@ def configure_file_logger(level, runpath):
         TESTPLAN_LOGGER.error('Cannot open log file at %s for writing: %s',
                               logfile_path,
                               err)
+        return None
     else:
         file_handler.setLevel(level)
         formatter = logging.Formatter(_LOGFILE_FORMAT)
@@ -167,6 +168,7 @@ def configure_file_logger(level, runpath):
         TESTPLAN_LOGGER.addHandler(file_handler)
 
         TESTPLAN_LOGGER.debug('Enabled logging to file: %s', logfile_path)
+        return file_handler
 
 
 class Loggable(object):
@@ -189,6 +191,8 @@ class Loggable(object):
         # take up a lot of space in the logfile. For brevity we just use
         # "testplan.<class name>" as the logger name, since class names are
         # mostly unique.
+
         logger_name = '.'.join(('testplan', self.__class__.__name__))
         self.logger = logging.getLogger(logger_name)
+
         super(Loggable, self).__init__()

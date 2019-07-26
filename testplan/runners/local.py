@@ -30,6 +30,10 @@ class LocalRunner(Executor):
         # run.
         if isinstance(target, tasks.Task):
             runnable = target.materialize()
+            if not runnable.parent:
+                runnable.parent = self
+            if not runnable.cfg.parent:
+                runnable.cfg.parent = self.cfg
         elif isinstance(target, entity.Runnable):
             runnable = target
         else:
@@ -56,7 +60,7 @@ class LocalRunner(Executor):
                         result = TestResult()
                         result.report = TestGroupReport(name=next_uid)
                         result.report.status_override = Status.ERROR
-                        result.report.logger.critical(
+                        result.report.logger.exception(
                             'Exception for {} on {} execution: {}'.format(
                                 next_uid, self, exc))
                         self._results[next_uid] = result

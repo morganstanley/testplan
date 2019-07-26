@@ -247,7 +247,6 @@ class Pool(Executor):
         self._conn.parent = self
         self._pool_lock = threading.Lock()
         self._metadata = {}
-        self.make_runpath_dirs()
         self._metadata['runpath'] = self.runpath
         self._exit_loop = False
         self._start_monitor_thread = True
@@ -357,11 +356,7 @@ class Pool(Executor):
         cfg = self.cfg
 
         while cfg:
-            try:
-                options.append(cfg.denormalize())
-            except Exception as exc:
-                self.logger.error('Could not denormalize: {} - {}'.format(
-                    cfg, exc))
+            options.append(cfg.denormalize())
             cfg = cfg.parent
 
         worker.respond(response.make(Message.ConfigSending,
@@ -633,6 +628,7 @@ class Pool(Executor):
     def starting(self):
         """Starting the pool and workers."""
         # TODO do we need a lock here?
+        self.make_runpath_dirs()
         self._conn.start()
 
         for worker in self._workers:
@@ -660,11 +656,14 @@ class Pool(Executor):
         """Count how many tasks workers are requesting."""
         return sum(worker.requesting for worker in self._workers)
 
+    def _stop_workers(self):
+        self._workers.stop()
+
     def stopping(self):
         """Stop connections and workers."""
-        # TODO do we need a lock here?
+
         with self._pool_lock:
-            self._workers.stop()
+            self._stop_workers()
             for worker in self._workers:
                 worker.transport.disconnect()
 

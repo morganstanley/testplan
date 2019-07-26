@@ -171,6 +171,7 @@ class FixServer(Driver):
     def _stop_logic(self):
         if self._server:
             self._server.stop()
+        self._close_file_logger()
 
     def stopping(self):
         """Stops the FIX server."""

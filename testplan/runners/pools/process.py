@@ -27,8 +27,6 @@ class ProcessWorkerConfig(WorkerConfig):
     Configuration object for
     :py:class:`~testplan.runners.pools.process.ProcessWorker` resource entity.
 
-    :param start_timeout: Timeout duration for worker to start.
-    :type start_timeout: ``int``
     :param transport: Transport class for pool/worker communication.
     :type transport: :py:class:`~testplan.runners.pools.connection.Client`
 
@@ -42,7 +40,6 @@ class ProcessWorkerConfig(WorkerConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            ConfigOption('start_timeout', default=120): int,
             ConfigOption('transport', default=ZMQClientProxy): object,
         }
 
@@ -104,7 +101,7 @@ class ProcessWorker(Worker):
         """TODO."""
         sleeper = get_sleeper(
             interval=(0.04, 0.5),
-            timeout=self.cfg.start_timeout,
+            timeout=timeout,
             raise_timeout_with_msg='Worker start timeout, logfile = {}'
                                    .format(self.outfile))
         while next(sleeper):
@@ -115,7 +112,7 @@ class ProcessWorker(Worker):
                 self.status.change(self.STATUS.STARTED)
                 return
 
-            if self._handler.poll() is not None:
+            if self._handler and self._handler.poll() is not None:
                 raise RuntimeError(
                     '{proc} process exited: {rc} (logfile = {log})'.format(
                         proc=self,
@@ -124,26 +121,18 @@ class ProcessWorker(Worker):
 
     @property
     def is_alive(self):
-
         if self._handler is None:
+            self.logger.debug('No worker process started')
             return False
 
         # Check if the child process already terminated.
         if self._handler.poll() is not None:
+            self.logger.critical('Worker process exited with code %d',
+                                 self._handler.returncode)
             self._handler = None
             return False
-
-        try:
-            proc = psutil.Process(self._handler.pid)
-            children = list(proc.children(recursive=True))
-            if children and all(item.status() == 'zombie' for item in children):
-                return False
-
-        except psutil.NoSuchProcess:
-            self._handler = None
-            return False
-
-        return True
+        else:
+            return True
 
     def stopping(self):
         """Stop child process worker."""

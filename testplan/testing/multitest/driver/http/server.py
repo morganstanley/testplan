@@ -300,6 +300,7 @@ class HTTPServer(Driver):
         super(HTTPServer, self).stopping()
         self._stop()
         self.file_logger.debug('Stopped HTTPServer.')
+        self._close_file_logger()
 
     def aborting(self):
         """Abort logic that stops the server."""
