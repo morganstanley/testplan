@@ -62,4 +62,3 @@ def test_runner_timeout():
         assert current_proc.children() == start_procs
     finally:
         os.remove(output_json)
-        pass

@@ -228,8 +228,8 @@ class Bottom(Middle):
 def test_filter_locals():
     """Test that Entity.filter_locals() works correctly."""
     bottom1 = Bottom('Bottom1', baz='you', bar='bye', boo=None)
-    # Arguments defined explicitly in __init__() should appear and for mutable
-    # type the origin values defined in config class will be retrieved.
+    # boo will be filtered out but filter_locals and not pass down to
+    # Middle's __init__
     assert len(bottom1.options) == 4
     assert bottom1.options['name'] == 'Bottom1'
     assert bottom1.options['baz'] == 'you'
@@ -241,12 +241,12 @@ def test_filter_locals():
 
     bottom2 = Bottom(
         'Bottom2', description='An example',
-        boo=None, zoo={10: 'a', 20: 'b', 30: 'c'}, bar='barbar'
-    )
-    # Arguments defined explicitly in __init__() or passed to __init__()
-    # should appear, explicitly passed values will overwrite the defaults.
+        boo=None, zoo={10: 'a', 20: 'b', 30: 'c'}, bar='barbar')
+
     assert len(bottom2.options) == 5
     assert bottom2.options['name'] == 'Bottom2'
     assert bottom2.options['description'] == 'An example'
     assert bottom2.options['zoo'] == {10: 'a', 20: 'b', 30: 'c'}
     assert bottom2.options['bar'] == 'barbar'
+
+    assert bottom2.cfg.boo == [1, 2, 3]
