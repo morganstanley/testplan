@@ -1,14 +1,21 @@
 """Testplan base module."""
 
+import signal
+import random
+
+from testplan import defaults
 from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
+from .common.utils import logger
 from .common.config import ConfigOption
 from .common.entity import (RunnableManager, RunnableManagerConfig, Resource)
 from .common.utils.callable import arity
 from .common.utils.validation import is_subclass, has_method
+from .common.utils.path import default_runpath
 from .parser import TestplanParser
 from .runners import LocalRunner
+from .runnable.interactive import TestRunnerIHandler
 from .environment import Environments
-
+from .testing import filtering, ordering
 
 class TestplanConfig(RunnableManagerConfig, TestRunnerConfig):
     """
@@ -150,13 +157,127 @@ class Testplan(RunnableManager):
         return result
 
     @classmethod
-    def main_wrapper(cls, **options):
+    def main_wrapper(cls,
+        name,
+        description=None,
+        parse_cmdline=True,
+        interactive=False,
+        port=None,
+        abort_signals=None,
+        logger_level=logger.TEST_INFO,
+        file_log_level=logger.DEBUG,
+        runpath=None,
+        path_cleanup=True,
+        all_tasks_local=False,
+        shuffle=None,
+        shuffle_seed=float(random.randint(1, 9999)),
+        exporters=None,
+        stdout_style=None,
+        report_dir=None,
+        xml_dir=None,
+        pdf_path=None,
+        json_path=None,
+        pdf_style=None,
+        report_tags=None,
+        report_tags_all=None,
+        merge_scheduled_parts=False,
+        browse=None,
+        ui_port=None,
+        web_server_startup_timeout=defaults.WEB_SERVER_TIMEOUT,
+        test_filter=None,
+        test_sorter=None,
+        test_lister=None,
+        verbose=None,
+        debug=None,
+        timeout=None,
+        interactive_handler=TestRunnerIHandler,
+        extra_deps=None,
+        **options
+    ):
         """
         Decorator that will be used for wrapping `main` methods in test scripts.
 
         It accepts all arguments of a
         :py:class:`~testplan.base.Testplan` entity.
+
+        :param name: Name of test plan.
+        :type name: ``str``
+        :param description: Description of test plan.
+        :type description: ``str``
+        :param parse_cmdline: Parse command lne arguments.
+        :type parse_cmdline: ``bool``
+        :param interactive: Enable interactive execution mode.
+        :type interactive: ``bool``
+        :param port: Port for interactive mode.
+        :type port: ``bool``
+        :param abort_signals: Signals to catch and trigger abort.
+        :type abort_signals: ``list`` of signals
+        :param logger_level: Logger level for stdout.
+        :type logger_level: ``int``
+        :param: file_log_level: Logger level for file.
+        :type file_log_level: ``int``
+        :param runpath: Input runpath.
+        :type runpath: ``str`` or ``callable``
+        :param path_cleanup: Clean previous runpath entries.
+        :type path_cleanup: ``bool``
+        :param all_tasks_local: Schedule all tasks in local pool.
+        :type all_tasks_local: ``bool``
+        :param shuffle: Shuffle strategy.
+        :type shuffle: ``list`` of ``str``
+        :param shuffle_seed: Shuffle seed.
+        :type shuffle_seed: ``float``
+        :param exporters: Exporters for reports creation.
+        :type exporters: ``list``
+        :param stdout_style: Styling output options.
+        :type stdout_style:
+            :py:class:`Style <testplan.report.testing.styles.Style>`
+        :param report_dir: Report directory.
+        :type report_dir: ``str``
+        :param xml_dir: XML output directory.
+        :type xml_dir: ``str``
+        :param pdf_path: PDF output path <PATH>/\*.pdf.
+        :type pdf_path: ``str``
+        :param json_path: JSON output path <PATH>/\*.json.
+        :type json_path: ``str``
+        :param pdf_style: PDF creation styling options.
+        :type pdf_style:
+            :py:class:`Style <testplan.report.testing.styles.Style>`
+        :param report_tags: Matches tests marked with any of the given tags.
+        :type report_tags: ``list``
+        :param report_tags_all: Match tests marked with all of the given tags.
+        :type report_tags_all: ``list``
+        :param merge_scheduled_parts: Merge reports of scheduled MultiTest
+            parts.
+        :type merge_scheduled_parts: ``bool``
+        :param browse: Open web browser to display the test report.
+        :type browse: ``bool`` or ``NoneType``
+        :param ui_port: Port of web server for displaying test report.
+        :type ui_port: ``int`` or ``NoneType``
+        :param web_server_startup_timeout: Timeout for starting web server.
+        :type web_server_startup_timeout: ``int``
+        :param test_filter: Tests filtering class.
+        :type test_filter: Subclass of
+            :py:class:`BaseFilter <testplan.testing.filtering.BaseFilter>`
+        :param test_sorter: Tests sorting class.
+        :type test_sorter: Subclass of
+            :py:class:`BaseSorter <testplan.testing.ordering.BaseSorter>`
+        :param test_lister: Tests listing class.
+        :type test_lister: Subclass of
+            :py:class:`BaseLister <testplan.testing.listing.BaseLister>`
+        :param verbose: Enable or disable verbose mode.
+        :type verbose: ``bool``
+        :param debug: Enable or disable debug mode.
+        :type debug: ``bool``
+        :param timeout: Timeout value for test execution.
+        :type timeout: ``NoneType`` or ``int`` or ``float`` greater than 0.
+        :param interactive_handler: Handler for interactive mode execution.
+        :type interactive_handler: Subclass of :py:class:
+            `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`  # pylint: disable=line-too-long
+        :param extra_deps: Extra module dependencies for interactive reload.
+        :type extra_deps: ``list`` of ``module``
         """
+        options.update(cls.filter_locals(locals()))
+
         def test_plan_inner(definition):
             """
             This is being passed the user-defined testplan entry point.

@@ -83,11 +83,11 @@ class Assertion(BaseEntry):
 
 class RawAssertion(Assertion):
     """
-      This class is used for creating explicit pass/fail entries
-      with custom content.
+    This class is used for creating explicit pass/fail entries
+    with custom content.
 
-      Its content will be displayed preformatted, so it's useful for
-      integration with 3rd party testing libraries (unittest, qunit etc).
+    Its content will be displayed preformatted, so it's useful for
+    integration with 3rd party testing libraries (unittest, qunit etc).
     """
 
     def __init__(self, passed, content, description=None, category=None):
@@ -304,8 +304,8 @@ class RegexFindIter(RegexAssertion):
 
 class RegexMatchLine(RegexAssertion):
     """
-      Match indexes are a little bit different than other
-      assertions for this one: (line_no, begin, end)
+    Match indexes are a little bit different than other
+    assertions for this one: (line_no, begin, end)
     """
 
     def evaluate(self):
@@ -633,26 +633,26 @@ _RowComparison = collections.namedtuple('_RowComparison',
 
 class RowComparison(_RowComparison):
     """
-      Named tuple that stores the data and comparison results of two tables.
+    Named tuple that stores the data and comparison results of two tables.
 
-      The column values from the first table is stored in the `data` attribute.
+    The column values from the first table is stored in the `data` attribute.
 
-      If there are diffs, errors or custom comparators on the second
-      table's row, diff / errors / extra dicts will be populated accordingly.
+    If there are diffs, errors or custom comparators on the second
+    table's row, diff / errors / extra dicts will be populated accordingly.
 
-      We can then use this information to render two tables completely.
+    We can then use this information to render two tables completely.
 
-      idx: Index of the row on the table
-      data (list): Column values of the original table.
-      diff (dict): Diff context of the second table's row
-                  (key: column name, value: second table value
-                    OR comparator representation)
-      errors (dict): Errors raised during the comparison.
-                  (key: column name, value: error stack trace text)
-      extra (dict): Comparator representations of the second table's row,
-                if there is any. This field will be populated if we use a
-                custom comparator that returns True OR the other column has
-                different value but is included only as a display column.
+    idx: Index of the row on the table
+    data (list): Column values of the original table.
+    diff (dict): Diff context of the second table's row
+                 (key: column name, value: second table value
+                 OR comparator representation)
+    errors (dict): Errors raised during the comparison.
+                   (key: column name, value: error stack trace text)
+    extra (dict): Comparator representations of the second table's row,
+                  if there is any. This field will be populated if we use a
+                  custom comparator that returns True OR the other column has
+                  different value but is included only as a display column.
     """
 
     @property
@@ -676,20 +676,20 @@ class RowComparison(_RowComparison):
 
 def get_comparison_columns(table_1, table_2, include_columns, exclude_columns):
     """
-      Given two tables and inclusion / exclusion rules, return a
-      list of columns that will be used for comparison.
+    Given two tables and inclusion / exclusion rules, return a
+    list of columns that will be used for comparison.
 
-      Inclusion/exclusion rules apply to both tables, the resulting sub-tables
-      must have matching columns.
+    Inclusion/exclusion rules apply to both tables, the resulting sub-tables
+    must have matching columns.
 
-      :param table_1: First table
-      :type table_1: ``list`` of ``dict``
-      :param table_2: Second table
-      :type table_2: ``list`` of ``dict``
-      :param include_columns: Inclusion rules for columns.
-      :type include_columns: ``list`` of ``str``
-      :param exclude_columns: Exclusion rules for columns.
-      :type exclude_columns: ``list`` of ``str``
+    :param table_1: First table
+    :type table_1: ``list`` of ``dict``
+    :param table_2: Second table
+    :type table_2: ``list`` of ``dict``
+    :param include_columns: Inclusion rules for columns.
+    :type include_columns: ``list`` of ``str``
+    :param exclude_columns: Exclusion rules for columns.
+    :type exclude_columns: ``list`` of ``str``
     """
 
     def check_missing_columns(columns, lookup):
@@ -750,32 +750,32 @@ def compare_rows(
     display_columns, strict=True, fail_limit=0, report_fails_only=False
 ):
     """
-      Apply row by row comparison of two tables,
-      creating a ``RowComparison`` for each row couple.
+    Apply row by row comparison of two tables,
+    creating a ``RowComparison`` for each row couple.
 
-      :param table: Original table.
-      :type table: ``list`` of ``dict``
-      :param expected_table: Comparison table, it can contain
-                            custom comparators as column values.
-      :type expected_table: ``list`` of ``dict``
-      :param comparison_columns: Columns to be used for comparison.
-      :type comparison_columns: ``list`` of ``str``
-      :param display_columns: Columns to be used
+    :param table: Original table.
+    :type table: ``list`` of ``dict``
+    :param expected_table: Comparison table, it can contain
+                           custom comparators as column values.
+    :type expected_table: ``list`` of ``dict``
+    :param comparison_columns: Columns to be used for comparison.
+    :type comparison_columns: ``list`` of ``str``
+    :param display_columns: Columns to be used
                             for populating ``RowComparison`` data.
-      :type display_columns: ``list`` of ``str``
-      :param strict: Custom comparator strictness flag, currently will
-                     auto-convert non-str values to
-                      ``str`` for pattern if ``False``.
-      :type strict: ``bool``
-      :param fail_limit: Max number of failures before aborting
-                         the comparison run. Useful for large
-                         tables, when we want to stop after we have N rows
-                         that fail the comparison.
-      :type fail_limit: ``int``
-      :param report_fails_only: If ``True``, only repoty the failures (used
-                                for diff typically)
-      :type report_fails_only: ``bool``
-      :returns: overall passed status and RowComparison data.
+    :type display_columns: ``list`` of ``str``
+    :param strict: Custom comparator strictness flag, currently will
+                   auto-convert non-str values to
+                   ``str`` for pattern if ``False``.
+    :type strict: ``bool``
+    :param fail_limit: Max number of failures before aborting
+                       the comparison run. Useful for large
+                       tables, when we want to stop after we have N rows
+                       that fail the comparison.
+    :type fail_limit: ``int``
+    :param report_fails_only: If ``True``, only repoty the failures (used
+                              for diff typically)
+    :type report_fails_only: ``bool``
+    :returns: overall passed status and RowComparison data.
     """
 
     # We always want to display a superset of comparison columns
@@ -839,8 +839,8 @@ def compare_rows(
 
 class TableMatch(Assertion):
     """
-      Match two tables using ``compare_rows``, may generate
-      custom message if tables cannot be compared for certain reasons.
+    Match two tables using ``compare_rows``, may generate
+    custom message if tables cannot be compared for certain reasons.
     """
 
     def __init__(
@@ -909,9 +909,9 @@ class TableMatch(Assertion):
 
 class TableDiff(TableMatch):
     """
-      Match two tables using ``compare_rows`` but only keep
-      failing comparisons, may generate custom message if tables
-      cannot be compared for certain reasons.
+    Match two tables using ``compare_rows`` but only keep
+    failing comparisons, may generate custom message if tables
+    cannot be compared for certain reasons.
     """
     pass
 
@@ -922,7 +922,7 @@ _XMLTagComparison = collections.namedtuple(
 
 class XMLTagComparison(_XMLTagComparison):
     """
-      Named tuple that stores the data and comparison results XML tags.
+    Named tuple that stores the data and comparison results XML tags.
     """
 
     @property
@@ -1037,8 +1037,8 @@ class XMLCheck(Assertion):
 
 class DictCheck(Assertion):
     """
-        Assertion that checks if a given ``dict`` contains
-        (or does not contain) given keys.
+    Assertion that checks if a given ``dict`` contains
+    (or does not contain) given keys.
     """
 
     def __init__(
@@ -1067,8 +1067,8 @@ class DictCheck(Assertion):
 
 class FixCheck(DictCheck):
     """
-        Similar to DictCheck, however dict keys
-        will have fix tag info popups on web UI
+    Similar to DictCheck, however dict keys
+    will have fix tag info popups on web UI
     """
     def __init__(
         self, msg, has_tags=None, absent_tags=None,
@@ -1085,8 +1085,8 @@ class FixCheck(DictCheck):
 
 class DictMatch(Assertion):
     """
-      Match two dictionaries by comparing values under
-      each key recursively.
+    Match two dictionaries by comparing values under
+    each key recursively.
     """
     def __init__(
             self,
@@ -1128,8 +1128,8 @@ class DictMatch(Assertion):
 
 class FixMatch(DictMatch):
     """
-        Similar to DictMatch, however dict keys
-        will have fix tag info popups on web UI
+    Similar to DictMatch, however dict keys
+    will have fix tag info popups on web UI
     """
     def __init__(self,
                  value,
@@ -1198,8 +1198,8 @@ class DictMatchAll(Assertion):
 
 class FixMatchAll(DictMatchAll):
     """
-        Similar to DictMatchAll, however dict keys
-        will have fix tag info popups on web UI
+    Similar to DictMatchAll, however dict keys
+    will have fix tag info popups on web UI
     """
     def __init__(
         self, values, comparisons,

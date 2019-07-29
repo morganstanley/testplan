@@ -28,18 +28,18 @@ class BaseLister(object):
 
 class ExpandedNameLister(BaseLister):
     """
-        Lists names of the items within the test context:
+    Lists names of the items within the test context:
 
-        Sample output:
+    Sample output:
 
-        MultitestAlpha
-            SuiteOne
-                testcase_foo
-                testcase_bar
-            SuiteTwo
-                testcase_baz
-        MultitestBeta
-            ...
+    MultitestAlpha
+        SuiteOne
+            testcase_foo
+            testcase_bar
+        SuiteTwo
+            testcase_baz
+    MultitestBeta
+        ...
     """
 
     def format_instance(self, instance):
@@ -96,19 +96,19 @@ class ExpandedNameLister(BaseLister):
 
 class ExpandedPatternLister(ExpandedNameLister):
     """
-        Lists the items in test context in a copy-pasta friendly format
-        compatible with `--patterns` and `--tags` arguments.
+    Lists the items in test context in a copy-pasta friendly format
+    compatible with `--patterns` and `--tags` arguments.
 
-        Example:
+    Example:
 
-        MultitestAlpha
-            MultitestAlpha:SuiteOne --tags color=red
-                MultitestAlpha:SuiteOne:testcase_foo
-                MultitestAlpha:SuiteOne:testcase_bar  --tags color=blue
-            MultitestAlpha:SuiteTwo
-                MultitestAlpha:SuiteTwo:testcase_baz
-        MultitestBeta
-            ...
+    MultitestAlpha
+        MultitestAlpha:SuiteOne --tags color=red
+            MultitestAlpha:SuiteOne:testcase_foo
+            MultitestAlpha:SuiteOne:testcase_bar  --tags color=blue
+        MultitestAlpha:SuiteTwo
+            MultitestAlpha:SuiteTwo:testcase_baz
+    MultitestBeta
+        ...
     """
 
     def format_instance(self, instance):
@@ -162,11 +162,11 @@ class TrimMixin(object):
 
 class PatternLister(TrimMixin, ExpandedPatternLister):
     """
-        Like test lister, but trims list of
-        testcases if they exceed <MAX_TESTCASES>.
+    Like test lister, but trims list of
+    testcases if they exceed <MAX_TESTCASES>.
 
-        This is useful if the user has generated hundreds of
-        testcases via parametrization.
+    This is useful if the user has generated hundreds of
+    testcases via parametrization.
     """
 
 

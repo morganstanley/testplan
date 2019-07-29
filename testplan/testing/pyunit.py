@@ -2,7 +2,6 @@
 
 from testplan.testing import base as testing
 from testplan.report import testing as report_testing
-from testplan.common import config
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries import schemas
 
@@ -18,16 +17,34 @@ class PyUnitConfig(testing.TestConfig):
     @classmethod
     def get_options(cls):
         return {
-            config.ConfigOption('suite'): unittest.suite.TestSuite
+            'suite': unittest.suite.TestSuite
         }
 
 
 class PyUnit(testing.Test):
-    """Test runner for PyUnit unit tests."""
+    """
+    Test runner for PyUnit unit tests.
+
+    :param name: Test instance name. Also used as uid.
+    :type name: ``str``
+    :param suite: Description of test instance.
+    :type suite: :py:class:`~unittest.suite.TestSuite`
+    :param description: Description of test instance.
+    :type description: ``str``
+
+    Also inherits all
+    :py:class:`~testplan.testing.base.Test` options.
+    """
 
     CONFIG = PyUnitConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        suite,
+        description=None,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(PyUnit, self).__init__(**options)
         self._suite_report = report_testing.TestGroupReport(
             name=self.cfg.name,

@@ -2,7 +2,7 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 
-from testplan.report.testing import TestGroupReport, TestCaseReport, Status
+from testplan.report.testing import TestGroupReport, TestCaseReport
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 
@@ -57,6 +57,12 @@ class GTest(ProcessRunnerTest):
     Most of the configuratin options of GTest are
     just simple wrappers for native arguments.
 
+    :param name: Test instance name. Also used as uid.
+    :type name: ``str``
+    :param driver: Path the to application binary.
+    :type driver: ``str``
+    :param description: Description of test instance.
+    :type description: ``str``
     :param gtest_filter: Native test filter pattern that will be
                         used by GTest internally.
     :type gtest_filter: ``str``
@@ -85,6 +91,22 @@ class GTest(ProcessRunnerTest):
     """
 
     CONFIG = GTestConfig
+
+    def __init__(self,
+        name,
+        driver,
+        description=None,
+        gtest_filter='',
+        gtest_also_run_disabled_tests=False,
+        gtest_repeat=1,
+        gtest_shuffle=False,
+        gtest_random_seed=0,
+        gtest_stream_result_to='',
+        gtest_death_test_style='fast',
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
+        super(GTest, self).__init__(**options)
 
     def base_command(self):
         cmd = [self.cfg.driver]

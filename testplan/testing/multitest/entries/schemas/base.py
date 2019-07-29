@@ -1,5 +1,5 @@
 """
-  Base classes / logic for marshalling go here.
+Base classes / logic for marshalling go here.
 """
 from marshmallow import Schema, fields
 from testplan.common.serialization import fields as custom_fields

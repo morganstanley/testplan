@@ -1,8 +1,8 @@
 """
-    Stdout renderers for assertion/entry objects.
+Stdout renderers for assertion/entry objects.
 
-    Unlike exporters, stdout renderers receive native entry objects, instead
-    of their serialized (dict) versions.
+Unlike exporters, stdout renderers receive native entry objects, instead
+of their serialized (dict) versions.
 """
 
 import os

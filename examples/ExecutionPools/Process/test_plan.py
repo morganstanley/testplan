@@ -3,7 +3,6 @@
 This example is to demonstrate parallel test execution in a process pool.
 """
 
-import os
 import sys
 
 from testplan import test_plan, Task
