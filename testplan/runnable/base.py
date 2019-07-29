@@ -269,6 +269,7 @@ class TestRunner(Runnable):
             name=self.cfg.name, uid=self.cfg.name)
         self._configure_stdout_logger()
         self._web_server_thread = None
+        self._file_log_handler = None
 
     @property
     def report(self):
@@ -440,6 +441,7 @@ class TestRunner(Runnable):
         self._add_step(self._record_end)  # needs to happen before export
         self._add_step(self._invoke_exporters)
         self._add_step(self._post_exporters)
+        self._add_step(self._close_file_logger)
 
     def _wait_ongoing(self):
         # TODO: if a pool fails to initialize we could reschedule the tasks.
@@ -678,5 +680,16 @@ class TestRunner(Runnable):
         if self.cfg.file_log_level is None:
             self.logger.debug('Not enabling file logging')
         else:
-            logger.configure_file_logger(self.cfg.file_log_level,
-                                         self.runpath)
+            self._file_log_handler = logger.configure_file_logger(
+                self.cfg.file_log_level, self.runpath)
+
+    def _close_file_logger(self):
+        """
+        Closes the file logger, releasing all file handles. This is necessary to
+        avoid permissions errors on Windows.
+        """
+        if self._file_log_handler is not None:
+            self._file_log_handler.flush()
+            self._file_log_handler.close()
+            logger.TESTPLAN_LOGGER.removeHandler(self._file_log_handler)
+            self._file_log_handler = None
