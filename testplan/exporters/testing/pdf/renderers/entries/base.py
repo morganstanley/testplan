@@ -14,7 +14,7 @@ from testplan.testing.multitest.entries import base
 
 from .. import constants
 from ..base import BaseRowRenderer, RowData
-from .baseUtils import *
+from .baseUtils import get_matlib_plot, export_plot_to_image, format_image
 
 
 

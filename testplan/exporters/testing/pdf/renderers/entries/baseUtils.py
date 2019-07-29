@@ -9,9 +9,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plot
 
 
-"""Convert a MatPlot plot into an image readable in the pdf"""
 def export_plot_to_image(graph_plot):
-    filename = '{0}.png'.format(uuid.uuid4())
+    """Convert a MatPlot plot into an image readable in the pdf."""
+    filename = '{0}.png'.format()
     temp_path = tempfile.gettempdir()
     image_pathname = os.path.join(temp_path, filename)
     graph_plot.savefig(image_pathname)
@@ -19,15 +19,18 @@ def export_plot_to_image(graph_plot):
     return image
 
 
-"""Resize the image"""
 def format_image(image):
+    """Resize the image."""
     image.drawWidth = 4 * inch
     image.drawHeight = 3 * inch
     return image
 
 
-"""returns two lists of x and y coordinates from dictionary key by strings"""
 def get_xy_coords(data):
+    """
+    Return two lists of x and y coordinates from graph data
+    formatted for react-vis graphing ('x': Data, 'y': Data).
+    """
     x_values = []
     y_values = []
 
@@ -38,8 +41,9 @@ def get_xy_coords(data):
     return x_values, y_values
 
 
-"""returns the graph colour for the series specified"""
+
 def get_colour(series_options, series_name):
+    """Return the graph colour for the series specified."""
     if series_options is None:
         return None
     if series_name in series_options:
@@ -48,8 +52,8 @@ def get_colour(series_options, series_name):
     return None
 
 
-"""returns the axis labels from graph options"""
 def get_axis_labels(graph_options):
+    """Return the X and Y axis labels from graph options."""
     if graph_options is None:
         return None, None
     x_axis_label = None
@@ -62,8 +66,8 @@ def get_axis_labels(graph_options):
     return x_axis_label, y_axis_label
 
 
-"""returns whether to display the legend on the graph"""
 def show_legend(graph_options):
+    """Return true if the legend should be displayed."""
     if graph_options is None:
         return False
     if 'legend' in graph_options:
@@ -72,11 +76,12 @@ def show_legend(graph_options):
     return False
 
 
-"""
-calls appropriate plotting function based on 
-whether a graph or chart is being plotted
-"""
+
 def get_matlib_plot(source):
+    """
+    Call the appropriate plotting function based on
+    whether a graph or chart is being plotted.
+    """
     graph_type = source['graph_type']
 
     valid_graph_types = ['Line', 'Scatter', 'Bar',
@@ -91,21 +96,23 @@ def get_matlib_plot(source):
         return None
 
 
-"""
-Creates MatPlot plot for any graph requiring 
-axis that can use get_xy_coords function
-"""
+
 def plot_graph(source, graph_type):
+    """
+    Create a MatPlot plot for any graph requiring
+    axis (and can therefore use the get_xy_coords function.)
+    """
     data = source['graph_data']
     graph_options = source['graph_options']
     series_options = source['series_options']
 
     # Special logic for multi-bar graph
-    if graph_type is 'Bar':
+    GROUPED_BAR_WIDTH = 0.7
+    if graph_type == 'Bar':
         fig, ax = plot.subplots()
         num_of_subplots = len(data)
-        width = 0.7/num_of_subplots
-        starting_placement = (- width*(num_of_subplots - 1))/2
+        single_bar_width = GROUPED_BAR_WIDTH/num_of_subplots
+        starting_placement = (-single_bar_width*(num_of_subplots-1))/2
 
     for entry in data:
         colour = get_colour(series_options, entry)
@@ -117,8 +124,8 @@ def plot_graph(source, graph_type):
         if graph_type is 'Bar':
             x = np.arange(len(x_values))
             ax.bar(x + starting_placement, y_values,
-                   width, color=colour, label=entry)
-            starting_placement += width
+                   single_bar_width, color=colour, label=entry)
+            starting_placement += single_bar_width
             ax.set_xticks(x)
             ax.set_xticklabels(x_values)
         if graph_type is 'Hexbin':
@@ -145,8 +152,8 @@ def plot_graph(source, graph_type):
     return plot
 
 
-"""Creates MatPlot plot for any chart not requiring axis"""
 def plot_chart(source, graph_type):
+    """Create a MatPlot plot for any chart not requiring axes."""
     data = source['graph_data']
 
     for entry in data:

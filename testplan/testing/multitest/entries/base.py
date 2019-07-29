@@ -285,5 +285,7 @@ class Graph(BaseEntry):
             self.discrete_chart = True
         elif graph_type in valid_graph_types:
             self.discrete_chart = False
+        else:
+            self.type = 'UnimplementedGraph - ' + graph_type
 
         super(Graph, self).__init__(description=description)
