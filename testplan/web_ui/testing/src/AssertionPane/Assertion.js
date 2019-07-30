@@ -22,13 +22,14 @@ import AssertionGroup from './AssertionGroup';
 import {BASIC_ASSERTION_TYPES} from '../Common/defaults';
 import XYGraphAssertion from './AssertionTypes/GraphAssertions/XYGraphAssertion';
 import DiscreteChartAssertion from './AssertionTypes/GraphAssertions/DiscreteChartAssertion';
+import SummaryBaseAssertion from './AssertionSummary';
 /**
  * Component to render one assertion.
  */
 class Assertion extends Component {
   constructor(props) {
     super(props);
-
+//
     this.toggleAssertion = this.toggleAssertion.bind(this);
     this.state = {isOpen: this.props.assertion.passed === false};
   }
@@ -99,25 +100,34 @@ class Assertion extends Component {
   }
 
   render() {
-    const isAssertionGroup = this.props.assertion.type === 'Group';
-    let assertionType;
-
-    if (isAssertionGroup) {
-      assertionType = <AssertionGroup
-        entries={this.props.assertion.entries}
-        globalIsOpen={this.props.globalIsOpen}
-        resetGlobalIsOpen={this.props.resetGlobalIsOpen}
-        filter={this.props.filter}
-      />;
-    } else {
-      let AssertionTypeComponent = this.assertionComponent(
-        this.props.assertion.type);
-      if (AssertionTypeComponent) {
-        assertionType = 
-          <AssertionTypeComponent assertion={this.props.assertion} />;
-      } else {
-        assertionType = <NotImplementedAssertion />;
-      }
+    let isAssertionGroup = false;
+    let assertionType = this.props.assertion.type;
+    switch(assertionType){
+        case 'Group':
+            isAssertionGroup = true;
+            assertionType = <AssertionGroup
+                        entries={this.props.assertion.entries}
+                        globalIsOpen={this.props.globalIsOpen}
+                        resetGlobalIsOpen={this.props.resetGlobalIsOpen}
+                        filter={this.props.filter}
+                         />;
+            break;
+        case 'Summary':
+            assertionType = <SummaryBaseAssertion
+                        assertion={this.props.assertion}
+                        globalIsOpen={this.props.globalIsOpen}
+                        resetGlobalIsOpen={this.props.resetGlobalIsOpen}
+                        filter={this.props.filter}
+                        />
+            break;
+        default:
+            let AssertionTypeComponent = this.assertionComponent(assertionType);
+            if (AssertionTypeComponent) {
+            assertionType =
+              <AssertionTypeComponent assertion={this.props.assertion} />;
+            } else {
+            assertionType = <NotImplementedAssertion />;
+            }
     }
 
     return (
