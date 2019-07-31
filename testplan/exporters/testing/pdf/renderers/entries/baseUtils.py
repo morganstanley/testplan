@@ -11,7 +11,7 @@ import matplotlib.pyplot as plot
 
 def export_plot_to_image(graph_plot):
     """Convert a MatPlot plot into an image readable in the pdf."""
-    filename = '{0}.png'.format()
+    filename = '{}.png'.format(uuid.uuid4())
     temp_path = tempfile.gettempdir()
     image_pathname = os.path.join(temp_path, filename)
     graph_plot.savefig(image_pathname)

@@ -2,6 +2,7 @@
 These examples show usage of graphs
 """
 import sys
+import os
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
@@ -211,12 +212,16 @@ class SampleSuite(object):
                      )
 
 
+# PDF style must be 'assertion-detail' to view
+# non-assertion related detail like graphs or logs
 @test_plan(
     name='Assertions Example',
     stdout_style=Style(
         passing=StyleEnum.ASSERTION_DETAIL,
         failing=StyleEnum.ASSERTION_DETAIL
-    )
+    ),
+    pdf_path=os.path.join(os.path.dirname(__file__), 'report.pdf'),
+    pdf_style=Style(passing='assertion-detail', failing='assertion-detail')
 )
 def main(plan):
     plan.add(MultiTest(name='Assertions Test', suites=[SampleSuite()]))
