@@ -733,8 +733,8 @@ This schema highlights the structure of a summarised output
 
 ``key_combs_limit`` is used for fix/dict summaries and limits the number of failed key combinations reported
 (For example: when applying result.dict.match to many different dictionaries with different keys,
-there will be many 'key combinations' as failures, so only the keys with the most differences
-will be reported, bounded by ``key_combs_limit``)
+there will be many 'key combinations' as failures, so only the key combinations with the most differences
+will be reported, limited by ``key_combs_limit``)
 
 
 For further examples on summarization, please see the :ref:`a downloadable example <example_assertions_summary>`.

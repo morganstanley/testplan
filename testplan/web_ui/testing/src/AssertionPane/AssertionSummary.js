@@ -3,21 +3,19 @@ import PropTypes from 'prop-types';
 import {Col, Row} from 'reactstrap';
 import AssertionGroup from './AssertionGroup';
 /**
- * Component that are used to render a large test case when Summary = true
+ * Component used to render a large test case when summarize = true
  */
 
 class SummaryBaseAssertion extends Component  {
-  constructor(props) {
-    super(props);
-    }
+    displayAssertionGroup(assertion_entries){
+        let group_assertion_jsx = [];
+        let entries_len = assertion_entries.length
+        for(var assertion_index = 0; assertion_index < entries_len; assertion_index++){
 
-    getAssertionResults(assertion_entries){
-        let assertion_jsx = [];
-        for(let assertion_index in assertion_entries){
-            //Assertions are grouped by type
             let single_assertion_group = assertion_entries[assertion_index];
 
-            assertion_jsx.push(
+            //Create an AssertionGroup component to render assertions of singular type e.g result.Equal
+            group_assertion_jsx.push(
                                <Row>
                                  <Col sm={{ offset: 2 }}>
                                      <AssertionGroup
@@ -31,37 +29,39 @@ class SummaryBaseAssertion extends Component  {
                               )
 
         }
-     return assertion_jsx
+     return group_assertion_jsx
     }
 
   render(){
-    let render = [];
+    let summary_component = [];
     let data = this.props.assertion;
     let summaries = data.entries;
-    //Loop through summary categories
-    for (let summary_category_index in summaries){
-        let category_description = summaries[summary_category_index].description
-        let assertions_types_list = summaries[summary_category_index].entries
+
+    //Loop through summary categories e.g Category: DEFAULT
+    let summary_len = summaries.length;
+    for (var summary_index = 0; summary_index < summary_len; summary_index++){
+        let category_description = summaries[summary_index].description
+        let assertions_types_list = summaries[summary_index].entries
         let summary_jsx =  []
 
-        //Loop through assertion types (Assertions grouped by assertion types)
-        for(let assertion_type_index in assertions_types_list){
-            let single_assertion_type = assertions_types_list[assertion_type_index]
+        let type_len = assertions_types_list.length;
+        for(var type_index  = 0; type_index < type_len; type_index++){
+            let assertion_type = assertions_types_list[type_index]
 
-            //Display the Assertion type e.g AssertionType: Equal
+            //Display the Assertion type as text e.g AssertionType: Equal
             summary_jsx.push(
                                <Row>
                                  <Col sm={{ offset: 1 }}>
-                                     {single_assertion_type.description}
+                                     {assertion_type.description}
                                  </Col>
                                </Row>
                               )
-            //Display the ALL Assertion content for that type
-            summary_jsx.push(this.getAssertionResults(single_assertion_type.entries))
+
+            summary_jsx.push(this.displayAssertionGroup(assertion_type.entries))
 
         }
 
-        render.push(
+        summary_component.push(
          <div>
           <Fragment>
                 <Row>
@@ -81,7 +81,7 @@ class SummaryBaseAssertion extends Component  {
 
       return (
            <div>
-             {render}
+             {summary_component}
            </div>
      )
   }

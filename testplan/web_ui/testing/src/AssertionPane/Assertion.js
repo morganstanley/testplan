@@ -29,7 +29,7 @@ import SummaryBaseAssertion from './AssertionSummary';
 class Assertion extends Component {
   constructor(props) {
     super(props);
-//
+
     this.toggleAssertion = this.toggleAssertion.bind(this);
     this.state = {isOpen: this.props.assertion.passed === false};
   }
