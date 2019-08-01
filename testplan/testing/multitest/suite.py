@@ -471,7 +471,7 @@ def testcase(*args, **kwargs):
     :param name_func: custom testcase name generation alogorithm.
                         name_func(func_name, kwargs) => testcase_method_name
                         Where:
-                        func_name – Name of the parametrization target function
+                        func_name - Name of the parametrization target function
                         kwargs - The order of keys will be the same as the order
                                 of arguments in the original function
     :type name_func: ``function(string, collections.OrderedDict) => str``
@@ -489,7 +489,7 @@ def testcase(*args, **kwargs):
                             [parametrization_arguments]/
                             [original_docstring, parametrization_arguments]
                         Where:
-                        docstring – Name of the parametrization target function
+                        docstring - Name of the parametrization target function
                         kwargs - The order of keys will be the same as the order
                                 of arguments in the original function
     :type docstring_func: ``docstring_func(str/none, collections.OrderedDict) =>
