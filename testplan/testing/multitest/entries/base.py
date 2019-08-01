@@ -286,6 +286,6 @@ class Graph(BaseEntry):
         elif graph_type in valid_graph_types:
             self.discrete_chart = False
         else:
-            self.type = 'UnimplementedGraph - ' + graph_type
+            raise ValueError('Graph of type {!r} cannot be rendered'.format(graph_type))
 
         super(Graph, self).__init__(description=description)
