@@ -696,6 +696,46 @@ however this can be overridden by explicitly passing ``category`` argument while
               result.equal(i * 2, i * 2, category='Multiples')
 
 
+This schema highlights the structure of a summarised output
+
+    .. code-block:: bash
+
+        Testplan Summary
+        |
+        +---- Category: DEFAULT -> (default category is for assertions not specified by the category argument)
+        |     |
+        |     +---- Assertion Type -> (e.g result.Equal)
+        |     |     ( Description: summarising passing or failing assertions)
+        |     |     |
+        |     |     +---- assertion statement 1
+        |     |     |     ( ... assertion details)
+        |     |     |
+        |     |     +---- assertion statement 2
+        |     |     |     ( ... assertion details)
+        |
+        +---- Category: Multiples -> (specified by category argument)
+        |     |
+        |     +---- Assertion Type -> (e.g result.Equal)
+        |     |     Description: summarising passing or failing assertions)
+        |     |     |
+        |     |     +---- assertion statement 1
+        |     |     |     ( ... assertion details)
+        |     |     |
+        |     |     +---- assertion statement 2
+        |     |     |     ( ... assertion details)
+        |
+        |
+        Testplan Summary
+        | ...
+
+
+``num_passing`` and ``num_failing`` will define how many assertion statements will be displayed in the schema above
+
+``key_combs_limit`` is used for fix/dict summaries and limits the number of failed key combinations reported
+(For example: when applying result.dict.match to many different dictionaries with different keys,
+there will be many 'key combinations' as failures, so only the keys with the most differences
+will be reported, bounded by ``key_combs_limit``)
+
 
 For further examples on summarization, please see the :ref:`a downloadable example <example_assertions_summary>`.
 
