@@ -15,7 +15,6 @@ from .. import assertions as asr
 # pylint: disable=missing-docstring, abstract-method
 
 
-
 @registry.bind_default(category='assertion')
 class AssertionSchema(BaseSchema):
     passed = fields.Boolean()

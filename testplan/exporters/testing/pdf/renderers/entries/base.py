@@ -18,13 +18,13 @@ from ..base import BaseRowRenderer, RowData
 
 class SerializedEntryRegistry(Registry):
     """
-        Registry that is used for binding assertion classes to PDF renderers.
+    Registry that is used for binding assertion classes to PDF renderers.
 
-        Keep in mind that we pass around serialized version of assertion objects
-        (generated via `multitest.entries.schemas`) meaning that lookup
-        arguments will be dictionary representation instead of assertion object
-        instances, hence the need to use class names instead of class objects
-        for `data` keys.
+    Keep in mind that we pass around serialized version of assertion objects
+    (generated via `multitest.entries.schemas`) meaning that lookup
+    arguments will be dictionary representation instead of assertion object
+    instances, hence the need to use class names instead of class objects
+    for `data` keys.
     """
 
     def get_record_key(self, obj):

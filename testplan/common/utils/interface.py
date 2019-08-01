@@ -21,6 +21,8 @@ class MethodSignature(object):
         :type varargs: ``Optional[str]``
         :param keywords: name of ** parameter
         :type keywords: ``Optional[str]``
+        :param defaults: default arguments.
+        :type defaults: ``list`` or ``NoneType``
         """
         self.name = name
         self.args = args

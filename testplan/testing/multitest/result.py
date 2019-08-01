@@ -1333,7 +1333,7 @@ class Result(object):
         :type description: ``str``
         :param category: Custom category that will be used for summarization.
         :type category: ``str``
-        :return: False
+        :return: ``False``
         :rtype: ``bool``
         """
         return assertions.Fail(description, category=category)

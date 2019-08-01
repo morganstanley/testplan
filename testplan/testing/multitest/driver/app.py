@@ -7,6 +7,7 @@ import warnings
 import subprocess
 
 from schema import Or
+from past.builtins import basestring
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.path import StdFiles, makedirs
@@ -30,7 +31,7 @@ class AppConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            'binary': str,
+            'binary': basestring,
             ConfigOption('pre_args', default=None): Or(None, list),
             ConfigOption('args', default=None): Or(None, list),
             ConfigOption('shell', default=False): bool,
@@ -45,6 +46,8 @@ class App(Driver):
     """
     Binary application driver.
 
+    :param name: Driver name. Also uid.
+    :type name: ``str``
     :param binary: Path the to application binary.
     :type binary: ``str``
     :param pre_args: Arguments to be prepended to binary command. An argument
@@ -72,7 +75,19 @@ class App(Driver):
 
     CONFIG = AppConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        binary,
+        pre_args=None,
+        args=None,
+        shell=False,
+        env=None,
+        binary_copy=False,
+        app_dir_name=None,
+        working_dir=None,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(App, self).__init__(**options)
         self.proc = None
         self.std = None

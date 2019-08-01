@@ -1,6 +1,6 @@
 """
-    JSON exporter for Test reports, relies on `testplan.report.testing.schemas`
-    for `dict` serialization and JSON conversion.
+    Web server exporter for test reports, it opens a local http web server
+    which can display the test result.
 """
 from __future__ import absolute_import
 
@@ -20,7 +20,11 @@ from ..base import Exporter, save_attachments
 
 
 class WebServerExporterConfig(ExporterConfig):
-
+    """
+    Configuration object for
+    :py:class:`WebServerExporter <testplan.exporters.testing.webserver.WebServerExporter>`  # pylint: disable=line-too-long
+    object.
+    """
     @classmethod
     def get_options(cls):
         return {
@@ -31,8 +35,19 @@ class WebServerExporterConfig(ExporterConfig):
                 default=defaults.WEB_SERVER_TIMEOUT): int,
         }
 
-class WebServerExporter(Exporter):
 
+class WebServerExporter(Exporter):
+    """
+    Web Server Exporter.
+
+    :param ui_port: Port of web application.
+    :type ui_port: ``int``
+    :param web_server_startup_timeout: Timeout for starting web server.
+    :type web_server_startup_timeout: ``int``
+
+    Also inherits all
+    :py:class:`~testplan.exporters.testing.base.Exporter` options.
+    """
     CONFIG = WebServerExporterConfig
 
     def export(self, source):

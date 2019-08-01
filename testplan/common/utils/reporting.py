@@ -1,6 +1,6 @@
 """
 This module contains utilities that are mostly used
- making assertion comparison data report friendly.
+to make assertion comparison data report friendly.
 """
 
 import six

@@ -15,7 +15,7 @@ class Message(object):
         :type data: ``str``
         :param codec: Codec object.
         :type codec: Subclass of
-          :py:class:`Codec <testplan.common.utils.sockets.codec.Codec>`.
+            :py:class:`Codec <testplan.common.utils.sockets.codec.Codec>`.
         """
         self.data = data
         self.codec = codec

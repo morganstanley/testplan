@@ -41,10 +41,12 @@ class HTTPClient(Driver):
     """
     HTTPClient driver.
 
+    :param name: Name of HTTPClient.
+    :type name: ``str``
     :param host: Hostname to connect to.
     :type host: ``str`` or ``ContextValue``
     :param port: Port to connect to. If None URL won't specify a port.
-    :type port: ``str`` or ``ContextValue``
+    :type port: ``int`` or ``ContextValue``
     :param protocol: Use HTTP or HTTPS protocol.
     :type protocol: ``str``
     :param timeout: Number of seconds to wait for a request.
@@ -56,7 +58,16 @@ class HTTPClient(Driver):
 
     CONFIG = HTTPClientConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        host,
+        port=None,
+        protocol='http',
+        timeout=5,
+        interval=0.01,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(HTTPClient, self).__init__(**options)
         self._host = None
         self._port = None

@@ -46,6 +46,8 @@ class FixServer(Driver):
     :py:class:`testplan.common.utils.sockets.fix.server.Server` class, which
     provides equivalent functionality and may be used outside of MultiTest.
 
+    :param name: Name of FixServer.
+    :type name: ``str``
     :param msgclass: Type used to send and receive FIX messages.
     :type msgclass: ``type``
     :param codec: A Codec to use to encode and decode FIX messages.
@@ -64,7 +66,16 @@ class FixServer(Driver):
 
     CONFIG = FixServerConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        msgclass,
+        codec,
+        host='localhost',
+        port=0,
+        version='FIX.4.2',
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(FixServer, self).__init__(**options)
         self._host = None
         self._port = None
@@ -140,7 +151,7 @@ class FixServer(Driver):
             If no message is received within the timeframe, a TimeoutException
             is raised.
 
-        :type timeout: ``int``
+        :type timeout: ``int`` or ``NoneType``
 
         :return: received FixMessage object
         :rtype: ``FixMessage``

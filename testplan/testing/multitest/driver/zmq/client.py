@@ -60,7 +60,15 @@ class ZMQClient(Driver):
 
     CONFIG = ZMQClientConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        hosts,
+        ports,
+        message_pattern=zmq.PAIR,
+        connect_at_start=True,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(ZMQClient, self).__init__(**options)
         self._hosts = []
         self._ports = []
