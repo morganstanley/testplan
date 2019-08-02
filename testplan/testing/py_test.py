@@ -9,7 +9,7 @@ import schema
 import six
 
 from testplan.testing import base as testing
-from testplan.common import config
+from testplan.common.config import ConfigOption
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.result import Result as MultiTestResult
 from testplan.testing.multitest.entries.schemas.base import (
@@ -30,12 +30,11 @@ class PyTestConfig(testing.TestConfig):
     @classmethod
     def get_options(cls):
         return {
-            config.ConfigOption('target'): schema.Or(str, [str]),
-            config.ConfigOption('select', default=''): str,
-            config.ConfigOption('extra_args', default=None): schema.Or(
-                [str], None),
-            config.ConfigOption('quiet', default=True): bool,
-            config.ConfigOption('result', default=MultiTestResult):
+            'target': schema.Or(str, [str]),
+            ConfigOption('select', default=''): str,
+            ConfigOption('extra_args', default=None): schema.Or([str], None),
+            ConfigOption('quiet', default=True): bool,
+            ConfigOption('result', default=MultiTestResult):
                 validation.is_subclass(MultiTestResult),
         }
 
@@ -44,11 +43,39 @@ class PyTest(testing.Test):
     """
     PyTest plugin for Testplan. Allows tests written for PyTest to be run from
     Testplan, with the test results logged and included in the Testplan report.
+
+    :param name: Test instance name. Also used as uid.
+    :type name: ``str``
+    :param target: Target of PyTest configuration.
+    :type target: ``str`` or ``list`` of ``str``
+    :param description: Description of test instance.
+    :type description: ``str``
+    :param select: Selection of PyTest configuration.
+    :type select: ``str``
+    :param extra_args: Extra arguments passed to pytest.
+    :type extra_args: ``NoneType`` or ``list`` of ``str``
+    :param quiet: Quiet mode.
+    :type quiet: ``bool``
+    :param result: Result that contains assertion entries.
+    :type result: :py:class:`~testplan.testing.multitest.result.Result`
+
+    Also inherits all
+    :py:class:`~testplan.testing.base.Test` options.
     """
 
     CONFIG = PyTestConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        target,
+        description=None,
+        select='',
+        extra_args=None,
+        quiet=True,
+        result=MultiTestResult,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(PyTest, self).__init__(**options)
 
         # Initialise a seperate plugin object to pass to PyTest. This avoids
@@ -207,7 +234,7 @@ class _ReportPlugin(object):
         :param case_name: the case name to get the report for
         :type case_name: ``str``
         :param case_params: the case parameters to get the report for
-        :type case_params: ``str`` or ``None``
+        :type case_params: ``str`` or ``NoneType``
         :return: the case report
         :rtype: :py:class:`testplan.report.testing.TestCaseReport`
         """

@@ -11,6 +11,8 @@ from testplan.common.utils.timing import wait
 
 from testplan.testing.multitest.driver.app import App
 
+MYAPP_DIR = os.path.dirname(__file__)
+
 
 class CustomApp(App):
     def started_check(self, timeout=None):
@@ -199,6 +201,21 @@ def test_echo_hello(runpath):
 
     with open(app.std.out_path, 'r') as fobj:
         assert fobj.read().startswith('hello')
+
+
+def test_stdin(runpath):
+    """Test communicating with an App process' stdin."""
+    app = App(name="Repeater",
+              binary=sys.executable,
+              args=[os.path.join(MYAPP_DIR, "repeater.py")],
+              runpath=runpath)
+    with app:
+        app.proc.communicate(input=b"Repeat me\nEOF")
+        assert app.proc.poll() == 0
+
+    with open(app.std.out_path) as f:
+        stdout = f.read()
+    assert stdout == "Repeat me\n"
 
 
 def run_app(cwd, runpath):

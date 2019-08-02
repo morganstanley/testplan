@@ -15,8 +15,8 @@ from . base import BaseRenderer, registry
 @registry.bind_default(category='assertion')
 class AssertionRenderer(BaseRenderer):
     """
-        Default assertion logger. Renders simple details (file & line no),
-        and assertion name/description and pass/fail status as header.
+    Default assertion logger. Renders simple details (file & line no),
+    and assertion name/description and pass/fail status as header.
     """
     def pass_label(self, entry):
         return Color.green('Pass') if entry else Color.red('Fail')
@@ -26,8 +26,8 @@ class AssertionRenderer(BaseRenderer):
 
     def get_details(self, entry):
         """
-            Return file & line no (failing entries only), along
-             with the extra info returned by `get_assertion_details`.
+        Return file & line no (failing entries only), along
+        with the extra info returned by `get_assertion_details`.
         """
         assertion_details = self.get_assertion_details(entry)  # pylint: disable=assignment-from-none
 
@@ -58,8 +58,8 @@ class FunctionAssertionRenderer(AssertionRenderer):
 
     def get_assertion_details(self, entry):
         """
-            Use a format like `1 == 2`, highlighting
-            failing comparisons in red.
+        Use a format like `1 == 2`, highlighting
+        failing comparisons in red.
         """
         msg = '{} {} {}'.format(
             entry.first,
@@ -76,8 +76,8 @@ class ApproximateEqualityAssertionRenderer(AssertionRenderer):
 
     def get_assertion_details(self, entry):
         """
-            Use a format like `99 ~= 100 (with rel_tol=0.1, abs_tol=0.0)`,
-            highlighting failing comparisons in red.
+        Use a format like `99 ~= 100 (with rel_tol=0.1, abs_tol=0.0)`,
+        highlighting failing comparisons in red.
         """
         msg = '{} {} {} (rel_tol: {}, abs_tol: {})'.format(
             entry.first,
@@ -98,8 +98,8 @@ class RegexMatchRenderer(AssertionRenderer):
 
     def get_assertion_details(self, entry):
         """
-            Return highlighted patterns within the
-            string, if there is a match.
+        Return highlighted patterns within the
+        string, if there is a match.
         """
 
         string = entry.string

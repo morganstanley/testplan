@@ -16,7 +16,6 @@ from ..report.base import Report, ReportGroup
 from ..utils.comparison import is_regex
 
 
-
 null_handler = logging.NullHandler()
 
 

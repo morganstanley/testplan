@@ -4,7 +4,6 @@ Module of utility types and functions that perform matching.
 import os
 import time
 import re
-
 import six
 
 from . import timing
@@ -68,7 +67,7 @@ class LogMatcher(logger.Loggable):
         If the mark is None sets current file position to beginning of file.
 
         :param mark: Name of the mark.
-        :type mark: ``str`` or ``None``
+        :type mark: ``str`` or ``NoneType``
         """
         if mark is None:
             self.position = 0

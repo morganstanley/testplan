@@ -56,6 +56,9 @@ class LocalEnvironment(EnvironmentCreator):
 class Environments(Resource):
     """
     Environments holder resource.
+
+    Also inherits all
+    :py:class:`~testplan.common.entity.base.Resource` options.
     """
     def __init__(self, **options):
         super(Environments, self).__init__(**options)

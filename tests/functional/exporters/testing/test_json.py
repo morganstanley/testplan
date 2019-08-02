@@ -3,11 +3,9 @@ import os
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import Testplan
-from testplan import defaults
 from testplan.common.utils.testing import (
     log_propagation_disabled, argv_overridden
 )
-from testplan.runnable import TestRunner
 from testplan.exporters.testing import JSONExporter
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
@@ -60,8 +58,8 @@ def test_json_exporter(tmpdir):
 
 def test_implicit_exporter_initialization(tmpdir):
     """
-        An implicit JSON should be generated if `json_path` is available
-        via cmdline args but no exporters were declared programmatically.
+    An implicit JSON should be generated if `json_path` is available
+    via cmdline args but no exporters were declared programmatically.
     """
     json_path = tmpdir.mkdir('reports').join('report.json').strpath
 

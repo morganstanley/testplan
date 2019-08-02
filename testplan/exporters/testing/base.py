@@ -1,9 +1,8 @@
 import os
 from shutil import copyfile
 
-from schema import Schema, Use
+from schema import Schema, Use, Or
 
-from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import BaseExporter, ExporterConfig
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -126,7 +125,8 @@ class TagFilteredExporter(Exporter):
         :type tag_dicts: ``list`` of ``dict``
         :param filter_type: all / any, will be used for tag filtering strategy.
         :type filter_type: ``str``
-        :return: None
+        :return: ``None``
+        :rtype: ``NoneType``
         """
         if filter_type not in [self.ALL, self.ANY]:
             raise ValueError('Invalid filter type: {}'.format(filter_type))
@@ -153,7 +153,8 @@ class TagFilteredExporter(Exporter):
 
         :param source: Test report.
         :type source: :py:class:`~testplan.report.testing.base.TestReport`
-        :return: None
+        :return: ``None``
+        :rtype: ``NoneType``
         """
         self.export_clones(
             source=source,
@@ -164,6 +165,7 @@ class TagFilteredExporter(Exporter):
             source=source,
             tag_dicts=self.cfg.report_tags_all,
             filter_type=self.ALL)
+
 
 def save_attachments(report, directory):
     """
