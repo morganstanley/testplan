@@ -224,7 +224,7 @@ class SampleSuite(object):
     pdf_style=Style(passing='assertion-detail', failing='assertion-detail')
 )
 def main(plan):
-    plan.add(MultiTest(name='Assertions Test', suites=[SampleSuite()]))
+    plan.add(MultiTest(name='Graph Assertions Test', suites=[SampleSuite()]))
 
 
 if __name__ == '__main__':
