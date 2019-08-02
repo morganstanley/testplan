@@ -272,13 +272,50 @@ class Graph(BaseEntry):
     """Create a graph for the report."""
     def __init__(self, graph_type, graph_data, description=None,
                  series_options=None, graph_options=None):
+        valid_graph_types = ['Line', 'Scatter', 'Bar', 'Whisker',
+                             'Contour', 'Hexbin']
+        valid_chart_types = ['Pie']
+
         self.graph_type = graph_type
         self.graph_data = graph_data
+
+        if series_options is not None:
+            self.assert_valid_series_options(series_options, graph_data)
         self.series_options = series_options
+
+        if graph_options is not None:
+            self.assert_valid_graph_options(graph_options)
         self.graph_options = graph_options
-        if graph_type != 'Pie':
-            self.type = 'Graph'
+
+        self.type = 'Graph'
+        if graph_type in valid_chart_types:
+            self.discrete_chart = True
+        elif graph_type in valid_graph_types:
+            self.discrete_chart = False
         else:
-            self.type = 'DiscreteChart'
+            raise ValueError('Graph of type {!r} cannot '
+                             'be rendered'.format(graph_type))
 
         super(Graph, self).__init__(description=description)
+
+    def assert_valid_graph_options(self, graph_options):
+        valid_graph_options = ['xAxisTitle', 'yAxisTitle', 'legend']
+
+        for option in graph_options:
+            if option not in valid_graph_options:
+                raise ValueError('Graph option {!r} '
+                                 'is not valid'.format(option))
+
+    def assert_valid_series_options(self, series_options, graph_data):
+        valid_series_options = ['colour']
+
+        for series_name in series_options:
+            if series_name not in graph_data:
+                raise ValueError('Series {!r} cannot be found in '
+                                 'graph data, cannot '
+                                 'apply series options'.format(series_name))
+            for series_option in series_options[series_name]:
+                if series_option not in valid_series_options:
+                    raise ValueError('Series Option: {!r} is not '
+                                     'valid (found in series '
+                                     '{!r})'.format(series_option, series_name))

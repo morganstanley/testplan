@@ -14,6 +14,8 @@ from testplan.testing.multitest.entries import base
 
 from .. import constants
 from ..base import BaseRowRenderer, RowData
+from .baseUtils import get_matlib_plot, export_plot_to_image, format_image
+
 
 
 class SerializedEntryRegistry(Registry):
@@ -244,3 +246,37 @@ class DictLogRenderer(SerializedEntryRenderer):
             )
 
         return header
+
+
+@registry.bind(base.Graph)
+class GraphRenderer(SerializedEntryRenderer):
+
+    def get_row_data(self, source, depth, row_idx):
+        """
+        Load the graph as a static image using MatPlotLib
+        """
+        header = self.get_header(source, depth, row_idx)
+        styles = [RowStyle(font=(constants.FONT, constants.FONT_SIZE_SMALL),
+                           left_padding=20,
+                           text_color=colors.black)
+                  ]
+
+        graph_plot = get_matlib_plot(source)
+        
+        if graph_plot is None:
+            image = 'Unable to render ' + source['graph_type']
+            return header + RowData(content=image,
+                                    start=header.end,
+                                    style=styles)
+        else:
+            image = export_plot_to_image(graph_plot)
+            image = format_image(image)
+
+        # graph_plot must be cleared for next graph to render correctly
+        graph_plot.clf()
+        graph_plot.cla()
+        graph_plot.close()
+
+        return header + RowData(content=[image, '', '', ''],
+                                start=header.end,
+                                style=styles)
