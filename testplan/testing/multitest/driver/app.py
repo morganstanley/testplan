@@ -7,6 +7,7 @@ import warnings
 import subprocess
 
 from schema import Or
+from past.builtins import basestring
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.path import StdFiles, makedirs
@@ -30,7 +31,7 @@ class AppConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            'binary': str,
+            'binary': basestring,
             ConfigOption('pre_args', default=None): Or(None, list),
             ConfigOption('args', default=None): Or(None, list),
             ConfigOption('shell', default=False): bool,
@@ -45,6 +46,8 @@ class App(Driver):
     """
     Binary application driver.
 
+    :param name: Driver name. Also uid.
+    :type name: ``str``
     :param binary: Path the to application binary.
     :type binary: ``str``
     :param pre_args: Arguments to be prepended to binary command. An argument
@@ -72,7 +75,19 @@ class App(Driver):
 
     CONFIG = AppConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        binary,
+        pre_args=None,
+        args=None,
+        shell=False,
+        env=None,
+        binary_copy=False,
+        app_dir_name=None,
+        working_dir=None,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(App, self).__init__(**options)
         self.proc = None
         self.std = None
@@ -196,19 +211,30 @@ class App(Driver):
         cmd = ' '.join(self.cmd) if self.cfg.shell else self.cmd
         cwd = self.cfg.working_dir or self.runpath
         try:
-            self.logger.debug('{driver} driver command: {cmd},{linesep}'
-                              '\trunpath: {runpath}{linesep}'
-                              '\tout/err files {out} - {err}'.format(
-                driver=self.uid(),
-                cmd=cmd, runpath=self.runpath, linesep=os.linesep,
-                out=self.std.out_path, err=self.std.err_path))
-            self.proc = subprocess.Popen(cmd, shell=self.cfg.shell,
-                stdout=self.std.out, stderr=self.std.err,
-                cwd=cwd, env=self.env)
+            self.logger.debug(
+                '%(driver)s driver command: %(cmd)s,\n'
+                '\trunpath: %(runpath)s\n'
+                '\tout/err files %(out)s - %(err)s',
+                {
+                    "driver": self.uid(),
+                    "cmd": cmd,
+                    "runpath": self.runpath,
+                    "out": self.std.out_path,
+                    "err": self.std.err_path,
+                })
+            self.proc = subprocess.Popen(
+                cmd,
+                shell=self.cfg.shell,
+                stdin=subprocess.PIPE,
+                stdout=self.std.out,
+                stderr=self.std.err,
+                cwd=cwd,
+                env=self.env)
         except Exception:
-            TESTPLAN_LOGGER.error(
+            self.logger.error(
                 'Error while App[%s] driver executed command: %s',
-                self.cfg.name, cmd if self.cfg.shell else ' '.join(cmd))
+                self.cfg.name,
+                cmd if self.cfg.shell else ' '.join(cmd))
             raise
 
     def stopping(self):

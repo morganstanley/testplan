@@ -3,6 +3,7 @@
 import re
 from schema import Schema, And, Or, Use, SchemaError
 
+from testplan.common.entity import Entity
 from testplan.common.config import Config, ConfigOption
 from testplan.common.utils.exceptions import should_raise
 
@@ -157,3 +158,95 @@ def test_getattr_propagation():
     leaf_1 = Leaf()
     leaf_1.parent = branch_1
     assert (leaf_1.foo, leaf_1.bar, leaf_1.xyz) == (5, 30, '100')
+
+
+class TopConfig(Config):
+
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption('foo', default=None): (int, None),
+            ConfigOption('boo', default=None): (list, None),
+            ConfigOption('bar', default='hi'): str,
+            ConfigOption('baz', default='hey'): str
+        }
+
+
+class Top(Entity):
+
+    CONFIG = TopConfig
+    def __init__(self, **options):
+        super(Top, self).__init__(**options)
+
+
+class MiddleConfig(TopConfig):
+
+    @classmethod
+    def get_options(cls):
+        return {
+            'name': str,
+            ConfigOption('foo', default=9): int,
+            ConfigOption('boo', default=[1, 2, 3]): list,
+            ConfigOption('koo', default=99): int,
+            ConfigOption('zoo', default={1: 'a', 2: 'b', 3: 'c'}): dict,
+            ConfigOption('bar', default='hello'): str,
+            ConfigOption('baz', default='world'): str
+        }
+
+
+class Middle(Top):
+
+    CONFIG = MiddleConfig
+    def __init__(self, **options):
+        super(Middle, self).__init__(**options)
+
+
+class BottomConfig(MiddleConfig):
+
+    @classmethod
+    def get_options(cls):
+        return {
+            ConfigOption('description', default=None): Or(str, None)
+        }
+
+
+class Bottom(Middle):
+
+    CONFIG = BottomConfig
+    def __init__(
+        self, name, description=None, foo=9, boo=None, bar=None, **options
+    ):
+        options.update(self.filter_locals(locals()))
+        self._options = options.copy()
+        super(Bottom, self).__init__(**options)
+
+    @property
+    def options(self):
+        return self._options
+
+
+def test_filter_locals():
+    """Test that Entity.filter_locals() works correctly."""
+    bottom1 = Bottom('Bottom1', baz='you', bar='bye', boo=None)
+    # boo will be filtered out but filter_locals and not pass down to
+    # Middle's __init__
+    assert len(bottom1.options) == 4
+    assert bottom1.options['name'] == 'Bottom1'
+    assert bottom1.options['baz'] == 'you'
+    assert bottom1.options['bar'] == 'bye'
+    assert bottom1.options['foo'] == 9
+
+    # takes the value of immediate container
+    assert bottom1.cfg.boo == [1, 2, 3]
+
+    bottom2 = Bottom(
+        'Bottom2', description='An example',
+        boo=None, zoo={10: 'a', 20: 'b', 30: 'c'}, bar='barbar')
+
+    assert len(bottom2.options) == 5
+    assert bottom2.options['name'] == 'Bottom2'
+    assert bottom2.options['description'] == 'An example'
+    assert bottom2.options['zoo'] == {10: 'a', 20: 'b', 30: 'c'}
+    assert bottom2.options['bar'] == 'barbar'
+
+    assert bottom2.cfg.boo == [1, 2, 3]

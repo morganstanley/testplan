@@ -28,7 +28,7 @@ class ReportLogSchema(Schema):
 
 
 class ReportSchema(schemas.TreeNodeSchema):
-    """Schema for ``base.Report``"""
+    """Schema for ``base.Report``."""
 
     source_class = Report
 
@@ -49,7 +49,7 @@ class ReportSchema(schemas.TreeNodeSchema):
 
 
 class ReportGroupSchema(ReportSchema):
-    """Schema for ``base.ReportGroup``"""
+    """Schema for ``base.ReportGroup``."""
 
     source_class = ReportGroup
 
