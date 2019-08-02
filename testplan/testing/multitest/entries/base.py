@@ -272,9 +272,15 @@ class Graph(BaseEntry):
     """Create a graph for the report."""
     def __init__(self, graph_type, graph_data, description=None,
                  series_options=None, graph_options=None):
-        valid_graph_types = ['Line', 'Scatter', 'Bar', 'Whisker',
+        """
+        NOTE:
+        When adding functionality to Graph, VALID_GRAPH_TYPES,
+        VALID_CHART_TYPES, VALID_GRAPH_OPTIONS and
+        VALID_SERIES_OPTIONS must be kept updated
+        """
+        VALID_GRAPH_TYPES = ['Line', 'Scatter', 'Bar', 'Whisker',
                              'Contour', 'Hexbin']
-        valid_chart_types = ['Pie']
+        VALID_CHART_TYPES = ['Pie']
 
         self.graph_type = graph_type
         self.graph_data = graph_data
@@ -288,9 +294,9 @@ class Graph(BaseEntry):
         self.graph_options = graph_options
 
         self.type = 'Graph'
-        if graph_type in valid_chart_types:
+        if graph_type in VALID_CHART_TYPES:
             self.discrete_chart = True
-        elif graph_type in valid_graph_types:
+        elif graph_type in VALID_GRAPH_TYPES:
             self.discrete_chart = False
         else:
             raise ValueError('Graph of type {!r} cannot '
@@ -299,15 +305,15 @@ class Graph(BaseEntry):
         super(Graph, self).__init__(description=description)
 
     def assert_valid_graph_options(self, graph_options):
-        valid_graph_options = ['xAxisTitle', 'yAxisTitle', 'legend']
+        VALID_GRAPH_OPTIONS = ['xAxisTitle', 'yAxisTitle', 'legend']
 
         for option in graph_options:
-            if option not in valid_graph_options:
+            if option not in VALID_GRAPH_OPTIONS:
                 raise ValueError('Graph option {!r} '
                                  'is not valid'.format(option))
 
     def assert_valid_series_options(self, series_options, graph_data):
-        valid_series_options = ['colour']
+        VALID_SERIES_OPTIONS = ['colour']
 
         for series_name in series_options:
             if series_name not in graph_data:
@@ -315,7 +321,7 @@ class Graph(BaseEntry):
                                  'graph data, cannot '
                                  'apply series options'.format(series_name))
             for series_option in series_options[series_name]:
-                if series_option not in valid_series_options:
+                if series_option not in VALID_SERIES_OPTIONS:
                     raise ValueError('Series Option: {!r} is not '
                                      'valid (found in series '
                                      '{!r})'.format(series_option, series_name))
