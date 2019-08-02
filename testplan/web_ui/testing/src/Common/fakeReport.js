@@ -666,6 +666,7 @@ var fakeReportAssertions = {
                                         ]
                                     },
                                     "description": "Line Graph",
+                                    "discrete_chart": false,
                                     "category": "DEFAULT",
                                     "graph_options": null,
                                     "graph_type": "Line"
@@ -717,6 +718,7 @@ var fakeReportAssertions = {
                                     "description": "Scatter Graph",
                                     "category": "DEFAULT",
                                     "graph_options": null,
+                                    "discrete_chart": false,
                                     "graph_type": "Scatter"
                                 }, {
                                     "meta_type": "entry",
@@ -741,6 +743,7 @@ var fakeReportAssertions = {
                                     "description": "Bar Graph",
                                     "category": "DEFAULT",
                                     "graph_options": {"legend": true},
+                                    "discrete_chart": false,
                                     "graph_type": "Bar"
                                 }, {
                                     "meta_type": "entry",
@@ -786,6 +789,7 @@ var fakeReportAssertions = {
                                     },
                                     "line_no": 69,
                                     "utc_time": "2019-07-15T14:48:21.106270+00:00",
+                                    "discrete_chart": false,
                                     "graph_type": "Hexbin"
                                 }, {
                                     "meta_type": "entry",
@@ -830,6 +834,7 @@ var fakeReportAssertions = {
                                     },
                                     "description": "Whisker Graph",
                                     "category": "DEFAULT",
+                                    "discrete_chart": false,
                                     "graph_options": null,
                                     "graph_type": "Whisker"
                                 }, {
@@ -875,13 +880,14 @@ var fakeReportAssertions = {
                                     },
                                     "description": "Contour Graph",
                                     "category": "DEFAULT",
+                                    "discrete_chart": false,
                                     "graph_options": null,
                                     "graph_type": "Contour"
                                 }, {
                                     "meta_type": "entry",
                                     "utc_time": "2019-07-12T12:36:09.796381+00:00",
                                     "machine_time": "2019-07-12T12:36:09.796381+00:00",
-                                    "type": "DiscreteChart",
+                                    "type": "Graph",
                                     "series_options": {
                                         "Data Name": {
                                             "colour": "literal"
@@ -914,6 +920,7 @@ var fakeReportAssertions = {
                                     },
                                     "description": "Pie Chart",
                                     "category": "DEFAULT",
+                                    "discrete_chart": true,
                                     "graph_options": null,
                                     "graph_type": "Pie"
                                 }
