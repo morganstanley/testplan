@@ -1166,6 +1166,7 @@ class Result(object):
     ):
 
         self.entries = []
+        self.attachments = []
 
         self.stdout_style = stdout_style or STDOUT_STYLE
         self.continue_on_failure = continue_on_failure
@@ -1919,6 +1920,13 @@ class Result(object):
             graph_options=graph_options
         )
 
+    @bind_entry
+    def attach(self, filepath, description=None):
+        """Attaches a file to the report."""
+        attachment = Attachment(filepath)
+        self.attachments.append(attachment)
+        return base.Attachment(attachment, description)
+
     @property
     def serialized_entries(self):
         """
@@ -1935,3 +1943,13 @@ class Result(object):
 
     def __len__(self):
         return len(self.entries)
+
+
+class Attachment(object):
+    """Represents a file attached to the result object."""
+
+    def __init__(self, filepath):
+        self.source_path = filepath
+        self.uuid = str(uuid.uuid4())
+        self.filename = os.path.basename(filepath)
+        self.dst_path = os.path.join(self.uuid, self.filename)

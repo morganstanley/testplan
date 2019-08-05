@@ -35,7 +35,7 @@ def execute_as_thread(target, args=None, kwargs=None, daemon=False, join=True,
     if join is True:
         start_time = time.time()
         while True:
-            if not thr.isAlive():
+            if not thr.is_alive():
                 return
             if break_join is not None and break_join():
                 break

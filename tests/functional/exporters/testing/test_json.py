@@ -1,4 +1,7 @@
+"""Test the JSON exporter."""
+import json
 import os
+import tempfile
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
@@ -20,6 +23,14 @@ class Alpha(object):
     @testcase
     def test_membership(self, env, result):
         result.contain(1, [1, 2, 3])
+
+    @testcase
+    def test_attach(self, env, result):
+        """Test attaching a file to the report."""
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmpfile:
+            tmpfile.write("testplan\n" * 100)
+
+        result.attach(tmpfile.name)
 
 
 @testsuite
@@ -55,6 +66,21 @@ def test_json_exporter(tmpdir):
     assert os.path.exists(json_path)
     assert os.stat(json_path).st_size > 0
 
+    # Load the JSON file to validate it contains valid JSON.
+    with open(json_path) as json_file:
+        report = json.load(json_file)
+
+    # Check that the expected text file is attached correctly.
+    attachments_dir = os.path.join(os.path.dirname(json_path), "_attachments")
+    assert os.path.isdir(attachments_dir)
+    assert len(report["attachments"]) == 1
+    dst_path = list(report["attachments"].keys())[0]
+    attachment_filepath = os.path.join(attachments_dir, dst_path)
+    assert os.path.isfile(attachment_filepath)
+    with open(attachment_filepath) as f:
+        attachment_file_contents = f.read()
+    assert attachment_file_contents == "testplan\n" * 100
+
 
 def test_implicit_exporter_initialization(tmpdir):
     """
@@ -72,3 +98,8 @@ def test_implicit_exporter_initialization(tmpdir):
 
     assert os.path.exists(json_path)
     assert os.stat(json_path).st_size > 0
+
+    # Load the JSON file to validate it contains valid JSON.
+    with open(json_path) as json_file:
+        json.load(json_file)
+

@@ -323,3 +323,15 @@ class Graph(BaseEntry):
                     raise ValueError('Series Option: {!r} is not '
                                      'valid (found in series '
                                      '{!r})'.format(series_option, series_name))
+
+
+class Attachment(BaseEntry):
+    """Attach a file to the report."""
+
+    def __init__(self, attachment, description):
+        self.source_path = attachment.source_path
+        self.uuid = attachment.uuid
+        self.filename = attachment.filename
+        self.dst_path = attachment.dst_path
+        super(Attachment, self).__init__(description=description)
+
