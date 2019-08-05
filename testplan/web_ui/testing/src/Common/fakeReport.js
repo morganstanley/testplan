@@ -3507,7 +3507,7 @@ var fakeReportAssertions = {
                                     "type": "Summary"
                                 }
                         ],
-                        "uid": "0d45f100-da7b-46be-a6a5-3188c425b764",
+                        "uid": "89012abb-1111-45bce-a6a5-3188c111111",
                         "type": "TestCaseReport",
                         "logs": []
                     }

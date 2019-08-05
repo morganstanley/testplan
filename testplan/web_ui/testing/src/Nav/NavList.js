@@ -55,7 +55,7 @@ class NavList extends Component {
       navButtons.push(
         <ListGroupItem
           tabIndex={tabIndex.toString()}
-          key={entry.uid+entry.name}
+          key={entry.uid}
           className={css(styles.navButton, styles.navButtonInteract)}
           onClick={((e) => this.props.handleNavClick(e, entry, depth))}>
           <NavEntry
