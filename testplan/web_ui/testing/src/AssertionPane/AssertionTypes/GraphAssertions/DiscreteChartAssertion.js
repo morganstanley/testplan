@@ -32,6 +32,7 @@ class DiscreteChartAssertion extends Component  {
         let series_colour = GraphUtil.returnColour(plot_options)
         plots.push(
                      <GraphComponent
+                      key={key}
                       colorType= {series_colour}
                       data={data[key]}
                       width={400}
