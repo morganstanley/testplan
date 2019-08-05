@@ -49,7 +49,7 @@ function prepareSliceLists(list, data) {
  * Existence check: [26, 22, 11]
  * Absence check: [444, 555]
  *
- * Values of the list will be red if they fail to make the existence/absence 
+ * Values of the list will be red if they fail to make the existence/absence
  * conditions.
  *
  * @param {object} assertion
@@ -73,8 +73,8 @@ function prepareDictCheckContent(assertion) {
       [{assertion.absent_keys.map((key, index) =>
         <span
           style={{
-            color: assertion.absent_keys_diff.indexOf(key) >= 0 
-            ? 'red' 
+            color: assertion.absent_keys_diff.indexOf(key) >= 0
+            ? 'red'
             : 'black'
           }}
           key={`check_${key}_${index}`}>
@@ -151,6 +151,49 @@ function prepareRegexMatchLineContent(assertion) {
   });
 
   return reconstructedString;
+}
+
+/*
+ * Prepare the contents of a report Attachment entry. Currently this just
+ * provides a link to download the raw file. In future we could inspect
+ * the filetype and e.g. render image files inline.
+ *
+ * @param {object} assertion
+ * @returns {object}
+ * @private
+ */
+function prepareAttachmentContent(assertion) {
+  const paths = window.location.pathname.split('/');
+  let downloadLink;
+
+  // When running the development server, the real Testplan back-end is not
+  // running so we can't GET the attachment. Stick in a button that
+  // gives a debug message instead of the real link.
+  if ((paths.length >= 2) && (paths[1] === '_dev')) {
+    downloadLink = (
+      <button onClick={() => alert("Would download: " + assertion.dst_path)}>
+        {assertion.filename}
+      </button>
+    );
+  } else if (paths.length >= 3) {
+    const uid = paths[2];
+    downloadLink = (
+      <a href={`/testplan/${uid}/attachment/${assertion.dst_path}`}>
+        {assertion.filename}
+      </a>
+    );
+  }
+
+  return {
+    preTitle: assertion.description,
+    preContent: null,
+    leftTitle: null,
+    rightTitle: null,
+    leftContent: downloadLink,
+    rightContent: null,
+    postTitle: null,
+    postContent: null,
+  }
 }
 
 /**
@@ -233,7 +276,7 @@ function prepareBasicContent(assertion) {
     content['rightContent'] = <span>{assertion.container}</span>;
 
   } else if (assertion.type === 'NotContain') {
-    content['leftContent'] = 
+    content['leftContent'] =
       <span>{assertion.member} &lt;not in&gt; value</span>;
     content['rightContent'] = <span>{assertion.container}</span>;
 
@@ -243,7 +286,7 @@ function prepareBasicContent(assertion) {
         {assertion.delta.map(
           (line, index) => {
             return (
-              <span 
+              <span
                 key={"LineDiffleftContent"+uid+index}
                 style={{ whiteSpace: 'pre' }}
               >
@@ -326,6 +369,8 @@ function prepareBasicContent(assertion) {
     content['leftTitle'] = null;
     content['rightTitle'] = null;
     content['preContent'] = prepareDictCheckContent(assertion);
+  } else if (assertion.type === 'Attachment') {
+    content = prepareAttachmentContent(assertion);
   }
 
   return content;
