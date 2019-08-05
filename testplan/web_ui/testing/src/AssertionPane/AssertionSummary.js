@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Col, Row} from 'reactstrap';
 import AssertionGroup from './AssertionGroup';
@@ -7,83 +7,74 @@ import AssertionGroup from './AssertionGroup';
  */
 
 class SummaryBaseAssertion extends Component  {
-    displayAssertionGroup(assertion_entries){
-        let group_assertion_jsx = [];
-        let entries_len = assertion_entries.length
-        for(var assertion_index = 0; assertion_index < entries_len; assertion_index++){
-
-            let single_assertion_group = assertion_entries[assertion_index];
-
-            //Create an AssertionGroup component to render assertions of singular type e.g result.Equal
-            group_assertion_jsx.push(
-                               <Row>
-                                 <Col sm={{ offset: 2 }}>
-                                     <AssertionGroup
-                                        entries={single_assertion_group.entries}
-                                        globalIsOpen={this.props.globalIsOpen}
-                                        resetGlobalIsOpen={this.props.resetGlobalIsOpen}
-                                        filter={this.props.filter}
-                                      />
-                                 </Col>
-                               </Row>
-                              )
-
-        }
-     return group_assertion_jsx
-    }
-
   render(){
-    let summary_component = [];
     let data = this.props.assertion;
     let summaries = data.entries;
 
-    //Loop through summary categories e.g Category: DEFAULT
-    let summary_len = summaries.length;
-    for (var summary_index = 0; summary_index < summary_len; summary_index++){
-        let category_description = summaries[summary_index].description
-        let assertions_types_list = summaries[summary_index].entries
-        let summary_jsx =  []
+    // Go through categories e.g Category: DEFAULT
+    return summaries.map(category =>{
+           let category_description = category.description
 
-        let type_len = assertions_types_list.length;
-        for(var type_index  = 0; type_index < type_len; type_index++){
-            let assertion_type = assertions_types_list[type_index]
+           // Go through assertion types e.g Assertion type: Equal
+           let assertions_types =
+           category.entries.map(assertions_types =>{
+                let description =
+                (
+                    <Row>
+                     <Col sm={{ offset: 1 }}
+                          style={{ fontSize: 18 }}>
+                         <strong>{assertions_types.description}</strong>
+                     </Col>
+                    </Row>
+                );
 
-            //Display the Assertion type as text e.g AssertionType: Equal
-            summary_jsx.push(
-                               <Row>
-                                 <Col sm={{ offset: 1 }}>
-                                     {assertion_type.description}
-                                 </Col>
-                               </Row>
-                              )
+                // State how many assertions are being displayed e.g 5 of 500
+                // Create an AssertionGroup for each grouped type of assertion
+                // e.g all result.Equal() in Category: DEFAULT
+                let entries =
+                assertions_types.entries.map(single_assertion_group =>
+                    <div key={single_assertion_group.description}>
+                        <Row>
+                          <Col sm={{ offset: 1 }}>
+                            {single_assertion_group.description}
+                          </Col>
+                        </Row>
+                        <Row>
+                         <Col sm={{ offset: 2 }}>
+                             <AssertionGroup
+                                entries={single_assertion_group.entries}
+                                globalIsOpen={this.props.globalIsOpen}
+                                resetGlobalIsOpen={this.props.resetGlobalIsOpen}
+                                filter={this.props.filter}
+                              />
+                         </Col>
+                        </Row>
+                    </div>
+                 )
 
-            summary_jsx.push(this.displayAssertionGroup(assertion_type.entries))
+                return  (
+                         <div key={assertions_types.description}>
+                            {description}
+                            {entries}
+                        </div>
+                )
+            })
 
-        }
-
-        summary_component.push(
-         <div>
-          <Fragment>
-                <Row>
-                  <Col lg='14'>
-                    <strong>{category_description}</strong>
-                  </Col>
-                </Row>
-                 <Row>
-                  <Col lg='12'>
-                   {summary_jsx}
-                  </Col>
-                </Row>
-              </Fragment>
-          </div>
-         )
-    }
-
-      return (
-           <div>
-             {summary_component}
-           </div>
-     )
+             return (
+                     <div key={category.description}>
+                        <Row>
+                          <Col lg='14' style={{ fontSize: 20 }}>
+                            <strong>{category_description}</strong>
+                          </Col>
+                        </Row>
+                         <Row>
+                          <Col lg='12'>
+                           {assertions_types}
+                          </Col>
+                        </Row>
+                    </div>
+              )
+    })
   }
 }
 

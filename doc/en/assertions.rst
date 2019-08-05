@@ -698,7 +698,7 @@ however this can be overridden by explicitly passing ``category`` argument while
 
 This schema highlights the structure of a summarised output
 
-    .. code-block:: bash
+    .. code-block:: none
 
         Testplan Summary
         |

@@ -513,7 +513,7 @@ def testcase(*args, **kwargs):
     :param execution_group: group of test cases to run in parallel with,
                             (groups overall are executed serially)
     :type execution_group: ``str``
-    :param timeout: time elapsed until TimeoutException raised
+    :param timeout: time elapsed in seconds until TimeoutException raised
     :type timeout: ``int``
     """
     return _selective_call(
