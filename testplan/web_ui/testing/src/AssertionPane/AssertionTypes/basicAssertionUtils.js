@@ -172,14 +172,14 @@ function prepareAttachmentContent(assertion) {
   if ((paths.length >= 2) && (paths[1] === '_dev')) {
     downloadLink = (
       <button onClick={() => alert("Would download: " + assertion.dst_path)}>
-        {assertion.filename}
+        {assertion.orig_filename}
       </button>
     );
   } else if (paths.length >= 3) {
     const uid = paths[2];
     downloadLink = (
       <a href={`/api/v1/reports/${uid}/attachments/${assertion.dst_path}`}>
-        {assertion.filename}
+        {assertion.orig_filename}
       </a>
     );
   }

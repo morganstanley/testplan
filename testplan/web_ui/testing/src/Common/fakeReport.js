@@ -3532,12 +3532,14 @@ var fakeReportAssertions = {
                                 'entries': [{
                                     'category': 'DEFAULT',
                                     'description': null,
-                                    'dst_path': 'e293da75-4077-4a9f-838f-5a0e88ab549a/tmp9jauyax8',
-                                    'filename': 'tmp9jauyax8',
+                                    'hash': 'e293da7540774a9f838f5a0e88ab549a',
+                                    'filesize': 100,
+                                    'dst_path': 'tmp9jauyax8-e293da7540774a9f838f5a0e88ab549a-100.txt',
+                                    'orig_filename': 'tmp9jauyax8.txt',
                                     'line_no': 20,
                                     'machine_time': '2019-08-05T16:25:21.391788+00:00',
                                     'meta_type': 'entry',
-                                    'source_path': '/tmp/tmp9jauyax8',
+                                    'source_path': '/tmp/tmp9jauyax8.txt',
                                     'type': 'Attachment',
                                     'utc_time': '2019-08-05T15:25:21.391773+00:00',
                                     'uuid': 'e293da75-4077-4a9f-838f-5a0e88ab549a'

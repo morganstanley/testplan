@@ -6,6 +6,7 @@ import shutil
 import getpass
 import contextlib
 import tempfile
+import hashlib
 
 from .strings import slugify
 
@@ -279,3 +280,24 @@ try:
     TemporaryDirectory = tempfile.TemporaryDirectory
 except AttributeError:
     TemporaryDirectory = _TemporaryDirectory
+
+
+def hash_file(filepath):
+    """"
+    Hashes the contents of a file. SHA1 algorithm is used.
+
+    :param filepath: Path to file to hash.
+    :type filepath: ``str``
+    :return: Hashed value as a string
+    :rtype: ``str``
+    """
+    HASH_BLOCKSIZE = 65536
+    hasher = hashlib.sha1()
+
+    with open(filepath, "rb") as f:
+        buf = f.read(HASH_BLOCKSIZE)
+        while buf:
+            hasher.update(buf)
+            buf = f.read(HASH_BLOCKSIZE)
+
+    return hasher.hexdigest()

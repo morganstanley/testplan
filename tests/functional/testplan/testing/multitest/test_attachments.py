@@ -1,5 +1,5 @@
 """Test storing of attachments in a report."""
-import tempfile
+import re
 import os
 
 import pytest
@@ -20,25 +20,22 @@ class Suite(object):
                       description="attaching a file")
 
 
-@pytest.fixture(scope="module")
-def attachment_plan():
-    with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".txt", delete=False) as tmpfile:
-        tmpfile.write("testplan\n" * 100)
+@pytest.fixture(scope="function")
+def attachment_plan(tmpdir):
+    filepath = str(tmpdir.join("attachment.txt"))
+    with open(filepath, "w") as f:
+        f.write("testplan\n" * 100)
 
-    try:
-        plan = testplan.Testplan(name="AttachmentPlan", parse_cmdline=False)
-        plan.add(multitest.MultiTest(
-                name="AttachmentTest",
-                suites=[Suite(tmpfile.name)]))
-        yield plan, tmpfile.name
-    finally:
-        os.remove(tmpfile.name)
+    plan = testplan.Testplan(name="AttachmentPlan", parse_cmdline=False)
+    plan.add(multitest.MultiTest(
+            name="AttachmentTest",
+            suites=[Suite(filepath)]))
+    return plan
 
 
 def test_attach(attachment_plan):
     """Test running a Testplan that stores a single attachment."""
-    plan, tmpfile_path = attachment_plan
+    plan = attachment_plan
     plan_result = plan.run()
     assert plan_result  # Plan should pass.
 
@@ -49,10 +46,9 @@ def test_attach(attachment_plan):
     assert len(testcase_report.entries) == 1
 
     attachment_entry = testcase_report.entries[0]
+    assert len(attachments) == 1
+    dst_path = list(attachments.keys())[0]
 
-    filename = attachment_entry["filename"]
-    uuid = attachment_entry["uuid"]
-    dst_path = attachment_entry["dst_path"]
-
-    assert dst_path == os.path.join(uuid, filename)
+    # Expect the attachment to be stored as "attachment-[HASH]-[FILESIZE].txt"
+    assert re.match(r"attachment-[0-9a-f]+-[0-9]+.txt", dst_path)
     assert attachments[dst_path] == attachment_entry["source_path"]

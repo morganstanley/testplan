@@ -92,6 +92,7 @@ class GraphSchema(BaseSchema):
 @registry.bind(base.Attachment)
 class AttachmentSchema(BaseSchema):
     source_path = fields.String()
-    uuid = fields.String()
-    filename = fields.String()
+    hash = fields.String()
+    orig_filename = fields.String()
+    filesize = fields.Integer()
     dst_path = fields.String()

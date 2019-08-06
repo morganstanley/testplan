@@ -14,7 +14,8 @@ class TestSuite(object):
     @multitest.testcase
     def test_attach(self, env, result):
         """Attaches a file to the report."""
-        with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmpfile:
+        with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".txt", delete=False) as tmpfile:
             tmpfile.write("testplan\n" * 100)
 
         result.attach(tmpfile.name, description="Attaching a text file")

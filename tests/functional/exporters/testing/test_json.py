@@ -102,4 +102,3 @@ def test_implicit_exporter_initialization(tmpdir):
     # Load the JSON file to validate it contains valid JSON.
     with open(json_path) as json_file:
         json.load(json_file)
-

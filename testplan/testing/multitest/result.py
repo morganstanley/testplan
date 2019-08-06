@@ -1,9 +1,17 @@
-"""TODO."""
+"""
+Defines the Result object and its sub-namepsaces.
+
+The Result object is the interface used by testcases to make assertions and
+log data. Entries contained in the result are copied into the Report object
+after testcases have finished running.
+
+"""
 import functools
 import inspect
 import os
 import re
 import uuid
+import hashlib
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
@@ -1923,9 +1931,9 @@ class Result(object):
     @bind_entry
     def attach(self, filepath, description=None):
         """Attaches a file to the report."""
-        attachment = Attachment(filepath)
+        attachment = base.Attachment(filepath, description)
         self.attachments.append(attachment)
-        return base.Attachment(attachment, description)
+        return attachment
 
     @property
     def serialized_entries(self):
@@ -1943,13 +1951,3 @@ class Result(object):
 
     def __len__(self):
         return len(self.entries)
-
-
-class Attachment(object):
-    """Represents a file attached to the result object."""
-
-    def __init__(self, filepath):
-        self.source_path = filepath
-        self.uuid = str(uuid.uuid4())
-        self.filename = os.path.basename(filepath)
-        self.dst_path = os.path.join(self.uuid, self.filename)
