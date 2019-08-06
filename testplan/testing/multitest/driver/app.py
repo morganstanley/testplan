@@ -245,7 +245,7 @@ class App(Driver):
         except Exception as exc:
             warnings.warn('On killing driver {} process - {}'.format(
                 self.cfg.name, exc))
-            self._retcode = self.proc.poll()
+            self._retcode = self.proc.poll() if self.proc else 0
         self.proc = None
         if self.std:
             self.std.close()
@@ -266,3 +266,5 @@ class App(Driver):
         if self.proc:
             self.logger.debug('Killing process id {}'.format(self.proc.pid))
             kill_process(self.proc)
+        if self.std:
+            self.std.close()
