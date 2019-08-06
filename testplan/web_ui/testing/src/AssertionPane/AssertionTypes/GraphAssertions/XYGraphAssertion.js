@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import 'react-vis/dist/style.css';
 import * as GraphUtil from './graphUtils';
 import {css, StyleSheet} from 'aphrodite';
-
 import {
   XAxis,
   YAxis,
@@ -64,7 +63,7 @@ class XYGraphAssertion extends Component {
     const data = this.props.assertion.graph_data;
     const graph_options = this.props.assertion.graph_options;
     const {lastDrawLocation} = this.state;
-    const graph_type = this.props.assertion.graph_type
+    const graph_type = this.props.assertion.graph_type;
     const GraphComponent = this.components[graph_type];
 
     let legend = [];
@@ -74,6 +73,7 @@ class XYGraphAssertion extends Component {
         let series_colour = this.state.series_colour[key]
         plots.push(
                     <GraphComponent
+                      key={key}
                       data={data[key]}
                       color={series_colour}
                       style = {GraphUtil.returnStyle(graph_type)}
@@ -85,49 +85,46 @@ class XYGraphAssertion extends Component {
     }
 
     return (
-      <div>
-        <div className={css(styles.centreComponent)}>
+    <div className={css(styles.centreComponent)}>
+      <XYPlot
+        animation
+        xDomain={lastDrawLocation && [
+            lastDrawLocation.left,
+            lastDrawLocation.right
+          ]
+        }
+        yDomain={lastDrawLocation && [
+            lastDrawLocation.bottom,
+            lastDrawLocation.top
+          ]
+        }
+        width={750}
+        height={500}
+         xType= {GraphUtil.returnXType(graph_type)}
+      >
+        <HorizontalGridLines />
 
-          <XYPlot
-            animation
-            xDomain={lastDrawLocation && [
-                lastDrawLocation.left,
-                lastDrawLocation.right
-              ]
-            }
-            yDomain={lastDrawLocation && [
-                lastDrawLocation.bottom,
-                lastDrawLocation.top
-              ]
-            }
-            width={750}
-            height={500}
-             xType= {GraphUtil.returnXType(graph_type)}
-          >
-            <HorizontalGridLines />
+        <YAxis title = {GraphUtil.returnXAxisTitle(graph_options)}/>
+        <XAxis title = {GraphUtil.returnYAxisTitle(graph_options)}/>
 
-            <YAxis title = {GraphUtil.returnXAxisTitle(graph_options)}/>
-            <XAxis title = {GraphUtil.returnYAxisTitle(graph_options)}/>
+        {plots}
 
-            {plots}
-
-            <Highlight
-              onBrushEnd={area => this.setState({lastDrawLocation: area})}
-              onDrag={area => {
-                this.setState({
-                  lastDrawLocation: {
-                    bottom: lastDrawLocation.bottom + (area.top - area.bottom),
-                    left: lastDrawLocation.left - (area.right - area.left),
-                    right: lastDrawLocation.right - (area.right - area.left),
-                    top: lastDrawLocation.top + (area.top - area.bottom)
-                  }
-                });
-              }}
-            />
-          </XYPlot>
-          <DiscreteColorLegend orientation = 'horizontal' width={750} items={legend}/>
-        </div>
-      </div>
+        <Highlight
+          onBrushEnd={area => this.setState({lastDrawLocation: area})}
+          onDrag={area => {
+            this.setState({
+              lastDrawLocation: {
+                bottom: lastDrawLocation.bottom + (area.top - area.bottom),
+                left: lastDrawLocation.left - (area.right - area.left),
+                right: lastDrawLocation.right - (area.right - area.left),
+                top: lastDrawLocation.top + (area.top - area.bottom)
+              }
+            });
+          }}
+        />
+      </XYPlot>
+      <DiscreteColorLegend orientation='horizontal' width={750} items={legend}/>
+    </div>
     );
   }
 }

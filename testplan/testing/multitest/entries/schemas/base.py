@@ -86,3 +86,4 @@ class GraphSchema(BaseSchema):
     series_options = fields.Dict(fields.Dict(), allow_none=True)
     type = fields.String()
     graph_options = fields.Dict(allow_none=True)
+    discrete_chart = fields.Bool()

@@ -447,17 +447,74 @@ def testcase(*args, **kwargs):
     wrong signatures (with swapped parameters for example) will cause bugs
     that can be time-consuming to figure out.
 
-    It is possible to assign tags to a suite via `@testcase(tags=...)` syntax:
+    :param tags: allows filtering of tests with simple tags/
+                 multi-simple tags/named tags/multi-named tags.
+    :type tags: ``str``/ ``tuple(str)``/
+                ``dict( str: str)``/ ``dict( str: tuple(str))``
+    :param parameters: enables the creation of more compact testcases
+                        using simple or combinatorial paramatization,
+                        by allowing you to pass extra arguments to the
+                        testcase declaration.
+    :type parameters: ``list(object)``/ ``tuple(special_case)``
+                        / ``dict(list(object)``/ ``tuple(object))``
+                      ``special_case`` = Each item of the tuple must either be:
+                                        A tuple / list with positional values
+                                        that correspond to the parametrized
+                                        argument names in the method definition
+                                        OR
+                                        A dict that has matching keys & values
+                                        to the parametrized argument names
+                                        OR
+                                        A single value (that is not a tuple,
+                                        or list) if and only if there is a
+                                        single parametrization argument.
+    :param name_func: custom testcase name generation alogorithm.
+                        name_func(func_name, kwargs) => testcase_method_name
+                        Where:
+                        func_name - Name of the parametrization target function
+                        kwargs - The order of keys will be the same as the order
+                                of arguments in the original function
+    :type name_func: ``function(string, collections.OrderedDict) => str``
+    :param tag_func: dynamic testcase tag assignment function.
+                    tag_func(kwargs) => named_tag_context/ simple_tags
+                    Where:
+                        kwargs - parametrized keyword argument dictionary
 
-    .. code-block:: python
-
-      @testsuite
-      class SampleSuite(object):
-
-        @testcase(tags=('server', 'keep-alive'))
-        def test_method_1(self):
-          ...
-
+                    NOTE: If you use tag_func along with tags argument,
+                    testplan will merge the dynamically generated tag
+                    context with the explicitly passed tag values.
+    :type tag_func: ``tag_func(dict) => dict['str': str]/ list[str]``
+    :param docstring_func: custom testcase docstring generation function.
+                            docstring_func(docstring, kwargs) =>
+                            [parametrization_arguments]/
+                            [original_docstring, parametrization_arguments]
+                        Where:
+                        docstring - Name of the parametrization target function
+                        kwargs - The order of keys will be the same as the order
+                                of arguments in the original function
+    :type docstring_func: ``docstring_func(str/none, collections.OrderedDict) =>
+                            [dict[`any`: any]]/
+                            [str, dict[`any`: any]]``
+    :param custom_wrappers: wrapper to decorate paraametized testcases (
+                            used instead of @decorator syntax) that uses
+                            testplan.common.utils.callable.wraps()
+    :type custom_wrappers: ```custom_wrappers(func) => None``
+    :param summarize: Whether the testcase should be summarised in it's output
+    :type summarize: ``bool``
+    :param num_passing: The number of passing assertions reported per
+                        category per assertion type
+    :type num_passing: ``int`
+    :param num_failing:The number of failing assertions reported per
+                        category per assertion type
+    :type num_failing: ``int`
+    :param key_combs_limit: Max number of failed key combinations on fix/dict
+                            summaries.
+    :type key_combs_limit: ``int``
+    :param execution_group: group of test cases to run in parallel with,
+                            (groups overall are executed serially)
+    :type execution_group: ``str``
+    :param timeout: time elapsed in seconds until TimeoutException raised
+    :type timeout: ``int``
     """
     return _selective_call(
         decorator_func=_testcase,

@@ -666,6 +666,7 @@ var fakeReportAssertions = {
                                         ]
                                     },
                                     "description": "Line Graph",
+                                    "discrete_chart": false,
                                     "category": "DEFAULT",
                                     "graph_options": null,
                                     "graph_type": "Line"
@@ -717,6 +718,7 @@ var fakeReportAssertions = {
                                     "description": "Scatter Graph",
                                     "category": "DEFAULT",
                                     "graph_options": null,
+                                    "discrete_chart": false,
                                     "graph_type": "Scatter"
                                 }, {
                                     "meta_type": "entry",
@@ -741,6 +743,7 @@ var fakeReportAssertions = {
                                     "description": "Bar Graph",
                                     "category": "DEFAULT",
                                     "graph_options": {"legend": true},
+                                    "discrete_chart": false,
                                     "graph_type": "Bar"
                                 }, {
                                     "meta_type": "entry",
@@ -786,6 +789,7 @@ var fakeReportAssertions = {
                                     },
                                     "line_no": 69,
                                     "utc_time": "2019-07-15T14:48:21.106270+00:00",
+                                    "discrete_chart": false,
                                     "graph_type": "Hexbin"
                                 }, {
                                     "meta_type": "entry",
@@ -830,6 +834,7 @@ var fakeReportAssertions = {
                                     },
                                     "description": "Whisker Graph",
                                     "category": "DEFAULT",
+                                    "discrete_chart": false,
                                     "graph_options": null,
                                     "graph_type": "Whisker"
                                 }, {
@@ -875,13 +880,14 @@ var fakeReportAssertions = {
                                     },
                                     "description": "Contour Graph",
                                     "category": "DEFAULT",
+                                    "discrete_chart": false,
                                     "graph_options": null,
                                     "graph_type": "Contour"
                                 }, {
                                     "meta_type": "entry",
                                     "utc_time": "2019-07-12T12:36:09.796381+00:00",
                                     "machine_time": "2019-07-12T12:36:09.796381+00:00",
-                                    "type": "DiscreteChart",
+                                    "type": "Graph",
                                     "series_options": {
                                         "Data Name": {
                                             "colour": "literal"
@@ -914,6 +920,7 @@ var fakeReportAssertions = {
                                     },
                                     "description": "Pie Chart",
                                     "category": "DEFAULT",
+                                    "discrete_chart": true,
                                     "graph_options": null,
                                     "graph_type": "Pie"
                                 }
@@ -2199,6 +2206,1308 @@ var fakeReportAssertions = {
                             }
                         ],
                         "uid": "0d45f100-da7b-46be-a6a5-3188c425b764",
+                        "type": "TestCaseReport",
+                        "logs": []
+                    }, {
+                        "status": "passed",
+                        "name": "test_summary_assertions",
+                        "tags": {},
+                        "description": null,
+                        "timer": {
+                            "run": {
+                                "start": "2019-02-12T17:41:43.321328+00:00",
+                                "end": "2019-02-12T17:41:43.327366+00:00"
+                            }
+                        },
+                        "suite_related": false,
+                        "status_override": null,
+                        "entries": [{
+                                    "description": null,
+                                    "entries": [{
+                                            "description": "Category: DEFAULT",
+                                            "entries": [{
+                                                    "description": "Assertion type: Contain",
+                                                    "entries": [{
+                                                            "description": "DEFAULT - Contain - Passing - Displaying 5 of 500.",
+                                                            "entries": [{
+                                                                    "member": 0,
+                                                                    "utc_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "container": "[0, 1, 2]",
+                                                                    "machine_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "line_no": 119,
+                                                                    "description": null,
+                                                                    "type": "Contain",
+                                                                    "passed": true,
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }, {
+                                                                    "member": 1,
+                                                                    "utc_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "container": "[1, 2, 3]",
+                                                                    "machine_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "line_no": 119,
+                                                                    "description": null,
+                                                                    "type": "Contain",
+                                                                    "passed": true,
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }, {
+                                                                    "member": 2,
+                                                                    "utc_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "container": "[2, 3, 4]",
+                                                                    "machine_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "line_no": 119,
+                                                                    "description": null,
+                                                                    "type": "Contain",
+                                                                    "passed": true,
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }, {
+                                                                    "member": 3,
+                                                                    "utc_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "container": "[3, 4, 5]",
+                                                                    "machine_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "line_no": 119,
+                                                                    "description": null,
+                                                                    "type": "Contain",
+                                                                    "passed": true,
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }, {
+                                                                    "member": 4,
+                                                                    "utc_time": "2019-07-29T14:05:32.147421+00:00",
+                                                                    "container": "[4, 5, 6]",
+                                                                    "machine_time": "2019-07-29T14:05:32.147421+00:00",
+                                                                    "line_no": 119,
+                                                                    "description": null,
+                                                                    "type": "Contain",
+                                                                    "passed": true,
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }
+                                                            ],
+                                                            "type": "Group",
+                                                            "passed": true,
+                                                            "meta_type": "assertion"
+                                                        }
+                                                    ],
+                                                    "type": "Group",
+                                                    "passed": true,
+                                                    "meta_type": "assertion"
+                                                }, {
+                                                    "description": "Assertion type: Equal",
+                                                    "entries": [{
+                                                            "description": "DEFAULT - Equal - Passing - Displaying 5 of 500.",
+                                                            "entries": [{
+                                                                    "utc_time": "2019-07-29T14:05:32.020209+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.020209+00:00",
+                                                                    "line_no": 115,
+                                                                    "description": null,
+                                                                    "first": 0,
+                                                                    "second": 0,
+                                                                    "type": "Equal",
+                                                                    "passed": true,
+                                                                    "label": "==",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "line_no": 115,
+                                                                    "description": null,
+                                                                    "first": 1,
+                                                                    "second": 1,
+                                                                    "type": "Equal",
+                                                                    "passed": true,
+                                                                    "label": "==",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "line_no": 115,
+                                                                    "description": null,
+                                                                    "first": 2,
+                                                                    "second": 2,
+                                                                    "type": "Equal",
+                                                                    "passed": true,
+                                                                    "label": "==",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "line_no": 115,
+                                                                    "description": null,
+                                                                    "first": 3,
+                                                                    "second": 3,
+                                                                    "type": "Equal",
+                                                                    "passed": true,
+                                                                    "label": "==",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "line_no": 115,
+                                                                    "description": null,
+                                                                    "first": 4,
+                                                                    "second": 4,
+                                                                    "type": "Equal",
+                                                                    "passed": true,
+                                                                    "label": "==",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }
+                                                            ],
+                                                            "type": "Group",
+                                                            "passed": true,
+                                                            "meta_type": "assertion"
+                                                        }
+                                                    ],
+                                                    "type": "Group",
+                                                    "passed": true,
+                                                    "meta_type": "assertion"
+                                                }, {
+                                                    "description": "Assertion type: Less",
+                                                    "entries": [{
+                                                            "description": "DEFAULT - Less - Passing - Displaying 5 of 500.",
+                                                            "entries": [{
+                                                                    "utc_time": "2019-07-29T14:05:32.083117+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.083117+00:00",
+                                                                    "line_no": 117,
+                                                                    "description": null,
+                                                                    "first": 0,
+                                                                    "second": 1,
+                                                                    "type": "Less",
+                                                                    "passed": true,
+                                                                    "label": "<",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "line_no": 117,
+                                                                    "description": null,
+                                                                    "first": 1,
+                                                                    "second": 2,
+                                                                    "type": "Less",
+                                                                    "passed": true,
+                                                                    "label": "<",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "line_no": 117,
+                                                                    "description": null,
+                                                                    "first": 2,
+                                                                    "second": 3,
+                                                                    "type": "Less",
+                                                                    "passed": true,
+                                                                    "label": "<",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "line_no": 117,
+                                                                    "description": null,
+                                                                    "first": 3,
+                                                                    "second": 4,
+                                                                    "type": "Less",
+                                                                    "passed": true,
+                                                                    "label": "<",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "line_no": 117,
+                                                                    "description": null,
+                                                                    "first": 4,
+                                                                    "second": 5,
+                                                                    "type": "Less",
+                                                                    "passed": true,
+                                                                    "label": "<",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "DEFAULT"
+                                                                }
+                                                            ],
+                                                            "type": "Group",
+                                                            "passed": true,
+                                                            "meta_type": "assertion"
+                                                        }
+                                                    ],
+                                                    "type": "Group",
+                                                    "passed": true,
+                                                    "meta_type": "assertion"
+                                                }
+                                            ],
+                                            "type": "Group",
+                                            "passed": true,
+                                            "meta_type": "assertion"
+                                        }, {
+                                            "description": "Category: Multiples",
+                                            "entries": [{
+                                                    "description": "Assertion type: Contain",
+                                                    "entries": [{
+                                                            "description": "Multiples - Contain - Failing - Displaying 5 of 499.",
+                                                            "entries": [{
+                                                                    "member": 1,
+                                                                    "utc_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "container": "[2, 3, 4]",
+                                                                    "machine_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "line_no": 120,
+                                                                    "description": null,
+                                                                    "type": "Contain",
+                                                                    "passed": false,
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }, {
+                                                                    "member": 2,
+                                                                    "utc_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "container": "[4, 6, 8]",
+                                                                    "machine_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "line_no": 120,
+                                                                    "description": null,
+                                                                    "type": "Contain",
+                                                                    "passed": false,
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }, {
+                                                                    "member": 3,
+                                                                    "utc_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "container": "[6, 9, 12]",
+                                                                    "machine_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "line_no": 120,
+                                                                    "description": null,
+                                                                    "type": "Contain",
+                                                                    "passed": false,
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }, {
+                                                                    "member": 4,
+                                                                    "utc_time": "2019-07-29T14:05:32.147421+00:00",
+                                                                    "container": "[8, 12, 16]",
+                                                                    "machine_time": "2019-07-29T14:05:32.147421+00:00",
+                                                                    "line_no": 120,
+                                                                    "description": null,
+                                                                    "type": "Contain",
+                                                                    "passed": false,
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }, {
+                                                                    "member": 5,
+                                                                    "utc_time": "2019-07-29T14:05:32.147421+00:00",
+                                                                    "container": "[10, 15, 20]",
+                                                                    "machine_time": "2019-07-29T14:05:32.147421+00:00",
+                                                                    "line_no": 120,
+                                                                    "description": null,
+                                                                    "type": "Contain",
+                                                                    "passed": false,
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }
+                                                            ],
+                                                            "type": "Group",
+                                                            "passed": false,
+                                                            "meta_type": "assertion"
+                                                        }, {
+                                                            "description": "Multiples - Contain - Passing - Displaying 1 of 1.",
+                                                            "entries": [{
+                                                                    "member": 0,
+                                                                    "utc_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "container": "[0, 0, 0]",
+                                                                    "machine_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "line_no": 120,
+                                                                    "description": null,
+                                                                    "type": "Contain",
+                                                                    "passed": true,
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }
+                                                            ],
+                                                            "type": "Group",
+                                                            "passed": true,
+                                                            "meta_type": "assertion"
+                                                        }
+                                                    ],
+                                                    "type": "Group",
+                                                    "passed": false,
+                                                    "meta_type": "assertion"
+                                                }, {
+                                                    "description": "Assertion type: Equal",
+                                                    "entries": [{
+                                                            "description": "Multiples - Equal - Passing - Displaying 5 of 500.",
+                                                            "entries": [{
+                                                                    "utc_time": "2019-07-29T14:05:32.083117+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.083117+00:00",
+                                                                    "line_no": 116,
+                                                                    "description": null,
+                                                                    "first": 0,
+                                                                    "second": 0,
+                                                                    "type": "Equal",
+                                                                    "passed": true,
+                                                                    "label": "==",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "line_no": 116,
+                                                                    "description": null,
+                                                                    "first": 2,
+                                                                    "second": 2,
+                                                                    "type": "Equal",
+                                                                    "passed": true,
+                                                                    "label": "==",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "line_no": 116,
+                                                                    "description": null,
+                                                                    "first": 4,
+                                                                    "second": 4,
+                                                                    "type": "Equal",
+                                                                    "passed": true,
+                                                                    "label": "==",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "line_no": 116,
+                                                                    "description": null,
+                                                                    "first": 6,
+                                                                    "second": 6,
+                                                                    "type": "Equal",
+                                                                    "passed": true,
+                                                                    "label": "==",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "line_no": 116,
+                                                                    "description": null,
+                                                                    "first": 8,
+                                                                    "second": 8,
+                                                                    "type": "Equal",
+                                                                    "passed": true,
+                                                                    "label": "==",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }
+                                                            ],
+                                                            "type": "Group",
+                                                            "passed": true,
+                                                            "meta_type": "assertion"
+                                                        }
+                                                    ],
+                                                    "type": "Group",
+                                                    "passed": true,
+                                                    "meta_type": "assertion"
+                                                }, {
+                                                    "description": "Assertion type: Less",
+                                                    "entries": [{
+                                                            "description": "Multiples - Less - Failing - Displaying 5 of 500.",
+                                                            "entries": [{
+                                                                    "utc_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "line_no": 118,
+                                                                    "description": null,
+                                                                    "first": 0,
+                                                                    "second": 0,
+                                                                    "type": "Less",
+                                                                    "passed": false,
+                                                                    "label": "<",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.098449+00:00",
+                                                                    "line_no": 118,
+                                                                    "description": null,
+                                                                    "first": 2,
+                                                                    "second": 2,
+                                                                    "type": "Less",
+                                                                    "passed": false,
+                                                                    "label": "<",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.114297+00:00",
+                                                                    "line_no": 118,
+                                                                    "description": null,
+                                                                    "first": 4,
+                                                                    "second": 4,
+                                                                    "type": "Less",
+                                                                    "passed": false,
+                                                                    "label": "<",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.130108+00:00",
+                                                                    "line_no": 118,
+                                                                    "description": null,
+                                                                    "first": 6,
+                                                                    "second": 6,
+                                                                    "type": "Less",
+                                                                    "passed": false,
+                                                                    "label": "<",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }, {
+                                                                    "utc_time": "2019-07-29T14:05:32.146221+00:00",
+                                                                    "machine_time": "2019-07-29T14:05:32.146221+00:00",
+                                                                    "line_no": 118,
+                                                                    "description": null,
+                                                                    "first": 8,
+                                                                    "second": 8,
+                                                                    "type": "Less",
+                                                                    "passed": false,
+                                                                    "label": "<",
+                                                                    "meta_type": "assertion",
+                                                                    "category": "Multiples"
+                                                                }
+                                                            ],
+                                                            "type": "Group",
+                                                            "passed": false,
+                                                            "meta_type": "assertion"
+                                                        }
+                                                    ],
+                                                    "type": "Group",
+                                                    "passed": false,
+                                                    "meta_type": "assertion"
+                                                }
+                                            ],
+                                            "type": "Group",
+                                            "passed": false,
+                                            "meta_type": "assertion"
+                                        }
+                                    ],
+                                    "type": "Summary",
+                                    "passed": false,
+                                    "meta_type": "assertion"
+                                },
+                                {
+                                    "passed": false,
+                                    "meta_type": "assertion",
+                                    "entries": [{
+                                            "passed": true,
+                                            "meta_type": "assertion",
+                                            "entries": [{
+                                                    "passed": true,
+                                                    "meta_type": "assertion",
+                                                    "entries": [{
+                                                            "passed": true,
+                                                            "meta_type": "assertion",
+                                                            "entries": [{
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.734312+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 118,
+                                                                    "type": "Contain",
+                                                                    "member": 0,
+                                                                    "container": "[0, 1, 2]",
+                                                                    "machine_time": "2019-07-30T08:25:51.734312+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.734312+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 118,
+                                                                    "type": "Contain",
+                                                                    "member": 1,
+                                                                    "container": "[1, 2, 3]",
+                                                                    "machine_time": "2019-07-30T08:25:51.734312+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.750166+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 118,
+                                                                    "type": "Contain",
+                                                                    "member": 2,
+                                                                    "container": "[2, 3, 4]",
+                                                                    "machine_time": "2019-07-30T08:25:51.750166+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.765511+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 118,
+                                                                    "type": "Contain",
+                                                                    "member": 3,
+                                                                    "container": "[3, 4, 5]",
+                                                                    "machine_time": "2019-07-30T08:25:51.765511+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.781303+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 118,
+                                                                    "type": "Contain",
+                                                                    "member": 4,
+                                                                    "container": "[4, 5, 6]",
+                                                                    "machine_time": "2019-07-30T08:25:51.781303+00:00"
+                                                                }
+                                                            ],
+                                                            "description": "DEFAULT - Contain - Passing - Displaying 5 of 500.",
+                                                            "type": "Group"
+                                                        }
+                                                    ],
+                                                    "description": "Assertion type: Contain",
+                                                    "type": "Group"
+                                                }, {
+                                                    "passed": true,
+                                                    "meta_type": "assertion",
+                                                    "entries": [{
+                                                            "passed": true,
+                                                            "meta_type": "assertion",
+                                                            "entries": [{
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.656152+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "==",
+                                                                    "first": 0,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 114,
+                                                                    "type": "Equal",
+                                                                    "second": 0,
+                                                                    "machine_time": "2019-07-30T08:25:51.656152+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.734312+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "==",
+                                                                    "first": 1,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 114,
+                                                                    "type": "Equal",
+                                                                    "second": 1,
+                                                                    "machine_time": "2019-07-30T08:25:51.734312+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.750166+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "==",
+                                                                    "first": 2,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 114,
+                                                                    "type": "Equal",
+                                                                    "second": 2,
+                                                                    "machine_time": "2019-07-30T08:25:51.750166+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.750166+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "==",
+                                                                    "first": 3,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 114,
+                                                                    "type": "Equal",
+                                                                    "second": 3,
+                                                                    "machine_time": "2019-07-30T08:25:51.750166+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.765511+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "==",
+                                                                    "first": 4,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 114,
+                                                                    "type": "Equal",
+                                                                    "second": 4,
+                                                                    "machine_time": "2019-07-30T08:25:51.765511+00:00"
+                                                                }
+                                                            ],
+                                                            "description": "DEFAULT - Equal - Passing - Displaying 5 of 500.",
+                                                            "type": "Group"
+                                                        }
+                                                    ],
+                                                    "description": "Assertion type: Equal",
+                                                    "type": "Group"
+                                                }, {
+                                                    "passed": true,
+                                                    "meta_type": "assertion",
+                                                    "entries": [{
+                                                            "passed": true,
+                                                            "meta_type": "assertion",
+                                                            "entries": [{
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.734312+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "<",
+                                                                    "first": 0,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 116,
+                                                                    "type": "Less",
+                                                                    "second": 1,
+                                                                    "machine_time": "2019-07-30T08:25:51.734312+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.734312+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "<",
+                                                                    "first": 1,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 116,
+                                                                    "type": "Less",
+                                                                    "second": 2,
+                                                                    "machine_time": "2019-07-30T08:25:51.734312+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.750166+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "<",
+                                                                    "first": 2,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 116,
+                                                                    "type": "Less",
+                                                                    "second": 3,
+                                                                    "machine_time": "2019-07-30T08:25:51.750166+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.765511+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "<",
+                                                                    "first": 3,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 116,
+                                                                    "type": "Less",
+                                                                    "second": 4,
+                                                                    "machine_time": "2019-07-30T08:25:51.765511+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.781303+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "<",
+                                                                    "first": 4,
+                                                                    "category": "DEFAULT",
+                                                                    "line_no": 116,
+                                                                    "type": "Less",
+                                                                    "second": 5,
+                                                                    "machine_time": "2019-07-30T08:25:51.781303+00:00"
+                                                                }
+                                                            ],
+                                                            "description": "DEFAULT - Less - Passing - Displaying 5 of 500.",
+                                                            "type": "Group"
+                                                        }
+                                                    ],
+                                                    "description": "Assertion type: Less",
+                                                    "type": "Group"
+                                                }
+                                            ],
+                                            "description": "Category: DEFAULT",
+                                            "type": "Group"
+                                        }, {
+                                            "passed": false,
+                                            "meta_type": "assertion",
+                                            "entries": [{
+                                                    "passed": false,
+                                                    "meta_type": "assertion",
+                                                    "entries": [{
+                                                            "passed": false,
+                                                            "meta_type": "assertion",
+                                                            "entries": [{
+                                                                    "passed": false,
+                                                                    "utc_time": "2019-07-30T08:25:51.750166+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 119,
+                                                                    "type": "Contain",
+                                                                    "member": 1,
+                                                                    "container": "[2, 3, 4]",
+                                                                    "machine_time": "2019-07-30T08:25:51.750166+00:00"
+                                                                }, {
+                                                                    "passed": false,
+                                                                    "utc_time": "2019-07-30T08:25:51.750166+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 119,
+                                                                    "type": "Contain",
+                                                                    "member": 2,
+                                                                    "container": "[4, 6, 8]",
+                                                                    "machine_time": "2019-07-30T08:25:51.750166+00:00"
+                                                                }, {
+                                                                    "passed": false,
+                                                                    "utc_time": "2019-07-30T08:25:51.765511+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 119,
+                                                                    "type": "Contain",
+                                                                    "member": 3,
+                                                                    "container": "[6, 9, 12]",
+                                                                    "machine_time": "2019-07-30T08:25:51.765511+00:00"
+                                                                }, {
+                                                                    "passed": false,
+                                                                    "utc_time": "2019-07-30T08:25:51.781303+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 119,
+                                                                    "type": "Contain",
+                                                                    "member": 4,
+                                                                    "container": "[8, 12, 16]",
+                                                                    "machine_time": "2019-07-30T08:25:51.781303+00:00"
+                                                                }, {
+                                                                    "passed": false,
+                                                                    "utc_time": "2019-07-30T08:25:51.796682+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 119,
+                                                                    "type": "Contain",
+                                                                    "member": 5,
+                                                                    "container": "[10, 15, 20]",
+                                                                    "machine_time": "2019-07-30T08:25:51.796682+00:00"
+                                                                }
+                                                            ],
+                                                            "description": "Multiples - Contain - Failing - Displaying 5 of 499.",
+                                                            "type": "Group"
+                                                        }, {
+                                                            "passed": true,
+                                                            "meta_type": "assertion",
+                                                            "entries": [{
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.734312+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 119,
+                                                                    "type": "Contain",
+                                                                    "member": 0,
+                                                                    "container": "[0, 0, 0]",
+                                                                    "machine_time": "2019-07-30T08:25:51.734312+00:00"
+                                                                }
+                                                            ],
+                                                            "description": "Multiples - Contain - Passing - Displaying 1 of 1.",
+                                                            "type": "Group"
+                                                        }
+                                                    ],
+                                                    "description": "Assertion type: Contain",
+                                                    "type": "Group"
+                                                }, {
+                                                    "passed": true,
+                                                    "meta_type": "assertion",
+                                                    "entries": [{
+                                                            "passed": true,
+                                                            "meta_type": "assertion",
+                                                            "entries": [{
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.718482+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "==",
+                                                                    "first": 0,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 115,
+                                                                    "type": "Equal",
+                                                                    "second": 0,
+                                                                    "machine_time": "2019-07-30T08:25:51.718482+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.734312+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "==",
+                                                                    "first": 2,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 115,
+                                                                    "type": "Equal",
+                                                                    "second": 2,
+                                                                    "machine_time": "2019-07-30T08:25:51.734312+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.750166+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "==",
+                                                                    "first": 4,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 115,
+                                                                    "type": "Equal",
+                                                                    "second": 4,
+                                                                    "machine_time": "2019-07-30T08:25:51.750166+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.765511+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "==",
+                                                                    "first": 6,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 115,
+                                                                    "type": "Equal",
+                                                                    "second": 6,
+                                                                    "machine_time": "2019-07-30T08:25:51.765511+00:00"
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:25:51.765511+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "==",
+                                                                    "first": 8,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 115,
+                                                                    "type": "Equal",
+                                                                    "second": 8,
+                                                                    "machine_time": "2019-07-30T08:25:51.765511+00:00"
+                                                                }
+                                                            ],
+                                                            "description": "Multiples - Equal - Passing - Displaying 5 of 500.",
+                                                            "type": "Group"
+                                                        }
+                                                    ],
+                                                    "description": "Assertion type: Equal",
+                                                    "type": "Group"
+                                                }, {
+                                                    "passed": false,
+                                                    "meta_type": "assertion",
+                                                    "entries": [{
+                                                            "passed": false,
+                                                            "meta_type": "assertion",
+                                                            "entries": [{
+                                                                    "passed": false,
+                                                                    "utc_time": "2019-07-30T08:25:51.734312+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "<",
+                                                                    "first": 0,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 117,
+                                                                    "type": "Less",
+                                                                    "second": 0,
+                                                                    "machine_time": "2019-07-30T08:25:51.734312+00:00"
+                                                                }, {
+                                                                    "passed": false,
+                                                                    "utc_time": "2019-07-30T08:25:51.734312+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "<",
+                                                                    "first": 2,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 117,
+                                                                    "type": "Less",
+                                                                    "second": 2,
+                                                                    "machine_time": "2019-07-30T08:25:51.734312+00:00"
+                                                                }, {
+                                                                    "passed": false,
+                                                                    "utc_time": "2019-07-30T08:25:51.750166+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "<",
+                                                                    "first": 4,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 117,
+                                                                    "type": "Less",
+                                                                    "second": 4,
+                                                                    "machine_time": "2019-07-30T08:25:51.750166+00:00"
+                                                                }, {
+                                                                    "passed": false,
+                                                                    "utc_time": "2019-07-30T08:25:51.765511+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "<",
+                                                                    "first": 6,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 117,
+                                                                    "type": "Less",
+                                                                    "second": 6,
+                                                                    "machine_time": "2019-07-30T08:25:51.765511+00:00"
+                                                                }, {
+                                                                    "passed": false,
+                                                                    "utc_time": "2019-07-30T08:25:51.781303+00:00",
+                                                                    "meta_type": "assertion",
+                                                                    "description": null,
+                                                                    "label": "<",
+                                                                    "first": 8,
+                                                                    "category": "Multiples",
+                                                                    "line_no": 117,
+                                                                    "type": "Less",
+                                                                    "second": 8,
+                                                                    "machine_time": "2019-07-30T08:25:51.781303+00:00"
+                                                                }
+                                                            ],
+                                                            "description": "Multiples - Less - Failing - Displaying 5 of 500.",
+                                                            "type": "Group"
+                                                        }
+                                                    ],
+                                                    "description": "Assertion type: Less",
+                                                    "type": "Group"
+                                                }
+                                            ],
+                                            "description": "Category: Multiples",
+                                            "type": "Group"
+                                        }
+                                    ],
+                                    "description": null,
+                                    "type": "Summary"
+                                },
+                                {
+                                    "passed": false,
+                                    "meta_type": "assertion",
+                                    "entries": [{
+                                            "passed": false,
+                                            "meta_type": "assertion",
+                                            "entries": [{
+                                                    "passed": false,
+                                                    "meta_type": "assertion",
+                                                    "entries": [{
+                                                            "passed": false,
+                                                            "meta_type": "assertion",
+                                                            "entries": [{
+                                                                    "passed": false,
+                                                                    "meta_type": "assertion",
+                                                                    "entries": [{
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.332822+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Passed", ["int", "2"], ["int", "2"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Failed", "", ""], [0, "", "Failed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Failed", "", ""], [1, "", "Failed", "", ""], [2, 688, "Failed", ["str", "a"], ["str", "b"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.332822+00:00",
+                                                                            "actual_description": null
+                                                                        }, {
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.379773+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Passed", ["int", "2"], ["int", "2"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Failed", "", ""], [0, "", "Failed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Failed", "", ""], [1, "", "Failed", "", ""], [2, 688, "Failed", ["str", "a"], ["str", "b"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.379773+00:00",
+                                                                            "actual_description": null
+                                                                        }, {
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.410942+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Passed", ["int", "2"], ["int", "2"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Failed", "", ""], [0, "", "Failed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Failed", "", ""], [1, "", "Failed", "", ""], [2, 688, "Failed", ["str", "a"], ["str", "b"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.410942+00:00",
+                                                                            "actual_description": null
+                                                                        }, {
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.426746+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Passed", ["int", "2"], ["int", "2"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Failed", "", ""], [0, "", "Failed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Failed", "", ""], [1, "", "Failed", "", ""], [2, 688, "Failed", ["str", "a"], ["str", "b"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.426746+00:00",
+                                                                            "actual_description": null
+                                                                        }, {
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.426746+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Passed", ["int", "2"], ["int", "2"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Failed", "", ""], [0, "", "Failed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Failed", "", ""], [1, "", "Failed", "", ""], [2, 688, "Failed", ["str", "a"], ["str", "b"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.426746+00:00",
+                                                                            "actual_description": null
+                                                                        }
+                                                                    ],
+                                                                    "description": "Tags: 555, 683, 688 - (Displaying 5 of 44)",
+                                                                    "type": "Group"
+                                                                }, {
+                                                                    "passed": false,
+                                                                    "meta_type": "assertion",
+                                                                    "entries": [{
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.332822+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Failed", ["int", "2"], ["int", "1"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Passed", "", ""], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "a"], ["str", "a"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.332822+00:00",
+                                                                            "actual_description": null
+                                                                        }, {
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.363979+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Failed", ["int", "2"], ["int", "1"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Passed", "", ""], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "a"], ["str", "a"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.363979+00:00",
+                                                                            "actual_description": null
+                                                                        }, {
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.395633+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Failed", ["int", "2"], ["int", "1"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Passed", "", ""], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "a"], ["str", "a"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.395633+00:00",
+                                                                            "actual_description": null
+                                                                        }, {
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.395633+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Failed", ["int", "2"], ["int", "1"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Passed", "", ""], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "a"], ["str", "a"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.395633+00:00",
+                                                                            "actual_description": null
+                                                                        }, {
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.395633+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Failed", ["int", "2"], ["int", "1"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Passed", "", ""], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "a"], ["str", "a"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.395633+00:00",
+                                                                            "actual_description": null
+                                                                        }
+                                                                    ],
+                                                                    "description": "Tags: 55 - (Displaying 5 of 40)",
+                                                                    "type": "Group"
+                                                                }, {
+                                                                    "passed": false,
+                                                                    "meta_type": "assertion",
+                                                                    "entries": [{
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.348648+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Failed", ["int", "2"], ["int", "1"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Failed", "", ""], [0, "", "Failed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Failed", "", ""], [1, "", "Failed", "", ""], [2, 688, "Failed", ["str", "a"], ["str", "b"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.348648+00:00",
+                                                                            "actual_description": null
+                                                                        }, {
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.536143+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Failed", ["int", "2"], ["int", "1"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Failed", "", ""], [0, "", "Failed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Failed", "", ""], [1, "", "Failed", "", ""], [2, 688, "Failed", ["str", "a"], ["str", "b"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.536143+00:00",
+                                                                            "actual_description": null
+                                                                        }, {
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:05.804487+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Failed", ["int", "2"], ["int", "1"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Failed", "", ""], [0, "", "Failed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Failed", "", ""], [1, "", "Failed", "", ""], [2, 688, "Failed", ["str", "a"], ["str", "b"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:05.804487+00:00",
+                                                                            "actual_description": null
+                                                                        }, {
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:06.240681+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Failed", ["int", "2"], ["int", "1"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Failed", "", ""], [0, "", "Failed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Failed", "", ""], [1, "", "Failed", "", ""], [2, 688, "Failed", ["str", "a"], ["str", "b"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:06.240681+00:00",
+                                                                            "actual_description": null
+                                                                        }, {
+                                                                            "passed": false,
+                                                                            "utc_time": "2019-07-30T08:26:06.415602+00:00",
+                                                                            "expected_description": null,
+                                                                            "meta_type": "assertion",
+                                                                            "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Failed", ["int", "2"], ["int", "1"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Failed", "", ""], [0, "", "Failed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Failed", "", ""], [1, "", "Failed", "", ""], [2, 688, "Failed", ["str", "a"], ["str", "b"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                            "description": "Fixmatch assertion",
+                                                                            "include_keys": null,
+                                                                            "category": "Upstream",
+                                                                            "line_no": 155,
+                                                                            "exclude_keys": null,
+                                                                            "type": "FixMatch",
+                                                                            "machine_time": "2019-07-30T08:26:06.415602+00:00",
+                                                                            "actual_description": null
+                                                                        }
+                                                                    ],
+                                                                    "description": "Tags: 55, 555, 683, 688 - (Displaying 5 of 6)",
+                                                                    "type": "Group"
+                                                                }
+                                                            ],
+                                                            "description": "Displaying failures for 3 distinct tag groups",
+                                                            "type": "Group"
+                                                        }, {
+                                                            "passed": true,
+                                                            "meta_type": "assertion",
+                                                            "entries": [{
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:26:05.317004+00:00",
+                                                                    "expected_description": null,
+                                                                    "meta_type": "assertion",
+                                                                    "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Passed", ["int", "2"], ["int", "2"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Passed", "", ""], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "a"], ["str", "a"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                    "description": "Fixmatch assertion",
+                                                                    "include_keys": null,
+                                                                    "category": "Upstream",
+                                                                    "line_no": 155,
+                                                                    "exclude_keys": null,
+                                                                    "type": "FixMatch",
+                                                                    "machine_time": "2019-07-30T08:26:05.317004+00:00",
+                                                                    "actual_description": null
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:26:05.317004+00:00",
+                                                                    "expected_description": null,
+                                                                    "meta_type": "assertion",
+                                                                    "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Passed", ["int", "2"], ["int", "2"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Passed", "", ""], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "a"], ["str", "a"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                    "description": "Fixmatch assertion",
+                                                                    "include_keys": null,
+                                                                    "category": "Upstream",
+                                                                    "line_no": 155,
+                                                                    "exclude_keys": null,
+                                                                    "type": "FixMatch",
+                                                                    "machine_time": "2019-07-30T08:26:05.317004+00:00",
+                                                                    "actual_description": null
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:26:05.317004+00:00",
+                                                                    "expected_description": null,
+                                                                    "meta_type": "assertion",
+                                                                    "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Passed", ["int", "2"], ["int", "2"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Passed", "", ""], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "a"], ["str", "a"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                    "description": "Fixmatch assertion",
+                                                                    "include_keys": null,
+                                                                    "category": "Upstream",
+                                                                    "line_no": 155,
+                                                                    "exclude_keys": null,
+                                                                    "type": "FixMatch",
+                                                                    "machine_time": "2019-07-30T08:26:05.317004+00:00",
+                                                                    "actual_description": null
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:26:05.317004+00:00",
+                                                                    "expected_description": null,
+                                                                    "meta_type": "assertion",
+                                                                    "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Passed", ["int", "2"], ["int", "2"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Passed", "", ""], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "a"], ["str", "a"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                    "description": "Fixmatch assertion",
+                                                                    "include_keys": null,
+                                                                    "category": "Upstream",
+                                                                    "line_no": 155,
+                                                                    "exclude_keys": null,
+                                                                    "type": "FixMatch",
+                                                                    "machine_time": "2019-07-30T08:26:05.317004+00:00",
+                                                                    "actual_description": null
+                                                                }, {
+                                                                    "passed": true,
+                                                                    "utc_time": "2019-07-30T08:26:05.317004+00:00",
+                                                                    "expected_description": null,
+                                                                    "meta_type": "assertion",
+                                                                    "comparison": [[0, 36, "Passed", ["int", "6"], ["int", "6"]], [0, 22, "Passed", ["int", "5"], ["int", "5"]], [0, 55, "Passed", ["int", "2"], ["int", "2"]], [0, 38, "Passed", ["int", "6"], ["int", "6"]], [0, 555, "Passed", "", ""], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "A"], ["str", "A"]], [1, 601, "Passed", ["str", "A"], ["str", "A"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "a"], ["str", "a"]], [2, 689, "Passed", ["str", "a"], ["str", "a"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "b"], ["str", "b"]], [2, 689, "Passed", ["str", "b"], ["str", "b"]], [0, "", "Passed", "", ""], [1, 600, "Passed", ["str", "B"], ["str", "B"]], [1, 601, "Passed", ["str", "B"], ["str", "B"]], [1, 683, "Passed", "", ""], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "c"], ["str", "c"]], [2, 689, "Passed", ["str", "c"], ["str", "c"]], [1, "", "Passed", "", ""], [2, 688, "Passed", ["str", "d"], ["str", "d"]], [2, 689, "Passed", ["str", "d"], ["str", "d"]]],
+                                                                    "description": "Fixmatch assertion",
+                                                                    "include_keys": null,
+                                                                    "category": "Upstream",
+                                                                    "line_no": 155,
+                                                                    "exclude_keys": null,
+                                                                    "type": "FixMatch",
+                                                                    "machine_time": "2019-07-30T08:26:05.317004+00:00",
+                                                                    "actual_description": null
+                                                                }
+                                                            ],
+                                                            "description": "Upstream - FixMatch - Passing - Displaying 5 of 410.",
+                                                            "type": "Group"
+                                                        }
+                                                    ],
+                                                    "description": "Assertion type: Fix Match",
+                                                    "type": "Group"
+                                                }
+                                            ],
+                                            "description": "Category: Upstream",
+                                            "type": "Group"
+                                        }
+                                    ],
+                                    "description": null,
+                                    "type": "Summary"
+                                }
+                        ],
+                        "uid": "89012abb-1111-45bce-a6a5-3188c111111",
                         "type": "TestCaseReport",
                         "logs": []
                     }
