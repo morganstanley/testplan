@@ -183,33 +183,33 @@ class TestDataEndpoints(object):
         shutil.rmtree(self.data_dir)
 
     def test_testplan_report(self):
-        """Does /testplan/<uid>/report return the correct report.json file."""
+        """Does /api/v1/reports/<uid>/report return the correct report.json file."""
         # Use correct UID, expect 200 response.
-        path = '/testplan/{}/report'.format(DATA_REPORTS['testplan']['uid'])
+        path = '/api/v1/reports/{}'.format(DATA_REPORTS['testplan']['uid'])
         response = self.client.get(path)
         expected_contents = str(DATA_REPORTS['testplan']['contents'])
         assert response.status_code == 200
         assert expected_contents in str(response.data)
 
         # Use incorrect UID, still expect 200 response.
-        response = self.client.get('/testplan/123/report')
+        response = self.client.get('/api/v1/reports/123')
         assert response.status_code == 200
         assert expected_contents in str(response.data)
 
     def test_testplan_assertions(self):
         """
-        Does sending anything to /testplan/<uid>/assertions/<uid> respond with
+        Does sending anything to /api/v1/reports/<uid>/assertions/<uid> respond with
         501.
         """
-        response = self.client.get('testplan/123/assertions/123')
+        response = self.client.get('api/v1/reports/123/assertions/123')
         assert response.status_code == 501
 
     def test_testplan_attachment(self):
         """
-        Does sending anything to /testplan/<uid>/attachment/<uid> respond with
+        Does sending anything to /api/v1/reports/<uid>/attachments/<uid> respond with
         501.
         """
-        path = '/testplan/123/attachment/attached.file'
+        path = '/api/v1/reports/123/attachments/attached.file'
         response = self.client.get(path)
         expected_contents = str(DATA_REPORTS['testplan']['contents'])
         assert response.status_code == 200
