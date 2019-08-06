@@ -153,7 +153,7 @@ class SampleSuite(object):
 
     # Some examples of multi series graphs:
     @testcase
-    def multisereis_graph_tests(self, env, result):
+    def multiseries_graph_tests(self, env, result):
 
         # This line graph has two data series 'graph 1' and 'graph 2' and will be plot on the same axis
         # NOTE: with multi series graphs you will often want the legend to be set to true
