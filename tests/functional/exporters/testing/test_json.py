@@ -3,28 +3,25 @@ import json
 import os
 import tempfile
 
-from testplan.testing.multitest import MultiTest, testsuite, testcase
+from testplan.testing import multitest
 
 from testplan import Testplan
-from testplan.common.utils.testing import (
-    log_propagation_disabled, argv_overridden
-)
+from testplan.common.utils.testing import argv_overridden
 from testplan.exporters.testing import JSONExporter
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
-@testsuite
+@multitest.testsuite
 class Alpha(object):
 
-    @testcase
+    @multitest.testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, 'equality description')
 
-    @testcase
+    @multitest.testcase
     def test_membership(self, env, result):
         result.contain(1, [1, 2, 3])
 
-    @testcase
+    @multitest.testcase
     def test_attach(self, env, result):
         """Test attaching a file to the report."""
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmpfile:
@@ -33,15 +30,15 @@ class Alpha(object):
         result.attach(tmpfile.name)
 
 
-@testsuite
+@multitest.testsuite
 class Beta(object):
 
-    @testcase
+    @multitest.testcase
     def test_failure(self, env, result):
         result.equal(1, 2, 'failing assertion')
         result.equal(5, 10)
 
-    @testcase
+    @multitest.testcase
     def test_error(self, env, result):
         raise Exception('foo')
 
@@ -52,16 +49,15 @@ def test_json_exporter(tmpdir):
     """
     json_path = tmpdir.mkdir('reports').join('report.json').strpath
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        plan = Testplan(
-            name='plan', parse_cmdline=False,
-            exporters=JSONExporter(json_path=json_path)
-        )
-        multitest_1 = MultiTest(name='Primary', suites=[Alpha()])
-        multitest_2 = MultiTest(name='Secondary', suites=[Beta()])
-        plan.add(multitest_1)
-        plan.add(multitest_2)
-        plan.run()
+    plan = Testplan(
+        name='plan', parse_cmdline=False,
+        exporters=JSONExporter(json_path=json_path)
+    )
+    multitest_1 = multitest.MultiTest(name='Primary', suites=[Alpha()])
+    multitest_2 = multitest.MultiTest(name='Secondary', suites=[Beta()])
+    plan.add(multitest_1)
+    plan.add(multitest_2)
+    plan.run()
 
     assert os.path.exists(json_path)
     assert os.stat(json_path).st_size > 0
@@ -89,12 +85,11 @@ def test_implicit_exporter_initialization(tmpdir):
     """
     json_path = tmpdir.mkdir('reports').join('report.json').strpath
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        with argv_overridden('--json', json_path):
-            plan = Testplan(name='plan')
-            multitest_1 = MultiTest(name='Primary', suites=[Alpha()])
-            plan.add(multitest_1)
-            plan.run()
+    with argv_overridden('--json', json_path):
+        plan = Testplan(name='plan')
+        multitest_1 = multitest.MultiTest(name='Primary', suites=[Alpha()])
+        plan.add(multitest_1)
+        plan.run()
 
     assert os.path.exists(json_path)
     assert os.stat(json_path).st_size > 0
