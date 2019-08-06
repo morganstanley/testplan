@@ -178,14 +178,14 @@ function prepareAttachmentContent(assertion) {
   } else if (paths.length >= 3) {
     const uid = paths[2];
     downloadLink = (
-      <a href={`/testplan/${uid}/attachment/${assertion.dst_path}`}>
+      <a href={`/api/v1/reports/${uid}/attachments/${assertion.dst_path}`}>
         {assertion.filename}
       </a>
     );
   }
 
   return {
-    preTitle: assertion.description,
+    preTitle: null,
     preContent: null,
     leftTitle: null,
     rightTitle: null,

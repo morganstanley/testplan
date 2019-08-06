@@ -17,7 +17,7 @@ class TestSuite(object):
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmpfile:
             tmpfile.write("testplan\n" * 100)
 
-        result.attach(tmpfile.name)
+        result.attach(tmpfile.name, description="Attaching a text file")
 
 
 @testplan.test_plan(name="AttachmentPlan")
