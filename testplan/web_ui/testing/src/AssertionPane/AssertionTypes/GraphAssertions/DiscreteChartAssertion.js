@@ -62,7 +62,7 @@ class DiscreteChartAssertion extends Component  {
                 items={legend}
               />
               <br/>
-              <p>{"(Hover over chart to see labels)"}</p>
+              <p>(Hover over chart to see labels)</p>
            </div>
      )
   }

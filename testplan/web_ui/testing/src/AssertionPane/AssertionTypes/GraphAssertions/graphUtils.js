@@ -36,17 +36,18 @@ const COLOUR_PALETTE=['#1c5c9c', '#68caea', '#7448c5', '#633836',
  * (tinted darker/blue)
  */
 export function returnColour(series_options, data){
+    const series_names = Object.keys(data)
     let series_colours = {};
-    let colour_options = COLOUR_PALETTE.slice(0);
+    let colour_options = COLOUR_PALETTE.slice();
 
-    for(let series_key in data){
+    series_names.forEach(function(series) {
         //Assign colour from user specified options if possible
         if(series_options != null){
-            if(series_options[series_key]!= null){
-                if(series_options[series_key].colour!= null){
-                    series_colours[series_key] =
-                        series_options[series_key].colour;
-                    continue;
+            if(series_options[series]!= null){
+                if(series_options[series].colour!= null){
+                    series_colours[series] =
+                        series_options[series].colour;
+                    return;
                 }
             }
         }
@@ -54,7 +55,7 @@ export function returnColour(series_options, data){
         //Otherwise choose next colour available from colour palette
         if(colour_options.length !== 0){
              let colour = colour_options[0];
-             series_colours[series_key] = colour;
+             series_colours[series] = colour;
              colour_options.shift();
         }
         //Otherwise if no more available colours, choose random colour
@@ -66,9 +67,10 @@ export function returnColour(series_options, data){
             for (let i = 0; i < 2; i++) {
              colour += (10+ Math.round(Math.random() * 5)).toString(16);
             }
-            series_colours[series_key] = colour;
+            series_colours[series] = colour;
         }
-    }
+    });
+
     return series_colours;
 }
 
