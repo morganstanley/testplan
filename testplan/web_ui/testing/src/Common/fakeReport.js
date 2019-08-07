@@ -1840,7 +1840,8 @@ var fakeReportAssertions = {
                         "uid": "7b72fe93-ef07-4ed8-bc9a-114a8cc0ff4f",
                         "type": "TestCaseReport",
                         "logs": []
-                    }, {
+                    },
+                    {
                         "status": "passed",
                         "name": "test_xml_namespace",
                         "tags": {},
@@ -1905,7 +1906,8 @@ var fakeReportAssertions = {
                         "uid": "0d45f100-da7b-46be-a6a5-3188c425b764",
                         "type": "TestCaseReport",
                         "logs": []
-                    }, {
+                    },
+                    {
                         "status": "passed",
                         "name": "test_summary_assertions",
                         "tags": {},
@@ -3210,7 +3212,8 @@ var fakeReportAssertions = {
                         "uid": "89012abb-1111-45bce-a6a5-3188c111111",
                         "type": "TestCaseReport",
                         "logs": []
-                    }, {
+                    },
+                    {
                                     "type": "TestCaseReport",
                                     "logs": [],
                                     "description": null,
@@ -3542,7 +3545,7 @@ var fakeReportAssertions = {
                                         }
                                     ]
                                 },
-                                {
+                     {
                                     "type": "TestCaseReport",
                                     "logs": [],
                                     "description": null,
@@ -3835,9 +3838,8 @@ var fakeReportAssertions = {
                                             "machine_time": "2019-08-02T09:08:05.090938+00:00"
                                         }
                                     ]
-                                }
-                    },
-                    {
+                                },
+                     {
                         "status": "passed",
                         "name": "test_attachments",
                         "tags": {},
@@ -3894,11 +3896,14 @@ var fakeReportAssertions = {
                             'uid': '5b4d240c-be6f-42b7-9bd6-20164944449a'
                         }],
                     }
+
+
                 ],
                 "uid": "c01e19ca-dfdc-4c34-9b0f-a28b9acd896a",
                 "type": "TestGroupReport",
                 "logs": []
             }
+
         ],
         "uid": "0c10b29b-7cc2-4ebb-a5c-e44e991f21f3",
         "type": "TestGroupReport",
