@@ -321,7 +321,24 @@ function prepareBasicContent(assertion) {
       'RegexFindIter'
     ].indexOf(assertion.type) >= 0
   ) {
-    content['leftContent'] = <span>{assertion.pattern}</span>;
+    content['leftContent'] = (
+        <div>
+            <span>{assertion.pattern}</span>
+            <span>
+                {
+                    assertion.condition &&
+                    (
+                     <div key={assertion.uid}>
+                        <br/>
+                        <strong>Condition:</strong>
+                        <br/>
+                        <span>{assertion.condition}</span>
+                     </div>
+                    )
+                 }
+            </span>
+        </div>
+    );
     content['rightContent'] =
       <span style={{ whiteSpace: 'pre' }}>
         {prepareRegexContent(assertion)}
