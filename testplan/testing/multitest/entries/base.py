@@ -4,13 +4,14 @@ Base classes go here.
 import datetime
 import operator
 import re
+import os
 
 from testplan.common.utils.convert import nested_groups
 from testplan.common.utils.timing import utcnow
 from testplan.common.utils.table import TableEntry
 from testplan.common.utils.reporting import fmt
 from testplan.common.utils.convert import flatten_formatted_object
-
+from testplan.common.utils import path as path_utils
 from testplan import defaults
 
 
@@ -323,3 +324,21 @@ class Graph(BaseEntry):
                     raise ValueError('Series Option: {!r} is not '
                                      'valid (found in series '
                                      '{!r})'.format(series_option, series_name))
+
+
+class Attachment(BaseEntry):
+    """Entry representing a file attached to the report."""
+
+    def __init__(self, filepath, description):
+        self.source_path = filepath
+        self.hash = path_utils.hash_file(filepath)
+        self.orig_filename = os.path.basename(filepath)
+        self.filesize = os.path.getsize(filepath)
+
+        basename, ext = os.path.splitext(self.orig_filename)
+        self.dst_path = "{basename}-{hash}-{filesize}{ext}".format(
+            basename=basename,
+            hash=self.hash,
+            filesize=self.filesize,
+            ext=ext)
+        super(Attachment, self).__init__(description=description)

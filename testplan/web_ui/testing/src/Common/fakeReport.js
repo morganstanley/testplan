@@ -3836,13 +3836,71 @@ var fakeReportAssertions = {
                                         }
                                     ]
                                 }
+                    },
+                    {
+                        "status": "passed",
+                        "name": "test_attachments",
+                        "tags": {},
+                        "description": null,
+                        "timer": {
+                            "run": {
+                                "start": "2019-02-12T17:41:43.321328+00:00",
+                                "end": "2019-02-12T17:41:43.327366+00:00"
+                            }
+                        },
+                        "suite_related": false,
+                        "status_override": null,
+                        'entries': [{
+                            'category': 'suite',
+                            'description': 'Example test suite.',
+                            'entries': [{
+                                'description': 'Attaches afile to the report.',
+                                'entries': [{
+                                    'category': 'DEFAULT',
+                                    'description': null,
+                                    'hash': 'e293da7540774a9f838f5a0e88ab549a',
+                                    'filesize': 100,
+                                    'dst_path': 'tmp9jauyax8-e293da7540774a9f838f5a0e88ab549a-100.txt',
+                                    'orig_filename': 'tmp9jauyax8.txt',
+                                    'line_no': 20,
+                                    'machine_time': '2019-08-05T16:25:21.391788+00:00',
+                                    'meta_type': 'entry',
+                                    'source_path': '/tmp/tmp9jauyax8.txt',
+                                    'type': 'Attachment',
+                                    'utc_time': '2019-08-05T15:25:21.391773+00:00',
+                                    'uuid': 'e293da75-4077-4a9f-838f-5a0e88ab549a'
+                                }],
+                                'logs': [],
+                                'name': 'test_attach',
+                                'status': 'passed',
+                                'status_override': null,
+                                'suite_related': false,
+                                'tags': {},
+                                'timer': {'run': {'end': '2019-08-05T15:25:22.054522+00:00',
+                                                  'start': '2019-08-05T15:25:21.390157+00:00'}},
+                                'type': 'TestCaseReport',
+                                'uid': '18551bfe-35b8-4f95-90f1-2c37f37bfe9f'
+                            }],
+                            'fix_spec_path': null,
+                            'logs': [],
+                            'name': 'TestSuite',
+                            'part': null,
+                            'status': 'passed',
+                            'status_override': null,
+                            'tags': {},
+                            'timer': {'run': {'end': '2019-08-05T15:25:22.062482+00:00',
+                                              'start': '2019-08-05T15:25:21.389890+00:00'}},
+                            'type': 'TestGroupReport',
+                            'uid': '5b4d240c-be6f-42b7-9bd6-20164944449a'
+                        }],
+                    }
                 ],
                 "uid": "c01e19ca-dfdc-4c34-9b0f-a28b9acd896a",
                 "type": "TestGroupReport",
                 "logs": []
             }
         ],
-        "uid": "0c10b29b-7cc2-4ebb-a25c-e44e991f21f3",
+        "uid": "0c10b29b-7cc2-4ebb-a5c-e44e991f21f3",
         "type": "TestGroupReport",
         "logs": []
     }

@@ -48,6 +48,7 @@ import copy
 import collections
 import inspect
 import hashlib
+import itertools
 
 from testplan.common.report import (
     ExceptionLogger as ExceptionLoggerBase, Report, ReportGroup)
@@ -257,7 +258,12 @@ class TestReport(BaseReportGroup):
     def __init__(self, meta=None, attachments=None, *args, **kwargs):
         self.meta = meta or {}
         self._tags_index = None
+
+        # Report attachments: Dict[dst: str, src: str].
+        # Maps from destination path (relative from attachments root dir)
+        # to the full source path (absolute or relative from cwd).
         self.attachments = attachments or {}
+
         super(TestReport, self).__init__(*args, **kwargs)
 
     @property
@@ -297,17 +303,20 @@ class TestReport(BaseReportGroup):
         """
         for child in self:
             if getattr(child, 'fix_spec_path', None):
-                real_path = child.fix_spec_path
-                hash_dir = hashlib.md5(real_path.encode('utf-8')).hexdigest()
-                # I think the basename should be slugified?
-                hash_path = os.path.join(
-                    hash_dir,
-                    os.path.basename(child.fix_spec_path)
-                )
-                child.fix_spec_path = hash_path
-                self.attachments[hash_path] = real_path
+                self._bubble_up_fix_spec(child)
+            for attachment in child.attachments:
+                self.attachments[attachment.dst_path] = attachment.source_path
 
-            # Add logic to find result.attach assertions.
+    def _bubble_up_fix_spec(self, child):
+        """Bubble up a "fix_spec_path" from a child report."""
+        real_path = child.fix_spec_path
+        hash_dir = hashlib.md5(real_path.encode('utf-8')).hexdigest()
+        hash_path = os.path.join(
+            hash_dir,
+            os.path.basename(child.fix_spec_path)
+        )
+        child.fix_spec_path = hash_path
+        self.attachments[hash_path] = real_path
 
     def _get_comparison_attrs(self):
         return super(TestReport, self)._get_comparison_attrs() +\
@@ -450,6 +459,12 @@ class TestGroupReport(BaseReportGroup):
         super(TestGroupReport, self).merge(report, strict=strict)
         self.propagate_tag_indices()
 
+    @property
+    def attachments(self):
+        """Return all attachments from child reports."""
+        return itertools.chain.from_iterable(
+            child.attachments for child in self)
+
 
 class TestCaseReport(Report):
     """
@@ -472,6 +487,8 @@ class TestCaseReport(Report):
 
         self.status_override = None
         self.timer = timing.Timer()
+
+        self.attachments = []
 
     def _get_comparison_attrs(self):
         return super(TestCaseReport, self)._get_comparison_attrs() +\
