@@ -326,7 +326,7 @@ function prepareBasicContent(assertion) {
             <span>{assertion.pattern}</span>
             <span>
                 {
-                    assertion.condition?
+                    assertion.condition &&
                     (
                      <div key={assertion.uid}>
                         <br/>
@@ -335,8 +335,7 @@ function prepareBasicContent(assertion) {
                         <span>{assertion.condition}</span>
                      </div>
                     )
-                    :""
-                }
+                 }
             </span>
         </div>
     );
