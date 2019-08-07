@@ -64,17 +64,17 @@ class XYGraphAssertion extends Component {
     let plots = [];
 
     for (let key in data) {
-        let series_colour = this.state.series_colour[key]
+        let series_colour = this.state.series_colour[key];
         plots.push(
                     <GraphComponent
                       key={key}
                       data={data[key]}
                       color={series_colour}
-                      style = {GraphUtil.returnStyle(graph_type)}
+                      style={GraphUtil.returnStyle(graph_type)}
                     />
                   );
         if((graph_options !== null) && graph_options.legend){
-            legend.push({title: key, color: series_colour})
+            legend.push({title: key, color: series_colour});
         }
     }
 

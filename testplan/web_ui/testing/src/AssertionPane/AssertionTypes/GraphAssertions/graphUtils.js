@@ -27,15 +27,13 @@ export function returnXType(graph_type){
     }
 }
 
-
-
-
 const COLOUR_PALETTE=['#1c5c9c', '#68caea', '#7448c5', '#633836',
-                    '#485051', '#336a85', '#94b1c5', '#ababab']
+                      '#485051', '#336a85', '#94b1c5', '#ababab']
 /**
- * Return a colour for the graph component depending on whether the user has
- * specified an option, otherwise return from a colour scheme,
- * then random colours (tinted with blue)
+ * Return the colours for every series, given the series_options. Each series'
+ * colour assigned depending on whether the user has specified an option,
+ * otherwise return from a colour scheme/palette, then random colours
+ * (tinted darker/blue)
  */
 export function returnColour(series_options, data){
     let series_colours = {};
@@ -46,13 +44,14 @@ export function returnColour(series_options, data){
         if(series_options != null){
             if(series_options[series_key]!= null){
                 if(series_options[series_key].colour!= null){
-                    series_colours[series_key] = series_options[series_key].colour;
+                    series_colours[series_key] =
+                        series_options[series_key].colour;
                     continue;
                 }
             }
         }
 
-        //Otherwise choose next colour avaiable from colour palette
+        //Otherwise choose next colour available from colour palette
         if(colour_options.length !== 0){
              let colour = colour_options[0];
              series_colours[series_key] = colour;
@@ -65,7 +64,7 @@ export function returnColour(series_options, data){
              colour += (Math.round(Math.random() * 15)).toString(16);
             }
             for (let i = 0; i < 2; i++) {
-             colour += (10+ Math.round(Math.random() * 5)).toString(16);;
+             colour += (10+ Math.round(Math.random() * 5)).toString(16);
             }
             series_colours[series_key] = colour;
         }

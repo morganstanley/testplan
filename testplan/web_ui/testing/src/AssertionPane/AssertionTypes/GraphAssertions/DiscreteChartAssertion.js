@@ -34,7 +34,7 @@ class DiscreteChartAssertion extends Component  {
     for (let key in data) {
         plots.push(
                      <GraphComponent
-                      colorType= {series_colours[key]}
+                      colorType={series_colours[key]}
                       data={data[key]}
                       width={400}
                       height={300}
@@ -48,11 +48,10 @@ class DiscreteChartAssertion extends Component  {
                      </GraphComponent>
          );
 
-        legend = data[key].map( slice=>{
+        legend = data[key].map( slice => {
                                 return {title: slice.name, color: slice.color}
                                 })
        }
-
 
       return (
            <div>
