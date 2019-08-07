@@ -33615,9 +33615,23 @@ ShallowWrapper {
                     }
           >
                     <span>
-                              <span>
-                                        foo
-                              </span>
+                              <div>
+                                        <span>
+                                                  foo
+                                        </span>
+                                        <span>
+                                                  <div>
+                                                            <br />
+                                                            <strong>
+                                                                      Condition:
+                                                            </strong>
+                                                            <br />
+                                                            <span>
+                                                                      &lt;lambda&gt;
+                                                            </span>
+                                                  </div>
+                                        </span>
+                              </div>
                     </span>
           </Col>
           <Col
@@ -34001,9 +34015,23 @@ ShallowWrapper {
               }
 >
               <span>
-                            <span>
-                                          foo
-                            </span>
+                            <div>
+                                          <span>
+                                                        foo
+                                          </span>
+                                          <span>
+                                                        <div>
+                                                                      <br />
+                                                                      <strong>
+                                                                                    Condition:
+                                                                      </strong>
+                                                                      <br />
+                                                                      <span>
+                                                                                    &lt;lambda&gt;
+                                                                      </span>
+                                                        </div>
+                                          </span>
+                            </div>
               </span>
 </Col>,
             <Col
@@ -34091,9 +34119,23 @@ ShallowWrapper {
             "nodeType": "function",
             "props": Object {
               "children": <span>
-                <span>
-                                foo
-                </span>
+                <div>
+                                <span>
+                                                foo
+                                </span>
+                                <span>
+                                                <div>
+                                                                <br />
+                                                                <strong>
+                                                                                Condition:
+                                                                </strong>
+                                                                <br />
+                                                                <span>
+                                                                                &lt;lambda&gt;
+                                                                </span>
+                                                </div>
+                                </span>
+                </div>
 </span>,
               "className": "contentSpan_12mhtst",
               "lg": "6",
@@ -34112,9 +34154,23 @@ ShallowWrapper {
               "key": undefined,
               "nodeType": "host",
               "props": Object {
-                "children": <span>
-                  foo
-</span>,
+                "children": <div>
+                  <span>
+                                    foo
+                  </span>
+                  <span>
+                                    <div>
+                                                      <br />
+                                                      <strong>
+                                                                        Condition:
+                                                      </strong>
+                                                      <br />
+                                                      <span>
+                                                                        &lt;lambda&gt;
+                                                      </span>
+                                    </div>
+                  </span>
+</div>,
               },
               "ref": null,
               "rendered": Object {
@@ -34122,11 +34178,119 @@ ShallowWrapper {
                 "key": undefined,
                 "nodeType": "host",
                 "props": Object {
-                  "children": "foo",
+                  "children": Array [
+                    <span>
+                      foo
+</span>,
+                    <span>
+                      <div>
+                                            <br />
+                                            <strong>
+                                                                  Condition:
+                                            </strong>
+                                            <br />
+                                            <span>
+                                                                  &lt;lambda&gt;
+                                            </span>
+                      </div>
+</span>,
+                  ],
                 },
                 "ref": null,
-                "rendered": "foo",
-                "type": "span",
+                "rendered": Array [
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": "foo",
+                    },
+                    "ref": null,
+                    "rendered": "foo",
+                    "type": "span",
+                  },
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": <div>
+                        <br />
+                        <strong>
+                                                Condition:
+                        </strong>
+                        <br />
+                        <span>
+                                                &lt;lambda&gt;
+                        </span>
+</div>,
+                    },
+                    "ref": null,
+                    "rendered": Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": Array [
+                          <br />,
+                          <strong>
+                            Condition:
+</strong>,
+                          <br />,
+                          <span>
+                            &lt;lambda&gt;
+</span>,
+                        ],
+                      },
+                      "ref": null,
+                      "rendered": Array [
+                        Object {
+                          "instance": null,
+                          "key": undefined,
+                          "nodeType": "host",
+                          "props": Object {},
+                          "ref": null,
+                          "rendered": null,
+                          "type": "br",
+                        },
+                        Object {
+                          "instance": null,
+                          "key": undefined,
+                          "nodeType": "host",
+                          "props": Object {
+                            "children": "Condition:",
+                          },
+                          "ref": null,
+                          "rendered": "Condition:",
+                          "type": "strong",
+                        },
+                        Object {
+                          "instance": null,
+                          "key": undefined,
+                          "nodeType": "host",
+                          "props": Object {},
+                          "ref": null,
+                          "rendered": null,
+                          "type": "br",
+                        },
+                        Object {
+                          "instance": null,
+                          "key": undefined,
+                          "nodeType": "host",
+                          "props": Object {
+                            "children": "<lambda>",
+                          },
+                          "ref": null,
+                          "rendered": "<lambda>",
+                          "type": "span",
+                        },
+                      ],
+                      "type": "div",
+                    },
+                    "type": "span",
+                  },
+                ],
+                "type": "div",
               },
               "type": "span",
             },
@@ -34662,9 +34826,23 @@ ShallowWrapper {
                         }
             >
                         <span>
-                                    <span>
-                                                foo
-                                    </span>
+                                    <div>
+                                                <span>
+                                                            foo
+                                                </span>
+                                                <span>
+                                                            <div>
+                                                                        <br />
+                                                                        <strong>
+                                                                                    Condition:
+                                                                        </strong>
+                                                                        <br />
+                                                                        <span>
+                                                                                    &lt;lambda&gt;
+                                                                        </span>
+                                                            </div>
+                                                </span>
+                                    </div>
                         </span>
             </Col>
             <Col
@@ -35048,9 +35226,23 @@ ShallowWrapper {
                 }
 >
                 <span>
-                                <span>
-                                                foo
-                                </span>
+                                <div>
+                                                <span>
+                                                                foo
+                                                </span>
+                                                <span>
+                                                                <div>
+                                                                                <br />
+                                                                                <strong>
+                                                                                                Condition:
+                                                                                </strong>
+                                                                                <br />
+                                                                                <span>
+                                                                                                &lt;lambda&gt;
+                                                                                </span>
+                                                                </div>
+                                                </span>
+                                </div>
                 </span>
 </Col>,
               <Col
@@ -35138,9 +35330,23 @@ ShallowWrapper {
               "nodeType": "function",
               "props": Object {
                 "children": <span>
-                  <span>
-                                    foo
-                  </span>
+                  <div>
+                                    <span>
+                                                      foo
+                                    </span>
+                                    <span>
+                                                      <div>
+                                                                        <br />
+                                                                        <strong>
+                                                                                          Condition:
+                                                                        </strong>
+                                                                        <br />
+                                                                        <span>
+                                                                                          &lt;lambda&gt;
+                                                                        </span>
+                                                      </div>
+                                    </span>
+                  </div>
 </span>,
                 "className": "contentSpan_12mhtst",
                 "lg": "6",
@@ -35159,9 +35365,23 @@ ShallowWrapper {
                 "key": undefined,
                 "nodeType": "host",
                 "props": Object {
-                  "children": <span>
-                    foo
-</span>,
+                  "children": <div>
+                    <span>
+                                        foo
+                    </span>
+                    <span>
+                                        <div>
+                                                            <br />
+                                                            <strong>
+                                                                                Condition:
+                                                            </strong>
+                                                            <br />
+                                                            <span>
+                                                                                &lt;lambda&gt;
+                                                            </span>
+                                        </div>
+                    </span>
+</div>,
                 },
                 "ref": null,
                 "rendered": Object {
@@ -35169,11 +35389,119 @@ ShallowWrapper {
                   "key": undefined,
                   "nodeType": "host",
                   "props": Object {
-                    "children": "foo",
+                    "children": Array [
+                      <span>
+                        foo
+</span>,
+                      <span>
+                        <div>
+                                                <br />
+                                                <strong>
+                                                                        Condition:
+                                                </strong>
+                                                <br />
+                                                <span>
+                                                                        &lt;lambda&gt;
+                                                </span>
+                        </div>
+</span>,
+                    ],
                   },
                   "ref": null,
-                  "rendered": "foo",
-                  "type": "span",
+                  "rendered": Array [
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": "foo",
+                      },
+                      "ref": null,
+                      "rendered": "foo",
+                      "type": "span",
+                    },
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": <div>
+                          <br />
+                          <strong>
+                                                    Condition:
+                          </strong>
+                          <br />
+                          <span>
+                                                    &lt;lambda&gt;
+                          </span>
+</div>,
+                      },
+                      "ref": null,
+                      "rendered": Object {
+                        "instance": null,
+                        "key": undefined,
+                        "nodeType": "host",
+                        "props": Object {
+                          "children": Array [
+                            <br />,
+                            <strong>
+                              Condition:
+</strong>,
+                            <br />,
+                            <span>
+                              &lt;lambda&gt;
+</span>,
+                          ],
+                        },
+                        "ref": null,
+                        "rendered": Array [
+                          Object {
+                            "instance": null,
+                            "key": undefined,
+                            "nodeType": "host",
+                            "props": Object {},
+                            "ref": null,
+                            "rendered": null,
+                            "type": "br",
+                          },
+                          Object {
+                            "instance": null,
+                            "key": undefined,
+                            "nodeType": "host",
+                            "props": Object {
+                              "children": "Condition:",
+                            },
+                            "ref": null,
+                            "rendered": "Condition:",
+                            "type": "strong",
+                          },
+                          Object {
+                            "instance": null,
+                            "key": undefined,
+                            "nodeType": "host",
+                            "props": Object {},
+                            "ref": null,
+                            "rendered": null,
+                            "type": "br",
+                          },
+                          Object {
+                            "instance": null,
+                            "key": undefined,
+                            "nodeType": "host",
+                            "props": Object {
+                              "children": "<lambda>",
+                            },
+                            "ref": null,
+                            "rendered": "<lambda>",
+                            "type": "span",
+                          },
+                        ],
+                        "type": "div",
+                      },
+                      "type": "span",
+                    },
+                  ],
+                  "type": "div",
                 },
                 "type": "span",
               },
@@ -35762,9 +36090,12 @@ ShallowWrapper {
                     }
           >
                     <span>
-                              <span>
-                                        foo
-                              </span>
+                              <div>
+                                        <span>
+                                                  foo
+                                        </span>
+                                        <span />
+                              </div>
                     </span>
           </Col>
           <Col
@@ -36112,9 +36443,12 @@ ShallowWrapper {
               }
 >
               <span>
-                            <span>
-                                          foo
-                            </span>
+                            <div>
+                                          <span>
+                                                        foo
+                                          </span>
+                                          <span />
+                            </div>
               </span>
 </Col>,
             <Col
@@ -36166,9 +36500,12 @@ ShallowWrapper {
             "nodeType": "function",
             "props": Object {
               "children": <span>
-                <span>
-                                foo
-                </span>
+                <div>
+                                <span>
+                                                foo
+                                </span>
+                                <span />
+                </div>
 </span>,
               "className": "contentSpan_12mhtst",
               "lg": "6",
@@ -36187,9 +36524,12 @@ ShallowWrapper {
               "key": undefined,
               "nodeType": "host",
               "props": Object {
-                "children": <span>
-                  foo
-</span>,
+                "children": <div>
+                  <span>
+                                    foo
+                  </span>
+                  <span />
+</div>,
               },
               "ref": null,
               "rendered": Object {
@@ -36197,11 +36537,39 @@ ShallowWrapper {
                 "key": undefined,
                 "nodeType": "host",
                 "props": Object {
-                  "children": "foo",
+                  "children": Array [
+                    <span>
+                      foo
+</span>,
+                    <span />,
+                  ],
                 },
                 "ref": null,
-                "rendered": "foo",
-                "type": "span",
+                "rendered": Array [
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": "foo",
+                    },
+                    "ref": null,
+                    "rendered": "foo",
+                    "type": "span",
+                  },
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": undefined,
+                    },
+                    "ref": null,
+                    "rendered": null,
+                    "type": "span",
+                  },
+                ],
+                "type": "div",
               },
               "type": "span",
             },
@@ -36554,9 +36922,12 @@ ShallowWrapper {
                         }
             >
                         <span>
-                                    <span>
-                                                foo
-                                    </span>
+                                    <div>
+                                                <span>
+                                                            foo
+                                                </span>
+                                                <span />
+                                    </div>
                         </span>
             </Col>
             <Col
@@ -36904,9 +37275,12 @@ ShallowWrapper {
                 }
 >
                 <span>
-                                <span>
-                                                foo
-                                </span>
+                                <div>
+                                                <span>
+                                                                foo
+                                                </span>
+                                                <span />
+                                </div>
                 </span>
 </Col>,
               <Col
@@ -36958,9 +37332,12 @@ ShallowWrapper {
               "nodeType": "function",
               "props": Object {
                 "children": <span>
-                  <span>
-                                    foo
-                  </span>
+                  <div>
+                                    <span>
+                                                      foo
+                                    </span>
+                                    <span />
+                  </div>
 </span>,
                 "className": "contentSpan_12mhtst",
                 "lg": "6",
@@ -36979,9 +37356,12 @@ ShallowWrapper {
                 "key": undefined,
                 "nodeType": "host",
                 "props": Object {
-                  "children": <span>
-                    foo
-</span>,
+                  "children": <div>
+                    <span>
+                                        foo
+                    </span>
+                    <span />
+</div>,
                 },
                 "ref": null,
                 "rendered": Object {
@@ -36989,11 +37369,39 @@ ShallowWrapper {
                   "key": undefined,
                   "nodeType": "host",
                   "props": Object {
-                    "children": "foo",
+                    "children": Array [
+                      <span>
+                        foo
+</span>,
+                      <span />,
+                    ],
                   },
                   "ref": null,
-                  "rendered": "foo",
-                  "type": "span",
+                  "rendered": Array [
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": "foo",
+                      },
+                      "ref": null,
+                      "rendered": "foo",
+                      "type": "span",
+                    },
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": undefined,
+                      },
+                      "ref": null,
+                      "rendered": null,
+                      "type": "span",
+                    },
+                  ],
+                  "type": "div",
                 },
                 "type": "span",
               },
@@ -39238,9 +39646,12 @@ ShallowWrapper {
                     }
           >
                     <span>
-                              <span>
-                                        baz
-                              </span>
+                              <div>
+                                        <span>
+                                                  baz
+                                        </span>
+                                        <span />
+                              </div>
                     </span>
           </Col>
           <Col
@@ -39578,9 +39989,12 @@ ShallowWrapper {
               }
 >
               <span>
-                            <span>
-                                          baz
-                            </span>
+                            <div>
+                                          <span>
+                                                        baz
+                                          </span>
+                                          <span />
+                            </div>
               </span>
 </Col>,
             <Col
@@ -39622,9 +40036,12 @@ ShallowWrapper {
             "nodeType": "function",
             "props": Object {
               "children": <span>
-                <span>
-                                baz
-                </span>
+                <div>
+                                <span>
+                                                baz
+                                </span>
+                                <span />
+                </div>
 </span>,
               "className": "contentSpan_12mhtst",
               "lg": "6",
@@ -39643,9 +40060,12 @@ ShallowWrapper {
               "key": undefined,
               "nodeType": "host",
               "props": Object {
-                "children": <span>
-                  baz
-</span>,
+                "children": <div>
+                  <span>
+                                    baz
+                  </span>
+                  <span />
+</div>,
               },
               "ref": null,
               "rendered": Object {
@@ -39653,11 +40073,39 @@ ShallowWrapper {
                 "key": undefined,
                 "nodeType": "host",
                 "props": Object {
-                  "children": "baz",
+                  "children": Array [
+                    <span>
+                      baz
+</span>,
+                    <span />,
+                  ],
                 },
                 "ref": null,
-                "rendered": "baz",
-                "type": "span",
+                "rendered": Array [
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": "baz",
+                    },
+                    "ref": null,
+                    "rendered": "baz",
+                    "type": "span",
+                  },
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": undefined,
+                    },
+                    "ref": null,
+                    "rendered": null,
+                    "type": "span",
+                  },
+                ],
+                "type": "div",
               },
               "type": "span",
             },
@@ -39955,9 +40403,12 @@ ShallowWrapper {
                         }
             >
                         <span>
-                                    <span>
-                                                baz
-                                    </span>
+                                    <div>
+                                                <span>
+                                                            baz
+                                                </span>
+                                                <span />
+                                    </div>
                         </span>
             </Col>
             <Col
@@ -40295,9 +40746,12 @@ ShallowWrapper {
                 }
 >
                 <span>
-                                <span>
-                                                baz
-                                </span>
+                                <div>
+                                                <span>
+                                                                baz
+                                                </span>
+                                                <span />
+                                </div>
                 </span>
 </Col>,
               <Col
@@ -40339,9 +40793,12 @@ ShallowWrapper {
               "nodeType": "function",
               "props": Object {
                 "children": <span>
-                  <span>
-                                    baz
-                  </span>
+                  <div>
+                                    <span>
+                                                      baz
+                                    </span>
+                                    <span />
+                  </div>
 </span>,
                 "className": "contentSpan_12mhtst",
                 "lg": "6",
@@ -40360,9 +40817,12 @@ ShallowWrapper {
                 "key": undefined,
                 "nodeType": "host",
                 "props": Object {
-                  "children": <span>
-                    baz
-</span>,
+                  "children": <div>
+                    <span>
+                                        baz
+                    </span>
+                    <span />
+</div>,
                 },
                 "ref": null,
                 "rendered": Object {
@@ -40370,11 +40830,39 @@ ShallowWrapper {
                   "key": undefined,
                   "nodeType": "host",
                   "props": Object {
-                    "children": "baz",
+                    "children": Array [
+                      <span>
+                        baz
+</span>,
+                      <span />,
+                    ],
                   },
                   "ref": null,
-                  "rendered": "baz",
-                  "type": "span",
+                  "rendered": Array [
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": "baz",
+                      },
+                      "ref": null,
+                      "rendered": "baz",
+                      "type": "span",
+                    },
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": undefined,
+                      },
+                      "ref": null,
+                      "rendered": null,
+                      "type": "span",
+                    },
+                  ],
+                  "type": "div",
                 },
                 "type": "span",
               },
@@ -40727,9 +41215,12 @@ ShallowWrapper {
                     }
           >
                     <span>
-                              <span>
-                                        second
-                              </span>
+                              <div>
+                                        <span>
+                                                  second
+                                        </span>
+                                        <span />
+                              </div>
                     </span>
           </Col>
           <Col
@@ -41081,9 +41572,12 @@ ShallowWrapper {
               }
 >
               <span>
-                            <span>
-                                          second
-                            </span>
+                            <div>
+                                          <span>
+                                                        second
+                                          </span>
+                                          <span />
+                            </div>
               </span>
 </Col>,
             <Col
@@ -41139,9 +41633,12 @@ ShallowWrapper {
             "nodeType": "function",
             "props": Object {
               "children": <span>
-                <span>
-                                second
-                </span>
+                <div>
+                                <span>
+                                                second
+                                </span>
+                                <span />
+                </div>
 </span>,
               "className": "contentSpan_12mhtst",
               "lg": "6",
@@ -41160,9 +41657,12 @@ ShallowWrapper {
               "key": undefined,
               "nodeType": "host",
               "props": Object {
-                "children": <span>
-                  second
-</span>,
+                "children": <div>
+                  <span>
+                                    second
+                  </span>
+                  <span />
+</div>,
               },
               "ref": null,
               "rendered": Object {
@@ -41170,11 +41670,39 @@ ShallowWrapper {
                 "key": undefined,
                 "nodeType": "host",
                 "props": Object {
-                  "children": "second",
+                  "children": Array [
+                    <span>
+                      second
+</span>,
+                    <span />,
+                  ],
                 },
                 "ref": null,
-                "rendered": "second",
-                "type": "span",
+                "rendered": Array [
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": "second",
+                    },
+                    "ref": null,
+                    "rendered": "second",
+                    "type": "span",
+                  },
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": undefined,
+                    },
+                    "ref": null,
+                    "rendered": null,
+                    "type": "span",
+                  },
+                ],
+                "type": "div",
               },
               "type": "span",
             },
@@ -41543,9 +42071,12 @@ third line",
                         }
             >
                         <span>
-                                    <span>
-                                                second
-                                    </span>
+                                    <div>
+                                                <span>
+                                                            second
+                                                </span>
+                                                <span />
+                                    </div>
                         </span>
             </Col>
             <Col
@@ -41897,9 +42428,12 @@ third line",
                 }
 >
                 <span>
-                                <span>
-                                                second
-                                </span>
+                                <div>
+                                                <span>
+                                                                second
+                                                </span>
+                                                <span />
+                                </div>
                 </span>
 </Col>,
               <Col
@@ -41955,9 +42489,12 @@ third line",
               "nodeType": "function",
               "props": Object {
                 "children": <span>
-                  <span>
-                                    second
-                  </span>
+                  <div>
+                                    <span>
+                                                      second
+                                    </span>
+                                    <span />
+                  </div>
 </span>,
                 "className": "contentSpan_12mhtst",
                 "lg": "6",
@@ -41976,9 +42513,12 @@ third line",
                 "key": undefined,
                 "nodeType": "host",
                 "props": Object {
-                  "children": <span>
-                    second
-</span>,
+                  "children": <div>
+                    <span>
+                                        second
+                    </span>
+                    <span />
+</div>,
                 },
                 "ref": null,
                 "rendered": Object {
@@ -41986,11 +42526,39 @@ third line",
                   "key": undefined,
                   "nodeType": "host",
                   "props": Object {
-                    "children": "second",
+                    "children": Array [
+                      <span>
+                        second
+</span>,
+                      <span />,
+                    ],
                   },
                   "ref": null,
-                  "rendered": "second",
-                  "type": "span",
+                  "rendered": Array [
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": "second",
+                      },
+                      "ref": null,
+                      "rendered": "second",
+                      "type": "span",
+                    },
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": undefined,
+                      },
+                      "ref": null,
+                      "rendered": null,
+                      "type": "span",
+                    },
+                  ],
+                  "type": "div",
                 },
                 "type": "span",
               },
@@ -42409,9 +42977,12 @@ ShallowWrapper {
                     }
           >
                     <span>
-                              <span>
-                                        foobar
-                              </span>
+                              <div>
+                                        <span>
+                                                  foobar
+                                        </span>
+                                        <span />
+                              </div>
                     </span>
           </Col>
           <Col
@@ -42751,9 +43322,12 @@ ShallowWrapper {
               }
 >
               <span>
-                            <span>
-                                          foobar
-                            </span>
+                            <div>
+                                          <span>
+                                                        foobar
+                                          </span>
+                                          <span />
+                            </div>
               </span>
 </Col>,
             <Col
@@ -42797,9 +43371,12 @@ ShallowWrapper {
             "nodeType": "function",
             "props": Object {
               "children": <span>
-                <span>
-                                foobar
-                </span>
+                <div>
+                                <span>
+                                                foobar
+                                </span>
+                                <span />
+                </div>
 </span>,
               "className": "contentSpan_12mhtst",
               "lg": "6",
@@ -42818,9 +43395,12 @@ ShallowWrapper {
               "key": undefined,
               "nodeType": "host",
               "props": Object {
-                "children": <span>
-                  foobar
-</span>,
+                "children": <div>
+                  <span>
+                                    foobar
+                  </span>
+                  <span />
+</div>,
               },
               "ref": null,
               "rendered": Object {
@@ -42828,11 +43408,39 @@ ShallowWrapper {
                 "key": undefined,
                 "nodeType": "host",
                 "props": Object {
-                  "children": "foobar",
+                  "children": Array [
+                    <span>
+                      foobar
+</span>,
+                    <span />,
+                  ],
                 },
                 "ref": null,
-                "rendered": "foobar",
-                "type": "span",
+                "rendered": Array [
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": "foobar",
+                    },
+                    "ref": null,
+                    "rendered": "foobar",
+                    "type": "span",
+                  },
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": undefined,
+                    },
+                    "ref": null,
+                    "rendered": null,
+                    "type": "span",
+                  },
+                ],
+                "type": "div",
               },
               "type": "span",
             },
@@ -43140,9 +43748,12 @@ third line",
                         }
             >
                         <span>
-                                    <span>
-                                                foobar
-                                    </span>
+                                    <div>
+                                                <span>
+                                                            foobar
+                                                </span>
+                                                <span />
+                                    </div>
                         </span>
             </Col>
             <Col
@@ -43482,9 +44093,12 @@ third line",
                 }
 >
                 <span>
-                                <span>
-                                                foobar
-                                </span>
+                                <div>
+                                                <span>
+                                                                foobar
+                                                </span>
+                                                <span />
+                                </div>
                 </span>
 </Col>,
               <Col
@@ -43528,9 +44142,12 @@ third line",
               "nodeType": "function",
               "props": Object {
                 "children": <span>
-                  <span>
-                                    foobar
-                  </span>
+                  <div>
+                                    <span>
+                                                      foobar
+                                    </span>
+                                    <span />
+                  </div>
 </span>,
                 "className": "contentSpan_12mhtst",
                 "lg": "6",
@@ -43549,9 +44166,12 @@ third line",
                 "key": undefined,
                 "nodeType": "host",
                 "props": Object {
-                  "children": <span>
-                    foobar
-</span>,
+                  "children": <div>
+                    <span>
+                                        foobar
+                    </span>
+                    <span />
+</div>,
                 },
                 "ref": null,
                 "rendered": Object {
@@ -43559,11 +44179,39 @@ third line",
                   "key": undefined,
                   "nodeType": "host",
                   "props": Object {
-                    "children": "foobar",
+                    "children": Array [
+                      <span>
+                        foobar
+</span>,
+                      <span />,
+                    ],
                   },
                   "ref": null,
-                  "rendered": "foobar",
-                  "type": "span",
+                  "rendered": Array [
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": "foobar",
+                      },
+                      "ref": null,
+                      "rendered": "foobar",
+                      "type": "span",
+                    },
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": undefined,
+                      },
+                      "ref": null,
+                      "rendered": null,
+                      "type": "span",
+                    },
+                  ],
+                  "type": "div",
                 },
                 "type": "span",
               },

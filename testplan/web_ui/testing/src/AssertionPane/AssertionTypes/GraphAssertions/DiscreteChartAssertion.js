@@ -35,6 +35,7 @@ class DiscreteChartAssertion extends Component  {
         plots.push(
                      <GraphComponent
                       colorType={series_colours[key]}
+                      key={key}
                       data={data[key]}
                       width={400}
                       height={300}
