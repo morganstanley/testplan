@@ -620,310 +620,7 @@ var fakeReportAssertions = {
                                 "passed": true,
                                 "utc_time": "2019-02-12T17:41:43.059145+00:00",
                                 "first": ["1\r\n", "1\r\n", "1\r\n", "abc\r\n", "xy z\r\n", "2\r\n", "2\r\n", "2\r\n"]
-                            },{
-                                    "meta_type": "entry",
-                                    "utc_time": "2019-07-12T12:36:09.711865+00:00",
-                                    "machine_time": "2019-07-12T12:36:09.711865+00:00",
-                                    "type": "Graph",
-                                    "series_options": {
-                                        "Data Name": {
-                                            "colour": "red"
-                                        }
-                                    },
-                                    "line_no": 38,
-                                    "graph_data": {
-                                        "Data Name": [{
-                                                "x": 0,
-                                                "y": 8
-                                            }, {
-                                                "x": 1,
-                                                "y": 5
-                                            }, {
-                                                "x": 2,
-                                                "y": 4
-                                            }, {
-                                                "x": 3,
-                                                "y": 9
-                                            }, {
-                                                "x": 4,
-                                                "y": 1
-                                            }, {
-                                                "x": 5,
-                                                "y": 7
-                                            }, {
-                                                "x": 6,
-                                                "y": 6
-                                            }, {
-                                                "x": 7,
-                                                "y": 3
-                                            }, {
-                                                "x": 8,
-                                                "y": 2
-                                            }, {
-                                                "x": 9,
-                                                "y": 0
-                                            }
-                                        ]
-                                    },
-                                    "description": "Line Graph",
-                                    "discrete_chart": false,
-                                    "category": "DEFAULT",
-                                    "graph_options": null,
-                                    "graph_type": "Line"
-                                },{
-                                    "meta_type": "entry",
-                                    "utc_time": "2019-07-12T12:36:09.711865+00:00",
-                                    "machine_time": "2019-07-12T12:36:09.711865+00:00",
-                                    "type": "Graph",
-                                    "series_options": {
-                                        "Data Name": {
-                                            "colour": "black"
-                                        }
-                                    },
-                                    "line_no": 38,
-                                    "graph_data": {
-                                        "Data Name": [{
-                                                "x": 0,
-                                                "y": 8
-                                            }, {
-                                                "x": 1,
-                                                "y": 5
-                                            }, {
-                                                "x": 2,
-                                                "y": 4
-                                            }, {
-                                                "x": 3,
-                                                "y": 9
-                                            }, {
-                                                "x": 4,
-                                                "y": 1
-                                            }, {
-                                                "x": 5,
-                                                "y": 7
-                                            }, {
-                                                "x": 6,
-                                                "y": 6
-                                            }, {
-                                                "x": 7,
-                                                "y": 3
-                                            }, {
-                                                "x": 8,
-                                                "y": 2
-                                            }, {
-                                                "x": 9,
-                                                "y": 0
-                                            }
-                                        ]
-                                    },
-                                    "description": "Scatter Graph",
-                                    "category": "DEFAULT",
-                                    "graph_options": null,
-                                    "discrete_chart": false,
-                                    "graph_type": "Scatter"
-                                }, {
-                                    "meta_type": "entry",
-                                    "utc_time": "2019-07-12T12:36:09.782759+00:00",
-                                    "machine_time": "2019-07-12T12:36:09.782759+00:00",
-                                    "type": "Graph",
-                                    "series_options": null,
-                                    "line_no": 50,
-                                    "graph_data": {
-                                        "Data Name": [{
-                                                "x": "A",
-                                                "y": 10
-                                            }, {
-                                                "x": "B",
-                                                "y": 5
-                                            }, {
-                                                "x": "C",
-                                                "y": 15
-                                            }
-                                        ]
-                                    },
-                                    "description": "Bar Graph",
-                                    "category": "DEFAULT",
-                                    "graph_options": {"legend": true},
-                                    "discrete_chart": false,
-                                    "graph_type": "Bar"
-                                }, {
-                                    "meta_type": "entry",
-                                    "machine_time": "2019-07-15T14:48:21.106270+00:00",
-                                    "description": "Hexbin Graph",
-                                    "series_options": null,
-                                    "type": "Graph",
-                                    "category": "DEFAULT",
-                                    "graph_options": null,
-                                    "graph_data": {
-                                        "Data Name": [{
-                                                "x": 0,
-                                                "y": 8
-                                            }, {
-                                                "x": 1,
-                                                "y": 5
-                                            }, {
-                                                "x": 2,
-                                                "y": 4
-                                            }, {
-                                                "x": 3,
-                                                "y": 9
-                                            }, {
-                                                "x": 4,
-                                                "y": 1
-                                            }, {
-                                                "x": 5,
-                                                "y": 7
-                                            }, {
-                                                "x": 6,
-                                                "y": 6
-                                            }, {
-                                                "x": 7,
-                                                "y": 3
-                                            }, {
-                                                "x": 8,
-                                                "y": 2
-                                            }, {
-                                                "x": 9,
-                                                "y": 0
-                                            }
-                                        ]
-                                    },
-                                    "line_no": 69,
-                                    "utc_time": "2019-07-15T14:48:21.106270+00:00",
-                                    "discrete_chart": false,
-                                    "graph_type": "Hexbin"
-                                }, {
-                                    "meta_type": "entry",
-                                    "utc_time": "2019-07-12T12:36:09.787665+00:00",
-                                    "machine_time": "2019-07-12T12:36:09.787665+00:00",
-                                    "type": "Graph",
-                                    "series_options": null,
-                                    "line_no": 65,
-                                    "graph_data": {
-                                        "Data Name": [{
-                                                "x": 1,
-                                                "y": 10,
-                                                "xVariance": 0.5,
-                                                "yVariance": 2
-                                            }, {
-                                                "x": 1.7,
-                                                "y": 12,
-                                                "xVariance": 1,
-                                                "yVariance": 1
-                                            }, {
-                                                "x": 2,
-                                                "y": 5,
-                                                "xVariance": 0,
-                                                "yVariance": 0
-                                            }, {
-                                                "x": 3,
-                                                "y": 15,
-                                                "xVariance": 0,
-                                                "yVariance": 2
-                                            }, {
-                                                "x": 2.5,
-                                                "y": 7,
-                                                "xVariance": 0.25,
-                                                "yVariance": 2
-                                            }, {
-                                                "x": 1.8,
-                                                "y": 7,
-                                                "xVariance": 0.25,
-                                                "yVariance": 1
-                                            }
-                                        ]
-                                    },
-                                    "description": "Whisker Graph",
-                                    "category": "DEFAULT",
-                                    "discrete_chart": false,
-                                    "graph_options": null,
-                                    "graph_type": "Whisker"
-                                }, {
-                                    "meta_type": "entry",
-                                    "utc_time": "2019-07-12T12:36:09.792621+00:00",
-                                    "machine_time": "2019-07-12T12:36:09.792621+00:00",
-                                    "type": "Graph",
-                                    "series_options": null,
-                                    "line_no": 84,
-                                    "graph_data": {
-                                        "Data Name": [{
-                                                "x": 0,
-                                                "y": 8
-                                            }, {
-                                                "x": 1,
-                                                "y": 50
-                                            }, {
-                                                "x": 2,
-                                                "y": 4
-                                            }, {
-                                                "x": -10,
-                                                "y": 9
-                                            }, {
-                                                "x": 4,
-                                                "y": 1
-                                            }, {
-                                                "x": 5,
-                                                "y": 7
-                                            }, {
-                                                "x": 6,
-                                                "y": -3
-                                            }, {
-                                                "x": 7,
-                                                "y": 3
-                                            }, {
-                                                "x": 100,
-                                                "y": 2
-                                            }, {
-                                                "x": 9,
-                                                "y": 0
-                                            }
-                                        ]
-                                    },
-                                    "description": "Contour Graph",
-                                    "category": "DEFAULT",
-                                    "discrete_chart": false,
-                                    "graph_options": null,
-                                    "graph_type": "Contour"
-                                }, {
-                                    "meta_type": "entry",
-                                    "utc_time": "2019-07-12T12:36:09.796381+00:00",
-                                    "machine_time": "2019-07-12T12:36:09.796381+00:00",
-                                    "type": "Graph",
-                                    "series_options": {
-                                        "Data Name": {
-                                            "colour": "literal"
-                                        }
-                                    },
-                                    "line_no": 101,
-                                    "graph_data": {
-                                        "Data Name": [{
-                                                "angle": 1,
-                                                "color": "#89DAC1",
-                                                "name": "green"
-                                            }, {
-                                                "angle": 2,
-                                                "color": "#F6D18A",
-                                                "name": "yellow"
-                                            }, {
-                                                "angle": 5,
-                                                "color": "#1E96BE",
-                                                "name": "cyan"
-                                            }, {
-                                                "angle": 3,
-                                                "color": "#DA70BF",
-                                                "name": "magenta"
-                                            }, {
-                                                "angle": 5,
-                                                "color": "#F6D18A",
-                                                "name": "yellow again"
-                                            }
-                                        ]
-                                    },
-                                    "description": "Pie Chart",
-                                    "category": "DEFAULT",
-                                    "discrete_chart": true,
-                                    "graph_options": null,
-                                    "graph_type": "Pie"
-                                }
+                            }
                         ],
                         "uid": "22758cc5-8a89-472b-bf67-b64dbc2c0b40",
                         "type": "TestCaseReport",
@@ -3015,7 +2712,8 @@ var fakeReportAssertions = {
                                                 }, {
                                                     "passed": true,
                                                     "meta_type": "assertion",
-                                                    "entries": [{
+                                                    "entries": [
+                                                    {
                                                             "passed": true,
                                                             "meta_type": "assertion",
                                                             "entries": [{
@@ -3089,7 +2787,8 @@ var fakeReportAssertions = {
                                                 }, {
                                                     "passed": false,
                                                     "meta_type": "assertion",
-                                                    "entries": [{
+                                                    "entries": [
+                                                    {
                                                             "passed": false,
                                                             "meta_type": "assertion",
                                                             "entries": [{
@@ -3505,12 +3204,638 @@ var fakeReportAssertions = {
                                     ],
                                     "description": null,
                                     "type": "Summary"
-                                }
+                                },
+
                         ],
                         "uid": "89012abb-1111-45bce-a6a5-3188c111111",
                         "type": "TestCaseReport",
                         "logs": []
-                    }
+                    }, {
+                                    "type": "TestCaseReport",
+                                    "logs": [],
+                                    "description": null,
+                                    "suite_related": false,
+                                    "status": "passed",
+                                    "uid": "94c36a36-ccb5-4ed1-8d3b-54209ea7b534",
+                                    "name": "test_graph",
+                                    "status_override": null,
+                                    "timer": {
+                                        "run": {
+                                            "end": "2019-08-02T09:08:05.071680+00:00",
+                                            "start": "2019-08-02T09:08:04.915406+00:00"
+                                        }
+                                    },
+                                    "tags": {},
+                                    "entries": [
+                                    {
+                                            "type": "Graph",
+                                            "description": "Line Graph",
+                                            "utc_time": "2019-08-02T09:08:04.915406+00:00",
+                                            "meta_type": "entry",
+                                            "series_options": {
+                                                "Data Name": {
+                                                    "colour": "red"
+                                                }
+                                            },
+                                            "discrete_chart": false,
+                                            "line_no": 41,
+                                            "graph_data": {
+                                                "Data Name": [{
+                                                        "x": 0,
+                                                        "y": 8
+                                                    }, {
+                                                        "x": 1,
+                                                        "y": 5
+                                                    }, {
+                                                        "x": 2,
+                                                        "y": 4
+                                                    }, {
+                                                        "x": 3,
+                                                        "y": 9
+                                                    }, {
+                                                        "x": 4,
+                                                        "y": 1
+                                                    }, {
+                                                        "x": 5,
+                                                        "y": 7
+                                                    }, {
+                                                        "x": 6,
+                                                        "y": 6
+                                                    }, {
+                                                        "x": 7,
+                                                        "y": 3
+                                                    }, {
+                                                        "x": 8,
+                                                        "y": 2
+                                                    }, {
+                                                        "x": 9,
+                                                        "y": 0
+                                                    }
+                                                ]
+                                            },
+                                            "graph_options": {
+                                                "xAxisTitle": "Time",
+                                                "yAxisTitle": "Failures"
+                                            },
+                                            "graph_type": "Line",
+                                            "category": "DEFAULT",
+                                            "machine_time": "2019-08-02T09:08:04.915406+00:00"
+                                        },
+                                        {
+                                            "type": "Graph",
+                                            "description": "Scatter Graph",
+                                            "utc_time": "2019-08-02T09:08:05.046069+00:00",
+                                            "meta_type": "entry",
+                                            "series_options": {
+                                                "Data Name": {
+                                                    "colour": "black"
+                                                }
+                                            },
+                                            "discrete_chart": false,
+                                            "line_no": 63,
+                                            "graph_data": {
+                                                "Data Name": [{
+                                                        "x": 0,
+                                                        "y": 8
+                                                    }, {
+                                                        "x": 1,
+                                                        "y": 50
+                                                    }, {
+                                                        "x": 2,
+                                                        "y": 4
+                                                    }, {
+                                                        "x": -10,
+                                                        "y": 9
+                                                    }, {
+                                                        "x": 4,
+                                                        "y": 1
+                                                    }, {
+                                                        "x": 5,
+                                                        "y": 7
+                                                    }, {
+                                                        "x": 6,
+                                                        "y": -3
+                                                    }, {
+                                                        "x": 7,
+                                                        "y": 3
+                                                    }, {
+                                                        "x": 100,
+                                                        "y": 2
+                                                    }, {
+                                                        "x": 9,
+                                                        "y": 0
+                                                    }
+                                                ]
+                                            },
+                                            "graph_options": null,
+                                            "graph_type": "Scatter",
+                                            "category": "DEFAULT",
+                                            "machine_time": "2019-08-02T09:08:05.046069+00:00"
+                                        },
+                                        {
+                                            "type": "Graph",
+                                            "description": "Bar Graph",
+                                            "utc_time": "2019-08-02T09:08:05.049891+00:00",
+                                            "meta_type": "entry",
+                                            "series_options": null,
+                                            "discrete_chart": false,
+                                            "line_no": 76,
+                                            "graph_data": {
+                                                "Any Name You Want": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ]
+                                            },
+                                            "graph_options": null,
+                                            "graph_type": "Bar",
+                                            "category": "DEFAULT",
+                                            "machine_time": "2019-08-02T09:08:05.049891+00:00"
+                                        },
+                                        {
+                                            "type": "Graph",
+                                            "description": "Hexbin Graph",
+                                            "utc_time": "2019-08-02T09:08:05.054120+00:00",
+                                            "meta_type": "entry",
+                                            "series_options": null,
+                                            "discrete_chart": false,
+                                            "line_no": 96,
+                                            "graph_data": {
+                                                "Data Name": [{
+                                                        "x": 0,
+                                                        "y": 8
+                                                    }, {
+                                                        "x": 1,
+                                                        "y": 5
+                                                    }, {
+                                                        "x": 2,
+                                                        "y": 4
+                                                    }, {
+                                                        "x": 3,
+                                                        "y": 9
+                                                    }, {
+                                                        "x": 4,
+                                                        "y": 1
+                                                    }, {
+                                                        "x": 5,
+                                                        "y": 7
+                                                    }, {
+                                                        "x": 6,
+                                                        "y": 6
+                                                    }, {
+                                                        "x": 7,
+                                                        "y": 3
+                                                    }, {
+                                                        "x": 8,
+                                                        "y": 2
+                                                    }, {
+                                                        "x": 9,
+                                                        "y": 0
+                                                    }
+                                                ]
+                                            },
+                                            "graph_options": null,
+                                            "graph_type": "Hexbin",
+                                            "category": "DEFAULT",
+                                            "machine_time": "2019-08-02T09:08:05.054120+00:00"
+                                        },
+                                        {
+                                            "type": "Graph",
+                                            "description": "Whisker Graph",
+                                            "utc_time": "2019-08-02T09:08:05.058648+00:00",
+                                            "meta_type": "entry",
+                                            "series_options": null,
+                                            "discrete_chart": false,
+                                            "line_no": 112,
+                                            "graph_data": {
+                                                "Data Name": [{
+                                                        "x": 1,
+                                                        "y": 10,
+                                                        "xVariance": 0.5,
+                                                        "yVariance": 2
+                                                    }, {
+                                                        "x": 1.7,
+                                                        "y": 12,
+                                                        "xVariance": 1,
+                                                        "yVariance": 1
+                                                    }, {
+                                                        "x": 2,
+                                                        "y": 5,
+                                                        "xVariance": 0,
+                                                        "yVariance": 0
+                                                    }, {
+                                                        "x": 3,
+                                                        "y": 15,
+                                                        "xVariance": 0,
+                                                        "yVariance": 2
+                                                    }, {
+                                                        "x": 2.5,
+                                                        "y": 7,
+                                                        "xVariance": 0.25,
+                                                        "yVariance": 2
+                                                    }, {
+                                                        "x": 1.8,
+                                                        "y": 7,
+                                                        "xVariance": 0.25,
+                                                        "yVariance": 1
+                                                    }
+                                                ]
+                                            },
+                                            "graph_options": null,
+                                            "graph_type": "Whisker",
+                                            "category": "DEFAULT",
+                                            "machine_time": "2019-08-02T09:08:05.058648+00:00"
+                                        },
+                                        {
+                                            "type": "Graph",
+                                            "description": "Contour Graph",
+                                            "utc_time": "2019-08-02T09:08:05.062900+00:00",
+                                            "meta_type": "entry",
+                                            "series_options": null,
+                                            "discrete_chart": false,
+                                            "line_no": 132,
+                                            "graph_data": {
+                                                "Data Name": [{
+                                                        "x": 0,
+                                                        "y": 8
+                                                    }, {
+                                                        "x": 1,
+                                                        "y": 50
+                                                    }, {
+                                                        "x": 2,
+                                                        "y": 4
+                                                    }, {
+                                                        "x": -10,
+                                                        "y": 9
+                                                    }, {
+                                                        "x": 4,
+                                                        "y": 1
+                                                    }, {
+                                                        "x": 5,
+                                                        "y": 7
+                                                    }, {
+                                                        "x": 6,
+                                                        "y": -3
+                                                    }, {
+                                                        "x": 7,
+                                                        "y": 3
+                                                    }, {
+                                                        "x": 100,
+                                                        "y": 2
+                                                    }, {
+                                                        "x": 9,
+                                                        "y": 0
+                                                    }
+                                                ]
+                                            },
+                                            "graph_options": null,
+                                            "graph_type": "Contour",
+                                            "category": "DEFAULT",
+                                            "machine_time": "2019-08-02T09:08:05.062900+00:00"
+                                        },
+                                        {
+                                            "type": "Graph",
+                                            "description": "Pie Chart",
+                                            "utc_time": "2019-08-02T09:08:05.067854+00:00",
+                                            "meta_type": "entry",
+                                            "series_options": {
+                                                "Data Name": {
+                                                    "colour": "literal"
+                                                }
+                                            },
+                                            "discrete_chart": true,
+                                            "line_no": 150,
+                                            "graph_data": {
+                                                "Data Name": [{
+                                                        "angle": 1,
+                                                        "color": "#89DAC1",
+                                                        "name": "Car"
+                                                    }, {
+                                                        "angle": 2,
+                                                        "color": "#F6D18A",
+                                                        "name": "Bus"
+                                                    }, {
+                                                        "angle": 5,
+                                                        "color": "#1E96BE",
+                                                        "name": "Train"
+                                                    }, {
+                                                        "angle": 3,
+                                                        "color": "#DA70BF",
+                                                        "name": "Bicycle"
+                                                    }, {
+                                                        "angle": 5,
+                                                        "color": "#F6D18A",
+                                                        "name": "Walking"
+                                                    }
+                                                ]
+                                            },
+                                            "graph_options": null,
+                                            "graph_type": "Pie",
+                                            "category": "DEFAULT",
+                                            "machine_time": "2019-08-02T09:08:05.067854+00:00"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "TestCaseReport",
+                                    "logs": [],
+                                    "description": null,
+                                    "suite_related": false,
+                                    "status": "passed",
+                                    "uid": "1878cc5b-71d7-4b04-9f4c-b16f55f547ac",
+                                    "name": "test_multiseries_graph",
+                                    "status_override": null,
+                                    "timer": {
+                                        "run": {
+                                            "end": "2019-08-02T09:08:05.097121+00:00",
+                                            "start": "2019-08-02T09:08:05.084065+00:00"
+                                        }
+                                    },
+                                    "tags": {},
+                                    "entries": [
+                                    {
+                                            "type": "Graph",
+                                            "description": "Line Graph",
+                                            "utc_time": "2019-08-02T09:08:05.084065+00:00",
+                                            "meta_type": "entry",
+                                            "series_options": {
+                                                "graph 1": {
+                                                    "colour": "red"
+                                                },
+                                                "graph 2": {
+                                                    "colour": "blue"
+                                                }
+                                            },
+                                            "discrete_chart": false,
+                                            "line_no": 187,
+                                            "graph_data": {
+                                                "graph 1": [{
+                                                        "x": 0,
+                                                        "y": 8
+                                                    }, {
+                                                        "x": 1,
+                                                        "y": 5
+                                                    }, {
+                                                        "x": 2,
+                                                        "y": 4
+                                                    }, {
+                                                        "x": 3,
+                                                        "y": 9
+                                                    }, {
+                                                        "x": 4,
+                                                        "y": 1
+                                                    }, {
+                                                        "x": 5,
+                                                        "y": 7
+                                                    }, {
+                                                        "x": 6,
+                                                        "y": 6
+                                                    }, {
+                                                        "x": 7,
+                                                        "y": 3
+                                                    }, {
+                                                        "x": 8,
+                                                        "y": 2
+                                                    }, {
+                                                        "x": 9,
+                                                        "y": 0
+                                                    }
+                                                ],
+                                                "graph 2": [{
+                                                        "x": 1,
+                                                        "y": 3
+                                                    }, {
+                                                        "x": 2,
+                                                        "y": 5
+                                                    }, {
+                                                        "x": 3,
+                                                        "y": 15
+                                                    }, {
+                                                        "x": 4,
+                                                        "y": 12
+                                                    }
+                                                ]
+                                            },
+                                            "graph_options": {
+                                                "xAxisTitle": "Time",
+                                                "yAxisTitle": "Volume",
+                                                "legend": true
+                                            },
+                                            "graph_type": "Line",
+                                            "category": "DEFAULT",
+                                            "machine_time": "2019-08-02T09:08:05.084065+00:00"
+                                        },
+                                         {
+                                            "type": "Graph",
+                                            "description": "Bar Graph",
+                                            "utc_time": "2019-08-02T09:08:05.090938+00:00",
+                                            "meta_type": "entry",
+                                            "series_options": {
+                                                "Bar 1": {
+                                                    "colour": "green"
+                                                },
+                                                "Bar 2": {
+                                                    "colour": "purple"
+                                                }
+                                            },
+                                            "discrete_chart": false,
+                                            "line_no": 211,
+                                            "graph_data": {
+                                                "Bar 1": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ],
+                                                "Bar 2": [{
+                                                        "x": "A",
+                                                        "y": 3
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 6
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }, {
+                                                        "x": "D",
+                                                        "y": 12
+                                                    }
+                                                ]
+                                            },
+                                            "graph_options": {
+                                                "legend": true
+                                            },
+                                            "graph_type": "Bar",
+                                            "category": "DEFAULT",
+                                            "machine_time": "2019-08-02T09:08:05.090938+00:00"
+                                        },
+                                        {
+                                            "type": "Graph",
+                                            "description": "Bar Graph",
+                                            "utc_time": "2019-08-02T09:08:05.090938+00:00",
+                                            "meta_type": "entry",
+                                            "series_options": null,
+                                            "discrete_chart": false,
+                                            "line_no": 211,
+                                            "graph_data": {
+                                                "Bar 1": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ],
+                                                "Bar 2": [{
+                                                        "x": "A",
+                                                        "y": 3
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 6
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }, {
+                                                        "x": "D",
+                                                        "y": 12
+                                                    }
+                                                ],
+                                                "Bar 3": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ],
+                                                "Bar 4": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ],
+                                                "Bar 5": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ],
+                                                "Bar 6": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ],
+                                                "Bar 7": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ],
+                                                "Bar 8": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ],
+                                                "Bar 9": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ],
+                                                "Bar 10": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ],
+                                                "Bar 11": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ],
+                                                "Bar 12": [{
+                                                        "x": "A",
+                                                        "y": 10
+                                                    }, {
+                                                        "x": "B",
+                                                        "y": 5
+                                                    }, {
+                                                        "x": "C",
+                                                        "y": 15
+                                                    }
+                                                ]
+                                            },
+                                            "graph_options": {
+                                                "legend": true,
+                                                'xAxisTitle': 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm',
+                                                'yAxisTitle': 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm'
+                                            },
+                                            "graph_type": "Bar",
+                                            "category": "DEFAULT",
+                                            "machine_time": "2019-08-02T09:08:05.090938+00:00"
+                                        }
+                                    ]
+                                }
                 ],
                 "uid": "c01e19ca-dfdc-4c34-9b0f-a28b9acd896a",
                 "type": "TestGroupReport",

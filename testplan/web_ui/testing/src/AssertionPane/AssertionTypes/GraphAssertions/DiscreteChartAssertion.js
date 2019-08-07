@@ -3,49 +3,67 @@ import PropTypes from 'prop-types';
 import 'react-vis/dist/style.css';
 import * as GraphUtil from './graphUtils';
 import {
-  RadialChart
+  RadialChart,
+  Hint,
+  DiscreteColorLegend
 } from 'react-vis';
 
 /**
  * Component that are used to render a Chart (Data visualisations that don't require an XY axis).
+ * Class currently only will render radial charts correctly (not generalised for other charts).
  */
 
 class DiscreteChartAssertion extends Component  {
   components = {
     Pie: RadialChart
-    }
+   }
 
+  state = {
+    value: null
+  };
 
   render(){
     let data = this.props.assertion.graph_data;
-    const graph_type = this.props.assertion.graph_type
+    const graph_type = this.props.assertion.graph_type;
     const GraphComponent = this.components[graph_type];
     const series_options = this.props.assertion.series_options;
-
+    let series_colours = GraphUtil.returnColour(series_options, data);
     let plots = [];
-    let plot_options;
+    let legend = [];
 
     for (let key in data) {
-        if(series_options !== null){
-          plot_options = series_options[key];
-        }
-        let series_colour = GraphUtil.returnColour(plot_options)
         plots.push(
                      <GraphComponent
-                      colorType= {series_colour}
+                      colorType= {series_colours[key]}
                       data={data[key]}
                       width={400}
                       height={300}
-                      getLabel={d => d.name}
-                      labelsRadiusMultiplier={1.1}
-                      labelsStyle={{fontSize: 16}}
-                      showLabels
-                      />
+                      onValueMouseOver={v => this.setState(
+                                            {value: {'Label': v.name}}
+                                            )}
+                      onSeriesMouseOut={v => this.setState({value: null})}
+                      >
+                      {this.state.value !== null
+                       && <Hint value={this.state.value}/>}
+                     </GraphComponent>
          );
-    }
+
+        legend = data[key].map( slice=>{
+                                return {title: slice.name, color: slice.color}
+                                })
+       }
+
+
       return (
            <div>
               {plots}
+              <DiscreteColorLegend
+                orientation='horizontal'
+                width={750}
+                items={legend}
+              />
+              <br/>
+              <p>{"(Hover over chart to see labels)"}</p>
            </div>
      )
   }

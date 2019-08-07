@@ -15,7 +15,8 @@ import {
   HexbinSeries,
   ContourSeries,
   WhiskerSeries,
-  MarkSeries
+  MarkSeries,
+  ChartLabel
 } from 'react-vis';
 
 
@@ -32,15 +33,8 @@ class XYGraphAssertion extends Component {
 
       let data = this.props.assertion.graph_data;
       const series_options = this.props.assertion.series_options;
-
-      let plot_options;
-      for (let key in data) {
-           if(series_options !== null){
-               plot_options = series_options[key];
-            }
-          let plot_colour = GraphUtil.returnColour(plot_options);
-          this.state.series_colour[key] = plot_colour;
-      }
+      let plot_colours = GraphUtil.returnColour(series_options, data);
+      this.state.series_colour = plot_colours;
     }
 
 
@@ -104,8 +98,32 @@ class XYGraphAssertion extends Component {
       >
         <HorizontalGridLines />
 
-        <YAxis title = {GraphUtil.returnXAxisTitle(graph_options)}/>
-        <XAxis title = {GraphUtil.returnYAxisTitle(graph_options)}/>
+        <XAxis />
+        <ChartLabel
+        text={GraphUtil.returnXAxisTitle(graph_options)}
+        className="x-axis-label"
+        includeMargin={false}
+        xPercent={0.5}
+        yPercent={1.107}
+        style={{
+              transform: 'rotate(0)',
+              textAnchor: 'middle'
+            }}
+        />
+
+        <YAxis />
+        <ChartLabel
+        text={GraphUtil.returnYAxisTitle(graph_options)}
+        className="y-axis-label"
+        includeMargin={false}
+        xPercent={-0.0455}
+        yPercent={0.5}
+        style={{
+              transform: 'rotate(270)',
+              textAnchor: 'middle'
+            }}
+        />
+
 
         {plots}
 

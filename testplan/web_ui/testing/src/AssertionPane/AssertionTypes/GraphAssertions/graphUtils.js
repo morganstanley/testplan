@@ -27,24 +27,50 @@ export function returnXType(graph_type){
     }
 }
 
+
+
+
+const COLOUR_PALETTE=['#1c5c9c', '#68caea', '#7448c5', '#633836',
+                    '#485051', '#336a85', '#94b1c5', '#ababab']
 /**
  * Return a colour for the graph component depending on whether the user has
- * specified an option, otherwise return random colour (tinted with blue)
+ * specified an option, otherwise return from a colour scheme,
+ * then random colours (tinted with blue)
  */
-export function returnColour(options){
-    if(options == null){
-        let colour = '';
-        for (let i = 0; i < 4; i++) {
-         colour += (Math.round(Math.random() * 15)).toString(16);
+export function returnColour(series_options, data){
+    let series_colours = {};
+    let colour_options = COLOUR_PALETTE.slice(0);
+
+    for(let series_key in data){
+        //Assign colour from user specified options if possible
+        if(series_options != null){
+            if(series_options[series_key]!= null){
+                if(series_options[series_key].colour!= null){
+                    series_colours[series_key] = series_options[series_key].colour;
+                    continue;
+                }
+            }
         }
-        for (let i = 0; i < 2; i++) {
-         colour += (10+ Math.round(Math.random() * 5)).toString(16);;
+
+        //Otherwise choose next colour avaiable from colour palette
+        if(colour_options.length !== 0){
+             let colour = colour_options[0];
+             series_colours[series_key] = colour;
+             colour_options.shift();
         }
-        return '#' + (colour)
+        //Otherwise if no more available colours, choose random colour
+        else{
+            let colour = '';
+            for (let i = 0; i < 4; i++) {
+             colour += (Math.round(Math.random() * 15)).toString(16);
+            }
+            for (let i = 0; i < 2; i++) {
+             colour += (10+ Math.round(Math.random() * 5)).toString(16);;
+            }
+            series_colours[series_key] = colour;
+        }
     }
-    if(options.colour !== null){
-        return options.colour;
-    }
+    return series_colours;
 }
 
 /**
