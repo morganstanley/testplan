@@ -213,6 +213,7 @@ def _generate_func(
         _generated.__tags__, tag_dict)
 
     _generated._parametrization_template = function.__name__
+    _generated._parametrization_kwargs = kwargs
 
     return _generated
 
