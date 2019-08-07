@@ -68,17 +68,41 @@ ShallowWrapper {
                     attr="y"
                     direction="horizontal"
           />
-          <YAxis
-                    attr="y"
-                    attrAxis="x"
-                    orientation="left"
-                    title={undefined}
-          />
           <XAxis
                     attr="x"
                     attrAxis="y"
                     orientation="bottom"
-                    title={undefined}
+          />
+          <ChartLabel
+                    className="x-axis-label"
+                    includeMargin={false}
+                    style={
+                              Object {
+                                        "textAnchor": "middle",
+                                        "transform": "rotate(0)",
+                                      }
+                    }
+                    text=""
+                    xPercent={0.5}
+                    yPercent={1.107}
+          />
+          <YAxis
+                    attr="y"
+                    attrAxis="x"
+                    orientation="left"
+          />
+          <ChartLabel
+                    className="y-axis-label"
+                    includeMargin={false}
+                    style={
+                              Object {
+                                        "textAnchor": "middle",
+                                        "transform": "rotate(270)",
+                                      }
+                    }
+                    text=""
+                    xPercent={-0.0455}
+                    yPercent={0.5}
           />
           <VerticalBarSeries
                     className=""
@@ -150,17 +174,41 @@ ShallowWrapper {
               attr="y"
               direction="horizontal"
 />,
-            <YAxis
-              attr="y"
-              attrAxis="x"
-              orientation="left"
-              title={undefined}
-/>,
             <XAxis
               attr="x"
               attrAxis="y"
               orientation="bottom"
-              title={undefined}
+/>,
+            <ChartLabel
+              className="x-axis-label"
+              includeMargin={false}
+              style={
+                            Object {
+                                          "textAnchor": "middle",
+                                          "transform": "rotate(0)",
+                                        }
+              }
+              text=""
+              xPercent={0.5}
+              yPercent={1.107}
+/>,
+            <YAxis
+              attr="y"
+              attrAxis="x"
+              orientation="left"
+/>,
+            <ChartLabel
+              className="y-axis-label"
+              includeMargin={false}
+              style={
+                            Object {
+                                          "textAnchor": "middle",
+                                          "transform": "rotate(270)",
+                                        }
+              }
+              text=""
+              xPercent={-0.0455}
+              yPercent={0.5}
 />,
             Array [
               <VerticalBarSeries
@@ -222,10 +270,28 @@ ShallowWrapper {
             "key": undefined,
             "nodeType": "function",
             "props": Object {
-              "attr": "y",
-              "attrAxis": "x",
-              "orientation": "left",
-              "title": undefined,
+              "attr": "x",
+              "attrAxis": "y",
+              "orientation": "bottom",
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "class",
+            "props": Object {
+              "className": "x-axis-label",
+              "includeMargin": false,
+              "style": Object {
+                "textAnchor": "middle",
+                "transform": "rotate(0)",
+              },
+              "text": "",
+              "xPercent": 0.5,
+              "yPercent": 1.107,
             },
             "ref": null,
             "rendered": null,
@@ -236,10 +302,28 @@ ShallowWrapper {
             "key": undefined,
             "nodeType": "function",
             "props": Object {
-              "attr": "x",
-              "attrAxis": "y",
-              "orientation": "bottom",
-              "title": undefined,
+              "attr": "y",
+              "attrAxis": "x",
+              "orientation": "left",
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "class",
+            "props": Object {
+              "className": "y-axis-label",
+              "includeMargin": false,
+              "style": Object {
+                "textAnchor": "middle",
+                "transform": "rotate(270)",
+              },
+              "text": "",
+              "xPercent": -0.0455,
+              "yPercent": 0.5,
             },
             "ref": null,
             "rendered": null,
@@ -342,17 +426,41 @@ ShallowWrapper {
                         attr="y"
                         direction="horizontal"
             />
-            <YAxis
-                        attr="y"
-                        attrAxis="x"
-                        orientation="left"
-                        title={undefined}
-            />
             <XAxis
                         attr="x"
                         attrAxis="y"
                         orientation="bottom"
-                        title={undefined}
+            />
+            <ChartLabel
+                        className="x-axis-label"
+                        includeMargin={false}
+                        style={
+                                    Object {
+                                                "textAnchor": "middle",
+                                                "transform": "rotate(0)",
+                                              }
+                        }
+                        text=""
+                        xPercent={0.5}
+                        yPercent={1.107}
+            />
+            <YAxis
+                        attr="y"
+                        attrAxis="x"
+                        orientation="left"
+            />
+            <ChartLabel
+                        className="y-axis-label"
+                        includeMargin={false}
+                        style={
+                                    Object {
+                                                "textAnchor": "middle",
+                                                "transform": "rotate(270)",
+                                              }
+                        }
+                        text=""
+                        xPercent={-0.0455}
+                        yPercent={0.5}
             />
             <VerticalBarSeries
                         className=""
@@ -424,17 +532,41 @@ ShallowWrapper {
                 attr="y"
                 direction="horizontal"
 />,
-              <YAxis
-                attr="y"
-                attrAxis="x"
-                orientation="left"
-                title={undefined}
-/>,
               <XAxis
                 attr="x"
                 attrAxis="y"
                 orientation="bottom"
-                title={undefined}
+/>,
+              <ChartLabel
+                className="x-axis-label"
+                includeMargin={false}
+                style={
+                                Object {
+                                                "textAnchor": "middle",
+                                                "transform": "rotate(0)",
+                                              }
+                }
+                text=""
+                xPercent={0.5}
+                yPercent={1.107}
+/>,
+              <YAxis
+                attr="y"
+                attrAxis="x"
+                orientation="left"
+/>,
+              <ChartLabel
+                className="y-axis-label"
+                includeMargin={false}
+                style={
+                                Object {
+                                                "textAnchor": "middle",
+                                                "transform": "rotate(270)",
+                                              }
+                }
+                text=""
+                xPercent={-0.0455}
+                yPercent={0.5}
 />,
               Array [
                 <VerticalBarSeries
@@ -496,10 +628,28 @@ ShallowWrapper {
               "key": undefined,
               "nodeType": "function",
               "props": Object {
-                "attr": "y",
-                "attrAxis": "x",
-                "orientation": "left",
-                "title": undefined,
+                "attr": "x",
+                "attrAxis": "y",
+                "orientation": "bottom",
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "class",
+              "props": Object {
+                "className": "x-axis-label",
+                "includeMargin": false,
+                "style": Object {
+                  "textAnchor": "middle",
+                  "transform": "rotate(0)",
+                },
+                "text": "",
+                "xPercent": 0.5,
+                "yPercent": 1.107,
               },
               "ref": null,
               "rendered": null,
@@ -510,10 +660,28 @@ ShallowWrapper {
               "key": undefined,
               "nodeType": "function",
               "props": Object {
-                "attr": "x",
-                "attrAxis": "y",
-                "orientation": "bottom",
-                "title": undefined,
+                "attr": "y",
+                "attrAxis": "x",
+                "orientation": "left",
+              },
+              "ref": null,
+              "rendered": null,
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "class",
+              "props": Object {
+                "className": "y-axis-label",
+                "includeMargin": false,
+                "style": Object {
+                  "textAnchor": "middle",
+                  "transform": "rotate(270)",
+                },
+                "text": "",
+                "xPercent": -0.0455,
+                "yPercent": 0.5,
               },
               "ref": null,
               "rendered": null,
