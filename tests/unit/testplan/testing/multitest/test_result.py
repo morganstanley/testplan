@@ -2,14 +2,16 @@
 
 import collections
 import mock
+import os
+
 import pytest
 
 from testplan.testing.multitest import result as result_mod
-from testplan.testing.multitest.result import Result
 from testplan.testing.multitest.suite import testcase, testsuite
 from testplan.testing.multitest import MultiTest
-from testplan.common.utils import comparison, testing
-from testplan.testing.multitest.entries.base import Graph
+from testplan.common.utils import comparison
+from testplan.common.utils import testing
+from testplan.common.utils import path as path_utils
 
 @testsuite
 class AssertionOrder(object):
@@ -304,8 +306,12 @@ class TestFIXNamespace(object):
         dict_assert = fix_ns.result.entries.popleft()
         assert len(dict_assert.comparison) == 1
 
+
+class TestResultBaseNamespace(object):
+    """Test assertions and other methods in the base result.* namespace."""
+
     def test_graph_assertion(self):
-        """Unit testcases for the result.graph class."""
+        """Unit testcase for the result.graph method."""
         result = result_mod.Result()
         graph_assertion = result.graph(
                                         'Line',
@@ -335,3 +341,27 @@ class TestFIXNamespace(object):
         assert type(result.entries[0].graph_data) is dict
         assert type(result.entries[0].series_options) is dict
         assert result.entries[0].graph_options is None
+
+    def test_attach(self, tmpdir):
+        """UT for result.attach method."""
+        tmpfile = str(tmpdir.join("attach_me.txt"))
+        with open(tmpfile, 'w') as f:
+            f.write("testplan\n" * 1000)
+
+        result = result_mod.Result()
+        assert result.attach(tmpfile, description="Attach a text file")
+
+        assert len(result.entries) == 1
+        attachment_entry = result.entries[0]
+
+        assert attachment_entry.source_path == tmpfile
+        assert attachment_entry.hash == path_utils.hash_file(tmpfile)
+        assert attachment_entry.orig_filename == "attach_me.txt"
+        assert attachment_entry.filesize == os.path.getsize(tmpfile)
+
+        # The expected destination path depends on the exact hash and filesize
+        # of the file we wrote.
+        expected_dst_path = "attach_me-{hash}-{filesize}.txt".format(
+            hash=attachment_entry.hash,
+            filesize=attachment_entry.filesize)
+        assert attachment_entry.dst_path == expected_dst_path

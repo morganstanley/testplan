@@ -22,6 +22,7 @@ MONITOR_REPORT = 'monitor_report.json'
 app = Flask(__name__)
 _api = Api(app)
 
+
 def parse_cli_args():
     """Web App command line arguments."""
     parser = argparse.ArgumentParser()
@@ -29,6 +30,7 @@ def parse_cli_args():
     parser.add_argument('--data-path', nargs='?', default=None, const=pwd())
     parser.add_argument('--report-name', nargs='?', default=None, const=pwd())
     return parser.parse_args()
+
 
 @_api.route('/testplan/<string:report_uid>')
 class Testplan(Resource):
@@ -47,7 +49,8 @@ class Testplan(Resource):
         else:
             raise exceptions.NotFound()
 
-@_api.route('/testplan/<string:report_uid>/report')
+
+@_api.route('/api/v1/reports/<string:report_uid>')
 class TestplanReport(Resource):
     def get(self, report_uid):
         """Get a Testplan report (JSON) given it's uid."""
@@ -64,7 +67,9 @@ class TestplanReport(Resource):
         else:
             raise exceptions.NotFound()
 
-@_api.route('/testplan/<string:report_uid>/assertions/<string:assertions_uid>')
+
+@_api.route(
+    '/api/v1/reports/<string:report_uid>/assertions/<string:assertions_uid>')
 class TestplanAssertions(Resource):
     def get(self, report_uid, assertions_uid):
         """
@@ -73,7 +78,9 @@ class TestplanAssertions(Resource):
         """
         raise exceptions.NotImplemented()  # pylint: disable=notimplemented-raised
 
-@_api.route('/testplan/<string:report_uid>/attachment/<path:attachment_path>')
+
+@_api.route(
+    '/api/v1/reports/<string:report_uid>/attachments/<path:attachment_path>')
 class TestplanAttachment(Resource):
     def get(self, report_uid, attachment_path):
         """Get an attachment for a specific Testplan report given their uids."""
@@ -88,6 +95,7 @@ class TestplanAttachment(Resource):
             )
         else:
             raise exceptions.NotFound()
+
 
 @_api.route('/testplan/static/<path:path>')
 class TestplanStatic(Resource):

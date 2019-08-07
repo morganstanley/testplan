@@ -57,7 +57,7 @@ class BatchReport extends Component {
       setTimeout(() => {this.setState({report: r, loading: false});}, 1500);
     } else if (paths.length >= 3) {
       const uid = paths[2];
-      axios.get(`/testplan/${uid}/report`)
+      axios.get(`/api/v1/reports/${uid}`)
         .then(response => propagateIndices([response.data]))
         .then(report => this.setState({
           report: report,
