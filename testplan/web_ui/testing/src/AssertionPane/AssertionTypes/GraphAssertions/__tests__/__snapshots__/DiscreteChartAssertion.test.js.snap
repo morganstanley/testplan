@@ -130,7 +130,7 @@ ShallowWrapper {
     "rendered": Array [
       Object {
         "instance": null,
-        "key": undefined,
+        "key": "Data Name",
         "nodeType": "function",
         "props": Object {
           "className": "",
@@ -262,7 +262,7 @@ ShallowWrapper {
       "rendered": Array [
         Object {
           "instance": null,
-          "key": undefined,
+          "key": "Data Name",
           "nodeType": "function",
           "props": Object {
             "className": "",
