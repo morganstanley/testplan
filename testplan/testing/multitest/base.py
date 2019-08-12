@@ -606,6 +606,7 @@ class MultiTest(Test):
 
         # native assertion objects -> dict form
         testcase_report.extend(case_result.serialized_entries)
+        testcase_report.attachments.extend(case_result.attachments)
         if self.get_stdout_style(testcase_report.passed).display_case:
             self.log_testcase_status(testcase_report)
 

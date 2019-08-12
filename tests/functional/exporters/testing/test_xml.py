@@ -1,40 +1,39 @@
 import os
 import re
 
-from testplan.testing.multitest import MultiTest, testsuite, testcase
+from testplan.testing import multitest
 
 from testplan import Testplan
 from testplan.common.utils.testing import (
-    log_propagation_disabled, argv_overridden, XMLComparison as XC
+    argv_overridden, XMLComparison as XC
 )
 from testplan.exporters.testing import XMLExporter
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report.testing import TestReport, TestCaseReport, TestGroupReport
 
 FLOAT_PATTERN = r'{d}+\.?d{d}+'
 
 
-@testsuite
+@multitest.testsuite
 class Alpha(object):
 
-    @testcase
+    @multitest.testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, 'equality description')
 
-    @testcase
+    @multitest.testcase
     def test_membership(self, env, result):
         result.contain(1, [1, 2, 3])
 
 
-@testsuite
+@multitest.testsuite
 class Beta(object):
 
-    @testcase
+    @multitest.testcase
     def test_failure(self, env, result):
         result.equal(1, 2, 'failing assertion')
         result.equal(5, 10)
 
-    @testcase
+    @multitest.testcase
     def test_error(self, env, result):
         raise Exception('foo')
 
@@ -46,16 +45,15 @@ def test_xml_exporter(tmpdir):
     """
     xml_dir = tmpdir.mkdir('xml')
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        plan = Testplan(
-            name='plan', parse_cmdline=False,
-            exporters=XMLExporter(xml_dir=xml_dir.strpath)
-        )
-        multitest_1 = MultiTest(name='Primary', suites=[Alpha()])
-        multitest_2 = MultiTest(name='Secondary', suites=[Beta()])
-        plan.add(multitest_1)
-        plan.add(multitest_2)
-        plan.run()
+    plan = Testplan(
+        name='plan', parse_cmdline=False,
+        exporters=XMLExporter(xml_dir=xml_dir.strpath)
+    )
+    multitest_1 = multitest.MultiTest(name='Primary', suites=[Alpha()])
+    multitest_2 = multitest.MultiTest(name='Secondary', suites=[Beta()])
+    plan.add(multitest_1)
+    plan.add(multitest_2)
+    plan.run()
 
     xml_primary = xml_dir.join('primary.xml').strpath
     xml_secondary = xml_dir.join('secondary.xml').strpath
@@ -172,8 +170,7 @@ def test_xml_exporter_cleanup(tmpdir):
 
     open(xml_dir.join('foo.txt').strpath, 'a').close()
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        XMLExporter(xml_dir=xml_dir.strpath).export(sample_report)
+    XMLExporter(xml_dir=xml_dir.strpath).export(sample_report)
 
     assert os.listdir(xml_dir.strpath) == ['my-multitest.xml']
 
@@ -185,12 +182,11 @@ def test_implicit_exporter_initialization(tmpdir):
     """
     xml_dir = tmpdir.mkdir('xml')
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        with argv_overridden('--xml', xml_dir.strpath):
-            plan = Testplan(name='plan')
-            multitest_1 = MultiTest(name='Primary', suites=[Alpha()])
-            plan.add(multitest_1)
-            plan.run()
+    with argv_overridden('--xml', xml_dir.strpath):
+        plan = Testplan(name='plan')
+        multitest_1 = multitest.MultiTest(name='Primary', suites=[Alpha()])
+        plan.add(multitest_1)
+        plan.run()
 
     xml_path = xml_dir.join('primary.xml').strpath
 

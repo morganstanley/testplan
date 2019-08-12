@@ -41,6 +41,8 @@ def get_default_exporters(config):
         result.append(test_exporters.JSONExporter())
     if config.xml_dir:
         result.append(test_exporters.XMLExporter())
+    if config.http_url is not None:
+        result.append(test_exporters.HTTPExporter(url=config.http_url))
     if config.ui_port is not None:
         result.append(test_exporters.WebServerExporter(ui_port=config.ui_port))
     return result
@@ -117,6 +119,7 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption('xml_dir', default=None,): Or(str, None),
             ConfigOption('pdf_path', default=None,): Or(str, None),
             ConfigOption('json_path', default=None,): Or(str, None),
+            ConfigOption('http_url', default=None): Or(str, None),
             ConfigOption('pdf_style', default=defaults.PDF_STYLE,): Style,
             ConfigOption('report_tags', default=[]
                          ): [Use(tagging.validate_tag_value)],
@@ -220,6 +223,8 @@ class TestRunner(Runnable):
     :type json_path: ``str``
     :param pdf_style: PDF creation styling options.
     :type pdf_style: :py:class:`Style <testplan.report.testing.styles.Style>`
+    :param http_url: Web url for posting test report.
+    :type http_url: ``str``
     :param report_tags: Matches tests marked with any of the given tags.
     :type report_tags: ``list``
     :param report_tags_all: Match tests marked with all of the given tags.

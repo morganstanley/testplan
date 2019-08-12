@@ -1,6 +1,6 @@
 """
-    JSON exporter for Test reports, relies on `testplan.report.testing.schemas`
-    for `dict` serialization and JSON conversion.
+    Web server exporter for test reports, it opens a local http web server
+    which can display the test result.
 """
 from __future__ import absolute_import
 
@@ -34,6 +34,7 @@ class WebServerExporterConfig(ExporterConfig):
                 'web_server_startup_timeout',
                 default=defaults.WEB_SERVER_TIMEOUT): int,
         }
+
 
 class WebServerExporter(Exporter):
     """

@@ -2,6 +2,7 @@
 These examples show usage of graphs
 """
 import sys
+import os
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
@@ -152,7 +153,7 @@ class SampleSuite(object):
 
     # Some examples of multi series graphs:
     @testcase
-    def multisereis_graph_tests(self, env, result):
+    def multiseries_graph_tests(self, env, result):
 
         # This line graph has two data series 'graph 1' and 'graph 2' and will be plot on the same axis
         # NOTE: with multi series graphs you will often want the legend to be set to true
@@ -211,15 +212,19 @@ class SampleSuite(object):
                      )
 
 
+# PDF style must be 'assertion-detail' to view
+# non-assertion related detail like graphs or logs
 @test_plan(
     name='Assertions Example',
     stdout_style=Style(
         passing=StyleEnum.ASSERTION_DETAIL,
         failing=StyleEnum.ASSERTION_DETAIL
-    )
+    ),
+    pdf_path=os.path.join(os.path.dirname(__file__), 'report.pdf'),
+    pdf_style=Style(passing='assertion-detail', failing='assertion-detail')
 )
 def main(plan):
-    plan.add(MultiTest(name='Assertions Test', suites=[SampleSuite()]))
+    plan.add(MultiTest(name='Graph Assertions Test', suites=[SampleSuite()]))
 
 
 if __name__ == '__main__':
