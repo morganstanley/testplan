@@ -1,5 +1,14 @@
 """Interactive mode tests."""
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
 
+from builtins import open
+from builtins import range
+from builtins import next
+from future import standard_library
+standard_library.install_aliases()
 import os
 import re
 
@@ -535,7 +544,6 @@ def test_http_dynamic_environments():
                     'server': 'STOPPED'})
 
 
-@pytest.mark.skipif(six.PY3, reason='Reload test is unstable on python 3')
 def test_reload():
     """Tests reload functionality."""
     import sys
@@ -552,11 +560,6 @@ def test_reload():
     with open(path_file, 'w') as fobj:
         fobj.write(testplan_path)
 
-    output = subprocess.check_output(
+    subprocess.check_call(
         [sys.executable, 'interactive_executable.py'],
         cwd=os.path.dirname(os.path.abspath(__file__)))
-
-    # Enable for test debug:
-    # for line in output.decode().split(os.linesep):
-    #     print(line)
-

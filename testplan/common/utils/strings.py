@@ -197,3 +197,20 @@ def split_text(text, font_name, font_size, max_width,
         result.extend(line_list)
 
     return os.linesep.join(result)
+
+
+def indent(lines_str, indent_size=2):
+    """
+    Indent a multi-line string with a common indent.
+
+    :param lines_str: Multi-line string.
+    :type lines_str: ``str``
+    :param indent_size: Number of spaces to indent by - defaults to 2.
+    :type indent_size: ``int``
+    :return: New string with extra indent.
+    :rtype: ``str``
+    """
+    indent = " " * indent_size
+    return "\n".join("{indent}{line}".format(indent=indent, line=line)
+                     for line in lines_str.splitlines())
+

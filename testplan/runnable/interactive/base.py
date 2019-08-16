@@ -13,6 +13,7 @@ from testplan.report.testing import TestReport
 from testplan.runnable.interactive.http import TestRunnerHTTPHandler
 from testplan.runners.base import Executor
 from testplan.runnable.interactive.reloader import ModuleReloader
+from testplan.runnable.interactive.resource_loader import ResourceLoader
 
 
 class TestRunnerIHandlerConfig(RunnableIHandlerConfig):
@@ -82,10 +83,7 @@ class TestRunnerIHandler(RunnableIHandler):
     def __init__(self, **options):
         super(TestRunnerIHandler, self).__init__(**options)
         self._created_environments = {}
-        self._reloader = ModuleReloader(logger=self.logger,
-                                        extra_deps=self.cfg.extra_deps)
-
-        from testplan.runnable.interactive.resource_loader import ResourceLoader
+        self._reloader = ModuleReloader(extra_deps=self.cfg.extra_deps)
         self._resource_loader = ResourceLoader()
 
     def _execute_operations(self, generator):
