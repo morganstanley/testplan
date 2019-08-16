@@ -1,5 +1,4 @@
 """Unit tests for the reloader module."""
-from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
@@ -10,6 +9,7 @@ import mock
 import modulefinder
 import os
 import time
+import sys
 
 import pytest
 
@@ -63,8 +63,10 @@ class MockModule(object):
 
 # Mock for sys.modules, which are searched to find the modules that need
 # reloading.
-MOCK_SYSMODULES = {name: MockModule(name, filepath, MODULE_ATTRS.get(name, []))
-                   for name, filepath in MOCK_MODULES.items()}
+MOCK_SYSMODULES = sys.modules.copy()
+MOCK_SYSMODULES.update({
+    name: MockModule(name, filepath, MODULE_ATTRS.get(name, []))
+    for name, filepath in MOCK_MODULES.items()})
 
 MOCK_MODULEFINDER_MODS = {
     name: modulefinder.Module(name, file=filepath)
