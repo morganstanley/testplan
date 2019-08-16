@@ -480,9 +480,9 @@ class TestRunnerIHandler(RunnableIHandler):
         """Add an environment from the created environment maker instance."""
         self.target.add_environment(self._created_environments[env_uid])
 
-    def reload(self, rebuild_dependencies=True):
+    def reload(self, rebuild_dependencies=False):
         """Reload test suites."""
         tests = (self.test(test, runner_uid=runner_uid)
                  for test, runner_uid in self.all_tests())
-        self._reloader.reload(tests, rebuild_dependencies=rebuild_dependencies)
+        self._reloader.reload(tests, rebuild_dependencies)
 

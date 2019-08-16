@@ -24,14 +24,20 @@ class Suite(object):
 
     @multitest.testsuite
     def case_1(self, env, result):
+        """Assert true"""
+        del env  # Unused
         result.true(True)
 
     @multitest.testsuite
     def case_2(self, env, result):
+        """Assert false"""
+        del env  # Unused
         result.false(False)
 
     @multitest.testsuite
     def case_3(self, env, result):
+        """Oops we failed"""
+        del env  # Unused
         result.fail("oops")
 
 
@@ -45,6 +51,8 @@ MOCK_MODULES = {
     "mod_d": "/path/to/mod_d.py",
 }
 
+# Mapping of module name to a list of attributes to set on that module. For
+# simplicity we just assign a single test suite to mod_a.
 MODULE_ATTRS = {"mod_a": [Suite]}
 
 
@@ -62,12 +70,17 @@ class MockModule(object):
 
 
 # Mock for sys.modules, which are searched to find the modules that need
-# reloading.
+# reloading. PyTest will inspect sys.modules to do its magic so we extend
+# a copy of the real sys.modules rather than just creating a totally bogus
+# new one.
 MOCK_SYSMODULES = sys.modules.copy()
 MOCK_SYSMODULES.update({
     name: MockModule(name, filepath, MODULE_ATTRS.get(name, []))
     for name, filepath in MOCK_MODULES.items()})
 
+# Mapping of module name to a modulefinder.Module object, which is used by
+# the modulefinder module to store metadata about a module - e.g. its name,
+# filepath and the names of its attributes.
 MOCK_MODULEFINDER_MODS = {
     name: modulefinder.Module(name, file=filepath)
     for name, filepath in MOCK_MODULES.items()}
@@ -98,7 +111,7 @@ class MockModuleFinder(object):
     """
 
     def __init__(self, path):
-        del path  # unused
+        del path  # Unused
         self.modules = {}
         self._curr_module = None
 

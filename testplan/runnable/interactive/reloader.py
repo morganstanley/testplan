@@ -164,7 +164,7 @@ class ModuleReloader(logger.Loggable):
 
     def _suites_by_class(self, tests):
         """
-        Creates a {class --> [suite_instance, ...]} mapping.
+        Creates a {module_name: {class_name: [suite_instance, ...]}} mapping.
 
         :param tests: iterator of Tests.
         :type tests: ``Iterable[Test]``
@@ -186,7 +186,7 @@ class ModuleReloader(logger.Loggable):
         """
         Reload all files that have been modified. If a module has been reloaded,
         all modules that depend on it should also be reloaded. We ensure this
-        by walking the graph of dependencies.
+        by walking the graph of dependencies in depth-first order.
 
         :param modified_modules: Set of modules that have been modified and
             require a reload.
