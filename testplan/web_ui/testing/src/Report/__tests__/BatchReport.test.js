@@ -19,6 +19,7 @@ describe('BatchReport', () => {
   };
 
   it('renders error message when cannot find Testplan UID', () => {
+    window.location.pathname = '';
     const batchReport = renderBatchReport();
     batchReport.update();
     const message = batchReport.find(Message);

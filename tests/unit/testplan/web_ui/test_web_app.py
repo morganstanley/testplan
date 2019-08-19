@@ -13,20 +13,11 @@ STATIC_REPORTS = {
         'uid': str(uuid.uuid4()),
         'contents': str(uuid.uuid4()),
     },
-    'monitor': {
-        'uid': str(uuid.uuid4()),
-        'contents': str(uuid.uuid4()),
-    },
 }
 
 DATA_REPORTS = {
     'testplan': {
         'report_name': 'report.json',
-        'uid': str(uuid.uuid4()),
-        'contents': str(uuid.uuid4()),
-    },
-    'monitor': {
-        'report_name': 'monitor_report.json',
         'uid': str(uuid.uuid4()),
         'contents': str(uuid.uuid4()),
     },
@@ -56,8 +47,6 @@ def _create_tmp_static_files(base_dir):
     Create fake static files to be sent by the Testplan web app.
         <STATIC_PATH>/testplan/build/index.html
         <STATIC_PATH>/testplan/build/static.file
-        <STATIC_PATH>/monitor/build/index.html
-        <STATIC_PATH>/monitor/build/static.file
 
     :param base_dir: The Testplan web app's STATIC_PATH directory.
     :type base_dir: ``str``
@@ -65,7 +54,8 @@ def _create_tmp_static_files(base_dir):
     for report_type, report in list(STATIC_REPORTS.items()):
         index_file = os.path.join(base_dir, report_type, 'build', 'index.html')
         _create_tmp_file(tmp_file=index_file, contents=report['contents'])
-        static_file = os.path.join(base_dir, report_type, 'build', 'static.file')
+        static_file = os.path.join(
+            base_dir, report_type, 'build', 'static', 'static.file')
         _create_tmp_file(tmp_file=static_file, contents=report['contents'])
 
 
@@ -97,6 +87,12 @@ class TestStaticEndpoints(object):
         tp_web_app.config['STATIC_PATH'] = self.static_dir
         tp_web_app.config['TESTPLAN_REPORT_NAME'] = 'report.json'
         tp_web_app.config['TESTING'] = True
+        tp_web_app.static_folder = os.path.abspath(
+            os.path.join(
+                tp_web_app.config['STATIC_PATH'], 'testing', 'build', 'static'
+            )
+        )
+        self.app = tp_web_app
         self.client = tp_web_app.test_client()
 
     def teardown_method(self, _):
@@ -122,7 +118,7 @@ class TestStaticEndpoints(object):
         Does /testplan/static/static.file respond with the static.file file.
         """
         # Use correct UID, expect 200 response
-        response = self.client.get('/testplan/static/static.file')
+        response = self.client.get('/static/static.file')
         expected_contents = str(STATIC_REPORTS['testing']['contents'])
         assert response.status_code == 200
         assert expected_contents in str(response.data)
@@ -130,37 +126,6 @@ class TestStaticEndpoints(object):
         # This endpoint should return the index.html page no matter what UID is
         # sent
         response = self.client.get('/testplan/static/123')
-        assert response.status_code == 404
-        assert expected_contents not in str(response.data)
-
-    def test_monitor_index(self):
-        """Does /monitor/<uid> return the correct index.html page."""
-        # Use correct UID, expect 200 response.
-        response = self.client.get('/monitor/{}'.format(
-            STATIC_REPORTS['monitor']['uid']))
-        expected_contents = str(STATIC_REPORTS['monitor']['contents'])
-        assert response.status_code == 200
-        assert expected_contents in str(response.data)
-
-        # Use incorrect UID, still expect 200 response.
-        response = self.client.get('/monitor/123')
-        assert response.status_code == 200
-        assert expected_contents in str(response.data)
-
-    def test_monitor_static(self):
-        """
-        Does /testplan/static/static.file respond with the static.file file.
-        """
-        # Use correct UID, expect 200 response
-        response = self.client.get('/monitor/static/static.file'.format(
-            STATIC_REPORTS['monitor']['uid']))
-        expected_contents = str(STATIC_REPORTS['monitor']['contents'])
-        assert response.status_code == 200
-        assert expected_contents in str(response.data)
-
-        # This endpoint should return the index.html page no matter what UID is
-        # sent
-        response = self.client.get('/monitor/static/123')
         assert response.status_code == 404
         assert expected_contents not in str(response.data)
 
@@ -215,17 +180,3 @@ class TestDataEndpoints(object):
         assert response.status_code == 200
         assert expected_contents in str(response.data)
 
-
-    def test_monitor_report(self):
-        """Does /monitor/<uid>/report return the correct report.json file."""
-        # Use correct UID, expect 200 response.
-        path = '/monitor/{}/report'.format(DATA_REPORTS['monitor']['uid'])
-        response = self.client.get(path)
-        expected_contents = str(DATA_REPORTS['monitor']['contents'])
-        assert response.status_code == 200
-        assert expected_contents in str(response.data)
-
-        # Use incorrect UID, still expect 200 response.
-        response = self.client.get('/monitor/123/report')
-        assert response.status_code == 200
-        assert expected_contents in str(response.data)

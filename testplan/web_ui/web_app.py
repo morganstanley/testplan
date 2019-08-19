@@ -97,70 +97,6 @@ class TestplanAttachment(Resource):
             raise exceptions.NotFound()
 
 
-@_api.route('/testplan/static/<path:path>')
-class TestplanStatic(Resource):
-    def get(self, path):
-        """Get static files for the Testplan UI."""
-        static_path = os.path.abspath(os.path.join(
-            app.config['STATIC_PATH'], 'testing', 'build', path
-        ))
-
-        if os.path.exists(static_path):
-            return send_from_directory(
-                directory=os.path.dirname(static_path),
-                filename=os.path.basename(static_path)
-            )
-        else:
-            raise exceptions.NotFound()
-
-@_api.route('/monitor/<string:report_uid>')
-class Monitor(Resource):
-    def get(self, report_uid):
-        """Get a Monitor report (HTML) given it's uid."""
-        directory = os.path.abspath(os.path.join(
-            app.config['STATIC_PATH'], 'monitor', 'build'
-        ))
-        index_path = os.path.join(directory, INDEX_HTML)
-
-        if os.path.exists(index_path):
-            return send_from_directory(
-                directory=directory,
-                filename=INDEX_HTML
-            )
-        else:
-            raise exceptions.NotFound()
-
-@_api.route('/monitor/<string:report_uid>/report')
-class MonitorReport(Resource):
-    def get(self, report_uid):
-        """Get a Monitor report (JSON) given it's uid."""
-        # report_uid will be used when looking up the report from a database.
-        report_path = os.path.abspath(os.path.join(
-            app.config['DATA_PATH'], MONITOR_REPORT
-        ))
-
-        if os.path.exists(report_path):
-            return send_from_directory(
-                directory=os.path.dirname(report_path),
-                filename=MONITOR_REPORT
-            )
-        else:
-            raise exceptions.NotFound()
-
-@_api.route('/monitor/static/<path:path>')
-class MonitorStatic(Resource):
-    def get(self, path):
-        """Get static files for the Monitor UI."""
-        directory = os.path.abspath(os.path.join(
-            app.config['STATIC_PATH'], 'monitor', 'build'
-        ))
-
-        if os.path.exists(os.path.join(directory, path)):
-            return send_from_directory(directory=directory, filename=path)
-        else:
-            raise exceptions.NotFound()
-
-
 class WebServer(Thread):
     def __init__(self, port=defaults.WEB_SERVER_PORT,
                  static_path=TESTPLAN_UI_STATIC_DIR, data_path='./',
@@ -177,6 +113,11 @@ class WebServer(Thread):
         app.config['STATIC_PATH'] = self.static_path
         app.config['DATA_PATH'] = self.data_path
         app.config['TESTPLAN_REPORT_NAME'] = self.report_name
+        app.static_folder = os.path.abspath(
+            os.path.join(
+                app.config['STATIC_PATH'], 'testing', 'build', 'static'
+            )
+        )
 
     def run(self):
         self._configure_flask_app()
@@ -200,6 +141,11 @@ if __name__ == '__main__':
         app.config['STATIC_PATH'] = args.static_path
     else:
         app.config['STATIC_PATH'] = pwd()
+    app.static_folder = os.path.abspath(
+        os.path.join(
+            app.config['STATIC_PATH'], 'testing', 'build', 'static'
+        )
+    )
     if args.data_path:
         app.config['DATA_PATH'] = args.data_path
     else:
