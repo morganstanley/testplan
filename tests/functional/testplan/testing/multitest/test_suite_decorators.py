@@ -7,22 +7,33 @@ from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report.testing import (TestReport, TestGroupReport,
                                      TestCaseReport)
+from testplan.testing.multitest.base import Categories
 from testplan.testing.multitest.suite import (testcase, testsuite, skip_if,
                                               post_testcase, pre_testcase)
 
 
-def pre(name, self, env, result):
+def pre1(name, self, env, result):
     result.equal(2, 2)
     result.contain('case', name)
 
 
-def post(name, self, env, result):
+def post1(name, self, env, result):
     result.equal(2, 2)
     result.contain('case', name)
 
 
-@pre_testcase(pre)
-@post_testcase(post)
+def pre2(name, self, env, result, a=None, b=None):
+    result.equal(2, 2)
+    result.contain('case', name)
+
+
+def post2(name, self, env, result, a=None, b=None):
+    result.equal(2, 2)
+    result.contain('case', name)
+
+
+@pre_testcase(pre1)
+@post_testcase(post1)
 @testsuite
 class Suite1(object):
 
@@ -46,16 +57,16 @@ class Suite1(object):
         pass
 
 
-@pre_testcase(pre)
-@post_testcase(post)
+@pre_testcase(pre2)
+@post_testcase(post2)
 @testsuite
 class Suite2(object):
 
     def setup(self, env):
         pass
 
-    @testcase
-    def case4(self, env, result):
+    @testcase(parameters=(('aa', 'bb'), ('aaa', 'bbb')))
+    def case4(self, env, result, a, b):
         result.equal(2, 2)
 
     @testcase
@@ -92,4 +103,9 @@ def test_basic_multitest():
             assert isinstance(st_entry, TestGroupReport)
             assert len(st_entry.entries) == 3  # 3 Testcases
             for tc_entry in st_entry.entries:
-                assert isinstance(tc_entry, TestCaseReport)  # Assertions
+                if tc_entry.name == 'case4':
+                    assert isinstance(tc_entry, TestGroupReport)
+                    assert tc_entry.category == Categories.PARAMETRIZATION
+                    assert len(tc_entry.entries) == 2  # 2 generated testcases
+                else:
+                    assert isinstance(tc_entry, TestCaseReport)
