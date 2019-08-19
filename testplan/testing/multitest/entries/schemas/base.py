@@ -59,6 +59,7 @@ class MatPlotSchema(BaseSchema):
     image_file_path = fields.String()
     width = fields.Float()
     height = fields.Float()
+    attachment = fields.Dict(allow_none=True)
 
 
 @registry.bind(base.TableLog)

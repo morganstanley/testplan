@@ -1872,11 +1872,18 @@ class Result(object):
         """
         filename = '{0}.png'.format(uuid.uuid4())
         image_file_path = os.path.join(self._scratch, filename)
+        dpi = 96
+        pyplot.savefig(image_file_path, dpi=dpi, pad_inches=0, transparent=True)
+        pyplot.close()
+        attachment = base.Attachment(image_file_path, description)
+        self.attachments.append(attachment)
+
         return base.MatPlot(
             pyplot=pyplot,
             image_file_path=image_file_path,
             width=width,
             height=height,
+            attachment=attachment,
             description=description
         )
 

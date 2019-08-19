@@ -1,5 +1,7 @@
 import React, {Fragment} from 'react';
 import {hashCode} from '../../Common/utils';
+import {css, StyleSheet} from 'aphrodite';
+import TextAttachment from './TextAttachment';
 
 /** @module basicAssertionUtils */
 
@@ -541,34 +543,126 @@ function prepareDictCheckContent(assertion, defaultContent) {
  */
 function prepareAttachmentContent(assertion, defaultContent) {
   const paths = window.location.pathname.split('/');
-  let downloadLink;
+  const uid = paths[2];
+  let attachment_content;
+  let file_type = assertion.orig_filename.split('.').pop()
+  let file_path = assertion.dst_path;
+  let description = assertion.description;
+  let get_path = `/api/v1/reports/${uid}/attachments/${file_path}`
 
-  // When running the development server, the real Testplan back-end is not
-  // running so we can't GET the attachment. Stick in a button that
-  // gives a debug message instead of the real link.
-  if ((paths.length >= 2) && (paths[1] === '_dev')) {
-    downloadLink = (
-      <button onClick={() => alert("Would download: " + assertion.dst_path)}>
-        {assertion.orig_filename}
-      </button>
-    );
-  } else if (paths.length >= 3) {
-    const uid = paths[2];
-    downloadLink = (
-      <a href={`/api/v1/reports/${uid}/attachments/${assertion.dst_path}`}>
-        {assertion.orig_filename}
-      </a>
-    );
+  switch(file_type){
+    case 'txt':
+        attachment_content = (<TextAttachment
+                        src={get_path}
+                        file_name={assertion.orig_filename}
+                        />)
+        break;
+
+    case 'jpeg':
+    case 'jpg':
+    case 'bmp':
+    case 'png':
+        attachment_content = getImageContent(get_path, description);
+        break;
+
+    default:
+      // When running the development server, the real Testplan back-end is not
+      // running so we can't GET the attachment. Stick in a button that
+      // gives a debug message instead of the real link.
+      if ((paths.length >= 2) && (paths[1] === '_dev')) {
+        attachment_content = (
+          <button onClick={() => alert("Would download: " + file_path)}>
+            {assertion.orig_filename}
+          </button>
+        );
+      } else if (paths.length >= 3) {
+        const uid = paths[2];
+        attachment_content = (
+          <a href={get_path}>
+            {assertion.orig_filename}
+          </a>
+        );
+      }
   }
 
   return {
     ...defaultContent,
     leftTitle: null,
     rightTitle: null,
-    leftContent: downloadLink,
+    leftContent: attachment_content,
     rightContent: null,
   };
 }
+
+/*
+ * Helps prepare the contents of an Image.
+ *
+ * @param {str} image_path
+ * @param {str} description
+ * @return {JSX} Content for an image to be displayed
+ * @private
+ */
+function getImageContent(image_path, description){
+
+    return (
+            <div>
+              <figure className={css(styles.caption)}>
+                  <img src={image_path}
+                       class="img-responsive ..."
+                       alt="Cannot Find File"
+                  />
+                  <figcaption className={css(styles.caption)}>
+                  <a href={image_path}>
+                     {description? description: "Image"}
+                  </a>
+                  </figcaption>
+              </figure>
+            </div>
+    );
+}
+
+/*
+ * Prepare the contents of a MatPlot assertion.
+ *
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for MatPlot assertion
+ * @private
+ */
+function prepareMatPlotContent(assertion, defaultContent) {
+    let attachment = assertion.attachment
+    const paths = window.location.pathname.split('/');
+    const uid = paths[2];
+    let matplot_content;
+    let description = attachment.description;
+    let get_path = `/api/v1/reports/${uid}/attachments/${attachment.dst_path}`
+
+    if ((paths.length >= 2) && (paths[1] === '_dev')) {
+        matplot_content = (
+              <figure className={css(styles.caption)}>
+                  <a>
+                     Would display MatPlot from: {get_path}
+                  </a>
+                  <figcaption className={css(styles.caption)}>
+                  <a>
+                     <u> {description? description: "MatPlot Image"} </u>
+                  </a>
+                  </figcaption>
+              </figure>
+        );
+    } else if (paths.length >= 3) {
+        matplot_content = getImageContent(get_path, description);
+    }
+
+    return {
+    ...defaultContent,
+    leftTitle: null,
+    rightTitle: null,
+    leftContent: matplot_content,
+    rightContent: null,
+    };
+}
+
 
 /**
  * Prepare the contents of the BasicAssertion component.
@@ -634,7 +728,6 @@ function prepareBasicContent(assertion) {
     case 'ExceptionNotRaised':
       return prepareExceptionContent(assertion, defaultContent);
 
-
     case 'RegexMatch':
     case 'RegexMatchNotExists':
     case 'RegexSearch':
@@ -645,14 +738,12 @@ function prepareBasicContent(assertion) {
     case 'RegexMatchLine':
       return prepareRegexMatchLineContent(assertion, defaultContent);
 
-
     case 'XMLCheck':
       return prepareXMLCheckContent(assertion, defaultContent);
 
     case 'EqualSlices':
     case 'EqualExcludeSlices':
       return prepareEqualSlicesContent(assertion, defaultContent);
-
 
     case 'DictCheck':
     case 'FixCheck':
@@ -661,10 +752,19 @@ function prepareBasicContent(assertion) {
     case 'Attachment':
       return prepareAttachmentContent(assertion, defaultContent);
 
+    case 'MatPlot':
+      return prepareMatPlotContent(assertion, defaultContent);
+
     default:
       return defaultContent;
   }
 }
+
+const styles = StyleSheet.create({
+  caption: {
+    'text-align': 'center'
+  }
+});
 
 export {
   prepareBasicContent,

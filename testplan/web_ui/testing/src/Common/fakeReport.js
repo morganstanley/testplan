@@ -3854,7 +3854,8 @@ var fakeReportAssertions = {
                         "suite_related": false,
                         "status_override": null,
                         'uid': '5b4d240c-be6f-42b7-9bd6-20164944449a',
-                        'entries': [{
+                        'entries': [
+                        {
                             'category': 'DEFAULT',
                             'description': null,
                             'hash': 'e293da7540774a9f838f5a0e88ab549a',
@@ -3868,7 +3869,29 @@ var fakeReportAssertions = {
                             'type': 'Attachment',
                             'utc_time': '2019-08-05T15:25:21.391773+00:00',
                             'uuid': 'e293da75-4077-4a9f-838f-5a0e88ab549a'
-                        }],
+                        },
+                        {
+                            "image_file_path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\2\\Administrator\\testplan\\basic-data-modelling-example\\Model Examples\\scratch\\2df768d5-8c22-43a1-b0fa-fa869da58907.png",
+                            "meta_type": "entry",
+                            "attachment": {
+                                "source_path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\2\\Administrator\\testplan\\basic-data-modelling-example\\Model Examples\\scratch\\2df768d5-8c22-43a1-b0fa-fa869da58907.png",
+                                "dst_path": "2df768d5-8c22-43a1-b0fa-fa869da58907-5ae793d7dbb4bee4ffffe64950f776982f6860df-23134.png",
+                                "orig_filename": "2df768d5-8c22-43a1-b0fa-fa869da58907.png",
+                                "hash": "5ae793d7dbb4bee4ffffe64950f776982f6860df",
+                                "filesize": 23134,
+                                "file_path": null,
+                                "description": null
+                            },
+                            "type": "MatPlot",
+                                    "line_no": 100,
+                                    "description": null,
+                                    "utc_time": "2019-08-09T10:32:00.811064+00:00",
+                                    "machine_time": "2019-08-09T10:32:00.811064+00:00",
+                                    "category": "DEFAULT",
+                                    "width": 1.8,
+                                    "height": 1.8
+                        }
+                        ],
                     }
 
 
