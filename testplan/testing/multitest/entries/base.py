@@ -233,9 +233,10 @@ class MatPlot(BaseEntry):
         self.image_file_path = image_file_path
 
         # Filter unneeded information from base.Attachment for image
-        RELEVENT_KEYS = ['source_path', 'dst_path', 'orig_filename', 'hash', 'filesize',
-                         'file_path', 'description']
-        modified_attachment = {key: attachment.__dict__[key] for key in RELEVENT_KEYS}
+        RELEVENT_KEYS = ['source_path', 'dst_path', 'orig_filename', 'hash',
+                         'filesize', 'file_path', 'description']
+        modified_attachment = {key: attachment.__dict__[key]
+                               for key in RELEVENT_KEYS}
 
         self.attachment = modified_attachment
 
