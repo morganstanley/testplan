@@ -4,10 +4,9 @@ import tempfile
 import os
 import sys
 
-from PIL import Image, ImageDraw
-
 import testplan
 from testplan.testing import multitest
+from PIL import Image, ImageDraw
 
 
 @multitest.testsuite

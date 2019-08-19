@@ -18,7 +18,7 @@ import {prepareBasicContent} from './basicAssertionUtils';
  * |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
  * | preContent    | rightContent  |
  * |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
- * | postContent                   |
+ * | postTitle                     |
  * |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
  * | postContent                   |
  * |_______________________________|
