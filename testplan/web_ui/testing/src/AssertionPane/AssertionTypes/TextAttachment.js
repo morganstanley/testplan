@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {StyleSheet, css} from 'aphrodite';
 import axios from 'axios';
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import Loader from 'react-loader-spinner';
+import { FadeLoader } from 'react-spinners';
 
 const DISPLAY_NUM = 20
 const SCROLLBAR_MIN_LIMIT = 60
@@ -89,10 +89,15 @@ class TextAttachment extends Component {
 
     // Check if dev mode and display test_string
     if ((paths.length >= 2) && (paths[1] === '_dev')) {
-        const TEST_TEXT = "test1\ntest2\ntest3\ntest4\ntest5\ntest6\ntest7";
+        const TEST_TEXT = "test1\ntest2\ntest3\ntest4\ntest5\ntest6\ntest7\n";
         let text = TEST_TEXT;
-        let lines= text.split('\n');
+        let lines = text.split('\n');
         let length = lines.length;
+
+        if(lines.pop() === ""){
+            text = text + "<newline>"
+            lines[length-1] = "<newline>"
+        }
 
         this.setState({
                         originalText: text,
@@ -110,11 +115,17 @@ class TextAttachment extends Component {
     } else if (paths.length >= 3) {
         axios.get(this.props.src)
         .then(response => {
+            let text = response.data
             let lines = response.data.split('\n');
             let length = lines.length;
 
+            if(lines.pop() === ""){
+                text = text + "<newline>"
+                lines[length-1] = "<newline>"
+             }
+
             this.setState({
-                            originalText: response.data,
+                            originalText: text,
                             numberOfLines: length
                           });
 
@@ -151,7 +162,14 @@ class TextAttachment extends Component {
         let text = this.state.originalText;
 
         if(this.state.expandButtonPushed){
-            let lines= text.split('\n');
+            let lines = text.split('\n');
+            let length = lines.length
+
+            if(lines.pop() === ""){
+                text = text + "<newline>"
+                lines[length-1] = "<newline>"
+             }
+
             let display = this.getCollapsedText(lines);
             this.setState({
                            textContent: display,
@@ -185,7 +203,13 @@ class TextAttachment extends Component {
 
         let spinner = (
             <div className={css(styles.spinner)}>
-                <Loader type="Oval" color="blue" height={40} width={40} />
+                <FadeLoader
+                  color={'#123abc'}
+                  loading={true}
+                  height={10}
+                  width={3}
+                  radius={4}
+                />
             </div>
         )
 

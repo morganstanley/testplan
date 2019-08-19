@@ -576,7 +576,6 @@ function prepareAttachmentContent(assertion, defaultContent) {
           </button>
         );
       } else if (paths.length >= 3) {
-        const uid = paths[2];
         attachment_content = (
           <a href={get_path}>
             {assertion.orig_filename}
