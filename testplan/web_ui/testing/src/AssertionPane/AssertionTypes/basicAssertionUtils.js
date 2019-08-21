@@ -552,6 +552,9 @@ function prepareAttachmentContent(assertion, defaultContent) {
 
   switch(file_type){
     case 'txt':
+    case 'log':
+    case 'out':
+    case 'csv':
         attachment_content = (<TextAttachment
                         src={get_path}
                         file_name={assertion.orig_filename}
@@ -629,12 +632,12 @@ function getImageContent(image_path, description){
  * @private
  */
 function prepareMatPlotContent(assertion, defaultContent) {
-    let attachment = assertion.attachment
+
     const paths = window.location.pathname.split('/');
     const uid = paths[2];
     let matplot_content;
-    let description = attachment.description;
-    let get_path = `/api/v1/reports/${uid}/attachments/${attachment.dst_path}`
+    let description = assertion.description;
+    let get_path = `/api/v1/reports/${uid}/attachments/${assertion.dst_path}`
 
     if ((paths.length >= 2) && (paths[1] === '_dev')) {
         matplot_content = (

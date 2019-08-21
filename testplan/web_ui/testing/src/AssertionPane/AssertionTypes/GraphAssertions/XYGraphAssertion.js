@@ -24,33 +24,33 @@ import {
  * Component that are used to render a Graph (Data visualisations that require an XY axis).
  */
 class XYGraphAssertion extends Component {
-    constructor(props) {
-      super(props);
+  constructor(props) {
+    super(props);
 
-      this.state = {
-        series_colour:{}
-      }
-
-      let data = this.props.assertion.graph_data;
-      const series_options = this.props.assertion.series_options;
-      let plot_colours = GraphUtil.returnColour(series_options, data);
-      this.state.series_colour = plot_colours;
+    this.state = {
+      series_colour:{}
     }
 
+    let data = this.props.assertion.graph_data;
+    const series_options = this.props.assertion.series_options;
+    let plot_colours = GraphUtil.returnColour(series_options, data);
+    this.state.series_colour = plot_colours;
+  }
 
-    state = {
-        lastDrawLocation: null
-     };
+
+  state = {
+    lastDrawLocation: null
+   };
 
 
-    components = {
-        Line: LineSeries,
-        Hexbin: HexbinSeries,
-        Contour: ContourSeries,
-        Whisker: WhiskerSeries,
-        Bar: VerticalBarSeries,
-        Scatter: MarkSeries
-    }
+  components = {
+    Line: LineSeries,
+    Hexbin: HexbinSeries,
+    Contour: ContourSeries,
+    Whisker: WhiskerSeries,
+    Bar: VerticalBarSeries,
+    Scatter: MarkSeries
+  }
 
 
   render() {
@@ -64,18 +64,18 @@ class XYGraphAssertion extends Component {
     let plots = [];
 
     for (let key in data) {
-        let series_colour = this.state.series_colour[key];
-        plots.push(
-                    <GraphComponent
-                      key={key}
-                      data={data[key]}
-                      color={series_colour}
-                      style={GraphUtil.returnStyle(graph_type)}
-                    />
-                  );
-        if((graph_options !== null) && graph_options.legend){
-            legend.push({title: key, color: series_colour});
-        }
+      let series_colour = this.state.series_colour[key];
+      plots.push(
+                  <GraphComponent
+                    key={key}
+                    data={data[key]}
+                    color={series_colour}
+                    style={GraphUtil.returnStyle(graph_type)}
+                  />
+                );
+      if((graph_options !== null) && graph_options.legend){
+        legend.push({title: key, color: series_colour});
+      }
     }
 
     return (

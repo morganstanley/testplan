@@ -1854,40 +1854,6 @@ class Result(object):
         )
 
     @bind_entry
-    def matplot(self, pyplot, width=2, height=2, description=None):
-        """
-        Displays a Matplotlib plot in the report.
-
-        :param pyplot: Matplotlib pyplot object to be displayed.
-        :type pyplot: ``matplotlib.pyplot``
-        :param width: Width of the plot in inches.
-        :type width: ``int``
-        :param height: Height of the plot in inches.
-        :type height: ``int``
-        :param description: Text description for the assertion.
-        :type description: ``str``
-        :return: Always returns True, this is not an assertion so it cannot
-                 fail.
-        :rtype: ``bool``
-        """
-        filename = '{0}.png'.format(uuid.uuid4())
-        image_file_path = os.path.join(self._scratch, filename)
-        dpi = 96
-        pyplot.savefig(image_file_path, dpi=dpi, pad_inches=0, transparent=True)
-        pyplot.close()
-        attachment = base.Attachment(image_file_path, description)
-        self.attachments.append(attachment)
-
-        return base.MatPlot(
-            pyplot=pyplot,
-            image_file_path=image_file_path,
-            width=width,
-            height=height,
-            attachment=attachment,
-            description=description
-        )
-
-    @bind_entry
     def graph(self, graph_type, graph_data, description,
               series_options, graph_options):
         """
@@ -1941,6 +1907,35 @@ class Result(object):
         attachment = base.Attachment(filepath, description)
         self.attachments.append(attachment)
         return attachment
+
+    @bind_entry
+    def matplot(self, pyplot, width=2, height=2, description=None):
+        """
+        Displays a Matplotlib plot in the report.
+
+        :param pyplot: Matplotlib pyplot object to be displayed.
+        :type pyplot: ``matplotlib.pyplot``
+        :param width: Width of the plot in inches.
+        :type width: ``int``
+        :param height: Height of the plot in inches.
+        :type height: ``int``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :return: Always returns True, this is not an assertion so it cannot
+                 fail.
+        :rtype: ``bool``
+        """
+        filename = '{0}.png'.format(uuid.uuid4())
+        image_file_path = os.path.join(self._scratch, filename)
+        matplot = base.MatPlot(
+            pyplot=pyplot,
+            image_file_path=image_file_path,
+            width=width,
+            height=height,
+            description=description
+        )
+        self.attachments.append(matplot)
+        return matplot
 
     @property
     def serialized_entries(self):

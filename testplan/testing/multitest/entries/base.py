@@ -224,25 +224,6 @@ class Log(BaseEntry):
         super(Log, self).__init__(description=description)
 
 
-class MatPlot(BaseEntry):
-    """Display a Matplotlib graph in the report."""
-    def __init__(self, pyplot, image_file_path, width=2, height=2,
-                 attachment=None, description=None):
-        self.width = float(width)
-        self.height = float(height)
-        self.image_file_path = image_file_path
-
-        # Filter unneeded information from base.Attachment for image
-        RELEVENT_KEYS = ['source_path', 'dst_path', 'orig_filename', 'hash',
-                         'filesize', 'file_path', 'description']
-        modified_attachment = {key: attachment.__dict__[key]
-                               for key in RELEVENT_KEYS}
-
-        self.attachment = modified_attachment
-
-        super(MatPlot, self).__init__(description=description)
-
-
 class TableLog(BaseEntry):
     """Log a table to the report."""
     def __init__(self, table, display_index=False, description=None):
@@ -347,3 +328,16 @@ class Attachment(BaseEntry):
             filesize=self.filesize,
             ext=ext)
         super(Attachment, self).__init__(description=description)
+
+
+class MatPlot(Attachment):
+    """Display a MatPlotLib graph in the report."""
+    def __init__(self, pyplot, image_file_path, width=2, height=2,
+                 description=None):
+        self.width = float(width)
+        self.height = float(height)
+        self.image_file_path = image_file_path
+        dpi = 96
+        pyplot.savefig(image_file_path, dpi=dpi, pad_inches=0, transparent=True)
+        pyplot.close()
+        super(MatPlot, self).__init__(filepath=image_file_path, description=description)
