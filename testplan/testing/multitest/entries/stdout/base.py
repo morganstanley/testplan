@@ -109,7 +109,7 @@ class LogRenderer(BaseRenderer):
 class MatPlotRenderer(BaseRenderer):
 
     def get_details(self, entry):
-        return 'MatPlot graph generated at: {}'.format(entry.image_file_path)
+        return 'MatPlot graph generated at: {}'.format(entry.source_path)
 
 
 @registry.bind(base.TableLog)
