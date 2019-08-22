@@ -39,5 +39,5 @@
     "lint": "eslint --ext .js src",
     "eject": "react-scripts eject"
   },
-  "homepage": "/testplan/static"
+  "homepage": "/"
 }
