@@ -25,7 +25,6 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plot
 import numpy as np
-import tempfile
 
 PLOT_SIZE = 1.8
 

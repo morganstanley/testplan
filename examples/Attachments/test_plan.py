@@ -2,6 +2,7 @@
 """Demonsrates attaching files to the Testplan report."""
 import os
 import sys
+import tempfile
 
 import testplan
 from testplan.testing import multitest
