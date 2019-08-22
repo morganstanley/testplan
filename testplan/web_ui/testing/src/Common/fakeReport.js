@@ -3878,7 +3878,6 @@ var fakeReportAssertions = {
                             "hash": "5ae793d7dbb4bee4ffffe64950f776982f6860df",
                             "filesize": 23134,
                             "file_path": null,
-                            "description": null,
                             "type": "MatPlot",
                             "line_no": 100,
                             "description": null,
