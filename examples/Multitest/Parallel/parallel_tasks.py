@@ -1,9 +1,12 @@
 """Example test suite to demonstrate grouped parallel MultiTest execution."""
-import time
+import threading
 
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.suite import testsuite, testcase
+from testplan.common.utils import thread as thread_utils
+
 import resource_manager
+
 
 @testsuite
 class SampleTest(object):
@@ -19,16 +22,40 @@ class SampleTest(object):
     """
 
     def __init__(self):
-        self._test_g2_1_done = False
+        self._test_g2_1_done = threading.Event()
+        self._barrier = thread_utils.Barrier(2)
 
     @testcase(execution_group='first')
     def test_g1_1(self, env, result):
-        """Wait for test_g1_2 to also acquire the first resource."""
+        """
+        Wait for test_g1_2 to also acquire the first resource. Assert that the
+        refcount is 2.
+        """
+        self._test_g1_impl(env, result)
+
+    @testcase(execution_group='first')
+    def test_g1_2(self, env, result):
+        """
+        Mirror image of test_g1_1. We wait for test_g1_1 to acquire the first
+        resource while running in another thread, then assert that the refcount
+        is 2.
+        """
+        self._test_g1_impl(env, result)
+
+    def _test_g1_impl(self, env, result):
         with env.resources['first'] as res:
             result.true(res.active)
-            while res.refcount < 2:
-                result.log('Waiting for test_g1_2...')
-                time.sleep(1)
+
+            # Wait for both threads to acquire the resource.
+            self._barrier.wait()
+
+            # Both threads have acquired the resource - check that the refcount
+            # is 2.
+            result.equal(res.refcount, 2)
+
+            # Wait for both threads to check the refcount before releasing the
+            # resource.
+            self._barrier.wait()
 
     @testcase(execution_group='second')
     def test_g2_1(self, env, result):
@@ -36,29 +63,12 @@ class SampleTest(object):
         with env.resources['second'] as res:
             result.true(res.active)
             result.equal(res.refcount, 1)
-        self._test_g2_1_done = True
-
-    @testcase(execution_group='first')
-    def test_g1_2(self, env, result):
-        """
-        Sleep before acquiring the first resource. Wait for test_g1_1 to
-        release it first.
-        """
-        time.sleep(2.5)
-
-        with env.resources['first'] as res:
-            result.true(res.active)
-            result.equal(res.refcount, 2)
-            while res.refcount == 2:
-                result.log('Waiting for test_g1_1...')
-                time.sleep(1)
+        self._test_g2_1_done.set()
 
     @testcase(execution_group='second')
     def test_g2_2(self, env, result):
         """Wait for test_g2_1 to release the resource before acquiring it."""
-        while not self._test_g2_1_done:
-            result.log('Waiting for test_g2_1 to finish...')
-            time.sleep(1)
+        self._test_g2_1_done.wait()
 
         with env.resources['second'] as res:
             result.true(res.active)
