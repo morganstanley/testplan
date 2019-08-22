@@ -25,7 +25,7 @@ class HTTPExporterConfig(ExporterConfig):
     def get_options(cls):
         return {
             ConfigOption('url', default=None): Or(None,
-                Regex(r'^http[s]?://[\w\d_-]+(:\d{2,5})?$', flags=re.I))
+                Regex(r'^http[s]?://[\w\d_-]+(:\d{2,5})?.+$', flags=re.I))
         }
 
 
@@ -53,7 +53,7 @@ class HTTPExporter(Exporter):
             test_plan_schema = TestReportSchema(strict=True)
             data = test_plan_schema.dump(source).data
             headers = {
-                'Content-Type': 'application/json; charset=UTF-8',
+                'Content-Type': 'application/json',
                 'Accept': 'application/json, text/javascript, */*; q=0.01'
             }
             try:
