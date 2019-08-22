@@ -88,6 +88,5 @@ class AttachmentSchema(BaseSchema):
 
 @registry.bind(base.MatPlot)
 class MatPlotSchema(AttachmentSchema):
-    image_file_path = fields.String()
     width = fields.Float()
     height = fields.Float()

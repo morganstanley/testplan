@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """Demonsrates attaching files to the Testplan report."""
-import tempfile
 import os
 import sys
 

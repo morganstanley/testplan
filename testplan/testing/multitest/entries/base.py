@@ -336,7 +336,6 @@ class MatPlot(Attachment):
                  description=None):
         self.width = float(width)
         self.height = float(height)
-        self.image_file_path = image_file_path
         dpi = 96
         pyplot.savefig(image_file_path, dpi=dpi, pad_inches=0, transparent=True)
         pyplot.close()
