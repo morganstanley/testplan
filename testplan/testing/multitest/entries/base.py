@@ -224,20 +224,6 @@ class Log(BaseEntry):
         super(Log, self).__init__(description=description)
 
 
-class MatPlot(BaseEntry):
-    """Display a Matplotlib graph in the report."""
-    def __init__(self, pyplot, image_file_path, width=2, height=2,
-                 description=None):
-        dpi = 96
-        self.width = float(width)
-        self.height = float(height)
-        self.image_file_path = image_file_path
-        pyplot.savefig(image_file_path, dpi=dpi, pad_inches=0, transparent=True)
-        pyplot.close()
-
-        super(MatPlot, self).__init__(description=description)
-
-
 class TableLog(BaseEntry):
     """Log a table to the report."""
     def __init__(self, table, display_index=False, description=None):
@@ -342,3 +328,16 @@ class Attachment(BaseEntry):
             filesize=self.filesize,
             ext=ext)
         super(Attachment, self).__init__(description=description)
+
+
+class MatPlot(Attachment):
+    """Display a MatPlotLib graph in the report."""
+    def __init__(self, pyplot, image_file_path, width=2, height=2,
+                 description=None):
+        self.width = float(width)
+        self.height = float(height)
+        dpi = 96
+        pyplot.savefig(image_file_path, dpi=dpi, pad_inches=0, transparent=True)
+        pyplot.close()
+        super(MatPlot, self).__init__(filepath=image_file_path,
+                                      description=description)

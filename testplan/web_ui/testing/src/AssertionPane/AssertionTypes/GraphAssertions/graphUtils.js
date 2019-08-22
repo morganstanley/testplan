@@ -10,14 +10,14 @@
  * @return {dict[key: object]} Returns any style required for the graph
  */
 export function returnStyle(graph_type){
-    if(graph_type === 'Contour'){
-       return(
-                {
-                    stroke: '#125C77',
-                    strokeLinejoin: 'round'
-                }
-        );
-    }
+  if(graph_type === 'Contour'){
+     return(
+        {
+            stroke: '#125C77',
+            strokeLinejoin: 'round'
+        }
+      );
+  }
 }
 
 /**
@@ -29,9 +29,9 @@ export function returnStyle(graph_type){
  *               letters instead of numerical
  */
 export function returnXType(graph_type){
-    if(graph_type ==='Bar'){
-       return("ordinal");
-    }
+  if(graph_type ==='Bar'){
+    return("ordinal");
+  }
 }
 
 const COLOUR_PALETTE=['#1c5c9c', '#68caea', '#7448c5', '#633836',
@@ -49,42 +49,42 @@ const COLOUR_PALETTE=['#1c5c9c', '#68caea', '#7448c5', '#633836',
  * @return {dict[str, str]} Every series name and it's display colour
  */
 export function returnColour(series_options, data){
-    const series_names = Object.keys(data)
-    let series_colours = {};
-    let colour_options = COLOUR_PALETTE.slice();
+  const series_names = Object.keys(data)
+  let series_colours = {};
+  let colour_options = COLOUR_PALETTE.slice();
 
-    series_names.forEach(function(series) {
-        //Assign colour from user specified options if possible
-        if(series_options != null){
-            if(series_options[series]!= null){
-                if(series_options[series].colour!= null){
-                    series_colours[series] =
-                        series_options[series].colour;
-                    return;
-                }
-            }
+  series_names.forEach(function(series) {
+    //Assign colour from user specified options if possible
+    if(series_options != null){
+      if(series_options[series]!= null){
+        if(series_options[series].colour!= null){
+          series_colours[series] =
+            series_options[series].colour;
+          return;
         }
+      }
+    }
 
-        //Otherwise choose next colour available from colour palette
-        if(colour_options.length !== 0){
-             let colour = colour_options[0];
-             series_colours[series] = colour;
-             colour_options.shift();
-        }
-        //Otherwise if no more available colours, choose random colour
-        else{
-            let colour = '';
-            for (let i = 0; i < 4; i++) {
-             colour += (Math.round(Math.random() * 15)).toString(16);
-            }
-            for (let i = 0; i < 2; i++) {
-             colour += (10+ Math.round(Math.random() * 5)).toString(16);
-            }
-            series_colours[series] = colour;
-        }
-    });
+    //Otherwise choose next colour available from colour palette
+    if(colour_options.length !== 0){
+       let colour = colour_options[0];
+       series_colours[series] = colour;
+       colour_options.shift();
 
-    return series_colours;
+    //Otherwise if no more available colours, choose random colour
+    } else {
+      let colour = '';
+      for (let i = 0; i < 4; i++) {
+       colour += (Math.round(Math.random() * 15)).toString(16);
+      }
+      for (let i = 0; i < 2; i++) {
+       colour += (10+ Math.round(Math.random() * 5)).toString(16);
+      }
+      series_colours[series] = colour;
+    }
+  });
+
+  return series_colours;
 }
 
 /**
@@ -97,12 +97,12 @@ export function returnColour(series_options, data){
  * @return {str/null} The axis title, or null if not set
  */
 export function returnXAxisTitle(graph_options){
-    if(graph_options == null){
-        return;
-    }
-    if(graph_options.xAxisTitle !== null){
-        return graph_options.xAxisTitle;
-    }
+  if(graph_options == null){
+    return;
+  }
+  if(graph_options.xAxisTitle !== null){
+    return graph_options.xAxisTitle;
+  }
 }
 
 /**
@@ -114,10 +114,10 @@ export function returnXAxisTitle(graph_options){
  * @return {str/null} The axis title, or null if not set
  */
 export function returnYAxisTitle(graph_options){
-    if(graph_options == null){
-        return;
-    }
-    if(graph_options.yAxisTitle !== null){
-        return graph_options.yAxisTitle;
-    }
+  if(graph_options == null){
+    return;
+  }
+  if(graph_options.yAxisTitle !== null){
+    return graph_options.yAxisTitle;
+  }
 }

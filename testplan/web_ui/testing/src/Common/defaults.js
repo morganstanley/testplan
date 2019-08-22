@@ -104,7 +104,7 @@ const BASIC_ASSERTION_TYPES = [
   'XMLCheck',
   'EqualSlices', 'EqualExcludeSlices',
   'DictCheck', 'FixCheck',
-  'Attachment',
+  'Attachment', 'MatPlot',
 ];
 
 const SORT_TYPES = {

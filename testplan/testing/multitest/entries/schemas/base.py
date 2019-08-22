@@ -39,7 +39,6 @@ class BaseSchema(Schema):
 
 @registry.bind(base.Group, base.Summary)
 class GroupSchema(Schema):
-
     type = custom_fields.ClassName()
     passed = fields.Boolean()
     meta_type = fields.String()
@@ -49,21 +48,11 @@ class GroupSchema(Schema):
 
 @registry.bind(base.Log)
 class LogSchema(BaseSchema):
-
     message = fields.Raw()
-
-
-@registry.bind(base.MatPlot)
-class MatPlotSchema(BaseSchema):
-
-    image_file_path = fields.String()
-    width = fields.Float()
-    height = fields.Float()
 
 
 @registry.bind(base.TableLog)
 class TableLogSchema(BaseSchema):
-
     table = fields.List(custom_fields.NativeOrPrettyDict())
     indices = fields.List(fields.Integer(), allow_none=True)
     display_index = fields.Boolean()
@@ -75,7 +64,6 @@ class TableLogSchema(BaseSchema):
     base.FixLog
 )
 class DictLogSchema(BaseSchema):
-
     flattened_dict = fields.Raw()
 
 
@@ -96,3 +84,9 @@ class AttachmentSchema(BaseSchema):
     orig_filename = fields.String()
     filesize = fields.Integer()
     dst_path = fields.String()
+
+
+@registry.bind(base.MatPlot)
+class MatPlotSchema(AttachmentSchema):
+    width = fields.Float()
+    height = fields.Float()

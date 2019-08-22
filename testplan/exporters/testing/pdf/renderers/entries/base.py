@@ -164,7 +164,7 @@ class MatPlotRenderer(SerializedEntryRenderer):
                            left_padding=constants.INDENT * (depth + 1),
                            text_color=colors.black)]
 
-        img = Image(source['image_file_path'])
+        img = Image(source['source_path'])
         img.drawWidth = source['width'] * inch
         img.drawHeight = source['height'] * inch
 
