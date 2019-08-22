@@ -340,4 +340,5 @@ class MatPlot(Attachment):
         dpi = 96
         pyplot.savefig(image_file_path, dpi=dpi, pad_inches=0, transparent=True)
         pyplot.close()
-        super(MatPlot, self).__init__(filepath=image_file_path, description=description)
+        super(MatPlot, self).__init__(filepath=image_file_path,
+                                      description=description)
