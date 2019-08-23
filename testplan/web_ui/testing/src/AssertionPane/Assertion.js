@@ -102,31 +102,31 @@ class Assertion extends Component {
     let isAssertionGroup = false;
     let assertionType = this.props.assertion.type;
     switch(assertionType){
-        case 'Group':
-            isAssertionGroup = true;
-            assertionType = <AssertionGroup
-                        entries={this.props.assertion.entries}
-                        globalIsOpen={this.props.globalIsOpen}
-                        resetGlobalIsOpen={this.props.resetGlobalIsOpen}
-                        filter={this.props.filter}
-                         />;
-            break;
-        case 'Summary':
-            assertionType = <SummaryBaseAssertion
-                        assertion={this.props.assertion}
-                        globalIsOpen={this.props.globalIsOpen}
-                        resetGlobalIsOpen={this.props.resetGlobalIsOpen}
-                        filter={this.props.filter}
-                        />
-            break;
-        default:
-            let AssertionTypeComponent = this.assertionComponent(assertionType);
-            if (AssertionTypeComponent) {
-            assertionType =
-              <AssertionTypeComponent assertion={this.props.assertion} />;
-            } else {
-            assertionType = <NotImplementedAssertion />;
-            }
+      case 'Group':
+        isAssertionGroup = true;
+        assertionType = <AssertionGroup
+                    entries={this.props.assertion.entries}
+                    globalIsOpen={this.props.globalIsOpen}
+                    resetGlobalIsOpen={this.props.resetGlobalIsOpen}
+                    filter={this.props.filter}
+                     />;
+        break;
+      case 'Summary':
+        assertionType = <SummaryBaseAssertion
+                    assertion={this.props.assertion}
+                    globalIsOpen={this.props.globalIsOpen}
+                    resetGlobalIsOpen={this.props.resetGlobalIsOpen}
+                    filter={this.props.filter}
+                    />
+        break;
+      default:
+        let AssertionTypeComponent = this.assertionComponent(assertionType);
+        if (AssertionTypeComponent) {
+        assertionType =
+          <AssertionTypeComponent assertion={this.props.assertion} />;
+        } else {
+          assertionType = <NotImplementedAssertion />;
+        }
     }
 
     return (

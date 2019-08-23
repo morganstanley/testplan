@@ -33,38 +33,38 @@ class DiscreteChartAssertion extends Component  {
 
     for (let key in data) {
         plots.push(
-                     <GraphComponent
-                      colorType={series_colours[key]}
-                      key={key}
-                      data={data[key]}
-                      width={400}
-                      height={300}
-                      onValueMouseOver={v => this.setState(
-                                            {value: {'Label': v.name}}
-                                            )}
-                      onSeriesMouseOut={v => this.setState({value: null})}
-                      >
-                      {this.state.value !== null
-                       && <Hint value={this.state.value}/>}
-                     </GraphComponent>
+           <GraphComponent
+            colorType={series_colours[key]}
+            key={key}
+            data={data[key]}
+            width={400}
+            height={300}
+            onValueMouseOver={v => this.setState(
+                                  {value: {'Label': v.name}}
+                                  )}
+            onSeriesMouseOut={v => this.setState({value: null})}
+            >
+            {this.state.value !== null
+             && <Hint value={this.state.value}/>}
+           </GraphComponent>
          );
 
         legend = data[key].map( slice => {
-                                return {title: slice.name, color: slice.color}
-                                })
+                    return {title: slice.name, color: slice.color}
+                 })
        }
 
       return (
-           <div>
-              {plots}
-              <DiscreteColorLegend
-                orientation='horizontal'
-                width={750}
-                items={legend}
-              />
-              <br/>
-              <p>(Hover over chart to see labels)</p>
-           </div>
+       <div>
+          {plots}
+          <DiscreteColorLegend
+            orientation='horizontal'
+            width={750}
+            items={legend}
+          />
+          <br/>
+          <p>(Hover over chart to see labels)</p>
+       </div>
      )
   }
 }
