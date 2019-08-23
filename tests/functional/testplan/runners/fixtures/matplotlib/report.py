@@ -22,7 +22,7 @@ expected_report = TestReport(
                             name='test_matplot',
                             entries=[
                                 {
-                                    'image_file_path': re.compile(
+                                    'source_path': re.compile(
                                         r'^.+\.png$'),
                                     'width': 2.0,
                                     'height': 2.0,
