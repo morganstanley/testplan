@@ -123,7 +123,12 @@ ShallowWrapper {
                                       ]
                     }
           >
-                    <span />
+                    <span>
+                              <TextAttachment
+                                        file_name="tmpthpcdtwn.txt"
+                                        src="/api/v1/reports/undefined/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt"
+                              />
+                    </span>
           </Col>
           <Col
                     className="contentSpan_12mhtst"
@@ -407,7 +412,12 @@ ShallowWrapper {
                                         ]
               }
 >
-              <span />
+              <span>
+                            <TextAttachment
+                                          file_name="tmpthpcdtwn.txt"
+                                          src="/api/v1/reports/undefined/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt"
+                            />
+              </span>
 </Col>,
             <Col
               className="contentSpan_12mhtst"
@@ -435,7 +445,12 @@ ShallowWrapper {
             "key": undefined,
             "nodeType": "function",
             "props": Object {
-              "children": <span />,
+              "children": <span>
+                <TextAttachment
+                                file_name="tmpthpcdtwn.txt"
+                                src="/api/v1/reports/undefined/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt"
+                />
+</span>,
               "className": "contentSpan_12mhtst",
               "lg": "6",
               "tag": "div",
@@ -453,10 +468,24 @@ ShallowWrapper {
               "key": undefined,
               "nodeType": "host",
               "props": Object {
-                "children": undefined,
+                "children": <TextAttachment
+                  file_name="tmpthpcdtwn.txt"
+                  src="/api/v1/reports/undefined/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt"
+/>,
               },
               "ref": null,
-              "rendered": null,
+              "rendered": Object {
+                "instance": null,
+                "key": undefined,
+                "nodeType": "class",
+                "props": Object {
+                  "file_name": "tmpthpcdtwn.txt",
+                  "src": "/api/v1/reports/undefined/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt",
+                },
+                "ref": null,
+                "rendered": null,
+                "type": [Function],
+              },
               "type": "span",
             },
             "type": [Function],
@@ -693,7 +722,12 @@ ShallowWrapper {
                                               ]
                         }
             >
-                        <span />
+                        <span>
+                                    <TextAttachment
+                                                file_name="tmpthpcdtwn.txt"
+                                                src="/api/v1/reports/undefined/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt"
+                                    />
+                        </span>
             </Col>
             <Col
                         className="contentSpan_12mhtst"
@@ -977,7 +1011,12 @@ ShallowWrapper {
                                               ]
                 }
 >
-                <span />
+                <span>
+                                <TextAttachment
+                                                file_name="tmpthpcdtwn.txt"
+                                                src="/api/v1/reports/undefined/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt"
+                                />
+                </span>
 </Col>,
               <Col
                 className="contentSpan_12mhtst"
@@ -1005,7 +1044,12 @@ ShallowWrapper {
               "key": undefined,
               "nodeType": "function",
               "props": Object {
-                "children": <span />,
+                "children": <span>
+                  <TextAttachment
+                                    file_name="tmpthpcdtwn.txt"
+                                    src="/api/v1/reports/undefined/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt"
+                  />
+</span>,
                 "className": "contentSpan_12mhtst",
                 "lg": "6",
                 "tag": "div",
@@ -1023,10 +1067,24 @@ ShallowWrapper {
                 "key": undefined,
                 "nodeType": "host",
                 "props": Object {
-                  "children": undefined,
+                  "children": <TextAttachment
+                    file_name="tmpthpcdtwn.txt"
+                    src="/api/v1/reports/undefined/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt"
+/>,
                 },
                 "ref": null,
-                "rendered": null,
+                "rendered": Object {
+                  "instance": null,
+                  "key": undefined,
+                  "nodeType": "class",
+                  "props": Object {
+                    "file_name": "tmpthpcdtwn.txt",
+                    "src": "/api/v1/reports/undefined/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt",
+                  },
+                  "ref": null,
+                  "rendered": null,
+                  "type": [Function],
+                },
                 "type": "span",
               },
               "type": [Function],
