@@ -19,6 +19,12 @@ class SampleTest(object):
 
     You will find that modifying a single test from the "first" group to acquire
     the "second" resource (or vice-versa) will cause the test to fail.
+
+    NOTE: when running a parallel MultiTest, all testcases from a given
+    execution group are run together, regardless of the order they are defined
+    within the testsuite class. Each execution group is run separately from all
+    others. This is in contrast to the default serial mode, where testcases
+    are run serially in the order they are defined within the testsuite class.
     """
 
     def __init__(self):
@@ -33,6 +39,14 @@ class SampleTest(object):
         """
         self._test_g1_impl(env, result)
 
+    @testcase(execution_group='second')
+    def test_g2_1(self, env, result):
+        """Assert that no other test holds the second resource."""
+        with env.resources['second'] as res:
+            result.true(res.active)
+            result.equal(res.refcount, 1)
+        self._test_g2_1_done.set()
+
     @testcase(execution_group='first')
     def test_g1_2(self, env, result):
         """
@@ -42,7 +56,20 @@ class SampleTest(object):
         """
         self._test_g1_impl(env, result)
 
+    @testcase(execution_group='second')
+    def test_g2_2(self, env, result):
+        """Wait for test_g2_1 to release the resource before acquiring it."""
+        self._test_g2_1_done.wait()
+
+        with env.resources['second'] as res:
+            result.true(res.active)
+            result.equal(res.refcount, 1)
+
     def _test_g1_impl(self, env, result):
+        """
+        Implementation of test_g1 testcases. Both testcases use the same logic
+        but are run concurrently in separate threads.
+        """
         with env.resources['first'] as res:
             result.true(res.active)
 
@@ -56,23 +83,6 @@ class SampleTest(object):
             # Wait for both threads to check the refcount before releasing the
             # resource.
             self._barrier.wait()
-
-    @testcase(execution_group='second')
-    def test_g2_1(self, env, result):
-        """Assert that no other test holds the second resource."""
-        with env.resources['second'] as res:
-            result.true(res.active)
-            result.equal(res.refcount, 1)
-        self._test_g2_1_done.set()
-
-    @testcase(execution_group='second')
-    def test_g2_2(self, env, result):
-        """Wait for test_g2_1 to release the resource before acquiring it."""
-        self._test_g2_1_done.wait()
-
-        with env.resources['second'] as res:
-            result.true(res.active)
-            result.equal(res.refcount, 1)
 
 
 def make_multitest():
