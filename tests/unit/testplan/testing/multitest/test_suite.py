@@ -1,4 +1,4 @@
-"""TODO."""
+"""Unit tests for the testplan.testing.multitest.suite module."""
 
 import re
 
@@ -7,10 +7,7 @@ import pytest
 from testplan.common.utils.exceptions import should_raise
 from testplan.common.utils.interface import MethodSignatureMismatch
 from testplan.common.utils.strings import format_description
-from testplan.testing.multitest.suite import (
-    testcase, testsuite, skip_if, post_testcase,
-    pre_testcase, get_testcase_methods
-)
+from testplan.testing.multitest import suite
 from testplan.testing import tagging
 
 
@@ -18,66 +15,66 @@ def ptestcase(name, self, env, result, **kwargs):
     pass
 
 
-@pre_testcase(ptestcase)
-@post_testcase(ptestcase)
-@testsuite
+@suite.pre_testcase(ptestcase)
+@suite.post_testcase(ptestcase)
+@suite.testsuite
 class MySuite1(object):
-    @testcase
+    @suite.testcase
     def case1(self, env, result):
         pass
 
-    @skip_if(lambda suite: True)
-    @testcase
+    @suite.skip_if(lambda suite: True)
+    @suite.testcase
     def case2(self, env, result):
         pass
 
-    @testcase
+    @suite.testcase
     def case3(self, env, result):
         pass
 
 
-@testsuite(tags='A')
+@suite.testsuite(tags='A')
 class MySuite2(object):
-    @testcase(tags='B')
+    @suite.testcase(tags='B')
     def case1(self, env, result):
         pass
 
-    @skip_if(lambda suite: True)
-    @testcase(tags={'c': 'C'})
+    @suite.skip_if(lambda suite: True)
+    @suite.testcase(tags={'c': 'C'})
     def case2(self, env, result):
         pass
 
-    @testcase(tags={'d': ['D1', 'D2']})
+    @suite.testcase(tags={'d': ['D1', 'D2']})
     def case3(self, env, result):
         pass
 
 
-@testsuite
+@suite.testsuite
 class MySuite3(object):
-    @testcase(parameters=(1, 2, 3))
+    @suite.testcase(parameters=(1, 2, 3))
     def case(self, env, result, param):
         pass
 
 
-@testsuite
+@suite.testsuite
 class MySuite4(object):
-    @testcase(execution_group='group_0')
+    @suite.testcase(execution_group='group_0')
     def case1(self, env, result):
         pass
 
-    @testcase(execution_group='group_1')
+    @suite.testcase(execution_group='group_1')
     def case2(self, env, result):
         pass
 
-    @testcase(execution_group='group_0')
+    @suite.testcase(execution_group='group_0')
     def case3(self, env, result):
         pass
 
-    @testcase(execution_group='group_1')
+    @suite.testcase(execution_group='group_1')
     def case4(self, env, result):
         pass
 
-    @testcase(parameters=(1, 2, 3), execution_group='group_parallel')
+    @suite.testcase(parameters=(1, 2, 3), execution_group='group_parallel')
     def case(self, env, result, param):
         pass
 
@@ -88,7 +85,7 @@ def test_basic_suites():
     assert tuple(mysuite.__testcases__) == cases
     assert tuple(mysuite.__skip__) == ('case2',)
 
-    for method in get_testcase_methods(MySuite1):
+    for method in suite.get_testcase_methods(MySuite1):
         assert method.__name__ in cases
         assert callable(method)
 
@@ -133,17 +130,17 @@ def test_basic_execution_group():
 
 
 def incorrect_case_signature1():
-    @testsuite
+    @suite.testsuite
     class _(object):
-        @testcase
+        @suite.testcase
         def case1(self, envs, result):
             pass
 
 
 def incorrect_case_signature2():
-    @testsuite
+    @suite.testsuite
     class _(object):
-        @testcase
+        @suite.testcase
         def case1(self, env, results):
             pass
 
@@ -160,18 +157,24 @@ def test_testcase_signature():
 
 
 def incorrent_skip_if_signature1():
-    @testsuite
+    @suite.testsuite
     class _(object):
-        @skip_if(lambda _: True)
-        @testcase
+        @suite.skip_if(lambda _: True)
+        @suite.testcase
         def case1(self, env, result):
             pass
 
 
 def test_skip_if_signature():
     pattern = re.compile(r'.*Expected <lambda>\(suite\), not <lambda>\(_\).*')
-    should_raise(MethodSignatureMismatch, incorrent_skip_if_signature1,
-                 pattern=pattern)
+    try:
+        should_raise(MethodSignatureMismatch,
+                     incorrent_skip_if_signature1,
+                     pattern=pattern)
+    finally:
+        # Reset the global __TESTCASES__ list so that it doesn't contain a
+        # "case1" entry.
+        suite.__TESTCASES__ = []
 
 
 @pytest.mark.parametrize(

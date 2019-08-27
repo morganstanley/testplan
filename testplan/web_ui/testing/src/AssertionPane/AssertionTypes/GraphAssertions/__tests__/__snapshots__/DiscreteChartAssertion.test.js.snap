@@ -66,138 +66,7 @@ ShallowWrapper {
     "nodeType": "host",
     "props": Object {
       "children": Array [
-        <RadialChart
-          className=""
-          colorRange={
-                    Array [
-                              "#12939A",
-                              "#79C7E3",
-                              "#1A3177",
-                              "#FF9833",
-                              "#EF5D28",
-                            ]
-          }
-          colorType="literal"
-          data={
-                    Array [
-                              Object {
-                                "angle": 1,
-                                "color": "#89DAC1",
-                                "name": "green",
-                              },
-                              Object {
-                                "angle": 2,
-                                "color": "#F6D18A",
-                                "name": "yellow",
-                              },
-                              Object {
-                                "angle": 5,
-                                "color": "#1E96BE",
-                                "name": "cyan",
-                              },
-                              Object {
-                                "angle": 3,
-                                "color": "#DA70BF",
-                                "name": "magenta",
-                              },
-                              Object {
-                                "angle": 5,
-                                "color": "#F6D18A",
-                                "name": "yellow again",
-                              },
-                            ]
-          }
-          getAngle={[Function]}
-          getAngle0={[Function]}
-          getLabel={[Function]}
-          getRadius={[Function]}
-          getRadius0={[Function]}
-          getSubLabel={[Function]}
-          height={300}
-          labelsRadiusMultiplier={1.1}
-          labelsStyle={
-                    Object {
-                              "fontSize": 16,
-                            }
-          }
-          padAngle={0}
-          showLabels={true}
-          width={400}
-/>,
-      ],
-    },
-    "ref": null,
-    "rendered": Array [
-      Object {
-        "instance": null,
-        "key": undefined,
-        "nodeType": "function",
-        "props": Object {
-          "className": "",
-          "colorRange": Array [
-            "#12939A",
-            "#79C7E3",
-            "#1A3177",
-            "#FF9833",
-            "#EF5D28",
-          ],
-          "colorType": "literal",
-          "data": Array [
-            Object {
-              "angle": 1,
-              "color": "#89DAC1",
-              "name": "green",
-            },
-            Object {
-              "angle": 2,
-              "color": "#F6D18A",
-              "name": "yellow",
-            },
-            Object {
-              "angle": 5,
-              "color": "#1E96BE",
-              "name": "cyan",
-            },
-            Object {
-              "angle": 3,
-              "color": "#DA70BF",
-              "name": "magenta",
-            },
-            Object {
-              "angle": 5,
-              "color": "#F6D18A",
-              "name": "yellow again",
-            },
-          ],
-          "getAngle": [Function],
-          "getAngle0": [Function],
-          "getLabel": [Function],
-          "getRadius": [Function],
-          "getRadius0": [Function],
-          "getSubLabel": [Function],
-          "height": 300,
-          "labelsRadiusMultiplier": 1.1,
-          "labelsStyle": Object {
-            "fontSize": 16,
-          },
-          "padAngle": 0,
-          "showLabels": true,
-          "width": 400,
-        },
-        "ref": null,
-        "rendered": null,
-        "type": [Function],
-      },
-    ],
-    "type": "div",
-  },
-  Symbol(enzyme.__nodes__): Array [
-    Object {
-      "instance": null,
-      "key": undefined,
-      "nodeType": "host",
-      "props": Object {
-        "children": Array [
+        Array [
           <RadialChart
             className=""
             colorRange={
@@ -246,25 +115,295 @@ ShallowWrapper {
             getRadius0={[Function]}
             getSubLabel={[Function]}
             height={300}
-            labelsRadiusMultiplier={1.1}
-            labelsStyle={
-                        Object {
-                                    "fontSize": 16,
-                                  }
-            }
+            onSeriesMouseOut={[Function]}
+            onValueMouseOver={[Function]}
             padAngle={0}
-            showLabels={true}
             width={400}
 />,
+        ],
+        <DiscreteColorLegendItem
+          className=""
+          colors={
+                    Array [
+                              "#12939A",
+                              "#79C7E3",
+                              "#1A3177",
+                              "#FF9833",
+                              "#EF5D28",
+                            ]
+          }
+          items={
+                    Array [
+                              Object {
+                                "color": "#89DAC1",
+                                "title": "green",
+                              },
+                              Object {
+                                "color": "#F6D18A",
+                                "title": "yellow",
+                              },
+                              Object {
+                                "color": "#1E96BE",
+                                "title": "cyan",
+                              },
+                              Object {
+                                "color": "#DA70BF",
+                                "title": "magenta",
+                              },
+                              Object {
+                                "color": "#F6D18A",
+                                "title": "yellow again",
+                              },
+                            ]
+          }
+          orientation="horizontal"
+          width={750}
+/>,
+        <br />,
+        <p>
+          (Hover over chart to see labels)
+</p>,
+      ],
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": "Data Name",
+        "nodeType": "function",
+        "props": Object {
+          "children": false,
+          "className": "",
+          "colorRange": Array [
+            "#12939A",
+            "#79C7E3",
+            "#1A3177",
+            "#FF9833",
+            "#EF5D28",
+          ],
+          "colorType": "literal",
+          "data": Array [
+            Object {
+              "angle": 1,
+              "color": "#89DAC1",
+              "name": "green",
+            },
+            Object {
+              "angle": 2,
+              "color": "#F6D18A",
+              "name": "yellow",
+            },
+            Object {
+              "angle": 5,
+              "color": "#1E96BE",
+              "name": "cyan",
+            },
+            Object {
+              "angle": 3,
+              "color": "#DA70BF",
+              "name": "magenta",
+            },
+            Object {
+              "angle": 5,
+              "color": "#F6D18A",
+              "name": "yellow again",
+            },
+          ],
+          "getAngle": [Function],
+          "getAngle0": [Function],
+          "getLabel": [Function],
+          "getRadius": [Function],
+          "getRadius0": [Function],
+          "getSubLabel": [Function],
+          "height": 300,
+          "onSeriesMouseOut": [Function],
+          "onValueMouseOver": [Function],
+          "padAngle": 0,
+          "width": 400,
+        },
+        "ref": null,
+        "rendered": false,
+        "type": [Function],
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "function",
+        "props": Object {
+          "className": "",
+          "colors": Array [
+            "#12939A",
+            "#79C7E3",
+            "#1A3177",
+            "#FF9833",
+            "#EF5D28",
+          ],
+          "items": Array [
+            Object {
+              "color": "#89DAC1",
+              "title": "green",
+            },
+            Object {
+              "color": "#F6D18A",
+              "title": "yellow",
+            },
+            Object {
+              "color": "#1E96BE",
+              "title": "cyan",
+            },
+            Object {
+              "color": "#DA70BF",
+              "title": "magenta",
+            },
+            Object {
+              "color": "#F6D18A",
+              "title": "yellow again",
+            },
+          ],
+          "orientation": "horizontal",
+          "width": 750,
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {},
+        "ref": null,
+        "rendered": null,
+        "type": "br",
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": "(Hover over chart to see labels)",
+        },
+        "ref": null,
+        "rendered": "(Hover over chart to see labels)",
+        "type": "p",
+      },
+    ],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          Array [
+            <RadialChart
+              className=""
+              colorRange={
+                            Array [
+                                          "#12939A",
+                                          "#79C7E3",
+                                          "#1A3177",
+                                          "#FF9833",
+                                          "#EF5D28",
+                                        ]
+              }
+              colorType="literal"
+              data={
+                            Array [
+                                          Object {
+                                            "angle": 1,
+                                            "color": "#89DAC1",
+                                            "name": "green",
+                                          },
+                                          Object {
+                                            "angle": 2,
+                                            "color": "#F6D18A",
+                                            "name": "yellow",
+                                          },
+                                          Object {
+                                            "angle": 5,
+                                            "color": "#1E96BE",
+                                            "name": "cyan",
+                                          },
+                                          Object {
+                                            "angle": 3,
+                                            "color": "#DA70BF",
+                                            "name": "magenta",
+                                          },
+                                          Object {
+                                            "angle": 5,
+                                            "color": "#F6D18A",
+                                            "name": "yellow again",
+                                          },
+                                        ]
+              }
+              getAngle={[Function]}
+              getAngle0={[Function]}
+              getLabel={[Function]}
+              getRadius={[Function]}
+              getRadius0={[Function]}
+              getSubLabel={[Function]}
+              height={300}
+              onSeriesMouseOut={[Function]}
+              onValueMouseOver={[Function]}
+              padAngle={0}
+              width={400}
+/>,
+          ],
+          <DiscreteColorLegendItem
+            className=""
+            colors={
+                        Array [
+                                    "#12939A",
+                                    "#79C7E3",
+                                    "#1A3177",
+                                    "#FF9833",
+                                    "#EF5D28",
+                                  ]
+            }
+            items={
+                        Array [
+                                    Object {
+                                      "color": "#89DAC1",
+                                      "title": "green",
+                                    },
+                                    Object {
+                                      "color": "#F6D18A",
+                                      "title": "yellow",
+                                    },
+                                    Object {
+                                      "color": "#1E96BE",
+                                      "title": "cyan",
+                                    },
+                                    Object {
+                                      "color": "#DA70BF",
+                                      "title": "magenta",
+                                    },
+                                    Object {
+                                      "color": "#F6D18A",
+                                      "title": "yellow again",
+                                    },
+                                  ]
+            }
+            orientation="horizontal"
+            width={750}
+/>,
+          <br />,
+          <p>
+            (Hover over chart to see labels)
+</p>,
         ],
       },
       "ref": null,
       "rendered": Array [
         Object {
           "instance": null,
-          "key": undefined,
+          "key": "Data Name",
           "nodeType": "function",
           "props": Object {
+            "children": false,
             "className": "",
             "colorRange": Array [
               "#12939A",
@@ -308,17 +447,76 @@ ShallowWrapper {
             "getRadius0": [Function],
             "getSubLabel": [Function],
             "height": 300,
-            "labelsRadiusMultiplier": 1.1,
-            "labelsStyle": Object {
-              "fontSize": 16,
-            },
+            "onSeriesMouseOut": [Function],
+            "onValueMouseOver": [Function],
             "padAngle": 0,
-            "showLabels": true,
             "width": 400,
+          },
+          "ref": null,
+          "rendered": false,
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "function",
+          "props": Object {
+            "className": "",
+            "colors": Array [
+              "#12939A",
+              "#79C7E3",
+              "#1A3177",
+              "#FF9833",
+              "#EF5D28",
+            ],
+            "items": Array [
+              Object {
+                "color": "#89DAC1",
+                "title": "green",
+              },
+              Object {
+                "color": "#F6D18A",
+                "title": "yellow",
+              },
+              Object {
+                "color": "#1E96BE",
+                "title": "cyan",
+              },
+              Object {
+                "color": "#DA70BF",
+                "title": "magenta",
+              },
+              Object {
+                "color": "#F6D18A",
+                "title": "yellow again",
+              },
+            ],
+            "orientation": "horizontal",
+            "width": 750,
           },
           "ref": null,
           "rendered": null,
           "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {},
+          "ref": null,
+          "rendered": null,
+          "type": "br",
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": "(Hover over chart to see labels)",
+          },
+          "ref": null,
+          "rendered": "(Hover over chart to see labels)",
+          "type": "p",
         },
       ],
       "type": "div",

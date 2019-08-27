@@ -1,16 +1,17 @@
 """
-  Base classes go here.
+Base classes go here.
 """
 import datetime
 import operator
 import re
+import os
 
 from testplan.common.utils.convert import nested_groups
 from testplan.common.utils.timing import utcnow
 from testplan.common.utils.table import TableEntry
 from testplan.common.utils.reporting import fmt
 from testplan.common.utils.convert import flatten_formatted_object
-
+from testplan.common.utils import path as path_utils
 from testplan import defaults
 
 
@@ -223,20 +224,6 @@ class Log(BaseEntry):
         super(Log, self).__init__(description=description)
 
 
-class MatPlot(BaseEntry):
-    """Display a Matplotlib graph in the report."""
-    def __init__(self, pyplot, image_file_path, width=2, height=2,
-                 description=None):
-        dpi = 96
-        self.width = float(width)
-        self.height = float(height)
-        self.image_file_path = image_file_path
-        pyplot.savefig(image_file_path, dpi=dpi, pad_inches=0, transparent=True)
-        pyplot.close()
-
-        super(MatPlot, self).__init__(description=description)
-
-
 class TableLog(BaseEntry):
     """Log a table to the report."""
     def __init__(self, table, display_index=False, description=None):
@@ -272,13 +259,85 @@ class Graph(BaseEntry):
     """Create a graph for the report."""
     def __init__(self, graph_type, graph_data, description=None,
                  series_options=None, graph_options=None):
+        """
+        NOTE:
+        When adding functionality to Graph, VALID_GRAPH_TYPES,
+        VALID_CHART_TYPES, VALID_GRAPH_OPTIONS and
+        VALID_SERIES_OPTIONS must be kept updated
+        """
+        self.VALID_GRAPH_TYPES = ['Line', 'Scatter', 'Bar', 'Whisker',
+                                  'Contour', 'Hexbin']
+        self.VALID_CHART_TYPES = ['Pie']
+        self.VALID_GRAPH_OPTIONS = ['xAxisTitle', 'yAxisTitle', 'legend']
+        self.VALID_SERIES_OPTIONS = ['colour']
+
         self.graph_type = graph_type
         self.graph_data = graph_data
+
+        if series_options is not None:
+            self.assert_valid_series_options(series_options, graph_data)
         self.series_options = series_options
+
+        if graph_options is not None:
+            self.assert_valid_graph_options(graph_options)
         self.graph_options = graph_options
-        if graph_type != 'Pie':
-            self.type = 'Graph'
+
+        self.type = 'Graph'
+        if graph_type in self.VALID_CHART_TYPES:
+            self.discrete_chart = True
+        elif graph_type in self.VALID_GRAPH_TYPES:
+            self.discrete_chart = False
         else:
-            self.type = 'DiscreteChart'
+            raise ValueError('Graph of type {!r} cannot '
+                             'be rendered'.format(graph_type))
 
         super(Graph, self).__init__(description=description)
+
+    def assert_valid_graph_options(self, graph_options):
+        for option in graph_options:
+            if option not in self.VALID_GRAPH_OPTIONS:
+                raise ValueError('Graph option {!r} '
+                                 'is not valid'.format(option))
+
+    def assert_valid_series_options(self, series_options, graph_data):
+        for series_name in series_options:
+            if series_name not in graph_data:
+                raise ValueError('Series {!r} cannot be found in '
+                                 'graph data, cannot '
+                                 'apply series options'.format(series_name))
+            for series_option in series_options[series_name]:
+                if series_option not in self.VALID_SERIES_OPTIONS:
+                    raise ValueError('Series Option: {!r} is not '
+                                     'valid (found in series '
+                                     '{!r})'.format(series_option, series_name))
+
+
+class Attachment(BaseEntry):
+    """Entry representing a file attached to the report."""
+
+    def __init__(self, filepath, description):
+        self.source_path = filepath
+        self.hash = path_utils.hash_file(filepath)
+        self.orig_filename = os.path.basename(filepath)
+        self.filesize = os.path.getsize(filepath)
+
+        basename, ext = os.path.splitext(self.orig_filename)
+        self.dst_path = "{basename}-{hash}-{filesize}{ext}".format(
+            basename=basename,
+            hash=self.hash,
+            filesize=self.filesize,
+            ext=ext)
+        super(Attachment, self).__init__(description=description)
+
+
+class MatPlot(Attachment):
+    """Display a MatPlotLib graph in the report."""
+    def __init__(self, pyplot, image_file_path, width=2, height=2,
+                 description=None):
+        self.width = float(width)
+        self.height = float(height)
+        dpi = 96
+        pyplot.savefig(image_file_path, dpi=dpi, pad_inches=0, transparent=True)
+        pyplot.close()
+        super(MatPlot, self).__init__(filepath=image_file_path,
+                                      description=description)

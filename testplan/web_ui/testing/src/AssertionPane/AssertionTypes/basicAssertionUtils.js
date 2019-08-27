@@ -1,7 +1,454 @@
 import React, {Fragment} from 'react';
 import {hashCode} from '../../Common/utils';
+import {css, StyleSheet} from 'aphrodite';
+import TextAttachment from './TextAttachment';
 
 /** @module basicAssertionUtils */
+
+/**
+ * Content required to render a basic assertion. The content is rendered by the
+ * BasicAssertion component, refer to that component for a diagram of how each
+ * content section is displayed.
+ *
+ * @typedef {Object} AssertionContent
+ * @property {object|string|null} preTitle - Content above the assertion title
+ * @property {object|string|null} preContent - Content between the preTitle and
+ *                                             the title
+ * @property {object|string|null} leftTitle - Left side of the title
+ * @property {object|string|null} rightTitle - Right side of the title
+ * @property {object|string|null} leftContent - Left side of the main content
+ * @property {object|string|null} rightContent - Right side of the main content
+ * @property {object|string|null} postTitle - Content immediately below the
+ *                                            title
+ * @property {object|string|null} postContent - Final content of assertion
+ */
+
+/**
+ * Prepare the content for the Log assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for Log assertion
+ * @private
+ */
+function prepareLogContent(assertion, defaultContent) {
+  const preContent = (
+    <span>
+      {assertion.message !== undefined ? assertion.message : null}
+     </span>
+  );
+
+  return {
+    ...defaultContent,
+    preContent: preContent,
+    leftTitle: null,
+    rightTitle: null,
+  };
+}
+
+/**
+ * Prepare the content for the Equal assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for Equal assertion
+ * @private
+ */
+function prepareEqualContent(assertion, defaultContent) {
+  const leftContent = <span>{assertion.second}</span>;
+
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+  };
+}
+
+/**
+ * Prepare the content for the NotEqual assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for NotEqual assertion
+ * @private
+ */
+function prepareNotEqualContent(assertion, defaultContent) {
+  const leftContent = <span>&lt;not&gt; {assertion.second}</span>;
+
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+  };
+}
+
+/**
+ * Prepare the content for comparison assertions (lessThan,
+ * greaterThan etc.).
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for comparison assertion
+ * @private
+ */
+function prepareComparisonContent(assertion, defaultContent) {
+    const leftContent = (
+      <span>value {assertion.label} {assertion.second}</span>
+    );
+
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+  };
+}
+
+/**
+ * Prepare the content for the IsClose assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for IsClose assertion
+ * @private
+ */
+function prepareIsCloseContent(assertion, defaultContent) {
+  const leftContent = (
+    <span>
+      value {assertion.label} {assertion.second}
+      &nbsp;within rel_tol={assertion.rel_tol} or abs_tol={assertion.abs_tol}
+    </span>
+  );
+
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+  };
+}
+
+/**
+ * Prepare the content for the IsTrue assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for IsTrue assertion
+ * @private
+ */
+function prepareIsTrueContent(assertion, defaultContent) {
+  const leftContent = <span>value is True</span>;
+  const rightContent = (
+    <span>{assertion.passed ? `True` : `False`}</span>
+  );
+
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+    rightContent: rightContent,
+  };
+}
+
+/**
+ * Prepare the content for the IsFalse assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for IsFalse assertion
+ * @private
+ */
+function prepareIsFalseContent(assertion, defaultContent) {
+  const leftContent = <span>value is False</span>;
+  const rightContent = (
+    <span>{assertion.passed ? `False` : `True`}</span>
+  );
+
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+    rightContent: rightContent,
+  };
+}
+
+/**
+ * Prepare the content for the Fail assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for Fail assertion
+ * @private
+ */
+function prepareFailContent(assertion, defaultContent) {
+  return {
+    ...defaultContent,
+    leftTitle: null,
+    rightTitle: null,
+    leftContent: null,
+    rightContent: null,
+  };
+}
+
+/**
+ * Prepare the content for the Contain assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for Contain assertion
+ * @private
+ */
+function prepareContainContent(assertion, defaultContent) {
+  const leftContent = <span>{assertion.member} &lt;in&gt; value</span>;
+  const rightContent = <span>{assertion.container}</span>;
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+    rightContent: rightContent,
+  };
+}
+
+/**
+ * Prepare the content for the NotContain assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for NotContain assertion
+ * @private
+ */
+function prepareNotContainContent(assertion, defaultContent) {
+  const leftContent = (
+    <span>{assertion.member} &lt;not in&gt; value</span>
+  );
+  const rightContent = <span>{assertion.container}</span>;
+
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+    rightContent: rightContent,
+  };
+}
+
+/**
+ * Prepare the content for the LineDiff assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for LineDiff assertion
+ * @private
+ */
+function prepareLineDiffContent(assertion, defaultContent) {
+  const uid = hashCode(JSON.stringify(assertion));
+  const leftContent = (
+    <span>
+      {
+        assertion.delta.map(
+          (line, index) => {
+            return (
+              <span
+                key={"LineDiffleftContent" + uid + index}
+                style={{ whiteSpace: 'pre' }}
+              >
+                {line}
+              </span>
+            );
+          }
+        )
+      }
+    </span>
+  );
+  const leftTitle = (
+    <span>{!assertion.passed ? 'Differences:' : 'No differences.'}</span>
+  );
+
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+    rightContent: null,
+    leftTitle: leftTitle,
+    rightTitle: null,
+  };
+}
+
+/*
+ * Prepare the content for the ExceptionRaised and ExceptionNotRaised
+ * assertions.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for exception assertion
+ * @private
+ */
+function prepareExceptionContent(assertion, defaultContent) {
+  const leftContent = <span>{assertion.expected_exceptions}</span>;
+  const rightContent = (
+    <span>
+      {assertion.raised_exception[0]} (value: {assertion.raised_exception[1]})
+    </span>
+  );
+  const leftTitle = <span>Expected exceptions:</span>;
+  const rightTitle = <span>Raised exceptions:</span>;
+
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+    rightContent: rightContent,
+    leftTitle: leftTitle,
+    rightTitle: rightTitle,
+  };
+}
+
+/*
+ * Prepare the content for the RegexMatch, RegexMatchNotExists, RegexSearch,
+ * RegexSearchNotExists and RegexFindIter assertions.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for regex assertion
+ * @private
+ */
+function prepareRegexContent(assertion, defaultContent) {
+  const assertionString = assertion.string;
+  let reconstructedString = [];
+  let prevIdx = 0;
+  const uid = hashCode(JSON.stringify(assertion)).toString();
+
+  assertion.match_indexes.forEach(index => {
+    reconstructedString.push(
+      <span key={uid + index + '0'}>
+        {assertionString.slice(prevIdx, index[0])}
+      </span>
+    );
+    reconstructedString.push(
+      <span
+        style={{ backgroundColor: 'rgba(0, 123, 255, .5)' }}
+        key={uid + index + '1'}
+      >
+        {assertionString.slice(index[0], index[1])}
+      </span>
+    );
+    prevIdx = index[1];
+  });
+
+  reconstructedString.push(
+    <span key={uid + prevIdx}>
+      {assertionString.slice(prevIdx)}
+    </span>
+  );
+
+  const leftContent = (
+    <div>
+      <span>{assertion.pattern}</span>
+      <span>
+        {
+          assertion.condition && (
+            <div key={assertion.uid}>
+              <br/>
+              <strong>Condition:</strong>
+              <br/>
+              <span>{assertion.condition}</span>
+            </div>
+          )
+        }
+      </span>
+    </div>
+  );
+  const rightContent = (
+    <span style={{ whiteSpace: 'pre' }}>
+      {reconstructedString}
+    </span>
+  );
+  const leftTitle = <span>Pattern:</span>;
+  const rightTitle = <span>String:</span>;
+
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+    rightContent: rightContent,
+    leftTitle: leftTitle,
+    rightTitle: rightTitle,
+  };
+}
+
+/**
+ * Prepare the content for the RegexMatchLine assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for RegexMatchLine assertion
+ * @private
+ */
+function prepareRegexMatchLineContent(assertion, defaultContent) {
+  const assertionString = assertion.string.split('\n');
+  const uid = hashCode(JSON.stringify(assertion));
+  const reconstructedString = assertion.match_indexes.map((index) => (
+      <span
+        key={uid + index}
+        style={{ backgroundColor: 'rgba(0, 123, 255, .5)' }}
+      >
+        {assertionString[index[0]].slice(index[1], index[2]) + '\n'}
+      </span>
+  ));
+
+  const leftContent = <span>{assertion.pattern}</span>;
+  const rightContent = (
+    <span style={{ whiteSpace: 'pre' }}>
+      {reconstructedString}
+    </span>
+  );
+  const leftTitle = <span>Pattern:</span>;
+  const rightTitle = <span>String:</span>;
+
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+    rightContent: rightContent,
+    leftTitle: leftTitle,
+    rightTitle: rightTitle,
+  };
+}
+
+/**
+ * Prepare the content for the XMLCheck assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for XMLCheck assertion
+ * @private
+ */
+function prepareXMLCheckContent(assertion, defaultContent) {
+  const leftContent = <span>{assertion.xpath}</span>;
+  const rightContent = (
+    <span style={{ whiteSpace: 'pre' }}>
+      {assertion.xml.replace(/ {12}/g, '')}
+    </span>
+  );
+  const leftTitle = <span>Expected XPath:</span>;
+  const rightTitle = <span>XML:</span>;
+
+  return {
+    ...defaultContent,
+    leftContent: leftContent,
+    rightContent: rightContent,
+    leftTitle: leftTitle,
+    rightTitle: rightTitle,
+  };
+}
+
+/**
+ * Prepare the content for the EqualSlices and EqualExcludesSlices
+ * assertions.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for equal slices assertion
+ * @private
+ */
+function prepareEqualSlicesContent(assertion, defaultContent) {
+  const preTitle = <span>Slices:</span>;
+  const preContent = (
+    <Fragment>
+      <span style={{ whiteSpace: 'pre' }}>
+        {assertion.data.map(slice => slice[0]).join('\n')}
+      </span>
+      <hr />
+    </Fragment>
+  );
+  const leftContent = (
+    <span>[{prepareSliceLists(assertion.expected, assertion.data)}]</span>
+  );
+  const rightContent = (
+    <span>[{prepareSliceLists(assertion.actual, assertion.data)}]</span>
+  );
+  const leftTitle = <span>Expected:</span>;
+  const rightTitle = <span>Value:</span>;
+
+  return {
+    ...defaultContent,
+    preTitle: preTitle,
+    preContent: preContent,
+    leftContent: leftContent,
+    rightContent: rightContent,
+    leftTitle: leftTitle,
+    rightTitle: rightTitle,
+  };
+}
 
 /**
  * Return a list of span components that wrap the elements of the list.
@@ -43,21 +490,14 @@ function prepareSliceLists(list, data) {
 }
 
 /**
- * Return a span component to display DictCheck & FixCheck assertions.
- * E.g.:
- *
- * Existence check: [26, 22, 11]
- * Absence check: [444, 555]
- *
- * Values of the list will be red if they fail to make the existence/absence 
- * conditions.
- *
+ * Prepare the content for the DictCheck and FixCheck assertions.
  * @param {object} assertion
- * @returns {object}
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for dict match assertion
  * @private
  */
-function prepareDictCheckContent(assertion) {
-  return (
+function prepareDictCheckContent(assertion, defaultContent) {
+  const preContent = (
     <span>
       Existence check:
       [{assertion.has_keys.map((key, index) =>
@@ -73,8 +513,8 @@ function prepareDictCheckContent(assertion) {
       [{assertion.absent_keys.map((key, index) =>
         <span
           style={{
-            color: assertion.absent_keys_diff.indexOf(key) >= 0 
-            ? 'red' 
+            color: assertion.absent_keys_diff.indexOf(key) >= 0
+            ? 'red'
             : 'black'
           }}
           key={`check_${key}_${index}`}>
@@ -82,97 +522,161 @@ function prepareDictCheckContent(assertion) {
         </span>).reduce((prev, curr) => [prev, ', ', curr])}]
     </span>
   );
+
+  return {
+    ...defaultContent,
+    preContent: preContent,
+    leftTitle: null,
+    rightTitle: null,
+  };
 }
 
-/**
- * Return a span component that wraps the checked string of Regex assertions
- * where matches will be highlighted.
+/*
+ * Prepare the contents of a report Attachment entry. Currently this just
+ * provides a link to download the raw file. In future we could inspect
+ * the filetype and e.g. render image files inline.
  *
  * @param {object} assertion
- * @returns {Array}
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for attachment assertion
  * @private
  */
-function prepareRegexContent(assertion) {
-  const assertionString = assertion.string;
-  let reconstructedString = [];
-  let prevIdx = 0;
+function prepareAttachmentContent(assertion, defaultContent) {
+  const paths = window.location.pathname.split('/');
+  const uid = paths[2];
+  let attachment_content;
+  let file_type = assertion.orig_filename.split('.').pop()
+  let file_path = assertion.dst_path;
+  let description = assertion.description;
+  let get_path = `/api/v1/reports/${uid}/attachments/${file_path}`
 
-  let uid = hashCode(JSON.stringify(assertion)).toString();
+  switch(file_type){
+    case 'txt':
+    case 'log':
+    case 'out':
+    case 'csv':
+        attachment_content = (<TextAttachment
+                        src={get_path}
+                        file_name={assertion.orig_filename}
+                        />)
+        break;
 
-  assertion.match_indexes.forEach(index => {
-    reconstructedString.push(
-      <span key={uid + index + '0'}>
-        {assertionString.slice(prevIdx, index[0])}
-      </span>
-    );
-    reconstructedString.push(
-      <span
-        style={{ backgroundColor: 'rgba(0, 123, 255, .5)' }}
-        key={uid + index + '1'}
-      >
-        {assertionString.slice(index[0], index[1])}
-      </span>
-    );
-    prevIdx = index[1];
-  });
+    case 'jpeg':
+    case 'jpg':
+    case 'bmp':
+    case 'png':
+        attachment_content = getImageContent(get_path, description);
+        break;
 
-  reconstructedString.push(
-    <span key={uid + prevIdx}>
-      {assertionString.slice(prevIdx)}
-    </span>
-  );
+    default:
+      // When running the development server, the real Testplan back-end is not
+      // running so we can't GET the attachment. Stick in a button that
+      // gives a debug message instead of the real link.
+      if ((paths.length >= 2) && (paths[1] === '_dev')) {
+        attachment_content = (
+          <button onClick={() => alert("Would download: " + file_path)}>
+            {assertion.orig_filename}
+          </button>
+        );
+      } else if (paths.length >= 3) {
+        attachment_content = (
+          <a href={get_path}>
+            {assertion.orig_filename}
+          </a>
+        );
+      }
+  }
 
-  return reconstructedString;
+  return {
+    ...defaultContent,
+    leftTitle: null,
+    rightTitle: null,
+    leftContent: attachment_content,
+    rightContent: null,
+  };
 }
 
-/**
- *  Return a span component that wraps the checked string of RegexMatchLine
- *  assertion where matches will be highlighted.
+/*
+ * Helps prepare the contents of an Image.
+ *
+ * @param {str} image_path
+ * @param {str} description
+ * @return {JSX} Content for an image to be displayed
+ * @private
+ */
+function getImageContent(image_path, description){
+
+    return (
+            <div>
+              <figure className={css(styles.caption)}>
+                  <img src={image_path}
+                       class="img-responsive ..."
+                       alt="Cannot Find File"
+                  />
+                  <figcaption className={css(styles.caption)}>
+                  <a href={image_path}>
+                     {description? description: "Image"}
+                  </a>
+                  </figcaption>
+              </figure>
+            </div>
+    );
+}
+
+/*
+ * Prepare the contents of a MatPlot assertion.
  *
  * @param {object} assertion
- * @returns {Array}
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for MatPlot assertion
  * @private
  */
-function prepareRegexMatchLineContent(assertion) {
-  let assertionString = assertion.string.split('\n');
-  let reconstructedString = [];
+function prepareMatPlotContent(assertion, defaultContent) {
 
-  let uid = hashCode(JSON.stringify(assertion));
+    const paths = window.location.pathname.split('/');
+    const uid = paths[2];
+    let matplot_content;
+    let description = assertion.description;
+    let get_path = `/api/v1/reports/${uid}/attachments/${assertion.dst_path}`
 
-  assertion.match_indexes.forEach(index => {
-    reconstructedString.push(
-      <span
-        key={uid + index}
-        style={{ backgroundColor: 'rgba(0, 123, 255, .5)' }}
-      >
-        {assertionString[index[0]].slice(index[1], index[2]) + '\n'}
-      </span>
-    );
-  });
+    if ((paths.length >= 2) && (paths[1] === '_dev')) {
+        matplot_content = (
+              <figure className={css(styles.caption)}>
+                  <a>
+                     Would display MatPlot from: {get_path}
+                  </a>
+                  <figcaption className={css(styles.caption)}>
+                  <a>
+                     <u> {description? description: "MatPlot Image"} </u>
+                  </a>
+                  </figcaption>
+              </figure>
+        );
+    } else if (paths.length >= 3) {
+        matplot_content = getImageContent(get_path, description);
+    }
 
-  return reconstructedString;
+    return {
+    ...defaultContent,
+    leftTitle: null,
+    rightTitle: null,
+    leftContent: matplot_content,
+    rightContent: null,
+    };
 }
+
 
 /**
  * Prepare the contents of the BasicAssertion component.
  *
  * @param {object} assertion
- * @returns {{
- *    preTitle: object|string|null,
- *    preContent: object|string|null,
- *    leftTitle: object|string|null,
- *    rightTitle: object|string|null,
- *    leftContent: object|string|null,
- *    rightContent: object|string|null,
- *    postTitle: object|string|null,
- *    postContent: object|string|null
- * }}
+ * @returns {AssertionContent} Content for the assertion based on its type.
  * @public
  */
 function prepareBasicContent(assertion) {
-  // This is a long function with lots of if elses, however I think it shows
-  // what it is doing a clearly and simply as it can
-  let content = {
+  // Default content for a basic assertion. Specific assertion types will
+  // modify this content.
+  const defaultContent = {
     preTitle: null,
     preContent: null,
     leftTitle: 'Expected:',
@@ -181,157 +685,90 @@ function prepareBasicContent(assertion) {
     rightContent: assertion.first,
     postTitle: null,
     postContent: null,
-  };
-
-  var uid = hashCode(JSON.stringify(assertion));
-
-  if (assertion.type === 'Log') {
-    content['preContent'] = (
-      <span>
-        {assertion.message !== undefined ? assertion.message : null}
-      </span>
-    );
-    content['leftTitle'] = null;
-    content['rightTitle'] = null;
-
-  } else if (assertion.type === 'Equal') {
-    content['leftContent'] = <span>{assertion.second}</span>;
-
-  } else if (assertion.type === 'NotEqual') {
-    content['leftContent'] = <span>&lt;not&gt; {assertion.second}</span>;
-
-  } else if (['Greater', 'GreaterEqual', 'Less', 'LessEqual']
-    .indexOf(assertion.type) >= 0) {
-    content['leftContent'] =
-      <span>value {assertion.label} {assertion.second}</span>;
-
-  } else if (assertion.type === 'IsClose') {
-    content['leftContent'] =
-      <span>
-        value {assertion.label} {assertion.second}
-        &nbsp;within rel_tol={assertion.rel_tol} or abs_tol={assertion.abs_tol}
-      </span>;
-
-  } else if (assertion.type === 'IsTrue') {
-    content['leftContent'] = <span>value is True</span>;
-    content['rightContent'] =
-      <span>{assertion.passed ? `True` : `False`}</span>;
-
-  } else if (assertion.type === 'IsFalse') {
-    content['leftContent'] = <span>value is False</span>;
-    content['rightContent'] =
-      <span>{assertion.passed ? `False` : `True`}</span>;
-
-  } else if (assertion.type === 'Fail') {
-    content['leftContent'] = null;
-    content['rightContent'] = null;
-    content['leftTitle'] = null;
-    content['rightTitle'] = null;
-
-  } else if (assertion.type === 'Contain') {
-    content['leftContent'] = <span>{assertion.member} &lt;in&gt; value</span>;
-    content['rightContent'] = <span>{assertion.container}</span>;
-
-  } else if (assertion.type === 'NotContain') {
-    content['leftContent'] = 
-      <span>{assertion.member} &lt;not in&gt; value</span>;
-    content['rightContent'] = <span>{assertion.container}</span>;
-
-  } else if (assertion.type === 'LineDiff') {
-    content['leftContent'] =
-      <span>
-        {assertion.delta.map(
-          (line, index) => {
-            return (
-              <span 
-                key={"LineDiffleftContent"+uid+index}
-                style={{ whiteSpace: 'pre' }}
-              >
-                {line}
-              </span>
-            );
-          }
-        )}
-      </span>;
-    content['rightContent'] = null;
-    content['leftTitle'] =
-      <span>{!assertion.passed ? 'Differences:' : 'No differences.'}</span>;
-    content['rightTitle'] = null;
-
-  } else if (['ExceptionRaised', 'ExceptionNotRaised']
-    .indexOf(assertion.type) >= 0
-  ) {
-    content['leftContent'] = <span>{assertion.expected_exceptions}</span>;
-    content['rightContent'] =
-      <span>
-        {assertion.raised_exception[0]} (value: {assertion.raised_exception[1]})
-      </span>;
-    content['leftTitle'] = <span>Expected exceptions:</span>;
-    content['rightTitle'] = <span>Raised exceptions:</span>;
-
-  } else if (
-    [
-      'RegexMatch',
-      'RegexMatchNotExists',
-      'RegexSearch',
-      'RegexSearchNotExists',
-      'RegexFindIter'
-    ].indexOf(assertion.type) >= 0
-  ) {
-    content['leftContent'] = <span>{assertion.pattern}</span>;
-    content['rightContent'] =
-      <span style={{ whiteSpace: 'pre' }}>
-        {prepareRegexContent(assertion)}
-      </span>;
-    content['leftTitle'] = <span>Pattern:</span>;
-    content['rightTitle'] = <span>String:</span>;
-
-  } else if (assertion.type === 'RegexMatchLine') {
-    content['leftContent'] = <span>{assertion.pattern}</span>;
-    content['rightContent'] =
-      <span style={{ whiteSpace: 'pre' }}>
-        {prepareRegexMatchLineContent(assertion)}
-      </span>;
-    content['leftTitle'] = <span>Pattern:</span>;
-    content['rightTitle'] = <span>String:</span>;
-
-  } else if (assertion.type === 'XMLCheck') {
-    content['leftContent'] = <span>{assertion.xpath}</span>;
-    content['rightContent'] =
-      <span style={{ whiteSpace: 'pre' }}>
-        {assertion.xml.replace(/ {12}/g, '')}
-      </span>;
-    content['leftTitle'] = <span>Expected XPath:</span>;
-    content['rightTitle'] = <span>XML:</span>;
-
-  } else if (
-    ['EqualSlices', 'EqualExcludeSlices'].indexOf(assertion.type) >= 0
-  ) {
-    content['preTitle'] = <span>Slices:</span>;
-    content['preContent'] =
-      <Fragment>
-        <span style={{ whiteSpace: 'pre' }}>
-          {assertion.data.map(slice => slice[0]).join('\n')}
-        </span>
-        <hr />
-      </Fragment>;
-    content['leftContent'] =
-      <span>[{prepareSliceLists(assertion.expected, assertion.data)}]</span>;
-    content['rightContent'] =
-      <span>[{prepareSliceLists(assertion.actual, assertion.data)}]</span>;
-    content['leftTitle'] = <span>Expected:</span>;
-    content['rightTitle'] = <span>Value:</span>;
-
-  } else if (['DictCheck', 'FixCheck'].indexOf(assertion.type) >= 0) {
-    content['leftTitle'] = null;
-    content['rightTitle'] = null;
-    content['preContent'] = prepareDictCheckContent(assertion);
   }
 
-  return content;
+  // Fan out to the relevant function to prepare content for each assertion
+  // type.
+  switch (assertion.type) {
+    case 'Log':
+      return prepareLogContent(assertion, defaultContent);
+
+    case 'Equal':
+      return prepareEqualContent(assertion, defaultContent);
+
+    case 'NotEqual':
+      return prepareNotEqualContent(assertion, defaultContent);
+
+    case 'Greater':
+    case 'GreaterEqual':
+    case 'Less':
+    case 'LessEqual':
+      return prepareComparisonContent(assertion, defaultContent);
+
+    case 'IsClose':
+      return prepareIsCloseContent(assertion, defaultContent);
+
+    case 'IsTrue':
+      return prepareIsTrueContent(assertion, defaultContent);
+
+    case 'IsFalse':
+      return prepareIsFalseContent(assertion, defaultContent);
+
+    case 'Fail':
+      return prepareFailContent(assertion, defaultContent);
+
+    case 'Contain':
+      return prepareContainContent(assertion, defaultContent);
+
+    case 'NotContain':
+      return prepareNotContainContent(assertion, defaultContent);
+
+    case 'LineDiff':
+      return prepareLineDiffContent(assertion, defaultContent);
+
+    case 'ExceptionRaised':
+    case 'ExceptionNotRaised':
+      return prepareExceptionContent(assertion, defaultContent);
+
+    case 'RegexMatch':
+    case 'RegexMatchNotExists':
+    case 'RegexSearch':
+    case 'RegexSearchNotExists':
+    case 'RegexFindIter':
+      return prepareRegexContent(assertion, defaultContent);
+
+    case 'RegexMatchLine':
+      return prepareRegexMatchLineContent(assertion, defaultContent);
+
+    case 'XMLCheck':
+      return prepareXMLCheckContent(assertion, defaultContent);
+
+    case 'EqualSlices':
+    case 'EqualExcludeSlices':
+      return prepareEqualSlicesContent(assertion, defaultContent);
+
+    case 'DictCheck':
+    case 'FixCheck':
+      return prepareDictCheckContent(assertion, defaultContent);
+
+    case 'Attachment':
+      return prepareAttachmentContent(assertion, defaultContent);
+
+    case 'MatPlot':
+      return prepareMatPlotContent(assertion, defaultContent);
+
+    default:
+      return defaultContent;
+  }
 }
 
+const styles = StyleSheet.create({
+  caption: {
+    'text-align': 'center'
+  }
+});
 
 export {
   prepareBasicContent,
 };
+

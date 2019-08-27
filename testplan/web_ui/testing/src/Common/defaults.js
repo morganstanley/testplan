@@ -95,15 +95,16 @@ const NAV_ENTRY_DISPLAY_DATA = [
 
 const BASIC_ASSERTION_TYPES = [
   'Log',
-  'Equal', 'NotEqual', 'Greater', 'GreaterEqual', 'Less', 'LessEqual', 
+  'Equal', 'NotEqual', 'Greater', 'GreaterEqual', 'Less', 'LessEqual',
   'IsClose', 'IsTrue', 'IsFalse',
   'Fail', 'Contain', 'NotContain', 'LineDiff',
   'ExceptionRaised', 'ExceptionNotRaised',
-  'RegexMatch', 'RegexMatchNotExists', 'RegexSearch', 'RegexSearchNotExists', 
+  'RegexMatch', 'RegexMatchNotExists', 'RegexSearch', 'RegexSearchNotExists',
   'RegexFindIter', 'RegexMatchLine',
   'XMLCheck',
   'EqualSlices', 'EqualExcludeSlices',
   'DictCheck', 'FixCheck',
+  'Attachment', 'MatPlot',
 ];
 
 const SORT_TYPES = {

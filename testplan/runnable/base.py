@@ -41,6 +41,8 @@ def get_default_exporters(config):
         result.append(test_exporters.JSONExporter())
     if config.xml_dir:
         result.append(test_exporters.XMLExporter())
+    if config.http_url is not None:
+        result.append(test_exporters.HTTPExporter(url=config.http_url))
     if config.ui_port is not None:
         result.append(test_exporters.WebServerExporter(ui_port=config.ui_port))
     return result
@@ -96,6 +98,7 @@ class TestRunnerConfig(RunnableConfig):
     def get_options(cls):
         return {
             'name': str,
+            ConfigOption('description', default=None): Or(str, None),
             ConfigOption('logger_level', default=logger.TEST_INFO): int,
             ConfigOption('file_log_level', default=logger.DEBUG): Or(int, None),
             ConfigOption(
@@ -104,7 +107,7 @@ class TestRunnerConfig(RunnableConfig):
                 ): Or(None, str, lambda x: callable(x)),
             ConfigOption('path_cleanup', default=True): bool,
             ConfigOption('all_tasks_local', default=False): bool,
-            ConfigOption('shuffle', default=[]): list, # list of string choices
+            ConfigOption('shuffle', default=[]): list,  # list of string choices
             ConfigOption(
                 'shuffle_seed', default=float(random.randint(1, 9999))): float,
             ConfigOption(
@@ -116,6 +119,7 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption('xml_dir', default=None,): Or(str, None),
             ConfigOption('pdf_path', default=None,): Or(str, None),
             ConfigOption('json_path', default=None,): Or(str, None),
+            ConfigOption('http_url', default=None): Or(str, None),
             ConfigOption('pdf_style', default=defaults.PDF_STYLE,): Style,
             ConfigOption('report_tags', default=[]
                          ): [Use(tagging.validate_tag_value)],
@@ -178,7 +182,7 @@ class TestRunnerResult(RunnableResult):
 
 
 class TestRunner(Runnable):
-    """
+    r"""
     Adds tests to test
     :py:class:`executor <testplan.runners.base.Executor>` resources
     and invoke report
@@ -188,6 +192,8 @@ class TestRunner(Runnable):
 
     :param name: Name of test runner.
     :type name: ``str``
+    :param description: Description of test runner.
+    :type description: ``str``
     :param logger_level: Logger level for stdout.
     :type logger_level: ``int``
     :param: file_log_level: Logger level for file.
@@ -196,7 +202,7 @@ class TestRunner(Runnable):
     :type runpath: ``str`` or ``callable``
     :param path_cleanup: Clean previous runpath entries.
     :type path_cleanup: ``bool``
-    :param all_tasks_local: TODO
+    :param all_tasks_local: Schedule all tasks in local pool
     :type all_tasks_local: ``bool``
     :param shuffle: Shuffle strategy.
     :type shuffle: ``list`` of ``str``
@@ -217,12 +223,20 @@ class TestRunner(Runnable):
     :type json_path: ``str``
     :param pdf_style: PDF creation styling options.
     :type pdf_style: :py:class:`Style <testplan.report.testing.styles.Style>`
+    :param http_url: Web url for posting test report.
+    :type http_url: ``str``
     :param report_tags: Matches tests marked with any of the given tags.
     :type report_tags: ``list``
     :param report_tags_all: Match tests marked with all of the given tags.
     :type report_tags_all: ``list``
     :param merge_scheduled_parts: Merge report of scheduled MultiTest parts.
     :type merge_scheduled_parts: ``bool``
+    :param browse: Open web browser to display the test report.
+    :type browse: ``bool`` or ``NoneType``
+    :param ui_port: Port of web server for displaying test report.
+    :type ui_port: ``int`` or ``NoneType``
+    :param web_server_startup_timeout: Timeout for starting web server.
+    :type web_server_startup_timeout: ``int``
     :param test_filter: Tests filtering class.
     :type test_filter: Subclass of
         :py:class:`BaseFilter <testplan.testing.filtering.BaseFilter>`
@@ -232,8 +246,12 @@ class TestRunner(Runnable):
     :param test_lister: Tests listing class.
     :type test_lister: Subclass of
         :py:class:`BaseLister <testplan.testing.listing.BaseLister>`
+    :param verbose: Enable or disable verbose mode.
+    :type verbose: ``bool``
+    :param debug: Enable or disable debug mode.
+    :type debug: ``bool``
     :param timeout: Timeout value for test execution.
-    :type timeout: ``None`` or ``int`` or ``float`` greater than 0.
+    :type timeout: ``NoneType`` or ``int`` or ``float`` greater than 0.
     :param interactive_handler: Handler for interactive mode execution.
     :type interactive_handler: Subclass of :py:class:
         `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
@@ -256,6 +274,7 @@ class TestRunner(Runnable):
             name=self.cfg.name, uid=self.cfg.name)
         self._configure_stdout_logger()
         self._web_server_thread = None
+        self._file_log_handler = None
 
     @property
     def report(self):
@@ -427,6 +446,7 @@ class TestRunner(Runnable):
         self._add_step(self._record_end)  # needs to happen before export
         self._add_step(self._invoke_exporters)
         self._add_step(self._post_exporters)
+        self._add_step(self._close_file_logger)
 
     def _wait_ongoing(self):
         # TODO: if a pool fails to initialize we could reschedule the tasks.
@@ -600,7 +620,7 @@ class TestRunner(Runnable):
     def _invoke_exporters(self):
         # Add this logic into a ReportExporter(Runnable)
         # that will return a result containing errors
-        if self.cfg.exporters is None:
+        if self.cfg.exporters is None or len(self.cfg.exporters) == 0:
             exporters = get_default_exporters(self.cfg)
         else:
             exporters = self.cfg.exporters
@@ -665,5 +685,16 @@ class TestRunner(Runnable):
         if self.cfg.file_log_level is None:
             self.logger.debug('Not enabling file logging')
         else:
-            logger.configure_file_logger(self.cfg.file_log_level,
-                                         self.runpath)
+            self._file_log_handler = logger.configure_file_logger(
+                self.cfg.file_log_level, self.runpath)
+
+    def _close_file_logger(self):
+        """
+        Closes the file logger, releasing all file handles. This is necessary to
+        avoid permissions errors on Windows.
+        """
+        if self._file_log_handler is not None:
+            self._file_log_handler.flush()
+            self._file_log_handler.close()
+            logger.TESTPLAN_LOGGER.removeHandler(self._file_log_handler)
+            self._file_log_handler = None

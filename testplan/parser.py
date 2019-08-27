@@ -160,9 +160,16 @@ class TestplanParser(object):
         )
 
         report_group.add_argument(
+            '--http', dest='http_url',
+            default=None, metavar='URL',
+            help='Web URL for posting report.'
+        )
+
+        report_group.add_argument(
             '--report-dir',
-            help='Target directory for tag filtered report output.',
-            default=defaults.REPORT_DIR, metavar='PATH')
+            default=defaults.REPORT_DIR, metavar='PATH',
+            help='Target directory for tag filtered report output.'
+        )
 
         report_group.add_argument(
             '--pdf-style',

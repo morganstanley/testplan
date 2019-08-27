@@ -1,9 +1,17 @@
-"""TODO."""
+"""
+Defines the Result object and its sub-namepsaces.
+
+The Result object is the interface used by testcases to make assertions and
+log data. Entries contained in the result are copied into the Report object
+after testcases have finished running.
+
+"""
 import functools
 import inspect
 import os
 import re
 import uuid
+import hashlib
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
@@ -1166,6 +1174,7 @@ class Result(object):
     ):
 
         self.entries = []
+        self.attachments = []
 
         self.stdout_style = stdout_style or STDOUT_STYLE
         self.continue_on_failure = continue_on_failure
@@ -1333,7 +1342,7 @@ class Result(object):
         :type description: ``str``
         :param category: Custom category that will be used for summarization.
         :type category: ``str``
-        :return: False
+        :return: ``False``
         :rtype: ``bool``
         """
         return assertions.Fail(description, category=category)
@@ -1845,33 +1854,6 @@ class Result(object):
         )
 
     @bind_entry
-    def matplot(self, pyplot, width=2, height=2, description=None):
-        """
-        Displays a Matplotlib plot in the report.
-
-        :param pyplot: Matplotlib pyplot object to be displayed.
-        :type pyplot: ``matplotlib.pyplot``
-        :param width: Width of the plot in inches.
-        :type width: ``int``
-        :param height: Height of the plot in inches.
-        :type height: ``int``
-        :param description: Text description for the assertion.
-        :type description: ``str``
-        :return: Always returns True, this is not an assertion so it cannot
-                 fail.
-        :rtype: ``bool``
-        """
-        filename = '{0}.png'.format(uuid.uuid4())
-        image_file_path = os.path.join(self._scratch, filename)
-        return base.MatPlot(
-            pyplot=pyplot,
-            image_file_path=image_file_path,
-            width=width,
-            height=height,
-            description=description
-        )
-
-    @bind_entry
     def graph(self, graph_type, graph_data, description,
               series_options, graph_options):
         """
@@ -1918,6 +1900,42 @@ class Result(object):
             series_options=series_options,
             graph_options=graph_options
         )
+
+    @bind_entry
+    def attach(self, filepath, description=None):
+        """Attaches a file to the report."""
+        attachment = base.Attachment(filepath, description)
+        self.attachments.append(attachment)
+        return attachment
+
+    @bind_entry
+    def matplot(self, pyplot, width=2, height=2, description=None):
+        """
+        Displays a Matplotlib plot in the report.
+
+        :param pyplot: Matplotlib pyplot object to be displayed.
+        :type pyplot: ``matplotlib.pyplot``
+        :param width: Width of the plot in inches.
+        :type width: ``int``
+        :param height: Height of the plot in inches.
+        :type height: ``int``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :return: Always returns True, this is not an assertion so it cannot
+                 fail.
+        :rtype: ``bool``
+        """
+        filename = '{0}.png'.format(uuid.uuid4())
+        image_file_path = os.path.join(self._scratch, filename)
+        matplot = base.MatPlot(
+            pyplot=pyplot,
+            image_file_path=image_file_path,
+            width=width,
+            height=height,
+            description=description
+        )
+        self.attachments.append(matplot)
+        return matplot
 
     @property
     def serialized_entries(self):
