@@ -180,6 +180,12 @@ Test filter, runs tests that match ALL of the given tags.
             help='Directory path for XML reports.')
 
         report_group.add_argument(
+            '--http', dest='http_url',
+            default=None, metavar='URL',
+            help='Web URL for posting report.'
+        )
+
+        report_group.add_argument(
             '--report-dir',
             help='Target directory for tag filtered report output.',
             default=self._default_options["report_dir"],

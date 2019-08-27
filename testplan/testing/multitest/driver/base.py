@@ -266,6 +266,19 @@ class Driver(Resource):
             instantiate(template, self.context_input(), self._install_target())
 
     def _setup_file_logger(self, path):
+        """
+        Set up a logger to write to a given path at self.file_logger.
+
+        Logging to separate files should be used sparingly, for drivers that
+        generate very large amounts of logs that are not suitable for including
+        in the main console output even as a --debug option.
+
+        When a file logger is finished with, _close_file_logger() should be
+        called to close the opened file object and release the file handle.
+        """
+        if self.file_logger is not None:
+            raise RuntimeError("File logger already exists")
+
         formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
         handler = logging.FileHandler(path)
         handler.setFormatter(formatter)
@@ -274,6 +287,23 @@ class Driver(Resource):
         logger.setLevel(self.logger.getEffectiveLevel())
         self.file_logger = logger
         self.file_logger.propagate = False  # No console logs
+
+    def _close_file_logger(self):
+        """
+        Closes a logfile previously opened by _setup_file_logger() and removes
+        the logger from self.file_logger. This should be called when the file
+        logger is done with to avoid leaking file handles - typically this
+        should be called from stopping().
+        """
+        if self.file_logger is None:
+            raise RuntimeError("No file logger exists")
+
+        handlers = self.file_logger.handlers[:]
+        for handler in handlers:
+            handler.flush()
+            handler.close()
+            self.file_logger.removeHandler(handler)
+        self.file_logger = None
 
     def fetch_error_log(self):
         """

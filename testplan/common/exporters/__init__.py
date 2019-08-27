@@ -28,7 +28,10 @@ class ExporterResult(object):
 
 
 class ExporterConfig(Config):
-
+    """
+    Configuration object for
+    :py:class:`BaseExporter <testplan.common.exporters.BaseExporter>` object.
+    """
     @classmethod
     def get_options(cls):
         return {}

@@ -142,26 +142,25 @@ def create_pdf(source, config):
 
 
 class BasePDFExporterConfig(ExporterConfig):
-
+    """Config for PDF exporter"""
     @classmethod
     def get_options(cls):
         return {
             ConfigOption('timestamp', default=None): Or(str, None),
-            ConfigOption(
-                'pdf_style', default=defaults.PDF_STYLE,
-                block_propagation=False): Style
+            ConfigOption('pdf_style'): Style
         }
 
 
 class PDFExporterConfig(BasePDFExporterConfig):
-    """TODO"""
-
+    """
+    Configuration object for
+    :py:class:`PDFExporter <testplan.exporters.testing.pdf.PDFExporter>`
+    object.
+    """
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption(
-                'pdf_path', default=defaults.PDF_PATH,
-                block_propagation=False): str
+            ConfigOption('pdf_path'): str
         }
 
 
@@ -169,18 +168,28 @@ class TagFilteredPDFExporterConfig(
     TagFilteredExporterConfig,
     BasePDFExporterConfig
 ):
-
+    """
+    Configuration object for
+    :py:class:`TagFilteredPDFExporter <testplan.exporters.testing.pdf.TagFilteredPDFExporter>`  # pylint: disable=line-too-long
+    object.
+    """
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption(
-                'report_dir', default=defaults.REPORT_DIR,
-                block_propagation=False): str
+            ConfigOption('report_dir'): str
         }
 
 
 class PDFExporter(Exporter):
+    """
+    PDF Exporter.
 
+    :param pdf_path: File path for saving PDF report.
+    :type pdf_path: ``str``
+
+    Also inherits all
+    :py:class:`~testplan.exporters.testing.base.Exporter` options.
+    """
     CONFIG = PDFExporterConfig
 
     def export(self, source):
@@ -201,7 +210,15 @@ class PDFExporter(Exporter):
 
 
 class TagFilteredPDFExporter(TagFilteredExporter):
+    """
+    Tag filtered PDF Exporter.
 
+    :param report_dir: Directory for saving PDF reports.
+    :type report_dir: ``str``
+
+    Also inherits all
+    :py:class:`~testplan.exporters.testing.base.TagFilteredExporter` options.
+    """
     CONFIG = TagFilteredPDFExporterConfig
     exporter_class = PDFExporter
 

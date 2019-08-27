@@ -30,6 +30,10 @@ class LocalRunner(Executor):
         # run.
         if isinstance(target, tasks.Task):
             runnable = target.materialize()
+            if not runnable.parent:
+                runnable.parent = self
+            if not runnable.cfg.parent:
+                runnable.cfg.parent = self.cfg
         elif isinstance(target, entity.Runnable):
             runnable = target
         else:

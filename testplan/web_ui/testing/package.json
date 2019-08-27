@@ -22,7 +22,10 @@
     "react-dom": "16.6.0",
     "react-portal-tooltip": "2.4.0",
     "react-scripts": "1.1.1",
+    "react-spinners": "^0.6.0",
+    "react-syntax-highlighter": "^11.0.2",
     "react-test-renderer": "16.6.0",
+    "react-vis": "^1.11.7",
     "reactstrap": "6.3.0"
   },
   "devDependencies": {
@@ -36,5 +39,5 @@
     "lint": "eslint --ext .js src",
     "eject": "react-scripts eject"
   },
-  "homepage": "/testplan/static"
+  "homepage": "/"
 }

@@ -211,23 +211,29 @@ class MultiTestRenderer(BaseRenderer):
 
 
 class XMLExporterConfig(ExporterConfig):
-    """Config for XML exporter"""
-
+    """
+    Configuration object for
+    :py:class:`XMLExporter <testplan.exporters.testing.xml.XMLExporter>`
+    object.
+    """
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption(
-                'xml_dir', default=defaults.XML_DIR,
-                block_propagation=False): str
+            ConfigOption('xml_dir'): str
         }
 
 
 class XMLExporter(Exporter):
     """
-    Produces one XML file per each child of
+    XML Exporter. Produces one XML file per each child of
     TestPlanReport (e.g. Multitest reports)
-    """
 
+    :param xml_dir: Directory for saving xml reports.
+    :type xml_dir: ``str``
+
+    Also inherits all
+    :py:class:`~testplan.exporters.testing.base.Exporter` options.
+    """
     CONFIG = XMLExporterConfig
 
     renderer_map = {

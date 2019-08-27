@@ -1,46 +1,111 @@
-"""TODO."""
+"""Unit tests for TCP Server driver."""
 
 import os
-import shutil
+
+import pytest
 
 from testplan.common.entity.base import Environment
 from testplan.common.utils.context import context
-from testplan.common.utils.exceptions import should_raise
 from testplan.common.utils.sockets import Message, Codec
+from testplan.common.utils import path
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 
-def make_runpath(directory):
-    return '{sep}var{sep}tmp{sep}{directory}'.format(sep=os.sep,
-                                                     directory=directory)
+@pytest.fixture(scope="module")
+def tcp_server(runpath):
+    """Start and yield a TCP server driver."""
+    env = Environment()
+    server = TCPServer(name="server",
+                       host="localhost",
+                       port=0,
+                       runpath=os.path.join(runpath, "server"))
+    env.add(server)
+
+    with server:
+        yield server
+
+
+@pytest.fixture(scope="module")
+def tcp_client(tcp_server, runpath):
+    """Start and yield a TCP client driver."""
+    client = TCPClient(name="client",
+                       host=tcp_server.host,
+                       port=tcp_server.port,
+                       runpath=os.path.join(runpath, "client"))
+
+    with client:
+        yield client
+
+
+def test_basic_runpath():
+    """Test runpath of TCP client and server."""
+    with path.TemporaryDirectory() as svr_path:
+        # Server runpath
+        server = TCPServer(name='server', runpath=svr_path)
+        assert_obj_runpath(server, svr_path)
+
+        with path.TemporaryDirectory() as cli_path:
+            # Client runpath
+            client = TCPClient(name='client', runpath=cli_path,
+                               host=server._host,
+                               port=server._port)
+            assert_obj_runpath(client, cli_path)
+
+
+def test_send_receive(tcp_server, tcp_client):
+    """Test sending a request and response between client and server."""
+    send_receive_message(tcp_server, tcp_client)
+
+
+def test_send_receive_with_none_context():
+    """
+    Test attempting to start a TCP server using context values, with no context
+    set. Verify expected ValueError is raised.
+    """
+    with path.TemporaryDirectory() as runpath:
+        client = TCPClient(name='client',
+                           host=context('server', '{{host}}'),
+                           port=context('server', '{{port}}'),
+                           runpath=runpath)
+    with pytest.raises(ValueError):
+        client.start()
+
+
+def test_send_receive_with_context(tcp_server):
+    """
+    Test starting a TCP client with the host/port information extracted from the
+    server via context values.
+    """
+    with path.TemporaryDirectory() as runpath:
+        client = TCPClient(name='context_client',
+                           host=context('server', '{{host}}'),
+                           port=context('server', '{{port}}'),
+                           runpath=runpath)
+        tcp_server.context.add(client)
+
+        with client:
+            assert client.host
+            assert client.port
+            send_receive_message(tcp_server, client)
+
 
 def assert_obj_runpath(obj, runpath):
+    """Check runpath before and after starting a driver."""
     assert obj.cfg.runpath in runpath
     assert obj.runpath is None
     assert obj._runpath is None
     with obj:
         assert obj.runpath == runpath
         assert obj._runpath == runpath
-        assert os.path.exists(obj.runpath) is True
-
-
-def test_basic_runpath():
-    svr_path = make_runpath("srv_runpath")
-    cli_path = make_runpath("cli_runpath")
-    # Server runpath
-    server = TCPServer(name='server', runpath=svr_path)
-    assert_obj_runpath(server, svr_path)
-    # Client runpath
-    client = TCPClient(name='client', runpath=cli_path,
-                       host=server._host,
-                       port=server._port)
-    assert_obj_runpath(client, cli_path)
-    shutil.rmtree(svr_path, ignore_errors=True)
-    shutil.rmtree(cli_path, ignore_errors=True)
+        assert os.path.exists(obj.runpath)
 
 
 def send_receive_message(server, client):
     """
+    Common test utility to test sending a request/response exchange between
+    client and server.
+
+    Sends:
     Client ---"Hello"---> Server ---"World"---> Client
     """
     msg_data = 'Hello'
@@ -59,66 +124,3 @@ def send_receive_message(server, client):
     # Client received response
     assert recv.data == msg_data
 
-
-def test_send_receive_no_context():
-    server = TCPServer(name='server',
-                       host='localhost',
-                       port=0)
-    assert server.port is None
-    server.start()
-    server._wait_started()
-    assert server.port != 0
-
-    client = TCPClient(name='client',
-                       host=server._host,
-                       port=server._port)
-    client.start()
-    client._wait_started()
-
-    send_receive_message(server, client)
-    client.stop()
-    client._wait_stopped()
-    server.stop()
-    server._wait_stopped()
-
-
-def test_send_receive_with_none_context():
-    server = TCPServer(name='server',
-                       host='localhost',
-                       port=0)
-
-    client = TCPClient(name='client',
-                       host=context('server', '{{host}}'),
-                       port=context('server', '{{port}}'))
-    assert server.port is None
-    server.start()
-    server._wait_started()
-    assert server.port != 0
-    should_raise(ValueError, client.start)
-    server.stop()
-    server._wait_stopped()
-
-
-def test_send_receive_with_context():
-    rcxt = Environment()
-
-    server = TCPServer(name='server',
-                       host='localhost',
-                       port=0)
-    rcxt.add(server)
-
-    client = TCPClient(name='client',
-                       host=context('server', '{{host}}'),
-                       port=context('server', '{{port}}'))
-    rcxt.add(client)
-
-    assert server.port is None
-    for item in rcxt:
-        item.start()
-        item._wait_started()
-        assert item.port != 0
-
-    send_receive_message(server, client)
-    for item in reversed(list(rcxt)):
-        item.stop()
-        item._wait_stopped()

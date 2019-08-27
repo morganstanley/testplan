@@ -27,7 +27,7 @@ class TCPClientConfig(DriverConfig):
             'host': Or(str,
                        lambda x: is_context(x)),
             'port': Or(Use(int), lambda x: is_context(x)),
-            ConfigOption('interface', default=None): tuple,
+            ConfigOption('interface', default=None): Or(None, tuple),
             ConfigOption('connect_at_start', default=True): bool
         }
 
@@ -40,6 +40,8 @@ class TCPClient(Driver):
     :py:class:`testplan.common.utils.sockets.client.Client` class, which
     provides equivalent functionality and may be used outside of MultiTest.
 
+    :param name: Name of TCPClient.
+    :type name: ``str``
     :param host: Target host name. This can be a
         :py:class:`~testplan.common.utils.context.ContextValue`
         and will be expanded on runtime.
@@ -49,7 +51,7 @@ class TCPClient(Driver):
         and will be expanded on runtime.
     :type port: ``int``
     :param interface: Interface to bind to.
-    :type interface: ``tuple``(``str, ``int``)
+    :type interface: ``NoneType`` or ``tuple``(``str, ``int``)
     :param connect_at_start: Connect to server on start. Default: True
     :type connect_at_start: ``bool``
 
@@ -59,7 +61,15 @@ class TCPClient(Driver):
 
     CONFIG = TCPClientConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        host,
+        port,
+        interface=None,
+        connect_at_start=(True),
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(TCPClient, self).__init__(**options)
         self._host = None
         self._port = None

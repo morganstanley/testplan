@@ -1,8 +1,8 @@
 """
-    Stdout renderers for assertion/entry objects.
+Stdout renderers for assertion/entry objects.
 
-    Unlike exporters, stdout renderers receive native entry objects, instead
-    of their serialized (dict) versions.
+Unlike exporters, stdout renderers receive native entry objects, instead
+of their serialized (dict) versions.
 """
 
 import os
@@ -109,7 +109,7 @@ class LogRenderer(BaseRenderer):
 class MatPlotRenderer(BaseRenderer):
 
     def get_details(self, entry):
-        return 'MatPlot graph generated at: {}'.format(entry.image_file_path)
+        return 'MatPlot graph generated at: {}'.format(entry.source_path)
 
 
 @registry.bind(base.TableLog)

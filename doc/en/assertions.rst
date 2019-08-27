@@ -696,6 +696,46 @@ however this can be overridden by explicitly passing ``category`` argument while
               result.equal(i * 2, i * 2, category='Multiples')
 
 
+This schema highlights the structure of a summarised output
+
+    .. code-block:: none
+
+        Testplan Summary
+        |
+        +---- Category: DEFAULT -> (default category is for assertions not specified by the category argument)
+        |     |
+        |     +---- Assertion Type -> (e.g result.Equal)
+        |     |     ( Description: summarising passing or failing assertions)
+        |     |     |
+        |     |     +---- assertion statement 1
+        |     |     |     ( ... assertion details)
+        |     |     |
+        |     |     +---- assertion statement 2
+        |     |     |     ( ... assertion details)
+        |
+        +---- Category: Multiples -> (specified by category argument)
+        |     |
+        |     +---- Assertion Type -> (e.g result.Equal)
+        |     |     Description: summarising passing or failing assertions)
+        |     |     |
+        |     |     +---- assertion statement 1
+        |     |     |     ( ... assertion details)
+        |     |     |
+        |     |     +---- assertion statement 2
+        |     |     |     ( ... assertion details)
+        |
+        |
+        Testplan Summary
+        | ...
+
+
+``num_passing`` and ``num_failing`` will define how many assertion statements will be displayed in the schema above
+
+``key_combs_limit`` is used for fix/dict summaries and limits the number of failed key combinations reported
+(For example: when applying result.dict.match to many different dictionaries with different keys,
+there will be many 'key combinations' as failures, so only the key combinations with the most differences
+will be reported, limited by ``key_combs_limit``)
+
 
 For further examples on summarization, please see the :ref:`a downloadable example <example_assertions_summary>`.
 
@@ -1644,6 +1684,177 @@ Checks if given tags / paths exist in the XML string, supports namespace lookups
               Hello world! == REGEX('Hello*')
           ...
 
+
+Graph Visualisation
+===================
+This graphing tool will allow you to produce interactive data visualisations
+inside the web UI
+
+This method takes 5 arguments:
+
+            ``result.graph(graph_type, graph_data, description, series_options, graph_options)``
+
+    .. code-block:: python
+
+        result.graph('Line',
+                 {
+                    'graph 1':[
+                                     {'x': 0, 'y': 8},
+                                     {'x': 1, 'y': 5}
+                               ],
+                    'graph 2':[
+                                {'x': 1, 'y': 3},
+                                {'x': 2, 'y': 5}
+                               ]
+                  },
+                 description='Line Graph',
+                 series_options={
+                                'graph 1':{'colour': 'red'},
+                                'graph 2':{'colour': 'blue'},
+                          },
+                 graph_options={'xAxisTitle': 'Time', 'yAxisTitle': 'Volume'}
+         )
+
+
+
+
+
+graph_type - `string`
+----------------------
+
+Specifies the type of graph displayed, there are currently six choices:
+
+``Line``,
+``Scatter``,
+``Bar``,
+``Pie``,
+``Hexbin``,
+``Contour``,
+``Whisker``
+
+graph_data - `dict`
+-------------------
+This contains the data for each series and is required in a specific format:
+
+    { **'series 1'**: `data_for_series_1`,  **'series 2'**: `data_for_series_2`}
+
+This would be used for a graph with two data sets to be displayed on the same axis.
+
+
+For one data set, this format is still required:
+
+    { **'series 1'**: `data_for_series_1` }
+
+
+The data format required for each type is shown below:
+
+    **Line, Scatter, Hexbin and Contour**: `Array[ Dict{ 'x': int, 'y':int } ]`
+
+        .. code-block:: python
+
+            [
+             {'x': 0, 'y': 8},
+             {'x': 1, 'y': 5},
+             {'x': 2, 'y': 4}
+            ]
+
+
+    **Bar**: `Array[ Dict{ 'x': string, 'y':int } ]`
+
+        .. code-block:: python
+
+            [
+              {'x': 'A', 'y': 10},
+              {'x': 'B', 'y': 5},
+              {'x': 'C', 'y': 15}
+            ]
+
+
+    **Pie**: `Array[ Dict{ 'angle': int, 'color': string, 'name': string } ]`
+
+        .. code-block:: python
+
+            [
+             {'angle': 1, 'color': '#89DAC1', 'name': 'car'},
+             {'angle': 2, 'color': 'red', 'name': 'bus'},
+             {'angle': 5, 'color': '#1E96BE', 'name': 'cycle'}
+            ]
+
+    `**N.B.** - angle represents proportion of bar graph e.g car will be 1/8th of the pie chart`
+
+    **Whisker**: `Array[ Dict{ 'x': int, 'y': int, 'xVariance': int, 'yVariance': int } ]`
+
+        .. code-block:: python
+
+            [
+             {'x': 1, 'y': 10, 'xVariance': 0.5, 'yVariance': 2},
+             {'x': 1.7, 'y': 12, 'xVariance': 1, 'yVariance': 1},
+             {'x': 2, 'y': 5, 'xVariance': 0, 'yVariance': 0}
+            ]
+
+description - `string`
+-----------------------
+
+The title of your graph
+
+series_options - `dict`
+------------------------
+
+The individual options for each data set. Again, this supports multiple series so expects the format
+
+        { **'series 1'**: `options_for_series_1`,  **'series 2'**: `options_for_series_2` }
+
+**Note**: the name MUST be identical to that in the ``graph_data`` dict.
+
+Again, for one data set this format is still required:
+
+        { **'series 1'**: `options_for_series_1` }
+
+     .. code-block:: python
+
+        series_options={
+             'Bar 1': {"colour": "green"},
+             'Bar 2': {"colour": "purple"},
+         }
+
+**Currently supported series options:**
+
+    1.  **'colour'** - `str` the colour of that data set on the graph
+
+        (DEFAULT: Random colour - if you do not like your randomly assigned colour,
+        refresh the page for a new one if you're feelin' lucky!)
+
+        Valid inputs for colour include:
+
+        - RGB colours e.g ('#8080ff', '#c6e486')
+        - Basic colour names e.g ('red', 'orange', 'yellow')
+
+        e.g {'colour': 'red'}
+
+graph_options - `dict`
+------------------------
+
+The options for the entire graph
+
+        .. code-block:: python
+
+            graph_options = {'xAxisTitle': 'Time', 'yAxisTitle': 'Volume', 'legend': True}
+
+**Currently supported graph options:**
+
+    1.  **'xAxisTitle'** - `str` the title on the x Axis
+
+        e.g {'xAxisTitle': 'Time'}
+
+    2.  **'yAxisTitle'** - `str` the title on the y Axis
+
+        e.g {'yAxisTitle': 'Volume'}
+
+    3.  **'legend'** - `bool` whether to display the data set name legend
+
+        (DEFAULT: False)
+
+        e.g {'legend': True}
 
 Custom Comparators
 ==================

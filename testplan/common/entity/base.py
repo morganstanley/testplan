@@ -14,10 +14,9 @@ import psutil
 import functools
 from collections import deque, OrderedDict
 
-from schema import Or, And, Use
+from schema import Optional, Or, And, Use
 
-from testplan.common.config import Config
-from testplan.common.config import ConfigOption
+from testplan.common.config import Config, ConfigOption
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils.thread import execute_as_thread
 from testplan.common.utils.timing import wait
@@ -338,9 +337,7 @@ class EntityConfig(Config):
     def get_options(cls):
         """Config options for base Entity class."""
         return {
-            ConfigOption(
-                'runpath', default=None,
-                block_propagation=False): Or(None, str, lambda x: callable(x)),
+            ConfigOption('runpath',): Or(None, str, callable),
             ConfigOption('initial_context', default={}): dict,
             ConfigOption('path_cleanup', default=False): bool,
             ConfigOption('status_wait_timeout', default=600): int,
@@ -507,7 +504,8 @@ class Entity(logger.Loggable):
         if self.parent and self.parent.runpath:
             return os.path.join(self.parent.runpath, self.uid())
 
-        runpath = self.cfg.runpath
+        runpath = getattr(self.cfg, 'runpath', None)
+
         if runpath:
             return self.cfg.runpath(self) if callable(runpath) else runpath
         else:
@@ -533,6 +531,18 @@ class Entity(logger.Loggable):
             makeemptydirs(self._runpath)
             makeemptydirs(self._scratch)
 
+    @classmethod
+    def filter_locals(cls, local_vars):
+        """
+        Filter out init params of None value, they will take default value
+        defined in its ConfigOption object; also filter out special vars that
+        are not init params from local_vars.
+        """
+        EXCLUDE = ('cls', 'self', 'kwargs', 'options', '__class__', '__dict__')
+        return {
+            key: value for key, value in local_vars.items()
+            if key not in EXCLUDE and value is not None
+        }
 
 class RunnableStatus(EntityStatus):
     """
@@ -793,10 +803,10 @@ class Runnable(Entity):
     :type interactive_no_block: ``bool``
     :param interactive_handler: Handler of interactive mode of the object.
     :type interactive_handler: Subclass of
-      :py:class:`~testplan.common.entity.base.RunnableIHandler`
+        :py:class:`~testplan.common.entity.base.RunnableIHandler`
     :param interactive_runner: Interactive runner set for the runnable.
     :type interactive_runner: Subclass of
-      :py:class:`~testplan.common.entity.base.RunnableIRunner`
+        :py:class:`~testplan.common.entity.base.RunnableIRunner`
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.
@@ -1242,6 +1252,15 @@ class RunnableManager(Entity):
     :type port: ``bool``
     :param abort_signals: Signals to catch and trigger abort.
     :type abort_signals: ``list`` of signals
+
+    :param runnable: Test runner.
+    :type runnable: :py:class:`~testplan.runnable.TestRunner`
+    :param resources: Initial resources. By default, one LocalRunner is added to
+      execute the Tests.
+    :type resources:
+      ``list`` of :py:class:`resources <testplan.common.entity.base.Resource>`
+    :param parser: Command line parser.
+    :type parser: :py:class:`~testplan.parser.TestplanParser`
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.

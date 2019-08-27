@@ -39,6 +39,8 @@ class TCPServer(Driver):
     :py:class:`testplan.common.utils.sockets.server.Server` class, which
     provides equivalent functionality and may be used outside of MultiTest.
 
+    :param name: Name of TCPServer.
+    :type name: ``str``
     :param host: Host name to bind to. Default: 'localhost'
     :type host: ``str``
     :param port: Port number to bind to. Default: 0 (Random port)
@@ -50,7 +52,13 @@ class TCPServer(Driver):
 
     CONFIG = TCPServerConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        host='localhost',
+        port=0,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(TCPServer, self).__init__(**options)
         self._host = None
         self._port = None

@@ -1,9 +1,17 @@
-"""TODO."""
+"""
+Defines the Result object and its sub-namepsaces.
+
+The Result object is the interface used by testcases to make assertions and
+log data. Entries contained in the result are copied into the Report object
+after testcases have finished running.
+
+"""
 import functools
 import inspect
 import os
 import re
 import uuid
+import hashlib
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
@@ -1166,6 +1174,7 @@ class Result(object):
     ):
 
         self.entries = []
+        self.attachments = []
 
         self.stdout_style = stdout_style or STDOUT_STYLE
         self.continue_on_failure = continue_on_failure
@@ -1333,7 +1342,7 @@ class Result(object):
         :type description: ``str``
         :param category: Custom category that will be used for summarization.
         :type category: ``str``
-        :return: False
+        :return: ``False``
         :rtype: ``bool``
         """
         return assertions.Fail(description, category=category)
@@ -1845,6 +1854,61 @@ class Result(object):
         )
 
     @bind_entry
+    def graph(self, graph_type, graph_data, description,
+              series_options, graph_options):
+        """
+        Displays a Graph in the report.
+
+         .. code-block:: python
+
+             result.graph('Line',
+                          {
+                              'graph 1':[{'x': 0, 'y': 8},{'x': 1, 'y': 5}]
+                          },
+                          description='Line Graph',
+                          series_options={'graph 1':{"colour": "red"}},
+                          graph_options=None
+              )
+
+        :param graph_type: Type of graph user wants to create.
+                          Currently implemented:
+                          'Line', 'Scatter', 'Bar', 'Hexbin',
+                          'Pie', 'Whisker', 'Contour'
+        :type graph_type: ``str``
+        :param graph_data: Data to plot on the graph, for each series.
+        :type graph_data: ``dict[str, list]``
+        :param description: Text description for the graph.
+        :type description: ``str``
+        :param series_options: Customisation parameters for each
+                               individual series.
+                               Currently implemented:
+                               1){'Colour': ``str``} - colour of that series
+                               (str can be either basic colour name or RGB)
+        :type series_options: ``dict[str, dict[str, object]]```.
+        :param graph_options: Customisation parameters for overall graph
+                              Currently implemented:
+                               1){'xAxisTitle': ``str``} - x axis graph title
+                               2){'yAxisTitle': ``str``} - y axis graph title
+                               3){'legend': ``bool``} - to display legend
+                               legend (Default: false)
+        :type graph_options: ``dict[str, object]``.
+        """
+        return base.Graph(
+            graph_type=graph_type,
+            graph_data=graph_data,
+            description=description,
+            series_options=series_options,
+            graph_options=graph_options
+        )
+
+    @bind_entry
+    def attach(self, filepath, description=None):
+        """Attaches a file to the report."""
+        attachment = base.Attachment(filepath, description)
+        self.attachments.append(attachment)
+        return attachment
+
+    @bind_entry
     def matplot(self, pyplot, width=2, height=2, description=None):
         """
         Displays a Matplotlib plot in the report.
@@ -1863,13 +1927,15 @@ class Result(object):
         """
         filename = '{0}.png'.format(uuid.uuid4())
         image_file_path = os.path.join(self._scratch, filename)
-        return base.MatPlot(
+        matplot = base.MatPlot(
             pyplot=pyplot,
             image_file_path=image_file_path,
             width=width,
             height=height,
             description=description
         )
+        self.attachments.append(matplot)
+        return matplot
 
     @property
     def serialized_entries(self):

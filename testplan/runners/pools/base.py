@@ -28,14 +28,6 @@ class WorkerConfig(entity.ResourceConfig):
     """
     Configuration object for
     :py:class:`~testplan.runners.pools.base.Worker` resource entity.
-
-    :param index: Worker index id.
-    :type index: ``int`` or ``str``
-    :param transport: Transport class for pool/worker communication.
-    :type transport: :py:class:`~testplan.runners.pools.connection.Client`
-
-    Also inherits all :py:class:`~testplan.common.entity.base.ResourceConfig`
-    options.
     """
 
     @classmethod
@@ -54,6 +46,16 @@ class Worker(entity.Resource):
     """
     Worker resource that pulls tasks from the transport provided, executes them
     and sends back task results.
+
+    :param index: Worker index id.
+    :type index: ``int`` or ``str``
+    :param transport: Transport class for pool/worker communication.
+    :type transport: :py:class:`~testplan.runners.pools.connection.Client`
+    :param restart_count: How many times the worker had restarted.
+    :type restart_count: ``int``
+
+    Also inherits all :py:class:`~testplan.common.entity.base.Resource`
+    options.
     """
 
     CONFIG = WorkerConfig
@@ -192,22 +194,6 @@ class PoolConfig(ExecutorConfig):
     """
     Configuration object for
     :py:class:`~testplan.runners.pools.base.Pool` executor resource entity.
-
-    :param name: Pool name.
-    :type name: ``str``
-    :param size: Pool workers size. Default: 4
-    :type size: ``int``
-    :param worker_type: Type of worker to be initialized.
-    :type worker_type: :py:class:`~testplan.runners.pools.base.Worker`
-    :param worker_heartbeat: Worker heartbeat period.
-    :type worker_heartbeat: ``int`` or ``float`` or ``NoneType``
-    :param task_retries_limit: Maximum times a task can be re-assigned to pool.
-    :type task_retries_limit: ``int``
-    :param max_active_loop_sleep: Maximum value for delay logic in active sleep.
-    :type max_active_loop_sleep: ``int`` or ``float``
-
-    Also inherits all :py:class:`~testplan.runners.base.ExecutorConfig`
-    options.
     """
 
     @classmethod
@@ -231,12 +217,42 @@ class PoolConfig(ExecutorConfig):
 class Pool(Executor):
     """
     Pool task executor object that initializes workers and dispatches tasks.
+
+    :param name: Pool name.
+    :type name: ``str``
+    :param size: Pool workers size. Default: 4
+    :type size: ``int``
+    :param worker_type: Type of worker to be initialized.
+    :type worker_type: :py:class:`~testplan.runners.pools.base.Worker`
+    :param worker_heartbeat: Worker heartbeat period.
+    :type worker_heartbeat: ``int`` or ``float`` or ``NoneType``
+    :param heartbeats_miss_limit: Maximum times a heartbeat is missed.
+    :type heartbeats_miss_limit: ``int``
+    :param task_retries_limit: Maximum times a task can be re-assigned to pool.
+    :type task_retries_limit: ``int``
+    :param max_active_loop_sleep: Maximum value for delay logic in active sleep.
+    :type max_active_loop_sleep: ``int`` or ``float``
+    :param restart_count: How many times the pool had restarted.
+    :type restart_count: ``int``
+
+    Also inherits all :py:class:`~testplan.runners.base.Executor` options.
     """
 
     CONFIG = PoolConfig
     CONN_MANAGER = QueueServer
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        size=4,
+        worker_type=Worker,
+        worker_heartbeat=None,
+        heartbeats_miss_limit=3,
+        task_retries_limit=3,
+        max_active_loop_sleep=5,
+        restart_count=3,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(Pool, self).__init__(**options)
         self.unassigned = []  # unassigned tasks
         self.task_assign_cnt = {}  # uid: times_assigned
@@ -356,11 +372,7 @@ class Pool(Executor):
         cfg = self.cfg
 
         while cfg:
-            try:
-                options.append(cfg.denormalize())
-            except Exception as exc:
-                self.logger.error('Could not denormalize: {} - {}'.format(
-                    cfg, exc))
+            options.append(cfg.denormalize())
             cfg = cfg.parent
 
         worker.respond(response.make(Message.ConfigSending,

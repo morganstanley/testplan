@@ -9,6 +9,7 @@ from threading import Thread
 from six.moves import queue
 from schema import Use, Or, And
 
+from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Runnable, RunnableIRunner
 from testplan.common.utils.interface import (
@@ -88,12 +89,12 @@ class MultiTestConfig(TestConfig):
     def get_options(cls):
         return {
             'suites': Use(iterable_suites),
-            ConfigOption('result', default=Result): is_subclass(Result),
             ConfigOption('thread_pool_size', default=0): int,
             ConfigOption('max_thread_pool_size', default=10): int,
             ConfigOption('stop_on_error', default=True): bool,
             ConfigOption('part', default=None): Or(None, And((int,),
                 lambda tp: len(tp) == 2 and 0 <= tp[0] < tp[1] and tp[1] > 1)),
+            ConfigOption('result', default=Result): is_subclass(Result),
             ConfigOption('interactive_runner', default=MultitestIRunner):
                 object,
             ConfigOption('fix_spec_path', default=None): Or(
@@ -108,23 +109,16 @@ class MultiTest(Test):
     executes :py:func:`testsuites <testplan.testing.multitest.suite.testsuite>`
     against it.
 
+    :param name: Test instance name. Also used as uid.
+    :type name: ``str``
     :param suites: List of
         :py:func:`@testsuite <testplan.testing.multitest.suite.testsuite>`
         decorated class instances containing
         :py:func:`@testcase <testplan.testing.multitest.suite.testcase>`
         decorated methods representing the tests.
     :type suites: ``list``
-    :param result: Result class definition for result object made available
-        from within the testcases.
-    :type result: :py:class:`~testplan.testing.multitest.result.Result`
-    :param before_start: Callable to execute before starting the environment.
-    :type before_start: ``callable`` taking an environment argument.
-    :param after_start: Callable to execute after starting the environment.
-    :type after_start: ``callable`` taking an environment argument.
-    :param before_stop: Callable to execute before stopping the environment.
-    :type before_stop: ``callable`` taking environment and a result arguments.
-    :param after_stop: Callable to execute after stopping the environment.
-    :type after_stop: ``callable`` taking environment and a result arguments.
+    :param description: Description of test instance.
+    :type description: ``str``
     :param thread_pool_size: Size of the thread pool which executes testcases
         with execution_group specified in parallel (default 0 means no pool).
     :type thread_pool_size: ``int``
@@ -136,6 +130,27 @@ class MultiTest(Test):
     :param part: Execute only a part of the total testcases. MultiTest needs to
         know which part of the total it is. Only works with Multitest.
     :type part: ``tuple`` of (``int``, ``int``)
+    :param before_start: Callable to execute before starting the environment.
+    :type before_start: ``callable`` taking an environment argument.
+    :param after_start: Callable to execute after starting the environment.
+    :type after_start: ``callable`` taking an environment argument.
+    :param before_stop: Callable to execute before stopping the environment.
+    :type before_stop: ``callable`` taking environment and a result arguments.
+    :param after_stop: Callable to execute after stopping the environment.
+    :type after_stop: ``callable`` taking environment and a result arguments.
+    :param stdout_style: Console output style.
+    :type stdout_style: :py:class:`~testplan.report.testing.styles.Style`
+    :param tags: User defined tag value.
+    :type tags: ``string``, ``iterable`` of ``string``, or a ``dict`` with
+        ``string`` keys and ``string`` or ``iterable`` of ``string`` as values.
+    :param result: Result class definition for result object made available
+        from within the testcases.
+    :type result: :py:class:`~testplan.testing.multitest.result.Result`
+    :param interactive_runner: Interactive runner set for the MultiTest.
+    :type interactive_runner: Subclass of
+        :py:class:`~testplan.testing.multitest.base.MultitestIRunner`
+    :param fix_spec_path: Path of fix specification file.
+    :type fix_spec_path: ``NoneType`` or ``str``.
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -149,9 +164,28 @@ class MultiTest(Test):
         filtering.FilterLevel.CASE,
     ]
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        suites,
+        description=None,
+        thread_pool_size=0,
+        max_thread_pool_size=10,
+        stop_on_error=True,
+        part=None,
+        before_start=None,
+        after_start=None,
+        before_stop=None,
+        after_stop=None,
+        stdout_style=None,
+        tags=None,
+        result=Result,
+        interactive_runner=MultitestIRunner,
+        fix_spec_path=None,
+        **options
+    ):
         self._tags_index = None
 
+        options.update(self.filter_locals(locals()))
         super(MultiTest, self).__init__(**options)
 
         # For all suite instances (and their bound testcase methods,
@@ -572,6 +606,7 @@ class MultiTest(Test):
 
         # native assertion objects -> dict form
         testcase_report.extend(case_result.serialized_entries)
+        testcase_report.attachments.extend(case_result.attachments)
         if self.get_stdout_style(testcase_report.passed).display_case:
             self.log_testcase_status(testcase_report)
 

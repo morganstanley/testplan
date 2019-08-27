@@ -55,6 +55,8 @@ class FixClient(Driver):
     :py:class:`testplan.common.utils.sockets.fix.client.Client` class, which
     provides equivalent functionality and may be used outside of MultiTest.
 
+    :param name: Name of FixClient.
+    :type name: ``str``
     :param msgclass: Type used to construct logon, logoff and received FIX
           messages.
     :type msgclass: ``type``
@@ -98,7 +100,26 @@ class FixClient(Driver):
 
     CONFIG = FixClientConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        msgclass,
+        codec,
+        host,
+        port,
+        sender,
+        target,
+        version='FIX.4.2',
+        sendersub=None,
+        interface=None,
+        connect_at_start=True,
+        logon_at_start=True,
+        custom_logon_tags=None,
+        receive_timeout=30,
+        logon_timeout=10,
+        logoff_timeout=3,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(FixClient, self).__init__(**options)
         self._host = None
         self._port = None
@@ -275,6 +296,7 @@ class FixClient(Driver):
             self._client.close()
             self._client = None
             self.file_logger.debug('Stopped client')
+            self._close_file_logger()
 
     def stopping(self):
         """Stops the FIX client."""

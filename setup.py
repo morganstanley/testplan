@@ -17,7 +17,7 @@ REQUIRED = [
     'psutil',
     'six',
     'future',
-    'schema',
+    'schema<0.7.0',
     'pytz',
     'lxml',
     'python-dateutil',
