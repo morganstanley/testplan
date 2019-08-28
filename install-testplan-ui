@@ -29,6 +29,9 @@ def parse_cli_args():
                         help='Display verbose logs (stdout from npm commands).')
     parser.add_argument('-d', '--dev', action='store_true', dest='dev',
                         help='Install dev dependencies, use if developing UI.')
+    parser.add_argument('-p', '--path', action='store', dest='path',
+                        default=TESTPLAN_UI_DIR,
+                        help='The path to the testplan UI directory.')
     return parser.parse_args()
 
 
@@ -43,10 +46,12 @@ def npm_installed():
             return True
 
 
-def install_and_build_ui(dev=False, verbose=False):
+def install_and_build_ui(path, dev=False, verbose=False):
     """
     Install dependencies & build JS code.
 
+    :param path: Where to install dev dependencies.
+    :type path: ``str``
     :param dev: Whether to install dev dependencies, use if developing UI.
     :type dev: ``bool``
     :param verbose: Display verbose logs (stdout and stderr from npm commands).
@@ -71,15 +76,16 @@ def install_and_build_ui(dev=False, verbose=False):
             production_cmd = ''
 
         logging.info('Installing Testplan UI dependencies...')
-        subprocess.check_call('npm install{}'.format(production_cmd),
-                              shell=True, cwd=TESTPLAN_UI_DIR, stdout=output,
-                              stderr=subprocess.STDOUT)
+        logging.info('Installing to path: {}'.format(os.path.abspath(path)))
+        subprocess.check_call(
+            'npm install --no-package-lock{}'.format(production_cmd),
+            shell=True, cwd=path, stdout=output, stderr=subprocess.STDOUT)
         logging.info('Building Testplan UI...')
-        subprocess.check_call('npm run build', shell=True, cwd=TESTPLAN_UI_DIR,
+        subprocess.check_call('npm run build', shell=True, cwd=path,
                               stdout=output, stderr=subprocess.STDOUT)
     logging.info('Testplan UI install & build have completed successfully.')
 
 
 if __name__ == '__main__':
     args = parse_cli_args()
-    install_and_build_ui(dev=args.dev, verbose=args.verbose)
+    install_and_build_ui(path=args.path, dev=args.dev, verbose=args.verbose)
