@@ -28,8 +28,23 @@ class SampleTest(object):
     """
 
     def __init__(self):
-        self._test_g2_1_done = threading.Event()
+        # A Barrier is a synchronisation primitive which allows a fixed number
+        # of threads (in our case, 2) to wait for each other. We use it here
+        # to demonstrate that testcases are run concurrently and how they may
+        # be synchronised with each other.
+        #
+        # Note that on Python 3 you can use the Barrier class from the standard
+        # library:
+        # https://docs.python.org/3.7/library/threading.html#barrier-objects .
+        # Here we use a backported Barrier provided by Testplan, which works
+        # on both Python 2 and 3.
         self._barrier = thread_utils.Barrier(2)
+
+        # The Event synchronisation primitive allows one thread to signal to
+        # another that is waiting on the first thread to do some work. We use
+        # it here to demonstrate another way testcases within the same
+        # execution group may be synchronised with each other.
+        self._test_g2_1_done = threading.Event()
 
     @testcase(execution_group='first')
     def test_g1_1(self, env, result):
