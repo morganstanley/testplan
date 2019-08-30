@@ -1,13 +1,11 @@
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
-from builtins import open
-from future import standard_library
-standard_library.install_aliases()
+
 import os
-import re
 import sys
 import atexit
+import re
 
 with open('testplan_path.txt', 'r') as fobj:
     sys.path.append(fobj.read().strip(os.linesep))
