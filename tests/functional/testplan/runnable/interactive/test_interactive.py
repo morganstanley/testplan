@@ -541,7 +541,7 @@ def test_http_dynamic_environments():
             result={'client': 'STOPPED', 'client2': 'STOPPED',
                     'server': 'STOPPED'})
 
-
+@pytest.mark.skipif(True, reason='Test not stable')
 def test_reload():
     """Tests reload functionality."""
     import sys
