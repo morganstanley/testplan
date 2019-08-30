@@ -46,7 +46,7 @@ def npm_installed():
             return True
 
 
-def install_and_build_ui(path, dev=False, verbose=False):
+def install_and_build_ui(path=TESTPLAN_UI_DIR, dev=False, verbose=False):
     """
     Install dependencies & build JS code.
 
