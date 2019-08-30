@@ -3,6 +3,7 @@ import time
 import sys
 import os
 import re
+import platform
 import threading
 from six.moves import queue
 
@@ -15,6 +16,15 @@ _TIMEOUT = 60
 _REQUEST_TIMEOUT = 0.1
 _URL_RE = re.compile(
     r'^View the JSON report in the browser: (?P<url>[^\s]+)\s*$')
+
+
+IS_WIN = platform.system() == 'Windows'
+
+
+pytestmark = pytest.mark.skip(
+    IS_WIN,
+    reason='WebApp is skipped on Windows.'
+)
 
 
 @pytest.yield_fixture(
