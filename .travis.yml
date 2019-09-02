@@ -1,9 +1,23 @@
-dist: xenial  # required for Python >= 3.7
 language: python
 
-python:
-  - "2.7"
-  - "3.7"
+matrix:
+  include:
+    - name: "Python 2.7 on Xenial Linux"
+      os: linux
+      dist: xenial
+      python: 2.7
+    - name: "Python 3.7 on Xenial Linux"
+      os: linux
+      dist: xenial
+      python: 3.7
+    - name: "Python 3.7.4 on Windows"
+      os: windows
+      language: node_js
+      node_js: 8.12.0
+      before_install:
+        - choco install python
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
 
 install:
   - pip install -r requirements.txt -U
