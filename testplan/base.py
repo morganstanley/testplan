@@ -4,7 +4,8 @@ import random
 
 from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
 from testplan.common.config import ConfigOption
-from testplan.common.entity import (RunnableManager, RunnableManagerConfig, Resource)
+from testplan.common.entity import (
+    RunnableManager, RunnableManagerConfig, Resource)
 from testplan.common.utils.callable import arity
 from testplan.common.utils.validation import is_subclass, has_method
 from testplan.parser import TestplanParser
