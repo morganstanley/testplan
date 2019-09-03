@@ -177,7 +177,8 @@ class Testplan(RunnableManager):
     @property
     def parser(self):
         """Returns a new command line parser."""
-        return self._cfg.parser(name=self._cfg.name)
+        return self._cfg.parser(name=self._cfg.name,
+                                default_options=self._default_options)
 
     @property
     def args(self):
@@ -197,7 +198,8 @@ class Testplan(RunnableManager):
         already have an explicit programmatic declaration for a given
         keyword.
         """
-        parser = self._cfg.parser(name=self._cfg.name, default_options=options)
+        self._default_options = options
+        parser = self.parser
         self._parsed_args = parser.parse_args()
         self._processed_args = parser.process_args(self._parsed_args)
         for key in self._processed_args:

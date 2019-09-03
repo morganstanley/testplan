@@ -225,6 +225,7 @@ Test filter, runs tests that match ALL of the given tags.
             dest='ui_port',
             nargs='?',
             default=self._default_options["ui_port"],
+            const=defaults.WEB_SERVER_PORT,
             type=int,
             help='Start the web server to view the Testplan UI. A port can be '
                  'specified, otherwise defaults to {}. A JSON report will be '
