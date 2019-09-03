@@ -5,6 +5,7 @@ acquired multiple times. The manager enforces this logic.
 """
 import collections
 import functools
+import threading
 
 from testplan.testing.multitest import driver
 
@@ -21,6 +22,7 @@ class ExclusiveResourceManager(driver.Driver):
     RESOURCE_NAMES = ('first', 'second')
 
     def __init__(self, **kwargs):
+        self._refcounts_mutex = threading.Lock()
         self._refcounts = collections.Counter()
         self._resources = {}
         for name in self.RESOURCE_NAMES:
@@ -37,24 +39,31 @@ class ExclusiveResourceManager(driver.Driver):
         self._resources[name] = _AcquirableResource(
             acquire_callback=functools.partial(self._acquire, name),
             release_callback=functools.partial(self._release, name),
-            refcount_callback=lambda: self._refcounts[name])
+            refcount_callback=functools.partial(self._refcount_cbk, name))
 
     def _acquire(self, resource_name):
         """
         Check that no other resources are in use. Increment the usage refcount.
         """
-        if not all(count == 0
-                   for key, count in self._refcounts.items()
-                   if key != resource_name):
-            raise RuntimeError(
-                'Cannot acquire resource {} when other resources are in use.'
-                    .format(resource_name))
-        self._refcounts[resource_name] += 1
+        with self._refcounts_mutex:
+            if not all(count == 0
+                       for key, count in self._refcounts.items()
+                       if key != resource_name):
+                raise RuntimeError(
+                    'Cannot acquire resource {} when other resources are in '
+                    'use.'.format(resource_name))
+            self._refcounts[resource_name] += 1
 
     def _release(self, resource_name):
         """Decrement the usage refcount."""
-        assert self._refcounts[resource_name] > 0
-        self._refcounts[resource_name] -= 1
+        with self._refcounts_mutex:
+            assert self._refcounts[resource_name] > 0
+            self._refcounts[resource_name] -= 1
+
+    def _refcount_cbk(self, resource_name):
+        """Return the current refcount for a given resource."""
+        with self._refcounts_mutex:
+            return self._refcounts[resource_name]
 
 
 class _AcquirableResource(object):
