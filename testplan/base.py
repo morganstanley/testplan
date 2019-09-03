@@ -78,24 +78,92 @@ class Testplan(RunnableManager):
     :py:meth:`~testplan.runnable.TestRunner.add`, and
     :py:meth:`~testplan.runnable.TestRunner.schedule`.
 
-    :param runnable: Test runner.
-    :type runnable: :py:class:`~testplan.runnable.TestRunner`
-    :param resources: Initial resources. By default, one LocalRunner is added to
-      execute the Tests.
-    :type resources:
-      ``list`` of :py:class:`resources <testplan.common.entity.base.Resource>`
-    :param parser: Command line parser.
-    :type parser: :py:class:`~testplan.parser.TestplanParser`
-
-    Also inherits all
-    :py:class:`~testplan.common.entity.base.RunnableManager` and
-    :py:class:`~testplan.runnable.TestRunner` options.
+    :param name: Name of test plan.
+    :type name: ``str``
+    :param description: Description of test plan.
+    :type description: ``str``
+    :param parse_cmdline: Parse command lne arguments.
+    :type parse_cmdline: ``bool``
+    :param interactive: Enable interactive execution mode.
+    :type interactive: ``bool``
+    :param port: Port for interactive mode.
+    :type port: ``bool``
+    :param abort_signals: Signals to catch and trigger abort.
+    :type abort_signals: ``list`` of signals
+    :param logger_level: Logger level for stdout.
+    :type logger_level: ``int``
+    :param: file_log_level: Logger level for file.
+    :type file_log_level: ``int``
+    :param runpath: Input runpath.
+    :type runpath: ``str`` or ``callable``
+    :param path_cleanup: Clean previous runpath entries.
+    :type path_cleanup: ``bool``
+    :param all_tasks_local: Schedule all tasks in local pool.
+    :type all_tasks_local: ``bool``
+    :param shuffle: Shuffle strategy.
+    :type shuffle: ``list`` of ``str``
+    :param shuffle_seed: Shuffle seed.
+    :type shuffle_seed: ``float``
+    :param exporters: Exporters for reports creation.
+    :type exporters: ``list``
+    :param stdout_style: Styling output options.
+    :type stdout_style:
+        :py:class:`Style <testplan.report.testing.styles.Style>`
+    :param report_dir: Report directory.
+    :type report_dir: ``str``
+    :param xml_dir: XML output directory.
+    :type xml_dir: ``str``
+    :param pdf_path: PDF output path <PATH>/\*.pdf.
+    :type pdf_path: ``str``
+    :param json_path: JSON output path <PATH>/\*.json.
+    :type json_path: ``str``
+    :param pdf_style: PDF creation styling options.
+    :type pdf_style:
+        :py:class:`Style <testplan.report.testing.styles.Style>`
+    :param report_tags: Matches tests marked with any of the given tags.
+    :type report_tags: ``list``
+    :param report_tags_all: Match tests marked with all of the given tags.
+    :type report_tags_all: ``list``
+    :param merge_scheduled_parts: Merge reports of scheduled MultiTest
+        parts.
+    :type merge_scheduled_parts: ``bool``
+    :param browse: Open web browser to display the test report.
+    :type browse: ``bool`` or ``NoneType``
+    :param ui_port: Port of web server for displaying test report.
+    :type ui_port: ``int`` or ``NoneType``
+    :param web_server_startup_timeout: Timeout for starting web server.
+    :type web_server_startup_timeout: ``int``
+    :param test_filter: Tests filtering class.
+    :type test_filter: Subclass of
+        :py:class:`BaseFilter <testplan.testing.filtering.BaseFilter>`
+    :param test_sorter: Tests sorting class.
+    :type test_sorter: Subclass of
+        :py:class:`BaseSorter <testplan.testing.ordering.BaseSorter>`
+    :param test_lister: Tests listing class.
+    :type test_lister: Subclass of
+        :py:class:`BaseLister <testplan.testing.listing.BaseLister>`
+    :param verbose: Enable or disable verbose mode.
+    :type verbose: ``bool``
+    :param debug: Enable or disable debug mode.
+    :type debug: ``bool``
+    :param timeout: Timeout value for test execution.
+    :type timeout: ``NoneType`` or ``int`` or ``float`` greater than 0.
+    :param interactive_handler: Handler for interactive mode execution.
+    :type interactive_handler: Subclass of :py:class:
+        `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`  # pylint: disable=line-too-long
+    :param extra_deps: Extra module dependencies for interactive reload.
+    :type extra_deps: ``list`` of ``module``
     """
 
     CONFIG = TestplanConfig
 
     def __init__(self,
                  name,
+                 description=None,
+                 parse_cmdline=True,
+                 interactive=False,
+                 port=None,
+                 abort_signals=None,
                  logger_level=logger.TEST_INFO,
                  file_log_level=logger.DEBUG,
                  runpath=path.default_runpath,
@@ -112,7 +180,7 @@ class Testplan(RunnableManager):
                  pdf_style=defaults.PDF_STYLE,
                  report_tags=None,
                  report_tags_all=None,
-                 merge_schedule_parts=False,
+                 merge_scheduled_parts=False,
                  browse=None,
                  ui_port=None,
                  web_server_startup_timeout=defaults.WEB_SERVER_TIMEOUT,
@@ -122,10 +190,13 @@ class Testplan(RunnableManager):
                  verbose=False,
                  debug=False,
                  timeout=None,
+                 interactive_handler=TestRunnerIHandler,
                  extra_deps=None,
-                 interactive=False,
                  **options):
 
+        # Set mutable defaults.
+        if abort_signals is None:
+            abort_signals = []
         if shuffle is None:
             shuffle = []
         if extra_deps is None:
@@ -137,6 +208,11 @@ class Testplan(RunnableManager):
 
         super(Testplan, self).__init__(
             name=name,
+            description=description,
+            parse_cmdline=parse_cmdline,
+            interactive=interactive,
+            port=port,
+            abort_signals=abort_signals,
             logger_level=logger_level,
             file_log_level=file_log_level,
             runpath=runpath,
@@ -153,7 +229,7 @@ class Testplan(RunnableManager):
             pdf_style=pdf_style,
             report_tags=report_tags,
             report_tags_all=report_tags_all,
-            merge_schedule_parts=merge_schedule_parts,
+            merge_scheduled_parts=merge_scheduled_parts,
             browse=browse,
             ui_port=ui_port,
             web_server_startup_timeout=web_server_startup_timeout,
@@ -163,8 +239,8 @@ class Testplan(RunnableManager):
             verbose=verbose,
             debug=debug,
             timeout=timeout,
+            interactive_handler=interactive_handler,
             extra_deps=extra_deps,
-            interactive=interactive,
             **options)
         for resource in self._cfg.resources:
             self._runnable.add_resource(resource)
@@ -223,127 +299,14 @@ class Testplan(RunnableManager):
         return result
 
     @classmethod
-    def main_wrapper(cls,
-        name,
-        description=None,
-        parse_cmdline=True,
-        interactive=False,
-        port=None,
-        abort_signals=None,
-        logger_level=logger.TEST_INFO,
-        file_log_level=logger.DEBUG,
-        runpath=None,
-        path_cleanup=True,
-        all_tasks_local=False,
-        shuffle=None,
-        shuffle_seed=float(random.randint(1, 9999)),
-        exporters=None,
-        stdout_style=None,
-        report_dir=None,
-        xml_dir=None,
-        pdf_path=None,
-        json_path=None,
-        pdf_style=None,
-        report_tags=None,
-        report_tags_all=None,
-        merge_scheduled_parts=False,
-        browse=None,
-        ui_port=None,
-        web_server_startup_timeout=defaults.WEB_SERVER_TIMEOUT,
-        test_filter=None,
-        test_sorter=None,
-        test_lister=None,
-        verbose=None,
-        debug=None,
-        timeout=None,
-        interactive_handler=TestRunnerIHandler,
-        extra_deps=None,
-        **options
-    ):
+    def main_wrapper(cls, name, **options):
         """
         Decorator that will be used for wrapping `main` methods in test scripts.
 
         It accepts all arguments of a
         :py:class:`~testplan.base.Testplan` entity.
 
-        :param name: Name of test plan.
-        :type name: ``str``
-        :param description: Description of test plan.
-        :type description: ``str``
-        :param parse_cmdline: Parse command lne arguments.
-        :type parse_cmdline: ``bool``
-        :param interactive: Enable interactive execution mode.
-        :type interactive: ``bool``
-        :param port: Port for interactive mode.
-        :type port: ``bool``
-        :param abort_signals: Signals to catch and trigger abort.
-        :type abort_signals: ``list`` of signals
-        :param logger_level: Logger level for stdout.
-        :type logger_level: ``int``
-        :param: file_log_level: Logger level for file.
-        :type file_log_level: ``int``
-        :param runpath: Input runpath.
-        :type runpath: ``str`` or ``callable``
-        :param path_cleanup: Clean previous runpath entries.
-        :type path_cleanup: ``bool``
-        :param all_tasks_local: Schedule all tasks in local pool.
-        :type all_tasks_local: ``bool``
-        :param shuffle: Shuffle strategy.
-        :type shuffle: ``list`` of ``str``
-        :param shuffle_seed: Shuffle seed.
-        :type shuffle_seed: ``float``
-        :param exporters: Exporters for reports creation.
-        :type exporters: ``list``
-        :param stdout_style: Styling output options.
-        :type stdout_style:
-            :py:class:`Style <testplan.report.testing.styles.Style>`
-        :param report_dir: Report directory.
-        :type report_dir: ``str``
-        :param xml_dir: XML output directory.
-        :type xml_dir: ``str``
-        :param pdf_path: PDF output path <PATH>/\*.pdf.
-        :type pdf_path: ``str``
-        :param json_path: JSON output path <PATH>/\*.json.
-        :type json_path: ``str``
-        :param pdf_style: PDF creation styling options.
-        :type pdf_style:
-            :py:class:`Style <testplan.report.testing.styles.Style>`
-        :param report_tags: Matches tests marked with any of the given tags.
-        :type report_tags: ``list``
-        :param report_tags_all: Match tests marked with all of the given tags.
-        :type report_tags_all: ``list``
-        :param merge_scheduled_parts: Merge reports of scheduled MultiTest
-            parts.
-        :type merge_scheduled_parts: ``bool``
-        :param browse: Open web browser to display the test report.
-        :type browse: ``bool`` or ``NoneType``
-        :param ui_port: Port of web server for displaying test report.
-        :type ui_port: ``int`` or ``NoneType``
-        :param web_server_startup_timeout: Timeout for starting web server.
-        :type web_server_startup_timeout: ``int``
-        :param test_filter: Tests filtering class.
-        :type test_filter: Subclass of
-            :py:class:`BaseFilter <testplan.testing.filtering.BaseFilter>`
-        :param test_sorter: Tests sorting class.
-        :type test_sorter: Subclass of
-            :py:class:`BaseSorter <testplan.testing.ordering.BaseSorter>`
-        :param test_lister: Tests listing class.
-        :type test_lister: Subclass of
-            :py:class:`BaseLister <testplan.testing.listing.BaseLister>`
-        :param verbose: Enable or disable verbose mode.
-        :type verbose: ``bool``
-        :param debug: Enable or disable debug mode.
-        :type debug: ``bool``
-        :param timeout: Timeout value for test execution.
-        :type timeout: ``NoneType`` or ``int`` or ``float`` greater than 0.
-        :param interactive_handler: Handler for interactive mode execution.
-        :type interactive_handler: Subclass of :py:class:
-            `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`  # pylint: disable=line-too-long
-        :param extra_deps: Extra module dependencies for interactive reload.
-        :type extra_deps: ``list`` of ``module``
         """
-        options.update(cls.filter_locals(locals()))
-
         def test_plan_inner(definition):
             """
             This is being passed the user-defined testplan entry point.
@@ -354,7 +317,7 @@ class Testplan(RunnableManager):
                 This is the callable returned in the end, it executes the plan
                 and the associated reporting
                 """
-                plan = cls(**options)
+                plan = cls(name, **options)
                 try:
                     if arity(definition) == 2:
                         returned = definition(plan, plan.parser)
