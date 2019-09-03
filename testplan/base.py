@@ -1,16 +1,12 @@
 """Testplan base module."""
 
-import signal
 import random
 
-from testplan import defaults
 from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
-from testplan.common.utils import logger
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (RunnableManager, RunnableManagerConfig, Resource)
 from testplan.common.utils.callable import arity
 from testplan.common.utils.validation import is_subclass, has_method
-from testplan.common.utils.path import default_runpath
 from testplan.parser import TestplanParser
 from testplan.runners import LocalRunner
 from testplan.runnable.interactive import TestRunnerIHandler
@@ -129,7 +125,6 @@ class Testplan(RunnableManager):
                  interactive=False,
                  **options):
 
-        # TODO add a utility to reduce this boilerplate.
         if shuffle is None:
             shuffle = []
         if extra_deps is None:
@@ -205,6 +200,8 @@ class Testplan(RunnableManager):
         parser = self._cfg.parser(name=self._cfg.name, default_options=options)
         self._parsed_args = parser.parse_args()
         self._processed_args = parser.process_args(self._parsed_args)
+        for key in self._processed_args:
+            options[key] = self._processed_args[key]
         return options
 
     def run(self):
