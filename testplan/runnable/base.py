@@ -113,9 +113,9 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 'exporters', default=None): Use(get_exporters),
             ConfigOption(
-                'stdout_style', default=defaults.STDOUT_STYLE,): Style,
+                'stdout_style', default=defaults.STDOUT_STYLE): Style,
             ConfigOption(
-                'report_dir', default=defaults.REPORT_DIR,): str,
+                'report_dir', default=defaults.REPORT_DIR): Or(str, None),
             ConfigOption('xml_dir', default=None,): Or(str, None),
             ConfigOption('pdf_path', default=None,): Or(str, None),
             ConfigOption('json_path', default=None,): Or(str, None),
