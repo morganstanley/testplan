@@ -43,12 +43,13 @@ class Suite(object):
 
 # Mapping of module name to filepath and a list of owned objects for the mocked
 # modules we will be "reloading".
+MOCK_MOD_DIR = os.path.abspath(os.path.join(os.sep, "path", "to"))
 MOCK_MODULES = {
-    "__main__": "/path/to/main.py",
-    "mod_a": "/path/to/mod_a.py",
-    "mod_b": "/path/to/mod_b.py",
-    "mod_c": "/path/to/mod_c.py",
-    "mod_d": "/path/to/mod_d.py",
+    "__main__": os.path.join(MOCK_MOD_DIR, "main.py"),
+    "mod_a": os.path.join(MOCK_MOD_DIR, "mod_a.py"),
+    "mod_b": os.path.join(MOCK_MOD_DIR, "mod_b.py"),
+    "mod_c": os.path.join(MOCK_MOD_DIR, "mod_c.py"),
+    "mod_d": os.path.join(MOCK_MOD_DIR, "mod_d.py"),
 }
 
 # Mapping of module name to a list of attributes to set on that module. For
