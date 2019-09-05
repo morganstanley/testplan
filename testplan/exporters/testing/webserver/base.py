@@ -52,9 +52,6 @@ class WebServerExporter(Exporter):
 
     def export(self, source):
         """Serve the web UI locally for our test report."""
-        if self.cfg.ui_port is None:
-            raise ValueError('`ui_port` cannot be None.')
-
         if not len(source):
             self.logger.exporter_info(
                 'Skipping starting web server'

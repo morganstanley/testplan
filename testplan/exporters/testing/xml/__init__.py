@@ -258,7 +258,7 @@ class XMLExporter(Exporter):
             filename = '{}.xml'.format(slugify(child_report.name))
             filename = unique_name(filename, files)
             files.add(filename)
-            file_path = os.path.join(self.cfg.xml_dir, filename)
+            file_path = os.path.join(xml_dir, filename)
 
             # If a report has XML string attribute it was mostly
             # generated via parsing a JUnit compatible XML file
