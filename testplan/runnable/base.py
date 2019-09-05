@@ -620,10 +620,9 @@ class TestRunner(Runnable):
     def _invoke_exporters(self):
         # Add this logic into a ReportExporter(Runnable)
         # that will return a result containing errors
-        if self.cfg.exporters is None or len(self.cfg.exporters) == 0:
-            exporters = get_default_exporters(self.cfg)
-        else:
-            exporters = self.cfg.exporters
+        exporters = get_default_exporters(self.cfg)
+        if self.cfg.exporters:
+            exporters.extend(self.cfg.exporters)
 
         if hasattr(self._result.test_report, 'bubble_up_attachments'):
             self._result.test_report.bubble_up_attachments()
