@@ -1,6 +1,5 @@
 """Testplan base module."""
 
-import signal
 import random
 
 from testplan import defaults
@@ -10,12 +9,11 @@ from .common.config import ConfigOption
 from .common.entity import (RunnableManager, RunnableManagerConfig, Resource)
 from .common.utils.callable import arity
 from .common.utils.validation import is_subclass, has_method
-from .common.utils.path import default_runpath
 from .parser import TestplanParser
 from .runners import LocalRunner
 from .runnable.interactive import TestRunnerIHandler
 from .environment import Environments
-from .testing import filtering, ordering
+
 
 class TestplanConfig(RunnableManagerConfig, TestRunnerConfig):
     """

@@ -45,26 +45,25 @@ class JSONExporter(Exporter):
 
     def export(self, source):
 
-        if self.cfg.json_path is None:
-            raise ValueError('`json_path` cannot be None.')
+        json_path = self.cfg.json_path
 
         if len(source):
             test_plan_schema = TestReportSchema(strict=True)
             data = test_plan_schema.dump(source).data
 
             # Save the Testplan report.
-            with open(self.cfg.json_path, 'w') as json_file:
+            with open(json_path, 'w') as json_file:
                 json.dump(data, json_file)
 
             # Save any attachments.
             attachments_dir = os.path.join(
-                os.path.dirname(self.cfg.json_path),
+                os.path.dirname(json_path),
                 defaults.ATTACHMENTS
             )
             save_attachments(report=source, directory=attachments_dir)
 
             self.logger.exporter_info(
-                'JSON generated at {}'.format(self.cfg.json_path))
+                'JSON generated at {}'.format(json_path))
         else:
             self.logger.exporter_info(
                 'Skipping JSON creation'

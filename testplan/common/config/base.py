@@ -113,7 +113,8 @@ class Config(object):
         if self.parent:
             return getattr(self.parent, name)
         else:
-            raise AttributeError('Name: {}'.format(name))
+            raise AttributeError(
+                'Attribute "{}" not found in {}'.format(name, self))
 
     def __repr__(self):
         return '{}{}'.format(self.__class__.__name__,

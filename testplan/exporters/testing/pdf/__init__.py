@@ -194,15 +194,14 @@ class PDFExporter(Exporter):
 
     def export(self, source):
 
-        if self.cfg.pdf_path is None:
-            raise ValueError('`pdf_path` cannot be None.')
+        pdf_path = self.cfg.pdf_path
 
         if len(source):
             create_pdf(source, self.cfg)
             TESTPLAN_LOGGER.exporter_info(
-                'PDF generated at {}'.format(self.cfg.pdf_path))
+                'PDF generated at {}'.format(pdf_path))
             self.url = 'file:{}'.format(
-                pathname2url(os.path.abspath(self.cfg.pdf_path)))
+                pathname2url(os.path.abspath(pdf_path)))
         else:
             TESTPLAN_LOGGER.exporter_info(
                 'Skipping PDF creation'
