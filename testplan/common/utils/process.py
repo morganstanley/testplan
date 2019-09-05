@@ -1,7 +1,6 @@
 """System process utilities module."""
 
 import time
-import signal
 import psutil
 import warnings
 
@@ -10,7 +9,7 @@ import platform
 import threading
 import functools
 
-from .timing import exponential_interval
+from .timing import get_sleeper, exponential_interval
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
@@ -53,14 +52,12 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
     else:
         proc.terminate()
 
-    begin = time.time()
-    intervals = exponential_interval(initial=0.05, multiplier=1.1, maximum=1)
-
-    while time.time() - begin >= timeout and retcode is None:
-        retcode = proc.poll()
-
+    sleeper = get_sleeper((0.05, 1), timeout=timeout)
+    while next(sleeper):
         if retcode is None:
-            time.sleep(next(intervals))
+            retcode = proc.poll()
+        else:
+            break
 
     if retcode is None:
         try:
