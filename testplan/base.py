@@ -157,6 +157,9 @@ class Testplan(RunnableManager):
 
     CONFIG = TestplanConfig
 
+    # NOTE: if adding, deleting or modifying a constructor parameter here you
+    # MUST also update the class docstring above and main_wrapper entry point
+    # below with the same change.
     def __init__(self,
                  name,
                  description=None,
@@ -298,14 +301,53 @@ class Testplan(RunnableManager):
             return testplan_result
         return result
 
+    # NOTE: if adding, deleting or modifying a wrapper parameter here you
+    # MUST also update the class docstring and __init__() constructor above
+    # with the same change. We have these parameters and their defaults
+    # duplicated here in order to provide good IDE auto-complete experience
+    # for users.
     @classmethod
-    def main_wrapper(cls, name, **options):
+    def main_wrapper(cls,
+                     name,
+                     description=None,
+                     parse_cmdline=True,
+                     interactive=False,
+                     port=None,
+                     abort_signals=None,
+                     logger_level=logger.TEST_INFO,
+                     file_log_level=logger.DEBUG,
+                     runpath=path.default_runpath,
+                     path_cleanup=True,
+                     all_tasks_local=False,
+                     shuffle=None,
+                     shuffle_seed=float(random.randint(1, 9999)),
+                     exporters=None,
+                     stdout_style=defaults.STDOUT_STYLE,
+                     report_dir=defaults.REPORT_DIR,
+                     xml_dir=None,
+                     pdf_path=None,
+                     json_path=None,
+                     pdf_style=defaults.PDF_STYLE,
+                     report_tags=None,
+                     report_tags_all=None,
+                     merge_scheduled_parts=False,
+                     browse=None,
+                     ui_port=None,
+                     web_server_startup_timeout=defaults.WEB_SERVER_TIMEOUT,
+                     test_filter=filtering.Filter(),
+                     test_sorter=ordering.NoopSorter(),
+                     test_lister=None,
+                     verbose=False,
+                     debug=False,
+                     timeout=None,
+                     interactive_handler=TestRunnerIHandler,
+                     extra_deps=None,
+                     **options):
         """
         Decorator that will be used for wrapping `main` methods in test scripts.
 
         It accepts all arguments of a
         :py:class:`~testplan.base.Testplan` entity.
-
         """
         def test_plan_inner(definition):
             """
@@ -317,7 +359,41 @@ class Testplan(RunnableManager):
                 This is the callable returned in the end, it executes the plan
                 and the associated reporting
                 """
-                plan = cls(name, **options)
+                plan = cls(name=name,
+                           description=description,
+                           parse_cmdline=parse_cmdline,
+                           interactive=interactive,
+                           port=port,
+                           abort_signals=abort_signals,
+                           logger_level=logger_level,
+                           file_log_level=file_log_level,
+                           runpath=runpath,
+                           path_cleanup=path_cleanup,
+                           all_tasks_local=all_tasks_local,
+                           shuffle=shuffle,
+                           shuffle_seed=shuffle_seed,
+                           exporters=exporters,
+                           stdout_style=stdout_style,
+                           report_dir=report_dir,
+                           xml_dir=xml_dir,
+                           pdf_path=pdf_path,
+                           json_path=json_path,
+                           pdf_style=pdf_style,
+                           report_tags=report_tags,
+                           report_tags_all=report_tags_all,
+                           merge_scheduled_parts=merge_scheduled_parts,
+                           browse=browse,
+                           ui_port=ui_port,
+                           web_server_startup_timeout=web_server_startup_timeout,
+                           test_filter=test_filter,
+                           test_sorter=test_sorter,
+                           test_lister=test_lister,
+                           verbose=verbose,
+                           debug=debug,
+                           timeout=timeout,
+                           interactive_handler=interactive_handler,
+                           extra_deps=extra_deps,
+                           **options)
                 try:
                     if arity(definition) == 2:
                         returned = definition(plan, plan.parser)
