@@ -1,6 +1,6 @@
 """All default values that will be shared between config objects go here."""
 import os
-import socket
+
 from testplan.report.testing.styles import StyleArg
 
 SUMMARY_NUM_PASSING = 5
@@ -20,6 +20,6 @@ JSON_PATH = os.path.join(REPORT_DIR, 'report.json')
 ATTACHMENTS = '_attachments'
 ATTACHMENTS_DIR = os.path.join(REPORT_DIR, ATTACHMENTS)
 
-WEB_SERVER_HOSTNAME = socket.gethostname()
+WEB_SERVER_HOSTNAME = "0.0.0.0"
 WEB_SERVER_PORT = 0
 WEB_SERVER_TIMEOUT = 10

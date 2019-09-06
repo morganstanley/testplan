@@ -7,8 +7,7 @@ from __future__ import absolute_import
 import ipaddress
 import os
 import json
-
-from schema import Or
+import socket
 
 from testplan import defaults
 from testplan.common.utils.timing import wait
@@ -52,9 +51,6 @@ class WebServerExporter(Exporter):
 
     def export(self, source):
         """Serve the web UI locally for our test report."""
-        if self.cfg.ui_port is None:
-            raise ValueError('`ui_port` cannot be None.')
-
         if not len(source):
             self.logger.exporter_info(
                 'Skipping starting web server'
@@ -97,20 +93,40 @@ class WebServerExporter(Exporter):
 
         (host, port) = self._web_server_thread.server.bind_addr
 
-        # Check for an IPv6 address. Web browsers require IPv6 addresses to be
-        # enclosed in [].
-        try:
-            if ipaddress.ip_address(host).version == 6:
-                host = '[{}]'.format(host)
-        except ValueError:
-            # Expected if the host is a host name instead of an IP address.
-            pass
+        # Check if we are bound to the special (and default) 0.0.0.0 address -
+        # in that case, the UI can be accessed both from localhost or from
+        # any IP address this machine listens on.
+        if host == "0.0.0.0":
+            local_url = 'http://localhost:{}/testplan/local'.format(port)
 
-        self.url = 'http://{host}:{port}/testplan/local'.format(
-            host=host,
-            port=port)
-        self.logger.exporter_info(
-            'View the JSON report in the browser: {}'.format(self.url))
+            try:
+                local_ip = socket.gethostbyname(socket.getfqdn())
+                network_url = 'http://{host}:{port}/testplan/local'.format(
+                    host=local_ip,
+                    port=port)
+                self.logger.exporter_info(
+                    'View the JSON report in the browser:\n\n'
+                    '    Local: %(local)s\n'
+                    '    On Your Network: %(network)s',
+                    {'local': local_url, 'network': network_url})
+            except socket.gaierror:
+                self.logger.exporter_info(
+                    'View the JSON report in the browser: %s', local_url)
+        else:
+            # Check for an IPv6 address. Web browsers require IPv6 addresses
+            # to be enclosed in [].
+            try:
+                if ipaddress.ip_address(host).version == 6:
+                    host = '[{}]'.format(host)
+            except ValueError:
+                # Expected if the host is a host name instead of an IP address.
+                pass
+
+            url = 'http://{host}:{port}/testplan/local'.format(
+                    host=host,
+                    port=port)
+            self.logger.exporter_info(
+                'View the JSON report in the browser: %s', url)
 
     @property
     def _ui_installed(self):
