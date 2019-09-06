@@ -87,7 +87,8 @@ class Testplan(entity.RunnableManager):
     :type interactive: ``bool``
     :param port: Port for interactive mode.
     :type port: ``bool``
-    :param abort_signals: Signals to catch and trigger abort.
+    :param abort_signals: Signals to catch and trigger abort. By default,
+        SIGINT and SIGTERM will trigger Testplan to abort.
     :type abort_signals: ``list`` of signals
     :param logger_level: Logger level for stdout.
     :type logger_level: ``int``

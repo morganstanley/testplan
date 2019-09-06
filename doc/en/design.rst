@@ -370,6 +370,11 @@ IDE to test a java application that connects to this environment dynamically:
                         }}));
     }
 
+We are currently working on a front-end web page that will provide more
+user-friendly interaction with Testplan in the interactive mode. The
+interactive UI will build on top of the existing static report UI
+documented below.
+
 User Interface
 --------------
 

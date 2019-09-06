@@ -14,7 +14,7 @@ import psutil
 import functools
 from collections import deque, OrderedDict
 
-from schema import Optional, Or, And, Use
+from schema import Or, And, Use
 
 from testplan.common.config import Config, ConfigOption
 from testplan.common.utils.exceptions import format_trace
