@@ -41,17 +41,15 @@ class HTTPExporter(Exporter):
     """
     CONFIG = HTTPExporterConfig
 
-    def _upload_report(self, url, source):
+    def _upload_report(self, url, data):
         """
-        Upload Json report, then return the response from server with an
+        Upload Json data, then return the response from server with an
         error message (if any).
         """
         response = None
         errmsg = ''
 
-        if len(source):
-            test_plan_schema = TestReportSchema(strict=True)
-            data = test_plan_schema.dump(source).data
+        if data and data['entries']:
             headers = {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json, text/javascript, */*; q=0.01'
@@ -64,18 +62,19 @@ class HTTPExporter(Exporter):
                 errmsg = 'Failed to export to {}: {}'.format(url, exp)
         else:
             errmsg = (
-                'Skipping exporting test report via http for empty report:'
-                ' {}'.format(source.name))
+                'Skipping exporting test report via http '
+                'for empty report: %s', data.name)
 
         return response, errmsg
 
     def export(self, source):
 
         url = self.cfg.url
-        _, errmsg = self._upload_report(url, source)
+        test_plan_schema = TestReportSchema(strict=True)
+        data = test_plan_schema.dump(source).data
+        _, errmsg = self._upload_report(url, data)
 
         if errmsg:
             self.logger.exporter_info(errmsg)
         else:
-            self.logger.exporter_info(
-                'Test report posted to {}'.format(url))
+            self.logger.exporter_info('Test report posted to %s', url)
