@@ -4,8 +4,7 @@ import random
 
 from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
 from testplan.common.config import ConfigOption
-from testplan.common.entity import (
-    RunnableManager, RunnableManagerConfig, Resource)
+from testplan.common import entity
 from testplan.common.utils.callable import arity
 from testplan.common.utils.validation import is_subclass, has_method
 from testplan.parser import TestplanParser
@@ -19,7 +18,7 @@ from testplan.testing import filtering
 from testplan.testing import ordering
 
 
-class TestplanConfig(RunnableManagerConfig, TestRunnerConfig):
+class TestplanConfig(entity.RunnableManagerConfig, TestRunnerConfig):
     """
     Configuration object for
     :py:class:`~testplan.base.Testplan` entity.
@@ -31,7 +30,7 @@ class TestplanConfig(RunnableManagerConfig, TestRunnerConfig):
         return {
             ConfigOption(
                 'runnable', default=TestRunner): is_subclass(TestRunner),
-            ConfigOption('resources', default=[]): [Resource],
+            ConfigOption('resources', default=[]): [entity.Resource],
             ConfigOption(
                 'parser', default=TestplanParser): has_method('parse_args')
         }
@@ -61,7 +60,7 @@ class TestplanResult(TestRunnerResult):
     __nonzero__ = __bool__
 
 
-class Testplan(RunnableManager):
+class Testplan(entity.RunnableManager):
     """
     A collection of tests and tests executors with the ability to
     selectively execute a subset or a shuffled set of those tests.
@@ -199,7 +198,7 @@ class Testplan(RunnableManager):
 
         # Set mutable defaults.
         if abort_signals is None:
-            abort_signals = []
+            abort_signals = entity.DEFAULT_RUNNABLE_ABORT_SIGNALS[:]
         if shuffle is None:
             shuffle = []
         if extra_deps is None:
@@ -404,6 +403,7 @@ class Testplan(RunnableManager):
                     print('Exception in test_plan definition, aborting plan..')
                     plan.abort()
                     raise
+
                 plan_result = plan.run()
                 plan_result.decorated_value = returned
                 return plan_result
