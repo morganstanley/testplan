@@ -63,8 +63,7 @@ class JSONExporter(Exporter):
             save_attachments(report=source, directory=attachments_dir)
 
             self.logger.exporter_info(
-                'JSON generated at {}'.format(json_path))
+                'JSON generated at %s', os.path.abspath(json_path))
         else:
             self.logger.exporter_info(
-                'Skipping JSON creation'
-                ' for empty report: {}'.format(source.name))
+                'Skipping JSON creation for empty report: %s', source.name)

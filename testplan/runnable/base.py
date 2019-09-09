@@ -272,14 +272,31 @@ class TestRunner(Runnable):
         self._tests = OrderedDict()  # uid to resource
         self._result.test_report = TestReport(
             name=self.cfg.name, uid=self.cfg.name)
-        self._configure_stdout_logger()
+        self._exporters = None
         self._web_server_thread = None
         self._file_log_handler = None
+        self._configure_stdout_logger()
 
     @property
     def report(self):
         """Tests report."""
         return self._result.test_report
+
+    @property
+    def exporters(self):
+        """
+        Return a list of
+        :py:class:`Resources <testplan.exporters.testing.base.Exporter>`.
+        """
+        if self._exporters is None:
+            self._exporters = get_default_exporters(self.cfg)
+            if self.cfg.exporters:
+                self._exporters.extend(self.cfg.exporters)
+            for exporter in self._exporters:
+                if hasattr(exporter, 'cfg'):
+                    exporter.cfg.parent = self.cfg
+                exporter.parent = self
+        return self._exporters
 
     def add_environment(self, env, resource=None):
         """
@@ -620,18 +637,11 @@ class TestRunner(Runnable):
     def _invoke_exporters(self):
         # Add this logic into a ReportExporter(Runnable)
         # that will return a result containing errors
-        exporters = get_default_exporters(self.cfg)
-        if self.cfg.exporters:
-            exporters.extend(self.cfg.exporters)
 
         if hasattr(self._result.test_report, 'bubble_up_attachments'):
             self._result.test_report.bubble_up_attachments()
 
-        for exporter in exporters:
-
-            if hasattr(exporter, 'cfg'):
-                exporter.cfg.parent = self.cfg
-
+        for exporter in self.exporters:
             if isinstance(exporter, test_exporters.Exporter):
                 exp_result = ExporterResult.run_exporter(
                     exporter=exporter,

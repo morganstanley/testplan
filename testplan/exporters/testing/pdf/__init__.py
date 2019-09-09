@@ -198,14 +198,13 @@ class PDFExporter(Exporter):
 
         if len(source):
             create_pdf(source, self.cfg)
-            TESTPLAN_LOGGER.exporter_info(
-                'PDF generated at {}'.format(pdf_path))
+            self.logger.exporter_info(
+                'PDF generated at %s', os.path.abspath(pdf_path))
             self.url = 'file:{}'.format(
                 pathname2url(os.path.abspath(pdf_path)))
         else:
-            TESTPLAN_LOGGER.exporter_info(
-                'Skipping PDF creation'
-                ' for empty report: {}'.format(source.name))
+            self.logger.exporter_info(
+                'Skipping PDF creation for empty report: %s', source.name)
 
 
 class TagFilteredPDFExporter(TagFilteredExporter):

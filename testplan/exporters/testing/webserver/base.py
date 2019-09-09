@@ -53,8 +53,8 @@ class WebServerExporter(Exporter):
         """Serve the web UI locally for our test report."""
         if not len(source):
             self.logger.exporter_info(
-                'Skipping starting web server'
-                ' for empty report: {}'.format(source.name))
+                'Skipping starting web server for '
+                'empty report: %s', source.name)
             return
 
         if not self._ui_installed:
@@ -77,8 +77,7 @@ class WebServerExporter(Exporter):
         attachments_dir = os.path.join(data_path, defaults.ATTACHMENTS)
         save_attachments(report=source, directory=attachments_dir)
 
-        self.logger.exporter_info(
-            'JSON generated at {}'.format(defaults.JSON_PATH))
+        self.logger.exporter_info('JSON generated at %s', defaults.JSON_PATH)
 
         # Start the web server.
         self._web_server_thread = web_app.WebServer(
