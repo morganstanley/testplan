@@ -57,11 +57,11 @@ class BaseRowRenderer(object):
 
 class MetadataMixin(object):
     """
-      Utility mixin that has logic for getting
-      metadata context for row renderers.
+    Utility mixin that has logic for getting
+    metadata context for row renderers.
 
-      Basically we'd like to selectively render the
-      information stored in `meta` dictionary, with readable labels.
+    Basically we'd like to selectively render the
+    information stored in `meta` dictionary, with readable labels.
     """
 
     metadata_labels = ()
@@ -72,8 +72,8 @@ class MetadataMixin(object):
 
     def get_metadata_context(self, source):
         """
-            Return metadata context to be rendered
-            on the PDF with readable labels.
+        Return metadata context to be rendered
+        on the PDF with readable labels.
         """
         return collections.OrderedDict([
             (label, source.meta[key])

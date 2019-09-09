@@ -160,6 +160,7 @@ def configure_file_logger(level, runpath):
         TESTPLAN_LOGGER.error('Cannot open log file at %s for writing: %s',
                               logfile_path,
                               err)
+        return None
     else:
         file_handler.setLevel(level)
         formatter = logging.Formatter(_LOGFILE_FORMAT)
@@ -167,6 +168,7 @@ def configure_file_logger(level, runpath):
         TESTPLAN_LOGGER.addHandler(file_handler)
 
         TESTPLAN_LOGGER.debug('Enabled logging to file: %s', logfile_path)
+        return file_handler
 
 
 class Loggable(object):

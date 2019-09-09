@@ -669,6 +669,7 @@ class RowData(object):
         :param style: Style context for the given content.
         :type style: ``RowStyle`` or ``list`` of ``RowStyle``
         :return: ``None``
+        :rtype: ``NoneType``
         """
         if isinstance(content, six.string_types):
             content = [content] + [''] * (self.num_columns - 1)

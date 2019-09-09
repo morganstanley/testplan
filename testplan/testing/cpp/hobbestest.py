@@ -1,3 +1,5 @@
+from schema import Or
+
 from testplan.common.config import ConfigOption
 
 from testplan.report.testing import TestGroupReport, TestCaseReport
@@ -16,7 +18,7 @@ class HobbesTestConfig(ProcessRunnerTestConfig):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('tests', default=None): list,
+            ConfigOption('tests', default=None): Or(None, list),
             ConfigOption('json', default='report.json'): str,
             ConfigOption('other_args', default=[]): list,
         }
@@ -27,6 +29,12 @@ class HobbesTest(ProcessRunnerTest):
     Subprocess test runner for Hobbes Test:
     https://github.com/Morgan-Stanley/hobbes
 
+    :param name: Test instance name. Also used as uid.
+    :type name: ``str``
+    :param driver: Path the to application binary.
+    :type driver: ``str``
+    :param description: Description of test instance.
+    :type description: ``str``
     :param tests: Run one or more specified test(s).
     :type tests: ``list``
     :param json: Generate test report in JSON with the specified name. The
@@ -43,7 +51,16 @@ class HobbesTest(ProcessRunnerTest):
 
     CONFIG = HobbesTestConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        driver,
+        description=None,
+        tests=None,
+        json='report.json',
+        other_args=None,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         options['driver'] = os.path.abspath(options['driver'])
         # Change working directory to where the test binary is,
         # as it might look under current directory for other binaries.

@@ -35,7 +35,7 @@ def execute_as_thread(target, args=None, kwargs=None, daemon=False, join=True,
     if join is True:
         start_time = time.time()
         while True:
-            if not thr.isAlive():
+            if not thr.is_alive():
                 return
             if break_join is not None and break_join():
                 break
@@ -71,3 +71,51 @@ def interruptible_join(thread, timeout=None):
             'Thread {thr} timed out after {timeout} seconds.'
             .format(thr=thread, timeout=timeout))
 
+
+class Barrier(object):
+    """
+    Implements a re-usable, two-phase barrier. Allows a fixed number of threads
+    to wait for each other to reach a certain point.
+
+    For python >= 3.2 you can just use
+    threading.Barrier instead, this class is provided for
+    compatibility with Python 2.
+
+    :param n: Number of threads to wait for at the barrier.
+    :type n: ``int``
+    """
+
+    def __init__(self, n):
+        self.n = n
+        self._count = 0
+        self._mutex = threading.Lock()
+        self._turnstile = threading.Semaphore(0)
+        self._turnstile2 = threading.Semaphore(0)
+
+    def wait(self):
+        """Wait for all threads to reach the barrier before returning."""
+        self._phase1()
+        self._phase2()
+
+    def _phase1(self):
+        """
+        Phase 1: waits for all threads to reach this point and increment the
+        count.
+        """
+        with self._mutex:
+            self._count += 1
+            if self._count == self.n:
+                for _ in range(self.n):
+                    self._turnstile.release()
+
+        self._turnstile.acquire()
+
+    def _phase2(self):
+        """Phase 2: resets the count so that the barrier can be reused."""
+        with self._mutex:
+            self._count -= 1
+            if self._count == 0:
+                for _ in range(self.n):
+                    self._turnstile2.release()
+
+        self._turnstile2.acquire()

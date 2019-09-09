@@ -24,11 +24,11 @@ class SortType(Enum):
     @classmethod
     def validate(cls, value, allow_tuple=True):
         """
-            Valid examples:
+        Valid examples:
 
-                all
-                instances
-                (suites, instances)
+            all
+            instances
+            (suites, instances)
         """
         def validate_single(v):
             if isinstance(v, six.string_types):
@@ -100,8 +100,8 @@ class NoopSorter(BaseSorter):
 
 class TypedSorter(BaseSorter):
     """
-        Base sorter that allows configuration of
-        sort levels via `sort_type` argument.
+    Base sorter that allows configuration of
+    sort levels via `sort_type` argument.
     """
 
     def __init__(self, sort_type=SortType.ALL):
@@ -124,9 +124,9 @@ class TypedSorter(BaseSorter):
 
 class ShuffleSorter(TypedSorter):
     """
-        Sorter that shuffles the ordering. It is idempotent in a way that,
-        it will return the same ordering for the same seed for the
-        same list.
+    Sorter that shuffles the ordering. It is idempotent in a way that,
+    it will return the same ordering for the same seed for the
+    same list.
     """
 
     def __init__(self, shuffle_type=SortType.ALL, seed=None):

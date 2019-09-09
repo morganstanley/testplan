@@ -13,8 +13,7 @@ from testplan.common.utils.process import kill_process
 
 _TIMEOUT = 60
 _REQUEST_TIMEOUT = 0.1
-_URL_RE = re.compile(
-    r'^View the JSON report in the browser: (?P<url>[^\s]+)\s*$')
+_URL_RE = re.compile(r'^\s*Local: (?P<url>[^\s]+)\s*$')
 
 
 @pytest.yield_fixture(
@@ -23,7 +22,9 @@ _URL_RE = re.compile(
         ['dummy_programmatic_test_plan.py'],
         ['dummy_cli_arg_test_plan.py', '--ui']
     ],
-    ids=['webserver_exporter_programmatic', 'webserver_exporter_cli_arg']
+    ids=['webserver_exporter_programmatic',
+         'webserver_exporter_cli_arg'
+    ]
 )
 def dummy_testplan(request):
     """

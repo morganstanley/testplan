@@ -1,7 +1,6 @@
 """System process utilities module."""
 
 import time
-import signal
 import psutil
 import warnings
 
@@ -10,7 +9,7 @@ import platform
 import threading
 import functools
 
-from .timing import exponential_interval
+from .timing import get_sleeper, exponential_interval
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
@@ -29,7 +28,6 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
     If alive, kills the process.
     First call ``terminate()`` or pass ``signal_`` if specified
     to terminate for up to time specified in timeout parameter.
-
     If process hangs then call ``kill()``.
 
     :param proc: process to kill
@@ -38,37 +36,28 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
     :type timeout: ``int``
     :param output: Optional file like object for writing logs.
     :type output: ``file``
+    :return: Exit code of process
+    :rtype: ``int`` or ``NoneType``
     """
     _log = functools.partial(_log_proc, output=output)
 
     retcode = proc.poll()
-
     if retcode is not None:
         return retcode
 
-    parent = psutil.Process(proc.pid)
-    for child in parent.children(recursive=True):
-        try:
-            child.send_signal(signal.SIGTERM)
-        except Exception as exc:
-            _log(
-                msg='While terminating child proc - {}'.format(exc),
-                warn=True
-            )
+    child_procs = psutil.Process(proc.pid).children(recursive=True)
 
     if signal_ is not None:
         proc.send_signal(signal_)
     else:
         proc.terminate()
 
-    begin = time.time()
-    intervals = exponential_interval(initial=0.05, multiplier=1.1, maximum=1)
-
-    while time.time() - begin >= timeout and retcode is None:
-        retcode = proc.poll()
-
+    sleeper = get_sleeper((0.05, 1), timeout=timeout)
+    while next(sleeper):
         if retcode is None:
-            time.sleep(next(intervals))
+            retcode = proc.poll()
+        else:
+            break
 
     if retcode is None:
         try:
@@ -81,7 +70,70 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
                 warn=True
             )
 
+    _, alive = psutil.wait_procs(child_procs, timeout=timeout)
+    for p in alive:
+        try:
+            p.kill()
+        except psutil.NoSuchProcess:
+            pass  # already dead
+        except Exception as exc:
+            _log(
+                msg='While terminating child process - {}'.format(exc),
+                warn=True
+            )
+
     return proc.returncode
+
+
+def kill_process_psutil(proc, timeout=5, signal_=None, output=None):
+    """
+    If alive, kills the process (an instance of ``psutil.Process``).
+    Try killing the child process at first and then killing itself.
+    First call ``terminate()`` or pass ``signal_`` if specified
+    to terminate for up to time specified in timeout parameter.
+    If process hangs then call ``kill()``.
+
+    :param proc: process to kill
+    :type proc: ``psutil.Process``
+    :param timeout: timeout in seconds, defaults to 5 seconds
+    :type timeout: ``int``
+    :param output: Optional file like object for writing logs.
+    :type output: ``file``
+    :return: List of processes which are still alive
+    :rtype: ``list`` or ``psutil.Process``
+    """
+    _log = functools.partial(_log_proc, output=output)
+
+    all_procs = proc.children(recursive=True) + [proc]
+
+    try:
+        if signal_ is not None:
+            proc.send_signal(signal_)
+        else:
+            proc.terminate()
+    except psutil.NoSuchProcess:
+        pass  # already dead
+    except Exception as exc:
+        _log(
+            msg='While terminating process - {}'.format(exc),
+            warn=True
+        )
+    _, alive = psutil.wait_procs(all_procs, timeout=timeout)
+
+    if len(alive) > 0:
+        for p in alive:
+            try:
+                p.kill()
+            except psutil.NoSuchProcess:
+                pass  # already dead
+            except Exception as exc:
+                _log(
+                    msg='Could not kill process - {}'.format(exc),
+                    warn=True
+                )
+        _, alive = psutil.wait_procs(alive, timeout=timeout)
+
+    return alive
 
 
 DEFAULT_CLOSE_FDS = platform.system() != 'Windows'

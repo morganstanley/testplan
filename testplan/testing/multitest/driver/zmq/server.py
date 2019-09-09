@@ -38,6 +38,8 @@ class ZMQServer(Driver):
         * zmq.PUB
         * zmq.PUSH
 
+    :param name: Name of ZMQServer.
+    :type name: ``str``
     :param host: Host name to bind to. Default: 'localhost'
     :type host: ``str``
     :param port: Port number to bind to. Default: 0 (Random port)
@@ -48,7 +50,14 @@ class ZMQServer(Driver):
 
     CONFIG = ZMQServerConfig
 
-    def __init__(self, **options):
+    def __init__(self,
+        name,
+        host='localhost',
+        port=0,
+        message_pattern=zmq.PAIR,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(ZMQServer, self).__init__(**options)
         self._host = None
         self._port = None

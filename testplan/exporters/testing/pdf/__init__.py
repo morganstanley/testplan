@@ -142,7 +142,7 @@ def create_pdf(source, config):
 
 
 class BasePDFExporterConfig(ExporterConfig):
-
+    """Config for PDF exporter"""
     @classmethod
     def get_options(cls):
         return {
@@ -152,8 +152,11 @@ class BasePDFExporterConfig(ExporterConfig):
 
 
 class PDFExporterConfig(BasePDFExporterConfig):
-    """TODO"""
-
+    """
+    Configuration object for
+    :py:class:`PDFExporter <testplan.exporters.testing.pdf.PDFExporter>`
+    object.
+    """
     @classmethod
     def get_options(cls):
         return {
@@ -165,7 +168,11 @@ class TagFilteredPDFExporterConfig(
     TagFilteredExporterConfig,
     BasePDFExporterConfig
 ):
-
+    """
+    Configuration object for
+    :py:class:`TagFilteredPDFExporter <testplan.exporters.testing.pdf.TagFilteredPDFExporter>`  # pylint: disable=line-too-long
+    object.
+    """
     @classmethod
     def get_options(cls):
         return {
@@ -174,20 +181,27 @@ class TagFilteredPDFExporterConfig(
 
 
 class PDFExporter(Exporter):
+    """
+    PDF Exporter.
 
+    :param pdf_path: File path for saving PDF report.
+    :type pdf_path: ``str``
+
+    Also inherits all
+    :py:class:`~testplan.exporters.testing.base.Exporter` options.
+    """
     CONFIG = PDFExporterConfig
 
     def export(self, source):
 
-        if self.cfg.pdf_path is None:
-            raise ValueError('`pdf_path` cannot be None.')
+        pdf_path = self.cfg.pdf_path
 
         if len(source):
             create_pdf(source, self.cfg)
             TESTPLAN_LOGGER.exporter_info(
-                'PDF generated at {}'.format(self.cfg.pdf_path))
+                'PDF generated at {}'.format(pdf_path))
             self.url = 'file:{}'.format(
-                pathname2url(os.path.abspath(self.cfg.pdf_path)))
+                pathname2url(os.path.abspath(pdf_path)))
         else:
             TESTPLAN_LOGGER.exporter_info(
                 'Skipping PDF creation'
@@ -195,7 +209,15 @@ class PDFExporter(Exporter):
 
 
 class TagFilteredPDFExporter(TagFilteredExporter):
+    """
+    Tag filtered PDF Exporter.
 
+    :param report_dir: Directory for saving PDF reports.
+    :type report_dir: ``str``
+
+    Also inherits all
+    :py:class:`~testplan.exporters.testing.base.TagFilteredExporter` options.
+    """
     CONFIG = TagFilteredPDFExporterConfig
     exporter_class = PDFExporter
 

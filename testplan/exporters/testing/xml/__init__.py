@@ -211,8 +211,11 @@ class MultiTestRenderer(BaseRenderer):
 
 
 class XMLExporterConfig(ExporterConfig):
-    """Config for XML exporter"""
-
+    """
+    Configuration object for
+    :py:class:`XMLExporter <testplan.exporters.testing.xml.XMLExporter>`
+    object.
+    """
     @classmethod
     def get_options(cls):
         return {
@@ -222,10 +225,15 @@ class XMLExporterConfig(ExporterConfig):
 
 class XMLExporter(Exporter):
     """
-    Produces one XML file per each child of
+    XML Exporter. Produces one XML file per each child of
     TestPlanReport (e.g. Multitest reports)
-    """
 
+    :param xml_dir: Directory for saving xml reports.
+    :type xml_dir: ``str``
+
+    Also inherits all
+    :py:class:`~testplan.exporters.testing.base.Exporter` options.
+    """
     CONFIG = XMLExporterConfig
 
     renderer_map = {
@@ -250,7 +258,7 @@ class XMLExporter(Exporter):
             filename = '{}.xml'.format(slugify(child_report.name))
             filename = unique_name(filename, files)
             files.add(filename)
-            file_path = os.path.join(self.cfg.xml_dir, filename)
+            file_path = os.path.join(xml_dir, filename)
 
             # If a report has XML string attribute it was mostly
             # generated via parsing a JUnit compatible XML file
