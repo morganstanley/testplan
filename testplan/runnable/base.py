@@ -113,9 +113,9 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 'exporters', default=None): Use(get_exporters),
             ConfigOption(
-                'stdout_style', default=defaults.STDOUT_STYLE,): Style,
+                'stdout_style', default=defaults.STDOUT_STYLE): Style,
             ConfigOption(
-                'report_dir', default=defaults.REPORT_DIR,): str,
+                'report_dir', default=defaults.REPORT_DIR): Or(str, None),
             ConfigOption('xml_dir', default=None,): Or(str, None),
             ConfigOption('pdf_path', default=None,): Or(str, None),
             ConfigOption('json_path', default=None,): Or(str, None),
@@ -620,10 +620,9 @@ class TestRunner(Runnable):
     def _invoke_exporters(self):
         # Add this logic into a ReportExporter(Runnable)
         # that will return a result containing errors
-        if self.cfg.exporters is None or len(self.cfg.exporters) == 0:
-            exporters = get_default_exporters(self.cfg)
-        else:
-            exporters = self.cfg.exporters
+        exporters = get_default_exporters(self.cfg)
+        if self.cfg.exporters:
+            exporters.extend(self.cfg.exporters)
 
         if hasattr(self._result.test_report, 'bubble_up_attachments'):
             self._result.test_report.bubble_up_attachments()
