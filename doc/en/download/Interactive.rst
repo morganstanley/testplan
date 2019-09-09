@@ -1,6 +1,15 @@
 Interactive
 ***********
 
+In addition to the default batch mode for running tests, Testplan also allows
+tests and their environments to be run in an "interactive" mode. Currently
+only the backend HTTP (REST) API is implemented. The examples below show
+different ways you can connect to Testplan's interactive API. Though
+powerful and flexible, API access is a feature suitable for more advanced
+users that are happy to build their own client. We are currently working on a
+web page front-end that will allow user-friendly control of tests and their
+environments - watch this space for updates soon!
+
 .. _example_interactive_basic:
 
 Basic

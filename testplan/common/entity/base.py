@@ -14,7 +14,7 @@ import psutil
 import functools
 from collections import deque, OrderedDict
 
-from schema import Optional, Or, And, Use
+from schema import Or, And, Use
 
 from testplan.common.config import Config, ConfigOption
 from testplan.common.utils.exceptions import format_trace
@@ -689,9 +689,13 @@ class RunnableIHandler(Entity):
         wait(lambda: self._http_handler.port is not None,
              self.cfg.http_handler_startup_timeout,
              raise_on_timeout=True )
-        self.logger.test_info('{} listening on: {}:{}'.format(
-            self._http_handler.__class__.__name__,
-            self._http_handler.ip, self._http_handler.port))
+        self.logger.warning(
+            'Interactive web viewer is not yet implemented. Interactive mode '
+            'currently only allows control of a Testplan via its HTTP API.')
+        self.logger.test_info(
+            'Interactive Testplan API listening on: %s:%d',
+            self._http_handler.ip,
+            self._http_handler.port)
 
     def __call__(self, *args, **kwargs):
         self.status.change(RunnableStatus.RUNNING)
@@ -700,6 +704,12 @@ class RunnableIHandler(Entity):
         if self._http_handler is not None:
             self._start_http_handler()
 
+        self._run_loop()
+
+        self.status.change(RunnableStatus.FINISHED)
+
+    def _run_loop(self):
+        """Main work loop. Process incoming operations while we are RUNNING."""
         while self.active and self.target.active:
             if self.status.tag == RunnableStatus.RUNNING:
                 try:
@@ -730,8 +740,6 @@ class RunnableIHandler(Entity):
                         self._results[uid] = exc
                     finally:
                         del self._operations[uid]
-
-        self.status.change(RunnableStatus.FINISHED)
 
     def pausing(self):
         """Set pausing status."""
@@ -1219,6 +1227,8 @@ class Resource(Entity):
         return False
 
 
+DEFAULT_RUNNABLE_ABORT_SIGNALS = [signal.SIGINT, signal.SIGTERM]
+
 class RunnableManagerConfig(EntityConfig):
     """
     Configuration object for
@@ -1235,8 +1245,8 @@ class RunnableManagerConfig(EntityConfig):
                 Or(None,
                    And(Use(int),
                        lambda n: n > 0)),
-            ConfigOption('abort_signals', default=[
-                signal.SIGINT, signal.SIGTERM]): [int]
+            ConfigOption('abort_signals',
+                         default=DEFAULT_RUNNABLE_ABORT_SIGNALS): [int]
         }
 
 
