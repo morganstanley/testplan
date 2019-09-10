@@ -1,6 +1,8 @@
 """FixServer driver classes."""
 
 import os
+import select
+import platform
 
 from six.moves import queue
 from schema import Use
@@ -46,6 +48,10 @@ class FixServer(Driver):
     :py:class:`testplan.common.utils.sockets.fix.server.Server` class, which
     provides equivalent functionality and may be used outside of MultiTest.
 
+    NOTE: FixServer requires select.poll(), which is not implemented on all
+    operating systems - typically it is available on POSIX systems but not
+    on Windows.
+
     :param name: Name of FixServer.
     :type name: ``str``
     :param msgclass: Type used to send and receive FIX messages.
@@ -76,6 +82,13 @@ class FixServer(Driver):
         **options
     ):
         options.update(self.filter_locals(locals()))
+
+        if not hasattr(select, 'poll'):
+            raise RuntimeError(
+                'select.poll() is required for FixServer but is not available '
+                'on the current platform ({})'.format(platform.system())
+            )
+
         super(FixServer, self).__init__(**options)
         self._host = None
         self._port = None

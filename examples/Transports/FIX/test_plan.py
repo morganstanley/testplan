@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 """
 This example demonstrates FIX communication via FixServer and FixClient drivers.
+
+NOTE: The FixServer driver implementation requires select.poll(), which is not
+available on all platforms. Typically it is available on POSIX systems but
+not on Windows. This example will not run correctly on platforms where
+select.poll() is not available.
 """
 
 import sys
