@@ -279,6 +279,7 @@ class XMLExporter(Exporter):
                     encoding='UTF-8'
                 )
 
-        TESTPLAN_LOGGER.exporter_info(
-            '%s XML files created at: %s', len(source), xml_dir)
+        self.logger.exporter_info(
+            '%s XML files created at %s', len(source), os.path.abspath(xml_dir)
+        )
 
