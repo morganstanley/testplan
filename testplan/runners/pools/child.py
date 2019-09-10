@@ -141,7 +141,10 @@ class ChildLoop(object):
 
         pool_metadata = response.sender_metadata
 
-        self.runpath = self.runpath or str(pool_metadata['runpath'])
+        if self.runpath is None:
+            if pool_metadata.get('runpath') is None:
+                raise RuntimeError("runpath was not set in pool metadata")
+            self.runpath = pool_metadata['runpath']
         self._setup_logfiles()
 
     def worker_loop(self):

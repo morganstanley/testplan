@@ -262,8 +262,7 @@ class Pool(Executor):
         self._conn = self.CONN_MANAGER()
         self._conn.parent = self
         self._pool_lock = threading.Lock()
-        self._metadata = {}
-        self._metadata['runpath'] = self.runpath
+        self._metadata = None  # Set when Pool is started.
         self._exit_loop = False
         self._start_monitor_thread = True
 
@@ -645,6 +644,10 @@ class Pool(Executor):
         """Starting the pool and workers."""
         # TODO do we need a lock here?
         self.make_runpath_dirs()
+        if self.runpath is None:
+            raise RuntimeError("runpath was not set correctly")
+        self._metadata = {'runpath': self.runpath}
+
         self._conn.start()
 
         for worker in self._workers:
