@@ -1,253 +1,46 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DictLogAssertion shallow renders the dict value 1`] = `
-ShallowWrapper {
-  Symbol(enzyme.__root__): [Circular],
-  Symbol(enzyme.__unrendered__): <FixCellRenderer
+<Fragment>
+  <DictCellRenderer
     colDef={
-        Object {
-            "field": "expected",
-            "headerName": "Expected",
-          }
+      Object {
+        "field": "expected",
+        "headerName": "Expected",
+      }
     }
     data={
-        Object {
-            "descriptor": Object {
-              "indent": 1,
-              "isFailed": true,
-              "isFix": true,
-              "isListKey": false,
-              "lineNo": 667,
-            },
-            "expected": Object {
-              "type": "B",
-              "value": "B",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 601,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "A",
-            },
-          }
-    }
-    value={
-        Object {
-            "type": "B",
-            "value": "B",
-          }
-    }
-/>,
-  Symbol(enzyme.__renderer__): Object {
-    "batchedUpdates": [Function],
-    "getNode": [Function],
-    "render": [Function],
-    "simulateError": [Function],
-    "simulateEvent": [Function],
-    "unmount": [Function],
-  },
-  Symbol(enzyme.__node__): Object {
-    "instance": null,
-    "key": undefined,
-    "nodeType": "function",
-    "props": Object {
-      "children": <DictCellRenderer
-        colDef={
-                Object {
-                        "field": "expected",
-                        "headerName": "Expected",
-                      }
-        }
-        data={
-                Object {
-                        "descriptor": Object {
-                          "indent": 1,
-                          "isFailed": true,
-                          "isFix": true,
-                          "isListKey": false,
-                          "lineNo": 667,
-                        },
-                        "expected": Object {
-                          "type": "B",
-                          "value": "B",
-                        },
-                        "key": Object {
-                          "type": "key",
-                          "value": 601,
-                        },
-                        "value": Object {
-                          "type": "str",
-                          "value": "A",
-                        },
-                      }
-        }
-        id="id_667_undefined_expected"
-        onMouseEnter={[Function]}
-        onMouseLeave={[Function]}
-        value={
-                Object {
-                        "type": "B",
-                        "value": "B",
-                      }
-        }
-/>,
-    },
-    "ref": null,
-    "rendered": Object {
-      "instance": null,
-      "key": undefined,
-      "nodeType": "class",
-      "props": Object {
-        "colDef": Object {
-          "field": "expected",
-          "headerName": "Expected",
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isFailed": true,
+          "isFix": true,
+          "isListKey": false,
+          "lineNo": 667,
         },
-        "data": Object {
-          "descriptor": Object {
-            "indent": 1,
-            "isFailed": true,
-            "isFix": true,
-            "isListKey": false,
-            "lineNo": 667,
-          },
-          "expected": Object {
-            "type": "B",
-            "value": "B",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 601,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "A",
-          },
-        },
-        "id": "id_667_undefined_expected",
-        "onMouseEnter": [Function],
-        "onMouseLeave": [Function],
-        "value": Object {
+        "expected": Object {
           "type": "B",
           "value": "B",
         },
-      },
-      "ref": null,
-      "rendered": null,
-      "type": [Function],
-    },
-    "type": Symbol(react.fragment),
-  },
-  Symbol(enzyme.__nodes__): Array [
-    Object {
-      "instance": null,
-      "key": undefined,
-      "nodeType": "function",
-      "props": Object {
-        "children": <DictCellRenderer
-          colDef={
-                    Object {
-                              "field": "expected",
-                              "headerName": "Expected",
-                            }
-          }
-          data={
-                    Object {
-                              "descriptor": Object {
-                                "indent": 1,
-                                "isFailed": true,
-                                "isFix": true,
-                                "isListKey": false,
-                                "lineNo": 667,
-                              },
-                              "expected": Object {
-                                "type": "B",
-                                "value": "B",
-                              },
-                              "key": Object {
-                                "type": "key",
-                                "value": 601,
-                              },
-                              "value": Object {
-                                "type": "str",
-                                "value": "A",
-                              },
-                            }
-          }
-          id="id_667_undefined_expected"
-          onMouseEnter={[Function]}
-          onMouseLeave={[Function]}
-          value={
-                    Object {
-                              "type": "B",
-                              "value": "B",
-                            }
-          }
-/>,
-      },
-      "ref": null,
-      "rendered": Object {
-        "instance": null,
-        "key": undefined,
-        "nodeType": "class",
-        "props": Object {
-          "colDef": Object {
-            "field": "expected",
-            "headerName": "Expected",
-          },
-          "data": Object {
-            "descriptor": Object {
-              "indent": 1,
-              "isFailed": true,
-              "isFix": true,
-              "isListKey": false,
-              "lineNo": 667,
-            },
-            "expected": Object {
-              "type": "B",
-              "value": "B",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 601,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "A",
-            },
-          },
-          "id": "id_667_undefined_expected",
-          "onMouseEnter": [Function],
-          "onMouseLeave": [Function],
-          "value": Object {
-            "type": "B",
-            "value": "B",
-          },
+        "key": Object {
+          "type": "key",
+          "value": 601,
         },
-        "ref": null,
-        "rendered": null,
-        "type": [Function],
-      },
-      "type": Symbol(react.fragment),
-    },
-  ],
-  Symbol(enzyme.__options__): Object {
-    "adapter": ReactSixteenAdapter {
-      "options": Object {
-        "enableComponentDidUpdateOnSetState": true,
-        "lifecycles": Object {
-          "componentDidUpdate": Object {
-            "onSetState": true,
-          },
-          "getDerivedStateFromProps": true,
-          "getSnapshotBeforeUpdate": true,
-          "setState": Object {
-            "skipsComponentDidUpdateOnNullish": true,
-          },
+        "value": Object {
+          "type": "str",
+          "value": "A",
         },
-      },
-    },
-  },
-}
+      }
+    }
+    id="id_667_undefined_expected"
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    value={
+      Object {
+        "type": "B",
+        "value": "B",
+      }
+    }
+  />
+</Fragment>
 `;

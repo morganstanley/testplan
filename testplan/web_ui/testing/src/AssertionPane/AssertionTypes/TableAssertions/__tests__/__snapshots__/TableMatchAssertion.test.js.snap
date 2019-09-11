@@ -1,306 +1,108 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
-ShallowWrapper {
-  Symbol(enzyme.__root__): [Circular],
-  Symbol(enzyme.__unrendered__): <TableMatchAssertion
-    assertion={
-        Object {
-            "category": "DEFAULT",
-            "columns": Array [
-              "name",
-              "age",
-            ],
-            "data": Array [
-              Array [
-                0,
-                Array [
-                  "Bob",
-                  32,
-                ],
-                Object {},
-                Object {},
-                Object {},
-              ],
-              Array [
-                1,
-                Array [
-                  "Susan",
-                  24,
-                ],
-                Object {},
-                Object {},
-                Object {},
-              ],
-              Array [
-                2,
-                Array [
-                  "Rick",
-                  67,
-                ],
-                Object {},
-                Object {},
-                Object {},
-              ],
-            ],
-            "description": "Table Match: list of list vs list of list",
-            "exclude_columns": null,
-            "fail_limit": 0,
-            "include_columns": null,
-            "line_no": 284,
-            "machine_time": "2019-02-12T17:41:43.176922+00:00",
-            "message": null,
-            "meta_type": "assertion",
-            "passed": true,
-            "report_fails_only": false,
-            "strict": false,
-            "type": "TableMatch",
-            "utc_time": "2019-02-12T17:41:43.176916+00:00",
-          }
-    }
-/>,
-  Symbol(enzyme.__renderer__): Object {
-    "batchedUpdates": [Function],
-    "getNode": [Function],
-    "render": [Function],
-    "simulateError": [Function],
-    "simulateEvent": [Function],
-    "unmount": [Function],
-  },
-  Symbol(enzyme.__node__): Object {
-    "instance": null,
-    "key": undefined,
-    "nodeType": "class",
-    "props": Object {
-      "columnDefs": Array [
-        Object {
-          "cellStyle": [Function],
-          "field": "id",
-          "headerName": "ID",
-          "pinned": "left",
-          "suppressResize": true,
-          "suppressSizeToFit": true,
-          "width": 72,
-        },
-        Object {
-          "cellStyle": [Function],
-          "field": "ev",
-          "headerName": "Expected/Value",
-          "pinned": "left",
-          "suppressFilter": true,
-          "suppressResize": true,
-          "suppressSizeToFit": true,
-          "width": 121,
-        },
-        Object {
-          "field": "state",
-          "headerName": "State",
-          "hide": true,
-        },
-        Object {
-          "cellStyle": [Function],
-          "field": "name",
-          "headerName": "name",
-        },
-        Object {
-          "cellStyle": [Function],
-          "field": "age",
-          "headerName": "age",
-        },
-      ],
-      "rowData": Array [
-        Object {
-          "age": 32,
-          "ev": "Expected",
-          "id": 0,
-          "name": "Bob",
-          "passed": Object {
-            "age": true,
-            "name": true,
-          },
-        },
-        Object {
-          "age": 32,
-          "ev": "Value",
-          "id": 0,
-          "name": "Bob",
-          "passed": Object {
-            "age": true,
-            "name": true,
-          },
-        },
-        Object {
-          "age": 24,
-          "ev": "Expected",
-          "id": 1,
-          "name": "Susan",
-          "passed": Object {
-            "age": true,
-            "name": true,
-          },
-        },
-        Object {
-          "age": 24,
-          "ev": "Value",
-          "id": 1,
-          "name": "Susan",
-          "passed": Object {
-            "age": true,
-            "name": true,
-          },
-        },
-        Object {
-          "age": 67,
-          "ev": "Expected",
-          "id": 2,
-          "name": "Rick",
-          "passed": Object {
-            "age": true,
-            "name": true,
-          },
-        },
-        Object {
-          "age": 67,
-          "ev": "Value",
-          "id": 2,
-          "name": "Rick",
-          "passed": Object {
-            "age": true,
-            "name": true,
-          },
-        },
-      ],
-    },
-    "ref": null,
-    "rendered": null,
-    "type": [Function],
-  },
-  Symbol(enzyme.__nodes__): Array [
-    Object {
-      "instance": null,
-      "key": undefined,
-      "nodeType": "class",
-      "props": Object {
-        "columnDefs": Array [
-          Object {
-            "cellStyle": [Function],
-            "field": "id",
-            "headerName": "ID",
-            "pinned": "left",
-            "suppressResize": true,
-            "suppressSizeToFit": true,
-            "width": 72,
-          },
-          Object {
-            "cellStyle": [Function],
-            "field": "ev",
-            "headerName": "Expected/Value",
-            "pinned": "left",
-            "suppressFilter": true,
-            "suppressResize": true,
-            "suppressSizeToFit": true,
-            "width": 121,
-          },
-          Object {
-            "field": "state",
-            "headerName": "State",
-            "hide": true,
-          },
-          Object {
-            "cellStyle": [Function],
-            "field": "name",
-            "headerName": "name",
-          },
-          Object {
-            "cellStyle": [Function],
-            "field": "age",
-            "headerName": "age",
-          },
-        ],
-        "rowData": Array [
-          Object {
-            "age": 32,
-            "ev": "Expected",
-            "id": 0,
-            "name": "Bob",
-            "passed": Object {
-              "age": true,
-              "name": true,
-            },
-          },
-          Object {
-            "age": 32,
-            "ev": "Value",
-            "id": 0,
-            "name": "Bob",
-            "passed": Object {
-              "age": true,
-              "name": true,
-            },
-          },
-          Object {
-            "age": 24,
-            "ev": "Expected",
-            "id": 1,
-            "name": "Susan",
-            "passed": Object {
-              "age": true,
-              "name": true,
-            },
-          },
-          Object {
-            "age": 24,
-            "ev": "Value",
-            "id": 1,
-            "name": "Susan",
-            "passed": Object {
-              "age": true,
-              "name": true,
-            },
-          },
-          Object {
-            "age": 67,
-            "ev": "Expected",
-            "id": 2,
-            "name": "Rick",
-            "passed": Object {
-              "age": true,
-              "name": true,
-            },
-          },
-          Object {
-            "age": 67,
-            "ev": "Value",
-            "id": 2,
-            "name": "Rick",
-            "passed": Object {
-              "age": true,
-              "name": true,
-            },
-          },
-        ],
+<TableBaseAssertion
+  columnDefs={
+    Array [
+      Object {
+        "cellStyle": [Function],
+        "field": "id",
+        "headerName": "ID",
+        "pinned": "left",
+        "suppressResize": true,
+        "suppressSizeToFit": true,
+        "width": 72,
       },
-      "ref": null,
-      "rendered": null,
-      "type": [Function],
-    },
-  ],
-  Symbol(enzyme.__options__): Object {
-    "adapter": ReactSixteenAdapter {
-      "options": Object {
-        "enableComponentDidUpdateOnSetState": true,
-        "lifecycles": Object {
-          "componentDidUpdate": Object {
-            "onSetState": true,
-          },
-          "getDerivedStateFromProps": true,
-          "getSnapshotBeforeUpdate": true,
-          "setState": Object {
-            "skipsComponentDidUpdateOnNullish": true,
-          },
+      Object {
+        "cellStyle": [Function],
+        "field": "ev",
+        "headerName": "Expected/Value",
+        "pinned": "left",
+        "suppressFilter": true,
+        "suppressResize": true,
+        "suppressSizeToFit": true,
+        "width": 121,
+      },
+      Object {
+        "field": "state",
+        "headerName": "State",
+        "hide": true,
+      },
+      Object {
+        "cellStyle": [Function],
+        "field": "name",
+        "headerName": "name",
+      },
+      Object {
+        "cellStyle": [Function],
+        "field": "age",
+        "headerName": "age",
+      },
+    ]
+  }
+  rowData={
+    Array [
+      Object {
+        "age": 32,
+        "ev": "Expected",
+        "id": 0,
+        "name": "Bob",
+        "passed": Object {
+          "age": true,
+          "name": true,
         },
       },
-    },
-  },
-}
+      Object {
+        "age": 32,
+        "ev": "Value",
+        "id": 0,
+        "name": "Bob",
+        "passed": Object {
+          "age": true,
+          "name": true,
+        },
+      },
+      Object {
+        "age": 24,
+        "ev": "Expected",
+        "id": 1,
+        "name": "Susan",
+        "passed": Object {
+          "age": true,
+          "name": true,
+        },
+      },
+      Object {
+        "age": 24,
+        "ev": "Value",
+        "id": 1,
+        "name": "Susan",
+        "passed": Object {
+          "age": true,
+          "name": true,
+        },
+      },
+      Object {
+        "age": 67,
+        "ev": "Expected",
+        "id": 2,
+        "name": "Rick",
+        "passed": Object {
+          "age": true,
+          "name": true,
+        },
+      },
+      Object {
+        "age": 67,
+        "ev": "Value",
+        "id": 2,
+        "name": "Rick",
+        "passed": Object {
+          "age": true,
+          "name": true,
+        },
+      },
+    ]
+  }
+/>
 `;

@@ -1,6 +1,6 @@
 {
   "name": "testplan",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
     "@babel/polyfill": "7.0.0",
@@ -14,14 +14,13 @@
     "bootstrap": "4.3.1",
     "enzyme": "3.7.0",
     "enzyme-adapter-react-16": "1.6.0",
-    "eslint": "5.10.0",
     "eslint-plugin-react": "7.11.1",
     "react": "16.6.0",
     "react-copy-html-to-clipboard": "6.0.4",
     "react-custom-scrollbars": "4.2.1",
     "react-dom": "16.6.0",
     "react-portal-tooltip": "2.4.0",
-    "react-scripts": "1.1.1",
+    "react-scripts": "^3.1.1",
     "react-spinners": "^0.6.0",
     "react-syntax-highlighter": "^11.0.2",
     "react-test-renderer": "16.6.0",
@@ -29,15 +28,30 @@
     "reactstrap": "6.3.0"
   },
   "devDependencies": {
-    "babel-eslint": "10.0.1",
+    "enzyme-to-json": "^3.4.0",
     "moxios": "0.4.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
+    "test": "react-scripts test",
     "lint": "eslint --ext .js src",
     "eject": "react-scripts eject"
   },
-  "homepage": "/"
+  "homepage": "https://github.com/Morgan-Stanley/testplan",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "jest": {
+    "snapshotSerializers": ["enzyme-to-json/serializer"]
+  }
 }
