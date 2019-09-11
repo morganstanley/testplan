@@ -1,22 +1,23 @@
 {
   "env": {
-    "browser": true,
-    "es6": true,
-    "node": true,
-    "commonjs": true
+    "browser": 2,
+    "es6": 2,
+    "node": 2,
+    "commonjs": 2
   },
   "extends": [
     "eslint:recommended",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    "react-app"
   ],
   "parserOptions": {
     "ecmaFeatures": {
-      "experimentalObjectRestSpread": true,
-      "jsx": true,
-      "arrowFunctions": true,
-      "classes": true,
-      "modules": true,
-      "defaultParams": true
+      "experimentalObjectRestSpread": 2,
+      "jsx": 2,
+      "arrowFunctions": 2,
+      "classes": 2,
+      "modules": 2,
+      "defaultParams": 2
     },
     "sourceType": "module"
   },
@@ -37,7 +38,6 @@
     "no-extra-parens": [2, "functions"],
     "no-self-compare": 2,
     "accessor-pairs": 2,
-    "allowSingleLine": true,
     "comma-spacing": [2, {
       "before": false,
       "after": true
