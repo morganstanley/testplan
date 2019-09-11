@@ -9,10 +9,10 @@ import {
 } from 'react-vis';
 
 /**
- * Component that are used to render a Chart (Data visualisations that don't require an XY axis).
- * Class currently only will render radial charts correctly (not generalised for other charts).
+ * Component that are used to render a Chart (Data visualisations that don't
+ * require an XY axis). Class currently only will render radial charts
+ * correctly (not generalised for other charts).
  */
-
 class DiscreteChartAssertion extends Component  {
   components = {
     Pie: RadialChart
@@ -50,8 +50,8 @@ class DiscreteChartAssertion extends Component  {
          );
 
         legend = data[key].map( slice => {
-                    return {title: slice.name, color: slice.color}
-                 })
+                    return {title: slice.name, color: slice.color};
+                 });
        }
 
       return (
@@ -65,7 +65,7 @@ class DiscreteChartAssertion extends Component  {
           <br/>
           <p>(Hover over chart to see labels)</p>
        </div>
-     )
+     );
   }
 }
 DiscreteChartAssertion.propTypes = {

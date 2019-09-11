@@ -545,10 +545,10 @@ function prepareAttachmentContent(assertion, defaultContent) {
   const paths = window.location.pathname.split('/');
   const uid = paths[2];
   let attachment_content;
-  let file_type = assertion.orig_filename.split('.').pop()
+  let file_type = assertion.orig_filename.split('.').pop();
   let file_path = assertion.dst_path;
   let description = assertion.description;
-  let get_path = `/api/v1/reports/${uid}/attachments/${file_path}`
+  let get_path = `/api/v1/reports/${uid}/attachments/${file_path}`;
 
   switch(file_type){
     case 'txt':
@@ -558,7 +558,7 @@ function prepareAttachmentContent(assertion, defaultContent) {
         attachment_content = (<TextAttachment
                         src={get_path}
                         file_name={assertion.orig_filename}
-                        />)
+                        />);
         break;
 
     case 'jpeg':
@@ -610,7 +610,7 @@ function getImageContent(image_path, description){
             <div>
               <figure className={css(styles.caption)}>
                   <img src={image_path}
-                       class="img-responsive ..."
+                       className="img-responsive ..."
                        alt="Cannot Find File"
                   />
                   <figcaption className={css(styles.caption)}>
@@ -637,31 +637,27 @@ function prepareMatPlotContent(assertion, defaultContent) {
     const uid = paths[2];
     let matplot_content;
     let description = assertion.description;
-    let get_path = `/api/v1/reports/${uid}/attachments/${assertion.dst_path}`
+    let get_path = `/api/v1/reports/${uid}/attachments/${assertion.dst_path}`;
 
     if ((paths.length >= 2) && (paths[1] === '_dev')) {
-        matplot_content = (
-              <figure className={css(styles.caption)}>
-                  <a>
-                     Would display MatPlot from: {get_path}
-                  </a>
-                  <figcaption className={css(styles.caption)}>
-                  <a>
-                     <u> {description? description: "MatPlot Image"} </u>
-                  </a>
-                  </figcaption>
-              </figure>
-        );
+      matplot_content = (
+        <figure className={css(styles.caption)}>
+          Would display MatPlot from: {get_path}
+          <figcaption className={css(styles.caption)}>
+            <u>{description? description: "MatPlot Image"}</u>
+          </figcaption>
+        </figure>
+      );
     } else if (paths.length >= 3) {
-        matplot_content = getImageContent(get_path, description);
+      matplot_content = getImageContent(get_path, description);
     }
 
     return {
-    ...defaultContent,
-    leftTitle: null,
-    rightTitle: null,
-    leftContent: matplot_content,
-    rightContent: null,
+      ...defaultContent,
+      leftTitle: null,
+      rightTitle: null,
+      leftContent: matplot_content,
+      rightContent: null,
     };
 }
 
@@ -685,7 +681,7 @@ function prepareBasicContent(assertion) {
     rightContent: assertion.first,
     postTitle: null,
     postContent: null,
-  }
+  };
 
   // Fan out to the relevant function to prepare content for each assertion
   // type.
