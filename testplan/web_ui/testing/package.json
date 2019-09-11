@@ -27,7 +27,7 @@
     "reactstrap": "6.3.0"
   },
   "devDependencies": {
-    "enzyme-to-json": "^3.4.0",
+    "enzyme-to-json": "^3.3.5",
     "eslint-plugin-react": "^7.14.3",
     "moxios": "0.4.0"
   },
