@@ -13,7 +13,7 @@ class SummaryBaseAssertion extends Component  {
 
     // Go through categories e.g Category: DEFAULT
     return summaries.map(category =>{
-           let category_description = category.description
+           let category_description = category.description;
 
            // Go through assertion types e.g Assertion type: Equal
            let assertions_types =
@@ -50,15 +50,15 @@ class SummaryBaseAssertion extends Component  {
                    </Col>
                   </Row>
                 </div>
-               )
+               );
 
               return  (
                        <div key={assertions_types.description}>
                         {description}
                         {entries}
                       </div>
-              )
-          })
+              );
+          });
 
            return (
                    <div key={category.description}>
@@ -73,8 +73,8 @@ class SummaryBaseAssertion extends Component  {
                       </Col>
                     </Row>
                   </div>
-            )
-    })
+            );
+    });
   }
 }
 

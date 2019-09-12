@@ -1,5 +1,6 @@
 /**
- * Helper functions used to add customisation and styling to the graph and chart assertions.
+ * Helper functions used to add customisation and styling to the graph and
+ * chart assertions.
  */
 
 /**
@@ -35,7 +36,7 @@ export function returnXType(graph_type){
 }
 
 const COLOUR_PALETTE=['#1c5c9c', '#68caea', '#7448c5', '#633836',
-                      '#485051', '#336a85', '#94b1c5', '#ababab']
+                      '#485051', '#336a85', '#94b1c5', '#ababab'];
 /**
  * Return the colours for every series, given the series_options. Each series'
  * colour assigned depending on whether the user has specified an option,
@@ -49,7 +50,7 @@ const COLOUR_PALETTE=['#1c5c9c', '#68caea', '#7448c5', '#633836',
  * @return {dict[str, str]} Every series name and it's display colour
  */
 export function returnColour(series_options, data){
-  const series_names = Object.keys(data)
+  const series_names = Object.keys(data);
   let series_colours = {};
   let colour_options = COLOUR_PALETTE.slice();
 

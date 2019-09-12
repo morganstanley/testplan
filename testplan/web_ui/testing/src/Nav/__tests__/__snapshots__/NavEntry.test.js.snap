@@ -1,349 +1,42 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NavEntry shallow renders the correct HTML structure 1`] = `
-ShallowWrapper {
-  Symbol(enzyme.__root__): [Circular],
-  Symbol(enzyme.__unrendered__): <NavEntry
-    caseCountFailed={0}
-    caseCountPassed={0}
-    name="entry name"
-    status="passed"
-    type="testplan"
-/>,
-  Symbol(enzyme.__renderer__): Object {
-    "batchedUpdates": [Function],
-    "getNode": [Function],
-    "render": [Function],
-    "simulateError": [Function],
-    "simulateEvent": [Function],
-    "unmount": [Function],
-  },
-  Symbol(enzyme.__node__): Object {
-    "instance": null,
-    "key": undefined,
-    "nodeType": "host",
-    "props": Object {
-      "children": Array [
-        <div
-          className="entryName_1w2kiva-o_O-passed_1kh4m98"
+<div
+  className="d-flex justify-content-between"
 >
-          entry name
-</div>,
-        <div
-          className="entryIcons_dx1noq"
->
-          <i
-                    className="entryIcon_ull2p3"
-                    title="passed/failed testcases"
-          >
-                    <span
-                              className="passed_1kh4m98"
-                    />
-                    /
-                    <span
-                              className="failed_11es5k7"
-                    />
-          </i>
-          <Badge
-                    className="entryIcon_ull2p3-o_O-passedBadge_1gkx146"
-                    color="secondary"
-                    pill={true}
-                    tag="span"
-                    title="testplan"
-          >
-                    TP
-          </Badge>
-</div>,
-      ],
-      "className": "d-flex justify-content-between",
-    },
-    "ref": null,
-    "rendered": Array [
-      Object {
-        "instance": null,
-        "key": undefined,
-        "nodeType": "host",
-        "props": Object {
-          "children": "entry name",
-          "className": "entryName_1w2kiva-o_O-passed_1kh4m98",
-        },
-        "ref": null,
-        "rendered": "entry name",
-        "type": "div",
-      },
-      Object {
-        "instance": null,
-        "key": undefined,
-        "nodeType": "host",
-        "props": Object {
-          "children": Array [
-            <i
-              className="entryIcon_ull2p3"
-              title="passed/failed testcases"
->
-              <span
-                            className="passed_1kh4m98"
-              />
-              /
-              <span
-                            className="failed_11es5k7"
-              />
-</i>,
-            <Badge
-              className="entryIcon_ull2p3-o_O-passedBadge_1gkx146"
-              color="secondary"
-              pill={true}
-              tag="span"
-              title="testplan"
->
-              TP
-</Badge>,
-          ],
-          "className": "entryIcons_dx1noq",
-        },
-        "ref": null,
-        "rendered": Array [
-          Object {
-            "instance": null,
-            "key": undefined,
-            "nodeType": "host",
-            "props": Object {
-              "children": Array [
-                <span
-                  className="passed_1kh4m98"
-/>,
-                "/",
-                <span
-                  className="failed_11es5k7"
-/>,
-              ],
-              "className": "entryIcon_ull2p3",
-              "title": "passed/failed testcases",
-            },
-            "ref": null,
-            "rendered": Array [
-              Object {
-                "instance": null,
-                "key": undefined,
-                "nodeType": "host",
-                "props": Object {
-                  "children": 0,
-                  "className": "passed_1kh4m98",
-                },
-                "ref": null,
-                "rendered": 0,
-                "type": "span",
-              },
-              "/",
-              Object {
-                "instance": null,
-                "key": undefined,
-                "nodeType": "host",
-                "props": Object {
-                  "children": 0,
-                  "className": "failed_11es5k7",
-                },
-                "ref": null,
-                "rendered": 0,
-                "type": "span",
-              },
-            ],
-            "type": "i",
-          },
-          Object {
-            "instance": null,
-            "key": undefined,
-            "nodeType": "function",
-            "props": Object {
-              "children": "TP",
-              "className": "entryIcon_ull2p3-o_O-passedBadge_1gkx146",
-              "color": "secondary",
-              "pill": true,
-              "tag": "span",
-              "title": "testplan",
-            },
-            "ref": null,
-            "rendered": "TP",
-            "type": [Function],
-          },
-        ],
-        "type": "div",
-      },
-    ],
-    "type": "div",
-  },
-  Symbol(enzyme.__nodes__): Array [
-    Object {
-      "instance": null,
-      "key": undefined,
-      "nodeType": "host",
-      "props": Object {
-        "children": Array [
-          <div
-            className="entryName_1w2kiva-o_O-passed_1kh4m98"
->
-            entry name
-</div>,
-          <div
-            className="entryIcons_dx1noq"
->
-            <i
-                        className="entryIcon_ull2p3"
-                        title="passed/failed testcases"
-            >
-                        <span
-                                    className="passed_1kh4m98"
-                        />
-                        /
-                        <span
-                                    className="failed_11es5k7"
-                        />
-            </i>
-            <Badge
-                        className="entryIcon_ull2p3-o_O-passedBadge_1gkx146"
-                        color="secondary"
-                        pill={true}
-                        tag="span"
-                        title="testplan"
-            >
-                        TP
-            </Badge>
-</div>,
-        ],
-        "className": "d-flex justify-content-between",
-      },
-      "ref": null,
-      "rendered": Array [
-        Object {
-          "instance": null,
-          "key": undefined,
-          "nodeType": "host",
-          "props": Object {
-            "children": "entry name",
-            "className": "entryName_1w2kiva-o_O-passed_1kh4m98",
-          },
-          "ref": null,
-          "rendered": "entry name",
-          "type": "div",
-        },
-        Object {
-          "instance": null,
-          "key": undefined,
-          "nodeType": "host",
-          "props": Object {
-            "children": Array [
-              <i
-                className="entryIcon_ull2p3"
-                title="passed/failed testcases"
->
-                <span
-                                className="passed_1kh4m98"
-                />
-                /
-                <span
-                                className="failed_11es5k7"
-                />
-</i>,
-              <Badge
-                className="entryIcon_ull2p3-o_O-passedBadge_1gkx146"
-                color="secondary"
-                pill={true}
-                tag="span"
-                title="testplan"
->
-                TP
-</Badge>,
-            ],
-            "className": "entryIcons_dx1noq",
-          },
-          "ref": null,
-          "rendered": Array [
-            Object {
-              "instance": null,
-              "key": undefined,
-              "nodeType": "host",
-              "props": Object {
-                "children": Array [
-                  <span
-                    className="passed_1kh4m98"
-/>,
-                  "/",
-                  <span
-                    className="failed_11es5k7"
-/>,
-                ],
-                "className": "entryIcon_ull2p3",
-                "title": "passed/failed testcases",
-              },
-              "ref": null,
-              "rendered": Array [
-                Object {
-                  "instance": null,
-                  "key": undefined,
-                  "nodeType": "host",
-                  "props": Object {
-                    "children": 0,
-                    "className": "passed_1kh4m98",
-                  },
-                  "ref": null,
-                  "rendered": 0,
-                  "type": "span",
-                },
-                "/",
-                Object {
-                  "instance": null,
-                  "key": undefined,
-                  "nodeType": "host",
-                  "props": Object {
-                    "children": 0,
-                    "className": "failed_11es5k7",
-                  },
-                  "ref": null,
-                  "rendered": 0,
-                  "type": "span",
-                },
-              ],
-              "type": "i",
-            },
-            Object {
-              "instance": null,
-              "key": undefined,
-              "nodeType": "function",
-              "props": Object {
-                "children": "TP",
-                "className": "entryIcon_ull2p3-o_O-passedBadge_1gkx146",
-                "color": "secondary",
-                "pill": true,
-                "tag": "span",
-                "title": "testplan",
-              },
-              "ref": null,
-              "rendered": "TP",
-              "type": [Function],
-            },
-          ],
-          "type": "div",
-        },
-      ],
-      "type": "div",
-    },
-  ],
-  Symbol(enzyme.__options__): Object {
-    "adapter": ReactSixteenAdapter {
-      "options": Object {
-        "enableComponentDidUpdateOnSetState": true,
-        "lifecycles": Object {
-          "componentDidUpdate": Object {
-            "onSetState": true,
-          },
-          "getDerivedStateFromProps": true,
-          "getSnapshotBeforeUpdate": true,
-          "setState": Object {
-            "skipsComponentDidUpdateOnNullish": true,
-          },
-        },
-      },
-    },
-  },
-}
+  <div
+    className="entryName_1w2kiva-o_O-passed_1kh4m98"
+  >
+    entry name
+  </div>
+  <div
+    className="entryIcons_dx1noq"
+  >
+    <i
+      className="entryIcon_ull2p3"
+      title="passed/failed testcases"
+    >
+      <span
+        className="passed_1kh4m98"
+      >
+        0
+      </span>
+      /
+      <span
+        className="failed_11es5k7"
+      >
+        0
+      </span>
+    </i>
+    <Badge
+      className="entryIcon_ull2p3-o_O-passedBadge_1gkx146"
+      color="secondary"
+      pill={true}
+      tag="span"
+      title="testplan"
+    >
+      TP
+    </Badge>
+  </div>
+</div>
 `;
