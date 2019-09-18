@@ -48,15 +48,13 @@ class BatchReport extends Component {
    * @public
    */
   getReport() {
-    const paths = window.location.pathname.split('/');
-
-    // Inspect the URL to determine the report to render. As a special case,
+    // Inspect the UID to determine the report to render. As a special case,
     // we will display a fake report for development purposes.
-    if ((paths.length >= 2) && (paths[1] === '_dev')) {
+    const uid = this.props.match.params.uid;
+    if (uid === "_dev") {
       const r = propagateIndices([fakeReportAssertions]);
       setTimeout(() => {this.setState({report: r, loading: false});}, 1500);
-    } else if (paths.length >= 3) {
-      const uid = paths[2];
+    } else {
       axios.get(`/api/v1/reports/${uid}`)
         .then(response => propagateIndices([response.data]))
         .then(report => this.setState({
@@ -67,11 +65,7 @@ class BatchReport extends Component {
         .catch(error => this.setState({
           error,
           loading: false
-          }));
-    } else {
-      this.setState({
-        error: {message: 'Error retrieving UID from URL.'},
-        loading: false});
+        }));
     }
   }
 

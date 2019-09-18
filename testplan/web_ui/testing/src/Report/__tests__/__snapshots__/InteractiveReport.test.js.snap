@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InteractiveReport shallow renders and matches snapshot 1`] = `
+<EmptyReport
+  message="Interactive mode not yet implemented..."
+/>
+`;

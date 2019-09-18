@@ -19,6 +19,7 @@
     "react-custom-scrollbars": "4.2.1",
     "react-dom": "16.6.0",
     "react-portal-tooltip": "2.4.0",
+    "react-router-dom": "^5.0.0",
     "react-scripts": "3.0.1",
     "react-spinners": "^0.6.0",
     "react-syntax-highlighter": "^11.0.2",
@@ -36,6 +37,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "lint": "eslint --ext .js src",
+    "lint:fix": "eslint --ext .js src --fix",
     "eject": "react-scripts eject"
   },
   "homepage": "/",
@@ -55,5 +57,6 @@
     "snapshotSerializers": [
       "enzyme-to-json/serializer"
     ]
-  }
+  },
+  "proxy": "http://localhost:4000"
 }
