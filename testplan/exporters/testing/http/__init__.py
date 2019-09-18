@@ -9,6 +9,7 @@ import requests
 from schema import Or, Regex
 
 from testplan.common.config import ConfigOption
+from testplan.common.utils.validation import is_valid_url
 from testplan.common.exporters import ExporterConfig
 from testplan.report.testing.schemas import TestReportSchema
 
@@ -24,8 +25,7 @@ class HTTPExporterConfig(ExporterConfig):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('url'):
-                Regex(r'^http[s]?://[\w\d_-]+(:\d{2,5})?.+$', flags=re.I)
+            ConfigOption('url'): is_valid_url
         }
 
 
