@@ -113,10 +113,12 @@ class Testplan(entity.RunnableManager):
     :type report_dir: ``str``
     :param xml_dir: XML output directory.
     :type xml_dir: ``str``
-    :param pdf_path: PDF output path <PATH>/\*.pdf.
-    :type pdf_path: ``str``
     :param json_path: JSON output path <PATH>/\*.json.
     :type json_path: ``str``
+    :param http_url: HTTP url to post JSON report.
+    :type http_url: ``str``
+    :param pdf_path: PDF output path <PATH>/\*.pdf.
+    :type pdf_path: ``str``
     :param pdf_style: PDF creation styling options.
     :type pdf_style:
         :py:class:`Style <testplan.report.testing.styles.Style>`
@@ -150,7 +152,7 @@ class Testplan(entity.RunnableManager):
     :type timeout: ``NoneType`` or ``int`` or ``float`` greater than 0.
     :param interactive_handler: Handler for interactive mode execution.
     :type interactive_handler: Subclass of :py:class:
-        `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`  # pylint: disable=line-too-long
+        `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
     :param extra_deps: Extra module dependencies for interactive reload.
     :type extra_deps: ``list`` of ``module``
     """
@@ -178,8 +180,9 @@ class Testplan(entity.RunnableManager):
                  stdout_style=defaults.STDOUT_STYLE,
                  report_dir=defaults.REPORT_DIR,
                  xml_dir=None,
-                 pdf_path=None,
                  json_path=None,
+                 http_url=None,
+                 pdf_path=None,
                  pdf_style=defaults.PDF_STYLE,
                  report_tags=None,
                  report_tags_all=None,
@@ -227,8 +230,9 @@ class Testplan(entity.RunnableManager):
             stdout_style=stdout_style,
             report_dir=report_dir,
             xml_dir=xml_dir,
-            pdf_path=pdf_path,
             json_path=json_path,
+            http_url=http_url,
+            pdf_path=pdf_path,
             pdf_style=pdf_style,
             report_tags=report_tags,
             report_tags_all=report_tags_all,
@@ -325,8 +329,9 @@ class Testplan(entity.RunnableManager):
                      stdout_style=defaults.STDOUT_STYLE,
                      report_dir=defaults.REPORT_DIR,
                      xml_dir=None,
-                     pdf_path=None,
                      json_path=None,
+                     http_url=None,
+                     pdf_path=None,
                      pdf_style=defaults.PDF_STYLE,
                      report_tags=None,
                      report_tags_all=None,
@@ -377,8 +382,9 @@ class Testplan(entity.RunnableManager):
                     stdout_style=stdout_style,
                     report_dir=report_dir,
                     xml_dir=xml_dir,
-                    pdf_path=pdf_path,
                     json_path=json_path,
+                    http_url=http_url,
+                    pdf_path=pdf_path,
                     pdf_style=pdf_style,
                     report_tags=report_tags,
                     report_tags_all=report_tags_all,
