@@ -2,6 +2,7 @@
 This module contains helper validation functions
 to be used with configuration schemas.
 """
+import validators
 
 
 def is_subclass(parent_kls):
@@ -24,3 +25,8 @@ def has_method(method_name):
     def _validator(kls):
         return hasattr(kls, method_name) and callable(getattr(kls, method_name))
     return _validator
+
+
+def is_valid_url(url):
+    """Validator that checks if a url is valid"""
+    return True if validators.url(url) is True else False
