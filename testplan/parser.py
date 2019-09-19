@@ -181,7 +181,8 @@ Test filter, runs tests that match ALL of the given tags.
 
         report_group.add_argument(
             '--http', dest='http_url',
-            default=None, metavar='URL',
+            default=self._default_options["http_url"],
+            metavar='URL',
             help='Web URL for posting report.'
         )
 

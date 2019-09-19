@@ -2,11 +2,9 @@
 HTTP exporter for uploading test reports via http transmission. The web server
 must be able to handle POST request and receive data in JSON format.
 """
-import re
 import json
 
 import requests
-from schema import Or, Regex
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.validation import is_valid_url
@@ -25,7 +23,8 @@ class HTTPExporterConfig(ExporterConfig):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('url'): is_valid_url
+            ConfigOption('http_url'): is_valid_url,
+            ConfigOption('timeout', default=600): int
         }
 
 
@@ -56,7 +55,8 @@ class HTTPExporter(Exporter):
             }
             try:
                 response = requests.post(
-                    url=url, data=json.dumps(data), headers=headers)
+                    url=url, data=json.dumps(data), headers=headers,
+                    timeout=self.cfg.timeout)
                 response.raise_for_status()
             except requests.exceptions.RequestException as exp:
                 errmsg = 'Failed to export to {}: {}'.format(url, exp)
@@ -67,14 +67,16 @@ class HTTPExporter(Exporter):
 
         return response, errmsg
 
+
+
     def export(self, source):
 
-        url = self.cfg.url
+        http_url = self.cfg.http_url
         test_plan_schema = TestReportSchema(strict=True)
         data = test_plan_schema.dump(source).data
-        _, errmsg = self._upload_report(url, data)
+        _, errmsg = self._upload_report(http_url, data)
 
         if errmsg:
             self.logger.exporter_info(errmsg)
         else:
-            self.logger.exporter_info('Test report posted to %s', url)
+            self.logger.exporter_info('Test report posted to %s', http_url)
