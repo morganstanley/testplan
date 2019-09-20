@@ -41,8 +41,8 @@ def get_default_exporters(config):
         result.append(test_exporters.JSONExporter())
     if config.xml_dir:
         result.append(test_exporters.XMLExporter())
-    if config.http_url is not None:
-        result.append(test_exporters.HTTPExporter(url=config.http_url))
+    if config.http_url:
+        result.append(test_exporters.HTTPExporter())
     if config.ui_port is not None:
         result.append(test_exporters.WebServerExporter(ui_port=config.ui_port))
     return result
@@ -654,8 +654,8 @@ class TestRunner(Runnable):
                 self._result.exporter_results.append(exp_result)
             else:
                 raise NotImplementedError(
-                    'Exporter logic not'
-                    ' implemented for: {}'.format(type(exporter)))
+                    'Exporter logic not implemented for: {}'.format(
+                        type(exporter)))
 
     def _post_exporters(self):
         report_opened = False
