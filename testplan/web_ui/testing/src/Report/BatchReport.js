@@ -150,6 +150,7 @@ class BatchReport extends Component {
         left={this.state.navWidth + 1.5}
         testcaseUid={this.state.testcaseUid}
         filter={this.state.filter}
+        reportUid={this.props.match.params.uid}
       />;
     } else if (reportFetchMessage !== undefined) {
       centerPane = <Message

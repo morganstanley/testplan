@@ -56,18 +56,18 @@ class AssertionPane extends Component {
 
   /**
    * Set the state on props change. This is needed to recognize that a different
-   * test case is being rendered. The state of the expand all/collapse all 
+   * test case is being rendered. The state of the expand all/collapse all
    * variable is also reset.
    *
    * @param {object} props - Current props.
    * @param {object} state - Previous state.
-   * @returns {object|null} - Return the new state if the test case changed or 
+   * @returns {object|null} - Return the new state if the test case changed or
    * null otherwise.
    * @public
    */
   static getDerivedStateFromProps(props, state) {
     if (
-      props.testcaseUid === undefined 
+      props.testcaseUid === undefined
       || props.testcaseUid !== state.testcaseUid
     ) {
       return {testcaseUid: props.testcaseUid, globalIsOpen: undefined};
@@ -120,6 +120,7 @@ class AssertionPane extends Component {
                 globalIsOpen={this.state.globalIsOpen}
                 resetGlobalIsOpen={this.resetGlobalIsOpen}
                 filter={this.props.filter}
+                reportUid={this.props.reportUid}
               />
             </InfiniteScroll>
           </div>
@@ -139,6 +140,8 @@ AssertionPane.propTypes = {
   left: PropTypes.number,
   /** Assertion filter */
   filter: PropTypes.string,
+  /** Report UID */
+  reportUid: PropTypes.string,
 };
 
 const styles = StyleSheet.create({

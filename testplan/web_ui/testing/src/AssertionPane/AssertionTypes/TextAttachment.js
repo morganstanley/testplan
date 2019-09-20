@@ -125,16 +125,13 @@ class TextAttachment extends Component {
   * @public
   */
   getTextAttachment() {
-    const paths = window.location.pathname.split('/');
-
-    // Check if dev mode and display test_string
-    if ((paths.length >= 2) && (paths[1] === '_dev')) {
+    // Check if dev mode and display test_string instead of getting the real
+    // source file from the backend.
+    if (this.props.devMode) {
       const TEST_TEXT = "test1\ntest2\ntest3\ntest4\ntest5\ntest6\ntest7\n";
       let text = TEST_TEXT;
       this.handleText(text);
-
-    //If not in dev mode
-    } else if (paths.length >= 3) {
+    } else {
       axios.get(this.props.src)
       .then(response => {
           let text = response.data;
@@ -144,14 +141,7 @@ class TextAttachment extends Component {
                         error: true,
                         loading: false
                       })
-        );
-
-    //If some other error with URL
-    } else {
-      this.setState({
-        error: true,
-        loading: false
-      });
+      );
     }
   }
 
@@ -259,7 +249,8 @@ const styles = StyleSheet.create({
 TextAttachment.propTypes = {
   /** Assertion being rendered */
   src: PropTypes.string,
-  file_name: PropTypes.string
+  file_name: PropTypes.string,
+  devMode: PropTypes.bool,
 };
 
 export default TextAttachment;
