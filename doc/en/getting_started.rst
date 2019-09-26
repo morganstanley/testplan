@@ -4,6 +4,19 @@ Getting started
 Here is a step by step guide in order to install and try Testplan
 in your local environment!
 
+.. _supported_python_versions:
+
+Supported Python Versions
+=========================
+
+Testplan can be used with both Python 2 and 3. Specifically, Testplan is tested
+to work with Python 2.7 and 3.7, so we recommend choosing one of those.
+
+.. warning:: The Python 2 interpreter is now very old and will not be
+             maintained by the core team past January 1 2020, so we strongly
+             recommend to use Python 3 where possible. That being said, we have
+             no current plans to drop Python 2 support for users who need it.
+
 .. _install_testplan:
 
 Install testplan
@@ -20,7 +33,8 @@ First install required packages - you will need root privileges.
       sudo apt-get install python python-pip rsync
 
       # For python 3.
-      sudo apt-get install python3 python3-pip rsync
+      sudo apt-get install python3.7 python3-pip rsync
+      python3.7 -m pip install pip  # Updates to latest pip version.
 
 
 Native pip install
@@ -35,7 +49,7 @@ Install from archive:
       install-testplan-ui
 
       # For python 3.
-      pip3 install --user https://github.com/Morgan-Stanley/testplan/archive/master.zip
+      python3.7 -m pip install --user https://github.com/Morgan-Stanley/testplan/archive/master.zip
       install-testplan-ui
 
 
@@ -75,7 +89,7 @@ Python 3
 
         .. code-block:: bash
 
-          python3 -m venv testplan-oss
+          python3.7 -m venv testplan-oss
           cd testplan-oss
           source bin/activate
 
