@@ -126,7 +126,7 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption('report_tags_all', default=[]
                          ): [Use(tagging.validate_tag_value)],
             ConfigOption('merge_scheduled_parts', default=False): bool,
-            ConfigOption('browse', default=None): Or(None, bool),
+            ConfigOption('browse', default=False): bool,
             ConfigOption('ui_port', default=None): Or(None, int),
             ConfigOption('web_server_startup_timeout',
                          default=defaults.WEB_SERVER_TIMEOUT): int,
