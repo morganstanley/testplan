@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`BatchReport mock URL path shallow renders the correct HTML structure when report loaded 1`] = `
+exports[`BatchReport shallow renders the correct HTML structure when report loaded 1`] = `
 <div
   className="batchReport_3hmsj"
 >
