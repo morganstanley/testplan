@@ -87,6 +87,7 @@ class TestplanParser(object):
             '--runpath',
             type=str,
             metavar='PATH',
+            default=self._default_options["runpath"],
             help='Path under which all temp files and logs will be created')
 
         filter_group = parser.add_argument_group('Filtering')
@@ -183,8 +184,7 @@ Test filter, runs tests that match ALL of the given tags.
             '--http', dest='http_url',
             default=self._default_options["http_url"],
             metavar='URL',
-            help='Web URL for posting report.'
-        )
+            help='Web URL for posting report.')
 
         report_group.add_argument(
             '--report-dir',
@@ -299,6 +299,13 @@ that match ALL of the given tags.
                 seed=args['shuffle_seed'],
                 shuffle_type=args['shuffle']
             )
+
+        # We can set arguments in @test_plan decorator or by comman line, for
+        # arguments in boolean type if in one place it set tp True, then the
+        # final result is True
+        args['browse'] = args['browse'] or self._default_options['browse']
+        args['verbose'] = args['verbose'] or self._default_options['verbose']
+        args['debug'] = args['debug'] or self._default_options['debug']
 
         # Set stdout style and logging level options according to
         # verbose/debug parameters. Debug output should be a superset of
