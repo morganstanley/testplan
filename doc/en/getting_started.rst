@@ -223,9 +223,15 @@ package management system:
 .. warning::
 
   The ``install-testplan-ui`` currently can't be called on Windows after
-  installing from archive. It will work if installed through virtualenv. If this
-  isn't installed the ``--ui`` arg will not work properly (the web server will
-  start but the UI won't load). Read more about the browser output
+  installing from archive. It will work if installed through virtualenv. You
+  can manually run if Node.js and npm is installed:
+
+      .. code-block:: text
+
+        C:\path\to\installed\interpreter\python.exe C:\path\to\installed\Scripts\install-testplan-ui
+
+  If this isn't installed the ``--ui`` arg will not work properly (the web
+  server will start but the UI won't load). Read more about the browser output
   :ref:`here <Output_Browser>`. Raise a GitHub issue if further assistance is
   needed.
 
