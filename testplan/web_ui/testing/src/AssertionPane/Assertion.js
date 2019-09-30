@@ -25,6 +25,10 @@ import XYGraphAssertion
 import DiscreteChartAssertion
   from './AssertionTypes/GraphAssertions/DiscreteChartAssertion';
 import SummaryBaseAssertion from './AssertionSummary';
+import {
+  AttachmentAssertion,
+  MatplotAssertion
+} from './AssertionTypes/AttachmentAssertions.js';
 
 /**
  * Component to render one assertion.
@@ -99,6 +103,8 @@ class Assertion extends Component {
       FixLog: FixLogAssertion,
       FixMatch: FixMatchAssertion,
       Graph: graphAssertion,
+      Attachment: AttachmentAssertion,
+      MatPlot: MatplotAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];
@@ -132,8 +138,12 @@ class Assertion extends Component {
       default: {
         const AssertionTypeComponent = this.assertionComponent(assertionType);
         if (AssertionTypeComponent) {
-        assertionType =
-          <AssertionTypeComponent assertion={this.props.assertion} />;
+        assertionType = (
+          <AssertionTypeComponent
+            assertion={this.props.assertion}
+            reportUid={this.props.reportUid}
+          />
+        );
         } else {
           assertionType = <NotImplementedAssertion />;
         }
@@ -180,6 +190,8 @@ Assertion.propTypes = {
   index: PropTypes.number,
   /** Assertion filter */
   filter: PropTypes.string,
+  /** Report Uid */
+  reportUid: PropTypes.string,
 };
 
 const styles = StyleSheet.create({

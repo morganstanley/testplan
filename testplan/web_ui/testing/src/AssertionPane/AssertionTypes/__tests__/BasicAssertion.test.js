@@ -517,25 +517,6 @@ function propsFixCheck() {
   }
 }
 
-function propsAttachment() {
-  return {
-    assertion: {
-	  'category': 'DEFAULT',
-      'description': 'Attaching a text file',
-	  'dst_path': 'tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt',
-	  'filesize': 900,
-      'hash': 'cd4f4c6e94971896a71b4a1d47785a90b19f6565',
-      'line_no': 29,
-      'machine_time': '2019-08-06T15:27:09.855311+00:00',
-      'meta_type': 'entry',
-      'orig_filename': 'tmpthpcdtwn.txt',
-      'source_path': '/tmp/tmpthpcdtwn.txt',
-      'type': 'Attachment',
-      'utc_time': '2019-08-06T14:27:09.855293+00:00',
-    }
-  }
-}
-
 describe('BasicAssertion', () => {
   let props;
   let shallowComponent;
@@ -705,12 +686,6 @@ describe('BasicAssertion', () => {
 
   it('shallow renders the FixCheck assertion', () => {
     props = propsFixCheck();
-    shallowComponent = shallow(<BasicAssertion {...props} />);
-    expect(shallowComponent).toMatchSnapshot();
-  });
-
-  it('shallow renders the Attachment assertion', () => {
-    props = propsAttachment();
     shallowComponent = shallow(<BasicAssertion {...props} />);
     expect(shallowComponent).toMatchSnapshot();
   });

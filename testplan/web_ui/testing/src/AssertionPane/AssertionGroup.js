@@ -26,6 +26,7 @@ class AssertionGroup extends Component {
         resetGlobalIsOpen={this.props.resetGlobalIsOpen}
         index={index}
         filter={this.props.filter}
+        reportUid={this.props.reportUid}
       />
     );
   }
@@ -41,6 +42,8 @@ AssertionGroup.propTypes = {
   resetGlobalIsOpen: PropTypes.func,
   /** Assertion filter */
   filter: PropTypes.string,
+  /** ReportUid */
+  reportUid: PropTypes.string,
 };
 
 export default AssertionGroup;
