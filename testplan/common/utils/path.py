@@ -9,6 +9,7 @@ import tempfile
 import hashlib
 
 from .strings import slugify
+from .process import subprocess_popen
 
 from testplan.vendor.tempita import Template
 
@@ -301,3 +302,56 @@ def hash_file(filepath):
             buf = f.read(HASH_BLOCKSIZE)
 
     return hasher.hexdigest()
+
+
+def archive(path, timestamp):
+    """
+    Append a timestamp to an existing file's name.
+
+    :param path: path to a file that should be archived
+    :type path: ``str``
+    :param timestamp: timestamp
+    :type timestamp: ``str``
+
+    :return: path to the archived file
+    :rtype: ``str``
+    """
+    new_path = path + timestamp
+    if os.path.isfile(path):
+        os.rename(path, new_path)
+    return new_path
+
+
+def copy(source, target, using_subprocess=False):
+    """
+    If the target value exists, then delete it. Then call ``shutil.copy`` and
+    return the path of the target value.
+
+    :param source: path to source file
+    :type source: ``str``
+    :param target: path to target file or directory
+    :type target: ``str``
+    :param using_subprocess: Use /bin/cp in a subprocess spawned by
+                             ``testplan.common.utils.process.subprocess_popen``
+                             to copy the file
+    :type using_subprocess: ``bool``
+
+    :return: path to the target file
+    :rtype: ``str``
+    """
+    real_target = (os.path.join(target, os.path.basename(source))
+                   if os.path.isdir(target) else target)
+    if using_subprocess is True:
+        proc = subprocess_popen(['/bin/cp', source, real_target])
+        proc.wait()
+        if proc.returncode != 0:
+            raise RuntimeError('Binary copy from {} to {} failed'
+                               .format(source, real_target))
+    else:
+        if os.path.isdir(real_target):
+            shutil.rmtree(real_target, ignore_errors=True)
+        elif os.path.exists(real_target):
+            os.remove(real_target)
+        shutil.copy(source, '{}~'.format(real_target))
+        os.rename('{}~'.format(real_target), real_target)
+    return real_target
