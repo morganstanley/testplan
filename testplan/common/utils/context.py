@@ -25,11 +25,14 @@ def expand_env(orig, overrides, contextobj):
     Expands context values as strings.
     Returns as a copy.
 
-    :param orig: The initial environment variables. Usually `os.environ` is to be passed in. This will not be modified.
+    :param orig: The initial environment variables. Usually `os.environ` is to
+                 be passed in. This will not be modified.
     :type orig: ``dict`` of ``str`` to ``str``
-    :param overrides: Keys and values to be overriden. Values can be strings or context objects.
+    :param overrides: Keys and values to be overriden. Values can be strings or
+                      context objects.
     :type overrides: ``dict`` of ``str`` to either ``str`` or ``ContextValue``
-    :param contextobj: The context object that can be used to expand context values.
+    :param contextobj: The context object that can be used to expand context
+                       values.
     :type contextobj: ``object``
 
     :return: Copied, overridden and expanded environment variables
