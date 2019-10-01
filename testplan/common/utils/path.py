@@ -301,3 +301,21 @@ def hash_file(filepath):
             buf = f.read(HASH_BLOCKSIZE)
 
     return hasher.hexdigest()
+
+
+def archive(path, timestamp):
+    """
+    Append a timestamp to an existing file's name.
+
+    :param path: path to a file that should be archived
+    :type path: ``str``
+    :param timestamp: timestamp
+    :type timestamp: ``str``
+
+    :return: path to the archived file
+    :rtype: ``str``
+    """
+    new_path = path + timestamp
+    if os.path.isfile(path):
+        os.rename(path, new_path)
+    return new_path
