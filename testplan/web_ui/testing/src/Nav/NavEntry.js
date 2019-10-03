@@ -1,14 +1,14 @@
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {Badge} from 'reactstrap';
 import {StyleSheet, css} from "aphrodite";
 
 import {
-  RED, 
-  GREEN, 
-  CATEGORY_ICONS, 
-  ENTRY_TYPES, 
-  STATUS 
+  RED,
+  GREEN,
+  CATEGORY_ICONS,
+  ENTRY_TYPES,
+  STATUS
 } from "../Common/defaults";
 
 /**
@@ -17,32 +17,29 @@ import {
  *   * case count (passed/failed).
  *   * type (displayed in badge).
  */
-class NavEntry extends Component {
-  render() {
-    const { name, status, type, caseCountPassed, caseCountFailed } = this.props;
-    const badgeStyle = `${status}Badge`;
-    return (
-      <div className='d-flex justify-content-between'>
-        <div className={css(styles.entryName, styles[status])}>
-          {name}
-        </div>
-        <div className={css(styles.entryIcons)}>
-          <i className={css(styles.entryIcon)} title='passed/failed testcases'>
-            <span className={css(styles.passed)}>{caseCountPassed}</span>
-            /
-            <span className={css(styles.failed)}>{caseCountFailed}</span>
-          </i>
-          <Badge
-            className={css(styles.entryIcon, styles[badgeStyle])}
-            title={type}
-            pill>
-            {CATEGORY_ICONS[type]}
-          </Badge>
-        </div>
+const NavEntry = (props) => {
+  const badgeStyle = `${props.status}Badge`;
+  return (
+    <div className='d-flex justify-content-between'>
+      <div className={css(styles.entryName, styles[props.status])}>
+        {props.name}
       </div>
-    );
-  }
-}
+      <div className={css(styles.entryIcons)}>
+        <i className={css(styles.entryIcon)} title='passed/failed testcases'>
+          <span className={css(styles.passed)}>{props.caseCountPassed}</span>
+          /
+          <span className={css(styles.failed)}>{props.caseCountFailed}</span>
+        </i>
+        <Badge
+          className={css(styles.entryIcon, styles[badgeStyle])}
+          title={props.type}
+          pill>
+          {CATEGORY_ICONS[props.type]}
+        </Badge>
+      </div>
+    </div>
+  );
+};
 
 NavEntry.propTypes = {
   /** Entry name */

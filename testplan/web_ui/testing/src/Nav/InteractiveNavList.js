@@ -1,45 +1,37 @@
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {ListGroup} from 'reactstrap';
 
-import NavEntry from './NavEntry';
-import {CreateNavButtons} from './navUtils.js';
+import InteractiveNavEntry from './InteractiveNavEntry';
 import Column from './Column';
+import {CreateNavButtons} from './navUtils.js';
 import {STATUS} from "../Common/defaults";
 import {getNavEntryType} from "../Common/utils";
 
 /**
- * Render a vertical list of all the currently selected entries children.
+ * Render a vertical list of all the currently selected entries children for
+ * an interactive report.
  */
-class NavList extends Component {
-  componentDidMount() {
-    this.props.autoSelect(this.props.entries, this.props.breadcrumbLength);
-  }
+const InteractiveNavList = (props) => {
+  const navButtons = CreateNavButtons(props, (entry) => (
+    <InteractiveNavEntry
+      name={entry.name}
+      status={entry.status}
+      type={getNavEntryType(entry)}
+      caseCountPassed={entry.case_count.passed}
+      caseCountFailed={entry.case_count.failed}
+      handlePlayClick={(e) => props.handlePlayClick(e, entry)}
+    />
+  ));
 
-  componentDidUpdate() {
-    this.props.autoSelect(this.props.entries, this.props.breadcrumbLength);
-  }
+  return (
+    <Column>
+      <ListGroup>{navButtons}</ListGroup>
+    </Column>
+  );
+};
 
-  render() {
-    const navButtons = CreateNavButtons(this.props, (entry) => (
-      <NavEntry
-        name={entry.name}
-        status={entry.status}
-        type={getNavEntryType(entry)}
-        caseCountPassed={entry.case_count.passed}
-        caseCountFailed={entry.case_count.failed}
-      />
-    ));
-
-    return (
-      <Column>
-        <ListGroup>{navButtons}</ListGroup>
-      </Column>
-    );
-  }
-}
-
-NavList.propTypes = {
+InteractiveNavList.propTypes = {
   /** Nav list entries to be displayed */
   entries: PropTypes.arrayOf(PropTypes.shape({
     uid: PropTypes.string,
@@ -64,4 +56,4 @@ NavList.propTypes = {
   displayTags: PropTypes.bool,
 };
 
-export default NavList;
+export default InteractiveNavList;

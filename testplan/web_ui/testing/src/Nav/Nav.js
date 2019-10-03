@@ -1,9 +1,9 @@
-import React, {Component, Fragment} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import NavBreadcrumbs from "./NavBreadcrumbs";
 import NavList from "./NavList";
-import {parseNavSelection} from "./navUtils";
+import {ParseNavSelection, HandleNavClick} from "./navUtils";
 import {getNavEntryType} from "../Common/utils";
 
 /**
@@ -13,32 +13,14 @@ import {getNavEntryType} from "../Common/utils";
  *   * handle clicking through menus, tracking what has been selected.
  *   * auto select entries if the list is empty or has 1 entry.
  */
-class Nav extends Component {
+class Nav extends React.Component {
   constructor(props) {
     super(props);
-    this.handleNavClick = this.handleNavClick.bind(this);
+    this.handleNavClick = HandleNavClick.bind(this);
     this.autoSelect = this.autoSelect.bind(this);
     this.state = {
       selected: []
     };
-  }
-
-  /**
-   * Handle Nav entries being clicked. Add/remove entries from selected Array in
-   * state.
-   *
-   * @param {Object} e - click event.
-   * @param {Object} entry - Nav entry metadata.
-   * @param {number} depth - depth of Nav entry in Testplan report.
-   * @public
-   */
-  handleNavClick(e, entry, depth) {
-    e.stopPropagation();
-    const entryType = getNavEntryType(entry);
-    let selected = this.state.selected.slice(0, depth);
-    selected.push({uid: entry.uid, type: entryType});
-    this.setState({selected: selected});
-    this.props.saveAssertions(entry);
   }
 
   /**
@@ -68,12 +50,13 @@ class Nav extends Component {
   }
 
   render() {
-    const selection = parseNavSelection(this.props.report, this.state.selected);
+    const selection = ParseNavSelection(this.props.report, this.state.selected);
     return (
-      <Fragment>
+      <>
         <NavBreadcrumbs
           entries={selection.navBreadcrumbs}
-          handleNavClick={this.handleNavClick} />
+          handleNavClick={this.handleNavClick}
+        />
         <NavList
           entries={selection.navList}
           breadcrumbLength={selection.navBreadcrumbs.length}
@@ -83,7 +66,7 @@ class Nav extends Component {
           displayEmpty={this.props.displayEmpty}
           displayTags={this.props.displayTags}
         />
-      </Fragment>
+      </>
     );
   }
 }

@@ -127,7 +127,7 @@ class Toolbar extends Component {
                   </DropdownToggle>
                 </div>
                 <DropdownMenu className={css(styles.filterDropdown)}>
-                  <DropdownItem toggle={false} 
+                  <DropdownItem toggle={false}
                     className={css(styles.dropdownItem)}>
                     <Label check className={css(styles.filterLabel)}>
                       <Input type="radio" name="filter" value='all'
@@ -136,7 +136,7 @@ class Toolbar extends Component {
                       All
                     </Label>
                   </DropdownItem>
-                  <DropdownItem toggle={false} 
+                  <DropdownItem toggle={false}
                     className={css(styles.dropdownItem)}>
                     <Label check className={css(styles.filterLabel)}>
                       <Input type="radio" name="filter" value='fail'
@@ -145,7 +145,7 @@ class Toolbar extends Component {
                       Failed only
                     </Label>
                   </DropdownItem>
-                  <DropdownItem toggle={false} 
+                  <DropdownItem toggle={false}
                     className={css(styles.dropdownItem)}>
                     <Label check className={css(styles.filterLabel)}>
                       <Input type="radio" name="filter" value='pass'
@@ -155,7 +155,7 @@ class Toolbar extends Component {
                     </Label>
                   </DropdownItem>
                   <DropdownItem divider />
-                  <DropdownItem toggle={false} 
+                  <DropdownItem toggle={false}
                     className={css(styles.dropdownItem)}>
                     <Label check className={css(styles.filterLabel)}>
                       <Input type="checkbox" name="displayEmptyTest"
@@ -286,8 +286,8 @@ const styles = StyleSheet.create({
     transition: 'all 0.3s ease-out 0s',
     ':hover': {
         color: DARK_GREY
-      }
-    },
+    }
+  },
   toolbarNeutral: {
     backgroundColor: LIGHT_GREY,
     color: 'black'

@@ -1,7 +1,201 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`InteractiveReport shallow renders and matches snapshot 1`] = `
-<EmptyReport
-  message="Interactive mode not yet implemented..."
-/>
+<div
+  className=""
+>
+  <Toolbar
+    handleNavFilter={[Function]}
+    updateEmptyDisplayFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+  />
+  <InteractiveNav
+    displayEmpty={true}
+    displayTags={false}
+    report={
+      Array [
+        Object {
+          "case_count": Object {
+            "failed": 0,
+            "passed": 0,
+          },
+          "entries": Array [
+            Object {
+              "case_count": Object {
+                "failed": 0,
+                "passed": 0,
+              },
+              "category": "multitest",
+              "description": null,
+              "entries": Array [
+                Object {
+                  "case_count": Object {
+                    "failed": 0,
+                    "passed": 0,
+                  },
+                  "category": "suite",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "case_count": Object {
+                        "failed": 0,
+                        "passed": 0,
+                      },
+                      "description": null,
+                      "entries": Array [],
+                      "logs": Array [],
+                      "name": "test_interactive",
+                      "name_type_index": Set {},
+                      "status": "ready",
+                      "status_override": null,
+                      "suite_related": false,
+                      "tags": Object {},
+                      "tags_index": Object {},
+                      "timer": Object {},
+                      "type": "TestCaseReport",
+                      "uid": "ddd",
+                    },
+                  ],
+                  "logs": Array [],
+                  "name": "Interactive Suite",
+                  "name_type_index": Set {},
+                  "part": null,
+                  "status": "ready",
+                  "status_override": null,
+                  "tags": Object {},
+                  "tags_index": Object {},
+                  "timer": Object {},
+                  "type": "TestGroupReport",
+                  "uid": "ccc",
+                },
+              ],
+              "logs": Array [],
+              "name": "Interactive MTest",
+              "name_type_index": Set {},
+              "part": null,
+              "status": "ready",
+              "status_override": null,
+              "tags": Object {},
+              "tags_index": Object {},
+              "timer": Object {},
+              "type": "TestGroupReport",
+              "uid": "bbb",
+            },
+          ],
+          "meta": Object {},
+          "name": "Fake Interactive Report",
+          "name_type_index": Set {},
+          "status": "ready",
+          "status_override": null,
+          "tags_index": Object {},
+          "timer": null,
+          "uid": "aaa",
+        },
+      ]
+    }
+    runEntry={[Function]}
+    saveAssertions={[Function]}
+  />
+</div>
+`;
+
+exports[`InteractiveReport updates testcase status to passed 1`] = `
+<div
+  className=""
+>
+  <Toolbar
+    handleNavFilter={[Function]}
+    updateEmptyDisplayFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+  />
+  <InteractiveNav
+    displayEmpty={true}
+    displayTags={false}
+    report={
+      Array [
+        Object {
+          "case_count": Object {
+            "failed": 0,
+            "passed": 0,
+          },
+          "entries": Array [
+            Object {
+              "case_count": Object {
+                "failed": 0,
+                "passed": 0,
+              },
+              "category": "multitest",
+              "description": null,
+              "entries": Array [
+                Object {
+                  "case_count": Object {
+                    "failed": 0,
+                    "passed": 0,
+                  },
+                  "category": "suite",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "case_count": Object {
+                        "failed": 0,
+                        "passed": 0,
+                      },
+                      "description": null,
+                      "entries": Array [],
+                      "logs": Array [],
+                      "name": "test_interactive",
+                      "name_type_index": Set {},
+                      "status": "passed",
+                      "status_override": null,
+                      "suite_related": false,
+                      "tags": Object {},
+                      "tags_index": Object {},
+                      "timer": Object {},
+                      "type": "TestCaseReport",
+                      "uid": "ddd",
+                    },
+                  ],
+                  "logs": Array [],
+                  "name": "Interactive Suite",
+                  "name_type_index": Set {},
+                  "part": null,
+                  "status": "ready",
+                  "status_override": null,
+                  "tags": Object {},
+                  "tags_index": Object {},
+                  "timer": Object {},
+                  "type": "TestGroupReport",
+                  "uid": "ccc",
+                },
+              ],
+              "logs": Array [],
+              "name": "Interactive MTest",
+              "name_type_index": Set {},
+              "part": null,
+              "status": "ready",
+              "status_override": null,
+              "tags": Object {},
+              "tags_index": Object {},
+              "timer": Object {},
+              "type": "TestGroupReport",
+              "uid": "bbb",
+            },
+          ],
+          "meta": Object {},
+          "name": "Fake Interactive Report",
+          "name_type_index": Set {},
+          "status": "ready",
+          "status_override": null,
+          "tags_index": Object {},
+          "timer": null,
+          "uid": "aaa",
+        },
+      ]
+    }
+    runEntry={[Function]}
+    saveAssertions={[Function]}
+  />
+</div>
 `;
