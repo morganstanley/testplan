@@ -51,7 +51,7 @@ describe('BatchReport', () => {
 
   it('renders waiting message when waiting to start fetch', () => {
     const batchReport = renderBatchReport();
-    batchReport.setState({loading: false, error: undefined});
+    batchReport.setState({loading: false, error: null});
     batchReport.update();
     const message = batchReport.find(Message);
     const expectedMessage = 'Waiting to fetch Testplan report...';

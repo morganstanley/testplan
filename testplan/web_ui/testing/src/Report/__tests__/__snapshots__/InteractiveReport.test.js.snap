@@ -6,6 +6,7 @@ exports[`InteractiveReport shallow renders and matches snapshot 1`] = `
 >
   <Toolbar
     handleNavFilter={[Function]}
+    status={null}
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -13,6 +14,7 @@ exports[`InteractiveReport shallow renders and matches snapshot 1`] = `
   <InteractiveNav
     displayEmpty={true}
     displayTags={false}
+    filter={null}
     report={
       Array [
         Object {
@@ -106,6 +108,7 @@ exports[`InteractiveReport updates testcase status to passed 1`] = `
 >
   <Toolbar
     handleNavFilter={[Function]}
+    status={null}
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -113,6 +116,7 @@ exports[`InteractiveReport updates testcase status to passed 1`] = `
   <InteractiveNav
     displayEmpty={true}
     displayTags={false}
+    filter={null}
     report={
       Array [
         Object {

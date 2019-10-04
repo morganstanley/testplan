@@ -53,7 +53,7 @@ class InteractiveNav extends React.Component {
           breadcrumbLength={selection.navBreadcrumbs.length}
           handleNavClick={this.handleNavClick}
           autoSelect={() => undefined}
-          filter={undefined}
+          filter={null}
           displayEmpty={true}
           displayTags={false}
           handlePlayClick={this.handlePlayClick}

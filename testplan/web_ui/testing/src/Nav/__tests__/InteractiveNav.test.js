@@ -22,7 +22,7 @@ describe('InteractiveNav', () => {
       <InteractiveNav
         report={[FakeInteractiveReport]}
         saveAssertions={() => undefined}
-        filter={undefined}
+        filter={null}
         displayEmpty={true}
         displayTags={false}
         runEntry={() => undefined}

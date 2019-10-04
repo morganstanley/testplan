@@ -24,7 +24,7 @@ describe('InteractiveNavList', () => {
         breadcrumbLength={1}
         handleNavClick={() => undefined}
         autoSelect={() => undefined}
-        filter={undefined}
+        filter={null}
         displayEmpty={true}
         displayTags={false}
         handlePlayClick={() => undefined}

@@ -77,7 +77,7 @@ class InteractiveReport extends React.Component {
     return (
       <div className={css(styles.batchReport)}>
         <Toolbar
-          status={undefined}
+          status={null}
           handleNavFilter={noop}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
@@ -86,7 +86,7 @@ class InteractiveReport extends React.Component {
         <InteractiveNav
           report={[this.state.report]}
           saveAssertions={noop}
-          filter={undefined}
+          filter={null}
           displayEmpty={true}
           displayTags={false}
           runEntry={this.runEntry}

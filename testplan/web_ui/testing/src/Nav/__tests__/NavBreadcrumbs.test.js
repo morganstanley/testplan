@@ -22,22 +22,11 @@ function defaultProps() {
 }
 
 describe('NavBreadcrumbs', () => {
-  let props;
-  let mountedNavBreadcrumbs;
-  const renderNavBreadcrumbs = () => {
-    if (!mountedNavBreadcrumbs) {
-      mountedNavBreadcrumbs = shallow(
-        <NavBreadcrumbs {...props} />
-      );
-    }
-    return mountedNavBreadcrumbs;
-  };
+  const props = defaultProps();
 
   beforeEach(() => {
     // Stop Aphrodite from injecting styles, this crashes the tests.
     StyleSheetTestUtils.suppressStyleInjection();
-    props = defaultProps();
-    mountedNavBreadcrumbs = undefined;
   });
 
   afterEach(() => {
@@ -46,21 +35,20 @@ describe('NavBreadcrumbs', () => {
     props.handleNavClick.mockClear();
   });
 
-  it('shallow renders without crashing', () => {
-    renderNavBreadcrumbs();
-  });
-
   it('shallow renders the correct HTML structure', () => {
-    const navBreadcrumbs = renderNavBreadcrumbs();
+    const navBreadcrumbs = shallow(
+        <NavBreadcrumbs {...props} />
+    );
     expect(navBreadcrumbs).toMatchSnapshot();
   });
 
   it('calls handleNavClick when nav entry has been clicked', () => {
     const handleNavClick = props.handleNavClick;
-    const navBreadcrumbs = renderNavBreadcrumbs();
+    const navBreadcrumbs = shallow(
+      <NavBreadcrumbs {...props} />
+    );
 
     navBreadcrumbs.find('li').simulate('click');
     expect(handleNavClick.mock.calls.length).toEqual(1);
-  })
-
+  });
 });

@@ -32,20 +32,28 @@ class Nav extends React.Component {
    * @public
    */
   autoSelect(entries, breadcrumbsLength) {
-    let selected;
-    const lastSelectedType = this.state.selected.length > 0 ?
-      this.state.selected[this.state.selected.length - 1].type :
-      undefined;
+    const selected = this.getAutoSelectEntry(entries, breadcrumbsLength);
+    if (selected !== null) {
+      this.setState({selected: selected});
+    }
+  }
+
+  getAutoSelectEntry(entries, breadcrumbsLength) {
+    const lastSelectedType = (
+      this.state.selected.length > 0
+      ? this.state.selected[this.state.selected.length - 1].type
+      : null
+    );
+
     if (entries.length === 0 && this.state.selected.length > 1) {
-      selected = this.state.selected.slice(0, breadcrumbsLength);
+      return this.state.selected.slice(0, breadcrumbsLength);
     } else if (entries.length === 1 && lastSelectedType !== 'testcase') {
-      selected = this.state.selected.concat([{
+      return this.state.selected.concat([{
         uid: entries[0].uid,
         type: getNavEntryType(entries[0])
       }]);
-    }
-    if (selected !== undefined) {
-      this.setState({selected: selected});
+    } else {
+      return null;
     }
   }
 

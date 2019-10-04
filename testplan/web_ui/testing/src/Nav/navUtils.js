@@ -126,7 +126,7 @@ function parseNavSelection(entries, selected, depth, parentUid) {
  * @returns {{navBreadcrumbs: Array, navList: Array}}
  */
 function ParseNavSelection(entries, selected) {
-  return parseNavSelection(entries, selected, 0, undefined);
+  return parseNavSelection(entries, selected, 0, null);
 }
 
 /**
@@ -168,7 +168,7 @@ const CreateNavButtons = (props, createEntryComponent) => {
     const tags = (
       (props.displayTags && entry.tags)
       ? <TagList entryName={entry.name} tags={entry.tags}/>
-      : undefined
+      : null
     );
 
     const tabIndex = entryIndex + 1;
@@ -205,7 +205,7 @@ const applyAllFilters = (props) => {
   } else {
     return applyNamedFilter(props.entries, props.filter).filter((entry) => {
       if (entry.type === 'TestCaseReport') {
-        return (entry.entries !== undefined && entry.entries.length > 0);
+        return (entry.entries !== null && entry.entries.length > 0);
       } else {
         return (entry.case_count.failed + entry.case_count.passed > 0);
       }
