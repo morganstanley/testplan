@@ -84,7 +84,7 @@ class InteractiveReport extends React.Component {
           updateTagsDisplayFunc={noop}
         />
         <InteractiveNav
-          report={[this.state.report]}
+          report={this.state.report}
           saveAssertions={noop}
           filter={null}
           displayEmpty={true}

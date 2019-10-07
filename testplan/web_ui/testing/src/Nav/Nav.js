@@ -58,7 +58,10 @@ class Nav extends React.Component {
   }
 
   render() {
-    const selection = ParseNavSelection(this.props.report, this.state.selected);
+    const selection = ParseNavSelection(
+      this.props.report,
+      this.state.selected,
+    );
     return (
       <>
         <NavBreadcrumbs
@@ -81,7 +84,7 @@ class Nav extends React.Component {
 
 Nav.propTypes = {
   /** Testplan report */
-  report: PropTypes.arrayOf(PropTypes.object),
+  report: PropTypes.object,
   /** Function to handle saving the assertions found by the Nav */
   saveAssertions: PropTypes.func,
   /** Entity filter */

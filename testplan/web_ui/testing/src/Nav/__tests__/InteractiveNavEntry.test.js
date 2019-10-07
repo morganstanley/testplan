@@ -2,6 +2,7 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 import {StyleSheetTestUtils} from "aphrodite";
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 import InteractiveNavEntry from '../InteractiveNavEntry.js';
 import {FakeInteractiveReport} from '../../Common/sampleReports.js';
@@ -71,6 +72,40 @@ describe('InteractiveNavEntry', () => {
       />
     );
     expect(renderedEntry).toMatchSnapshot();
+  });
+
+  it('calls handlePlayClick when the play button is clicked', () => {
+    const handlePlayClick = jest.fn();
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={'FakeTestcase'}
+        status={'ready'}
+        type={'testcase'}
+        caseCountPassed={0}
+        caseCountFailed={0}
+        handlePlayClick={handlePlayClick}
+      />
+    );
+
+    renderedEntry.find(FontAwesomeIcon).simulate('click');
+    expect(handlePlayClick.mock.calls.length).toEqual(1);
+  });
+
+  it('calls handlePlayClick when the replay button is clicked', () => {
+    const handlePlayClick = jest.fn();
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={'FakeTestcase'}
+        status={'failed'}
+        type={'testcase'}
+        caseCountPassed={6}
+        caseCountFailed={2}
+        handlePlayClick={handlePlayClick}
+      />
+    );
+
+    renderedEntry.find(FontAwesomeIcon).simulate('click');
+    expect(handlePlayClick.mock.calls.length).toEqual(1);
   });
 });
 

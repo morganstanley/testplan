@@ -71,7 +71,7 @@ function parentEntryLastSelected(selected, parentUid) {
  * @returns {{navBreadcrumbs: Array, navList: Array}}
  * @private
  */
-function parseNavSelection(entries, selected, depth, parentUid) {
+function parseNavSelectionRecur(entries, selected, depth, parentUid) {
   let navBreadcrumbs = [];
   let navList = [];
   for (const entry of entries) {
@@ -84,7 +84,7 @@ function parseNavSelection(entries, selected, depth, parentUid) {
         depth < selected.length &&
         selected[depth].uid === entry.uid) {
       const breadcrumbEntryMetadata = getNavEntryDisplayData(entry);
-      const nextSelection = parseNavSelection(
+      const nextSelection = parseNavSelectionRecur(
         entry.entries,
         selected,
         depth + 1,
@@ -119,14 +119,18 @@ function parseNavSelection(entries, selected, depth, parentUid) {
  * Populate nav breadcrumbs & list Arrays depending on which entries were
  * selected from Nav.
  *
- * @param {Array} entries - A single Testplan report in an Array.
+ * @param {object} report - The Testplan report.
  * @param {Array} selected - The selected entries from the Nav. Each Object in
  * the Array
  * has the entries name & type.
  * @returns {{navBreadcrumbs: Array, navList: Array}}
  */
-function ParseNavSelection(entries, selected) {
-  return parseNavSelection(entries, selected, 0, null);
+function ParseNavSelection(report, selected) {
+  if (report === null) {
+    return {navBreadcrumbs: [], navList: []};
+  } else {
+    return parseNavSelectionRecur([report], selected, 0, null);
+  }
 }
 
 /**

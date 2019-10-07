@@ -10,7 +10,7 @@ describe('BatchReport/navUtils', () => {
     it('nothing selected - returns empty nav_breadcrumbs & top level ' +
        'entry in nav_list.', () => {
       const selected = [];
-      const selection = ParseNavSelection([TESTPLAN_REPORT], selected);
+      const selection = ParseNavSelection(TESTPLAN_REPORT, selected);
 
       // There should be no breadcrumbs as nothing has been selected.
       expect(selection.navBreadcrumbs.length).toEqual(0);
@@ -25,7 +25,7 @@ describe('BatchReport/navUtils', () => {
        '& last selected entry\'s children in nav_list.', () => {
       const selected = [{uid: TESTPLAN_REPORT.uid, type: 'testplan'},
                         {uid: TESTPLAN_REPORT.entries[0].uid, type: 'multitest'}];
-      const selection = ParseNavSelection([TESTPLAN_REPORT], selected);
+      const selection = ParseNavSelection(TESTPLAN_REPORT, selected);
 
       // The breadcrumbs should contain all of the selected entries.
       expect(selection.navBreadcrumbs.length).toEqual(2);
@@ -49,7 +49,7 @@ describe('BatchReport/navUtils', () => {
         {uid: TESTPLAN_REPORT.entries[0].entries[0].uid, type: 'suite'},
         {uid: TESTPLAN_REPORT.entries[0].entries[0].entries[0].uid, type: 'testcase'}
       ];
-      const selection = ParseNavSelection([TESTPLAN_REPORT], selected);
+      const selection = ParseNavSelection(TESTPLAN_REPORT, selected);
 
       // The breadcrumbs should contain all but the last selected entry as it
       // is a testcase. These never go into the breadcrumbs.
@@ -73,7 +73,7 @@ describe('BatchReport/navUtils', () => {
         {uid: TESTPLAN_REPORT.entries[0].entries[0].uid, type: 'suite'},
         {uid: TESTPLAN_REPORT.entries[0].entries[0].entries[0].uid, type: 'testcase'}
       ];
-      const selection = ParseNavSelection([TESTPLAN_REPORT], selected);
+      const selection = ParseNavSelection(TESTPLAN_REPORT, selected);
 
       // The testcase entries in the list should have the assertion data
       // so it can be passed to the AssertionPane.

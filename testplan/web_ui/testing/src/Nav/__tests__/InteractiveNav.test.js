@@ -20,7 +20,7 @@ describe('InteractiveNav', () => {
   it('shallow renders and matches snapshot', () => {
     const renderedNav = shallow(
       <InteractiveNav
-        report={[FakeInteractiveReport]}
+        report={FakeInteractiveReport}
         saveAssertions={() => undefined}
         filter={null}
         displayEmpty={true}

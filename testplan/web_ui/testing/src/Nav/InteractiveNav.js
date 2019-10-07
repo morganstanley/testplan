@@ -25,16 +25,16 @@ class InteractiveNav extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {selected: props.report};
+    this.state = {selected: [props.report]};
     this.handleNavClick = HandleNavClick.bind(this);
     this.handlePlayClick = this.handlePlayClick.bind(this);
   }
 
   /* Handle the play button being clicked on a Nav entry. */
-  handlePlayClick(e, entry) {
+  handlePlayClick(e, navEntry) {
     e.stopPropagation();
-    console.log("Running " + entry.name);
-    this.props.runEntry(entry);
+    console.log("Running " + navEntry.name);
+    this.props.runEntry(navEntry);
   }
 
   render() {
@@ -65,7 +65,7 @@ class InteractiveNav extends React.Component {
 
 InteractiveNav.propTypes = {
   /** Testplan report */
-  report: PropTypes.arrayOf(PropTypes.object),
+  report: PropTypes.object,
 };
 
 export default InteractiveNav;

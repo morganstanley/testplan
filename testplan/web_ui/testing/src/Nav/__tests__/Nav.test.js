@@ -7,7 +7,7 @@ import {TESTPLAN_REPORT} from '../../Common/sampleReports';
 
 function defaultProps() {
   return {
-    report: [TESTPLAN_REPORT],
+    report: TESTPLAN_REPORT,
     saveAssertions: jest.fn(),
   };
 }

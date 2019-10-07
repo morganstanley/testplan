@@ -52,14 +52,13 @@ class BatchReport extends Component {
     // we will display a fake report for development purposes.
     const uid = this.props.match.params.uid;
     if (uid === "_dev") {
-      const r = propagateIndices([fakeReportAssertions]);
+      const [r] = propagateIndices([fakeReportAssertions]);
       setTimeout(() => {this.setState({report: r, loading: false});}, 1500);
     } else {
       axios.get(`/api/v1/reports/${uid}`)
         .then(response => propagateIndices([response.data]))
-        .then(report => this.setState({
-          report: report,
-          selected: [{uid: report[0].uid, type: 'testplan'}],
+        .then(reportEntries => this.setState({
+          report: reportEntries[0],
           loading: false
         }))
         .catch(error => this.setState({
@@ -128,7 +127,7 @@ class BatchReport extends Component {
     if (this.state.report === null) {
       // The Testplan report hasn't been fetched yet.
       return {
-        report: [],
+        report: null,
         reportStatus: null,
         reportFetchMessage: this.getReportFetchMessage(),
       };
@@ -136,7 +135,7 @@ class BatchReport extends Component {
       // The Testplan report has been fetched.
       return {
         report: this.state.report,
-        reportStatus: this.state.report[0].status,
+        reportStatus: this.state.report.status,
         reportFetchMessage: null,
       };
     }
