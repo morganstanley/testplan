@@ -13,7 +13,7 @@ exports[`EmptyReport renders a custom error message 1`] = `
   <Nav
     displayEmpty={true}
     displayTags={false}
-    report={Array []}
+    report={null}
     saveAssertions={[Function]}
   />
   <Message
@@ -36,7 +36,7 @@ exports[`EmptyReport shallow renders and matches snapshot 1`] = `
   <Nav
     displayEmpty={true}
     displayTags={false}
-    report={Array []}
+    report={null}
     saveAssertions={[Function]}
   />
   <Message

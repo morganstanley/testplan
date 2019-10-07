@@ -28,22 +28,11 @@ function defaultProps() {
 }
 
 describe('NavList', () => {
-  let props;
-  let mountedNavList;
-  const renderNavList = () => {
-    if (!mountedNavList) {
-      mountedNavList = shallow(
-        <NavList {...props} />
-      );
-    }
-    return mountedNavList;
-  };
+  const props = defaultProps();
 
   beforeEach(() => {
     // Stop Aphrodite from injecting styles, this crashes the tests.
     StyleSheetTestUtils.suppressStyleInjection();
-    props = defaultProps();
-    mountedNavList = undefined;
   });
 
   afterEach(() => {
@@ -53,18 +42,18 @@ describe('NavList', () => {
     props.autoSelect.mockClear();
   });
 
-  it('shallow renders without crashing', () => {
-    renderNavList();
-  });
-
   it('shallow renders the correct HTML structure', () => {
-    const nav_list = renderNavList();
+    const nav_list = shallow(
+      <NavList {...props} />
+    );
     expect(nav_list).toMatchSnapshot();
   });
 
   it('calls autoSelect when mounting and updating', () => {
     const auto_select = props.autoSelect;
-    const nav_list = renderNavList();
+    const nav_list = shallow(
+      <NavList {...props} />
+    );
     expect(auto_select.mock.calls.length).toEqual(1);
 
     nav_list.setProps({'name': 'test2'});
@@ -74,10 +63,11 @@ describe('NavList', () => {
 
   it('calls handleNavClick when nav entry has been clicked', () => {
     const handle_nav_click = props.handleNavClick;
-    const nav_list = renderNavList();
+    const nav_list = shallow(
+      <NavList {...props} />
+    );
 
     nav_list.find(ListGroupItem).simulate('click');
     expect(handle_nav_click.mock.calls.length).toEqual(1);
   })
-
 });

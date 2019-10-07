@@ -28,12 +28,12 @@ class BatchReport extends Component {
 
     this.state = {
       navWidth: COLUMN_WIDTH,
-      report: undefined,
-      assertions: undefined,
-      testcaseUid: undefined,
+      report: null,
+      assertions: null,
+      testcaseUid: null,
       loading: false,
-      error: undefined,
-      filter: undefined,
+      error: null,
+      filter: null,
       displayTags: false,
       displayEmpty: true,
     };
@@ -52,14 +52,13 @@ class BatchReport extends Component {
     // we will display a fake report for development purposes.
     const uid = this.props.match.params.uid;
     if (uid === "_dev") {
-      const r = propagateIndices([fakeReportAssertions]);
+      const [r] = propagateIndices([fakeReportAssertions]);
       setTimeout(() => {this.setState({report: r, loading: false});}, 1500);
     } else {
       axios.get(`/api/v1/reports/${uid}`)
         .then(response => propagateIndices([response.data]))
-        .then(report => this.setState({
-          report: report,
-          selected: [{uid: report[0].uid, type: 'testplan'}],
+        .then(reportEntries => this.setState({
+          report: reportEntries[0],
           loading: false
         }))
         .catch(error => this.setState({
@@ -88,7 +87,7 @@ class BatchReport extends Component {
     if (entryType === 'testcase') {
       this.setState({assertions: entry.entries, testcaseUid: entry.uid});
     } else {
-      this.setState({assertions: undefined, testcaseUid: undefined});
+      this.setState({assertions: null, testcaseUid: null});
     }
   }
 
@@ -105,7 +104,7 @@ class BatchReport extends Component {
   /**
    * Update the global filter state of the entry.
    *
-   * @param {string} filter - undefined, all, pass or fail.
+   * @param {string} filter - null, all, pass or fail.
    * @public
    */
   updateFilter(filter) {
@@ -120,47 +119,75 @@ class BatchReport extends Component {
     this.setState({displayEmpty: displayEmpty});
   }
 
-  render() {
-    let report = [];
-    let reportStatus;
-    let reportFetchMessage;
-
+  /**
+   * Get the current report data, status and fetch message as required.
+   */
+  getReportState() {
     // Handle the Testplan report if it has been fetched.
-    if (this.state.report === undefined) {
+    if (this.state.report === null) {
       // The Testplan report hasn't been fetched yet.
-      if (this.state.loading) {
-        reportFetchMessage = 'Fetching Testplan report...';
-      } else if (this.state.error !== undefined){
-        reportFetchMessage = 'Error fetching Testplan report. ' +
-        `(${this.state.error.message})`;
-      } else {
-        reportFetchMessage = 'Waiting to fetch Testplan report...';
-      }
+      return {
+        report: null,
+        reportStatus: null,
+        reportFetchMessage: this.getReportFetchMessage(),
+      };
     } else {
       // The Testplan report has been fetched.
-      reportStatus = this.state.report[0].status;
-      report = this.state.report;
+      return {
+        report: this.state.report,
+        reportStatus: this.state.report.status,
+        reportFetchMessage: null,
+      };
     }
+  }
 
-    // Create the center pane.
-    let centerPane;
-    if (this.state.assertions !== undefined) {
-      centerPane = <AssertionPane
-        assertions={this.state.assertions}
-        left={this.state.navWidth + 1.5}
-        testcaseUid={this.state.testcaseUid}
-        filter={this.state.filter}
-        reportUid={this.props.match.params.uid}
-      />;
-    } else if (reportFetchMessage !== undefined) {
-      centerPane = <Message
-        message={reportFetchMessage}
-        left={this.state.navWidth} />;
+  /**
+   * Get the component to display in the centre pane.
+   */
+  getCenterPane(reportFetchMessage) {
+    if (this.state.assertions !== null) {
+      return (
+        <AssertionPane
+          assertions={this.state.assertions}
+          left={this.state.navWidth + 1.5}
+          testcaseUid={this.state.testcaseUid}
+          filter={this.state.filter}
+          reportUid={this.props.match.params.uid}
+        />
+      );
+    } else if (reportFetchMessage !== null) {
+      return (
+        <Message
+          message={reportFetchMessage}
+          left={this.state.navWidth}
+        />
+      );
     } else {
-      centerPane = <Message
-        message='Please select a testcase.'
-        left={this.state.navWidth} />;
+      return (
+        <Message
+          message='Please select a testcase.'
+          left={this.state.navWidth}
+        />
+      );
     }
+  }
+
+  /**
+   * Get a message relating to the progress of fetching the testplan report.
+   */
+  getReportFetchMessage() {
+    if (this.state.loading) {
+      return 'Fetching Testplan report...';
+    } else if (this.state.error !== null){
+      return `Error fetching Testplan report. (${this.state.error.message})`;
+    } else {
+      return 'Waiting to fetch Testplan report...';
+    }
+  }
+
+  render() {
+    const {report, reportStatus, reportFetchMessage} = this.getReportState();
+    const centerPane = this.getCenterPane(reportFetchMessage);
 
     return (
       <div className={css(styles.batchReport)}>

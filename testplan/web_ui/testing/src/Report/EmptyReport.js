@@ -37,7 +37,7 @@ const EmptyReport = (props) => {
         updateTagsDisplayFunc={noop}
       />
       <Nav
-        report={[]}
+        report={null}
         saveAssertions={noop}
         filter={undefined}
         displayEmpty={true}

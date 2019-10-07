@@ -81,6 +81,11 @@ const ENTRY_TYPES = [
 const STATUS = [
   'passed',
   'failed',
+
+  // The following statuses only apply to interactive mode. TODO: maybe create
+  // a new INTERACTIVE_STATUS enum?
+  'ready',
+  'running',
 ];
 
 const NAV_ENTRY_DISPLAY_DATA = [

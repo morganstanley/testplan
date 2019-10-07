@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
+<Fragment>
+  <NavBreadcrumbs
+    entries={
+      Array [
+        Object {
+          "case_count": Object {
+            "failed": 0,
+            "passed": 0,
+          },
+          "name": "Fake Interactive Report",
+          "status": "ready",
+          "uid": "aaa",
+        },
+      ]
+    }
+    handleNavClick={[Function]}
+  />
+  <InteractiveNavList
+    autoSelect={[Function]}
+    breadcrumbLength={1}
+    displayEmpty={true}
+    displayTags={false}
+    entries={
+      Array [
+        Object {
+          "case_count": Object {
+            "failed": 0,
+            "passed": 0,
+          },
+          "category": "multitest",
+          "name": "Interactive MTest",
+          "status": "ready",
+          "tags": Object {},
+          "type": "TestGroupReport",
+          "uid": "bbb",
+        },
+      ]
+    }
+    filter={null}
+    handleNavClick={[Function]}
+    handlePlayClick={[Function]}
+  />
+</Fragment>
+`;

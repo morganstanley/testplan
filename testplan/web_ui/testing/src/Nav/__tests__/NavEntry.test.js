@@ -16,22 +16,11 @@ function defaultProps() {
 }
 
 describe('NavEntry', () => {
-  let props;
-  let mountedNavEntry;
-  const renderNavEntry = () => {
-    if (!mountedNavEntry) {
-      mountedNavEntry = shallow(
-        <NavEntry {...props} />
-      );
-    }
-    return mountedNavEntry;
-  };
+  const props = defaultProps();
 
   beforeEach(() => {
     // Stop Aphrodite from injecting styles, this crashes the tests.
     StyleSheetTestUtils.suppressStyleInjection();
-    props = defaultProps();
-    mountedNavEntry = undefined;
   });
 
   afterEach(() => {
@@ -39,18 +28,19 @@ describe('NavEntry', () => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  it('shallow renders without crashing', () => {
-    renderNavEntry();
-  });
-
   it('shallow renders the correct HTML structure', () => {
-    const navEntry = renderNavEntry();
+    const navEntry = shallow(
+        <NavEntry {...props} />
+    );
     expect(navEntry).toMatchSnapshot();
   });
 
-  it('when prop status="failed" name div and Badge have correct styles', () => {
-    props.status = 'failed';
-    const navEntry = renderNavEntry();
+  it('when prop status="failed" name div and Badge have correct styles',
+     () => {
+    const failProps = {...props, status: 'failed'}
+    const navEntry = shallow(
+      <NavEntry {...failProps} />
+    );
 
     const name = navEntry.children().first();
     expect(name).toHaveLength(1);
