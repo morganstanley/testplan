@@ -101,135 +101,137 @@ def make_multitest(idx=''):
 
 
 def test_top_level_tests():
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        with InteractivePlan(
-              name='InteractivePlan',
-              interactive=True, interactive_block=False,
-              parse_cmdline=False, logger_level=TEST_INFO) as plan:
-            plan.add(make_multitest(1))
-            plan.run()
-            wait(lambda: bool(plan.i.http_handler_info),
-                 5, raise_on_timeout=True)
-            plan.add(make_multitest(2))  # Added after plan.run()
-            assert isinstance(plan.i.test('Test1'), MultiTest)
-            assert isinstance(plan.i.test('Test2'), MultiTest)
+    with InteractivePlan(
+          name='InteractivePlan',
+          interactive_port=0,
+          interactive_block=False,
+          parse_cmdline=False,
+          logger_level=TEST_INFO) as plan:
+        plan.add(make_multitest(1))
+        plan.run()
+        wait(lambda: bool(plan.i.http_handler_info),
+             5, raise_on_timeout=True)
+        plan.add(make_multitest(2))  # Added after plan.run()
+        assert isinstance(plan.i.test('Test1'), MultiTest)
+        assert isinstance(plan.i.test('Test2'), MultiTest)
 
-            # print_report(plan.i.report(serialized=True))
+        # print_report(plan.i.report(serialized=True))
 
-            # TESTS AND ASSIGNED RUNNERS
-            assert list(plan.i.all_tests()) ==\
-                   [('Test1', 'local_runner'), ('Test2', 'local_runner')]
+        # TESTS AND ASSIGNED RUNNERS
+        assert list(plan.i.all_tests()) ==\
+               [('Test1', 'local_runner'), ('Test2', 'local_runner')]
 
-            # OPERATE TEST DRIVERS (start/stop)
-            resources = [res.uid() for res in plan.i.test('Test2').resources]
-            assert resources == ['server', 'client']
-            for resource in plan.i.test('Test2').resources:
-                assert resource.status.tag is None
-            plan.i.start_test_resources('Test2')  # START
-            for resource in plan.i.test('Test2').resources:
-                assert resource.status.tag is resource.STATUS.STARTED
-            plan.i.stop_test_resources('Test2')  # STOP
-            for resource in plan.i.test('Test2').resources:
-                assert resource.status.tag is resource.STATUS.STOPPED
+        # OPERATE TEST DRIVERS (start/stop)
+        resources = [res.uid() for res in plan.i.test('Test2').resources]
+        assert resources == ['server', 'client']
+        for resource in plan.i.test('Test2').resources:
+            assert resource.status.tag is None
+        plan.i.start_test_resources('Test2')  # START
+        for resource in plan.i.test('Test2').resources:
+            assert resource.status.tag is resource.STATUS.STARTED
+        plan.i.stop_test_resources('Test2')  # STOP
+        for resource in plan.i.test('Test2').resources:
+            assert resource.status.tag is resource.STATUS.STOPPED
 
-            # RESET REPORTS
-            plan.i.reset_reports()
-            from .reports.basic_top_level_reset import REPORT as BTLReset
-            assert compare(BTLReset, plan.i.report(serialized=True))[0] is True
+        # RESET REPORTS
+        plan.i.reset_reports()
+        from .reports.basic_top_level_reset import REPORT as BTLReset
+        assert compare(BTLReset, plan.i.report(serialized=True))[0] is True
 
-            # RUN ALL TESTS
-            plan.i.run_tests()
-            from .reports.basic_top_level import REPORT as BTLevel
-            assert compare(BTLevel, plan.i.report(serialized=True))[0] is True
+        # RUN ALL TESTS
+        plan.i.run_tests()
+        from .reports.basic_top_level import REPORT as BTLevel
+        assert compare(BTLevel, plan.i.report(serialized=True))[0] is True
 
-            # RESET REPORTS
-            plan.i.reset_reports()
-            from .reports.basic_top_level_reset import REPORT as BTLReset
-            assert compare(BTLReset, plan.i.report(serialized=True))[0] is True
+        # RESET REPORTS
+        plan.i.reset_reports()
+        from .reports.basic_top_level_reset import REPORT as BTLReset
+        assert compare(BTLReset, plan.i.report(serialized=True))[0] is True
 
-            # RUN SINGLE TESTSUITE (CUSTOM NAME)
-            plan.i.run_test_suite('Test2', 'TCPSuite - Custom_1')
-            from .reports.basic_run_suite_test2 import REPORT as BRSTest2
-            assert compare(BRSTest2, plan.i.test_report('Test2'))[0] is True
+        # RUN SINGLE TESTSUITE (CUSTOM NAME)
+        plan.i.run_test_suite('Test2', 'TCPSuite - Custom_1')
+        from .reports.basic_run_suite_test2 import REPORT as BRSTest2
+        assert compare(BRSTest2, plan.i.test_report('Test2'))[0] is True
 
-            # RUN SINGLE TESTCASE
-            plan.i.run_test_case('Test1', '*', 'basic_case__arg_1')
-            from .reports.basic_run_case_test1 import REPORT as BRCTest1
-            assert compare(BRCTest1, plan.i.test_report('Test1'))[0] is True
+        # RUN SINGLE TESTCASE
+        plan.i.run_test_case('Test1', '*', 'basic_case__arg_1')
+        from .reports.basic_run_case_test1 import REPORT as BRCTest1
+        assert compare(BRCTest1, plan.i.test_report('Test1'))[0] is True
 
 
 def test_top_level_environment():
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        with InteractivePlan(
-              name='InteractivePlan',
-              interactive=True, interactive_block=False,
-              parse_cmdline=False, logger_level=TEST_INFO) as plan:
-            plan.add_environment(
-                LocalEnvironment(
-                    'env1',
-                    [TCPServer(name='server'),
-                     TCPClient(name='client',
-                               host=context('server', '{{host}}'),
-                               port=context('server', '{{port}}'))]))
-            plan.run()
-            wait(lambda: bool(plan.i.http_handler_info),
-                 5, raise_on_timeout=True)
+    with InteractivePlan(
+          name='InteractivePlan',
+          interactive_port=0,
+          interactive_block=False,
+          parse_cmdline=False,
+          logger_level=TEST_INFO) as plan:
+        plan.add_environment(
+            LocalEnvironment(
+                'env1',
+                [TCPServer(name='server'),
+                 TCPClient(name='client',
+                           host=context('server', '{{host}}'),
+                           port=context('server', '{{port}}'))]))
+        plan.run()
+        wait(lambda: bool(plan.i.http_handler_info),
+             5, raise_on_timeout=True)
 
-            assert len(plan.resources.environments.envs) == 1
+        assert len(plan.resources.environments.envs) == 1
 
-            # Create an environment using serializable arguments.
-            # That is mandatory for HTTP usage.
-            plan.i.create_new_environment('env2')
-            plan.i.add_environment_resource('env2', 'TCPServer',
-                                            name='server')
-            plan.i.add_environment_resource('env2', 'TCPClient',
-                                            name='client',
-                                            _ctx_host_ctx_driver='server',
-                                            _ctx_host_ctx_value='{{host}}',
-                                            _ctx_port_ctx_driver='server',
-                                            _ctx_port_ctx_value='{{port}}')
-            plan.i.add_created_environment('env2')
+        # Create an environment using serializable arguments.
+        # That is mandatory for HTTP usage.
+        plan.i.create_new_environment('env2')
+        plan.i.add_environment_resource('env2', 'TCPServer',
+                                        name='server')
+        plan.i.add_environment_resource('env2', 'TCPClient',
+                                        name='client',
+                                        _ctx_host_ctx_driver='server',
+                                        _ctx_host_ctx_value='{{host}}',
+                                        _ctx_port_ctx_driver='server',
+                                        _ctx_port_ctx_value='{{port}}')
+        plan.i.add_created_environment('env2')
 
-            assert len(plan.resources.environments.envs) == 2
+        assert len(plan.resources.environments.envs) == 2
 
-            for env_uid in ('env1', 'env2'):
-                env = plan.i.get_environment(env_uid)
-                assert isinstance(env, Environment)
-                resources = [res.uid() for res in env]
-                assert resources == ['server', 'client']
-                for resource in env:
-                    assert resource.status.tag is None
-                plan.i.start_environment(env_uid) # START
+        for env_uid in ('env1', 'env2'):
+            env = plan.i.get_environment(env_uid)
+            assert isinstance(env, Environment)
+            resources = [res.uid() for res in env]
+            assert resources == ['server', 'client']
+            for resource in env:
+                assert resource.status.tag is None
+            plan.i.start_environment(env_uid) # START
 
-                # INSPECT THE CONTEXT WHEN STARTED
-                env_context = plan.i.get_environment_context(env_uid)
-                for resource in [res.uid() for res in env]:
-                    res_context = \
-                        plan.i.environment_resource_context(env_uid, resource_uid=resource)
-                    assert env_context[resource] == res_context
-                    assert isinstance(res_context['host'], six.string_types)
-                    assert isinstance(res_context['port'], int)
-                    assert res_context['port'] > 0
+            # INSPECT THE CONTEXT WHEN STARTED
+            env_context = plan.i.get_environment_context(env_uid)
+            for resource in [res.uid() for res in env]:
+                res_context = \
+                    plan.i.environment_resource_context(env_uid, resource_uid=resource)
+                assert env_context[resource] == res_context
+                assert isinstance(res_context['host'], six.string_types)
+                assert isinstance(res_context['port'], int)
+                assert res_context['port'] > 0
 
-                # CUSTOM RESOURCE OPERATIONS
-                plan.i.environment_resource_operation(
-                    env_uid, 'server', 'accept_connection')
-                plan.i.environment_resource_operation(
-                    env_uid, 'client', 'send_text', msg='hello')
-                received = plan.i.environment_resource_operation(
-                    env_uid, 'server', 'receive_text')
-                assert received == 'hello'
-                plan.i.environment_resource_operation(
-                    env_uid, 'server', 'send_text', msg='worlds')
-                received = plan.i.environment_resource_operation(
-                    env_uid, 'client', 'receive_text')
-                assert received == 'worlds'
+            # CUSTOM RESOURCE OPERATIONS
+            plan.i.environment_resource_operation(
+                env_uid, 'server', 'accept_connection')
+            plan.i.environment_resource_operation(
+                env_uid, 'client', 'send_text', msg='hello')
+            received = plan.i.environment_resource_operation(
+                env_uid, 'server', 'receive_text')
+            assert received == 'hello'
+            plan.i.environment_resource_operation(
+                env_uid, 'server', 'send_text', msg='worlds')
+            received = plan.i.environment_resource_operation(
+                env_uid, 'client', 'receive_text')
+            assert received == 'worlds'
 
-                for resource in env:
-                    assert resource.status.tag is resource.STATUS.STARTED
-                plan.i.stop_environment(env_uid)  # STOP
-                for resource in env:
-                    assert resource.status.tag is resource.STATUS.STOPPED
+            for resource in env:
+                assert resource.status.tag is resource.STATUS.STARTED
+            plan.i.stop_environment(env_uid)  # STOP
+            for resource in env:
+                assert resource.status.tag is resource.STATUS.STOPPED
 
 def post_request(url, data):
     headers = {'content-type': 'text/json'}
@@ -237,161 +239,166 @@ def post_request(url, data):
 
 
 def test_http_operate_tests_sync():
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        with InteractivePlan(
-              name='InteractivePlan',
-              interactive=True, interactive_block=False,
-              parse_cmdline=False, logger_level=TEST_INFO) as plan:
-            plan.run()
-            wait(lambda: any(plan.i.http_handler_info),
-                 5, raise_on_timeout=True)
-            addr = 'http://{}:{}'.format(*plan.i.http_handler_info)
+    with InteractivePlan(
+          name='InteractivePlan',
+          interactive_port=0,
+          interactive_block=False,
+          parse_cmdline=False,
+          logger_level=TEST_INFO) as plan:
+        plan.run()
+        wait(lambda: any(plan.i.http_handler_info),
+             5, raise_on_timeout=True)
+        addr = 'http://{}:{}'.format(*plan.i.http_handler_info)
 
-            plan.add(make_multitest(1))
-            plan.add(make_multitest(2))
+        plan.add(make_multitest(1))
+        plan.add(make_multitest(2))
 
-            # OPERATE TEST DRIVERS (start/stop)
-            for resource in plan.i.test('Test2').resources:
-                assert resource.status.tag is None
-            response = post_request(
-                '{}/sync/start_test_resources'.format(addr),
-                {'test_uid': 'Test2'}).json()
-            _assert_http_response(response, 'start_test_resources', 'Sync')
+        # OPERATE TEST DRIVERS (start/stop)
+        for resource in plan.i.test('Test2').resources:
+            assert resource.status.tag is None
+        response = post_request(
+            '{}/sync/start_test_resources'.format(addr),
+            {'test_uid': 'Test2'}).json()
+        _assert_http_response(response, 'start_test_resources', 'Sync')
 
-            for resource in plan.i.test('Test2').resources:
-                assert resource.status.tag is resource.STATUS.STARTED
-            response = post_request(
-                '{}/sync/stop_test_resources'.format(addr),
-                {'test_uid': 'Test2'}).json()
-            _assert_http_response(response, 'stop_test_resources', 'Sync')
-            for resource in plan.i.test('Test2').resources:
-                assert resource.status.tag is resource.STATUS.STOPPED
+        for resource in plan.i.test('Test2').resources:
+            assert resource.status.tag is resource.STATUS.STARTED
+        response = post_request(
+            '{}/sync/stop_test_resources'.format(addr),
+            {'test_uid': 'Test2'}).json()
+        _assert_http_response(response, 'stop_test_resources', 'Sync')
+        for resource in plan.i.test('Test2').resources:
+            assert resource.status.tag is resource.STATUS.STOPPED
 
-            # RESET REPORTS
-            response = post_request(
-                '{}/sync/reset_reports'.format(addr), {}).json()
-            _assert_http_response(response, 'reset_reports', 'Sync')
-            from .reports.basic_top_level_reset import REPORT as BTLReset
-            result = compare(BTLReset, plan.i.report(serialized=True))
-            assert result[0] is True
+        # RESET REPORTS
+        response = post_request(
+            '{}/sync/reset_reports'.format(addr), {}).json()
+        _assert_http_response(response, 'reset_reports', 'Sync')
+        from .reports.basic_top_level_reset import REPORT as BTLReset
+        result = compare(BTLReset, plan.i.report(serialized=True))
+        assert result[0] is True
 
-            # RUN ALL TESTS
-            response = post_request(
-                '{}/sync/run_tests'.format(addr), {}).json()
-            _assert_http_response(response, 'run_tests', 'Sync')
-            from .reports.basic_top_level import REPORT as BTLevel
-            result = compare(BTLevel, plan.i.report(serialized=True))
-            assert result[0] is True
+        # RUN ALL TESTS
+        response = post_request(
+            '{}/sync/run_tests'.format(addr), {}).json()
+        _assert_http_response(response, 'run_tests', 'Sync')
+        from .reports.basic_top_level import REPORT as BTLevel
+        result = compare(BTLevel, plan.i.report(serialized=True))
+        assert result[0] is True
 
-            # RESET REPORTS
-            response = post_request(
-                '{}/sync/reset_reports'.format(addr), {}).json()
-            _assert_http_response(response, 'reset_reports', 'Sync')
+        # RESET REPORTS
+        response = post_request(
+            '{}/sync/reset_reports'.format(addr), {}).json()
+        _assert_http_response(response, 'reset_reports', 'Sync')
 
-            from .reports.basic_top_level_reset import REPORT as BTLReset
-            assert compare(BTLReset, plan.i.report(serialized=True))[0] is True
+        from .reports.basic_top_level_reset import REPORT as BTLReset
+        assert compare(BTLReset, plan.i.report(serialized=True))[0] is True
 
-            # REPORT VIA HTTP
-            response = post_request(
-                '{}/sync/report'.format(addr),
-                {'serialized': True}).json()
-            expected_response = {
-                'result': plan.i.report(serialized=True),
-                'error': False, 'metadata': {}, 'trace': None,
-                'message': 'Sync operation performed: report'}
-            assert compare(response, expected_response)[0] is True
+        # REPORT VIA HTTP
+        response = post_request(
+            '{}/sync/report'.format(addr),
+            {'serialized': True}).json()
+        expected_response = {
+            'result': plan.i.report(serialized=True),
+            'error': False, 'metadata': {}, 'trace': None,
+            'message': 'Sync operation performed: report'}
+        assert compare(response, expected_response)[0] is True
 
-            # RUN SINGLE TESTSUITE (CUSTOM NAME)
-            response = post_request(
-                '{}/sync/run_test_suite'.format(addr),
-                {'test_uid': 'Test2',
-                 'suite_uid': 'TCPSuite - Custom_1'}).json()
-            _assert_http_response(response, 'run_test_suite', 'Sync')
-            from .reports.basic_run_suite_test2 import REPORT as BRSTest2
-            assert compare(BRSTest2, plan.i.test_report('Test2'))[0] is True
+        # RUN SINGLE TESTSUITE (CUSTOM NAME)
+        response = post_request(
+            '{}/sync/run_test_suite'.format(addr),
+            {'test_uid': 'Test2',
+             'suite_uid': 'TCPSuite - Custom_1'}).json()
+        _assert_http_response(response, 'run_test_suite', 'Sync')
+        from .reports.basic_run_suite_test2 import REPORT as BRSTest2
+        assert compare(BRSTest2, plan.i.test_report('Test2'))[0] is True
 
-            # TEST 2 REPORT VIA HTTP
-            response = post_request(
-                '{}/sync/test_report'.format(addr),
-                {'test_uid': 'Test2'}).json()
-            expected_response = {
-                'result': plan.i.test_report('Test2'),
-                'error': False, 'metadata': {}, 'trace': None,
-                'message': 'Sync operation performed: test_report'}
-            assert compare(response, expected_response)[0]is True
+        # TEST 2 REPORT VIA HTTP
+        response = post_request(
+            '{}/sync/test_report'.format(addr),
+            {'test_uid': 'Test2'}).json()
+        expected_response = {
+            'result': plan.i.test_report('Test2'),
+            'error': False,
+            'metadata': {},
+            'trace': None,
+            'message': 'Sync operation performed: test_report'
+        }
+        assert compare(response, expected_response)[0]is True
 
-            # RUN SINGLE TESTCASE
-            response = post_request(
-                '{}/sync/run_test_case'.format(addr),
-                {'test_uid': 'Test1',
-                 'suite_uid': '*',
-                 'case_uid': 'basic_case__arg_1'}).json()
-            _assert_http_response(response, 'run_test_case', 'Sync')
-            from .reports.basic_run_case_test1 import REPORT as BRCTest1
-            assert compare(BRCTest1, plan.i.test_report('Test1'))[0] is True
+        # RUN SINGLE TESTCASE
+        response = post_request(
+            '{}/sync/run_test_case'.format(addr),
+            {'test_uid': 'Test1',
+             'suite_uid': '*',
+             'case_uid': 'basic_case__arg_1'}).json()
+        _assert_http_response(response, 'run_test_case', 'Sync')
+        from .reports.basic_run_case_test1 import REPORT as BRCTest1
+        assert compare(BRCTest1, plan.i.test_report('Test1'))[0] is True
 
-            # TEST 1 REPORT VIA HTTP
-            response = post_request(
-                '{}/sync/test_report'.format(addr),
-                {'test_uid': 'Test1'}).json()
-            expected_response = {
-                'result': plan.i.test_report('Test1'),
-                'error': False, 'metadata': {}, 'trace': None,
-                'message': 'Sync operation performed: test_report'}
-            assert compare(response, expected_response)[0] is True
+        # TEST 1 REPORT VIA HTTP
+        response = post_request(
+            '{}/sync/test_report'.format(addr),
+            {'test_uid': 'Test1'}).json()
+        expected_response = {
+            'result': plan.i.test_report('Test1'),
+            'error': False, 'metadata': {}, 'trace': None,
+            'message': 'Sync operation performed: test_report'}
+        assert compare(response, expected_response)[0] is True
 
 
 def test_http_operate_tests_async():
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        with InteractivePlan(
-              name='InteractivePlan',
-              interactive=True, interactive_block=False,
-              parse_cmdline=False, logger_level=TEST_INFO) as plan:
-            plan.run()
-            wait(lambda: any(plan.i.http_handler_info),
-                 5, raise_on_timeout=True)
-            addr = 'http://{}:{}'.format(*plan.i.http_handler_info)
+    with InteractivePlan(
+          name='InteractivePlan',
+          interactive_port=0,
+          interactive_block=False,
+          parse_cmdline=False,
+          logger_level=TEST_INFO) as plan:
+        plan.run()
+        wait(lambda: any(plan.i.http_handler_info),
+             5, raise_on_timeout=True)
+        addr = 'http://{}:{}'.format(*plan.i.http_handler_info)
 
-            plan.add(make_multitest(1))
-            plan.add(make_multitest(2))
+        plan.add(make_multitest(1))
+        plan.add(make_multitest(2))
 
-            # TRIGGER ASYNC RUN OF TESTS -> UID
+        # TRIGGER ASYNC RUN OF TESTS -> UID
+        response = post_request(
+            '{}/async/run_tests'.format(addr), {}).json()
+        expected = {
+            'message': 'Async operation performed: run_tests',
+            'error': False, 'trace': None, 'metadata': {},
+            'result': re.compile('[0-9|a-z|-]+')}
+        assert compare(expected, response)[0] is True
+        uid = response['result']
+
+        # QUERY UID ASYNC OPERATION UNTIL FINISHED
+        sleeper = get_sleeper(
+            0.6, raise_timeout_with_msg='Async result missing.')
+        while next(sleeper):
             response = post_request(
-                '{}/async/run_tests'.format(addr), {}).json()
-            expected = {
-                'message': 'Async operation performed: run_tests',
-                'error': False, 'trace': None, 'metadata': {},
-                'result': re.compile('[0-9|a-z|-]+')}
-            assert compare(expected, response)[0] is True
-            uid = response['result']
+                '{}/async_result'.format(addr),
+                {'uid': uid})
+            json_response = response.json()
+            if json_response['error'] is False:
+                assert response.status_code == 200
+                expected = {
+                    'result': None, 'trace': None, 'error': False,
+                    'message': re.compile('[0-9|a-z|-]+'),
+                    'metadata': {'state': 'Finished'}}
+                assert compare(expected, json_response)[0] is True
+                break
+            assert response.status_code == 400
 
-            # QUERY UID ASYNC OPERATION UNTIL FINISHED
-            sleeper = get_sleeper(
-                0.6, raise_timeout_with_msg='Async result missing.')
-            while next(sleeper):
-                response = post_request(
-                    '{}/async_result'.format(addr),
-                    {'uid': uid})
-                json_response = response.json()
-                if json_response['error'] is False:
-                    assert response.status_code == 200
-                    expected = {
-                        'result': None, 'trace': None, 'error': False,
-                        'message': re.compile('[0-9|a-z|-]+'),
-                        'metadata': {'state': 'Finished'}}
-                    assert compare(expected, json_response)[0] is True
-                    break
-                assert response.status_code == 400
-
-            # REPORT VIA HTTP
-            response = post_request(
-                '{}/sync/report'.format(addr),
-                {'serialized': True}).json()
-            expected_response = {
-                'result': plan.i.report(serialized=True),
-                'error': False, 'metadata': {}, 'trace': None,
-                'message': 'Sync operation performed: report'}
-            assert compare(response, expected_response)[0] is True
+        # REPORT VIA HTTP
+        response = post_request(
+            '{}/sync/report'.format(addr),
+            {'serialized': True}).json()
+        expected_response = {
+            'result': plan.i.report(serialized=True),
+            'error': False, 'metadata': {}, 'trace': None,
+            'message': 'Sync operation performed: report'}
+        assert compare(response, expected_response)[0] is True
 
 
 def test_http_dynamic_environments():
@@ -450,7 +457,7 @@ def test_http_dynamic_environments():
 
     with InteractivePlan(
           name='InteractivePlan',
-          interactive=True, interactive_block=False,
+          interactive_port=0, interactive_block=False,
           parse_cmdline=False, logger_level=DEBUG) as plan:
         plan.run()
         wait(lambda: any(plan.i.http_handler_info),
