@@ -14,7 +14,8 @@ from six.moves.urllib.parse import urlparse
 
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.config import ConfigOption
-from testplan.common.entity import Entity, EntityConfig
+from testplan.common.entity import Entity, EntityConfig, RunnableIHandler
+from testplan import defaults
 
 
 class TestRunnerHTTPHandlerConfig(EntityConfig):
@@ -25,9 +26,12 @@ class TestRunnerHTTPHandlerConfig(EntityConfig):
     """
     @classmethod
     def get_options(cls):
-        return {'ihandler' : object,
-                ConfigOption('host', default='localhost'): object,
-                ConfigOption('port', default=0): int}
+        return {
+            'ihandler' : RunnableIHandler,
+            ConfigOption(
+                'host', default=defaults.WEB_SERVER_HOSTNAME): str,
+            ConfigOption('port', default=defaults.WEB_SERVER_HOSTNAME): int
+        }
 
 
 class TestRunnerHTTPHandler(Entity):
