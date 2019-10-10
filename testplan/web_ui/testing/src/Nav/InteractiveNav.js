@@ -35,8 +35,12 @@ class InteractiveNav extends React.Component {
     e.stopPropagation();
     console.log("Running " + navEntry.name);
     const currSelected = this.state.selected[this.state.selected.length - 1];
-    if (currSelected === undefined) {
-      throw new Error("Expected a report element to be selected");
+    if (!currSelected) {
+      alert(
+        "Error: Expected a report element to be selected. Selected = " +
+        this.state.selected
+      );
+      return;
     }
 
     const clickedReportEntry = this.findClickedReportEntry(
