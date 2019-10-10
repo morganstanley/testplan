@@ -34,7 +34,26 @@ class InteractiveNav extends React.Component {
   handlePlayClick(e, navEntry) {
     e.stopPropagation();
     console.log("Running " + navEntry.name);
-    this.props.runEntry(navEntry);
+    const currSelected = this.state.selected[this.state.selected.length - 1];
+    if (!currSelected) {
+      alert(
+        "Error: Expected a report element to be selected. Selected = " +
+        this.state.selected
+      );
+      return;
+    }
+
+    const clickedReportEntry = this.findClickedReportEntry(
+      currSelected,
+      navEntry,
+    );
+
+    const fullSelected = this.state.selected.concat([clickedReportEntry]);
+    this.props.runEntry(fullSelected);
+  }
+
+  findClickedReportEntry(currSelected, navEntry) {
+    return currSelected.entries.find((el) => el.uid === navEntry.uid);
   }
 
   render() {

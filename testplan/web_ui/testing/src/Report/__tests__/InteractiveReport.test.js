@@ -12,10 +12,14 @@ describe('InteractiveReport', () => {
 
   it("updates testcase status to passed", () => {
     const interactiveReport = shallow(<InteractiveReport />);
-    const testcaseEntry = (
-      interactiveReport.state("report").entries[0].entries[0].entries[0]
-    );
-    interactiveReport.instance().setEntryStatus(testcaseEntry, "passed");
+    const reportState = interactiveReport.state("report");
+    const selectedEntries = [
+      reportState,
+      reportState.entries[0],
+      reportState.entries[0].entries[0],
+      reportState.entries[0].entries[0].entries[0],
+    ];
+    interactiveReport.instance().setEntryStatus(selectedEntries, "passed");
     interactiveReport.update();
 
     const newTestcaseEntry = (
