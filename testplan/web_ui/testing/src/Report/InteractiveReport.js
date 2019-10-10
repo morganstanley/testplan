@@ -30,21 +30,25 @@ class InteractiveReport extends React.Component {
    * Trigger the run of either a single testcase or a group of testcases
    * (suite, MultiTest or Testplan) represented by an entry in the report.
    */
-  runEntry(entry) {
-    this.setEntryStatus(entry, "running");
+  runEntry(selectedEntries) {
+    this.setEntryStatus(selectedEntries, "running");
     // Normally would make request to the backend here to run the test. For now,
     // we'll mock out the backend interaction and just wait a set time before
     // marking the test as finished.
-    setTimeout(() => this.setEntryStatus(entry, "passed"), 3000);
+    setTimeout(() => this.setEntryStatus(selectedEntries, "passed"), 3000);
   }
 
   /**
    * Update the status of an entry in the report. We completely re-create the
-   * report tree instead of mutating the existing report.
+   * report tree instead of mutating the existing report object.
    */
-  setEntryStatus(entry, newStatus) {
+  setEntryStatus(selectedEntries, newStatus) {
     this.setState((state, props) => ({
-        report: this.setEntryStatusRecur(state.report, entry, newStatus),
+        report: this.setEntryStatusRecur(
+          state.report,
+          selectedEntries,
+          newStatus,
+        ),
     }));
   }
 
@@ -52,23 +56,54 @@ class InteractiveReport extends React.Component {
    * Traverses the report tree recursively and updates the matching entry
    * state to be "running".
    *
-   * Note that this implementation is very simplistic in the interst of getting
-   * a basic MVP interactive mode - we check and update every single entry in
-   * the report, so it its complexity is O(n) in the total number of entries in
-   * the report. For a very large report this could be inefficient. As a future
-   * optimization we could skip checking unnecessary branches if we can know
-   * which parent entries (multitest or suite) the entry we are searching for
-   * belongs to - reducing the search complexity to O(log(n)).
+   * Since we know the hierarchy of selected elements we can restrict ourselves
+   * to only searching branches that contain the updated entry. Other branches
+   * (i.e. other MultiTests or suites that don't contain a particular
+   * testcase) are left as they are.
+   *
+   * @param {object} currEntry - the current report entry to check recursively.
+   * @param {array} selectedEntries - an array of the currently selected
+   *   report entry hierarchy, from highest to lowest. Initially, the highest
+   *   entry will always be the root Testplan object but this will shift with
+   *   every recursive call. The lowest (last) entry in the array will always
+   *   be whichever element we are updating the entry status for.
+   * @param {string} newStatus - the new status to set on the entry we are
+   *   updating.
    */
-  setEntryStatusRecur(currEntry, runningEntry, newStatus) {
-    const match = (currEntry.uid === runningEntry.uid);
-    return {
-      ...currEntry,
-      status: match ? newStatus : currEntry.status,
-      entries: currEntry.entries.map(
-        (entry) => this.setEntryStatusRecur(entry, runningEntry, newStatus)
-      ),
-    };
+  setEntryStatusRecur(currEntry, selectedEntries, newStatus) {
+    const [headSelectedEntry, ...tailSelectedEntries] = selectedEntries;
+    const match = (currEntry.uid === headSelectedEntry.uid);
+
+    // Check if the UID matches.
+    if (match) {
+      // Two cases to distinguish between:
+      //
+      // - There are more selected entries to search down for: we leave the
+      //   status of the current element unchanged and recurse down.
+      // - There are no more selected entries: we have found the element to
+      //   update, so update its status and stop recursion.
+      if (tailSelectedEntries.length === 0) {
+        return {
+          ...currEntry,
+          status: newStatus,
+        };
+      } else {
+        return {
+          ...currEntry,
+          entries: currEntry.entries.map(
+            (entry) => this.setEntryStatusRecur(
+              entry,
+              tailSelectedEntries,
+              newStatus,
+            )
+          ),
+        };
+      }
+    } else {
+      // If there is no UID match then we are in the wrong branch. Return
+      // the entry unchanged.
+      return currEntry;
+    }
   }
 
   render() {
