@@ -586,6 +586,7 @@ class RunnableIHandlerConfig(Config):
         return {'target': object,
                 ConfigOption('http_handler', default=None): object,
                 ConfigOption('http_handler_startup_timeout', default=10): int,
+                ConfigOption('http_port', default=0): int,
                 ConfigOption('max_operations', default=5):
                     And(Use(int), lambda n: n > 0)}
 
@@ -622,6 +623,9 @@ class RunnableIHandler(Entity):
     :type http_handler: ``Object``.
     :param http_handler_startup_timeout: Timeout value on starting the handler.
     :type http_handler_startup_timeout: ``int``
+    :param http_port: Port to bind HTTP request handler to. Defaults to 0 to
+        use an ephemeral port.
+    :type http_port: ``int``
     :param max_operations: Max simultaneous operations.
     :type max_operations: ``int`` greater than 0.
 
@@ -641,9 +645,16 @@ class RunnableIHandler(Entity):
         self._http_handler = self._setup_http_handler()
 
     def _setup_http_handler(self):
-        http_handler = self.cfg.http_handler(ihandler=self)\
-            if self.cfg.http_handler else None
-        http_handler.cfg.parent = self.cfg
+        if self.cfg.http_handler is not None:
+            self.logger.debug(
+                'Setting up interactive HTTP handler to listen on port %d',
+                self.cfg.http_port)
+            http_handler = self.cfg.http_handler(
+                ihandler=self, port=self.cfg.http_port)
+            http_handler.cfg.parent = self.cfg
+        else:
+            http_handler = None
+
         return http_handler
 
     @property
@@ -768,7 +779,7 @@ class RunnableConfig(EntityConfig):
         return {
             # Interactive needs to have blocked propagation.
             # IHandlers explicitly enable interactive mode of runnables.
-            ConfigOption('interactive', default=False): bool,
+            ConfigOption('interactive_port', default=None): Or(None, int),
             ConfigOption(
                 'interactive_block',
                 default=hasattr(sys.modules['__main__'], '__file__')): bool,
@@ -1014,17 +1025,18 @@ class Runnable(Entity):
     def run(self):
         """Executes the defined steps and populates the result object."""
         try:
-            if self.cfg.interactive is True:
+            if self.cfg.interactive_port is not None:
                 if self._ihandler is not None:
                     raise RuntimeError('{} already has an active {}'.format(
                         self, self._ihandler))
                 self.logger.test_info(
-                    'Starting {} in interactive mode'.format(self))
-                self._ihandler = self.cfg.interactive_handler(target=self)
+                    'Starting %s in interactive mode', self)
+                self._ihandler = self.cfg.interactive_handler(
+                    target=self, http_port=self.cfg.interactive_port)
                 thread = threading.Thread(target=self._ihandler)
                 thread.start()
                 # Check if we are on interactive session.
-                if self.cfg.interactive_block is True:
+                if self.cfg.interactive_block:
                     while self._ihandler.active:
                         time.sleep(self.cfg.active_loop_sleep)
                 return self._ihandler

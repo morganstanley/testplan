@@ -399,7 +399,8 @@ class TestRunner(Runnable):
         if resource not in self.resources:
             raise RuntimeError(
                 'Resource "{}" does not exist.'.format(resource))
-        if self.cfg.interactive and isinstance(runnable, Task):
+        if (self.cfg.interactive_port is not None) and isinstance(
+                runnable, Task):
             runnable = runnable.materialize()
             self.resources[resource].add(runnable, runnable.uid() or uid)
         else:

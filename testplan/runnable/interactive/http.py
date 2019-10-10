@@ -14,7 +14,8 @@ from six.moves.urllib.parse import urlparse
 
 from testplan.common.utils.exceptions import format_trace
 from testplan.common.config import ConfigOption
-from testplan.common.entity import Entity, EntityConfig
+from testplan.common.entity import Entity, EntityConfig, RunnableIHandler
+from testplan import defaults
 
 
 class TestRunnerHTTPHandlerConfig(EntityConfig):
@@ -25,9 +26,12 @@ class TestRunnerHTTPHandlerConfig(EntityConfig):
     """
     @classmethod
     def get_options(cls):
-        return {'ihandler' : object,
-                ConfigOption('host', default='localhost'): object,
-                ConfigOption('port', default=0): int}
+        return {
+            'ihandler' : RunnableIHandler,
+            ConfigOption(
+                'host', default=defaults.WEB_SERVER_HOSTNAME): str,
+            ConfigOption('port', default=defaults.WEB_SERVER_HOSTNAME): int
+        }
 
 
 class TestRunnerHTTPHandler(Entity):
@@ -186,6 +190,7 @@ class TestRunnerHTTPHandler(Entity):
                         response = self._make_response(**res_dict)
                     self._header_json(
                         code=200 if not response['error'] else 400)
+                    self._write_json(response)
                 except Exception as exc:
                     msg = '{} exception in do_POST: {}'.format(
                         outer.__class__.__name__, exc)
@@ -194,8 +199,8 @@ class TestRunnerHTTPHandler(Entity):
                         message=msg,
                         error=True,
                         trace=format_trace(inspect.trace()))
-                    self._header_json(code=400)
-                self._write_json(response)
+                    self._header_json(code=500)
+                    self._write_json(response)
 
         class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
             """Handle requests in a separate thread."""

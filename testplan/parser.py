@@ -77,10 +77,13 @@ class TestplanParser(object):
         parser.add_argument(
             '-i',
             '--interactive',
-            action='store_true',
-            dest='interactive',
-            default=self._default_options["interactive"],
-            help='Enable interactive mode.')
+            dest='interactive_port',
+            nargs='?',
+            default=self._default_options["interactive_port"],
+            const=defaults.WEB_SERVER_PORT,
+            type=int,
+            help='Enable interactive mode. A port may be specified, otherwise '
+                'the port defaults to {}'.format(defaults.WEB_SERVER_PORT))
 
         general_group = parser.add_argument_group('General')
         general_group.add_argument(

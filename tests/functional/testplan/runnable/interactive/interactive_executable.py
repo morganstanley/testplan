@@ -32,7 +32,7 @@ FAILED_CASE_REPORT =\
 
 def main():
     # CREATE AN INTERACTIVE TESTPLAN
-    plan = Testplan(name='MyPlan', interactive=True, interactive_block=False)
+    plan = Testplan(name='MyPlan', interactive_port=0, interactive_block=False)
 
     with open('basic_suite_template.txt') as fobj:
         template = fobj.read()
