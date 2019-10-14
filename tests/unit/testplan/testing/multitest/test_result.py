@@ -118,7 +118,7 @@ class TestDictNamespace(object):
             description='Dictmatch fails when type comparison is forced.',
             value_cmp_func=comparison.COMPARE_FUNCTIONS['check_types'])
 
-        assert not dict_ns.match(
+        assert dict_ns.match(
             actual,
             expected,
             description='Dictmatch with string conversion fails due to '
@@ -335,7 +335,7 @@ class TestResultBaseNamespace(object):
                                         graph_options=None
                                     )
 
-        assert graph_assertion is True
+        assert bool(graph_assertion) is True
         assert len(result.entries) == 1
         assert result.entries[0].graph_type is 'Line'
         assert type(result.entries[0].graph_data) is dict

@@ -1215,18 +1215,51 @@ expected_report = TestReport(
                             entries=[
                                 {
                                     'type': 'FixMatchAll',
-                                    'passed': True,
-                                    'description':
-                                        'basic unordered fix match all'
-                                },
-                                {
-                                    'type': 'FixMatchAll',
                                     'passed': False,
                                     'description':
-                                        'failing fix match all'
-                                },
-                            ]
-                        ),
+                                        'typed / unordered fix match all',
+                                    'matches': {
+                                        'matches': [
+                                            {'comparison':
+                                                 [[0,
+                                                   10914,
+                                                   'Passed',
+                                                   ('str', 'c1dec2c5'),
+                                                   ('str', 'c1dec2c5')],
+                                                  [0,
+                                                   38,
+                                                   'Passed',
+                                                   ('str', '500'),
+                                                   ('str', '500')],
+                                                  [0,
+                                                   44,
+                                                   'Failed',
+                                                   ('float', 9.0),
+                                                   ('str', '9')]],
+                                             'comparison_index': 1,
+                                             'description': 'typed / unordered fix match all 1/2: expected[1] vs values[0]',
+                                             'passed': False},
+                                            {'comparison': [[0,
+                                                             10914,
+                                                             'Passed',
+                                                             ('REGEX', '.+'),
+                                                             ('str',
+                                                              'f3ea6276')],
+                                                            [0,
+                                                             38,
+                                                             'Passed',
+                                                             ('int', '501'),
+                                                             ('int', '501')],
+                                                            [0,
+                                                             44,
+                                                             'Passed',
+                                                             ('float', 9.1),
+                                                             ('float', 9.1)]],
+                                             'comparison_index': 0,
+                                             'description': 'typed / unordered fix match all 2/2: expected[0] vs values[1]',
+                                             'passed': True}]},
+                                }]
+                        )
                     ]
                 )
             ]

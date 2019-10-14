@@ -14,7 +14,7 @@ from contextlib import contextmanager
 
 from ..report.base import Report, ReportGroup
 from ..utils.comparison import is_regex
-
+import collections
 
 null_handler = logging.NullHandler()
 
@@ -391,7 +391,7 @@ class XMLComparison(object):
         self._compare_obj(xml_obj)
 
 
-class FixMessage(dict):
+class FixMessage(collections.OrderedDict):
     """
     Basic FIX message for testing. A FIX message may be either typed or
     untyped. In other respects is acts like a plain dict.
