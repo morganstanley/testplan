@@ -21,11 +21,12 @@ describe('InteractiveNav', () => {
     const renderedNav = shallow(
       <InteractiveNav
         report={FakeInteractiveReport}
-        saveAssertions={() => undefined}
+        selected={[{uid: FakeInteractiveReport.uid, type: "testplan"}]}
         filter={null}
         displayEmpty={true}
         displayTags={false}
-        runEntry={() => undefined}
+        handleNavClick={jest.fn()}
+        handlePlayClick={jest.fn()}
       />
     );
     expect(renderedNav).toMatchSnapshot();

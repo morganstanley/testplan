@@ -15,87 +15,13 @@ exports[`InteractiveReport shallow renders and matches snapshot 1`] = `
     displayEmpty={true}
     displayTags={false}
     filter={null}
-    report={
-      Object {
-        "case_count": Object {
-          "failed": 0,
-          "passed": 0,
-        },
-        "entries": Array [
-          Object {
-            "case_count": Object {
-              "failed": 0,
-              "passed": 0,
-            },
-            "category": "multitest",
-            "description": null,
-            "entries": Array [
-              Object {
-                "case_count": Object {
-                  "failed": 0,
-                  "passed": 0,
-                },
-                "category": "suite",
-                "description": null,
-                "entries": Array [
-                  Object {
-                    "case_count": Object {
-                      "failed": 0,
-                      "passed": 0,
-                    },
-                    "description": null,
-                    "entries": Array [],
-                    "logs": Array [],
-                    "name": "test_interactive",
-                    "name_type_index": Set {},
-                    "status": "ready",
-                    "status_override": null,
-                    "suite_related": false,
-                    "tags": Object {},
-                    "tags_index": Object {},
-                    "timer": Object {},
-                    "type": "TestCaseReport",
-                    "uid": "ddd",
-                  },
-                ],
-                "logs": Array [],
-                "name": "Interactive Suite",
-                "name_type_index": Set {},
-                "part": null,
-                "status": "ready",
-                "status_override": null,
-                "tags": Object {},
-                "tags_index": Object {},
-                "timer": Object {},
-                "type": "TestGroupReport",
-                "uid": "ccc",
-              },
-            ],
-            "logs": Array [],
-            "name": "Interactive MTest",
-            "name_type_index": Set {},
-            "part": null,
-            "status": "ready",
-            "status_override": null,
-            "tags": Object {},
-            "tags_index": Object {},
-            "timer": Object {},
-            "type": "TestGroupReport",
-            "uid": "bbb",
-          },
-        ],
-        "meta": Object {},
-        "name": "Fake Interactive Report",
-        "name_type_index": Set {},
-        "status": "ready",
-        "status_override": null,
-        "tags_index": Object {},
-        "timer": null,
-        "uid": "aaa",
-      }
-    }
-    runEntry={[Function]}
-    saveAssertions={[Function]}
+    handleNavClick={[Function]}
+    handlePlayClick={[Function]}
+    report={null}
+    selected={Array []}
+  />
+  <Message
+    message="Fetching Testplan report..."
   />
 </div>
 `;
@@ -106,7 +32,7 @@ exports[`InteractiveReport updates testcase status to passed 1`] = `
 >
   <Toolbar
     handleNavFilter={[Function]}
-    status={null}
+    status="ready"
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -115,6 +41,8 @@ exports[`InteractiveReport updates testcase status to passed 1`] = `
     displayEmpty={true}
     displayTags={false}
     filter={null}
+    handleNavClick={[Function]}
+    handlePlayClick={[Function]}
     report={
       Object {
         "case_count": Object {
@@ -194,8 +122,10 @@ exports[`InteractiveReport updates testcase status to passed 1`] = `
         "uid": "aaa",
       }
     }
-    runEntry={[Function]}
-    saveAssertions={[Function]}
+    selected={Array []}
+  />
+  <Message
+    message="Please select a testcase."
   />
 </div>
 `;

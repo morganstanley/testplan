@@ -23,7 +23,6 @@ function defaultProps() {
     entries: [entry],
     breadcrumbLength: 1,
     handleNavClick: jest.fn(),
-    autoSelect: jest.fn(),
   };
 }
 
@@ -39,26 +38,13 @@ describe('NavList', () => {
     // Resume style injection once test is finished.
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
     props.handleNavClick.mockClear();
-    props.autoSelect.mockClear();
   });
 
-  it('shallow renders the correct HTML structure', () => {
+  it('shallow renders and matches snapshot', () => {
     const nav_list = shallow(
       <NavList {...props} />
     );
     expect(nav_list).toMatchSnapshot();
-  });
-
-  it('calls autoSelect when mounting and updating', () => {
-    const auto_select = props.autoSelect;
-    const nav_list = shallow(
-      <NavList {...props} />
-    );
-    expect(auto_select.mock.calls.length).toEqual(1);
-
-    nav_list.setProps({'name': 'test2'});
-    nav_list.update();
-    expect(auto_select.mock.calls.length).toEqual(2);
   });
 
   it('calls handleNavClick when nav entry has been clicked', () => {

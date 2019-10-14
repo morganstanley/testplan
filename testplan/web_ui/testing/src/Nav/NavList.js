@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {ListGroup} from 'reactstrap';
 
@@ -11,33 +11,23 @@ import {getNavEntryType} from "../Common/utils";
 /**
  * Render a vertical list of all the currently selected entries children.
  */
-class NavList extends Component {
-  componentDidMount() {
-    this.props.autoSelect(this.props.entries, this.props.breadcrumbLength);
-  }
+const NavList = (props) => {
+  const navButtons = CreateNavButtons(props, (entry) => (
+    <NavEntry
+      name={entry.name}
+      status={entry.status}
+      type={getNavEntryType(entry)}
+      caseCountPassed={entry.case_count.passed}
+      caseCountFailed={entry.case_count.failed}
+    />
+  ));
 
-  componentDidUpdate() {
-    this.props.autoSelect(this.props.entries, this.props.breadcrumbLength);
-  }
-
-  render() {
-    const navButtons = CreateNavButtons(this.props, (entry) => (
-      <NavEntry
-        name={entry.name}
-        status={entry.status}
-        type={getNavEntryType(entry)}
-        caseCountPassed={entry.case_count.passed}
-        caseCountFailed={entry.case_count.failed}
-      />
-    ));
-
-    return (
-      <Column>
-        <ListGroup>{navButtons}</ListGroup>
-      </Column>
-    );
-  }
-}
+  return (
+    <Column>
+      <ListGroup>{navButtons}</ListGroup>
+    </Column>
+  );
+};
 
 NavList.propTypes = {
   /** Nav list entries to be displayed */
@@ -54,8 +44,6 @@ NavList.propTypes = {
   breadcrumbLength: PropTypes.number,
   /** Function to handle Nav entries being clicked (selected) */
   handleNavClick: PropTypes.func,
-  /** Function to automatically select Nav entries */
-  autoSelect: PropTypes.func,
   /** Entity filter */
   filter: PropTypes.string,
   /** Flag to display tags on navbar */

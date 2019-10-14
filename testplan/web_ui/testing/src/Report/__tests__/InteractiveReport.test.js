@@ -2,7 +2,9 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 
-import InteractiveReport from '../InteractiveReport';
+import InteractiveReport from '../InteractiveReport.js';
+import {FakeInteractiveReport} from '../../Common/sampleReports.js';
+import {ReportToNavEntry} from '../../Common/utils.js';
 
 describe('InteractiveReport', () => {
   it("shallow renders and matches snapshot", () => {
@@ -12,14 +14,17 @@ describe('InteractiveReport', () => {
 
   it("updates testcase status to passed", () => {
     const interactiveReport = shallow(<InteractiveReport />);
-    const reportState = interactiveReport.state("report");
-    const selectedEntries = [
-      reportState,
-      reportState.entries[0],
-      reportState.entries[0].entries[0],
-      reportState.entries[0].entries[0].entries[0],
+    interactiveReport.setState({report: FakeInteractiveReport});
+
+    const selectedReportEntries = [
+      FakeInteractiveReport,
+      FakeInteractiveReport.entries[0],
+      FakeInteractiveReport.entries[0].entries[0],
+      FakeInteractiveReport.entries[0].entries[0].entries[0],
     ];
-    interactiveReport.instance().setEntryStatus(selectedEntries, "passed");
+
+    const selectedNavEntries = selectedReportEntries.map(ReportToNavEntry);
+    interactiveReport.instance().setEntryStatus(selectedNavEntries, "passed");
     interactiveReport.update();
 
     const newTestcaseEntry = (

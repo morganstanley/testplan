@@ -1,7 +1,11 @@
 /**
  * Report utility functions.
  */
+import React from "react";
+
 import {getNavEntryType} from "../Common/utils";
+import AssertionPane from '../AssertionPane/AssertionPane';
+import Message from '../Common/Message';
 
 /**
  * Merge two tag objects into a single tag object.
@@ -137,6 +141,101 @@ function propagateIndices(entries) {
   return entries;
 }
 
+/**
+ * Return the updated state after a new entry is selected from the Nav
+ * component.
+ *
+ * @param {Object} entry - Nav entry metadata.
+ * @param {number} depth - depth of Nav entry in Testplan report.
+ * @public
+ */
+const UpdateSelectedState = (state, entry, depth) => {
+  const entryType = getNavEntryType(entry);
+  const selected = state.selected.slice(0, depth);
+  selected.push({uid: entry.uid, type: entryType});
+  if (entryType === 'testcase') {
+    return {
+      selected: selected,
+      assertions: entry.entries,
+      testcaseUid: entry.uid,
+    };
+  } else {
+    return {
+      selected: selected,
+      assertions: null,
+      testcaseUid: null,
+    };
+  }
+};
+
+/**
+ * Get the current report data, status and fetch message as required.
+ */
+const GetReportState = (state) => {
+  // Handle the Testplan report if it has been fetched.
+  if (!state.report) {
+    // The Testplan report hasn't been fetched yet.
+    return {
+      reportStatus: null,
+      reportFetchMessage: getReportFetchMessage(state),
+    };
+  } else {
+    // The Testplan report has been fetched.
+    return {
+      reportStatus: state.report.status,
+      reportFetchMessage: null,
+    };
+  }
+};
+
+/**
+ * Get the component to display in the centre pane.
+ */
+const GetCenterPane = (state, props, reportFetchMessage, reportUid) => {
+  if (state.assertions !== null) {
+    return (
+      <AssertionPane
+        assertions={state.assertions}
+        left={state.navWidth + 1.5}
+        testcaseUid={state.testcaseUid}
+        filter={state.filter}
+        reportUid={reportUid}
+      />
+    );
+  } else if (reportFetchMessage !== null) {
+    return (
+      <Message
+        message={reportFetchMessage}
+        left={state.navWidth}
+      />
+    );
+  } else {
+    return (
+      <Message
+        message='Please select a testcase.'
+        left={state.navWidth}
+      />
+    );
+  }
+};
+
+/**
+ * Get a message relating to the progress of fetching the testplan report.
+ */
+const getReportFetchMessage = (state) => {
+  if (state.loading) {
+    return 'Fetching Testplan report...';
+  } else if (state.error !== null){
+    return `Error fetching Testplan report. (${state.error.message})`;
+  } else {
+    return 'Waiting to fetch Testplan report...';
+  }
+};
+
 export {
   propagateIndices,
+  UpdateSelectedState,
+  GetReportState,
+  GetCenterPane,
 };
+

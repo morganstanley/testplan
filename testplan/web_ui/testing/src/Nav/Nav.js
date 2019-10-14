@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 
 import NavBreadcrumbs from "./NavBreadcrumbs";
 import NavList from "./NavList";
-import {ParseNavSelection, HandleNavClick} from "./navUtils";
-import {getNavEntryType} from "../Common/utils";
+import {ParseNavSelection} from "./navUtils";
 
 /**
  * Nav component:
@@ -13,78 +12,35 @@ import {getNavEntryType} from "../Common/utils";
  *   * handle clicking through menus, tracking what has been selected.
  *   * auto select entries if the list is empty or has 1 entry.
  */
-class Nav extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleNavClick = HandleNavClick.bind(this);
-    this.autoSelect = this.autoSelect.bind(this);
-    this.state = {
-      selected: []
-    };
-  }
+const Nav = (props) => {
+  const selection = ParseNavSelection(
+    props.report,
+    props.selected,
+  );
 
-  /**
-   * Auto select Nav entries depending on whether the passed entries Array is
-   * empty (go up a level) or has 1 entry (go down a level).
-   *
-   * @param {Array} entries - Nav entries (should be NavList entries).
-   * @param breadcrumbsLength - Number of the NavBreadcrumbs entries.
-   * @public
-   */
-  autoSelect(entries, breadcrumbsLength) {
-    const selected = this.getAutoSelectEntry(entries, breadcrumbsLength);
-    if (selected !== null) {
-      this.setState({selected: selected});
-    }
-  }
-
-  getAutoSelectEntry(entries, breadcrumbsLength) {
-    const lastSelectedType = (
-      this.state.selected.length > 0
-      ? this.state.selected[this.state.selected.length - 1].type
-      : null
-    );
-
-    if (entries.length === 0 && this.state.selected.length > 1) {
-      return this.state.selected.slice(0, breadcrumbsLength);
-    } else if (entries.length === 1 && lastSelectedType !== 'testcase') {
-      return this.state.selected.concat([{
-        uid: entries[0].uid,
-        type: getNavEntryType(entries[0])
-      }]);
-    } else {
-      return null;
-    }
-  }
-
-  render() {
-    const selection = ParseNavSelection(
-      this.props.report,
-      this.state.selected,
-    );
-    return (
-      <>
-        <NavBreadcrumbs
-          entries={selection.navBreadcrumbs}
-          handleNavClick={this.handleNavClick}
-        />
-        <NavList
-          entries={selection.navList}
-          breadcrumbLength={selection.navBreadcrumbs.length}
-          handleNavClick={this.handleNavClick}
-          autoSelect={this.autoSelect}
-          filter={this.props.filter}
-          displayEmpty={this.props.displayEmpty}
-          displayTags={this.props.displayTags}
-        />
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <NavBreadcrumbs
+        entries={selection.navBreadcrumbs}
+        handleNavClick={props.handleNavClick}
+      />
+      <NavList
+        entries={selection.navList}
+        breadcrumbLength={selection.navBreadcrumbs.length}
+        handleNavClick={props.handleNavClick}
+        filter={props.filter}
+        displayEmpty={props.displayEmpty}
+        displayTags={props.displayTags}
+      />
+    </>
+  );
+};
 
 Nav.propTypes = {
   /** Testplan report */
   report: PropTypes.object,
+  /** Selected navigation entries. */
+  selected: PropTypes.arrayOf(PropTypes.object),
   /** Function to handle saving the assertions found by the Nav */
   saveAssertions: PropTypes.func,
   /** Entity filter */
@@ -93,6 +49,8 @@ Nav.propTypes = {
   displayTags: PropTypes.bool,
   /** Flag to display empty testcase on navbar */
   displayEmpty: PropTypes.bool,
+  /** Callback when a navigation entry is clicked. */
+  handleNavClick: PropTypes.func,
 };
 
 export default Nav;
