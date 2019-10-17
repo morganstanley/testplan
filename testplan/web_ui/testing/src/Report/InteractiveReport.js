@@ -9,6 +9,12 @@ import {StyleSheet, css} from 'aphrodite';
 import Toolbar from '../Toolbar/Toolbar.js';
 import InteractiveNav from '../Nav/InteractiveNav.js';
 import {FakeInteractiveReport} from '../Common/sampleReports.js';
+import {
+  UpdateSelectedState,
+  GetReportState,
+  GetCenterPane,
+} from './reportUtils.js';
+import {ReportToNavEntry} from "../Common/utils";
 
 /**
  * Interactive report viewer. As opposed to a batch report, an interactive
@@ -20,10 +26,50 @@ class InteractiveReport extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {report: FakeInteractiveReport};
+    this.state = {
+      report: null,
+      selected: [],
+      assertions: null,
+      loading: false,
+      error: null,
+    };
     this.runEntry = this.runEntry.bind(this);
     this.setEntryStatus = this.setEntryStatus.bind(this);
     this.setEntryStatusRecur = this.setEntryStatusRecur.bind(this);
+    this.handleNavClick = this.handleNavClick.bind(this);
+    this.handlePlayClick = this.handlePlayClick.bind(this);
+  }
+
+  /**
+   * Fetch the Testplan report once the component has mounted.
+   * @public
+   */
+  componentDidMount() {
+    this.setState({loading: true}, this.getReport);
+  }
+
+  /**
+   * Fetch the Testplan interactive report.
+   *
+   * Currently we don't make a real API call and instead just display a fake
+   * report.
+   */
+  getReport() {
+    setTimeout(
+      () => this.setState({
+        report: FakeInteractiveReport,
+        selected: this.autoSelect(FakeInteractiveReport),
+        loading: false,
+      }),
+      1500,
+    );
+  }
+
+  /**
+   * Auto-select an entry in the report when it is first loaded.
+   */
+  autoSelect(reportEntry) {
+    return [ReportToNavEntry(reportEntry)];
   }
 
   /**
@@ -106,13 +152,46 @@ class InteractiveReport extends React.Component {
     }
   }
 
+  /**
+   * Handle a navigation entry being clicked. Update the current selection
+   * state and displayed assertions.
+   */
+  handleNavClick(e, entry, depth) {
+    e.stopPropagation();
+    this.setState((state, props) => UpdateSelectedState(state, entry, depth));
+  }
+
+  /* Handle the play button being clicked on a Nav entry. */
+  handlePlayClick(e, navEntry) {
+    e.stopPropagation();
+    const currSelected = this.state.selected[this.state.selected.length - 1];
+    if (!currSelected) {
+      alert(
+        "Error: Expected a report element to be selected. Selected = " +
+        this.state.selected
+      );
+      return;
+    }
+
+    const fullSelected = this.state.selected.concat([navEntry]);
+    this.runEntry(fullSelected);
+  }
+
   render() {
     const noop = () => undefined;
+    const {reportStatus, reportFetchMessage} = GetReportState(this.state);
+    const centerPane = GetCenterPane(
+      this.state,
+      this.props,
+      reportFetchMessage,
+      null,
+    );
+
 
     return (
       <div className={css(styles.batchReport)}>
         <Toolbar
-          status={null}
+          status={reportStatus}
           handleNavFilter={noop}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
@@ -120,12 +199,14 @@ class InteractiveReport extends React.Component {
         />
         <InteractiveNav
           report={this.state.report}
-          saveAssertions={noop}
+          selected={this.state.selected}
           filter={null}
           displayEmpty={true}
           displayTags={false}
-          runEntry={this.runEntry}
+          handleNavClick={this.handleNavClick}
+          handlePlayClick={this.handlePlayClick}
         />
+        {centerPane}
       </div>
     );
   }

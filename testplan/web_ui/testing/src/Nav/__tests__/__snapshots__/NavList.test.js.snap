@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`NavList shallow renders the correct HTML structure 1`] = `
+exports[`NavList shallow renders and matches snapshot 1`] = `
 <Column>
   <ListGroup
     tag="ul"

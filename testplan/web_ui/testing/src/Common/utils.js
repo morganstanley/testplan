@@ -40,6 +40,17 @@ function getNavEntryDisplayData(entry) {
 }
 
 /**
+ * Convert a report entry into a nav entry type.
+ *
+ * @param {object} reportEntry - entry from report object.
+ * @returns {object}
+ */
+const ReportToNavEntry = (reportEntry) => ({
+  uid: reportEntry.uid,
+  type: getNavEntryType(reportEntry),
+});
+
+/**
  * Returns true of any element of an iterable is true. If not, returns false.
  *
  * @param iterable
@@ -82,7 +93,7 @@ function uniqueId() {
   return 'id-' + Math.random().toString(36).substr(2, 16);
 }
 
-/** 
+/**
  * Generate a hash code by string
  * @param {string} str - string that generate hash code
  * @returns {number}
@@ -112,6 +123,7 @@ function domToString(dom) {
 export {
   getNavEntryType,
   getNavEntryDisplayData,
+  ReportToNavEntry,
   any,
   sorted,
   uniqueId,

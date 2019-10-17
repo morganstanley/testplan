@@ -1,14 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Nav shallow renders the correct HTML structure 1`] = `
+exports[`Nav shallow renders and matches snapshot 1`] = `
 <Fragment>
   <NavBreadcrumbs
-    entries={Array []}
-    handleNavClick={[Function]}
-  />
-  <NavList
-    autoSelect={[Function]}
-    breadcrumbLength={0}
     entries={
       Array [
         Object {
@@ -18,7 +12,33 @@ exports[`Nav shallow renders the correct HTML structure 1`] = `
         },
       ]
     }
-    handleNavClick={[Function]}
+  />
+  <NavList
+    breadcrumbLength={1}
+    entries={
+      Array [
+        Object {
+          "category": "multitest",
+          "name": "Primary",
+          "status": "failed",
+          "tags": Object {
+            "simple": Array [
+              "server",
+            ],
+          },
+          "type": "TestGroupReport",
+          "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+        },
+        Object {
+          "category": "multitest",
+          "name": "Secondary",
+          "status": "passed",
+          "tags": Object {},
+          "type": "TestGroupReport",
+          "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+        },
+      ]
+    }
   />
 </Fragment>
 `;

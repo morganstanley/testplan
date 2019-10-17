@@ -134,28 +134,6 @@ function ParseNavSelection(report, selected) {
 }
 
 /**
- * Handle Nav entries being clicked. Add/remove entries from selected Array
- * in state.
- *
- * NOTE: this function is intended to be mixed into a component which
- * binds "this". Currently this method is shared by the Nav and InteractiveNav
- * components.
- *
- * @param {Object} e - click event.
- * @param {Object} entry - Nav entry metadata.
- * @param {number} depth - depth of Nav entry in Testplan report.
- * @public
- */
-function HandleNavClick (e, entry, depth) {
-  e.stopPropagation();
-  const entryType = getNavEntryType(entry);
-  const selected = this.state.selected.slice(0, depth);
-  selected.push({uid: entry.uid, type: entryType});
-  this.setState({selected: selected});
-  this.props.saveAssertions(entry);
-}
-
-/**
  * Create the list entry buttons or a single button stating nothing can be
  * displayed.
  *
@@ -260,6 +238,5 @@ const styles = StyleSheet.create({
 
 export {
   ParseNavSelection,
-  HandleNavClick,
   CreateNavButtons,
 };

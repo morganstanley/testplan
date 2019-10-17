@@ -16,7 +16,7 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
         },
       ]
     }
-    handleNavClick={[Function]}
+    handleNavClick={[MockFunction]}
   />
   <InteractiveNavList
     autoSelect={[Function]}
@@ -40,8 +40,8 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
       ]
     }
     filter={null}
-    handleNavClick={[Function]}
-    handlePlayClick={[Function]}
+    handleNavClick={[MockFunction]}
+    handlePlayClick={[MockFunction]}
   />
 </Fragment>
 `;

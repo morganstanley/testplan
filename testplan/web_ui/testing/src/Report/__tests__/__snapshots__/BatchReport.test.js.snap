@@ -15,6 +15,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     displayEmpty={true}
     displayTags={false}
     filter={null}
+    handleNavClick={[Function]}
     report={
       Object {
         "entries": Array [
@@ -268,7 +269,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
         "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
       }
     }
-    saveAssertions={[Function]}
+    selected={Array []}
   />
   <Message
     left={18}
