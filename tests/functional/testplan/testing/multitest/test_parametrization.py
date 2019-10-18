@@ -231,13 +231,15 @@ def test_combinatorial_parametrization():
 )
 def test_invalid_parametrization(val, msg):
 
-    with pytest.raises(ParametrizationError, message=msg):
+    with pytest.raises(ParametrizationError):
         @testsuite
         class MySuite(object):
 
             @testcase(parameters=val)
             def sample_test(self, env, result, a, b, c=3):
                 pass
+
+        pytest.fail(msg)
 
 
 def test_custom_name_func():
@@ -338,7 +340,7 @@ def test_name_func_fallback(name_func, testcase_names, msg):
 )
 def test_invalid_name_func(name_func, msg):
 
-    with pytest.raises(ParametrizationError, message=msg):
+    with pytest.raises(ParametrizationError):
         @testsuite
         class MySuite(object):
 
@@ -348,6 +350,8 @@ def test_invalid_name_func(name_func, msg):
             )
             def sample_test(self, env, result, a):
                 pass
+
+        pytest.fail(msg)
 
 
 def test_custom_wrapper():
