@@ -1,7 +1,13 @@
 /**
  * Navigation utility functions.
  */
+import React from 'react';
+import {ListGroupItem} from 'reactstrap';
+import {StyleSheet, css} from 'aphrodite';
+
 import {getNavEntryDisplayData, getNavEntryType} from "../Common/utils";
+import TagList from './TagList';
+import {LIGHT_GREY, DARK_GREY} from "../Common/defaults";
 
 /**
  * Check if nothing has been selected from the Nav.
@@ -11,7 +17,7 @@ import {getNavEntryDisplayData, getNavEntryType} from "../Common/utils";
  * @returns {boolean}
  * @private
  */
-function _nothingSelected(selected) {
+function nothingSelected(selected) {
   return selected.length === 0;
 }
 
@@ -26,7 +32,7 @@ function _nothingSelected(selected) {
  * @returns {boolean}
  * @private
  */
-function _testcaseSelected(selected, parentUid) {
+function testcaseSelected(selected, parentUid) {
   const lastSelected = selected[selected.length - 1];
   const secondLastSelected = selected[selected.length - 2];
   return (lastSelected.type === 'testcase' &&
@@ -44,7 +50,7 @@ function _testcaseSelected(selected, parentUid) {
  * @returns {boolean}
  * @private
  */
-function _parentEntryLastSelected(selected, parentUid) {
+function parentEntryLastSelected(selected, parentUid) {
   const lastSelected = selected[selected.length - 1];
   return (lastSelected.type !== 'testcase' &&
           parentUid === lastSelected.uid);
@@ -65,7 +71,7 @@ function _parentEntryLastSelected(selected, parentUid) {
  * @returns {{navBreadcrumbs: Array, navList: Array}}
  * @private
  */
-function _parseNavSelection(entries, selected, depth, parentUid) {
+function parseNavSelectionRecur(entries, selected, depth, parentUid) {
   let navBreadcrumbs = [];
   let navList = [];
   for (const entry of entries) {
@@ -78,7 +84,7 @@ function _parseNavSelection(entries, selected, depth, parentUid) {
         depth < selected.length &&
         selected[depth].uid === entry.uid) {
       const breadcrumbEntryMetadata = getNavEntryDisplayData(entry);
-      const nextSelection = _parseNavSelection(
+      const nextSelection = parseNavSelectionRecur(
         entry.entries,
         selected,
         depth + 1,
@@ -92,9 +98,9 @@ function _parseNavSelection(entries, selected, depth, parentUid) {
 
     // Populate:
     //   a. list from current entry
-    if (_nothingSelected(selected) ||
-        _testcaseSelected(selected, parentUid) ||
-        _parentEntryLastSelected(selected, parentUid)) {
+    if (nothingSelected(selected) ||
+        testcaseSelected(selected, parentUid) ||
+        parentEntryLastSelected(selected, parentUid)) {
       let listEntryMetadata = getNavEntryDisplayData(entry);
       // Adding assertions to testcase data to be sent to AssertionPane.
       if (entryType === 'testcase') {
@@ -113,16 +119,124 @@ function _parseNavSelection(entries, selected, depth, parentUid) {
  * Populate nav breadcrumbs & list Arrays depending on which entries were
  * selected from Nav.
  *
- * @param {Array} entries - A single Testplan report in an Array.
+ * @param {object} report - The Testplan report.
  * @param {Array} selected - The selected entries from the Nav. Each Object in
  * the Array
  * has the entries name & type.
  * @returns {{navBreadcrumbs: Array, navList: Array}}
  */
-function parseNavSelection(entries, selected) {
-  return _parseNavSelection(entries, selected, 0, undefined);
+function ParseNavSelection(report, selected) {
+  if (report === null) {
+    return {navBreadcrumbs: [], navList: []};
+  } else {
+    return parseNavSelectionRecur([report], selected, 0, null);
+  }
 }
 
+/**
+ * Create the list entry buttons or a single button stating nothing can be
+ * displayed.
+ *
+ * @returns {Array|ListGroupItem}
+ */
+const CreateNavButtons = (props, createEntryComponent) => {
+  const depth = props.breadcrumbLength;
+
+  // Apply all filters to the entries.
+  const filteredEntries = applyAllFilters(props);
+
+  // Create buttons for each of the filtered entries.
+  const navButtons = filteredEntries.map((entry, entryIndex) => {
+    const tags = (
+      (props.displayTags && entry.tags)
+      ? <TagList entryName={entry.name} tags={entry.tags}/>
+      : null
+    );
+
+    const tabIndex = entryIndex + 1;
+
+    return (
+      <ListGroupItem
+        tabIndex={tabIndex.toString()}
+        key={entry.uid}
+        className={css(styles.navButton, styles.navButtonInteract)}
+        onClick={((e) => props.handleNavClick(e, entry, depth))}>
+        {tags}
+        {createEntryComponent(entry)}
+      </ListGroupItem>
+    );
+  });
+
+  const navButtonsEmpty = <ListGroupItem className={css(styles.navButton)}>
+    No entries to display...
+  </ListGroupItem>;
+
+  return navButtons.length > 0 ? navButtons : navButtonsEmpty;
+};
+
+/**
+ * Apply all filters to a list of entries
+ *
+ *  * Apply the "named" filter (currently just filters out passed or failed
+ *    entries).
+ *  * Filter out empty testcases if required.
+ */
+const applyAllFilters = (props) => {
+  if (props.displayEmpty) {
+    return applyNamedFilter(props.entries, props.filter);
+  } else {
+    return applyNamedFilter(props.entries, props.filter).filter((entry) => {
+      if (entry.type === 'TestCaseReport') {
+        return (entry.entries !== null && entry.entries.length > 0);
+      } else {
+        return (entry.case_count.failed + entry.case_count.passed > 0);
+      }
+    });
+  }
+};
+
+/**
+ * Apply the named filter to a list of entries. The filter string may be:
+ *
+ *  * 'pass' to filter out failed entries
+ *  * 'fail' to filter out passed entries
+ */
+const applyNamedFilter = (entries, filter) => {
+  switch (filter) {
+    case 'pass':
+      return entries.filter(
+        (entry) => entry.case_count.failed > 0
+      );
+
+    case 'fail':
+      return entries.filter(
+        (entry) => entry.case_count.failed === 0
+      );
+
+    default:
+      return entries;
+  }
+};
+
+const styles = StyleSheet.create({
+  navButton: {
+    position: 'relative',
+    display: 'inline-block',
+    border: 'none',
+    backgroundColor: LIGHT_GREY,
+  },
+  navButtonInteract: {
+    ':hover': {
+      backgroundColor: DARK_GREY,
+    },
+    ':focus': {
+      backgroundColor: DARK_GREY,
+      outline: 'none',
+    }
+  },
+});
+
 export {
-  parseNavSelection,
+  ParseNavSelection,
+  CreateNavButtons,
 };

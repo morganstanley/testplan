@@ -1,1883 +1,781 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
-ShallowWrapper {
-  Symbol(enzyme.__root__): [Circular],
-  Symbol(enzyme.__unrendered__): <FixMatchAssertion
-    assertion={
-        Object {
-            "actual_description": null,
-            "category": "DEFAULT",
-            "comparison": Array [
-              Array [
-                0,
-                555,
-                "Failed",
-                "",
-                "",
-              ],
-              Array [
-                0,
-                "",
-                "Failed",
-                "",
-                "",
-              ],
-              Array [
-                1,
-                600,
-                "Passed",
-                Array [
-                  "str",
-                  "A",
-                ],
-                Array [
-                  "str",
-                  "A",
-                ],
-              ],
-              Array [
-                1,
-                601,
-                "Failed",
-                Array [
-                  "str",
-                  "A",
-                ],
-                Array [
-                  "str",
-                  "B",
-                ],
-              ],
-              Array [
-                1,
-                683,
-                "Passed",
-                "",
-                "",
-              ],
-              Array [
-                1,
-                "",
-                "Passed",
-                "",
-                "",
-              ],
-              Array [
-                2,
-                688,
-                "Passed",
-                Array [
-                  "str",
-                  "a",
-                ],
-                Array [
-                  "str",
-                  "a",
-                ],
-              ],
-              Array [
-                2,
-                689,
-                "Passed",
-                Array [
-                  "str",
-                  "a",
-                ],
-                Array [
-                  "REGEX",
-                  "[a-z]",
-                ],
-              ],
-              Array [
-                1,
-                "",
-                "Passed",
-                "",
-                "",
-              ],
-              Array [
-                2,
-                688,
-                "Passed",
-                Array [
-                  "str",
-                  "b",
-                ],
-                Array [
-                  "str",
-                  "b",
-                ],
-              ],
-              Array [
-                2,
-                689,
-                "Passed",
-                Array [
-                  "str",
-                  "b",
-                ],
-                Array [
-                  "str",
-                  "b",
-                ],
-              ],
-              Array [
-                0,
-                "",
-                "Failed",
-                "",
-                "",
-              ],
-              Array [
-                1,
-                600,
-                "Failed",
-                Array [
-                  "str",
-                  "B",
-                ],
-                Array [
-                  "str",
-                  "C",
-                ],
-              ],
-              Array [
-                1,
-                601,
-                "Passed",
-                Array [
-                  "str",
-                  "B",
-                ],
-                Array [
-                  "str",
-                  "B",
-                ],
-              ],
-              Array [
-                1,
-                683,
-                "Passed",
-                "",
-                "",
-              ],
-              Array [
-                1,
-                "",
-                "Passed",
-                "",
-                "",
-              ],
-              Array [
-                2,
-                688,
-                "Passed",
-                Array [
-                  "str",
-                  "c",
-                ],
-                Array [
-                  "str",
-                  "c",
-                ],
-              ],
-              Array [
-                2,
-                689,
-                "Passed",
-                Array [
-                  "str",
-                  "c",
-                ],
-                Array [
-                  "func",
-                  "VAL in ('c', 'd')",
-                ],
-              ],
-              Array [
-                1,
-                "",
-                "Passed",
-                "",
-                "",
-              ],
-              Array [
-                2,
-                688,
-                "Passed",
-                Array [
-                  "str",
-                  "d",
-                ],
-                Array [
-                  "str",
-                  "d",
-                ],
-              ],
-              Array [
-                2,
-                689,
-                "Passed",
-                Array [
-                  "str",
-                  "d",
-                ],
-                Array [
-                  "str",
-                  "d",
-                ],
-              ],
-              Array [
-                0,
-                36,
-                "Passed",
-                Array [
-                  "int",
-                  "6",
-                ],
-                Array [
-                  "int",
-                  "6",
-                ],
-              ],
-              Array [
-                0,
-                38,
-                "Passed",
-                Array [
-                  "int",
-                  "5",
-                ],
-                Array [
-                  "func",
-                  "VAL >= 4",
-                ],
-              ],
-              Array [
-                0,
-                22,
-                "Passed",
-                Array [
-                  "int",
-                  "5",
-                ],
-                Array [
-                  "int",
-                  "5",
-                ],
-              ],
-              Array [
-                0,
-                55,
-                "Passed",
-                Array [
-                  "int",
-                  "2",
-                ],
-                Array [
-                  "int",
-                  "2",
-                ],
-              ],
+<DictBaseAssertion
+  buttonGroup={
+    <DictButtonGroup
+      defaultSortType={3}
+      flattenedDict={
+        Array [
+          Array [
+            0,
+            555,
+            "Failed",
+            "",
+            "",
+          ],
+          Array [
+            0,
+            "",
+            "Failed",
+            "",
+            "",
+          ],
+          Array [
+            1,
+            600,
+            "Passed",
+            Array [
+              "str",
+              "A",
             ],
-            "description": null,
-            "exclude_keys": null,
-            "expected_description": null,
-            "include_keys": null,
-            "line_no": 667,
-            "machine_time": "2019-02-12T17:41:43.309890+00:00",
-            "meta_type": "assertion",
-            "passed": false,
-            "type": "FixMatch",
-            "utc_time": "2019-02-12T17:41:43.309884+00:00",
-          }
-    }
-/>,
-  Symbol(enzyme.__renderer__): Object {
-    "batchedUpdates": [Function],
-    "getNode": [Function],
-    "render": [Function],
-    "simulateError": [Function],
-    "simulateEvent": [Function],
-    "unmount": [Function],
-  },
-  Symbol(enzyme.__node__): Object {
-    "instance": null,
-    "key": undefined,
-    "nodeType": "class",
-    "props": Object {
-      "buttonGroup": <DictButtonGroup
-        defaultSortType={3}
-        flattenedDict={
-                Array [
-                        Array [
-                          0,
-                          555,
-                          "Failed",
-                          "",
-                          "",
-                        ],
-                        Array [
-                          0,
-                          "",
-                          "Failed",
-                          "",
-                          "",
-                        ],
-                        Array [
-                          1,
-                          600,
-                          "Passed",
-                          Array [
-                            "str",
-                            "A",
-                          ],
-                          Array [
-                            "str",
-                            "A",
-                          ],
-                        ],
-                        Array [
-                          1,
-                          601,
-                          "Failed",
-                          Array [
-                            "str",
-                            "A",
-                          ],
-                          Array [
-                            "str",
-                            "B",
-                          ],
-                        ],
-                        Array [
-                          1,
-                          683,
-                          "Passed",
-                          "",
-                          "",
-                        ],
-                        Array [
-                          1,
-                          "",
-                          "Passed",
-                          "",
-                          "",
-                        ],
-                        Array [
-                          2,
-                          688,
-                          "Passed",
-                          Array [
-                            "str",
-                            "a",
-                          ],
-                          Array [
-                            "str",
-                            "a",
-                          ],
-                        ],
-                        Array [
-                          2,
-                          689,
-                          "Passed",
-                          Array [
-                            "str",
-                            "a",
-                          ],
-                          Array [
-                            "REGEX",
-                            "[a-z]",
-                          ],
-                        ],
-                        Array [
-                          1,
-                          "",
-                          "Passed",
-                          "",
-                          "",
-                        ],
-                        Array [
-                          2,
-                          688,
-                          "Passed",
-                          Array [
-                            "str",
-                            "b",
-                          ],
-                          Array [
-                            "str",
-                            "b",
-                          ],
-                        ],
-                        Array [
-                          2,
-                          689,
-                          "Passed",
-                          Array [
-                            "str",
-                            "b",
-                          ],
-                          Array [
-                            "str",
-                            "b",
-                          ],
-                        ],
-                        Array [
-                          0,
-                          "",
-                          "Failed",
-                          "",
-                          "",
-                        ],
-                        Array [
-                          1,
-                          600,
-                          "Failed",
-                          Array [
-                            "str",
-                            "B",
-                          ],
-                          Array [
-                            "str",
-                            "C",
-                          ],
-                        ],
-                        Array [
-                          1,
-                          601,
-                          "Passed",
-                          Array [
-                            "str",
-                            "B",
-                          ],
-                          Array [
-                            "str",
-                            "B",
-                          ],
-                        ],
-                        Array [
-                          1,
-                          683,
-                          "Passed",
-                          "",
-                          "",
-                        ],
-                        Array [
-                          1,
-                          "",
-                          "Passed",
-                          "",
-                          "",
-                        ],
-                        Array [
-                          2,
-                          688,
-                          "Passed",
-                          Array [
-                            "str",
-                            "c",
-                          ],
-                          Array [
-                            "str",
-                            "c",
-                          ],
-                        ],
-                        Array [
-                          2,
-                          689,
-                          "Passed",
-                          Array [
-                            "str",
-                            "c",
-                          ],
-                          Array [
-                            "func",
-                            "VAL in ('c', 'd')",
-                          ],
-                        ],
-                        Array [
-                          1,
-                          "",
-                          "Passed",
-                          "",
-                          "",
-                        ],
-                        Array [
-                          2,
-                          688,
-                          "Passed",
-                          Array [
-                            "str",
-                            "d",
-                          ],
-                          Array [
-                            "str",
-                            "d",
-                          ],
-                        ],
-                        Array [
-                          2,
-                          689,
-                          "Passed",
-                          Array [
-                            "str",
-                            "d",
-                          ],
-                          Array [
-                            "str",
-                            "d",
-                          ],
-                        ],
-                        Array [
-                          0,
-                          36,
-                          "Passed",
-                          Array [
-                            "int",
-                            "6",
-                          ],
-                          Array [
-                            "int",
-                            "6",
-                          ],
-                        ],
-                        Array [
-                          0,
-                          38,
-                          "Passed",
-                          Array [
-                            "int",
-                            "5",
-                          ],
-                          Array [
-                            "func",
-                            "VAL >= 4",
-                          ],
-                        ],
-                        Array [
-                          0,
-                          22,
-                          "Passed",
-                          Array [
-                            "int",
-                            "5",
-                          ],
-                          Array [
-                            "int",
-                            "5",
-                          ],
-                        ],
-                        Array [
-                          0,
-                          55,
-                          "Passed",
-                          Array [
-                            "int",
-                            "2",
-                          ],
-                          Array [
-                            "int",
-                            "2",
-                          ],
-                        ],
-                      ]
-        }
-        setRowData={[Function]}
-        sortTypeList={
-                Array [
-                        1,
-                        2,
-                        3,
-                        4,
-                      ]
-        }
-/>,
-      "columnDefs": Array [
-        Object {
-          "field": "descriptor",
-          "headerName": "Descriptor",
-          "hide": true,
-        },
-        Object {
-          "cellRendererFramework": [Function],
-          "cellStyle": [Function],
-          "field": "key",
-          "headerName": "Key",
-          "pinned": "left",
-          "suppressMovable": true,
-        },
-        Object {
-          "cellRendererFramework": [Function],
-          "cellStyle": [Function],
-          "field": "expected",
-          "headerName": "Expected",
-        },
-        Object {
-          "cellRendererFramework": [Function],
-          "cellStyle": [Function],
-          "field": "value",
-          "headerName": "Value",
-        },
-      ],
-      "rowData": Array [
-        Object {
-          "descriptor": Object {
-            "indent": 0,
-            "isEmptyLine": false,
-            "isListKey": true,
-            "lineNo": 667,
-            "status": "Failed",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 555,
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 0,
-            "isEmptyLine": true,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Failed",
-          },
-          "key": Object {
-            "type": null,
-            "value": null,
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 1,
-            "isEmptyLine": false,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Failed",
-          },
-          "expected": Object {
-            "type": "str",
-            "value": "B",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 601,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "A",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 1,
-            "isEmptyLine": false,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "str",
-            "value": "A",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 600,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "A",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 1,
-            "isEmptyLine": false,
-            "isListKey": true,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 683,
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 1,
-            "isEmptyLine": true,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "key": Object {
-            "type": null,
-            "value": null,
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 2,
-            "isEmptyLine": false,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "str",
-            "value": "a",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 688,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "a",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 2,
-            "isEmptyLine": false,
-            "isListKey": true,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "REGEX",
-            "value": "[a-z]",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 689,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "a",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 1,
-            "isEmptyLine": true,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "key": Object {
-            "type": null,
-            "value": null,
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 2,
-            "isEmptyLine": false,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "str",
-            "value": "b",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 688,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "b",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 2,
-            "isEmptyLine": false,
-            "isListKey": true,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "str",
-            "value": "b",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 689,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "b",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 0,
-            "isEmptyLine": true,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Failed",
-          },
-          "key": Object {
-            "type": null,
-            "value": null,
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 1,
-            "isEmptyLine": false,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Failed",
-          },
-          "expected": Object {
-            "type": "str",
-            "value": "C",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 600,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "B",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 1,
-            "isEmptyLine": false,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "str",
-            "value": "B",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 601,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "B",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 1,
-            "isEmptyLine": false,
-            "isListKey": true,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 683,
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 1,
-            "isEmptyLine": true,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "key": Object {
-            "type": null,
-            "value": null,
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 2,
-            "isEmptyLine": false,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "str",
-            "value": "c",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 688,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "c",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 2,
-            "isEmptyLine": false,
-            "isListKey": true,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "func",
-            "value": "VAL in ('c', 'd')",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 689,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "c",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 1,
-            "isEmptyLine": true,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "key": Object {
-            "type": null,
-            "value": null,
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 2,
-            "isEmptyLine": false,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "str",
-            "value": "d",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 688,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "d",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 2,
-            "isEmptyLine": false,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "str",
-            "value": "d",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 689,
-          },
-          "value": Object {
-            "type": "str",
-            "value": "d",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 0,
-            "isEmptyLine": false,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "int",
-            "value": "6",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 36,
-          },
-          "value": Object {
-            "type": "int",
-            "value": "6",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 0,
-            "isEmptyLine": false,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "func",
-            "value": "VAL >= 4",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 38,
-          },
-          "value": Object {
-            "type": "int",
-            "value": "5",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 0,
-            "isEmptyLine": false,
-            "isListKey": false,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "int",
-            "value": "5",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 22,
-          },
-          "value": Object {
-            "type": "int",
-            "value": "5",
-          },
-        },
-        Object {
-          "descriptor": Object {
-            "indent": 0,
-            "isEmptyLine": false,
-            "isListKey": undefined,
-            "lineNo": 667,
-            "status": "Passed",
-          },
-          "expected": Object {
-            "type": "int",
-            "value": "2",
-          },
-          "key": Object {
-            "type": "key",
-            "value": 55,
-          },
-          "value": Object {
-            "type": "int",
-            "value": "2",
-          },
-        },
-      ],
-    },
-    "ref": null,
-    "rendered": null,
-    "type": [Function],
-  },
-  Symbol(enzyme.__nodes__): Array [
-    Object {
-      "instance": null,
-      "key": undefined,
-      "nodeType": "class",
-      "props": Object {
-        "buttonGroup": <DictButtonGroup
-          defaultSortType={3}
-          flattenedDict={
-                    Array [
-                              Array [
-                                0,
-                                555,
-                                "Failed",
-                                "",
-                                "",
-                              ],
-                              Array [
-                                0,
-                                "",
-                                "Failed",
-                                "",
-                                "",
-                              ],
-                              Array [
-                                1,
-                                600,
-                                "Passed",
-                                Array [
-                                  "str",
-                                  "A",
-                                ],
-                                Array [
-                                  "str",
-                                  "A",
-                                ],
-                              ],
-                              Array [
-                                1,
-                                601,
-                                "Failed",
-                                Array [
-                                  "str",
-                                  "A",
-                                ],
-                                Array [
-                                  "str",
-                                  "B",
-                                ],
-                              ],
-                              Array [
-                                1,
-                                683,
-                                "Passed",
-                                "",
-                                "",
-                              ],
-                              Array [
-                                1,
-                                "",
-                                "Passed",
-                                "",
-                                "",
-                              ],
-                              Array [
-                                2,
-                                688,
-                                "Passed",
-                                Array [
-                                  "str",
-                                  "a",
-                                ],
-                                Array [
-                                  "str",
-                                  "a",
-                                ],
-                              ],
-                              Array [
-                                2,
-                                689,
-                                "Passed",
-                                Array [
-                                  "str",
-                                  "a",
-                                ],
-                                Array [
-                                  "REGEX",
-                                  "[a-z]",
-                                ],
-                              ],
-                              Array [
-                                1,
-                                "",
-                                "Passed",
-                                "",
-                                "",
-                              ],
-                              Array [
-                                2,
-                                688,
-                                "Passed",
-                                Array [
-                                  "str",
-                                  "b",
-                                ],
-                                Array [
-                                  "str",
-                                  "b",
-                                ],
-                              ],
-                              Array [
-                                2,
-                                689,
-                                "Passed",
-                                Array [
-                                  "str",
-                                  "b",
-                                ],
-                                Array [
-                                  "str",
-                                  "b",
-                                ],
-                              ],
-                              Array [
-                                0,
-                                "",
-                                "Failed",
-                                "",
-                                "",
-                              ],
-                              Array [
-                                1,
-                                600,
-                                "Failed",
-                                Array [
-                                  "str",
-                                  "B",
-                                ],
-                                Array [
-                                  "str",
-                                  "C",
-                                ],
-                              ],
-                              Array [
-                                1,
-                                601,
-                                "Passed",
-                                Array [
-                                  "str",
-                                  "B",
-                                ],
-                                Array [
-                                  "str",
-                                  "B",
-                                ],
-                              ],
-                              Array [
-                                1,
-                                683,
-                                "Passed",
-                                "",
-                                "",
-                              ],
-                              Array [
-                                1,
-                                "",
-                                "Passed",
-                                "",
-                                "",
-                              ],
-                              Array [
-                                2,
-                                688,
-                                "Passed",
-                                Array [
-                                  "str",
-                                  "c",
-                                ],
-                                Array [
-                                  "str",
-                                  "c",
-                                ],
-                              ],
-                              Array [
-                                2,
-                                689,
-                                "Passed",
-                                Array [
-                                  "str",
-                                  "c",
-                                ],
-                                Array [
-                                  "func",
-                                  "VAL in ('c', 'd')",
-                                ],
-                              ],
-                              Array [
-                                1,
-                                "",
-                                "Passed",
-                                "",
-                                "",
-                              ],
-                              Array [
-                                2,
-                                688,
-                                "Passed",
-                                Array [
-                                  "str",
-                                  "d",
-                                ],
-                                Array [
-                                  "str",
-                                  "d",
-                                ],
-                              ],
-                              Array [
-                                2,
-                                689,
-                                "Passed",
-                                Array [
-                                  "str",
-                                  "d",
-                                ],
-                                Array [
-                                  "str",
-                                  "d",
-                                ],
-                              ],
-                              Array [
-                                0,
-                                36,
-                                "Passed",
-                                Array [
-                                  "int",
-                                  "6",
-                                ],
-                                Array [
-                                  "int",
-                                  "6",
-                                ],
-                              ],
-                              Array [
-                                0,
-                                38,
-                                "Passed",
-                                Array [
-                                  "int",
-                                  "5",
-                                ],
-                                Array [
-                                  "func",
-                                  "VAL >= 4",
-                                ],
-                              ],
-                              Array [
-                                0,
-                                22,
-                                "Passed",
-                                Array [
-                                  "int",
-                                  "5",
-                                ],
-                                Array [
-                                  "int",
-                                  "5",
-                                ],
-                              ],
-                              Array [
-                                0,
-                                55,
-                                "Passed",
-                                Array [
-                                  "int",
-                                  "2",
-                                ],
-                                Array [
-                                  "int",
-                                  "2",
-                                ],
-                              ],
-                            ]
-          }
-          setRowData={[Function]}
-          sortTypeList={
-                    Array [
-                              1,
-                              2,
-                              3,
-                              4,
-                            ]
-          }
-/>,
-        "columnDefs": Array [
-          Object {
-            "field": "descriptor",
-            "headerName": "Descriptor",
-            "hide": true,
-          },
-          Object {
-            "cellRendererFramework": [Function],
-            "cellStyle": [Function],
-            "field": "key",
-            "headerName": "Key",
-            "pinned": "left",
-            "suppressMovable": true,
-          },
-          Object {
-            "cellRendererFramework": [Function],
-            "cellStyle": [Function],
-            "field": "expected",
-            "headerName": "Expected",
-          },
-          Object {
-            "cellRendererFramework": [Function],
-            "cellStyle": [Function],
-            "field": "value",
-            "headerName": "Value",
-          },
-        ],
-        "rowData": Array [
-          Object {
-            "descriptor": Object {
-              "indent": 0,
-              "isEmptyLine": false,
-              "isListKey": true,
-              "lineNo": 667,
-              "status": "Failed",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 555,
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 0,
-              "isEmptyLine": true,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Failed",
-            },
-            "key": Object {
-              "type": null,
-              "value": null,
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 1,
-              "isEmptyLine": false,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Failed",
-            },
-            "expected": Object {
-              "type": "str",
-              "value": "B",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 601,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "A",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 1,
-              "isEmptyLine": false,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "str",
-              "value": "A",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 600,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "A",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 1,
-              "isEmptyLine": false,
-              "isListKey": true,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 683,
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 1,
-              "isEmptyLine": true,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "key": Object {
-              "type": null,
-              "value": null,
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 2,
-              "isEmptyLine": false,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "str",
-              "value": "a",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 688,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "a",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 2,
-              "isEmptyLine": false,
-              "isListKey": true,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "REGEX",
-              "value": "[a-z]",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 689,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "a",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 1,
-              "isEmptyLine": true,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "key": Object {
-              "type": null,
-              "value": null,
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 2,
-              "isEmptyLine": false,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "str",
-              "value": "b",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 688,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "b",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 2,
-              "isEmptyLine": false,
-              "isListKey": true,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "str",
-              "value": "b",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 689,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "b",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 0,
-              "isEmptyLine": true,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Failed",
-            },
-            "key": Object {
-              "type": null,
-              "value": null,
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 1,
-              "isEmptyLine": false,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Failed",
-            },
-            "expected": Object {
-              "type": "str",
-              "value": "C",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 600,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "B",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 1,
-              "isEmptyLine": false,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "str",
-              "value": "B",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 601,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "B",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 1,
-              "isEmptyLine": false,
-              "isListKey": true,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 683,
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 1,
-              "isEmptyLine": true,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "key": Object {
-              "type": null,
-              "value": null,
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 2,
-              "isEmptyLine": false,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "str",
-              "value": "c",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 688,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "c",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 2,
-              "isEmptyLine": false,
-              "isListKey": true,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "func",
-              "value": "VAL in ('c', 'd')",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 689,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "c",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 1,
-              "isEmptyLine": true,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "key": Object {
-              "type": null,
-              "value": null,
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 2,
-              "isEmptyLine": false,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "str",
-              "value": "d",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 688,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "d",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 2,
-              "isEmptyLine": false,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "str",
-              "value": "d",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 689,
-            },
-            "value": Object {
-              "type": "str",
-              "value": "d",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 0,
-              "isEmptyLine": false,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "int",
-              "value": "6",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 36,
-            },
-            "value": Object {
-              "type": "int",
-              "value": "6",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 0,
-              "isEmptyLine": false,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "func",
-              "value": "VAL >= 4",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 38,
-            },
-            "value": Object {
-              "type": "int",
-              "value": "5",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 0,
-              "isEmptyLine": false,
-              "isListKey": false,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "int",
-              "value": "5",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 22,
-            },
-            "value": Object {
-              "type": "int",
-              "value": "5",
-            },
-          },
-          Object {
-            "descriptor": Object {
-              "indent": 0,
-              "isEmptyLine": false,
-              "isListKey": undefined,
-              "lineNo": 667,
-              "status": "Passed",
-            },
-            "expected": Object {
-              "type": "int",
-              "value": "2",
-            },
-            "key": Object {
-              "type": "key",
-              "value": 55,
-            },
-            "value": Object {
-              "type": "int",
-              "value": "2",
-            },
-          },
-        ],
+            Array [
+              "str",
+              "A",
+            ],
+          ],
+          Array [
+            1,
+            601,
+            "Failed",
+            Array [
+              "str",
+              "A",
+            ],
+            Array [
+              "str",
+              "B",
+            ],
+          ],
+          Array [
+            1,
+            683,
+            "Passed",
+            "",
+            "",
+          ],
+          Array [
+            1,
+            "",
+            "Passed",
+            "",
+            "",
+          ],
+          Array [
+            2,
+            688,
+            "Passed",
+            Array [
+              "str",
+              "a",
+            ],
+            Array [
+              "str",
+              "a",
+            ],
+          ],
+          Array [
+            2,
+            689,
+            "Passed",
+            Array [
+              "str",
+              "a",
+            ],
+            Array [
+              "REGEX",
+              "[a-z]",
+            ],
+          ],
+          Array [
+            1,
+            "",
+            "Passed",
+            "",
+            "",
+          ],
+          Array [
+            2,
+            688,
+            "Passed",
+            Array [
+              "str",
+              "b",
+            ],
+            Array [
+              "str",
+              "b",
+            ],
+          ],
+          Array [
+            2,
+            689,
+            "Passed",
+            Array [
+              "str",
+              "b",
+            ],
+            Array [
+              "str",
+              "b",
+            ],
+          ],
+          Array [
+            0,
+            "",
+            "Failed",
+            "",
+            "",
+          ],
+          Array [
+            1,
+            600,
+            "Failed",
+            Array [
+              "str",
+              "B",
+            ],
+            Array [
+              "str",
+              "C",
+            ],
+          ],
+          Array [
+            1,
+            601,
+            "Passed",
+            Array [
+              "str",
+              "B",
+            ],
+            Array [
+              "str",
+              "B",
+            ],
+          ],
+          Array [
+            1,
+            683,
+            "Passed",
+            "",
+            "",
+          ],
+          Array [
+            1,
+            "",
+            "Passed",
+            "",
+            "",
+          ],
+          Array [
+            2,
+            688,
+            "Passed",
+            Array [
+              "str",
+              "c",
+            ],
+            Array [
+              "str",
+              "c",
+            ],
+          ],
+          Array [
+            2,
+            689,
+            "Passed",
+            Array [
+              "str",
+              "c",
+            ],
+            Array [
+              "func",
+              "VAL in ('c', 'd')",
+            ],
+          ],
+          Array [
+            1,
+            "",
+            "Passed",
+            "",
+            "",
+          ],
+          Array [
+            2,
+            688,
+            "Passed",
+            Array [
+              "str",
+              "d",
+            ],
+            Array [
+              "str",
+              "d",
+            ],
+          ],
+          Array [
+            2,
+            689,
+            "Passed",
+            Array [
+              "str",
+              "d",
+            ],
+            Array [
+              "str",
+              "d",
+            ],
+          ],
+          Array [
+            0,
+            36,
+            "Passed",
+            Array [
+              "int",
+              "6",
+            ],
+            Array [
+              "int",
+              "6",
+            ],
+          ],
+          Array [
+            0,
+            38,
+            "Passed",
+            Array [
+              "int",
+              "5",
+            ],
+            Array [
+              "func",
+              "VAL >= 4",
+            ],
+          ],
+          Array [
+            0,
+            22,
+            "Passed",
+            Array [
+              "int",
+              "5",
+            ],
+            Array [
+              "int",
+              "5",
+            ],
+          ],
+          Array [
+            0,
+            55,
+            "Passed",
+            Array [
+              "int",
+              "2",
+            ],
+            Array [
+              "int",
+              "2",
+            ],
+          ],
+        ]
+      }
+      setRowData={[Function]}
+      sortTypeList={
+        Array [
+          1,
+          2,
+          3,
+          4,
+        ]
+      }
+    />
+  }
+  columnDefs={
+    Array [
+      Object {
+        "field": "descriptor",
+        "headerName": "Descriptor",
+        "hide": true,
       },
-      "ref": null,
-      "rendered": null,
-      "type": [Function],
-    },
-  ],
-  Symbol(enzyme.__options__): Object {
-    "adapter": ReactSixteenAdapter {
-      "options": Object {
-        "enableComponentDidUpdateOnSetState": true,
-        "lifecycles": Object {
-          "componentDidUpdate": Object {
-            "onSetState": true,
-          },
-          "getDerivedStateFromProps": true,
-          "getSnapshotBeforeUpdate": true,
-          "setState": Object {
-            "skipsComponentDidUpdateOnNullish": true,
-          },
+      Object {
+        "cellRendererFramework": [Function],
+        "cellStyle": [Function],
+        "field": "key",
+        "headerName": "Key",
+        "pinned": "left",
+        "suppressMovable": true,
+      },
+      Object {
+        "cellRendererFramework": [Function],
+        "cellStyle": [Function],
+        "field": "expected",
+        "headerName": "Expected",
+      },
+      Object {
+        "cellRendererFramework": [Function],
+        "cellStyle": [Function],
+        "field": "value",
+        "headerName": "Value",
+      },
+    ]
+  }
+  rowData={
+    Array [
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": true,
+          "lineNo": 667,
+          "status": "Failed",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 555,
         },
       },
-    },
-  },
-}
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": true,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Failed",
+        },
+        "key": Object {
+          "type": null,
+          "value": null,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Failed",
+        },
+        "expected": Object {
+          "type": "str",
+          "value": "B",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 601,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "A",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "str",
+          "value": "A",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 600,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "A",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": false,
+          "isListKey": true,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 683,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": true,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "key": Object {
+          "type": null,
+          "value": null,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 2,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "str",
+          "value": "a",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 688,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "a",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 2,
+          "isEmptyLine": false,
+          "isListKey": true,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "REGEX",
+          "value": "[a-z]",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 689,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "a",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": true,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "key": Object {
+          "type": null,
+          "value": null,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 2,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "str",
+          "value": "b",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 688,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "b",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 2,
+          "isEmptyLine": false,
+          "isListKey": true,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "str",
+          "value": "b",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 689,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "b",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": true,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Failed",
+        },
+        "key": Object {
+          "type": null,
+          "value": null,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Failed",
+        },
+        "expected": Object {
+          "type": "str",
+          "value": "C",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 600,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "B",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "str",
+          "value": "B",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 601,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "B",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": false,
+          "isListKey": true,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 683,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": true,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "key": Object {
+          "type": null,
+          "value": null,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 2,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "str",
+          "value": "c",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 688,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "c",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 2,
+          "isEmptyLine": false,
+          "isListKey": true,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "func",
+          "value": "VAL in ('c', 'd')",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 689,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "c",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": true,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "key": Object {
+          "type": null,
+          "value": null,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 2,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "str",
+          "value": "d",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 688,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "d",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 2,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "str",
+          "value": "d",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 689,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "d",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "int",
+          "value": "6",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 36,
+        },
+        "value": Object {
+          "type": "int",
+          "value": "6",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "func",
+          "value": "VAL >= 4",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 38,
+        },
+        "value": Object {
+          "type": "int",
+          "value": "5",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "int",
+          "value": "5",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 22,
+        },
+        "value": Object {
+          "type": "int",
+          "value": "5",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": undefined,
+          "lineNo": 667,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "int",
+          "value": "2",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 55,
+        },
+        "value": Object {
+          "type": "int",
+          "value": "2",
+        },
+      },
+    ]
+  }
+/>
 `;

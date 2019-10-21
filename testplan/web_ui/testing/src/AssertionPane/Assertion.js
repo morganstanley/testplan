@@ -20,9 +20,16 @@ import NotImplementedAssertion from './AssertionTypes/NotImplementedAssertion';
 import AssertionHeader from './AssertionHeader';
 import AssertionGroup from './AssertionGroup';
 import {BASIC_ASSERTION_TYPES} from '../Common/defaults';
-import XYGraphAssertion from './AssertionTypes/GraphAssertions/XYGraphAssertion';
-import DiscreteChartAssertion from './AssertionTypes/GraphAssertions/DiscreteChartAssertion';
+import XYGraphAssertion
+  from './AssertionTypes/GraphAssertions/XYGraphAssertion';
+import DiscreteChartAssertion
+  from './AssertionTypes/GraphAssertions/DiscreteChartAssertion';
 import SummaryBaseAssertion from './AssertionSummary';
+import {
+  AttachmentAssertion,
+  MatplotAssertion
+} from './AssertionTypes/AttachmentAssertions.js';
+
 /**
  * Component to render one assertion.
  */
@@ -79,6 +86,13 @@ class Assertion extends Component {
    * @public
    */
   assertionComponent(assertionType) {
+    let graphAssertion;
+    if (this.props.assertion.discrete_chart) {
+      graphAssertion = DiscreteChartAssertion;
+    } else {
+      graphAssertion = XYGraphAssertion;
+    }
+
     const assertionMap = {
       TableLog: TableLogAssertion,
       TableMatch: TableMatchAssertion,
@@ -88,7 +102,9 @@ class Assertion extends Component {
       DictMatch: DictMatchAssertion,
       FixLog: FixLogAssertion,
       FixMatch: FixMatchAssertion,
-      Graph: this.props.assertion.discrete_chart? DiscreteChartAssertion: XYGraphAssertion
+      Graph: graphAssertion,
+      Attachment: AttachmentAssertion,
+      MatPlot: MatplotAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];
@@ -117,16 +133,21 @@ class Assertion extends Component {
                     globalIsOpen={this.props.globalIsOpen}
                     resetGlobalIsOpen={this.props.resetGlobalIsOpen}
                     filter={this.props.filter}
-                    />
+                    />;
         break;
-      default:
-        let AssertionTypeComponent = this.assertionComponent(assertionType);
+      default: {
+        const AssertionTypeComponent = this.assertionComponent(assertionType);
         if (AssertionTypeComponent) {
-        assertionType =
-          <AssertionTypeComponent assertion={this.props.assertion} />;
+        assertionType = (
+          <AssertionTypeComponent
+            assertion={this.props.assertion}
+            reportUid={this.props.reportUid}
+          />
+        );
         } else {
           assertionType = <NotImplementedAssertion />;
         }
+      }
     }
 
     return (
@@ -162,13 +183,15 @@ Assertion.propTypes = {
   assertion: PropTypes.object,
   /** State of the expand all/collapse all functionality */
   globalIsOpen: PropTypes.bool,
-  /** Function to reset the expand all/collapse all state if an individual 
+  /** Function to reset the expand all/collapse all state if an individual
    * assertion's visibility is changed */
   resetGlobalIsOpen: PropTypes.func,
   /** Index of the assertion */
   index: PropTypes.number,
   /** Assertion filter */
   filter: PropTypes.string,
+  /** Report Uid */
+  reportUid: PropTypes.string,
 };
 
 const styles = StyleSheet.create({

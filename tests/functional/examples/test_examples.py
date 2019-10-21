@@ -27,7 +27,6 @@ KNOWN_EXCEPTIONS = [
     r"ImportError: No module named _tkinter.*", # Missing module Tkinter. Will skip Data Science example.
     r"RuntimeError: Download pyfixmsg library .*", # Missing module pyfixmsg. Will skip FIX example.
     r"No spec file set\. You should download .*", # Missing FIX spec file. Will skip FIX example.
-    r"AttributeError: 'module' object has no attribute 'poll'",
     r"RuntimeError: You need to compile test binary first.", # Need to compile cpp binary first. Will skip GTest example.
     r"FATAL ERROR: Network error: Connection refused", # We don't fail a pool test for connection incapability.
     r"lost connection"
@@ -48,6 +47,7 @@ SKIP = [
 SKIP_ON_WINDOWS = [
     os.path.join('Cpp', 'GTest', 'test_plan.py'),
     os.path.join('Cpp', 'HobbesTest', 'test_plan.py'),
+    os.path.join('Transports', 'FIX', 'test_plan.py'),
 ]
 
 # Contents to look for under root dir.

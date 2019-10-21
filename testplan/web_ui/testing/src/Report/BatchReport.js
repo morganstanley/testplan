@@ -1,15 +1,18 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {StyleSheet, css} from 'aphrodite';
 import axios from 'axios';
 
 import Toolbar from '../Toolbar/Toolbar';
 import Nav from '../Nav/Nav';
-import AssertionPane from '../AssertionPane/AssertionPane';
-import Message from '../Common/Message';
-import {propagateIndices} from "./reportUtils";
+import {
+  propagateIndices,
+  UpdateSelectedState,
+  GetReportState,
+  GetCenterPane,
+} from "./reportUtils";
 import {COLUMN_WIDTH} from "../Common/defaults";
-import {getNavEntryType} from "../Common/utils";
 import {fakeReportAssertions} from "../Common/fakeReport";
+import {ReportToNavEntry} from "../Common/utils";
 
 /**
  * BatchReport component:
@@ -17,25 +20,26 @@ import {fakeReportAssertions} from "../Common/fakeReport";
  *   * display messages when loading report or error in report.
  *   * render toolbar, nav & assertion components.
  */
-class BatchReport extends Component {
+class BatchReport extends React.Component {
   constructor(props) {
     super(props);
-    this.saveAssertions = this.saveAssertions.bind(this);
     this.handleNavFilter = this.handleNavFilter.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
     this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
+    this.handleNavClick = this.handleNavClick.bind(this);
 
     this.state = {
       navWidth: COLUMN_WIDTH,
-      report: undefined,
-      assertions: undefined,
-      testcaseUid: undefined,
+      report: null,
+      assertions: null,
+      testcaseUid: null,
       loading: false,
-      error: undefined,
-      filter: undefined,
+      error: null,
+      filter: null,
       displayTags: false,
       displayEmpty: true,
+      selected: [],
     };
   }
 
@@ -48,30 +52,46 @@ class BatchReport extends Component {
    * @public
    */
   getReport() {
-    const paths = window.location.pathname.split('/');
-
-    // Inspect the URL to determine the report to render. As a special case,
+    // Inspect the UID to determine the report to render. As a special case,
     // we will display a fake report for development purposes.
-    if ((paths.length >= 2) && (paths[1] === '_dev')) {
-      const r = propagateIndices([fakeReportAssertions]);
-      setTimeout(() => {this.setState({report: r, loading: false});}, 1500);
-    } else if (paths.length >= 3) {
-      const uid = paths[2];
+    const uid = this.props.match.params.uid;
+    if (uid === "_dev") {
+      const [r] = propagateIndices([fakeReportAssertions]);
+      setTimeout(
+        () => this.setState({
+          report: r,
+          selected: this.autoSelect(r),
+          loading: false,
+        }),
+        1500);
+    } else {
       axios.get(`/api/v1/reports/${uid}`)
         .then(response => propagateIndices([response.data]))
-        .then(report => this.setState({
-          report: report,
-          selected: [{uid: report[0].uid, type: 'testplan'}],
+        .then(reportEntries => this.setState({
+          report: reportEntries[0],
+          selected: this.autoSelect(reportEntries[0]),
           loading: false
         }))
         .catch(error => this.setState({
           error,
           loading: false
-          }));
+        }));
+    }
+  }
+
+  /**
+   * Auto-select an entry in the report when it is first loaded.
+   */
+  autoSelect(reportEntry) {
+    const selection = [ReportToNavEntry(reportEntry)];
+
+    // If the current report entry has only one child entry and that entry is
+    // not a testcase, we automatically expand it.
+    if ((reportEntry.entries.length === 1) &&
+        (reportEntry.entries[0].type !== "testcase")) {
+      return selection.concat(this.autoSelect(reportEntry.entries[0]));
     } else {
-      this.setState({
-        error: {message: 'Error retrieving UID from URL.'},
-        loading: false});
+      return selection;
     }
   }
 
@@ -81,21 +101,6 @@ class BatchReport extends Component {
    */
   componentDidMount() {
     this.setState({loading: true}, this.getReport);
-  }
-
-  /**
-   * Set or clear the assertions in state depending on the type of the entry.
-   *
-   * @param {Object} entry - current entry clicked on the Nav.
-   * @public
-   */
-  saveAssertions(entry) {
-    const entryType = getNavEntryType(entry);
-    if (entryType === 'testcase') {
-      this.setState({assertions: entry.entries, testcaseUid: entry.uid});
-    } else {
-      this.setState({assertions: undefined, testcaseUid: undefined});
-    }
   }
 
   /**
@@ -111,7 +116,7 @@ class BatchReport extends Component {
   /**
    * Update the global filter state of the entry.
    *
-   * @param {string} filter - undefined, all, pass or fail.
+   * @param {string} filter - null, all, pass or fail.
    * @public
    */
   updateFilter(filter) {
@@ -126,46 +131,22 @@ class BatchReport extends Component {
     this.setState({displayEmpty: displayEmpty});
   }
 
+  /**
+   * Handle a navigation entry being clicked.
+   */
+  handleNavClick(e, entry, depth) {
+    e.stopPropagation();
+    this.setState((state, props) => UpdateSelectedState(state, entry, depth));
+  }
+
   render() {
-    let report = [];
-    let reportStatus;
-    let reportFetchMessage;
-
-    // Handle the Testplan report if it has been fetched.
-    if (this.state.report === undefined) {
-      // The Testplan report hasn't been fetched yet.
-      if (this.state.loading) {
-        reportFetchMessage = 'Fetching Testplan report...';
-      } else if (this.state.error !== undefined){
-        reportFetchMessage = 'Error fetching Testplan report. ' +
-        `(${this.state.error.message})`;
-      } else {
-        reportFetchMessage = 'Waiting to fetch Testplan report...';
-      }
-    } else {
-      // The Testplan report has been fetched.
-      reportStatus = this.state.report[0].status;
-      report = this.state.report;
-    }
-
-    // Create the center pane.
-    let centerPane;
-    if (this.state.assertions !== undefined) {
-      centerPane = <AssertionPane
-        assertions={this.state.assertions}
-        left={this.state.navWidth + 1.5}
-        testcaseUid={this.state.testcaseUid}
-        filter={this.state.filter}
-      />;
-    } else if (reportFetchMessage !== undefined) {
-      centerPane = <Message
-        message={reportFetchMessage}
-        left={this.state.navWidth} />;
-    } else {
-      centerPane = <Message
-        message='Please select a testcase.'
-        left={this.state.navWidth} />;
-    }
+    const {reportStatus, reportFetchMessage} = GetReportState(this.state);
+    const centerPane = GetCenterPane(
+      this.state,
+      this.props,
+      reportFetchMessage,
+      this.props.match.params.uid,
+    );
 
     return (
       <div className={css(styles.batchReport)}>
@@ -177,11 +158,12 @@ class BatchReport extends Component {
           updateTagsDisplayFunc={this.updateTagsDisplay}
         />
         <Nav
-          report={report}
-          saveAssertions={this.saveAssertions}
+          report={this.state.report}
+          selected={this.state.selected}
           filter={this.state.filter}
           displayEmpty={this.state.displayEmpty}
           displayTags={this.state.displayTags}
+          handleNavClick={this.handleNavClick}
         />
         {centerPane}
       </div>

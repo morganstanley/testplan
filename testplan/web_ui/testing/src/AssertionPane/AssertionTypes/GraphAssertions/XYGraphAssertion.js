@@ -21,7 +21,8 @@ import {
 
 
 /**
- * Component that are used to render a Graph (Data visualisations that require an XY axis).
+ * Component that are used to render a Graph (Data visualisations that require
+ * an XY axis).
  */
 class XYGraphAssertion extends Component {
   constructor(props) {
@@ -29,7 +30,7 @@ class XYGraphAssertion extends Component {
 
     this.state = {
       series_colour:{}
-    }
+    };
 
     let data = this.props.assertion.graph_data;
     const series_options = this.props.assertion.series_options;

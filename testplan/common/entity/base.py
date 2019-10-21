@@ -14,7 +14,7 @@ import psutil
 import functools
 from collections import deque, OrderedDict
 
-from schema import Optional, Or, And, Use
+from schema import Or, And, Use
 
 from testplan.common.config import Config, ConfigOption
 from testplan.common.utils.exceptions import format_trace
@@ -586,6 +586,7 @@ class RunnableIHandlerConfig(Config):
         return {'target': object,
                 ConfigOption('http_handler', default=None): object,
                 ConfigOption('http_handler_startup_timeout', default=10): int,
+                ConfigOption('http_port', default=0): int,
                 ConfigOption('max_operations', default=5):
                     And(Use(int), lambda n: n > 0)}
 
@@ -622,6 +623,9 @@ class RunnableIHandler(Entity):
     :type http_handler: ``Object``.
     :param http_handler_startup_timeout: Timeout value on starting the handler.
     :type http_handler_startup_timeout: ``int``
+    :param http_port: Port to bind HTTP request handler to. Defaults to 0 to
+        use an ephemeral port.
+    :type http_port: ``int``
     :param max_operations: Max simultaneous operations.
     :type max_operations: ``int`` greater than 0.
 
@@ -641,9 +645,16 @@ class RunnableIHandler(Entity):
         self._http_handler = self._setup_http_handler()
 
     def _setup_http_handler(self):
-        http_handler = self.cfg.http_handler(ihandler=self)\
-            if self.cfg.http_handler else None
-        http_handler.cfg.parent = self.cfg
+        if self.cfg.http_handler is not None:
+            self.logger.debug(
+                'Setting up interactive HTTP handler to listen on port %d',
+                self.cfg.http_port)
+            http_handler = self.cfg.http_handler(
+                ihandler=self, port=self.cfg.http_port)
+            http_handler.cfg.parent = self.cfg
+        else:
+            http_handler = None
+
         return http_handler
 
     @property
@@ -689,9 +700,13 @@ class RunnableIHandler(Entity):
         wait(lambda: self._http_handler.port is not None,
              self.cfg.http_handler_startup_timeout,
              raise_on_timeout=True )
-        self.logger.test_info('{} listening on: {}:{}'.format(
-            self._http_handler.__class__.__name__,
-            self._http_handler.ip, self._http_handler.port))
+        self.logger.warning(
+            'Interactive web viewer is not yet implemented. Interactive mode '
+            'currently only allows control of a Testplan via its HTTP API.')
+        self.logger.test_info(
+            'Interactive Testplan API listening on: %s:%d',
+            self._http_handler.ip,
+            self._http_handler.port)
 
     def __call__(self, *args, **kwargs):
         self.status.change(RunnableStatus.RUNNING)
@@ -700,6 +715,12 @@ class RunnableIHandler(Entity):
         if self._http_handler is not None:
             self._start_http_handler()
 
+        self._run_loop()
+
+        self.status.change(RunnableStatus.FINISHED)
+
+    def _run_loop(self):
+        """Main work loop. Process incoming operations while we are RUNNING."""
         while self.active and self.target.active:
             if self.status.tag == RunnableStatus.RUNNING:
                 try:
@@ -731,8 +752,6 @@ class RunnableIHandler(Entity):
                     finally:
                         del self._operations[uid]
 
-        self.status.change(RunnableStatus.FINISHED)
-
     def pausing(self):
         """Set pausing status."""
         self.status.change(RunnableStatus.PAUSED)
@@ -760,7 +779,7 @@ class RunnableConfig(EntityConfig):
         return {
             # Interactive needs to have blocked propagation.
             # IHandlers explicitly enable interactive mode of runnables.
-            ConfigOption('interactive', default=False): bool,
+            ConfigOption('interactive_port', default=None): Or(None, int),
             ConfigOption(
                 'interactive_block',
                 default=hasattr(sys.modules['__main__'], '__file__')): bool,
@@ -1006,17 +1025,18 @@ class Runnable(Entity):
     def run(self):
         """Executes the defined steps and populates the result object."""
         try:
-            if self.cfg.interactive is True:
+            if self.cfg.interactive_port is not None:
                 if self._ihandler is not None:
                     raise RuntimeError('{} already has an active {}'.format(
                         self, self._ihandler))
                 self.logger.test_info(
-                    'Starting {} in interactive mode'.format(self))
-                self._ihandler = self.cfg.interactive_handler(target=self)
+                    'Starting %s in interactive mode', self)
+                self._ihandler = self.cfg.interactive_handler(
+                    target=self, http_port=self.cfg.interactive_port)
                 thread = threading.Thread(target=self._ihandler)
                 thread.start()
                 # Check if we are on interactive session.
-                if self.cfg.interactive_block is True:
+                if self.cfg.interactive_block:
                     while self._ihandler.active:
                         time.sleep(self.cfg.active_loop_sleep)
                 return self._ihandler
@@ -1219,6 +1239,8 @@ class Resource(Entity):
         return False
 
 
+DEFAULT_RUNNABLE_ABORT_SIGNALS = [signal.SIGINT, signal.SIGTERM]
+
 class RunnableManagerConfig(EntityConfig):
     """
     Configuration object for
@@ -1235,8 +1257,8 @@ class RunnableManagerConfig(EntityConfig):
                 Or(None,
                    And(Use(int),
                        lambda n: n > 0)),
-            ConfigOption('abort_signals', default=[
-                signal.SIGINT, signal.SIGTERM]): [int]
+            ConfigOption('abort_signals',
+                         default=DEFAULT_RUNNABLE_ABORT_SIGNALS): [int]
         }
 
 

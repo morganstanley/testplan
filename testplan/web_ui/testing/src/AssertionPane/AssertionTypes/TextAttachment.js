@@ -6,9 +6,9 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import { FadeLoader } from 'react-spinners';
 
 //Max number of lines displayed in the preview window
-const DISPLAY_NUM = 20
+const DISPLAY_NUM = 20;
 //Line requirement for a scroll bar to be rendered when expanded
-const SCROLLBAR_MIN_LIMIT = 60
+const SCROLLBAR_MIN_LIMIT = 60;
 
 /**
 * TextAttachment component:
@@ -36,7 +36,7 @@ class TextAttachment extends Component {
   */
   componentDidMount() {
     this.setState({loading: true});
-    this.getTextAttachment()
+    this.getTextAttachment();
   }
 
   /*
@@ -73,8 +73,8 @@ class TextAttachment extends Component {
           startingLineNumber={starting_line}>
         {last_lines}
       </SyntaxHighlighter>
-    )
-    return return_jsx
+    );
+    return return_jsx;
   }
 
   /*
@@ -90,9 +90,9 @@ class TextAttachment extends Component {
     let length = lines.length;
 
     if(lines.pop() === ""){
-      lines[length-1] = "<newline>"
+      lines[length-1] = "<newline>";
     }
-    return lines
+    return lines;
   }
 
   /*
@@ -106,7 +106,7 @@ class TextAttachment extends Component {
     let display = this.getCollapsedText(lines);
 
     if(lines[lines.length-1] === "<newline>"){
-     text += "<newline>"
+     text += "<newline>";
     }
 
     this.setState({
@@ -125,33 +125,23 @@ class TextAttachment extends Component {
   * @public
   */
   getTextAttachment() {
-    const paths = window.location.pathname.split('/');
-
-    // Check if dev mode and display test_string
-    if ((paths.length >= 2) && (paths[1] === '_dev')) {
+    // Check if dev mode and display test_string instead of getting the real
+    // source file from the backend.
+    if (this.props.devMode) {
       const TEST_TEXT = "test1\ntest2\ntest3\ntest4\ntest5\ntest6\ntest7\n";
       let text = TEST_TEXT;
-      this.handleText(text)
-
-    //If not in dev mode
-    } else if (paths.length >= 3) {
+      this.handleText(text);
+    } else {
       axios.get(this.props.src)
       .then(response => {
-          let text = response.data
-          this.handleText(text)
+          let text = response.data;
+          this.handleText(text);
       })
       .catch(error => this.setState({
                         error: true,
                         loading: false
                       })
-        );
-
-    //If some other error with URL
-    } else {
-      this.setState({
-        error: true,
-        loading: false
-      });
+      );
     }
   }
 
@@ -182,7 +172,7 @@ class TextAttachment extends Component {
         <SyntaxHighlighter showLineNumbers>
           {text}
         </SyntaxHighlighter>
-      )
+      );
     }
 
   this.setState( state =>({
@@ -206,7 +196,7 @@ class TextAttachment extends Component {
           radius={4}
         />
       </div>
-    )
+    );
 
     //Show expand/collapse button only if less than DISPLAY_NUM lines
     if(this.state.numberOfLines < DISPLAY_NUM){
@@ -216,7 +206,7 @@ class TextAttachment extends Component {
         <button onClick={this.updateTextContent}>
           {this.state.expandButtonPushed? 'Collapse': 'Expand'}
         </button>
-       )
+       );
     }
 
     content = (
@@ -235,7 +225,7 @@ class TextAttachment extends Component {
           {button_jsx}
        </div>
       </div>
-    )
+    );
 
     return (
       <div>
@@ -259,7 +249,8 @@ const styles = StyleSheet.create({
 TextAttachment.propTypes = {
   /** Assertion being rendered */
   src: PropTypes.string,
-  file_name: PropTypes.string
+  file_name: PropTypes.string,
+  devMode: PropTypes.bool,
 };
 
 export default TextAttachment;

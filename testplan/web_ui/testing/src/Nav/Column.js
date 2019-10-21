@@ -20,7 +20,7 @@ class Column extends Component {
    */
   handleDrag() {
     const width = COLUMN_WIDTH;
-    if (this.props.setWidth !== undefined) {
+    if (this.props.setWidth !== null) {
       this.props.setWidth(width);
     }
     this.setState({width: width});

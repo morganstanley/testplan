@@ -1,0 +1,155 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AttachmentAssertion renders an attached image 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_12mhtst"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <div>
+          <figure
+            className="caption_775tb"
+          >
+            <img
+              alt="Cannot Find File"
+              className="img-responsive ..."
+              src="/api/v1/reports/123/attachments/tmpthpcdtwo-ad4f4c6e94971896a71b4a1d47785a90b19f6565-990.png"
+            />
+            <figcaption
+              className="caption_775tb"
+            >
+              <a
+                href="/api/v1/reports/123/attachments/tmpthpcdtwo-ad4f4c6e94971896a71b4a1d47785a90b19f6565-990.png"
+              >
+                Image
+              </a>
+            </figcaption>
+          </figure>
+        </div>
+      </span>
+    </Col>
+  </Row>
+</Fragment>
+`;
+
+exports[`AttachmentAssertion renders an attached text file 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_12mhtst"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <TextAttachment
+          devMode={false}
+          file_name="tmpthpcdtwn.txt"
+          src="/api/v1/reports/123/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt"
+        />
+      </span>
+    </Col>
+  </Row>
+</Fragment>
+`;
+
+exports[`AttachmentAssertion renders an unknown filetype 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_12mhtst"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <a
+          href="/api/v1/reports/123/attachments/tmpthpcdtwy-bd4f4c6e94971896a71b4a1d47785a90b19f6565-200.xyz"
+        >
+          tmpthpcdtwy.xyz
+        </a>
+      </span>
+    </Col>
+  </Row>
+</Fragment>
+`;
+
+exports[`MatplotAssertion renders an image 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_12mhtst"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <div>
+          <figure
+            className="caption_775tb"
+          >
+            <img
+              alt="Cannot Find File"
+              className="img-responsive ..."
+              src="/api/v1/reports/123/attachments/tmpthpcdtwo-ad4f4c6e94971896a71b4a1d47785a90b19f6565-860.png"
+            />
+            <figcaption
+              className="caption_775tb"
+            >
+              <a
+                href="/api/v1/reports/123/attachments/tmpthpcdtwo-ad4f4c6e94971896a71b4a1d47785a90b19f6565-860.png"
+              >
+                Image
+              </a>
+            </figcaption>
+          </figure>
+        </div>
+      </span>
+    </Col>
+  </Row>
+</Fragment>
+`;

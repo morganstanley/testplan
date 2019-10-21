@@ -1,197 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NotImplementedAssertion shallow renders the correct HTML structure 1`] = `
-ShallowWrapper {
-  Symbol(enzyme.__root__): [Circular],
-  Symbol(enzyme.__unrendered__): <NotImplementedAssertion
-    assertion={
-        Object {
-            "category": "DEFAULT",
-            "description": null,
-            "line_no": 579,
-            "machine_time": "2019-02-12T17:41:43.302500+00:00",
-            "meta_type": "entry",
-            "type": "Unknown",
-            "utc_time": "2019-02-12T17:41:43.302494+00:00",
-          }
-    }
-/>,
-  Symbol(enzyme.__renderer__): Object {
-    "batchedUpdates": [Function],
-    "getNode": [Function],
-    "render": [Function],
-    "simulateError": [Function],
-    "simulateEvent": [Function],
-    "unmount": [Function],
-  },
-  Symbol(enzyme.__node__): Object {
-    "instance": null,
-    "key": undefined,
-    "nodeType": "function",
-    "props": Object {
-      "children": Array [
-        <FontAwesomeIcon
-          border={false}
-          className="icon_1tijhm4"
-          fixedWidth={false}
-          flip={null}
-          icon="frown"
-          inverse={false}
-          listItem={false}
-          mask={null}
-          pull={null}
-          pulse={false}
-          rotation={null}
-          size="lg"
-          spin={false}
-          symbol={false}
-          title=""
-          transform={null}
-/>,
-        "Currently there is no rendering mechanism for this type of assertion. Please contact ",
-        <strong>
-          the developers
-</strong>,
-        " if you would like to have it implemented.",
-      ],
-    },
-    "ref": null,
-    "rendered": Array [
-      Object {
-        "instance": null,
-        "key": "faFrown",
-        "nodeType": "function",
-        "props": Object {
-          "border": false,
-          "className": "icon_1tijhm4",
-          "fixedWidth": false,
-          "flip": null,
-          "icon": "frown",
-          "inverse": false,
-          "listItem": false,
-          "mask": null,
-          "pull": null,
-          "pulse": false,
-          "rotation": null,
-          "size": "lg",
-          "spin": false,
-          "symbol": false,
-          "title": "",
-          "transform": null,
-        },
-        "ref": null,
-        "rendered": null,
-        "type": [Function],
-      },
-      "Currently there is no rendering mechanism for this type of assertion. Please contact ",
-      Object {
-        "instance": null,
-        "key": undefined,
-        "nodeType": "host",
-        "props": Object {
-          "children": "the developers",
-        },
-        "ref": null,
-        "rendered": "the developers",
-        "type": "strong",
-      },
-      " if you would like to have it implemented.",
-    ],
-    "type": Symbol(react.fragment),
-  },
-  Symbol(enzyme.__nodes__): Array [
-    Object {
-      "instance": null,
-      "key": undefined,
-      "nodeType": "function",
-      "props": Object {
-        "children": Array [
-          <FontAwesomeIcon
-            border={false}
-            className="icon_1tijhm4"
-            fixedWidth={false}
-            flip={null}
-            icon="frown"
-            inverse={false}
-            listItem={false}
-            mask={null}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            size="lg"
-            spin={false}
-            symbol={false}
-            title=""
-            transform={null}
-/>,
-          "Currently there is no rendering mechanism for this type of assertion. Please contact ",
-          <strong>
-            the developers
-</strong>,
-          " if you would like to have it implemented.",
-        ],
-      },
-      "ref": null,
-      "rendered": Array [
-        Object {
-          "instance": null,
-          "key": "faFrown",
-          "nodeType": "function",
-          "props": Object {
-            "border": false,
-            "className": "icon_1tijhm4",
-            "fixedWidth": false,
-            "flip": null,
-            "icon": "frown",
-            "inverse": false,
-            "listItem": false,
-            "mask": null,
-            "pull": null,
-            "pulse": false,
-            "rotation": null,
-            "size": "lg",
-            "spin": false,
-            "symbol": false,
-            "title": "",
-            "transform": null,
-          },
-          "ref": null,
-          "rendered": null,
-          "type": [Function],
-        },
-        "Currently there is no rendering mechanism for this type of assertion. Please contact ",
-        Object {
-          "instance": null,
-          "key": undefined,
-          "nodeType": "host",
-          "props": Object {
-            "children": "the developers",
-          },
-          "ref": null,
-          "rendered": "the developers",
-          "type": "strong",
-        },
-        " if you would like to have it implemented.",
-      ],
-      "type": Symbol(react.fragment),
-    },
-  ],
-  Symbol(enzyme.__options__): Object {
-    "adapter": ReactSixteenAdapter {
-      "options": Object {
-        "enableComponentDidUpdateOnSetState": true,
-        "lifecycles": Object {
-          "componentDidUpdate": Object {
-            "onSetState": true,
-          },
-          "getDerivedStateFromProps": true,
-          "getSnapshotBeforeUpdate": true,
-          "setState": Object {
-            "skipsComponentDidUpdateOnNullish": true,
-          },
-        },
-      },
-    },
-  },
-}
+<Fragment>
+  <FontAwesomeIcon
+    border={false}
+    className="icon_1tijhm4"
+    fixedWidth={false}
+    flip={null}
+    icon="frown"
+    inverse={false}
+    key="faFrown"
+    listItem={false}
+    mask={null}
+    pull={null}
+    pulse={false}
+    rotation={null}
+    size="lg"
+    spin={false}
+    symbol={false}
+    title=""
+    transform={null}
+  />
+  Currently there is no rendering mechanism for this type of assertion. Please contact 
+  <strong>
+    the developers
+  </strong>
+   if you would like to have it implemented.
+</Fragment>
 `;

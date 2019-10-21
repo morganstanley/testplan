@@ -41,8 +41,8 @@ def get_default_exporters(config):
         result.append(test_exporters.JSONExporter())
     if config.xml_dir:
         result.append(test_exporters.XMLExporter())
-    if config.http_url is not None:
-        result.append(test_exporters.HTTPExporter(url=config.http_url))
+    if config.http_url:
+        result.append(test_exporters.HTTPExporter())
     if config.ui_port is not None:
         result.append(test_exporters.WebServerExporter(ui_port=config.ui_port))
     return result
@@ -126,7 +126,7 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption('report_tags_all', default=[]
                          ): [Use(tagging.validate_tag_value)],
             ConfigOption('merge_scheduled_parts', default=False): bool,
-            ConfigOption('browse', default=None): Or(None, bool),
+            ConfigOption('browse', default=False): bool,
             ConfigOption('ui_port', default=None): Or(None, int),
             ConfigOption('web_server_startup_timeout',
                          default=defaults.WEB_SERVER_TIMEOUT): int,
@@ -272,14 +272,31 @@ class TestRunner(Runnable):
         self._tests = OrderedDict()  # uid to resource
         self._result.test_report = TestReport(
             name=self.cfg.name, uid=self.cfg.name)
-        self._configure_stdout_logger()
+        self._exporters = None
         self._web_server_thread = None
         self._file_log_handler = None
+        self._configure_stdout_logger()
 
     @property
     def report(self):
         """Tests report."""
         return self._result.test_report
+
+    @property
+    def exporters(self):
+        """
+        Return a list of
+        :py:class:`Resources <testplan.exporters.testing.base.Exporter>`.
+        """
+        if self._exporters is None:
+            self._exporters = get_default_exporters(self.cfg)
+            if self.cfg.exporters:
+                self._exporters.extend(self.cfg.exporters)
+            for exporter in self._exporters:
+                if hasattr(exporter, 'cfg'):
+                    exporter.cfg.parent = self.cfg
+                exporter.parent = self
+        return self._exporters
 
     def add_environment(self, env, resource=None):
         """
@@ -382,7 +399,8 @@ class TestRunner(Runnable):
         if resource not in self.resources:
             raise RuntimeError(
                 'Resource "{}" does not exist.'.format(resource))
-        if self.cfg.interactive and isinstance(runnable, Task):
+        if (self.cfg.interactive_port is not None) and isinstance(
+                runnable, Task):
             runnable = runnable.materialize()
             self.resources[resource].add(runnable, runnable.uid() or uid)
         else:
@@ -620,18 +638,11 @@ class TestRunner(Runnable):
     def _invoke_exporters(self):
         # Add this logic into a ReportExporter(Runnable)
         # that will return a result containing errors
-        exporters = get_default_exporters(self.cfg)
-        if self.cfg.exporters:
-            exporters.extend(self.cfg.exporters)
 
         if hasattr(self._result.test_report, 'bubble_up_attachments'):
             self._result.test_report.bubble_up_attachments()
 
-        for exporter in exporters:
-
-            if hasattr(exporter, 'cfg'):
-                exporter.cfg.parent = self.cfg
-
+        for exporter in self.exporters:
             if isinstance(exporter, test_exporters.Exporter):
                 exp_result = ExporterResult.run_exporter(
                     exporter=exporter,
@@ -644,8 +655,8 @@ class TestRunner(Runnable):
                 self._result.exporter_results.append(exp_result)
             else:
                 raise NotImplementedError(
-                    'Exporter logic not'
-                    ' implemented for: {}'.format(type(exporter)))
+                    'Exporter logic not implemented for: {}'.format(
+                        type(exporter)))
 
     def _post_exporters(self):
         report_opened = False

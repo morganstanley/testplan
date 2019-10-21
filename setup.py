@@ -40,6 +40,7 @@ REQUIRED = [
     'flask',
     'flask_restplus',
     'cheroot',
+    'validators',
     'ipaddress',
 ]
 
