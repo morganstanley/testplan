@@ -335,7 +335,7 @@ class TestResultBaseNamespace(object):
                                         graph_options=None
                                     )
 
-        assert graph_assertion is True
+        assert bool(graph_assertion) is True
         assert len(result.entries) == 1
         assert result.entries[0].graph_type is 'Line'
         assert type(result.entries[0].graph_data) is dict
