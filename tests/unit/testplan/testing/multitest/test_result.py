@@ -118,7 +118,7 @@ class TestDictNamespace(object):
             description='Dictmatch fails when type comparison is forced.',
             value_cmp_func=comparison.COMPARE_FUNCTIONS['check_types'])
 
-        assert dict_ns.match(
+        assert not dict_ns.match(
             actual,
             expected,
             description='Dictmatch with string conversion fails due to '

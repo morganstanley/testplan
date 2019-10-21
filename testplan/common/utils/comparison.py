@@ -9,7 +9,6 @@ except ImportError:
 
 import enum
 import six
-import re
 
 from .exceptions import format_trace
 from .reporting import Absent, fmt, NATIVE_TYPES, callable_name
@@ -318,105 +317,6 @@ def compare_with_callable(callable_obj, value):
     except Exception as exc:
         return False, format_trace(inspect.trace(), exc)
 
-
-class RE(object):
-  """
-  An unfortunate but necessary regexp wrapper. The reason why we need this is
-  because we want to be able to extract the regexp later for reporting, which is
-  impossible on SRE_Patterns. :py:class:`RE` is shorter than ``re.compile()``
-  anyway.
-  """
-  def __init__(self, string, flags=None):
-    """
-    Create a new regular expression for use with MultiTest assertions, process
-    probes filtering, log extracts, and generally any API in MultiTest that
-    expects regular expressions.
-
-    :param string: string representation of a regular expression
-    :type string: ``str``
-    :param flags: re flags (see re doc)
-    :type flags: ``int``
-    """
-    self.string = string
-    self.flags = flags
-    self.regexp = re.compile(string, flags) if flags else re.compile(string)
-    self.pattern = self.regexp.pattern
-
-  def __repr__(self):
-    """
-    Returns object representation of the RE instance.
-
-    :return: object representation of the regular expression
-    :rtype: ``str``
-    """
-    args_string = "'{}'".format(self.string)
-    if self.flags is not None:
-      args_string += ', flags={}'.format(self.flags)
-    return "{}({})".format(self.__class__.__name__, args_string)
-
-  def __str__(self):
-    """
-    Returns the string representation of the regular expression.
-
-    :return: string representation of the regular expression
-    :rtype: ``str``
-    """
-    return self.string
-
-  def match(self, string):
-    """
-    See re.match
-
-    :param string: string against which to match the regular expression
-    :type string: ``str``
-    """
-    return self.regexp.match(string)
-
-  def search(self, string):
-    """
-    See ``re.search``.
-
-    :param string: string against which to search the regular expression
-    :type string: ``str``
-    """
-    return self.regexp.search(string)
-
-  def finditer(self, string):
-    """
-    See ``re.finditer``.
-
-    :param string: string against which to search the regular expression
-    :type string: ``str``
-
-    :return: An iterator yielding MatchObject instances over all non-overlapping
-             matches for the RE pattern in string. The string is scanned
-             left-to-right, and matches are returned in the order found. Empty
-             matches are included in the result unless they touch the beginning
-             of another match.
-    :rtype: ``iterator``
-    """
-    return self.regexp.finditer(string)
-
-  def __eq__(self, rhs):
-    """
-    Equality check, compares string representations
-
-    :param rhs: another object
-    :type rhs: anything
-
-    :return: true if rhs is of type RE and its string representation is __eq__
-    :rtype: ``bool``
-    """
-    if isinstance(rhs, RE):
-      return self.string == rhs.string
-    else:
-      return False
-
-  def __deepcopy__(self, _):
-    """
-    Deep copy implementation (default is broken by SRE_Pattern interning)
-    """
-    return RE(self.string)
 
 class RegexAdapter(object):
     """This is being used for internal compatibility."""
@@ -764,9 +664,12 @@ def _rec_compare(lhs,
         rhs=fmt(rhs))
 
 
-def stringify(x, y):
+def untyped_fixtag(x, y):
     """
-    Convert all objects to strings using str() before making the comparison.
+    Custom stringify logic for fix msg tag value, strips off insignificant
+    trailing 0s when converting float, so that 0.0 can be compared
+    with '0'
+
     """
     x_ = str(x)
     y_ = str(y)
@@ -795,7 +698,10 @@ COMPARE_FUNCTIONS = {
     'check_types': lambda x, y: (type(x) == type(y)) and (x == y),
 
     # Convert all objects to strings using str() before making the comparison.
-    'stringify': stringify
+    'stringify': lambda x, y: str(x) == str(y),
+
+    # Custom stringify logic for fix msg tag value
+    'untyped_fixtag': untyped_fixtag
 }
 
 

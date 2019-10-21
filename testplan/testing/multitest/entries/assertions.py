@@ -1218,9 +1218,9 @@ class FixMatchAll(DictMatchAll):
                               for expected in comparisons])
 
         if typed_value and typed_expected:
-            value_cmp_func = comparison.COMPARE_FUNCTIONS['check_types']
+            value_cmp_func = comparison.COMPARE_FUNCTIONS['native_equality']
         else:
-            value_cmp_func = comparison.COMPARE_FUNCTIONS['stringify']
+            value_cmp_func = comparison.COMPARE_FUNCTIONS['untyped_fixtag']
 
         super(FixMatchAll, self).__init__(
             values=values,
