@@ -1171,10 +1171,12 @@ class DictMatchAll(Assertion):
     def __init__(
         self, values, comparisons,
         key_weightings=None, description=None, category=None,
+        value_cmp_func=comparison.COMPARE_FUNCTIONS['native_equality']
     ):
         self.comparisons = comparisons
         self.values = values
         self.key_weightings = key_weightings
+        self.value_cmp_func = value_cmp_func
 
         self.matches = None
         self.result = None  # will be set by evaluate
@@ -1188,6 +1190,7 @@ class DictMatchAll(Assertion):
             values=self.values,
             key_weightings=self.key_weightings,
             description=self.description,
+            value_cmp_func = self.value_cmp_func
         )
 
         for match in self.matches:
@@ -1201,14 +1204,29 @@ class FixMatchAll(DictMatchAll):
     Similar to DictMatchAll, however dict keys
     will have fix tag info popups on web UI
     """
-    def __init__(
-        self, values, comparisons,
-        tag_weightings=None, description=None, category=None,
-    ):
+    def __init__(self, values, comparisons,
+                 tag_weightings=None, description=None, category=None):
+        """
+        If all input FIX messages are typed, we enable strict type checking.
+        Otherwise, if any entry of either side is untyped we will compare the
+        values as strings.
+        """
+
+        typed_value = all([getattr(value, 'typed_values', False)
+                           for value in values])
+        typed_expected = all([getattr(expected.value, 'typed_values', False)
+                              for expected in comparisons])
+
+        if typed_value and typed_expected:
+            value_cmp_func = comparison.COMPARE_FUNCTIONS['native_equality']
+        else:
+            value_cmp_func = comparison.COMPARE_FUNCTIONS['untyped_fixtag']
+
         super(FixMatchAll, self).__init__(
             values=values,
             comparisons=comparisons,
             key_weightings=tag_weightings,
             description=description,
             category=category,
+            value_cmp_func=value_cmp_func
         )

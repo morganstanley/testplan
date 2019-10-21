@@ -1,5 +1,6 @@
 import operator
 import inspect
+import decimal
 try:
     from collections.abc import Mapping, Iterable
 except ImportError:
@@ -663,6 +664,29 @@ def _rec_compare(lhs,
         rhs=fmt(rhs))
 
 
+def untyped_fixtag(x, y):
+    """
+    Custom stringify logic for fix msg tag value, strips off insignificant
+    trailing 0s when converting float, so that 0.0 can be compared
+    with '0'
+
+    """
+    x_ = str(x)
+    y_ = str(y)
+    ret = x_ == y_
+
+    if not ret:
+        if any(isinstance(val, float) or isinstance(val, decimal.Decimal)
+               for val in (x, y)):
+
+            x_, y_ = (val.rstrip('0').rstrip('.') if "." in val else val
+                      for val in (x_, y_))
+
+            ret = x_ == y_
+    
+    return ret
+
+
 # Built-in functions for comparing values in a dict.
 COMPARE_FUNCTIONS = {
 
@@ -674,8 +698,12 @@ COMPARE_FUNCTIONS = {
     'check_types': lambda x, y: (type(x) == type(y)) and (x == y),
 
     # Convert all objects to strings using str() before making the comparison.
-    'stringify': lambda x, y: str(x) == str(y)
+    'stringify': lambda x, y: str(x) == str(y),
+
+    # Custom stringify logic for fix msg tag value
+    'untyped_fixtag': untyped_fixtag
 }
+
 
 
 @enum.unique
@@ -909,9 +937,9 @@ class Expected(object):
         self.only = only
 
 
-def unordered_compare(
-    match_name, values, comparisons, description=None, tag_weightings=None
-):
+def unordered_compare(match_name, values, comparisons,
+                      description=None, tag_weightings=None,
+                      value_cmp_func=COMPARE_FUNCTIONS['native_equality']):
     """
     Matches a list of expected values against a list of expected comparisons.
 
@@ -1000,7 +1028,8 @@ def unordered_compare(
     match_matrix = [[compare(cmpr.value,
                              msg,
                              ignore=cmpr.ignore,
-                             only=cmpr.only)
+                             only=cmpr.only,
+                             value_cmp_func=value_cmp_func)
                      for cmpr in proc_cmps] for msg in proc_msgs]
 
     # generate a 2D square "matrix" of error integers (0 <= err <= 1000000)
@@ -1218,17 +1247,17 @@ class DictmatchAllResult(object):
         return self.passed
 
 
-def dictmatch_all_compat(
-    match_name, comparisons, values,
-    description, key_weightings,
-):
+def dictmatch_all_compat(match_name, comparisons, values,
+                         description, key_weightings,
+                         value_cmp_func=COMPARE_FUNCTIONS['native_equality']):
     """This is being used for internal compatibility."""
     matches = unordered_compare(
         match_name=match_name,
         values=values,
         comparisons=comparisons,
         description=description,
-        tag_weightings=key_weightings
+        tag_weightings=key_weightings,
+        value_cmp_func=value_cmp_func,
     )
 
     all_passed = True
