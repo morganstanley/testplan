@@ -235,6 +235,41 @@ class ReportGroup(Report):
         """
         return self._index[uid]
 
+    def __getitem__(self, uid):
+        """Shortcut to `get_by_uid()` method via [] operator."""
+        return self.get_by_uid(uid)
+
+    def set_by_uid(self, uid, item):
+        """
+        Set child report via `uid` lookup.
+
+        Unfortunately, for updating an existing entry requires an O(n) lookup
+        in the list of existing entries, since the index is read-only.
+        Inserting a new entry is O(1).
+
+        :param uid: `uid` for the child report.
+        :type uid: ``hashable``
+        :param item: entry to update or insert into the report.
+        :type item: ``Report``
+        """
+        if uid in self._index:
+            entry_ix = next(i for i, entry in enumerate(self.entries)
+                            if entry.uid == uid)
+            self.entries[entry_ix] = item
+            self._index[uid] = item
+        else:
+            self.entries.append(item)
+            self._index[uid] = item
+
+    def __setitem__(self, uid, item):
+        """Shortcut to `set_by_uid()` method via [] operator."""
+        self.set_by_uid(uid, item)
+
+    @property
+    def entry_uids(self):
+        """Return the UIDs of all entries in this report group."""
+        return list(self._index.keys())
+
     def merge_children(self, report, strict=True):
         """
         Merge each children separately, raising ``MergeError`` if `uid`

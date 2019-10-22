@@ -1,15 +1,25 @@
 """
 Interactive handler for TestRunner runnable class.
 """
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import super
+from builtins import next
+from future import standard_library
+standard_library.install_aliases()
 import functools
 import re
 import six
 import numbers
+import threading
 
 from testplan.common.config import ConfigOption
-from testplan.common.entity import (RunnableIHandler, RunnableIHandlerConfig,
+from testplan.common.entity import (RunnableIHandler,
+                                    RunnableIHandlerConfig,
                                     ResourceStatus)
-from testplan.report.testing import TestReport
+import testplan.report
 from testplan.runnable.interactive.http import TestRunnerHTTPHandler
 from testplan.runners.base import Executor
 from testplan.runnable.interactive.reloader import ModuleReloader
@@ -82,9 +92,37 @@ class TestRunnerIHandler(RunnableIHandler):
 
     def __init__(self, **options):
         super(TestRunnerIHandler, self).__init__(**options)
+        self.report = self._initial_report()
+        self.report_mutex = threading.Lock()
+
         self._created_environments = {}
         self._reloader = ModuleReloader(extra_deps=self.cfg.extra_deps)
         self._resource_loader = ResourceLoader()
+
+    def _initial_report(self):
+        """Generate the initial report skeleton."""
+        report = testplan.report.TestReport(
+            name=self.cfg.name, uid=self.cfg.name)
+
+        for test_uid, runner_uid in self.all_tests():
+            test = self.test(test_uid, runner_uid=runner_uid)
+
+            for suite in test.suites:
+                suite_name = suite.__class__.__name__
+                suite_report = testplan.report.TestGroupReport(
+                    name=suite_name, uid=suite_name, category="suite")
+
+                for testcase in suite.get_testcases():
+                    testcase_name = testcase.__name__
+                    testcase_report = testplan.report.TestCaseReport(
+                        name=testcase_name, uid=testcase_name)
+                    suite_report.append(testcase_report)
+
+                test.result.report.append(suite_report)
+
+            report.append(test.result.report)
+
+        return report
 
     def _execute_operations(self, generator):
         while self.active and self.target.active:
@@ -96,22 +134,6 @@ class TestRunnerIHandler(RunnableIHandler):
                 op_id = self.add_operation(operation, *args, **kwargs)
                 res = self._wait_result(op_id)
                 self.logger.debug('Operation result: {}'.format(res))
-
-    def report(self, serialized=False):
-        """Get the top level Test report."""
-        report = TestReport(name=self.cfg.name, uid=self.cfg.name)
-        all_tests = self.all_tests()
-        while self.active and self.target.active:
-            try:
-                test_uid, real_runner_uid = next(all_tests)
-            except StopIteration:
-                break
-            else:
-                test = self.test(test_uid, runner_uid=real_runner_uid)
-                report.append(test.result.report)
-        if serialized is True:
-            return report.serialize()
-        return report
 
     def get_environment(self, env_uid):
         """Get an environment."""
@@ -145,22 +167,29 @@ class TestRunnerIHandler(RunnableIHandler):
         test = self.test(test_uid, runner_uid=runner_uid)
         return test.resources[resource_uid]
 
-    def test_report(self, test_uid, runner_uid=None, serialized=True,
+    def test_report(self,
+                    test_uid,
+                    runner_uid=None,
+                    serialized=True,
                     exclude_assertions=False):
         """Get a test report."""
         test = self.test(test_uid, runner_uid=runner_uid)
         report = test.result.report
         if exclude_assertions is True:
             report = report.filter(_exclude_assertions_filter)
-        if serialized is True:
+        if serialized:
             return report.serialize(strict=False)
         return report
 
-    def test_case_report(self, test_uid, suite_uid, case_uid, runner_uid=None,
+    def test_case_report(self,
+                         test_uid,
+                         suite_uid,
+                         case_uid,
+                         runner_uid=None,
                          serialized=True):
         """Get a testcase report."""
-        report = self.test_report(test_uid, runner_uid=runner_uid,
-                                  serialized=False)
+        report = self.test_report(
+            test_uid, runner_uid=runner_uid, serialized=False)
 
         def is_assertion(obj):
             try:
@@ -179,7 +208,7 @@ class TestRunnerIHandler(RunnableIHandler):
                 return False
 
         report = report.filter(case_filter, is_assertion)
-        if serialized is True:
+        if serialized:
             return report.serialize(strict=False)
         return report
 

@@ -176,7 +176,7 @@ class TestRunnerResult(RunnableResult):
     @property
     def success(self):
         """Run was successful."""
-        return self.test_report.passed and all(
+        return not self.test_report.failed and all(
             [exporter_result.success
              for exporter_result in self.exporter_results])
 

@@ -1,21 +1,284 @@
 """
 Http handler for interactive mode.
 """
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
-import json
-import six
+from builtins import super
+from builtins import str
+from future import standard_library
+
+standard_library.install_aliases()
 import uuid
-import inspect
-import threading
+from multiprocessing import dummy
 
-from six.moves.BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-from six.moves.socketserver import ThreadingMixIn
-from six.moves.urllib.parse import urlparse
+import flask
+import flask_restplus
+from cheroot import wsgi
+import werkzeug.exceptions
+import marshmallow.exceptions
 
-from testplan.common.utils.exceptions import format_trace
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Entity, EntityConfig, RunnableIHandler
 from testplan import defaults
+from testplan import report
+
+
+def generate_interactive_api(http_handler, ihandler):
+    """Generates the interactive API using Flask."""
+    app = flask.Flask(__name__)
+    api = flask_restplus.Api(app)
+
+    @api.route("/api/v1/interactive/report")
+    class Report(flask_restplus.Resource):
+        """
+        Interactive report endpoint. There is a single root report object
+        for interactive mode.
+        """
+
+        def get(self):
+            """Get the state of the root interactive report."""
+            with ihandler.report_mutex:
+                return ihandler.report.shallow_serialize()
+
+        def put(self):
+            """Update the state of the root interactive report."""
+            if flask.request.json is None:
+                raise werkzeug.exceptions.BadRequest(
+                    "JSON body is required for PUT"
+                )
+
+            with ihandler.report_mutex:
+                try:
+                    new_report = report.TestReport.shallow_deserialize(
+                        flask.request.json, ihandler.report
+                    )
+                except marshmallow.exceptions.ValidationError as e:
+                    raise werkzeug.exceptions.BadRequest(str(e))
+
+                if should_run(ihandler.report.status):
+                    new_report.status = report.Status.RUNNING
+                    http_handler.pool.apply_async(ihandler.run_tests)
+
+                ihandler.report = new_report
+                return ihandler.report.shallow_serialize()
+
+    @api.route("/api/v1/interactive/report/tests")
+    class Tests(flask_restplus.Resource):
+        """
+        Tests endpoint. Represents all Test objects in the report. Read-only.
+        """
+
+        def get(self):
+            """Get the UIDs of all tests defined in the testplan."""
+            with ihandler.report_mutex:
+                return [test.uid for test in ihandler.report]
+
+    @api.route("/api/v1/interactive/report/tests/<string:test_uid>")
+    class Test(flask_restplus.Resource):
+        """
+        Test endpoint. Represents a single Test object in the testplan with
+        corresponding UID.
+        """
+
+        def get(self, test_uid):
+            """Get the state of a specific test from the testplan."""
+            with ihandler.report_mutex:
+                try:
+                    return ihandler.report[test_uid].shallow_serialize()
+                except KeyError:
+                    raise werkzeug.exceptions.NotFound
+
+        def put(self, test_uid):
+            """Update the state of a specific test."""
+            if flask.request.json is None:
+                raise werkzeug.exceptions.BadRequest(
+                    "JSON body is required for PUT"
+                )
+
+            with ihandler.report_mutex:
+                try:
+                    current_test = ihandler.report[test_uid]
+                except KeyError:
+                    raise werkzeug.exceptions.NotFound
+
+                try:
+                    new_test = report.TestGroupReport.shallow_deserialize(
+                        flask.request.json, current_test
+                    )
+                except marshmallow.exceptions.ValidationError as e:
+                    raise werkzeug.exceptions.BadRequest(str(e))
+
+                if should_run(current_test.status):
+                    new_test.status = report.Status.RUNNING
+                    http_handler.pool.apply_async(
+                        ihandler.run_test, (test_uid,)
+                    )
+
+                ihandler.report[test_uid] = new_test
+                return ihandler.report[test_uid].shallow_serialize()
+
+    @api.route("/api/v1/interactive/report/tests/<string:test_uid>/suites")
+    class Suites(flask_restplus.Resource):
+        """
+        Suites endpoint. Represents all test suites within a Test object.
+        """
+
+        def get(self, test_uid):
+            """Get the UIDs of all test suites owned by a specific test."""
+            try:
+                return [entry.uid for entry in ihandler.report[test_uid]]
+            except KeyError:
+                raise werkzeug.exceptions.NotFound
+
+    @api.route(
+        "/api/v1/interactive/report/tests/<string:test_uid>/suites/"
+        "<string:suite_uid>"
+    )
+    class Suite(flask_restplus.Resource):
+        """
+        Suite endpoint. Represents a single test suite within a Test object
+        with the mathcing test and suite UIDs.
+        """
+
+        def get(self, test_uid, suite_uid):
+            """Get the state of a specific test suite."""
+            with ihandler.report_mutex:
+                try:
+                    return ihandler.report[test_uid][
+                        suite_uid
+                    ].shallow_serialize()
+                except KeyError:
+                    raise werkzeug.exceptions.NotFound
+
+        def put(self, test_uid, suite_uid):
+            """Update the state of a specific test suite."""
+            if flask.request.json is None:
+                raise werkzeug.exceptions.BadRequest(
+                    "JSON body is required for PUT"
+                )
+
+            with ihandler.report_mutex:
+                try:
+                    current_suite = ihandler.report[test_uid][suite_uid]
+                except KeyError:
+                    raise werkzeug.exceptions.NotFound
+
+                try:
+                    new_suite = report.TestGroupReport.shallow_deserialize(
+                        flask.request.json, current_suite
+                    )
+                except marshmallow.exceptions.ValidationError as e:
+                    raise werkzeug.exceptions.BadRequest(str(e))
+
+                if should_run(current_suite.status):
+                    new_suite.status = report.Status.RUNNING
+                    http_handler.pool.apply_async(
+                        ihandler.run_test_suite, (test_uid, suite_uid)
+                    )
+
+                ihandler.report[test_uid][suite_uid] = new_suite
+                return ihandler.report[test_uid][suite_uid].shallow_serialize()
+
+    @api.route(
+        "/api/v1/interactive/report/tests/<string:test_uid>/suites/"
+        "<string:suite_uid>/testcases"
+    )
+    class Testcases(flask_restplus.Resource):
+        """
+        Testcases endpoint. Represents all testcases within a test suite
+        within a Test object, with the matching test and suite UIDs.
+        """
+
+        def get(self, test_uid, suite_uid):
+            """Get the UIDs of all testcases defined on a suite."""
+            with ihandler.report_mutex:
+                try:
+                    return [
+                        entry.uid
+                        for entry in ihandler.report[test_uid][suite_uid]
+                    ]
+                except KeyError:
+                    raise werkzeug.exceptions.NotFound
+
+    @api.route(
+        "/api/v1/interactive/report/tests/<string:test_uid>/suites/"
+        "<string:suite_uid>/testcases/<string:testcase_uid>"
+    )
+    class Testcase(flask_restplus.Resource):
+        """
+        Testcases endpoint. Represents a single testcase within a test
+        suite, within a Test object, with the matching test, suite and
+        testcase UIDs.
+        """
+
+        def get(self, test_uid, suite_uid, testcase_uid):
+            """Get the state of a specific testcase."""
+            with ihandler.report_mutex:
+                try:
+                    return ihandler.report[test_uid][suite_uid][
+                        testcase_uid
+                    ].serialize()
+                except KeyError:
+                    raise werkzeug.exceptions.NotFound
+
+        def put(self, test_uid, suite_uid, testcase_uid):
+            """Update the state of a specific testcase."""
+            if flask.request.json is None:
+                raise werkzeug.exceptions.BadRequest(
+                    "JSON body is required for PUT"
+                )
+
+            with ihandler.report_mutex:
+                suite = ihandler.report[test_uid][suite_uid]
+                try:
+                    current_testcase = suite[testcase_uid]
+                except KeyError:
+                    raise werkzeug.exceptions.NotFound
+
+                try:
+                    new_testcase = report.TestCaseReport.deserialize(
+                        flask.request.json
+                    )
+                except marshmallow.exceptions.ValidationError as e:
+                    raise werkzeug.exceptions.BadRequest(str(e))
+
+                if should_run(current_testcase.status):
+                    new_testcase.status = report.Status.RUNNING
+                    http_handler.pool.apply_async(
+                        ihandler.run_test_case,
+                        (test_uid, suite_uid, testcase_uid),
+                    )
+
+                suite[testcase_uid] = new_testcase
+                return suite[testcase_uid].serialize()
+
+    def should_run(curr_status):
+        """
+        Check if any test(s) should be triggered to run from a state
+        update.
+
+        The only allowed state transition on update is ready -> running.
+        Otherwise the state must be unchanged. If the new status is invalid
+        a BadRequest exception will be raised.
+        """
+        try:
+            new_status = flask.request.json["status"]
+        except KeyError:
+            raise werkzeug.exceptions.BadRequest("status is required")
+
+        if new_status == curr_status:
+            return False
+        elif new_status == "running":
+            return True
+        else:
+            raise werkzeug.exceptions.BadRequest(
+                "Cannot update status to {}".format(new_status)
+            )
+
+    return app, api
 
 
 class TestRunnerHTTPHandlerConfig(EntityConfig):
@@ -24,13 +287,14 @@ class TestRunnerHTTPHandlerConfig(EntityConfig):
     :py:class:`~testplan.runnable.interactive.http.TestRunnerHTTPHandler`
     entity.
     """
+
     @classmethod
     def get_options(cls):
         return {
-            'ihandler' : RunnableIHandler,
-            ConfigOption(
-                'host', default=defaults.WEB_SERVER_HOSTNAME): str,
-            ConfigOption('port', default=defaults.WEB_SERVER_HOSTNAME): int
+            "ihandler": RunnableIHandler,
+            ConfigOption("host", default=defaults.WEB_SERVER_HOSTNAME): str,
+            ConfigOption("port", default=defaults.WEB_SERVER_HOSTNAME): int,
+            ConfigOption("pool_size", default=4): int,
         }
 
 
@@ -49,162 +313,34 @@ class TestRunnerHTTPHandler(Entity):
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.
     """
+
     CONFIG = TestRunnerHTTPHandlerConfig
 
     def __init__(self, **options):
         super(TestRunnerHTTPHandler, self).__init__(**options)
-        self._ip = None
-        self._port = None
+        self._server = None
+        self.task_pool = None
+        self.tasks = {}
 
     @property
-    def ip(self):
-        return self._ip
+    def host(self):
+        if self._server is None or not self._server.ready:
+            return None
+        return self._server.bind_addr[0]
 
     @property
     def port(self):
-        return self._port
+        if self._server is None or not self._server.ready:
+            return None
+        return self._server.bind_addr[1]
 
     def run(self):
         """
         Runs the threader HTTP handler for interactive mode.
         """
-        outer = self
+        app, _ = generate_interactive_api(self, self.cfg.ihandler)
+        self._server = wsgi.Server((self.cfg.host, self.cfg.port), app)
 
-        class Handler(BaseHTTPRequestHandler):
-            MODES = set(['sync', 'async', 'async_result'])
-            LOCK = threading.Lock()
-            EXEC_STATE = {}
-            RESULTS = {}
-
-            def _sync(self, method, **kwargs):
-                """Perform a synchronous operation."""
-                outer.logger.debug('Calling {}(**{})'.format(method, kwargs))
-                with self.LOCK:
-                    return getattr(outer.cfg.ihandler, method)(**kwargs)
-
-            def _async(self, method, **kwargs):
-                """Perform an asynchronous operation."""
-                uid = str(uuid.uuid4())
-                thread = threading.Thread(
-                    target=self._execute_in_thread, args=(uid, method, kwargs))
-                thread.daemon = True
-                thread.start()
-                self.EXEC_STATE[uid] = 'Scheduled'
-                return uid
-
-            def _execute_in_thread(self, uid, method, kwargs):
-                try:
-                    with self.LOCK:
-                        self.EXEC_STATE[uid] = 'Executing'
-                        result = getattr(outer.cfg.ihandler, method)(**kwargs)
-                        self.EXEC_STATE[uid] = 'Finished'
-                except Exception as exc:
-                    result = exc
-                self.RESULTS[uid] = result
-
-            def _make_response(self, message, response=None,
-                         error=False, trace=None, result=None, **metadata):
-                response = response or {}
-                response.update(
-                    {'message': message, 'result': result,
-                     'error': error, 'trace': trace,
-                     'metadata': metadata})
-                return response
-
-            def _async_result(self, uid):
-                if uid not in self.EXEC_STATE:
-                    response = dict(
-                        error=True,
-                        message='{} not recognised.'.format(uid))
-                elif uid not in self.RESULTS:
-                    response = dict(
-                        error=True,
-                        message='{} not finished.'.format(uid),
-                        state=self.EXEC_STATE[uid])
-                else:
-                    response = dict(
-                        message='{} finished.'.format(uid),
-                        result=self.RESULTS[uid],
-                        state=self.EXEC_STATE[uid])
-                    del self.EXEC_STATE[uid]
-                    del self.RESULTS[uid]
-                return response
-
-            def _header_json(self, code=200):
-                """
-                Sets the next message's context type as text/json
-                """
-                self.send_response(code)
-                self.send_header('Content-type', 'text/json')
-                self.end_headers()
-
-            def _write_json(self, response):
-                encoded = json.dumps(response).encode()
-                return self.wfile.write(encoded)
-
-            def _extract_mode_method(self, path):
-                if path.count('/') == 1:
-                    return path.split('/')[1], None
-                elif path.count('/') == 2:
-                    return path.split('/')[1], path.split('/')[2]
-                else:
-                    raise ValueError('Incorrent path: {}'.format(path))
-
-            def do_POST(self):
-                """
-                Handle post requests.
-                """
-                outer.logger.debug('path: {}'.format(self.path))
-                url = urlparse(self.path)
-                outer.logger.debug('url: {}'.format(url))
-
-                try:
-                    try:
-                        length = int(self.headers.get('content-length'))
-                    except:
-                        # No data in request.
-                        request = {}
-                    else:
-                        request = {}
-                        content = self.rfile.read(length).decode()
-                        for key, value in json.loads(content).items():
-                            if isinstance(value, six.string_types):
-                                request[str(key)] = str(value)
-                            else:
-                                request[str(key)] = value
-
-                    mode, method = self._extract_mode_method(self.path)
-                    if mode not in self.MODES:
-                        raise ValueError('Execution {} not valid: {}'.format(
-                            mode, self.MODES))
-                    if mode == 'sync':
-                        result = self._sync(method, **request)
-                        msg = 'Sync operation performed: {}'.format(method)
-                        response = self._make_response(msg, result=result)
-                    elif mode == 'async':
-                        result = self._async(method, **request)
-                        msg = 'Async operation performed: {}'.format(method)
-                        response = self._make_response(msg, result=result)
-                    elif mode == 'async_result':
-                        res_dict = self._async_result(**request)
-                        response = self._make_response(**res_dict)
-                    self._header_json(
-                        code=200 if not response['error'] else 400)
-                    self._write_json(response)
-                except Exception as exc:
-                    msg = '{} exception in do_POST: {}'.format(
-                        outer.__class__.__name__, exc)
-                    outer.logger.critical(msg)
-                    response = self._make_response(
-                        message=msg,
-                        error=True,
-                        trace=format_trace(inspect.trace()))
-                    self._header_json(code=500)
-                    self._write_json(response)
-
-        class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
-            """Handle requests in a separate thread."""
-
-        server = ThreadedHTTPServer((self.cfg.host, self.cfg.port), Handler)
-        self._ip, self._port = server.server_address
-        server.serve_forever()
+        with dummy.Pool(self.cfg.pool_size) as pool:
+            self.pool = pool
+            self._server.start()

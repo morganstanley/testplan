@@ -660,7 +660,7 @@ class RunnableIHandler(Entity):
     @property
     def http_handler_info(self):
         """Connection information for http handler."""
-        return self._http_handler.ip, self._http_handler.port
+        return self._http_handler.host, self._http_handler.port
 
     @property
     def target(self):
@@ -705,7 +705,7 @@ class RunnableIHandler(Entity):
             'currently only allows control of a Testplan via its HTTP API.')
         self.logger.test_info(
             'Interactive Testplan API listening on: %s:%d',
-            self._http_handler.ip,
+            self._http_handler.host,
             self._http_handler.port)
 
     def __call__(self, *args, **kwargs):

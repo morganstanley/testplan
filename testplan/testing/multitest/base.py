@@ -419,6 +419,7 @@ class MultiTest(Test):
                             tags=next_suite.__tags__,
                         )
                         report.append(testsuite_report)
+
                         with testsuite_report.logged_exceptions():
                             self._run_suite(
                                 next_suite, testcases, testsuite_report)
@@ -487,7 +488,9 @@ class MultiTest(Test):
             with testsuite_report.logged_exceptions():
                 self._run_suite_related(testsuite, 'setup', testsuite_report)
 
-            if not testsuite_report.passed:
+            if testsuite_report.failed:
+                self.logger.debug(
+                    "Suite setup failed - skipping all testcases")
                 with testsuite_report.logged_exceptions():
                     self._run_suite_related(
                         testsuite, 'teardown', testsuite_report)

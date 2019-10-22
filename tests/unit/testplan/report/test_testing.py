@@ -88,13 +88,13 @@ class TestBaseReportGroup(object):
 
     def test_status_no_entries(self):
         """
-        Should return Status.PASSED `status_override`
+        Should return Status.READY when `status_override`
         is None and report has no entries.
         """
         group = DummyReportGroup()
 
         assert group.status_override is None
-        assert group.status == Status.PASSED
+        assert group.status == Status.READY
 
     def test_status_override(self):
         """
@@ -155,7 +155,7 @@ class TestTestCaseReport(object):
     @pytest.mark.parametrize(
         'entries,expected_status',
         (
-            ([], Status.PASSED),
+            ([], Status.READY),
             ([{'foo': 2}, {'bar': 3}], Status.PASSED),
             ([{'foo': True}], Status.PASSED),
             ([{'passed': True}], Status.PASSED),
@@ -380,7 +380,7 @@ class TestReportTags(object):
         new_tg_rep_1 = tg_rep_1.filter(filter_func)
 
         new_tg_rep_2, new_tg_rep_3 = new_tg_rep_1
-        new_tc_rep_1 = new_tg_rep_2[0]
+        new_tc_rep_1 = new_tg_rep_2.entries[0]
 
         assert new_tc_rep_1.name == 'My Test Case'
 

@@ -78,7 +78,7 @@ class TestCaseReportSchema(ReportSchema):
 
     status = fields.String(dump_only=True)
     suite_related = fields.Bool()
-    timer = TimerField()
+    timer = TimerField(required=True)
     tags = TagField()
 
     @post_load
@@ -87,8 +87,13 @@ class TestCaseReportSchema(ReportSchema):
         Create the report object, assign ``timer`` &
         ``status_override`` attributes explicitly
         """
-        status_override = data.pop('status_override')
+        status_override = data.pop('status_override', None)
         timer = data.pop('timer')
+
+        # We can discard the type field since we know what kind of report we
+        # are making.
+        if 'type' in data:
+            data.pop('type')
 
         rep = super(TestCaseReportSchema, self).make_report(data)
         rep.status_override = status_override
@@ -165,3 +170,59 @@ class TestReportSchema(Schema):
         test_plan_report.status_override = status_override
         test_plan_report.timer = timer
         return test_plan_report
+
+
+class ShallowTestReportSchema(Schema):
+    """Schema for shallow serialization of ``TestReport``."""
+    name = fields.String(required=True)
+    uid = fields.String(required=True)
+    timer = TimerField(required=True)
+    meta = fields.Dict()
+    status = fields.String(dump_only=True)
+    tags_index = TagField(dump_only=True)
+    status_override = fields.String(allow_none=True)
+    attachments = fields.Dict()
+    entry_uids = fields.List(fields.Str(), dump_only=True)
+
+    @post_load
+    def make_test_report(self, data):
+        status_override = data.pop('status_override', None)
+        timer = data.pop('timer')
+
+        test_plan_report = TestReport(**data)
+        test_plan_report.propagate_tag_indices()
+
+        test_plan_report.status_override = status_override
+        test_plan_report.timer = timer
+        return test_plan_report
+
+
+class ShallowTestGroupReportSchema(Schema):
+    """
+    Schema for shallow serialization of ``TestGroupReport``.
+    """
+    name = fields.String(required=True)
+    uid = fields.String(required=True)
+    timer = TimerField(required=True)
+    description = fields.String(allow_none=True)
+    category = fields.String(allow_none=True)
+    part = fields.List(fields.Integer, allow_none=True)
+    fix_spec_path = fields.String(allow_none=True)
+    status_override = fields.String(allow_none=True)
+    status = fields.String(dump_only=True)
+    suite_related = fields.Bool()
+    tags = TagField()
+    entry_uids = fields.List(fields.Str(), dump_only=True)
+
+    @post_load
+    def make_testgroup_report(self, data):
+        status_override = data.pop('status_override', None)
+        timer = data.pop('timer')
+
+        group_report = TestGroupReport(**data)
+        group_report.status_override = status_override
+        group_report.timer = timer
+        group_report.propagate_tag_indices()
+
+        return group_report
+
