@@ -31,7 +31,6 @@ REQUIRED = [
     'terminaltables',
     'pyparsing',
     'cycler',
-    'Pillow<6.0.0',
     'matplotlib',
     'numpy',
     'scipy',
