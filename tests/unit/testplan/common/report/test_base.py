@@ -177,7 +177,9 @@ class TestReportGroup(object):
         parent.entries = children
         parent.build_index()
 
-        assert parent._index == {child.uid: child for child in children}
+        assert parent._index == {
+            child.uid: i for i, child in enumerate(children)
+        }
 
     def test_build_index_recursive(self):
         """Recursive index build should propagate to all children."""
@@ -198,18 +200,18 @@ class TestReportGroup(object):
         grand_parent.build_index(recursive=True)
 
         assert grand_parent._index == {
-            parent_1.uid: parent_1,
-            parent_2.uid: parent_2
+            parent_1.uid: 0,
+            parent_2.uid: 1
         }
 
         assert parent_1._index == {
-            child_1.uid: child_1,
-            child_2.uid: child_2
+            child_1.uid: 0,
+            child_2.uid: 1
         }
 
         assert parent_2._index == {
-            child_3.uid: child_3,
-            child_4.uid: child_4
+            child_3.uid: 0,
+            child_4.uid: 1
         }
 
     def test_build_index_dupe_child_id(self):
@@ -263,7 +265,7 @@ class TestReportGroup(object):
         group.append(child)
 
         assert group.entries == [child]
-        assert group._index == {child.uid: child}
+        assert group._index == {child.uid: 0}
 
     def test_append_type_error(self):
         """`ReportGroup.append` should raise `TypeError` if `report` is not of type `report.Report`."""
