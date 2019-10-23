@@ -73,12 +73,12 @@ class Status(object):
 
     STATUS_PRECEDENCE = (
         RUNNING,
+        READY,
         ERROR,
         FAILED,
         INCOMPLETE,
         PASSED,
         SKIPPED,
-        READY,
     )
 
     # `status_override` can be None, so need to add it to precedence rules

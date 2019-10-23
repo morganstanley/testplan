@@ -66,7 +66,7 @@ def generate_interactive_api(http_handler, ihandler):
                 return ihandler.report.shallow_serialize()
 
     @api.route("/api/v1/interactive/report/tests")
-    class Tests(flask_restplus.Resource):
+    class AllTests(flask_restplus.Resource):
         """
         Tests endpoint. Represents all Test objects in the report. Read-only.
         """
@@ -77,7 +77,7 @@ def generate_interactive_api(http_handler, ihandler):
                 return [test.uid for test in ihandler.report]
 
     @api.route("/api/v1/interactive/report/tests/<string:test_uid>")
-    class Test(flask_restplus.Resource):
+    class SingleTest(flask_restplus.Resource):
         """
         Test endpoint. Represents a single Test object in the testplan with
         corresponding UID.
@@ -121,7 +121,7 @@ def generate_interactive_api(http_handler, ihandler):
                 return ihandler.report[test_uid].shallow_serialize()
 
     @api.route("/api/v1/interactive/report/tests/<string:test_uid>/suites")
-    class Suites(flask_restplus.Resource):
+    class AllSuites(flask_restplus.Resource):
         """
         Suites endpoint. Represents all test suites within a Test object.
         """
@@ -137,10 +137,10 @@ def generate_interactive_api(http_handler, ihandler):
         "/api/v1/interactive/report/tests/<string:test_uid>/suites/"
         "<string:suite_uid>"
     )
-    class Suite(flask_restplus.Resource):
+    class SingleSuite(flask_restplus.Resource):
         """
         Suite endpoint. Represents a single test suite within a Test object
-        with the mathcing test and suite UIDs.
+        with the matching test and suite UIDs.
         """
 
         def get(self, test_uid, suite_uid):
@@ -186,7 +186,7 @@ def generate_interactive_api(http_handler, ihandler):
         "/api/v1/interactive/report/tests/<string:test_uid>/suites/"
         "<string:suite_uid>/testcases"
     )
-    class Testcases(flask_restplus.Resource):
+    class AllTestcases(flask_restplus.Resource):
         """
         Testcases endpoint. Represents all testcases within a test suite
         within a Test object, with the matching test and suite UIDs.
@@ -207,7 +207,7 @@ def generate_interactive_api(http_handler, ihandler):
         "/api/v1/interactive/report/tests/<string:test_uid>/suites/"
         "<string:suite_uid>/testcases/<string:testcase_uid>"
     )
-    class Testcase(flask_restplus.Resource):
+    class SingleTestcase(flask_restplus.Resource):
         """
         Testcases endpoint. Represents a single testcase within a test
         suite, within a Test object, with the matching test, suite and
@@ -260,9 +260,11 @@ def generate_interactive_api(http_handler, ihandler):
         Check if any test(s) should be triggered to run from a state
         update.
 
-        The only allowed state transition on update is ready -> running.
-        Otherwise the state must be unchanged. If the new status is invalid
-        a BadRequest exception will be raised.
+        The only allowed state transition on update is to set the status
+        to RUNNING to trigger test(s) to run. Any other state update (e.g.
+        setting the state of a running test to PASSED) is not allowed - only
+        the server may make those transitions. A BadRequest exception will be
+        raised if the requested status is not valid.
         """
         try:
             new_status = flask.request.json["status"]
@@ -271,7 +273,7 @@ def generate_interactive_api(http_handler, ihandler):
 
         if new_status == curr_status:
             return False
-        elif new_status == "running":
+        elif new_status == report.Status.RUNNING:
             return True
         else:
             raise werkzeug.exceptions.BadRequest(
@@ -293,8 +295,10 @@ class TestRunnerHTTPHandlerConfig(EntityConfig):
         return {
             "ihandler": RunnableIHandler,
             ConfigOption("host", default=defaults.WEB_SERVER_HOSTNAME): str,
-            ConfigOption("port", default=defaults.WEB_SERVER_HOSTNAME): int,
-            ConfigOption("pool_size", default=4): int,
+            ConfigOption("port", default=defaults.WEB_SERVER_PORT): int,
+            ConfigOption(
+                "pool_size", default=defaults.INTERACTIVE_POOL_SIZE
+            ): int,
         }
 
 
@@ -319,7 +323,7 @@ class TestRunnerHTTPHandler(Entity):
     def __init__(self, **options):
         super(TestRunnerHTTPHandler, self).__init__(**options)
         self._server = None
-        self.task_pool = None
+        self.pool = None
         self.tasks = {}
 
     @property
@@ -349,4 +353,3 @@ class TestRunnerHTTPHandler(Entity):
         finally:
             self.pool.terminate()
             self.pool.join()
-

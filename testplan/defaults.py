@@ -23,3 +23,6 @@ ATTACHMENTS_DIR = os.path.join(REPORT_DIR, ATTACHMENTS)
 WEB_SERVER_HOSTNAME = "0.0.0.0"
 WEB_SERVER_PORT = 0
 WEB_SERVER_TIMEOUT = 10
+
+# Default to using 4 threads for interactive pool.
+INTERACTIVE_POOL_SIZE = 4

@@ -196,6 +196,7 @@ class ReportGroup(Report):
         super(ReportGroup, self).__init__(
             name=name, description=description, uid=uid, entries=entries)
 
+        # Mapping of UID to index in the list of entries.
         self._index = {}
         self.build_index()
 
@@ -220,7 +221,7 @@ class ReportGroup(Report):
                 'Cannot build index with duplicate uids: `{}`'.format(
                     list(dupe_ids)))
 
-        self._index = {child.uid: child for child in self}
+        self._index = {child.uid: i for i, child in enumerate(self)}
 
         if recursive:
             for child in self:
@@ -234,7 +235,7 @@ class ReportGroup(Report):
         :param uid: `uid` for the child report.
         :type uid: ``hashable``
         """
-        return self._index[uid]
+        return self.entries[self._index[uid]]
 
     def __getitem__(self, uid):
         """Shortcut to `get_by_uid()` method via [] operator."""
@@ -244,23 +245,23 @@ class ReportGroup(Report):
         """
         Set child report via `uid` lookup.
 
-        Unfortunately, for updating an existing entry requires an O(n) lookup
-        in the list of existing entries, since the index is read-only.
-        Inserting a new entry is O(1).
+        If an entry with a matching UID is already present, that entry is
+        updated. Otherwise a new entry will be added.
 
         :param uid: `uid` for the child report.
         :type uid: ``hashable``
         :param item: entry to update or insert into the report.
         :type item: ``Report``
         """
+        if uid != item.uid:
+            raise ValueError(
+                "UIDs don't match: {} != {}".format(uid, item.uid))
+
         if uid in self._index:
-            entry_ix = next(i for i, entry in enumerate(self.entries)
-                            if entry.uid == uid)
+            entry_ix = self._index[uid]
             self.entries[entry_ix] = item
-            self._index[uid] = item
         else:
-            self.entries.append(item)
-            self._index[uid] = item
+            self.append(item)
 
     def __setitem__(self, uid, item):
         """Shortcut to `set_by_uid()` method via [] operator."""
@@ -304,8 +305,8 @@ class ReportGroup(Report):
                 'Child report with `uid`: {uid}'
                 ' already exists in {self}'.format(uid=item.uid, self=self))
 
-        self._index[item.uid] = item
         super(ReportGroup, self).append(item)
+        self._index[item.uid] = len(self.entries) - 1
 
     def extend(self, items):
         """Add `items` to `self.entries`, checking type & index."""

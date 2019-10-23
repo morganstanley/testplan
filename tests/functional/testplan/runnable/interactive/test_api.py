@@ -14,6 +14,7 @@ import pytest
 import requests
 
 import testplan
+from testplan import report
 from testplan.testing import multitest
 from testplan.common.utils import timing
 
@@ -47,9 +48,11 @@ def plan():
         interactive_block=False,
         parse_cmdline=False,
     )
-    plan.add(multitest.MultiTest(
-        name=six.ensure_str("ExampleMTest"),
-        suites=[ExampleSuite()]))
+    plan.add(
+        multitest.MultiTest(
+            name=six.ensure_str("ExampleMTest"), suites=[ExampleSuite()]
+        )
+    )
     plan.run()
     timing.wait(
         lambda: plan.interactive.http_handler_info[0] is not None,
@@ -172,9 +175,9 @@ def test_run_all_tests(plan):
     assert rsp.status_code == 200
     report_json = rsp.json()
 
-    # Trigger all tests to run by updating the report status to "running"
+    # Trigger all tests to run by updating the report status to RUNNING
     # and PUTting back the data.
-    report_json["status"] = "running"
+    report_json["status"] = report.Status.RUNNING
     rsp = requests.put(report_url, json=report_json)
     assert rsp.status_code == 200
     assert rsp.json() == report_json
@@ -199,9 +202,9 @@ def test_run_mtest(plan):
     assert rsp.status_code == 200
     mtest_json = rsp.json()
 
-    # Trigger all tests to run by updating the report status to "running"
+    # Trigger all tests to run by updating the report status to RUNNING
     # and PUTting back the data.
-    mtest_json["status"] = "running"
+    mtest_json["status"] = report.Status.RUNNING
     rsp = requests.put(mtest_url, json=mtest_json)
     assert rsp.status_code == 200
     assert rsp.json() == mtest_json
@@ -227,9 +230,9 @@ def test_run_suite(plan):
     assert rsp.status_code == 200
     suite_json = rsp.json()
 
-    # Trigger all tests to run by updating the report status to "running"
+    # Trigger all tests to run by updating the report status to RUNNING
     # and PUTting back the data.
-    suite_json["status"] = "running"
+    suite_json["status"] = report.Status.RUNNING
     rsp = requests.put(suite_url, json=suite_json)
     assert rsp.status_code == 200
     assert rsp.json() == suite_json
@@ -259,9 +262,9 @@ def test_run_testcase(plan):
         assert rsp.status_code == 200
         testcase_json = rsp.json()
 
-        # Trigger all tests to run by updating the report status to "running"
+        # Trigger all tests to run by updating the report status to RUNNING
         # and PUTting back the data.
-        testcase_json["status"] = "running"
+        testcase_json["status"] = report.Status.RUNNING
         rsp = requests.put(testcase_url, json=testcase_json)
         assert rsp.status_code == 200
         assert rsp.json() == testcase_json
@@ -285,7 +288,7 @@ def _check_test_status(test_url, expected_status):
     rsp = requests.get(test_url)
     assert rsp.status_code == 200
     report_json = rsp.json()
-    if report_json["status"] == "running":
+    if report_json["status"] == report.Status.RUNNING:
         return False
     else:
         assert report_json["status"] == expected_status
