@@ -341,6 +341,12 @@ class TestRunnerHTTPHandler(Entity):
         app, _ = generate_interactive_api(self, self.cfg.ihandler)
         self._server = wsgi.Server((self.cfg.host, self.cfg.port), app)
 
-        with dummy.Pool(self.cfg.pool_size) as pool:
-            self.pool = pool
+        # Cannot use context manager on Python 2 to use try/finally to ensure
+        # pool resources are cleaned up.
+        self.pool = dummy.Pool(self.cfg.pool_size)
+        try:
             self._server.start()
+        finally:
+            self.pool.terminate()
+            self.pool.join()
+

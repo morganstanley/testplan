@@ -8,6 +8,8 @@ from future import standard_library
 
 standard_library.install_aliases()
 import functools
+
+import six
 import pytest
 import requests
 
@@ -40,12 +42,14 @@ class ExampleSuite(object):
 def plan():
     """Yield an interactive testplan."""
     plan = testplan.Testplan(
-        name="InteractiveAPITest",
+        name=six.ensure_str("InteractiveAPITest"),
         interactive_port=0,
         interactive_block=False,
         parse_cmdline=False,
     )
-    plan.add(multitest.MultiTest(name="ExampleMTest", suites=[ExampleSuite()]))
+    plan.add(multitest.MultiTest(
+        name=six.ensure_str("ExampleMTest"),
+        suites=[ExampleSuite()]))
     plan.run()
     timing.wait(
         lambda: plan.interactive.http_handler_info[0] is not None,

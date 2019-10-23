@@ -195,6 +195,7 @@ class ReportGroup(Report):
     def __init__(self, name, description=None, uid=None, entries=None):
         super(ReportGroup, self).__init__(
             name=name, description=description, uid=uid, entries=entries)
+
         self._index = {}
         self.build_index()
 
@@ -268,7 +269,7 @@ class ReportGroup(Report):
     @property
     def entry_uids(self):
         """Return the UIDs of all entries in this report group."""
-        return list(self._index.keys())
+        return [entry.uid for entry in self]
 
     def merge_children(self, report, strict=True):
         """
