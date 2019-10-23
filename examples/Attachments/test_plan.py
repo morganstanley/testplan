@@ -6,7 +6,18 @@ import tempfile
 
 import testplan
 from testplan.testing import multitest
-from PIL import Image, ImageDraw
+
+try:
+    from PIL import Image, ImageDraw
+except ImportError:
+    sys.exit("""\
+This example requires the Pillow library, which is not automatically
+installed as a part of testplan.
+
+To install it run: `pip install Pillow`
+
+For more information about Pillow see: https://pillow.readthedocs.io/en/stable/
+""")
 
 
 @multitest.testsuite
