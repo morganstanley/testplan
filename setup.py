@@ -15,7 +15,7 @@ REQUIRED = [
     'pytest',
     'py',
     'psutil',
-    'six',
+    'six>=1.12.0',
     'future',
     'schema<0.7.0',
     'pytz',

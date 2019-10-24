@@ -80,6 +80,12 @@ class PyUnit(testing.Test):
                 schemas.base.registry.serialize(assertion_obj))
             self.result.report.entries.append(testcase_report)
 
+        # Since we only store testcases for errors or assertion failures,
+        # we need to explicitly override the report status to be PASSED if
+        # no errors/failures occured.
+        if not self.result.report.entries:
+            self.result.report.status_override = report_testing.Status.PASSED
+
     def get_test_context(self):
         """TODO find out if we can inspect suites/testcases."""
         return []

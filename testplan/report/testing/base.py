@@ -50,6 +50,8 @@ import inspect
 import hashlib
 import itertools
 
+from marshmallow import exceptions
+
 from testplan.common.report import (
     ExceptionLogger as ExceptionLoggerBase, Report, ReportGroup)
 from testplan.common.utils import timing
@@ -66,8 +68,12 @@ class Status(object):
     INCOMPLETE = 'incomplete'
     PASSED = 'passed'
     SKIPPED = 'skipped'
+    READY = 'ready'
+    RUNNING = 'running'
 
     STATUS_PRECEDENCE = (
+        RUNNING,
+        READY,
         ERROR,
         FAILED,
         INCOMPLETE,
@@ -147,6 +153,21 @@ class BaseReportGroup(ReportGroup):
         return self.status == Status.PASSED
 
     @property
+    def failed(self):
+        """
+        Shortcut for checking if report status is `Status.FAILED` or
+        `Status.ERROR`.
+        """
+        return self.status in (Status.FAILED, Status.ERROR)
+
+    @property
+    def running(self):
+        """
+        Shortcut for checking if report status is `Status.RUNNING`.
+        """
+        return self.status == Status.RUNNING
+
+    @property
     def status(self):
         """
         Status of the report, will be used to decide
@@ -163,7 +184,12 @@ class BaseReportGroup(ReportGroup):
         if self.entries:
             return Status.precedent([entry.status for entry in self])
 
-        return Status.PASSED
+        return Status.READY
+
+    @status.setter
+    def status(self, new_status):
+        for entry in self:
+            entry.status = new_status
 
     def merge_children(self, report, strict=True):
         """
@@ -339,6 +365,24 @@ class TestReport(BaseReportGroup):
         from .schemas import TestReportSchema
         return TestReportSchema(strict=True).load(data).data
 
+    def shallow_serialize(self):
+        """Shortcut for shallow-serializing test report data."""
+        from .schemas import ShallowTestReportSchema
+        return ShallowTestReportSchema(strict=True).dump(self).data
+
+    @classmethod
+    def shallow_deserialize(cls, data, old_report):
+        """
+        Shortcut for deserializing a ``TestReport`` object from its shallow
+        serialized representation.
+        """
+        from .schemas import ShallowTestReportSchema
+        deserialized = ShallowTestReportSchema(strict=True).load(data).data
+        deserialized.entries = old_report.entries
+        deserialized._index = old_report._index
+
+        return deserialized
+
 
 class TestGroupReport(BaseReportGroup):
     """
@@ -423,6 +467,24 @@ class TestGroupReport(BaseReportGroup):
         from .schemas import TestGroupReportSchema
         return TestGroupReportSchema(strict=True).load(data).data
 
+    def shallow_serialize(self):
+        """Shortcut for shallow-serializing test report data."""
+        from .schemas import ShallowTestGroupReportSchema
+        return ShallowTestGroupReportSchema(strict=True).dump(self).data
+
+    @classmethod
+    def shallow_deserialize(cls, data, old_report):
+        """
+        Shortcut for deserializing a ``TestGroupReport`` object from its
+        shallow serialized representation.
+        """
+        from .schemas import ShallowTestGroupReportSchema
+        deserialized = ShallowTestGroupReportSchema(
+            strict=True).load(data).data
+        deserialized.entries = old_report.entries
+        deserialized._index = old_report._index
+        return deserialized
+
     def _collect_tag_indices(self):
         """
         Recursively collect tag indices from children (and their children etc)
@@ -473,11 +535,13 @@ class TestCaseReport(Report):
 
     exception_logger = ExceptionLogger
 
-    def __init__(
-        self, name, description=None,
-        uid=None, entries=None,
-        tags=None, suite_related=False
-    ):
+    def __init__(self,
+                 name,
+                 description=None,
+                 uid=None,
+                 entries=None,
+                 tags=None,
+                 suite_related=False):
         super(TestCaseReport, self).__init__(
             name=name, uid=uid, entries=entries, description=description)
 
@@ -489,6 +553,7 @@ class TestCaseReport(Report):
         self.timer = timing.Timer()
 
         self.attachments = []
+        self._status = Status.READY
 
     def _get_comparison_attrs(self):
         return super(TestCaseReport, self)._get_comparison_attrs() +\
@@ -498,6 +563,21 @@ class TestCaseReport(Report):
     def passed(self):
         """Shortcut for getting if report status is `Status.PASSED`."""
         return self.status == Status.PASSED
+
+    @property
+    def failed(self):
+        """
+        Shortcut for checking if report status is `Status.FAILED` or
+        `Status.ERROR`.
+        """
+        return self.status in (Status.FAILED, Status.ERROR)
+
+    @property
+    def running(self):
+        """
+        Shortcut for checking if report status is `Status.RUNNING`.
+        """
+        return self.status == Status.RUNNING
 
     @property
     def status(self):
@@ -510,8 +590,17 @@ class TestCaseReport(Report):
         if self.status_override:
             return self.status_override
 
+        if self.entries:
+            return self._assertions_status()
+        return self._status
+
+    @status.setter
+    def status(self, new_status):
+        self._status = new_status
+
+    def _assertions_status(self):
         for entry in self:
-            if entry.get('passed') is False:
+            if entry.get("passed") is False:
                 return Status.FAILED
         return Status.PASSED
 
@@ -543,3 +632,21 @@ class TestCaseReport(Report):
                     result.extend(flatten_dicts(d['entries'], _depth + 1))
             return result
         return flatten_dicts(self.entries, depth)
+
+    def serialize(self):
+        """
+        Shortcut for serializing test report data
+        to nested python dictionaries.
+        """
+        from .schemas import TestCaseReportSchema
+        return TestCaseReportSchema(strict=True).dump(self).data
+
+    @classmethod
+    def deserialize(cls, data):
+        """
+        Shortcut for instantiating ``TestCaseReport`` object
+        from nested python dictionaries.
+        """
+        from .schemas import TestCaseReportSchema
+        return TestCaseReportSchema(strict=True).load(data).data
+

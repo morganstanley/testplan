@@ -33,6 +33,8 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
+pytestmark = pytest.mark.skip(reason="Interactive mode is undergoing changes")
+
 
 def _assert_http_response(response, operation, mode,
                           result=None, error=False, metadata=None, trace=None):
