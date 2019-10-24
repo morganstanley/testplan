@@ -224,6 +224,7 @@ const styles = StyleSheet.create({
     display: 'inline-block',
     border: 'none',
     backgroundColor: LIGHT_GREY,
+    cursor: 'pointer',
   },
   navButtonInteract: {
     ':hover': {

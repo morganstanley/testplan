@@ -115,7 +115,7 @@ def bind_entry(method):
         if not entry and not result_obj.continue_on_failure:
             raise AssertionError(entry)
 
-        return bool(entry)
+        return entry
     return _wrapper
 
 

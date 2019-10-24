@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
       '0px 2px 10px 0px rgba(0, 0, 0, 0.16)',
     display: 'inline-block',
     top: '4.5em',
+    'padding-bottom': '4.5em',
     zIndex: 200,
   },
   grip: {

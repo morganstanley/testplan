@@ -3,7 +3,7 @@
 exports[`Column shallow renders the correct HTML structure 1`] = `
 <Fragment>
   <div
-    className="column_1heobik"
+    className="column_1e6n0oe"
     style={
       Object {
         "width": "18em",

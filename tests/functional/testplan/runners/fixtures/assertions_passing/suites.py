@@ -453,14 +453,28 @@ class MySuite(object):
     def test_fix_match_all(self, env, result):
         result.fix.match_all(
             values=[
-                {'foo': 1, 'bar': 2},
-                {'foo': 10, 'bar': 20}
+                test_utils.FixMessage([(10914, 'c1dec2c5'),
+                                       (38, '500'),
+                                       (44, '9')],
+                                      typed_values=False),
+                test_utils.FixMessage([(10914, 'f3ea6276'),
+                                       (38, 501),
+                                       (44, 9.1)],
+                                      typed_values=True),
             ],
             comparisons=[
-                cmp.Expected({'foo': 10, 'bar': 20}),
-                cmp.Expected({'foo': 1, 'bar': 2}),
+                cmp.Expected(
+                    test_utils.FixMessage([(10914, re.compile('.+')),
+                                           (38, 501),
+                                           (44, 9.10)],
+                                          typed_values=True)),
+                cmp.Expected(
+                    test_utils.FixMessage([(10914, 'c1dec2c5'),
+                                           (38, '500'),
+                                           (44, 9.0)],
+                                          typed_values=True)),
             ],
-            description='basic unordered fix match all'
+            description='untyped / unordered fix match all'
         )
 
 

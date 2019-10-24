@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
     float: 'left',
     position: 'relative',
     display: 'block',
+    cursor: 'pointer',
     backgroundColor: MEDIUM_GREY,
     ':before': {
       content: '\' \'',

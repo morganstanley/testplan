@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {ListGroup} from 'reactstrap';
+import {StyleSheet, css} from 'aphrodite';
 
 import NavEntry from './NavEntry';
 import {CreateNavButtons} from './navUtils.js';
@@ -24,10 +25,18 @@ const NavList = (props) => {
 
   return (
     <Column>
-      <ListGroup>{navButtons}</ListGroup>
+      <ListGroup className={css(styles.buttonList)}>{navButtons}</ListGroup>
     </Column>
   );
 };
+
+const styles = StyleSheet.create({
+  buttonList: {
+    'overflow-y': 'auto',
+    'height': '100%',
+  }
+});
+
 
 NavList.propTypes = {
   /** Nav list entries to be displayed */
