@@ -3258,9 +3258,9 @@ exports[`BasicAssertion shallow renders the Log assertion 1`] = `
         ]
       }
     >
-      <span>
+      <pre>
         This is a log message, it will be displayed along with other assertion details.
-      </span>
+      </pre>
     </Col>
   </Row>
   <Row

@@ -3,8 +3,11 @@ Base classes go here.
 """
 import datetime
 import operator
+import pprint
 import re
 import os
+
+from past.builtins import basestring
 
 from testplan.common.utils.convert import nested_groups
 from testplan.common.utils.timing import utcnow
@@ -217,9 +220,12 @@ class Summary(Group):
 
 
 class Log(BaseEntry):
-
+    """Log a str to the report."""
     def __init__(self, message, description=None):
-        self.message = message
+        if isinstance(message, basestring):
+            self.message = message
+        else:
+            self.message = pprint.pformat(message)
 
         super(Log, self).__init__(description=description)
 
