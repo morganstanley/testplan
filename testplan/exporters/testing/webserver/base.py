@@ -73,13 +73,20 @@ class WebServerExporter(Exporter):
 
         # Save any attachments.
         data_path = os.path.dirname(defaults.JSON_PATH)
-        report_name = os.path.basename(defaults.JSON_PATH)
         attachments_dir = os.path.join(data_path, defaults.ATTACHMENTS)
         save_attachments(report=source, directory=attachments_dir)
 
         self.logger.exporter_info('JSON generated at %s', defaults.JSON_PATH)
 
+        self.display(defaults.JSON_PATH)
+
+    def display(self, json_path):
+        """Display a generated JSON in the web UI"""
         # Start the web server.
+
+        data_path = os.path.dirname(json_path)
+        report_name = os.path.basename(json_path)
+
         self._web_server_thread = web_app.WebServer(
             port=self.cfg.ui_port,
             data_path=data_path,
