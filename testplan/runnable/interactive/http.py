@@ -32,11 +32,12 @@ def generate_interactive_api(http_handler, ihandler):
     build_directory = os.path.join(
         os.path.dirname(testplan.__file__), "web_ui", "testing", "build"
     )
+    static_dir = os.path.join(build_directory, "static")
 
     api_prefix = "/api/v1/interactive"
     api_blueprint = flask.Blueprint("api", "testplan")
     api = flask_restplus.Api(api_blueprint)
-    app = flask.Flask("testplan")
+    app = flask.Flask("testplan", static_folder=static_dir)
     app.register_blueprint(api_blueprint, url_prefix=api_prefix)
 
     @app.route("/interactive/")
