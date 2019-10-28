@@ -22,6 +22,7 @@ from testplan.common.utils.thread import execute_as_thread
 from testplan.common.utils.timing import wait
 from testplan.common.utils.path import makeemptydirs, makedirs, default_runpath
 from testplan.common.utils import logger
+from testplan.common.utils import networking
 
 
 class Environment(object):
@@ -700,13 +701,25 @@ class RunnableIHandler(Entity):
         wait(lambda: self._http_handler.port is not None,
              self.cfg.http_handler_startup_timeout,
              raise_on_timeout=True )
+        self._display_connection_info()
+
+    def _display_connection_info(self):
+        """
+        Log information for how to connect to the interactive runner.
+        Currently only the API is implemented so we log how to access the
+        API schema. In future we will log how to access the UI page.
+        """
+        host, port = self._http_handler.host, self._http_handler.port
+
         self.logger.warning(
             'Interactive web viewer is not yet implemented. Interactive mode '
-            'currently only allows control of a Testplan via its HTTP API.')
+            'currently only allows control of a Testplan via its HTTP API.'
+        )
+
         self.logger.test_info(
-            'Interactive Testplan API listening on: %s:%d',
-            self._http_handler.host,
-            self._http_handler.port)
+            'Interactive Testplan API is running. View the API schema:\n%s',
+            networking.format_access_urls(host, port, "/api/v1/interactive/"),
+        )
 
     def __call__(self, *args, **kwargs):
         self.status.change(RunnableStatus.RUNNING)

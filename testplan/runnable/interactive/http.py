@@ -11,8 +11,8 @@ from builtins import str
 from future import standard_library
 
 standard_library.install_aliases()
-import uuid
 from multiprocessing import dummy
+import os
 
 import flask
 import flask_restplus
@@ -20,6 +20,7 @@ from cheroot import wsgi
 import werkzeug.exceptions
 import marshmallow.exceptions
 
+import testplan
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Entity, EntityConfig, RunnableIHandler
 from testplan import defaults
@@ -28,10 +29,36 @@ from testplan import report
 
 def generate_interactive_api(http_handler, ihandler):
     """Generates the interactive API using Flask."""
-    app = flask.Flask(__name__)
-    api = flask_restplus.Api(app)
+    build_directory = os.path.join(
+        os.path.dirname(testplan.__file__), "web_ui", "testing", "build"
+    )
+    static_dir = os.path.join(build_directory, "static")
 
-    @api.route("/api/v1/interactive/report")
+    api_prefix = "/api/v1/interactive"
+    api_blueprint = flask.Blueprint("api", "testplan")
+    api = flask_restplus.Api(api_blueprint)
+    app = flask.Flask("testplan", static_folder=static_dir)
+    app.register_blueprint(api_blueprint, url_prefix=api_prefix)
+
+    @app.route("/interactive/")
+    def interactive():
+        """
+        Main entry point for the interactive mode UI page. Serves the static
+        index.html from the UI app's build directory. We serve the app at
+        /interactive and not just at /index.html or at / because the same app
+        is used for batch and interactive report, and the way it
+        distinguishes between the two modes is by the URL.
+        """
+        return flask.send_from_directory(build_directory, "index.html")
+
+    @app.route("/<path:filename>")
+    def serve_static(filename):
+        """
+        Serve all static files (HTML, JS, CSS, images etc.) at the root path.
+        """
+        return flask.send_from_directory(build_directory, filename)
+
+    @api.route("/report")
     class Report(flask_restplus.Resource):
         """
         Interactive report endpoint. There is a single root report object
@@ -65,7 +92,7 @@ def generate_interactive_api(http_handler, ihandler):
                 ihandler.report = new_report
                 return ihandler.report.shallow_serialize()
 
-    @api.route("/api/v1/interactive/report/tests")
+    @api.route("/report/tests")
     class AllTests(flask_restplus.Resource):
         """
         Tests endpoint. Represents all Test objects in the report. Read-only.
@@ -76,7 +103,7 @@ def generate_interactive_api(http_handler, ihandler):
             with ihandler.report_mutex:
                 return [test.uid for test in ihandler.report]
 
-    @api.route("/api/v1/interactive/report/tests/<string:test_uid>")
+    @api.route("/report/tests/<string:test_uid>")
     class SingleTest(flask_restplus.Resource):
         """
         Test endpoint. Represents a single Test object in the testplan with
@@ -120,7 +147,7 @@ def generate_interactive_api(http_handler, ihandler):
                 ihandler.report[test_uid] = new_test
                 return ihandler.report[test_uid].shallow_serialize()
 
-    @api.route("/api/v1/interactive/report/tests/<string:test_uid>/suites")
+    @api.route("/report/tests/<string:test_uid>/suites")
     class AllSuites(flask_restplus.Resource):
         """
         Suites endpoint. Represents all test suites within a Test object.
@@ -133,10 +160,7 @@ def generate_interactive_api(http_handler, ihandler):
             except KeyError:
                 raise werkzeug.exceptions.NotFound
 
-    @api.route(
-        "/api/v1/interactive/report/tests/<string:test_uid>/suites/"
-        "<string:suite_uid>"
-    )
+    @api.route("/report/tests/<string:test_uid>/suites/<string:suite_uid>")
     class SingleSuite(flask_restplus.Resource):
         """
         Suite endpoint. Represents a single test suite within a Test object
@@ -183,8 +207,7 @@ def generate_interactive_api(http_handler, ihandler):
                 return ihandler.report[test_uid][suite_uid].shallow_serialize()
 
     @api.route(
-        "/api/v1/interactive/report/tests/<string:test_uid>/suites/"
-        "<string:suite_uid>/testcases"
+        "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
     )
     class AllTestcases(flask_restplus.Resource):
         """
@@ -204,8 +227,8 @@ def generate_interactive_api(http_handler, ihandler):
                     raise werkzeug.exceptions.NotFound
 
     @api.route(
-        "/api/v1/interactive/report/tests/<string:test_uid>/suites/"
-        "<string:suite_uid>/testcases/<string:testcase_uid>"
+        "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
+        "/<string:testcase_uid>"
     )
     class SingleTestcase(flask_restplus.Resource):
         """
@@ -328,12 +351,21 @@ class TestRunnerHTTPHandler(Entity):
 
     @property
     def host(self):
+        """
+        :return: the hostname the server is listening on, or None if the server
+            is not running.
+        """
         if self._server is None or not self._server.ready:
             return None
         return self._server.bind_addr[0]
 
     @property
     def port(self):
+        """
+        :return: the port the server is listening on, or None if the server is
+            not running. Note that when ephemeral ports (port 0) is requested,
+            this property will return the actual port that is given.
+        """
         if self._server is None or not self._server.ready:
             return None
         return self._server.bind_addr[1]
@@ -343,6 +375,7 @@ class TestRunnerHTTPHandler(Entity):
         Runs the threader HTTP handler for interactive mode.
         """
         app, _ = generate_interactive_api(self, self.cfg.ihandler)
+
         self._server = wsgi.Server((self.cfg.host, self.cfg.port), app)
 
         # Cannot use context manager on Python 2 to use try/finally to ensure
