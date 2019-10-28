@@ -10,7 +10,7 @@ from my_tests.mtest import make_multitest
 
 # Hard coding interactive mode usage.
 @test_plan(name='MyPlan',
-           interactive=True,
+           interactive_port=0,
            stdout_style=Style(
                passing=StyleEnum.ASSERTION_DETAIL,
                failing=StyleEnum.ASSERTION_DETAIL))
@@ -28,26 +28,7 @@ if __name__ == '__main__':
 # INTERACTIVE MODE DEMO:
 # ----------------------
 #
-# When HTTP handler starts listening on <IP>:$PORT
-# use a tool like curl to send HTTP requests and execute/reload tests.
-#
-# First execute the tests:
-#     curl -X POST http://127.0.0.1:$PORT/sync/run_tests
-#
-# Make an an edit in my_tests/dependency.py
-#   VALUE = 3
-#     change to:
-#   VALUE = 1
-#
-# Reload the code:
-#     curl -X POST http://127.0.0.1:$PORT/sync/reload
-#
-# Re-run the tests:
-#     curl -X POST http://127.0.0.1:$PORT/sync/run_tests
-#
-# Run only one suite:
-#     curl -X POST http://127.0.0.1:$PORT/sync/run_test_suite -d '{"test_uid": "Test1", "suite_uid": "BasicSuite"}'
-#
-# .. and all other operations that Testplan interactive provides.
-
-
+# You can browse the API schema at either localhost or at the LAN address
+# that's printed when running this testplan script. The API schema is
+# interactive so you can test out the available functionality. In order to
+# run a test, issue a PUT request with the test's status set to "running".
