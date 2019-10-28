@@ -28,7 +28,7 @@ if __name__ == '__main__':
 # INTERACTIVE MODE DEMO:
 # ----------------------
 #
-# View the API schema at either the localhost or LAN address printed when this
-# testplan script is run. The schema is interactive so can be used to try out
-# the API. To run a test, set its status to "running" on a PUT update.
-
+# You can browse the API schema at either localhost or at the LAN address
+# that's printed when running this testplan script. The API schema is
+# interactive so you can test out the available functionality. In order to
+# run a test, issue a PUT request with the test's status set to "running".
