@@ -30,9 +30,9 @@ import {hashCode} from '../../Common/utils';
  */
 function prepareLogContent(assertion, defaultContent) {
   const preContent = (
-    <span>
+    <pre>
       {assertion.message !== undefined ? assertion.message : null}
-     </span>
+     </pre>
   );
 
   return {
