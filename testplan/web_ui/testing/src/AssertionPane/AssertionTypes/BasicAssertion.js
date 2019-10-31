@@ -95,6 +95,7 @@ BasicAssertion.propTypes = {
 const styles = StyleSheet.create({
   contentSpan: {
     lineHeight: '110%',
+    'overflow-x': 'auto',
   },
 });
 
