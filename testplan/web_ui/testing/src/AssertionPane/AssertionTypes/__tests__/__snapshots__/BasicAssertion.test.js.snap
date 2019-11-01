@@ -25,7 +25,7 @@ exports[`BasicAssertion shallow renders the Contain assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -81,7 +81,7 @@ exports[`BasicAssertion shallow renders the Contain assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -102,7 +102,7 @@ exports[`BasicAssertion shallow renders the Contain assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -145,7 +145,7 @@ exports[`BasicAssertion shallow renders the Contain assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -187,7 +187,7 @@ exports[`BasicAssertion shallow renders the DictCheck assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -289,7 +289,7 @@ exports[`BasicAssertion shallow renders the DictCheck assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -305,7 +305,7 @@ exports[`BasicAssertion shallow renders the DictCheck assertion 1`] = `
       <span />
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -344,7 +344,7 @@ exports[`BasicAssertion shallow renders the DictCheck assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -386,7 +386,7 @@ exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -442,7 +442,7 @@ exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -462,7 +462,7 @@ exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -503,7 +503,7 @@ exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -549,7 +549,7 @@ exports[`BasicAssertion shallow renders the EqualExcludeSlices assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -621,7 +621,7 @@ slice(4, 8, None)
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -729,7 +729,7 @@ slice(4, 8, None)
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -860,7 +860,7 @@ slice(4, 8, None)
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -906,7 +906,7 @@ exports[`BasicAssertion shallow renders the EqualSlices assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -978,7 +978,7 @@ slice(6, 8, None)
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -1086,7 +1086,7 @@ slice(6, 8, None)
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -1217,7 +1217,7 @@ slice(6, 8, None)
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -1259,7 +1259,7 @@ exports[`BasicAssertion shallow renders the ExceptionNotRaised assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -1319,7 +1319,7 @@ exports[`BasicAssertion shallow renders the ExceptionNotRaised assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -1339,7 +1339,7 @@ exports[`BasicAssertion shallow renders the ExceptionNotRaised assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -1385,7 +1385,7 @@ exports[`BasicAssertion shallow renders the ExceptionNotRaised assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -1427,7 +1427,7 @@ exports[`BasicAssertion shallow renders the ExceptionRaised assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -1487,7 +1487,7 @@ exports[`BasicAssertion shallow renders the ExceptionRaised assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -1507,7 +1507,7 @@ exports[`BasicAssertion shallow renders the ExceptionRaised assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -1553,7 +1553,7 @@ exports[`BasicAssertion shallow renders the ExceptionRaised assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -1595,7 +1595,7 @@ exports[`BasicAssertion shallow renders the Fail assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -1647,7 +1647,7 @@ exports[`BasicAssertion shallow renders the Fail assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -1663,7 +1663,7 @@ exports[`BasicAssertion shallow renders the Fail assertion 1`] = `
       <span />
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -1702,7 +1702,7 @@ exports[`BasicAssertion shallow renders the Fail assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -1744,7 +1744,7 @@ exports[`BasicAssertion shallow renders the FixCheck assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -1857,7 +1857,7 @@ exports[`BasicAssertion shallow renders the FixCheck assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -1873,7 +1873,7 @@ exports[`BasicAssertion shallow renders the FixCheck assertion 1`] = `
       <span />
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -1912,7 +1912,7 @@ exports[`BasicAssertion shallow renders the FixCheck assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -1954,7 +1954,7 @@ exports[`BasicAssertion shallow renders the Greater assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2010,7 +2010,7 @@ exports[`BasicAssertion shallow renders the Greater assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -2033,7 +2033,7 @@ exports[`BasicAssertion shallow renders the Greater assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -2074,7 +2074,7 @@ exports[`BasicAssertion shallow renders the Greater assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2116,7 +2116,7 @@ exports[`BasicAssertion shallow renders the GreaterEqual assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2172,7 +2172,7 @@ exports[`BasicAssertion shallow renders the GreaterEqual assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -2195,7 +2195,7 @@ exports[`BasicAssertion shallow renders the GreaterEqual assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -2236,7 +2236,7 @@ exports[`BasicAssertion shallow renders the GreaterEqual assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2278,7 +2278,7 @@ exports[`BasicAssertion shallow renders the IsClose assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2334,7 +2334,7 @@ exports[`BasicAssertion shallow renders the IsClose assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -2361,7 +2361,7 @@ exports[`BasicAssertion shallow renders the IsClose assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -2402,7 +2402,7 @@ exports[`BasicAssertion shallow renders the IsClose assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2444,7 +2444,7 @@ exports[`BasicAssertion shallow renders the IsFalse assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2500,7 +2500,7 @@ exports[`BasicAssertion shallow renders the IsFalse assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -2520,7 +2520,7 @@ exports[`BasicAssertion shallow renders the IsFalse assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -2563,7 +2563,7 @@ exports[`BasicAssertion shallow renders the IsFalse assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2605,7 +2605,7 @@ exports[`BasicAssertion shallow renders the IsTrue assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2661,7 +2661,7 @@ exports[`BasicAssertion shallow renders the IsTrue assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -2681,7 +2681,7 @@ exports[`BasicAssertion shallow renders the IsTrue assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -2724,7 +2724,7 @@ exports[`BasicAssertion shallow renders the IsTrue assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2766,7 +2766,7 @@ exports[`BasicAssertion shallow renders the Less assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2822,7 +2822,7 @@ exports[`BasicAssertion shallow renders the Less assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -2845,7 +2845,7 @@ exports[`BasicAssertion shallow renders the Less assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -2886,7 +2886,7 @@ exports[`BasicAssertion shallow renders the Less assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2928,7 +2928,7 @@ exports[`BasicAssertion shallow renders the LessEqual assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -2984,7 +2984,7 @@ exports[`BasicAssertion shallow renders the LessEqual assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -3007,7 +3007,7 @@ exports[`BasicAssertion shallow renders the LessEqual assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -3048,7 +3048,7 @@ exports[`BasicAssertion shallow renders the LessEqual assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -3090,7 +3090,7 @@ exports[`BasicAssertion shallow renders the LineDiff assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -3146,7 +3146,7 @@ exports[`BasicAssertion shallow renders the LineDiff assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -3164,7 +3164,7 @@ exports[`BasicAssertion shallow renders the LineDiff assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -3203,7 +3203,7 @@ exports[`BasicAssertion shallow renders the LineDiff assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -3245,7 +3245,7 @@ exports[`BasicAssertion shallow renders the Log assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -3301,7 +3301,7 @@ exports[`BasicAssertion shallow renders the Log assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -3317,7 +3317,7 @@ exports[`BasicAssertion shallow renders the Log assertion 1`] = `
       <span />
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -3356,7 +3356,7 @@ exports[`BasicAssertion shallow renders the Log assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -3398,7 +3398,7 @@ exports[`BasicAssertion shallow renders the NotContain assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -3454,7 +3454,7 @@ exports[`BasicAssertion shallow renders the NotContain assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -3475,7 +3475,7 @@ exports[`BasicAssertion shallow renders the NotContain assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -3518,7 +3518,7 @@ exports[`BasicAssertion shallow renders the NotContain assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -3560,7 +3560,7 @@ exports[`BasicAssertion shallow renders the NotEqual assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -3616,7 +3616,7 @@ exports[`BasicAssertion shallow renders the NotEqual assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -3637,7 +3637,7 @@ exports[`BasicAssertion shallow renders the NotEqual assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -3678,7 +3678,7 @@ exports[`BasicAssertion shallow renders the NotEqual assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -3720,7 +3720,7 @@ exports[`BasicAssertion shallow renders the RegexFindIter assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -3780,7 +3780,7 @@ exports[`BasicAssertion shallow renders the RegexFindIter assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -3814,7 +3814,7 @@ exports[`BasicAssertion shallow renders the RegexFindIter assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -3925,7 +3925,7 @@ exports[`BasicAssertion shallow renders the RegexFindIter assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -3967,7 +3967,7 @@ exports[`BasicAssertion shallow renders the RegexMatch assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -4027,7 +4027,7 @@ exports[`BasicAssertion shallow renders the RegexMatch assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -4050,7 +4050,7 @@ exports[`BasicAssertion shallow renders the RegexMatch assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -4116,7 +4116,7 @@ exports[`BasicAssertion shallow renders the RegexMatch assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -4158,7 +4158,7 @@ exports[`BasicAssertion shallow renders the RegexMatchLine assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -4218,7 +4218,7 @@ exports[`BasicAssertion shallow renders the RegexMatchLine assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -4238,7 +4238,7 @@ exports[`BasicAssertion shallow renders the RegexMatchLine assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -4319,7 +4319,7 @@ exports[`BasicAssertion shallow renders the RegexMatchLine assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -4361,7 +4361,7 @@ exports[`BasicAssertion shallow renders the RegexMatchNotExists assertion 1`] = 
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -4421,7 +4421,7 @@ exports[`BasicAssertion shallow renders the RegexMatchNotExists assertion 1`] = 
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -4444,7 +4444,7 @@ exports[`BasicAssertion shallow renders the RegexMatchNotExists assertion 1`] = 
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -4497,7 +4497,7 @@ exports[`BasicAssertion shallow renders the RegexMatchNotExists assertion 1`] = 
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -4539,7 +4539,7 @@ exports[`BasicAssertion shallow renders the RegexSearch assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -4599,7 +4599,7 @@ exports[`BasicAssertion shallow renders the RegexSearch assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -4622,7 +4622,7 @@ exports[`BasicAssertion shallow renders the RegexSearch assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -4692,7 +4692,7 @@ third line
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -4734,7 +4734,7 @@ exports[`BasicAssertion shallow renders the RegexSearchNotExists assertion 1`] =
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -4794,7 +4794,7 @@ exports[`BasicAssertion shallow renders the RegexSearchNotExists assertion 1`] =
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -4817,7 +4817,7 @@ exports[`BasicAssertion shallow renders the RegexSearchNotExists assertion 1`] =
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -4872,7 +4872,7 @@ third line
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -4914,7 +4914,7 @@ exports[`BasicAssertion shallow renders the XMLCheck assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
@@ -4974,7 +4974,7 @@ exports[`BasicAssertion shallow renders the XMLCheck assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -4994,7 +4994,7 @@ exports[`BasicAssertion shallow renders the XMLCheck assertion 1`] = `
       </span>
     </Col>
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="6"
       tag="div"
       widths={
@@ -5046,7 +5046,7 @@ exports[`BasicAssertion shallow renders the XMLCheck assertion 1`] = `
     tag="div"
   >
     <Col
-      className="contentSpan_12mhtst"
+      className="contentSpan_11nzg99"
       lg="12"
       tag="div"
       widths={
