@@ -49,24 +49,18 @@ class HTTPExporter(Exporter):
         errmsg = ''
 
         if data and data['entries']:
-            headers = {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json, text/javascript, */*; q=0.01'
-            }
             try:
                 response = requests.post(
-                    url=url, data=json.dumps(data), headers=headers,
-                    timeout=self.cfg.timeout)
+                    url=url, json=data, timeout=self.cfg.timeout)
                 response.raise_for_status()
             except requests.exceptions.RequestException as exp:
                 errmsg = 'Failed to export to {}: {}'.format(url, exp)
         else:
             errmsg = (
                 'Skipping exporting test report via http '
-                'for empty report: %s', data.name)
+                'for empty report: {}'.format(data['name']))
 
         return response, errmsg
-
 
 
     def export(self, source):
