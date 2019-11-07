@@ -1859,16 +1859,15 @@ class Result(object):
         """
         Displays a Graph in the report.
 
-         .. code-block:: python
+        .. code-block:: python
 
-             result.graph('Line',
-                          {
-                              'graph 1':[{'x': 0, 'y': 8},{'x': 1, 'y': 5}]
-                          },
-                          description='Line Graph',
-                          series_options={'graph 1':{"colour": "red"}},
-                          graph_options=None
-              )
+            result.graph('Line',
+                      {
+                          'graph 1':[{'x': 0, 'y': 8},{'x': 1, 'y': 5}]
+                      },
+                      description='Line Graph',
+                      series_options={'graph 1':{"colour": "red"}},
+                      graph_options=None)
 
         :param graph_type: Type of graph user wants to create.
                           Currently implemented:
