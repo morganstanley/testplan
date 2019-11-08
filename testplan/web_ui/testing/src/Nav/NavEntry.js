@@ -21,7 +21,9 @@ const NavEntry = (props) => {
   const badgeStyle = `${props.status}Badge`;
   return (
     <div className='d-flex justify-content-between'>
-      <div className={css(styles.entryName, styles[props.status])}>
+      <div
+        className={css(styles.entryName, styles[props.status])}
+        title={props.name}>
         {props.name}
       </div>
       <div className={css(styles.entryIcons)}>
@@ -59,6 +61,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     fontSize: '1em',
     fontWeight: 500,
+    width: '11em',
   },
   entryIcons: {
     paddingLeft: '1em',
