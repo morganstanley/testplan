@@ -81,7 +81,7 @@ const ENTRY_TYPES = [
 const STATUS = [
   'passed',
   'failed',
-
+  'error',
   // The following statuses only apply to interactive mode. TODO: maybe create
   // a new INTERACTIVE_STATUS enum?
   'ready',

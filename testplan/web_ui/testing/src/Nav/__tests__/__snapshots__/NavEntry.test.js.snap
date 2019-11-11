@@ -5,7 +5,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
   className="d-flex justify-content-between"
 >
   <div
-    className="entryName_udjila-o_O-passed_1kh4m98"
+    className="entryName_3yx7w6-o_O-passed_1kh4m98"
     title="entry name"
   >
     entry name
