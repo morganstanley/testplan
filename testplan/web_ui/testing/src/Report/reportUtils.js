@@ -123,7 +123,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
     indices.case_count.failed += caseCount.failed;
   }
   return indices;
-}
+};
 
 /**
  * Propagate indices through report to be utilised by filter box. A single entry
