@@ -5,7 +5,7 @@ import axios from 'axios';
 import Toolbar from '../Toolbar/Toolbar';
 import Nav from '../Nav/Nav';
 import {
-  propagateIndices,
+  PropagateIndices,
   UpdateSelectedState,
   GetReportState,
   GetCenterPane,
@@ -56,25 +56,27 @@ class BatchReport extends React.Component {
     // we will display a fake report for development purposes.
     const uid = this.props.match.params.uid;
     if (uid === "_dev") {
-      const [r] = propagateIndices([fakeReportAssertions]);
+      const processedReport = PropagateIndices(fakeReportAssertions);
       setTimeout(
         () => this.setState({
-          report: r,
-          selected: this.autoSelect(r),
+          report: processedReport,
+          selected: this.autoSelect(processedReport),
           loading: false,
         }),
         1500);
     } else {
       axios.get(`/api/v1/reports/${uid}`)
-        .then(response => propagateIndices([response.data]))
-        .then(reportEntries => this.setState({
-          report: reportEntries[0],
-          selected: this.autoSelect(reportEntries[0]),
-          loading: false
-        }))
+        .then(response => {
+          const processedReport = PropagateIndices(fakeReportAssertions);
+          this.setState({
+            report: processedReport,
+            selected: this.autoSelect(processedReport),
+            loading: false,
+          });
+        })
         .catch(error => this.setState({
-          error,
-          loading: false
+          error: error,
+          loading: false,
         }));
     }
   }
