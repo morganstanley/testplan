@@ -55,7 +55,7 @@ function _mergeTags(tagsA, tagsB) {
  * Array.
  * @private
  */
-function propagateIndices(entries, parentIndices) {
+const propagateIndicesRecur = (entries, parentIndices) => {
   if (parentIndices === undefined) {
     parentIndices = {
       tags_index: {},
@@ -90,7 +90,7 @@ function propagateIndices(entries, parentIndices) {
 
     if (entryType !== 'testcase') {
       // Propagate indices to children.
-      let descendantsIndices = propagateIndices(
+      let descendantsIndices = propagateIndicesRecur(
         entry.entries,
         {tags_index: tags, name_type_index: nameTypeIndex}
       );
@@ -137,7 +137,7 @@ function propagateIndices(entries, parentIndices) {
  * @returns {Array} - The Testplan report with indices, in an Array.
  */
 const PropagateIndices = (report) => {
-  propagateIndices([report], undefined);
+  propagateIndicesRecur([report], undefined);
   return report;
 };
 
