@@ -101,7 +101,7 @@ def generate_interactive_api(http_handler, ihandler):
         def get(self):
             """Get the UIDs of all tests defined in the testplan."""
             with ihandler.report_mutex:
-                return [test.uid for test in ihandler.report]
+                return [test.shallow_serialize() for test in ihandler.report]
 
     @api.route("/report/tests/<string:test_uid>")
     class SingleTest(flask_restplus.Resource):
@@ -156,7 +156,8 @@ def generate_interactive_api(http_handler, ihandler):
         def get(self, test_uid):
             """Get the UIDs of all test suites owned by a specific test."""
             try:
-                return [entry.uid for entry in ihandler.report[test_uid]]
+                return [entry.shallow_serialize()
+                        for entry in ihandler.report[test_uid]]
             except KeyError:
                 raise werkzeug.exceptions.NotFound
 
@@ -220,7 +221,7 @@ def generate_interactive_api(http_handler, ihandler):
             with ihandler.report_mutex:
                 try:
                     return [
-                        entry.uid
+                        entry.serialize()
                         for entry in ihandler.report[test_uid][suite_uid]
                     ]
                 except KeyError:

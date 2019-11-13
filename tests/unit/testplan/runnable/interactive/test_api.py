@@ -105,20 +105,21 @@ class TestReport(object):
         assert rsp.status == "400 BAD REQUEST"
 
 
-class TestTests(object):
-    """Test the Tests resource."""
+class TestAllTests(object):
+    """Test the AllTests resource."""
 
     def test_get(self, api_env):
-        """Test reading the Tests resource via GET."""
-        client, _, _ = api_env
+        """Test reading the AllTests resource via GET."""
+        client, _, ihandler = api_env
         rsp = client.get("/api/v1/interactive/report/tests")
         assert rsp.status == "200 OK"
         json_rsp = rsp.get_json()
-        assert json_rsp == ["MTest1"]
+        json_tests = [test.shallow_serialize() for test in ihandler.report]
+        assert json_rsp == json_tests
 
     def test_put(self, api_env):
         """
-        Test attempting to update the Tests resource via PUT. This resource
+        Test attempting to update the AllTests resource via PUT. This resource
         is read-only so PUT is not allowed.
         """
         client, _, _ = api_env
@@ -126,11 +127,11 @@ class TestTests(object):
         assert rsp.status == "405 METHOD NOT ALLOWED"
 
 
-class TestTest(object):
-    """Test the Test endpoint."""
+class TestSingleTest(object):
+    """Test the SingleTest resource."""
 
     def test_get(self, api_env):
-        """Test reading the Test resource via GET."""
+        """Test reading the SingleTest resource via GET."""
         client, mock_httphandler, ihandler = api_env
         rsp = client.get("/api/v1/interactive/report/tests/MTest1")
         assert rsp.status == "200 OK"
@@ -140,7 +141,7 @@ class TestTest(object):
         assert json_rsp == json_test
 
     def test_put(self, api_env):
-        """Test updating the Test resource via PUT."""
+        """Test updating the SingleTest resource via PUT."""
         client, mock_httphandler, ihandler = api_env
 
         json_test = ihandler.report["MTest1"].shallow_serialize()
@@ -171,32 +172,36 @@ class TestTest(object):
         assert rsp.status == "400 BAD REQUEST"
 
 
-class TestSuites(object):
-    """Test the Suites resource."""
+class TestAllSuites(object):
+    """Test the AllSuites resource."""
 
     def test_get(self, api_env):
-        """Test reading the Suites resource via GET."""
-        client, _, _ = api_env
+        """Test reading the AllSuites resource via GET."""
+        client, _, ihandler = api_env
         rsp = client.get("/api/v1/interactive/report/tests/MTest1/suites")
         assert rsp.status == "200 OK"
         json_rsp = rsp.get_json()
-        assert json_rsp == ["MT1Suite1"]
+        json_suites = [
+            suite.shallow_serialize()
+            for suite in ihandler.report["MTest1"]
+        ]
+        assert json_rsp == json_suites
 
     def test_put(self, api_env):
         """
-        Test attempting to update the Suites resource via PUT. This resource is
-        read-only so PUT is not allowed.
+        Test attempting to update the AllSuites resource via PUT. This resource
+        is read-only so PUT is not allowed.
         """
         client, _, _ = api_env
         rsp = client.put("/api/v1/interactive/report/tests/MTest1/suites")
         assert rsp.status == "405 METHOD NOT ALLOWED"
 
 
-class TestSuite(object):
-    """Test the Suite resource."""
+class TestSingleSuite(object):
+    """Test the SingleSuite resource."""
 
     def test_get(self, api_env):
-        """Test reading the Suite resource via GET."""
+        """Test reading the SingleSuite resource via GET."""
         client, mock_httphandler, ihandler = api_env
         rsp = client.get(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1"
@@ -208,7 +213,7 @@ class TestSuite(object):
         assert json_rsp == suite_json
 
     def test_put(self, api_env):
-        """Test updating the Suite resource via PUT."""
+        """Test updating the SingleSuite resource via PUT."""
         client, mock_httphandler, ihandler = api_env
 
         suite_json = ihandler.report["MTest1"]["MT1Suite1"].shallow_serialize()
@@ -242,23 +247,27 @@ class TestSuite(object):
         assert rsp.status == "400 BAD REQUEST"
 
 
-class TestTestcases(object):
+class TestAllTestcases(object):
     """Test the Testcases resource."""
 
     def test_get(self, api_env):
-        """Test reading the Testcases resource via GET."""
-        client, mock_httphandler, ihandler = api_env
+        """Test reading the AllTestcases resource via GET."""
+        client, _, ihandler = api_env
         rsp = client.get(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/testcases"
         )
         assert rsp.status == "200 OK"
         json_rsp = rsp.get_json()
-        assert json_rsp == ["MT1S1TC1"]
+        json_testcases = [
+            testcase.serialize()
+            for testcase in ihandler.report["MTest1"]["MT1Suite1"]
+        ]
+        assert json_rsp == json_testcases
 
     def test_put(self, api_env):
         """
-        Test attempting to update the Testcases resource via PUT. This resource
-        is read-only so PUT is not allowed.
+        Test attempting to update the AllTestcases resource via PUT. This
+        resource is read-only so PUT is not allowed.
         """
         client, _, _ = api_env
         rsp = client.put(
@@ -267,11 +276,11 @@ class TestTestcases(object):
         assert rsp.status == "405 METHOD NOT ALLOWED"
 
 
-class TestTestcase(object):
-    """Test the Testcase resource."""
+class TestSingleTestcase(object):
+    """Test the SingleTestcase resource."""
 
     def test_get(self, api_env):
-        """Test reading the Testcase resource via GET."""
+        """Test reading the SingleTestcase resource via GET."""
         client, mock_httphandler, ihandler = api_env
         rsp = client.get(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/testcases/"
@@ -286,7 +295,7 @@ class TestTestcase(object):
         assert json_rsp == testcase_json
 
     def test_put(self, api_env):
-        """Test updating the Testcase resource via PUT."""
+        """Test updating the SingleTestcase resource via PUT."""
         client, mock_httphandler, ihandler = api_env
 
         testcase_json = ihandler.report["MTest1"]["MT1Suite1"][
