@@ -828,11 +828,6 @@ class DictNamespace(AssertionNamespace):
                                and actual dicts. Defaults to using
                                `operator.eq()`.
         :type value_cmp_func: ``Callable[[Any, Any], bool]``
-        :param discard_passing: Flag to discard passing comparisons from the
-                                result and only include failures, to reduce the
-                                size of the result when comparing very large
-                                dicts. Defaults to False.
-        :type discard_passing: ``bool``
 
         :return: Assertion pass status
         :rtype: ``bool``
@@ -1036,11 +1031,6 @@ class FixNamespace(AssertionNamespace):
         :type description: ``str``
         :param category: Custom category that will be used for summarization.
         :type category: ``str``
-        :param discard_passing: Flag to discard passing comparisons from the
-                                result and only include failures, to reduce the
-                                size of the result when comparing very large
-                                dicts. Defaults to False.
-        :type discard_passing: ``bool``
 
         :return: Assertion pass status
         :rtype: ``bool``

@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     fontSize: '1em',
     fontWeight: 500,
-    width: '11em',
+    flex: 1,
   },
   entryIcons: {
     paddingLeft: '1em',
@@ -78,10 +78,17 @@ const styles = StyleSheet.create({
     backgroundColor: RED,
     opacity: 0.5,
   },
+  errorBadge: {
+    backgroundColor: RED,
+    opacity: 0.5,
+  },
   passed: {
     color: GREEN,
   },
   failed: {
+    color: RED,
+  },
+  error: {
     color: RED,
   },
 });

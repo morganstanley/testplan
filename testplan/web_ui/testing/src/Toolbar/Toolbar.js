@@ -103,7 +103,7 @@ class Toolbar extends Component {
   render() {
     const toolbarStyle = this.props.status === 'passed' ?
       css(styles.toolbar, styles.toolbarPassed) :
-      this.props.status === 'failed' ?
+      ['failed', 'error'].includes(this.props.status) ?
         css(styles.toolbar, styles.toolbarFailed) :
         css(styles.toolbar, styles.toolbarNeutral);
 
