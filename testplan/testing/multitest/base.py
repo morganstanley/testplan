@@ -402,31 +402,31 @@ class MultiTest(Test):
                         raise
 
             while self.active:
-                if self.status.tag == Runnable.STATUS.RUNNING:
-                    try:
-                        next_suite, testcases = ctx.pop(0)
-                    except IndexError:
-                        style = self.get_stdout_style(report.passed)
-                        if style.display_test:
-                            self.log_multitest_status(report)
-                        break
-                    else:
-                        testsuite_report = TestGroupReport(
-                            name=get_testsuite_name(next_suite),
-                            description=next_suite.__class__.__doc__,
-                            category=Categories.SUITE,
-                            uid=get_testsuite_name(next_suite),
-                            tags=next_suite.__tags__,
-                        )
-                        report.append(testsuite_report)
+                try:
+                    next_suite, testcases = ctx.pop(0)
+                except IndexError:
+                    style = self.get_stdout_style(report.passed)
+                    if style.display_test:
+                        self.log_multitest_status(report)
+                    break
+                else:
+                    testsuite_report = TestGroupReport(
+                        name=get_testsuite_name(next_suite),
+                        description=next_suite.__class__.__doc__,
+                        category=Categories.SUITE,
+                        uid=get_testsuite_name(next_suite),
+                        tags=next_suite.__tags__,
+                    )
+                    report.append(testsuite_report)
 
-                        with testsuite_report.logged_exceptions():
-                            self._run_suite(
-                                next_suite, testcases, testsuite_report)
+                    with testsuite_report.logged_exceptions():
+                        self._run_suite(
+                            next_suite, testcases, testsuite_report)
 
-                        if self.get_stdout_style(
-                              testsuite_report.passed).display_suite:
-                            self.log_suite_status(testsuite_report)
+                    if self.get_stdout_style(
+                          testsuite_report.passed).display_suite:
+                        self.log_suite_status(testsuite_report)
+
                 time.sleep(self.cfg.active_loop_sleep)
 
             if ctx:  # Execution aborted and still some suites left there
@@ -505,34 +505,33 @@ class MultiTest(Test):
                 self._thread_pool_available = True
 
             while self.active:
-                if self.status.tag == Runnable.STATUS.RUNNING:
-                    try:
-                        testcase = testcases.pop(0)
-                    except IndexError:
-                        break
+                try:
+                    testcase = testcases.pop(0)
+                except IndexError:
+                    break
+                else:
+                    exec_group = getattr(testcase, 'execution_group', '')
+                    if exec_group:
+                        if exec_group != current_exec_group:
+                            self._interruptible_testcase_queue_join()
+                            current_exec_group = exec_group
+                        if not self._thread_pool_available:  # Error found
+                            break
+                        task = (testcase, pre_testcase, post_testcase,
+                                create_testcase_report(testcase))
+                        self._testcase_queue.put(task)
                     else:
-                        exec_group = getattr(testcase, 'execution_group', '')
-                        if exec_group:
-                            if exec_group != current_exec_group:
-                                self._interruptible_testcase_queue_join()
-                                current_exec_group = exec_group
-                            if not self._thread_pool_available:  # Error found
+                        testcase_report = create_testcase_report(testcase)
+                        self._run_testcase(
+                            testcase=testcase,
+                            pre_testcase=pre_testcase,
+                            post_testcase=post_testcase,
+                            testcase_report=testcase_report
+                        )
+                        if testcase_report.status == Status.ERROR:
+                            if self.cfg.stop_on_error:
+                                self._thread_pool_available = False
                                 break
-                            task = (testcase, pre_testcase, post_testcase,
-                                    create_testcase_report(testcase))
-                            self._testcase_queue.put(task)
-                        else:
-                            testcase_report = create_testcase_report(testcase)
-                            self._run_testcase(
-                                testcase=testcase,
-                                pre_testcase=pre_testcase,
-                                post_testcase=post_testcase,
-                                testcase_report=testcase_report
-                            )
-                            if testcase_report.status == Status.ERROR:
-                                if self.cfg.stop_on_error:
-                                    self._thread_pool_available = False
-                                    break
 
                 time.sleep(self.cfg.active_loop_sleep)
 

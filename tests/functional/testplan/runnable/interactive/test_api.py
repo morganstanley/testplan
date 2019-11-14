@@ -82,19 +82,21 @@ EXPECTED_INITIAL_GET = [
     ),
     (
         "/report/tests",
-        [{
-            "category": "multitest",
-            "description": None,
-            "entry_uids": ["ExampleSuite"],
-            "fix_spec_path": None,
-            "name": "ExampleMTest",
-            "part": None,
-            "status": "ready",
-            "status_override": None,
-            "tags": {},
-            "timer": {},
-            "uid": "ExampleMTest",
-        }],
+        [
+            {
+                "category": "multitest",
+                "description": None,
+                "entry_uids": ["ExampleSuite"],
+                "fix_spec_path": None,
+                "name": "ExampleMTest",
+                "part": None,
+                "status": "ready",
+                "status_override": None,
+                "tags": {},
+                "timer": {},
+                "uid": "ExampleMTest",
+            }
+        ],
     ),
     (
         "/report/tests/ExampleMTest",
@@ -114,19 +116,21 @@ EXPECTED_INITIAL_GET = [
     ),
     (
         "/report/tests/ExampleMTest/suites",
-        [{
-            "category": "suite",
-            "description": None,
-            "entry_uids": ["test_passes", "test_fails", "test_logs"],
-            "fix_spec_path": None,
-            "name": "ExampleSuite",
-            "part": None,
-            "status": "ready",
-            "status_override": None,
-            "tags": {},
-            "timer": {},
-            "uid": "ExampleSuite",
-        }],
+        [
+            {
+                "category": "suite",
+                "description": None,
+                "entry_uids": ["test_passes", "test_fails", "test_logs"],
+                "fix_spec_path": None,
+                "name": "ExampleSuite",
+                "part": None,
+                "status": "ready",
+                "status_override": None,
+                "tags": {},
+                "timer": {},
+                "uid": "ExampleSuite",
+            }
+        ],
     ),
     (
         "/report/tests/ExampleMTest/suites/ExampleSuite",
@@ -185,7 +189,7 @@ EXPECTED_INITIAL_GET = [
                 "timer": {},
                 "type": "TestCaseReport",
                 "uid": "test_logs",
-            }
+            },
         ],
     ),
     (
@@ -358,6 +362,7 @@ def _check_test_status(test_url, expected_status):
     rsp = requests.get(test_url)
     assert rsp.status_code == 200
     report_json = rsp.json()
+
     if report_json["status"] == report.Status.RUNNING:
         return False
     else:
