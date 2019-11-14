@@ -1,14 +1,13 @@
 import React from 'react';
 
 import {TESTPLAN_REPORT} from "../../Common/sampleReports";
-import {propagateIndices} from "../reportUtils";
+import {PropagateIndices} from "../reportUtils";
 
 describe('Report/reportUtils', () => {
 
-  describe('propagateIndices', () => {
+  describe('PropagateIndices', () => {
 
     let report;
-    let testplan;
     let multitest;
     let suiteA;
     let suiteB;
@@ -16,14 +15,13 @@ describe('Report/reportUtils', () => {
     let testplanEntries = {};
 
     beforeEach(() => {
-      report = propagateIndices([TESTPLAN_REPORT]);
-      testplan = report[0];
-      multitest = testplan.entries[0];
+      report = PropagateIndices(TESTPLAN_REPORT);
+      multitest = report.entries[0];
       suiteA = multitest.entries[0];
       suiteB = multitest.entries[1];
       testcase = suiteA.entries[0];
       testplanEntries = {
-        testplan: testplan,
+        testplan: report,
         multitest: multitest,
         suite: suiteA,
         testcase: testcase,
@@ -32,7 +30,6 @@ describe('Report/reportUtils', () => {
 
     afterEach(() => {
       report = undefined;
-      testplan = undefined;
       multitest = undefined;
       suiteA = undefined;
       suiteB = undefined;

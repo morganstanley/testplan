@@ -55,7 +55,7 @@ function _mergeTags(tagsA, tagsB) {
  * Array.
  * @private
  */
-function _propagateIndices(entries, parentIndices) {
+const propagateIndicesRecur = (entries, parentIndices) => {
   if (parentIndices === undefined) {
     parentIndices = {
       tags_index: {},
@@ -90,7 +90,7 @@ function _propagateIndices(entries, parentIndices) {
 
     if (entryType !== 'testcase') {
       // Propagate indices to children.
-      let descendantsIndices = _propagateIndices(
+      let descendantsIndices = propagateIndicesRecur(
         entry.entries,
         {tags_index: tags, name_type_index: nameTypeIndex}
       );
@@ -123,7 +123,7 @@ function _propagateIndices(entries, parentIndices) {
     indices.case_count.failed += caseCount.failed;
   }
   return indices;
-}
+};
 
 /**
  * Propagate indices through report to be utilised by filter box. A single entry
@@ -136,10 +136,10 @@ function _propagateIndices(entries, parentIndices) {
  * @param {Array} entries - A single Testplan report in an Array.
  * @returns {Array} - The Testplan report with indices, in an Array.
  */
-function propagateIndices(entries) {
-  _propagateIndices(entries, undefined);
-  return entries;
-}
+const PropagateIndices = (report) => {
+  propagateIndicesRecur([report], undefined);
+  return report;
+};
 
 /**
  * Return the updated state after a new entry is selected from the Nav
@@ -233,7 +233,7 @@ const getReportFetchMessage = (state) => {
 };
 
 export {
-  propagateIndices,
+  PropagateIndices,
   UpdateSelectedState,
   GetReportState,
   GetCenterPane,
