@@ -52,7 +52,7 @@ def api_env(example_report):
 
     ihandler = base.TestRunnerIHandler(target=mock_target)
     ihandler.report = example_report
-    ihandler.run_tests = mock.MagicMock()
+    ihandler.run_all_tests = mock.MagicMock()
     ihandler.run_test = mock.MagicMock()
     ihandler.run_test_suite = mock.MagicMock()
     ihandler.run_test_case = mock.MagicMock()
@@ -89,7 +89,7 @@ class TestReport(object):
         rsp_json = rsp.get_json()
         assert rsp_json["status"] == "running"
         assert rsp_json == json_report
-        ihandler.run_tests.assert_called_once_with(await_results=False)
+        ihandler.run_all_tests.assert_called_once_with(await_results=False)
 
     def test_put_validation(self, api_env):
         """Test that 400 BAD REQUEST is returned for invalid PUT data."""

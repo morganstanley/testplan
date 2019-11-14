@@ -419,7 +419,7 @@ class TestRunnerIHandler(RunnableIHandler):
                 for test_uid in runner.added_items:
                     yield test_uid, runner.uid()
 
-    def run_tests(self, runner_uid=None, await_results=True):
+    def run_all_tests(self, runner_uid=None, await_results=True):
         """Run all tests."""
         self.all_tests_operation(
             'run', runner_uid=runner_uid, await_results=await_results

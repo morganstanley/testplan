@@ -53,7 +53,7 @@ def main():
         suites=[SuiteTemplate()]))
 
     # RUN THE TESTS
-    plan.i.run_tests()
+    plan.i.run_all_tests()
 
     # EXPECTED 1 != 3 FAILURE
     serialized = plan.i.test_case_report(
@@ -72,7 +72,7 @@ def main():
     plan.i.reload()
 
     # RUN TESTS AGAIN
-    plan.i.run_tests()
+    plan.i.run_all_tests()
 
     # EXPECTED 1 == 1 SUCCESS
     serialized = plan.i.test_case_report(

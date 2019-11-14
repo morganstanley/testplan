@@ -86,7 +86,7 @@ def generate_interactive_api(ihandler):
 
                 if should_run(ihandler.report.status):
                     new_report.status = report.Status.RUNNING
-                    ihandler.run_tests(await_results=False)
+                    ihandler.run_all_tests(await_results=False)
 
                 ihandler.report = new_report
                 return ihandler.report.shallow_serialize()
