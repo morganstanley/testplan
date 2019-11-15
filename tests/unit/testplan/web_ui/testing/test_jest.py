@@ -28,8 +28,10 @@ def tp_ui_installed():
     print(os.path.abspath(node_modules_dir))
     return os.path.exists(node_modules_dir)
 
-@pytest.mark.skipif(not (npm_installed() and tp_ui_installed()),
-                    reason='requires npm & testplan UI to have been installed.')
+@pytest.mark.skipif(
+    not (npm_installed() and tp_ui_installed()),
+    reason='requires npm & testplan UI to have been installed.'
+)
 def test_testplan_ui():
     """Run the Jest unit tests for the UI."""
     env = os.environ.copy()
@@ -37,8 +39,10 @@ def test_testplan_ui():
     subprocess.check_call('npm test', shell=True, cwd=TESTPLAN_UI_DIR, env=env)
 
 
-@pytest.mark.skipif(not npm_installed(),
-                    reason='requires npm to have been installed.')
+@pytest.mark.skipif(
+    not (npm_installed() and tp_ui_installed()),
+    reason='requires npm & testplan UI to have been installed.'
+)
 def test_eslint():
     """Run eslint over the UI source code."""
     subprocess.check_call(["npm", "run", "lint"], cwd=TESTPLAN_UI_DIR)
