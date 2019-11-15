@@ -141,7 +141,7 @@ def test_top_level_tests():
         assert compare(BTLReset, plan.i.report(serialized=True))[0] is True
 
         # RUN ALL TESTS
-        plan.i.run_tests()
+        plan.i.run_all_tests()
         from .reports.basic_top_level import REPORT as BTLevel
         assert compare(BTLevel, plan.i.report(serialized=True))[0] is True
 

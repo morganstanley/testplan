@@ -11,7 +11,6 @@ from builtins import str
 from future import standard_library
 
 standard_library.install_aliases()
-from multiprocessing import dummy
 import os
 
 import flask
@@ -27,7 +26,7 @@ from testplan import defaults
 from testplan import report
 
 
-def generate_interactive_api(http_handler, ihandler):
+def generate_interactive_api(ihandler):
     """Generates the interactive API using Flask."""
     build_directory = os.path.join(
         os.path.dirname(testplan.__file__), "web_ui", "testing", "build"
@@ -87,7 +86,7 @@ def generate_interactive_api(http_handler, ihandler):
 
                 if should_run(ihandler.report.status):
                     new_report.status = report.Status.RUNNING
-                    http_handler.pool.apply_async(ihandler.run_tests)
+                    ihandler.run_all_tests(await_results=False)
 
                 ihandler.report = new_report
                 return ihandler.report.shallow_serialize()
@@ -101,7 +100,7 @@ def generate_interactive_api(http_handler, ihandler):
         def get(self):
             """Get the UIDs of all tests defined in the testplan."""
             with ihandler.report_mutex:
-                return [test.uid for test in ihandler.report]
+                return [test.shallow_serialize() for test in ihandler.report]
 
     @api.route("/report/tests/<string:test_uid>")
     class SingleTest(flask_restplus.Resource):
@@ -140,9 +139,7 @@ def generate_interactive_api(http_handler, ihandler):
 
                 if should_run(current_test.status):
                     new_test.status = report.Status.RUNNING
-                    http_handler.pool.apply_async(
-                        ihandler.run_test, (test_uid,)
-                    )
+                    ihandler.run_test(test_uid, await_results=False)
 
                 ihandler.report[test_uid] = new_test
                 return ihandler.report[test_uid].shallow_serialize()
@@ -156,7 +153,10 @@ def generate_interactive_api(http_handler, ihandler):
         def get(self, test_uid):
             """Get the UIDs of all test suites owned by a specific test."""
             try:
-                return [entry.uid for entry in ihandler.report[test_uid]]
+                return [
+                    entry.shallow_serialize()
+                    for entry in ihandler.report[test_uid]
+                ]
             except KeyError:
                 raise werkzeug.exceptions.NotFound
 
@@ -199,8 +199,8 @@ def generate_interactive_api(http_handler, ihandler):
 
                 if should_run(current_suite.status):
                     new_suite.status = report.Status.RUNNING
-                    http_handler.pool.apply_async(
-                        ihandler.run_test_suite, (test_uid, suite_uid)
+                    ihandler.run_test_suite(
+                        test_uid, suite_uid, await_results=False
                     )
 
                 ihandler.report[test_uid][suite_uid] = new_suite
@@ -220,7 +220,7 @@ def generate_interactive_api(http_handler, ihandler):
             with ihandler.report_mutex:
                 try:
                     return [
-                        entry.uid
+                        entry.serialize()
                         for entry in ihandler.report[test_uid][suite_uid]
                     ]
                 except KeyError:
@@ -270,9 +270,8 @@ def generate_interactive_api(http_handler, ihandler):
 
                 if should_run(current_testcase.status):
                     new_testcase.status = report.Status.RUNNING
-                    http_handler.pool.apply_async(
-                        ihandler.run_test_case,
-                        (test_uid, suite_uid, testcase_uid),
+                    ihandler.run_test_case(
+                        test_uid, suite_uid, testcase_uid, await_results=False
                     )
 
                 suite[testcase_uid] = new_testcase
@@ -374,15 +373,7 @@ class TestRunnerHTTPHandler(Entity):
         """
         Runs the threader HTTP handler for interactive mode.
         """
-        app, _ = generate_interactive_api(self, self.cfg.ihandler)
+        app, _ = generate_interactive_api(self.cfg.ihandler)
 
         self._server = wsgi.Server((self.cfg.host, self.cfg.port), app)
-
-        # Cannot use context manager on Python 2 to use try/finally to ensure
-        # pool resources are cleaned up.
-        self.pool = dummy.Pool(self.cfg.pool_size)
-        try:
-            self._server.start()
-        finally:
-            self.pool.terminate()
-            self.pool.join()
+        self._server.start()

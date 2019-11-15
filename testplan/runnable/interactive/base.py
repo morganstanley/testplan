@@ -352,7 +352,12 @@ class TestRunnerIHandler(RunnableIHandler):
                 self.reset_test_report(test_uid, runner_uid=real_runner_uid)
 
     @auto_start_stop_environment
-    def run_test_case(self, test_uid, suite_uid, case_uid, runner_uid=None):
+    def run_test_case(self,
+                      test_uid,
+                      suite_uid,
+                      case_uid,
+                      runner_uid=None,
+                      await_results=True):
         """Run a single test case."""
         test = self.test(test_uid, runner_uid=runner_uid)
         irunner = test.cfg.interactive_runner(test)
@@ -365,10 +370,12 @@ class TestRunnerIHandler(RunnableIHandler):
                 break
             else:
                 op_id = self.add_operation(operation, *args, **kwargs)
-                self._wait_result(op_id)
+                if await_results:
+                    self._wait_result(op_id)
 
     @auto_start_stop_environment
-    def run_test_suite(self, test_uid, suite_uid, runner_uid=None):
+    def run_test_suite(
+            self, test_uid, suite_uid, runner_uid=None, await_results=True):
         """
         Run a single test suite.
         """
@@ -383,10 +390,11 @@ class TestRunnerIHandler(RunnableIHandler):
                 break
             else:
                 op_id = self.add_operation(operation, *args, **kwargs)
-                self._wait_result(op_id)
+                if await_results:
+                    self._wait_result(op_id)
 
     @auto_start_stop_environment
-    def run_test(self, test_uid, runner_uid=None):
+    def run_test(self, test_uid, runner_uid=None, await_results=True):
         """Run a Test instance."""
         test = self.test(test_uid, runner_uid=runner_uid)
         irunner = test.cfg.interactive_runner(test)
@@ -399,7 +407,8 @@ class TestRunnerIHandler(RunnableIHandler):
                 break
             else:
                 op_id = self.add_operation(operation, *args, **kwargs)
-                self._wait_result(op_id)
+                if await_results:
+                    self._wait_result(op_id)
 
     def all_tests(self, runner_uid=None):
         """Get all added tests."""
@@ -410,9 +419,11 @@ class TestRunnerIHandler(RunnableIHandler):
                 for test_uid in runner.added_items:
                     yield test_uid, runner.uid()
 
-    def run_tests(self, runner_uid=None):
+    def run_all_tests(self, runner_uid=None, await_results=True):
         """Run all tests."""
-        self.all_tests_operation('run', runner_uid=runner_uid)
+        self.all_tests_operation(
+            'run', runner_uid=runner_uid, await_results=await_results
+        )
 
     def start_tests(self, runner_uid=None):
         """Start all tests environments."""
@@ -422,7 +433,8 @@ class TestRunnerIHandler(RunnableIHandler):
         """Stop all tests environments."""
         self.all_tests_operation('stop', runner_uid=runner_uid)
 
-    def all_tests_operation(self, operation, runner_uid=None):
+    def all_tests_operation(
+            self, operation, runner_uid=None, await_results=True):
         """Perform an operation in all tests."""
         test_found = False
         all_tests = self.all_tests(runner_uid)
@@ -436,7 +448,10 @@ class TestRunnerIHandler(RunnableIHandler):
                     operation, test_uid, real_runner_uid))
                 if operation == 'run':
                     self.run_test(
-                        test_uid, runner_uid=runner_uid)
+                        test_uid,
+                        runner_uid=runner_uid,
+                        await_results=await_results
+                    )
                 elif operation == 'start':
                     self.start_test_resources(
                         test_uid, runner_uid=runner_uid)
