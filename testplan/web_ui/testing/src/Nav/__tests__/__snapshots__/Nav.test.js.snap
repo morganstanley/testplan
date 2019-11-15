@@ -39,6 +39,7 @@ exports[`Nav shallow renders and matches snapshot 1`] = `
         },
       ]
     }
+    selectedUid="520a92e4-325e-4077-93e6-55d7091a3f83"
   />
 </Fragment>
 `;

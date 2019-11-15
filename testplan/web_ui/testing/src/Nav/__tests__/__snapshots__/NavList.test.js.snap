@@ -7,7 +7,7 @@ exports[`NavList shallow renders and matches snapshot 1`] = `
     tag="ul"
   >
     <ListGroupItem
-      className="navButton_6hkfbl-o_O-navButtonInteract_raa3h5"
+      className="navButton_6hkfbl-o_O-navButtonInteract_1ofjo98"
       key="123"
       onClick={[Function]}
       tabIndex="1"
