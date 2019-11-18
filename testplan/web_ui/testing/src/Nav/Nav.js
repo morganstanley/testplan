@@ -18,6 +18,11 @@ const Nav = (props) => {
     props.selected,
   );
 
+  let selectedUid = undefined;
+  if (props.selected && props.selected.length>0) {
+    selectedUid = props.selected[props.selected.length-1].uid;
+  }
+
   return (
     <>
       <NavBreadcrumbs
@@ -31,6 +36,7 @@ const Nav = (props) => {
         filter={props.filter}
         displayEmpty={props.displayEmpty}
         displayTags={props.displayTags}
+        selectedUid={selectedUid}
       />
     </>
   );

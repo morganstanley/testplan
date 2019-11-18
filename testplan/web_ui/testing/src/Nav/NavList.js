@@ -21,7 +21,7 @@ const NavList = (props) => {
       caseCountPassed={entry.case_count.passed}
       caseCountFailed={entry.case_count.failed}
     />
-  ));
+  ), props.selectedUid);
 
   return (
     <Column>
@@ -59,6 +59,8 @@ NavList.propTypes = {
   displayEmpty: PropTypes.bool,
   /** Flag to display empty testcase on navbar */
   displayTags: PropTypes.bool,
+  /** Entry uid to be focused */
+  selectedUid: PropTypes.string,
 };
 
 export default NavList;

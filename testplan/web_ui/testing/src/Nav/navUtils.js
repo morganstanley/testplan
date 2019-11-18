@@ -139,7 +139,11 @@ function ParseNavSelection(report, selected) {
  *
  * @returns {Array|ListGroupItem}
  */
-const CreateNavButtons = (props, createEntryComponent) => {
+const CreateNavButtons = (
+  props, 
+  createEntryComponent, 
+  selectedUid=null
+  ) => {
   const depth = props.breadcrumbLength;
 
   // Apply all filters to the entries.
@@ -154,12 +158,15 @@ const CreateNavButtons = (props, createEntryComponent) => {
     );
 
     const tabIndex = entryIndex + 1;
-
+    const cssName = [styles.navButton, styles.navButtonInteract];
+    if (selectedUid && selectedUid === entry.uid) {
+      cssName.push(styles.navButtonInteractFocus);
+    }
     return (
       <ListGroupItem
         tabIndex={tabIndex.toString()}
         key={entry.uid}
-        className={css(styles.navButton, styles.navButtonInteract)}
+        className={css(...cssName)}
         onClick={((e) => props.handleNavClick(e, entry, depth))}>
         {tags}
         {createEntryComponent(entry)}
@@ -230,10 +237,10 @@ const styles = StyleSheet.create({
     ':hover': {
       backgroundColor: DARK_GREY,
     },
-    ':focus': {
-      backgroundColor: DARK_GREY,
-      outline: 'none',
-    }
+  },
+  navButtonInteractFocus: {
+    backgroundColor: DARK_GREY,
+    outline: 'none',
   },
 });
 
