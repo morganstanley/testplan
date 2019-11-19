@@ -67,7 +67,7 @@ class BatchReport extends React.Component {
     } else {
       axios.get(`/api/v1/reports/${uid}`)
         .then(response => {
-          const processedReport = PropagateIndices(fakeReportAssertions);
+          const processedReport = PropagateIndices(response.data);
           this.setState({
             report: processedReport,
             selected: this.autoSelect(processedReport),
