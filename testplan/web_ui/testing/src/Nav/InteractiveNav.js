@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import NavBreadcrumbs from "./NavBreadcrumbs";
 import InteractiveNavList from "./InteractiveNavList";
-import {ParseNavSelection} from "./navUtils";
+import {ParseNavSelection, GetSelectedUid} from "./navUtils";
 
 /**
  * Interactive Nav component.
@@ -40,6 +40,7 @@ const InteractiveNav = (props) => {
         filter={null}
         displayEmpty={true}
         displayTags={false}
+        selectedUid={GetSelectedUid(props.selected)}
         handlePlayClick={props.handlePlayClick}
       />
     </>

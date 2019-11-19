@@ -140,9 +140,9 @@ function ParseNavSelection(report, selected) {
  * @returns {Array|ListGroupItem}
  */
 const CreateNavButtons = (
-  props, 
-  createEntryComponent, 
-  selectedUid=null
+  props,
+  createEntryComponent,
+  selectedUid
   ) => {
   const depth = props.breadcrumbLength;
 
@@ -244,7 +244,20 @@ const styles = StyleSheet.create({
   },
 });
 
+/**
+ * Return the UID of the currently selected entry, or null if there is no
+ * entry selected.
+ */
+const GetSelectedUid = (selected) => {
+  if (selected && selected.length > 0) {
+    return selected[selected.length - 1].uid;
+  } else {
+    return null;
+  }
+};
+
 export {
   ParseNavSelection,
   CreateNavButtons,
+  GetSelectedUid,
 };

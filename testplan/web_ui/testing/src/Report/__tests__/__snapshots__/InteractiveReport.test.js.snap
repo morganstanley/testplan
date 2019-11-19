@@ -1,32 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`InteractiveReport shallow renders and matches snapshot 1`] = `
-<div
-  className=""
->
-  <Toolbar
-    handleNavFilter={[Function]}
-    status={null}
-    updateEmptyDisplayFunc={[Function]}
-    updateFilterFunc={[Function]}
-    updateTagsDisplayFunc={[Function]}
-  />
-  <InteractiveNav
-    displayEmpty={true}
-    displayTags={false}
-    filter={null}
-    handleNavClick={[Function]}
-    handlePlayClick={[Function]}
-    report={null}
-    selected={Array []}
-  />
-  <Message
-    message="Fetching Testplan report..."
-  />
-</div>
-`;
-
-exports[`InteractiveReport updates testcase status to passed 1`] = `
+exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
 <div
   className=""
 >
@@ -45,6 +19,7 @@ exports[`InteractiveReport updates testcase status to passed 1`] = `
     handlePlayClick={[Function]}
     report={
       Object {
+        "attachments": Object {},
         "case_count": Object {
           "failed": 0,
           "passed": 0,
@@ -74,57 +49,92 @@ exports[`InteractiveReport updates testcase status to passed 1`] = `
                     "description": null,
                     "entries": Array [],
                     "logs": Array [],
-                    "name": "test_interactive",
-                    "name_type_index": Set {},
-                    "status": "passed",
+                    "name": "test_basic_assertions",
+                    "name_type_index": Set {
+                      "test_basic_assertions|testcase",
+                      "SampleSuite|testplan",
+                      "Assertions Test|testplan",
+                      "Assertions Example|testplan",
+                    },
+                    "status": "ready",
                     "status_override": null,
                     "suite_related": false,
                     "tags": Object {},
                     "tags_index": Object {},
                     "timer": Object {},
                     "type": "TestCaseReport",
-                    "uid": "ddd",
+                    "uid": "test_basic_assertions",
                   },
                 ],
-                "logs": Array [],
-                "name": "Interactive Suite",
-                "name_type_index": Set {},
+                "entry_uids": Array [
+                  "test_basic_assertions",
+                ],
+                "fix_spec_path": null,
+                "name": "SampleSuite",
+                "name_type_index": Set {
+                  "SampleSuite|testplan",
+                  "Assertions Test|testplan",
+                  "Assertions Example|testplan",
+                  "test_basic_assertions|testcase",
+                },
                 "part": null,
                 "status": "ready",
                 "status_override": null,
                 "tags": Object {},
                 "tags_index": Object {},
                 "timer": Object {},
-                "type": "TestGroupReport",
-                "uid": "ccc",
+                "uid": "SampleSuite",
               },
             ],
-            "logs": Array [],
-            "name": "Interactive MTest",
-            "name_type_index": Set {},
+            "entry_uids": Array [
+              "SampleSuite",
+            ],
+            "fix_spec_path": null,
+            "name": "Assertions Test",
+            "name_type_index": Set {
+              "Assertions Test|testplan",
+              "Assertions Example|testplan",
+              "SampleSuite|testplan",
+              "test_basic_assertions|testcase",
+            },
             "part": null,
             "status": "ready",
             "status_override": null,
             "tags": Object {},
             "tags_index": Object {},
             "timer": Object {},
-            "type": "TestGroupReport",
-            "uid": "bbb",
+            "uid": "Assertions Test",
           },
         ],
+        "entry_uids": Array [
+          "Assertions Test",
+        ],
         "meta": Object {},
-        "name": "Fake Interactive Report",
-        "name_type_index": Set {},
+        "name": "Assertions Example",
+        "name_type_index": Set {
+          "Assertions Example|testplan",
+          "Assertions Test|testplan",
+          "SampleSuite|testplan",
+          "test_basic_assertions|testcase",
+        },
         "status": "ready",
         "status_override": null,
         "tags_index": Object {},
-        "timer": null,
-        "uid": "aaa",
+        "timer": Object {},
+        "uid": "Assertions Example",
       }
     }
-    selected={Array []}
+    selected={
+      Array [
+        Object {
+          "type": "testplan",
+          "uid": "Assertions Example",
+        },
+      ]
+    }
   />
   <Message
+    left={18}
     message="Please select a testcase."
   />
 </div>

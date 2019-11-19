@@ -57,6 +57,15 @@ def generate_interactive_api(ihandler):
         """
         return flask.send_from_directory(build_directory, filename)
 
+    @app.after_request
+    def add_cache_control_headers(response):
+        """
+        Disable browser caching for all HTTP requests, so that the most
+        up-to-date data is always returned.
+        """
+        response.headers["Cache-Control"] = "no-cache"
+        return response
+
     @api.route("/report")
     class Report(flask_restplus.Resource):
         """

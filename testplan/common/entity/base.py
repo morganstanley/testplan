@@ -588,7 +588,7 @@ class RunnableIHandlerConfig(Config):
                 ConfigOption('http_handler', default=None): object,
                 ConfigOption('http_handler_startup_timeout', default=10): int,
                 ConfigOption('http_port', default=0): int,
-                ConfigOption('max_operations', default=5):
+                ConfigOption('max_operations', default=1000):
                     And(Use(int), lambda n: n > 0)}
 
 
