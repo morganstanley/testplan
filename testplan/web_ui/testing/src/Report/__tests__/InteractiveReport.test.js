@@ -29,19 +29,19 @@ describe('InteractiveReport', () => {
       request.respondWith({
         status: 200,
         response: {
-					"uid": "Assertions Example",
-					"timer": {},
-					"status": "ready",
-					"meta": {},
-					"entry_uids": [
-						"Assertions Test"
-					],
-					"status_override": null,
-					"attachments": {},
-					"tags_index": {},
-					"name": "Assertions Example"
-				},
-			}).then(() => {
+          "uid": "Assertions Example",
+          "timer": {},
+          "status": "ready",
+          "meta": {},
+          "entry_uids": [
+            "Assertions Test"
+          ],
+          "status_override": null,
+          "attachments": {},
+          "tags_index": {},
+          "name": "Assertions Example"
+        },
+      }).then(() => {
         moxios.wait(() => {
           const request = moxios.requests.mostRecent();
           expect(request.url).toBe("/api/v1/interactive/report/tests");
@@ -73,22 +73,22 @@ describe('InteractiveReport', () => {
               request.respondWith({
                 status: 200,
                 response: [{
-									"uid": "SampleSuite",
-									"timer": {},
-									"description": null,
-									"tags": {},
-									"status": "ready",
-									"part": null,
-									"status_override": null,
-									"category": "suite",
-									"entry_uids": [
-										"test_basic_assertions",
-									],
-									"name": "SampleSuite",
-									"fix_spec_path": null
-								}]
-							}).then(() => {
-								moxios.wait(() => {
+                  "uid": "SampleSuite",
+                  "timer": {},
+                  "description": null,
+                  "tags": {},
+                  "status": "ready",
+                  "part": null,
+                  "status_override": null,
+                  "category": "suite",
+                  "entry_uids": [
+                    "test_basic_assertions",
+                  ],
+                  "name": "SampleSuite",
+                  "fix_spec_path": null
+                }]
+              }).then(() => {
+                moxios.wait(() => {
                   const request = moxios.requests.mostRecent();
                   expect(request.url).toBe(
                     "/api/v1/interactive/report/tests/Assertions Test"
@@ -97,22 +97,22 @@ describe('InteractiveReport', () => {
                   request.respondWith({
                     status: 200,
                     response: [{
-											"uid": "test_basic_assertions",
-											"timer": {},
-											"description": null,
-											"tags": {},
-											"type": "TestCaseReport",
-											"status": "ready",
-											"logs": [],
-											"suite_related": false,
-											"entries": [],
-											"status_override": null,
-											"name": "test_basic_assertions"
-										}]
-									}).then(() => {
-										expect(interactiveReport).toMatchSnapshot();
-										done();
-			            });
+                      "uid": "test_basic_assertions",
+                      "timer": {},
+                      "description": null,
+                      "tags": {},
+                      "type": "TestCaseReport",
+                      "status": "ready",
+                      "logs": [],
+                      "suite_related": false,
+                      "entries": [],
+                      "status_override": null,
+                      "name": "test_basic_assertions"
+                    }]
+                  }).then(() => {
+                    expect(interactiveReport).toMatchSnapshot();
+                    done();
+                  });
                 });
               });
             });
