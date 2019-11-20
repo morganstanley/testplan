@@ -13,15 +13,19 @@ import {getNavEntryType} from "../Common/utils";
  * Render a vertical list of all the currently selected entries children.
  */
 const NavList = (props) => {
-  const navButtons = CreateNavButtons(props, (entry) => (
-    <NavEntry
-      name={entry.name}
-      status={entry.status}
-      type={getNavEntryType(entry)}
-      caseCountPassed={entry.case_count.passed}
-      caseCountFailed={entry.case_count.failed}
-    />
-  ), props.selectedUid);
+  const navButtons = CreateNavButtons(
+    props,
+    (entry) => (
+      <NavEntry
+        name={entry.name}
+        status={entry.status}
+        type={getNavEntryType(entry)}
+        caseCountPassed={entry.case_count.passed}
+        caseCountFailed={entry.case_count.failed}
+      />
+    ),
+    props.selectedUid
+  );
 
   return (
     <Column>

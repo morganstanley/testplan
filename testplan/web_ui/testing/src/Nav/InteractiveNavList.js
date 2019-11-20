@@ -13,16 +13,20 @@ import {getNavEntryType} from "../Common/utils";
  * an interactive report.
  */
 const InteractiveNavList = (props) => {
-  const navButtons = CreateNavButtons(props, (entry) => (
-    <InteractiveNavEntry
-      name={entry.name}
-      status={entry.status}
-      type={getNavEntryType(entry)}
-      caseCountPassed={entry.case_count.passed}
-      caseCountFailed={entry.case_count.failed}
-      handlePlayClick={(e) => props.handlePlayClick(e, entry)}
-    />
-  ));
+  const navButtons = CreateNavButtons(
+    props,
+    (entry) => (
+      <InteractiveNavEntry
+        name={entry.name}
+        status={entry.status}
+        type={getNavEntryType(entry)}
+        caseCountPassed={entry.case_count.passed}
+        caseCountFailed={entry.case_count.failed}
+        handlePlayClick={(e) => props.handlePlayClick(e, entry)}
+      />
+    ),
+    props.selectedUid,
+  );
 
   return (
     <Column>

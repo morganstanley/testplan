@@ -596,7 +596,18 @@ class TestCaseReport(Report):
 
     @status.setter
     def status(self, new_status):
+        """
+        Update the status of a testcase. This status is only used for a
+        testcase containing no entries, otherwise the status of the entries
+        is used with precedence rules.
+
+        As a special case, when setting the status of a testcase to "running",
+        any entries from a previous run are discarded, so the status is
+        guaranteed to be read as "running".
+        """
         self._status = new_status
+        if new_status == "running":
+            self.entries = []
 
     def _assertions_status(self):
         for entry in self:

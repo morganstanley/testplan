@@ -16,7 +16,12 @@ const AppRouter = () => (
   <Router>
     <Switch>
       <Route path="/testplan/:uid" component={BatchReport} />
-      <Route path="/interactive" component={InteractiveReport} />
+      <Route path="/interactive/_dev">
+        <InteractiveReport dev={true} />
+      </Route>
+      <Route path="/interactive">
+        <InteractiveReport dev={false} />
+      </Route>
       <Route component={EmptyReport} />
     </Switch>
   </Router>
