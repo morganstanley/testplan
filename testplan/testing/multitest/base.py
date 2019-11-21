@@ -544,6 +544,8 @@ class MultiTest(Test):
 
             if has_execution_group:
                 self._check_testsuite_report(testsuite_report)
+        if not testsuite_report.failed:
+            testsuite_report.status = Status.PASSED
 
     def _run_suite_related(self, object, method, report):
         """Runs testsuite related special methods setup/teardown/etc."""
@@ -609,6 +611,10 @@ class MultiTest(Test):
         # native assertion objects -> dict form
         testcase_report.extend(case_result.serialized_entries)
         testcase_report.attachments.extend(case_result.attachments)
+
+        if not testcase_report.failed:
+            testcase_report.status = Status.PASSED
+
         if self.get_stdout_style(testcase_report.passed).display_case:
             self.log_testcase_status(testcase_report)
 
@@ -755,6 +761,8 @@ class MultiTest(Test):
                 with testcase_report.logged_exceptions():
                     func(*args)
 
+            if not testcase_report.failed:
+                testcase_report.status = Status.PASSED
             testcase_report.extend(case_result.serialized_entries)
 
             if self.get_stdout_style(testcase_report.passed).display_case:
