@@ -2,9 +2,9 @@
 HTTP exporter for uploading test reports via http transmission. The web server
 must be able to handle POST request and receive data in JSON format.
 """
-import json
 
 import requests
+from schema import Or, And, Use
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.validation import is_valid_url
@@ -24,7 +24,8 @@ class HTTPExporterConfig(ExporterConfig):
     def get_options(cls):
         return {
             ConfigOption('http_url'): is_valid_url,
-            ConfigOption('timeout', default=600): int
+            ConfigOption('timeout', default=60):
+                Or(None, And(Use(int), lambda n: n > 0))
         }
 
 
@@ -54,7 +55,7 @@ class HTTPExporter(Exporter):
                     url=url, json=data, timeout=self.cfg.timeout)
                 response.raise_for_status()
             except requests.exceptions.RequestException as exp:
-                errmsg = 'Failed to export to {}: {}'.format(url, exp)
+                errmsg = 'Failed to export to {}: {}'.format(url, str(exp))
         else:
             errmsg = (
                 'Skipping exporting test report via http '
