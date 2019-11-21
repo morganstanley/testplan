@@ -315,18 +315,26 @@ class _ReportPlugin(object):
                     'Cannot store testcase results to report: no report '
                     'object was created.')
 
-            # Add the assertion entry to the case report
-            for entry in self._current_result_obj.entries:
-                stdout_renderer = stdout_registry[entry]()
-                stdout_header = stdout_renderer.get_header(entry)
-                stdout_details = stdout_renderer.get_details(entry) or ''
+            if self._current_result_obj.entries:
+                # Add the assertion entry to the case report
+                for entry in self._current_result_obj.entries:
+                    stdout_renderer = stdout_registry[entry]()
+                    stdout_header = stdout_renderer.get_header(entry)
+                    stdout_details = stdout_renderer.get_details(entry) or ''
 
-                # Add 'stdout_header' and 'stdout_details' attributes to
-                # serialized entries for standard output later
-                serialized_entry = schema_registry.serialize(entry)
-                serialized_entry.update(stdout_header=stdout_header,
-                                        stdout_details=stdout_details)
-                self._current_case_report.append(serialized_entry)
+                    # Add 'stdout_header' and 'stdout_details' attributes to
+                    # serialized entries for standard output later
+                    serialized_entry = schema_registry.serialize(entry)
+                    serialized_entry.update(stdout_header=stdout_header,
+                                            stdout_details=stdout_details)
+                    self._current_case_report.append(serialized_entry)
+            else:
+                if report.skipped:
+                    self._current_case_report.status_override = Status.SKIPPED
+                elif not report.failed:
+                    self._current_case_report.status_override = Status.PASSED
+                else:
+                    self._current_case_report.status_override = Status.FAILED
 
     def pytest_exception_interact(self, node, call, report):
         """
