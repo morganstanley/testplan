@@ -47,7 +47,12 @@ class Report(object):
 
     exception_logger = ExceptionLogger
 
-    def __init__(self, name, description=None, uid=None, entries=None):
+    def __init__(self,
+                 name,
+                 description=None,
+                 uid=None,
+                 entries=None,
+                 parent_uids=None):
         self.name = name
         self.description = description
 
@@ -56,6 +61,17 @@ class Report(object):
 
         self.logs = []
         self.logger = create_logging_adapter(report=self)
+
+        # parent_uids are a list of the UIDs of all parents of this entry in
+        # the report tree. The UIDs are stored with the most distant parent
+        # first and the immediate parent last. For example, an entry with
+        # parent "A" and grand-parent "B" will have parent_uids = ["B", "A"].
+        # This allows any entry to be quickly looked up and updated in the
+        # report tree.
+        if parent_uids is None:
+            self.parent_uids = []
+        else:
+            self.parent_uids = parent_uids
 
     def __str__(self):
         return '{kls}(name="{name}", id="{uid}")'.format(
@@ -192,9 +208,8 @@ class ReportGroup(Report):
     Allows O(1) child report lookup via `get_by_uid` method.
     """
 
-    def __init__(self, name, description=None, uid=None, entries=None):
-        super(ReportGroup, self).__init__(
-            name=name, description=description, uid=uid, entries=entries)
+    def __init__(self, name, **kwargs):
+        super(ReportGroup, self).__init__(name=name, **kwargs)
 
         # Mapping of UID to index in the list of entries.
         self._index = {}
@@ -307,6 +322,17 @@ class ReportGroup(Report):
 
         super(ReportGroup, self).append(item)
         self._index[item.uid] = len(self.entries) - 1
+        self._set_parent_uids(item)
+
+    def _set_parent_uids(self, item):
+        """
+        Set the parent UIDs recursively of an item and its child entries
+        after it has been added into this report group.
+        """
+        item.parent_uids = self.parent_uids + [self.uid] + item.parent_uids
+        if isinstance(item, ReportGroup):
+            for child in item.entries:
+                self._set_parent_uids(child)
 
     def extend(self, items):
         """Add `items` to `self.entries`, checking type & index."""

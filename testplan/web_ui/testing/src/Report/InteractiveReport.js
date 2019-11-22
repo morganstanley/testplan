@@ -8,7 +8,6 @@ import {StyleSheet, css} from 'aphrodite';
 import axios from 'axios';
 
 import {COLUMN_WIDTH} from "../Common/defaults";
-import {getNavEntryType} from "../Common/utils";
 import Toolbar from '../Toolbar/Toolbar.js';
 import InteractiveNav from '../Nav/InteractiveNav.js';
 import {FakeInteractiveReport} from '../Common/sampleReports.js';
@@ -18,15 +17,7 @@ import {
   GetReportState,
   GetCenterPane,
 } from './reportUtils.js';
-import {ReportToNavEntry} from "../Common/utils";
-
-// Interval to poll for report updates over. We may want to reduce this to make
-// the UI update more quickly.
-//
-// NOTE: currently we poll for updates using HTTP for simplicity but in future
-// it might be better to use websockets or SSEs to allow the backend to notify
-// us when updates are available.
-const POLL_MS = 1000;
+import {ReportToNavEntry, getNavEntryType} from "../Common/utils";
 
 /**
  * Interactive report viewer. As opposed to a batch report, an interactive
@@ -46,9 +37,6 @@ class InteractiveReport extends React.Component {
       loading: false,
       error: null,
     };
-    this.runEntry = this.runEntry.bind(this);
-    this.setEntryStatus = this.setEntryStatus.bind(this);
-    this.setEntryStatusRecur = this.setEntryStatusRecur.bind(this);
     this.handleNavClick = this.handleNavClick.bind(this);
     this.handlePlayClick = this.handlePlayClick.bind(this);
     this.getReport = this.getReport.bind(this);
@@ -105,7 +93,9 @@ class InteractiveReport extends React.Component {
       // e.g. by adding update timestamps to report entries or by
       // subscribing to notifications from the backend when specific
       // entries are updated.
-      setTimeout(this.getReport, POLL_MS);
+      if (this.props.poll_ms) {
+        setTimeout(this.getReport, this.props.poll_ms);
+      }
     }
   }
 
@@ -159,10 +149,9 @@ class InteractiveReport extends React.Component {
   }
 
   /**
-   * Find a report entry in our current report state given the selected
-   * navigation entries.
+   * Find an entry in our current report from the current selection state.
    */
-  findReportEntry(selectedEntries, currEntry) {
+  findReportEntryFromSelection(selectedEntries, currEntry) {
     const [headSelectedEntry, ...tailSelectedEntries] = selectedEntries;
     const match = (currEntry.uid === headSelectedEntry.uid);
 
@@ -181,7 +170,9 @@ class InteractiveReport extends React.Component {
             if (accumulator) {
               return accumulator;
             } else {
-              return this.findReportEntry(tailSelectedEntries, entry);
+              return this.findReportEntryFromSelection(
+                tailSelectedEntries, entry
+              );
             }
           },
           null,
@@ -196,36 +187,38 @@ class InteractiveReport extends React.Component {
   /**
    * Request to update an entry in the report via PUT.
    */
-  putUpdatedReportEntry(updatedReportEntry, selectedEntries) {
-    const apiUrl = this.getApiUrl(updatedReportEntry, selectedEntries);
+  putUpdatedReportEntry(updatedReportEntry) {
+    const apiUrl = this.getApiUrl(updatedReportEntry);
     return axios.put(apiUrl, updatedReportEntry);
   }
 
   /**
    * Get the API URL for requesting to update the state of a report entry.
    */
-  getApiUrl(updatedReportEntry, selectedEntries) {
+  getApiUrl(updatedReportEntry) {
     const api_prefix = "/api/v1/interactive";
 
-    switch (selectedEntries.length) {
-      case 1:
+    switch (updatedReportEntry.parent_uids.length) {
+      case 0:
         return api_prefix + "/report";
 
-      case 2: {
-        const test_uid = selectedEntries[1].uid;
+      case 1: {
+        const test_uid = updatedReportEntry.uid;
         return api_prefix + `/report/tests/${test_uid}`;
       }
 
-      case 3: {
-        const test_uid = selectedEntries[1].uid;
-        const suite_uid = selectedEntries[2].uid;
+      case 2: {
+        const test_uid = updatedReportEntry.parent_uids[1];
+        const suite_uid = updatedReportEntry.uid;
+
         return api_prefix + `/report/tests/${test_uid}/suites/${suite_uid}`;
       }
 
-      case 4: {
-        const test_uid = selectedEntries[1].uid;
-        const suite_uid = selectedEntries[2].uid;
-        const testcase_uid = selectedEntries[3].uid;
+      case 3: {
+        const test_uid = updatedReportEntry.parent_uids[1];
+        const suite_uid = updatedReportEntry.parent_uids[2];
+        const testcase_uid = updatedReportEntry.uid;
+
         return api_prefix + (
           `/report/tests/${test_uid}`
           + `/suites/${suite_uid}`
@@ -235,7 +228,8 @@ class InteractiveReport extends React.Component {
 
       default:
         throw new Error(
-          "Unexpected number of selected entries: " + selectedEntries
+          "Unexpected number of parent entries: "
+          + updatedReportEntry.parent_uids
         );
     }
   }
@@ -243,10 +237,10 @@ class InteractiveReport extends React.Component {
   /**
    * Update an entry in the report.
    */
-  setReportEntry(updatedReportEntry, selectedEntries) {
+  setReportEntry(updatedReportEntry) {
     this.setState((state, props) => ({
       report: this.updateReportEntryRecur(
-        updatedReportEntry, selectedEntries, state.report
+        updatedReportEntry, state.report,
       ),
       assertions: this.selectedAssertions(state),
     }));
@@ -257,7 +251,9 @@ class InteractiveReport extends React.Component {
    * otherwise null.
    */
   selectedAssertions(state) {
-    const selectedEntry = this.findReportEntry(state.selected, state.report);
+    const selectedEntry = this.findReportEntryFromSelection(
+      state.selected, state.report
+    );
     if (getNavEntryType(selectedEntry) === "testcase") {
       return selectedEntry.entries;
     }
@@ -269,102 +265,30 @@ class InteractiveReport extends React.Component {
    * Update a single entry in the report tree recursively. This function
    * returns a new report object, it does not mutate the current report.
    */
-  updateReportEntryRecur(updatedReportEntry, selectedEntries, currEntry) {
-    const [headSelectedEntry, ...tailSelectedEntries] = selectedEntries;
-    const match = (currEntry.uid === headSelectedEntry.uid);
-
-    // Check if the UID matches.
-    if (match) {
-      // Two cases to distinguish between:
-      //
-      // - There are more selected entries to search down for: we recurse down.
-      // - There are no more selected entries: we have found the matching
-      //   report entry, so return it.
-      if (tailSelectedEntries.length === 0) {
-        return updatedReportEntry;
-      } else {
+  updateReportEntryRecur(updatedReportEntry, currEntry, depth=0) {
+    if (depth < updatedReportEntry.parent_uids.length) {
+      if (currEntry.uid === updatedReportEntry.parent_uids[depth]) {
         return {
           ...currEntry,
           entries: currEntry.entries.map(
             entry => this.updateReportEntryRecur(
               updatedReportEntry,
-              tailSelectedEntries,
               entry,
+              depth + 1,
             )
           ),
-        };
-      }
-    } else {
-      // Return entry unchanged.
-      return currEntry;
-    }
-  }
-
-  /**
-   * Update the status of an entry in the report. We completely re-create the
-   * report tree instead of mutating the existing report object.
-   */
-  setEntryStatus(selectedEntries, newStatus) {
-    this.setState((state, props) => ({
-        report: this.setEntryStatusRecur(
-          state.report,
-          selectedEntries,
-          newStatus,
-        ),
-    }));
-  }
-
-  /**
-   * Traverses the report tree recursively and updates the matching entry
-   * state to be "running".
-   *
-   * Since we know the hierarchy of selected elements we can restrict ourselves
-   * to only searching branches that contain the updated entry. Other branches
-   * (i.e. other MultiTests or suites that don't contain a particular
-   * testcase) are left as they are.
-   *
-   * @param {object} currEntry - the current report entry to check recursively.
-   * @param {array} selectedEntries - an array of the currently selected
-   *   report entry hierarchy, from highest to lowest. Initially, the highest
-   *   entry will always be the root Testplan object but this will shift with
-   *   every recursive call. The lowest (last) entry in the array will always
-   *   be whichever element we are updating the entry status for.
-   * @param {string} newStatus - the new status to set on the entry we are
-   *   updating.
-   */
-  setEntryStatusRecur(currEntry, selectedEntries, newStatus) {
-    const [headSelectedEntry, ...tailSelectedEntries] = selectedEntries;
-    const match = (currEntry.uid === headSelectedEntry.uid);
-
-    // Check if the UID matches.
-    if (match) {
-      // Two cases to distinguish between:
-      //
-      // - There are more selected entries to search down for: we leave the
-      //   status of the current element unchanged and recurse down.
-      // - There are no more selected entries: we have found the element to
-      //   update, so update its status and stop recursion.
-      if (tailSelectedEntries.length === 0) {
-        return {
-          ...currEntry,
-          status: newStatus,
         };
       } else {
-        return {
-          ...currEntry,
-          entries: currEntry.entries.map(
-            (entry) => this.setEntryStatusRecur(
-              entry,
-              tailSelectedEntries,
-              newStatus,
-            )
-          ),
-        };
+        return currEntry;
       }
-    } else {
-      // If there is no UID match then we are in the wrong branch. Return
-      // the entry unchanged.
-      return currEntry;
+    } else if (depth === updatedReportEntry.parent_uids.length) {
+      if (updatedReportEntry.uid === currEntry.uid) {
+        return updatedReportEntry;
+      } else {
+        return currEntry;
+      }
+    } else if (depth > updatedReportEntry.parent_uids.length) {
+      throw new Error("Recursed too far down...");
     }
   }
 
@@ -378,60 +302,86 @@ class InteractiveReport extends React.Component {
   }
 
   /* Handle the play button being clicked on a Nav entry. */
-  handlePlayClick(e, entry) {
+  handlePlayClick(e, navEntry) {
     e.stopPropagation();
+    const reportEntry = this.findReportEntryFromNav(navEntry);
+    if (!reportEntry) {
+      throw new Error("Could not find report entry");
+    }
 
-    // To be able to update the correct entry in the report tree efficiently,
-    // we need to know the hierarchy of parent entries. Currently we do this
-    // by inspecting the array of selected entry UIDs. In future it would
-    // be better if the UIDs of parent entries could be stored on each
-    // report entry so that we don't need to do it this way.
-    const currSelected = this.state.selected[this.state.selected.length - 1];
-    if (currSelected.type === "testcase") {
-      // When testcases are selected, there is an additional complication:
-      // the testcase that is being run may not be the same testcase that is
-      // currently selected. In that case we swap out the UIDs in the selected
-      // array before passing it down (this does not affect the actual
-      // selected entries in this component's state).
-      if (currSelected.uid === entry.uid) {
-        this.runEntry(this.state.selected);
-      } else {
-        const runEntryHierarchy = this.state.selected.slice(0, -1).concat(
-          [ReportToNavEntry(entry)]
+    const updatedReportEntry = {
+      ...this.shallowReportEntry(reportEntry), status: "running"
+    };
+    this.putUpdatedReportEntry(updatedReportEntry).then(
+      response => this.setReportEntry(PropagateIndices(response.data))
+    ).catch(
+      error => this.setState({error: error})
+    );
+  }
+
+  /**
+   * Shallow copy of a report entry, by replacing the "entries" attribute
+   * with an array of entry UIDs.
+   */
+  shallowReportEntry(reportEntry) {
+    const {entries, ...shallowEntry} = reportEntry;
+    shallowEntry.entry_uids = entries.map((entry) => entry.uid);
+    return shallowEntry;
+  }
+
+  /**
+   * Find the corresponding entry in the report given a navigation entry.
+   * Yes they are subtly different types... (TODO fix this)
+   */
+  findReportEntryFromNav(navEntry) {
+    return this.findReportEntryFromNavRecur(this.state.report, navEntry);
+  }
+
+  /**
+   * Recursive implementation of finding an entry in the report tree, given
+   * its UID and the UIDs of its parent entries.
+   */
+  findReportEntryFromNavRecur(currEntry, navEntry, depth=0) {
+    // Based on our current recursion depth, we either need to check for a
+    // match with our current entry and one of the parent UIDs we are
+    // searching for, or with the UID of the actual entry we are looking for.
+    if (depth < navEntry.parent_uids.length) {
+      if (currEntry.uid === navEntry.parent_uids[depth]) {
+        // For each child entry, recurse down. If a matching entry is found
+        // from any branch, it will be returned back up the stack. Otherwise
+        // we return null to indicate that no match was found.
+        return currEntry.entries.reduce(
+          (foundEntry, childEntry) => {
+            if (foundEntry) {
+              return foundEntry;
+            } else {
+              return this.findReportEntryFromNavRecur(
+                childEntry, navEntry, depth + 1
+              );
+            }
+          },
+          null,
         );
-        this.runEntry(runEntryHierarchy);
+      } else {
+        return null;
+      }
+    } else if (depth === navEntry.parent_uids.length) {
+      // We are at the required depth, so no need to recurse any further.
+      // Either we have found the entry and return it, or we haven't and
+      // return null.
+      if (currEntry.uid === navEntry.uid) {
+        return currEntry;
+      } else {
+        return null;
       }
     } else {
-      const runEntryHierarchy = this.state.selected.concat(
-        [ReportToNavEntry(entry)]
-      );
-      this.runEntry(runEntryHierarchy);
+      throw new Error("Recursed too far");
     }
   }
 
   /**
-   * Trigger the run of either a single testcase or a group of testcases
-   * (suite, MultiTest or Testplan) represented by an entry in the report.
+   * Render the InteractiveReport component based on its current state.
    */
-  runEntry(selectedEntries) {
-    const reportEntry = this.findReportEntry(
-      selectedEntries, this.state.report
-    );
-    if (!reportEntry) {
-      console.log(selectedEntries);
-      throw new Error("Could not find entry to run");
-    }
-
-    const updatedReportEntry = {...reportEntry, status: "running"};
-
-    // TODO handle request error by resyncing report state.
-    this.putUpdatedReportEntry(updatedReportEntry, selectedEntries)
-      .then(response => this.setReportEntry(
-        PropagateIndices(response.data), selectedEntries
-      ))
-      .catch(error => this.setState({error: error}));
-  }
-
   render() {
     const noop = () => undefined;
     const {reportStatus, reportFetchMessage} = GetReportState(this.state);

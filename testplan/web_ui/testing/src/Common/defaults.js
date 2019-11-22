@@ -96,6 +96,7 @@ const NAV_ENTRY_DISPLAY_DATA = [
   'status',
   'case_count',
   'tags',
+  'parent_uids',
 ];
 
 const BASIC_ASSERTION_TYPES = [
@@ -128,6 +129,14 @@ const DICT_GRID_STYLE = {
   BOTTOM_PADDING: 18, // 16 + 2(border 2px)
 };
 
+// Interval to poll for report updates over. We may want to reduce this to make
+// the UI update more quickly.
+//
+// NOTE: currently we poll for updates using HTTP for simplicity but in future
+// it might be better to use websockets or SSEs to allow the backend to notify
+// us when updates are available.
+const POLL_MS = 1000;
+
 export {
   GREEN,
   RED,
@@ -146,4 +155,5 @@ export {
   BASIC_ASSERTION_TYPES,
   SORT_TYPES,
   DICT_GRID_STYLE,
+  POLL_MS,
 };

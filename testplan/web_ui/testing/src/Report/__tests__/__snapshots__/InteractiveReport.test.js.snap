@@ -56,6 +56,11 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                       "Assertions Test|testplan",
                       "Assertions Example|testplan",
                     },
+                    "parent_uids": Array [
+                      "Assertions Example",
+                      "Assertions Test",
+                      "SampleSuite",
+                    ],
                     "status": "ready",
                     "status_override": null,
                     "suite_related": false,
@@ -77,6 +82,10 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                   "Assertions Example|testplan",
                   "test_basic_assertions|testcase",
                 },
+                "parent_uids": Array [
+                  "Assertions Example",
+                  "Assertions Test",
+                ],
                 "part": null,
                 "status": "ready",
                 "status_override": null,
@@ -97,6 +106,9 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
               "SampleSuite|testplan",
               "test_basic_assertions|testcase",
             },
+            "parent_uids": Array [
+              "Assertions Example",
+            ],
             "part": null,
             "status": "ready",
             "status_override": null,
@@ -117,10 +129,443 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
           "SampleSuite|testplan",
           "test_basic_assertions|testcase",
         },
+        "parent_uids": Array [],
         "status": "ready",
         "status_override": null,
         "tags_index": Object {},
         "timer": Object {},
+        "uid": "Assertions Example",
+      }
+    }
+    selected={
+      Array [
+        Object {
+          "type": "testplan",
+          "uid": "Assertions Example",
+        },
+      ]
+    }
+  />
+  <Message
+    left={18}
+    message="Please select a testcase."
+  />
+</div>
+`;
+
+exports[`InteractiveReport handles individual test suites being run 1`] = `
+<div
+  className=""
+>
+  <Toolbar
+    handleNavFilter={[Function]}
+    status="ready"
+    updateEmptyDisplayFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+  />
+  <InteractiveNav
+    displayEmpty={true}
+    displayTags={false}
+    filter={null}
+    handleNavClick={[Function]}
+    handlePlayClick={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "suite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "description": null,
+                    "entries": Array [],
+                    "logs": Array [],
+                    "name": "test_basic_assertions",
+                    "parent_uids": Array [
+                      "Assertions Example",
+                      "Assertions Test",
+                      "SampleSuite",
+                    ],
+                    "status": "ready",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "test_basic_assertions",
+                  },
+                ],
+                "fix_spec_path": null,
+                "name": "SampleSuite",
+                "parent_uids": Array [
+                  "Assertions Example",
+                  "Assertions Test",
+                ],
+                "part": null,
+                "status": "ready",
+                "status_override": null,
+                "tags": Object {},
+                "timer": Object {},
+                "type": "TestGroupReport",
+                "uid": "SampleSuite",
+              },
+            ],
+            "fix_spec_path": null,
+            "name": "Assertions Test",
+            "parent_uids": Array [
+              "Assertions Example",
+            ],
+            "part": null,
+            "status": "ready",
+            "status_override": null,
+            "tags": Object {},
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "Assertions Test",
+          },
+        ],
+        "meta": Object {},
+        "name": "Assertions Example",
+        "parent_uids": Array [],
+        "status": "ready",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
+        "uid": "Assertions Example",
+      }
+    }
+    selected={
+      Array [
+        Object {
+          "type": "testplan",
+          "uid": "Assertions Example",
+        },
+      ]
+    }
+  />
+  <Message
+    left={18}
+    message="Please select a testcase."
+  />
+</div>
+`;
+
+exports[`InteractiveReport handles individual testcases being run 1`] = `
+<div
+  className=""
+>
+  <Toolbar
+    handleNavFilter={[Function]}
+    status="ready"
+    updateEmptyDisplayFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+  />
+  <InteractiveNav
+    displayEmpty={true}
+    displayTags={false}
+    filter={null}
+    handleNavClick={[Function]}
+    handlePlayClick={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "suite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "case_count": Object {
+                      "failed": 0,
+                      "passed": 0,
+                    },
+                    "description": null,
+                    "entry_uids": Array [],
+                    "logs": Array [],
+                    "name": "test_basic_assertions",
+                    "name_type_index": Set {
+                      "test_basic_assertions|testcase",
+                    },
+                    "parent_uids": Array [
+                      "Assertions Example",
+                      "Assertions Test",
+                      "SampleSuite",
+                    ],
+                    "status": "running",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "test_basic_assertions",
+                  },
+                ],
+                "fix_spec_path": null,
+                "name": "SampleSuite",
+                "parent_uids": Array [
+                  "Assertions Example",
+                  "Assertions Test",
+                ],
+                "part": null,
+                "status": "ready",
+                "status_override": null,
+                "tags": Object {},
+                "timer": Object {},
+                "type": "TestGroupReport",
+                "uid": "SampleSuite",
+              },
+            ],
+            "fix_spec_path": null,
+            "name": "Assertions Test",
+            "parent_uids": Array [
+              "Assertions Example",
+            ],
+            "part": null,
+            "status": "ready",
+            "status_override": null,
+            "tags": Object {},
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "Assertions Test",
+          },
+        ],
+        "meta": Object {},
+        "name": "Assertions Example",
+        "parent_uids": Array [],
+        "status": "ready",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
+        "uid": "Assertions Example",
+      }
+    }
+    selected={
+      Array [
+        Object {
+          "type": "testplan",
+          "uid": "Assertions Example",
+        },
+      ]
+    }
+  />
+  <Message
+    left={18}
+    message="Please select a testcase."
+  />
+</div>
+`;
+
+exports[`InteractiveReport handles navigation entries being clicked 1`] = `
+<div
+  className=""
+>
+  <Toolbar
+    handleNavFilter={[Function]}
+    status="ready"
+    updateEmptyDisplayFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+  />
+  <InteractiveNav
+    displayEmpty={true}
+    displayTags={false}
+    filter={null}
+    handleNavClick={[Function]}
+    handlePlayClick={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "suite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "description": null,
+                    "entries": Array [],
+                    "logs": Array [],
+                    "name": "test_basic_assertions",
+                    "parent_uids": Array [
+                      "Assertions Example",
+                      "Assertions Test",
+                      "SampleSuite",
+                    ],
+                    "status": "ready",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "test_basic_assertions",
+                  },
+                ],
+                "fix_spec_path": null,
+                "name": "SampleSuite",
+                "parent_uids": Array [
+                  "Assertions Example",
+                  "Assertions Test",
+                ],
+                "part": null,
+                "status": "ready",
+                "status_override": null,
+                "tags": Object {},
+                "timer": Object {},
+                "type": "TestGroupReport",
+                "uid": "SampleSuite",
+              },
+            ],
+            "fix_spec_path": null,
+            "name": "Assertions Test",
+            "parent_uids": Array [
+              "Assertions Example",
+            ],
+            "part": null,
+            "status": "ready",
+            "status_override": null,
+            "tags": Object {},
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "Assertions Test",
+          },
+        ],
+        "meta": Object {},
+        "name": "Assertions Example",
+        "parent_uids": Array [],
+        "status": "ready",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
+        "uid": "Assertions Example",
+      }
+    }
+    selected={
+      Array [
+        Object {
+          "type": "testplan",
+          "uid": "Assertions Example",
+        },
+        Object {
+          "type": "multitest",
+          "uid": "Assertions Test",
+        },
+      ]
+    }
+  />
+  <Message
+    left={18}
+    message="Please select a testcase."
+  />
+</div>
+`;
+
+exports[`InteractiveReport handles tests being run 1`] = `
+<div
+  className=""
+>
+  <Toolbar
+    handleNavFilter={[Function]}
+    status="ready"
+    updateEmptyDisplayFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+  />
+  <InteractiveNav
+    displayEmpty={true}
+    displayTags={false}
+    filter={null}
+    handleNavClick={[Function]}
+    handlePlayClick={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "suite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "description": null,
+                    "entries": Array [],
+                    "logs": Array [],
+                    "name": "test_basic_assertions",
+                    "parent_uids": Array [
+                      "Assertions Example",
+                      "Assertions Test",
+                      "SampleSuite",
+                    ],
+                    "status": "ready",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "test_basic_assertions",
+                  },
+                ],
+                "fix_spec_path": null,
+                "name": "SampleSuite",
+                "parent_uids": Array [
+                  "Assertions Example",
+                  "Assertions Test",
+                ],
+                "part": null,
+                "status": "ready",
+                "status_override": null,
+                "tags": Object {},
+                "timer": Object {},
+                "type": "TestGroupReport",
+                "uid": "SampleSuite",
+              },
+            ],
+            "fix_spec_path": null,
+            "name": "Assertions Test",
+            "parent_uids": Array [
+              "Assertions Example",
+            ],
+            "part": null,
+            "status": "ready",
+            "status_override": null,
+            "tags": Object {},
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "Assertions Test",
+          },
+        ],
+        "meta": Object {},
+        "name": "Assertions Example",
+        "parent_uids": Array [],
+        "status": "ready",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
         "uid": "Assertions Example",
       }
     }

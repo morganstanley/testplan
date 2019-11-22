@@ -320,3 +320,40 @@ class TestReportGroup(object):
 
         assert filtered.entries[1].name == 'beta'
         assert filtered.entries[1].entries == []  # children filtered out, names don't match
+
+    def test_parent_uids(self):
+        """
+        Test that the parent UIDs are correctly set of child elements. The
+        child is added to the parent before the parent is added to the
+        grand-parent. The child should have both grand-parent and parent UIDs.
+        """
+        parent = DummyReportGroup()
+        child = DummyReport()
+        parent.append(child)
+
+        assert child in parent.entries
+        assert child.parent_uids == [parent.uid]
+
+        grand_parent = DummyReportGroup()
+        grand_parent.append(parent)
+
+        assert parent in grand_parent.entries
+        assert parent.parent_uids == [grand_parent.uid]
+        assert child.parent_uids == [grand_parent.uid, parent.uid]
+
+    def test_parent_uids_2(self):
+        """
+        Test that the parent UIDs are correctly set on child elements. The
+        parent is added to the grand-parent before the child is added to the
+        parent. The child should have both grand-parent and parent UIDs.
+        """
+        grand_parent = DummyReportGroup()
+        parent = DummyReportGroup()
+        child = DummyReport()
+
+        grand_parent.append(parent)
+        parent.append(child)
+
+        assert parent.parent_uids == [grand_parent.uid]
+        assert child.parent_uids == [grand_parent.uid, parent.uid]
+
