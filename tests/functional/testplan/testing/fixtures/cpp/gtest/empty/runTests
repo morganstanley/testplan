@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+import argparse
+
+
+# Mock empty gtest
+parser = argparse.ArgumentParser('')
+parser.add_argument('--gtest_output', type=str)
+parser.add_argument('--gtest_shuffle', action='store_true')
+parser.add_argument('--gtest_random_seed', type=int, default=0)
+parser.add_argument('--gtest_list_tests', action='store_true')
+parser.add_argument('--gtest_death_test_style', type=str)
+parser.add_argument('--gtest_filter', type=str)
+args = parser.parse_args()
+
+
+xml, path = args.gtest_output.split(':', 1)
+assert xml, 'xml'
+
+
+
+report = """<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="0" disabled="0" errors="0" time="0" name="AllTests">
+  <testsuite name="RcpTests" tests="1" failures="0" disabled="0" errors="0" time="0">
+    <testcase name="SequentialIncrDecr" status="notrun" time="0" classname="RcpTests" />
+  </testsuite>
+  <testsuite name="SessionRangeTests" tests="1" failures="0" disabled="0" errors="0" time="0">
+    <testcase name="Constructors" status="notrun" time="0" classname="SessionRangeTests" />
+  </testsuite>
+</testsuites>
+"""
+
+output = """[==========] Running 0 tests from 0 test cases.
+[==========] 0 tests from 0 test cases ran. (0 ms total)
+[  PASSED  ] 0 tests.
+"""
+
+print(output)
+
+with open(path, 'w') as output:
+    output.write(report)
