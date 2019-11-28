@@ -1253,7 +1253,7 @@ class FixMatch(DictMatch):
         if typed_value and typed_expected:
             value_cmp_func = comparison.COMPARE_FUNCTIONS["check_types"]
         else:
-            value_cmp_func = comparison.COMPARE_FUNCTIONS["stringify"]
+            value_cmp_func = comparison.COMPARE_FUNCTIONS["untyped_fixtag"]
 
         super(FixMatch, self).__init__(
             value=value,
