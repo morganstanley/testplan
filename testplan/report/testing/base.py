@@ -390,13 +390,14 @@ class TestGroupReport(BaseReportGroup):
     TestCaseReports.
     """
 
-    def __init__(
-        self, name, description=None,
-        category=None, uid=None, entries=None,
-        tags=None, part=None, fix_spec_path=None
-    ):
-        super(TestGroupReport, self).__init__(
-            name=name, description=description, uid=uid, entries=entries)
+    def __init__(self,
+                 name,
+                 category=None,
+                 tags=None,
+                 part=None,
+                 fix_spec_path=None,
+                 **kwargs):
+        super(TestGroupReport, self).__init__(name=name, **kwargs)
 
         # This will be used for distinguishing test
         # type (Multitest, GTest etc)
@@ -412,7 +413,7 @@ class TestGroupReport(BaseReportGroup):
 
         self.fix_spec_path = fix_spec_path
 
-        if entries:
+        if self.entries:
             self.propagate_tag_indices()
 
     def __str__(self):
@@ -537,13 +538,10 @@ class TestCaseReport(Report):
 
     def __init__(self,
                  name,
-                 description=None,
-                 uid=None,
-                 entries=None,
                  tags=None,
-                 suite_related=False):
-        super(TestCaseReport, self).__init__(
-            name=name, uid=uid, entries=entries, description=description)
+                 suite_related=False,
+                 **kwargs):
+        super(TestCaseReport, self).__init__(name=name, **kwargs)
 
         self.tags = tagging.validate_tag_value(tags) if tags else {}
         self.tags_index = copy.deepcopy(self.tags)

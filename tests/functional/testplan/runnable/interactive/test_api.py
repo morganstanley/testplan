@@ -73,6 +73,7 @@ EXPECTED_INITIAL_GET = [
             "entry_uids": ["ExampleMTest"],
             "meta": {},
             "name": "InteractiveAPITest",
+            "parent_uids": [],
             "status": "ready",
             "status_override": None,
             "tags_index": {},
@@ -89,6 +90,7 @@ EXPECTED_INITIAL_GET = [
                 "entry_uids": ["ExampleSuite"],
                 "fix_spec_path": None,
                 "name": "ExampleMTest",
+                "parent_uids": ["InteractiveAPITest"],
                 "part": None,
                 "status": "ready",
                 "status_override": None,
@@ -106,6 +108,7 @@ EXPECTED_INITIAL_GET = [
             "entry_uids": ["ExampleSuite"],
             "fix_spec_path": None,
             "name": "ExampleMTest",
+            "parent_uids": ["InteractiveAPITest"],
             "part": None,
             "status": "ready",
             "status_override": None,
@@ -123,6 +126,7 @@ EXPECTED_INITIAL_GET = [
                 "entry_uids": ["test_passes", "test_fails", "test_logs"],
                 "fix_spec_path": None,
                 "name": "ExampleSuite",
+                "parent_uids": ["InteractiveAPITest", "ExampleMTest"],
                 "part": None,
                 "status": "ready",
                 "status_override": None,
@@ -140,6 +144,7 @@ EXPECTED_INITIAL_GET = [
             "entry_uids": ["test_passes", "test_fails", "test_logs"],
             "fix_spec_path": None,
             "name": "ExampleSuite",
+            "parent_uids": ["InteractiveAPITest", "ExampleMTest"],
             "part": None,
             "status": "ready",
             "status_override": None,
@@ -156,6 +161,9 @@ EXPECTED_INITIAL_GET = [
                 "entries": [],
                 "logs": [],
                 "name": "test_passes",
+                "parent_uids": [
+                    "InteractiveAPITest", "ExampleMTest", "ExampleSuite"
+                ],
                 "status": "ready",
                 "status_override": None,
                 "suite_related": False,
@@ -169,6 +177,9 @@ EXPECTED_INITIAL_GET = [
                 "entries": [],
                 "logs": [],
                 "name": "test_fails",
+                "parent_uids": [
+                    "InteractiveAPITest", "ExampleMTest", "ExampleSuite"
+                ],
                 "status": "ready",
                 "status_override": None,
                 "suite_related": False,
@@ -182,6 +193,9 @@ EXPECTED_INITIAL_GET = [
                 "entries": [],
                 "logs": [],
                 "name": "test_logs",
+                "parent_uids": [
+                    "InteractiveAPITest", "ExampleMTest", "ExampleSuite"
+                ],
                 "status": "ready",
                 "status_override": None,
                 "suite_related": False,
@@ -199,6 +213,9 @@ EXPECTED_INITIAL_GET = [
             "entries": [],
             "logs": [],
             "name": "test_passes",
+            "parent_uids": [
+                "InteractiveAPITest", "ExampleMTest", "ExampleSuite"
+            ],
             "status": "ready",
             "status_override": None,
             "suite_related": False,

@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import BatchReport from './Report/BatchReport';
 import InteractiveReport from './Report/InteractiveReport';
 import EmptyReport from './Report/EmptyReport';
+import {POLL_MS} from './Common/defaults.js';
+
 // import registerServiceWorker from './registerServiceWorker';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
@@ -20,7 +22,7 @@ const AppRouter = () => (
         <InteractiveReport dev={true} />
       </Route>
       <Route path="/interactive">
-        <InteractiveReport dev={false} />
+        <InteractiveReport dev={false} poll_ms={POLL_MS} />
       </Route>
       <Route component={EmptyReport} />
     </Switch>

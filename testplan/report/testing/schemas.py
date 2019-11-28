@@ -183,6 +183,7 @@ class ShallowTestReportSchema(Schema):
     status_override = fields.String(allow_none=True)
     attachments = fields.Dict()
     entry_uids = fields.List(fields.Str(), dump_only=True)
+    parent_uids = fields.List(fields.Str())
 
     @post_load
     def make_test_report(self, data):
@@ -213,6 +214,7 @@ class ShallowTestGroupReportSchema(Schema):
     suite_related = fields.Bool()
     tags = TagField()
     entry_uids = fields.List(fields.Str(), dump_only=True)
+    parent_uids = fields.List(fields.Str())
 
     @post_load
     def make_testgroup_report(self, data):
