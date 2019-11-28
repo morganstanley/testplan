@@ -107,7 +107,7 @@ class Client(object):
 
         msg[34] = self.out_seqno
         self.out_seqno += 1
-        if msg[35] == b'4':
+        if msg[35] in (b'4', u'4'):
             self.out_seqno = int(msg[36])
         return msg
 

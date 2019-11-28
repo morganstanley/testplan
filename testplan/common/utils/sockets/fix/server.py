@@ -51,7 +51,7 @@ def _has_logon_tag(msg):
     :return: ``True`` if it is a logon message
     :rtype: ``bool``
     """
-    return msg.tag_exact(35, b'A')
+    return msg.tag_exact(35, 'A')
 
 
 def _is_session_control_msg(msg):
@@ -78,7 +78,7 @@ def _has_logout_tag(msg):
     :return: True if it is a logout message
     :rtype: ``bool``
     """
-    return msg.tag_exact(35, b'5')
+    return msg.tag_exact(35, '5')
 
 
 def _has_heartbeat_tag(msg):
@@ -91,7 +91,7 @@ def _has_heartbeat_tag(msg):
     :return: True if it is a heartbeat message
     :rtype: ``bool``
     """
-    return msg.tag_exact(35, b'0')
+    return msg.tag_exact(35, '0')
 
 
 class Server(object):
@@ -495,8 +495,7 @@ class Server(object):
         :return: Fix message sent
         :rtype: ``FixMessage``
         """
-        conn_name = self._validate_connection_name(
-            self._encode_conn_name(conn_name))
+        conn_name = self._validate_connection_name(conn_name)
         with self._lock:
             conn_name = self._validate_connection_name(conn_name)
             msg = self._add_msg_tags(msg, conn_name)
@@ -524,13 +523,8 @@ class Server(object):
         :return: Fix message received
         :rtype: ``FixMessage``
         """
-        conn_name = self._validate_connection_name(
-            self._encode_conn_name(conn_name))
+        conn_name = self._validate_connection_name(conn_name)
         return self._conndetails_by_name[conn_name].queue.get(True, timeout)
-
-    def _encode_conn_name(self, conn_name):
-        return (conn_name[0].encode('utf-8') if conn_name[0] else conn_name[0],
-                conn_name[1].encode('utf-8') if conn_name[1] else conn_name[1])
 
     def flush(self):
         """
