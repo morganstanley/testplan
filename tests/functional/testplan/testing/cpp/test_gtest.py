@@ -7,6 +7,7 @@ from testplan import Testplan
 from testplan.common.utils.testing import log_propagation_disabled, check_report
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing.cpp import GTest
+from testplan.report.testing import Status
 
 from tests.functional.testplan.testing.fixtures.cpp import gtest
 
@@ -28,19 +29,26 @@ You need to compile the files at "{binary_dir}" to be able to run this test.
     reason='GTest is skipped on Windows.'
 )
 @pytest.mark.parametrize(
-    'binary_dir, expected_report',
+    'binary_dir, expected_report, report_status',
     (
         (
             os.path.join(fixture_root, 'failing'),
             gtest.failing.report.expected_report,
+            Status.FAILED,
         ),
         (
             os.path.join(fixture_root, 'passing'),
             gtest.passing.report.expected_report,
+            Status.PASSED,
+        ),
+        (
+            os.path.join(fixture_root, 'empty'),
+            gtest.empty.report.expected_report,
+            Status.PASSED,
         ),
     )
 )
-def test_gtest(binary_dir, expected_report):
+def test_gtest(binary_dir, expected_report, report_status):
 
     binary_path = os.path.join(binary_dir, 'runTests')
 
@@ -62,3 +70,5 @@ def test_gtest(binary_dir, expected_report):
         assert plan.run().run is True
 
     check_report(expected=expected_report, actual=plan.report)
+
+    assert plan.report.status == report_status

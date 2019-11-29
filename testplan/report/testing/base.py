@@ -142,6 +142,7 @@ class BaseReportGroup(ReportGroup):
         super(BaseReportGroup, self).__init__(*args, **kwargs)
         self.status_override = None
         self.timer = timing.Timer()
+        self._status = Status.READY
 
     def _get_comparison_attrs(self):
         return super(BaseReportGroup, self)._get_comparison_attrs() +\
@@ -184,12 +185,13 @@ class BaseReportGroup(ReportGroup):
         if self.entries:
             return Status.precedent([entry.status for entry in self])
 
-        return Status.READY
+        return self._status
 
     @status.setter
     def status(self, new_status):
         for entry in self:
             entry.status = new_status
+        self._status = new_status
 
     def merge_children(self, report, strict=True):
         """
