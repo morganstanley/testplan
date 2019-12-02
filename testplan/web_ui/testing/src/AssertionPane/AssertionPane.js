@@ -10,6 +10,7 @@ import {
 
 import InfiniteScroll from './InfiniteScroll';
 import AssertionGroup from "./AssertionGroup";
+import LogGroup from './LogGroup';
 
 library.add(
   faPlusCircle,
@@ -84,7 +85,7 @@ class AssertionPane extends Component {
       width: `calc(100% - ${this.props.left}em)`,
     };
 
-    if (this.props.assertions.length !== 0) {
+    if (this.props.assertions.length !== 0 || this.props.logs.length !==0) {
       return (
         <div style={assertionPaneStyle}>
           <div className={css(styles.buttonsDiv)}>
@@ -122,6 +123,9 @@ class AssertionPane extends Component {
                 filter={this.props.filter}
                 reportUid={this.props.reportUid}
               />
+              <LogGroup 
+                logs={this.props.logs}
+              />
             </InfiniteScroll>
           </div>
         </div>);
@@ -134,6 +138,8 @@ class AssertionPane extends Component {
 AssertionPane.propTypes = {
   /** List of assertions to be rendered */
   assertions: PropTypes.arrayOf(PropTypes.object),
+  /** List of error log to be rendered */
+  logs: PropTypes.arrayOf(PropTypes.object),
   /** Unique identifier of the test case */
   testcaseUid: PropTypes.string,
   /** Left positional value */

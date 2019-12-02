@@ -31,6 +31,7 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
             "passed": 0,
           },
           "category": "multitest",
+          "logs": Array [],
           "name": "Interactive MTest",
           "status": "ready",
           "tags": Object {},
