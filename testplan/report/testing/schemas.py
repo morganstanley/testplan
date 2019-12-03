@@ -184,6 +184,7 @@ class ShallowTestReportSchema(Schema):
     attachments = fields.Dict()
     entry_uids = fields.List(fields.Str(), dump_only=True)
     parent_uids = fields.List(fields.Str())
+    hash = fields.Integer(dump_only=True)
 
     @post_load
     def make_test_report(self, data):
@@ -215,6 +216,7 @@ class ShallowTestGroupReportSchema(Schema):
     tags = TagField()
     entry_uids = fields.List(fields.Str(), dump_only=True)
     parent_uids = fields.List(fields.Str())
+    hash = fields.Integer(dump_only=True)
 
     @post_load
     def make_testgroup_report(self, data):

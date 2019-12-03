@@ -48,13 +48,14 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                     },
                     "description": null,
                     "entries": Array [],
+                    "hash": 12345,
                     "logs": Array [],
-                    "name": "testcaseUID",
+                    "name": "testcaseName",
                     "name_type_index": Set {
-                      "testcaseUID|testcase",
-                      "SuiteUID|testplan",
-                      "MultiTestUID|testplan",
-                      "TestplanUID|testplan",
+                      "testcaseName|testcase",
+                      "SuiteName|testplan",
+                      "MultitestName|testplan",
+                      "TestplanName|testplan",
                     },
                     "parent_uids": Array [
                       "TestplanUID",
@@ -75,16 +76,17 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                   "testcaseUID",
                 ],
                 "fix_spec_path": null,
-                "name": "SuiteUID",
+                "hash": 12345,
+                "name": "SuiteName",
                 "name_type_index": Set {
-                  "SuiteUID|testplan",
-                  "MultiTestUID|testplan",
-                  "TestplanUID|testplan",
-                  "testcaseUID|testcase",
+                  "SuiteName|testplan",
+                  "MultitestName|testplan",
+                  "TestplanName|testplan",
+                  "testcaseName|testcase",
                 },
                 "parent_uids": Array [
                   "TestplanUID",
-                  "MultiTestUID",
+                  "MultitestUID",
                 ],
                 "part": null,
                 "status": "ready",
@@ -99,12 +101,13 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
               "SuiteUID",
             ],
             "fix_spec_path": null,
-            "name": "MultiTestUID",
+            "hash": 12345,
+            "name": "MultitestName",
             "name_type_index": Set {
-              "MultiTestUID|testplan",
-              "TestplanUID|testplan",
-              "SuiteUID|testplan",
-              "testcaseUID|testcase",
+              "MultitestName|testplan",
+              "TestplanName|testplan",
+              "SuiteName|testplan",
+              "testcaseName|testcase",
             },
             "parent_uids": Array [
               "TestplanUID",
@@ -121,16 +124,283 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
         "entry_uids": Array [
           "MultiTestUID",
         ],
+        "hash": 12345,
         "meta": Object {},
-        "name": "TestplanUID",
+        "name": "TestplanName",
         "name_type_index": Set {
-          "TestplanUID|testplan",
-          "MultiTestUID|testplan",
-          "SuiteUID|testplan",
-          "testcaseUID|testcase",
+          "TestplanName|testplan",
+          "MultitestName|testplan",
+          "SuiteName|testplan",
+          "testcaseName|testcase",
         },
         "parent_uids": Array [],
         "status": "ready",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "uid": "TestplanUID",
+      }
+    }
+    selected={
+      Array [
+        Object {
+          "type": "testplan",
+          "uid": "TestplanUID",
+        },
+      ]
+    }
+  />
+  <Message
+    left={18}
+    message="Please select a testcase."
+  />
+</div>
+`;
+
+exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
+<div
+  className=""
+>
+  <Toolbar
+    handleNavFilter={[Function]}
+    status="ready"
+    updateEmptyDisplayFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+  />
+  <InteractiveNav
+    displayEmpty={true}
+    displayTags={false}
+    filter={null}
+    handleNavClick={[Function]}
+    handlePlayClick={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "suite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "description": null,
+                    "entries": Array [],
+                    "hash": 12345,
+                    "logs": Array [],
+                    "name": "testcaseName",
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "status": "ready",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "testcaseUID",
+                  },
+                ],
+                "fix_spec_path": null,
+                "hash": 12345,
+                "name": "SuiteName",
+                "parent_uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                ],
+                "part": null,
+                "status": "ready",
+                "status_override": null,
+                "tags": Object {},
+                "timer": Object {},
+                "type": "TestGroupReport",
+                "uid": "SuiteUID",
+              },
+            ],
+            "fix_spec_path": null,
+            "hash": 12345,
+            "name": "MultiTestName",
+            "parent_uids": Array [
+              "TestplanUID",
+            ],
+            "part": null,
+            "status": "ready",
+            "status_override": null,
+            "tags": Object {},
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "MultiTestUID",
+          },
+        ],
+        "hash": 12345,
+        "meta": Object {},
+        "name": "TestplanName",
+        "parent_uids": Array [],
+        "status": "ready",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
+        "uid": "TestplanUID",
+      }
+    }
+    selected={
+      Array [
+        Object {
+          "type": "testplan",
+          "uid": "TestplanUID",
+        },
+      ]
+    }
+  />
+  <Message
+    left={18}
+    message="Please select a testcase."
+  />
+</div>
+`;
+
+exports[`InteractiveReport Updates testcase state 1`] = `
+<div
+  className=""
+>
+  <Toolbar
+    handleNavFilter={[Function]}
+    status="running"
+    updateEmptyDisplayFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+  />
+  <InteractiveNav
+    displayEmpty={true}
+    displayTags={false}
+    filter={null}
+    handleNavClick={[Function]}
+    handlePlayClick={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "case_count": Object {
+          "failed": 0,
+          "passed": 0,
+        },
+        "entries": Array [
+          Object {
+            "case_count": Object {
+              "failed": 0,
+              "passed": 0,
+            },
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "case_count": Object {
+                  "failed": 0,
+                  "passed": 0,
+                },
+                "category": "suite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "case_count": Object {
+                      "failed": 0,
+                      "passed": 0,
+                    },
+                    "description": null,
+                    "entries": Array [],
+                    "hash": 44444,
+                    "logs": Array [],
+                    "name": "testcaseName",
+                    "name_type_index": Set {
+                      "testcaseName|testcase",
+                      "SuiteName|testplan",
+                      "MultitestName|testplan",
+                      "TestplanName|testplan",
+                    },
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultitestUID",
+                      "SuiteUID",
+                    ],
+                    "status": "running",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "tags_index": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "TestcaseUID",
+                  },
+                ],
+                "entry_uids": Array [
+                  "test_basic_assertions",
+                ],
+                "fix_spec_path": null,
+                "hash": 33333,
+                "name": "SuiteName",
+                "name_type_index": Set {
+                  "SuiteName|testplan",
+                  "MultitestName|testplan",
+                  "TestplanName|testplan",
+                  "testcaseName|testcase",
+                },
+                "parent_uids": Array [
+                  "TestplanUID",
+                  "MultitestUID",
+                ],
+                "part": null,
+                "status": "running",
+                "status_override": null,
+                "tags": Object {},
+                "tags_index": Object {},
+                "timer": Object {},
+                "uid": "SuiteUID",
+              },
+            ],
+            "entry_uids": Array [
+              "SuiteUID",
+            ],
+            "fix_spec_path": null,
+            "hash": 22222,
+            "name": "MultitestName",
+            "name_type_index": Set {
+              "MultitestName|testplan",
+              "TestplanName|testplan",
+              "SuiteName|testplan",
+              "testcaseName|testcase",
+            },
+            "parent_uids": Array [
+              "TestplanUID",
+            ],
+            "part": null,
+            "status": "running",
+            "status_override": null,
+            "tags": Object {},
+            "tags_index": Object {},
+            "timer": Object {},
+            "uid": "MultitestUID",
+          },
+        ],
+        "entry_uids": Array [
+          "MultitestUID",
+        ],
+        "hash": 11111,
+        "meta": Object {},
+        "name": "TestplanName",
+        "name_type_index": Set {
+          "TestplanName|testplan",
+          "MultitestName|testplan",
+          "SuiteName|testplan",
+          "testcaseName|testcase",
+        },
+        "parent_uids": Array [],
+        "status": "running",
         "status_override": null,
         "tags_index": Object {},
         "timer": Object {},
@@ -186,6 +456,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
                   Object {
                     "description": null,
                     "entries": Array [],
+                    "hash": 12345,
                     "logs": Array [],
                     "name": "testcaseName",
                     "parent_uids": Array [
@@ -203,6 +474,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
                   },
                 ],
                 "fix_spec_path": null,
+                "hash": 12345,
                 "name": "SuiteName",
                 "parent_uids": Array [
                   "TestplanUID",
@@ -218,6 +490,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
               },
             ],
             "fix_spec_path": null,
+            "hash": 12345,
             "name": "MultiTestName",
             "parent_uids": Array [
               "TestplanUID",
@@ -231,6 +504,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
             "uid": "MultiTestUID",
           },
         ],
+        "hash": 12345,
         "meta": Object {},
         "name": "TestplanName",
         "parent_uids": Array [],
@@ -295,6 +569,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                     },
                     "description": null,
                     "entry_uids": Array [],
+                    "hash": 12345,
                     "logs": Array [],
                     "name": "testcaseName",
                     "name_type_index": Set {
@@ -316,6 +591,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                   },
                 ],
                 "fix_spec_path": null,
+                "hash": 12345,
                 "name": "SuiteName",
                 "parent_uids": Array [
                   "TestplanUID",
@@ -331,6 +607,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
               },
             ],
             "fix_spec_path": null,
+            "hash": 12345,
             "name": "MultiTestName",
             "parent_uids": Array [
               "TestplanUID",
@@ -344,6 +621,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
             "uid": "MultiTestUID",
           },
         ],
+        "hash": 12345,
         "meta": Object {},
         "name": "TestplanName",
         "parent_uids": Array [],
@@ -404,6 +682,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                   Object {
                     "description": null,
                     "entries": Array [],
+                    "hash": 12345,
                     "logs": Array [],
                     "name": "testcaseName",
                     "parent_uids": Array [
@@ -421,6 +700,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                   },
                 ],
                 "fix_spec_path": null,
+                "hash": 12345,
                 "name": "SuiteName",
                 "parent_uids": Array [
                   "TestplanUID",
@@ -436,6 +716,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
               },
             ],
             "fix_spec_path": null,
+            "hash": 12345,
             "name": "MultiTestName",
             "parent_uids": Array [
               "TestplanUID",
@@ -449,6 +730,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
             "uid": "MultiTestUID",
           },
         ],
+        "hash": 12345,
         "meta": Object {},
         "name": "TestplanName",
         "parent_uids": Array [],
@@ -513,6 +795,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
                   Object {
                     "description": null,
                     "entries": Array [],
+                    "hash": 12345,
                     "logs": Array [],
                     "name": "testcaseName",
                     "parent_uids": Array [
@@ -530,6 +813,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
                   },
                 ],
                 "fix_spec_path": null,
+                "hash": 12345,
                 "name": "SuiteName",
                 "parent_uids": Array [
                   "TestplanUID",
@@ -545,6 +829,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
               },
             ],
             "fix_spec_path": null,
+            "hash": 12345,
             "name": "MultiTestName",
             "parent_uids": Array [
               "TestplanUID",
@@ -558,6 +843,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
             "uid": "MultiTestUID",
           },
         ],
+        "hash": 12345,
         "meta": Object {},
         "name": "TestplanName",
         "parent_uids": Array [],

@@ -149,6 +149,50 @@ class TestBaseReportGroup(object):
         parent_orig.merge(parent_clone, strict=False)
         assert parent_orig.entries == [child_orig_1, child_clone_2]
 
+    def test_hash(self):
+        """
+        Test that a hash is generated for report groups, which depends on the
+        entries they contain.
+        """
+        grand_parent = DummyReportGroup()
+        parent = DummyReportGroup()
+        child = TestCaseReport(name="testcase")
+
+        orig_root_hash = grand_parent.hash
+
+        grand_parent.append(parent)
+        updated_root_hash = grand_parent.hash
+        assert updated_root_hash != orig_root_hash
+
+        parent.append(child)
+
+        orig_root_hash = updated_root_hash
+        updated_root_hash = grand_parent.hash
+        assert updated_root_hash != orig_root_hash
+
+        child.append({"name": "entry", "passed": True})
+
+        orig_root_hash = updated_root_hash
+        updated_root_hash = grand_parent.hash
+        assert updated_root_hash != orig_root_hash
+
+    def test_hash_merge(self):
+        """
+        Test that the hash is updated after new report entries are merged in.
+        """
+        parent = DummyReportGroup()
+        child = TestCaseReport(name="testcase")
+        parent.append(child)
+        orig_parent_hash = parent.hash
+
+        parent2 = DummyReportGroup(uid=parent.uid)
+        child2 = TestCaseReport(name="testcase", uid=child.uid)
+        child2.append({"name": "entry", "passed": True})
+        parent2.append(child2)
+
+        parent.merge(parent2)
+        assert parent.hash != orig_parent_hash
+
 
 class TestTestCaseReport(object):
 
@@ -208,6 +252,16 @@ class TestTestCaseReport(object):
         assert rep.status_override == rep2.status_override
         assert rep.logs == rep2.logs
         assert rep.entries == rep2.entries
+
+    def test_hash(self):
+        """Test that a consistent hash can be generated for a report object."""
+        rep_1 = TestCaseReport(name="testcase1")
+        rep_2 = TestCaseReport(name="testcase2")
+
+        for rep in rep_1, rep_2:
+            assert rep.hash == rep.hash
+
+        assert rep_1.hash != rep_2.hash
 
 
 @disable_log_propagation(report.log.LOGGER)

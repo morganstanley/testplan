@@ -39,6 +39,7 @@ class ReportSchema(schemas.TreeNodeSchema):
 
     uid = fields.String()
     logs = fields.Nested(ReportLogSchema, many=True)
+    hash = fields.Integer(dump_only=True)
 
     @post_load
     def make_report(self, data):
