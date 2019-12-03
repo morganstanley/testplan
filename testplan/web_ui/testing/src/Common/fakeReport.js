@@ -626,7 +626,7 @@ var fakeReportAssertions = {
                         "type": "TestCaseReport",
                         "logs": []
                     }, {
-                        "status": "passed",
+                        "status": "error",
                         "name": "test_raised_exceptions",
                         "tags": {},
                         "description": null,
@@ -738,7 +738,17 @@ var fakeReportAssertions = {
                         ],
                         "uid": "ddb9ea4b-1d95-4948-b427-9abafd315b8d",
                         "type": "TestCaseReport",
-                        "logs": []
+                        "logs": [
+                            {
+                                "uid":"04b2be21-f14c-4c39-917f-e3e9f7b3eec3",
+                                "created":"2019-11-28T03:14:37.447875+00:00",
+                                "funcName":"__exit__",
+                                "levelno":40,
+                                "lineno":123,
+                                "message":"Traceback (most recent call last):\n  File \"testplan.py\", line 123, in _run_testcase(\n        <testplan.testing.multitest.base.MultiTest object at 0x7fb279443234>,\n        <bound method BasicSuite.abc of <__main__.BasicSuite object at 0x7fb279443123>>,\n        None,\n        None,\n        TestCaseReport(name=\"abc\", id=\"abc\", entries=[]))\n    testcase(self.resources, case_result)\n  File \"test_plan.py\", line 16, in abc(<__main__.BasicSuite object at 0x7fb279443123>, Environment[[]], [])\n    print(1/0)\nZeroDivisionError: division by zero",
+                                "levelname":"ERROR"
+                            }
+                        ]
                     }, {
                         "status": "failed",
                         "name": "test_assertion_group",

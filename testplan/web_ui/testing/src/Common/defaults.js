@@ -97,6 +97,7 @@ const NAV_ENTRY_DISPLAY_DATA = [
   'case_count',
   'tags',
   'parent_uids',
+  'logs',
 ];
 
 const BASIC_ASSERTION_TYPES = [

@@ -83,6 +83,7 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
         entries={Array []}
         resetGlobalIsOpen={[Function]}
       />
+      <LogGroup />
     </InfiniteScroll>
   </div>
 </div>

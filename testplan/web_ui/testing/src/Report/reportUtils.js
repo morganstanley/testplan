@@ -158,12 +158,14 @@ const UpdateSelectedState = (state, entry, depth) => {
       selected: selected,
       assertions: entry.entries,
       testcaseUid: entry.uid,
+      logs: entry.logs,
     };
   } else {
     return {
       selected: selected,
       assertions: null,
       testcaseUid: null,
+      logs:entry.logs,
     };
   }
 };
@@ -192,10 +194,12 @@ const GetReportState = (state) => {
  * Get the component to display in the centre pane.
  */
 const GetCenterPane = (state, props, reportFetchMessage, reportUid) => {
-  if (state.assertions !== null) {
+  let logs = state.logs || [];
+  if (state.assertions !== null || logs.length !==0) {
     return (
       <AssertionPane
         assertions={state.assertions}
+        logs={logs}
         left={state.navWidth + 1.5}
         testcaseUid={state.testcaseUid}
         filter={state.filter}

@@ -19,6 +19,7 @@ exports[`Nav shallow renders and matches snapshot 1`] = `
       Array [
         Object {
           "category": "multitest",
+          "logs": Array [],
           "name": "Primary",
           "status": "failed",
           "tags": Object {
@@ -31,6 +32,7 @@ exports[`Nav shallow renders and matches snapshot 1`] = `
         },
         Object {
           "category": "multitest",
+          "logs": Array [],
           "name": "Secondary",
           "status": "passed",
           "tags": Object {},

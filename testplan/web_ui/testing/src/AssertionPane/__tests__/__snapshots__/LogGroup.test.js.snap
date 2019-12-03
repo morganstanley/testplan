@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LogGroup shallow renders the correct HTML structure 1`] = `
+<div
+  className="LogGroup"
+>
+  <div
+    key="04b2be21-f14c-4c39-917f-e3e9f7b3eec3"
+  >
+    <pre
+      className="logEntry_137u7ef"
+    >
+      Traceback (most recent call last):
+  File "testplan.py", line 123, in _run_testcase(
+        &lt;testplan.testing.multitest.base.MultiTest object at 0x7fb279443320&gt;,
+        &lt;bound method BasicSuite.abc of &lt;__main__.BasicSuite object at 0x7fb279443080&gt;&gt;,
+        None,
+        None,
+        TestCaseReport(name="abc", id="abc", entries=[]))
+    testcase(self.resources, case_result)
+  File "test_plan.py", line 16, in abc(&lt;__main__.BasicSuite object at 0x7fb279443080&gt;, Environment[[]], [])
+    print(1/0)
+ZeroDivisionError: division by zero
+    </pre>
+  </div>
+</div>
+`;
