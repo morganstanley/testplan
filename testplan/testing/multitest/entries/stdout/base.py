@@ -37,7 +37,7 @@ class StdOutRegistry(Registry):
         details = logger.get_details(entry) or ''
         output_style = stdout_style.get_style(passing=bool(entry))
 
-        if not header:
+        if header is None:
             raise ValueError(
                 'Empty header returned by'
                 ' {logger} for {entry}'.format(
