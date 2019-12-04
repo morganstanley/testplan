@@ -204,7 +204,7 @@ class FixClient(Driver):
         self._client.sendlogon(custom_tags=self.cfg.custom_logon_tags)
         rcv = self._client.receive(timeout=self.cfg.logon_timeout)
         self.file_logger.debug('Received logon response {}.'.format(rcv))
-        if 35 not in rcv or rcv[35] != b'A':
+        if 35 not in rcv or rcv[35] != 'A':
             self.file_logger.debug('Unexpected logon response.')
             raise Exception('Unexpected logon response : {0}.'.format(rcv))
 
@@ -215,7 +215,7 @@ class FixClient(Driver):
         self._client.sendlogoff()
         rcv = self._client.receive(timeout=self.cfg.logoff_timeout)
         self.file_logger.debug('Received logoff response {}.'.format(rcv))
-        if 35 not in rcv or rcv[35] != b'5':
+        if 35 not in rcv or rcv[35] != '5':
             self.file_logger.debug(
                 'Unexpected logoff response {}'.format(rcv))
             self.logger.error(

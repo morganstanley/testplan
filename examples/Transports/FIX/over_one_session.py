@@ -39,7 +39,6 @@ def fixmsg(source):
     to serialise and parse messages and pass the codec explicitly.
     """
     # python 2 and 3 compatibility
-    source = {tag: val.encode('utf-8') for tag, val in source.items()}
     msg = FixMessage(source)
     msg.codec = CODEC
     return msg
