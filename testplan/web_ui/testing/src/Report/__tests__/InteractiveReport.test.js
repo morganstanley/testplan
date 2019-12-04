@@ -20,6 +20,7 @@ const INITIAL_REPORT = {
   "parent_uids": [],
   "type": "TestGroupReport",
   "category": "testplan",
+  "hash": 12345,
   "entries": [{
     "uid": "MultiTestUID",
     "timer": {},
@@ -34,6 +35,7 @@ const INITIAL_REPORT = {
     "parent_uids": ["TestplanUID"],
     "type": "TestGroupReport",
     "category": "multitest",
+    "hash": 12345,
     "entries": [{
       "uid": "SuiteUID",
       "timer": {},
@@ -48,6 +50,7 @@ const INITIAL_REPORT = {
       "parent_uids": ["TestplanUID", "MultiTestUID"],
       "type": "TestGroupReport",
       "category": "suite",
+      "hash": 12345,
       "entries": [{
         "uid": "testcaseUID",
         "timer": {},
@@ -64,6 +67,7 @@ const INITIAL_REPORT = {
         "parent_uids": [
           "TestplanUID", "MultiTestUID", "SuiteUID",
         ],
+        "hash": 12345,
       }],
     }],
   }],
@@ -102,7 +106,8 @@ describe('InteractiveReport', () => {
           "status_override": null,
           "attachments": {},
           "tags_index": {},
-          "name": "TestplanUID"
+          "name": "TestplanName",
+          "hash": 12345,
         },
       }).then(() => {
         moxios.wait(() => {
@@ -124,8 +129,9 @@ describe('InteractiveReport', () => {
                   "SuiteUID"
                 ],
                 "parent_uids": ["TestplanUID"],
-                "name": "MultiTestUID",
-                "fix_spec_path": null
+                "name": "MultitestName",
+                "fix_spec_path": null,
+                "hash": 12345,
               }
             ]
           }).then(() => {
@@ -148,9 +154,10 @@ describe('InteractiveReport', () => {
                   "entry_uids": [
                     "testcaseUID",
                   ],
-                  "parent_uids": ["TestplanUID", "MultiTestUID"],
-                  "name": "SuiteUID",
-                  "fix_spec_path": null
+                  "parent_uids": ["TestplanUID", "MultitestUID"],
+                  "name": "SuiteName",
+                  "fix_spec_path": null,
+                  "hash": 12345,
                 }]
               }).then(() => {
                 moxios.wait(() => {
@@ -172,10 +179,11 @@ describe('InteractiveReport', () => {
                       "suite_related": false,
                       "entries": [],
                       "status_override": null,
-                      "name": "testcaseUID",
+                      "name": "testcaseName",
                       "parent_uids": [
                         "TestplanUID", "MultiTestUID", "SuiteUID",
                       ],
+                      "hash": 12345,
                     }]
                   }).then(() => {
                     expect(interactiveReport).toMatchSnapshot();
@@ -270,5 +278,168 @@ describe('InteractiveReport', () => {
     + "/testcases/testcaseUID",
   ));
 
+
+  it("Parially refreshes the report on update.", done => {
+    const interactiveReport = shallow(<InteractiveReport />);
+    interactiveReport.setState({
+      report: INITIAL_REPORT,
+      selected: interactiveReport.instance().autoSelect(INITIAL_REPORT),
+    });
+    interactiveReport.update();
+
+    interactiveReport.instance().getReport();
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe("/api/v1/interactive/report");
+      const requestCount = moxios.requests.count();
+      request.respondWith({
+        status: 200,
+
+        // Do not change the hash - no more API requests should be received.
+        response: {
+          "uid": "TestplanUID",
+          "timer": {},
+          "status": "ready",
+          "meta": {},
+          "entry_uids": [
+            "MultitestUID"
+          ],
+          "parent_uids": [],
+          "status_override": null,
+          "attachments": {},
+          "tags_index": {},
+          "name": "TestplanName",
+          "hash": 12345,
+        },
+      }).then(() => {
+        moxios.wait(() => {
+          expect(moxios.requests.count()).toBe(requestCount);
+          expect(interactiveReport).toMatchSnapshot();
+          done();
+        });
+      });
+    });
+  });
+
+
+  it("Updates testcase state", done => {
+    const interactiveReport = shallow(<InteractiveReport />);
+    interactiveReport.setState({
+      report: INITIAL_REPORT,
+      selected: interactiveReport.instance().autoSelect(INITIAL_REPORT),
+    });
+    interactiveReport.update();
+
+    interactiveReport.instance().getReport();
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe("/api/v1/interactive/report");
+      const requestCount = moxios.requests.count();
+      request.respondWith({
+        status: 200,
+
+        response: {
+          "uid": "TestplanUID",
+          "timer": {},
+          "status": "running",
+          "meta": {},
+          "entry_uids": [
+            "MultitestUID"
+          ],
+          "parent_uids": [],
+          "status_override": null,
+          "attachments": {},
+          "tags_index": {},
+          "name": "TestplanName",
+          "hash": 11111
+        },
+      }).then(() => {
+        moxios.wait(() => {
+          const request = moxios.requests.mostRecent();
+          expect(request.url).toBe("/api/v1/interactive/report/tests");
+          request.respondWith({
+            status: 200,
+            response: [
+              {
+                "uid": "MultitestUID",
+                "timer": {},
+                "description": null,
+                "tags": {},
+                "status": "running",
+                "part": null,
+                "status_override": null,
+                "category": "multitest",
+                "entry_uids": [
+                  "SuiteUID"
+                ],
+                "parent_uids": ["TestplanUID"],
+                "name": "MultitestName",
+                "fix_spec_path": null,
+                "hash": 22222
+              }
+            ]
+          }).then(() => {
+            moxios.wait(() => {
+              const request = moxios.requests.mostRecent();
+              expect(request.url).toBe(
+                "/api/v1/interactive/report/tests/MultitestUID/suites"
+              );
+              request.respondWith({
+                status: 200,
+                response: [{
+                  "uid": "SuiteUID",
+                  "timer": {},
+                  "description": null,
+                  "tags": {},
+                  "status": "running",
+                  "part": null,
+                  "status_override": null,
+                  "category": "suite",
+                  "entry_uids": [
+                    "test_basic_assertions",
+                  ],
+                  "parent_uids": ["TestplanUID", "MultitestUID"],
+                  "name": "SuiteName",
+                  "fix_spec_path": null,
+                  "hash": 33333
+                }]
+              }).then(() => {
+                moxios.wait(() => {
+                  const request = moxios.requests.mostRecent();
+                  expect(request.url).toBe(
+                    "/api/v1/interactive/report/tests/MultitestUID"
+                    + "/suites/SuiteUID/testcases"
+                  );
+                  request.respondWith({
+                    status: 200,
+                    response: [{
+                      "uid": "TestcaseUID",
+                      "timer": {},
+                      "description": null,
+                      "tags": {},
+                      "type": "TestCaseReport",
+                      "status": "running",
+                      "logs": [],
+                      "suite_related": false,
+                      "entries": [],
+                      "status_override": null,
+                      "name": "testcaseName",
+                      "parent_uids": [
+                        "TestplanUID", "MultitestUID", "SuiteUID",
+                      ],
+                      "hash": 44444
+                    }]
+                  }).then(() => {
+                    expect(interactiveReport).toMatchSnapshot();
+                    done();
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 });
 

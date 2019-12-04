@@ -68,18 +68,21 @@ class InteractiveReport extends React.Component {
     } else {
       axios.get('/api/v1/interactive/report')
       .then(response => {
-        this.getTests().then(tests => {
-          const rawReport = {...response.data, entries: tests};
-          const processedReport = PropagateIndices(rawReport);
-          this.setState(
-            (state, props) => ({
-              report: processedReport,
-              selected: state.selected.length > 0 ?
-                state.selected : this.autoSelect(processedReport),
-              loading: false,
-            })
-          );
-        });
+        if (!this.state.report ||
+            this.state.report.hash !== response.data.hash) {
+          this.getTests().then(tests => {
+            const rawReport = {...response.data, entries: tests};
+            const processedReport = PropagateIndices(rawReport);
+            this.setState(
+              (state, props) => ({
+                report: processedReport,
+                selected: state.selected.length > 0 ?
+                  state.selected : this.autoSelect(processedReport),
+                loading: false,
+              })
+            );
+          });
+        }
       })
       .catch(error => {
         console.log(error);
@@ -108,12 +111,20 @@ class InteractiveReport extends React.Component {
       "/api/v1/interactive/report/tests"
     ).then(response => {
       return Promise.all(response.data.map(
-        test => this.getSuites(test)
-          .then(suites => ({...test, entries: suites}))
+        test => {
+          const existingTest = this.findReportEntryFromNav(test);
+          if (!existingTest ||
+              existingTest.hash !== test.hash) {
+            return this.getSuites(test).then(
+              suites => ({...test, entries: suites})
+            );
+          } else {
+            return existingTest;
+          }
+        }
       ));
     });
   }
-
 
   /**
    * Get the suites owned by a particular test from the backend.
@@ -122,9 +133,19 @@ class InteractiveReport extends React.Component {
     return axios.get(
       `/api/v1/interactive/report/tests/${test.uid}/suites`
     ).then(response => {
-      return Promise.all(
-        response.data.map((suite) => this.getTestCases(test, suite)
-          .then(testcases => ({...suite, entries: testcases}))
+      return Promise.all(response.data.map(
+        suite => {
+          const existingSuite = this.findReportEntryFromNav(suite);
+
+          if (!existingSuite ||
+              existingSuite.hash !== suite.hash) {
+            return this.getTestCases(test, suite).then(
+              testcases => ({...suite, entries: testcases})
+            );
+          } else {
+            return existingSuite;
+          }
+        }
       ));
     });
   }
@@ -334,7 +355,11 @@ class InteractiveReport extends React.Component {
    * Yes they are subtly different types... (TODO fix this)
    */
   findReportEntryFromNav(navEntry) {
-    return this.findReportEntryFromNavRecur(this.state.report, navEntry);
+    if (this.state.report) {
+      return this.findReportEntryFromNavRecur(this.state.report, navEntry);
+    } else {
+      return null;
+    }
   }
 
   /**

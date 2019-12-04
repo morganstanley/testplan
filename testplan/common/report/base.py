@@ -201,6 +201,14 @@ class Report(object):
         """
         return [(depth, entry) for entry in self]
 
+    @property
+    def hash(self):
+        """Return a hash of all entries in this report."""
+        return hash((
+            self.uid,
+            tuple(id(entry) for entry in self.entries))
+        )
+
 
 class ReportGroup(Report):
     """
@@ -402,3 +410,4 @@ class ReportGroup(Report):
         return list(itertools.chain.from_iterable((rep.logs)
                                                   for rep in self.flatten()
                                                   if isinstance(rep, Report)))
+

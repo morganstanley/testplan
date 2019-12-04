@@ -18,6 +18,8 @@ from testplan import report
 from testplan.testing import multitest
 from testplan.common.utils import timing
 
+from tests.unit.testplan.runnable.interactive import test_api
+
 
 @multitest.testsuite
 class ExampleSuite(object):
@@ -162,7 +164,9 @@ EXPECTED_INITIAL_GET = [
                 "logs": [],
                 "name": "test_passes",
                 "parent_uids": [
-                    "InteractiveAPITest", "ExampleMTest", "ExampleSuite"
+                    "InteractiveAPITest",
+                    "ExampleMTest",
+                    "ExampleSuite",
                 ],
                 "status": "ready",
                 "status_override": None,
@@ -178,7 +182,9 @@ EXPECTED_INITIAL_GET = [
                 "logs": [],
                 "name": "test_fails",
                 "parent_uids": [
-                    "InteractiveAPITest", "ExampleMTest", "ExampleSuite"
+                    "InteractiveAPITest",
+                    "ExampleMTest",
+                    "ExampleSuite",
                 ],
                 "status": "ready",
                 "status_override": None,
@@ -194,7 +200,9 @@ EXPECTED_INITIAL_GET = [
                 "logs": [],
                 "name": "test_logs",
                 "parent_uids": [
-                    "InteractiveAPITest", "ExampleMTest", "ExampleSuite"
+                    "InteractiveAPITest",
+                    "ExampleMTest",
+                    "ExampleSuite",
                 ],
                 "status": "ready",
                 "status_override": None,
@@ -214,7 +222,9 @@ EXPECTED_INITIAL_GET = [
             "logs": [],
             "name": "test_passes",
             "parent_uids": [
-                "InteractiveAPITest", "ExampleMTest", "ExampleSuite"
+                "InteractiveAPITest",
+                "ExampleMTest",
+                "ExampleSuite",
             ],
             "status": "ready",
             "status_override": None,
@@ -251,7 +261,7 @@ def test_initial_get(plan):
             )
         )
         assert rsp.status_code == 200
-        assert rsp.json() == expected_json
+        test_api.compare_json(rsp.json(), expected_json)
 
 
 def test_run_all_tests(plan):
@@ -265,16 +275,22 @@ def test_run_all_tests(plan):
     rsp = requests.get(report_url)
     assert rsp.status_code == 200
     report_json = rsp.json()
+    last_hash = report_json["hash"]
 
     # Trigger all tests to run by updating the report status to RUNNING
     # and PUTting back the data.
     report_json["status"] = report.Status.RUNNING
     rsp = requests.put(report_url, json=report_json)
     assert rsp.status_code == 200
-    assert rsp.json() == report_json
+
+    updated_json = rsp.json()
+    test_api.compare_json(updated_json, report_json)
+    assert updated_json["hash"] != last_hash
 
     timing.wait(
-        functools.partial(_check_test_status, report_url, "failed"),
+        functools.partial(
+            _check_test_status, report_url, "failed", updated_json["hash"]
+        ),
         interval=0.2,
         timeout=300,
         raise_on_timeout=True,
@@ -298,10 +314,14 @@ def test_run_mtest(plan):
     mtest_json["status"] = report.Status.RUNNING
     rsp = requests.put(mtest_url, json=mtest_json)
     assert rsp.status_code == 200
-    assert rsp.json() == mtest_json
+    updated_json = rsp.json()
+    test_api.compare_json(updated_json, mtest_json)
+    assert updated_json["hash"] != mtest_json["hash"]
 
     timing.wait(
-        functools.partial(_check_test_status, mtest_url, "failed"),
+        functools.partial(
+            _check_test_status, mtest_url, "failed", updated_json["hash"]
+        ),
         interval=0.2,
         timeout=300,
         raise_on_timeout=True,
@@ -326,10 +346,14 @@ def test_run_suite(plan):
     suite_json["status"] = report.Status.RUNNING
     rsp = requests.put(suite_url, json=suite_json)
     assert rsp.status_code == 200
-    assert rsp.json() == suite_json
+    updated_json = rsp.json()
+    test_api.compare_json(updated_json, suite_json)
+    assert updated_json["hash"] != suite_json["hash"]
 
     timing.wait(
-        functools.partial(_check_test_status, suite_url, "failed"),
+        functools.partial(
+            _check_test_status, suite_url, "failed", updated_json["hash"]
+        ),
         interval=0.2,
         timeout=300,
         raise_on_timeout=True,
@@ -358,11 +382,16 @@ def test_run_testcase(plan):
         testcase_json["status"] = report.Status.RUNNING
         rsp = requests.put(testcase_url, json=testcase_json)
         assert rsp.status_code == 200
-        assert rsp.json() == testcase_json
+        updated_json = rsp.json()
+        test_api.compare_json(updated_json, testcase_json)
+        assert updated_json["hash"] != testcase_json["hash"]
 
         timing.wait(
             functools.partial(
-                _check_test_status, testcase_url, expected_result
+                _check_test_status,
+                testcase_url,
+                expected_result,
+                updated_json["hash"],
             ),
             interval=0.2,
             timeout=300,
@@ -370,7 +399,7 @@ def test_run_testcase(plan):
         )
 
 
-def _check_test_status(test_url, expected_status):
+def _check_test_status(test_url, expected_status, last_hash):
     """
     Check the test status by polling the report resource. If the test is
     still running, return False. Otherwise assert that the status matches
@@ -384,4 +413,5 @@ def _check_test_status(test_url, expected_status):
         return False
     else:
         assert report_json["status"] == expected_status
+        assert report_json["hash"] != last_hash
         return True
