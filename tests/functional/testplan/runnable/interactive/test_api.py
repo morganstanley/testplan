@@ -18,6 +18,8 @@ from testplan import report
 from testplan.testing import multitest
 from testplan.common.utils import timing
 
+from tests.unit.testplan.runnable.interactive import test_api
+
 
 @multitest.testsuite
 class ExampleSuite(object):
@@ -259,7 +261,7 @@ def test_initial_get(plan):
             )
         )
         assert rsp.status_code == 200
-        _compare_json(rsp.json(), expected_json)
+        test_api.compare_json(rsp.json(), expected_json)
 
 
 def test_run_all_tests(plan):
@@ -282,7 +284,7 @@ def test_run_all_tests(plan):
     assert rsp.status_code == 200
 
     updated_json = rsp.json()
-    _compare_json(updated_json, report_json)
+    test_api.compare_json(updated_json, report_json)
     assert updated_json["hash"] != last_hash
 
     timing.wait(
@@ -313,7 +315,7 @@ def test_run_mtest(plan):
     rsp = requests.put(mtest_url, json=mtest_json)
     assert rsp.status_code == 200
     updated_json = rsp.json()
-    _compare_json(updated_json, mtest_json)
+    test_api.compare_json(updated_json, mtest_json)
     assert updated_json["hash"] != mtest_json["hash"]
 
     timing.wait(
@@ -345,7 +347,7 @@ def test_run_suite(plan):
     rsp = requests.put(suite_url, json=suite_json)
     assert rsp.status_code == 200
     updated_json = rsp.json()
-    _compare_json(updated_json, suite_json)
+    test_api.compare_json(updated_json, suite_json)
     assert updated_json["hash"] != suite_json["hash"]
 
     timing.wait(
@@ -381,7 +383,7 @@ def test_run_testcase(plan):
         rsp = requests.put(testcase_url, json=testcase_json)
         assert rsp.status_code == 200
         updated_json = rsp.json()
-        _compare_json(updated_json, testcase_json)
+        test_api.compare_json(updated_json, testcase_json)
         assert updated_json["hash"] != testcase_json["hash"]
 
         timing.wait(
@@ -395,20 +397,6 @@ def test_run_testcase(plan):
             timeout=300,
             raise_on_timeout=True,
         )
-
-
-def _compare_json(actual, expected):
-    if isinstance(actual, list):
-        assert isinstance(expected, list)
-        for actual_item, expected_item in zip(actual, expected):
-            _compare_json(actual_item, expected_item)
-    else:
-        assert isinstance(actual, dict)
-        assert isinstance(expected, dict)
-
-        for key in expected:
-            if key != "hash":
-                assert actual[key] == expected[key]
 
 
 def _check_test_status(test_url, expected_status, last_hash):

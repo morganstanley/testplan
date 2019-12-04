@@ -76,7 +76,7 @@ class TestReport(object):
         assert rsp.status == "200 OK"
         json_rsp = rsp.get_json()
         assert json_rsp["status"] == "ready"
-        assert json_rsp == json_report
+        compare_json(json_rsp, json_report)
 
     def test_put(self, api_env):
         """Test updating the Report resource via PUT."""
@@ -88,7 +88,7 @@ class TestReport(object):
         assert rsp.status == "200 OK"
         rsp_json = rsp.get_json()
         assert rsp_json["status"] == "running"
-        assert rsp_json == json_report
+        compare_json(rsp_json, json_report)
         ihandler.run_all_tests.assert_called_once_with(await_results=False)
 
     def test_put_validation(self, api_env):
@@ -116,7 +116,7 @@ class TestAllTests(object):
         assert rsp.status == "200 OK"
         json_rsp = rsp.get_json()
         json_tests = [test.shallow_serialize() for test in ihandler.report]
-        assert json_rsp == json_tests
+        compare_json(json_rsp, json_tests)
 
     def test_put(self, api_env):
         """
@@ -139,7 +139,7 @@ class TestSingleTest(object):
 
         json_rsp = rsp.get_json()
         json_test = ihandler.report["MTest1"].shallow_serialize()
-        assert json_rsp == json_test
+        compare_json(json_rsp, json_test)
 
     def test_put(self, api_env):
         """Test updating the SingleTest resource via PUT."""
@@ -151,7 +151,7 @@ class TestSingleTest(object):
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
         assert rsp.status == "200 OK"
-        assert rsp.get_json() == json_test
+        compare_json(rsp.get_json(), json_test)
 
         ihandler.run_test.assert_called_once_with(
             "MTest1", await_results=False
@@ -185,7 +185,7 @@ class TestAllSuites(object):
         json_suites = [
             suite.shallow_serialize() for suite in ihandler.report["MTest1"]
         ]
-        assert json_rsp == json_suites
+        compare_json(json_rsp, json_suites)
 
     def test_put(self, api_env):
         """
@@ -210,7 +210,7 @@ class TestSingleSuite(object):
 
         json_rsp = rsp.get_json()
         suite_json = ihandler.report["MTest1"]["MT1Suite1"].shallow_serialize()
-        assert json_rsp == suite_json
+        compare_json(json_rsp, suite_json)
 
     def test_put(self, api_env):
         """Test updating the SingleSuite resource via PUT."""
@@ -223,7 +223,7 @@ class TestSingleSuite(object):
             json=suite_json,
         )
         assert rsp.status == "200 OK"
-        assert rsp.get_json() == suite_json
+        compare_json(rsp.get_json(), suite_json)
 
         ihandler.run_test_suite.assert_called_once_with(
             "MTest1", "MT1Suite1", await_results=False
@@ -262,7 +262,7 @@ class TestAllTestcases(object):
             testcase.serialize()
             for testcase in ihandler.report["MTest1"]["MT1Suite1"]
         ]
-        assert json_rsp == json_testcases
+        compare_json(json_rsp, json_testcases)
 
     def test_put(self, api_env):
         """
@@ -292,7 +292,7 @@ class TestSingleTestcase(object):
         testcase_json = ihandler.report["MTest1"]["MT1Suite1"][
             "MT1S1TC1"
         ].serialize()
-        assert json_rsp == testcase_json
+        compare_json(json_rsp, testcase_json)
 
     def test_put(self, api_env):
         """Test updating the SingleTestcase resource via PUT."""
@@ -308,7 +308,7 @@ class TestSingleTestcase(object):
             json=testcase_json,
         )
         assert rsp.status == "200 OK"
-        assert rsp.get_json() == testcase_json
+        compare_json(rsp.get_json(), testcase_json)
 
         ihandler.run_test_case.assert_called_once_with(
             "MTest1", "MT1Suite1", "MT1S1TC1", await_results=False
@@ -332,3 +332,23 @@ class TestSingleTestcase(object):
             json={"name": "TestcaseName"},
         )
         assert rsp.status == "400 BAD REQUEST"
+
+
+def compare_json(actual, expected):
+    """
+    Compare the actual and expected JSON returned from the API. Since the
+    JSON contains a hash value we cannot predict, we cannot simply check
+    for exact equality against a reference.
+    """
+    if isinstance(actual, list):
+        assert isinstance(expected, list)
+        for actual_item, expected_item in zip(actual, expected):
+            compare_json(actual_item, expected_item)
+    else:
+        assert isinstance(actual, dict)
+        assert isinstance(expected, dict)
+
+        for key in expected:
+            # Skip checking the "hash" key.
+            if key != "hash":
+                assert actual[key] == expected[key]
