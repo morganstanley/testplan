@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import NavBreadcrumbs from "./NavBreadcrumbs";
 import InteractiveNavList from "./InteractiveNavList";
-import {ParseNavSelection, GetSelectedUid} from "./navUtils";
+import {GetSelectedUid, GetNavEntries, GetNavBreadcrumbs} from "./navUtils";
 
 /**
  * Interactive Nav component.
@@ -22,19 +22,18 @@ import {ParseNavSelection, GetSelectedUid} from "./navUtils";
  * with the main Nav component, which will need to be eliminated.
  */
 const InteractiveNav = (props) => {
-  const selection = ParseNavSelection(
-    props.report,
-    props.selected,
-  );
+  const navEntries = GetNavEntries(props.selected);
+  const breadCrumbEntries = GetNavBreadcrumbs(props.selected);
+
   return (
     <>
       <NavBreadcrumbs
-        entries={selection.navBreadcrumbs}
+        entries={breadCrumbEntries}
         handleNavClick={props.handleNavClick}
       />
       <InteractiveNavList
-        entries={selection.navList}
-        breadcrumbLength={selection.navBreadcrumbs.length}
+        entries={navEntries}
+        breadcrumbLength={breadCrumbEntries.length}
         handleNavClick={props.handleNavClick}
         autoSelect={() => undefined}
         filter={null}

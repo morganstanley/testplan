@@ -80,6 +80,7 @@ class TestCaseReportSchema(ReportSchema):
     suite_related = fields.Bool()
     timer = TimerField(required=True)
     tags = TagField()
+    category = fields.String(dump_only=True)
 
     @post_load
     def make_report(self, data):
@@ -107,7 +108,7 @@ class TestGroupReportSchema(TestCaseReportSchema):
     """
 
     source_class = TestGroupReport
-    category = fields.String(allow_none=True)
+    category = fields.String()
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
 
@@ -149,6 +150,7 @@ class TestReportSchema(Schema):
         },
         many=True
     )
+    category = fields.String(dump_only=True)
 
     @post_load
     def make_test_report(self, data):  # pylint: disable=no-self-use
@@ -185,6 +187,7 @@ class ShallowTestReportSchema(Schema):
     entry_uids = fields.List(fields.Str(), dump_only=True)
     parent_uids = fields.List(fields.Str())
     hash = fields.Integer(dump_only=True)
+    category = fields.String(dump_only=True)
 
     @post_load
     def make_test_report(self, data):
@@ -207,7 +210,6 @@ class ShallowTestGroupReportSchema(Schema):
     uid = fields.String(required=True)
     timer = TimerField(required=True)
     description = fields.String(allow_none=True)
-    category = fields.String(allow_none=True)
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
     status_override = fields.String(allow_none=True)
@@ -217,6 +219,7 @@ class ShallowTestGroupReportSchema(Schema):
     entry_uids = fields.List(fields.Str(), dump_only=True)
     parent_uids = fields.List(fields.Str())
     hash = fields.Integer(dump_only=True)
+    category = fields.String()
 
     @post_load
     def make_testgroup_report(self, data):

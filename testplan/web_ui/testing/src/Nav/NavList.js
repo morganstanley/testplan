@@ -7,7 +7,6 @@ import NavEntry from './NavEntry';
 import {CreateNavButtons} from './navUtils.js';
 import Column from './Column';
 import {STATUS} from "../Common/defaults";
-import {getNavEntryType} from "../Common/utils";
 
 /**
  * Render a vertical list of all the currently selected entries children.
@@ -19,7 +18,7 @@ const NavList = (props) => {
       <NavEntry
         name={entry.name}
         status={entry.status}
-        type={getNavEntryType(entry)}
+        type={entry.category}
         caseCountPassed={entry.case_count.passed}
         caseCountFailed={entry.case_count.failed}
       />

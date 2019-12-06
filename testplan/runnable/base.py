@@ -75,7 +75,10 @@ def result_for_failed_task(original_result):
     Create a new result entry for invalid result retrieved from a resource.
     """
     result = TestResult()
-    result.report = TestGroupReport(name=original_result.task.name)
+    result.report = TestGroupReport(
+        name=original_result.task.name,
+        category="error",
+    )
     attrs = [attr for attr in original_result.task.all_attrs]
     result_lines = ['{}: {}'.format(attr, getattr(original_result.task, attr))\
                         if getattr(original_result.task, attr, None) else ''\

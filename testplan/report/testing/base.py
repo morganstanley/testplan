@@ -310,6 +310,7 @@ class TestReport(BaseReportGroup):
         # Maps from destination path (relative from attachments root dir)
         # to the full source path (absolute or relative from cwd).
         self.attachments = attachments or {}
+        self.category = "testplan"
 
         super(TestReport, self).__init__(*args, **kwargs)
 
@@ -413,7 +414,7 @@ class TestGroupReport(BaseReportGroup):
 
     def __init__(self,
                  name,
-                 category=None,
+                 category="testgroup",
                  tags=None,
                  part=None,
                  fix_spec_path=None,
@@ -573,6 +574,7 @@ class TestCaseReport(Report):
 
         self.attachments = []
         self._status = Status.READY
+        self.category = "testcase"
 
     def _get_comparison_attrs(self):
         return super(TestCaseReport, self)._get_comparison_attrs() +\

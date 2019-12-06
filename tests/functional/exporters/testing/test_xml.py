@@ -147,6 +147,7 @@ sample_report = TestReport(
             entries=[
                 TestGroupReport(
                     name='MySuite',
+                    category='suite',
                     entries=[
                         TestCaseReport(
                             name='my_test_method',

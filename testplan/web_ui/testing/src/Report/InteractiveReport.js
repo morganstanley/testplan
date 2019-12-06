@@ -16,8 +16,8 @@ import {
   UpdateSelectedState,
   GetReportState,
   GetCenterPane,
+  GetSelectedEntries,
 } from './reportUtils.js';
-import {ReportToNavEntry, getNavEntryType} from "../Common/utils";
 
 /**
  * Interactive report viewer. As opposed to a batch report, an interactive
@@ -32,8 +32,7 @@ class InteractiveReport extends React.Component {
     this.state = {
       navWidth: COLUMN_WIDTH,
       report: null,
-      selected: [],
-      assertions: null,
+      selectedUIDs: [],
       loading: false,
       error: null,
     };
@@ -60,7 +59,7 @@ class InteractiveReport extends React.Component {
       setTimeout(
         () => this.setState({
           report: FakeInteractiveReport,
-          selected: this.autoSelect(FakeInteractiveReport),
+          selectedUIDs: this.autoSelect(FakeInteractiveReport),
           loading: false,
         }),
         1500,
@@ -76,8 +75,8 @@ class InteractiveReport extends React.Component {
             this.setState(
               (state, props) => ({
                 report: processedReport,
-                selected: state.selected.length > 0 ?
-                  state.selected : this.autoSelect(processedReport),
+                selectedUIDs: state.selectedUIDs.length > 0 ?
+                  state.selectedUIDs : this.autoSelect(processedReport),
                 loading: false,
               })
             );
@@ -89,13 +88,7 @@ class InteractiveReport extends React.Component {
         this.setState({error: error, loading: false});
       });
 
-      // We poll for updates to the report every second. Currently we
-      // completely refresh the whole report, which is clearly
-      // inefficient for largish reports. In future we should add
-      // a mechanism to tell when we can partially update the report,
-      // e.g. by adding update timestamps to report entries or by
-      // subscribing to notifications from the backend when specific
-      // entries are updated.
+      // We poll for updates to the report every second.
       if (this.props.poll_ms) {
         setTimeout(this.getReport, this.props.poll_ms);
       }
@@ -111,12 +104,17 @@ class InteractiveReport extends React.Component {
       "/api/v1/interactive/report/tests"
     ).then(response => {
       return Promise.all(response.data.map(
-        test => {
-          const existingTest = this.findReportEntryFromNav(test);
+        newTest => {
+          const existingTest = (
+            this.state.report && this.state.report.entries.find(
+              entry => entry.uid === newTest.uid
+            )
+          );
+
           if (!existingTest ||
-              existingTest.hash !== test.hash) {
-            return this.getSuites(test).then(
-              suites => ({...test, entries: suites})
+              existingTest.hash !== newTest.hash) {
+            return this.getSuites(newTest, existingTest).then(
+              suites => ({...newTest, entries: suites})
             );
           } else {
             return existingTest;
@@ -129,18 +127,20 @@ class InteractiveReport extends React.Component {
   /**
    * Get the suites owned by a particular test from the backend.
    */
-  getSuites(test) {
+  getSuites(newTest, existingTest) {
     return axios.get(
-      `/api/v1/interactive/report/tests/${test.uid}/suites`
+      `/api/v1/interactive/report/tests/${newTest.uid}/suites`
     ).then(response => {
       return Promise.all(response.data.map(
-        suite => {
-          const existingSuite = this.findReportEntryFromNav(suite);
+        newSuite => {
+          const existingSuite = existingTest && existingTest.entries.find(
+            entry => entry.uid === newSuite.uid
+          );
 
           if (!existingSuite ||
-              existingSuite.hash !== suite.hash) {
-            return this.getTestCases(test, suite).then(
-              testcases => ({...suite, entries: testcases})
+              existingSuite.hash !== newSuite.hash) {
+            return this.getTestCases(newTest, newSuite).then(
+              testcases => ({...newSuite, entries: testcases})
             );
           } else {
             return existingSuite;
@@ -166,43 +166,7 @@ class InteractiveReport extends React.Component {
    * Auto-select an entry in the report when it is first loaded.
    */
   autoSelect(reportEntry) {
-    return [ReportToNavEntry(reportEntry)];
-  }
-
-  /**
-   * Find an entry in our current report from the current selection state.
-   */
-  findReportEntryFromSelection(selectedEntries, currEntry) {
-    const [headSelectedEntry, ...tailSelectedEntries] = selectedEntries;
-    const match = (currEntry.uid === headSelectedEntry.uid);
-
-    // Check if the UID matches.
-    if (match) {
-      // Two cases to distinguish between:
-      //
-      // - There are more selected entries to search down for: we recurse down.
-      // - There are no more selected entries: we have found the matching
-      //   report entry, so return it.
-      if (tailSelectedEntries.length === 0) {
-        return currEntry;
-      } else {
-        return currEntry.entries.reduce(
-          (accumulator, entry) => {
-            if (accumulator) {
-              return accumulator;
-            } else {
-              return this.findReportEntryFromSelection(
-                tailSelectedEntries, entry
-              );
-            }
-          },
-          null,
-        );
-      }
-    } else {
-      // Return null to indicate no match.
-      return null;
-    }
+    return [reportEntry.uid];
   }
 
   /**
@@ -263,23 +227,7 @@ class InteractiveReport extends React.Component {
       report: this.updateReportEntryRecur(
         updatedReportEntry, state.report,
       ),
-      assertions: this.selectedAssertions(state),
     }));
-  }
-
-  /**
-   * Return the set of assertions if a testcase is currently selected,
-   * otherwise null.
-   */
-  selectedAssertions(state) {
-    const selectedEntry = this.findReportEntryFromSelection(
-      state.selected, state.report
-    );
-    if (getNavEntryType(selectedEntry) === "testcase") {
-      return selectedEntry.entries;
-    }
-
-    return null;
   }
 
   /**
@@ -323,13 +271,8 @@ class InteractiveReport extends React.Component {
   }
 
   /* Handle the play button being clicked on a Nav entry. */
-  handlePlayClick(e, navEntry) {
+  handlePlayClick(e, reportEntry) {
     e.stopPropagation();
-    const reportEntry = this.findReportEntryFromNav(navEntry);
-    if (!reportEntry) {
-      throw new Error("Could not find report entry");
-    }
-
     const updatedReportEntry = {
       ...this.shallowReportEntry(reportEntry), status: "running"
     };
@@ -351,72 +294,21 @@ class InteractiveReport extends React.Component {
   }
 
   /**
-   * Find the corresponding entry in the report given a navigation entry.
-   * Yes they are subtly different types... (TODO fix this)
-   */
-  findReportEntryFromNav(navEntry) {
-    if (this.state.report) {
-      return this.findReportEntryFromNavRecur(this.state.report, navEntry);
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Recursive implementation of finding an entry in the report tree, given
-   * its UID and the UIDs of its parent entries.
-   */
-  findReportEntryFromNavRecur(currEntry, navEntry, depth=0) {
-    // Based on our current recursion depth, we either need to check for a
-    // match with our current entry and one of the parent UIDs we are
-    // searching for, or with the UID of the actual entry we are looking for.
-    if (depth < navEntry.parent_uids.length) {
-      if (currEntry.uid === navEntry.parent_uids[depth]) {
-        // For each child entry, recurse down. If a matching entry is found
-        // from any branch, it will be returned back up the stack. Otherwise
-        // we return null to indicate that no match was found.
-        return currEntry.entries.reduce(
-          (foundEntry, childEntry) => {
-            if (foundEntry) {
-              return foundEntry;
-            } else {
-              return this.findReportEntryFromNavRecur(
-                childEntry, navEntry, depth + 1
-              );
-            }
-          },
-          null,
-        );
-      } else {
-        return null;
-      }
-    } else if (depth === navEntry.parent_uids.length) {
-      // We are at the required depth, so no need to recurse any further.
-      // Either we have found the entry and return it, or we haven't and
-      // return null.
-      if (currEntry.uid === navEntry.uid) {
-        return currEntry;
-      } else {
-        return null;
-      }
-    } else {
-      throw new Error("Recursed too far");
-    }
-  }
-
-  /**
    * Render the InteractiveReport component based on its current state.
    */
   render() {
     const noop = () => undefined;
     const {reportStatus, reportFetchMessage} = GetReportState(this.state);
+    const selectedEntries = GetSelectedEntries(
+      this.state.selectedUIDs, this.state.report
+    );
     const centerPane = GetCenterPane(
       this.state,
       this.props,
       reportFetchMessage,
       null,
+      selectedEntries,
     );
-
 
     return (
       <div className={css(styles.batchReport)}>
@@ -429,7 +321,7 @@ class InteractiveReport extends React.Component {
         />
         <InteractiveNav
           report={this.state.report}
-          selected={this.state.selected}
+          selected={selectedEntries}
           filter={null}
           displayEmpty={true}
           displayTags={false}

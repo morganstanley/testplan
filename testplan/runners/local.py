@@ -58,7 +58,10 @@ class LocalRunner(Executor):
                         self._execute(next_uid)
                     except Exception as exc:
                         result = TestResult()
-                        result.report = TestGroupReport(name=next_uid)
+                        result.report = TestGroupReport(
+                            name=next_uid,
+                            category="error"
+                        )
                         result.report.status_override = Status.ERROR
                         result.report.logger.exception(
                             'Exception for {} on {} execution: {}'.format(
@@ -82,7 +85,10 @@ class LocalRunner(Executor):
         while ongoing:
             uid = ongoing.pop(0)
             result = TestResult()
-            result.report = TestGroupReport(name=uid)
+            result.report = TestGroupReport(
+                name=uid,
+                category="error",
+            )
             result.report.status_override = Status.ERROR
             result.report.logger.critical(
                 'Test [{}] discarding due to {} abort.'.format(

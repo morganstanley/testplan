@@ -44,6 +44,7 @@ def test_create_pdf(tmpdir):
                 entries=[
                     TestGroupReport(
                         name='MySuite',
+                        category='suite',
                         entries=[
                             TestCaseReport(
                                 name='my_test_method',

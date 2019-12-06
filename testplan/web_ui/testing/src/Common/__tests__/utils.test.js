@@ -1,26 +1,9 @@
 import React from 'react';
 
 import {NAV_ENTRY_DISPLAY_DATA} from "../defaults";
-import {getNavEntryType, getNavEntryDisplayData} from '../utils';
+import {getNavEntryDisplayData} from '../utils';
 
 describe('Common/utils', () => {
-
-  describe('getNavEntryType', () => {
-
-    [
-      [{}, 'testplan'],
-      [{type: 'TestGroupReport', category: 'multitest'}, 'multitest'],
-      [{type: 'TestGroupReport', category: 'suite'}, 'suite'],
-      [{type: 'TestCaseReport'}, 'testcase'],
-      [{type: 'unknown'}, undefined],
-    ].forEach(([entry, expectedType]) => {
-      it(`handles ${expectedType} type`, () => {
-        const type = getNavEntryType(entry);
-        expect(type).toEqual(expectedType);
-      });
-    });
-
-  });
 
   describe('getNavEntryDisplayData', () => {
 

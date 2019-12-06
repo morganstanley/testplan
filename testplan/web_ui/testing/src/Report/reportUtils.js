@@ -3,7 +3,6 @@
  */
 import React from "react";
 
-import {getNavEntryType} from "../Common/utils";
 import AssertionPane from '../AssertionPane/AssertionPane';
 import Message from '../Common/Message';
 
@@ -72,7 +71,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
   };
 
   for (let entry of entries) {
-    let entryType = getNavEntryType(entry);
+    let entryType = entry.category;
     // Initialize indices.
     let tagsIndex = {};
     const entryNameType = entry.name + '|' + entryType;
@@ -150,22 +149,19 @@ const PropagateIndices = (report) => {
  * @public
  */
 const UpdateSelectedState = (state, entry, depth) => {
-  const entryType = getNavEntryType(entry);
-  const selected = state.selected.slice(0, depth);
-  selected.push({uid: entry.uid, type: entryType});
-  if (entryType === 'testcase') {
+  const selectedUIDs = state.selectedUIDs.slice(0, depth);
+  selectedUIDs.push(entry.uid);
+  if (entry.category === 'testcase') {
     return {
-      selected: selected,
-      assertions: entry.entries,
+      selectedUIDs: selectedUIDs,
       testcaseUid: entry.uid,
       logs: entry.logs,
     };
   } else {
     return {
-      selected: selected,
-      assertions: null,
+      selectedUIDs: selectedUIDs,
       testcaseUid: null,
-      logs:entry.logs,
+      logs: entry.logs,
     };
   }
 };
@@ -193,12 +189,20 @@ const GetReportState = (state) => {
 /**
  * Get the component to display in the centre pane.
  */
-const GetCenterPane = (state, props, reportFetchMessage, reportUid) => {
-  let logs = state.logs || [];
-  if (state.assertions !== null || logs.length !==0) {
+const GetCenterPane = (
+  state,
+  props,
+  reportFetchMessage,
+  reportUid,
+  selectedEntries
+) => {
+  const logs = state.logs || [];
+  const assertions = getAssertions(selectedEntries);
+
+  if (assertions !== null || logs.length !==0) {
     return (
       <AssertionPane
-        assertions={state.assertions}
+        assertions={assertions}
         logs={logs}
         left={state.navWidth + 1.5}
         testcaseUid={state.testcaseUid}
@@ -223,6 +227,16 @@ const GetCenterPane = (state, props, reportFetchMessage, reportUid) => {
   }
 };
 
+/** TODO */
+const getAssertions = (selectedEntries) => {
+  const selectedEntry = selectedEntries[selectedEntries.length - 1];
+  if (selectedEntry && selectedEntry.category === "testcase") {
+    return selectedEntry.entries;
+  } else {
+    return null;
+  }
+};
+
 /**
  * Get a message relating to the progress of fetching the testplan report.
  */
@@ -236,10 +250,30 @@ const getReportFetchMessage = (state) => {
   }
 };
 
+/**
+ * Get the selected entries in the report, from their UIDs.
+ */
+const GetSelectedEntries = (selectedUIDs, report) => {
+  const [headSelectedUID, ...tailSelectedUIDs] = selectedUIDs;
+  if (!headSelectedUID || !report) {
+    return [];
+  }
+
+  if (tailSelectedUIDs.length > 0) {
+    const childEntry = report.entries.find(
+      (entry) => entry.uid === tailSelectedUIDs[0]
+    );
+    return [report, ...GetSelectedEntries(tailSelectedUIDs, childEntry)];
+  } else {
+    return [report];
+  }
+};
+
 export {
   PropagateIndices,
   UpdateSelectedState,
   GetReportState,
   GetCenterPane,
+  GetSelectedEntries,
 };
 

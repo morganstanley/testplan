@@ -4,26 +4,6 @@
 import {NAV_ENTRY_DISPLAY_DATA} from "./defaults";
 
 /**
- * Get the nav entry type.
- *
- * @param {Object} entry - nav entry.
- * @returns {string|undefined}
- */
-function getNavEntryType(entry) {
-  if (entry.hasOwnProperty('type')) {
-    if (entry.type === 'TestGroupReport') {
-      return entry.category;
-    } else if (entry.type === 'TestCaseReport') {
-      return 'testcase';
-    } else {
-      return undefined;
-    }
-  } else {
-    return 'testplan';
-  }
-}
-
-/**
  * Get the data to be used when displaying the nav entry.
  *
  * @param {object} entry - nav entry.
@@ -38,17 +18,6 @@ function getNavEntryDisplayData(entry) {
   }
   return metadata;
 }
-
-/**
- * Convert a report entry into a nav entry type.
- *
- * @param {object} reportEntry - entry from report object.
- * @returns {object}
- */
-const ReportToNavEntry = (reportEntry) => ({
-  uid: reportEntry.uid,
-  type: getNavEntryType(reportEntry),
-});
 
 /**
  * Returns true of any element of an iterable is true. If not, returns false.
@@ -121,9 +90,7 @@ function domToString(dom) {
 }
 
 export {
-  getNavEntryType,
   getNavEntryDisplayData,
-  ReportToNavEntry,
   any,
   sorted,
   uniqueId,

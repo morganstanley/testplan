@@ -33,7 +33,7 @@ class DummyTestResult(RunnableResult):
     def __init__(self):
         super(DummyTestResult, self). __init__()
         self.custom = None
-        self.report = TestGroupReport('test')
+        self.report = TestGroupReport(name='test', category="testgroup")
 
 
 class DummyTest(Runnable):

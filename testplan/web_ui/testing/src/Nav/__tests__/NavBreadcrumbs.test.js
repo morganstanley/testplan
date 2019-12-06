@@ -9,7 +9,7 @@ function defaultProps() {
     uid: '123',
     name: 'test',
     status: 'passed',
-    type: 'testplan',
+    category: 'testplan',
     case_count: {
       passed: 0,
       failed: 0,
