@@ -638,7 +638,7 @@ class TestRunner(Runnable):
             self._result.test_report.status_override = Status.FAILED
         else:
             self.logger.log_test_status(self.cfg.name,
-                                        self._result.test_report.passed)
+                                        self._result.test_report.status)
 
     def _invoke_exporters(self):
         # Add this logic into a ReportExporter(Runnable)

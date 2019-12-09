@@ -82,6 +82,8 @@ class TestCaseReportSchema(ReportSchema):
     tags = TagField()
     category = fields.String(dump_only=True)
 
+    status_reason = fields.String(allow_none=True)
+
     @post_load
     def make_report(self, data):
         """
@@ -111,6 +113,8 @@ class TestGroupReportSchema(TestCaseReportSchema):
     category = fields.String()
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
+
+    status_reason = fields.String(allow_none=True)
 
     entries = custom_fields.GenericNested(
         schema_context={

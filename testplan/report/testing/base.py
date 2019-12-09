@@ -70,6 +70,8 @@ class Status(object):
     SKIPPED = 'skipped'
     READY = 'ready'
     RUNNING = 'running'
+    XFAIL = 'xfail'
+    XPASS = 'xpass'
 
     STATUS_PRECEDENCE = (
         RUNNING,
@@ -79,6 +81,27 @@ class Status(object):
         INCOMPLETE,
         PASSED,
         SKIPPED,
+    )
+
+    STATUS_PROPAGATION = {
+        ERROR: ERROR,
+        FAILED: FAILED,
+        INCOMPLETE: INCOMPLETE,
+        PASSED: PASSED,
+        SKIPPED: SKIPPED,
+        READY: READY,
+        RUNNING: RUNNING,
+        XFAIL: PASSED,
+        XPASS: PASSED,
+        None: None  # `status_override` can be None in merging report,
+    }
+
+    PASSED_STATUSES  = (
+        PASSED, SKIPPED, XFAIL
+    )
+
+    FAILED_STATUSES = (
+        FAILED, ERROR, XPASS
     )
 
     # `status_override` can be None, so need to add it to precedence rules
@@ -95,7 +118,10 @@ class Status(object):
         :param rule: Precedence rules for the given statuses.
         :type rule: ``sequence``
         """
-        return min(stats, key=lambda stat: rule.index(stat))
+        return min(
+            [cls.STATUS_PROPAGATION[stat] for stat in stats],
+            key=lambda stat: rule.index(stat)
+        )
 
 
 _TestCount = collections.namedtuple('_TestCount', Status.STATUS_PRECEDENCE)
@@ -164,6 +190,7 @@ class BaseReportGroup(ReportGroup):
 
     def __init__(self, *args, **kwargs):
         self.meta = kwargs.pop('meta', {})
+        self.status_reason = kwargs.pop('status_reason', None)
         super(BaseReportGroup, self).__init__(*args, **kwargs)
         self.status_override = None
         self.timer = timing.Timer()
@@ -176,7 +203,7 @@ class BaseReportGroup(ReportGroup):
     @property
     def passed(self):
         """Shortcut for getting if report status is `Status.PASSED`."""
-        return self.status == Status.PASSED
+        return self.status in Status.PASSED_STATUSES
 
     @property
     def failed(self):
@@ -184,7 +211,7 @@ class BaseReportGroup(ReportGroup):
         Shortcut for checking if report status is `Status.FAILED` or
         `Status.ERROR`.
         """
-        return self.status in (Status.FAILED, Status.ERROR)
+        return self.status in Status.FAILED_STATUSES
 
     @property
     def running(self):
@@ -588,6 +615,7 @@ class TestCaseReport(Report):
                  name,
                  tags=None,
                  suite_related=False,
+                 status_reason=None,
                  **kwargs):
         super(TestCaseReport, self).__init__(name=name, **kwargs)
 
@@ -601,6 +629,7 @@ class TestCaseReport(Report):
         self.attachments = []
         self._status = Status.READY
         self.category = ReportCategories.TESTCASE
+        self.status_reason = status_reason
 
     def _get_comparison_attrs(self):
         return super(TestCaseReport, self)._get_comparison_attrs() +\
@@ -678,6 +707,7 @@ class TestCaseReport(Report):
         self.logs = report.logs
         self.entries = report.entries
         self.timer = report.timer
+        self.status_reason = report.status_reason
 
     def flattened_entries(self, depth):
         """Need to take assertion groups into account."""

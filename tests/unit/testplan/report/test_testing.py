@@ -27,15 +27,13 @@ def test_report_status_precedent():
     `precedent` should return the value with the
     highest precedence (the lowest index).
     """
-    rule = ['alpha', 'beta', 'gamma']
 
-    assert 'alpha' == Status.precedent(['alpha', 'beta'], rule=rule)
-    assert 'alpha' == Status.precedent(['alpha', 'gamma'], rule=rule)
-    assert 'beta' == Status.precedent(['beta', 'gamma'], rule=rule)
-    assert 'gamma' == Status.precedent(['gamma'], rule=rule)
-
-    with pytest.raises(ValueError):
-        Status.precedent(['foo', 'alpha', 'beta'], rule=rule)
+    assert Status.PASSED == Status.precedent([Status.PASSED, Status.XPASS])
+    assert Status.FAILED == Status.precedent([Status.PASSED, Status.FAILED])
+    assert Status.READY == Status.precedent([Status.READY, Status.PASSED])
+    assert Status.FAILED == Status.precedent([Status.FAILED])
+    assert Status.PASSED == Status.precedent([Status.PASSED, Status.XFAIL])
+    assert Status.FAILED == Status.precedent([Status.FAILED, Status.XFAIL])
 
 
 @disable_log_propagation(report.log.LOGGER)

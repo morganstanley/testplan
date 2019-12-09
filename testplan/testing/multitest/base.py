@@ -417,6 +417,9 @@ class MultiTest(Test):
                         uid=get_testsuite_name(next_suite),
                         tags=next_suite.__tags__,
                     )
+                    if hasattr(next_suite, '__xfail__'):
+                        testsuite_report.status_reason = \
+                            next_suite.__xfail__['reason']
                     report.append(testsuite_report)
 
                     with testsuite_report.logged_exceptions():
@@ -465,6 +468,8 @@ class MultiTest(Test):
                 uid=testcase.__name__,
                 tags=testcase.__tags__,
             )
+            if hasattr(testcase, '__xfail__'):
+                testcase_report.status_reason = testcase.__xfail__['reason']
             param_template = getattr(
                 testcase, '_parametrization_template', None)
             if param_template:
@@ -547,6 +552,16 @@ class MultiTest(Test):
         if not testsuite_report.failed:
             testsuite_report.status = Status.PASSED
 
+        # If xfailed testsuite, force set status_override and update result
+        if hasattr(testsuite, '__xfail__'):
+            if testsuite_report.failed:
+                testsuite_report.status_override = Status.XFAIL
+            else:
+                if testsuite.__xfail__['strict']:
+                    testsuite_report.status_override = Status.FAILED
+                else:
+                    testsuite_report.status_override = Status.XPASS
+
     def _run_suite_related(self, object, method, report):
         """Runs testsuite related special methods setup/teardown/etc."""
         attr = getattr(object, method, None)
@@ -614,6 +629,16 @@ class MultiTest(Test):
 
         if not testcase_report.failed:
             testcase_report.status = Status.PASSED
+
+        # If xfailed testcase, force set status_override and update result
+        if hasattr(testcase, '__xfail__'):
+            if testcase_report.failed:
+                testcase_report.status_override = Status.XFAIL
+            else:
+                if testcase.__xfail__['strict']:
+                    testcase_report.status_override = Status.FAILED
+                else:
+                    testcase_report.status_override = Status.XPASS
 
         if self.get_stdout_style(testcase_report.passed).display_case:
             self.log_testcase_status(testcase_report)
@@ -858,5 +883,5 @@ class MultiTest(Test):
     def _log_status(self, report, indent):
         """Log the test status for a report at the given indent level."""
         self.logger.log_test_status(name=report.name,
-                                    passed=report.passed,
+                                    status=report.status,
                                     indent=indent)

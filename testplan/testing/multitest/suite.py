@@ -686,3 +686,32 @@ def post_testcase(*functions):
         return klass
 
     return post_testcase_inner
+
+
+def xfail(reason, strict=True):
+    """
+    Mark a testcase/testsuit as XFail(known to fail) when not possible to fix
+    immediately. This decorator mandates a reason that explains why the test is
+    marked as passed. XFail testcases will be highlighted as amber on testplan
+    report.
+    By default, should the test pass while we expect it to fail, the report
+    will mark it as failed.
+    For unstable tests, set ``strict`` to ``False``. Note that doing so
+    decreases the value of the test.
+
+    :param reason: Explains why the test is marked as passed.
+    :type reason: ``str``
+    :param strict: Should the test pass while we expect it to fail, the report
+    will mark it as failed if strict is True,  default is True.
+    :type strict: ``bool``
+    :return:
+    """
+
+    def _xfail_test(test):
+        test.__xfail__ = {
+            'reason': reason,
+            'strict': strict
+        }
+        return test
+
+    return _xfail_test

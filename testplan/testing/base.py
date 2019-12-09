@@ -302,7 +302,7 @@ class Test(Runnable):
                             for line in details.split(os.linesep))
                         TESTPLAN_LOGGER.test_info(details)
                 else:
-                    self.logger.log_test_status(name, passed, indent=indent)
+                    self.logger.log_test_status(name, obj.status, indent=indent)
 
         for depth, obj in items:
             if top_down:

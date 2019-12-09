@@ -1266,3 +1266,25 @@ If the testcase times out it will raise a :py:class:`TimeoutException <testplan.
 
 Also keep in mind that testplan will take a little bit of effort to monitor execution time of testcases with ``timeout`` attribute, so it is better to allocate a little more seconds than you have estimated how long a testcase would need.
 
+Xfail
+-----
+
+You can mark testsuite/testcase that you expect to fail to testplan can deal with them accordingly and present as pass in the test report, while keeping the testsuites/testcase `green`.
+
+A Xfail means that you expect a test to fail for some reason. A common example is a test for a feature not yet implemented, or a bug not yet fixed. When a test passes despite being expected to fail(marked with `xfail`), it's an `Xpass` and will be reported as failed in the test report
+
+The ``xfail`` decorator mandates a reason that explains why the test is marked as Xfail:
+
+.. code-block:: python
+
+    @xfail(reason='api changes')
+    def fail_testcase(self, env, result):
+        ...
+
+`Xpass` fails the testsuite/testcase, unless the ``strict`` parameter is passed as ``False``. A common example is a test is unstable:
+
+.. code-block:: python
+
+    @xfail(reason='unstable test', strict=False)
+    def unstable_testcase(self, env, result):
+        ...
