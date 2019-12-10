@@ -101,6 +101,31 @@ class Status(object):
 _TestCount = collections.namedtuple('_TestCount', Status.STATUS_PRECEDENCE)
 
 
+class ReportCategories(object):
+    """
+    Enumeration of possible categories of report nodes.
+
+    Note: we don't use the enum.Enum base class to simplify report
+    serialization via marshmallow.
+    """
+
+    TESTPLAN = "testplan"
+    TESTGROUP = "testgroup"
+    MULTITEST = "multitest"
+    CPPUNIT = "cppunit"
+    GTEST = "gtest"
+    UNITTEST = "unittest"
+    BOOST_TEST = "boost-test"
+    QUNIT = "qunit"
+    SUITE = "suite"
+    CPPUNIT_SUITE = "cppunit-suite"
+    BOOST_TEST_SUITE = "boost-test-suite"
+    GTEST_SUITE = "gtest-suite"
+    PARAMETRIZATION = "parametrization"
+    TESTCASE = "testcase"
+    ERROR = "error"
+
+
 class TestCount(_TestCount):
 
     @property
@@ -310,7 +335,7 @@ class TestReport(BaseReportGroup):
         # Maps from destination path (relative from attachments root dir)
         # to the full source path (absolute or relative from cwd).
         self.attachments = attachments or {}
-        self.category = "testplan"
+        self.category = ReportCategories.TESTPLAN
 
         super(TestReport, self).__init__(*args, **kwargs)
 
@@ -414,15 +439,16 @@ class TestGroupReport(BaseReportGroup):
 
     def __init__(self,
                  name,
-                 category="testgroup",
+                 category=ReportCategories.TESTGROUP,
                  tags=None,
                  part=None,
                  fix_spec_path=None,
                  **kwargs):
         super(TestGroupReport, self).__init__(name=name, **kwargs)
 
-        # This will be used for distinguishing test
-        # type (Multitest, GTest etc)
+        # This will be used for distinguishing test type (Multitest, GTest
+        # etc). Expected to be one of the ReportCategories enum, otherwise
+        # the report node will not be correctly rendered in the UI.
         self.category = category
 
         self.tags = tagging.validate_tag_value(tags) if tags else {}
@@ -574,7 +600,7 @@ class TestCaseReport(Report):
 
         self.attachments = []
         self._status = Status.READY
-        self.category = "testcase"
+        self.category = ReportCategories.TESTCASE
 
     def _get_comparison_attrs(self):
         return super(TestCaseReport, self)._get_comparison_attrs() +\

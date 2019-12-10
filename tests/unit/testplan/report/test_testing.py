@@ -6,7 +6,13 @@ import mock
 from testplan.common.utils.testing import disable_log_propagation
 
 from testplan.report.testing.base import (
-    Status, BaseReportGroup, TestCaseReport, TestGroupReport, TestReport)
+    Status,
+    BaseReportGroup,
+    TestCaseReport,
+    TestGroupReport,
+    TestReport,
+    ReportCategories,
+)
 from testplan.report.testing.schemas import TestReportSchema
 from testplan.common import report
 from testplan.common.utils.testing import check_report
@@ -289,7 +295,7 @@ def dummy_test_plan_report():
     tg_1 = TestGroupReport(
         name='Test Group 1',
         description='Test Group 1 description',
-        category="testgroup",
+        category=ReportCategories.TESTGROUP,
         entries=[tc_1, tc_2],
         tags=tag_data_2,
     )
@@ -305,7 +311,7 @@ def dummy_test_plan_report():
     tg_2 = TestGroupReport(
         name='Test Group 2',
         description='Test Group 2 description',
-        category="testgroup",
+        category=ReportCategories.TESTGROUP,
         entries=[tg_1, tc_3],
         tags={},
     )
@@ -352,20 +358,20 @@ class TestReportTags(object):
 
         tg_report_3 = TestGroupReport(
             name='My Group 3',
-            category="testgroup",
+            category=ReportCategories.TESTGROUP,
             tags={},
         )
 
         tg_report_2 = TestGroupReport(
             name='My Group 2',
-            category="testgroup",
+            category=ReportCategories.TESTGROUP,
             tags={'simple': {'bar'}},
             entries=[tc_report_1, tc_report_2]
         )
 
         tg_report_1 = TestGroupReport(
             name='My Group',
-            category="testgroup",
+            category=ReportCategories.TESTGROUP,
             tags={'simple': {'foo'}},
             entries=[tg_report_2, tg_report_3]
         )

@@ -6,7 +6,7 @@ from .base import Executor
 from testplan.runners.pools import tasks
 from testplan.common import entity
 from testplan.testing.base import TestResult
-from testplan.report.testing import TestGroupReport, Status
+from testplan.report.testing import TestGroupReport, Status, ReportCategories
 
 
 class LocalRunner(Executor):
@@ -60,7 +60,7 @@ class LocalRunner(Executor):
                         result = TestResult()
                         result.report = TestGroupReport(
                             name=next_uid,
-                            category="error"
+                            category=ReportCategories.ERROR,
                         )
                         result.report.status_override = Status.ERROR
                         result.report.logger.exception(
@@ -87,7 +87,7 @@ class LocalRunner(Executor):
             result = TestResult()
             result.report = TestGroupReport(
                 name=uid,
-                category="error",
+                category=ReportCategories.ERROR,
             )
             result.report.status_override = Status.ERROR
             result.report.logger.critical(
