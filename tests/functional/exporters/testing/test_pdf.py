@@ -42,7 +42,7 @@ def test_create_pdf(tmpdir):
         entries=[
             TestGroupReport(
                 name='My Multitest',
-                category==ReportCategories.MULTITEST,
+                category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
                         name='MySuite',
