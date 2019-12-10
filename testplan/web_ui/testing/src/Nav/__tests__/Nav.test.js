@@ -7,7 +7,7 @@ import {TESTPLAN_REPORT} from '../../Common/sampleReports';
 
 const defaultProps = {
   report: TESTPLAN_REPORT,
-  selected: [{uid: TESTPLAN_REPORT.uid, type: "testplan"}],
+  selected: [TESTPLAN_REPORT],
 };
 
 describe('Nav', () => {

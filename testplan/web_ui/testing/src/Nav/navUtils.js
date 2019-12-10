@@ -5,133 +5,8 @@ import React from 'react';
 import {ListGroupItem} from 'reactstrap';
 import {StyleSheet, css} from 'aphrodite';
 
-import {getNavEntryDisplayData, getNavEntryType} from "../Common/utils";
 import TagList from './TagList';
 import {LIGHT_GREY, DARK_GREY} from "../Common/defaults";
-
-/**
- * Check if nothing has been selected from the Nav.
- *
- * @param {Array} selected - The selected entries from the Nav.
- * Each Object in the Array has the entry's name & type.
- * @returns {boolean}
- * @private
- */
-function nothingSelected(selected) {
-  return selected.length === 0;
-}
-
-/**
- * Check if last selected entry is a testcase and if current entry
- * is its sibling.
- *
- * @param {Array} selected - The selected entries from the Nav.
- * Each Object in the Array has the entry's name & type.
- * @param {string} parentUid - The UID of the parent entry to the
- * "entries" Array.
- * @returns {boolean}
- * @private
- */
-function testcaseSelected(selected, parentUid) {
-  const lastSelected = selected[selected.length - 1];
-  const secondLastSelected = selected[selected.length - 2];
-  return (lastSelected.type === 'testcase' &&
-          parentUid === secondLastSelected.uid);
-}
-
-/**
- * Check if current entry is a child of the last selected entry
- * and that the last selected entry isn't a testcase.
- *
- * @param {Array} selected - The selected entries from the Nav.
- * Each Object in the Array has the entry's name & type.
- * @param {string} parentUid - The UID of the parent entry to the
- * "entries" Array.
- * @returns {boolean}
- * @private
- */
-function parentEntryLastSelected(selected, parentUid) {
-  const lastSelected = selected[selected.length - 1];
-  return (lastSelected.type !== 'testcase' &&
-          parentUid === lastSelected.uid);
-}
-
-/**
- * Populate nav breadcrumbs & list Arrays depending on which entries were
- * selected from Nav.
- *
- * @param {Array} entries - Array of Testplan report entries.
- * @param {Array} selected - The selected entries from the Nav. Each Object in
- * the Array
- * has the entry's name & type.
- * @param {number} depth - The depth of the "entries" Array in the Testplan
- * report.
- * @param {string} parentUid - The UID of the parent entry to the "entries"
- * Array.
- * @returns {{navBreadcrumbs: Array, navList: Array}}
- * @private
- */
-function parseNavSelectionRecur(entries, selected, depth, parentUid) {
-  let navBreadcrumbs = [];
-  let navList = [];
-  for (const entry of entries) {
-    const entryType = getNavEntryType(entry);
-
-    // Populate:
-    //   a. breadcrumbs from current entry and it's children
-    //   b. list from current entry's children
-    if (entryType !== 'testcase' &&
-        depth < selected.length &&
-        selected[depth].uid === entry.uid) {
-      const breadcrumbEntryMetadata = getNavEntryDisplayData(entry);
-      const nextSelection = parseNavSelectionRecur(
-        entry.entries,
-        selected,
-        depth + 1,
-        entry.uid
-      );
-      navBreadcrumbs.push(breadcrumbEntryMetadata);
-      navBreadcrumbs.push(...nextSelection.navBreadcrumbs);
-      navList = nextSelection.navList;
-      break;
-    }
-
-    // Populate:
-    //   a. list from current entry
-    if (nothingSelected(selected) ||
-        testcaseSelected(selected, parentUid) ||
-        parentEntryLastSelected(selected, parentUid)) {
-      let listEntryMetadata = getNavEntryDisplayData(entry);
-      // Adding assertions to testcase data to be sent to AssertionPane.
-      if (entryType === 'testcase') {
-        listEntryMetadata.entries = entry.entries;
-      }
-      navList.push(listEntryMetadata);
-    }
-  }
-  return {
-    navBreadcrumbs: navBreadcrumbs,
-    navList: navList
-  };
-}
-
-/**
- * Populate nav breadcrumbs & list Arrays depending on which entries were
- * selected from Nav.
- *
- * @param {object} report - The Testplan report.
- * @param {Array} selected - The selected entries from the Nav. Each Object in
- * the Array
- * has the entries name & type.
- * @returns {{navBreadcrumbs: Array, navList: Array}}
- */
-function ParseNavSelection(report, selected) {
-  if (report === null) {
-    return {navBreadcrumbs: [], navList: []};
-  } else {
-    return parseNavSelectionRecur([report], selected, 0, null);
-  }
-}
 
 /**
  * Create the list entry buttons or a single button stating nothing can be
@@ -193,7 +68,7 @@ const applyAllFilters = (props) => {
     return applyNamedFilter(props.entries, props.filter);
   } else {
     return applyNamedFilter(props.entries, props.filter).filter((entry) => {
-      if (entry.type === 'TestCaseReport') {
+      if (entry.category === 'testcase') {
         return (entry.entries !== null && entry.entries.length > 0);
       } else {
         return (entry.case_count.failed + entry.case_count.passed > 0);
@@ -256,8 +131,62 @@ const GetSelectedUid = (selected) => {
   }
 };
 
+/**
+ * Get the entries to present to a user in the navigation column. In general,
+ * we present a list of the child entries of the currently selected report
+ * node so that a user may click to drill down to the next level (e.g. from
+ * MultiTest into a suite). As a special case, when a testcase is selected
+ * we do not drill down any further and instead display all entries in the
+ * suite that testcase belongs to.
+ *
+ * @param {Array[ReportNode]} selected - Current selection hierarchy.
+ * @return {Array[ReportNode]} Report nodes to display in the navigation
+ *                             column.
+ */
+const GetNavEntries = (selected) => {
+  const selectedEntry = selected[selected.length - 1];
+
+  if (!selectedEntry) {
+    return [];
+  } else if (selectedEntry.category === "testcase") {
+    const suite = selected[selected.length - 2];
+
+    // All testcases should belong to a suite, throw an error if we can't
+    // find it.
+    if (!suite) {
+      throw new Error(
+        "Could not find parent suite of testcase " + selectedEntry.name
+      );
+    }
+    return suite.entries;
+  } else {
+    return selectedEntry.entries;
+  }
+};
+
+/**
+ * Get the entries to display in the navigation breadcrumbs bar. Generally
+ * this is just the selection hierarchy. As a special case, when a testcase
+ * is selected, we only display up to the suite level in the breadcrumb bar.
+ *
+ * @param {Array[ReportNode]} selected - Current selection hierarchy.
+ * @return {Array[ReportNode]} Report nodes to display in the breadcrumb bar.
+ */
+const GetNavBreadcrumbs = (selected) => {
+  const selectedEntry = selected[selected.length - 1];
+  if (!selectedEntry) {
+    return [];
+  } else if (selectedEntry.category === "testcase") {
+    return selected.slice(0, selected.length - 1);
+  } else {
+    return selected;
+  }
+};
+
+
 export {
-  ParseNavSelection,
   CreateNavButtons,
   GetSelectedUid,
+  GetNavEntries,
+  GetNavBreadcrumbs,
 };

@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`navUtils CreateNavButtons returns an array of nav buttons 1`] = `
+Array [
+  <ListGroupItem
+    className="navButton_6hkfbl-o_O-navButtonInteract_1ofjo98"
+    onClick={[Function]}
+    tabIndex="1"
+    tag="li"
+  />,
+  <ListGroupItem
+    className="navButton_6hkfbl-o_O-navButtonInteract_1ofjo98"
+    onClick={[Function]}
+    tabIndex="2"
+    tag="li"
+  />,
+]
+`;

@@ -18,7 +18,9 @@ from testplan.common.exporters import BaseExporter, ExporterResult
 from testplan.common.report import MergeError
 from testplan.common.utils.path import default_runpath
 from testplan.exporters import testing as test_exporters
-from testplan.report.testing import TestReport, TestGroupReport, Status
+from testplan.report.testing import (
+    TestReport, TestGroupReport, Status, ReportCategories,
+)
 from testplan.report.testing.styles import Style
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.base import Executor
@@ -75,7 +77,10 @@ def result_for_failed_task(original_result):
     Create a new result entry for invalid result retrieved from a resource.
     """
     result = TestResult()
-    result.report = TestGroupReport(name=original_result.task.name)
+    result.report = TestGroupReport(
+        name=original_result.task.name,
+        category=ReportCategories.ERROR,
+    )
     attrs = [attr for attr in original_result.task.all_attrs]
     result_lines = ['{}: {}'.format(attr, getattr(original_result.task, attr))\
                         if getattr(original_result.task, attr, None) else ''\

@@ -8,7 +8,9 @@ from testplan.common.utils.testing import (
     argv_overridden, XMLComparison as XC
 )
 from testplan.exporters.testing import XMLExporter
-from testplan.report.testing import TestReport, TestCaseReport, TestGroupReport
+from testplan.report.testing import (
+    TestReport, TestCaseReport, TestGroupReport, ReportCategories,
+)
 
 FLOAT_PATTERN = r'{d}+\.?d{d}+'
 
@@ -143,10 +145,11 @@ sample_report = TestReport(
     entries=[
         TestGroupReport(
             name='My Multitest',
-            category='multitest',
+            category=ReportCategories.MULTITEST,
             entries=[
                 TestGroupReport(
                     name='MySuite',
+                    category=ReportCategories.SUITE,
                     entries=[
                         TestCaseReport(
                             name='my_test_method',

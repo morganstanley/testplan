@@ -19,6 +19,7 @@ exports[`NavBreadcrumbs shallow renders the correct HTML structure 1`] = `
           caseCountPassed={0}
           name="test"
           status="passed"
+          type="testplan"
         />
       </div>
     </li>

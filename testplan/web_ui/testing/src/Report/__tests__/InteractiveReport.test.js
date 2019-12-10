@@ -6,9 +6,9 @@ import moxios from 'moxios';
 
 import InteractiveReport from '../InteractiveReport.js';
 import {FakeInteractiveReport} from '../../Common/sampleReports.js';
-import {ReportToNavEntry} from '../../Common/utils.js';
 
 const INITIAL_REPORT = {
+  "category": "testplan",
   "uid": "TestplanUID",
   "timer": {},
   "status": "ready",
@@ -19,9 +19,9 @@ const INITIAL_REPORT = {
   "name": "TestplanName",
   "parent_uids": [],
   "type": "TestGroupReport",
-  "category": "testplan",
   "hash": 12345,
   "entries": [{
+    "category": "multitest",
     "uid": "MultiTestUID",
     "timer": {},
     "description": null,
@@ -29,7 +29,6 @@ const INITIAL_REPORT = {
     "status": "ready",
     "part": null,
     "status_override": null,
-    "category": "multitest",
     "name": "MultiTestName",
     "fix_spec_path": null,
     "parent_uids": ["TestplanUID"],
@@ -37,6 +36,7 @@ const INITIAL_REPORT = {
     "category": "multitest",
     "hash": 12345,
     "entries": [{
+      "category": "suite",
       "uid": "SuiteUID",
       "timer": {},
       "description": null,
@@ -44,7 +44,6 @@ const INITIAL_REPORT = {
       "status": "ready",
       "part": null,
       "status_override": null,
-      "category": "suite",
       "name": "SuiteName",
       "fix_spec_path": null,
       "parent_uids": ["TestplanUID", "MultiTestUID"],
@@ -52,6 +51,7 @@ const INITIAL_REPORT = {
       "category": "suite",
       "hash": 12345,
       "entries": [{
+        "category": "testcase",
         "uid": "testcaseUID",
         "timer": {},
         "description": null,
@@ -95,6 +95,7 @@ describe('InteractiveReport', () => {
       request.respondWith({
         status: 200,
         response: {
+          "category": "testplan",
           "uid": "TestplanUID",
           "timer": {},
           "status": "ready",
@@ -117,6 +118,7 @@ describe('InteractiveReport', () => {
             status: 200,
             response: [
               {
+                "category": "multitest",
                 "uid": "MultiTestUID",
                 "timer": {},
                 "description": null,
@@ -124,7 +126,6 @@ describe('InteractiveReport', () => {
                 "status": "ready",
                 "part": null,
                 "status_override": null,
-                "category": "multitest",
                 "entry_uids": [
                   "SuiteUID"
                 ],
@@ -143,6 +144,7 @@ describe('InteractiveReport', () => {
               request.respondWith({
                 status: 200,
                 response: [{
+                  "category": "suite",
                   "uid": "SuiteUID",
                   "timer": {},
                   "description": null,
@@ -150,7 +152,6 @@ describe('InteractiveReport', () => {
                   "status": "ready",
                   "part": null,
                   "status_override": null,
-                  "category": "suite",
                   "entry_uids": [
                     "testcaseUID",
                   ],
@@ -169,6 +170,7 @@ describe('InteractiveReport', () => {
                   request.respondWith({
                     status: 200,
                     response: [{
+                      "category": "testcase",
                       "uid": "testcaseUID",
                       "timer": {},
                       "description": null,
@@ -202,24 +204,24 @@ describe('InteractiveReport', () => {
     const interactiveReport = shallow(<InteractiveReport />);
     interactiveReport.setState({
       report: INITIAL_REPORT,
-      selected: interactiveReport.instance().autoSelect(INITIAL_REPORT),
+      selectedUIDs: interactiveReport.instance().autoSelect(INITIAL_REPORT),
     });
     interactiveReport.update();
-    expect(interactiveReport.state("selected")).toStrictEqual([
-      {uid: "TestplanUID", type: "testplan"}
+    expect(interactiveReport.state("selectedUIDs")).toStrictEqual([
+      INITIAL_REPORT.uid,
     ]);
 
     const mockEvent = {stopPropagation: jest.fn()};
     interactiveReport.instance().handleNavClick(
       mockEvent,
-      {uid: "MultiTestUID", type: "TestGroupReport", category: "multitest"},
+      INITIAL_REPORT.entries[0],
       1,
     );
     interactiveReport.update();
 
-    expect(interactiveReport.state("selected")).toStrictEqual([
-      {uid: "TestplanUID", type: "testplan"},
-      {uid: "MultiTestUID", type: "multitest"},
+    expect(interactiveReport.state("selectedUIDs")).toStrictEqual([
+      INITIAL_REPORT.uid,
+      INITIAL_REPORT.entries[0].uid,
     ]);
     expect(interactiveReport).toMatchSnapshot();
   });
@@ -228,7 +230,7 @@ describe('InteractiveReport', () => {
     const interactiveReport = shallow(<InteractiveReport />);
     interactiveReport.setState({
       report: INITIAL_REPORT,
-      selected: interactiveReport.instance().autoSelect(INITIAL_REPORT),
+      selectedUIDs: interactiveReport.instance().autoSelect(INITIAL_REPORT),
     });
     interactiveReport.update();
 
@@ -255,25 +257,19 @@ describe('InteractiveReport', () => {
 
   it("handles tests being run", done => testRunEntry(
     done,
-    {uid: "MultiTestUID", parent_uids: ["TestplanUID"]},
+    INITIAL_REPORT.entries[0],
     "/api/v1/interactive/report/tests/MultiTestUID",
   ));
 
   it("handles individual test suites being run", done => testRunEntry(
     done,
-    {
-      uid: "SuiteUID",
-      parent_uids: ["TestplanUID", "MultiTestUID"],
-    },
+    INITIAL_REPORT.entries[0].entries[0],
     "/api/v1/interactive/report/tests/MultiTestUID/suites/SuiteUID",
   ));
 
   it("handles individual testcases being run", done => testRunEntry(
     done,
-    {
-      uid: "testcaseUID",
-      parent_uids: ["TestplanUID", "MultiTestUID", "SuiteUID"],
-    },
+    INITIAL_REPORT.entries[0].entries[0].entries[0],
     "/api/v1/interactive/report/tests/MultiTestUID/suites/SuiteUID"
     + "/testcases/testcaseUID",
   ));
@@ -283,7 +279,7 @@ describe('InteractiveReport', () => {
     const interactiveReport = shallow(<InteractiveReport />);
     interactiveReport.setState({
       report: INITIAL_REPORT,
-      selected: interactiveReport.instance().autoSelect(INITIAL_REPORT),
+      selectedUIDs: interactiveReport.instance().autoSelect(INITIAL_REPORT),
     });
     interactiveReport.update();
 
@@ -297,6 +293,7 @@ describe('InteractiveReport', () => {
 
         // Do not change the hash - no more API requests should be received.
         response: {
+          "category": "testplan",
           "uid": "TestplanUID",
           "timer": {},
           "status": "ready",
@@ -326,7 +323,7 @@ describe('InteractiveReport', () => {
     const interactiveReport = shallow(<InteractiveReport />);
     interactiveReport.setState({
       report: INITIAL_REPORT,
-      selected: interactiveReport.instance().autoSelect(INITIAL_REPORT),
+      selectedUIDs: interactiveReport.instance().autoSelect(INITIAL_REPORT),
     });
     interactiveReport.update();
 
@@ -339,6 +336,7 @@ describe('InteractiveReport', () => {
         status: 200,
 
         response: {
+          "category": "testplan",
           "uid": "TestplanUID",
           "timer": {},
           "status": "running",
@@ -361,6 +359,7 @@ describe('InteractiveReport', () => {
             status: 200,
             response: [
               {
+                "category": "multitest",
                 "uid": "MultitestUID",
                 "timer": {},
                 "description": null,
@@ -368,7 +367,6 @@ describe('InteractiveReport', () => {
                 "status": "running",
                 "part": null,
                 "status_override": null,
-                "category": "multitest",
                 "entry_uids": [
                   "SuiteUID"
                 ],
@@ -387,6 +385,7 @@ describe('InteractiveReport', () => {
               request.respondWith({
                 status: 200,
                 response: [{
+                  "category": "suite",
                   "uid": "SuiteUID",
                   "timer": {},
                   "description": null,
@@ -394,7 +393,6 @@ describe('InteractiveReport', () => {
                   "status": "running",
                   "part": null,
                   "status_override": null,
-                  "category": "suite",
                   "entry_uids": [
                     "test_basic_assertions",
                   ],
@@ -413,6 +411,7 @@ describe('InteractiveReport', () => {
                   request.respondWith({
                     status: 200,
                     response: [{
+                      "category": "testcase",
                       "uid": "TestcaseUID",
                       "timer": {},
                       "description": null,

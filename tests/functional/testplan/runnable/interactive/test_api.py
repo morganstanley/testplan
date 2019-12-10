@@ -72,6 +72,7 @@ EXPECTED_INITIAL_GET = [
         "/report",
         {
             "attachments": {},
+            "category": "testplan",
             "entry_uids": ["ExampleMTest"],
             "meta": {},
             "name": "InteractiveAPITest",
@@ -159,6 +160,7 @@ EXPECTED_INITIAL_GET = [
         "/report/tests/ExampleMTest/suites/ExampleSuite/testcases",
         [
             {
+                "category": "testcase",
                 "description": None,
                 "entries": [],
                 "logs": [],
@@ -177,6 +179,7 @@ EXPECTED_INITIAL_GET = [
                 "uid": "test_passes",
             },
             {
+                "category": "testcase",
                 "description": None,
                 "entries": [],
                 "logs": [],
@@ -195,6 +198,7 @@ EXPECTED_INITIAL_GET = [
                 "uid": "test_fails",
             },
             {
+                "category": "testcase",
                 "description": None,
                 "entries": [],
                 "logs": [],
@@ -217,6 +221,7 @@ EXPECTED_INITIAL_GET = [
     (
         "/report/tests/ExampleMTest/suites/ExampleSuite/testcases/test_passes",
         {
+            "category": "testcase",
             "description": None,
             "entries": [],
             "logs": [],

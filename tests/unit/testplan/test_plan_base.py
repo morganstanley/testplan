@@ -11,7 +11,7 @@ from testplan.common.utils.path import default_runpath
 from testplan.common.utils.testing import (
     argv_overridden, log_propagation_disabled)
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-from testplan.report import TestGroupReport
+from testplan.report import TestGroupReport, ReportCategories
 from testplan.runnable import TestRunnerStatus, TestRunner
 from testplan.runners.local import LocalRunner
 
@@ -33,7 +33,9 @@ class DummyTestResult(RunnableResult):
     def __init__(self):
         super(DummyTestResult, self). __init__()
         self.custom = None
-        self.report = TestGroupReport('test')
+        self.report = TestGroupReport(
+            name='test', category=ReportCategories.TESTGROUP,
+        )
 
 
 class DummyTest(Runnable):

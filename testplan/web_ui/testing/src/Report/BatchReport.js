@@ -9,10 +9,10 @@ import {
   UpdateSelectedState,
   GetReportState,
   GetCenterPane,
+  GetSelectedEntries,
 } from "./reportUtils";
 import {COLUMN_WIDTH} from "../Common/defaults";
 import {fakeReportAssertions} from "../Common/fakeReport";
-import {ReportToNavEntry} from "../Common/utils";
 
 /**
  * BatchReport component:
@@ -32,14 +32,13 @@ class BatchReport extends React.Component {
     this.state = {
       navWidth: COLUMN_WIDTH,
       report: null,
-      assertions: null,
       testcaseUid: null,
       loading: false,
       error: null,
       filter: null,
       displayTags: false,
       displayEmpty: true,
-      selected: [],
+      selectedUIDs: [],
     };
   }
 
@@ -60,7 +59,7 @@ class BatchReport extends React.Component {
       setTimeout(
         () => this.setState({
           report: processedReport,
-          selected: this.autoSelect(processedReport),
+          selectedUIDs: this.autoSelect(processedReport),
           loading: false,
         }),
         1500);
@@ -70,7 +69,7 @@ class BatchReport extends React.Component {
           const processedReport = PropagateIndices(response.data);
           this.setState({
             report: processedReport,
-            selected: this.autoSelect(processedReport),
+            selectedUIDs: this.autoSelect(processedReport),
             loading: false,
           });
         })
@@ -85,12 +84,12 @@ class BatchReport extends React.Component {
    * Auto-select an entry in the report when it is first loaded.
    */
   autoSelect(reportEntry) {
-    const selection = [ReportToNavEntry(reportEntry)];
+    const selection = [reportEntry];
 
     // If the current report entry has only one child entry and that entry is
     // not a testcase, we automatically expand it.
     if ((reportEntry.entries.length === 1) &&
-        (reportEntry.entries[0].type !== "testcase")) {
+        (reportEntry.entries[0].category!== "testcase")) {
       return selection.concat(this.autoSelect(reportEntry.entries[0]));
     } else {
       return selection;
@@ -143,11 +142,15 @@ class BatchReport extends React.Component {
 
   render() {
     const {reportStatus, reportFetchMessage} = GetReportState(this.state);
+    const selectedEntries = GetSelectedEntries(
+      this.state.selectedUIDs, this.state.report
+    );
     const centerPane = GetCenterPane(
       this.state,
       this.props,
       reportFetchMessage,
       this.props.match.params.uid,
+      selectedEntries,
     );
 
     return (
@@ -161,7 +164,7 @@ class BatchReport extends React.Component {
         />
         <Nav
           report={this.state.report}
-          selected={this.state.selected}
+          selected={selectedEntries}
           filter={this.state.filter}
           displayEmpty={this.state.displayEmpty}
           displayTags={this.state.displayTags}

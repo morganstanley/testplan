@@ -21,7 +21,7 @@ describe('InteractiveNav', () => {
     const renderedNav = shallow(
       <InteractiveNav
         report={FakeInteractiveReport}
-        selected={[{uid: FakeInteractiveReport.uid, type: "testplan"}]}
+        selected={[FakeInteractiveReport]}
         filter={null}
         displayEmpty={true}
         displayTags={false}

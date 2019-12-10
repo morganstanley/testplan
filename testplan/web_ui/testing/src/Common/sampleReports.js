@@ -2,6 +2,7 @@
  * Sample Testplan reports to be used in development & testing.
  */
 const TESTPLAN_REPORT = {
+  "category": "testplan",
   "name": "Sample Testplan",
   "status": "failed",
   "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
@@ -54,6 +55,7 @@ const TESTPLAN_REPORT = {
           },
           "entries": [
             {
+              "category": "testcase",
               "name": "test_equality_passing",
               "status": "passed",
               "status_override": null,
@@ -87,6 +89,7 @@ const TESTPLAN_REPORT = {
               ],
             },
             {
+              "category": "testcase",
               "name": "test_equality_passing2",
               "status": "failed",
               "tags": {},
@@ -139,6 +142,7 @@ const TESTPLAN_REPORT = {
           },
           "entries": [
             {
+              "category": "testcase",
               "name": "test_equality_passing",
               "status": "passed",
               "tags": {},
@@ -208,6 +212,7 @@ const TESTPLAN_REPORT = {
           },
           "entries": [
             {
+              "category": "testcase",
               "name": "test_equality_passing",
               "status": "passed",
               "tags": {},

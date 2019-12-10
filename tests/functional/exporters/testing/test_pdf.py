@@ -11,7 +11,9 @@ from testplan.common.utils.testing import (
 )
 from testplan.exporters.testing.pdf import PDFExporter, TagFilteredPDFExporter
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-from testplan.report.testing import TestReport, TestCaseReport, TestGroupReport
+from testplan.report.testing import (
+    TestReport, TestCaseReport, TestGroupReport, ReportCategories,
+)
 from testplan.report.testing import styles
 from testplan.testing.multitest.entries import assertions
 
@@ -40,10 +42,11 @@ def test_create_pdf(tmpdir):
         entries=[
             TestGroupReport(
                 name='My Multitest',
-                category='multitest',
+                category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
                         name='MySuite',
+                        category=ReportCategories.SUITE,
                         entries=[
                             TestCaseReport(
                                 name='my_test_method',
@@ -87,7 +90,7 @@ def test_tag_filtered_pdf(tmpdir):
         entries=[
             TestGroupReport(
                 name='Multitest 1',
-                category='multitest',
+                category=ReportCategories.MULTITEST,
                 tags={
                     'simple': {'foo', 'bar'},
                     'color': {'red'}
@@ -95,7 +98,7 @@ def test_tag_filtered_pdf(tmpdir):
             ),
             TestGroupReport(
                 name='Multitest 2',
-                category='multitest',
+                category=ReportCategories.MULTITEST,
                 tags={
                     'simple': {'foo'},
                     'color': {'blue'}
@@ -103,7 +106,7 @@ def test_tag_filtered_pdf(tmpdir):
             ),
             TestGroupReport(
                 name='Multitest 3',
-                category='multitest',
+                category=ReportCategories.MULTITEST,
                 tags={
                     'simple': {'bar'},
                     'color': {'green'}

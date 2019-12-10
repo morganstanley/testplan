@@ -6,7 +6,6 @@ import InteractiveNavEntry from './InteractiveNavEntry';
 import Column from './Column';
 import {CreateNavButtons} from './navUtils.js';
 import {STATUS} from "../Common/defaults";
-import {getNavEntryType} from "../Common/utils";
 
 /**
  * Render a vertical list of all the currently selected entries children for
@@ -19,7 +18,7 @@ const InteractiveNavList = (props) => {
       <InteractiveNavEntry
         name={entry.name}
         status={entry.status}
-        type={getNavEntryType(entry)}
+        type={entry.category}
         caseCountPassed={entry.case_count.passed}
         caseCountFailed={entry.case_count.failed}
         handlePlayClick={(e) => props.handlePlayClick(e, entry)}

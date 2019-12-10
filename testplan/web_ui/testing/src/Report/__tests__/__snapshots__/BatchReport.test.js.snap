@@ -18,6 +18,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     handleNavClick={[Function]}
     report={
       Object {
+        "category": "testplan",
         "entries": Array [
           Object {
             "category": "multitest",
@@ -28,6 +29,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 "description": null,
                 "entries": Array [
                   Object {
+                    "category": "testcase",
                     "description": null,
                     "entries": Array [
                       Object {
@@ -63,6 +65,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     "uid": "736706ef-ba65-475d-96c5-f2855f431028",
                   },
                   Object {
+                    "category": "testcase",
                     "description": null,
                     "entries": Array [
                       Object {
@@ -117,6 +120,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 "description": null,
                 "entries": Array [
                   Object {
+                    "category": "testcase",
                     "description": null,
                     "entries": Array [
                       Object {
@@ -194,6 +198,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 "description": null,
                 "entries": Array [
                   Object {
+                    "category": "testcase",
                     "description": null,
                     "entries": Array [
                       Object {
