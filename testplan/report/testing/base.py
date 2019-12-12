@@ -44,7 +44,10 @@ We will have a report tree like:
     ...
 """
 import os
+import sys
 import copy
+import getpass
+import platform
 import collections
 import inspect
 import hashlib
@@ -327,9 +330,26 @@ class TestReport(BaseReportGroup):
     Only contains TestGroupReports as children.
     """
 
-    def __init__(self, meta=None, attachments=None, *args, **kwargs):
+    def __init__(self,
+                 meta=None,
+                 attachments=None,
+                 information=None,
+                 *args,
+                 **kwargs):
         self.meta = meta or {}
         self._tags_index = None
+        self.information = information or []
+        try:
+            user = getpass.getuser()
+        except (ImportError, OSError):
+            # if the USERNAME env variable is unset on Windows, this fails
+            # with ImportError
+            user = 'unknown'
+        self.information.extend([
+            ('user', user),
+            ('command_line_string', ' '.join(sys.argv)),
+            ('python_version', platform.python_version())
+        ])
 
         # Report attachments: Dict[dst: str, src: str].
         # Maps from destination path (relative from attachments root dir)

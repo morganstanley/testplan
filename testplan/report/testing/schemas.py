@@ -141,6 +141,7 @@ class TestReportSchema(Schema):
     status = fields.String(dump_only=True)
     tags_index = TagField(dump_only=True)
     status_override = fields.String(allow_none=True)
+    information = fields.List(fields.List(fields.String()))
 
     attachments = fields.Dict()
 
