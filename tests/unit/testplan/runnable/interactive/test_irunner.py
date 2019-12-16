@@ -2,11 +2,14 @@
 import mock
 import pytest
 
-from testplan.runnable.interactive import base
+from testplan import defaults
 from testplan import report
-from testplan.common import entity
 from testplan import runners
+from testplan.common import entity
+from testplan.testing import filtering
 from testplan.testing import multitest
+from testplan.testing import ordering
+from testplan.runnable.interactive import base
 
 
 @multitest.testsuite
@@ -47,7 +50,13 @@ def irunner():
     local_runner = runners.LocalRunner()
     test_uids = ["test_1", "test_2", "test_3"]
     test_objs = [
-        multitest.MultiTest(name=uid, suites=[Suite()])
+        multitest.MultiTest(
+            name=uid,
+            suites=[Suite()],
+            test_filter=filtering.Filter(),
+            test_sorter=ordering.NoopSorter(),
+            stdout_style=defaults.STDOUT_STYLE,
+        )
         for uid in test_uids
     ]
 

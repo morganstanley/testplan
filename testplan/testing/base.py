@@ -8,19 +8,19 @@ from lxml import objectify
 from schema import Or, Use, And
 
 from testplan.common.config import ConfigOption, validate_func
+
 from testplan.testing import filtering, ordering, tagging
+
 from testplan.common.entity import (
-    Resource, Runnable, RunnableResult, RunnableConfig, RunnableIRunner,
-)
+    Resource, Runnable, RunnableResult, RunnableConfig, RunnableIRunner)
 from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
 from testplan.common.utils.process import enforce_timeout, kill_process
 from testplan.common.utils.strings import slugify
+
 from testplan.report import (
-    test_styles, TestGroupReport, TestCaseReport, Status,
-)
+    test_styles, TestGroupReport, TestCaseReport, Status)
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-from testplan import defaults
 
 
 TEST_INST_INDENT = 2
@@ -90,10 +90,8 @@ class TestConfig(RunnableConfig):
             ConfigOption('before_stop', default=None): start_stop_signature,
             ConfigOption('after_stop', default=None): start_stop_signature,
             ConfigOption('test_filter'): filtering.BaseFilter,
-            ConfigOption('test_sorter',
-                         default=ordering.NoopSorter()): ordering.BaseSorter,
-            ConfigOption('stdout_style',
-                         default=defaults.STDOUT_STYLE): test_styles.Style,
+            ConfigOption('test_sorter'): ordering.BaseSorter,
+            ConfigOption('stdout_style'): test_styles.Style,
             ConfigOption(
                 'tags',
                 default=None
