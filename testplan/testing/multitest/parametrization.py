@@ -204,6 +204,9 @@ def _generate_func(
         func_name=function.__name__,
         kwargs=kwargs)
 
+    if hasattr(function, '__xfail__'):
+        _generated.__xfail__ = function.__xfail__
+
     # Tags generated via `tag_func` will be assigned as native tags
     _generated.__tags__ = tagging.validate_tag_value(tag_func(kwargs)) \
         if tag_func else {}

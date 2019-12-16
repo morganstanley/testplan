@@ -177,6 +177,7 @@ EXPECTED_INITIAL_GET = [
                 "timer": {},
                 "type": "TestCaseReport",
                 "uid": "test_passes",
+                "status_reason": None,
             },
             {
                 "category": "testcase",
@@ -196,6 +197,7 @@ EXPECTED_INITIAL_GET = [
                 "timer": {},
                 "type": "TestCaseReport",
                 "uid": "test_fails",
+                "status_reason": None,
             },
             {
                 "category": "testcase",
@@ -215,6 +217,7 @@ EXPECTED_INITIAL_GET = [
                 "timer": {},
                 "type": "TestCaseReport",
                 "uid": "test_logs",
+                "status_reason": None,
             },
         ],
     ),
@@ -238,6 +241,7 @@ EXPECTED_INITIAL_GET = [
             "timer": {},
             "type": "TestCaseReport",
             "uid": "test_passes",
+            "status_reason": None,
         },
     ),
 ]

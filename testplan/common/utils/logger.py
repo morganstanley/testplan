@@ -15,7 +15,7 @@ import sys
 import logging
 
 from testplan.common.utils.strings import Color
-
+from testplan.report.testing import Status
 
 # Define our log-level constants. We add some extra levels between INFO and
 # WARNING.
@@ -80,15 +80,26 @@ class TestplanLogger(logging.Logger):
         """Log 'msg % args' with severity 'DRIVER_INFO'"""
         self._custom_log(DRIVER_INFO, msg, *args, **kwargs)
 
-    def log_test_status(self, name, passed, indent=0, level=TEST_INFO):
+    def log_test_status(self, name, status, indent=0, level=TEST_INFO):
         """Shortcut to log a pass/fail status for a test."""
-        pass_label = Color.green('Pass') if passed else Color.red('Fail')
+        if status in Status.PASSED_STATUSES:
+            pass_label = Color.green(status)
+        elif status in Status.FAILED_STATUSES:
+            pass_label = Color.red(status)
+        else:
+            pass_label = Color.yellow(status)
+
         indent_str = indent * ' '
         msg = self._TEST_STATUS_FORMAT
         self._custom_log(
             level,
             msg,
-            {'name': name, 'pass_label': pass_label, 'indent': indent_str})
+            {
+                'name': name,
+                'pass_label': pass_label.title(),
+                'indent': indent_str
+            }
+        )
 
     def _custom_log(self, level, msg, *args, **kwargs):
         """Log 'msg % args' with severity 'level'."""
