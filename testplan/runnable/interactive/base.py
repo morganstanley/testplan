@@ -8,46 +8,48 @@ from __future__ import absolute_import
 from builtins import super
 from builtins import next
 from future import standard_library
+
 standard_library.install_aliases()
 import functools
 import re
 import six
 import numbers
 import threading
+import multiprocessing.dummy
+import itertools
 
-from testplan.common.config import ConfigOption
-from testplan.common.entity import (RunnableIHandler,
-                                    RunnableIHandlerConfig,
-                                    ResourceStatus)
+from testplan.common import entity
+from testplan.common import config
+from testplan.common.utils import networking
 import testplan.report
-from testplan.runnable.interactive.http import TestRunnerHTTPHandler
+from testplan.runnable.interactive import http
 from testplan.runners.base import Executor
 from testplan.runnable.interactive.reloader import ModuleReloader
 from testplan.runnable.interactive.resource_loader import ResourceLoader
 
 
-class TestRunnerIHandlerConfig(RunnableIHandlerConfig):
+class TestRunnerIHandlerConfig(config.Config):
     """
     Configuration object for
     :py:class:`~testplan.runnable.interactive.base.TestRunnerIHandler` runnable
     interactive handler.
     """
+
     @classmethod
     def get_options(cls):
-
-        return {ConfigOption('http_handler',
-                             default=TestRunnerHTTPHandler): object}
+        return {"target": object, "startup_timeout": int, "http_port": int}
 
 
 def _exclude_assertions_filter(obj):
     try:
-        return obj['meta_type'] not in ('entry', 'assertion')
+        return obj["meta_type"] not in ("entry", "assertion")
     except Exception:
         return True
 
 
 def auto_start_stop_environment(method):
     """Auto start environment decorator logic."""
+
     @functools.wraps(method)
     def wrapped(self, test_uid, *args, **kwargs):
         """
@@ -55,85 +57,227 @@ def auto_start_stop_environment(method):
         2. Run the method.
         3. If the environment started during this operation. -> Stop it.
         """
-        runner_uid = kwargs.get('runner_uid')
+        runner_uid = kwargs.get("runner_uid")
         test = self.test(test_uid, runner_uid=runner_uid)
 
         resources_started = False
-        if not test.resources.all_status(ResourceStatus.STARTED):
-            if not test.resources.all_status(ResourceStatus.STOPPED) and \
-                  not test.resources.all_status(ResourceStatus.NONE):
+        if not test.resources.all_status(entity.ResourceStatus.STARTED):
+            if not test.resources.all_status(
+                entity.ResourceStatus.STOPPED
+            ) and not test.resources.all_status(entity.ResourceStatus.NONE):
                 # State requires to reset all.
                 self.stop_test_resources(test_uid, runner_uid=runner_uid)
             self.reset_test_report(test_uid, runner_uid=runner_uid)
             self.start_test_resources(test_uid, runner_uid=runner_uid)
             resources_started = True
 
-        method(self, test_uid, *args, **kwargs)
+        result = method(self, test_uid, *args, **kwargs)
 
         if resources_started is True:
             self.stop_test_resources(test_uid, runner_uid=runner_uid)
 
+        return result
+
     return wrapped
 
 
-class TestRunnerIHandler(RunnableIHandler):
+class TestRunnerIHandler(entity.Entity):
     """
     Runnable intective handler for
     :py:class:`TestRunner <testplan.runnable.TestRunner>` runnable object.
-
-    :param http_handler: Http requests handler to be used.
-    :type http_handler: Subclass of
-      :py:class:`~testplan.runnable.interactive.http.TestRunnerHTTPHandler`.
-
-    Also inherits all
-    :py:class:`~testplan.common.entity.base.RunnableIHandler` options.
     """
-    CONFIG = TestRunnerIHandlerConfig
 
-    def __init__(self, **options):
-        super(TestRunnerIHandler, self).__init__(**options)
+    CONFIG = TestRunnerIHandlerConfig
+    STATUS = entity.RunnableStatus
+
+    def __init__(self, target, startup_timeout=10, http_port=0):
+        super(TestRunnerIHandler, self).__init__(
+            target=target, startup_timeout=startup_timeout, http_port=http_port
+        )
+        self._cfg.parent = self.target.cfg
+
         self.report = self._initial_report()
         self.report_mutex = threading.Lock()
+        self._pool = None
+        self._http_handler = None
 
         self._created_environments = {}
         self._reloader = ModuleReloader(extra_deps=self.cfg.extra_deps)
         self._resource_loader = ResourceLoader()
 
-    def _initial_report(self):
-        """Generate the initial report skeleton."""
-        report = testplan.report.TestReport(
-            name=self.cfg.name, uid=self.cfg.name)
+    def __call__(self, *args, **kwargs):
+        """
+        Shortcut to setup, run the interactive handler until interrupted, then
+        teardown.
+        """
+        self.setup()
 
-        for test_uid, runner_uid in self.all_tests():
-            test = self.test(test_uid, runner_uid=runner_uid)
+        try:
+            self.run()
+        finally:
+            self.teardown()
 
-            for suite in test.suites:
-                suite_name = suite.__class__.__name__
-                suite_report = testplan.report.TestGroupReport(
-                    name=suite_name, uid=suite_name, category="suite")
+    def setup(self):
+        """Set up the task pool and HTTP handler."""
+        self.logger.test_info(
+            "Starting {} for {}".format(self.__class__.__name__, self.target)
+        )
+        self._http_handler = self._setup_http_handler()
+        self._pool = multiprocessing.dummy.Pool(1)
 
-                for testcase in suite.get_testcases():
-                    testcase_name = testcase.__name__
-                    testcase_report = testplan.report.TestCaseReport(
-                        name=testcase_name, uid=testcase_name)
-                    suite_report.append(testcase_report)
+    def run(self):
+        """
+        Setup and run the HTTP handler. Logs connection information to the
+        terminal.
+        """
+        if self._pool is None or self._http_handler is None:
+            raise RuntimeError("setup() not run")
 
-                test.result.report.append(suite_report)
+        self.status.change(entity.RunnableStatus.RUNNING)
+        self._display_connection_info()
+        self._http_handler.run()
+        self.status.change(entity.RunnableStatus.FINISHED)
 
-            report.append(test.result.report)
+    def teardown(self):
+        """Close the task pool."""
+        if self._pool is None or self._http_handler is None:
+            raise RuntimeError("setup() not run")
 
-        return report
+        self._pool.close()
+        self._pool = None
+        self._http_handler = None
 
-    def _execute_operations(self, generator):
-        while self.active and self.target.active:
-            try:
-                operation, args, kwargs = next(generator)
-            except StopIteration:
-                break
-            else:
-                op_id = self.add_operation(operation, *args, **kwargs)
-                res = self._wait_result(op_id)
-                self.logger.debug('Operation result: {}'.format(res))
+    @property
+    def http_handler_info(self):
+        if self._http_handler is None:
+            return None
+        else:
+            return self._http_handler.bind_addr
+
+    @property
+    def target(self):
+        """
+        :return: the target test runner instance
+        """
+        return self._cfg.target
+
+    def abort_dependencies(self):
+        """
+        We abort our test runner instance.
+        """
+        yield self.target
+
+    def aborting(self):
+        """
+        Do nothing when aborting.
+        """
+        pass
+
+    def run_all_tests(self, runner_uid=None, await_results=True):
+        """
+        Run all tests.
+
+        :param runner_uid: UID of a specific test runner, or None to use the
+            default local runner.
+        :param await_results: Whether to block until tests are finished,
+            defaults to True.
+        :return: If await_results is True, returns a list of test results.
+            Otherwise, returns a list of async result objects.
+        """
+        all_tests = self.all_tests(runner_uid)
+
+        return list(itertools.chain.from_iterable(
+            self.run_test(
+                test_uid, runner_uid=runner_uid, await_results=await_results
+            )
+            for test_uid, real_runner_uid in all_tests
+        ))
+
+    @auto_start_stop_environment
+    def run_test(self, test_uid, runner_uid=None, await_results=True):
+        """
+        Run a single Test instance.
+
+        :param test_uid: UID of test to run.
+        :param runner_uid: UID of a specific test runner, or None to use the
+            default local runner.
+        :param await_results: Whether to block until the test is finished,
+            defaults to True.
+        :return: If await_results is True, returns a list of test results.
+            Otherwise, returns a list of async result objects.
+        """
+        test = self.test(test_uid, runner_uid=runner_uid)
+        irunner = test.cfg.interactive_runner(test)
+        test_run_generator = irunner.run()
+
+        return self._run_all_test_operations(test_run_generator, await_results)
+
+    @auto_start_stop_environment
+    def run_test_suite(
+        self, test_uid, suite_uid, runner_uid=None, await_results=True
+    ):
+        """
+        Run a single test suite.
+
+        :param test_uid: UID of the test that owns the suite.
+        :param suite_uid: UID of the suite to run.
+        :param runner_uid: UID of a specific test runner, or None to use the
+            default local runner.
+        :param await_results: Whether to block until the suite is finished,
+            defaults to True.
+        :return: If await_results is True, returns a list of test results.
+            Otherwise, returns a list of async result objects.
+        """
+        test = self.test(test_uid, runner_uid=runner_uid)
+        irunner = test.cfg.interactive_runner(test)
+        test_run_generator = irunner.run(suite=suite_uid)
+
+        return self._run_all_test_operations(test_run_generator, await_results)
+
+    @auto_start_stop_environment
+    def run_test_case(
+        self,
+        test_uid,
+        suite_uid,
+        case_uid,
+        runner_uid=None,
+        await_results=True,
+    ):
+        """
+        Run a single testcase.
+
+        :param test_uid: UID of the test that owns the testcase.
+        :param suite_uid: UID of the suite that owns the testcase.
+        :param case_uid: UID of the testcase to run.
+        :param await_results: Whether to block until the testcase is finished,
+            defaults to True.
+        :return: If await_results is True, returns a list of test results.
+            Otherwise, returns a list of async result objects.
+        """
+        test = self.test(test_uid, runner_uid=runner_uid)
+        irunner = test.cfg.interactive_runner(test)
+        test_run_generator = irunner.run(suite=suite_uid, case=case_uid)
+
+        return self._run_all_test_operations(test_run_generator, await_results)
+
+    def test(self, test_uid, runner_uid=None):
+        """
+        Get a test instance with the specified UID.
+
+        :param test_uid: UID of test to find.
+        :param runner_uid: UID of test runner that owns the test, or None to
+            specify the default local runner.
+        """
+        if runner_uid is None:
+            runner = self.target.resources.local_runner
+        else:
+            runner = getattr(self.target.resources, runner_uid)
+            if not isinstance(runner, Executor):
+                raise RuntimeError(
+                    "Invalid runner executor: {}".format(runner_uid)
+                )
+        item = runner.added_item(test_uid)
+        return item
 
     def get_environment(self, env_uid):
         """Get an environment."""
@@ -150,28 +294,18 @@ class TestRunnerIHandler(RunnableIHandler):
         else:
             return getattr(self.target.resources, runner_uid)
 
-    def test(self, test_uid, runner_uid=None):
-        """Get a test instance from an executor holder."""
-        if runner_uid is None:
-            runner = self.target.resources.local_runner
-        else:
-            runner = getattr(self.target.resources, runner_uid)
-            if not isinstance(runner, Executor):
-                raise RuntimeError(
-                    'Invalid runner executor: {}'.format(runner_uid))
-        item = runner.added_item(test_uid)
-        return item
-
     def test_resource(self, test_uid, resource_uid, runner_uid=None):
         """Get a resource of a Test instance."""
         test = self.test(test_uid, runner_uid=runner_uid)
         return test.resources[resource_uid]
 
-    def test_report(self,
-                    test_uid,
-                    runner_uid=None,
-                    serialized=True,
-                    exclude_assertions=False):
+    def test_report(
+        self,
+        test_uid,
+        runner_uid=None,
+        serialized=True,
+        exclude_assertions=False,
+    ):
         """Get a test report."""
         test = self.test(test_uid, runner_uid=runner_uid)
         report = test.result.report
@@ -181,19 +315,17 @@ class TestRunnerIHandler(RunnableIHandler):
             return report.serialize(strict=False)
         return report
 
-    def test_case_report(self,
-                         test_uid,
-                         suite_uid,
-                         case_uid,
-                         runner_uid=None,
-                         serialized=True):
+    def test_case_report(
+        self, test_uid, suite_uid, case_uid, runner_uid=None, serialized=True
+    ):
         """Get a testcase report."""
         report = self.test_report(
-            test_uid, runner_uid=runner_uid, serialized=False)
+            test_uid, runner_uid=runner_uid, serialized=False
+        )
 
         def is_assertion(obj):
             try:
-                return obj['meta_type'] in ('entry', 'assertion')
+                return obj["meta_type"] in ("entry", "assertion")
             except Exception:
                 return False
 
@@ -201,9 +333,10 @@ class TestRunnerIHandler(RunnableIHandler):
             try:
                 if obj.uid == case_uid:
                     return True
-                return obj.uid == suite_uid or \
-                       (obj.category == 'parametrization' and
-                        any(entry.uid == case_uid for entry in obj.entries))
+                return obj.uid == suite_uid or (
+                    obj.category == "parametrization"
+                    and any(entry.uid == case_uid for entry in obj.entries)
+                )
             except Exception:
                 return False
 
@@ -215,54 +348,56 @@ class TestRunnerIHandler(RunnableIHandler):
     def start_environment(self, env_uid):
         """Start the specified environment."""
         env = self.get_environment(env_uid)
-        op_id = self.add_operation(env.start)
-        self._wait_result(op_id)
+        env.start()
         return {item.uid(): item.status.tag for item in env}
 
     def stop_environment(self, env_uid):
         """Stop the specified environment."""
         env = self.get_environment(env_uid)
-        op_id = self.add_operation(env.stop, reversed=True)
-        self._wait_result(op_id)
+        env.stop(reversed=True)
         return {item.uid(): item.status.tag for item in env}
 
     def start_resource(self, resource):
         """Start a resource."""
-        op_id = self.add_operation(resource.start)
-        self._wait_result(op_id)
-        op_id = self.add_operation(resource._wait_started)
-        self._wait_result(op_id)
+        resource.start()
+        resource._wait_started()
 
     def stop_resource(self, resource):
         """Stop a resource."""
-        op_id = self.add_operation(resource.stop)
-        self._wait_result(op_id)
-        op_id = self.add_operation(resource._wait_stopped)
-        self._wait_result(op_id)
+        resource.stop()
+        resource._wait_stopped()
 
-    def test_resource_operation(self, test_uid, resource_uid, operation,
-                                runner_uid=None, **kwargs):
+    def test_resource_operation(
+        self, test_uid, resource_uid, operation, runner_uid=None, **kwargs
+    ):
         """Perform an operation on a test environment resource."""
         test = self.test(test_uid, runner_uid=runner_uid)
         resource = getattr(test.resources, resource_uid)
-        op_id = self.add_operation(getattr(resource, operation), **kwargs)
-        return self._wait_result(op_id)
+        func = getattr(resource, operation)
+        return func(**kwargs)
 
     def test_resource_start(self, test_uid, resource_uid, runner_uid=None):
         """Start a resource of a Test instance."""
         resource = self.test_resource(
-            test_uid, resource_uid, runner_uid=runner_uid)
+            test_uid, resource_uid, runner_uid=runner_uid
+        )
         self.start_resource(resource)
 
     def test_resource_stop(self, test_uid, resource_uid, runner_uid=None):
         """Stop a resource of a Test instance."""
         resource = self.test_resource(
-            test_uid, resource_uid, runner_uid=runner_uid)
+            test_uid, resource_uid, runner_uid=runner_uid
+        )
         self.stop_resource(resource)
 
-    def get_environment_context(self, env_uid,
-                            resource_uid=None, exclude_callables=True,
-                            exclude_protected=True, exclude_private=True):
+    def get_environment_context(
+        self,
+        env_uid,
+        resource_uid=None,
+        exclude_callables=True,
+        exclude_protected=True,
+        exclude_private=True,
+    ):
         """Get the context information of an environment."""
         env = self.get_environment(env_uid)
         result = {}
@@ -271,11 +406,11 @@ class TestRunnerIHandler(RunnableIHandler):
                 continue
             result[item.uid()] = {}
             for key, value in item.context_input().items():
-                if key == 'context':
+                if key == "context":
                     continue
-                if exclude_private and key.startswith('__'):
+                if exclude_private and key.startswith("__"):
                     continue
-                if exclude_protected and key.startswith('_'):
+                if exclude_protected and key.startswith("_"):
                     # This excludes privates as well
                     continue
                 if exclude_callables and callable(value):
@@ -284,16 +419,19 @@ class TestRunnerIHandler(RunnableIHandler):
                     result[item.uid()][key] = value
         if not result:
             if resource_uid is None:
-                raise ValueError('No result for {}'.format(env_uid))
+                raise ValueError("No result for {}".format(env_uid))
             raise ValueError(
-                'No result for {}{}'.format(env_uid, resource_uid))
+                "No result for {}{}".format(env_uid, resource_uid)
+            )
         return result
 
-    def environment_resource_context(self, env_uid, resource_uid,
-                                     context_item=None, **kwargs):
+    def environment_resource_context(
+        self, env_uid, resource_uid, context_item=None, **kwargs
+    ):
         """Get the context info of an environment resource."""
         result = self.get_environment_context(
-            env_uid=env_uid, resource_uid=resource_uid, **kwargs)[resource_uid]
+            env_uid=env_uid, resource_uid=resource_uid, **kwargs
+        )[resource_uid]
         if context_item:
             return result[context_item]
         return result
@@ -308,16 +446,17 @@ class TestRunnerIHandler(RunnableIHandler):
         resource = self.get_environment_resource(env_uid, resource_uid)
         self.stop_resource(resource)
 
-    def environment_resource_operation(self, env_uid, resource_uid,
-                                       res_op, **kwargs):
+    def environment_resource_operation(
+        self, env_uid, resource_uid, res_op, **kwargs
+    ):
         """Perform an operation on an environment resource."""
-        if hasattr(self, 'environment_resource_{}'.format(res_op)):
-            method = getattr(self, 'environment_resource_{}'.format(res_op))
+        if hasattr(self, "environment_resource_{}".format(res_op)):
+            method = getattr(self, "environment_resource_{}".format(res_op))
             return method(env_uid, resource_uid, **kwargs)
         else:
             resource = self.get_environment_resource(env_uid, resource_uid)
-            op_id = self.add_operation(getattr(resource, res_op), **kwargs)
-            return self._wait_result(op_id)
+            func = getattr(resource, res_op)
+            return func(**kwargs)
 
     def start_test_resources(self, test_uid, runner_uid=None):
         """Start all test resources."""
@@ -337,8 +476,7 @@ class TestRunnerIHandler(RunnableIHandler):
         test_irunner = test.cfg.interactive_runner(test)
         test_dry_run_generator = test_irunner.dry_run()
         operation, args, kwargs = next(test_dry_run_generator)
-        op_id = self.add_operation(operation, *args, **kwargs)
-        _ = self._wait_result(op_id)
+        operation(*args, **kwargs)
 
     def reset_reports(self, runner_uid=None):
         """Reset all tests reports."""
@@ -351,65 +489,6 @@ class TestRunnerIHandler(RunnableIHandler):
             else:
                 self.reset_test_report(test_uid, runner_uid=real_runner_uid)
 
-    @auto_start_stop_environment
-    def run_test_case(self,
-                      test_uid,
-                      suite_uid,
-                      case_uid,
-                      runner_uid=None,
-                      await_results=True):
-        """Run a single test case."""
-        test = self.test(test_uid, runner_uid=runner_uid)
-        irunner = test.cfg.interactive_runner(test)
-
-        test_run_generator = irunner.run(suite=suite_uid, case=case_uid)
-        while self.active and self.target.active:
-            try:
-                operation, args, kwargs = next(test_run_generator)
-            except StopIteration:
-                break
-            else:
-                op_id = self.add_operation(operation, *args, **kwargs)
-                if await_results:
-                    self._wait_result(op_id)
-
-    @auto_start_stop_environment
-    def run_test_suite(
-            self, test_uid, suite_uid, runner_uid=None, await_results=True):
-        """
-        Run a single test suite.
-        """
-        test = self.test(test_uid, runner_uid=runner_uid)
-        irunner = test.cfg.interactive_runner(test)
-
-        test_run_generator = irunner.run(suite=suite_uid)
-        while self.active and self.target.active:
-            try:
-                operation, args, kwargs = next(test_run_generator)
-            except StopIteration:
-                break
-            else:
-                op_id = self.add_operation(operation, *args, **kwargs)
-                if await_results:
-                    self._wait_result(op_id)
-
-    @auto_start_stop_environment
-    def run_test(self, test_uid, runner_uid=None, await_results=True):
-        """Run a Test instance."""
-        test = self.test(test_uid, runner_uid=runner_uid)
-        irunner = test.cfg.interactive_runner(test)
-
-        test_run_generator = irunner.run()
-        while self.active and self.target.active:
-            try:
-                operation, args, kwargs = next(test_run_generator)
-            except StopIteration:
-                break
-            else:
-                op_id = self.add_operation(operation, *args, **kwargs)
-                if await_results:
-                    self._wait_result(op_id)
-
     def all_tests(self, runner_uid=None):
         """Get all added tests."""
         for runner in self.target.resources:
@@ -419,22 +498,17 @@ class TestRunnerIHandler(RunnableIHandler):
                 for test_uid in runner.added_items:
                     yield test_uid, runner.uid()
 
-    def run_all_tests(self, runner_uid=None, await_results=True):
-        """Run all tests."""
-        self.all_tests_operation(
-            'run', runner_uid=runner_uid, await_results=await_results
-        )
-
     def start_tests(self, runner_uid=None):
         """Start all tests environments."""
-        self.all_tests_operation('start', runner_uid=runner_uid)
+        self.all_tests_operation("start", runner_uid=runner_uid)
 
     def stop_tests(self, runner_uid=None):
         """Stop all tests environments."""
-        self.all_tests_operation('stop', runner_uid=runner_uid)
+        self.all_tests_operation("stop", runner_uid=runner_uid)
 
     def all_tests_operation(
-            self, operation, runner_uid=None, await_results=True):
+        self, operation, runner_uid=None, await_results=True
+    ):
         """Perform an operation in all tests."""
         test_found = False
         all_tests = self.all_tests(runner_uid)
@@ -444,54 +518,59 @@ class TestRunnerIHandler(RunnableIHandler):
             except StopIteration:
                 break
             else:
-                self.logger.debug('Operation {} for test: {} from {}'.format(
-                    operation, test_uid, real_runner_uid))
-                if operation == 'run':
+                self.logger.debug(
+                    "Operation {} for test: {} from {}".format(
+                        operation, test_uid, real_runner_uid
+                    )
+                )
+                if operation == "run":
                     self.run_test(
                         test_uid,
                         runner_uid=runner_uid,
-                        await_results=await_results
+                        await_results=await_results,
                     )
-                elif operation == 'start':
-                    self.start_test_resources(
-                        test_uid, runner_uid=runner_uid)
-                elif operation == 'stop':
-                    self.stop_test_resources(
-                        test_uid, runner_uid=runner_uid)
+                elif operation == "start":
+                    self.start_test_resources(test_uid, runner_uid=runner_uid)
+                elif operation == "stop":
+                    self.stop_test_resources(test_uid, runner_uid=runner_uid)
                 else:
-                    raise ValueError('Unknown operation: {}'.format(operation))
+                    raise ValueError("Unknown operation: {}".format(operation))
                 test_found = True
         if test_found is False:
             self.logger.test_info(
-                'No tests found for runner: {}'.format(runner_uid))
+                "No tests found for runner: {}".format(runner_uid)
+            )
 
-    def create_new_environment(self, env_uid, env_type='local_environment'):
+    def create_new_environment(self, env_uid, env_type="local_environment"):
         """Dynamically create an environment maker object."""
         if env_uid in self._created_environments:
             raise RuntimeError(
-                'Environment {} already exists.'.format(env_uid))
+                "Environment {} already exists.".format(env_uid)
+            )
 
-        if env_type == 'local_environment':
+        if env_type == "local_environment":
             from testplan.environment import LocalEnvironment
+
             env_class = LocalEnvironment
         else:
-            raise ValueError('Unknown environment type: {}'.format(env_type))
+            raise ValueError("Unknown environment type: {}".format(env_type))
 
         self._created_environments[env_uid] = env_class(env_uid)
 
-    def add_environment_resource(self, env_uid, target_class_name,
-                                 source_file=None, **kwargs):
+    def add_environment_resource(
+        self, env_uid, target_class_name, source_file=None, **kwargs
+    ):
         """
         Add a resource to existing environment or to environment maker object.
         """
         final_kwargs = {}
-        compiled = re.compile(r'_ctx_(.+)_ctx_(.+)')
+        compiled = re.compile(r"_ctx_(.+)_ctx_(.+)")
         context_params = {}
         for key, value in kwargs.items():
-            if key.startswith('_ctx_'):
+            if key.startswith("_ctx_"):
                 matched = compiled.match(key)
-                if not matched or key.count('_ctx_') != 2:
-                    raise ValueError('Invalid key: {}'.format(key))
+                if not matched or key.count("_ctx_") != 2:
+                    raise ValueError("Invalid key: {}".format(key))
                 target_key, ctx_key = matched.groups()
                 if target_key not in context_params:
                     context_params[target_key] = {}
@@ -500,21 +579,24 @@ class TestRunnerIHandler(RunnableIHandler):
                 final_kwargs[key] = value
         if context_params:
             from testplan.common.utils.context import context
+
             for key in context_params:
                 final_kwargs[key] = context(**context_params[key])
 
         if source_file is None:  # Invoke class loader
             resource = self._resource_loader.load(
-                target_class_name, final_kwargs)
+                target_class_name, final_kwargs
+            )
             try:
                 self.get_environment(env_uid).add(resource)
             except:
                 self._created_environments[env_uid].add_resource(resource)
         else:
-            raise Exception('Add from source file is not yet supported.')
+            raise Exception("Add from source file is not yet supported.")
 
-    def reload_environment_resource(self, env_uid, target_class_name,
-                                    source_file=None, **kwargs):
+    def reload_environment_resource(
+        self, env_uid, target_class_name, source_file=None, **kwargs
+    ):
         # Placeholder for function to delele an existing and registering a new
         # environment resource with probably altered source code.
         # This should access the already added Environment to plan.
@@ -526,7 +608,113 @@ class TestRunnerIHandler(RunnableIHandler):
 
     def reload(self, rebuild_dependencies=False):
         """Reload test suites."""
-        tests = (self.test(test, runner_uid=runner_uid)
-                 for test, runner_uid in self.all_tests())
+        tests = (
+            self.test(test, runner_uid=runner_uid)
+            for test, runner_uid in self.all_tests()
+        )
         self._reloader.reload(tests, rebuild_dependencies)
 
+    def _setup_http_handler(self):
+        """
+        Initialises the interactive HTTP handler.
+
+        :return: Initialised HTTP handler.
+        """
+        self.logger.debug(
+            "Setting up interactive HTTP handler to listen on port %d",
+            self.cfg.http_port,
+        )
+        http_handler = http.TestRunnerHTTPHandler(
+            ihandler=self, port=self.cfg.http_port
+        )
+        http_handler.cfg.parent = self.cfg
+        http_handler.setup()
+
+        return http_handler
+
+    def _display_connection_info(self):
+        """
+        Log information for how to connect to the interactive runner.
+        Currently only the API is implemented so we log how to access the
+        API schema. In future we will log how to access the UI page.
+        """
+        host, port = self.http_handler_info
+
+        self.logger.warning(
+            "Interactive web viewer is not yet implemented. Interactive mode "
+            "currently only allows control of a Testplan via its HTTP API."
+        )
+
+        self.logger.test_info(
+            "Interactive Testplan API is running. View the API schema:\n%s",
+            networking.format_access_urls(host, port, "/api/v1/interactive/"),
+        )
+
+    def _initial_report(self):
+        """Generate the initial report skeleton."""
+        report = testplan.report.TestReport(
+            name=self.cfg.name, uid=self.cfg.name
+        )
+
+        for test_uid, runner_uid in self.all_tests():
+            test = self.test(test_uid, runner_uid=runner_uid)
+
+            for suite in test.suites:
+                suite_name = suite.__class__.__name__
+                suite_report = testplan.report.TestGroupReport(
+                    name=suite_name, uid=suite_name, category="suite"
+                )
+
+                for testcase in suite.get_testcases():
+                    testcase_name = testcase.__name__
+                    testcase_report = testplan.report.TestCaseReport(
+                        name=testcase_name, uid=testcase_name
+                    )
+                    suite_report.append(testcase_report)
+
+                test.result.report.append(suite_report)
+
+            report.append(test.result.report)
+
+        return report
+
+    def _run_all_test_operations(self, test_run_generator, await_results):
+        """
+        Run all test operations, either synchronously or asynchronously.
+        """
+        if await_results:
+            return [
+                self._run_test_operation(operation, args, kwargs)
+                for operation, args, kwargs in test_run_generator
+            ]
+        else:
+            return [
+                self._pool.apply_async(
+                    self._run_test_operation, (operation, args, kwargs)
+                )
+                for operation, args, kwargs in test_run_generator
+            ]
+
+    def _run_test_operation(self, test_operation, args, kwargs):
+        """Run a test operation and update our report tree with the results."""
+        result = test_operation(*args, **kwargs)
+
+        if isinstance(result, testplan.report.TestGroupReport):
+            self.logger.debug("Merge test result: %s", result)
+            self.report[result.uid].merge(result)
+        else:
+            self.logger.debug(
+                "Discarding result from test operation: %s", result
+            )
+
+        return result
+
+    def _execute_operations(self, generator):
+        while self.active and self.target.active:
+            try:
+                operation, args, kwargs = next(generator)
+            except StopIteration:
+                break
+            else:
+                res = operation(*args, **kwargs)
+                self.logger.debug("Operation result: {}".format(res))

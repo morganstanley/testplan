@@ -57,7 +57,7 @@ def plan():
     )
     plan.run()
     timing.wait(
-        lambda: plan.interactive.http_handler_info[0] is not None,
+        lambda: plan.interactive.http_handler_info is not None,
         300,
         raise_on_timeout=True,
     )

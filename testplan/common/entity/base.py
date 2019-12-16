@@ -576,22 +576,6 @@ class RunnableStatus(EntityStatus):
         return transitions
 
 
-class RunnableIHandlerConfig(Config):
-    """
-    Configuration object for
-    :py:class:`RunnableIHandler <testplan.common.entity.base.RunnableIHandler>`
-    object.
-    """
-    @classmethod
-    def get_options(cls):
-        return {'target': object,
-                ConfigOption('http_handler', default=None): object,
-                ConfigOption('http_handler_startup_timeout', default=10): int,
-                ConfigOption('http_port', default=0): int,
-                ConfigOption('max_operations', default=1000):
-                    And(Use(int), lambda n: n > 0)}
-
-
 class RunnableIRunner(object):
     EMPTY_DICT = dict()
     EMPTY_TUPLE = tuple()
@@ -613,173 +597,6 @@ class RunnableIRunner(object):
         yield self._runnable.run, tuple(), dict()
 
 
-class RunnableIHandler(Entity):
-    """
-    Interactive base handler for a runnable object.
-
-    :param target: Target runnable object.
-    :type target: Subclass of
-      :py:class:`~testplan.common.entity.base.Runnable`.
-    :param http_handler: Optional HTTP requests handler.
-    :type http_handler: ``Object``.
-    :param http_handler_startup_timeout: Timeout value on starting the handler.
-    :type http_handler_startup_timeout: ``int``
-    :param http_port: Port to bind HTTP request handler to. Defaults to 0 to
-        use an ephemeral port.
-    :type http_port: ``int``
-    :param max_operations: Max simultaneous operations.
-    :type max_operations: ``int`` greater than 0.
-
-    Also inherits all
-    :py:class:`~testplan.common.entity.base.Entity` options.
-    """
-    CONFIG = RunnableIHandlerConfig
-    STATUS = RunnableStatus
-
-    def __init__(self, **options):
-        super(RunnableIHandler, self).__init__(**options)
-        self._cfg.parent = self.target.cfg
-        self._queue = []  # Stores uids
-        self._operations = {}  # Ops uid - > (method, args, kwargs)
-        self._results = {}  # Ops uid -> result
-        self._next_uid = 0
-        self._http_handler = self._setup_http_handler()
-
-    def _setup_http_handler(self):
-        if self.cfg.http_handler is not None:
-            self.logger.debug(
-                'Setting up interactive HTTP handler to listen on port %d',
-                self.cfg.http_port)
-            http_handler = self.cfg.http_handler(
-                ihandler=self, port=self.cfg.http_port)
-            http_handler.cfg.parent = self.cfg
-        else:
-            http_handler = None
-
-        return http_handler
-
-    @property
-    def http_handler_info(self):
-        """Connection information for http handler."""
-        return self._http_handler.host, self._http_handler.port
-
-    @property
-    def target(self):
-        return self._cfg.target
-
-    def abort_dependencies(self):
-        yield self.target
-
-    def add_operation(self, operation, *args, **kwargs):
-        if len(list(self._operations.keys())) >= self.cfg.max_operations:
-            raise RuntimeError('Max operations ({}) reached.'.format(
-                self.cfg.max_operations))
-        uid = self._next_uid
-        self._next_uid = (self._next_uid + 1) % self.cfg.max_operations
-        self._operations[uid] = (operation, args, kwargs)
-        self._queue.append(uid)
-        return uid
-
-    def _get_result(self, uid):
-        result = self._results[uid]
-        del self._results[uid]
-        return result
-
-    def _wait_result(self, uid):
-        while self.active and self.target.active:
-            try:
-                result = self._get_result(uid)
-            except KeyError:
-                time.sleep(self.cfg.active_loop_sleep)
-            else:
-                return result
-
-    def _start_http_handler(self):
-        thread = threading.Thread(target=self._http_handler.run)
-        thread.daemon = True
-        thread.start()
-        wait(lambda: self._http_handler.port is not None,
-             self.cfg.http_handler_startup_timeout,
-             raise_on_timeout=True )
-        self._display_connection_info()
-
-    def _display_connection_info(self):
-        """
-        Log information for how to connect to the interactive runner.
-        Currently only the API is implemented so we log how to access the
-        API schema. In future we will log how to access the UI page.
-        """
-        host, port = self._http_handler.host, self._http_handler.port
-
-        self.logger.warning(
-            'Interactive web viewer is not yet implemented. Interactive mode '
-            'currently only allows control of a Testplan via its HTTP API.'
-        )
-
-        self.logger.test_info(
-            'Interactive Testplan API is running. View the API schema:\n%s',
-            networking.format_access_urls(host, port, "/api/v1/interactive/"),
-        )
-
-    def __call__(self, *args, **kwargs):
-        self.status.change(RunnableStatus.RUNNING)
-        self.logger.test_info('Starting {} for {}'.format(
-            self.__class__.__name__, self.target))
-        if self._http_handler is not None:
-            self._start_http_handler()
-
-        self._run_loop()
-
-        self.status.change(RunnableStatus.FINISHED)
-
-    def _run_loop(self):
-        """Main work loop. Process incoming operations while we are RUNNING."""
-        while self.active and self.target.active:
-            if self.status.tag == RunnableStatus.RUNNING:
-                try:
-                    uid = self._queue.pop(0)
-                    operation, args, kwargs = self._operations[uid]
-                except IndexError:
-                    time.sleep(self.cfg.active_loop_sleep)
-                else:
-                    try:
-                        try:
-                            owner = '{}.{}, '.format(
-                                self, operation.im_class.__name__)
-                        except AttributeError:
-                            owner = ''
-                        self.logger.debug(
-                            'Performing operation:{}{}'.format(
-                                owner, operation.__name__))
-                        start_time = time.time()
-                        result = operation(*args, **kwargs)
-                        self._results[uid] = result
-                        self.logger.debug(
-                            'Finished operation {}{} - {}s'.format(
-                                owner, operation.__name__,
-                                round(time.time() - start_time, 5)))
-                    except Exception as exc:
-                        self.logger.test_info(
-                            format_trace(inspect.trace(), exc))
-                        self._results[uid] = exc
-                    finally:
-                        del self._operations[uid]
-
-    def pausing(self):
-        """Set pausing status."""
-        self.status.change(RunnableStatus.PAUSED)
-
-    def resuming(self):
-        """Set resuming status."""
-        self.status.change(RunnableStatus.RUNNING)
-
-    def aborting(self):
-        """
-        Aborting logic for self.
-        """
-        pass
-
-
 class RunnableConfig(EntityConfig):
     """
     Configuration object for
@@ -796,8 +613,6 @@ class RunnableConfig(EntityConfig):
             ConfigOption(
                 'interactive_block',
                 default=hasattr(sys.modules['__main__'], '__file__')): bool,
-            ConfigOption('interactive_handler', default=RunnableIHandler):
-                object,
             ConfigOption('interactive_runner', default=RunnableIRunner):
                 object
         }
@@ -833,9 +648,6 @@ class Runnable(Entity):
     :type interactive: ``bool``
     :param interactive_no_block: Do not block on run() on interactive mode.
     :type interactive_no_block: ``bool``
-    :param interactive_handler: Handler of interactive mode of the object.
-    :type interactive_handler: Subclass of
-        :py:class:`~testplan.common.entity.base.RunnableIHandler`
     :param interactive_runner: Interactive runner set for the runnable.
     :type interactive_runner: Subclass of
         :py:class:`~testplan.common.entity.base.RunnableIRunner`
