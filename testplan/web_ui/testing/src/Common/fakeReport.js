@@ -65,6 +65,7 @@ const TESTPLAN_REPORT = {
           "entries": [
             {
               "name": "test_equality_passing",
+              "category": "testcase",
               "status": "passed",
               "status_override": null,
               "description": null,
@@ -98,6 +99,7 @@ const TESTPLAN_REPORT = {
             },
             {
               "name": "test_equality_passing2",
+              "category": "testcase",
               "status": "failed",
               "tags": {},
               "status_override": null,
@@ -150,6 +152,7 @@ const TESTPLAN_REPORT = {
           "entries": [
             {
               "name": "test_equality_passing",
+              "category": "testcase",
               "status": "passed",
               "tags": {},
               "status_override": null,
@@ -219,6 +222,7 @@ const TESTPLAN_REPORT = {
           "entries": [
             {
               "name": "test_equality_passing",
+              "category": "testcase",
               "status": "passed",
               "tags": {},
               "status_override": null,
@@ -302,8 +306,9 @@ var fakeReportAssertions = {
                 "status_override": null,
                 "part": null,
                 "entries": [{
-                        "status": "failed",
+                        "status": "xfail",
                         "name": "test_basic_assertions",
+                        "category": "testcase",
                         "tags": {},
                         "description": null,
                         "timer": {
@@ -650,6 +655,7 @@ var fakeReportAssertions = {
                     }, {
                         "status": "error",
                         "name": "test_raised_exceptions",
+                        "category": "testcase",
                         "tags": {},
                         "description": null,
                         "timer": {
@@ -774,6 +780,7 @@ var fakeReportAssertions = {
                     }, {
                         "status": "failed",
                         "name": "test_assertion_group",
+                        "category": "testcase",
                         "tags": {},
                         "description": null,
                         "timer": {
@@ -866,6 +873,7 @@ var fakeReportAssertions = {
                     }, {
                         "status": "failed",
                         "name": "test_regex_namespace",
+                        "category": "testcase",
                         "tags": {},
                         "description": null,
                         "timer": {
@@ -1020,6 +1028,7 @@ var fakeReportAssertions = {
                     }, {
                         "status": "failed",
                         "name": "test_table_namespace",
+                        "category": "testcase",
                         "tags": {},
                         "description": null,
                         "timer": {
@@ -1739,6 +1748,7 @@ var fakeReportAssertions = {
                     }, {
                         "status": "failed",
                         "name": "test_dict_namespace",
+                        "category": "testcase",
                         "tags": {},
                         "description": null,
                         "timer": {
@@ -1821,6 +1831,7 @@ var fakeReportAssertions = {
                     }, {
                         "status": "failed",
                         "name": "test_fix_namespace",
+                        "category": "testcase",
                         "tags": {},
                         "description": null,
                         "timer": {
@@ -1876,6 +1887,7 @@ var fakeReportAssertions = {
                     {
                         "status": "passed",
                         "name": "test_xml_namespace",
+                        "category": "testcase",
                         "tags": {},
                         "description": null,
                         "timer": {
@@ -1942,6 +1954,7 @@ var fakeReportAssertions = {
                     {
                         "status": "passed",
                         "name": "test_summary_assertions",
+                        "category": "testcase",
                         "tags": {},
                         "description": null,
                         "timer": {
@@ -3253,6 +3266,7 @@ var fakeReportAssertions = {
                                     "status": "passed",
                                     "uid": "94c36a36-ccb5-4ed1-8d3b-54209ea7b534",
                                     "name": "test_graph",
+                                    "category": "testcase",
                                     "status_override": null,
                                     "timer": {
                                         "run": {
@@ -3585,6 +3599,7 @@ var fakeReportAssertions = {
                                     "status": "passed",
                                     "uid": "1878cc5b-71d7-4b04-9f4c-b16f55f547ac",
                                     "name": "test_multiseries_graph",
+                                    "category": "testcase",
                                     "status_override": null,
                                     "timer": {
                                         "run": {
@@ -3874,6 +3889,7 @@ var fakeReportAssertions = {
                      {
                         "status": "passed",
                         "name": "test_attachments",
+                        "category": "testcase",
                         "type": "TestCaseReport",
                         "tags": {},
                         "description": null,

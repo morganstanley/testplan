@@ -16,14 +16,14 @@ class StrictXfailedSuite(object):
     @testcase(
         parameters=tuple(range(10))
     )
-    @xfail('Should be fail')
+    @xfail('Should be fail', strict=True)
     def test_fail(self, env, result, val):
         result.true(val > 100, description='Check if value is true')
 
     @testcase(
         parameters=tuple(range(10))
     )
-    @xfail('Should be pass')
+    @xfail('Should be pass', strict=True)
     def test_pass(self, env, result, val):
         result.true(val < 100, description='Check if value is true')
 

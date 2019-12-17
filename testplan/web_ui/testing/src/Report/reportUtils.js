@@ -102,8 +102,8 @@ const propagateIndicesRecur = (entries, parentIndices) => {
       caseCount.failed += descendantsIndices.case_count.failed;
     } else {
       // Count testcase's status.
-      caseCount.passed += entry.status === 'passed';
-      caseCount.failed += entry.status === 'failed';
+      caseCount.passed += ['passed', 'xpass'].includes(entry.status);
+      caseCount.failed += ['failed', 'xfail'].includes(entry.status);
     }
 
     // Set entry's indices.
@@ -220,7 +220,7 @@ const GetCenterPane = (
   } else {
     return (
       <Message
-        message='Please select a testcase.'
+        message='Please select an entry.'
         left={state.navWidth}
       />
     );

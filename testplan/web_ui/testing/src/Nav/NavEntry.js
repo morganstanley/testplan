@@ -6,6 +6,7 @@ import {StyleSheet, css} from "aphrodite";
 import {
   RED,
   GREEN,
+  ORANGE,
   CATEGORY_ICONS,
   ENTRY_TYPES,
   STATUS
@@ -33,7 +34,7 @@ const NavEntry = (props) => {
           <span className={css(styles.failed)}>{props.caseCountFailed}</span>
         </i>
         <Badge
-          className={css(styles.entryIcon, styles[badgeStyle])}
+          className={css(styles.entryIcon, styles[badgeStyle], styles.badge)}
           title={props.type}
           pill>
           {CATEGORY_ICONS[props.type]}
@@ -70,17 +71,23 @@ const styles = StyleSheet.create({
     fontSize: '0.6em',
     margin: '0em 0.5em 0em 0.5em',
   },
+  badge: {
+    opacity: 0.5,
+  },
   passedBadge: {
     backgroundColor: GREEN,
-    opacity: 0.5,
   },
   failedBadge: {
     backgroundColor: RED,
-    opacity: 0.5,
   },
   errorBadge: {
     backgroundColor: RED,
-    opacity: 0.5,
+  },
+  xfailBadge: {
+    backgroundColor: ORANGE,
+  },
+  xpassBadge: {
+    backgroundColor: ORANGE,
   },
   passed: {
     color: GREEN,
@@ -90,6 +97,12 @@ const styles = StyleSheet.create({
   },
   error: {
     color: RED,
+  },
+  xfail: {
+    color: ORANGE,
+  },
+  xpass: {
+    color: ORANGE,
   },
 });
 

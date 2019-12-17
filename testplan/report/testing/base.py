@@ -83,6 +83,8 @@ class Status(object):
         FAILED,
         INCOMPLETE,
         PASSED,
+        XPASS,
+        XFAIL,
         SKIPPED,
     )
 
@@ -99,7 +101,7 @@ class Status(object):
         None: None  # `status_override` can be None in merging report,
     }
 
-    PASSED_STATUSES  = (
+    PASSED_STATUSES = (
         PASSED, SKIPPED, XFAIL
     )
 
