@@ -21,7 +21,7 @@ import marshmallow.exceptions
 
 import testplan
 from testplan.common.config import ConfigOption
-from testplan.common.entity import Entity, EntityConfig, RunnableIHandler
+from testplan.common import entity
 from testplan import defaults
 from testplan import report
 
@@ -314,7 +314,7 @@ def generate_interactive_api(ihandler):
     return app, api
 
 
-class TestRunnerHTTPHandlerConfig(EntityConfig):
+class TestRunnerHTTPHandlerConfig(entity.EntityConfig):
     """
     Configuration object for
     :py:class:`~testplan.runnable.interactive.http.TestRunnerHTTPHandler`
@@ -324,7 +324,7 @@ class TestRunnerHTTPHandlerConfig(EntityConfig):
     @classmethod
     def get_options(cls):
         return {
-            "ihandler": RunnableIHandler,
+            "ihandler": entity.Entity,
             ConfigOption("host", default=defaults.WEB_SERVER_HOSTNAME): str,
             ConfigOption("port", default=defaults.WEB_SERVER_PORT): int,
             ConfigOption(
@@ -333,13 +333,12 @@ class TestRunnerHTTPHandlerConfig(EntityConfig):
         }
 
 
-class TestRunnerHTTPHandler(Entity):
+class TestRunnerHTTPHandler(entity.Entity):
     """
     Server that invokes an interactive handler to perform dynamic operations.
 
     :param ihandler: Runnable interactive handler instance.
-    :type ihandler: Subclass of :py:class:
-        `RunnableIHandler <testplan.common.entity.base.RunnableIHandler>`
+    :type ihandler: ``Entity ``
     :param host: Host to bind to.
     :type host: ``str``
     :param port: Port to bind to.
@@ -354,35 +353,39 @@ class TestRunnerHTTPHandler(Entity):
     def __init__(self, **options):
         super(TestRunnerHTTPHandler, self).__init__(**options)
         self._server = None
-        self.pool = None
-        self.tasks = {}
 
     @property
-    def host(self):
+    def bind_addr(self):
         """
-        :return: the hostname the server is listening on, or None if the server
-            is not running.
+        :return: Bound host and port of HTTP server, or None if not bound.
+        :rtype: ``Optional[Tuple[str, int]]``
         """
-        if self._server is None or not self._server.ready:
+        if self._server is None:
             return None
-        return self._server.bind_addr[0]
+        else:
+            return self._server.bind_addr
 
-    @property
-    def port(self):
+    def setup(self):
         """
-        :return: the port the server is listening on, or None if the server is
-            not running. Note that when ephemeral ports (port 0) is requested,
-            this property will return the actual port that is given.
+        Generate the flask App and prepare the HTTP server.
+
+        :return: server host and port tuple
+        :rtype: ``Tuple[str, int]``
         """
-        if self._server is None or not self._server.ready:
-            return None
-        return self._server.bind_addr[1]
+        app, _ = generate_interactive_api(self.cfg.ihandler)
+        self._server = wsgi.Server((self.cfg.host, self.cfg.port), app)
+        self._server.prepare()
+
+        return self._server.bind_addr
 
     def run(self):
         """
-        Runs the threader HTTP handler for interactive mode.
+        Start serving requests. Will block until the server stops running.
         """
-        app, _ = generate_interactive_api(self.cfg.ihandler)
+        if self._server is None:
+            raise RuntimeError("Run setup() before run()")
+        try:
+            self._server.serve()
+        finally:
+            self._server = None
 
-        self._server = wsgi.Server((self.cfg.host, self.cfg.port), app)
-        self._server.start()

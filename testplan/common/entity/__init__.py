@@ -13,7 +13,5 @@ from .base import (Entity,
                    RunnableConfig,
                    RunnableResult,
                    RunnableIRunner,
-                   RunnableIHandler,
-                   RunnableIHandlerConfig,
                    FailedAction,
                    DEFAULT_RUNNABLE_ABORT_SIGNALS)

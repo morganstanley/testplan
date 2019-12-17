@@ -62,8 +62,11 @@ class MultitestIRunner(TestIRunner):
         """
         Generator for dry_run execution.
         """
-        yield (self._runnable.dry_run,
-               RunnableIRunner.EMPTY_TUPLE, dict(status=Status.INCOMPLETE))
+        yield (
+            self._runnable.dry_run,
+            tuple(),
+            {"status": Status.INCOMPLETE},
+        )
 
     @TestIRunner.set_run_status
     def run(self, suite='*', case='*'):
@@ -73,9 +76,11 @@ class MultitestIRunner(TestIRunner):
         pattern = Pattern('*:{}:{}'.format(suite, case))
         for entry in self._runnable.get_test_context(test_filter=pattern):
             for case in entry[1]:
-                yield (self._runnable.run_tests,
-                       RunnableIRunner.EMPTY_TUPLE,
-                       dict(patch_report=True, ctx=[(entry[0], [case])]))
+                yield (
+                    self._runnable.run_tests,
+                    tuple(),
+                    {"ctx": [(entry[0], [case])]},
+                )
 
 
 class MultiTestConfig(TestConfig):
