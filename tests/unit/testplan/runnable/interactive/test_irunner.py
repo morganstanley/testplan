@@ -10,6 +10,7 @@ from testplan.testing import filtering
 from testplan.testing import multitest
 from testplan.testing import ordering
 from testplan.runnable.interactive import base
+from testplan.testing.multitest import driver
 
 
 @multitest.testsuite
@@ -56,6 +57,7 @@ def irunner():
             test_filter=filtering.Filter(),
             test_sorter=ordering.NoopSorter(),
             stdout_style=defaults.STDOUT_STYLE,
+            environment=[driver.Driver(name="mock_driver")],
         )
         for uid in test_uids
     ]
@@ -152,7 +154,7 @@ def test_run_suite(irunner, sync):
 def test_run_testcase(irunner, sync):
     """Test running a single testcase."""
     results = irunner.run_test_case(
-        "test_1", "Suite", "case", await_results=sync,
+        "test_1", "Suite", "case", await_results=sync
     )
     assert len(results) == 1
 
@@ -175,6 +177,42 @@ def test_run_testcase(irunner, sync):
             assert test_report.status == report.Status.READY
 
 
+@pytest.mark.parametrize("sync", [True, False])
+def test_environment_control(irunner, sync):
+    """Test starting and stopping test environments."""
+    test = irunner.test("test_1")
+    assert irunner.report["test_1"].env_status == entity.ResourceStatus.STOPPED
+
+    # Start the environment and check it has the expected status.
+    start_results = irunner.start_test_resources("test_1", await_results=sync)
+
+    # If the environment was started asynchronously, wait for all of the
+    # operations to copmlete before continuing.
+    if not sync:
+        for async_res in start_results:
+            async_res.get()
+
+    assert test.resources.all_status(entity.ResourceStatus.STARTED)
+    assert (
+        test.resources.mock_driver.status.tag == entity.ResourceStatus.STARTED
+    )
+    assert irunner.report["test_1"].env_status == entity.ResourceStatus.STARTED
+
+    # Stop the environment and check it has the expected status.
+    stop_results = irunner.stop_test_resources("test_1", await_results=sync)
+
+    # Again, await the async operation results if testing async.
+    if not sync:
+        for async_res in stop_results:
+            async_res.get()
+
+    assert test.resources.all_status(entity.ResourceStatus.STOPPED)
+    assert (
+        test.resources.mock_driver.status.tag == entity.ResourceStatus.STOPPED
+    )
+    assert irunner.report["test_1"].env_status == entity.ResourceStatus.STOPPED
+
+
 def _check_initial_report(initial_report):
     """
     Check that the initial report tree is generated correctly.
@@ -191,4 +229,3 @@ def _check_initial_report(initial_report):
             # Each suite contains one testcase.
             assert suite_report.status == report.Status.READY
             assert len(suite_report.entries) == 1
-

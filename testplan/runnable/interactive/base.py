@@ -186,12 +186,16 @@ class TestRunnerIHandler(entity.Entity):
         """
         all_tests = self.all_tests(runner_uid)
 
-        return list(itertools.chain.from_iterable(
-            self.run_test(
-                test_uid, runner_uid=runner_uid, await_results=await_results
+        return list(
+            itertools.chain.from_iterable(
+                self.run_test(
+                    test_uid,
+                    runner_uid=runner_uid,
+                    await_results=await_results,
+                )
+                for test_uid, real_runner_uid in all_tests
             )
-            for test_uid, real_runner_uid in all_tests
-        ))
+        )
 
     @auto_start_stop_environment
     def run_test(self, test_uid, runner_uid=None, await_results=True):
@@ -278,6 +282,78 @@ class TestRunnerIHandler(entity.Entity):
                 )
         item = runner.added_item(test_uid)
         return item
+
+    def start_test_resources(
+        self, test_uid, runner_uid=None, await_results=True
+    ):
+        """
+        Start all test resources.
+
+        :param test_uid: UID of test to start resources for
+        :param runner_uid: UID of test runner that owns the test, or None to
+            specify the default local runner.
+        :param await_results: Whether to block until the test resources have
+            all started, defaults to True.
+        :return: If await_results is True, returns a list of the return values
+            of each resource start operation, otherwise returns a list of async
+            result objects.
+        """
+        test = self.test(test_uid, runner_uid=runner_uid)
+        test_irunner = test.cfg.interactive_runner(test)
+
+        results = self._run_all_test_operations(
+            test_irunner.start_resources(), await_results
+        )
+
+        if await_results:
+            results.append(
+                self._set_env_status(test_uid, entity.ResourceStatus.STARTED)
+            )
+        else:
+            results.append(
+                self._pool.apply_async(
+                    self._set_env_status,
+                    (test_uid, entity.ResourceStatus.STARTED),
+                )
+            )
+
+        return results
+
+    def stop_test_resources(
+        self, test_uid, runner_uid=None, await_results=True
+    ):
+        """
+        Stop all test resources.
+
+        :param test_uid: UID of test to stop resources for
+        :param runner_uid: UID of test runner that owns the test, or None to
+            specify the default local runner.
+        :param await_results: Whether to block until the test resources have
+            all stopped, defaults to True.
+        :return: If await_results is True, returns a list of the return values
+            of each resource stop operation, otherwise returns a list of async
+            result objects.
+        """
+        test = self.test(test_uid, runner_uid=runner_uid)
+        test_irunner = test.cfg.interactive_runner(test)
+
+        results = self._run_all_test_operations(
+            test_irunner.stop_resources(), await_results
+        )
+
+        if await_results:
+            results.append(
+                self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
+            )
+        else:
+            results.append(
+                self._pool.apply_async(
+                    self._set_env_status,
+                    (test_uid, entity.ResourceStatus.STOPPED),
+                )
+            )
+
+        return results
 
     def get_environment(self, env_uid):
         """Get an environment."""
@@ -457,18 +533,6 @@ class TestRunnerIHandler(entity.Entity):
             resource = self.get_environment_resource(env_uid, resource_uid)
             func = getattr(resource, res_op)
             return func(**kwargs)
-
-    def start_test_resources(self, test_uid, runner_uid=None):
-        """Start all test resources."""
-        test = self.test(test_uid, runner_uid=runner_uid)
-        test_irunner = test.cfg.interactive_runner(test)
-        self._execute_operations(test_irunner.start_resources())
-
-    def stop_test_resources(self, test_uid, runner_uid=None):
-        """Stop all test resources."""
-        test = self.test(test_uid, runner_uid=runner_uid)
-        test_irunner = test.cfg.interactive_runner(test)
-        self._execute_operations(test_irunner.stop_resources())
 
     def reset_test_report(self, test_uid, runner_uid=None):
         """Reset a Test instance report."""
@@ -701,20 +765,19 @@ class TestRunnerIHandler(entity.Entity):
 
         if isinstance(result, testplan.report.TestGroupReport):
             self.logger.debug("Merge test result: %s", result)
-            self.report[result.uid].merge(result)
-        else:
+            with self.report_mutex:
+                self.report[result.uid].merge(result)
+        elif result is not None:
             self.logger.debug(
                 "Discarding result from test operation: %s", result
             )
 
         return result
 
-    def _execute_operations(self, generator):
-        while self.active and self.target.active:
-            try:
-                operation, args, kwargs = next(generator)
-            except StopIteration:
-                break
-            else:
-                res = operation(*args, **kwargs)
-                self.logger.debug("Operation result: {}".format(res))
+    def _set_env_status(self, test_uid, new_status):
+        """Set the environment status for a given test."""
+        with self.report_mutex:
+            self.logger.debug(
+                "Setting env status of %s to %s", test_uid, new_status
+            )
+            self.report[test_uid].env_status = new_status

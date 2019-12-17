@@ -12,7 +12,13 @@ from testplan.common.config import ConfigOption, validate_func
 from testplan.testing import filtering, ordering, tagging
 
 from testplan.common.entity import (
-    Resource, Runnable, RunnableResult, RunnableConfig, RunnableIRunner)
+    Resource,
+    ResourceStatus,
+    Runnable,
+    RunnableResult,
+    RunnableConfig,
+    RunnableIRunner,
+)
 from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
 from testplan.common.utils.process import enforce_timeout, kill_process
@@ -40,16 +46,28 @@ class TestIRunner(RunnableIRunner):
         Generator to start Test resources.
         """
         if self._runnable.cfg.before_start:
-            yield (self._runnable.cfg.before_start,
-                   (self._runnable.resources,), RunnableIRunner.EMPTY_DICT)
+            yield (
+                self._runnable.cfg.before_start,
+                (self._runnable.resources,),
+                dict(),
+            )
         for resource in self._runnable.resources:
-            yield (resource.start,
-                   RunnableIRunner.EMPTY_TUPLE, RunnableIRunner.EMPTY_DICT)
-            yield (resource._wait_started,
-                   RunnableIRunner.EMPTY_TUPLE, RunnableIRunner.EMPTY_DICT)
+            yield (
+                resource.start,
+                tuple(),
+                dict(),
+            )
+            yield (
+                resource._wait_started,
+                tuple(),
+                dict(),
+            )
         if self._runnable.cfg.after_start:
-            yield (self._runnable.cfg.after_start,
-                   (self._runnable.resources,), RunnableIRunner.EMPTY_DICT)
+            yield (
+                self._runnable.cfg.after_start,
+                (self._runnable.resources,),
+                dict(),
+            )
 
     @RunnableIRunner.set_run_status
     def stop_resources(self):

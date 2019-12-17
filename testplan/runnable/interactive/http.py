@@ -146,12 +146,35 @@ def generate_interactive_api(ihandler):
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
+                ihandler.report[test_uid] = new_test
+
+                # Trigger a side-effect if either the report or environment
+                # statuses have been updated.
                 if should_run(current_test.status):
                     new_test.status = report.Status.RUNNING
                     ihandler.run_test(test_uid, await_results=False)
+                elif should_start_env(current_test, new_test):
+                    ihandler.start_test_resources(
+                        test_uid, await_results=False
+                    )
+                elif should_stop_env(current_test, new_test):
+                    ihandler.stop_test_resources(test_uid, await_results=False)
 
-                ihandler.report[test_uid] = new_test
                 return ihandler.report[test_uid].shallow_serialize()
+
+    def should_start_env(current_test, new_test):
+        """Check if we should start a test environment after a PUT update."""
+        return (
+            current_test.env_status == entity.ResourceStatus.STOPPED
+            and new_test.env_status == entity.ResourceStatus.STARTING
+        )
+
+    def should_stop_env(current_test, new_test):
+        """Check if we should stop a test environment after a PUT update."""
+        return (
+            current_test.env_status == entity.ResourceStatus.STARTED
+            and new_test.env_status == entity.ResourceStatus.STOPPING
+        )
 
     @api.route("/report/tests/<string:test_uid>/suites")
     class AllSuites(flask_restplus.Resource):
@@ -388,4 +411,3 @@ class TestRunnerHTTPHandler(entity.Entity):
             self._server.serve()
         finally:
             self._server = None
-
