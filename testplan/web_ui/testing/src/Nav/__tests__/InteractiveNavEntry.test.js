@@ -23,10 +23,12 @@ describe('InteractiveNavEntry', () => {
       <InteractiveNavEntry
         name={'FakeTestcase'}
         status={'ready'}
+        envStatus={null}
         type={'testcase'}
         caseCountPassed={0}
         caseCountFailed={0}
         handlePlayClick={() => undefined}
+        envCtrlCallback={null}
       />
     );
     expect(renderedEntry).toMatchSnapshot();
@@ -37,10 +39,12 @@ describe('InteractiveNavEntry', () => {
       <InteractiveNavEntry
         name={'FakeTestcase'}
         status={'running'}
+        envStatus={null}
         type={'testcase'}
         caseCountPassed={0}
         caseCountFailed={0}
         handlePlayClick={() => undefined}
+        envCtrlCallback={null}
       />
     );
     expect(renderedEntry).toMatchSnapshot();
@@ -51,10 +55,12 @@ describe('InteractiveNavEntry', () => {
       <InteractiveNavEntry
         name={'FakeTestcase'}
         status={'passed'}
+        envStatus={null}
         type={'testcase'}
         caseCountPassed={9}
         caseCountFailed={0}
         handlePlayClick={() => undefined}
+        envCtrlCallback={null}
       />
     );
     expect(renderedEntry).toMatchSnapshot();
@@ -65,10 +71,12 @@ describe('InteractiveNavEntry', () => {
       <InteractiveNavEntry
         name={'FakeTestcase'}
         status={'failed'}
+        envStatus={null}
         type={'testcase'}
         caseCountPassed={8}
         caseCountFailed={1}
         handlePlayClick={() => undefined}
+        envCtrlCallback={null}
       />
     );
     expect(renderedEntry).toMatchSnapshot();
@@ -80,10 +88,12 @@ describe('InteractiveNavEntry', () => {
       <InteractiveNavEntry
         name={'FakeTestcase'}
         status={'ready'}
+        envStatus={null}
         type={'testcase'}
         caseCountPassed={0}
         caseCountFailed={0}
         handlePlayClick={handlePlayClick}
+        envCtrlCallback={null}
       />
     );
 
@@ -97,15 +107,141 @@ describe('InteractiveNavEntry', () => {
       <InteractiveNavEntry
         name={'FakeTestcase'}
         status={'failed'}
+        envStatus={null}
         type={'testcase'}
         caseCountPassed={6}
         caseCountFailed={2}
         handlePlayClick={handlePlayClick}
+        envCtrlCallback={null}
       />
     );
 
     renderedEntry.find(FontAwesomeIcon).simulate('click');
     expect(handlePlayClick.mock.calls.length).toEqual(1);
+  });
+
+  it('renders an entry with environment status STOPPED', () => {
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={'FakeTestcase'}
+        status={'ready'}
+        envStatus={'STOPPED'}
+        type={'multitest'}
+        caseCountPassed={0}
+        caseCountFailed={0}
+        handlePlayClick={() => undefined}
+        envCtrlCallback={() => undefined}
+      />
+    );
+    expect(renderedEntry).toMatchSnapshot();
+  });
+
+  it('renders an entry with environment status STARTING', () => {
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={'FakeTestcase'}
+        status={'ready'}
+        envStatus={'STARTING'}
+        type={'multitest'}
+        caseCountPassed={0}
+        caseCountFailed={0}
+        handlePlayClick={() => undefined}
+        envCtrlCallback={() => undefined}
+      />
+    );
+    expect(renderedEntry).toMatchSnapshot();
+  });
+
+  it('renders an entry with environment status STARTED', () => {
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={'FakeTestcase'}
+        status={'ready'}
+        envStatus={'STARTED'}
+        type={'multitest'}
+        caseCountPassed={0}
+        caseCountFailed={0}
+        handlePlayClick={() => undefined}
+        envCtrlCallback={() => undefined}
+      />
+    );
+    expect(renderedEntry).toMatchSnapshot();
+  });
+
+  it('renders an entry with environment status STOPPING', () => {
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={'FakeTestcase'}
+        status={'ready'}
+        envStatus={'STOPPING'}
+        type={'multitest'}
+        caseCountPassed={0}
+        caseCountFailed={0}
+        handlePlayClick={() => undefined}
+        envCtrlCallback={() => undefined}
+      />
+    );
+    expect(renderedEntry).toMatchSnapshot();
+  });
+
+  it('calls callback to start environment when toggle is clicked', () => {
+    const envCtrlCallback = jest.fn()
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={'FakeTestcase'}
+        status={'ready'}
+        envStatus={'STOPPED'}
+        type={'multitest'}
+        caseCountPassed={0}
+        caseCountFailed={0}
+        handlePlayClick={() => undefined}
+        envCtrlCallback={envCtrlCallback}
+      />
+    );
+
+    // Find the environment control. Since there are two FontAwesomeIcons,
+    // we need to additionally filter for the one which is the environment
+    // controller - we do this by matching on the title text.
+    const faIcons = renderedEntry.find(FontAwesomeIcon);
+    expect(faIcons).toHaveLength(2);
+    faIcons.find({title: 'Start environment'}).simulate('click');
+
+    // The callback should have been called once when the component was
+    // clicked, and it should have been called with a single arg of "start"
+    // to start the environment.
+    expect(envCtrlCallback.mock.calls).toHaveLength(1);
+    expect(envCtrlCallback.mock.calls[0]).toHaveLength(2);
+    expect(envCtrlCallback.mock.calls[0][1]).toBe("start");
+  });
+
+  it('calls callback to stop environment when toggle is clicked', () => {
+    const envCtrlCallback = jest.fn()
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={'FakeTestcase'}
+        status={'ready'}
+        envStatus={'STARTED'}
+        type={'multitest'}
+        caseCountPassed={0}
+        caseCountFailed={0}
+        handlePlayClick={() => undefined}
+        envCtrlCallback={envCtrlCallback}
+      />
+    );
+
+    // Find the environment control. Since there are two FontAwesomeIcons,
+    // we need to additionally filter for the one which is the environment
+    // controller - we do this by matching on the title text.
+    const faIcons = renderedEntry.find(FontAwesomeIcon);
+    expect(faIcons).toHaveLength(2);
+    faIcons.find({title: 'Start environment'}).simulate('click');
+
+    // The callback should have been called once when the component was
+    // clicked, and it should have been called with a single arg of "start"
+    // to start the environment.
+    expect(envCtrlCallback.mock.calls).toHaveLength(1);
+    expect(envCtrlCallback.mock.calls[0]).toHaveLength(2);
+    expect(envCtrlCallback.mock.calls[0][1]).toBe("stop");
   });
 });
 

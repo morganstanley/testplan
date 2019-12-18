@@ -27,6 +27,7 @@ describe('InteractiveNav', () => {
         displayTags={false}
         handleNavClick={jest.fn()}
         handlePlayClick={jest.fn()}
+        envCtrlCallback={jest.fn()}
       />
     );
     expect(renderedNav).toMatchSnapshot();

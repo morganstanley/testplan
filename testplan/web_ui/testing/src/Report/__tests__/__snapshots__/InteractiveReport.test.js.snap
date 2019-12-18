@@ -1,5 +1,201 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`InteractiveReport Handles environment being started 1`] = `
+<div
+  className=""
+>
+  <Toolbar
+    handleNavFilter={[Function]}
+    status="ready"
+    updateEmptyDisplayFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+  />
+  <InteractiveNav
+    displayEmpty={true}
+    displayTags={false}
+    envCtrlCallback={[Function]}
+    filter={null}
+    handleNavClick={[Function]}
+    handlePlayClick={[Function]}
+    report={
+      Object {
+        "attachments": Object {},
+        "category": "testplan",
+        "entries": Array [
+          Object {
+            "case_count": undefined,
+            "category": "multitest",
+            "description": null,
+            "entries": Array [
+              Object {
+                "category": "suite",
+                "description": null,
+                "entries": Array [
+                  Object {
+                    "category": "testcase",
+                    "description": null,
+                    "entries": Array [],
+                    "env_status": null,
+                    "hash": 12345,
+                    "logs": Array [],
+                    "name": "testcaseName",
+                    "parent_uids": Array [
+                      "TestplanUID",
+                      "MultiTestUID",
+                      "SuiteUID",
+                    ],
+                    "status": "ready",
+                    "status_override": null,
+                    "suite_related": false,
+                    "tags": Object {},
+                    "timer": Object {},
+                    "type": "TestCaseReport",
+                    "uid": "testcaseUID",
+                  },
+                ],
+                "env_status": null,
+                "fix_spec_path": null,
+                "hash": 12345,
+                "name": "SuiteName",
+                "parent_uids": Array [
+                  "TestplanUID",
+                  "MultiTestUID",
+                ],
+                "part": null,
+                "status": "ready",
+                "status_override": null,
+                "tags": Object {},
+                "timer": Object {},
+                "type": "TestGroupReport",
+                "uid": "SuiteUID",
+              },
+            ],
+            "env_status": "STARTING",
+            "fix_spec_path": null,
+            "hash": 12345,
+            "name": "MultiTestName",
+            "name_type_index": undefined,
+            "parent_uids": Array [
+              "TestplanUID",
+            ],
+            "part": null,
+            "status": "ready",
+            "status_override": null,
+            "tags": Object {},
+            "tags_index": undefined,
+            "timer": Object {},
+            "type": "TestGroupReport",
+            "uid": "MultiTestUID",
+          },
+        ],
+        "env_status": null,
+        "hash": 12345,
+        "meta": Object {},
+        "name": "TestplanName",
+        "parent_uids": Array [],
+        "status": "ready",
+        "status_override": null,
+        "tags_index": Object {},
+        "timer": Object {},
+        "type": "TestGroupReport",
+        "uid": "TestplanUID",
+      }
+    }
+    selected={
+      Array [
+        Object {
+          "attachments": Object {},
+          "category": "testplan",
+          "entries": Array [
+            Object {
+              "case_count": undefined,
+              "category": "multitest",
+              "description": null,
+              "entries": Array [
+                Object {
+                  "category": "suite",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "category": "testcase",
+                      "description": null,
+                      "entries": Array [],
+                      "env_status": null,
+                      "hash": 12345,
+                      "logs": Array [],
+                      "name": "testcaseName",
+                      "parent_uids": Array [
+                        "TestplanUID",
+                        "MultiTestUID",
+                        "SuiteUID",
+                      ],
+                      "status": "ready",
+                      "status_override": null,
+                      "suite_related": false,
+                      "tags": Object {},
+                      "timer": Object {},
+                      "type": "TestCaseReport",
+                      "uid": "testcaseUID",
+                    },
+                  ],
+                  "env_status": null,
+                  "fix_spec_path": null,
+                  "hash": 12345,
+                  "name": "SuiteName",
+                  "parent_uids": Array [
+                    "TestplanUID",
+                    "MultiTestUID",
+                  ],
+                  "part": null,
+                  "status": "ready",
+                  "status_override": null,
+                  "tags": Object {},
+                  "timer": Object {},
+                  "type": "TestGroupReport",
+                  "uid": "SuiteUID",
+                },
+              ],
+              "env_status": "STARTING",
+              "fix_spec_path": null,
+              "hash": 12345,
+              "name": "MultiTestName",
+              "name_type_index": undefined,
+              "parent_uids": Array [
+                "TestplanUID",
+              ],
+              "part": null,
+              "status": "ready",
+              "status_override": null,
+              "tags": Object {},
+              "tags_index": undefined,
+              "timer": Object {},
+              "type": "TestGroupReport",
+              "uid": "MultiTestUID",
+            },
+          ],
+          "env_status": null,
+          "hash": 12345,
+          "meta": Object {},
+          "name": "TestplanName",
+          "parent_uids": Array [],
+          "status": "ready",
+          "status_override": null,
+          "tags_index": Object {},
+          "timer": Object {},
+          "type": "TestGroupReport",
+          "uid": "TestplanUID",
+        },
+      ]
+    }
+  />
+  <Message
+    left={18}
+    message="Please select a testcase."
+  />
+</div>
+`;
+
 exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
 <div
   className=""
@@ -14,6 +210,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
   <InteractiveNav
     displayEmpty={true}
     displayTags={false}
+    envCtrlCallback={[Function]}
     filter={null}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
@@ -293,6 +490,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
   <InteractiveNav
     displayEmpty={true}
     displayTags={false}
+    envCtrlCallback={[Function]}
     filter={null}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
@@ -313,6 +511,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
                     "category": "testcase",
                     "description": null,
                     "entries": Array [],
+                    "env_status": null,
                     "hash": 12345,
                     "logs": Array [],
                     "name": "testcaseName",
@@ -330,6 +529,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
                     "uid": "testcaseUID",
                   },
                 ],
+                "env_status": null,
                 "fix_spec_path": null,
                 "hash": 12345,
                 "name": "SuiteName",
@@ -346,6 +546,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
                 "uid": "SuiteUID",
               },
             ],
+            "env_status": "STOPPED",
             "fix_spec_path": null,
             "hash": 12345,
             "name": "MultiTestName",
@@ -361,6 +562,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
             "uid": "MultiTestUID",
           },
         ],
+        "env_status": null,
         "hash": 12345,
         "meta": Object {},
         "name": "TestplanName",
@@ -391,6 +593,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
                       "category": "testcase",
                       "description": null,
                       "entries": Array [],
+                      "env_status": null,
                       "hash": 12345,
                       "logs": Array [],
                       "name": "testcaseName",
@@ -408,6 +611,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
                       "uid": "testcaseUID",
                     },
                   ],
+                  "env_status": null,
                   "fix_spec_path": null,
                   "hash": 12345,
                   "name": "SuiteName",
@@ -424,6 +628,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
                   "uid": "SuiteUID",
                 },
               ],
+              "env_status": "STOPPED",
               "fix_spec_path": null,
               "hash": 12345,
               "name": "MultiTestName",
@@ -439,6 +644,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
               "uid": "MultiTestUID",
             },
           ],
+          "env_status": null,
           "hash": 12345,
           "meta": Object {},
           "name": "TestplanName",
@@ -474,6 +680,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
   <InteractiveNav
     displayEmpty={true}
     displayTags={false}
+    envCtrlCallback={[Function]}
     filter={null}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
@@ -753,6 +960,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
   <InteractiveNav
     displayEmpty={true}
     displayTags={false}
+    envCtrlCallback={[Function]}
     filter={null}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
@@ -766,6 +974,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
             "description": null,
             "entries": Array [
               Object {
+                "case_count": undefined,
                 "category": "suite",
                 "description": null,
                 "entries": Array [
@@ -773,6 +982,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
                     "category": "testcase",
                     "description": null,
                     "entries": Array [],
+                    "env_status": null,
                     "hash": 12345,
                     "logs": Array [],
                     "name": "testcaseName",
@@ -790,22 +1000,26 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
                     "uid": "testcaseUID",
                   },
                 ],
+                "env_status": null,
                 "fix_spec_path": null,
                 "hash": 12345,
                 "name": "SuiteName",
+                "name_type_index": undefined,
                 "parent_uids": Array [
                   "TestplanUID",
                   "MultiTestUID",
                 ],
                 "part": null,
-                "status": "ready",
+                "status": "running",
                 "status_override": null,
                 "tags": Object {},
+                "tags_index": undefined,
                 "timer": Object {},
                 "type": "TestGroupReport",
                 "uid": "SuiteUID",
               },
             ],
+            "env_status": "STOPPED",
             "fix_spec_path": null,
             "hash": 12345,
             "name": "MultiTestName",
@@ -821,6 +1035,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
             "uid": "MultiTestUID",
           },
         ],
+        "env_status": null,
         "hash": 12345,
         "meta": Object {},
         "name": "TestplanName",
@@ -844,6 +1059,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
               "description": null,
               "entries": Array [
                 Object {
+                  "case_count": undefined,
                   "category": "suite",
                   "description": null,
                   "entries": Array [
@@ -851,6 +1067,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
                       "category": "testcase",
                       "description": null,
                       "entries": Array [],
+                      "env_status": null,
                       "hash": 12345,
                       "logs": Array [],
                       "name": "testcaseName",
@@ -868,22 +1085,26 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
                       "uid": "testcaseUID",
                     },
                   ],
+                  "env_status": null,
                   "fix_spec_path": null,
                   "hash": 12345,
                   "name": "SuiteName",
+                  "name_type_index": undefined,
                   "parent_uids": Array [
                     "TestplanUID",
                     "MultiTestUID",
                   ],
                   "part": null,
-                  "status": "ready",
+                  "status": "running",
                   "status_override": null,
                   "tags": Object {},
+                  "tags_index": undefined,
                   "timer": Object {},
                   "type": "TestGroupReport",
                   "uid": "SuiteUID",
                 },
               ],
+              "env_status": "STOPPED",
               "fix_spec_path": null,
               "hash": 12345,
               "name": "MultiTestName",
@@ -899,6 +1120,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
               "uid": "MultiTestUID",
             },
           ],
+          "env_status": null,
           "hash": 12345,
           "meta": Object {},
           "name": "TestplanName",
@@ -934,6 +1156,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
   <InteractiveNav
     displayEmpty={true}
     displayTags={false}
+    envCtrlCallback={[Function]}
     filter={null}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
@@ -951,19 +1174,15 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                 "description": null,
                 "entries": Array [
                   Object {
-                    "case_count": Object {
-                      "failed": 0,
-                      "passed": 0,
-                    },
+                    "case_count": undefined,
                     "category": "testcase",
                     "description": null,
-                    "entry_uids": Array [],
+                    "entries": Array [],
+                    "env_status": null,
                     "hash": 12345,
                     "logs": Array [],
                     "name": "testcaseName",
-                    "name_type_index": Set {
-                      "testcaseName|testcase",
-                    },
+                    "name_type_index": undefined,
                     "parent_uids": Array [
                       "TestplanUID",
                       "MultiTestUID",
@@ -973,12 +1192,13 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                     "status_override": null,
                     "suite_related": false,
                     "tags": Object {},
-                    "tags_index": Object {},
+                    "tags_index": undefined,
                     "timer": Object {},
                     "type": "TestCaseReport",
                     "uid": "testcaseUID",
                   },
                 ],
+                "env_status": null,
                 "fix_spec_path": null,
                 "hash": 12345,
                 "name": "SuiteName",
@@ -995,6 +1215,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                 "uid": "SuiteUID",
               },
             ],
+            "env_status": "STOPPED",
             "fix_spec_path": null,
             "hash": 12345,
             "name": "MultiTestName",
@@ -1010,6 +1231,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
             "uid": "MultiTestUID",
           },
         ],
+        "env_status": null,
         "hash": 12345,
         "meta": Object {},
         "name": "TestplanName",
@@ -1037,19 +1259,15 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                   "description": null,
                   "entries": Array [
                     Object {
-                      "case_count": Object {
-                        "failed": 0,
-                        "passed": 0,
-                      },
+                      "case_count": undefined,
                       "category": "testcase",
                       "description": null,
-                      "entry_uids": Array [],
+                      "entries": Array [],
+                      "env_status": null,
                       "hash": 12345,
                       "logs": Array [],
                       "name": "testcaseName",
-                      "name_type_index": Set {
-                        "testcaseName|testcase",
-                      },
+                      "name_type_index": undefined,
                       "parent_uids": Array [
                         "TestplanUID",
                         "MultiTestUID",
@@ -1059,12 +1277,13 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                       "status_override": null,
                       "suite_related": false,
                       "tags": Object {},
-                      "tags_index": Object {},
+                      "tags_index": undefined,
                       "timer": Object {},
                       "type": "TestCaseReport",
                       "uid": "testcaseUID",
                     },
                   ],
+                  "env_status": null,
                   "fix_spec_path": null,
                   "hash": 12345,
                   "name": "SuiteName",
@@ -1081,6 +1300,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                   "uid": "SuiteUID",
                 },
               ],
+              "env_status": "STOPPED",
               "fix_spec_path": null,
               "hash": 12345,
               "name": "MultiTestName",
@@ -1096,6 +1316,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
               "uid": "MultiTestUID",
             },
           ],
+          "env_status": null,
           "hash": 12345,
           "meta": Object {},
           "name": "TestplanName",
@@ -1131,6 +1352,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
   <InteractiveNav
     displayEmpty={true}
     displayTags={false}
+    envCtrlCallback={[Function]}
     filter={null}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
@@ -1151,6 +1373,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                     "category": "testcase",
                     "description": null,
                     "entries": Array [],
+                    "env_status": null,
                     "hash": 12345,
                     "logs": Array [],
                     "name": "testcaseName",
@@ -1168,6 +1391,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                     "uid": "testcaseUID",
                   },
                 ],
+                "env_status": null,
                 "fix_spec_path": null,
                 "hash": 12345,
                 "name": "SuiteName",
@@ -1184,6 +1408,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                 "uid": "SuiteUID",
               },
             ],
+            "env_status": "STOPPED",
             "fix_spec_path": null,
             "hash": 12345,
             "name": "MultiTestName",
@@ -1199,6 +1424,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
             "uid": "MultiTestUID",
           },
         ],
+        "env_status": null,
         "hash": 12345,
         "meta": Object {},
         "name": "TestplanName",
@@ -1229,6 +1455,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                       "category": "testcase",
                       "description": null,
                       "entries": Array [],
+                      "env_status": null,
                       "hash": 12345,
                       "logs": Array [],
                       "name": "testcaseName",
@@ -1246,6 +1473,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                       "uid": "testcaseUID",
                     },
                   ],
+                  "env_status": null,
                   "fix_spec_path": null,
                   "hash": 12345,
                   "name": "SuiteName",
@@ -1262,6 +1490,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                   "uid": "SuiteUID",
                 },
               ],
+              "env_status": "STOPPED",
               "fix_spec_path": null,
               "hash": 12345,
               "name": "MultiTestName",
@@ -1277,6 +1506,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
               "uid": "MultiTestUID",
             },
           ],
+          "env_status": null,
           "hash": 12345,
           "meta": Object {},
           "name": "TestplanName",
@@ -1300,6 +1530,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                   "category": "testcase",
                   "description": null,
                   "entries": Array [],
+                  "env_status": null,
                   "hash": 12345,
                   "logs": Array [],
                   "name": "testcaseName",
@@ -1317,6 +1548,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                   "uid": "testcaseUID",
                 },
               ],
+              "env_status": null,
               "fix_spec_path": null,
               "hash": 12345,
               "name": "SuiteName",
@@ -1333,6 +1565,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
               "uid": "SuiteUID",
             },
           ],
+          "env_status": "STOPPED",
           "fix_spec_path": null,
           "hash": 12345,
           "name": "MultiTestName",
@@ -1371,6 +1604,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
   <InteractiveNav
     displayEmpty={true}
     displayTags={false}
+    envCtrlCallback={[Function]}
     filter={null}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
@@ -1380,6 +1614,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
         "category": "testplan",
         "entries": Array [
           Object {
+            "case_count": undefined,
             "category": "multitest",
             "description": null,
             "entries": Array [
@@ -1391,6 +1626,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
                     "category": "testcase",
                     "description": null,
                     "entries": Array [],
+                    "env_status": null,
                     "hash": 12345,
                     "logs": Array [],
                     "name": "testcaseName",
@@ -1408,6 +1644,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
                     "uid": "testcaseUID",
                   },
                 ],
+                "env_status": null,
                 "fix_spec_path": null,
                 "hash": 12345,
                 "name": "SuiteName",
@@ -1424,21 +1661,25 @@ exports[`InteractiveReport handles tests being run 1`] = `
                 "uid": "SuiteUID",
               },
             ],
+            "env_status": "STOPPED",
             "fix_spec_path": null,
             "hash": 12345,
             "name": "MultiTestName",
+            "name_type_index": undefined,
             "parent_uids": Array [
               "TestplanUID",
             ],
             "part": null,
-            "status": "ready",
+            "status": "running",
             "status_override": null,
             "tags": Object {},
+            "tags_index": undefined,
             "timer": Object {},
             "type": "TestGroupReport",
             "uid": "MultiTestUID",
           },
         ],
+        "env_status": null,
         "hash": 12345,
         "meta": Object {},
         "name": "TestplanName",
@@ -1458,6 +1699,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
           "category": "testplan",
           "entries": Array [
             Object {
+              "case_count": undefined,
               "category": "multitest",
               "description": null,
               "entries": Array [
@@ -1469,6 +1711,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
                       "category": "testcase",
                       "description": null,
                       "entries": Array [],
+                      "env_status": null,
                       "hash": 12345,
                       "logs": Array [],
                       "name": "testcaseName",
@@ -1486,6 +1729,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
                       "uid": "testcaseUID",
                     },
                   ],
+                  "env_status": null,
                   "fix_spec_path": null,
                   "hash": 12345,
                   "name": "SuiteName",
@@ -1502,21 +1746,25 @@ exports[`InteractiveReport handles tests being run 1`] = `
                   "uid": "SuiteUID",
                 },
               ],
+              "env_status": "STOPPED",
               "fix_spec_path": null,
               "hash": 12345,
               "name": "MultiTestName",
+              "name_type_index": undefined,
               "parent_uids": Array [
                 "TestplanUID",
               ],
               "part": null,
-              "status": "ready",
+              "status": "running",
               "status_override": null,
               "tags": Object {},
+              "tags_index": undefined,
               "timer": Object {},
               "type": "TestGroupReport",
               "uid": "MultiTestUID",
             },
           ],
+          "env_status": null,
           "hash": 12345,
           "meta": Object {},
           "name": "TestplanName",

@@ -5,7 +5,7 @@ import {ListGroup} from 'reactstrap';
 import InteractiveNavEntry from './InteractiveNavEntry';
 import Column from './Column';
 import {CreateNavButtons} from './navUtils.js';
-import {STATUS} from "../Common/defaults";
+import {STATUS, COLUMN_WIDTH} from "../Common/defaults";
 
 /**
  * Render a vertical list of all the currently selected entries children for
@@ -18,17 +18,23 @@ const InteractiveNavList = (props) => {
       <InteractiveNavEntry
         name={entry.name}
         status={entry.status}
+        envStatus={entry.env_status}
         type={entry.category}
         caseCountPassed={entry.case_count.passed}
         caseCountFailed={entry.case_count.failed}
         handlePlayClick={(e) => props.handlePlayClick(e, entry)}
+        envCtrlCallback={
+          (e, action) => props.envCtrlCallback(e, entry, action)
+        }
       />
     ),
     props.selectedUid,
   );
 
   return (
-    <Column>
+    // Make the column a little wider for the interactive mode, to account for
+    // extra space used by the interactive buttons.
+    <Column width={COLUMN_WIDTH * 1.3} >
       <ListGroup>{navButtons}</ListGroup>
     </Column>
   );
