@@ -677,7 +677,7 @@ class TestCaseReport(Report):
 
         self.attachments = []
         self._status = Status.READY
-        self.category = ReportCategories.TESTCASE
+        self.category = ReportCategories.CASE
         self.status_reason = status_reason
 
     def _get_comparison_attrs(self):
