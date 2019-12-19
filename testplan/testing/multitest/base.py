@@ -20,8 +20,8 @@ from testplan.common.utils.validation import is_subclass
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.timing import timeout as timeout_deco
 from testplan.common.utils import callable as callable_utils
-from testplan.report import TestGroupReport, TestCaseReport
-from testplan.report.testing import Status
+from testplan.report import (TestGroupReport, TestCaseReport,
+                             Status, ReportCategories)
 
 from testplan.testing import tagging, filtering
 from testplan.testing.filtering import Pattern
@@ -33,13 +33,6 @@ from .suite import (
 
 from ..base import Test, TestConfig, TestIRunner
 from ..base import TEST_INST_INDENT, SUITE_INDENT, TESTCASE_INDENT
-
-
-class Categories(object):
-
-    PARAMETRIZATION = 'parametrization'
-    MULTITEST = 'multitest'
-    SUITE = 'suite'
 
 
 def iterable_suites(obj):
@@ -250,7 +243,7 @@ class MultiTest(Test):
         if self._pre_post_step_report is None:
             self._pre_post_step_report = TestGroupReport(
                 name='Pre/Post Step Checks',
-                category=Categories.SUITE,
+                category=ReportCategories.SUITE,
                 uid='Pre/Post Step Checks',
             )
         return self._pre_post_step_report
@@ -334,7 +327,7 @@ class MultiTest(Test):
             testsuite_report = TestGroupReport(
                 name=get_testsuite_name(testsuite),
                 description=testsuite.__class__.__doc__,
-                category=Categories.SUITE,
+                category=ReportCategories.SUITE,
                 uid=get_testsuite_name(testsuite),
                 tags=testsuite.__tags__,
             )
@@ -367,7 +360,7 @@ class MultiTest(Test):
                         param_report = TestGroupReport(
                             name=param_template,
                             description=param_method.__doc__,
-                            category=Categories.PARAMETRIZATION,
+                            category=ReportCategories.PARAMETRIZATION,
                             uid=param_template,
                             tags=param_method.__tags__,
                         )
@@ -419,7 +412,7 @@ class MultiTest(Test):
                     testsuite_report = TestGroupReport(
                         name=get_testsuite_name(next_suite),
                         description=next_suite.__class__.__doc__,
-                        category=Categories.SUITE,
+                        category=ReportCategories.SUITE,
                         uid=get_testsuite_name(next_suite),
                         tags=next_suite.__tags__,
                     )
@@ -484,7 +477,7 @@ class MultiTest(Test):
                     param_report = TestGroupReport(
                         name=param_template,
                         description=param_method.__doc__,
-                        category=Categories.PARAMETRIZATION,
+                        category=ReportCategories.PARAMETRIZATION,
                         uid=param_template,
                         tags=param_method.__tags__,
                     )

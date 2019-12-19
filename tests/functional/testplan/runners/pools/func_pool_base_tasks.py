@@ -5,7 +5,7 @@ import psutil
 
 from testplan import Testplan
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-from testplan.report.testing import Status
+from testplan.report import Status
 from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.path import fix_home_prefix
 from testplan.testing.multitest import MultiTest, testsuite, testcase

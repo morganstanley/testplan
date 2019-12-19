@@ -4,7 +4,6 @@ import pytest
 from schema import SchemaError
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.testing.multitest.base import Categories
 from testplan.testing.multitest.parametrization import (
     ParametrizationError, MAX_METHOD_NAME_LENGTH
 )
@@ -13,7 +12,8 @@ from testplan import Testplan
 from testplan.common.utils.testing import (
     check_report, warnings_suppressed, log_propagation_disabled
 )
-from testplan.report.testing import TestReport, TestGroupReport, TestCaseReport
+from testplan.report import (TestReport, TestGroupReport,
+                             TestCaseReport, ReportCategories)
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
@@ -36,11 +36,11 @@ def check_parametrization(suite_kls, parametrization_group):
         entries=[
             TestGroupReport(
                 name='MyMultitest',
-                category=Categories.MULTITEST,
+                category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
                         name='MySuite',
-                        category=Categories.SUITE,
+                        category=ReportCategories.SUITE,
                         entries=[parametrization_group]
                     )
                 ]
@@ -72,7 +72,7 @@ def test_basic_parametrization():
     parametrization_group = TestGroupReport(
         name='test_add',
         description="Simple docstring",
-        category=Categories.PARAMETRIZATION,
+        category=ReportCategories.PARAMETRIZATION,
         entries=[
             TestCaseReport(
                 name='test_add__a_1__b_2__expected_3',
@@ -136,7 +136,7 @@ def test_combinatorial_parametrization():
 
     parametrization_group = TestGroupReport(
         name='test_sample',
-        category=Categories.PARAMETRIZATION,
+        category=ReportCategories.PARAMETRIZATION,
         entries=[
             TestCaseReport(
                 name='test_sample__a_1__b_alpha',
@@ -256,7 +256,7 @@ def test_custom_name_func():
 
     parametrization_group = TestGroupReport(
         name='sample_test',
-        category=Categories.PARAMETRIZATION,
+        category=ReportCategories.PARAMETRIZATION,
         entries=[
             TestCaseReport(name='XXX_foo_bar_XXX'),
             TestCaseReport(name='XXX_alpha_beta_XXX'),
@@ -310,7 +310,7 @@ def test_name_func_fallback(name_func, testcase_names, msg):
     name_alpha, name_beta = testcase_names
     parametrization_group = TestGroupReport(
         name='sample_test',
-        category=Categories.PARAMETRIZATION,
+        category=ReportCategories.PARAMETRIZATION,
         entries=[
             TestCaseReport(name=name_alpha),
             TestCaseReport(name=name_beta),
@@ -464,7 +464,7 @@ def test_parametrization_tagging():
 
     parametrization_group = TestGroupReport(
         name='dummy_test',
-        category=Categories.PARAMETRIZATION,
+        category=ReportCategories.PARAMETRIZATION,
         tags={'simple': {'alpha'}},
         entries=[
             TestCaseReport(
@@ -496,12 +496,12 @@ def test_parametrization_tagging():
         entries=[
             TestGroupReport(
                 name='MyMultitest',
-                category=Categories.MULTITEST,
+                category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
                         name='DummySuite',
                         tags={'simple': {'foo'}},
-                        category=Categories.SUITE,
+                        category=ReportCategories.SUITE,
                         entries=[parametrization_group]
                     )
                 ]

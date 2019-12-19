@@ -15,7 +15,7 @@ import sys
 import logging
 
 from testplan.common.utils.strings import Color
-from testplan.report.testing import Status
+from testplan.report import Status
 
 # Define our log-level constants. We add some extra levels between INFO and
 # WARNING.

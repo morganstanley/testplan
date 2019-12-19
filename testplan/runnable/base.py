@@ -18,7 +18,7 @@ from testplan.common.exporters import BaseExporter, ExporterResult
 from testplan.common.report import MergeError
 from testplan.common.utils.path import default_runpath
 from testplan.exporters import testing as test_exporters
-from testplan.report.testing import (
+from testplan.report import (
     TestReport, TestGroupReport, Status, ReportCategories,
 )
 from testplan.report.testing.styles import Style

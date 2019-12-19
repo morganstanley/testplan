@@ -731,7 +731,7 @@ class TestRunnerIHandler(entity.Entity):
             for suite in test.suites:
                 suite_name = suite.__class__.__name__
                 suite_report = testplan.report.TestGroupReport(
-                    name=suite_name, uid=suite_name, category="suite"
+                    name=suite_name, uid=suite_name, category='suite'
                 )
 
                 for testcase in suite.get_testcases():

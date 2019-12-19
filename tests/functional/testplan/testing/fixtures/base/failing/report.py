@@ -1,6 +1,6 @@
 import re
 
-from testplan.report.testing import (
+from testplan.report import (
   TestReport, TestGroupReport,
   TestCaseReport, Status
 )

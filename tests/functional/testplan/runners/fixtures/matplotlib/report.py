@@ -3,20 +3,19 @@ Test Matplotlib Assertion - separate to ensure test is skippable on windows.
 """
 import re
 
-from testplan.report.testing import TestReport, TestGroupReport, TestCaseReport
-
-from testplan.testing.multitest.base import Categories
+from testplan.report import (
+    TestReport, TestGroupReport, TestCaseReport, ReportCategories)
 
 expected_report = TestReport(
     name='plan',
     entries=[
         TestGroupReport(
             name='MyMultitest',
-            category=Categories.MULTITEST,
+            category=ReportCategories.MULTITEST,
             entries=[
                 TestGroupReport(
                     name='MySuite',
-                    category=Categories.SUITE,
+                    category=ReportCategories.SUITE,
                     entries=[
                         TestCaseReport(
                             name='test_matplot',

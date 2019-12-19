@@ -1,4 +1,4 @@
-from testplan.report.testing import TestReport, TestGroupReport, TestCaseReport
+from testplan.report import TestReport, TestGroupReport, TestCaseReport
 
 expected_report = TestReport(
     name='plan',

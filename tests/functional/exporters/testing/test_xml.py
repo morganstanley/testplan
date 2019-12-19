@@ -8,7 +8,7 @@ from testplan.common.utils.testing import (
     argv_overridden, XMLComparison as XC
 )
 from testplan.exporters.testing import XMLExporter
-from testplan.report.testing import (
+from testplan.report import (
     TestReport, TestCaseReport, TestGroupReport, ReportCategories,
 )
 

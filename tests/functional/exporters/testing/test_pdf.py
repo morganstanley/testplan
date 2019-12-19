@@ -11,7 +11,7 @@ from testplan.common.utils.testing import (
 )
 from testplan.exporters.testing.pdf import PDFExporter, TagFilteredPDFExporter
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-from testplan.report.testing import (
+from testplan.report import (
     TestReport, TestCaseReport, TestGroupReport, ReportCategories,
 )
 from testplan.report.testing import styles

@@ -5,7 +5,7 @@ into the memory for further processing.
 import argparse
 import json
 
-from testplan.report.testing import TestReport
+from testplan.report import TestReport
 from testplan.exporters.testing import PDFExporter
 
 from testplan.report.testing.styles import Style, StyleEnum

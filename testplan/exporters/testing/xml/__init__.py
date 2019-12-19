@@ -16,8 +16,8 @@ from testplan.common.utils.strings import slugify
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import ExporterConfig
 
-from testplan.report.testing import TestCaseReport, TestGroupReport
-from testplan.testing.multitest.base import Categories, Status
+from testplan.report import (TestCaseReport, TestGroupReport,
+                             ReportCategories, Status)
 
 from ..base import Exporter
 
@@ -203,7 +203,7 @@ class MultiTestRenderer(BaseRenderer):
             if isinstance(child, TestCaseReport):
                 testcase_reports.append(child)
             elif isinstance(child, TestGroupReport) and\
-                    child.category == Categories.PARAMETRIZATION:
+                    child.category == ReportCategories.PARAMETRIZATION:
                 testcase_reports.extend(child.entries)
             else:
                 raise TypeError('Unsupported report type: {}'.format(child))
@@ -237,7 +237,7 @@ class XMLExporter(Exporter):
     CONFIG = XMLExporterConfig
 
     renderer_map = {
-        Categories.MULTITEST: MultiTestRenderer,
+        ReportCategories.MULTITEST: MultiTestRenderer,
     }
 
     def export(self, source):

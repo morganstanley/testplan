@@ -165,7 +165,7 @@ EXPECTED_INITIAL_GET = [
         "/report/tests/ExampleMTest/suites/ExampleSuite/testcases",
         [
             {
-                "category": "testcase",
+                "category": "case",
                 "description": None,
                 "entries": [],
                 "logs": [],
@@ -185,7 +185,7 @@ EXPECTED_INITIAL_GET = [
                 "status_reason": None,
             },
             {
-                "category": "testcase",
+                "category": "case",
                 "description": None,
                 "entries": [],
                 "logs": [],
@@ -205,7 +205,7 @@ EXPECTED_INITIAL_GET = [
                 "status_reason": None,
             },
             {
-                "category": "testcase",
+                "category": "case",
                 "description": None,
                 "entries": [],
                 "logs": [],
@@ -229,7 +229,7 @@ EXPECTED_INITIAL_GET = [
     (
         "/report/tests/ExampleMTest/suites/ExampleSuite/testcases/test_passes",
         {
-            "category": "testcase",
+            "category": "case",
             "description": None,
             "entries": [],
             "logs": [],

@@ -10,7 +10,7 @@ from testplan.common.exporters.pdf import format_table_style, format_cell_data
 from testplan.common.utils.strings import wrap, split_line, split_text
 from testplan.common.utils.comparison import is_regex
 
-from testplan.report.testing import Status
+from testplan.report import Status
 
 from testplan.testing.multitest.entries import assertions
 

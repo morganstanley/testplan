@@ -141,19 +141,19 @@ class ReportCategories(object):
     """
 
     TESTPLAN = "testplan"
-    TESTGROUP = "testgroup"
+    TESTGROUP = "testgroup"     # test group of unspecific type?
     MULTITEST = "multitest"
-    CPPUNIT = "cppunit"
-    GTEST = "gtest"
-    UNITTEST = "unittest"
-    BOOST_TEST = "boost-test"
-    QUNIT = "qunit"
     SUITE = "suite"
-    CPPUNIT_SUITE = "cppunit-suite"
-    BOOST_TEST_SUITE = "boost-test-suite"
-    GTEST_SUITE = "gtest-suite"
+    CASE = "case"
     PARAMETRIZATION = "parametrization"
-    TESTCASE = "testcase"
+    CPPUNIT = "cppunit"
+    CPPUNIT_SUITE = "cppunit-suite"
+    GTEST = "gtest"
+    GTEST_SUITE = "gtest-suite"
+    BOOST_TEST = "boost-test"
+    BOOST_SUITE = "boost-suite"
+    UNITTEST = "unittest"
+    QUNIT = "qunit"
     ERROR = "error"
 
 
@@ -674,7 +674,7 @@ class TestCaseReport(Report):
 
         self.attachments = []
         self._status = Status.READY
-        self.category = ReportCategories.TESTCASE
+        self.category = ReportCategories.CASE
         self.status_reason = status_reason
 
     def _get_comparison_attrs(self):

@@ -6,7 +6,7 @@ from .base import Executor
 from testplan.runners.pools import tasks
 from testplan.common import entity
 from testplan.testing.base import TestResult
-from testplan.report.testing import TestGroupReport, Status, ReportCategories
+from testplan.report import TestGroupReport, Status, ReportCategories
 
 
 class LocalRunner(Executor):

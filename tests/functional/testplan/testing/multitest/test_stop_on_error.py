@@ -1,14 +1,13 @@
 import time
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.testing.multitest.base import Categories
 
 from testplan import Testplan
 from testplan.common.utils.testing import (
     check_report, log_propagation_disabled
 )
-from testplan.report.testing import (
-    Status, TestReport, TestGroupReport, TestCaseReport
+from testplan.report import (
+    Status, TestReport, TestGroupReport, TestCaseReport, ReportCategories
 )
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
@@ -129,11 +128,11 @@ def test_execution_order():
         entries=[
             TestGroupReport(
                 name='Multitest_1',
-                category=Categories.MULTITEST,
+                category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
                         name='Suite1',
-                        category=Categories.SUITE,
+                        category=ReportCategories.SUITE,
                         entries=[
                             TestCaseReport(
                                 name='setup'
@@ -155,14 +154,14 @@ def test_execution_order():
                     ),
                     TestGroupReport(
                         name='Suite2',
-                        category=Categories.SUITE,
+                        category=ReportCategories.SUITE,
                         entries=[
                             TestCaseReport(
                                 name='setup'
                             ),
                             TestGroupReport(
                                 name='test_case_divide_by_arg',
-                                category=Categories.PARAMETRIZATION,
+                                category=ReportCategories.PARAMETRIZATION,
                                 entries=[
                                     TestCaseReport(
                                         name='test_case_divide_by_arg',
@@ -192,7 +191,7 @@ def test_execution_order():
                             ),
                             TestGroupReport(
                                 name='test_case_divide_by_one',
-                                category=Categories.PARAMETRIZATION,
+                                category=ReportCategories.PARAMETRIZATION,
                                 entries=[
                                     TestCaseReport(
                                         name='test_case_divide_by_one',
@@ -233,7 +232,7 @@ def test_execution_order():
                     ),
                     TestGroupReport(
                         name='Suite3',
-                        category=Categories.SUITE,
+                        category=ReportCategories.SUITE,
                         entries=[
                             TestCaseReport(
                                 name='setup'
@@ -266,11 +265,11 @@ def test_execution_order():
             ),
             TestGroupReport(
                 name='Multitest_2',
-                category=Categories.MULTITEST,
+                category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
                         name='Suite1',
-                        category=Categories.SUITE,
+                        category=ReportCategories.SUITE,
                         entries=[
                             TestCaseReport(
                                 name='setup'
@@ -289,14 +288,14 @@ def test_execution_order():
                     ),
                     TestGroupReport(
                         name='Suite2',
-                        category=Categories.SUITE,
+                        category=ReportCategories.SUITE,
                         entries=[
                             TestCaseReport(
                                 name='setup'
                             ),
                             TestGroupReport(
                                 name='test_case_divide_by_arg',
-                                category=Categories.PARAMETRIZATION,
+                                category=ReportCategories.PARAMETRIZATION,
                                 entries=[
                                     TestCaseReport(
                                         name='test_case_divide_by_arg',
@@ -321,7 +320,7 @@ def test_execution_order():
                     ),
                     TestGroupReport(
                         name='Suite3',
-                        category=Categories.SUITE,
+                        category=ReportCategories.SUITE,
                         entries=[
                             TestCaseReport(
                                 name='setup'

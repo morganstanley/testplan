@@ -1,11 +1,11 @@
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.testing.multitest.base import Categories
 
 from testplan import Testplan
 from testplan.common.utils.testing import (
     check_report, log_propagation_disabled
 )
-from testplan.report.testing import TestReport, TestGroupReport, TestCaseReport
+from testplan.report import (TestReport, TestGroupReport,
+                             TestCaseReport, ReportCategories)
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
@@ -38,18 +38,18 @@ expected_report = TestReport(
     entries=[
         TestGroupReport(
             name='MyMultitest',
-            category=Categories.MULTITEST,
+            category=ReportCategories.MULTITEST,
             entries=[
                 TestGroupReport(
                     name='MySuite',
-                    category=Categories.SUITE,
+                    category=ReportCategories.SUITE,
                     entries=[
                         TestCaseReport(name='test_one')
                     ]
                 ),
                 TestGroupReport(
                     name='Pre/Post Step Checks',
-                    category=Categories.SUITE,
+                    category=ReportCategories.SUITE,
                     entries=[
                         TestCaseReport(
                             name='before_start - check_func_1',

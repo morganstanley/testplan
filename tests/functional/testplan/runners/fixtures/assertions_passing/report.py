@@ -1,9 +1,8 @@
 """Test Multitest - Test Suite - Result - Test Report - Exporter integration"""
 import re
 
-from testplan.report.testing import TestReport, TestGroupReport, TestCaseReport
-
-from testplan.testing.multitest.base import Categories
+from testplan.report import (
+    TestReport, TestGroupReport, TestCaseReport, ReportCategories)
 
 from .suites import always_true
 
@@ -13,11 +12,11 @@ expected_report = TestReport(
     entries=[
         TestGroupReport(
             name='MyMultitest',
-            category=Categories.MULTITEST,
+            category=ReportCategories.MULTITEST,
             entries=[
                 TestGroupReport(
                     name='MySuite',
-                    category=Categories.SUITE,
+                    category=ReportCategories.SUITE,
                     entries=[
                         TestCaseReport(
                             name='test_log',
