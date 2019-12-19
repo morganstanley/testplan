@@ -5,7 +5,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import Testplan
 from testplan.common.utils.testing import log_propagation_disabled
-from testplan.report.testing import TestGroupReport
+from testplan.report import TestGroupReport
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 EXECUTION_PERIOD = 0.001

@@ -1,7 +1,6 @@
 import time
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.testing.multitest.base import Categories
 
 from testplan import Testplan
 from testplan.runners.pools import ThreadPool
@@ -10,8 +9,8 @@ from testplan.runners.pools.tasks import Task
 from testplan.common.utils.testing import (
     check_report, log_propagation_disabled
 )
-from testplan.report.testing import (
-    Status, TestReport, TestGroupReport, TestCaseReport
+from testplan.report import (
+    Status, TestReport, TestGroupReport, TestCaseReport, ReportCategories
 )
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
@@ -83,12 +82,12 @@ def test_timeout_on_testcases():
         entries=[
             TestGroupReport(
                 name='MTest',
-                category=Categories.MULTITEST,
+                category=ReportCategories.MULTITEST,
                 entries=[
                     TestGroupReport(
                         name='Suite1',
                         description='A test suite with basic testcases.',
-                        category=Categories.SUITE,
+                        category=ReportCategories.SUITE,
                         entries=[
                             TestCaseReport(
                                 name='test_normal',
@@ -114,11 +113,11 @@ def test_timeout_on_testcases():
                     TestGroupReport(
                         name='Suite2',
                         description='A test suite with parameterized testcases in different exec groups.',
-                        category=Categories.SUITE,
+                        category=ReportCategories.SUITE,
                         entries=[
                             TestGroupReport(
                                 name='test_timeout_1',
-                                category=Categories.PARAMETRIZATION,
+                                category=ReportCategories.PARAMETRIZATION,
                                 entries=[
                                     TestCaseReport(
                                         name='test_timeout_1__val_1',
@@ -151,7 +150,7 @@ def test_timeout_on_testcases():
                             ),
                             TestGroupReport(
                                 name='test_timeout_2',
-                                category=Categories.PARAMETRIZATION,
+                                category=ReportCategories.PARAMETRIZATION,
                                 entries=[
                                     TestCaseReport(
                                         name='test_timeout_2__val_1',

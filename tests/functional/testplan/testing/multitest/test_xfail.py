@@ -4,7 +4,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase, xfail
 from testplan import Testplan
 from testplan.runners.pools import ThreadPool
 from testplan.runners.pools.tasks import Task
-from testplan.report.testing import Status
+from testplan.report import Status
 from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 

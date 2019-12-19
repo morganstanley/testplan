@@ -2,7 +2,7 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 
-from testplan.report.testing import TestGroupReport, TestCaseReport
+from testplan.report import TestGroupReport, TestCaseReport
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 

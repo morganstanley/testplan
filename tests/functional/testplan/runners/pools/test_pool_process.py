@@ -5,7 +5,7 @@ import os
 import pytest
 
 from testplan.common.utils.testing import log_propagation_disabled
-from testplan.report.testing import Status
+from testplan.report import Status
 from testplan.runners.pools import ProcessPool
 from testplan import Testplan
 from testplan.common.utils.logger import TESTPLAN_LOGGER

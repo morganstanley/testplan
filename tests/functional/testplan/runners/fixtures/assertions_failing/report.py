@@ -2,9 +2,8 @@
 import os
 import re
 
-from testplan.report.testing import TestReport, TestGroupReport, TestCaseReport
-
-from testplan.testing.multitest.base import Categories
+from testplan.report import (
+    TestReport, TestGroupReport, TestCaseReport, ReportCategories)
 
 from .suites import always_true, always_false, ERROR_MSG, error_func
 from testplan.common.utils.testing import check_iterable
@@ -70,11 +69,11 @@ expected_report = TestReport(
     entries=[
         TestGroupReport(
             name='MyMultitest',
-            category=Categories.MULTITEST,
+            category=ReportCategories.MULTITEST,
             entries=[
                 TestGroupReport(
                     name='MySuite',
-                    category=Categories.SUITE,
+                    category=ReportCategories.SUITE,
                     entries=[
                         TestCaseReport(
                             name='test_log',

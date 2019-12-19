@@ -7,7 +7,7 @@ from testplan import Testplan
 from testplan.common.utils.testing import log_propagation_disabled, check_report
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing.cpp import GTest
-from testplan.report.testing import Status
+from testplan.report import Status
 
 from tests.functional.testplan.testing.fixtures.cpp import gtest
 
