@@ -161,7 +161,7 @@ class TestCaseReportSchema(ReportSchema):
 
     status_override = fields.String(allow_none=True)
 
-    entries = fields.List(EntriesField()) #fields.Raw())
+    entries = fields.List(EntriesField())
 
     status = fields.String(dump_only=True)
     suite_related = fields.Bool()
