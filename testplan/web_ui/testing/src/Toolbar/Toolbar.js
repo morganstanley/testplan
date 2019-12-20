@@ -17,6 +17,7 @@ import {
   ModalBody,
   ModalFooter,
   UncontrolledDropdown,
+  Table
 } from 'reactstrap';
 
 import FilterBox from "../Toolbar/FilterBox";
@@ -26,6 +27,7 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 import {
+  faInfo,
   faBook,
   faPrint,
   faFilter,
@@ -35,6 +37,7 @@ import {
 
 
 library.add(
+  faInfo,
   faBook,
   faPrint,
   faFilter,
@@ -52,12 +55,14 @@ class Toolbar extends Component {
     this.state = {
       helpModal: false,
       filterOpen: false,
+      infoModal: false,
       filter: 'all',
       displayEmpty: true,
       displayTags: false,
     };
 
     this.filterOnClick = this.filterOnClick.bind(this);
+    this.toggleInfoOnClick = this.toggleInfoOnClick.bind(this);
     this.toggleEmptyDisplay = this.toggleEmptyDisplay.bind(this);
     this.toggleHelpOnClick = this.toggleHelpOnClick.bind(this);
     this.toggleTagsDisplay = this.toggleTagsDisplay.bind(this);
@@ -67,6 +72,12 @@ class Toolbar extends Component {
   toggleHelpOnClick() {
     this.setState(prevState => ({
       helpModal: !prevState.helpModal
+    }));
+  }
+
+  toggleInfoOnClick() {
+    this.setState(prevState => ({
+      infoModal: !prevState.infoModal
     }));
   }
 
@@ -100,6 +111,46 @@ class Toolbar extends Component {
     window.print();
   }
 
+  getInfoTable(report) {
+    if (report && report.information) {
+      const infoList = report.information.map((item, i) => {
+        return (
+          <tr key={i}>
+            <td className={css(styles.infoTableKey)}>{item[0]}</td>
+            <td className={css(styles.infoTableValue)}>{item[1]}</td>
+          </tr>
+        );
+      });
+      if (report.timer && report.timer.run) {
+        if (report.timer.run.start) {
+          infoList.push(
+            <tr key='start'>
+              <td>start</td>
+              <td>{report.timer.run.start}</td>
+            </tr>
+          );
+        }
+        if (report.timer.run.end) {
+          infoList.push(
+            <tr key='end'>
+              <td>end</td>
+              <td>{report.timer.run.end}</td>
+            </tr>
+          );
+        }
+      }
+      return (
+        <Table bordered responsive className={css(styles.infoTable)}>
+          <tbody>
+            {infoList}
+          </tbody>
+        </Table>
+      );
+    } else {
+      return null;
+    }
+  }
+
   render() {
     const toolbarStyle = this.props.status === 'passed' ?
       css(styles.toolbar, styles.toolbarPassed) :
@@ -115,6 +166,17 @@ class Toolbar extends Component {
           </div>
           <Collapse isOpen={this.state.isOpen} navbar className={toolbarStyle}>
             <Nav navbar className='ml-auto'>
+              <NavItem>
+                <div className={css(styles.buttonsBar)}>
+                  <FontAwesomeIcon
+                    key='toolbar-info'
+                    className={css(styles.toolbarButton)}
+                    icon='info'
+                    title='Documentation'
+                    onClick={this.toggleInfoOnClick}
+                  />
+                </div>
+              </NavItem>
               <UncontrolledDropdown nav inNavbar>
                 <div className={css(styles.buttonsBar)}>
                   <DropdownToggle nav className={toolbarStyle}>
@@ -229,6 +291,24 @@ class Toolbar extends Component {
               </Button>
             </ModalFooter>
           </Modal>
+          <Modal
+            isOpen={this.state.infoModal}
+            toggle={this.toggleInfoOnClick}
+            size='lg'
+            className='infoModal'
+          >
+            <ModalHeader toggle={this.toggleInfoOnClick}>
+              Information
+            </ModalHeader>
+            <ModalBody>
+              {this.getInfoTable(this.props.report)}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="light" onClick={this.toggleInfoOnClick}>
+                Close
+              </Button>
+            </ModalFooter>
+          </Modal>
       </div>
     );
   }
@@ -237,6 +317,8 @@ class Toolbar extends Component {
 Toolbar.propTypes = {
   /** Testplan report's status */
   status: PropTypes.oneOf(STATUS),
+  /** Report object to display information */
+  report: PropTypes.object,
   /** Function to handle filter changing in the Filter box */
   updateFilterFunc: PropTypes.func,
   /** Function to handle toggle of displaying empty entries in the navbar */
@@ -302,6 +384,17 @@ const styles = StyleSheet.create({
   },
   filterDropdown: {
     'margin-top': '-0.3em'
+  },
+  infoTable: {
+    'table-layout': 'fixed',
+    width: '100%'
+  },
+  infoTableKey: {
+    width: '25%',
+  },
+  infoTableValue: {
+    'word-wrap': 'break-word',
+    'overflow-wrap': 'break-word',
   }
 });
 

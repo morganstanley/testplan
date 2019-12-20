@@ -40,6 +40,34 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
         tag="ul"
         vertical={false}
       >
+        <NavItem
+          tag="li"
+        >
+          <div
+            className="buttonsBar_13xq1v"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_z1gq62"
+              fixedWidth={false}
+              flip={null}
+              icon="info"
+              inverse={false}
+              key="toolbar-info"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Documentation"
+              transform={null}
+            />
+          </div>
+        </NavItem>
         <UncontrolledDropdown
           inNavbar={true}
           nav={true}
@@ -372,6 +400,55 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
       </Button>
     </ModalFooter>
   </Modal>
+  <Modal
+    autoFocus={true}
+    backdrop={true}
+    backdropTransition={
+      Object {
+        "mountOnEnter": true,
+        "timeout": 150,
+      }
+    }
+    centered={false}
+    className="infoModal"
+    fade={true}
+    isOpen={false}
+    keyboard={true}
+    modalTransition={
+      Object {
+        "timeout": 300,
+      }
+    }
+    onClosed={[Function]}
+    onOpened={[Function]}
+    role="dialog"
+    size="lg"
+    toggle={[Function]}
+    zIndex={1050}
+  >
+    <ModalHeader
+      closeAriaLabel="Close"
+      tag="h5"
+      toggle={[Function]}
+      wrapTag="div"
+    >
+      Information
+    </ModalHeader>
+    <ModalBody
+      tag="div"
+    />
+    <ModalFooter
+      tag="div"
+    >
+      <Button
+        color="light"
+        onClick={[Function]}
+        tag="button"
+      >
+        Close
+      </Button>
+    </ModalFooter>
+  </Modal>
 </div>
 `;
 
@@ -415,6 +492,34 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
         tag="ul"
         vertical={false}
       >
+        <NavItem
+          tag="li"
+        >
+          <div
+            className="buttonsBar_13xq1v"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_z1gq62"
+              fixedWidth={false}
+              flip={null}
+              icon="info"
+              inverse={false}
+              key="toolbar-info"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Documentation"
+              transform={null}
+            />
+          </div>
+        </NavItem>
         <UncontrolledDropdown
           inNavbar={true}
           nav={true}
@@ -735,6 +840,55 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
     >
       This is filter box help!
     </ModalBody>
+    <ModalFooter
+      tag="div"
+    >
+      <Button
+        color="light"
+        onClick={[Function]}
+        tag="button"
+      >
+        Close
+      </Button>
+    </ModalFooter>
+  </Modal>
+  <Modal
+    autoFocus={true}
+    backdrop={true}
+    backdropTransition={
+      Object {
+        "mountOnEnter": true,
+        "timeout": 150,
+      }
+    }
+    centered={false}
+    className="infoModal"
+    fade={true}
+    isOpen={false}
+    keyboard={true}
+    modalTransition={
+      Object {
+        "timeout": 300,
+      }
+    }
+    onClosed={[Function]}
+    onOpened={[Function]}
+    role="dialog"
+    size="lg"
+    toggle={[Function]}
+    zIndex={1050}
+  >
+    <ModalHeader
+      closeAriaLabel="Close"
+      tag="h5"
+      toggle={[Function]}
+      wrapTag="div"
+    >
+      Information
+    </ModalHeader>
+    <ModalBody
+      tag="div"
+    />
     <ModalFooter
       tag="div"
     >

@@ -157,6 +157,7 @@ class BatchReport extends React.Component {
       <div className={css(styles.batchReport)}>
         <Toolbar
           status={reportStatus}
+          report={this.state.report}
           handleNavFilter={this.handleNavFilter}
           updateFilterFunc={this.updateFilter}
           updateEmptyDisplayFunc={this.updateDisplayEmpty}
