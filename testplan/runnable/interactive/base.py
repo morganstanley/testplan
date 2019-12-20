@@ -194,16 +194,14 @@ class TestRunnerIHandler(entity.Entity):
         """
         all_tests = self.all_tests(runner_uid)
 
-        return list(
-            itertools.chain.from_iterable(
-                self.run_test(
-                    test_uid,
-                    runner_uid=runner_uid,
-                    await_results=await_results,
-                )
-                for test_uid, real_runner_uid in all_tests
+        return [
+            self.run_test(
+                test_uid,
+                runner_uid=runner_uid,
+                await_results=await_results,
             )
-        )
+            for test_uid, real_runner_uid in all_tests
+        ]
 
     @auto_start_stop_environment
     def run_test(self, test_uid, runner_uid=None, await_results=True):
@@ -216,7 +214,7 @@ class TestRunnerIHandler(entity.Entity):
         :param await_results: Whether to block until the test is finished,
             defaults to True.
         :return: If await_results is True, returns a list of test results.
-            Otherwise, returns a list of async result objects.
+            Otherwise, returns an async result object.
         """
         test = self.test(test_uid, runner_uid=runner_uid)
         irunner = test.cfg.interactive_runner(test)
@@ -243,7 +241,7 @@ class TestRunnerIHandler(entity.Entity):
         :param await_results: Whether to block until the suite is finished,
             defaults to True.
         :return: If await_results is True, returns a list of test results.
-            Otherwise, returns a list of async result objects.
+            Otherwise, returns an async result object.
         """
         test = self.test(test_uid, runner_uid=runner_uid)
         irunner = test.cfg.interactive_runner(test)
@@ -274,7 +272,7 @@ class TestRunnerIHandler(entity.Entity):
         :param await_results: Whether to block until the testcase is finished,
             defaults to True.
         :return: If await_results is True, returns a list of test results.
-            Otherwise, returns a list of async result objects.
+            Otherwise, returns an async result object.
         """
         test = self.test(test_uid, runner_uid=runner_uid)
         irunner = test.cfg.interactive_runner(test)

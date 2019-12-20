@@ -88,9 +88,12 @@ def test_run_all_tests(irunner, sync):
         # If tests were run synchronously, we should have the report objects.
         # Otherwise, we will have async result objects which we can await.
         if sync:
-            test_report = res
+            test_reports = res
         else:
-            test_report = res.get()
+            test_reports = res.get()
+        assert len(test_reports) == 1
+        test_report = test_reports[0]
+
         assert isinstance(test_report, report.TestGroupReport)
         assert test_report.passed
 
@@ -103,15 +106,17 @@ def test_run_all_tests(irunner, sync):
 @pytest.mark.parametrize("sync", [True, False])
 def test_run_test(irunner, sync):
     """Test running a single test."""
-    results = irunner.run_test("test_1", await_results=sync)
-    assert len(results) == 1
+    ret = irunner.run_test("test_1", await_results=sync)
 
     # If tests were run synchronously, we should have the report objects.
     # Otherwise, we will have async result objects which we can await.
     if sync:
-        test_report = results[0]
+        results = ret
     else:
-        test_report = results[0].get()
+        results = ret.get()
+
+    assert len(results) == 1
+    test_report = results[0]
 
     assert isinstance(test_report, report.TestGroupReport)
     assert test_report.passed
@@ -128,15 +133,17 @@ def test_run_test(irunner, sync):
 @pytest.mark.parametrize("sync", [True, False])
 def test_run_suite(irunner, sync):
     """Test running a single test suite."""
-    results = irunner.run_test_suite("test_1", "Suite", await_results=sync)
-    assert len(results) == 1
+    ret = irunner.run_test_suite("test_1", "Suite", await_results=sync)
 
     # If tests were run synchronously, we should have the report objects.
     # Otherwise, we will have async result objects which we can await.
     if sync:
-        test_report = results[0]
+        results = ret
     else:
-        test_report = results[0].get()
+        results = ret.get()
+
+    assert len(results) == 1
+    test_report = results[0]
 
     assert isinstance(test_report, report.TestGroupReport)
     assert test_report.passed
@@ -153,17 +160,19 @@ def test_run_suite(irunner, sync):
 @pytest.mark.parametrize("sync", [True, False])
 def test_run_testcase(irunner, sync):
     """Test running a single testcase."""
-    results = irunner.run_test_case(
+    ret = irunner.run_test_case(
         "test_1", "Suite", "case", await_results=sync
     )
-    assert len(results) == 1
 
     # If tests were run synchronously, we should have the report objects.
     # Otherwise, we will have async result objects which we can await.
     if sync:
-        test_report = results[0]
+        results = ret
     else:
-        test_report = results[0].get()
+        results = ret.get()
+
+    assert len(results) == 1
+    test_report = results[0]
 
     assert isinstance(test_report, report.TestGroupReport)
     assert test_report.passed
@@ -189,8 +198,7 @@ def test_environment_control(irunner, sync):
     # If the environment was started asynchronously, wait for all of the
     # operations to copmlete before continuing.
     if not sync:
-        for async_res in start_results:
-            async_res.get()
+        start_results.get()
 
     assert test.resources.all_status(entity.ResourceStatus.STARTED)
     assert (
@@ -203,8 +211,7 @@ def test_environment_control(irunner, sync):
 
     # Again, await the async operation results if testing async.
     if not sync:
-        for async_res in stop_results:
-            async_res.get()
+        stop_results.get()
 
     assert test.resources.all_status(entity.ResourceStatus.STOPPED)
     assert (
