@@ -1,6 +1,14 @@
 """Schema classes for test Reports."""
 
 import functools
+import json
+from copy import deepcopy
+import six
+from six.moves import range
+if six.PY2:
+    from collections import MutableMapping, MutableSequence
+else:
+    from collections.abc import MutableMapping, MutableSequence
 
 from marshmallow import Schema, fields, post_load
 
@@ -67,6 +75,85 @@ class TimerField(fields.Field):
         })
 
 
+class EntriesField(fields.Field):
+    """
+    Handle encoding problems gracefully
+    """
+
+    _BYTES_KEY = 'bytes'
+
+    def _render_unencodable_bytes_as_int_array(self, data, recurse_lvl=0):
+        """
+        Find the lowest level at which encoding fails - if at all - and
+        convert the byte-representation of that as an int array
+        """
+        if recurse_lvl == 0:
+            datacp = deepcopy(data)
+        else:
+            datacp = data
+        try:
+            json.dumps(datacp, ensure_ascii=True)
+            return datacp
+        except UnicodeDecodeError:
+            if isinstance(datacp, MutableMapping):
+                for key in six.iterkeys(datacp):
+                    datacp[key] = self._render_unencodable_bytes_as_int_array(
+                        data=datacp[key],
+                        recurse_lvl=(recurse_lvl + 1)
+                    )
+                return datacp
+            if isinstance(datacp, MutableSequence):
+                for i in range(len(datacp)):
+                    datacp[i] = self._render_unencodable_bytes_as_int_array(
+                        data=datacp[i],
+                        recurse_lvl=(recurse_lvl + 1)
+                    )
+                return datacp
+            return {
+                self._BYTES_KEY: [int(b) for b in bytearray(datacp)],
+            }
+
+    def _serialize(self, value, attr, obj):
+        super_serialize = lambda v: super(EntriesField, self)._serialize(v, attr, obj)
+        try:
+            json.dumps(value, ensure_ascii=True)
+            return super_serialize(value)
+        except UnicodeDecodeError:
+            value_new = self._render_unencodable_bytes_as_int_array(value)
+            return super_serialize(value_new)
+
+    def _deserialize(self, value, attr, obj, recurse_lvl=0):
+        """
+        Check deeply to see if there is a {'bytes': [...]} dict and if so
+        convert it to a bytes object
+        """
+        if recurse_lvl == 0:
+            valued = super(EntriesField, self)._deserialize(value, attr, obj)
+        else:
+            valued = value
+        if isinstance(valued, MutableMapping):
+            for key in six.iterkeys(valued):
+                if key == self._BYTES_KEY and isinstance(valued[key], MutableSequence):
+                    return bytes(bytearray(valued[key]))
+                valued[key] = self._deserialize(
+                    value=valued[key],
+                    attr=attr,
+                    obj=obj,
+                    recurse_lvl=(recurse_lvl + 1)
+                )
+            return valued
+        if isinstance(valued, MutableSequence):
+            for i in range(len(valued)):
+                valued[i] = self._deserialize(
+                    value=valued[i],
+                    attr=attr,
+                    obj=obj,
+                    recurse_lvl=(recurse_lvl + 1)
+                )
+            return valued
+        return valued
+
+
 class TestCaseReportSchema(ReportSchema):
     """Schema for ``testing.TestCaseReport``"""
 
@@ -74,7 +161,7 @@ class TestCaseReportSchema(ReportSchema):
 
     status_override = fields.String(allow_none=True)
 
-    entries = fields.List(fields.Raw())
+    entries = fields.List(EntriesField()) #fields.Raw())
 
     status = fields.String(dump_only=True)
     suite_related = fields.Bool()
