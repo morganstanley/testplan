@@ -113,6 +113,7 @@ class TestGroupReportSchema(TestCaseReportSchema):
     category = fields.String()
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
+    env_status = fields.String(allow_none=True)
 
     status_reason = fields.String(allow_none=True)
 
@@ -225,6 +226,7 @@ class ShallowTestGroupReportSchema(Schema):
     parent_uids = fields.List(fields.Str())
     hash = fields.Integer(dump_only=True)
     category = fields.String()
+    env_status = fields.String(allow_none=True)
 
     @post_load
     def make_testgroup_report(self, data):

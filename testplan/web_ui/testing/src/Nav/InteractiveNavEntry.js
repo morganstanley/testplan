@@ -3,28 +3,40 @@ import PropTypes from 'prop-types';
 import {Badge} from 'reactstrap';
 import {StyleSheet, css} from "aphrodite";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faPlay, faRedo} from '@fortawesome/free-solid-svg-icons';
+import {
+  faPlay,
+  faRedo,
+  faToggleOff,
+  faToggleOn
+} from '@fortawesome/free-solid-svg-icons';
 import {BarLoader} from 'react-spinners';
 
 import {
   RED,
   GREEN,
   LIGHT_GREY,
+  MEDIUM_GREY,
   CATEGORY_ICONS,
   ENTRY_TYPES,
   STATUS
 } from "../Common/defaults";
 
 /**
- * Display NavEntry information:
+ * Display interactive NavEntry information:
  *   * name.
  *   * case count (passed/failed).
  *   * type (displayed in badge).
+ *   * Interactive status icon
+ *   * Environment status icon (if required)
  */
 const InteractiveNavEntry = (props) => {
   const badgeStyle = `${props.status}Badge`;
-  const interactiveIcon = getInteractiveIcon(
-    props.status, props.handlePlayClick);
+  const statusIcon = getStatusIcon(
+    props.status, props.handlePlayClick
+  );
+  const envStatusIcon = getEnvStatusIcon(
+    props.envStatus, props.envCtrlCallback
+  );
 
   return (
     <div className='d-flex justify-content-between'>
@@ -44,7 +56,8 @@ const InteractiveNavEntry = (props) => {
         >
           {CATEGORY_ICONS[props.type]}
         </Badge>
-        {interactiveIcon}
+        {envStatusIcon}
+        {statusIcon}
       </div>
     </div>
   );
@@ -61,7 +74,7 @@ const InteractiveNavEntry = (props) => {
  *
  * * When the entry has been run, render a replay button.
  */
-const getInteractiveIcon = (entryStatus, handlePlayClick) => {
+const getStatusIcon = (entryStatus, handlePlayClick) => {
   switch (entryStatus) {
     case 'ready':
       return (
@@ -98,6 +111,55 @@ const getInteractiveIcon = (entryStatus, handlePlayClick) => {
   }
 };
 
+/**
+ * Returns the environment control component for entries that own an
+ * environment. Returns null for entries that do not have an environment.
+ */
+const getEnvStatusIcon = (envStatus, envCtrlCallback) => {
+  switch (envStatus) {
+      case 'STOPPED':
+        return (
+          <FontAwesomeIcon
+            className={css(styles.entryButton)}
+            icon={faToggleOff}
+            title='Start environment'
+            onClick={(e) => envCtrlCallback(e, "start")}
+          />
+        );
+
+      case 'STARTING':
+        return (
+          <FontAwesomeIcon
+            className={css(styles.inactiveEntryButton)}
+            icon={faToggleOff}
+            title='Environment starting...'
+          />
+        );
+
+      case 'STARTED':
+        return (
+          <FontAwesomeIcon
+            className={css(styles.entryButton)}
+            icon={faToggleOn}
+            title='Start environment'
+            onClick={(e) => envCtrlCallback(e, "stop")}
+          />
+        );
+
+      case 'STOPPING':
+        return (
+          <FontAwesomeIcon
+            className={css(styles.inactiveEntryButton)}
+            icon={faToggleOn}
+            title='Environment stopping...'
+          />
+        );
+
+      default:
+          return null;
+  }
+};
+
 InteractiveNavEntry.propTypes = {
   /** Entry name */
   name: PropTypes.string,
@@ -119,6 +181,9 @@ const styles = StyleSheet.create({
   },
   entryIcons: {
     paddingLeft: '1em',
+    display: 'flex',
+    "flex-wrap": "nowrap",
+    "align-items": "center",
   },
   entryIcon: {
     fontSize: '0.6em',
@@ -137,6 +202,17 @@ const styles = StyleSheet.create({
     ':hover': {
         color: LIGHT_GREY
     }
+  },
+  inactiveEntryButton: {
+    textDecoration: 'none',
+    position: 'relative',
+    display: 'inline-block',
+    height: '2.4em',
+    width: '2.4em',
+    cursor: 'pointer',
+    color: MEDIUM_GREY,
+    padding: '0.7em 0em 0.7em 0em',
+    transition: 'all 0.3s ease-out 0s',
   },
   passedBadge: {
     backgroundColor: GREEN,

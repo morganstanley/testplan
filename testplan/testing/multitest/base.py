@@ -11,7 +11,7 @@ from schema import Use, Or, And
 
 from testplan import defaults
 from testplan.common.config import ConfigOption
-from testplan.common.entity import Runnable, RunnableIRunner
+from testplan.common.entity import Runnable, RunnableIRunner, ResourceStatus
 from testplan.common.utils.interface import (
     check_signature, MethodSignatureMismatch
 )
@@ -227,6 +227,7 @@ class MultiTest(Test):
             tags=self.cfg.tags,
             part=self.cfg.part,
             fix_spec_path=self.cfg.fix_spec_path,
+            env_status=ResourceStatus.STOPPED,
         )
 
     def _execute_step(self, step, *args, **kwargs):

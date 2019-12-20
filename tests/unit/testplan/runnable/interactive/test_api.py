@@ -12,6 +12,7 @@ import pytest
 from testplan.runnable.interactive import http
 from testplan.runnable.interactive import base
 from testplan import report
+from testplan.common import entity
 
 
 @pytest.fixture
@@ -25,6 +26,7 @@ def example_report():
                 name="MTest1",
                 uid="MTest1",
                 category="multitest",
+                env_status=entity.ResourceStatus.STOPPED,
                 entries=[
                     report.TestGroupReport(
                         name="Suite1",
@@ -56,6 +58,8 @@ def api_env(example_report):
     ihandler.run_test = mock.MagicMock()
     ihandler.run_test_suite = mock.MagicMock()
     ihandler.run_test_case = mock.MagicMock()
+    ihandler.start_test_resources = mock.MagicMock()
+    ihandler.stop_test_resources = mock.MagicMock()
 
     app, _ = http.generate_interactive_api(ihandler)
     app.config["TESTING"] = True
@@ -154,6 +158,35 @@ class TestSingleTest(object):
         compare_json(rsp.get_json(), json_test)
 
         ihandler.run_test.assert_called_once_with(
+            "MTest1", await_results=False
+        )
+
+    def test_put_env(self, api_env):
+        """Test starting and stopping a test environment via PUT."""
+        client, ihandler = api_env
+
+        json_test = ihandler.report["MTest1"].shallow_serialize()
+        json_test["env_status"] = "STARTING"
+        rsp = client.put(
+            "/api/v1/interactive/report/tests/MTest1", json=json_test
+        )
+        assert rsp.status == "200 OK"
+        compare_json(rsp.get_json(), json_test)
+
+        ihandler.start_test_resources.assert_called_once_with(
+            "MTest1", await_results=False
+        )
+
+        # Mark the environment as STARTED and then request for it to stop.
+        ihandler.report["MTest1"].env_status = "STARTED"
+        json_test["env_status"] = "STOPPING"
+        rsp = client.put(
+            "/api/v1/interactive/report/tests/MTest1", json=json_test
+        )
+        assert rsp.status == "200 OK"
+        compare_json(rsp.get_json(), json_test)
+
+        ihandler.stop_test_resources.assert_called_once_with(
             "MTest1", await_results=False
         )
 
