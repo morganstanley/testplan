@@ -5,7 +5,7 @@ import {ListGroup} from 'reactstrap';
 import InteractiveNavEntry from './InteractiveNavEntry';
 import Column from './Column';
 import {CreateNavButtons} from './navUtils.js';
-import {STATUS, COLUMN_WIDTH} from "../Common/defaults";
+import {STATUS, INTERACTIVE_COL_WIDTH} from "../Common/defaults";
 
 /**
  * Render a vertical list of all the currently selected entries children for
@@ -34,7 +34,7 @@ const InteractiveNavList = (props) => {
   return (
     // Make the column a little wider for the interactive mode, to account for
     // extra space used by the interactive buttons.
-    <Column width={COLUMN_WIDTH * 1.3} >
+    <Column width={INTERACTIVE_COL_WIDTH} >
       <ListGroup>{navButtons}</ListGroup>
     </Column>
   );

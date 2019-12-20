@@ -7,7 +7,7 @@ import React from 'react';
 import {StyleSheet, css} from 'aphrodite';
 import axios from 'axios';
 
-import {COLUMN_WIDTH} from "../Common/defaults";
+import {INTERACTIVE_COL_WIDTH} from "../Common/defaults";
 import Toolbar from '../Toolbar/Toolbar.js';
 import InteractiveNav from '../Nav/InteractiveNav.js';
 import {FakeInteractiveReport} from '../Common/sampleReports.js';
@@ -30,7 +30,7 @@ class InteractiveReport extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      navWidth: COLUMN_WIDTH,
+      navWidth: INTERACTIVE_COL_WIDTH,
       report: null,
       selectedUIDs: [],
       loading: false,

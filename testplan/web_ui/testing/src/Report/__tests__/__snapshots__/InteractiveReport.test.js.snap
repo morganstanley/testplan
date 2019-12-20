@@ -190,7 +190,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     }
   />
   <Message
-    left={18}
+    left={24}
     message="Please select a testcase."
   />
 </div>
@@ -470,7 +470,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
     }
   />
   <Message
-    left={18}
+    left={24}
     message="Please select a testcase."
   />
 </div>
@@ -660,7 +660,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     }
   />
   <Message
-    left={18}
+    left={24}
     message="Please select a testcase."
   />
 </div>
@@ -940,7 +940,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     }
   />
   <Message
-    left={18}
+    left={24}
     message="Please select a testcase."
   />
 </div>
@@ -1136,7 +1136,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     }
   />
   <Message
-    left={18}
+    left={24}
     message="Please select a testcase."
   />
 </div>
@@ -1332,7 +1332,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     }
   />
   <Message
-    left={18}
+    left={24}
     message="Please select a testcase."
   />
 </div>
@@ -1584,7 +1584,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
     }
   />
   <Message
-    left={18}
+    left={24}
     message="Please select a testcase."
   />
 </div>
@@ -1780,7 +1780,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
     }
   />
   <Message
-    left={18}
+    left={24}
     message="Please select a testcase."
   />
 </div>
