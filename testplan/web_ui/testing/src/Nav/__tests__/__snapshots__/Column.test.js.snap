@@ -6,7 +6,7 @@ exports[`Column shallow renders the correct HTML structure 1`] = `
     className="column_1e6n0oe"
     style={
       Object {
-        "width": "18em",
+        "width": "20em",
       }
     }
   >
@@ -15,10 +15,10 @@ exports[`Column shallow renders the correct HTML structure 1`] = `
     />
   </div>
   <div
-    className="grip_gfj8zc"
+    className="column_1e6n0oe"
     style={
       Object {
-        "left": "18em",
+        "left": "20em",
       }
     }
   />

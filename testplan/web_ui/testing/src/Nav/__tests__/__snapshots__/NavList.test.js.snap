@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NavList shallow renders and matches snapshot 1`] = `
-<Column>
+<Column
+  width={18}
+>
   <ListGroup
     className="buttonList_mjw45f"
     tag="ul"

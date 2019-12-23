@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
-<Column>
+<Column
+  width={24}
+>
   <ListGroup
     tag="ul"
   >
@@ -15,6 +17,7 @@ exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
       <InteractiveNavEntry
         caseCountFailed={0}
         caseCountPassed={0}
+        envCtrlCallback={[Function]}
         handlePlayClick={[Function]}
         name="Interactive MTest"
         status="ready"

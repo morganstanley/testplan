@@ -6,7 +6,7 @@ import {StyleSheet, css} from 'aphrodite';
 import NavEntry from './NavEntry';
 import {CreateNavButtons} from './navUtils.js';
 import Column from './Column';
-import {STATUS} from "../Common/defaults";
+import {STATUS, COLUMN_WIDTH} from "../Common/defaults";
 
 /**
  * Render a vertical list of all the currently selected entries children.
@@ -27,7 +27,7 @@ const NavList = (props) => {
   );
 
   return (
-    <Column>
+    <Column width={COLUMN_WIDTH} >
       <ListGroup className={css(styles.buttonList)}>{navButtons}</ListGroup>
     </Column>
   );

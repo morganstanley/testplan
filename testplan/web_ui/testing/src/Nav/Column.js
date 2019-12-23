@@ -1,53 +1,24 @@
-import React, {Component, Fragment} from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import {StyleSheet, css} from 'aphrodite';
 
-import {LIGHT_GREY, COLUMN_WIDTH} from "../Common/defaults";
+import {LIGHT_GREY} from "../Common/defaults";
 
 /**
- * Vertical column with draggable right side.
+ * Vertical column for navigation bar.
  */
-class Column extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      width: COLUMN_WIDTH,
-    };
-  }
 
-  /**
-   * Placeholder to handle column's right side being dragged to new width
-   */
-  handleDrag() {
-    const width = COLUMN_WIDTH;
-    if (this.props.setWidth !== null) {
-      this.props.setWidth(width);
-    }
-    this.setState({width: width});
-  }
+const Column = (props) => {
+  const leftStyle = {width: `${props.width}em`};
+  const rightStyle = {left: `${props.width}em`};
 
-  render() {
-    const navStyle = {width: `${this.state.width}em`};
-    const gripStyle = {left: `${this.state.width}em`};
-    return (
-      <Fragment>
-        <div className={css(styles.column)} style={navStyle}>
-          {this.props.children}
-        </div>
-        <div className={css(styles.grip)} style={gripStyle}/>
-      </Fragment>
-    );
-  }
-}
-
-Column.propTypes = {
-  /** Function to pass this column's width to a higher order component */
-  setWidth: PropTypes.func,
-  /** Contents of the column */
-  children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.node),
-    PropTypes.node,
-  ]),
+  return (
+    <>
+      <div className={css(styles.column)} style={leftStyle}>
+        {props.children}
+      </div>
+      <div className={css(styles.column)} style={rightStyle}/>
+    </>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -62,14 +33,6 @@ const styles = StyleSheet.create({
     top: '4.5em',
     'padding-bottom': '4.5em',
     zIndex: 200,
-  },
-  grip: {
-    cursor: 'col-resize',
-    position: 'absolute',
-    width: '0.3em',
-    height: '100%',
-    zIndex: '50000',
-    backgroundColor: 'transparent',
   },
 });
 
