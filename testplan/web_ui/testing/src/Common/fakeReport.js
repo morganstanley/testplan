@@ -46,7 +46,7 @@ const TESTPLAN_REPORT = {
       "entries": [
         {
           "status": "failed",
-          "category": "suite",
+          "category": "testsuite",
           "name": "AlphaSuite",
           "status_override": null,
           "description": "This is a failed testsuite",
@@ -133,7 +133,7 @@ const TESTPLAN_REPORT = {
         },
         {
           "status": "passed",
-          "category": "suite",
+          "category": "testsuite",
           "name": "BetaSuite",
           "status_override": null,
           "description": null,
@@ -205,7 +205,7 @@ const TESTPLAN_REPORT = {
       "entries": [
         {
           "status": "passed",
-          "category": "suite",
+          "category": "testsuite",
           "name": "GammaSuite",
           "tags": {},
           "status_override": null,
@@ -293,7 +293,7 @@ var fakeReportAssertions = {
         "part": null,
         "entries": [{
                 "status": "failed",
-                "category": "suite",
+                "category": "testsuite",
                 "name": "SampleSuite",
                 "tags": {},
                 "description": "This is a sample testsuite",
@@ -3952,7 +3952,6 @@ var fakeReportAssertions = {
     }
 ], "name": "Assertions Example"
 };
-
 
 export {
   TESTPLAN_REPORT,

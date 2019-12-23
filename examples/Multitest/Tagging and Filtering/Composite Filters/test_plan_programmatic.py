@@ -153,7 +153,7 @@ composite_filter_6_b = Not(
     name='Composite Filters (Programmatic)',
     test_filter=composite_filter_1_a,
     # Using testcase level stdout so we can see filtered testcases
-    stdout_style=Style('case', 'case')
+    stdout_style=Style('testcase', 'testcase')
 )
 def main(plan):
 

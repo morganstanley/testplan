@@ -93,7 +93,7 @@ class HobbesTest(ProcessRunnerTest):
         for suite in test_data:
             suite_report = TestGroupReport(
                 name=suite['name'],
-                category='suite',
+                category='testsuite',
             )
             suite_has_run = False
 

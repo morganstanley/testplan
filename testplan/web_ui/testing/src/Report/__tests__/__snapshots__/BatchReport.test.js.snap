@@ -15,7 +15,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             "description": null,
             "entries": Array [
               Object {
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -106,7 +106,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
               },
               Object {
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -184,7 +184,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             "description": null,
             "entries": Array [
               Object {
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -283,7 +283,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             "description": null,
             "entries": Array [
               Object {
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -374,7 +374,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
               },
               Object {
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -452,7 +452,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             "description": null,
             "entries": Array [
               Object {
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {

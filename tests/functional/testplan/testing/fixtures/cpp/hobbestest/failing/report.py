@@ -9,7 +9,7 @@ expected_report = TestReport(
             entries=[
                 TestGroupReport(
                     name="Hog",
-                    category="suite",
+                    category="testsuite",
                     entries=[
                         TestCaseReport(
                             name="MultiDestination",
@@ -56,7 +56,7 @@ expected_report = TestReport(
                     tags=None),
                 TestGroupReport(
                     name="Net",
-                    category="suite",
+                    category="testsuite",
                     entries=[
                         TestCaseReport(
                             name="syncClientAPI",
@@ -81,7 +81,7 @@ expected_report = TestReport(
                     tags=None),
                 TestGroupReport(
                     name="Recursives",
-                    category="suite",
+                    category="testsuite",
                     entries=[
                         TestCaseReport(
                             name="Lists",

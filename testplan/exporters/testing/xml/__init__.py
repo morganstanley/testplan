@@ -30,7 +30,7 @@ class BaseRenderer(object):
     .. code-block:: python
 
       TestGroupReport(name=..., category='<test-category>')
-          TestGroupReport(name=..., category='suite')
+          TestGroupReport(name=..., category='testsuite')
               TestCaseReport(name=...)  (failing)
                   RawAssertion (dict form)
               TestCaseReport(name=...) (passing)
@@ -178,7 +178,7 @@ class MultiTestRenderer(BaseRenderer):
     .. code-block:: python
 
       TestGroupReport(name=..., category='multitest')
-          TestGroupReport(name=..., category='suite')
+          TestGroupReport(name=..., category='testsuite')
               TestCaseReport(name=...)
                   Assertion entry (dict)
                   Assertion entry (dict)

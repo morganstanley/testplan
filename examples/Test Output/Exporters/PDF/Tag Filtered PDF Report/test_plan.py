@@ -104,7 +104,7 @@ class BetaSuite(object):
     # All of the PDFs are going to be generated in this directory.
     report_dir=os.path.dirname(__file__),
     # This will be the common styling for all PDFs.
-    pdf_style=Style(passing='case', failing='assertion-detail')
+    pdf_style=Style(passing='testcase', failing='assertion-detail')
 )
 def main(plan):
 

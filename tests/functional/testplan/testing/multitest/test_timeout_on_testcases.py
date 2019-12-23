@@ -87,7 +87,7 @@ def test_timeout_on_testcases():
                     TestGroupReport(
                         name='Suite1',
                         description='A test suite with basic testcases.',
-                        category=ReportCategories.SUITE,
+                        category=ReportCategories.TESTSUITE,
                         entries=[
                             TestCaseReport(
                                 name='test_normal',
@@ -113,7 +113,7 @@ def test_timeout_on_testcases():
                     TestGroupReport(
                         name='Suite2',
                         description='A test suite with parameterized testcases in different exec groups.',
-                        category=ReportCategories.SUITE,
+                        category=ReportCategories.TESTSUITE,
                         entries=[
                             TestGroupReport(
                                 name='test_timeout_1',

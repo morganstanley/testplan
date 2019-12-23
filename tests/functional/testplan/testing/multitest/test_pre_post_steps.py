@@ -42,14 +42,14 @@ expected_report = TestReport(
             entries=[
                 TestGroupReport(
                     name='MySuite',
-                    category=ReportCategories.SUITE,
+                    category=ReportCategories.TESTSUITE,
                     entries=[
                         TestCaseReport(name='test_one')
                     ]
                 ),
                 TestGroupReport(
                     name='Pre/Post Step Checks',
-                    category=ReportCategories.SUITE,
+                    category=ReportCategories.TESTSUITE,
                     entries=[
                         TestCaseReport(
                             name='before_start - check_func_1',

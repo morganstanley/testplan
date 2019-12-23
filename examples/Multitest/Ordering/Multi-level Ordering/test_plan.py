@@ -79,7 +79,7 @@ class Gamma(object):
     name='Multi-level Test ordering',
     test_sorter=AlphanumericSorter('all'),
     # Using testcase level stdout so we can see sorted testcases
-    stdout_style=Style('case', 'case')
+    stdout_style=Style('testcase', 'testcase')
 )
 def main(plan):
 

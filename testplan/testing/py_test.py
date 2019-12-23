@@ -410,7 +410,7 @@ class _ReportPlugin(object):
         # Collate suite reports
         for suite_name, cases in self._suite_reports.items():
             suite_report = TestGroupReport(
-                name=suite_name, category='suite')
+                name=suite_name, category='testsuite')
 
             for case in cases.values():
                 suite_report.append(case)

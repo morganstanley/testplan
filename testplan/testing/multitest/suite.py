@@ -529,7 +529,7 @@ def _validate_skip_if_predicates(predicates):
     the testcase method.
     """
     for predicate in predicates:
-        interface.check_signature(predicate, ['suite'])
+        interface.check_signature(predicate, ['testsuite'])
 
     return predicates
 
@@ -540,7 +540,7 @@ def skip_if(*predicates):
     evaluated before the testsuite is due to be executed and passed the
     instance of the suite as the sole argument.
 
-    The predicate's signature must name the argument "suite" or
+    The predicate's signature must name the argument "testsuite" or
     a ``MethodSignatureMismatch`` will be raised.
 
     If any of the predicates is true, then the testcase will be skipped by
@@ -632,7 +632,7 @@ def skip_if_testcase(*predicates):
     evaluated against each test case method before the testsuite is due
     to be executed and passed the instance of the suite as the sole argument.
 
-    The predicate's signature must name the argument "suite" or
+    The predicate's signature must name the argument "testsuite" or
     a ``MethodSignatureMismatch`` will be raised.
 
     If any of the predicates returns true for a test case method

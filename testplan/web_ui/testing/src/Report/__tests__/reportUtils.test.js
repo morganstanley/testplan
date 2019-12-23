@@ -23,7 +23,7 @@ describe('Report/reportUtils', () => {
       testplanEntries = {
         testplan: report,
         multitest: multitest,
-        suite: suiteA,
+        testsuite: suiteA,
         testcase: testcase,
       };
     });
@@ -73,12 +73,12 @@ describe('Report/reportUtils', () => {
         new Set([
           'Sample Testplan|testplan',
           'Primary|multitest',
-          'AlphaSuite|suite',
+          'AlphaSuite|testsuite',
           'test_equality_passing|testcase',
           'test_equality_passing2|testcase',
-          'BetaSuite|suite',
+          'BetaSuite|testsuite',
           'Secondary|multitest',
-          'GammaSuite|suite',
+          'GammaSuite|testsuite',
       ]),
       ],
       [
@@ -86,16 +86,16 @@ describe('Report/reportUtils', () => {
         new Set([
           'Primary|multitest',
           'Sample Testplan|testplan',
-          'AlphaSuite|suite',
+          'AlphaSuite|testsuite',
           'test_equality_passing|testcase',
           'test_equality_passing2|testcase',
-          'BetaSuite|suite',
+          'BetaSuite|testsuite',
         ]),
       ],
       [
-        'suite',
+        'testsuite',
         new Set([
-          'AlphaSuite|suite',
+          'AlphaSuite|testsuite',
           'Primary|multitest',
           'Sample Testplan|testplan',
           'test_equality_passing|testcase',
@@ -106,7 +106,7 @@ describe('Report/reportUtils', () => {
         'testcase',
         new Set([
           'test_equality_passing|testcase',
-          'AlphaSuite|suite',
+          'AlphaSuite|testsuite',
           'Primary|multitest',
           'Sample Testplan|testplan',
         ]),
@@ -122,7 +122,7 @@ describe('Report/reportUtils', () => {
     [
       ['testplan', {passed: 3, failed: 1}],
       ['multitest', {passed: 2, failed: 1}],
-      ['suite', {passed: 1, failed: 1}],
+      ['testsuite', {passed: 1, failed: 1}],
       ['testcase', {passed: 1, failed: 0}],
     ].forEach(([entryType, caseCount]) => {
       it(`${entryType} case_count - stores number of passing & failing ` +

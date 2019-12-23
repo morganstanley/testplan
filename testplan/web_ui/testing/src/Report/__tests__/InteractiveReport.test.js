@@ -38,7 +38,7 @@ const INITIAL_REPORT = {
     "category": "multitest",
     "hash": 12345,
     "entries": [{
-      "category": "suite",
+      "category": "testsuite",
       "uid": "SuiteUID",
       "timer": {},
       "description": null,
@@ -51,10 +51,10 @@ const INITIAL_REPORT = {
       "fix_spec_path": null,
       "parent_uids": ["TestplanUID", "MultiTestUID"],
       "type": "TestGroupReport",
-      "category": "suite",
+      "category": "testsuite",
       "hash": 12345,
       "entries": [{
-        "category": "testcase",
+        "category": 'testcase',
         "uid": "testcaseUID",
         "timer": {},
         "description": null,
@@ -148,7 +148,7 @@ describe('InteractiveReport', () => {
               request.respondWith({
                 status: 200,
                 response: [{
-                  "category": "suite",
+                  "category": "testsuite",
                   "uid": "SuiteUID",
                   "timer": {},
                   "description": null,
@@ -174,7 +174,7 @@ describe('InteractiveReport', () => {
                   request.respondWith({
                     status: 200,
                     response: [{
-                      "category": "testcase",
+                      "category": 'testcase',
                       "uid": "testcaseUID",
                       "timer": {},
                       "description": null,
@@ -389,7 +389,7 @@ describe('InteractiveReport', () => {
               request.respondWith({
                 status: 200,
                 response: [{
-                  "category": "suite",
+                  "category": "testsuite",
                   "uid": "SuiteUID",
                   "timer": {},
                   "description": null,
@@ -415,7 +415,7 @@ describe('InteractiveReport', () => {
                   request.respondWith({
                     status: 200,
                     response: [{
-                      "category": "testcase",
+                      "category": 'testcase',
                       "uid": "TestcaseUID",
                       "timer": {},
                       "description": null,

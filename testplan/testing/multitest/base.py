@@ -158,8 +158,8 @@ class MultiTest(Test):
     # MultiTest allows deep filtering
     filter_levels = [
         filtering.FilterLevel.TEST,
-        filtering.FilterLevel.SUITE,
-        filtering.FilterLevel.CASE,
+        filtering.FilterLevel.TESTSUITE,
+        filtering.FilterLevel.TESTCASE,
     ]
 
     def __init__(self,
@@ -243,7 +243,7 @@ class MultiTest(Test):
         if self._pre_post_step_report is None:
             self._pre_post_step_report = TestGroupReport(
                 name='Pre/Post Step Checks',
-                category=ReportCategories.SUITE,
+                category=ReportCategories.TESTSUITE,
                 uid='Pre/Post Step Checks',
             )
         return self._pre_post_step_report
@@ -327,7 +327,7 @@ class MultiTest(Test):
             testsuite_report = TestGroupReport(
                 name=get_testsuite_name(testsuite),
                 description=testsuite.__class__.__doc__,
-                category=ReportCategories.SUITE,
+                category=ReportCategories.TESTSUITE,
                 uid=get_testsuite_name(testsuite),
                 tags=testsuite.__tags__,
             )
@@ -412,7 +412,7 @@ class MultiTest(Test):
                     testsuite_report = TestGroupReport(
                         name=get_testsuite_name(next_suite),
                         description=next_suite.__class__.__doc__,
-                        category=ReportCategories.SUITE,
+                        category=ReportCategories.TESTSUITE,
                         uid=get_testsuite_name(next_suite),
                         tags=next_suite.__tags__,
                     )
@@ -426,7 +426,7 @@ class MultiTest(Test):
                             next_suite, testcases, testsuite_report)
 
                     if self.get_stdout_style(
-                          testsuite_report.passed).display_suite:
+                          testsuite_report.passed).display_testsuite:
                         self.log_suite_status(testsuite_report)
 
                 time.sleep(self.cfg.active_loop_sleep)
@@ -639,7 +639,7 @@ class MultiTest(Test):
                 else:
                     testcase_report.status_override = Status.XPASS
 
-        if self.get_stdout_style(testcase_report.passed).display_case:
+        if self.get_stdout_style(testcase_report.passed).display_testcase:
             self.log_testcase_status(testcase_report)
 
     def _run_testcase_in_separate_thread(self):
@@ -789,7 +789,7 @@ class MultiTest(Test):
                 testcase_report.status = Status.PASSED
             testcase_report.extend(case_result.serialized_entries)
 
-            if self.get_stdout_style(testcase_report.passed).display_case:
+            if self.get_stdout_style(testcase_report.passed).display_testcase:
                 self.log_testcase_status(testcase_report)
 
             self.pre_post_step_report.append(testcase_report)

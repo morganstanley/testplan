@@ -28,7 +28,7 @@ expected_report = TestReport(
             entries=[
                 TestGroupReport(
                     name='ProcessFailure',
-                    category='suite',
+                    category='testsuite',
                     entries=[testcase_report]
                 )
             ]

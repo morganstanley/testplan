@@ -281,10 +281,10 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         Filter out passing rows if `failing_tests` is `True`.
         """
         style = self.get_style(source)
-        if source.category == ReportCategories.SUITE:
-            return style.display_suite
+        if source.category == ReportCategories.TESTSUITE:
+            return style.display_testsuite
         elif source.category == ReportCategories.PARAMETRIZATION:
-            return style.display_case
+            return style.display_testcase
         return style.display_test
 
 
@@ -303,7 +303,7 @@ class TestCaseRowBuilder(TestRowRenderer):
         return 0.5, colors.lightgrey
 
     def should_display(self, source):
-        return self.get_style(source).display_case
+        return self.get_style(source).display_testcase
 
 
 @registry.bind((TestGroupReport, ReportCategories.MULTITEST))

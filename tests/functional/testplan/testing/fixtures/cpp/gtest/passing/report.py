@@ -9,7 +9,7 @@ expected_report = TestReport(
             entries=[
                 TestGroupReport(
                     name='SquareRootTest',
-                    category='suite',
+                    category='testsuite',
                     entries=[
                         TestCaseReport(
                             name='PositiveNos',
@@ -23,7 +23,7 @@ expected_report = TestReport(
                 ),
                 TestGroupReport(
                     name='SquareRootTestNonFatal',
-                    category='suite',
+                    category='testsuite',
                     entries=[
                         TestCaseReport(
                             name='PositiveNos',

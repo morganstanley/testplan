@@ -89,27 +89,27 @@ style_1_b = Style(
 
 # Testcase names for passing testcases
 # Assertion descriptions / names for failing assertions
-style_2_a = Style(passing='case', failing='assertion')
+style_2_a = Style(passing='testcase', failing='assertion')
 style_2_b = Style(
-    passing=StyleEnum.CASE,
+    passing=StyleEnum.TESTCASE,
     failing=StyleEnum.ASSERTION
 )
 
 # Suite names for passing suites
 # Testcase names for failing testcases
-style_3_a = Style(passing='suite', failing='case')
+style_3_a = Style(passing='testsuite', failing='testcase')
 style_3_b = Style(
-    passing=StyleEnum.SUITE,
-    failing=StyleEnum.CASE
+    passing=StyleEnum.TESTSUITE,
+    failing=StyleEnum.TESTCASE
 )
 
 # Multitest names for passing multitest instances
 # Suite names for failing suites
 
-style_4_a = Style(passing='test', failing='suite')
+style_4_a = Style(passing='test', failing='testsuite')
 style_4_b = Style(
     passing=StyleEnum.TEST,
-    failing=StyleEnum.SUITE
+    failing=StyleEnum.TESTSUITE
 )
 
 

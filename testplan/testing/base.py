@@ -268,15 +268,15 @@ class Test(Runnable):
         if isinstance(test_obj, TestGroupReport):
             if depth == 0:
                 return style.display_test, TEST_INST_INDENT
-            elif test_obj.category == 'suite':
-                return style.display_suite, SUITE_INDENT
+            elif test_obj.category == 'testsuite':
+                return style.display_testsuite, SUITE_INDENT
             elif test_obj.category == 'parametrization':
                 return False, 0  # DO NOT display
             else:
                 raise ValueError('Unexpected test group category: {}'
                                  .format(test_obj.category))
         elif isinstance(test_obj, TestCaseReport):
-            return style.display_case, TESTCASE_INDENT
+            return style.display_testcase, TESTCASE_INDENT
         elif isinstance(test_obj, dict):
             return style.display_assertion, ASSERTION_INDENT
         raise TypeError('Unsupported test object: {}'.format(test_obj))
@@ -650,7 +650,7 @@ class ProcessRunnerTest(Test):
 
         return TestGroupReport(
             name='ProcessFailure',
-            category='suite',
+            category='testsuite',
             entries=[
                 testcase_report
             ]

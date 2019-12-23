@@ -48,7 +48,7 @@ class PyUnit(testing.Test):
         super(PyUnit, self).__init__(**options)
         self._suite_report = report_testing.TestGroupReport(
             name=self.cfg.name,
-            category='suite')
+            category='testsuite')
 
     def main_batch_steps(self):
         """Specify the test steps: run the tests, then log the results."""
