@@ -132,7 +132,7 @@ def test_execution_order():
                 entries=[
                     TestGroupReport(
                         name='Suite1',
-                        category=ReportCategories.SUITE,
+                        category=ReportCategories.TESTSUITE,
                         entries=[
                             TestCaseReport(
                                 name='setup'
@@ -154,7 +154,7 @@ def test_execution_order():
                     ),
                     TestGroupReport(
                         name='Suite2',
-                        category=ReportCategories.SUITE,
+                        category=ReportCategories.TESTSUITE,
                         entries=[
                             TestCaseReport(
                                 name='setup'
@@ -232,7 +232,7 @@ def test_execution_order():
                     ),
                     TestGroupReport(
                         name='Suite3',
-                        category=ReportCategories.SUITE,
+                        category=ReportCategories.TESTSUITE,
                         entries=[
                             TestCaseReport(
                                 name='setup'
@@ -269,7 +269,7 @@ def test_execution_order():
                 entries=[
                     TestGroupReport(
                         name='Suite1',
-                        category=ReportCategories.SUITE,
+                        category=ReportCategories.TESTSUITE,
                         entries=[
                             TestCaseReport(
                                 name='setup'
@@ -288,7 +288,7 @@ def test_execution_order():
                     ),
                     TestGroupReport(
                         name='Suite2',
-                        category=ReportCategories.SUITE,
+                        category=ReportCategories.TESTSUITE,
                         entries=[
                             TestCaseReport(
                                 name='setup'
@@ -320,7 +320,7 @@ def test_execution_order():
                     ),
                     TestGroupReport(
                         name='Suite3',
-                        category=ReportCategories.SUITE,
+                        category=ReportCategories.TESTSUITE,
                         entries=[
                             TestCaseReport(
                                 name='setup'

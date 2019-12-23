@@ -42,10 +42,10 @@ const CATEGORIES = {
   'unittest': 'test',
   'boost-test': 'test',
   'qunit': 'test',
-  'suite': 'suite',
-  'cppunit-suite': 'suite',
-  'boost-test-suite': 'suite',
-  'gtest-suite': 'suite',
+  'testsuite': 'testsuite',
+  'cppunit-suite': 'testsuite',
+  'boost-test-suite': 'testsuite',
+  'gtest-suite': 'testsuite',
   'parametrization': 'parametrization',
   'testcase': 'testcase'
 };
@@ -59,7 +59,7 @@ const CATEGORY_ICONS = {
   'unittest': 'UT',
   'boost-test': 'BT',
   'qunit': 'QU',
-  'suite': 'S',
+  'testsuite': 'S',
   'cppunit-suite': 'CS',
   'boost-test-suite': 'BS',
   'gtest-suite': 'GS',
@@ -75,7 +75,7 @@ const ENTRY_TYPES = [
   'cppunit',
   'qunit',
   'unittest',
-  'suite',
+  'testsuite',
   'parametrization',
   'testcase',
 ];

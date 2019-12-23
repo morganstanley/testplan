@@ -25,7 +25,7 @@ my_test_report = TestGroupReport(
     entries=[
         TestGroupReport(
             name='ProcessFailure',
-            category='suite',
+            category='testsuite',
             entries=[testcase_report]
         )
     ],

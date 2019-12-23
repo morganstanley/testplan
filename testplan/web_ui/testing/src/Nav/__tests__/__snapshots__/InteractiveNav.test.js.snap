@@ -24,7 +24,7 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
                     "failed": 0,
                     "passed": 0,
                   },
-                  "category": "suite",
+                  "category": "testsuite",
                   "description": null,
                   "entries": Array [
                     Object {
@@ -106,7 +106,7 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
                 "failed": 0,
                 "passed": 0,
               },
-              "category": "suite",
+              "category": "testsuite",
               "description": null,
               "entries": Array [
                 Object {

@@ -13,22 +13,22 @@ from testplan.testing.multitest.suite import (testcase, testsuite, skip_if,
 
 def pre1(name, self, env, result):
     result.equal(2, 2)
-    result.contain('case', name)
+    result.contain('testcase', name)
 
 
 def post1(name, self, env, result):
     result.equal(2, 2)
-    result.contain('case', name)
+    result.contain('testcase', name)
 
 
 def pre2(name, self, env, result, a=None, b=None):
     result.equal(2, 2)
-    result.contain('case', name)
+    result.contain('testcase', name)
 
 
 def post2(name, self, env, result, a=None, b=None):
     result.equal(2, 2)
-    result.contain('case', name)
+    result.contain('testcase', name)
 
 
 @pre_testcase(pre1)
@@ -47,7 +47,7 @@ class Suite1(object):
     def case2(self, env, result):
         result.equal(1, 1)
 
-    @skip_if(lambda suite: True)
+    @skip_if(lambda testsuite: True)
     @testcase
     def case3(self, env, result):
         result.equal(1, 1)
@@ -72,7 +72,7 @@ class Suite2(object):
     def case5(self, env, result):
         result.equal(1, 2)
 
-    @skip_if(lambda suite: True)
+    @skip_if(lambda testsuite: True)
     @testcase
     def case6(self, env, result):
         result.equal(1, 1)

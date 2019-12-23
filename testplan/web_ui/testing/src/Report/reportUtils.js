@@ -236,7 +236,7 @@ const GetCenterPane = (
 /** TODO */
 const getAssertions = (selectedEntries) => {
   const selectedEntry = selectedEntries[selectedEntries.length - 1];
-  if (selectedEntry && selectedEntry.category === "testcase") {
+  if (selectedEntry && selectedEntry.category === 'testcase') {
     return selectedEntry.entries;
   } else {
     return null;

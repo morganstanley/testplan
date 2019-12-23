@@ -40,7 +40,7 @@ def check_parametrization(suite_kls, parametrization_group):
                 entries=[
                     TestGroupReport(
                         name='MySuite',
-                        category=ReportCategories.SUITE,
+                        category=ReportCategories.TESTSUITE,
                         entries=[parametrization_group]
                     )
                 ]
@@ -501,7 +501,7 @@ def test_parametrization_tagging():
                     TestGroupReport(
                         name='DummySuite',
                         tags={'simple': {'foo'}},
-                        category=ReportCategories.SUITE,
+                        category=ReportCategories.TESTSUITE,
                         entries=[parametrization_group]
                     )
                 ]

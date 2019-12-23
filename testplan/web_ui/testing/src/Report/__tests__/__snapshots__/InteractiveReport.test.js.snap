@@ -29,7 +29,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
             "description": null,
             "entries": Array [
               Object {
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -114,7 +114,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
               "description": null,
               "entries": Array [
                 Object {
-                  "category": "suite",
+                  "category": "testsuite",
                   "description": null,
                   "entries": Array [
                     Object {
@@ -236,7 +236,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                   "failed": 0,
                   "passed": 0,
                 },
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -252,7 +252,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                     "name": "testcaseName",
                     "name_type_index": Set {
                       "testcaseName|testcase",
-                      "SuiteName|suite",
+                      "SuiteName|testsuite",
                       "MultitestName|multitest",
                       "TestplanName|testplan",
                     },
@@ -278,7 +278,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                 "hash": 12345,
                 "name": "SuiteName",
                 "name_type_index": Set {
-                  "SuiteName|suite",
+                  "SuiteName|testsuite",
                   "MultitestName|multitest",
                   "TestplanName|testplan",
                   "testcaseName|testcase",
@@ -305,7 +305,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
             "name_type_index": Set {
               "MultitestName|multitest",
               "TestplanName|testplan",
-              "SuiteName|suite",
+              "SuiteName|testsuite",
               "testcaseName|testcase",
             },
             "parent_uids": Array [
@@ -329,7 +329,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
         "name_type_index": Set {
           "TestplanName|testplan",
           "MultitestName|multitest",
-          "SuiteName|suite",
+          "SuiteName|testsuite",
           "testcaseName|testcase",
         },
         "parent_uids": Array [],
@@ -363,7 +363,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                     "failed": 0,
                     "passed": 0,
                   },
-                  "category": "suite",
+                  "category": "testsuite",
                   "description": null,
                   "entries": Array [
                     Object {
@@ -379,7 +379,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                       "name": "testcaseName",
                       "name_type_index": Set {
                         "testcaseName|testcase",
-                        "SuiteName|suite",
+                        "SuiteName|testsuite",
                         "MultitestName|multitest",
                         "TestplanName|testplan",
                       },
@@ -405,7 +405,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                   "hash": 12345,
                   "name": "SuiteName",
                   "name_type_index": Set {
-                    "SuiteName|suite",
+                    "SuiteName|testsuite",
                     "MultitestName|multitest",
                     "TestplanName|testplan",
                     "testcaseName|testcase",
@@ -432,7 +432,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
               "name_type_index": Set {
                 "MultitestName|multitest",
                 "TestplanName|testplan",
-                "SuiteName|suite",
+                "SuiteName|testsuite",
                 "testcaseName|testcase",
               },
               "parent_uids": Array [
@@ -456,7 +456,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
           "name_type_index": Set {
             "TestplanName|testplan",
             "MultitestName|multitest",
-            "SuiteName|suite",
+            "SuiteName|testsuite",
             "testcaseName|testcase",
           },
           "parent_uids": Array [],
@@ -504,7 +504,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
             "description": null,
             "entries": Array [
               Object {
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -586,7 +586,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
               "description": null,
               "entries": Array [
                 Object {
-                  "category": "suite",
+                  "category": "testsuite",
                   "description": null,
                   "entries": Array [
                     Object {
@@ -706,7 +706,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                   "failed": 0,
                   "passed": 0,
                 },
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -722,7 +722,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                     "name": "testcaseName",
                     "name_type_index": Set {
                       "testcaseName|testcase",
-                      "SuiteName|suite",
+                      "SuiteName|testsuite",
                       "MultitestName|multitest",
                       "TestplanName|testplan",
                     },
@@ -748,7 +748,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                 "hash": 33333,
                 "name": "SuiteName",
                 "name_type_index": Set {
-                  "SuiteName|suite",
+                  "SuiteName|testsuite",
                   "MultitestName|multitest",
                   "TestplanName|testplan",
                   "testcaseName|testcase",
@@ -775,7 +775,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
             "name_type_index": Set {
               "MultitestName|multitest",
               "TestplanName|testplan",
-              "SuiteName|suite",
+              "SuiteName|testsuite",
               "testcaseName|testcase",
             },
             "parent_uids": Array [
@@ -799,7 +799,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
         "name_type_index": Set {
           "TestplanName|testplan",
           "MultitestName|multitest",
-          "SuiteName|suite",
+          "SuiteName|testsuite",
           "testcaseName|testcase",
         },
         "parent_uids": Array [],
@@ -833,7 +833,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                     "failed": 0,
                     "passed": 0,
                   },
-                  "category": "suite",
+                  "category": "testsuite",
                   "description": null,
                   "entries": Array [
                     Object {
@@ -849,7 +849,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                       "name": "testcaseName",
                       "name_type_index": Set {
                         "testcaseName|testcase",
-                        "SuiteName|suite",
+                        "SuiteName|testsuite",
                         "MultitestName|multitest",
                         "TestplanName|testplan",
                       },
@@ -875,7 +875,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                   "hash": 33333,
                   "name": "SuiteName",
                   "name_type_index": Set {
-                    "SuiteName|suite",
+                    "SuiteName|testsuite",
                     "MultitestName|multitest",
                     "TestplanName|testplan",
                     "testcaseName|testcase",
@@ -902,7 +902,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
               "name_type_index": Set {
                 "MultitestName|multitest",
                 "TestplanName|testplan",
-                "SuiteName|suite",
+                "SuiteName|testsuite",
                 "testcaseName|testcase",
               },
               "parent_uids": Array [
@@ -926,7 +926,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
           "name_type_index": Set {
             "TestplanName|testplan",
             "MultitestName|multitest",
-            "SuiteName|suite",
+            "SuiteName|testsuite",
             "testcaseName|testcase",
           },
           "parent_uids": Array [],
@@ -975,7 +975,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
             "entries": Array [
               Object {
                 "case_count": undefined,
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -1060,7 +1060,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
               "entries": Array [
                 Object {
                   "case_count": undefined,
-                  "category": "suite",
+                  "category": "testsuite",
                   "description": null,
                   "entries": Array [
                     Object {
@@ -1170,7 +1170,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
             "description": null,
             "entries": Array [
               Object {
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -1255,7 +1255,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
               "description": null,
               "entries": Array [
                 Object {
-                  "category": "suite",
+                  "category": "testsuite",
                   "description": null,
                   "entries": Array [
                     Object {
@@ -1366,7 +1366,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
             "description": null,
             "entries": Array [
               Object {
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -1448,7 +1448,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
               "description": null,
               "entries": Array [
                 Object {
-                  "category": "suite",
+                  "category": "testsuite",
                   "description": null,
                   "entries": Array [
                     Object {
@@ -1523,7 +1523,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
           "description": null,
           "entries": Array [
             Object {
-              "category": "suite",
+              "category": "testsuite",
               "description": null,
               "entries": Array [
                 Object {
@@ -1619,7 +1619,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
             "description": null,
             "entries": Array [
               Object {
-                "category": "suite",
+                "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
@@ -1704,7 +1704,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
               "description": null,
               "entries": Array [
                 Object {
-                  "category": "suite",
+                  "category": "testsuite",
                   "description": null,
                   "entries": Array [
                     Object {

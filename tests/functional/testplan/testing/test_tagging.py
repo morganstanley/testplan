@@ -70,7 +70,7 @@ report_for_multitest_without_tags = TestGroupReport(
     entries=[
         TestGroupReport(
             name='AlphaSuite',
-            category='suite',
+            category='testsuite',
             tags={'color': {'red', 'blue'}},
             entries=[
                 TestCaseReport(name='test_method_0'),
@@ -86,7 +86,7 @@ report_for_multitest_without_tags = TestGroupReport(
         ),
         TestGroupReport(
             name='BetaSuite',
-            category='suite',
+            category='testsuite',
             tags={'color': {'yellow'}},
             entries=[
                 TestCaseReport(name='test_method_0'),
@@ -102,7 +102,7 @@ report_for_multitest_without_tags = TestGroupReport(
         ),
         TestGroupReport(
             name='GammaSuite',
-            category='suite',
+            category='testsuite',
             entries=[
                 TestCaseReport(name='test_method_0'),
                 TestGroupReport(
@@ -145,7 +145,7 @@ report_for_multitest_with_tags = TestGroupReport(
     entries=[
         TestGroupReport(
             name='AlphaSuite',
-            category='suite',
+            category='testsuite',
             tags={'color': {'red', 'blue'}},
             entries=[
                 TestCaseReport(name='test_method_0'),
@@ -161,7 +161,7 @@ report_for_multitest_with_tags = TestGroupReport(
         ),
         TestGroupReport(
             name='BetaSuite',
-            category='suite',
+            category='testsuite',
             tags={'color': {'yellow'}},
             entries=[
                 TestCaseReport(name='test_method_0'),
@@ -177,7 +177,7 @@ report_for_multitest_with_tags = TestGroupReport(
         ),
         TestGroupReport(
             name='GammaSuite',
-            category='suite',
+            category='testsuite',
             entries=[
                 TestCaseReport(name='test_method_0'),
                 TestGroupReport(

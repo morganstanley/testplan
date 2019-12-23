@@ -23,7 +23,7 @@ class MySuite1(object):
     def case1(self, env, result):
         pass
 
-    @suite.skip_if(lambda suite: True)
+    @suite.skip_if(lambda testsuite: True)
     @suite.testcase
     def case2(self, env, result):
         pass
@@ -39,7 +39,7 @@ class MySuite2(object):
     def case1(self, env, result):
         pass
 
-    @suite.skip_if(lambda suite: True)
+    @suite.skip_if(lambda testsuite: True)
     @suite.testcase(tags={'c': 'C'})
     def case2(self, env, result):
         pass
@@ -166,7 +166,7 @@ def incorrent_skip_if_signature1():
 
 
 def test_skip_if_signature():
-    pattern = re.compile(r'.*Expected <lambda>\(suite\), not <lambda>\(_\).*')
+    pattern = re.compile(r'.*Expected <lambda>\(testsuite\), not <lambda>\(_\).*')
     try:
         should_raise(MethodSignatureMismatch,
                      incorrent_skip_if_signature1,

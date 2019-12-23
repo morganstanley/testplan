@@ -49,7 +49,7 @@ expected_report = TestGroupReport(
     entries=[
         TestGroupReport(
             name='AlphaSuite',
-            category='suite',
+            category='testsuite',
             uid=10,
             tags={'color': {'red'}},
             entries=[
@@ -69,7 +69,7 @@ expected_report = TestGroupReport(
         ),
         TestGroupReport(
             name='BetaSuite',
-            category='suite',
+            category='testsuite',
             uid=11,
             tags={},
             entries=[
@@ -119,7 +119,7 @@ expected_report = TestGroupReport(
         ),
         TestGroupReport(
             name='GammaSuite',
-            category='suite',
+            category='testsuite',
             uid=12,
             tags={},
             entries=[
@@ -158,7 +158,7 @@ mt_report_alpha = TestGroupReport(
     entries=[
         TestGroupReport(
             name='AlphaSuite',
-            category='suite',
+            category='testsuite',
             uid=10,
             tags={'color': {'red'}},
             entries=[
@@ -188,7 +188,7 @@ mt_report_beta_1 = TestGroupReport(
     entries=[
         TestGroupReport(
             name='BetaSuite',
-            category='suite',
+            category='testsuite',
             uid=11,
             tags={},
             entries=[
@@ -217,7 +217,7 @@ mt_report_beta_2 = TestGroupReport(
     entries=[
         TestGroupReport(
             name='BetaSuite',
-            category='suite',
+            category='testsuite',
             uid=11,
             tags={},
             entries=[
@@ -265,7 +265,7 @@ mt_report_gamma = TestGroupReport(
     entries=[
         TestGroupReport(
             name='GammaSuite',
-            category='suite',
+            category='testsuite',
             uid=12,
             tags={},
             entries=[

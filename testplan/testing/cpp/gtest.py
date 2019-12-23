@@ -154,7 +154,7 @@ class GTest(ProcessRunnerTest):
         for suite in test_data.getchildren():
             suite_report = TestGroupReport(
                 name=suite.attrib['name'],
-                category='suite',
+                category='testsuite',
             )
             suite_has_run = False
 

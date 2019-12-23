@@ -18,8 +18,8 @@ class FilterLevel(Enum):
     By default only ``test`` (e.g. top) level filtering is used.
     """
     TEST = 'test'
-    SUITE = 'suite'
-    CASE = 'case'
+    TESTSUITE = 'testsuite'
+    TESTCASE = 'testcase'
 
 
 class BaseFilter(object):
@@ -70,9 +70,9 @@ class Filter(BaseFilter):
 
         if FilterLevel.TEST in filter_levels:
             results.append(self.filter_test(test))
-        if FilterLevel.SUITE in filter_levels:
+        if FilterLevel.TESTSUITE in filter_levels:
             results.append(self.filter_suite(suite))
-        if FilterLevel.CASE in filter_levels:
+        if FilterLevel.TESTCASE in filter_levels:
             results.append(self.filter_case(case))
 
         return all(results)

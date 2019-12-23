@@ -163,7 +163,7 @@ composed_filter_3 = subclass_filter & Pattern('*:*:test_2')
     name='Custom Test Filters',
     test_filter=priority_filter_1,
     # Using testcase level stdout so we can see filtered testcases
-    stdout_style=Style('case', 'case')
+    stdout_style=Style('testcase', 'testcase')
 )
 def main(plan):
 

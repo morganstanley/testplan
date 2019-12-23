@@ -31,7 +31,7 @@ def example_report():
                     report.TestGroupReport(
                         name="Suite1",
                         uid="MT1Suite1",
-                        category="suite",
+                        category="testsuite",
                         entries=[
                             report.TestCaseReport(
                                 name="TestCase1", uid="MT1S1TC1"

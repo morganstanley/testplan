@@ -123,7 +123,7 @@ tag_filter_6 = Tags({'color': 'white'})
     name='Tagging & Filtering (Programmatic)',
     test_filter=default_filter,
     # Using testcase level stdout so we can see filtered testcases
-    stdout_style=Style('case', 'case')
+    stdout_style=Style('testcase', 'testcase')
 )
 def main(plan):
 

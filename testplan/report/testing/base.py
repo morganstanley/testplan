@@ -143,8 +143,8 @@ class ReportCategories(object):
     TESTPLAN = "testplan"
     TESTGROUP = "testgroup"     # test group of unspecific type?
     MULTITEST = "multitest"
-    SUITE = "suite"
-    CASE = "case"
+    TESTSUITE = "testsuite"
+    TESTCASE = "testcase"
     PARAMETRIZATION = "parametrization"
     CPPUNIT = "cppunit"
     CPPUNIT_SUITE = "cppunit-suite"
@@ -674,7 +674,7 @@ class TestCaseReport(Report):
 
         self.attachments = []
         self._status = Status.READY
-        self.category = ReportCategories.CASE
+        self.category = ReportCategories.TESTCASE
         self.status_reason = status_reason
 
     def _get_comparison_attrs(self):

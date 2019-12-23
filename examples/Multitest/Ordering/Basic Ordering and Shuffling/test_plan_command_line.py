@@ -71,7 +71,7 @@ class Gamma(object):
 @test_plan(
     name='Test Ordering / Shuffling basics (Command line)',
     # Using testcase level stdout so we can see sorted testcases
-    stdout_style=Style('case', 'case')
+    stdout_style=Style('testcase', 'testcase')
 )
 def main(plan):
 

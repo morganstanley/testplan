@@ -148,7 +148,7 @@ const GetNavEntries = (selected) => {
 
   if (!selectedEntry) {
     return [];
-  } else if (selectedEntry.category === "testcase") {
+  } else if (selectedEntry.category === 'testcase') {
     const suite = selected[selected.length - 2];
 
     // All testcases should belong to a suite, throw an error if we can't
@@ -176,7 +176,7 @@ const GetNavBreadcrumbs = (selected) => {
   const selectedEntry = selected[selected.length - 1];
   if (!selectedEntry) {
     return [];
-  } else if (selectedEntry.category === "testcase") {
+  } else if (selectedEntry.category === 'testcase') {
     return selected.slice(0, selected.length - 1);
   } else {
     return selected;

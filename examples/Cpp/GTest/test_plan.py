@@ -21,7 +21,7 @@ BINARY_PATH = os.path.join(os.path.dirname(__file__), 'test', 'runTests')
 @test_plan(
     name='GTest Example',
     stdout_style=Style(
-        passing='case',
+        passing='testcase',
         failing='assertion-detail'
     )
 )
