@@ -5,10 +5,13 @@ import json
 from copy import deepcopy
 import six
 from six.moves import range
+# pylint: disable=no-name-in-module,import-error
 if six.PY2:
     from collections import MutableMapping, MutableSequence
 else:
     from collections.abc import MutableMapping, MutableSequence
+# pylint: enable=no-name-in-module,import-error
+import base64
 
 from marshmallow import Schema, fields, post_load
 
@@ -19,7 +22,6 @@ from testplan.common.serialization import fields as custom_fields
 from testplan.common.utils import timing
 
 from .base import TestCaseReport, TestGroupReport, TestReport
-
 
 __all__ = [
     'TestCaseReportSchema',
@@ -82,10 +84,42 @@ class EntriesField(fields.Field):
 
     _BYTES_KEY = 'bytes'
 
-    def _render_unencodable_bytes_as_int_array(self, data, recurse_lvl=0):
+    @staticmethod
+    def _binary_to_base64(binary_obj):
+        return base64.standard_b64encode(binary_obj).decode('us_ascii')
+
+    @staticmethod
+    def _base64_to_binary(base64_str):
+        return base64.standard_b64decode(base64_str.encode('us_ascii'))
+
+    @staticmethod
+    def _binary_to_int_list(binary_obj):
+        return [int(b) for b in bytearray(binary_obj)]
+
+    @staticmethod
+    def _int_list_to_binary(int_list):
+        return bytes(bytearray(int_list))
+
+    _binary_serializer = _binary_to_base64
+    _binary_deserializer = _base64_to_binary
+
+    def _render_unencodable_bytes_by_callable(self, 
+                                              data, 
+                                              binary_serializer, 
+                                              recurse_lvl=0):
         """
         Find the lowest level at which encoding fails - if at all - and
-        convert the byte-representation of that as an int array
+        serialize the byte-representation of that with the
+        ``binary_serializer`` function.
+
+        :param data: Any data that's meant to be serialized
+        :type data: Any
+        :param binary_serializer: A callable that takes a binary object and
+                                  returns its serialized representation
+        :type binary_serializer: Callable[[bytes], Any]
+
+        :returns: Serialized representation of ``data``
+        :rtype: Any
         """
         if recurse_lvl == 0:
             datacp = deepcopy(data)
@@ -94,32 +128,39 @@ class EntriesField(fields.Field):
         try:
             json.dumps(datacp, ensure_ascii=True)
             return datacp
-        except UnicodeDecodeError:
+        except (UnicodeDecodeError, TypeError):
             if isinstance(datacp, MutableMapping):
                 for key in six.iterkeys(datacp):
-                    datacp[key] = self._render_unencodable_bytes_as_int_array(
+                    datacp[key] = self._render_unencodable_bytes_by_callable(
                         data=datacp[key],
+                        binary_serializer=binary_serializer,
                         recurse_lvl=(recurse_lvl + 1)
                     )
                 return datacp
             if isinstance(datacp, MutableSequence):
                 for i in range(len(datacp)):
-                    datacp[i] = self._render_unencodable_bytes_as_int_array(
+                    datacp[i] = self._render_unencodable_bytes_by_callable(
                         data=datacp[i],
+                        binary_serializer=binary_serializer,
                         recurse_lvl=(recurse_lvl + 1)
                     )
                 return datacp
             return {
-                self._BYTES_KEY: [int(b) for b in bytearray(datacp)],
+                self._BYTES_KEY: binary_serializer(datacp),
             }
 
     def _serialize(self, value, attr, obj):
-        super_serialize = lambda v: super(EntriesField, self)._serialize(v, attr, obj)
+        super_serialize = lambda v: (
+            super(EntriesField, self)._serialize(v, attr, obj)
+        )
         try:
             json.dumps(value, ensure_ascii=True)
             return super_serialize(value)
-        except UnicodeDecodeError:
-            value_new = self._render_unencodable_bytes_as_int_array(value)
+        except (UnicodeDecodeError, TypeError):
+            value_new = self._render_unencodable_bytes_by_callable(
+                data=value,
+                binary_serializer=self._binary_serializer
+            )
             return super_serialize(value_new)
 
     def _deserialize(self, value, attr, obj, recurse_lvl=0):
@@ -133,8 +174,8 @@ class EntriesField(fields.Field):
             valued = value
         if isinstance(valued, MutableMapping):
             for key in six.iterkeys(valued):
-                if key == self._BYTES_KEY and isinstance(valued[key], MutableSequence):
-                    return bytes(bytearray(valued[key]))
+                if key == self._BYTES_KEY:
+                    return self._binary_deserializer(valued[key])
                 valued[key] = self._deserialize(
                     value=valued[key],
                     attr=attr,

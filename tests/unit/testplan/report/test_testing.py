@@ -1,5 +1,4 @@
 import functools
-
 import pytest
 import mock
 
@@ -16,7 +15,7 @@ from testplan.report.testing.base import (
 from testplan.report.testing.schemas import TestReportSchema
 from testplan.common import report
 from testplan.common.utils.testing import check_report
-
+from testplan.testing.multitest.result import Result
 
 DummyReport = functools.partial(report.Report, name='dummy')
 DummyReportGroup = functools.partial(BaseReportGroup, name='dummy')
@@ -268,9 +267,7 @@ class TestTestCaseReport(object):
         assert rep_1.hash != rep_2.hash
 
 
-@disable_log_propagation(report.log.LOGGER)
-@pytest.fixture
-def dummy_test_plan_report():
+def generate_dummy_testgroup():
 
     tag_data_1 = {'tagname': {'tag1', 'tag2'}}
     tag_data_2 = {'other_tagname': {'tag4', 'tag5'}}
@@ -306,13 +303,20 @@ def dummy_test_plan_report():
 
     tc_3.status_override = Status.PASSED
 
-    tg_2 = TestGroupReport(
+    return TestGroupReport(
         name='Test Group 2',
         description='Test Group 2 description',
         category=ReportCategories.TESTGROUP,
         entries=[tg_1, tc_3],
         tags={},
     )
+
+
+@disable_log_propagation(report.log.LOGGER)
+@pytest.fixture
+def dummy_test_plan_report():
+
+    tg_2 = generate_dummy_testgroup()
 
     rep = TestReport(
         name='My Plan',
@@ -321,6 +325,43 @@ def dummy_test_plan_report():
     )
 
     with rep.timer.record('foo'):
+        pass
+
+    return rep
+
+
+@disable_log_propagation(report.log.LOGGER)
+@pytest.fixture
+def dummy_test_plan_report_with_binary_asserts():
+
+    tg_2 = generate_dummy_testgroup()
+
+    res = Result()
+    res.equal(1, 1, 'IGNORE THIS')
+    res.equal(b'\xF2', b'\xF2', 'IGNORE THIS')
+    res.equal(b'\x00\xB1\xC1', b'\x00\xB2\xC2', 'IGNORE THIS')
+
+    btc_1 = TestCaseReport(
+        name='binary_test_case_1',
+        description='binary test case 1 description',
+        entries=res.serialized_entries
+    )
+
+    btg_1 = TestGroupReport(
+        name='Binary Test Group 2',
+        description='Binary Test Group 1 description',
+        category=ReportCategories.TESTGROUP,
+        entries=[btc_1],
+        tags={},
+    )
+
+    rep = TestReport(
+        name='My Bin Plan',
+        entries=[tg_2, btg_1],
+        meta={'foobin': 'bazbin'}
+    )
+
+    with rep.timer.record('foobin'):
         pass
 
     return rep
@@ -339,6 +380,21 @@ def test_report_json_serialization(dummy_test_plan_report):
     data = test_plan_schema.dumps(dummy_test_plan_report).data
     deserialized_report = test_plan_schema.loads(data).data
     check_report(actual=deserialized_report, expected=dummy_test_plan_report)
+
+
+def test_report_json_binary_serialization(
+        dummy_test_plan_report_with_binary_asserts
+    ):
+    """JSON Serialized & deserialized reports should be equal."""
+    test_plan_schema = TestReportSchema(strict=True)
+    data = test_plan_schema.dumps(
+        dummy_test_plan_report_with_binary_asserts
+    ).data
+    deserialized_report = test_plan_schema.loads(data).data
+    check_report(
+        actual=deserialized_report,
+        expected=dummy_test_plan_report_with_binary_asserts
+    )
 
 
 class TestReportTags(object):
