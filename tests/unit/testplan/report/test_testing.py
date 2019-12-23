@@ -13,9 +13,10 @@ from testplan.report.testing.base import (
     ReportCategories,
 )
 from testplan.report.testing.schemas import TestReportSchema
-from testplan.common import report
+from testplan.common import report, entity
 from testplan.common.utils.testing import check_report
 from testplan.testing.multitest.result import Result
+from testplan.common import entity
 
 DummyReport = functools.partial(report.Report, name='dummy')
 DummyReportGroup = functools.partial(BaseReportGroup, name='dummy')
@@ -513,3 +514,22 @@ class TestReportTags(object):
         assert tg_rep_3.tags_index == {'simple': {'foo'}}
         assert tc_rep_1.tags_index == {'simple': {'foo', 'bar', 'baz'}}
         assert tc_rep_2.tags_index == {'simple': {'foo', 'bar', 'bat'}}
+
+
+def test_env_status_hash():
+    """
+    Test updating the env_status of a TestGroupReport object - this should
+    cause the hash to change.
+    """
+    report_group = TestGroupReport(
+        name='MTest1',
+        category=ReportCategories.MULTITEST,
+        description='MTest1 description',
+        env_status=entity.ResourceStatus.STOPPED,
+    )
+
+    orig_hash = report_group.hash
+    report_group.env_status = entity.ResourceStatus.STARTED
+
+    assert report_group.hash != orig_hash
+

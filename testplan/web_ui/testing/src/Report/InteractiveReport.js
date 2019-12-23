@@ -7,7 +7,7 @@ import React from 'react';
 import {StyleSheet, css} from 'aphrodite';
 import axios from 'axios';
 
-import {COLUMN_WIDTH} from "../Common/defaults";
+import {INTERACTIVE_COL_WIDTH} from "../Common/defaults";
 import Toolbar from '../Toolbar/Toolbar.js';
 import InteractiveNav from '../Nav/InteractiveNav.js';
 import {FakeInteractiveReport} from '../Common/sampleReports.js';
@@ -30,7 +30,7 @@ class InteractiveReport extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      navWidth: COLUMN_WIDTH,
+      navWidth: INTERACTIVE_COL_WIDTH,
       report: null,
       selectedUIDs: [],
       loading: false,
@@ -38,6 +38,7 @@ class InteractiveReport extends React.Component {
     };
     this.handleNavClick = this.handleNavClick.bind(this);
     this.handlePlayClick = this.handlePlayClick.bind(this);
+    this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.getReport = this.getReport.bind(this);
   }
 
@@ -174,7 +175,11 @@ class InteractiveReport extends React.Component {
    */
   putUpdatedReportEntry(updatedReportEntry) {
     const apiUrl = this.getApiUrl(updatedReportEntry);
-    return axios.put(apiUrl, updatedReportEntry);
+    axios.put(apiUrl, updatedReportEntry).then(
+      response => this.setShallowReportEntry(response.data)
+    ).catch(
+      error => this.setState({error: error})
+    );
   }
 
   /**
@@ -222,10 +227,10 @@ class InteractiveReport extends React.Component {
   /**
    * Update an entry in the report.
    */
-  setReportEntry(updatedReportEntry) {
+  setShallowReportEntry(shallowReportEntry) {
     this.setState((state, props) => ({
       report: this.updateReportEntryRecur(
-        updatedReportEntry, state.report,
+        shallowReportEntry, state.report,
       ),
     }));
   }
@@ -234,14 +239,14 @@ class InteractiveReport extends React.Component {
    * Update a single entry in the report tree recursively. This function
    * returns a new report object, it does not mutate the current report.
    */
-  updateReportEntryRecur(updatedReportEntry, currEntry, depth=0) {
-    if (depth < updatedReportEntry.parent_uids.length) {
-      if (currEntry.uid === updatedReportEntry.parent_uids[depth]) {
+  updateReportEntryRecur(shallowReportEntry, currEntry, depth=0) {
+    if (depth < shallowReportEntry.parent_uids.length) {
+      if (currEntry.uid === shallowReportEntry.parent_uids[depth]) {
         return {
           ...currEntry,
           entries: currEntry.entries.map(
             entry => this.updateReportEntryRecur(
-              updatedReportEntry,
+              shallowReportEntry,
               entry,
               depth + 1,
             )
@@ -250,15 +255,34 @@ class InteractiveReport extends React.Component {
       } else {
         return currEntry;
       }
-    } else if (depth === updatedReportEntry.parent_uids.length) {
-      if (updatedReportEntry.uid === currEntry.uid) {
-        return updatedReportEntry;
+    } else if (depth === shallowReportEntry.parent_uids.length) {
+      if (shallowReportEntry.uid === currEntry.uid) {
+        return this.unshallowReportEntry(shallowReportEntry, currEntry);
       } else {
         return currEntry;
       }
-    } else if (depth > updatedReportEntry.parent_uids.length) {
+    } else if (depth > shallowReportEntry.parent_uids.length) {
       throw new Error("Recursed too far down...");
     }
+  }
+
+  /**
+   * Convert a shallow report entry to an "unshallow" one with embedded
+   * entries, by stealing the entries (and some other metadata) from
+   * the current entry.
+   */
+  unshallowReportEntry(shallowReportEntry, currReportEntry) {
+    const newEntry = {
+      ...shallowReportEntry,
+      entries: currReportEntry.entries,
+      tags: currReportEntry.tags,
+      tags_index: currReportEntry.tags_index,
+      name_type_index: currReportEntry.name_type_index,
+      case_count: currReportEntry.case_count,
+    };
+    delete newEntry.entry_uids;
+
+    return newEntry;
   }
 
   /**
@@ -276,11 +300,44 @@ class InteractiveReport extends React.Component {
     const updatedReportEntry = {
       ...this.shallowReportEntry(reportEntry), status: "running"
     };
-    this.putUpdatedReportEntry(updatedReportEntry).then(
-      response => this.setReportEntry(PropagateIndices(response.data))
-    ).catch(
-      error => this.setState({error: error})
-    );
+    this.putUpdatedReportEntry(updatedReportEntry);
+  }
+
+  /**
+   * Handle an environment toggle button being clicked on a Nav entry.
+   *
+   * @param {object} e - Click event
+   * @param {ReportNode} reportEntry - entry in the report whose environment
+   *                                   has been toggled.
+   * @param {string} action - What action to take on the environment, expected
+   *                          to be one of "start" or "stop".
+   */
+  envCtrlCallback(e, reportEntry, action) {
+    e.stopPropagation();
+    const updatedReportEntry = {
+      ...this.shallowReportEntry(reportEntry),
+      env_status: this.actionToEnvStatus(action),
+    };
+    this.putUpdatedReportEntry(updatedReportEntry);
+  }
+
+  /**
+   * Convert an environment action into a requested environment status.
+   *
+   * @param {string} action - environment action, one of "start" or "stop".
+   * @return {string} env_status value to use in API request.
+   */
+  actionToEnvStatus(action) {
+    switch (action) {
+      case "start":
+        return "STARTING";
+
+      case "stop":
+        return "STOPPING";
+
+      default:
+        throw new Error("Invalid action: " + action);
+    }
   }
 
   /**
@@ -327,6 +384,7 @@ class InteractiveReport extends React.Component {
           displayTags={false}
           handleNavClick={this.handleNavClick}
           handlePlayClick={this.handlePlayClick}
+          envCtrlCallback={this.envCtrlCallback}
         />
         {centerPane}
       </div>

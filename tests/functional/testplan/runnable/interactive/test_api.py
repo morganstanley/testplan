@@ -17,6 +17,7 @@ import testplan
 from testplan import report
 from testplan.testing import multitest
 from testplan.common.utils import timing
+from testplan.common import entity
 
 from tests.unit.testplan.runnable.interactive import test_api
 
@@ -91,6 +92,7 @@ EXPECTED_INITIAL_GET = [
                 "category": "multitest",
                 "description": None,
                 "entry_uids": ["ExampleSuite"],
+                "env_status": "STOPPED",
                 "fix_spec_path": None,
                 "name": "ExampleMTest",
                 "parent_uids": ["InteractiveAPITest"],
@@ -109,6 +111,7 @@ EXPECTED_INITIAL_GET = [
             "category": "multitest",
             "description": None,
             "entry_uids": ["ExampleSuite"],
+            "env_status": "STOPPED",
             "fix_spec_path": None,
             "name": "ExampleMTest",
             "parent_uids": ["InteractiveAPITest"],
@@ -127,6 +130,7 @@ EXPECTED_INITIAL_GET = [
                 "category": "suite",
                 "description": None,
                 "entry_uids": ["test_passes", "test_fails", "test_logs"],
+                "env_status": None,
                 "fix_spec_path": None,
                 "name": "ExampleSuite",
                 "parent_uids": ["InteractiveAPITest", "ExampleMTest"],
@@ -145,6 +149,7 @@ EXPECTED_INITIAL_GET = [
             "category": "suite",
             "description": None,
             "entry_uids": ["test_passes", "test_fails", "test_logs"],
+            "env_status": None,
             "fix_spec_path": None,
             "name": "ExampleSuite",
             "parent_uids": ["InteractiveAPITest", "ExampleMTest"],
@@ -337,6 +342,64 @@ def test_run_mtest(plan):
     )
 
 
+def test_environment_control(plan):
+    """Test starting and stopping the environment."""
+    host, port = plan.interactive.http_handler_info
+    assert host == "0.0.0.0"
+
+    mtest_url = "http://localhost:{}/api/v1/interactive/report/tests/ExampleMTest".format(
+        port
+    )
+    rsp = requests.get(mtest_url)
+    assert rsp.status_code == 200
+    mtest_json = rsp.json()
+
+    # Trigger the environment to start by setting the env_status to STARTING
+    # and PUTting back the data.
+    mtest_json["env_status"] = entity.ResourceStatus.STARTING
+    rsp = requests.put(mtest_url, json=mtest_json)
+    assert rsp.status_code == 200
+    updated_json = rsp.json()
+    test_api.compare_json(updated_json, mtest_json)
+    assert updated_json["hash"] != mtest_json["hash"]
+
+    # Wait for the environment to become STARTED.
+    timing.wait(
+        functools.partial(
+            _check_env_status,
+            mtest_url,
+            entity.ResourceStatus.STARTED,
+            updated_json["hash"],
+        ),
+        interval=0.2,
+        timeout=300,
+        raise_on_timeout=True,
+    )
+
+    # Now trigger the environment to stop by setting the env_status to STOPPING
+    # and PUTting back the data.
+    mtest_json = updated_json
+    mtest_json["env_status"] = entity.ResourceStatus.STOPPING
+    rsp = requests.put(mtest_url, json=mtest_json)
+    assert rsp.status_code == 200
+    updated_json = rsp.json()
+    test_api.compare_json(updated_json, mtest_json)
+    assert updated_json["hash"] != mtest_json["hash"]
+
+    # Wait for the environment to become STOPPED.
+    timing.wait(
+        functools.partial(
+            _check_env_status,
+            mtest_url,
+            entity.ResourceStatus.STOPPED,
+            updated_json["hash"],
+        ),
+        interval=0.2,
+        timeout=30,
+        raise_on_timeout=True,
+    )
+
+
 def test_run_suite(plan):
     """Test running a single test suite."""
     host, port = plan.interactive.http_handler_info
@@ -424,3 +487,19 @@ def _check_test_status(test_url, expected_status, last_hash):
         assert report_json["status"] == expected_status
         assert report_json["hash"] != last_hash
         return True
+
+
+def _check_env_status(test_url, expected_status, last_hash):
+    """
+    Check the environment status by polling the report resource. Return
+    True if the status matches the expected status, False otherwise.
+    """
+    rsp = requests.get(test_url)
+    assert rsp.status_code == 200
+    report_json = rsp.json()
+
+    if report_json["env_status"] == expected_status:
+        assert report_json["hash"] != last_hash
+        return True
+    else:
+        return False

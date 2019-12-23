@@ -12,6 +12,7 @@ const INITIAL_REPORT = {
   "uid": "TestplanUID",
   "timer": {},
   "status": "ready",
+  "env_status": null,
   "meta": {},
   "status_override": null,
   "attachments": {},
@@ -27,6 +28,7 @@ const INITIAL_REPORT = {
     "description": null,
     "tags": {},
     "status": "ready",
+    "env_status": "STOPPED",
     "part": null,
     "status_override": null,
     "name": "MultiTestName",
@@ -42,6 +44,7 @@ const INITIAL_REPORT = {
       "description": null,
       "tags": {},
       "status": "ready",
+      "env_status": null,
       "part": null,
       "status_override": null,
       "name": "SuiteName",
@@ -58,6 +61,7 @@ const INITIAL_REPORT = {
         "tags": {},
         "type": "TestCaseReport",
         "status": "ready",
+        "env_status": null,
         "logs": [],
         "suite_related": false,
         "entries": [],
@@ -437,6 +441,40 @@ describe('InteractiveReport', () => {
             });
           });
         });
+      });
+    });
+  });
+
+  it('Handles environment being started', done => {
+    const interactiveReport = shallow(<InteractiveReport />);
+    interactiveReport.setState({
+      report: INITIAL_REPORT,
+      selectedUIDs: interactiveReport.instance().autoSelect(INITIAL_REPORT),
+    });
+    interactiveReport.update();
+
+    const clickedEntry = INITIAL_REPORT.entries[0];
+    const mockEvent = {stopPropagation: jest.fn()};
+    interactiveReport.instance().envCtrlCallback(
+      mockEvent, clickedEntry, "start",
+    );
+
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe(
+        "/api/v1/interactive/report/tests/MultiTestUID"
+      );
+      expect(request.config.method).toBe("put");
+      const putData = JSON.parse(request.config.data);
+      expect(putData.uid).toBe(clickedEntry.uid);
+      expect(putData.env_status).toBe("STARTING");
+
+      request.respondWith({
+        status: 200,
+        response: putData,
+      }).then(() => {
+        expect(interactiveReport).toMatchSnapshot();
+        done();
       });
     });
   });

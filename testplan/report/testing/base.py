@@ -44,7 +44,10 @@ We will have a report tree like:
     ...
 """
 import os
+import sys
 import copy
+import getpass
+import platform
 import collections
 import inspect
 import hashlib
@@ -354,9 +357,26 @@ class TestReport(BaseReportGroup):
     Only contains TestGroupReports as children.
     """
 
-    def __init__(self, meta=None, attachments=None, *args, **kwargs):
+    def __init__(self,
+                 meta=None,
+                 attachments=None,
+                 information=None,
+                 *args,
+                 **kwargs):
         self.meta = meta or {}
         self._tags_index = None
+        self.information = information or []
+        try:
+            user = getpass.getuser()
+        except (ImportError, OSError):
+            # if the USERNAME env variable is unset on Windows, this fails
+            # with ImportError
+            user = 'unknown'
+        self.information.extend([
+            ('user', user),
+            ('command_line_string', ' '.join(sys.argv)),
+            ('python_version', platform.python_version())
+        ])
 
         # Report attachments: Dict[dst: str, src: str].
         # Maps from destination path (relative from attachments root dir)
@@ -470,6 +490,7 @@ class TestGroupReport(BaseReportGroup):
                  tags=None,
                  part=None,
                  fix_spec_path=None,
+                 env_status=None,
                  **kwargs):
         super(TestGroupReport, self).__init__(name=name, **kwargs)
 
@@ -490,6 +511,9 @@ class TestGroupReport(BaseReportGroup):
 
         if self.entries:
             self.propagate_tag_indices()
+
+        # Expected to be one of ResourceStatus, or None.
+        self.env_status = env_status
 
     def __str__(self):
         return (
@@ -602,6 +626,26 @@ class TestGroupReport(BaseReportGroup):
         """Return all attachments from child reports."""
         return itertools.chain.from_iterable(
             child.attachments for child in self)
+
+    @property
+    def hash(self):
+        """
+        Generate a hash of this report object, including its entries. This
+        hash is used to detect when changes are made under particular nodes
+        in the report tree. Since all report entries are mutable, this hash
+        should NOT be used to index the report entry in a set or dict - we
+        have avoided using the magic __hash__ method for this reason. Always
+        use the UID for indexing purposes.
+
+        :return: a hash of all entries in this report group.
+        :rtype: ``int``
+        """
+        return hash((
+            self.uid,
+            self.status,
+            self.env_status,
+            tuple(entry.hash for entry in self.entries))
+        )
 
 
 class TestCaseReport(Report):

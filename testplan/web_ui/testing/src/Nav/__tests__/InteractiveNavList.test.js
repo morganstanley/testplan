@@ -27,7 +27,8 @@ describe('InteractiveNavList', () => {
         filter={null}
         displayEmpty={true}
         displayTags={false}
-        handlePlayClick={() => undefined}
+        handlePlayClick={(e) => undefined}
+        envCtrlCallback={(e, action) => undefined}
       />
     );
     expect(renderedNavList).toMatchSnapshot();

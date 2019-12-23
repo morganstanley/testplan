@@ -6,6 +6,16 @@ const TESTPLAN_REPORT = {
   "status": "failed",
   "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
   "tags_index": {},
+  "information": [
+    [
+        "user",
+        "unknown"
+    ],
+    [
+        "command_line_string",
+        "/home/unknown/path_to_testplan_script/testplan.py"
+    ],
+  ],
   "status_override": null,
   "meta": {},
   "timer": {
@@ -246,7 +256,19 @@ const TESTPLAN_REPORT = {
 };
 
 var fakeReportAssertions = {
-"status": "failed", "uid": "94a616f8-4400-4ca4-b213-32664701ca8a", "tags_index": {}, "timer": {
+"status": "failed", "uid": "94a616f8-4400-4ca4-b213-32664701ca8a", 
+"tags_index": {}, 
+"information": [
+    [
+        "user",
+        "unknown"
+    ],
+    [
+        "command_line_string",
+        "/home/unknown/path_to_testplan_script/testplan.py"
+    ],
+],
+"timer": {
     "run": {
         "start": "2019-02-12T17:41:42.707149+00:00",
         "end": "2019-02-12T17:41:43.534854+00:00"
