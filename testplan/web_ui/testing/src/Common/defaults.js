@@ -3,6 +3,7 @@
  */
 const GREEN = '#228F1D';
 const RED = '#A2000C';
+const ORANGE = '#FFA500';
 const LIGHT_GREY = '#F3F3F3';
 const MEDIUM_GREY = '#D0D0D0';
 const DARK_GREY = '#ADADAD';
@@ -83,6 +84,8 @@ const STATUS = [
   'passed',
   'failed',
   'error',
+  'xpass',
+  'xfail',
   // The following statuses only apply to interactive mode. TODO: maybe create
   // a new INTERACTIVE_STATUS enum?
   'ready',
@@ -142,6 +145,7 @@ const POLL_MS = 1000;
 export {
   GREEN,
   RED,
+  ORANGE,
   LIGHT_GREY,
   MEDIUM_GREY,
   DARK_GREY,

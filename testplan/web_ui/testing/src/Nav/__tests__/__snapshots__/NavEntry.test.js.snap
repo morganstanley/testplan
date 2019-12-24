@@ -30,7 +30,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
       </span>
     </i>
     <Badge
-      className="entryIcon_ull2p3-o_O-passedBadge_1gkx146"
+      className="entryIcon_ull2p3-o_O-passedBadge_1isorc2-o_O-badge_1nusemj"
       color="secondary"
       pill={true}
       tag="span"

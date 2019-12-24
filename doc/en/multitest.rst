@@ -1269,22 +1269,24 @@ Also keep in mind that testplan will take a little bit of effort to monitor exec
 Xfail
 -----
 
-You can mark testsuite/testcase that you expect to fail to testplan can deal with them accordingly and present as pass in the test report, while keeping the testsuites/testcase `green`.
+Testcases and testsuites that you expect to fail can be marked with the `@xfail` decorator. These failures will be visible in the test report, highlighted in orange. Expected failures will not cause the testplan as a whole to be considered a failure.
 
-A Xfail means that you expect a test to fail for some reason. A common example is a test for a feature not yet implemented, or a bug not yet fixed. When a test passes despite being expected to fail(marked with `xfail`), it's an `Xpass` and will be reported as failed in the test report
+The Xfail means that you expect a test to fail for some reason. If a testcase/testsuite is unstable (passing sometimes, failling other times) then `strict=False` (default value is `False`) can be used. This means if the testcase/testsuite fails it will be marked "expected to fail" (`xfail`), if it passes it will be marked as "unexpectedly passing" (`xpass`). 
+Both `xfail` and `xpass` don't cause the parent testsuite or MultiTest to be marked as a failure.
 
 The ``xfail`` decorator mandates a reason that explains why the test is marked as Xfail:
 
 .. code-block:: python
 
-    @xfail(reason='api changes')
-    def fail_testcase(self, env, result):
+    @xfail(reason='unstable test')
+    def unstable_testcase(self, env, result):
         ...
 
-`Xpass` fails the testsuite/testcase, unless the ``strict`` parameter is passed as ``False``. A common example is a test is unstable:
+
+If a test is expect to fail all the time, you can also use the `strict=True` then `xpass` will be considered as `fail`. This will cause the unexpectedly passing result to fail the testcase or testsuite.
 
 .. code-block:: python
 
-    @xfail(reason='unstable test', strict=False)
-    def unstable_testcase(self, env, result):
+    @xfail(reason='api changes', strict=True)
+    def fail_testcase(self, env, result):
         ...

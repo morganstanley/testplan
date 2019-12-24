@@ -688,7 +688,7 @@ def post_testcase(*functions):
     return post_testcase_inner
 
 
-def xfail(reason, strict=True):
+def xfail(reason, strict=False):
     """
     Mark a testcase/testsuit as XFail(known to fail) when not possible to fix
     immediately. This decorator mandates a reason that explains why the test is
