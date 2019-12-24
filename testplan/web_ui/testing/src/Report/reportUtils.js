@@ -197,6 +197,11 @@ const GetCenterPane = (
   selectedEntries
 ) => {
   const logs = state.logs || [];
+  const selectedDescription = selectedEntries.map((element) => {
+    return element.description;
+  }).filter((element) => {
+    return element; // filter empty description
+  });
   const assertions = getAssertions(selectedEntries);
 
   if (assertions !== null || logs.length !==0) {
@@ -204,6 +209,7 @@ const GetCenterPane = (
       <AssertionPane
         assertions={assertions}
         logs={logs}
+        descriptionEntries={selectedDescription}
         left={state.navWidth + 1.5}
         testcaseUid={state.testcaseUid}
         filter={state.filter}

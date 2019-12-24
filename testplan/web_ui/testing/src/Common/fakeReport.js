@@ -49,7 +49,7 @@ const TESTPLAN_REPORT = {
           "category": "suite",
           "name": "AlphaSuite",
           "status_override": null,
-          "description": null,
+          "description": "This is a failed testsuite",
           "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
           "type": "TestGroupReport",
           "logs": [],
@@ -68,7 +68,7 @@ const TESTPLAN_REPORT = {
               "category": "testcase",
               "status": "passed",
               "status_override": null,
-              "description": null,
+              "description": "A testcase example",
               "uid": "736706ef-ba65-475d-96c5-f2855f431028",
               "type": "TestCaseReport",
               "logs": [],
@@ -296,7 +296,7 @@ var fakeReportAssertions = {
                 "category": "suite",
                 "name": "SampleSuite",
                 "tags": {},
-                "description": null,
+                "description": "This is a sample testsuite",
                 "timer": {
                     "run": {
                         "start": "2019-02-12T17:41:42.795390+00:00",
@@ -310,7 +310,7 @@ var fakeReportAssertions = {
                         "name": "test_basic_assertions",
                         "category": "testcase",
                         "tags": {},
-                        "description": null,
+                        "description": "This is a testcase contains basic assertions",
                         "timer": {
                             "run": {
                                 "start": "2019-02-12T17:41:42.795489+00:00",
@@ -3260,13 +3260,13 @@ var fakeReportAssertions = {
                     },
                     {
                                     "type": "TestCaseReport",
+                                    "category": "testcase",
                                     "logs": [],
                                     "description": null,
                                     "suite_related": false,
                                     "status": "passed",
                                     "uid": "94c36a36-ccb5-4ed1-8d3b-54209ea7b534",
                                     "name": "test_graph",
-                                    "category": "testcase",
                                     "status_override": null,
                                     "timer": {
                                         "run": {
@@ -3593,13 +3593,13 @@ var fakeReportAssertions = {
                                 },
                      {
                                     "type": "TestCaseReport",
+                                    "category": "testcase",
                                     "logs": [],
                                     "description": null,
                                     "suite_related": false,
                                     "status": "passed",
                                     "uid": "1878cc5b-71d7-4b04-9f4c-b16f55f547ac",
                                     "name": "test_multiseries_graph",
-                                    "category": "testcase",
                                     "status_override": null,
                                     "timer": {
                                         "run": {
