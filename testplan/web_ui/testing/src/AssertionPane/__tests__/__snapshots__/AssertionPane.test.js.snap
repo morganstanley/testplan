@@ -12,6 +12,7 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
     }
   }
 >
+  <DescriptionPane />
   <div
     className="buttonsDiv_140n9qh"
   >

@@ -8,6 +8,7 @@ import {
   faPlusCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
+import DescriptionPane from './DescriptionPane';
 import InfiniteScroll from './InfiniteScroll';
 import AssertionGroup from "./AssertionGroup";
 import LogGroup from './LogGroup';
@@ -88,6 +89,9 @@ class AssertionPane extends Component {
     if (this.props.assertions.length !== 0 || this.props.logs.length !==0) {
       return (
         <div style={assertionPaneStyle}>
+          <DescriptionPane 
+            descriptionEntries={this.props.descriptionEntries}
+          />
           <div className={css(styles.buttonsDiv)}>
             <FontAwesomeIcon
               size='1x'
@@ -148,6 +152,8 @@ AssertionPane.propTypes = {
   filter: PropTypes.string,
   /** Report UID */
   reportUid: PropTypes.string,
+  /** Selected entries' description list to be displayed */
+  descriptionEntries: PropTypes.arrayOf(PropTypes.string),
 };
 
 const styles = StyleSheet.create({
