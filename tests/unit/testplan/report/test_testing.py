@@ -393,8 +393,6 @@ def test_report_json_binary_serialization(
         dummy_test_plan_report_with_binary_asserts
     ).data
 
-    pytest.set_trace()
-
     j = json.loads(data)
     bkey = EntriesField._BYTES_KEY 
     
