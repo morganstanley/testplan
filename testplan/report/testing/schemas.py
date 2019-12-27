@@ -82,7 +82,7 @@ class EntriesField(fields.Field):
     Handle encoding problems gracefully
     """
 
-    _BYTES_KEY = 'bytes'
+    _BYTES_KEY = '_BYTES_KEY'
 
     @staticmethod
     def _binary_to_base64(binary_obj):

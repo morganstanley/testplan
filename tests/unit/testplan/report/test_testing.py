@@ -1,4 +1,5 @@
 import functools
+import json
 import pytest
 import mock
 
@@ -12,7 +13,7 @@ from testplan.report.testing.base import (
     TestReport,
     ReportCategories,
 )
-from testplan.report.testing.schemas import TestReportSchema
+from testplan.report.testing.schemas import TestReportSchema, EntriesField
 from testplan.common import report, entity
 from testplan.common.utils.testing import check_report
 from testplan.testing.multitest.result import Result
@@ -391,6 +392,23 @@ def test_report_json_binary_serialization(
     data = test_plan_schema.dumps(
         dummy_test_plan_report_with_binary_asserts
     ).data
+
+    pytest.set_trace()
+
+    j = json.loads(data)
+    bkey = EntriesField._BYTES_KEY 
+    
+    # passing assertion
+    b64_1_1 = j['entries'][1]['entries'][0]['entries'][1]['first'][bkey]
+    b64_1_2 = j['entries'][1]['entries'][0]['entries'][1]['second'][bkey]
+    assert '8g==' == b64_1_1 == b64_1_2
+
+    # failing assertion
+    b64_2_1 = j['entries'][1]['entries'][0]['entries'][2]['first'][bkey]
+    b64_2_2 = j['entries'][1]['entries'][0]['entries'][2]['second'][bkey]
+    assert 'ALHB' == b64_2_1
+    assert 'ALLC' == b64_2_2
+
     deserialized_report = test_plan_schema.loads(data).data
     check_report(
         actual=deserialized_report,
