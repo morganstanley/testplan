@@ -2,7 +2,7 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 
-from testplan.report import TestGroupReport, TestCaseReport
+from testplan.report import TestGroupReport, TestCaseReport, Status
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 
@@ -161,6 +161,9 @@ class GTest(ProcessRunnerTest):
             for testcase in suite.getchildren():
 
                 testcase_report = TestCaseReport(name=testcase.attrib['name'])
+
+                if not testcase.getchildren():
+                    testcase_report.status_override = Status.PASSED
 
                 for entry in testcase.getchildren():
                     assertion_obj = RawAssertion(

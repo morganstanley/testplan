@@ -20,7 +20,7 @@ from testplan.common.utils.validation import is_subclass
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.timing import timeout as timeout_deco
 from testplan.common.utils import callable as callable_utils
-from testplan.report import (TestGroupReport, TestCaseReport,
+from testplan.report import (TestGroupReport, TestCaseReport, RuntimeStatus,
                              Status, ReportCategories)
 
 from testplan.testing import tagging, filtering
@@ -390,6 +390,8 @@ class MultiTest(Test):
         else:
             report = self._new_test_report()
 
+        report.runtime_status = RuntimeStatus.RUNNING
+
         with report.timer.record('run'):
             if any(getattr(testcase, 'execution_group', None)
                     for pair in ctx for testcase in pair[1]):
@@ -441,6 +443,7 @@ class MultiTest(Test):
             if self._thread_pool_size > 0:
                 self._stop_thread_pool()
 
+        report.runtime_status = RuntimeStatus.FINISHED
         if patch_report is True:
             self.report.merge(report, strict=False)
 
@@ -549,18 +552,10 @@ class MultiTest(Test):
 
             if has_execution_group:
                 self._check_testsuite_report(testsuite_report)
-        if not testsuite_report.failed:
-            testsuite_report.status = Status.PASSED
 
-        # If xfailed testsuite, force set status_override and update result
+        # if testsuite is marked xfail by user, override its status
         if hasattr(testsuite, '__xfail__'):
-            if testsuite_report.failed:
-                testsuite_report.status_override = Status.XFAIL
-            else:
-                if testsuite.__xfail__['strict']:
-                    testsuite_report.status_override = Status.FAILED
-                else:
-                    testsuite_report.status_override = Status.XPASS
+            testsuite_report.xfail(testsuite.__xfail__['strict'])
 
     def _run_suite_related(self, object, method, report):
         """Runs testsuite related special methods setup/teardown/etc."""
@@ -627,18 +622,9 @@ class MultiTest(Test):
         testcase_report.extend(case_result.serialized_entries)
         testcase_report.attachments.extend(case_result.attachments)
 
-        if not testcase_report.failed:
-            testcase_report.status = Status.PASSED
-
         # If xfailed testcase, force set status_override and update result
         if hasattr(testcase, '__xfail__'):
-            if testcase_report.failed:
-                testcase_report.status_override = Status.XFAIL
-            else:
-                if testcase.__xfail__['strict']:
-                    testcase_report.status_override = Status.FAILED
-                else:
-                    testcase_report.status_override = Status.XPASS
+            testcase_report.xfail(testcase.__xfail__['strict'])
 
         if self.get_stdout_style(testcase_report.passed).display_testcase:
             self.log_testcase_status(testcase_report)
@@ -786,8 +772,6 @@ class MultiTest(Test):
                 with testcase_report.logged_exceptions():
                     func(*args)
 
-            if not testcase_report.failed:
-                testcase_report.status = Status.PASSED
             testcase_report.extend(case_result.serialized_entries)
 
             if self.get_stdout_style(testcase_report.passed).display_testcase:

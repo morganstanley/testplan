@@ -51,6 +51,7 @@ def test_runner_timeout():
         # Check that the testplan exited with an error status.
         assert rc == 1
         assert report['status'] == 'error'
+        assert report['counter']['error'] == 1
 
         # Check that the timeout is logged to stdout.
         if not re.search(r'Timeout: Aborting execution after 5 seconds',

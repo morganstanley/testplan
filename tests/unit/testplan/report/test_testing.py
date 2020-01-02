@@ -19,7 +19,7 @@ from testplan.common.utils.testing import check_report
 from testplan.testing.multitest.result import Result
 from testplan.common import entity
 
-DummyReport = functools.partial(report.Report, name='dummy')
+DummyReport = functools.partial(TestCaseReport, name='dummy')
 DummyReportGroup = functools.partial(BaseReportGroup, name='dummy')
 
 
@@ -29,13 +29,16 @@ def test_report_status_precedent():
     highest precedence (the lowest index).
     """
 
-    assert Status.PASSED == Status.precedent([Status.PASSED, Status.XPASS])
-    assert Status.FAILED == Status.precedent([Status.PASSED, Status.FAILED])
-    assert Status.READY == Status.precedent([Status.READY, Status.PASSED])
-    assert Status.FAILED == Status.precedent([Status.FAILED])
+    assert Status.FAILED == Status.precedent([Status.FAILED, Status.UNKNOWN])
+    assert Status.ERROR == Status.precedent([Status.ERROR, Status.UNKNOWN])
+    assert Status.FAILED == Status.precedent([Status.INCOMPLETE, Status.UNKNOWN])
+    assert Status.FAILED == Status.precedent([Status.XPASS_STRICT, Status.UNKNOWN])
+    assert Status.UNKNOWN == Status.precedent([Status.UNKNOWN, Status.PASSED])
+    assert Status.PASSED == Status.precedent([Status.PASSED, Status.SKIPPED])
     assert Status.PASSED == Status.precedent([Status.PASSED, Status.XFAIL])
-    assert Status.FAILED == Status.precedent([Status.FAILED, Status.XFAIL])
-
+    assert Status.PASSED == Status.precedent([Status.PASSED, Status.XPASS])
+    assert Status.PASSED == Status.precedent([Status.PASSED, Status.UNSTABLE])
+    assert Status.UNSTABLE == Status.precedent([Status.UNSTABLE, None])
 
 @disable_log_propagation(report.log.LOGGER)
 def test_report_exception_logger():
@@ -75,7 +78,7 @@ class TestBaseReportGroup(object):
             ([Status.FAILED, Status.PASSED], Status.FAILED),
             (
                 [Status.INCOMPLETE, Status.PASSED, Status.SKIPPED],
-                Status.INCOMPLETE
+                Status.FAILED
             ),
             ([Status.SKIPPED, Status.PASSED], Status.PASSED),
             ([Status.INCOMPLETE, Status.FAILED], Status.FAILED),
@@ -93,13 +96,13 @@ class TestBaseReportGroup(object):
 
     def test_status_no_entries(self):
         """
-        Should return Status.READY when `status_override`
+        Should return Status.UNKNOWN when `status_override`
         is None and report has no entries.
         """
         group = DummyReportGroup()
 
         assert group.status_override is None
-        assert group.status == Status.READY
+        assert group.status == Status.UNKNOWN
 
     def test_status_override(self):
         """
@@ -204,7 +207,7 @@ class TestTestCaseReport(object):
     @pytest.mark.parametrize(
         'entries,expected_status',
         (
-            ([], Status.READY),
+            ([], Status.UNKNOWN),
             ([{'foo': 2}, {'bar': 3}], Status.PASSED),
             ([{'foo': True}], Status.PASSED),
             ([{'passed': True}], Status.PASSED),

@@ -18,6 +18,7 @@ from testplan.report import (TestCaseReport, TestGroupReport,
                              ReportCategories, Status)
 
 from ..base import Exporter
+from collections import Counter
 
 
 class BaseRenderer(object):
@@ -41,22 +42,18 @@ class BaseRenderer(object):
         separately & groups them within `testsuites` tag.
         """
         testsuites = []
-        num_tests = 0
-        num_failures = 0
-        num_errors = 0
+        counter = Counter({})
 
         for index, suite_report in enumerate(source):
-            num_tests += suite_report.counts.total
-            num_errors += suite_report.counts.error
-            num_failures += suite_report.counts.failed
+            counter += suite_report.counter
             suite_elem = self.render_testsuite(index, source, suite_report)
             testsuites.append(suite_elem)
 
         return E.testsuites(
             *testsuites,
-            tests=str(num_tests),
-            errors=str(num_errors),
-            failures=str(num_failures))
+            tests=str(counter['total']),
+            errors=str(counter['error']),
+            failures=str(counter['failed']))
 
     def get_testcase_reports(self, testsuite_report):
         """
@@ -95,9 +92,9 @@ class BaseRenderer(object):
             package='{}:{}'.format(
                 test_report.name, testsuite_report.name),
             name=testsuite_report.name,
-            errors=str(testsuite_report.counts.error),
-            failures=str(testsuite_report.counts.failed),
-            tests=str(len(testsuite_report))
+            errors=str(testsuite_report.counter['error']),
+            failures=str(testsuite_report.counter['failed']),
+            tests=str(testsuite_report.counter['total'])
         )
 
     def render_testcase(

@@ -93,8 +93,8 @@ def generate_interactive_api(ihandler):
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
-                if should_run(ihandler.report.status):
-                    new_report.status = report.Status.RUNNING
+                if should_run(ihandler.report.runtime_status):
+                    new_report.runtime_status = report.RuntimeStatus.RUNNING
                     ihandler.run_all_tests(await_results=False)
 
                 ihandler.report = new_report
@@ -150,8 +150,8 @@ def generate_interactive_api(ihandler):
 
                 # Trigger a side-effect if either the report or environment
                 # statuses have been updated.
-                if should_run(current_test.status):
-                    new_test.status = report.Status.RUNNING
+                if should_run(current_test.runtime_status):
+                    new_test.runtime_status = report.RuntimeStatus.RUNNING
                     ihandler.run_test(test_uid, await_results=False)
                 elif should_start_env(current_test, new_test):
                     ihandler.start_test_resources(
@@ -229,8 +229,8 @@ def generate_interactive_api(ihandler):
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
-                if should_run(current_suite.status):
-                    new_suite.status = report.Status.RUNNING
+                if should_run(current_suite.runtime_status):
+                    new_suite.runtime_status = report.RuntimeStatus.RUNNING
                     ihandler.run_test_suite(
                         test_uid, suite_uid, await_results=False
                     )
@@ -300,8 +300,8 @@ def generate_interactive_api(ihandler):
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
-                if should_run(current_testcase.status):
-                    new_testcase.status = report.Status.RUNNING
+                if should_run(current_testcase.runtime_status):
+                    new_testcase.runtime_status = report.RuntimeStatus.RUNNING
                     ihandler.run_test_case(
                         test_uid, suite_uid, testcase_uid, await_results=False
                     )
@@ -319,15 +319,18 @@ def generate_interactive_api(ihandler):
         setting the state of a running test to PASSED) is not allowed - only
         the server may make those transitions. A BadRequest exception will be
         raised if the requested status is not valid.
+
+        TODO: from api design perspective, should_run should take a curr_status
+        and a new_status, rather than looking at request directly
         """
         try:
-            new_status = flask.request.json["status"]
+            new_status = flask.request.json["runtime_status"]
         except KeyError:
-            raise werkzeug.exceptions.BadRequest("status is required")
+            raise werkzeug.exceptions.BadRequest("runtime_status is required")
 
         if new_status == curr_status:
             return False
-        elif new_status == report.Status.RUNNING:
+        elif new_status == report.RuntimeStatus.RUNNING:
             return True
         else:
             raise werkzeug.exceptions.BadRequest(

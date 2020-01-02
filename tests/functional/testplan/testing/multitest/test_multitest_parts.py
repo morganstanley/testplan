@@ -113,11 +113,14 @@ def test_multi_parts_invalid_parameter_1():
                   resource='MyPool')
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert plan.run().run is False
+        result = plan.run()
+        assert result.run is False
+        # assert plan.run().run is False
 
     assert len(plan.report.entries) == 1
     assert len(plan.report.entries[0].entries) == 2
     assert plan.report.status == Status.ERROR  # Testplan result
+
     assert plan.report.entries[0].status == Status.ERROR  # Multitest
     assert plan.report.entries[0].entries[0].status == Status.FAILED  # Suite1
     assert plan.report.entries[0].entries[1].status == Status.FAILED  # Suite2

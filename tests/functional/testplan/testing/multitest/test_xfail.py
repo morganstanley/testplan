@@ -57,13 +57,18 @@ def test_xfail():
     )
     result = plan.run()
 
-    assert result.report.passed is False
+    assert result.report.failed is True
 
     strict_xfail_suite_report = result.report.entries[0].entries[0]
-    assert strict_xfail_suite_report.passed is False
-    assert strict_xfail_suite_report.entries[0].passed is True
-    assert strict_xfail_suite_report.entries[1].passed is False
+    assert strict_xfail_suite_report.counter == {
+        'total': 20, 'xfail': 10, 'xpass-strict': 10}
+    assert strict_xfail_suite_report.failed is True
+    assert strict_xfail_suite_report.entries[0].unstable is True
+    assert strict_xfail_suite_report.entries[1].failed is True
 
     no_strict_xfail_suite_report = result.report.entries[0].entries[1]
-    assert no_strict_xfail_suite_report.entries[0].passed is True
-    assert no_strict_xfail_suite_report.entries[1].passed is True
+    assert no_strict_xfail_suite_report.counter == {
+        'total': 20, 'xfail': 10, 'xpass': 10}
+    assert no_strict_xfail_suite_report.unstable is True
+    assert no_strict_xfail_suite_report.entries[0].unstable is True
+    assert no_strict_xfail_suite_report.entries[1].unstable is True

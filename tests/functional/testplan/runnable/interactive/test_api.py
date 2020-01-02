@@ -78,7 +78,8 @@ EXPECTED_INITIAL_GET = [
             "meta": {},
             "name": "InteractiveAPITest",
             "parent_uids": [],
-            "status": "ready",
+            "status": "unknown",
+            "runtime_status": "ready",
             "status_override": None,
             "tags_index": {},
             "timer": {},
@@ -97,7 +98,8 @@ EXPECTED_INITIAL_GET = [
                 "name": "ExampleMTest",
                 "parent_uids": ["InteractiveAPITest"],
                 "part": None,
-                "status": "ready",
+                "status": "unknown",
+                "runtime_status": "ready",
                 "status_override": None,
                 "tags": {},
                 "timer": {},
@@ -116,7 +118,8 @@ EXPECTED_INITIAL_GET = [
             "name": "ExampleMTest",
             "parent_uids": ["InteractiveAPITest"],
             "part": None,
-            "status": "ready",
+            "status": "unknown",
+            "runtime_status": "ready",
             "status_override": None,
             "tags": {},
             "timer": {},
@@ -135,7 +138,8 @@ EXPECTED_INITIAL_GET = [
                 "name": "ExampleSuite",
                 "parent_uids": ["InteractiveAPITest", "ExampleMTest"],
                 "part": None,
-                "status": "ready",
+                "status": "unknown",
+                "runtime_status": "ready",
                 "status_override": None,
                 "tags": {},
                 "timer": {},
@@ -154,7 +158,8 @@ EXPECTED_INITIAL_GET = [
             "name": "ExampleSuite",
             "parent_uids": ["InteractiveAPITest", "ExampleMTest"],
             "part": None,
-            "status": "ready",
+            "status": "unknown",
+            "runtime_status": "ready",
             "status_override": None,
             "tags": {},
             "timer": {},
@@ -175,7 +180,8 @@ EXPECTED_INITIAL_GET = [
                     "ExampleMTest",
                     "ExampleSuite",
                 ],
-                "status": "ready",
+                "status": "unknown",
+                "runtime_status": "ready",
                 "status_override": None,
                 "suite_related": False,
                 "tags": {},
@@ -195,7 +201,8 @@ EXPECTED_INITIAL_GET = [
                     "ExampleMTest",
                     "ExampleSuite",
                 ],
-                "status": "ready",
+                "status": "unknown",
+                "runtime_status": "ready",
                 "status_override": None,
                 "suite_related": False,
                 "tags": {},
@@ -215,7 +222,8 @@ EXPECTED_INITIAL_GET = [
                     "ExampleMTest",
                     "ExampleSuite",
                 ],
-                "status": "ready",
+                "status": "unknown",
+                "runtime_status": "ready",
                 "status_override": None,
                 "suite_related": False,
                 "tags": {},
@@ -239,7 +247,8 @@ EXPECTED_INITIAL_GET = [
                 "ExampleMTest",
                 "ExampleSuite",
             ],
-            "status": "ready",
+            "status": "unknown",
+            "runtime_status": "ready",
             "status_override": None,
             "suite_related": False,
             "tags": {},
@@ -293,7 +302,7 @@ def test_run_all_tests(plan):
 
     # Trigger all tests to run by updating the report status to RUNNING
     # and PUTting back the data.
-    report_json["status"] = report.Status.RUNNING
+    report_json["runtime_status"] = report.RuntimeStatus.RUNNING
     rsp = requests.put(report_url, json=report_json)
     assert rsp.status_code == 200
 
@@ -303,7 +312,7 @@ def test_run_all_tests(plan):
 
     timing.wait(
         functools.partial(
-            _check_test_status, report_url, "failed", updated_json["hash"]
+            _check_runtime_status, report_url, "finished", updated_json["hash"]
         ),
         interval=0.2,
         timeout=300,
@@ -325,7 +334,7 @@ def test_run_mtest(plan):
 
     # Trigger all tests to run by updating the report status to RUNNING
     # and PUTting back the data.
-    mtest_json["status"] = report.Status.RUNNING
+    mtest_json["runtime_status"] = report.RuntimeStatus.RUNNING
     rsp = requests.put(mtest_url, json=mtest_json)
     assert rsp.status_code == 200
     updated_json = rsp.json()
@@ -334,7 +343,7 @@ def test_run_mtest(plan):
 
     timing.wait(
         functools.partial(
-            _check_test_status, mtest_url, "failed", updated_json["hash"]
+            _check_runtime_status, mtest_url, "finished", updated_json["hash"]
         ),
         interval=0.2,
         timeout=300,
@@ -415,7 +424,7 @@ def test_run_suite(plan):
 
     # Trigger all tests to run by updating the report status to RUNNING
     # and PUTting back the data.
-    suite_json["status"] = report.Status.RUNNING
+    suite_json["runtime_status"] = report.RuntimeStatus.RUNNING
     rsp = requests.put(suite_url, json=suite_json)
     assert rsp.status_code == 200
     updated_json = rsp.json()
@@ -424,7 +433,7 @@ def test_run_suite(plan):
 
     timing.wait(
         functools.partial(
-            _check_test_status, suite_url, "failed", updated_json["hash"]
+            _check_runtime_status, suite_url, "finished", updated_json["hash"]
         ),
         interval=0.2,
         timeout=300,
@@ -451,7 +460,7 @@ def test_run_testcase(plan):
 
         # Trigger all tests to run by updating the report status to RUNNING
         # and PUTting back the data.
-        testcase_json["status"] = report.Status.RUNNING
+        testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING
         rsp = requests.put(testcase_url, json=testcase_json)
         assert rsp.status_code == 200
         updated_json = rsp.json()
@@ -470,6 +479,7 @@ def test_run_testcase(plan):
             raise_on_timeout=True,
         )
 
+# TODO: needs a bit more re-org around checking state transition
 
 def _check_test_status(test_url, expected_status, last_hash):
     """
@@ -481,10 +491,28 @@ def _check_test_status(test_url, expected_status, last_hash):
     assert rsp.status_code == 200
     report_json = rsp.json()
 
-    if report_json["status"] == report.Status.RUNNING:
+    if report_json["runtime_status"] == report.RuntimeStatus.RUNNING:
         return False
     else:
         assert report_json["status"] == expected_status
+        assert report_json["hash"] != last_hash
+        return True
+
+
+def _check_runtime_status(test_url, expected_status, last_hash):
+    """
+    Check the runtime status by polling the report resource. If the test is
+    still running, return False. Otherwise assert that the status matches
+    the expected status and return True.
+    """
+    rsp = requests.get(test_url)
+    assert rsp.status_code == 200
+    report_json = rsp.json()
+
+    if report_json["runtime_status"] == report.RuntimeStatus.RUNNING:
+        return False
+    else:
+        assert report_json["runtime_status"] == expected_status
         assert report_json["hash"] != last_hash
         return True
 

@@ -91,7 +91,7 @@ def auto_start_stop_environment(method):
 
 class TestRunnerIHandler(entity.Entity):
     """
-    Runnable intective handler for
+    Runnable interactive handler for
     :py:class:`TestRunner <testplan.runnable.TestRunner>` runnable object.
     """
 
@@ -768,7 +768,6 @@ class TestRunnerIHandler(entity.Entity):
             self.logger.debug(
                 "Discarding result from test operation: %s", result
             )
-
         return result
 
     def _start_environment(self, test_uid, start_generator):

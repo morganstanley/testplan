@@ -328,13 +328,9 @@ class _ReportPlugin(object):
                     serialized_entry.update(stdout_header=stdout_header,
                                             stdout_details=stdout_details)
                     self._current_case_report.append(serialized_entry)
-            else:
-                if report.skipped:
-                    self._current_case_report.status_override = Status.SKIPPED
-                elif not report.failed:
-                    self._current_case_report.status_override = Status.PASSED
-                else:
-                    self._current_case_report.status_override = Status.FAILED
+
+            if report.failed:
+                self._current_case_report.status_override = Status.FAILED
 
     def pytest_exception_interact(self, node, call, report):
         """
