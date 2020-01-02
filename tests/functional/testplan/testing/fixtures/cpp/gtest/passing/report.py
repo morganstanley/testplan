@@ -13,10 +13,12 @@ expected_report = TestReport(
                     entries=[
                         TestCaseReport(
                             name='PositiveNos',
+                            status_override = 'passed',
                             entries=[]
                         ),
                         TestCaseReport(
                             name='NegativeNos',
+                            status_override = 'passed',
                             entries=[],
                         ),
                     ]
@@ -27,10 +29,12 @@ expected_report = TestReport(
                     entries=[
                         TestCaseReport(
                             name='PositiveNos',
+                            status_override = 'passed',
                             entries=[]
                         ),
                         TestCaseReport(
                             name='NegativeNos',
+                            status_override = 'passed',
                             entries=[]
                         ),
                     ]

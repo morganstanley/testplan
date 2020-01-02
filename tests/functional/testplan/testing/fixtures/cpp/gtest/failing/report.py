@@ -22,6 +22,7 @@ expected_report = TestReport(
                         ),
                         TestCaseReport(
                             name='NegativeNos',
+                            status_override = 'passed',
                             entries=[],
                         ),
                     ]
@@ -45,6 +46,7 @@ expected_report = TestReport(
                         ),
                         TestCaseReport(
                             name='NegativeNos',
+                            status_override='passed',
                             entries=[]
                         ),
                     ]

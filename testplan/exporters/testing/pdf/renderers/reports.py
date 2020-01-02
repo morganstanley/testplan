@@ -64,12 +64,7 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
         """
         ctx = super(TestReportRenderer, self).get_metadata_context(source)
 
-        counts = source.counts
-
         ctx.update([
-            ('Total run', counts.failed + counts.passed + counts.error),
-            ('Passed', counts.passed),
-            ('Failed', counts.failed + counts.error),
             ('Style (Passing / Failing)', '{} / {}'.format(
                 self.style.passing.label,
                 self.style.failing.label
@@ -328,11 +323,9 @@ class MultiTestRowBuilder(TestRowRenderer):
         row_data += super(
             MultiTestRowBuilder, self).get_header(source, depth, row_data.end)
 
-        if source.passed:
-            summary = 'All tests passed'
-        else:
-            summary = '{} tests failed' .format(
-                source.counts.failed + source.counts.error)
+        summary = ', '.join(['{} {}'.format(count, status) for
+                             count, status in source.counter.items()
+                             if status != 'total'])
 
         if 'run' in source.timer:
             summary += ', total run time: {}.'.format(

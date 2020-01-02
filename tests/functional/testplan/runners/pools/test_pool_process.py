@@ -145,6 +145,7 @@ def test_reassign_times_limit():
     assert res.success is False
     assert pool.task_assign_cnt[uid] == retries_limit
     assert plan.report.status == Status.ERROR
+    assert plan.report.counter['error'] == 1
 
 
 def test_custom_reschedule_condition():
@@ -292,4 +293,5 @@ def test_restart_worker():
     assert res.run is False
     assert res.success is False
     assert plan.report.status == Status.ERROR
+    assert plan.report.counter[Status.ERROR] == 1
 

@@ -122,12 +122,13 @@ def test_run_test(irunner, sync):
     assert test_report.passed
 
     # The test report should have been updated as a side effect.
-    assert irunner.report.status == report.Status.READY
+    assert irunner.report.runtime_status == report.RuntimeStatus.READY
     for test_report in irunner.report:
         if test_report.uid == "test_1":
             assert test_report.passed
+            assert test_report.runtime_status == report.RuntimeStatus.FINISHED
         else:
-            assert test_report.status == report.Status.READY
+            assert test_report.status == report.Status.UNKNOWN
 
 
 @pytest.mark.parametrize("sync", [True, False])
@@ -149,12 +150,13 @@ def test_run_suite(irunner, sync):
     assert test_report.passed
 
     # The test report should have been updated as a side effect.
-    assert irunner.report.status == report.Status.READY
+    assert irunner.report.runtime_status == report.RuntimeStatus.READY
     for test_report in irunner.report:
         if test_report.uid == "test_1":
             assert test_report.passed
+            assert test_report.runtime_status == report.RuntimeStatus.FINISHED
         else:
-            assert test_report.status == report.Status.READY
+            assert test_report.status == report.Status.UNKNOWN
 
 
 @pytest.mark.parametrize("sync", [True, False])
@@ -178,12 +180,13 @@ def test_run_testcase(irunner, sync):
     assert test_report.passed
 
     # The test report should have been updated as a side effect.
-    assert irunner.report.status == report.Status.READY
+    assert irunner.report.runtime_status == report.RuntimeStatus.READY
     for test_report in irunner.report:
         if test_report.uid == "test_1":
             assert test_report.passed
+            assert test_report.runtime_status == report.RuntimeStatus.FINISHED
         else:
-            assert test_report.status == report.Status.READY
+            assert test_report.status == report.Status.UNKNOWN
 
 
 @pytest.mark.parametrize("sync", [True, False])
@@ -226,13 +229,16 @@ def _check_initial_report(initial_report):
 
     First, check that there are three top-level Test reports.
     """
-    assert initial_report.status == report.Status.READY
+    assert initial_report.status == report.Status.UNKNOWN
+    assert initial_report.runtime_status == report.RuntimeStatus.READY
     assert len(initial_report.entries) == 3
     for test_report in initial_report:
         # Each Test contains one suite.
-        assert test_report.status == report.Status.READY
+        assert test_report.status == report.Status.UNKNOWN
+        assert test_report.runtime_status == report.RuntimeStatus.READY
         assert len(test_report.entries) == 1
         for suite_report in test_report:
             # Each suite contains one testcase.
-            assert suite_report.status == report.Status.READY
+            assert suite_report.status == report.Status.UNKNOWN
+            assert suite_report.runtime_status == report.RuntimeStatus.READY
             assert len(suite_report.entries) == 1

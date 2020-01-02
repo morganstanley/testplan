@@ -63,9 +63,7 @@ def schedule_tests_to_pool(pool, **pool_cfg):
     assert plan.run().run is True
 
     assert plan.report.passed is True
-    assert plan.report.counts.passed == 6
-    assert plan.report.counts.error == plan.report.counts.skipped == \
-           plan.report.counts.failed == plan.report.counts.incomplete == 0
+    assert plan.report.counter == {'passed': 6, 'total': 6}
 
     names = sorted(['MTest{}'.format(x) for x in range(1, 7)])
     assert sorted([entry.name for entry in plan.report.entries]) == names

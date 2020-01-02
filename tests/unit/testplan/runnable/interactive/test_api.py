@@ -79,7 +79,7 @@ class TestReport(object):
         rsp = client.get("/api/v1/interactive/report")
         assert rsp.status == "200 OK"
         json_rsp = rsp.get_json()
-        assert json_rsp["status"] == "ready"
+        assert json_rsp["runtime_status"] == "ready"
         compare_json(json_rsp, json_report)
 
     def test_put(self, api_env):
@@ -87,11 +87,11 @@ class TestReport(object):
         client, ihandler = api_env
 
         json_report = ihandler.report.shallow_serialize()
-        json_report["status"] = "running"
+        json_report["runtime_status"] = "running"
         rsp = client.put("/api/v1/interactive/report", json=json_report)
         assert rsp.status == "200 OK"
         rsp_json = rsp.get_json()
-        assert rsp_json["status"] == "running"
+        assert rsp_json["runtime_status"] == "running"
         compare_json(rsp_json, json_report)
         ihandler.run_all_tests.assert_called_once_with(await_results=False)
 
@@ -150,7 +150,7 @@ class TestSingleTest(object):
         client, ihandler = api_env
 
         json_test = ihandler.report["MTest1"].shallow_serialize()
-        json_test["status"] = "running"
+        json_test["runtime_status"] = "running"
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
@@ -250,7 +250,7 @@ class TestSingleSuite(object):
         client, ihandler = api_env
 
         suite_json = ihandler.report["MTest1"]["MT1Suite1"].shallow_serialize()
-        suite_json["status"] = "running"
+        suite_json["runtime_status"] = "running"
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1",
             json=suite_json,
@@ -334,7 +334,7 @@ class TestSingleTestcase(object):
         testcase_json = ihandler.report["MTest1"]["MT1Suite1"][
             "MT1S1TC1"
         ].serialize()
-        testcase_json["status"] = "running"
+        testcase_json["runtime_status"] = "running"
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/testcases/"
             "MT1S1TC1",

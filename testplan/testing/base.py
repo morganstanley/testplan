@@ -685,9 +685,6 @@ class ProcessRunnerTest(Test):
                 and not len(self.result.report):
             with self.result.report.logged_exceptions():
                 self.result.report.append(self.get_process_failure_report())
-        else:
-            if not self.result.report.failed:
-                self.result.report.status = Status.PASSED
 
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""

@@ -48,10 +48,11 @@ import sys
 import copy
 import getpass
 import platform
-import collections
 import inspect
 import hashlib
 import itertools
+
+from collections import Counter
 
 from marshmallow import exceptions
 
@@ -62,55 +63,21 @@ from testplan.common.utils.exceptions import format_trace
 from testplan.testing import tagging
 
 
-class Status(object):
+class RuntimeStatus(object):
     """
-    Report status constants and utilities for getting precedent statuses.
+    Constants for test runtime status - for interactive mode
     """
-    ERROR = 'error'
-    FAILED = 'failed'
-    INCOMPLETE = 'incomplete'
-    PASSED = 'passed'
-    SKIPPED = 'skipped'
+
     READY = 'ready'
     RUNNING = 'running'
-    XFAIL = 'xfail'
-    XPASS = 'xpass'
+    FINISHED = 'finished'
 
     STATUS_PRECEDENCE = (
-        RUNNING,
         READY,
-        ERROR,
-        FAILED,
-        INCOMPLETE,
-        PASSED,
-        XPASS,
-        XFAIL,
-        SKIPPED,
+        RUNNING,
+        FINISHED,
+        None
     )
-
-    STATUS_PROPAGATION = {
-        ERROR: ERROR,
-        FAILED: FAILED,
-        INCOMPLETE: INCOMPLETE,
-        PASSED: PASSED,
-        SKIPPED: SKIPPED,
-        READY: READY,
-        RUNNING: RUNNING,
-        XFAIL: PASSED,
-        XPASS: PASSED,
-        None: None  # `status_override` can be None in merging report,
-    }
-
-    PASSED_STATUSES = (
-        PASSED, SKIPPED, XFAIL
-    )
-
-    FAILED_STATUSES = (
-        FAILED, ERROR, XPASS
-    )
-
-    # `status_override` can be None, so need to add it to precedence rules
-    STATUS_OVERRIDE_PRECEDENCE = STATUS_PRECEDENCE + (None,)
 
     @classmethod
     def precedent(cls, stats, rule=STATUS_PRECEDENCE):
@@ -124,12 +91,67 @@ class Status(object):
         :type rule: ``sequence``
         """
         return min(
-            [cls.STATUS_PROPAGATION[stat] for stat in stats],
+            stats,
             key=lambda stat: rule.index(stat)
         )
 
 
-_TestCount = collections.namedtuple('_TestCount', Status.STATUS_PRECEDENCE)
+class Status(object):
+    """
+    Constants for test result and utilities for propagating status upward.
+    """
+    ERROR = 'error'
+    FAILED = 'failed'
+    INCOMPLETE = 'incomplete'
+    PASSED = 'passed'
+    SKIPPED = 'skipped'
+    XFAIL = 'xfail'
+    XPASS = 'xpass'
+    XPASS_STRICT = 'xpass-strict'
+    UNSTABLE = 'unstable'
+    UNKNOWN = 'unknown'
+
+    # We only maintain precedence among these primary status
+    STATUS_PRECEDENCE = (
+        ERROR,      # red
+        FAILED,     # red
+        UNKNOWN,    # black
+        PASSED,     # green
+        UNSTABLE,   # yellow
+        None        # `status_override` is default to None
+    )
+
+    # And we map detailed status to primary status when we propagate upward
+    # or decide an entry should be considered passed/failed/unstable/unknown
+    STATUS_MAPPING = {
+        ERROR: ERROR,
+        FAILED: FAILED,
+        INCOMPLETE: FAILED,
+        XPASS_STRICT: FAILED,
+        UNKNOWN: UNKNOWN,
+        PASSED: PASSED,
+        SKIPPED: UNSTABLE,
+        XFAIL: UNSTABLE,
+        XPASS: UNSTABLE,
+        UNSTABLE: UNSTABLE,
+        None: None  # `status_override` is default to None
+    }
+
+    @classmethod
+    def precedent(cls, stats, rule=STATUS_PRECEDENCE):
+        """
+        Return the precedent status from a list of statuses, using the
+        ordering of statuses in `rule`.
+
+        :param stats: List of statuses of which we want to get the precedent.
+        :type stats: ``sequence``
+        :param rule: Precedence rules for the given statuses.
+        :type rule: ``sequence``
+        """
+        return min(
+            [Status.STATUS_MAPPING[stat] for stat in stats],
+            key=lambda stat: rule.index(stat)
+        )
 
 
 class ReportCategories(object):
@@ -155,13 +177,6 @@ class ReportCategories(object):
     UNITTEST = "unittest"
     QUNIT = "qunit"
     ERROR = "error"
-
-
-class TestCount(_TestCount):
-
-    @property
-    def total(self):
-        return sum(getattr(self, attrname) for attrname in self._fields)
 
 
 class ExceptionLogger(ExceptionLoggerBase):
@@ -199,7 +214,8 @@ class BaseReportGroup(ReportGroup):
         super(BaseReportGroup, self).__init__(*args, **kwargs)
         self.status_override = None
         self.timer = timing.Timer()
-        self._status = Status.READY
+        self._status = Status.UNKNOWN
+        self._runtime_status = RuntimeStatus.READY
 
     def _get_comparison_attrs(self):
         return super(BaseReportGroup, self)._get_comparison_attrs() +\
@@ -207,23 +223,31 @@ class BaseReportGroup(ReportGroup):
 
     @property
     def passed(self):
-        """Shortcut for getting if report status is `Status.PASSED`."""
-        return self.status in Status.PASSED_STATUSES
+        """Shortcut for getting if report status should be considered passed."""
+        return Status.STATUS_MAPPING[self.status] == Status.PASSED
 
     @property
     def failed(self):
         """
-        Shortcut for checking if report status is `Status.FAILED` or
-        `Status.ERROR`.
+        Shortcut for checking if report status should be considered failed.
         """
-        return self.status in Status.FAILED_STATUSES
+        return Status.STATUS_MAPPING[self.status] in (Status.FAILED,
+                                                      Status.ERROR)
 
     @property
-    def running(self):
+    def unstable(self):
         """
-        Shortcut for checking if report status is `Status.RUNNING`.
+        Shortcut for checking if report status should be considered unstable.
         """
-        return self.status == Status.RUNNING
+        return Status.STATUS_MAPPING[self.status] == Status.UNSTABLE
+
+    @property
+    def unknown(self):
+        """
+        Shortcut for checking if report status is unknown.
+        """
+        return Status.STATUS_MAPPING[self.status] == Status.UNKNOWN
+
 
     @property
     def status(self):
@@ -246,9 +270,30 @@ class BaseReportGroup(ReportGroup):
 
     @status.setter
     def status(self, new_status):
-        for entry in self:
-            entry.status = new_status
         self._status = new_status
+
+    @property
+    def running(self):
+        """
+        Shortcut for checking if report status is `Status.RUNNING`.
+        """
+        return self.runtime_status == RuntimeStatus.RUNNING
+
+    @property
+    def runtime_status(self):
+        if self.entries:
+            return RuntimeStatus.precedent(
+                [entry.runtime_status for entry in self])
+
+        return self._runtime_status
+
+    @runtime_status.setter
+    def runtime_status(self, new_status):
+        # TODO: this doesn't really make sense, should change an entry to
+        # 'running' when we start to run this particular entry
+        for entry in self:
+            entry.runtime_status = new_status
+        self._runtime_status = new_status
 
     def merge_children(self, report, strict=True):
         """
@@ -278,26 +323,26 @@ class BaseReportGroup(ReportGroup):
         self.timer.update(report.timer)
         self.status_override = Status.precedent(
             [self.status_override, report.status_override],
-            rule=Status.STATUS_OVERRIDE_PRECEDENCE)
+            rule=Status.STATUS_PRECEDENCE)
+        self.runtime_status = report.runtime_status
 
     @property
-    def counts(self):
+    def counter(self):
         """
         Return counts for each status, will recursively get aggregates from
         children and so on.
         """
+        counter = Counter({})
 
-        def _get_counts(obj, status):
-            count = 0
-            for child in obj:
-                if isinstance(child, TestCaseReport) and child.status == status:
-                    count += 1
-                elif isinstance(child, BaseReportGroup):
-                    count += _get_counts(child, status)
-            return count
+        for child in self:
+            if child.category == ReportCategories.ERROR:
+                counter += Counter({Status.ERROR: 1, 'total': 1})
+            elif isinstance(child, TestCaseReport):
+                counter += Counter({child.status: 1, 'total': 1})
+            else:
+                counter += child.counter
 
-        return TestCount(*[_get_counts(self, stat)
-                           for stat in Status.STATUS_PRECEDENCE])
+        return counter
 
     def filter(self, *functions, **kwargs):
         """
@@ -349,9 +394,29 @@ class BaseReportGroup(ReportGroup):
         return hash((
             self.uid,
             self.status,
+            self.runtime_status,
             tuple(entry.hash for entry in self.entries))
         )
 
+    def xfail(self, strict):
+        """
+        Override report status for test that is marked xfail by user
+        :param strict: whether consider XPASS as failure
+        """
+
+        if self.failed:
+            self.status_override = Status.XFAIL
+        elif self.passed:
+            if strict:
+                self.status_override = Status.XPASS_STRICT
+            else:
+                self.status_override = Status.XPASS
+
+        # do not override if derived status is UNKNOWN/UNSTABLE
+
+        # propagate xfail down to testcase
+        for child in self:
+            child.xfail(strict)
 
 class TestReport(BaseReportGroup):
     """
@@ -478,7 +543,6 @@ class TestReport(BaseReportGroup):
         deserialized._index = old_report._index
 
         return deserialized
-
 
 class TestGroupReport(BaseReportGroup):
     """
@@ -648,6 +712,7 @@ class TestGroupReport(BaseReportGroup):
         return hash((
             self.uid,
             self.status,
+            self.runtime_status,
             self.env_status,
             tuple(entry.hash for entry in self.entries))
         )
@@ -664,6 +729,7 @@ class TestCaseReport(Report):
                  name,
                  tags=None,
                  suite_related=False,
+                 status_override=None,
                  status_reason=None,
                  **kwargs):
         super(TestCaseReport, self).__init__(name=name, **kwargs)
@@ -672,11 +738,13 @@ class TestCaseReport(Report):
         self.tags_index = copy.deepcopy(self.tags)
         self.suite_related = suite_related
 
-        self.status_override = None
+        self.status_override = status_override
         self.timer = timing.Timer()
 
         self.attachments = []
-        self._status = Status.READY
+        # testcase is default to passed (e.g no assertion)
+        self._status = Status.UNKNOWN
+        self._runtime_status = RuntimeStatus.READY
         self.category = ReportCategories.TESTCASE
         self.status_reason = status_reason
 
@@ -686,23 +754,36 @@ class TestCaseReport(Report):
 
     @property
     def passed(self):
-        """Shortcut for getting if report status is `Status.PASSED`."""
-        return self.status == Status.PASSED
+        """Shortcut for getting if report status should be considered passed."""
+        return Status.STATUS_MAPPING[self.status] == Status.PASSED
 
     @property
     def failed(self):
         """
-        Shortcut for checking if report status is `Status.FAILED` or
-        `Status.ERROR`.
+        Shortcut for checking if report status should be considered failed.
         """
-        return self.status in (Status.FAILED, Status.ERROR)
+        return Status.STATUS_MAPPING[self.status] == Status.FAILED
+
+    @property
+    def unstable(self):
+        """
+        Shortcut for checking if report status should be considered unstable.
+        """
+        return Status.STATUS_MAPPING[self.status] == Status.UNSTABLE
+
+    @property
+    def unknown(self):
+        """
+        Shortcut for checking if report status is unknown.
+        """
+        return Status.STATUS_MAPPING[self.status] == Status.UNKNOWN
 
     @property
     def running(self):
         """
         Shortcut for checking if report status is `Status.RUNNING`.
         """
-        return self.status == Status.RUNNING
+        return self._runtime_status == RuntimeStatus.RUNNING
 
     @property
     def status(self):
@@ -717,20 +798,27 @@ class TestCaseReport(Report):
 
         if self.entries:
             return self._assertions_status()
+
         return self._status
 
     @status.setter
     def status(self, new_status):
-        """
-        Update the status of a testcase. This status is only used for a
-        testcase containing no entries, otherwise the status of the entries
-        is used with precedence rules.
-
-        As a special case, when setting the status of a testcase to "running",
-        any entries from a previous run are discarded, so the status is
-        guaranteed to be read as "running".
-        """
         self._status = new_status
+
+    @property
+    def running(self):
+        """
+        Shortcut for checking if report status is `Status.RUNNING`.
+        """
+        return self.runtime_status == RuntimeStatus.RUNNING
+
+    @property
+    def runtime_status(self):
+        return self._runtime_status
+
+    @runtime_status.setter
+    def runtime_status(self, new_status):
+        self._runtime_status = new_status
         if new_status == "running":
             self.entries = []
 
@@ -753,6 +841,7 @@ class TestCaseReport(Report):
             return
 
         self.status_override = report.status_override
+        self.runtime_status = report.runtime_status
         self.logs = report.logs
         self.entries = report.entries
         self.timer = report.timer
@@ -803,6 +892,19 @@ class TestCaseReport(Report):
         return hash((
             self.uid,
             self.status,
+            self.runtime_status,
             tuple(id(entry) for entry in self.entries))
         )
 
+    def xfail(self, strict):
+        """
+        Override report status for test that is marked xfail by user
+        :param strict: whether consider XPASS as failure
+        """
+        if self.failed:
+            self.status_override = Status.XFAIL
+        elif self.passed:
+            if strict:
+                self.status_override = Status.XPASS_STRICT
+            else:
+                self.status_override = Status.XPASS

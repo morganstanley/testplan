@@ -98,9 +98,7 @@ def schedule_tests_to_pool(name, pool, schedule_path=None, **pool_cfg):
     assert res.success is True
     assert plan.report.passed is True
     assert plan.report.status == Status.PASSED
-    assert plan.report.counts.passed == 9  # 1 testcase * 9 iterations
-    assert (plan.report.counts.error == plan.report.counts.skipped ==
-            plan.report.counts.failed == plan.report.counts.incomplete == 0)
+    assert plan.report.counter == {'passed': 9, 'total': 9}  # 1 testcase * 9 iterations
 
     names = sorted(['MTest{}'.format(x) for x in range(1, 10)])
     assert sorted([entry.name for entry in plan.report.entries]) == names
