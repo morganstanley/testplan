@@ -779,13 +779,6 @@ class TestCaseReport(Report):
         return Status.STATUS_MAPPING[self.status] == Status.UNKNOWN
 
     @property
-    def running(self):
-        """
-        Shortcut for checking if report status is `Status.RUNNING`.
-        """
-        return self._runtime_status == RuntimeStatus.RUNNING
-
-    @property
     def status(self):
         """
         Entries in this context correspond to serialized (raw)
