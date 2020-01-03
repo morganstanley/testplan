@@ -11,7 +11,6 @@ if six.PY2:
 else:
     from collections.abc import MutableMapping, MutableSequence
 # pylint: enable=no-name-in-module,import-error
-import base64
 
 from marshmallow import Schema, fields, post_load
 
