@@ -85,23 +85,17 @@ class EntriesField(fields.Field):
     _BYTES_KEY = '_BYTES_KEY'
 
     @staticmethod
-    def _binary_to_base64(binary_obj):
-        return base64.standard_b64encode(binary_obj).decode('us_ascii')
+    def _binary_to_hex_list(binary_obj):
+        # make sure the hex repr is capitalized and leftpad'd with a zero
+        # because '0x0C' is better than '0xc'.
+        return [
+            '0x{}'.format(hex(b)[2:].upper().zfill(2)) 
+            for b in bytearray(binary_obj)
+        ]
 
     @staticmethod
-    def _base64_to_binary(base64_str):
-        return base64.standard_b64decode(base64_str.encode('us_ascii'))
-
-    @staticmethod
-    def _binary_to_int_list(binary_obj):
-        return [int(b) for b in bytearray(binary_obj)]
-
-    @staticmethod
-    def _int_list_to_binary(int_list):
-        return bytes(bytearray(int_list))
-
-    _binary_serializer = _binary_to_base64
-    _binary_deserializer = _base64_to_binary
+    def _hex_list_to_binary(hex_list):
+        return bytes(bytearray([int(x, 16) for x in hex_list]))
 
     def _render_unencodable_bytes_by_callable(self, 
                                               data, 
@@ -159,7 +153,7 @@ class EntriesField(fields.Field):
         except (UnicodeDecodeError, TypeError):
             value_new = self._render_unencodable_bytes_by_callable(
                 data=value,
-                binary_serializer=self._binary_serializer
+                binary_serializer=self._binary_to_hex_list
             )
             return super_serialize(value_new)
 
@@ -175,7 +169,7 @@ class EntriesField(fields.Field):
         if isinstance(valued, MutableMapping):
             for key in six.iterkeys(valued):
                 if key == self._BYTES_KEY:
-                    return self._binary_deserializer(valued[key])
+                    return self._hex_list_to_binary(valued[key])
                 valued[key] = self._deserialize(
                     value=valued[key],
                     attr=attr,

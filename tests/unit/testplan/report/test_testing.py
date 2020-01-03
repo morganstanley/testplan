@@ -340,8 +340,8 @@ def dummy_test_plan_report_with_binary_asserts():
 
     res = Result()
     res.equal(1, 1, 'IGNORE THIS')
-    res.equal(b'\xF2', b'\xF2', 'IGNORE THIS')
-    res.equal(b'\x00\xB1\xC1', b'\x00\xB2\xC2', 'IGNORE THIS')
+    res.equal(b'\xF2', b'\xf2', 'IGNORE THIS')
+    res.equal(b'\x00\xb1\xC1', b'\x00\xB2\xc2', 'IGNORE THIS')
 
     btc_1 = TestCaseReport(
         name='binary_test_case_1',
@@ -397,15 +397,15 @@ def test_report_json_binary_serialization(
     bkey = EntriesField._BYTES_KEY 
     
     # passing assertion
-    b64_1_1 = j['entries'][1]['entries'][0]['entries'][1]['first'][bkey]
-    b64_1_2 = j['entries'][1]['entries'][0]['entries'][1]['second'][bkey]
-    assert '8g==' == b64_1_1 == b64_1_2
+    hx_1_1 = j['entries'][1]['entries'][0]['entries'][1]['first'][bkey]
+    hx_1_2 = j['entries'][1]['entries'][0]['entries'][1]['second'][bkey]
+    assert ['0xF2'] == hx_1_1 == hx_1_2
 
     # failing assertion
-    b64_2_1 = j['entries'][1]['entries'][0]['entries'][2]['first'][bkey]
-    b64_2_2 = j['entries'][1]['entries'][0]['entries'][2]['second'][bkey]
-    assert 'ALHB' == b64_2_1
-    assert 'ALLC' == b64_2_2
+    hx_2_1 = j['entries'][1]['entries'][0]['entries'][2]['first'][bkey]
+    hx_2_2 = j['entries'][1]['entries'][0]['entries'][2]['second'][bkey]
+    assert ['0x00', '0xB1', '0xC1'] == hx_2_1
+    assert ['0x00', '0xB2', '0xC2'] == hx_2_2
 
     deserialized_report = test_plan_schema.loads(data).data
     check_report(
