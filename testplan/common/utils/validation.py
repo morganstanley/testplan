@@ -29,4 +29,8 @@ def has_method(method_name):
 
 def is_valid_url(url):
     """Validator that checks if a url is valid"""
-    return True if validators.url(url) is True else False
+    return bool(validators.url(url))
+
+
+def is_valid_email(email):
+    return bool(validators.email(email))

@@ -24,9 +24,6 @@ except Exception as exc:
     warnings.warn('reportlab must be supported: {}'.format(exc))
 
 
-from testplan import defaults
-from testplan.common.utils.logger import TESTPLAN_LOGGER
-
 from testplan.common.utils.strings import slugify
 from testplan.common.report import Report
 
