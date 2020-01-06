@@ -16,7 +16,6 @@ Basic
 -----
 
 Required files:
-  - :download:`test_plan_notebook.ipynb <../../../examples/Interactive/Basic/test_plan_notebook.ipynb>`
   - :download:`test_plan.py <../../../examples/Interactive/Basic/test_plan.py>`
   - :download:`my_tests/__init__.py <../../../examples/Interactive/Basic/my_tests/__init__.py>`
   - :download:`my_tests/mtest.py <../../../examples/Interactive/Basic/my_tests/mtest.py>`
