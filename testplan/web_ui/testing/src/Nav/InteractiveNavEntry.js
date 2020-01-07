@@ -18,7 +18,8 @@ import {
   MEDIUM_GREY,
   CATEGORY_ICONS,
   ENTRY_TYPES,
-  STATUS
+  STATUS,
+  RUNTIME_STATUS,
 } from "../Common/defaults";
 
 /**
@@ -31,8 +32,9 @@ import {
  */
 const InteractiveNavEntry = (props) => {
   const badgeStyle = `${props.status}Badge`;
+  console.log(props)
   const statusIcon = getStatusIcon(
-    props.status, props.handlePlayClick
+    props.runtime_status, props.handlePlayClick
   );
   const envStatusIcon = getEnvStatusIcon(
     props.envStatus, props.envCtrlCallback
@@ -95,8 +97,7 @@ const getStatusIcon = (entryStatus, handlePlayClick) => {
         />
       );
 
-    case 'passed':
-    case 'failed':
+    case 'finished':
       return (
         <FontAwesomeIcon
           className={css(styles.entryButton)}
@@ -165,6 +166,7 @@ InteractiveNavEntry.propTypes = {
   name: PropTypes.string,
   /** Entry status */
   status: PropTypes.oneOf(STATUS),
+  runtime_status: PropTypes.oneOf(RUNTIME_STATUS),
   /** Entry type */
   type: PropTypes.oneOf(ENTRY_TYPES),
   /** Number of passing testcases entry has */

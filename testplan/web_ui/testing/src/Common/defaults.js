@@ -7,6 +7,7 @@ const ORANGE = '#FFA500';
 const LIGHT_GREY = '#F3F3F3';
 const MEDIUM_GREY = '#D0D0D0';
 const DARK_GREY = '#ADADAD';
+const BLACK = '#404040';
 
 const COLUMN_WIDTH = 18;
 const INTERACTIVE_COL_WIDTH = 24;  // wider to fit interactive buttons
@@ -81,16 +82,19 @@ const ENTRY_TYPES = [
 ];
 
 const STATUS = [
-  'passed',
-  'failed',
-  'error',
-  'xpass',
-  'xfail',
-  // The following statuses only apply to interactive mode. TODO: maybe create
-  // a new INTERACTIVE_STATUS enum?
-  'ready',
-  'running',
+    'error',
+    'failed',
+    'passed',
+    'unstable',
+    'unknown',
 ];
+
+const RUNTIME_STATUS = [
+    'ready',
+    'running',
+    'finished',
+];
+
 
 const NAV_ENTRY_DISPLAY_DATA = [
   'name',
@@ -98,7 +102,8 @@ const NAV_ENTRY_DISPLAY_DATA = [
   'type',
   'category',
   'status',
-  'case_count',
+  'runtime_status',
+  'counter',
   'tags',
   'parent_uids',
   'logs',
@@ -149,6 +154,7 @@ export {
   LIGHT_GREY,
   MEDIUM_GREY,
   DARK_GREY,
+  BLACK,
   COLUMN_WIDTH,
   INTERACTIVE_COL_WIDTH,
   INDENT_MULTIPLIER,
@@ -158,6 +164,7 @@ export {
   CATEGORY_ICONS,
   ENTRY_TYPES,
   STATUS,
+  RUNTIME_STATUS,
   NAV_ENTRY_DISPLAY_DATA,
   BASIC_ASSERTION_TYPES,
   SORT_TYPES,

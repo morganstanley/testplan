@@ -261,12 +261,12 @@ class BaseReportGroup(ReportGroup):
         If a report group has no children, it is assumed to be passing.
         """
         if self.status_override:
-            return self.status_override
+            return Status.STATUS_MAPPING[self.status_override]
 
         if self.entries:
             return Status.precedent([entry.status for entry in self])
 
-        return self._status
+        return Status.STATUS_MAPPING[self._status]
 
     @status.setter
     def status(self, new_status):
@@ -332,13 +332,15 @@ class BaseReportGroup(ReportGroup):
         Return counts for each status, will recursively get aggregates from
         children and so on.
         """
-        counter = Counter({})
+        template = {Status.PASSED: 0,
+                    Status.FAILED: 0,
+                    'total': 0}
+        counter = Counter(template)
 
         for child in self:
             if child.category == ReportCategories.ERROR:
-                counter += Counter({Status.ERROR: 1, 'total': 1})
-            elif isinstance(child, TestCaseReport):
-                counter += Counter({child.status: 1, 'total': 1})
+                template.update({Status.ERROR: 1, 'total': 1})
+                counter += Counter(template)
             else:
                 counter += child.counter
 
@@ -787,12 +789,12 @@ class TestCaseReport(Report):
         which will be set to `False` for failed assertions.
         """
         if self.status_override:
-            return self.status_override
+            return Status.STATUS_MAPPING[self.status_override]
 
         if self.entries:
             return self._assertions_status()
 
-        return self._status
+        return Status.STATUS_MAPPING[self._status]
 
     @status.setter
     def status(self, new_status):
@@ -901,3 +903,18 @@ class TestCaseReport(Report):
                 self.status_override = Status.XPASS_STRICT
             else:
                 self.status_override = Status.XPASS
+
+    @property
+    def counter(self):
+        """
+        Return counts for each status, will recursively get aggregates from
+        children and so on.
+        """
+
+        template = {Status.PASSED: 0,
+                    Status.FAILED: 0,
+                    'total': 0}
+        template.update({self.status: 1, 'total': 1})
+
+        return Counter(template)
+

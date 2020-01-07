@@ -19,8 +19,8 @@ const NavList = (props) => {
         name={entry.name}
         status={entry.status}
         type={entry.category}
-        caseCountPassed={entry.case_count.passed}
-        caseCountFailed={entry.case_count.failed}
+        caseCountPassed={entry.counter.passed}
+        caseCountFailed={entry.counter.failed}
       />
     ),
     props.selectedUid
@@ -47,7 +47,7 @@ NavList.propTypes = {
     uid: PropTypes.string,
     name: PropTypes.string,
     status: PropTypes.oneOf(STATUS),
-    case_count: PropTypes.shape({
+    counter: PropTypes.shape({
       passed: PropTypes.number,
       failed: PropTypes.number,
     }),

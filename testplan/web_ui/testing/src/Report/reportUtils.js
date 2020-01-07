@@ -45,7 +45,7 @@ function _mergeTags(tagsA, tagsB) {
  *   * tags - its & its ancestors tags.
  *   * tags_index - its, its ancestors & its descendents tags.
  *   * name_type_index - its, its ancestors & its descendents names & types.
- *   * case_count - number of passing & failing descendent testcases.
+ *   * counter - number of passing & failing descendent testcases.
  *
  * @param {Array} entries - Array of Testplan report entries.
  * @param {Object|undefined} parentIndices - An entry's parent's tags_index &
@@ -64,7 +64,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
   let indices = {
     tags_index: {},
     name_type_index: new Set(),
-    case_count: {
+    counter: {
       passed: 0,
       failed: 0,
     },
@@ -79,7 +79,6 @@ const propagateIndicesRecur = (entries, parentIndices) => {
       entryNameType,
       ...parentIndices.name_type_index
     ]);
-    let caseCount = {passed: 0, failed: 0};
 
     let tags = parentIndices.tags_index;
     if (entry.hasOwnProperty('tags')) {
@@ -98,19 +97,12 @@ const propagateIndicesRecur = (entries, parentIndices) => {
         ...nameTypeIndex,
         ...descendantsIndices.name_type_index
       ]);
-      caseCount.passed += descendantsIndices.case_count.passed;
-      caseCount.failed += descendantsIndices.case_count.failed;
-    } else {
-      // Count testcase's status.
-      caseCount.passed += ['passed', 'xpass'].includes(entry.status);
-      caseCount.failed += ['failed', 'xfail'].includes(entry.status);
     }
 
     // Set entry's indices.
     tagsIndex = _mergeTags(tagsIndex, tags);
     entry.tags_index = tagsIndex;
     entry.name_type_index = nameTypeIndex;
-    entry.case_count = caseCount;
 
     // Update Array of entries indices.
     indices.tags_index = _mergeTags(indices.tags_index, tagsIndex);
@@ -118,8 +110,6 @@ const propagateIndicesRecur = (entries, parentIndices) => {
       ...indices.name_type_index,
       ...nameTypeIndex
     ]);
-    indices.case_count.passed += caseCount.passed;
-    indices.case_count.failed += caseCount.failed;
   }
   return indices;
 };
@@ -130,7 +120,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
  *   * tags - its & its ancestors tags.
  *   * tags_index - its, its ancestors & its descendents tags.
  *   * name_type_index - its, its ancestors & its descendents names & types.
- *   * case_count - number of passing & failing descendent testcases.
+ *   * counter - number of passing & failing descendent testcases.
  *
  * @param {Array} entries - A single Testplan report in an Array.
  * @returns {Array} - The Testplan report with indices, in an Array.

@@ -7,6 +7,7 @@ import {
   RED,
   GREEN,
   ORANGE,
+  BLACK,
   CATEGORY_ICONS,
   ENTRY_TYPES,
   STATUS
@@ -83,11 +84,11 @@ const styles = StyleSheet.create({
   errorBadge: {
     backgroundColor: RED,
   },
-  xfailBadge: {
+  unstableBadge: {
     backgroundColor: ORANGE,
   },
-  xpassBadge: {
-    backgroundColor: ORANGE,
+  unknownBadge: {
+    backgroundColor: BLACK,
   },
   passed: {
     color: GREEN,
@@ -98,11 +99,11 @@ const styles = StyleSheet.create({
   error: {
     color: RED,
   },
-  xfail: {
+  unstable: {
     color: ORANGE,
   },
-  xpass: {
-    color: ORANGE,
+  unknown: {
+    color: BLACK,
   },
 });
 
