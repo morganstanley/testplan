@@ -84,7 +84,7 @@ class TestplanLogger(logging.Logger):
         """Shortcut to log a pass/fail status for a test."""
         if Status.STATUS_MAPPING[status] == Status.PASSED:
             pass_label = Color.green(status.title())
-        elif Status.STATUS_MAPPING[status] == Status.FAILED:
+        elif Status.STATUS_MAPPING[status] in [Status.FAILED, Status.ERROR]:
             pass_label = Color.red(status.title())
         elif Status.STATUS_MAPPING[status] == Status.UNSTABLE:
             pass_label = Color.yellow(status.title())

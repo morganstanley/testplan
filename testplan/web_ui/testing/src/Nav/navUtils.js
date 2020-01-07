@@ -71,7 +71,7 @@ const applyAllFilters = (props) => {
       if (entry.category === 'testcase') {
         return (entry.entries !== null && entry.entries.length > 0);
       } else {
-        return (entry.case_count.failed + entry.case_count.passed > 0);
+        return (entry.counter.total > 0);
       }
     });
   }
@@ -87,12 +87,12 @@ const applyNamedFilter = (entries, filter) => {
   switch (filter) {
     case 'pass':
       return entries.filter(
-        (entry) => entry.case_count.failed > 0
+        (entry) => entry.counter.passed > 0
       );
 
     case 'fail':
       return entries.filter(
-        (entry) => entry.case_count.failed === 0
+        (entry) => entry.counter.failed + entry.counter.error > 0
       );
 
     default:

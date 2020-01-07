@@ -278,7 +278,7 @@ class InteractiveReport extends React.Component {
       tags: currReportEntry.tags,
       tags_index: currReportEntry.tags_index,
       name_type_index: currReportEntry.name_type_index,
-      case_count: currReportEntry.case_count,
+      counter: currReportEntry.counter,
     };
     delete newEntry.entry_uids;
 
@@ -298,7 +298,7 @@ class InteractiveReport extends React.Component {
   handlePlayClick(e, reportEntry) {
     e.stopPropagation();
     const updatedReportEntry = {
-      ...this.shallowReportEntry(reportEntry), status: "running"
+      ...this.shallowReportEntry(reportEntry), runtime_status: "running"
     };
     this.putUpdatedReportEntry(updatedReportEntry);
   }

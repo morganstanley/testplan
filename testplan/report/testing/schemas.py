@@ -199,6 +199,7 @@ class TestCaseReportSchema(ReportSchema):
 
     status = fields.String(dump_only=True)
     runtime_status = fields.String(dump_only=True)
+    counter = fields.Dict(dump_only=True)
     suite_related = fields.Bool()
     timer = TimerField(required=True)
     tags = TagField()
@@ -239,6 +240,7 @@ class TestGroupReportSchema(TestCaseReportSchema):
     # env_status = fields.String(allow_none=True)
 
     status_reason = fields.String(allow_none=True)
+    runtime_status = fields.String(dump_only=True)
     counter = fields.Dict(dump_only=True)
 
     entries = custom_fields.GenericNested(
@@ -316,6 +318,7 @@ class ShallowTestReportSchema(Schema):
     runtime_status = fields.String(dump_only=True)
     tags_index = TagField(dump_only=True)
     status_override = fields.String(allow_none=True)
+    counter = fields.Dict(dump_only=True)
     attachments = fields.Dict()
     entry_uids = fields.List(fields.Str(), dump_only=True)
     parent_uids = fields.List(fields.Str())
@@ -348,6 +351,7 @@ class ShallowTestGroupReportSchema(Schema):
     status_override = fields.String(allow_none=True)
     status = fields.String(dump_only=True)
     runtime_status = fields.String(dump_only=True)
+    counter = fields.Dict(dump_only=True)
     suite_related = fields.Bool()
     tags = TagField()
     entry_uids = fields.List(fields.Str(), dump_only=True)

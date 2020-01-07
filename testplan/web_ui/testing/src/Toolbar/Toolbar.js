@@ -21,7 +21,7 @@ import {
 } from 'reactstrap';
 
 import FilterBox from "../Toolbar/FilterBox";
-import {GREEN, RED, LIGHT_GREY, DARK_GREY, STATUS} from "../Common/defaults";
+import {GREEN, RED, ORANGE, BLACK, DARK_GREY, STATUS} from "../Common/defaults";
 
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
@@ -370,9 +370,13 @@ const styles = StyleSheet.create({
         color: DARK_GREY
     }
   },
-  toolbarNeutral: {
-    backgroundColor: LIGHT_GREY,
-    color: 'black'
+  toolbarUnstable: {
+    backgroundColor: ORANGE,
+    color: 'white'
+  },
+  toolbarUnknown: {
+    backgroundColor: BLACK,
+    color: 'white'
   },
   toolbarPassed: {
     backgroundColor: GREEN,

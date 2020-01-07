@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {StyleSheet, css} from 'aphrodite';
 
 import NavEntry from './NavEntry';
-import {LIGHT_GREY, MEDIUM_GREY, DARK_GREY, STATUS} from "../Common/defaults";
+import {LIGHT_GREY, MEDIUM_GREY, DARK_GREY, STATUS, RUNTIME_STATUS} from "../Common/defaults";
 
 /**
  * Render a horizontal menu of all the currently selected entries.
@@ -23,7 +23,9 @@ const NavBreadcrumbs = (props) => {
  *
  * @returns {Array} - Array of breadcrumb entries
  */
-const createNavButtons = (props) => props.entries.map((entry, depth) => (
+const createNavButtons = (props) => props.entries.map((entry, depth) => {
+console.log(entry)
+return (
   <li
     key={entry.uid}
     onClick={((e) => props.handleNavClick(e, entry, depth))}>
@@ -32,11 +34,11 @@ const createNavButtons = (props) => props.entries.map((entry, depth) => (
         name={entry.name}
         status={entry.status}
         type={entry.category}
-        caseCountPassed={entry.case_count.passed}
-        caseCountFailed={entry.case_count.failed} />
+        caseCountPassed={entry.counter.passed}
+        caseCountFailed={entry.counter.failed} />
     </div>
   </li>
-));
+)});
 
 
 NavBreadcrumbs.propTypes = {
@@ -45,7 +47,8 @@ NavBreadcrumbs.propTypes = {
     uid: PropTypes.string,
     name: PropTypes.string,
     status: PropTypes.oneOf(STATUS),
-    case_count: PropTypes.shape({
+    runtime_status: PropTypes.oneOf(RUNTIME_STATUS),
+    counter: PropTypes.shape({
       passed: PropTypes.number,
       failed: PropTypes.number,
     }),
