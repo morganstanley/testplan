@@ -8,8 +8,6 @@ import shutil
 from lxml import etree
 from lxml.builder import E  # pylint: disable=no-name-in-module
 
-from testplan import defaults
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import unique_name
 from testplan.common.utils.strings import slugify
 

@@ -415,6 +415,7 @@ class MultiTest(Test):
                         category=ReportCategories.TESTSUITE,
                         uid=get_testsuite_name(next_suite),
                         tags=next_suite.__tags__,
+                        extra_attributes=next_suite.__extra_attributes__
                     )
                     if hasattr(next_suite, '__xfail__'):
                         testsuite_report.status_reason = \

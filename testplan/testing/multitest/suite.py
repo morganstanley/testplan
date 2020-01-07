@@ -256,6 +256,15 @@ def _testsuite(klass):
         klass.__tags__ = {}  # used for UI
         klass.__tags_index__ = {}  # used for actual filtering
 
+    # Attributes defined in test suite will be saved in test report,
+    # they should be normal objects which can be serialized with json
+    klass.__extra_attributes__ = {
+        attrib: getattr(klass, attrib) for attrib in dir(klass) if not (
+            attrib.startswith('__') or callable(getattr(klass, attrib))
+            or attrib in klass.__testcases__ or getattr(
+                getattr(klass, attrib), '__parametrization_template__', False))
+    }
+
     klass.get_testcases = get_testcase_methods
 
     for func in __GENERATED_TESTCASES__:

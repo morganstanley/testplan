@@ -263,6 +263,11 @@ class Testplan(entity.RunnableManager):
                                 default_options=self._default_options)
 
     @property
+    def runnable(self):
+        """Runnable instance."""
+        return self._runnable
+
+    @property
     def args(self):
         """Parsed arguments."""
         return self._parsed_args
