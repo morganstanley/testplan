@@ -111,7 +111,7 @@ class Status(object):
     UNSTABLE = 'unstable'
     UNKNOWN = 'unknown'
 
-    # We only maintain precedence among these primary status
+    # We only maintain precedence among these status categories
     STATUS_PRECEDENCE = (
         ERROR,      # red
         FAILED,     # red
@@ -121,9 +121,9 @@ class Status(object):
         None        # `status_override` is default to None
     )
 
-    # And we map detailed status to primary status when we propagate upward
-    # or decide an entry should be considered passed/failed/unstable/unknown
-    STATUS_MAPPING = {
+    # And we map status to a category when we propagate upward or decide
+    # if an entry should be considered error/passed/failed/unstable/unknown
+    STATUS_CATEGORY = {
         ERROR: ERROR,
         FAILED: FAILED,
         INCOMPLETE: FAILED,
@@ -149,7 +149,7 @@ class Status(object):
         :type rule: ``sequence``
         """
         return min(
-            [Status.STATUS_MAPPING[stat] for stat in stats],
+            [cls.STATUS_CATEGORY[stat] for stat in stats],
             key=lambda stat: rule.index(stat)
         )
 
@@ -224,14 +224,14 @@ class BaseReportGroup(ReportGroup):
     @property
     def passed(self):
         """Shortcut for getting if report status should be considered passed."""
-        return Status.STATUS_MAPPING[self.status] == Status.PASSED
+        return Status.STATUS_CATEGORY[self.status] == Status.PASSED
 
     @property
     def failed(self):
         """
         Shortcut for checking if report status should be considered failed.
         """
-        return Status.STATUS_MAPPING[self.status] in (Status.FAILED,
+        return Status.STATUS_CATEGORY[self.status] in (Status.FAILED,
                                                       Status.ERROR)
 
     @property
@@ -239,14 +239,14 @@ class BaseReportGroup(ReportGroup):
         """
         Shortcut for checking if report status should be considered unstable.
         """
-        return Status.STATUS_MAPPING[self.status] == Status.UNSTABLE
+        return Status.STATUS_CATEGORY[self.status] == Status.UNSTABLE
 
     @property
     def unknown(self):
         """
         Shortcut for checking if report status is unknown.
         """
-        return Status.STATUS_MAPPING[self.status] == Status.UNKNOWN
+        return Status.STATUS_CATEGORY[self.status] == Status.UNKNOWN
 
 
     @property
@@ -261,12 +261,12 @@ class BaseReportGroup(ReportGroup):
         If a report group has no children, it is assumed to be passing.
         """
         if self.status_override:
-            return Status.STATUS_MAPPING[self.status_override]
+            return Status.STATUS_CATEGORY[self.status_override]
 
         if self.entries:
             return Status.precedent([entry.status for entry in self])
 
-        return Status.STATUS_MAPPING[self._status]
+        return Status.STATUS_CATEGORY[self._status]
 
     @status.setter
     def status(self, new_status):
@@ -332,17 +332,15 @@ class BaseReportGroup(ReportGroup):
         Return counts for each status, will recursively get aggregates from
         children and so on.
         """
-        template = {Status.PASSED: 0,
-                    Status.FAILED: 0,
-                    'total': 0}
-        counter = Counter(template)
+        counter = Counter({Status.PASSED: 0,
+                           Status.FAILED: 0,
+                           'total': 0})
 
         for child in self:
             if child.category == ReportCategories.ERROR:
-                template.update({Status.ERROR: 1, 'total': 1})
-                counter += Counter(template)
+                counter.update({Status.ERROR: 1, 'total': 1})
             else:
-                counter += child.counter
+                counter.update(child.counter)
 
         return counter
 
@@ -757,28 +755,28 @@ class TestCaseReport(Report):
     @property
     def passed(self):
         """Shortcut for getting if report status should be considered passed."""
-        return Status.STATUS_MAPPING[self.status] == Status.PASSED
+        return Status.STATUS_CATEGORY[self.status] == Status.PASSED
 
     @property
     def failed(self):
         """
         Shortcut for checking if report status should be considered failed.
         """
-        return Status.STATUS_MAPPING[self.status] == Status.FAILED
+        return Status.STATUS_CATEGORY[self.status] == Status.FAILED
 
     @property
     def unstable(self):
         """
         Shortcut for checking if report status should be considered unstable.
         """
-        return Status.STATUS_MAPPING[self.status] == Status.UNSTABLE
+        return Status.STATUS_CATEGORY[self.status] == Status.UNSTABLE
 
     @property
     def unknown(self):
         """
         Shortcut for checking if report status is unknown.
         """
-        return Status.STATUS_MAPPING[self.status] == Status.UNKNOWN
+        return Status.STATUS_CATEGORY[self.status] == Status.UNKNOWN
 
     @property
     def status(self):
@@ -789,12 +787,12 @@ class TestCaseReport(Report):
         which will be set to `False` for failed assertions.
         """
         if self.status_override:
-            return Status.STATUS_MAPPING[self.status_override]
+            return Status.STATUS_CATEGORY[self.status_override]
 
         if self.entries:
             return self._assertions_status()
 
-        return Status.STATUS_MAPPING[self._status]
+        return Status.STATUS_CATEGORY[self._status]
 
     @status.setter
     def status(self, new_status):
@@ -911,10 +909,11 @@ class TestCaseReport(Report):
         children and so on.
         """
 
-        template = {Status.PASSED: 0,
-                    Status.FAILED: 0,
-                    'total': 0}
-        template.update({self.status: 1, 'total': 1})
+        counter = Counter({Status.PASSED: 0,
+                           Status.FAILED: 0,
+                           'total': 0})
 
-        return Counter(template)
+        counter.update({self.status: 1, 'total': 1})
+
+        return counter
 
