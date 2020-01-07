@@ -57,7 +57,7 @@ def test_xfail():
     )
     result = plan.run()
 
-    assert result.report.failed is True
+    assert result.report.failed
 
     strict_xfail_suite_report = result.report.entries[0].entries[0]
     assert strict_xfail_suite_report.counter == {

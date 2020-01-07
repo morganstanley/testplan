@@ -80,6 +80,7 @@ EXPECTED_INITIAL_GET = [
             "parent_uids": [],
             "status": "unknown",
             "runtime_status": "ready",
+            "counter": {'failed': 0, 'passed': 0, 'total': 3, 'unknown': 3},
             "status_override": None,
             "tags_index": {},
             "timer": {},
@@ -100,6 +101,7 @@ EXPECTED_INITIAL_GET = [
                 "part": None,
                 "status": "unknown",
                 "runtime_status": "ready",
+                "counter": {'failed': 0, 'passed': 0, 'total': 3, 'unknown': 3},
                 "status_override": None,
                 "tags": {},
                 "timer": {},
@@ -120,6 +122,7 @@ EXPECTED_INITIAL_GET = [
             "part": None,
             "status": "unknown",
             "runtime_status": "ready",
+            "counter": {'failed': 0, 'passed': 0, 'total': 3, 'unknown': 3},
             "status_override": None,
             "tags": {},
             "timer": {},
@@ -140,6 +143,7 @@ EXPECTED_INITIAL_GET = [
                 "part": None,
                 "status": "unknown",
                 "runtime_status": "ready",
+                "counter": {'failed': 0, 'passed': 0, 'total': 3, 'unknown': 3},
                 "status_override": None,
                 "tags": {},
                 "timer": {},
@@ -160,6 +164,7 @@ EXPECTED_INITIAL_GET = [
             "part": None,
             "status": "unknown",
             "runtime_status": "ready",
+            "counter": {'failed': 0, 'passed': 0, 'total': 3, 'unknown': 3},
             "status_override": None,
             "tags": {},
             "timer": {},
@@ -182,6 +187,7 @@ EXPECTED_INITIAL_GET = [
                 ],
                 "status": "unknown",
                 "runtime_status": "ready",
+                "counter": {'passed': 0, 'failed': 0, 'total': 1, 'unknown': 1},
                 "status_override": None,
                 "suite_related": False,
                 "tags": {},
@@ -203,6 +209,7 @@ EXPECTED_INITIAL_GET = [
                 ],
                 "status": "unknown",
                 "runtime_status": "ready",
+                "counter": {'passed': 0, 'failed': 0, 'total': 1, 'unknown': 1},
                 "status_override": None,
                 "suite_related": False,
                 "tags": {},
@@ -225,6 +232,7 @@ EXPECTED_INITIAL_GET = [
                 "status": "unknown",
                 "runtime_status": "ready",
                 "status_override": None,
+                "counter": {'passed': 0, 'failed': 0, 'total': 1, 'unknown': 1},
                 "suite_related": False,
                 "tags": {},
                 "timer": {},
@@ -312,7 +320,7 @@ def test_run_all_tests(plan):
 
     timing.wait(
         functools.partial(
-            _check_runtime_status, report_url, "finished", updated_json["hash"]
+            _check_test_status, report_url, "failed", updated_json["hash"]
         ),
         interval=0.2,
         timeout=300,
@@ -343,7 +351,7 @@ def test_run_mtest(plan):
 
     timing.wait(
         functools.partial(
-            _check_runtime_status, mtest_url, "finished", updated_json["hash"]
+            _check_test_status, mtest_url, "failed", updated_json["hash"]
         ),
         interval=0.2,
         timeout=300,
@@ -433,7 +441,7 @@ def test_run_suite(plan):
 
     timing.wait(
         functools.partial(
-            _check_runtime_status, suite_url, "finished", updated_json["hash"]
+            _check_test_status, suite_url, "failed", updated_json["hash"]
         ),
         interval=0.2,
         timeout=300,
@@ -479,7 +487,6 @@ def test_run_testcase(plan):
             raise_on_timeout=True,
         )
 
-# TODO: needs a bit more re-org around checking state transition
 
 def _check_test_status(test_url, expected_status, last_hash):
     """
@@ -494,25 +501,8 @@ def _check_test_status(test_url, expected_status, last_hash):
     if report_json["runtime_status"] == report.RuntimeStatus.RUNNING:
         return False
     else:
+        assert report_json["runtime_status"] == report.RuntimeStatus.FINISHED
         assert report_json["status"] == expected_status
-        assert report_json["hash"] != last_hash
-        return True
-
-
-def _check_runtime_status(test_url, expected_status, last_hash):
-    """
-    Check the runtime status by polling the report resource. If the test is
-    still running, return False. Otherwise assert that the status matches
-    the expected status and return True.
-    """
-    rsp = requests.get(test_url)
-    assert rsp.status_code == 200
-    report_json = rsp.json()
-
-    if report_json["runtime_status"] == report.RuntimeStatus.RUNNING:
-        return False
-    else:
-        assert report_json["runtime_status"] == expected_status
         assert report_json["hash"] != last_hash
         return True
 
