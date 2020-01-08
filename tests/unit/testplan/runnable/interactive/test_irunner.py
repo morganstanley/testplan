@@ -90,7 +90,7 @@ def test_run_all_tests(irunner, sync):
         if sync:
             test_reports = res
         else:
-            test_reports = res.get()
+            test_reports = res.result()
         assert len(test_reports) == 1
         test_report = test_reports[0]
 
@@ -113,7 +113,7 @@ def test_run_test(irunner, sync):
     if sync:
         results = ret
     else:
-        results = ret.get()
+        results = ret.result()
 
     assert len(results) == 1
     test_report = results[0]
@@ -140,7 +140,7 @@ def test_run_suite(irunner, sync):
     if sync:
         results = ret
     else:
-        results = ret.get()
+        results = ret.result()
 
     assert len(results) == 1
     test_report = results[0]
@@ -160,16 +160,14 @@ def test_run_suite(irunner, sync):
 @pytest.mark.parametrize("sync", [True, False])
 def test_run_testcase(irunner, sync):
     """Test running a single testcase."""
-    ret = irunner.run_test_case(
-        "test_1", "Suite", "case", await_results=sync
-    )
+    ret = irunner.run_test_case("test_1", "Suite", "case", await_results=sync)
 
     # If tests were run synchronously, we should have the report objects.
     # Otherwise, we will have async result objects which we can await.
     if sync:
         results = ret
     else:
-        results = ret.get()
+        results = ret.result()
 
     assert len(results) == 1
     test_report = results[0]
@@ -198,7 +196,7 @@ def test_environment_control(irunner, sync):
     # If the environment was started asynchronously, wait for all of the
     # operations to copmlete before continuing.
     if not sync:
-        start_results.get()
+        start_results.result()
 
     assert test.resources.all_status(entity.ResourceStatus.STARTED)
     assert (
@@ -211,7 +209,7 @@ def test_environment_control(irunner, sync):
 
     # Again, await the async operation results if testing async.
     if not sync:
-        stop_results.get()
+        stop_results.result()
 
     assert test.resources.all_status(entity.ResourceStatus.STOPPED)
     assert (

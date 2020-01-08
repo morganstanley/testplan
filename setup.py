@@ -41,6 +41,7 @@ REQUIRED = [
     'cheroot',
     'validators',
     'ipaddress',
+    "futures; python_version <= '2.7'",
 ]
 
 setup(name='Testplan',

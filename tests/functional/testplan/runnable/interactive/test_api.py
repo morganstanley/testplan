@@ -128,7 +128,7 @@ EXPECTED_INITIAL_GET = [
         [
             {
                 "category": "testsuite",
-                "description": None,
+                "description": "Example test suite.",
                 "entry_uids": ["test_passes", "test_fails", "test_logs"],
                 "env_status": None,
                 "fix_spec_path": None,
@@ -147,7 +147,7 @@ EXPECTED_INITIAL_GET = [
         "/report/tests/ExampleMTest/suites/ExampleSuite",
         {
             "category": "testsuite",
-            "description": None,
+            "description": "Example test suite.",
             "entry_uids": ["test_passes", "test_fails", "test_logs"],
             "env_status": None,
             "fix_spec_path": None,
@@ -166,7 +166,7 @@ EXPECTED_INITIAL_GET = [
         [
             {
                 "category": "testcase",
-                "description": None,
+                "description": "Testcase that passes.",
                 "entries": [],
                 "logs": [],
                 "name": "test_passes",
@@ -186,7 +186,7 @@ EXPECTED_INITIAL_GET = [
             },
             {
                 "category": "testcase",
-                "description": None,
+                "description": "Testcase that fails.",
                 "entries": [],
                 "logs": [],
                 "name": "test_fails",
@@ -206,7 +206,7 @@ EXPECTED_INITIAL_GET = [
             },
             {
                 "category": "testcase",
-                "description": None,
+                "description": "Testcase that makes a log.",
                 "entries": [],
                 "logs": [],
                 "name": "test_logs",
@@ -230,7 +230,7 @@ EXPECTED_INITIAL_GET = [
         "/report/tests/ExampleMTest/suites/ExampleSuite/testcases/test_passes",
         {
             "category": "testcase",
-            "description": None,
+            "description": "Testcase that passes.",
             "entries": [],
             "logs": [],
             "name": "test_passes",
