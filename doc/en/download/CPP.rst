@@ -1,4 +1,4 @@
-C++
+CPP
 ***
 
 Google Test
