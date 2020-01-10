@@ -119,19 +119,6 @@ describe('Report/reportUtils', () => {
       });
     });
 
-    [
-      ['testplan', {passed: 3, failed: 1}],
-      ['multitest', {passed: 2, failed: 1}],
-      ['testsuite', {passed: 1, failed: 1}],
-      ['testcase', {passed: 1, failed: 0}],
-    ].forEach(([entryType, caseCount]) => {
-      it(`${entryType} case_count - stores number of passing & failing ` +
-         'testcases within entry', () => {
-        const entry = testplanEntries[entryType];
-        expect(entry.case_count).toEqual(caseCount);
-      });
-    });
-
   });
 
 });

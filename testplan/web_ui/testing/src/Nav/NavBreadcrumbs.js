@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import {StyleSheet, css} from 'aphrodite';
 
 import NavEntry from './NavEntry';
-import {LIGHT_GREY, MEDIUM_GREY, DARK_GREY, STATUS, RUNTIME_STATUS} from "../Common/defaults";
+import {
+  LIGHT_GREY, MEDIUM_GREY, DARK_GREY, STATUS, RUNTIME_STATUS
+} from "../Common/defaults";
 
 /**
  * Render a horizontal menu of all the currently selected entries.
@@ -24,7 +26,6 @@ const NavBreadcrumbs = (props) => {
  * @returns {Array} - Array of breadcrumb entries
  */
 const createNavButtons = (props) => props.entries.map((entry, depth) => {
-console.log(entry)
 return (
   <li
     key={entry.uid}
@@ -38,7 +39,7 @@ return (
         caseCountFailed={entry.counter.failed} />
     </div>
   </li>
-)});
+);});
 
 
 NavBreadcrumbs.propTypes = {

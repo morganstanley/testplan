@@ -21,7 +21,9 @@ import {
 } from 'reactstrap';
 
 import FilterBox from "../Toolbar/FilterBox";
-import {GREEN, RED, ORANGE, BLACK, DARK_GREY, STATUS} from "../Common/defaults";
+import {
+  GREEN, RED, ORANGE, BLACK, DARK_GREY, STATUS, STATUS_CATEGORY
+} from "../Common/defaults";
 
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
@@ -152,11 +154,21 @@ class Toolbar extends Component {
   }
 
   render() {
-    const toolbarStyle = this.props.status === 'passed' ?
-      css(styles.toolbar, styles.toolbarPassed) :
-      ['failed', 'error'].includes(this.props.status) ?
-        css(styles.toolbar, styles.toolbarFailed) :
-        css(styles.toolbar, styles.toolbarNeutral);
+    var toolbarStyle;
+    switch (STATUS_CATEGORY[this.props.status]){
+        case 'passed':
+            toolbarStyle = css(styles.toolbar, styles.toolbarPassed);
+            break;
+        case 'failed':
+        case 'error':
+            toolbarStyle = css(styles.toolbar, styles.toolbarFailed);
+            break;
+        case 'unstable':
+            toolbarStyle = css(styles.toolbar, styles.toolbarUnstable);
+            break;
+        default:
+            toolbarStyle = css(styles.toolbar, styles.toolbarUnknown);
+    }
 
     return (
       <div>

@@ -22,7 +22,8 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
-        status={'ready'}
+        status={'unknown'}
+        runtime_status={'ready'}
         envStatus={null}
         type={'testcase'}
         caseCountPassed={0}
@@ -38,7 +39,8 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
-        status={'running'}
+        status={'unknown'}
+        runtime_status={'running'}
         envStatus={null}
         type={'testcase'}
         caseCountPassed={0}
@@ -55,6 +57,7 @@ describe('InteractiveNavEntry', () => {
       <InteractiveNavEntry
         name={'FakeTestcase'}
         status={'passed'}
+        runtime_status={'finished'}
         envStatus={null}
         type={'testcase'}
         caseCountPassed={9}
@@ -71,6 +74,7 @@ describe('InteractiveNavEntry', () => {
       <InteractiveNavEntry
         name={'FakeTestcase'}
         status={'failed'}
+        runtime_status={'finished'}
         envStatus={null}
         type={'testcase'}
         caseCountPassed={8}
@@ -87,7 +91,8 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
-        status={'ready'}
+        status={'unknown'}
+        runtime_status={'ready'}
         envStatus={null}
         type={'testcase'}
         caseCountPassed={0}
@@ -107,6 +112,7 @@ describe('InteractiveNavEntry', () => {
       <InteractiveNavEntry
         name={'FakeTestcase'}
         status={'failed'}
+        runtime_status={'finished'}
         envStatus={null}
         type={'testcase'}
         caseCountPassed={6}
@@ -124,7 +130,8 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
-        status={'ready'}
+        status={'unknown'}
+        runtime_status={'ready'}
         envStatus={'STOPPED'}
         type={'multitest'}
         caseCountPassed={0}
@@ -140,7 +147,8 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
-        status={'ready'}
+        status={'unknown'}
+        runtime_status={'ready'}
         envStatus={'STARTING'}
         type={'multitest'}
         caseCountPassed={0}
@@ -156,7 +164,8 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
-        status={'ready'}
+        status={'unknown'}
+        runtime_status={'ready'}
         envStatus={'STARTED'}
         type={'multitest'}
         caseCountPassed={0}
@@ -172,7 +181,8 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
-        status={'ready'}
+        status={'unknown'}
+        runtime_status={'ready'}
         envStatus={'STOPPING'}
         type={'multitest'}
         caseCountPassed={0}
@@ -189,7 +199,8 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
-        status={'ready'}
+        status={'unknown'}
+        runtime_status={'ready'}
         envStatus={'STOPPED'}
         type={'multitest'}
         caseCountPassed={0}
@@ -219,7 +230,8 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
-        status={'ready'}
+        status={'unknown'}
+        runtime_status={'ready'}
         envStatus={'STARTED'}
         type={'multitest'}
         caseCountPassed={0}

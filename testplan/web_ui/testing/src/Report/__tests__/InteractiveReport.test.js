@@ -11,7 +11,8 @@ const INITIAL_REPORT = {
   "category": "testplan",
   "uid": "TestplanUID",
   "timer": {},
-  "status": "ready",
+  "status": "unknown",
+  "runtime_status": "ready",
   "env_status": null,
   "meta": {},
   "status_override": null,
@@ -27,7 +28,8 @@ const INITIAL_REPORT = {
     "timer": {},
     "description": null,
     "tags": {},
-    "status": "ready",
+    "status": "unknown",
+    "runtime_status": "ready",
     "env_status": "STOPPED",
     "part": null,
     "status_override": null,
@@ -43,7 +45,8 @@ const INITIAL_REPORT = {
       "timer": {},
       "description": null,
       "tags": {},
-      "status": "ready",
+      "status": "unknown",
+      "runtime_status": "ready",
       "env_status": null,
       "part": null,
       "status_override": null,
@@ -60,7 +63,8 @@ const INITIAL_REPORT = {
         "description": null,
         "tags": {},
         "type": "TestCaseReport",
-        "status": "ready",
+        "status": "unknown",
+        "runtime_status": "ready",
         "env_status": null,
         "logs": [],
         "suite_related": false,
@@ -102,7 +106,8 @@ describe('InteractiveReport', () => {
           "category": "testplan",
           "uid": "TestplanUID",
           "timer": {},
-          "status": "ready",
+          "status": "unknown",
+          "runtime_status": "ready",
           "meta": {},
           "entry_uids": [
             "MultiTestUID"
@@ -127,7 +132,8 @@ describe('InteractiveReport', () => {
                 "timer": {},
                 "description": null,
                 "tags": {},
-                "status": "ready",
+                "status": "unknown",
+                "runtime_status": "ready",
                 "part": null,
                 "status_override": null,
                 "entry_uids": [
@@ -153,7 +159,8 @@ describe('InteractiveReport', () => {
                   "timer": {},
                   "description": null,
                   "tags": {},
-                  "status": "ready",
+                  "status": "unknown",
+                  "runtime_status": "ready",
                   "part": null,
                   "status_override": null,
                   "entry_uids": [
@@ -180,7 +187,8 @@ describe('InteractiveReport', () => {
                       "description": null,
                       "tags": {},
                       "type": "TestCaseReport",
-                      "status": "ready",
+                      "status": "unknown",
+                      "runtime_status": "ready",
                       "logs": [],
                       "suite_related": false,
                       "entries": [],
@@ -247,7 +255,7 @@ describe('InteractiveReport', () => {
       expect(request.config.method).toBe("put");
       const putData = JSON.parse(request.config.data);
       expect(putData.uid).toBe(clickedEntry.uid);
-      expect(putData.status).toBe("running");
+      expect(putData.runtime_status).toBe("running");
 
       request.respondWith({
         status: 200,
@@ -300,7 +308,8 @@ describe('InteractiveReport', () => {
           "category": "testplan",
           "uid": "TestplanUID",
           "timer": {},
-          "status": "ready",
+          "status": "unknown",
+          "runtime_status": "ready",
           "meta": {},
           "entry_uids": [
             "MultitestUID"
@@ -343,7 +352,8 @@ describe('InteractiveReport', () => {
           "category": "testplan",
           "uid": "TestplanUID",
           "timer": {},
-          "status": "running",
+          "status": "unknown",
+          "runtime_status": "running",
           "meta": {},
           "entry_uids": [
             "MultitestUID"
@@ -368,7 +378,8 @@ describe('InteractiveReport', () => {
                 "timer": {},
                 "description": null,
                 "tags": {},
-                "status": "running",
+                "status": "ready",
+                "runtime_status": "running",
                 "part": null,
                 "status_override": null,
                 "entry_uids": [
@@ -394,6 +405,7 @@ describe('InteractiveReport', () => {
                   "timer": {},
                   "description": null,
                   "tags": {},
+                  "runtime_status": "ready",
                   "status": "running",
                   "part": null,
                   "status_override": null,
@@ -421,7 +433,8 @@ describe('InteractiveReport', () => {
                       "description": null,
                       "tags": {},
                       "type": "TestCaseReport",
-                      "status": "running",
+                      "status": "ready",
+                      "runtime_status": "running",
                       "logs": [],
                       "suite_related": false,
                       "entries": [],

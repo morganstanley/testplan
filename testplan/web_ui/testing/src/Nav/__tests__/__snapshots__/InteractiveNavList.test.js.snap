@@ -20,7 +20,8 @@ exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
         envCtrlCallback={[Function]}
         handlePlayClick={[Function]}
         name="Interactive MTest"
-        status="ready"
+        runtime_status="ready"
+        status="unknown"
         type="multitest"
       />
     </ListGroupItem>

@@ -261,12 +261,12 @@ class BaseReportGroup(ReportGroup):
         If a report group has no children, it is assumed to be passing.
         """
         if self.status_override:
-            return Status.STATUS_CATEGORY[self.status_override]
+            return self.status_override
 
         if self.entries:
             return Status.precedent([entry.status for entry in self])
 
-        return Status.STATUS_CATEGORY[self._status]
+        return self._status
 
     @status.setter
     def status(self, new_status):
@@ -787,12 +787,12 @@ class TestCaseReport(Report):
         which will be set to `False` for failed assertions.
         """
         if self.status_override:
-            return Status.STATUS_CATEGORY[self.status_override]
+            return self.status_override
 
         if self.entries:
             return self._assertions_status()
 
-        return Status.STATUS_CATEGORY[self._status]
+        return self._status
 
     @status.setter
     def status(self, new_status):

@@ -5,7 +5,10 @@ import {ListGroup} from 'reactstrap';
 import InteractiveNavEntry from './InteractiveNavEntry';
 import Column from './Column';
 import {CreateNavButtons} from './navUtils.js';
-import {STATUS, RUNTIME_STATUS, INTERACTIVE_COL_WIDTH} from "../Common/defaults";
+import {
+  STATUS, RUNTIME_STATUS,
+  INTERACTIVE_COL_WIDTH
+} from "../Common/defaults";
 
 /**
  * Render a vertical list of all the currently selected entries children for

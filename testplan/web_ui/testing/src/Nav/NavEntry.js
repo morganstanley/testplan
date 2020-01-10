@@ -10,7 +10,8 @@ import {
   BLACK,
   CATEGORY_ICONS,
   ENTRY_TYPES,
-  STATUS
+  STATUS,
+  STATUS_CATEGORY
 } from "../Common/defaults";
 
 /**
@@ -20,11 +21,11 @@ import {
  *   * type (displayed in badge).
  */
 const NavEntry = (props) => {
-  const badgeStyle = `${props.status}Badge`;
+  const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
   return (
     <div className='d-flex justify-content-between'>
       <div
-        className={css(styles.entryName, styles[props.status])}
+        className={css(styles.entryName, styles[STATUS_CATEGORY[props.status]])}
         title={props.name}>
         {props.name}
       </div>
