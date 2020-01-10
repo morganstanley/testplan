@@ -175,6 +175,10 @@ def _ensure_unique_names(functions):
     """
     name_counts = collections.Counter([f.__name__ for f in functions])
     dupe_names = {k for k, v in name_counts.items() if v > 1}
+
+    if len(dupe_names) == 0:
+        return
+
     dupe_counter = collections.defaultdict(int)
 
     for func in functions:
@@ -184,6 +188,15 @@ def _ensure_unique_names(functions):
             func.__name__ = '{}__{}'.format(name, count)
             dupe_counter[name] += 1
 
+    # Can still have name conflict if user defined name_func does not work well
+    name_counts = collections.Counter([f.__name__ for f in functions])
+    dupe_names = {k for k, v in name_counts.items() if v > 1}
+
+    if len(dupe_names) > 0:
+        msg = (
+            '"name_func" produces duplicated function names and cannot be '
+            'automatically fixed by adding a suffix number, please check it.')
+        raise ParametrizationError(msg)
 
 def _generate_func(
      function, name_func, tag_func, docstring_func, tag_dict, kwargs):
