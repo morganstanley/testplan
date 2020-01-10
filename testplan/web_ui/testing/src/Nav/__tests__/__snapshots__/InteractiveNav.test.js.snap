@@ -6,29 +6,29 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
     entries={
       Array [
         Object {
-          "case_count": Object {
+          "counter": Object {
             "failed": 0,
             "passed": 0,
           },
           "entries": Array [
             Object {
-              "case_count": Object {
+              "category": "multitest",
+              "counter": Object {
                 "failed": 0,
                 "passed": 0,
               },
-              "category": "multitest",
               "description": null,
               "entries": Array [
                 Object {
-                  "case_count": Object {
+                  "category": "testsuite",
+                  "counter": Object {
                     "failed": 0,
                     "passed": 0,
                   },
-                  "category": "testsuite",
                   "description": null,
                   "entries": Array [
                     Object {
-                      "case_count": Object {
+                      "counter": Object {
                         "failed": 0,
                         "passed": 0,
                       },
@@ -37,7 +37,8 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
                       "logs": Array [],
                       "name": "test_interactive",
                       "name_type_index": Set {},
-                      "status": "ready",
+                      "runtime_status": "ready",
+                      "status": "unknown",
                       "status_override": null,
                       "suite_related": false,
                       "tags": Object {},
@@ -51,7 +52,8 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
                   "name": "Interactive Suite",
                   "name_type_index": Set {},
                   "part": null,
-                  "status": "ready",
+                  "runtime_status": "ready",
+                  "status": "unknown",
                   "status_override": null,
                   "tags": Object {},
                   "tags_index": Object {},
@@ -64,7 +66,8 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
               "name": "Interactive MTest",
               "name_type_index": Set {},
               "part": null,
-              "status": "ready",
+              "runtime_status": "ready",
+              "status": "unknown",
               "status_override": null,
               "tags": Object {},
               "tags_index": Object {},
@@ -76,7 +79,8 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
           "meta": Object {},
           "name": "Fake Interactive Report",
           "name_type_index": Set {},
-          "status": "ready",
+          "runtime_status": "ready",
+          "status": "unknown",
           "status_override": null,
           "tags_index": Object {},
           "timer": null,
@@ -94,23 +98,23 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
     entries={
       Array [
         Object {
-          "case_count": Object {
+          "category": "multitest",
+          "counter": Object {
             "failed": 0,
             "passed": 0,
           },
-          "category": "multitest",
           "description": null,
           "entries": Array [
             Object {
-              "case_count": Object {
+              "category": "testsuite",
+              "counter": Object {
                 "failed": 0,
                 "passed": 0,
               },
-              "category": "testsuite",
               "description": null,
               "entries": Array [
                 Object {
-                  "case_count": Object {
+                  "counter": Object {
                     "failed": 0,
                     "passed": 0,
                   },
@@ -119,7 +123,8 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
                   "logs": Array [],
                   "name": "test_interactive",
                   "name_type_index": Set {},
-                  "status": "ready",
+                  "runtime_status": "ready",
+                  "status": "unknown",
                   "status_override": null,
                   "suite_related": false,
                   "tags": Object {},
@@ -133,7 +138,8 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
               "name": "Interactive Suite",
               "name_type_index": Set {},
               "part": null,
-              "status": "ready",
+              "runtime_status": "ready",
+              "status": "unknown",
               "status_override": null,
               "tags": Object {},
               "tags_index": Object {},
@@ -146,7 +152,8 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
           "name": "Interactive MTest",
           "name_type_index": Set {},
           "part": null,
-          "status": "ready",
+          "runtime_status": "ready",
+          "status": "unknown",
           "status_override": null,
           "tags": Object {},
           "tags_index": Object {},

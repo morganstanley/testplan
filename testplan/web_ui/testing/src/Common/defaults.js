@@ -82,17 +82,37 @@ const ENTRY_TYPES = [
 ];
 
 const STATUS = [
-    'error',
-    'failed',
-    'passed',
-    'unstable',
-    'unknown',
+  'error',
+  'failed',
+  'passed',
+  'unstable',
+  'unknown',
+  'incomplete',
+  'skipped',
+  'xfail',
+  'xpass',
+  'xpass-strict',
+  'unstable',
+  'unknown',
 ];
 
+const STATUS_CATEGORY = {
+  'error': 'error',
+  'failed': 'failed',
+  'incomplete': 'failed',
+  'passed': 'passed',
+  'skipped': 'unstable',
+  'xfail': 'unstable',
+  'xpass': 'unstable',
+  'xpass-strict': 'unstable',
+  'unstable': 'unstable',
+  'unknown': 'unknown',
+};
+
 const RUNTIME_STATUS = [
-    'ready',
-    'running',
-    'finished',
+  'ready',
+  'running',
+  'finished',
 ];
 
 
@@ -164,6 +184,7 @@ export {
   CATEGORY_ICONS,
   ENTRY_TYPES,
   STATUS,
+  STATUS_CATEGORY,
   RUNTIME_STATUS,
   NAV_ENTRY_DISPLAY_DATA,
   BASIC_ASSERTION_TYPES,

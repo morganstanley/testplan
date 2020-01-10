@@ -11,17 +11,18 @@ function defaultProps() {
     name: 'test',
     status: 'passed',
     type: 'testplan',
-    case_count: {
+    counter: {
       passed: 1,
       failed: 0,
-    },
-    filter: 'all',
-    displayEmpty: true,
-    displayTags: true,
+    }
+
   };
   return {
     entries: [entry],
     breadcrumbLength: 1,
+    filter: 'all',
+    displayEmpty: true,
+    displayTags: true,
     handleNavClick: jest.fn(),
   };
 }

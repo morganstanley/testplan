@@ -63,11 +63,11 @@ describe('Toolbar', () => {
     expect(container.props.className).toMatch(/toolbar.+toolbarFailed/);
   });
 
-  it('uses the neutral style when status is neither passed or failed', () => {
-    props.status = undefined;
+  it('uses the neutral style when status is unknown', () => {
+    props.status = 'unknown';
     const toolbar = renderToolbar();
     const container = toolbar.find('Collapse').get(0);
-    expect(container.props.className).toMatch(/toolbar.+toolbarNeutral/);
+    expect(container.props.className).toMatch(/toolbar.+toolbarUnknown/);
   });
 
 });

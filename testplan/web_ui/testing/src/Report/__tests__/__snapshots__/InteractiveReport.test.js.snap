@@ -6,7 +6,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
 >
   <Toolbar
     handleNavFilter={[Function]}
-    status="ready"
+    status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -24,8 +24,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
         "category": "testplan",
         "entries": Array [
           Object {
-            "case_count": undefined,
             "category": "multitest",
+            "counter": undefined,
             "description": null,
             "entries": Array [
               Object {
@@ -45,7 +45,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
                       "MultiTestUID",
                       "SuiteUID",
                     ],
-                    "status": "ready",
+                    "runtime_status": "ready",
+                    "status": "unknown",
                     "status_override": null,
                     "suite_related": false,
                     "tags": Object {},
@@ -63,7 +64,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
                   "MultiTestUID",
                 ],
                 "part": null,
-                "status": "ready",
+                "runtime_status": "ready",
+                "status": "unknown",
                 "status_override": null,
                 "tags": Object {},
                 "timer": Object {},
@@ -80,7 +82,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
               "TestplanUID",
             ],
             "part": null,
-            "status": "ready",
+            "runtime_status": "ready",
+            "status": "unknown",
             "status_override": null,
             "tags": Object {},
             "tags_index": undefined,
@@ -94,7 +97,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
         "meta": Object {},
         "name": "TestplanName",
         "parent_uids": Array [],
-        "status": "ready",
+        "runtime_status": "ready",
+        "status": "unknown",
         "status_override": null,
         "tags_index": Object {},
         "timer": Object {},
@@ -109,8 +113,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
           "category": "testplan",
           "entries": Array [
             Object {
-              "case_count": undefined,
               "category": "multitest",
+              "counter": undefined,
               "description": null,
               "entries": Array [
                 Object {
@@ -130,7 +134,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
                         "MultiTestUID",
                         "SuiteUID",
                       ],
-                      "status": "ready",
+                      "runtime_status": "ready",
+                      "status": "unknown",
                       "status_override": null,
                       "suite_related": false,
                       "tags": Object {},
@@ -148,7 +153,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
                     "MultiTestUID",
                   ],
                   "part": null,
-                  "status": "ready",
+                  "runtime_status": "ready",
+                  "status": "unknown",
                   "status_override": null,
                   "tags": Object {},
                   "timer": Object {},
@@ -165,7 +171,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
                 "TestplanUID",
               ],
               "part": null,
-              "status": "ready",
+              "runtime_status": "ready",
+              "status": "unknown",
               "status_override": null,
               "tags": Object {},
               "tags_index": undefined,
@@ -179,7 +186,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
           "meta": Object {},
           "name": "TestplanName",
           "parent_uids": Array [],
-          "status": "ready",
+          "runtime_status": "ready",
+          "status": "unknown",
           "status_override": null,
           "tags_index": Object {},
           "timer": Object {},
@@ -202,7 +210,7 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
 >
   <Toolbar
     handleNavFilter={[Function]}
-    status="ready"
+    status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -217,33 +225,17 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
     report={
       Object {
         "attachments": Object {},
-        "case_count": Object {
-          "failed": 0,
-          "passed": 0,
-        },
         "category": "testplan",
         "entries": Array [
           Object {
-            "case_count": Object {
-              "failed": 0,
-              "passed": 0,
-            },
             "category": "multitest",
             "description": null,
             "entries": Array [
               Object {
-                "case_count": Object {
-                  "failed": 0,
-                  "passed": 0,
-                },
                 "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
-                    "case_count": Object {
-                      "failed": 0,
-                      "passed": 0,
-                    },
                     "category": "testcase",
                     "description": null,
                     "entries": Array [],
@@ -261,7 +253,8 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                       "MultiTestUID",
                       "SuiteUID",
                     ],
-                    "status": "ready",
+                    "runtime_status": "ready",
+                    "status": "unknown",
                     "status_override": null,
                     "suite_related": false,
                     "tags": Object {},
@@ -288,7 +281,8 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                   "MultitestUID",
                 ],
                 "part": null,
-                "status": "ready",
+                "runtime_status": "ready",
+                "status": "unknown",
                 "status_override": null,
                 "tags": Object {},
                 "tags_index": Object {},
@@ -312,7 +306,8 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
               "TestplanUID",
             ],
             "part": null,
-            "status": "ready",
+            "runtime_status": "ready",
+            "status": "unknown",
             "status_override": null,
             "tags": Object {},
             "tags_index": Object {},
@@ -333,7 +328,8 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
           "testcaseName|testcase",
         },
         "parent_uids": Array [],
-        "status": "ready",
+        "runtime_status": "ready",
+        "status": "unknown",
         "status_override": null,
         "tags_index": Object {},
         "timer": Object {},
@@ -344,33 +340,17 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
       Array [
         Object {
           "attachments": Object {},
-          "case_count": Object {
-            "failed": 0,
-            "passed": 0,
-          },
           "category": "testplan",
           "entries": Array [
             Object {
-              "case_count": Object {
-                "failed": 0,
-                "passed": 0,
-              },
               "category": "multitest",
               "description": null,
               "entries": Array [
                 Object {
-                  "case_count": Object {
-                    "failed": 0,
-                    "passed": 0,
-                  },
                   "category": "testsuite",
                   "description": null,
                   "entries": Array [
                     Object {
-                      "case_count": Object {
-                        "failed": 0,
-                        "passed": 0,
-                      },
                       "category": "testcase",
                       "description": null,
                       "entries": Array [],
@@ -388,7 +368,8 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                         "MultiTestUID",
                         "SuiteUID",
                       ],
-                      "status": "ready",
+                      "runtime_status": "ready",
+                      "status": "unknown",
                       "status_override": null,
                       "suite_related": false,
                       "tags": Object {},
@@ -415,7 +396,8 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                     "MultitestUID",
                   ],
                   "part": null,
-                  "status": "ready",
+                  "runtime_status": "ready",
+                  "status": "unknown",
                   "status_override": null,
                   "tags": Object {},
                   "tags_index": Object {},
@@ -439,7 +421,8 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
                 "TestplanUID",
               ],
               "part": null,
-              "status": "ready",
+              "runtime_status": "ready",
+              "status": "unknown",
               "status_override": null,
               "tags": Object {},
               "tags_index": Object {},
@@ -460,7 +443,8 @@ exports[`InteractiveReport Loads report skeleton when mounted 1`] = `
             "testcaseName|testcase",
           },
           "parent_uids": Array [],
-          "status": "ready",
+          "runtime_status": "ready",
+          "status": "unknown",
           "status_override": null,
           "tags_index": Object {},
           "timer": Object {},
@@ -482,7 +466,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
 >
   <Toolbar
     handleNavFilter={[Function]}
-    status="ready"
+    status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -520,7 +504,8 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
                       "MultiTestUID",
                       "SuiteUID",
                     ],
-                    "status": "ready",
+                    "runtime_status": "ready",
+                    "status": "unknown",
                     "status_override": null,
                     "suite_related": false,
                     "tags": Object {},
@@ -538,7 +523,8 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
                   "MultiTestUID",
                 ],
                 "part": null,
-                "status": "ready",
+                "runtime_status": "ready",
+                "status": "unknown",
                 "status_override": null,
                 "tags": Object {},
                 "timer": Object {},
@@ -554,7 +540,8 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
               "TestplanUID",
             ],
             "part": null,
-            "status": "ready",
+            "runtime_status": "ready",
+            "status": "unknown",
             "status_override": null,
             "tags": Object {},
             "timer": Object {},
@@ -567,7 +554,8 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
         "meta": Object {},
         "name": "TestplanName",
         "parent_uids": Array [],
-        "status": "ready",
+        "runtime_status": "ready",
+        "status": "unknown",
         "status_override": null,
         "tags_index": Object {},
         "timer": Object {},
@@ -602,7 +590,8 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
                         "MultiTestUID",
                         "SuiteUID",
                       ],
-                      "status": "ready",
+                      "runtime_status": "ready",
+                      "status": "unknown",
                       "status_override": null,
                       "suite_related": false,
                       "tags": Object {},
@@ -620,7 +609,8 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
                     "MultiTestUID",
                   ],
                   "part": null,
-                  "status": "ready",
+                  "runtime_status": "ready",
+                  "status": "unknown",
                   "status_override": null,
                   "tags": Object {},
                   "timer": Object {},
@@ -636,7 +626,8 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
                 "TestplanUID",
               ],
               "part": null,
-              "status": "ready",
+              "runtime_status": "ready",
+              "status": "unknown",
               "status_override": null,
               "tags": Object {},
               "timer": Object {},
@@ -649,7 +640,8 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
           "meta": Object {},
           "name": "TestplanName",
           "parent_uids": Array [],
-          "status": "ready",
+          "runtime_status": "ready",
+          "status": "unknown",
           "status_override": null,
           "tags_index": Object {},
           "timer": Object {},
@@ -672,7 +664,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
 >
   <Toolbar
     handleNavFilter={[Function]}
-    status="running"
+    status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -687,33 +679,17 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     report={
       Object {
         "attachments": Object {},
-        "case_count": Object {
-          "failed": 0,
-          "passed": 0,
-        },
         "category": "testplan",
         "entries": Array [
           Object {
-            "case_count": Object {
-              "failed": 0,
-              "passed": 0,
-            },
             "category": "multitest",
             "description": null,
             "entries": Array [
               Object {
-                "case_count": Object {
-                  "failed": 0,
-                  "passed": 0,
-                },
                 "category": "testsuite",
                 "description": null,
                 "entries": Array [
                   Object {
-                    "case_count": Object {
-                      "failed": 0,
-                      "passed": 0,
-                    },
                     "category": "testcase",
                     "description": null,
                     "entries": Array [],
@@ -731,7 +707,8 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                       "MultitestUID",
                       "SuiteUID",
                     ],
-                    "status": "running",
+                    "runtime_status": "running",
+                    "status": "ready",
                     "status_override": null,
                     "suite_related": false,
                     "tags": Object {},
@@ -758,6 +735,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                   "MultitestUID",
                 ],
                 "part": null,
+                "runtime_status": "ready",
                 "status": "running",
                 "status_override": null,
                 "tags": Object {},
@@ -782,7 +760,8 @@ exports[`InteractiveReport Updates testcase state 1`] = `
               "TestplanUID",
             ],
             "part": null,
-            "status": "running",
+            "runtime_status": "running",
+            "status": "ready",
             "status_override": null,
             "tags": Object {},
             "tags_index": Object {},
@@ -803,7 +782,8 @@ exports[`InteractiveReport Updates testcase state 1`] = `
           "testcaseName|testcase",
         },
         "parent_uids": Array [],
-        "status": "running",
+        "runtime_status": "running",
+        "status": "unknown",
         "status_override": null,
         "tags_index": Object {},
         "timer": Object {},
@@ -814,33 +794,17 @@ exports[`InteractiveReport Updates testcase state 1`] = `
       Array [
         Object {
           "attachments": Object {},
-          "case_count": Object {
-            "failed": 0,
-            "passed": 0,
-          },
           "category": "testplan",
           "entries": Array [
             Object {
-              "case_count": Object {
-                "failed": 0,
-                "passed": 0,
-              },
               "category": "multitest",
               "description": null,
               "entries": Array [
                 Object {
-                  "case_count": Object {
-                    "failed": 0,
-                    "passed": 0,
-                  },
                   "category": "testsuite",
                   "description": null,
                   "entries": Array [
                     Object {
-                      "case_count": Object {
-                        "failed": 0,
-                        "passed": 0,
-                      },
                       "category": "testcase",
                       "description": null,
                       "entries": Array [],
@@ -858,7 +822,8 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                         "MultitestUID",
                         "SuiteUID",
                       ],
-                      "status": "running",
+                      "runtime_status": "running",
+                      "status": "ready",
                       "status_override": null,
                       "suite_related": false,
                       "tags": Object {},
@@ -885,6 +850,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                     "MultitestUID",
                   ],
                   "part": null,
+                  "runtime_status": "ready",
                   "status": "running",
                   "status_override": null,
                   "tags": Object {},
@@ -909,7 +875,8 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                 "TestplanUID",
               ],
               "part": null,
-              "status": "running",
+              "runtime_status": "running",
+              "status": "ready",
               "status_override": null,
               "tags": Object {},
               "tags_index": Object {},
@@ -930,7 +897,8 @@ exports[`InteractiveReport Updates testcase state 1`] = `
             "testcaseName|testcase",
           },
           "parent_uids": Array [],
-          "status": "running",
+          "runtime_status": "running",
+          "status": "unknown",
           "status_override": null,
           "tags_index": Object {},
           "timer": Object {},
@@ -952,7 +920,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
 >
   <Toolbar
     handleNavFilter={[Function]}
-    status="ready"
+    status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -974,8 +942,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
             "description": null,
             "entries": Array [
               Object {
-                "case_count": undefined,
                 "category": "testsuite",
+                "counter": undefined,
                 "description": null,
                 "entries": Array [
                   Object {
@@ -991,7 +959,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
                       "MultiTestUID",
                       "SuiteUID",
                     ],
-                    "status": "ready",
+                    "runtime_status": "ready",
+                    "status": "unknown",
                     "status_override": null,
                     "suite_related": false,
                     "tags": Object {},
@@ -1010,7 +979,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
                   "MultiTestUID",
                 ],
                 "part": null,
-                "status": "running",
+                "runtime_status": "running",
+                "status": "unknown",
                 "status_override": null,
                 "tags": Object {},
                 "tags_index": undefined,
@@ -1027,7 +997,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
               "TestplanUID",
             ],
             "part": null,
-            "status": "ready",
+            "runtime_status": "ready",
+            "status": "unknown",
             "status_override": null,
             "tags": Object {},
             "timer": Object {},
@@ -1040,7 +1011,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
         "meta": Object {},
         "name": "TestplanName",
         "parent_uids": Array [],
-        "status": "ready",
+        "runtime_status": "ready",
+        "status": "unknown",
         "status_override": null,
         "tags_index": Object {},
         "timer": Object {},
@@ -1059,8 +1031,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
               "description": null,
               "entries": Array [
                 Object {
-                  "case_count": undefined,
                   "category": "testsuite",
+                  "counter": undefined,
                   "description": null,
                   "entries": Array [
                     Object {
@@ -1076,7 +1048,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
                         "MultiTestUID",
                         "SuiteUID",
                       ],
-                      "status": "ready",
+                      "runtime_status": "ready",
+                      "status": "unknown",
                       "status_override": null,
                       "suite_related": false,
                       "tags": Object {},
@@ -1095,7 +1068,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
                     "MultiTestUID",
                   ],
                   "part": null,
-                  "status": "running",
+                  "runtime_status": "running",
+                  "status": "unknown",
                   "status_override": null,
                   "tags": Object {},
                   "tags_index": undefined,
@@ -1112,7 +1086,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
                 "TestplanUID",
               ],
               "part": null,
-              "status": "ready",
+              "runtime_status": "ready",
+              "status": "unknown",
               "status_override": null,
               "tags": Object {},
               "timer": Object {},
@@ -1125,7 +1100,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
           "meta": Object {},
           "name": "TestplanName",
           "parent_uids": Array [],
-          "status": "ready",
+          "runtime_status": "ready",
+          "status": "unknown",
           "status_override": null,
           "tags_index": Object {},
           "timer": Object {},
@@ -1148,7 +1124,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
 >
   <Toolbar
     handleNavFilter={[Function]}
-    status="ready"
+    status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -1174,8 +1150,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                 "description": null,
                 "entries": Array [
                   Object {
-                    "case_count": undefined,
                     "category": "testcase",
+                    "counter": undefined,
                     "description": null,
                     "entries": Array [],
                     "env_status": null,
@@ -1188,7 +1164,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                       "MultiTestUID",
                       "SuiteUID",
                     ],
-                    "status": "running",
+                    "runtime_status": "running",
+                    "status": "unknown",
                     "status_override": null,
                     "suite_related": false,
                     "tags": Object {},
@@ -1207,7 +1184,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                   "MultiTestUID",
                 ],
                 "part": null,
-                "status": "ready",
+                "runtime_status": "ready",
+                "status": "unknown",
                 "status_override": null,
                 "tags": Object {},
                 "timer": Object {},
@@ -1223,7 +1201,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
               "TestplanUID",
             ],
             "part": null,
-            "status": "ready",
+            "runtime_status": "ready",
+            "status": "unknown",
             "status_override": null,
             "tags": Object {},
             "timer": Object {},
@@ -1236,7 +1215,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
         "meta": Object {},
         "name": "TestplanName",
         "parent_uids": Array [],
-        "status": "ready",
+        "runtime_status": "ready",
+        "status": "unknown",
         "status_override": null,
         "tags_index": Object {},
         "timer": Object {},
@@ -1259,8 +1239,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                   "description": null,
                   "entries": Array [
                     Object {
-                      "case_count": undefined,
                       "category": "testcase",
+                      "counter": undefined,
                       "description": null,
                       "entries": Array [],
                       "env_status": null,
@@ -1273,7 +1253,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                         "MultiTestUID",
                         "SuiteUID",
                       ],
-                      "status": "running",
+                      "runtime_status": "running",
+                      "status": "unknown",
                       "status_override": null,
                       "suite_related": false,
                       "tags": Object {},
@@ -1292,7 +1273,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                     "MultiTestUID",
                   ],
                   "part": null,
-                  "status": "ready",
+                  "runtime_status": "ready",
+                  "status": "unknown",
                   "status_override": null,
                   "tags": Object {},
                   "timer": Object {},
@@ -1308,7 +1290,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
                 "TestplanUID",
               ],
               "part": null,
-              "status": "ready",
+              "runtime_status": "ready",
+              "status": "unknown",
               "status_override": null,
               "tags": Object {},
               "timer": Object {},
@@ -1321,7 +1304,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
           "meta": Object {},
           "name": "TestplanName",
           "parent_uids": Array [],
-          "status": "ready",
+          "runtime_status": "ready",
+          "status": "unknown",
           "status_override": null,
           "tags_index": Object {},
           "timer": Object {},
@@ -1344,7 +1328,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
 >
   <Toolbar
     handleNavFilter={[Function]}
-    status="ready"
+    status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -1382,7 +1366,8 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                       "MultiTestUID",
                       "SuiteUID",
                     ],
-                    "status": "ready",
+                    "runtime_status": "ready",
+                    "status": "unknown",
                     "status_override": null,
                     "suite_related": false,
                     "tags": Object {},
@@ -1400,7 +1385,8 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                   "MultiTestUID",
                 ],
                 "part": null,
-                "status": "ready",
+                "runtime_status": "ready",
+                "status": "unknown",
                 "status_override": null,
                 "tags": Object {},
                 "timer": Object {},
@@ -1416,7 +1402,8 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
               "TestplanUID",
             ],
             "part": null,
-            "status": "ready",
+            "runtime_status": "ready",
+            "status": "unknown",
             "status_override": null,
             "tags": Object {},
             "timer": Object {},
@@ -1429,7 +1416,8 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
         "meta": Object {},
         "name": "TestplanName",
         "parent_uids": Array [],
-        "status": "ready",
+        "runtime_status": "ready",
+        "status": "unknown",
         "status_override": null,
         "tags_index": Object {},
         "timer": Object {},
@@ -1464,7 +1452,8 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                         "MultiTestUID",
                         "SuiteUID",
                       ],
-                      "status": "ready",
+                      "runtime_status": "ready",
+                      "status": "unknown",
                       "status_override": null,
                       "suite_related": false,
                       "tags": Object {},
@@ -1482,7 +1471,8 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                     "MultiTestUID",
                   ],
                   "part": null,
-                  "status": "ready",
+                  "runtime_status": "ready",
+                  "status": "unknown",
                   "status_override": null,
                   "tags": Object {},
                   "timer": Object {},
@@ -1498,7 +1488,8 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                 "TestplanUID",
               ],
               "part": null,
-              "status": "ready",
+              "runtime_status": "ready",
+              "status": "unknown",
               "status_override": null,
               "tags": Object {},
               "timer": Object {},
@@ -1511,7 +1502,8 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
           "meta": Object {},
           "name": "TestplanName",
           "parent_uids": Array [],
-          "status": "ready",
+          "runtime_status": "ready",
+          "status": "unknown",
           "status_override": null,
           "tags_index": Object {},
           "timer": Object {},
@@ -1539,7 +1531,8 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                     "MultiTestUID",
                     "SuiteUID",
                   ],
-                  "status": "ready",
+                  "runtime_status": "ready",
+                  "status": "unknown",
                   "status_override": null,
                   "suite_related": false,
                   "tags": Object {},
@@ -1557,7 +1550,8 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
                 "MultiTestUID",
               ],
               "part": null,
-              "status": "ready",
+              "runtime_status": "ready",
+              "status": "unknown",
               "status_override": null,
               "tags": Object {},
               "timer": Object {},
@@ -1573,7 +1567,8 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
             "TestplanUID",
           ],
           "part": null,
-          "status": "ready",
+          "runtime_status": "ready",
+          "status": "unknown",
           "status_override": null,
           "tags": Object {},
           "timer": Object {},
@@ -1596,7 +1591,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
 >
   <Toolbar
     handleNavFilter={[Function]}
-    status="ready"
+    status="unknown"
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
@@ -1614,8 +1609,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
         "category": "testplan",
         "entries": Array [
           Object {
-            "case_count": undefined,
             "category": "multitest",
+            "counter": undefined,
             "description": null,
             "entries": Array [
               Object {
@@ -1635,7 +1630,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
                       "MultiTestUID",
                       "SuiteUID",
                     ],
-                    "status": "ready",
+                    "runtime_status": "ready",
+                    "status": "unknown",
                     "status_override": null,
                     "suite_related": false,
                     "tags": Object {},
@@ -1653,7 +1649,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
                   "MultiTestUID",
                 ],
                 "part": null,
-                "status": "ready",
+                "runtime_status": "ready",
+                "status": "unknown",
                 "status_override": null,
                 "tags": Object {},
                 "timer": Object {},
@@ -1670,7 +1667,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
               "TestplanUID",
             ],
             "part": null,
-            "status": "running",
+            "runtime_status": "running",
+            "status": "unknown",
             "status_override": null,
             "tags": Object {},
             "tags_index": undefined,
@@ -1684,7 +1682,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
         "meta": Object {},
         "name": "TestplanName",
         "parent_uids": Array [],
-        "status": "ready",
+        "runtime_status": "ready",
+        "status": "unknown",
         "status_override": null,
         "tags_index": Object {},
         "timer": Object {},
@@ -1699,8 +1698,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
           "category": "testplan",
           "entries": Array [
             Object {
-              "case_count": undefined,
               "category": "multitest",
+              "counter": undefined,
               "description": null,
               "entries": Array [
                 Object {
@@ -1720,7 +1719,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
                         "MultiTestUID",
                         "SuiteUID",
                       ],
-                      "status": "ready",
+                      "runtime_status": "ready",
+                      "status": "unknown",
                       "status_override": null,
                       "suite_related": false,
                       "tags": Object {},
@@ -1738,7 +1738,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
                     "MultiTestUID",
                   ],
                   "part": null,
-                  "status": "ready",
+                  "runtime_status": "ready",
+                  "status": "unknown",
                   "status_override": null,
                   "tags": Object {},
                   "timer": Object {},
@@ -1755,7 +1756,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
                 "TestplanUID",
               ],
               "part": null,
-              "status": "running",
+              "runtime_status": "running",
+              "status": "unknown",
               "status_override": null,
               "tags": Object {},
               "tags_index": undefined,
@@ -1769,7 +1771,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
           "meta": Object {},
           "name": "TestplanName",
           "parent_uids": Array [],
-          "status": "ready",
+          "runtime_status": "ready",
+          "status": "unknown",
           "status_override": null,
           "tags_index": Object {},
           "timer": Object {},

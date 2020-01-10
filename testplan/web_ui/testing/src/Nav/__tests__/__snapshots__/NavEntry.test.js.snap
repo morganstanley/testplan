@@ -41,3 +41,87 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
   </div>
 </div>
 `;
+
+exports[`NavEntry when prop status="failed" name div and Badge have correct styles 1`] = `
+<div
+  className="d-flex justify-content-between"
+>
+  <div
+    className="entryName_3yx7w6-o_O-failed_11es5k7"
+    title="entry name"
+  >
+    entry name
+  </div>
+  <div
+    className="entryIcons_dx1noq"
+  >
+    <i
+      className="entryIcon_ull2p3"
+      title="passed/failed testcases"
+    >
+      <span
+        className="passed_1kh4m98"
+      >
+        0
+      </span>
+      /
+      <span
+        className="failed_11es5k7"
+      >
+        0
+      </span>
+    </i>
+    <Badge
+      className="entryIcon_ull2p3-o_O-failedBadge_1i8mqax-o_O-badge_1nusemj"
+      color="secondary"
+      pill={true}
+      tag="span"
+      title="testplan"
+    >
+      TP
+    </Badge>
+  </div>
+</div>
+`;
+
+exports[`NavEntry when prop status="xfail" name div and Badge have correct styles 1`] = `
+<div
+  className="d-flex justify-content-between"
+>
+  <div
+    className="entryName_3yx7w6-o_O-unstable_eujaab"
+    title="entry name"
+  >
+    entry name
+  </div>
+  <div
+    className="entryIcons_dx1noq"
+  >
+    <i
+      className="entryIcon_ull2p3"
+      title="passed/failed testcases"
+    >
+      <span
+        className="passed_1kh4m98"
+      >
+        0
+      </span>
+      /
+      <span
+        className="failed_11es5k7"
+      >
+        0
+      </span>
+    </i>
+    <Badge
+      className="entryIcon_ull2p3-o_O-unstableBadge_15sg10d-o_O-badge_1nusemj"
+      color="secondary"
+      pill={true}
+      tag="span"
+      title="testplan"
+    >
+      TP
+    </Badge>
+  </div>
+</div>
+`;

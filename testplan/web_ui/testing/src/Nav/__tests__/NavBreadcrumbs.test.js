@@ -10,7 +10,7 @@ function defaultProps() {
     name: 'test',
     status: 'passed',
     category: 'testplan',
-    case_count: {
+    counter: {
       passed: 0,
       failed: 0,
     },

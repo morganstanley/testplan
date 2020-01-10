@@ -19,6 +19,7 @@ import {
   CATEGORY_ICONS,
   ENTRY_TYPES,
   STATUS,
+  STATUS_CATEGORY,
   RUNTIME_STATUS,
 } from "../Common/defaults";
 
@@ -31,8 +32,8 @@ import {
  *   * Environment status icon (if required)
  */
 const InteractiveNavEntry = (props) => {
-  const badgeStyle = `${props.status}Badge`;
-  console.log(props)
+  const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
+
   const statusIcon = getStatusIcon(
     props.runtime_status, props.handlePlayClick
   );
@@ -42,7 +43,9 @@ const InteractiveNavEntry = (props) => {
 
   return (
     <div className='d-flex justify-content-between'>
-      <div className={css(styles.entryName, styles[props.status])}>
+      <div className={
+        css(styles.entryName, styles[STATUS_CATEGORY[props.status]])
+        }>
         {props.name}
       </div>
       <div className={css(styles.entryIcons)}>
