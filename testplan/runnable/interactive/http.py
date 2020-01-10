@@ -294,9 +294,27 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.NotFound
 
                 try:
-                    new_testcase = report.TestCaseReport.deserialize(
-                        flask.request.json
-                    )
+                    # We need to inspect the type of the current testcase
+                    # object in order to decide how to deserialize the update.
+                    # If a testcase is parametrized, it will be represented
+                    # as a TestGroupReport type at this level of the report
+                    # tree. Non-parametrized testcases are represented
+                    # as a TestCaseReport.
+                    if isinstance(current_testcase, report.TestCaseReport):
+                        new_testcase = report.TestCaseReport.deserialize(
+                            flask.request.json
+                        )
+                    elif isinstance(current_testcase, report.TestGroupReport):
+                        new_testcase = (
+                            report.TestGroupReport.shallow_deserialize(
+                                flask.request.json, current_testcase
+                            )
+                        )
+                    else:
+                        raise TypeError(
+                            "Unexpected report type %s", type(current_testcase)
+                        )
+
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 

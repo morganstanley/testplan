@@ -249,7 +249,7 @@ class Pattern(Filter):
         <Multitest name>:*:<testcase name>
         *:<suite name>:*
     """
- 
+
     MAX_LEVEL = 3
     DELIMITER = ':'
     ALL_MATCH = '*'
@@ -282,8 +282,21 @@ class Pattern(Filter):
             get_testsuite_name(suite), self.suite_pattern)
 
     def filter_case(self, case):
-        return fnmatch.fnmatch(
+        name_match = fnmatch.fnmatch(
             case.__name__, self.case_pattern)
+
+        # Check if the testcase is parametrized - if so, we also consider
+        # the filter to match if the parametrization template is matched.
+        parametrization_template = getattr(
+            case, "_parametrization_template", None
+        )
+        if parametrization_template:
+            param_match = fnmatch.fnmatch(
+                parametrization_template, self.case_pattern
+            )
+            return name_match or param_match
+
+        return name_match
 
     @classmethod
     def any(cls, *patterns):
