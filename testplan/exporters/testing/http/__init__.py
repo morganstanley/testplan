@@ -3,6 +3,8 @@ HTTP exporter for uploading test reports via http transmission. The web server
 must be able to handle POST request and receive data in JSON format.
 """
 
+import json
+
 import requests
 from schema import Or, And, Use
 
@@ -12,6 +14,12 @@ from testplan.common.exporters import ExporterConfig
 from testplan.report.testing.schemas import TestReportSchema
 
 from ..base import Exporter
+
+
+class CustomJsonEncoder(json.JSONEncoder):
+    """To jsonify data that cannot be serialized by default JSONEncoder."""
+    def default(self, obj):  # pylint: disable = method-hidden
+        return str(obj)
 
 
 class HTTPExporterConfig(ExporterConfig):
@@ -33,8 +41,10 @@ class HTTPExporter(Exporter):
     """
     Json Exporter.
 
-    :param url: Http url for posting data.
-    :type url: ``str``
+    :param http_url: Http url for posting data.
+    :type http_url: ``str``
+    :param timeout: Connection timeout.
+    :type timeout: ``int``
 
     Also inherits all
     :py:class:`~testplan.exporters.testing.base.Exporter` options.
@@ -50,9 +60,12 @@ class HTTPExporter(Exporter):
         errmsg = ''
 
         if data and data['entries']:
+            headers = {'Content-Type': 'application/json'}
             try:
                 response = requests.post(
-                    url=url, json=data, timeout=self.cfg.timeout)
+                    url=url, headers=headers,
+                    data=json.dumps(data, cls=CustomJsonEncoder),
+                    timeout=self.cfg.timeout)
                 response.raise_for_status()
             except requests.exceptions.RequestException as exp:
                 errmsg = 'Failed to export to {}: {}'.format(url, str(exp))
