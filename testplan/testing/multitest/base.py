@@ -313,13 +313,7 @@ class MultiTest(Test):
         ctx = [(self.test_context[idx][0], self.test_context[idx][1][:])
                for idx in range(len(self.test_context))]
 
-        self.result.report = TestGroupReport(
-            name=self.cfg.name,
-            description=self.cfg.description,
-            category=self.__class__.__name__.lower(),
-            uid=self.uid(),
-            tags=self.cfg.tags,
-        )
+        self.result.report = self._new_test_report()
 
         while len(ctx) > 0:
             testsuite, testcases = ctx.pop(0)

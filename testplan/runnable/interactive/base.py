@@ -15,8 +15,8 @@ import re
 import six
 import numbers
 import threading
-import multiprocessing.dummy
 import itertools
+from concurrent import futures
 
 from testplan.common import entity
 from testplan.common import config
@@ -131,7 +131,7 @@ class TestRunnerIHandler(entity.Entity):
             "Starting {} for {}".format(self.__class__.__name__, self.target)
         )
         self._http_handler = self._setup_http_handler()
-        self._pool = multiprocessing.dummy.Pool(1)
+        self._pool = futures.ThreadPoolExecutor(max_workers=1)
 
     def run(self):
         """
@@ -143,7 +143,8 @@ class TestRunnerIHandler(entity.Entity):
 
         self.status.change(entity.RunnableStatus.RUNNING)
         self._display_connection_info()
-        self._http_handler.run()
+        with self._pool:
+            self._http_handler.run()
         self.status.change(entity.RunnableStatus.FINISHED)
 
     def teardown(self):
@@ -151,7 +152,6 @@ class TestRunnerIHandler(entity.Entity):
         if self._pool is None or self._http_handler is None:
             raise RuntimeError("setup() not run")
 
-        self._pool.close()
         self._pool = None
         self._http_handler = None
 
@@ -196,9 +196,7 @@ class TestRunnerIHandler(entity.Entity):
 
         return [
             self.run_test(
-                test_uid,
-                runner_uid=runner_uid,
-                await_results=await_results,
+                test_uid, runner_uid=runner_uid, await_results=await_results
             )
             for test_uid, real_runner_uid in all_tests
         ]
@@ -223,8 +221,8 @@ class TestRunnerIHandler(entity.Entity):
         if await_results:
             return self._run_all_test_operations(test_run_generator)
         else:
-            return self._pool.apply_async(
-                self._run_all_test_operations, (test_run_generator,)
+            return self._run_async(
+                self._run_all_test_operations, test_run_generator
             )
 
     @auto_start_stop_environment
@@ -250,8 +248,8 @@ class TestRunnerIHandler(entity.Entity):
         if await_results:
             return self._run_all_test_operations(test_run_generator)
         else:
-            return self._pool.apply_async(
-                self._run_all_test_operations, (test_run_generator,)
+            return self._run_async(
+                self._run_all_test_operations, test_run_generator
             )
 
     @auto_start_stop_environment
@@ -281,8 +279,8 @@ class TestRunnerIHandler(entity.Entity):
         if await_results:
             return self._run_all_test_operations(test_run_generator)
         else:
-            return self._pool.apply_async(
-                self._run_all_test_operations, (test_run_generator,)
+            return self._run_async(
+                self._run_all_test_operations, test_run_generator
             )
 
     def test(self, test_uid, runner_uid=None):
@@ -327,9 +325,10 @@ class TestRunnerIHandler(entity.Entity):
                 test_uid, test_irunner.start_resources()
             )
         else:
-            return self._pool.apply_async(
+            return self._run_async(
                 self._start_environment,
-                (test_uid, test_irunner.start_resources()),
+                test_uid,
+                test_irunner.start_resources(),
             )
 
     def stop_test_resources(
@@ -355,9 +354,8 @@ class TestRunnerIHandler(entity.Entity):
                 test_uid, test_irunner.stop_resources()
             )
         else:
-            return self._pool.apply_async(
-                self._stop_environment,
-                (test_uid, test_irunner.stop_resources()),
+            return self._run_async(
+                self._stop_environment, test_uid, test_irunner.stop_resources()
             )
 
     def get_environment(self, env_uid):
@@ -727,23 +725,8 @@ class TestRunnerIHandler(entity.Entity):
 
         for test_uid, runner_uid in self.all_tests():
             test = self.test(test_uid, runner_uid=runner_uid)
-
-            for suite in test.suites:
-                suite_name = suite.__class__.__name__
-                suite_report = testplan.report.TestGroupReport(
-                    name=suite_name, uid=suite_name, category='testsuite'
-                )
-
-                for testcase in suite.get_testcases():
-                    testcase_name = testcase.__name__
-                    testcase_report = testplan.report.TestCaseReport(
-                        name=testcase_name, uid=testcase_name
-                    )
-                    suite_report.append(testcase_report)
-
-                test.result.report.append(suite_report)
-
-            report.append(test.result.report)
+            test_report = test.dry_run().report
+            report.append(test_report)
 
         return report
 
@@ -803,3 +786,20 @@ class TestRunnerIHandler(entity.Entity):
                 "Setting env status of %s to %s", test_uid, new_status
             )
             self.report[test_uid].env_status = new_status
+
+    def _run_async(self, func, *args, **kwargs):
+        """
+        Schedule a function to run asynchronously in our task pool. We add a
+        callback to ensure that all async exceptions are logged, for debugging
+        purposes.
+        """
+        future = self._pool.submit(func, *args, **kwargs)
+        future.add_done_callback(self._log_async_exceptions)
+        return future
+
+    def _log_async_exceptions(self, future):
+        """Log any exceptions that occur while running async."""
+        try:
+            future.result()
+        except Exception:
+            self.logger.exception("Exception caught in async function")
