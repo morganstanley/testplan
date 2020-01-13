@@ -1,6 +1,7 @@
 import pytest
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
+from testplan.testing.multitest import parametrization
 
 from testplan.testing import filtering
 
@@ -57,6 +58,14 @@ class Gamma(object):
 
     @testcase(tags={'color': ('blue', 'red')})
     def test_four(self, env, result):
+        pass
+
+
+@testsuite
+class Delta(object):
+
+    @testcase(parameters=[1, 2, 3])
+    def parametrized(self, env, result, val):
         pass
 
 
@@ -252,6 +261,22 @@ class TestPattern(object):
     def test_filter_case(self, pattern, testcase_obj, expected):
         filter_obj = filtering.Pattern(pattern=pattern)
         assert bool(filter_obj.filter_case(testcase_obj)) == expected
+
+    def test_filter_parametrized_cases(self):
+        """
+        Test filtering parametrized testcases.
+
+        Parametrized testcases should match filter patterns for either the
+        base parametrization template or the generated testcase name.
+        """
+        suite = Delta()
+        testcases = suite.get_testcases()
+        assert len(testcases) == 3  # Expect 3 testcases to be generated.
+
+        testcase = testcases[0]
+        for pattern in ['*:Delta:parametrized', '*:Delta:parametrized__val_1']:
+            filter_obj = filtering.Pattern(pattern=pattern)
+            assert filter_obj.filter_case(testcase)
 
     def test_filter_initialization_error(self):
         """
