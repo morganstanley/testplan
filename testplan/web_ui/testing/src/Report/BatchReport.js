@@ -142,6 +142,11 @@ class BatchReport extends React.Component {
 
   render() {
     const {reportStatus, reportFetchMessage} = GetReportState(this.state);
+
+    if (this.state.report && this.state.report.name) {
+      window.document.title = this.state.report.name;
+    }
+
     const selectedEntries = GetSelectedEntries(
       this.state.selectedUIDs, this.state.report
     );
