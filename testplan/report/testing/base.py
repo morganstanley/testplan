@@ -215,7 +215,6 @@ class BaseReportGroup(ReportGroup):
         self.status_override = None
         self.timer = timing.Timer()
         self._status = Status.UNKNOWN
-        self._runtime_status = RuntimeStatus.READY
 
     def _get_comparison_attrs(self):
         return super(BaseReportGroup, self)._get_comparison_attrs() +\
@@ -281,19 +280,26 @@ class BaseReportGroup(ReportGroup):
 
     @property
     def runtime_status(self):
+        """
+        The runtime status is used for interactive running, and reports whether
+        a particular entry is READY, RUNNING or FINISHED.
+
+        A test group inherits its runtime status from its child entries.
+        """
         if self.entries:
             return RuntimeStatus.precedent(
                 [entry.runtime_status for entry in self])
 
-        return self._runtime_status
+        # runtime_status does not really make sense for an empty test group,
+        # since it has nothing to be run. We return FINISHED as a sensible
+        # default.
+        return RuntimeStatus.FINISHED
 
     @runtime_status.setter
     def runtime_status(self, new_status):
-        # TODO: this doesn't really make sense, should change an entry to
-        # 'running' when we start to run this particular entry
+        """Set the runtime_status of all child entries."""
         for entry in self:
             entry.runtime_status = new_status
-        self._runtime_status = new_status
 
     def merge_children(self, report, strict=True):
         """
@@ -324,7 +330,6 @@ class BaseReportGroup(ReportGroup):
         self.status_override = Status.precedent(
             [self.status_override, report.status_override],
             rule=Status.STATUS_PRECEDENCE)
-        self.runtime_status = report.runtime_status
 
     @property
     def counter(self):
@@ -807,12 +812,20 @@ class TestCaseReport(Report):
 
     @property
     def runtime_status(self):
+        """
+        Used for interactive mode, the runtime status of a testcase may be one
+        of ``RuntimeStatus``.
+        """
         return self._runtime_status
 
     @runtime_status.setter
     def runtime_status(self, new_status):
+        """
+        Set the runtime status. As a special case, when a testcase is re-run
+        we clear out the assertion entries from any previous run.
+        """
         self._runtime_status = new_status
-        if new_status == "running":
+        if new_status == RuntimeStatus.RUNNING and self.entries:
             self.entries = []
 
     def _assertions_status(self):
