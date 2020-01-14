@@ -827,6 +827,9 @@ class TestCaseReport(Report):
         self._runtime_status = new_status
         if new_status == RuntimeStatus.RUNNING and self.entries:
             self.entries = []
+            self._status = Status.UNKNOWN
+        if new_status == 'finished':
+            self._status = Status.PASSED
 
     def _assertions_status(self):
         for entry in self:

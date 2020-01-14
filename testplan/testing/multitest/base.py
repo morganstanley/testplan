@@ -437,7 +437,6 @@ class MultiTest(Test):
             if self._thread_pool_size > 0:
                 self._stop_thread_pool()
 
-        report.runtime_status = RuntimeStatus.FINISHED
         if patch_report is True:
             self.report.merge(report, strict=False)
 
@@ -530,6 +529,7 @@ class MultiTest(Test):
                             post_testcase=post_testcase,
                             testcase_report=testcase_report
                         )
+                        testcase_report.runtime_status = RuntimeStatus.FINISHED
                         if testcase_report.status == Status.ERROR:
                             if self.cfg.stop_on_error:
                                 self._thread_pool_available = False
