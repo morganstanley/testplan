@@ -296,25 +296,9 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.NotFound
 
                 try:
-                    # We need to inspect the type of the current testcase
-                    # object in order to decide how to deserialize the update.
-                    # If a testcase is parametrized, it will be represented
-                    # as a TestGroupReport type at this level of the report
-                    # tree. Non-parametrized testcases are represented
-                    # as a TestCaseReport.
-                    if isinstance(current_testcase, report.TestCaseReport):
-                        new_testcase = report.TestCaseReport.deserialize(
-                            flask.request.json
-                        )
-                    elif isinstance(current_testcase, report.TestGroupReport):
-                        new_testcase = report.TestGroupReport.shallow_deserialize(
-                            flask.request.json, current_testcase
-                        )
-                    else:
-                        raise TypeError(
-                            "Unexpected report type %s", type(current_testcase)
-                        )
-
+                    new_testcase = deserialize_testcase(
+                        current_testcase, flask.request.json
+                    )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
@@ -417,6 +401,28 @@ def generate_interactive_api(ihandler):
         else:
             raise TypeError(
                 "Unexpected report entry type: {}".format(type(report_entry))
+            )
+
+    def deserialize_testcase(current_testcase, serialized):
+        """
+        Deserialize an updated testcase entry.
+
+        We need to inspect the type of the current testcase
+        object in order to decide how to deserialize the update.
+        If a testcase is parametrized, it will be represented
+        as a TestGroupReport type at this level of the report
+        tree. Non-parametrized testcases are represented
+        as a TestCaseReport.
+        """
+        if isinstance(current_testcase, report.TestCaseReport):
+            return report.TestCaseReport.deserialize(serialized)
+        elif isinstance(current_testcase, report.TestGroupReport):
+            return report.TestGroupReport.shallow_deserialize(
+                serialized, current_testcase
+            )
+        else:
+            raise TypeError(
+                "Unexpected report type %s", type(current_testcase)
             )
 
     def should_run(curr_status):

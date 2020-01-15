@@ -308,9 +308,7 @@ class TestRunnerIHandler(entity.Entity):
         """
         test = self.test(test_uid, runner_uid=runner_uid)
         irunner = test.cfg.interactive_runner(test)
-        test_run_generator = irunner.run(
-            suite=suite_uid, case=param_uid,
-        )
+        test_run_generator = irunner.run(suite=suite_uid, case=param_uid)
 
         if await_results:
             return self._run_all_test_operations(test_run_generator)
