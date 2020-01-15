@@ -41,6 +41,13 @@ class ExampleSuite(object):
         """Testcase that makes a log."""
         result.log("Here I share my deepest thoughts")
 
+    @multitest.testcase(parameters=[1, 2, 3])
+    def test_parametrized(self, env, result, val):
+        """Parametrized testcase."""
+        result.log(val)
+        result.gt(val, 0)
+        result.lt(val, 10)
+
 
 @pytest.fixture
 def plan():
@@ -80,7 +87,7 @@ EXPECTED_INITIAL_GET = [
             "parent_uids": [],
             "status": "unknown",
             "runtime_status": "ready",
-            "counter": {'failed': 0, 'passed': 0, 'total': 3, 'unknown': 3},
+            "counter": {"failed": 0, "passed": 0, "total": 6, "unknown": 6},
             "status_override": None,
             "tags_index": {},
             "timer": {},
@@ -101,7 +108,12 @@ EXPECTED_INITIAL_GET = [
                 "part": None,
                 "status": "unknown",
                 "runtime_status": "ready",
-                "counter": {'failed': 0, 'passed': 0, 'total': 3, 'unknown': 3},
+                "counter": {
+                    "failed": 0,
+                    "passed": 0,
+                    "total": 6,
+                    "unknown": 6,
+                },
                 "status_override": None,
                 "tags": {},
                 "timer": {},
@@ -122,7 +134,7 @@ EXPECTED_INITIAL_GET = [
             "part": None,
             "status": "unknown",
             "runtime_status": "ready",
-            "counter": {'failed': 0, 'passed': 0, 'total': 3, 'unknown': 3},
+            "counter": {"failed": 0, "passed": 0, "total": 6, "unknown": 6},
             "status_override": None,
             "tags": {},
             "timer": {},
@@ -135,7 +147,12 @@ EXPECTED_INITIAL_GET = [
             {
                 "category": "testsuite",
                 "description": "Example test suite.",
-                "entry_uids": ["test_passes", "test_fails", "test_logs"],
+                "entry_uids": [
+                    "test_passes",
+                    "test_fails",
+                    "test_logs",
+                    "test_parametrized",
+                ],
                 "env_status": None,
                 "fix_spec_path": None,
                 "name": "ExampleSuite",
@@ -143,7 +160,12 @@ EXPECTED_INITIAL_GET = [
                 "part": None,
                 "status": "unknown",
                 "runtime_status": "ready",
-                "counter": {'failed': 0, 'passed': 0, 'total': 3, 'unknown': 3},
+                "counter": {
+                    "failed": 0,
+                    "passed": 0,
+                    "total": 6,
+                    "unknown": 6,
+                },
                 "status_override": None,
                 "tags": {},
                 "timer": {},
@@ -156,7 +178,12 @@ EXPECTED_INITIAL_GET = [
         {
             "category": "testsuite",
             "description": "Example test suite.",
-            "entry_uids": ["test_passes", "test_fails", "test_logs"],
+            "entry_uids": [
+                "test_passes",
+                "test_fails",
+                "test_logs",
+                "test_parametrized",
+            ],
             "env_status": None,
             "fix_spec_path": None,
             "name": "ExampleSuite",
@@ -164,7 +191,7 @@ EXPECTED_INITIAL_GET = [
             "part": None,
             "status": "unknown",
             "runtime_status": "ready",
-            "counter": {'failed': 0, 'passed': 0, 'total': 3, 'unknown': 3},
+            "counter": {"failed": 0, "passed": 0, "total": 6, "unknown": 6},
             "status_override": None,
             "tags": {},
             "timer": {},
@@ -187,7 +214,12 @@ EXPECTED_INITIAL_GET = [
                 ],
                 "status": "unknown",
                 "runtime_status": "ready",
-                "counter": {'passed': 0, 'failed': 0, 'total': 1, 'unknown': 1},
+                "counter": {
+                    "passed": 0,
+                    "failed": 0,
+                    "total": 1,
+                    "unknown": 1,
+                },
                 "status_override": None,
                 "suite_related": False,
                 "tags": {},
@@ -209,7 +241,12 @@ EXPECTED_INITIAL_GET = [
                 ],
                 "status": "unknown",
                 "runtime_status": "ready",
-                "counter": {'passed': 0, 'failed': 0, 'total': 1, 'unknown': 1},
+                "counter": {
+                    "passed": 0,
+                    "failed": 0,
+                    "total": 1,
+                    "unknown": 1,
+                },
                 "status_override": None,
                 "suite_related": False,
                 "tags": {},
@@ -232,13 +269,48 @@ EXPECTED_INITIAL_GET = [
                 "status": "unknown",
                 "runtime_status": "ready",
                 "status_override": None,
-                "counter": {'passed': 0, 'failed': 0, 'total': 1, 'unknown': 1},
+                "counter": {
+                    "passed": 0,
+                    "failed": 0,
+                    "total": 1,
+                    "unknown": 1,
+                },
                 "suite_related": False,
                 "tags": {},
                 "timer": {},
                 "type": "TestCaseReport",
                 "uid": "test_logs",
                 "status_reason": None,
+            },
+            {
+                "category": "parametrization",
+                "counter": {
+                    "passed": 0,
+                    "failed": 0,
+                    "total": 3,
+                    "unknown": 3,
+                },
+                "description": "Parametrized testcase.",
+                "entry_uids": [
+                    "test_parametrized__val_1",
+                    "test_parametrized__val_2",
+                    "test_parametrized__val_3",
+                ],
+                "env_status": None,
+                "fix_spec_path": None,
+                "name": "test_parametrized",
+                "parent_uids": [
+                    "InteractiveAPITest",
+                    "ExampleMTest",
+                    "ExampleSuite",
+                ],
+                "part": None,
+                "runtime_status": "ready",
+                "status": "unknown",
+                "status_override": None,
+                "tags": {},
+                "timer": {},
+                "uid": "test_parametrized",
             },
         ],
     ),
@@ -266,6 +338,104 @@ EXPECTED_INITIAL_GET = [
             "status_reason": None,
         },
     ),
+    (
+        "/report/tests/ExampleMTest/suites/ExampleSuite/testcases/"
+        "test_parametrized/parametrizations",
+        [
+            {
+                "category": "testcase",
+                "description": None,
+                "entries": [],
+                "logs": [],
+                "name": "test_parametrized__val_1",
+                "parent_uids": [
+                    "InteractiveAPITest",
+                    "ExampleMTest",
+                    "ExampleSuite",
+                    "test_parametrized",
+                ],
+                "status": "unknown",
+                "runtime_status": "ready",
+                "status_override": None,
+                "suite_related": False,
+                "tags": {},
+                "timer": {},
+                "type": "TestCaseReport",
+                "uid": "test_parametrized__val_1",
+                "status_reason": None,
+            },
+            {
+                "category": "testcase",
+                "description": None,
+                "entries": [],
+                "logs": [],
+                "name": "test_parametrized__val_2",
+                "parent_uids": [
+                    "InteractiveAPITest",
+                    "ExampleMTest",
+                    "ExampleSuite",
+                    "test_parametrized",
+                ],
+                "status": "unknown",
+                "runtime_status": "ready",
+                "status_override": None,
+                "suite_related": False,
+                "tags": {},
+                "timer": {},
+                "type": "TestCaseReport",
+                "uid": "test_parametrized__val_2",
+                "status_reason": None,
+            },
+            {
+                "category": "testcase",
+                "description": None,
+                "entries": [],
+                "logs": [],
+                "name": "test_parametrized__val_3",
+                "parent_uids": [
+                    "InteractiveAPITest",
+                    "ExampleMTest",
+                    "ExampleSuite",
+                    "test_parametrized",
+                ],
+                "status": "unknown",
+                "runtime_status": "ready",
+                "status_override": None,
+                "suite_related": False,
+                "tags": {},
+                "timer": {},
+                "type": "TestCaseReport",
+                "uid": "test_parametrized__val_3",
+                "status_reason": None,
+            },
+        ],
+    ),
+    (
+        "/report/tests/ExampleMTest/suites/ExampleSuite/testcases/"
+        "test_parametrized/parametrizations/test_parametrized__val_1",
+        {
+            "category": "testcase",
+            "description": None,
+            "entries": [],
+            "logs": [],
+            "name": "test_parametrized__val_1",
+            "parent_uids": [
+                "InteractiveAPITest",
+                "ExampleMTest",
+                "ExampleSuite",
+                "test_parametrized",
+            ],
+            "status": "unknown",
+            "runtime_status": "ready",
+            "status_override": None,
+            "suite_related": False,
+            "tags": {},
+            "timer": {},
+            "type": "TestCaseReport",
+            "uid": "test_parametrized__val_1",
+            "status_reason": None,
+        },
+    ),
 ]
 
 
@@ -274,6 +444,14 @@ EXPECTED_TESTCASE_RESULTS = [
     ("test_passes", "passed"),
     ("test_fails", "failed"),
     ("test_logs", "passed"),
+    ("test_parametrized", "passed"),
+]
+
+# Expected results of parametrized testcases.
+EXPECTED_PARAM_TESTCASE_RESULTS = [
+    ("test_parametrized__val_1", "passed"),
+    ("test_parametrized__val_2", "passed"),
+    ("test_parametrized__val_3", "passed"),
 ]
 
 
@@ -460,6 +638,44 @@ def test_run_testcase(plan):
             "ExampleMTest/suites/ExampleSuite/testcases/{testcase}".format(
                 port=port, testcase=testcase_name
             )
+        )
+
+        rsp = requests.get(testcase_url)
+        assert rsp.status_code == 200
+        testcase_json = rsp.json()
+
+        # Trigger all tests to run by updating the report status to RUNNING
+        # and PUTting back the data.
+        testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING
+        rsp = requests.put(testcase_url, json=testcase_json)
+        assert rsp.status_code == 200
+        updated_json = rsp.json()
+        test_api.compare_json(updated_json, testcase_json)
+        assert updated_json["hash"] != testcase_json["hash"]
+
+        timing.wait(
+            functools.partial(
+                _check_test_status,
+                testcase_url,
+                expected_result,
+                updated_json["hash"],
+            ),
+            interval=0.2,
+            timeout=300,
+            raise_on_timeout=True,
+        )
+
+
+def test_run_param_testcase(plan):
+    """Test running a single parametrized testcase."""
+    host, port = plan.interactive.http_handler_info
+    assert host == "0.0.0.0"
+
+    for param_name, expected_result in EXPECTED_PARAM_TESTCASE_RESULTS:
+        testcase_url = (
+            "http://localhost:{port}/api/v1/interactive/report/tests/"
+            "ExampleMTest/suites/ExampleSuite/testcases/test_parametrized/"
+            "parametrizations/{param}".format(port=port, param=param_name)
         )
 
         rsp = requests.get(testcase_url)
