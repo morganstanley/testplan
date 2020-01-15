@@ -56,27 +56,67 @@ const INITIAL_REPORT = {
       "type": "TestGroupReport",
       "category": "testsuite",
       "hash": 12345,
-      "entries": [{
-        "category": 'testcase',
-        "uid": "testcaseUID",
-        "timer": {},
-        "description": null,
-        "tags": {},
-        "type": "TestCaseReport",
-        "status": "unknown",
-        "runtime_status": "ready",
-        "env_status": null,
-        "logs": [],
-        "suite_related": false,
-        "entries": [],
-        "status_override": null,
-        "name": "testcaseName",
-        "type": "TestCaseReport",
-        "parent_uids": [
-          "TestplanUID", "MultiTestUID", "SuiteUID",
-        ],
-        "hash": 12345,
-      }],
+      "entries": [
+        {
+          "category": 'testcase',
+          "uid": "testcaseUID",
+          "timer": {},
+          "description": null,
+          "tags": {},
+          "type": "TestCaseReport",
+          "status": "unknown",
+          "runtime_status": "ready",
+          "env_status": null,
+          "logs": [],
+          "suite_related": false,
+          "entries": [],
+          "status_override": null,
+          "name": "testcaseName",
+          "type": "TestCaseReport",
+          "parent_uids": [
+            "TestplanUID", "MultiTestUID", "SuiteUID",
+          ],
+          "hash": 12345,
+        },
+        {
+          "category": "parametrization",
+          "description": "Parametrized testcase.",
+          "env_status": null,
+          "fix_spec_path": null,
+          "name": "ParametrizationName",
+          "parent_uids": [
+            "TestplanUID", "MultiTestUID", "SuiteUID",
+          ],
+          "part": null,
+          "runtime_status": "ready",
+          "status": "unknown",
+          "status_override": null,
+          "tags": {},
+          "timer": {},
+          "uid": "ParametrizationUID",
+          "entries": [{
+            "category": "testcase",
+            "description": null,
+            "entries": [],
+            "logs": [],
+            "name": "ParametrizationName__val_1",
+            "parent_uids": [
+              "TestplanUID",
+              "MultiTestUID",
+              "SuiteUID",
+              "ParametrizationUID",
+            ],
+            "status": "unknown",
+            "runtime_status": "ready",
+            "status_override": null,
+            "suite_related": false,
+            "tags": {},
+            "timer": {},
+            "type": "TestCaseReport",
+            "uid": "ParametrizationUID__val_1",
+          }],
+        },
+      ],
     }],
   }],
 };
@@ -180,28 +220,81 @@ describe('InteractiveReport', () => {
                   );
                   request.respondWith({
                     status: 200,
-                    response: [{
-                      "category": 'testcase',
-                      "uid": "testcaseUID",
-                      "timer": {},
-                      "description": null,
-                      "tags": {},
-                      "type": "TestCaseReport",
-                      "status": "unknown",
-                      "runtime_status": "ready",
-                      "logs": [],
-                      "suite_related": false,
-                      "entries": [],
-                      "status_override": null,
-                      "name": "testcaseName",
-                      "parent_uids": [
-                        "TestplanUID", "MultiTestUID", "SuiteUID",
-                      ],
-                      "hash": 12345,
-                    }]
+                    response: [
+                      {
+                        "category": 'testcase',
+                        "uid": "testcaseUID",
+                        "timer": {},
+                        "description": null,
+                        "tags": {},
+                        "type": "TestCaseReport",
+                        "status": "unknown",
+                        "runtime_status": "ready",
+                        "logs": [],
+                        "suite_related": false,
+                        "entries": [],
+                        "status_override": null,
+                        "name": "testcaseName",
+                        "parent_uids": [
+                          "TestplanUID", "MultiTestUID", "SuiteUID",
+                        ],
+                        "hash": 12345,
+                      },
+                      {
+                        "category": "parametrization",
+                        "description": "Parametrized testcase.",
+                        "env_status": null,
+                        "entry_uids": ["ParametrizationUID__val_1"],
+                        "fix_spec_path": null,
+                        "name": "ParametrizationName",
+                        "parent_uids": [
+                          "TestplanUID", "MultiTestUID", "SuiteUID",
+                        ],
+                        "part": null,
+                        "runtime_status": "ready",
+                        "status": "unknown",
+                        "status_override": null,
+                        "tags": {},
+                        "timer": {},
+                        "uid": "ParametrizationUID",
+                      },
+                    ]
                   }).then(() => {
-                    expect(interactiveReport).toMatchSnapshot();
-                    done();
+                    moxios.wait(() => {
+                      const request = moxios.requests.mostRecent();
+                      expect(request.url).toBe(
+                        "/api/v1/interactive/report/tests/MultiTestUID"
+                        + "/suites/SuiteUID/testcases/ParametrizationUID"
+                        + "/parametrizations"
+                      );
+                      request.respondWith({
+                        status: 200,
+                        response: [{
+                          "category": "testcase",
+                          "description": null,
+                          "entries": [],
+                          "logs": [],
+                          "name": "ParametrizationName__val_1",
+                          "parent_uids": [
+                            "TestplanUID",
+                            "MultiTestUID",
+                            "SuiteUID",
+                            "ParametrizationUID",
+                          ],
+                          "status": "unknown",
+                          "runtime_status": "ready",
+                          "status_override": null,
+                          "suite_related": false,
+                          "tags": {},
+                          "timer": {},
+                          "type": "TestCaseReport",
+                          "uid": "ParametrizationUID__val_1",
+                        }],
+                      }).then(() => {
+                        expect(InteractiveReport).toMatchSnapshot();
+                        done();
+                      });
+                    });
                   });
                 });
               });
@@ -286,6 +379,13 @@ describe('InteractiveReport', () => {
     + "/testcases/testcaseUID",
   ));
 
+  it("handles individual parametrizations being run", done => testRunEntry(
+    done,
+    INITIAL_REPORT.entries[0].entries[0].entries[1].entries[0],
+    "/api/v1/interactive/report/tests/MultiTestUID/suites/SuiteUID"
+    + "/testcases/ParametrizationUID/parametrizations"
+    + "/ParametrizationUID__val_1",
+  ));
 
   it("Parially refreshes the report on update.", done => {
     const interactiveReport = shallow(<InteractiveReport />);

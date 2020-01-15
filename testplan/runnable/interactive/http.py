@@ -252,7 +252,7 @@ def generate_interactive_api(ihandler):
             with ihandler.report_mutex:
                 try:
                     return [
-                        entry.serialize()
+                        serialize_testcase(entry)
                         for entry in ihandler.report[test_uid][suite_uid]
                     ]
                 except KeyError:
@@ -273,11 +273,13 @@ def generate_interactive_api(ihandler):
             """Get the state of a specific testcase."""
             with ihandler.report_mutex:
                 try:
-                    return ihandler.report[test_uid][suite_uid][
+                    report_entry = ihandler.report[test_uid][suite_uid][
                         testcase_uid
-                    ].serialize()
+                    ]
                 except KeyError:
                     raise werkzeug.exceptions.NotFound
+
+                return serialize_testcase(report_entry)
 
         def put(self, test_uid, suite_uid, testcase_uid):
             """Update the state of a specific testcase."""
@@ -305,10 +307,8 @@ def generate_interactive_api(ihandler):
                             flask.request.json
                         )
                     elif isinstance(current_testcase, report.TestGroupReport):
-                        new_testcase = (
-                            report.TestGroupReport.shallow_deserialize(
-                                flask.request.json, current_testcase
-                            )
+                        new_testcase = report.TestGroupReport.shallow_deserialize(
+                            flask.request.json, current_testcase
                         )
                     else:
                         raise TypeError(
@@ -325,7 +325,99 @@ def generate_interactive_api(ihandler):
                     )
 
                 suite[testcase_uid] = new_testcase
-                return suite[testcase_uid].serialize()
+                return serialize_testcase(suite[testcase_uid])
+
+    @api.route(
+        "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
+        "/<string:testcase_uid>/parametrizations"
+    )
+    class AllParametrizations(flask_restplus.Resource):
+        """
+        Parametrizations endpoint. Represents all parametrizations of a single
+        testcase.
+        """
+
+        def get(self, test_uid, suite_uid, testcase_uid):
+            """Get the state of all parametrizations of a testcase."""
+            with ihandler.report_mutex:
+                try:
+                    return [
+                        entry.serialize()
+                        for entry in ihandler.report[test_uid][suite_uid][
+                            testcase_uid
+                        ]
+                    ]
+                except KeyError:
+                    raise werkzeug.exceptions.NotFound
+
+    @api.route(
+        "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
+        "/<string:testcase_uid>/parametrizations/<string:param_uid>"
+    )
+    class ParamatrizedTestCase(flask_restplus.Resource):
+        """
+        Paramatrized testcase endpoint. Represents a single testcase within
+        a paramatrization group, with a unique combination of parameters.
+        """
+
+        def get(self, test_uid, suite_uid, testcase_uid, param_uid):
+            """Get the state of a specific paramatrized testcase."""
+            with ihandler.report_mutex:
+                try:
+                    report_entry = ihandler.report[test_uid][suite_uid][
+                        testcase_uid
+                    ][param_uid]
+                except KeyError:
+                    raise werkzeug.exceptions.NotFound
+
+                return report_entry.serialize()
+
+        def put(self, test_uid, suite_uid, testcase_uid, param_uid):
+            """Update the state of a specific parametrized testcase."""
+            if flask.request.json is None:
+                raise werkzeug.exceptions.BadRequest(
+                    "JSON body is required for PUT"
+                )
+
+            with ihandler.report_mutex:
+                try:
+                    param_group = ihandler.report[test_uid][suite_uid][
+                        testcase_uid
+                    ]
+                    current_testcase = param_group[param_uid]
+                except KeyError:
+                    raise werkzeug.exceptions.NotFound
+
+                try:
+                    new_testcase = report.TestCaseReport.deserialize(
+                        flask.request.json
+                    )
+                except marshmallow.exceptions.ValidationError as e:
+                    raise werkzeug.exceptions.BadRequest(str(e))
+
+                if should_run(current_testcase.runtime_status):
+                    new_testcase.runtime_status = report.RuntimeStatus.RUNNING
+                    ihandler.run_parametrized_test_case(
+                        test_uid, suite_uid, param_uid, await_results=False
+                    )
+
+                param_group[param_uid] = new_testcase
+                return param_group[param_uid].serialize()
+
+    def serialize_testcase(report_entry):
+        """
+        Serialize a report entry representing a testcase. Since the
+        testcase may be parametrized, we check for that and return
+        the shallow serialization instead.
+        """
+        if isinstance(report_entry, report.TestCaseReport):
+            return report_entry.serialize()
+        elif isinstance(report_entry, report.TestGroupReport):
+            return report_entry.shallow_serialize()
+        else:
+            raise TypeError(
+                "Unexpected report entry type: {}".format(type(report_entry))
+            )
 
     def should_run(curr_status):
         """

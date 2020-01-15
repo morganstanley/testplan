@@ -140,7 +140,7 @@ class InteractiveReport extends React.Component {
 
           if (!existingSuite ||
               existingSuite.hash !== newSuite.hash) {
-            return this.getTestCases(newTest, newSuite).then(
+            return this.getTestCases(newTest, newSuite, existingSuite).then(
               testcases => ({...newSuite, entries: testcases})
             );
           } else {
@@ -154,13 +154,51 @@ class InteractiveReport extends React.Component {
   /**
    * Get the testcases owned by a particular test suite from the backend.
    */
-  getTestCases(test, suite) {
+  getTestCases(test, newSuite, existingSuite) {
     return axios.get(
-        `/api/v1/interactive/report/tests/${test.uid}/suites/${suite.uid}/` +
-        `testcases`
+      `/api/v1/interactive/report/tests/${test.uid}/suites/${newSuite.uid}/` +
+      `testcases`
     ).then(response => {
-      return response.data;
+      return Promise.all(response.data.map((newTestCase) => {
+        switch (newTestCase.category) {
+        case "testcase":
+          return newTestCase;
+
+        case "parametrization":
+          const existingParametrization = (
+            existingSuite && existingSuite.entries.find(
+              entry => entry.uid === newTestCase
+            )
+          );
+
+          if (
+            !existingParametrization ||
+            existingParametrization.hash !== newTestCase.hash
+          ) {
+            return this.getParametrizations(test, newSuite, newTestCase).then(
+              parametrizations => ({...newTestCase, entries: parametrizations})
+            );
+          } else {
+            return existingParametrization;
+          }
+
+        default:
+          throw new Error(
+            "Unexpected testcase category: " + newTestCase.category
+          );
+        }
+      }));
     });
+  }
+
+  /**
+   * Get the parametrizations owned by a particular testcase from the backend.
+   */
+  getParametrizations(test, suite, testcase) {
+    return axios.get(
+      `/api/v1/interactive/report/tests/${test.uid}/suites/${suite.uid}/` +
+      `testcases/${testcase.uid}/parametrizations`
+    ).then(response => response.data);
   }
 
   /**
@@ -213,6 +251,20 @@ class InteractiveReport extends React.Component {
           `/report/tests/${test_uid}`
           + `/suites/${suite_uid}`
           + `/testcases/${testcase_uid}`
+        );
+      }
+
+      case 4: {
+        const test_uid = updatedReportEntry.parent_uids[1];
+        const suite_uid = updatedReportEntry.parent_uids[2];
+        const testcase_uid = updatedReportEntry.parent_uids[3];
+        const param_uid = updatedReportEntry.uid;
+
+        return api_prefix + (
+          `/report/tests/${test_uid}`
+          + `/suites/${suite_uid}`
+          + `/testcases/${testcase_uid}`
+          + `/parametrizations/${param_uid}`
         );
       }
 

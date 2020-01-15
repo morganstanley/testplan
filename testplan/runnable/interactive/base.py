@@ -267,6 +267,8 @@ class TestRunnerIHandler(entity.Entity):
         :param test_uid: UID of the test that owns the testcase.
         :param suite_uid: UID of the suite that owns the testcase.
         :param case_uid: UID of the testcase to run.
+        :param runner_uid: UID of a specific test runner, or None to use the
+            default local runner.
         :param await_results: Whether to block until the testcase is finished,
             defaults to True.
         :return: If await_results is True, returns a list of test results.
@@ -275,6 +277,40 @@ class TestRunnerIHandler(entity.Entity):
         test = self.test(test_uid, runner_uid=runner_uid)
         irunner = test.cfg.interactive_runner(test)
         test_run_generator = irunner.run(suite=suite_uid, case=case_uid)
+
+        if await_results:
+            return self._run_all_test_operations(test_run_generator)
+        else:
+            return self._run_async(
+                self._run_all_test_operations, test_run_generator
+            )
+
+    def run_parametrized_test_case(
+        self,
+        test_uid,
+        suite_uid,
+        param_uid,
+        runner_uid=None,
+        await_results=True,
+    ):
+        """
+        Run a single parametrized testcase.
+
+        :param test_uid: UID of the test that owns the testcase.
+        :param suite_uid: UID of the suite that owns the testcase.
+        :param param_uid: UID of the parametrized testcase to run.
+        :param runner_uid: UID of a specific test runner, or None to use the
+            default local runner.
+        :param await_results: Whether to block until the testcase is finished,
+            defaults to True.
+        :return: If await_results is True, returns a list of test results.
+            Otherwise, returns an async result object.
+        """
+        test = self.test(test_uid, runner_uid=runner_uid)
+        irunner = test.cfg.interactive_runner(test)
+        test_run_generator = irunner.run(
+            suite=suite_uid, case=param_uid,
+        )
 
         if await_results:
             return self._run_all_test_operations(test_run_generator)

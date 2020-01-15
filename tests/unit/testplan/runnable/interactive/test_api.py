@@ -25,17 +25,38 @@ def example_report():
             report.TestGroupReport(
                 name="MTest1",
                 uid="MTest1",
-                category="multitest",
+                category=report.ReportCategories.MULTITEST,
                 env_status=entity.ResourceStatus.STOPPED,
                 entries=[
                     report.TestGroupReport(
                         name="Suite1",
                         uid="MT1Suite1",
-                        category="testsuite",
+                        category=report.ReportCategories.TESTSUITE,
                         entries=[
                             report.TestCaseReport(
                                 name="TestCase1", uid="MT1S1TC1"
-                            )
+                            ),
+                            report.TestGroupReport(
+                                name="ParametrizedTestCase",
+                                uid="MT1S1TC2",
+                                category=(
+                                    report.ReportCategories.PARAMETRIZATION
+                                ),
+                                entries=[
+                                    report.TestCaseReport(
+                                        name="ParametrizedTestCase_0",
+                                        uid="MT1S1TC2_0",
+                                    ),
+                                    report.TestCaseReport(
+                                        name="ParametrizedTestCase_1",
+                                        uid="MT1S1TC2_1",
+                                    ),
+                                    report.TestCaseReport(
+                                        name="ParametrizedTestCase_2",
+                                        uid="MT1S1TC2_2",
+                                    ),
+                                ],
+                            ),
                         ],
                     )
                 ],
@@ -58,6 +79,7 @@ def api_env(example_report):
     ihandler.run_test = mock.MagicMock()
     ihandler.run_test_suite = mock.MagicMock()
     ihandler.run_test_case = mock.MagicMock()
+    ihandler.run_parametrized_test_case = mock.MagicMock()
     ihandler.start_test_resources = mock.MagicMock()
     ihandler.stop_test_resources = mock.MagicMock()
 
@@ -292,7 +314,7 @@ class TestAllTestcases(object):
         assert rsp.status == "200 OK"
         json_rsp = rsp.get_json()
         json_testcases = [
-            testcase.serialize()
+            serialize_testcase(testcase)
             for testcase in ihandler.report["MTest1"]["MT1Suite1"]
         ]
         compare_json(json_rsp, json_testcases)
@@ -312,39 +334,53 @@ class TestAllTestcases(object):
 class TestSingleTestcase(object):
     """Test the SingleTestcase resource."""
 
-    def test_get(self, api_env):
+    @pytest.mark.parametrize("testcase_uid", ["MT1S1TC1", "MT1S1TC2"])
+    def test_get(self, api_env, testcase_uid):
         """Test reading the SingleTestcase resource via GET."""
         client, ihandler = api_env
         rsp = client.get(
-            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/testcases/"
-            "MT1S1TC1"
+            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
+            "testcases/{}".format(testcase_uid)
         )
         assert rsp.status == "200 OK"
 
         json_rsp = rsp.get_json()
-        testcase_json = ihandler.report["MTest1"]["MT1Suite1"][
-            "MT1S1TC1"
-        ].serialize()
+
+        report_entry = ihandler.report["MTest1"]["MT1Suite1"][testcase_uid]
+
+        if isinstance(report_entry, report.TestCaseReport):
+            testcase_json = report_entry.serialize()
+        elif isinstance(report_entry, report.TestGroupReport):
+            testcase_json = report_entry.shallow_serialize()
+        else:
+            raise TypeError("Unexpected report type.")
+
         compare_json(json_rsp, testcase_json)
 
-    def test_put(self, api_env):
+    @pytest.mark.parametrize("testcase_uid", ["MT1S1TC1", "MT1S1TC2"])
+    def test_put(self, api_env, testcase_uid):
         """Test updating the SingleTestcase resource via PUT."""
         client, ihandler = api_env
+        report_entry = ihandler.report["MTest1"]["MT1Suite1"][testcase_uid]
 
-        testcase_json = ihandler.report["MTest1"]["MT1Suite1"][
-            "MT1S1TC1"
-        ].serialize()
+        if isinstance(report_entry, report.TestCaseReport):
+            testcase_json = report_entry.serialize()
+        elif isinstance(report_entry, report.TestGroupReport):
+            testcase_json = report_entry.shallow_serialize()
+        else:
+            raise TypeError("Unexpected report type")
+
         testcase_json["runtime_status"] = "running"
         rsp = client.put(
-            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/testcases/"
-            "MT1S1TC1",
+            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
+            "testcases/{}".format(testcase_uid),
             json=testcase_json,
         )
         assert rsp.status == "200 OK"
         compare_json(rsp.get_json(), testcase_json)
 
         ihandler.run_test_case.assert_called_once_with(
-            "MTest1", "MT1Suite1", "MT1S1TC1", await_results=False
+            "MTest1", "MT1Suite1", testcase_uid, await_results=False
         )
 
     def test_put_validation(self, api_env):
@@ -367,6 +403,80 @@ class TestSingleTestcase(object):
         assert rsp.status == "400 BAD REQUEST"
 
 
+class TestAllParametrizations(object):
+    """Test the AllParametrizations resource."""
+
+    def test_get(self, api_env):
+        """Test reading the AllParametrizations resource via GET."""
+        client, ihandler = api_env
+        rsp = client.get(
+            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
+            "testcases/MT1S1TC2/parametrizations"
+        )
+        assert rsp.status == "200 OK"
+        json_rsp = rsp.get_json()
+        json_parametrizations = [
+            param.serialize()
+            for param in ihandler.report["MTest1"]["MT1Suite1"]["MT1S1TC2"]
+        ]
+        compare_json(json_rsp, json_parametrizations)
+
+    def test_put(self, api_env):
+        """
+        Test attempting to update the AllParametrizations resource via PUT.
+        This resource is read-only so PUT is not allowed.
+        """
+        client, _ = api_env
+        rsp = client.put(
+            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
+            "testcases/MT1S1TC2/parametrizations"
+        )
+        assert rsp.status == "405 METHOD NOT ALLOWED"
+
+
+class TestParametrizedTestCase(object):
+    """Test the ParametrizedTestCase resource."""
+
+    def test_get(self, api_env):
+        """Test reading the ParametrizedTestCase resource via GET."""
+        client, ihandler = api_env
+        rsp = client.get(
+            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
+            "testcases/MT1S1TC2/parametrizations/MT1S1TC2_0"
+        )
+        assert rsp.status == "200 OK"
+
+        json_rsp = rsp.get_json()
+
+        report_entry = ihandler.report["MTest1"]["MT1Suite1"]["MT1S1TC2"][
+            "MT1S1TC2_0"
+        ]
+
+        testcase_json = report_entry.serialize()
+        compare_json(json_rsp, testcase_json)
+
+    def test_put(self, api_env):
+        """Test updating the ParametrizedTestCase resource via PUT."""
+        client, ihandler = api_env
+        report_entry = ihandler.report["MTest1"]["MT1Suite1"]["MT1S1TC2"][
+            "MT1S1TC2_0"
+        ]
+        testcase_json = report_entry.serialize()
+
+        testcase_json["runtime_status"] = "running"
+        rsp = client.put(
+            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
+            "testcases/MT1S1TC2/parametrizations/MT1S1TC2_0",
+            json=testcase_json,
+        )
+        assert rsp.status == "200 OK"
+        compare_json(rsp.get_json(), testcase_json)
+
+        ihandler.run_parametrized_test_case.assert_called_once_with(
+            "MTest1", "MT1Suite1", "MT1S1TC2_0", await_results=False
+        )
+
+
 def compare_json(actual, expected):
     """
     Compare the actual and expected JSON returned from the API. Since the
@@ -385,3 +495,20 @@ def compare_json(actual, expected):
             # Skip checking the "hash" key.
             if key != "hash":
                 assert actual[key] == expected[key]
+
+
+def serialize_testcase(testcase):
+    """
+    Serialize a testcase.
+
+    If the testcase contains parametrizations, it will be represented as a
+    TestGroupReport in the report tree and should be shallow-serialized.
+    Otherwise, for a regular testcase we serialize the whole thing including
+    its entries.
+    """
+    if isinstance(testcase, report.TestCaseReport):
+        return testcase.serialize()
+    elif isinstance(testcase, report.TestGroupReport):
+        return testcase.shallow_serialize()
+    else:
+        raise TypeError("Unexpected testcase type: {}".format(type(testcase)))
