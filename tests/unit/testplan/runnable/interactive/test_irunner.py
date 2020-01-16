@@ -5,6 +5,7 @@ import pytest
 from testplan import defaults
 from testplan import report
 from testplan import runners
+from testplan import runnable
 from testplan.common import entity
 from testplan.testing import filtering
 from testplan.testing import multitest
@@ -23,10 +24,16 @@ class Suite(object):
         del env  # unused
         result.true(True)
 
+    @multitest.testcase(parameters=[1, 2, 3])
+    def parametrized(self, env, result, val):
+        """Parametrized testcase."""
+        del env  # unused
+        result.gt(val, 0)
+
 
 def test_startup():
     """Test initializing and running the interactive runner."""
-    target = mock.MagicMock()
+    target = runnable.TestRunner(name="TestRunner")
     mock_server = mock.MagicMock()
 
     with mock.patch("cheroot.wsgi.Server", return_value=mock_server):
@@ -46,7 +53,7 @@ def test_startup():
 @pytest.fixture
 def irunner():
     """Set up an irunner instance for testing."""
-    target = mock.MagicMock()
+    target = runnable.TestRunner(name="TestRunner")
 
     local_runner = runners.LocalRunner()
     test_uids = ["test_1", "test_2", "test_3"]
@@ -65,7 +72,6 @@ def irunner():
     for test in test_objs:
         local_runner.add(test, test.uid())
 
-    target.resources = entity.Environment()
     target.resources.add(local_runner)
 
     with mock.patch("cheroot.wsgi.Server"):
@@ -82,19 +88,18 @@ def test_run_all_tests(irunner, sync):
     """Test running all tests."""
     _check_initial_report(irunner.report)
 
-    results = irunner.run_all_tests(await_results=sync)
-    assert len(results) == 3
-    for res in results:
-        # If tests were run synchronously, we should have the report objects.
-        # Otherwise, we will have async result objects which we can await.
-        if sync:
-            test_reports = res
-        else:
-            test_reports = res.result()
-        assert len(test_reports) == 1
-        test_report = test_reports[0]
+    ret = irunner.run_all_tests(await_results=sync)
 
-        assert isinstance(test_report, report.TestGroupReport)
+    # If tests were run synchronously, we should have the report object.
+    # Otherwise, we will have async result objects which we can await.
+    if sync:
+        tp_report = ret
+    else:
+        tp_report = ret.result()
+    assert isinstance(tp_report, report.TestReport)
+    assert tp_report.passed
+    assert len(tp_report.entries) == 3
+    for test_report in tp_report:
         assert test_report.passed
 
     # The test report should have been updated as a side effect.
@@ -108,27 +113,20 @@ def test_run_test(irunner, sync):
     """Test running a single test."""
     ret = irunner.run_test("test_1", await_results=sync)
 
-    # If tests were run synchronously, we should have the report objects.
+    # If tests were run synchronously, we should have the report object.
     # Otherwise, we will have async result objects which we can await.
     if sync:
-        results = ret
+        test_report = ret
     else:
-        results = ret.result()
-
-    assert len(results) == 1
-    test_report = results[0]
+        test_report = ret.result()
 
     assert isinstance(test_report, report.TestGroupReport)
     assert test_report.passed
+    assert test_report.name == "test_1"
+    assert len(test_report.entries) == 1  # Expect 1 suite.
 
     # The test report should have been updated as a side effect.
-    assert irunner.report.runtime_status == report.RuntimeStatus.READY
-    for test_report in irunner.report:
-        if test_report.uid == "test_1":
-            assert test_report.passed
-            assert test_report.runtime_status == report.RuntimeStatus.FINISHED
-        else:
-            assert test_report.status == report.Status.UNKNOWN
+    assert irunner.report["test_1"].passed
 
 
 @pytest.mark.parametrize("sync", [True, False])
@@ -136,27 +134,20 @@ def test_run_suite(irunner, sync):
     """Test running a single test suite."""
     ret = irunner.run_test_suite("test_1", "Suite", await_results=sync)
 
-    # If tests were run synchronously, we should have the report objects.
+    # If tests were run synchronously, we should have the report object.
     # Otherwise, we will have async result objects which we can await.
     if sync:
-        results = ret
+        suite_report = ret
     else:
-        results = ret.result()
+        suite_report = ret.result()
 
-    assert len(results) == 1
-    test_report = results[0]
-
-    assert isinstance(test_report, report.TestGroupReport)
-    assert test_report.passed
+    assert isinstance(suite_report, report.TestGroupReport)
+    assert suite_report.passed
+    assert suite_report.name == "Suite"
+    assert len(suite_report.entries) == 2  # Two testcases.
 
     # The test report should have been updated as a side effect.
-    assert irunner.report.runtime_status == report.RuntimeStatus.READY
-    for test_report in irunner.report:
-        if test_report.uid == "test_1":
-            assert test_report.passed
-            assert test_report.runtime_status == report.RuntimeStatus.FINISHED
-        else:
-            assert test_report.status == report.Status.UNKNOWN
+    assert irunner.report["test_1"]["Suite"].passed
 
 
 @pytest.mark.parametrize("sync", [True, False])
@@ -164,27 +155,45 @@ def test_run_testcase(irunner, sync):
     """Test running a single testcase."""
     ret = irunner.run_test_case("test_1", "Suite", "case", await_results=sync)
 
-    # If tests were run synchronously, we should have the report objects.
+    # If tests were run synchronously, we should have the report object.
     # Otherwise, we will have async result objects which we can await.
     if sync:
-        results = ret
+        testcase_report = ret
     else:
-        results = ret.result()
+        testcase_report = ret.result()
 
-    assert len(results) == 1
-    test_report = results[0]
-
-    assert isinstance(test_report, report.TestGroupReport)
-    assert test_report.passed
+    assert isinstance(testcase_report, report.TestCaseReport)
+    assert testcase_report.passed
 
     # The test report should have been updated as a side effect.
-    assert irunner.report.runtime_status == report.RuntimeStatus.READY
-    for test_report in irunner.report:
-        if test_report.uid == "test_1":
-            assert test_report.passed
-            assert test_report.runtime_status == report.RuntimeStatus.FINISHED
-        else:
-            assert test_report.status == report.Status.UNKNOWN
+    assert irunner.report["test_1"]["Suite"]["case"].passed
+
+
+@pytest.mark.parametrize("sync", [True, False])
+def test_run_parametrization(irunner, sync):
+    """Test running a single parametrization of a testcase."""
+    ret = irunner.run_parametrized_test_case(
+        "test_1",
+        "Suite",
+        "parametrized",
+        "parametrized__val_1",
+        await_results=sync,
+    )
+
+    # If tests were run synchronously, we should have the report object.
+    # Otherwise, we will have async result objects which we can await.
+    if sync:
+        testcase_report = ret
+    else:
+        testcase_report = ret.result()
+
+    assert isinstance(testcase_report, report.TestCaseReport)
+    assert testcase_report.passed
+
+    # The test report should have been updated as a side effect.
+    assert irunner.report["test_1"]["Suite"]["parametrized"][
+        "parametrized__val_1"
+    ].passed
 
 
 @pytest.mark.parametrize("sync", [True, False])
@@ -236,7 +245,17 @@ def _check_initial_report(initial_report):
         assert test_report.runtime_status == report.RuntimeStatus.READY
         assert len(test_report.entries) == 1
         for suite_report in test_report:
-            # Each suite contains one testcase.
+            # Each suite contains two testcase.
             assert suite_report.status == report.Status.UNKNOWN
             assert suite_report.runtime_status == report.RuntimeStatus.READY
-            assert len(suite_report.entries) == 1
+            assert len(suite_report.entries) == 2
+
+            # The first entry in the suite report is a regular testcase.
+            testcase_report = suite_report.entries[0]
+            assert isinstance(testcase_report, report.TestCaseReport)
+            assert len(testcase_report.entries) == 0
+
+            # The second entry in the suite report is a parametrized testcase.
+            param_report = suite_report.entries[1]
+            assert isinstance(param_report, report.TestGroupReport)
+            assert len(param_report.entries) == 3

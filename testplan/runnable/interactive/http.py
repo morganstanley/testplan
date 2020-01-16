@@ -382,7 +382,11 @@ def generate_interactive_api(ihandler):
                 if should_run(current_testcase.runtime_status):
                     new_testcase.runtime_status = report.RuntimeStatus.RUNNING
                     ihandler.run_parametrized_test_case(
-                        test_uid, suite_uid, param_uid, await_results=False
+                        test_uid,
+                        suite_uid,
+                        testcase_uid,
+                        param_uid,
+                        await_results=False,
                     )
 
                 param_group[param_uid] = new_testcase
