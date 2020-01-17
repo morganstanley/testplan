@@ -17,6 +17,7 @@ import numbers
 import threading
 import itertools
 from concurrent import futures
+import contextlib
 
 from testplan.common import entity
 from testplan.common import config
@@ -46,47 +47,6 @@ def _exclude_assertions_filter(obj):
     except Exception:
         return True
 
-
-def auto_start_stop_environment(method):
-    """Auto start environment decorator logic."""
-
-    @functools.wraps(method)
-    def wrapped(self, test_uid, *args, **kwargs):
-        """
-        1. If the environment is not started -> Start it.
-        2. Run the method.
-        3. If the environment started during this operation. -> Stop it.
-        """
-        runner_uid = kwargs.get("runner_uid")
-        test = self.test(test_uid, runner_uid=runner_uid)
-        await_results = kwargs.get("await_results", True)
-
-        resources_started = False
-        if not test.resources.all_status(entity.ResourceStatus.STARTED):
-            if not test.resources.all_status(
-                entity.ResourceStatus.STOPPED
-            ) and not test.resources.all_status(entity.ResourceStatus.NONE):
-                # State requires to reset all.
-                self.stop_test_resources(
-                    test_uid,
-                    runner_uid=runner_uid,
-                    await_results=await_results,
-                )
-            self.start_test_resources(
-                test_uid, runner_uid=runner_uid, await_results=await_results
-            )
-            resources_started = True
-
-        result = method(self, test_uid, *args, **kwargs)
-
-        if resources_started:
-            self.stop_test_resources(
-                test_uid, runner_uid=runner_uid, await_results=await_results
-            )
-
-        return result
-
-    return wrapped
 
 
 class TestRunnerIHandler(entity.Entity):
@@ -189,19 +149,20 @@ class TestRunnerIHandler(entity.Entity):
             default local runner.
         :param await_results: Whether to block until tests are finished,
             defaults to True.
-        :return: If await_results is True, returns a list of test results.
-            Otherwise, returns a list of async result objects.
+        :return: If await_results is True, returns a testplan report.
+            Otherwise, returns a future which will yield a testplan report when
+            ready.
         """
+        if not await_results:
+            return self._run_async(self.run_all_tests, runner_uid)
+
         all_tests = self.all_tests(runner_uid)
 
-        return [
-            self.run_test(
-                test_uid, runner_uid=runner_uid, await_results=await_results
-            )
+        return self._create_testplan_report(
+            self.run_test(test_uid, real_runner_uid)
             for test_uid, real_runner_uid in all_tests
-        ]
+        )
 
-    @auto_start_stop_environment
     def run_test(self, test_uid, runner_uid=None, await_results=True):
         """
         Run a single Test instance.
@@ -211,21 +172,24 @@ class TestRunnerIHandler(entity.Entity):
             default local runner.
         :param await_results: Whether to block until the test is finished,
             defaults to True.
-        :return: If await_results is True, returns a list of test results.
-            Otherwise, returns an async result object.
+        :return: If await_results is True, returns a test report.
+            Otherwise, returns a future which will yield a test report when
+            ready.
         """
+        if not await_results:
+            return self._run_async(self.run_test, test_uid, runner_uid)
+
         test = self.test(test_uid, runner_uid=runner_uid)
         irunner = test.cfg.interactive_runner(test)
         test_run_generator = irunner.run()
 
-        if await_results:
-            return self._run_all_test_operations(test_run_generator)
-        else:
-            return self._run_async(
-                self._run_all_test_operations, test_run_generator
+        with self._auto_start_stop_environment(test_uid, runner_uid):
+            return self._merge_test_reports(
+                self._run_all_test_operations(test_run_generator),
+                test_uid,
+                runner_uid,
             )
 
-    @auto_start_stop_environment
     def run_test_suite(
         self, test_uid, suite_uid, runner_uid=None, await_results=True
     ):
@@ -238,21 +202,31 @@ class TestRunnerIHandler(entity.Entity):
             default local runner.
         :param await_results: Whether to block until the suite is finished,
             defaults to True.
-        :return: If await_results is True, returns a list of test results.
-            Otherwise, returns an async result object.
+        :return: If await_results is True, returns a testsuite report.
+            Otherwise, returns a future which will yield a testsuite report
+            when ready.
         """
+        if not await_results:
+            return self._run_async(
+                self.run_test_suite, test_uid, suite_uid, runner_uid
+            )
+
         test = self.test(test_uid, runner_uid=runner_uid)
         irunner = test.cfg.interactive_runner(test)
         test_run_generator = irunner.run(suite=suite_uid)
 
-        if await_results:
-            return self._run_all_test_operations(test_run_generator)
-        else:
-            return self._run_async(
-                self._run_all_test_operations, test_run_generator
+        with self._auto_start_stop_environment(test_uid, runner_uid):
+            test_report = self._merge_test_reports(
+                self._run_all_test_operations(test_run_generator),
+                test_uid,
+                runner_uid,
             )
 
-    @auto_start_stop_environment
+        if test_report:
+            return test_report[suite_uid]
+        else:
+            return None
+
     def run_test_case(
         self,
         test_uid,
@@ -271,24 +245,36 @@ class TestRunnerIHandler(entity.Entity):
             default local runner.
         :param await_results: Whether to block until the testcase is finished,
             defaults to True.
-        :return: If await_results is True, returns a list of test results.
-            Otherwise, returns an async result object.
+        :return: If await_results is True, returns a testcase report.
+            Otherwise, returns a future which will yield a testcase report when
+            ready.
         """
+        if not await_results:
+            return self._run_async(
+                self.run_test_case, test_uid, suite_uid, case_uid, runner_uid
+            )
+
         test = self.test(test_uid, runner_uid=runner_uid)
         irunner = test.cfg.interactive_runner(test)
         test_run_generator = irunner.run(suite=suite_uid, case=case_uid)
 
-        if await_results:
-            return self._run_all_test_operations(test_run_generator)
-        else:
-            return self._run_async(
-                self._run_all_test_operations, test_run_generator
+        with self._auto_start_stop_environment(test_uid, runner_uid):
+            test_report = self._merge_test_reports(
+                self._run_all_test_operations(test_run_generator),
+                test_uid,
+                runner_uid,
             )
+
+        if test_report:
+            return test_report[suite_uid][case_uid]
+        else:
+            return None
 
     def run_parametrized_test_case(
         self,
         test_uid,
         suite_uid,
+        case_uid,
         param_uid,
         runner_uid=None,
         await_results=True,
@@ -303,19 +289,35 @@ class TestRunnerIHandler(entity.Entity):
             default local runner.
         :param await_results: Whether to block until the testcase is finished,
             defaults to True.
-        :return: If await_results is True, returns a list of test results.
-            Otherwise, returns an async result object.
+        :return: If await_results is True, returns a testcase report.
+            Otherwise, returns a future which will yield a testcase report when
+            ready.
         """
+        if not await_results:
+            return self._run_async(
+                self.run_parametrized_test_case,
+                test_uid,
+                suite_uid,
+                case_uid,
+                param_uid,
+                runner_uid,
+            )
+
         test = self.test(test_uid, runner_uid=runner_uid)
         irunner = test.cfg.interactive_runner(test)
         test_run_generator = irunner.run(suite=suite_uid, case=param_uid)
 
-        if await_results:
-            return self._run_all_test_operations(test_run_generator)
-        else:
-            return self._run_async(
-                self._run_all_test_operations, test_run_generator
+        with self._auto_start_stop_environment(test_uid, runner_uid):
+            test_report = self._merge_test_reports(
+                self._run_all_test_operations(test_run_generator),
+                test_uid,
+                runner_uid,
             )
+
+        if test_report:
+            return test_report[suite_uid][case_uid][param_uid]
+        else:
+            return None
 
     def test(self, test_uid, runner_uid=None):
         """
@@ -765,9 +767,7 @@ class TestRunnerIHandler(entity.Entity):
         return report
 
     def _run_all_test_operations(self, test_run_generator):
-        """
-        Run all test operations, either synchronously or asynchronously.
-        """
+        """Run all test operations."""
         return [
             self._run_test_operation(operation, args, kwargs)
             for operation, args, kwargs in test_run_generator
@@ -813,6 +813,33 @@ class TestRunnerIHandler(entity.Entity):
         else:
             self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
 
+    @contextlib.contextmanager
+    def _auto_start_stop_environment(self, test_uid, runner_uid):
+        """Context manager for automatic environment control."""
+        test = self.test(test_uid, runner_uid=runner_uid)
+        resources_started = False
+
+        if not test.resources.all_status(entity.ResourceStatus.STARTED):
+            if not test.resources.all_status(
+                entity.ResourceStatus.STOPPED
+            ) and not test.resources.all_status(entity.ResourceStatus.NONE):
+                # State requires to reset all.
+                self.stop_test_resources(
+                    test_uid,
+                    runner_uid=runner_uid,
+                )
+            self.start_test_resources(
+                test_uid, runner_uid=runner_uid,
+            )
+            resources_started = True
+
+        yield
+
+        if resources_started:
+            self.stop_test_resources(
+                test_uid, runner_uid=runner_uid
+            )
+
     def _set_env_status(self, test_uid, new_status):
         """Set the environment status for a given test."""
         with self.report_mutex:
@@ -837,3 +864,33 @@ class TestRunnerIHandler(entity.Entity):
             future.result()
         except Exception:
             self.logger.exception("Exception caught in async function")
+
+    def _create_testplan_report(self, test_reports):
+        """Create a single testplan report from many test reports."""
+        report = testplan.report.TestReport(
+            name=self.cfg.name, uid=self.cfg.name
+        )
+
+        for test_report in test_reports:
+            report.append(test_report)
+
+        return report
+
+    def _merge_test_reports(self, results, test_uid, runner_uid):
+        """Merge all test reports from a test run into one."""
+        test_reports = [
+            res
+            for res in results
+            if isinstance(res, testplan.report.TestGroupReport)
+        ]
+
+        if not test_reports:
+            return None
+
+        test = self.test(test_uid, runner_uid=runner_uid)
+        initial_report = test.dry_run().report
+
+        for report in test_reports:
+            initial_report.merge(report)
+
+        return initial_report
