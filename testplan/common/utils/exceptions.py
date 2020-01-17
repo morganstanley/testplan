@@ -83,33 +83,3 @@ def _format_args(args):
     else:
         return '({})'.format(', '.join(rargs))
 
-
-def format_trace(trace, exception=None):
-    """
-    Return a string containing a stack trace, including an attempt
-    at displaying argument values, within a certain size.
-
-    Example::
-
-      >>> format_trace(inspect.trace(), exception)
-    """
-    output = ['Traceback (most recent call last):\n']
-    for frame, fpath, line, parent, code, _ in trace:
-        fmtted_args = ''
-        try:
-            args = inspect.getargvalues(frame)
-            args = [args.locals[name] for name in args.args]
-            fmtted_args = _format_args(args)
-        except Exception:
-            pass
-        finally:
-            del frame
-        output.append(
-            '  File "{}", line {}, in {}{}\n'.format(
-                fpath, line, parent, fmtted_args))
-        for line in code or []:
-            output.append('    {}\n'.format(line.strip()))
-    if exception is not None:
-        output.append('{}: {}'.format(
-            getattr(type(exception), '__name__', '<Unknown>'), exception))
-    return ''.join(output)

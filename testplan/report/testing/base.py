@@ -48,9 +48,9 @@ import sys
 import copy
 import getpass
 import platform
-import inspect
 import hashlib
 import itertools
+import traceback
 
 from collections import Counter
 
@@ -59,7 +59,6 @@ from marshmallow import exceptions
 from testplan.common.report import (
     ExceptionLogger as ExceptionLoggerBase, Report, ReportGroup)
 from testplan.common.utils import timing
-from testplan.common.utils.exceptions import format_trace
 from testplan.testing import tagging
 
 
@@ -195,7 +194,7 @@ class ExceptionLogger(ExceptionLoggerBase):
                                                self.exception_classes):
 
             # Custom exception message with extra args
-            exc_msg = format_trace(inspect.trace(), exc_value)
+            exc_msg = traceback.format_tb(tb)
             self.report.logger.error(exc_msg)
 
             if self.fail:

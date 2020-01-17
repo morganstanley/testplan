@@ -1,14 +1,13 @@
 import collections
 import decimal
 import fractions
-import inspect
 import os
 import re
+import traceback
 
 import pytest
 import six
 
-from testplan.common.utils.exceptions import format_trace
 from testplan.testing.multitest.entries import assertions
 
 
@@ -1580,8 +1579,8 @@ class TestTableMatch(object):
         def error_func(value):
             try:
                 raise Exception('some message')
-            except Exception as exc:
-                error_ctx['msg'] = format_trace(inspect.trace(), exc)
+            except Exception:
+                error_ctx['msg'] = traceback.format_exc()
                 raise
 
         table = [

@@ -1,16 +1,14 @@
 import operator
-import inspect
 import decimal
 try:
     from collections.abc import Mapping, Iterable
 except ImportError:
     from collections import Mapping, Iterable
-
+import traceback
 
 import enum
 import six
 
-from .exceptions import format_trace
 from .reporting import Absent, fmt, NATIVE_TYPES, callable_name
 
 
@@ -36,8 +34,8 @@ def basic_compare(first, second, strict=False):
         else:
             result = first == second
         return result, None
-    except Exception as exc:
-        return None, format_trace(inspect.trace(), exc)
+    except Exception:
+        return None, traceback.format_exc()
 
 
 def is_comparator(value):
@@ -314,8 +312,8 @@ MAX_UNORDERED_COMPARE = 16
 def compare_with_callable(callable_obj, value):
     try:
         return bool(callable_obj(value)), None
-    except Exception as exc:
-        return False, format_trace(inspect.trace(), exc)
+    except Exception:
+        return False, traceback.format_exc()
 
 
 class RegexAdapter(object):
@@ -683,7 +681,7 @@ def untyped_fixtag(x, y):
                       for val in (x_, y_))
 
             ret = x_ == y_
-    
+
     return ret
 
 

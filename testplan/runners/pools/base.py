@@ -1,20 +1,17 @@
 """Worker pool executor base classes."""
-
-
-import inspect
 import numbers
 import os
 import threading
 import time
 import datetime
 import pprint
+import traceback
 
 from schema import Or, And
 
 from testplan.common.config import ConfigOption, validate_func
 from testplan.common import entity
 from testplan.common.utils.thread import interruptible_join
-from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils.strings import Color
 from testplan.common.utils.timing import wait_until_predicate
 from testplan.runners.base import Executor, ExecutorConfig
@@ -162,10 +159,13 @@ class Worker(entity.Resource):
                 result = target()
             else:
                 result = target.run()
-        except BaseException as exc:
+        except BaseException:
             task_result = TaskResult(
-                task=task, result=None, status=False,
-                reason=format_trace(inspect.trace(), exc))
+                task=task,
+                result=None,
+                status=False,
+                reason=traceback.format_exc(),
+            )
         else:
             task_result = TaskResult(task=task, result=result, status=True)
         return task_result
@@ -330,8 +330,8 @@ class Pool(Executor):
                 try:
                     self.logger.debug('Received message from worker: %s.', msg)
                     self.handle_request(msg)
-                except Exception as exc:
-                    self.logger.error(format_trace(inspect.trace(), exc))
+                except Exception:
+                    self.logger.error(traceback.format_exc())
 
             time.sleep(self.cfg.active_loop_sleep)
 

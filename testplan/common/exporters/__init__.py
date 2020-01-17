@@ -1,8 +1,7 @@
 """TODO."""
-import inspect
+import traceback
 
 from testplan.common.config import Config, Configurable
-from testplan.common.utils.exceptions import format_trace
 
 
 class ExporterResult(object):
@@ -22,8 +21,8 @@ class ExporterResult(object):
 
         try:
             exporter.export(source)
-        except Exception as exc:
-            result.traceback = format_trace(inspect.trace(), exc)
+        except Exception:
+            result.traceback = traceback.format_exc()
         return result
 
 
