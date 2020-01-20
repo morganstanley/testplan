@@ -344,7 +344,11 @@ class _ReportPlugin(object):
         if call.when in ('memocollect', 'collect'):
             # Failed to collect tests: log to console and mark the report as
             # ERROR.
-            self._report.logger.error(traceback.format_tb(call.excinfo.tb))
+            self._report.logger.error(''.join(traceback.format_exception(
+                call.excinfo.type,
+                call.excinfo.value,
+                call.excinfo.tb,
+            )))
             self._report.status_override = Status.ERROR
 
         elif self._current_case_report is not None:
@@ -381,7 +385,11 @@ class _ReportPlugin(object):
             self._report.logger.error(
                 'Exception occured outside of a testcase: during %s',
                 call.when)
-            self._report.logger.error(traceback.format_tb(call.excinfo.tb))
+            self._report.logger.error(''.join(traceback.format_exception(
+                call.excinfo.type,
+                call.excinfo.value,
+                call.excinfo.tb,
+            )))
 
     @pytest.hookimpl(trylast=True)
     def pytest_configure(self, config):

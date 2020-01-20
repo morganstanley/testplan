@@ -194,7 +194,9 @@ class ExceptionLogger(ExceptionLoggerBase):
                                                self.exception_classes):
 
             # Custom exception message with extra args
-            exc_msg = traceback.format_tb(tb)
+            exc_msg = ''.join(
+                traceback.format_exception(exc_type, exc_value, tb)
+            )
             self.report.logger.error(exc_msg)
 
             if self.fail:
