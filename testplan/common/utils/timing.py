@@ -9,9 +9,7 @@ import functools
 import time
 import datetime
 import threading
-import inspect
-
-from .exceptions import format_trace
+import traceback
 
 
 class TimeoutException(Exception):
@@ -97,9 +95,9 @@ def timeout(seconds, err_msg='Timeout after {} seconds.'):
         def _new_func(result, old_func, old_func_args, old_func_kwargs):
             try:
                 result.append(old_func(*old_func_args, **old_func_kwargs))
-            except Exception as exp:
+            except Exception:
                 result[0] = False
-                result.append(format_trace(inspect.trace(), exp))
+                result.append(traceback.format_exc())
 
         def wrapper(*args, **kwargs):
             result = [True]
