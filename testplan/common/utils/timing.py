@@ -9,6 +9,9 @@ import functools
 import time
 import datetime
 import threading
+import inspect
+
+from .exceptions import format_trace
 
 
 class TimeoutException(Exception):
@@ -92,10 +95,14 @@ def timeout(seconds, err_msg='Timeout after {} seconds.'):
     def timeout_decorator(func):
         """"""
         def _new_func(result, old_func, old_func_args, old_func_kwargs):
-            result.append(old_func(*old_func_args, **old_func_kwargs))
+            try:
+                result.append(old_func(*old_func_args, **old_func_kwargs))
+            except Exception as exp:
+                result[0] = False
+                result.append(format_trace(inspect.trace(), exp))
 
         def wrapper(*args, **kwargs):
-            result = []
+            result = [True]
             new_kwargs = {
                 'result': result,
                 'old_func': func,
@@ -110,7 +117,7 @@ def timeout(seconds, err_msg='Timeout after {} seconds.'):
                 thd.join()
                 raise TimeoutException(err_msg.format(seconds))
             else:
-                return result[0]
+                return result
 
         return functools.wraps(func)(wrapper)
 
