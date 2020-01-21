@@ -12,6 +12,7 @@ import argparse
 import platform
 import threading
 import subprocess
+import traceback
 
 
 def parse_cmdline():
@@ -153,15 +154,18 @@ class ChildLoop(object):
         sends back results to the main pool.
         """
         from testplan.runners.pools.communication import Message
-        from testplan.common.utils.exceptions import format_trace
         message = Message(**self.metadata)
 
         try:
             self._pre_loop_setup(message)
-        except Exception as exc:
-            self._transport.send_and_receive(message.make(
-                message.SetupFailed,
-                data=format_trace(inspect.trace(), exc)), expect=message.Ack)
+        except Exception:
+            self._transport.send_and_receive(
+                message.make(
+                    message.SetupFailed,
+                    data=traceback.format_exc(),
+                ),
+                expect=message.Ack,
+            )
             return
 
         with self._child_pool():

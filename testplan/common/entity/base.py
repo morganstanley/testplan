@@ -9,20 +9,18 @@ import signal
 import time
 import uuid
 import threading
-import inspect
 import psutil
 import functools
 from collections import deque, OrderedDict
+import traceback
 
 from schema import Or, And, Use
 
 from testplan.common.config import Config, ConfigOption
-from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils.thread import execute_as_thread
 from testplan.common.utils.timing import wait
 from testplan.common.utils.path import makeemptydirs, makedirs, default_runpath
 from testplan.common.utils import logger
-from testplan.common.utils import networking
 
 
 class Environment(object):
@@ -141,10 +139,11 @@ class Environment(object):
                 resource.start()
                 if not resource.cfg.async_start:
                     resource.wait(resource.STATUS.STARTED)
-            except Exception as exc:
-                msg = 'While starting resource [{}]{}{}'.format(
-                    resource.cfg.name, os.linesep,
-                    format_trace(inspect.trace(), exc))
+            except Exception:
+                msg = 'While starting resource [{}]\n{}'.format(
+                    resource.cfg.name,
+                    traceback.format_exc(),
+                )
                 self.logger.error(msg)
                 self.start_exceptions[resource] = msg
                 # Environment start failure. Won't start the rest.
@@ -164,10 +163,12 @@ class Environment(object):
         def wrapper(*args, **kargs):
             try:
                 func(*args, **kargs)
-            except Exception as exe:
-                msg = 'While executing {} of resource [{}]{}{}'.format(
-                    func.__name__, resource.cfg.name, os.linesep,
-                    format_trace(inspect.trace(), exe))
+            except Exception:
+                msg = 'While executing {} of resource [{}]\n{}'.format(
+                    func.__name__,
+                    resource.cfg.name,
+                    traceback.format_exc(),
+                )
                 self.logger.error(msg)
                 self.start_exceptions[resource] = msg
 
@@ -208,10 +209,11 @@ class Environment(object):
                 continue
             try:
                 resource.stop()
-            except Exception as exc:
-                msg = 'While stopping resource [{}]{}{}'.format(
-                    resource.cfg.name, os.linesep,
-                    format_trace(inspect.trace(), exc))
+            except Exception:
+                msg = 'While stopping resource [{}]\n{}'.format(
+                    resource.cfg.name,
+                    traceback.format_exc(),
+                )
                 self.stop_exceptions[resource] = msg
 
         # Wait resources status to be STOPPED.
@@ -463,7 +465,7 @@ class Entity(logger.Loggable):
             entity.abort()
             self.logger.debug('Aborted {}'.format(entity))
         except Exception as exc:
-            self.logger.error(format_trace(inspect.trace(), exc))
+            self.logger.error(traceback.format_exc())
             self.logger.error('Exception on aborting {} - {}'.format(
                 self, exc))
         else:
@@ -800,7 +802,7 @@ class Runnable(Entity):
         except Exception as exc:
             print('Exception on {} {}, step {} - {}'.format(
                 self.__class__.__name__, self.uid(), step.__name__, exc))
-            self.logger.error(format_trace(inspect.trace(), exc))
+            self.logger.error(traceback.format_exc())
             res = exc
         finally:
             self.result.step_results[step.__name__] = res
@@ -869,7 +871,7 @@ class Runnable(Entity):
                 self._run_batch_steps()
         except Exception as exc:
             self._result.run = exc
-            self.logger.error(format_trace(inspect.trace(), exc))
+            self.logger.error(traceback.format_exc())
         else:
             # TODO fix swallow exceptions in self._result.step_results.values()
             self._result.run = self.status.tag == RunnableStatus.FINISHED and\

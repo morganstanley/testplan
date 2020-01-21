@@ -3,6 +3,7 @@ import collections
 import inspect
 import os
 import re
+import traceback
 
 import pytest
 import schema
@@ -17,7 +18,6 @@ from testplan.testing.multitest.entries.schemas.base import (
 from testplan.testing.multitest.entries.stdout.base import (
     registry as stdout_registry)
 from testplan.report import TestGroupReport, TestCaseReport, Status
-from testplan.common.utils.exceptions import format_trace
 from testplan.common.utils import validation
 
 
@@ -344,13 +344,16 @@ class _ReportPlugin(object):
         if call.when in ('memocollect', 'collect'):
             # Failed to collect tests: log to console and mark the report as
             # ERROR.
-            self._report.logger.error(format_trace(
-                inspect.getinnerframes(call.excinfo.tb), call.excinfo.value))
+            self._report.logger.error(''.join(traceback.format_exception(
+                call.excinfo.type,
+                call.excinfo.value,
+                call.excinfo.tb,
+            )))
             self._report.status_override = Status.ERROR
 
         elif self._current_case_report is not None:
             # Log assertion errors or exceptions in testcase report
-            traceback = call.excinfo.traceback[-1]
+            trace = call.excinfo.traceback[-1]
             message = getattr(call.excinfo.value, 'message', None) or \
                       getattr(call.excinfo.value, 'msg', None) or \
                      getattr(call.excinfo.value, 'args', None) or ''
@@ -361,11 +364,9 @@ class _ReportPlugin(object):
                 call.excinfo.typename == 'AssertionError' else
                 'Exception raised') if call.when == 'call' else
                     '{} - Fail'.format(call.when))
-            details = 'File: {}{}Line: {}{}{}: {}'.format(
-                traceback.path.strpath,
-                os.linesep,
-                traceback.lineno + 1,
-                os.linesep,
+            details = 'File: {}\nLine: {}\n{}: {}'.format(
+                trace.path.strpath,
+                trace.lineno + 1,
                 call.excinfo.typename,
                 message
             ) if call.excinfo.typename == 'AssertionError' else (
@@ -384,8 +385,11 @@ class _ReportPlugin(object):
             self._report.logger.error(
                 'Exception occured outside of a testcase: during %s',
                 call.when)
-            self._report.logger.error(format_trace(
-                inspect.getinnerframes(call.excinfo.tb), call.excinfo.value))
+            self._report.logger.error(''.join(traceback.format_exception(
+                call.excinfo.type,
+                call.excinfo.value,
+                call.excinfo.tb,
+            )))
 
     @pytest.hookimpl(trylast=True)
     def pytest_configure(self, config):
