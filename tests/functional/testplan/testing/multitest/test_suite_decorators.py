@@ -100,7 +100,7 @@ def test_basic_multitest():
         assert len(mt_entry.entries) == 2  # 2 Suites
         for st_entry in mt_entry.entries:
             assert isinstance(st_entry, TestGroupReport)
-            assert len(st_entry.entries) == 3  # 3 Testcases
+            assert len(st_entry.entries) == 4  # 4 Testcases
             for tc_entry in st_entry.entries:
                 if tc_entry.name == 'case4':
                     assert isinstance(tc_entry, TestGroupReport)
