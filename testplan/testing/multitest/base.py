@@ -725,7 +725,7 @@ class MultiTest(testing_base.Test):
         """
         Generate parametrization reports for any parametrized testcases.
         """
-        parametrization_reports = {}
+        parametrization_reports = collections.OrderedDict()
 
         for testcase in testcases:
             param_template = getattr(
@@ -929,12 +929,15 @@ def _split_by_exec_group(testcases):
     one.
     """
     serial_cases = []
-    parallel_cases = collections.defaultdict(list)
+    parallel_cases = collections.OrderedDict()
 
     for testcase in testcases:
         exec_group = getattr(testcase, "execution_group", None)
         if exec_group:
-            parallel_cases[exec_group].append(testcase)
+            if exec_group in parallel_cases:
+                parallel_cases[exec_group].append(testcase)
+            else:
+                parallel_cases[exec_group] = [testcase]
         else:
             serial_cases.append(testcase)
 
