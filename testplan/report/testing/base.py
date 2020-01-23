@@ -934,3 +934,7 @@ class TestCaseReport(Report):
 
         return counter
 
+    def pass_if_empty(self):
+        """Mark as PASSED if this testcase contains no entries."""
+        if not self.entries:
+            self._status = Status.PASSED
