@@ -616,7 +616,9 @@ class MultiTest(testing_base.Test):
         if hasattr(testsuite, "__xfail__"):
             testsuite_report.xfail(testsuite.__xfail__["strict"])
 
-        testsuite_report.runtime_status = testplan.report.RuntimeStatus.FINISHED
+        testsuite_report.runtime_status = (
+            testplan.report.RuntimeStatus.FINISHED
+        )
 
         return testsuite_report
 
