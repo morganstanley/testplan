@@ -5,13 +5,11 @@ import os
 from testplan.common.utils import path
 from testplan.testing import multitest
 from testplan.testing.multitest import base
-from testplan.testing.multitest.entries import assertions
 from testplan.testing import filtering
 from testplan.testing import ordering
 from testplan import defaults
 from testplan import report
 from testplan.common import entity
-from testplan.testing.multitest.entries import schemas
 
 # TODO: shouldn't need to specify these...
 MTEST_DEFAULT_PARAMS = {
@@ -22,6 +20,7 @@ MTEST_DEFAULT_PARAMS = {
 
 
 def test_multitest_runpath():
+    """Test setting of runpath."""
     # # No runpath specified
     mtest = multitest.MultiTest(
         name="Mtest", suites=[], **MTEST_DEFAULT_PARAMS
@@ -222,8 +221,13 @@ def test_run_all_tests():
 
 def test_run_tests_parallel():
     """Test running tests in parallel via an execution group."""
+    # Since we have at most three testcases in any one execution group,
+    # use three threads in the thread pool to save on resources.
     mtest = multitest.MultiTest(
-        name="MTest", suites=[ParallelSuite()], **MTEST_DEFAULT_PARAMS
+        name="MTest",
+        suites=[ParallelSuite()],
+        thread_pool_size=3,
+        **MTEST_DEFAULT_PARAMS
     )
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
