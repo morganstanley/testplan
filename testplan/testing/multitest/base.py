@@ -162,6 +162,7 @@ class MultiTest(testing_base.Test):
     """
 
     CONFIG = MultiTestConfig
+    DEFAULT_THREAD_POOL_SIZE = 5
 
     # MultiTest allows deep filtering
     filter_levels = [
@@ -459,7 +460,10 @@ class MultiTest(testing_base.Test):
                 self.cfg.thread_pool_size, self.cfg.max_thread_pool_size
             )
         else:
-            return max(self.cfg.max_thread_pool_size // 2, 2)
+            return max(
+                self.cfg.max_thread_pool_size // 2,
+                self.DEFAULT_THREAD_POOL_SIZE,
+            )
 
     def _suite_related_report(self, name, status):
         """

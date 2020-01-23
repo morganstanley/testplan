@@ -222,8 +222,13 @@ def test_run_all_tests():
 
 def test_run_tests_parallel():
     """Test running tests in parallel via an execution group."""
+    # Since we have at most three testcases in any one execution group,
+    # use three threads in the thread pool to save on resources.
     mtest = multitest.MultiTest(
-        name="MTest", suites=[ParallelSuite()], **MTEST_DEFAULT_PARAMS
+        name="MTest",
+        suites=[ParallelSuite()],
+        thread_pool_size=3,
+        **MTEST_DEFAULT_PARAMS,
     )
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
