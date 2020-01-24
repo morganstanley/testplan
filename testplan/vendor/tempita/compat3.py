@@ -2,15 +2,8 @@ from __future__ import absolute_import, division, print_function
 
 import sys
 
-__all__ = [
-    "PY3",
-    "b",
-    "basestring_",
-    "bytes",
-    "next",
-    "is_unicode",
-    "iteritems",
-]
+__all__ = ['PY3', 'b', 'basestring_', 'bytes', 'next', 'is_unicode',
+           'iteritems']
 
 PY3 = True if sys.version_info[0] == 3 else False
 
@@ -29,7 +22,7 @@ else:
 
     def b(s):
         if isinstance(s, str):
-            return s.encode("latin1")
+            return s.encode('latin1')
         return bytes(s)
 
     def iteritems(d, **kw):
@@ -52,9 +45,9 @@ def is_unicode(obj):
 def coerce_text(v):
     if not isinstance(v, basestring_):
         if sys.version_info[0] < 3:
-            attr = "__unicode__"
+            attr = '__unicode__'
         else:
-            attr = "__str__"
+            attr = '__str__'
         if hasattr(v, attr):
             return unicode(v)  # pylint: disable=undefined-variable
         else:

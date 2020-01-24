@@ -30,9 +30,9 @@ class AssertionRenderer(BaseRenderer):
         Return file & line no (failing entries only), along
         with the extra info returned by `get_assertion_details`.
         """
-        assertion_details = self.get_assertion_details(
-            entry
-        )  # pylint: disable=assignment-from-none
+        # pylint: disable=assignment-from-none
+        assertion_details = self.get_assertion_details(entry)
+        # pylint: enable=assignment-from-none
 
         if not entry:
             details = "File: {}".format(entry.file_path)

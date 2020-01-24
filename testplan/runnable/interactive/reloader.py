@@ -37,9 +37,12 @@ class ModuleReloader(logger.Loggable):
         super(ModuleReloader, self).__init__()
 
         self._extra_deps = extra_deps
-        self._reload_dirs, self._dep_graph, self._watched_modules = self._build_dependencies(
+        reload_dirs, dep_graph, watched_modules = self._build_dependencies(
             extra_deps
         )
+        self._reload_dirs = reload_dirs
+        self._dep_graph = dep_graph
+        self._watched_modules = watched_modules
 
         # Last recorded reload time for watched modules.
         self._last_reload_time = {}  # type: Dict[_ModuleNode, float]
@@ -58,9 +61,12 @@ class ModuleReloader(logger.Loggable):
         suite_instances = self._suites_by_class(tests)
 
         if rebuild_dependencies:
-            self._reload_dirs, self._dep_graph, self._watched_modules = self._build_dependencies(
+            reload_dirs, dep_graph, watched_modules = self._build_dependencies(
                 self._extra_deps
             )
+            self._reload_dirs = reload_dirs
+            self._dep_graph = dep_graph
+            self._watched_modules = watched_modules
 
         modified_modules = self._modified_modules
         if modified_modules:

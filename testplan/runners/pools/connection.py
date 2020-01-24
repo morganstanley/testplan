@@ -296,9 +296,8 @@ class Server(entity.Resource):
         """
         if self.status.tag != self.status.STARTED:
             raise RuntimeError(
-                "Can only register workers when started. Current state is {}".format(
-                    self.status.tag
-                )
+                "Can only register workers when started. Current state is "
+                "{}".format(self.status.tag)
             )
 
     @abc.abstractmethod

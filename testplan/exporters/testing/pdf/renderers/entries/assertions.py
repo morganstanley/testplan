@@ -966,9 +966,9 @@ class LineDiffRenderer(AssertionRenderer):
         ellipsis = "    ..."
         reserved = stringWidth(ellipsis, const.FONT, const.FONT_SIZE_SMALL)
         max_width = const.PAGE_WIDTH - ((depth + 2) * const.INDENT) - reserved
-        get_width = lambda text, font=const.FONT, size=const.FONT_SIZE_SMALL: stringWidth(
-            text, font, size
-        )
+
+        def get_width(text, font=const.FONT, size=const.FONT_SIZE_SMALL):
+            return stringWidth(text, font, size)
 
         options = ""
         options += "-b " if source["ignore_space_change"] else ""

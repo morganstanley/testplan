@@ -43,28 +43,14 @@ from six.moves.urllib.parse import quote as url_quote
 
 from ._looper import looper
 from .compat3 import (
-    PY3,
-    bytes,
-    basestring_,
-    next,
-    is_unicode,
-    coerce_text,
-    iteritems,
-)
+    PY3, bytes, basestring_, next, is_unicode, coerce_text, iteritems)
 
 
-__all__ = [
-    "TemplateError",
-    "Template",
-    "sub",
-    "HTMLTemplate",
-    "sub_html",
-    "html",
-    "bunch",
-]
+__all__ = ['TemplateError', 'Template', 'sub', 'HTMLTemplate',
+           'sub_html', 'html', 'bunch']
 
-in_re = re.compile(r"\s+in\s+")
-var_re = re.compile(r"^[a-z_][a-z0-9_]*$", re.I)
+in_re = re.compile(r'\s+in\s+')
+var_re = re.compile(r'^[a-z_][a-z0-9_]*$', re.I)
 
 
 class TemplateError(Exception):
@@ -77,15 +63,12 @@ class TemplateError(Exception):
         self.name = name
 
     def __str__(self):
-        msg = " ".join(self.args)
+        msg = ' '.join(self.args)
         if self.position:
-            msg = "%s at line %s column %s" % (
-                msg,
-                self.position[0],
-                self.position[1],
-            )
+            msg = '%s at line %s column %s' % (
+                msg, self.position[0], self.position[1])
         if self.name:
-            msg += " in %s" % self.name
+            msg += ' in %s' % self.name
         return msg
 
 
@@ -100,52 +83,37 @@ class _TemplateBreak(Exception):
 def get_file_template(name, from_template):
     path = os.path.join(os.path.dirname(from_template.name), name)
     return from_template.__class__.from_filename(
-        path,
-        namespace=from_template.namespace,
-        get_template=from_template.get_template,
-    )
+        path, namespace=from_template.namespace,
+        get_template=from_template.get_template)
 
 
 class Template(object):
 
     default_namespace = {
-        "start_braces": "{{",
-        "end_braces": "}}",
-        "looper": looper,
+        'start_braces': '{{',
+        'end_braces': '}}',
+        'looper': looper,
     }
 
-    default_encoding = "utf8"
+    default_encoding = 'utf8'
     default_inherit = None
 
-    def __init__(
-        self,
-        content,
-        name=None,
-        namespace=None,
-        stacklevel=None,
-        get_template=None,
-        default_inherit=None,
-        line_offset=0,
-        delimeters=None,
-    ):
+    def __init__(self, content, name=None, namespace=None, stacklevel=None,
+                 get_template=None, default_inherit=None, line_offset=0,
+                 delimeters=None):
         self.content = content
 
         # set delimeters
         if delimeters is None:
-            delimeters = (
-                self.default_namespace["start_braces"],
-                self.default_namespace["end_braces"],
-            )
+            delimeters = (self.default_namespace['start_braces'],
+                          self.default_namespace['end_braces'])
         else:
             assert len(delimeters) == 2 and all(
-                [
-                    isinstance(delimeter, basestring_)
-                    for delimeter in delimeters
-                ]
-            )
+                [isinstance(delimeter, basestring_)
+                 for delimeter in delimeters])
             self.default_namespace = self.__class__.default_namespace.copy()
-            self.default_namespace["start_braces"] = delimeters[0]
-            self.default_namespace["end_braces"] = delimeters[1]
+            self.default_namespace['start_braces'] = delimeters[0]
+            self.default_namespace['end_braces'] = delimeters[1]
         self.delimeters = delimeters
 
         self._unicode = is_unicode(content)
@@ -157,23 +125,20 @@ class Template(object):
             else:
                 globals = caller.f_globals
                 lineno = caller.f_lineno
-                if "__file__" in globals:
-                    name = globals["__file__"]
-                    if name.endswith(".pyc") or name.endswith(".pyo"):
+                if '__file__' in globals:
+                    name = globals['__file__']
+                    if name.endswith('.pyc') or name.endswith('.pyo'):
                         name = name[:-1]
-                elif "__name__" in globals:
-                    name = globals["__name__"]
+                elif '__name__' in globals:
+                    name = globals['__name__']
                 else:
-                    name = "<string>"
+                    name = '<string>'
                 if lineno:
-                    name += ":%s" % lineno
+                    name += ':%s' % lineno
         self.name = name
         self._parsed = parse(
-            content,
-            name=name,
-            line_offset=line_offset,
-            delimeters=self.delimeters,
-        )
+            content, name=name, line_offset=line_offset,
+            delimeters=self.delimeters)
         if namespace is None:
             namespace = {}
         self.namespace = namespace
@@ -181,57 +146,41 @@ class Template(object):
         if default_inherit is not None:
             self.default_inherit = default_inherit
 
-    def from_filename(
-        cls,
-        filename,
-        namespace=None,
-        encoding=None,
-        default_inherit=None,
-        get_template=get_file_template,
-    ):
-        f = open(filename, "rb")
+    def from_filename(cls, filename, namespace=None, encoding=None,
+                      default_inherit=None, get_template=get_file_template):
+        f = open(filename, 'rb')
         c = f.read()
         f.close()
         if encoding:
             c = c.decode(encoding)
         elif PY3:
-            c = c.decode("latin-1")
-        return cls(
-            content=c,
-            name=filename,
-            namespace=namespace,
-            default_inherit=default_inherit,
-            get_template=get_template,
-        )
+            c = c.decode('latin-1')
+        return cls(content=c, name=filename, namespace=namespace,
+                   default_inherit=default_inherit, get_template=get_template)
 
     from_filename = classmethod(from_filename)
 
     def __repr__(self):
-        return "<%s %s name=%r>" % (
+        return '<%s %s name=%r>' % (
             self.__class__.__name__,
-            hex(id(self))[2:],
-            self.name,
-        )
+            hex(id(self))[2:], self.name)
 
     def substitute(self, *args, **kw):
         if args:
             if kw:
                 raise TypeError(
-                    "You can only give positional *or* keyword arguments"
-                )
+                    "You can only give positional *or* keyword arguments")
             if len(args) > 1:
-                raise TypeError("You can only give one positional argument")
-            if not hasattr(args[0], "items"):
                 raise TypeError(
-                    (
-                        "If you pass in a single argument, you must pass in a ",
-                        "dict-like object (with a .items() method); you gave %r",
-                    )
-                    % (args[0],)
-                )
+                    "You can only give one positional argument")
+            if not hasattr(args[0], 'items'):
+                raise TypeError(
+                    ("If you pass in a single argument, you must pass in a ",
+                     "dict-like object (with a .items() method); you gave %r")
+                    % (args[0],))
             kw = args[0]
         ns = kw
-        ns["__template_name__"] = self.name
+        ns['__template_name__'] = self.name
         if self.namespace:
             ns.update(self.namespace)
         result, defs, inherit = self._interpret(ns)
@@ -246,27 +195,25 @@ class Template(object):
         parts = []
         defs = {}
         self._interpret_codes(self._parsed, ns, out=parts, defs=defs)
-        if "__inherit__" in defs:
-            inherit = defs.pop("__inherit__")
+        if '__inherit__' in defs:
+            inherit = defs.pop('__inherit__')
         else:
             inherit = None
-        return "".join(parts), defs, inherit
+        return ''.join(parts), defs, inherit
 
     def _interpret_inherit(self, body, defs, inherit_template, ns):
         # __traceback_hide__ = True
         if not self.get_template:
             raise TemplateError(
-                "You cannot use inheritance without passing in get_template",
-                position=None,
-                name=self.name,
-            )
+                'You cannot use inheritance without passing in get_template',
+                position=None, name=self.name)
         templ = self.get_template(inherit_template, self)
         self_ = TemplateObject(self.name)
         for name, value in iteritems(defs):
             setattr(self_, name, value)
         self_.body = body
         ns = ns.copy()
-        ns["self"] = self_
+        ns['self'] = self_
         return templ.substitute(ns)
 
     def _interpret_codes(self, codes, ns, out, defs):
@@ -280,43 +227,42 @@ class Template(object):
     def _interpret_code(self, code, ns, out, defs):
         # __traceback_hide__ = True
         name, pos = code[0], code[1]
-        if name == "py":
+        if name == 'py':
             self._exec(code[2], ns, pos)
-        elif name == "continue":
+        elif name == 'continue':
             raise _TemplateContinue()
-        elif name == "break":
+        elif name == 'break':
             raise _TemplateBreak()
-        elif name == "for":
+        elif name == 'for':
             vars, expr, content = code[2], code[3], code[4]
             expr = self._eval(expr, ns, pos)
             self._interpret_for(vars, expr, content, ns, out, defs)
-        elif name == "cond":
+        elif name == 'cond':
             parts = code[2:]
             self._interpret_if(parts, ns, out, defs)
-        elif name == "expr":
-            parts = code[2].split("|")
+        elif name == 'expr':
+            parts = code[2].split('|')
             base = self._eval(parts[0], ns, pos)
             for part in parts[1:]:
                 func = self._eval(part, ns, pos)
                 base = func(base)
             out.append(self._repr(base, pos))
-        elif name == "default":
+        elif name == 'default':
             var, expr = code[2], code[3]
             if var not in ns:
                 result = self._eval(expr, ns, pos)
                 ns[var] = result
-        elif name == "inherit":
+        elif name == 'inherit':
             expr = code[2]
             value = self._eval(expr, ns, pos)
-            defs["__inherit__"] = value
-        elif name == "def":
+            defs['__inherit__'] = value
+        elif name == 'def':
             name = code[2]
             signature = code[3]
             parts = code[4]
             ns[name] = defs[name] = TemplateDef(
-                self, name, signature, body=parts, ns=ns, pos=pos
-            )
-        elif name == "comment":
+                self, name, signature, body=parts, ns=ns, pos=pos)
+        elif name == 'comment':
             return
         else:
             assert 0, "Unknown code: %r" % name
@@ -329,9 +275,8 @@ class Template(object):
             else:
                 if len(vars) != len(item):
                     raise ValueError(
-                        "Need %i items to unpack (got %i items)"
-                        % (len(vars), len(item))
-                    )
+                        'Need %i items to unpack (got %i items)'
+                        % (len(vars), len(item)))
                 for name, value in zip(vars, item):
                     ns[name] = value
             try:
@@ -347,7 +292,7 @@ class Template(object):
         for part in parts:
             assert not isinstance(part, basestring_)
             name, pos = part[0], part[1]
-            if name == "else":
+            if name == 'else':
                 result = True
             else:
                 result = self._eval(part[2], ns, pos)
@@ -361,24 +306,21 @@ class Template(object):
             try:
                 value = eval(code, self.default_namespace, ns)
             except SyntaxError as e:
-                raise SyntaxError("invalid syntax in expression: %s" % code)
+                raise SyntaxError(
+                    'invalid syntax in expression: %s' % code)
             return value
         except:
             exc_info = sys.exc_info()
             e = exc_info[1]
-            if getattr(e, "args", None):
+            if getattr(e, 'args', None):
                 arg0 = e.args[0]
             else:
                 arg0 = coerce_text(e)
             e.args = (self._add_line_info(arg0, pos),)
             if PY3:
-                raise (e)
+                raise(e)
             else:
-                raise (
-                    exc_info[1],
-                    e,
-                    exc_info[2],
-                )  # pylint: disable=raising-bad-type
+                raise (exc_info[1], e, exc_info[2])  # pylint: disable=raising-bad-type
 
     def _exec(self, code, ns, pos):
         # __traceback_hide__ = True
@@ -392,47 +334,38 @@ class Template(object):
             else:
                 e.args = (self._add_line_info(None, pos),)
             if PY3:
-                raise (e)
+                raise(e)
             else:
-                raise (
-                    exc_info[1],
-                    e,
-                    exc_info[2],
-                )  # pylint: disable=raising-bad-type
+                raise (exc_info[1], e, exc_info[2])  # pylint: disable=raising-bad-type
 
     def _repr(self, value, pos):
         # __traceback_hide__ = True
         try:
             if value is None:
-                return ""
+                return ''
             if self._unicode:
                 value = str(value)
                 if not is_unicode(value):
-                    value = value.decode("utf-8")
+                    value = value.decode('utf-8')
             else:
                 if not isinstance(value, basestring_):
                     value = coerce_text(value)
-                if is_unicode(value) and self.default_encoding:
+                if (is_unicode(value) and self.default_encoding):
                     value = value.encode(self.default_encoding)
         except:
             exc_info = sys.exc_info()
             e = exc_info[1]
             e.args = (self._add_line_info(e.args[0], pos),)
             if PY3:
-                raise (e)
+                raise(e)
             else:
-                raise (
-                    exc_info[1],
-                    e,
-                    exc_info[2],
-                )  # pylint: disable=raising-bad-type
+                raise (exc_info[1], e, exc_info[2])  # pylint: disable=raising-bad-type
         else:
             if self._unicode and isinstance(value, bytes):
                 if not self.default_encoding:
                     raise UnicodeDecodeError(
-                        "Cannot decode bytes value %r into unicode "
-                        "(no default_encoding provided)" % value
-                    )
+                        'Cannot decode bytes value %r into unicode '
+                        '(no default_encoding provided)' % value)
                 try:
                     value = value.decode(self.default_encoding)
                 except UnicodeDecodeError as e:
@@ -441,26 +374,25 @@ class Template(object):
                         e.object,
                         e.start,
                         e.end,
-                        e.reason + " in string %r" % value,
-                    )
+                        e.reason + ' in string %r' % value)
             elif not self._unicode and is_unicode(value):
                 if not self.default_encoding:
                     raise UnicodeEncodeError(
-                        "Cannot encode unicode value %r into bytes "
-                        "(no default_encoding provided)" % value
-                    )
+                        'Cannot encode unicode value %r into bytes '
+                        '(no default_encoding provided)' % value)
                 value = value.encode(self.default_encoding)
             return value
 
     def _add_line_info(self, msg, pos):
-        msg = "%s at line %s column %s" % (msg, pos[0], pos[1])
+        msg = "%s at line %s column %s" % (
+            msg, pos[0], pos[1])
         if self.name:
             msg += " in file %s" % self.name
         return msg
 
 
 def sub(content, delimeters=None, **kw):
-    name = kw.get("__name")
+    name = kw.get('__name')
     tmpl = Template(content, name=name, delimeters=delimeters)
     return tmpl.substitute(kw)
 
@@ -471,6 +403,7 @@ def paste_script_template_renderer(content, vars, filename=None):
 
 
 class bunch(dict):
+
     def __init__(self, **kw):
         for name, value in iteritems(kw):
             setattr(self, name, value)
@@ -485,22 +418,21 @@ class bunch(dict):
             raise AttributeError(name)
 
     def __getitem__(self, key):
-        if "default" in self:
+        if 'default' in self:
             try:
                 return dict.__getitem__(self, key)
             except KeyError:
-                return dict.__getitem__(self, "default")
+                return dict.__getitem__(self, 'default')
         else:
             return dict.__getitem__(self, key)
 
     def __repr__(self):
-        items = [(k, v) for k, v in iteritems(self)]
+        items = [
+            (k, v) for k, v in iteritems(self)]
         items.sort()
-        return "<%s %s>" % (
+        return '<%s %s>' % (
             self.__class__.__name__,
-            " ".join(["%s=%r" % (k, v) for k, v in items]),
-        )
-
+            ' '.join(['%s=%r' % (k, v) for k, v in items]))
 
 ############################################################
 # HTML Templating
@@ -508,6 +440,7 @@ class bunch(dict):
 
 
 class html(object):
+
     def __init__(self, value):
         self.value = value
 
@@ -518,31 +451,32 @@ class html(object):
         return self.value
 
     def __repr__(self):
-        return "<%s %r>" % (self.__class__.__name__, self.value)
+        return '<%s %r>' % (
+            self.__class__.__name__, self.value)
 
 
 def html_quote(value, force=True):
-    if not force and hasattr(value, "__html__"):
+    if not force and hasattr(value, '__html__'):
         return value.__html__()
     if value is None:
-        return ""
+        return ''
     if not isinstance(value, basestring_):
         value = coerce_text(value)
     if sys.version >= "3" and isinstance(value, bytes):
-        value = html_escape(value.decode("latin1"), 1)
-        value = value.encode("latin1")
+        value = html_escape(value.decode('latin1'), 1)
+        value = value.encode('latin1')
     else:
         value = html_escape(value, 1)
     if sys.version < "3":
         if is_unicode(value):
-            value = value.encode("ascii", "xmlcharrefreplace")
+            value = value.encode('ascii', 'xmlcharrefreplace')
     return value
 
 
 def url(v):
     v = coerce_text(v)
     if is_unicode(v):
-        v = v.encode("utf8")
+        v = v.encode('utf8')
     return url_quote(v)
 
 
@@ -553,21 +487,23 @@ def attr(**kw):
     for name, value in kw:
         if value is None:
             continue
-        if name.endswith("_"):
+        if name.endswith('_'):
             name = name[:-1]
         parts.append('%s="%s"' % (html_quote(name), html_quote(value)))
-    return html(" ".join(parts))
+    return html(' '.join(parts))
 
 
 class HTMLTemplate(Template):
 
     default_namespace = Template.default_namespace.copy()
-    default_namespace.update(
-        dict(html=html, attr=attr, url=url, html_quote=html_quote)
-    )
+    default_namespace.update(dict(
+        html=html,
+        attr=attr,
+        url=url,
+        html_quote=html_quote))
 
     def _repr(self, value, pos):
-        if hasattr(value, "__html__"):
+        if hasattr(value, '__html__'):
             value = value.__html__()
             quote = False
         else:
@@ -580,22 +516,14 @@ class HTMLTemplate(Template):
 
 
 def sub_html(content, **kw):
-    name = kw.get("__name")
+    name = kw.get('__name')
     tmpl = HTMLTemplate(content, name=name)
     return tmpl.substitute(kw)
 
 
 class TemplateDef(object):
-    def __init__(
-        self,
-        template,
-        func_name,
-        func_signature,
-        body,
-        ns,
-        pos,
-        bound_self=None,
-    ):
+    def __init__(self, template, func_name, func_signature,
+                 body, ns, pos, bound_self=None):
         self._template = template
         self._func_name = func_name
         self._func_signature = func_signature
@@ -605,12 +533,9 @@ class TemplateDef(object):
         self._bound_self = bound_self
 
     def __repr__(self):
-        return "<tempita function %s(%s) at %s:%s>" % (
-            self._func_name,
-            self._func_signature,
-            self._template.name,
-            self._pos,
-        )
+        return '<tempita function %s(%s) at %s:%s>' % (
+            self._func_name, self._func_signature,
+            self._template.name, self._pos)
 
     def __str__(self):
         return self()
@@ -620,24 +545,18 @@ class TemplateDef(object):
         ns = self._ns.copy()
         ns.update(values)
         if self._bound_self is not None:
-            ns["self"] = self._bound_self
+            ns['self'] = self._bound_self
         out = []
         subdefs = {}
         self._template._interpret_codes(self._body, ns, out, subdefs)
-        return "".join(out)
+        return ''.join(out)
 
     def __get__(self, obj, type=None):
         if obj is None:
             return self
         return self.__class__(
-            self._template,
-            self._func_name,
-            self._func_signature,
-            self._body,
-            self._ns,
-            self._pos,
-            bound_self=obj,
-        )
+            self._template, self._func_name, self._func_signature,
+            self._body, self._ns, self._pos, bound_self=obj)
 
     def _parse_signature(self, args, kw):
         values = {}
@@ -645,7 +564,8 @@ class TemplateDef(object):
         extra_kw = {}
         for name, value in iteritems(kw):
             if not var_kw and name not in sig_args:
-                raise TypeError("Unexpected argument %s" % name)
+                raise TypeError(
+                    'Unexpected argument %s' % name)
             if name in sig_args:
                 values[sig_args] = value
             else:
@@ -663,32 +583,33 @@ class TemplateDef(object):
                 break
             else:
                 raise TypeError(
-                    "Extra position arguments: %s"
-                    % ", ".join(repr(v) for v in args)
-                )
+                    'Extra position arguments: %s'
+                    % ', '.join(repr(v) for v in args))
         for name, value_expr in iteritems(defaults):
             if name not in values:
                 values[name] = self._template._eval(
-                    value_expr, self._ns, self._pos
-                )
+                    value_expr, self._ns, self._pos)
         for name in sig_args:
             if name not in values:
-                raise TypeError("Missing argument: %s" % name)
+                raise TypeError(
+                    'Missing argument: %s' % name)
         if var_kw:
             values[var_kw] = extra_kw
         return values
 
 
 class TemplateObject(object):
+
     def __init__(self, name):
         self.__name = name
         self.get = TemplateObjectGetter(self)
 
     def __repr__(self):
-        return "<%s %s>" % (self.__class__.__name__, self.__name)
+        return '<%s %s>' % (self.__class__.__name__, self.__name)
 
 
 class TemplateObjectGetter(object):
+
     def __init__(self, template_obj):
         self.__template_obj = template_obj
 
@@ -696,10 +617,8 @@ class TemplateObjectGetter(object):
         return getattr(self.__template_obj, attr, Empty)
 
     def __repr__(self):
-        return "<%s around %r>" % (
-            self.__class__.__name__,
-            self.__template_obj,
-        )
+        return '<%s around %r>' % (
+            self.__class__.__name__, self.__template_obj)
 
 
 class _Empty(object):
@@ -707,13 +626,13 @@ class _Empty(object):
         return self
 
     def __str__(self):
-        return ""
+        return ''
 
     def __repr__(self):
-        return "Empty"
+        return 'Empty'
 
     def __unicode__(self):
-        return "" if PY3 else u""
+        return '' if PY3 else u''
 
     def __iter__(self):
         return iter(())
@@ -723,7 +642,6 @@ class _Empty(object):
 
     if sys.version < "3":
         __nonzero__ = __bool__
-
 
 Empty = _Empty()
 del _Empty
@@ -735,46 +653,38 @@ del _Empty
 
 def lex(s, name=None, trim_whitespace=True, line_offset=0, delimeters=None):
     if delimeters is None:
-        delimeters = (
-            Template.default_namespace["start_braces"],
-            Template.default_namespace["end_braces"],
-        )
+        delimeters = (Template.default_namespace['start_braces'],
+                      Template.default_namespace['end_braces'])
     in_expr = False
     chunks = []
     last = 0
     last_pos = (line_offset + 1, 1)
-    token_re = re.compile(
-        r"%s|%s" % (re.escape(delimeters[0]), re.escape(delimeters[1]))
-    )
+    token_re = re.compile(r'%s|%s' % (re.escape(delimeters[0]),
+                                      re.escape(delimeters[1])))
     for match in token_re.finditer(s):
         expr = match.group(0)
         pos = find_position(s, match.end(), last, last_pos)
         if expr == delimeters[0] and in_expr:
-            raise TemplateError(
-                "%s inside expression" % delimeters[0], position=pos, name=name
-            )
+            raise TemplateError('%s inside expression' % delimeters[0],
+                                position=pos,
+                                name=name)
         elif expr == delimeters[1] and not in_expr:
-            raise TemplateError(
-                "%s outside expression" % delimeters[1],
-                position=pos,
-                name=name,
-            )
+            raise TemplateError('%s outside expression' % delimeters[1],
+                                position=pos,
+                                name=name)
         if expr == delimeters[0]:
-            part = s[last : match.start()]
+            part = s[last:match.start()]
             if part:
                 chunks.append(part)
             in_expr = True
         else:
-            chunks.append((s[last : match.start()], last_pos))
+            chunks.append((s[last:match.start()], last_pos))
             in_expr = False
         last = match.end()
         last_pos = pos
     if in_expr:
-        raise TemplateError(
-            "No %s to finish last expression" % delimeters[1],
-            name=name,
-            position=last_pos,
-        )
+        raise TemplateError('No %s to finish last expression' % delimeters[1],
+                            name=name, position=last_pos)
     part = s[last:]
     if part:
         chunks.append(part)
@@ -782,9 +692,7 @@ def lex(s, name=None, trim_whitespace=True, line_offset=0, delimeters=None):
         chunks = trim_lex(chunks)
     return chunks
 
-
-lex.__doc__ = (
-    """
+lex.__doc__ = """
 Lex a string into chunks:
     >>> lex('hey')
     ['hey']
@@ -802,9 +710,7 @@ Lex a string into chunks:
     Traceback (most recent call last):
         ...
     tempita.TemplateError: {{ inside expression at line 1 column 10
-"""
-    if PY3
-    else """
+""" if PY3 else """
 Lex a string into chunks:
     >>> lex('hey')
     ['hey']
@@ -823,12 +729,11 @@ Lex a string into chunks:
         ...
     TemplateError: {{ inside expression at line 1 column 10
 """
-)
 
-statement_re = re.compile(r"^(?:if |elif |for |def |inherit |default |py:)")
-single_statements = ["else", "endif", "endfor", "enddef", "continue", "break"]
-trail_whitespace_re = re.compile(r"\n\r?[\t ]*$")
-lead_whitespace_re = re.compile(r"^[\t ]*\n")
+statement_re = re.compile(r'^(?:if |elif |for |def |inherit |default |py:)')
+single_statements = ['else', 'endif', 'endfor', 'enddef', 'continue', 'break']
+trail_whitespace_re = re.compile(r'\n\r?[\t ]*$')
+lead_whitespace_re = re.compile(r'^[\t ]*\n')
 
 
 def trim_lex(tokens):
@@ -842,48 +747,52 @@ def trim_lex(tokens):
         if not statement_re.search(item) and item not in single_statements:
             continue
         if not i:
-            prev = ""
+            prev = ''
         else:
             prev = tokens[i - 1]
         if i + 1 >= len(tokens):
-            next_chunk = ""
+            next_chunk = ''
         else:
             next_chunk = tokens[i + 1]
-        if not isinstance(next_chunk, basestring_) or not isinstance(
-            prev, basestring_
-        ):
+        if (not
+            isinstance(next_chunk, basestring_) or
+                not isinstance(prev, basestring_)):
             continue
         prev_ok = not prev or trail_whitespace_re.search(prev)
         if i == 1 and not prev.strip():
             prev_ok = True
         if last_trim is not None and last_trim + 2 == i and not prev.strip():
-            prev_ok = "last"
-        if prev_ok and (
-            not next_chunk
-            or lead_whitespace_re.search(next_chunk)
-            or (i == len(tokens) - 2 and not next_chunk.strip())
-        ):
+            prev_ok = 'last'
+        if (prev_ok and (not next_chunk or lead_whitespace_re.search(
+              next_chunk) or (
+                      i == len(tokens) - 2 and not next_chunk.strip()))):
             if prev:
-                if (i == 1 and not prev.strip()) or prev_ok == "last":
-                    tokens[i - 1] = ""
+                if ((i == 1 and not prev.strip()) or prev_ok == 'last'):
+                    tokens[i - 1] = ''
                 else:
                     m = trail_whitespace_re.search(prev)
                     # +1 to leave the leading \n on:
-                    prev = prev[: m.start() + 1]
+                    prev = prev[:m.start() + 1]
                     tokens[i - 1] = prev
             if next_chunk:
                 last_trim = i
                 if i == len(tokens) - 2 and not next_chunk.strip():
-                    tokens[i + 1] = ""
+                    tokens[i + 1] = ''
                 else:
                     m = lead_whitespace_re.search(next_chunk)
-                    next_chunk = next_chunk[m.end() :]
+                    next_chunk = next_chunk[m.end():]
                     tokens[i + 1] = next_chunk
     return tokens
 
-
-trim_lex.__doc__ = (
-    r"""
+trim_lex.__doc__ = r"""
+    Takes a lexed set of tokens, and removes whitespace when there is
+    a directive on a line by itself:
+       >>> tokens = lex('{{if x}}\nx\n{{endif}}\ny', trim_whitespace=False)
+       >>> tokens
+       [('if x', (1, 3)), '\nx\n', ('endif', (3, 3)), '\ny']
+       >>> trim_lex(tokens)
+       [('if x', (1, 3)), 'x\n', ('endif', (3, 3)), 'y']
+    """ if PY3 else r"""
     Takes a lexed set of tokens, and removes whitespace when there is
     a directive on a line by itself:
        >>> tokens = lex('{{if x}}\nx\n{{endif}}\ny', trim_whitespace=False)
@@ -892,26 +801,15 @@ trim_lex.__doc__ = (
        >>> trim_lex(tokens)
        [('if x', (1, 3)), 'x\n', ('endif', (3, 3)), 'y']
     """
-    if PY3
-    else r"""
-    Takes a lexed set of tokens, and removes whitespace when there is
-    a directive on a line by itself:
-       >>> tokens = lex('{{if x}}\nx\n{{endif}}\ny', trim_whitespace=False)
-       >>> tokens
-       [('if x', (1, 3)), '\nx\n', ('endif', (3, 3)), '\ny']
-       >>> trim_lex(tokens)
-       [('if x', (1, 3)), 'x\n', ('endif', (3, 3)), 'y']
-    """
-)
 
 
 def find_position(string, index, last_index, last_pos):
     """
     Given a string and index, return (line, column)
     """
-    lines = string.count("\n", last_index, index)
+    lines = string.count('\n', last_index, index)
     if lines > 0:
-        column = index - string.rfind("\n", last_index, index)
+        column = index - string.rfind('\n', last_index, index)
     else:
         column = last_pos[1] + (index - last_index)
     return (last_pos[0] + lines, column)
@@ -920,10 +818,8 @@ def find_position(string, index, last_index, last_pos):
 def parse(s, name=None, line_offset=0, delimeters=None):
 
     if delimeters is None:
-        delimeters = (
-            Template.default_namespace["start_braces"],
-            Template.default_namespace["end_braces"],
-        )
+        delimeters = (Template.default_namespace['start_braces'],
+                      Template.default_namespace['end_braces'])
     tokens = lex(s, name=name, line_offset=line_offset, delimeters=delimeters)
     result = []
     while tokens:
@@ -931,9 +827,7 @@ def parse(s, name=None, line_offset=0, delimeters=None):
         result.append(next_chunk)
     return result
 
-
-parse.__doc__ = (
-    r"""
+parse.__doc__ = r"""
     Parses a string into a kind of AST
         >>> parse('{{x}}')
         [('expr', (1, 3), 'x')]
@@ -985,9 +879,7 @@ parse.__doc__ = (
             ...
         tempita.TemplateError: Multi-line py blocks must start
             with a newline at line 1 column 3
-    """
-    if PY3
-    else r"""
+    """ if PY3 else r"""
     Parses a string into a kind of AST
         >>> parse('{{x}}')
         [('expr', (1, 3), 'x')]
@@ -1040,7 +932,6 @@ parse.__doc__ = (
         TemplateError: Multi-line py blocks must start
             with a newline at line 1 column 3
     """
-)
 
 
 def parse_expr(tokens, name, context=()):
@@ -1048,64 +939,64 @@ def parse_expr(tokens, name, context=()):
         return tokens[0], tokens[1:]
     expr, pos = tokens[0]
     expr = expr.strip()
-    if expr.startswith("py:"):
-        expr = expr[3:].lstrip(" \t")
-        if expr.startswith("\n") or expr.startswith("\r"):
-            expr = expr.lstrip("\r\n")
-            if "\r" in expr:
-                expr = expr.replace("\r\n", "\n")
-                expr = expr.replace("\r", "")
-            expr += "\n"
+    if expr.startswith('py:'):
+        expr = expr[3:].lstrip(' \t')
+        if expr.startswith('\n') or expr.startswith('\r'):
+            expr = expr.lstrip('\r\n')
+            if '\r' in expr:
+                expr = expr.replace('\r\n', '\n')
+                expr = expr.replace('\r', '')
+            expr += '\n'
         else:
-            if "\n" in expr:
+            if '\n' in expr:
                 raise TemplateError(
-                    "Multi-line py blocks must start with a newline",
-                    position=pos,
-                    name=name,
-                )
-        return ("py", pos, expr), tokens[1:]
-    elif expr in ("continue", "break"):
-        if "for" not in context:
+                    'Multi-line py blocks must start with a newline',
+                    position=pos, name=name)
+        return ('py', pos, expr), tokens[1:]
+    elif expr in ('continue', 'break'):
+        if 'for' not in context:
             raise TemplateError(
-                "continue outside of for loop", position=pos, name=name
-            )
+                'continue outside of for loop',
+                position=pos, name=name)
         return (expr, pos), tokens[1:]
-    elif expr.startswith("if "):
+    elif expr.startswith('if '):
         return parse_cond(tokens, name, context)
-    elif expr.startswith("elif ") or expr == "else":
+    elif (expr.startswith('elif ') or expr == 'else'):
         raise TemplateError(
-            "%s outside of an if block" % expr.split()[0],
-            position=pos,
-            name=name,
-        )
-    elif expr in ("if", "elif", "for"):
+            '%s outside of an if block' % expr.split()[0],
+            position=pos, name=name)
+    elif expr in ('if', 'elif', 'for'):
         raise TemplateError(
-            "%s with no expression" % expr, position=pos, name=name
-        )
-    elif expr in ("endif", "endfor", "enddef"):
-        raise TemplateError("Unexpected %s" % expr, position=pos, name=name)
-    elif expr.startswith("for "):
+            '%s with no expression' % expr,
+            position=pos, name=name)
+    elif expr in ('endif', 'endfor', 'enddef'):
+        raise TemplateError(
+            'Unexpected %s' % expr,
+            position=pos, name=name)
+    elif expr.startswith('for '):
         return parse_for(tokens, name, context)
-    elif expr.startswith("default "):
+    elif expr.startswith('default '):
         return parse_default(tokens, name, context)
-    elif expr.startswith("inherit "):
+    elif expr.startswith('inherit '):
         return parse_inherit(tokens, name, context)
-    elif expr.startswith("def "):
+    elif expr.startswith('def '):
         return parse_def(tokens, name, context)
-    elif expr.startswith("#"):
-        return ("comment", pos, tokens[0][0]), tokens[1:]
-    return ("expr", pos, tokens[0][0]), tokens[1:]
+    elif expr.startswith('#'):
+        return ('comment', pos, tokens[0][0]), tokens[1:]
+    return ('expr', pos, tokens[0][0]), tokens[1:]
 
 
 def parse_cond(tokens, name, context):
     start = tokens[0][1]
     pieces = []
-    context = context + ("if",)
+    context = context + ('if',)
     while 1:
         if not tokens:
-            raise TemplateError("Missing {{endif}}", position=start, name=name)
-        if isinstance(tokens[0], tuple) and tokens[0][0] == "endif":
-            return ("cond", start) + tuple(pieces), tokens[1:]
+            raise TemplateError(
+                'Missing {{endif}}',
+                position=start, name=name)
+        if (isinstance(tokens[0], tuple) and tokens[0][0] == 'endif'):
+            return ('cond', start) + tuple(pieces), tokens[1:]
         next_chunk, tokens = parse_one_cond(tokens, name, context)
         pieces.append(next_chunk)
 
@@ -1113,24 +1004,24 @@ def parse_cond(tokens, name, context):
 def parse_one_cond(tokens, name, context):
     (first, pos), tokens = tokens[0], tokens[1:]
     content = []
-    if first.endswith(":"):
+    if first.endswith(':'):
         first = first[:-1]
-    if first.startswith("if "):
-        part = ("if", pos, first[3:].lstrip(), content)
-    elif first.startswith("elif "):
-        part = ("elif", pos, first[5:].lstrip(), content)
-    elif first == "else":
-        part = ("else", pos, None, content)
+    if first.startswith('if '):
+        part = ('if', pos, first[3:].lstrip(), content)
+    elif first.startswith('elif '):
+        part = ('elif', pos, first[5:].lstrip(), content)
+    elif first == 'else':
+        part = ('else', pos, None, content)
     else:
         assert 0, "Unexpected token %r at %s" % (first, pos)
     while 1:
         if not tokens:
-            raise TemplateError("No {{endif}}", position=pos, name=name)
-        if isinstance(tokens[0], tuple) and (
-            tokens[0][0] == "endif"
-            or tokens[0][0].startswith("elif ")
-            or tokens[0][0] == "else"
-        ):
+            raise TemplateError(
+                'No {{endif}}',
+                position=pos, name=name)
+        if (isinstance(tokens[0], tuple) and (
+                          tokens[0][0] == 'endif' or tokens[0][0].startswith(
+                      'elif ') or tokens[0][0] == 'else')):
             return part, tokens
         next_chunk, tokens = parse_expr(tokens, name, context)
         content.append(next_chunk)
@@ -1139,101 +1030,92 @@ def parse_one_cond(tokens, name, context):
 def parse_for(tokens, name, context):
     first, pos = tokens[0]
     tokens = tokens[1:]
-    context = ("for",) + context
+    context = ('for',) + context
     content = []
-    assert first.startswith("for ")
-    if first.endswith(":"):
+    assert first.startswith('for ')
+    if first.endswith(':'):
         first = first[:-1]
     first = first[3:].strip()
     match = in_re.search(first)
     if not match:
         raise TemplateError(
-            'Bad for (no "in") in %r' % first, position=pos, name=name
-        )
-    vars = first[: match.start()]
-    if "(" in vars:
+            'Bad for (no "in") in %r' % first,
+            position=pos, name=name)
+    vars = first[:match.start()]
+    if '(' in vars:
         raise TemplateError(
-            "You cannot have () in the variable section of a for loop (%r)"
-            % vars,
-            position=pos,
-            name=name,
-        )
-    vars = tuple(
-        [v.strip() for v in first[: match.start()].split(",") if v.strip()]
-    )
-    expr = first[match.end() :]
+            'You cannot have () in the variable section of a for loop (%r)'
+            % vars, position=pos, name=name)
+    vars = tuple([
+                     v.strip() for v in first[:match.start()].split(',')
+                     if v.strip()])
+    expr = first[match.end():]
     while 1:
         if not tokens:
-            raise TemplateError("No {{endfor}}", position=pos, name=name)
-        if isinstance(tokens[0], tuple) and tokens[0][0] == "endfor":
-            return ("for", pos, vars, expr, content), tokens[1:]
+            raise TemplateError(
+                'No {{endfor}}',
+                position=pos, name=name)
+        if (isinstance(tokens[0], tuple) and tokens[0][0] == 'endfor'):
+            return ('for', pos, vars, expr, content), tokens[1:]
         next_chunk, tokens = parse_expr(tokens, name, context)
         content.append(next_chunk)
 
 
 def parse_default(tokens, name, context):
     first, pos = tokens[0]
-    assert first.startswith("default ")
+    assert first.startswith('default ')
     first = first.split(None, 1)[1]
-    parts = first.split("=", 1)
+    parts = first.split('=', 1)
     if len(parts) == 1:
         raise TemplateError(
-            "Expression must be {{default var=value}}; no = found in %r"
-            % first,
-            position=pos,
-            name=name,
-        )
+            "Expression must be {{default var=value}}; no = found in %r" %
+            first, position=pos, name=name)
     var = parts[0].strip()
-    if "," in var:
+    if ',' in var:
         raise TemplateError(
-            "{{default x, y = ...}} is not supported", position=pos, name=name
-        )
+            "{{default x, y = ...}} is not supported",
+            position=pos, name=name)
     if not var_re.search(var):
         raise TemplateError(
-            "Not a valid variable name for {{default}}: %r" % var,
-            position=pos,
-            name=name,
-        )
+            "Not a valid variable name for {{default}}: %r"
+            % var, position=pos, name=name)
     expr = parts[1].strip()
-    return ("default", pos, var, expr), tokens[1:]
+    return ('default', pos, var, expr), tokens[1:]
 
 
 def parse_inherit(tokens, name, context):
     first, pos = tokens[0]
-    assert first.startswith("inherit ")
+    assert first.startswith('inherit ')
     expr = first.split(None, 1)[1]
-    return ("inherit", pos, expr), tokens[1:]
+    return ('inherit', pos, expr), tokens[1:]
 
 
 def parse_def(tokens, name, context):
     first, start = tokens[0]
     tokens = tokens[1:]
-    assert first.startswith("def ")
+    assert first.startswith('def ')
     first = first.split(None, 1)[1]
-    if first.endswith(":"):
+    if first.endswith(':'):
         first = first[:-1]
-    if "(" not in first:
+    if '(' not in first:
         func_name = first
         sig = ((), None, None, {})
-    elif not first.endswith(")"):
-        raise TemplateError(
-            "Function definition doesn't end with ): %s" % first,
-            position=start,
-            name=name,
-        )
+    elif not first.endswith(')'):
+        raise TemplateError("Function definition doesn't end with ): %s" %
+                            first, position=start, name=name)
     else:
         first = first[:-1]
-        func_name, sig_text = first.split("(", 1)
+        func_name, sig_text = first.split('(', 1)
         sig = parse_signature(sig_text, name, start)
-    context = context + ("def",)
+    context = context + ('def',)
     content = []
     while 1:
         if not tokens:
             raise TemplateError(
-                "Missing {{enddef}}", position=start, name=name
-            )
-        if isinstance(tokens[0], tuple) and tokens[0][0] == "enddef":
-            return ("def", start, func_name, sig, content), tokens[1:]
+                'Missing {{enddef}}',
+                position=start, name=name)
+        if (isinstance(tokens[0], tuple) and tokens[0][0] == 'enddef'):
+            return ('def', start, func_name, sig, content), tokens[1:]
         next_chunk, tokens = parse_expr(tokens, name, context)
         content.append(next_chunk)
 
@@ -1248,37 +1130,32 @@ def parse_signature(sig_text, name, pos):
     def get_token(pos=False):
         try:
             tok_type, tok_string, (srow, scol), (erow, ecol), line = next(
-                tokens
-            )
+                tokens)
         except StopIteration:
-            return tokenize.ENDMARKER, ""
+            return tokenize.ENDMARKER, ''
         if pos:
             return tok_type, tok_string, (srow, scol), (erow, ecol)
         else:
             return tok_type, tok_string
-
     while 1:
         var_arg_type = None
         tok_type, tok_string = get_token()
         if tok_type == tokenize.ENDMARKER:
             break
         if tok_type == tokenize.OP and (
-            tok_string == "*" or tok_string == "**"
-        ):
+                      tok_string == '*' or tok_string == '**'):
             var_arg_type = tok_string
             tok_type, tok_string = get_token()
         if tok_type != tokenize.NAME:
-            raise TemplateError(
-                "Invalid signature: (%s)" % sig_text, position=pos, name=name
-            )
+            raise TemplateError('Invalid signature: (%s)' % sig_text,
+                                position=pos, name=name)
         var_name = tok_string
         tok_type, tok_string = get_token()
         if tok_type == tokenize.ENDMARKER or (
-            tok_type == tokenize.OP and tok_string == ","
-        ):
-            if var_arg_type == "*":
+                      tok_type == tokenize.OP and tok_string == ','):
+            if var_arg_type == '*':
                 var_arg = var_name
-            elif var_arg_type == "**":
+            elif var_arg_type == '**':
                 var_kw = var_name
             else:
                 sig_args.append(var_name)
@@ -1286,10 +1163,9 @@ def parse_signature(sig_text, name, pos):
                 break
             continue
         if var_arg_type is not None:
-            raise TemplateError(
-                "Invalid signature: (%s)" % sig_text, position=pos, name=name
-            )
-        if tok_type == tokenize.OP and tok_string == "=":
+            raise TemplateError('Invalid signature: (%s)' % sig_text,
+                                position=pos, name=name)
+        if tok_type == tokenize.OP and tok_string == '=':
             nest_type = None
             unnest_type = None
             nest_count = 0
@@ -1301,44 +1177,33 @@ def parse_signature(sig_text, name, pos):
                     start_pos = s
                 end_pos = e
                 if tok_type == tokenize.ENDMARKER and nest_count:
-                    raise TemplateError(
-                        "Invalid signature: (%s)" % sig_text,
-                        position=pos,
-                        name=name,
-                    )
-                if not nest_count and (
-                    tok_type == tokenize.ENDMARKER
-                    or (tok_type == tokenize.OP and tok_string == ",")
-                ):
+                    raise TemplateError('Invalid signature: (%s)' % sig_text,
+                                        position=pos, name=name)
+                if (not nest_count and
+                        (tok_type == tokenize.ENDMARKER or
+                             (tok_type == tokenize.OP and tok_string == ','))):
                     default_expr = isolate_expression(
-                        sig_text, start_pos, end_pos
-                    )
+                        sig_text, start_pos, end_pos)
                     defaults[var_name] = default_expr
                     sig_args.append(var_name)
                     break
                 parts.append((tok_type, tok_string))
-                if (
-                    nest_count
-                    and tok_type == tokenize.OP
-                    and tok_string == nest_type
-                ):
+                if nest_count \
+                      and tok_type == tokenize.OP \
+                      and tok_string == nest_type:
                     nest_count += 1
-                elif (
-                    nest_count
-                    and tok_type == tokenize.OP
-                    and tok_string == unnest_type
-                ):
+                elif nest_count \
+                      and tok_type == tokenize.OP \
+                      and tok_string == unnest_type:
                     nest_count -= 1
                     if not nest_count:
                         nest_type = unnest_type = None
-                elif (
-                    not nest_count
-                    and tok_type == tokenize.OP
-                    and tok_string in ("(", "[", "{")
-                ):
+                elif not nest_count \
+                      and tok_type == tokenize.OP \
+                      and tok_string in ('(', '[', '{'):
                     nest_type = tok_string
                     nest_count = 1
-                    unnest_type = {"(": ")", "[": "]", "{": "}"}[nest_type]
+                    unnest_type = {'(': ')', '[': ']', '{': '}'}[nest_type]
     return sig_args, var_arg, var_kw, defaults
 
 
@@ -1351,12 +1216,11 @@ def isolate_expression(string, start_pos, end_pos):
     if srow == erow:
         return lines[srow][scol:ecol]
     parts = [lines[srow][scol:]]
-    parts.extend(lines[srow + 1 : erow])
+    parts.extend(lines[srow + 1:erow])
     if erow < len(lines):
         # It'll sometimes give (end_row_past_finish, 0)
         parts.append(lines[erow][:ecol])
-    return "".join(parts)
-
+    return ''.join(parts)
 
 _fill_command_usage = """\
 %prog [OPTIONS] TEMPLATE arg=value
@@ -1370,35 +1234,30 @@ def fill_command(args=None):
     import optparse
     import pkg_resources
     import os
-
     if args is None:
         args = sys.argv[1:]
-    dist = pkg_resources.get_distribution("Paste")
+    dist = pkg_resources.get_distribution('Paste')
     parser = optparse.OptionParser(
-        version=coerce_text(dist), usage=_fill_command_usage
-    )
+        version=coerce_text(dist),
+        usage=_fill_command_usage)
     parser.add_option(
-        "-o",
-        "--output",
-        dest="output",
+        '-o', '--output',
+        dest='output',
         metavar="FILENAME",
-        help="File to write output to (default stdout)",
-    )
+        help="File to write output to (default stdout)")
     parser.add_option(
-        "--html",
-        dest="use_html",
-        action="store_true",
-        help="Use HTML style filling (including automatic HTML quoting)",
-    )
+        '--html',
+        dest='use_html',
+        action='store_true',
+        help="Use HTML style filling (including automatic HTML quoting)")
     parser.add_option(
-        "--env",
-        dest="use_env",
-        action="store_true",
-        help="Put the environment in as top-level variables",
-    )
+        '--env',
+        dest='use_env',
+        action='store_true',
+        help="Put the environment in as top-level variables")
     options, args = parser.parse_args(args)
     if len(args) < 1:
-        print("You must give a template filename")
+        print('You must give a template filename')
         sys.exit(2)
     template_name = args[0]
     args = args[1:]
@@ -1406,19 +1265,19 @@ def fill_command(args=None):
     if options.use_env:
         vars.update(os.environ)
     for value in args:
-        if "=" not in value:
-            print("Bad argument: %r" % value)
+        if '=' not in value:
+            print('Bad argument: %r' % value)
             sys.exit(2)
-        name, value = value.split("=", 1)
-        if name.startswith("py:"):
+        name, value = value.split('=', 1)
+        if name.startswith('py:'):
             name = name[:3]
             value = eval(value)
         vars[name] = value
-    if template_name == "-":
+    if template_name == '-':
         template_content = sys.stdin.read()
-        template_name = "<stdin>"
+        template_name = '<stdin>'
     else:
-        f = open(template_name, "rb", encoding="latin-1")
+        f = open(template_name, 'rb', encoding="latin-1")
         template_content = f.read()
         f.close()
     if options.use_html:
@@ -1428,12 +1287,11 @@ def fill_command(args=None):
     template = TemplateClass(template_content, name=template_name)
     result = template.substitute(vars)
     if options.output:
-        f = open(options.output, "wb")
+        f = open(options.output, 'wb')
         f.write(result)
         f.close()
     else:
         sys.stdout.write(result)
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     fill_command()

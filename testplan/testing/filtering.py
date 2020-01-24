@@ -141,9 +141,9 @@ class MetaFilter(BaseFilter):
         return self._composed_filter
 
     def filter(self, test, suite, case):
-        return self.composed_filter(
-            test, suite, case
-        )  # pylint: disable=not-callable
+        # pylint: disable=not-callable
+        return self.composed_filter(test, suite, case)
+        # pylint: enable=not-callable
 
 
 class Or(MetaFilter):

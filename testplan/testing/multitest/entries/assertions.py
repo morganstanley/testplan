@@ -135,9 +135,9 @@ class FuncAssertion(Assertion):
         )
 
     def evaluate(self):
-        return self.func(
-            self.first, self.second
-        )  # pylint: disable=not-callable
+        # pylint: disable=not-callable
+        return self.func(self.first, self.second)
+        # pylint: enable=not-callable
 
 
 class Equal(FuncAssertion):
