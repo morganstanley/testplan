@@ -10,6 +10,7 @@ install:
   - python install-testplan-ui --verbose --dev
 
 script:
+  - ./scripts/utils/crlf_check.sh
   - pylint --rcfile pylintrc testplan
   - pytest tests --verbose
 
