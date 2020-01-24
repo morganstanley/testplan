@@ -27,57 +27,70 @@ class DBQueries(object):
         """
         # Create a table called 'users'.
         with env.db.commit_at_exit():
-            env.db.execute('''DROP TABLE IF EXISTS users''')
+            env.db.execute("""DROP TABLE IF EXISTS users""")
             env.db.execute(
-                '''CREATE TABLE users(id INTEGER PRIMARY KEY, name TEXT,
-                           phone TEXT, email TEXT unique, password TEXT)''')
+                """CREATE TABLE users(id INTEGER PRIMARY KEY, name TEXT,
+                           phone TEXT, email TEXT unique, password TEXT)"""
+            )
 
         # Fill the table with data.
         with env.db.commit_at_exit():
-            items = [{'name': 'John', 'phone': '123456',
-                      'email': 'john@email', 'password': 'abc123'},
-                     {'name': 'Mary', 'phone': '234567',
-                      'email': 'mary@email', 'password': 'qwe234'}]
+            items = [
+                {
+                    "name": "John",
+                    "phone": "123456",
+                    "email": "john@email",
+                    "password": "abc123",
+                },
+                {
+                    "name": "Mary",
+                    "phone": "234567",
+                    "email": "mary@email",
+                    "password": "qwe234",
+                },
+            ]
             env.db.executemany(
-                '''INSERT INTO users(name, phone, email, password)
-                  VALUES(:name,:phone, :email, :password)''', items)
-        result.log('Database file "{}" of driver "{}" created at "{}"'.format(
-            env.db.cfg.db_name, env.db.cfg.name, env.db.db_path))
+                """INSERT INTO users(name, phone, email, password)
+                  VALUES(:name,:phone, :email, :password)""",
+                items,
+            )
+        result.log(
+            'Database file "{}" of driver "{}" created at "{}"'.format(
+                env.db.cfg.db_name, env.db.cfg.name, env.db.db_path
+            )
+        )
 
     @testcase
     def sample_match_query(self, env, result):
         """Table match example after fetching two table columns."""
-        table = env.db.fetch_table('users', columns=['name', 'email'])
-        result.table.log(table, description='Two columns.')
+        table = env.db.fetch_table("users", columns=["name", "email"])
+        result.table.log(table, description="Two columns.")
 
         expected_table = [
-            ['name', 'email'],
-            ['John', 'john@email'],
-            ['Mary', 'mary@email']
+            ["name", "email"],
+            ["John", "john@email"],
+            ["Mary", "mary@email"],
         ]
 
         # Match the table fetched against the expected.
-        result.table.match(
-            actual=table,
-            expected=expected_table
-        )
+        result.table.match(actual=table, expected=expected_table)
 
     @testcase
     def sample_column_query(self, env, result):
         """Table column content assertion after fetching the whole table."""
-        table = env.db.fetch_table('users')
-        result.table.log(table, description='Whole table.')
+        table = env.db.fetch_table("users")
+        result.table.log(table, description="Whole table.")
 
         # Checks that the column 'name' of the table contain one of the
         # expected values.
         result.table.column_contain(
-            values=['John', 'Mary'],
-            table=env.db.fetch_table('users'),
-            column='name',
+            values=["John", "Mary"],
+            table=env.db.fetch_table("users"),
+            column="name",
         )
 
     def teardown(self, env):
-        env.db.execute('DROP TABLE IF EXISTS users')
+        env.db.execute("DROP TABLE IF EXISTS users")
 
 
 # Hard-coding `pdf_path`, 'stdout_style' and 'pdf_style' so that the
@@ -85,10 +98,10 @@ class DBQueries(object):
 # NOTE: this programmatic arguments passing approach will cause Testplan
 # to ignore any command line arguments related to that functionality.
 @test_plan(
-    name='Sqlite3Example',
+    name="Sqlite3Example",
     stdout_style=OUTPUT_STYLE,
     pdf_style=OUTPUT_STYLE,
-    pdf_path='report.pdf'
+    pdf_path="report.pdf",
 )
 def main(plan):
     """
@@ -97,12 +110,14 @@ def main(plan):
     :return: Testplan result object.
     :rtype:  ``testplan.base.TestplanResult``
     """
-    plan.add(MultiTest(name='Sqlite3Test',
-                       suites=[DBQueries()],
-                       environment=[
-                           Sqlite3(name='db',
-                                   db_name='mydb')]))
+    plan.add(
+        MultiTest(
+            name="Sqlite3Test",
+            suites=[DBQueries()],
+            environment=[Sqlite3(name="db", db_name="mydb")],
+        )
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

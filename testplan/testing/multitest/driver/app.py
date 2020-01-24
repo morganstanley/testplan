@@ -31,14 +31,14 @@ class AppConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            'binary': basestring,
-            ConfigOption('pre_args', default=None): Or(None, list),
-            ConfigOption('args', default=None): Or(None, list),
-            ConfigOption('shell', default=False): bool,
-            ConfigOption('env', default=None): Or(None, dict),
-            ConfigOption('binary_copy', default=False): bool,
-            ConfigOption('app_dir_name', default=None): Or(None, str),
-            ConfigOption('working_dir', default=None): Or(None, str),
+            "binary": basestring,
+            ConfigOption("pre_args", default=None): Or(None, list),
+            ConfigOption("args", default=None): Or(None, list),
+            ConfigOption("shell", default=False): bool,
+            ConfigOption("env", default=None): Or(None, dict),
+            ConfigOption("binary_copy", default=False): bool,
+            ConfigOption("app_dir_name", default=None): Or(None, str),
+            ConfigOption("working_dir", default=None): Or(None, str),
         }
 
 
@@ -75,7 +75,8 @@ class App(Driver):
 
     CONFIG = AppConfig
 
-    def __init__(self,
+    def __init__(
+        self,
         name,
         binary,
         pre_args=None,
@@ -129,17 +130,20 @@ class App(Driver):
         cmd.extend(pre_args)
         cmd.append(self.binary or self.cfg.binary)
         cmd.extend(args)
-        cmd = [expand(arg, self.context, str) if is_context(arg) else arg
-               for arg in cmd]
+        cmd = [
+            expand(arg, self.context, str) if is_context(arg) else arg
+            for arg in cmd
+        ]
         return cmd
 
     @property
     def env(self):
         """Environment variables."""
         if isinstance(self.cfg.env, dict):
-            return {key: expand(val, self.context, str)
-                    if is_context(val) else val
-                    for key, val in self.cfg.env.items()}
+            return {
+                key: expand(val, self.context, str) if is_context(val) else val
+                for key, val in self.cfg.env.items()
+            }
         else:
             return self.cfg.env
 
@@ -189,8 +193,9 @@ class App(Driver):
             if self.cfg.path_cleanup is True:
                 name = os.path.basename(self.cfg.binary)
             else:
-                name = '{}-{}'.format(os.path.basename(self.cfg.binary),
-                                      uuid.uuid4())
+                name = "{}-{}".format(
+                    os.path.basename(self.cfg.binary), uuid.uuid4()
+                )
 
             target = os.path.join(self._binpath, name)
             shutil.copyfile(self.cfg.binary, target)
@@ -208,20 +213,21 @@ class App(Driver):
         """Starts the application binary."""
         super(App, self).starting()
 
-        cmd = ' '.join(self.cmd) if self.cfg.shell else self.cmd
+        cmd = " ".join(self.cmd) if self.cfg.shell else self.cmd
         cwd = self.cfg.working_dir or self.runpath
         try:
             self.logger.debug(
-                '%(driver)s driver command: %(cmd)s,\n'
-                '\trunpath: %(runpath)s\n'
-                '\tout/err files %(out)s - %(err)s',
+                "%(driver)s driver command: %(cmd)s,\n"
+                "\trunpath: %(runpath)s\n"
+                "\tout/err files %(out)s - %(err)s",
                 {
                     "driver": self.uid(),
                     "cmd": cmd,
                     "runpath": self.runpath,
                     "out": self.std.out_path,
                     "err": self.std.err_path,
-                })
+                },
+            )
             self.proc = subprocess.Popen(
                 cmd,
                 shell=self.cfg.shell,
@@ -229,12 +235,14 @@ class App(Driver):
                 stdout=self.std.out,
                 stderr=self.std.err,
                 cwd=cwd,
-                env=self.env)
+                env=self.env,
+            )
         except Exception:
             self.logger.error(
-                'Error while App[%s] driver executed command: %s',
+                "Error while App[%s] driver executed command: %s",
                 self.cfg.name,
-                cmd if self.cfg.shell else ' '.join(cmd))
+                cmd if self.cfg.shell else " ".join(cmd),
+            )
             raise
 
     def stopping(self):
@@ -243,16 +251,17 @@ class App(Driver):
         try:
             self._retcode = kill_process(self.proc)
         except Exception as exc:
-            warnings.warn('On killing driver {} process - {}'.format(
-                self.cfg.name, exc))
+            warnings.warn(
+                "On killing driver {} process - {}".format(self.cfg.name, exc)
+            )
             self._retcode = self.proc.poll() if self.proc else 0
         self.proc = None
         if self.std:
             self.std.close()
 
     def _make_dirs(self):
-        bin_dir = os.path.join(self.runpath, 'bin')
-        etc_dir = os.path.join(self.runpath, 'etc')
+        bin_dir = os.path.join(self.runpath, "bin")
+        etc_dir = os.path.join(self.runpath, "etc")
         for directory in (bin_dir, etc_dir):
             makedirs(directory)
         self._binpath = bin_dir
@@ -264,7 +273,7 @@ class App(Driver):
     def aborting(self):
         """Abort logic to force kill the child binary."""
         if self.proc:
-            self.logger.debug('Killing process id {}'.format(self.proc.pid))
+            self.logger.debug("Killing process id {}".format(self.proc.pid))
             kill_process(self.proc)
         if self.std:
             self.std.close()

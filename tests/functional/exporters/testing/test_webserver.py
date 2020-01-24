@@ -13,18 +13,16 @@ from testplan.common.utils.process import kill_process
 
 _TIMEOUT = 60
 _REQUEST_TIMEOUT = 0.1
-_URL_RE = re.compile(r'^\s*Local: (?P<url>[^\s]+)\s*$')
+_URL_RE = re.compile(r"^\s*Local: (?P<url>[^\s]+)\s*$")
 
 
 @pytest.yield_fixture(
-    scope='module',
+    scope="module",
     params=[
-        ['dummy_programmatic_test_plan.py'],
-        ['dummy_cli_arg_test_plan.py', '--ui']
+        ["dummy_programmatic_test_plan.py"],
+        ["dummy_cli_arg_test_plan.py", "--ui"],
     ],
-    ids=['webserver_exporter_programmatic',
-         'webserver_exporter_cli_arg'
-    ]
+    ids=["webserver_exporter_programmatic", "webserver_exporter_cli_arg"],
 )
 def dummy_testplan(request):
     """
@@ -38,8 +36,9 @@ def dummy_testplan(request):
     # Set up a thread to read from the process' stdout and write to a queue.
     # This prevents the main thread from blocking when there is no output.
     stdout_queue = queue.Queue()
-    thr = threading.Thread(target=_enqueue_output,
-                           args=(testplan_proc.stdout, stdout_queue))
+    thr = threading.Thread(
+        target=_enqueue_output, args=(testplan_proc.stdout, stdout_queue)
+    )
     thr.daemon = True
     thr.start()
 
@@ -50,13 +49,13 @@ def dummy_testplan(request):
     assert testplan_proc.poll() is not None
 
     thr.join(timeout=_TIMEOUT)
-    assert(not thr.is_alive())
+    assert not thr.is_alive()
 
 
 def _enqueue_output(out, queue):
     """Enqueues lines from an output stream."""
-    for line in iter(out.readline, b''):
-        queue.put(line.decode('utf-8'))
+    for line in iter(out.readline, b""):
+        queue.put(line.decode("utf-8"))
     out.close()
 
 
@@ -74,20 +73,20 @@ def test_webserver_exporter(dummy_testplan):
     url = None
     timeout = time.time() + _TIMEOUT
 
-    while (url is None) and (
-            proc.poll() is None) and (
-            (time.time() < timeout)):
+    while (
+        (url is None) and (proc.poll() is None) and ((time.time() < timeout))
+    ):
         try:
             stdout_line = stdout_queue.get_nowait()
         except queue.Empty:
             time.sleep(0.1)
             continue
-        print(stdout_line.rstrip('\n'))
+        print(stdout_line.rstrip("\n"))
         match = _URL_RE.match(stdout_line)
         if match:
-            url = match.group('url')
+            url = match.group("url")
 
-    assert url is not None, 'Failed to parse the webserver URL'
+    assert url is not None, "Failed to parse the webserver URL"
 
     # Now that we have the URL, try to make a GET request to it. This might
     # not immediately succeed so try a few times allowing for connection
@@ -98,8 +97,10 @@ def test_webserver_exporter(dummy_testplan):
     while time.time() < timeout:
         try:
             response = requests.get(url, timeout=_REQUEST_TIMEOUT)
-        except (requests.exceptions.ConnectionError,
-                requests.exceptions.ReadTimeout):
+        except (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.ReadTimeout,
+        ):
             time.sleep(_REQUEST_TIMEOUT)
         else:
             status_code = response.status_code
@@ -107,6 +108,6 @@ def test_webserver_exporter(dummy_testplan):
 
     # Flush the stdout queue and print any remaining lines for debug.
     while not stdout_queue.empty():
-        print(stdout_queue.get_nowait().rstrip('\n'))
+        print(stdout_queue.get_nowait().rstrip("\n"))
 
     assert status_code == 200

@@ -16,51 +16,48 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 @testsuite
 class AlphaSuite(object):
-
     @testcase
     def test_equality_passing(self, env, result):
-        result.equal(1, 1, description='passing equality')
+        result.equal(1, 1, description="passing equality")
 
     @testcase
     def test_equality_failing(self, env, result):
-        result.equal(2, 1, description='failing equality')
+        result.equal(2, 1, description="failing equality")
 
     @testcase
     def test_membership_passing(self, env, result):
-        result.contain(1, [1, 2, 3], description='passing membership')
+        result.contain(1, [1, 2, 3], description="passing membership")
 
     @testcase
     def test_membership_failing(self, env, result):
         result.contain(
             member=1,
-            container={'foo': 1, 'bar': 2},
-            description='failing membership')
+            container={"foo": 1, "bar": 2},
+            description="failing membership",
+        )
 
     @testcase
     def test_regex_passing(self, env, result):
         result.regex.match(
-            regexp='foo',
-            value='foobar',
-            description='passing regex match')
+            regexp="foo", value="foobar", description="passing regex match"
+        )
 
     @testcase
     def test_regex_failing(self, env, result):
         result.regex.match(
-            regexp='bar',
-            value='foobaz',
-            description='failing regex match')
+            regexp="bar", value="foobaz", description="failing regex match"
+        )
 
 
 @testsuite
 class BetaSuite(object):
-
     @testcase
     def passing_testcase_one(self, env, result):
-        result.equal(1, 1, description='passing equality')
+        result.equal(1, 1, description="passing equality")
 
     @testcase
     def passing_testcase_two(self, env, result):
-        result.equal('foo', 'foo', description='another passing equality')
+        result.equal("foo", "foo", description="another passing equality")
 
 
 # To implement a basic test report exporter, just inherit from the base
@@ -70,7 +67,6 @@ class BetaSuite(object):
 # Custom base class that will be used by the examples below
 # Dumps the text content to the given file path.
 class TextFileExporter(Exporter):
-
     def __init__(self, file_path):
         self.file_path = file_path
 
@@ -78,17 +74,18 @@ class TextFileExporter(Exporter):
         raise NotImplementedError
 
     def export(self, source):
-        with open(self.file_path, 'w+') as report_file:
+        with open(self.file_path, "w+") as report_file:
             report_file.write(self.get_text_content(source))
             TESTPLAN_LOGGER.exporter_info(
-                '%s output generated at %s',
+                "%s output generated at %s",
                 self.__class__.__name__,
-                self.file_path
+                self.file_path,
             )
 
 
 class ReprExporter(TextFileExporter):
     """Dumps the native representation of the test report to a text file."""
+
     def get_text_content(self, source):
         return repr(source)
 
@@ -110,11 +107,13 @@ class IndentedTextExporter(TextFileExporter):
             if isinstance(item, dict):
                 continue
 
-            result.append('{indent}{item} - {pass_label}'.format(
-                indent=depth * ' ',
-                item=item,
-                pass_label='Pass' if item.passed else 'Fail'
-            ))
+            result.append(
+                "{indent}{item} - {pass_label}".format(
+                    indent=depth * " ",
+                    item=item,
+                    pass_label="Pass" if item.passed else "Fail",
+                )
+            )
         return os.linesep.join(result)
 
 
@@ -124,20 +123,21 @@ curr_dir = os.path.dirname(__file__)
 # To programmatically enable exporters, just pass them as a list of items
 # to `exporters` argument for the `@test_plan` decorator.
 @test_plan(
-    name='Custom exporter example',
+    name="Custom exporter example",
     exporters=[
-        ReprExporter(file_path=os.path.join(curr_dir, 'repr_report.txt')),
+        ReprExporter(file_path=os.path.join(curr_dir, "repr_report.txt")),
         IndentedTextExporter(
-            file_path=os.path.join(curr_dir, 'indented_report.txt'))
-    ]
+            file_path=os.path.join(curr_dir, "indented_report.txt")
+        ),
+    ],
 )
 def main(plan):
 
-    multi_test_1 = MultiTest(name='Primary', suites=[AlphaSuite()])
-    multi_test_2 = MultiTest(name='Secondary', suites=[BetaSuite()])
+    multi_test_1 = MultiTest(name="Primary", suites=[AlphaSuite()])
+    multi_test_2 = MultiTest(name="Secondary", suites=[BetaSuite()])
     plan.add(multi_test_1)
     plan.add(multi_test_2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

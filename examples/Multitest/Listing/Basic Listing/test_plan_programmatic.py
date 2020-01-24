@@ -13,44 +13,41 @@ from testplan.testing import listing, filtering
 
 @testsuite
 class Alpha(object):
-
     @testcase
     def test_a(self, env, result):
         pass
 
-    @testcase(tags='server')
+    @testcase(tags="server")
     def test_b(self, env, result):
         pass
 
-    @testcase(tags={'color': 'blue'})
+    @testcase(tags={"color": "blue"})
     def test_c(self, env, result):
         pass
 
 
-@testsuite(tags='server')
+@testsuite(tags="server")
 class Beta(object):
-
-    @testcase(tags='client')
+    @testcase(tags="client")
     def test_a(self, env, result):
         pass
 
-    @testcase(tags={'color': 'red'})
+    @testcase(tags={"color": "red"})
     def test_b(self, env, result):
         pass
 
-    @testcase(tags={'color': ('blue', 'yellow')})
+    @testcase(tags={"color": ("blue", "yellow")})
     def test_c(self, env, result):
         pass
 
 
-@testsuite(tags='client')
+@testsuite(tags="client")
 class Gamma(object):
-
     @testcase
     def test_a(self, env, result):
         pass
 
-    @testcase(tags={'color': ('yellow', 'red')})
+    @testcase(tags={"color": ("yellow", "red")})
     def test_b(self, env, result):
         pass
 
@@ -116,36 +113,33 @@ count_lister = listing.CountLister()
 # the test plan declaration below and see how they change the
 # test listing output.
 
-pattern_filter_1 = filtering.Pattern('Primary')
-pattern_filter_2 = filtering.Pattern('*:*:test_c')
+pattern_filter_1 = filtering.Pattern("Primary")
+pattern_filter_2 = filtering.Pattern("*:*:test_c")
 
-tag_filter_1 = filtering.Tags('client')
-tag_filter_2 = filtering.Tags({'color': 'blue'})
+tag_filter_1 = filtering.Tags("client")
+tag_filter_2 = filtering.Tags({"color": "blue"})
 
 composite_filter_1 = pattern_filter_1 | pattern_filter_2
 composite_filter_2 = (pattern_filter_1 & tag_filter_1) | tag_filter_2
 
 
 @test_plan(
-    name='Programmatic Listing Example',
+    name="Programmatic Listing Example",
     # You can replace this argument with the other listers defined above
     # to see different output formats.
     # test_lister=test_lister,
     test_lister=name_lister,
-
     # Comment out the arguments below to see how they affect the listing output.
     # test_filter=pattern_filter_1,
     # test_sorter=ordering.ShuffleSorter()
 )
 def main(plan):
 
-    multi_test_1 = MultiTest(name='Primary',
-                             suites=[Alpha(), Beta()])
-    multi_test_2 = MultiTest(name='Secondary',
-                             suites=[Gamma()])
+    multi_test_1 = MultiTest(name="Primary", suites=[Alpha(), Beta()])
+    multi_test_2 = MultiTest(name="Secondary", suites=[Gamma()])
     plan.add(multi_test_1)
     plan.add(multi_test_2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

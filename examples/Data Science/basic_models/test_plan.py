@@ -22,7 +22,8 @@ from sklearn.cluster import KMeans
 from sklearn import datasets, linear_model, svm
 
 import matplotlib
-matplotlib.use('agg')
+
+matplotlib.use("agg")
 import matplotlib.pyplot as plot
 import numpy as np
 
@@ -36,16 +37,16 @@ def create_scatter_plot(title, x, y, x_label, y_label, c=None):
     plot.ylabel(y_label)
     plot.title(title)
 
+
 def create_image_plot(title, img_data, rows, columns, index):
     plot.subplot(rows, columns, index)
-    plot.axis('off')
-    plot.imshow(img_data, cmap=plot.cm.gray_r, interpolation='nearest')
+    plot.axis("off")
+    plot.imshow(img_data, cmap=plot.cm.gray_r, interpolation="nearest")
     plot.title(title)
 
 
 @testsuite
 class ModelExamplesSuite(object):
-
     @testcase
     def basic_linear_regression(self, env, result):
         """
@@ -63,7 +64,9 @@ class ModelExamplesSuite(object):
         diabetes = datasets.load_diabetes()
         X = diabetes.data[:, np.newaxis, 2]
         y = diabetes.target
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2
+        )
 
         # Train the linear regression model and make predictions.
         regr = linear_model.LinearRegression()
@@ -73,14 +76,20 @@ class ModelExamplesSuite(object):
         # Log the statistics to the report.
         mse = mean_squared_error(y_test, diabetes_y_pred)
         r2 = r2_score(y_test, diabetes_y_pred)
-        result.log('Coefficients: {}'.format(regr.coef_))
+        result.log("Coefficients: {}".format(regr.coef_))
         result.log("Mean squared error: {0:.2f}".format(mse))
-        result.log('Variance: {0:.2f}'.format(r2))
+        result.log("Variance: {0:.2f}".format(r2))
 
         # Plot the predictions and display this plot on the report.
-        create_scatter_plot('Basic Linear Regression Example', X_test, y_test,
-                            'BMI (kg/m^2)', 'Likelihood of diabetes', 'black')
-        plot.plot(X_test, diabetes_y_pred, color='blue', linewidth=3)
+        create_scatter_plot(
+            "Basic Linear Regression Example",
+            X_test,
+            y_test,
+            "BMI (kg/m^2)",
+            "Likelihood of diabetes",
+            "black",
+        )
+        plot.plot(X_test, diabetes_y_pred, color="blue", linewidth=3)
         result.matplot(plot, PLOT_SIZE, PLOT_SIZE)
 
     @testcase
@@ -101,8 +110,9 @@ class ModelExamplesSuite(object):
         digits = datasets.load_digits()
         n_samples = len(digits.images)
         data = digits.images.reshape((n_samples, -1))
-        X_train, X_test, y_train, y_test = train_test_split(data, digits.target,
-                                                            test_size=0.2)
+        X_train, X_test, y_train, y_test = train_test_split(
+            data, digits.target, test_size=0.2
+        )
 
         # Train the classifier and make predictions.
         classifier = svm.SVC(gamma=0.001)
@@ -114,11 +124,11 @@ class ModelExamplesSuite(object):
         # test set with their predictions and actual values.
         result.log(classification_report(y_test, predicted))
         for i, sample in enumerate(random.sample(range(0, len(y_test)), 3)):
-            t = "Prediction: {}\nActual: {}".format(predicted[sample],
-                                                    y_test[sample])
+            t = "Prediction: {}\nActual: {}".format(
+                predicted[sample], y_test[sample]
+            )
             create_image_plot(t, X_test[sample].reshape((8, 8)), 1, 3, i + 1)
         result.matplot(plot, PLOT_SIZE, PLOT_SIZE)
-
 
     @testcase
     def basic_k_means_cluster(self, env, result):
@@ -131,25 +141,32 @@ class ModelExamplesSuite(object):
         # Create random data blobs and train a K-Means cluster to group this
         # data into 3 clusters.
         n_clusters = 3
-        random_state=100
+        random_state = 100
         X, y = datasets.make_blobs(n_samples=1500, random_state=random_state)
         clusterer = KMeans(n_clusters=n_clusters, random_state=random_state)
         y_pred = clusterer.fit_predict(X)
 
         # Log the number of clusters and plot the clustered data.
-        result.log('Number of clusters: {}'.format(n_clusters))
-        create_scatter_plot('Basic K-Means Cluster Example', X[:, 0], X[:, 1],
-                            'Feature 1', 'Feature 2', c=y_pred)
+        result.log("Number of clusters: {}".format(n_clusters))
+        create_scatter_plot(
+            "Basic K-Means Cluster Example",
+            X[:, 0],
+            X[:, 1],
+            "Feature 1",
+            "Feature 2",
+            c=y_pred,
+        )
         result.matplot(plot, PLOT_SIZE, PLOT_SIZE)
+
 
 # Hard-coding `pdf_path` and 'pdf_style' so that the downloadable example gives
 # meaningful and presentable output. NOTE: this programmatic arguments passing
 # approach will cause Testplan to ignore any command line arguments related to
 # that functionality.
 @test_plan(
-    name='Basic Data Modelling Example',
-    pdf_path=os.path.join(os.path.dirname(__file__), 'report.pdf'),
-    pdf_style=Style(passing='assertion-detail', failing='assertion-detail')
+    name="Basic Data Modelling Example",
+    pdf_path=os.path.join(os.path.dirname(__file__), "report.pdf"),
+    pdf_style=Style(passing="assertion-detail", failing="assertion-detail"),
 )
 def main(plan):
     """
@@ -158,10 +175,11 @@ def main(plan):
     :return: Testplan result object.
     :rtype:  :py:class:`~testplan.base.TestplanResult`
     """
-    model_examples = MultiTest(name='Model Examples',
-                               suites=[ModelExamplesSuite()])
+    model_examples = MultiTest(
+        name="Model Examples", suites=[ModelExamplesSuite()]
+    )
     plan.add(model_examples)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

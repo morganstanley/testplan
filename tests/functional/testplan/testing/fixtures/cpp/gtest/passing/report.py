@@ -1,45 +1,45 @@
 from testplan.report import TestReport, TestGroupReport, TestCaseReport
 
 expected_report = TestReport(
-    name='plan',
+    name="plan",
     entries=[
         TestGroupReport(
-            name='MyGTest',
-            category='gtest',
+            name="MyGTest",
+            category="gtest",
             entries=[
                 TestGroupReport(
-                    name='SquareRootTest',
-                    category='testsuite',
+                    name="SquareRootTest",
+                    category="testsuite",
                     entries=[
                         TestCaseReport(
-                            name='PositiveNos',
-                            status_override = 'passed',
-                            entries=[]
-                        ),
-                        TestCaseReport(
-                            name='NegativeNos',
-                            status_override = 'passed',
+                            name="PositiveNos",
+                            status_override="passed",
                             entries=[],
                         ),
-                    ]
+                        TestCaseReport(
+                            name="NegativeNos",
+                            status_override="passed",
+                            entries=[],
+                        ),
+                    ],
                 ),
                 TestGroupReport(
-                    name='SquareRootTestNonFatal',
-                    category='testsuite',
+                    name="SquareRootTestNonFatal",
+                    category="testsuite",
                     entries=[
                         TestCaseReport(
-                            name='PositiveNos',
-                            status_override = 'passed',
-                            entries=[]
+                            name="PositiveNos",
+                            status_override="passed",
+                            entries=[],
                         ),
                         TestCaseReport(
-                            name='NegativeNos',
-                            status_override = 'passed',
-                            entries=[]
+                            name="NegativeNos",
+                            status_override="passed",
+                            entries=[],
                         ),
-                    ]
+                    ],
                 ),
-            ]
-        ),
-    ]
+            ],
+        )
+    ],
 )

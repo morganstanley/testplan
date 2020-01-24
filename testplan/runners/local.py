@@ -17,9 +17,10 @@ class LocalRunner(Executor):
     :py:class:`ExecutorConfig <testplan.runners.base.ExecutorConfig>`
     options.
     """
+
     def __init__(self, **options):
         super(LocalRunner, self).__init__(**options)
-        self._uid = 'local_runner'
+        self._uid = "local_runner"
 
     def _execute(self, uid):
         """Execute item implementation."""
@@ -37,8 +38,9 @@ class LocalRunner(Executor):
         elif isinstance(target, entity.Runnable):
             runnable = target
         else:
-            raise TypeError('Cannot execute target of type {}'
-                            .format(type(target)))
+            raise TypeError(
+                "Cannot execute target of type {}".format(type(target))
+            )
 
         result = runnable.run()
         self._results[uid] = result
@@ -59,13 +61,14 @@ class LocalRunner(Executor):
                     except Exception as exc:
                         result = TestResult()
                         result.report = TestGroupReport(
-                            name=next_uid,
-                            category=ReportCategories.ERROR,
+                            name=next_uid, category=ReportCategories.ERROR
                         )
                         result.report.status_override = Status.ERROR
                         result.report.logger.exception(
-                            'Exception for {} on {} execution: {}'.format(
-                                next_uid, self, exc))
+                            "Exception for {} on {} execution: {}".format(
+                                next_uid, self, exc
+                            )
+                        )
                         self._results[next_uid] = result
                     finally:
                         self.ongoing.pop(0)
@@ -77,7 +80,7 @@ class LocalRunner(Executor):
 
     def aborting(self):
         """Aborting logic."""
-        self.logger.critical('Discard pending tasks of {}.'.format(self))
+        self.logger.critical("Discard pending tasks of {}.".format(self))
         # Will announce that all the ongoing tasks fail, but there is a buffer
         # period and some tasks might be finished, so, copy the uids of ongoing
         # tasks and set test result, although the report could be overwritten.
@@ -86,12 +89,10 @@ class LocalRunner(Executor):
             uid = ongoing.pop(0)
             result = TestResult()
             result.report = TestGroupReport(
-                name=uid,
-                category=ReportCategories.ERROR,
+                name=uid, category=ReportCategories.ERROR
             )
             result.report.status_override = Status.ERROR
             result.report.logger.critical(
-                'Test [{}] discarding due to {} abort.'.format(
-                    uid, self.uid()))
+                "Test [{}] discarding due to {} abort.".format(uid, self.uid())
+            )
             self._results[uid] = result
-

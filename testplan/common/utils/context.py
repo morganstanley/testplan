@@ -41,7 +41,8 @@ def expand_env(orig, overrides, contextobj):
     env = orig.copy()
     env.update(overrides)
     return {
-        key: expand(val, contextobj, str) for key, val in env.items()
+        key: expand(val, contextobj, str)
+        for key, val in env.items()
         if val is not None
     }
 
@@ -63,11 +64,14 @@ class ContextValue(object):
         Resolve the template.
         """
         if ctx is None:
-            raise ValueError('Could not retrieve driver {0} value from '
-                             'NoneType context.'.format(self.driver))
+            raise ValueError(
+                "Could not retrieve driver {0} value from "
+                "NoneType context.".format(self.driver)
+            )
         if self.driver not in ctx:
-            raise Exception('Driver {0} is not present in context.'.format(
-                self.driver))
+            raise Exception(
+                "Driver {0} is not present in context.".format(self.driver)
+            )
         return self.value.substitute(ctx[self.driver].context_input())
 
 

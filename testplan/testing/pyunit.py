@@ -16,9 +16,7 @@ class PyUnitConfig(testing.TestConfig):
 
     @classmethod
     def get_options(cls):
-        return {
-            'suite': unittest.suite.TestSuite
-        }
+        return {"suite": unittest.suite.TestSuite}
 
 
 class PyUnit(testing.Test):
@@ -38,17 +36,12 @@ class PyUnit(testing.Test):
 
     CONFIG = PyUnitConfig
 
-    def __init__(self,
-        name,
-        suite,
-        description=None,
-        **options
-    ):
+    def __init__(self, name, suite, description=None, **options):
         options.update(self.filter_locals(locals()))
         super(PyUnit, self).__init__(**options)
         self._suite_report = report_testing.TestGroupReport(
-            name=self.cfg.name,
-            category='testsuite')
+            name=self.cfg.name, category="testsuite"
+        )
 
     def main_batch_steps(self):
         """Specify the test steps: run the tests, then log the results."""
@@ -63,21 +56,21 @@ class PyUnit(testing.Test):
         for call, error in suite_result.errors:
             testcase_report = report_testing.TestCaseReport(name=str(call))
             assertion_obj = assertions.RawAssertion(
-                description=str(call),
-                content=str(error).strip(),
-                passed=False)
+                description=str(call), content=str(error).strip(), passed=False
+            )
             testcase_report.append(
-                schemas.base.registry.serialize(assertion_obj))
+                schemas.base.registry.serialize(assertion_obj)
+            )
             self.result.report.entries.append(testcase_report)
 
         for call, error in suite_result.failures:
             testcase_report = report_testing.TestCaseReport(name=str(call))
             assertion_obj = assertions.RawAssertion(
-                description=str(call),
-                content=str(error).strip(),
-                passed=False)
+                description=str(call), content=str(error).strip(), passed=False
+            )
             testcase_report.append(
-                schemas.base.registry.serialize(assertion_obj))
+                schemas.base.registry.serialize(assertion_obj)
+            )
             self.result.report.entries.append(testcase_report)
 
     def get_test_context(self):

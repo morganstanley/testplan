@@ -15,25 +15,22 @@ from testplan.report.testing.styles import Style
 
 from testplan import test_plan
 
-BINARY_PATH = os.path.join(os.path.dirname(__file__), 'test', 'runTests')
+BINARY_PATH = os.path.join(os.path.dirname(__file__), "test", "runTests")
 
 
 @test_plan(
-    name='GTest Example',
-    stdout_style=Style(
-        passing='testcase',
-        failing='assertion-detail'
-    )
+    name="GTest Example",
+    stdout_style=Style(passing="testcase", failing="assertion-detail"),
 )
 def main(plan):
 
     if not os.path.exists(BINARY_PATH):
-        raise RuntimeError('You need to compile test binary first.')
+        raise RuntimeError("You need to compile test binary first.")
 
     else:
         plan.add(
             GTest(
-                name='My GTest',
+                name="My GTest",
                 driver=BINARY_PATH,
                 # You can apply GTest specific filtering via `gtest_filter` arg
                 # gtest_filter='SquareRootTest.*',
@@ -43,5 +40,5 @@ def main(plan):
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

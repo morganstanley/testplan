@@ -18,7 +18,6 @@ from testplan.report.testing.styles import Style
 # A suite with no tags, will be filtered out if we apply any tag based filters
 @testsuite
 class Alpha(object):
-
     @testcase
     def test_1(self, env, result):
         pass
@@ -34,35 +33,34 @@ class Beta(object):
 
     # A testcase tagged with a simple tag: `server`
     # This is a shortcut notation for {'simple': 'server'}
-    @testcase(tags='server')
+    @testcase(tags="server")
     def test_1(self, env, result):
         pass
 
     # A testcase tagged with a named (`color`) tag: `blue`
-    @testcase(tags={'color': 'blue'})
+    @testcase(tags={"color": "blue"})
     def test_2(self, env, result):
         pass
 
     # A testcase tagged with both simple and named tag
-    @testcase(tags={'simple': 'server', 'color': 'blue'})
+    @testcase(tags={"simple": "server", "color": "blue"})
     def test_3(self, env, result):
         pass
 
 
 # A suite with class level tags, these class level tags
 #  will be propagated to each test case as well.
-@testsuite(tags=('server', 'client'))
+@testsuite(tags=("server", "client"))
 class Gamma(object):
-
-    @testcase(tags={'color': 'red'})
+    @testcase(tags={"color": "red"})
     def test_1(self, env, result):
         pass
 
-    @testcase(tags={'color': ('blue', 'red')})
+    @testcase(tags={"color": ("blue", "red")})
     def test_2(self, env, result):
         pass
 
-    @testcase(tags={'color': 'yellow'})
+    @testcase(tags={"color": "yellow"})
     def test_3(self, env, result):
         pass
 
@@ -122,22 +120,20 @@ class Gamma(object):
 
 
 @test_plan(
-    name='Tagging & Filtering (Command line)',
+    name="Tagging & Filtering (Command line)",
     # Using testcase level stdout so we can see filtered testcases
-    stdout_style=Style('testcase', 'testcase')
+    stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
 
     multi_test_1 = MultiTest(
-        name='Primary',
-        suites=[Alpha(), Beta()],
-        tags={'color': 'white'}
+        name="Primary", suites=[Alpha(), Beta()], tags={"color": "white"}
     )
 
-    multi_test_2 = MultiTest(name='Secondary', suites=[Gamma()])
+    multi_test_2 = MultiTest(name="Secondary", suites=[Gamma()])
     plan.add(multi_test_1)
     plan.add(multi_test_2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

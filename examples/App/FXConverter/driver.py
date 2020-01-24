@@ -23,4 +23,4 @@ class FXConverter(App):
         so that client driver can connect to it.
         """
         super(FXConverter, self).started_check(timeout=timeout)
-        self.host, self.port = re.split(':', self.extracts['listen_address'])
+        self.host, self.port = re.split(":", self.extracts["listen_address"])

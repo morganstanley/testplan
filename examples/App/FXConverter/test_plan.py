@@ -46,7 +46,7 @@ def before_stop(env, result):
     Called right before MultiTest stops.
     """
     # Clients sends stop command to the converted app.
-    env.client.send(bytes('Stop'.encode('utf-8')))
+    env.client.send(bytes("Stop".encode("utf-8")))
 
 
 def converter_environment():
@@ -54,7 +54,7 @@ def converter_environment():
     MultiTest environment that will be made available within the testcases.
     """
     # Server that will respond with FX exchange rates.
-    server = TCPServer(name='server')
+    server = TCPServer(name="server")
 
     # Converter application that accepts configuration template that
     # after install process it will contain the host/port information of
@@ -62,26 +62,32 @@ def converter_environment():
     # It also reads from the output file the address that the converter
     # listens for incoming connections and makes host/port info available
     # through its context so that the client can connect as well.
-    converter_name = 'converter'
-    config = 'converter.cfg'
-    regexps = [re.compile(r'Converter started.'),
-               re.compile(r'.*Listener on: (?P<listen_address>.*)')]
-    converter = FXConverter(name=converter_name,
-                            pre_args=[sys.executable],
-                            binary=os.path.join(
-                                os.path.dirname(os.path.abspath(__file__)),
-                                'converter.py'),
-                            args=[config],
-                            install_files=[os.path.join(
-                                os.path.dirname(os.path.abspath(__file__)),
-                                config)],
-                            log_regexps=regexps)
+    converter_name = "converter"
+    config = "converter.cfg"
+    regexps = [
+        re.compile(r"Converter started."),
+        re.compile(r".*Listener on: (?P<listen_address>.*)"),
+    ]
+    converter = FXConverter(
+        name=converter_name,
+        pre_args=[sys.executable],
+        binary=os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "converter.py"
+        ),
+        args=[config],
+        install_files=[
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), config)
+        ],
+        log_regexps=regexps,
+    )
 
     # Client that connects to the converted application using host/port
     # information that FXConverter driver made available through its context.
-    client = TCPClient(name='client',
-                       host=context(converter_name, '{{host}}'),
-                       port=context(converter_name, '{{port}}'))
+    client = TCPClient(
+        name="client",
+        host=context(converter_name, "{{host}}"),
+        port=context(converter_name, "{{port}}"),
+    )
 
     return [server, converter, client]
 
@@ -90,10 +96,12 @@ def converter_environment():
 # downloadable example gives meaningful and presentable output.
 # NOTE: this programmatic arguments passing approach will cause Testplan
 # to ignore any command line arguments related to that functionality.
-@test_plan(name='FXConverter',
-           pdf_path='report.pdf',
-           stdout_style=OUTPUT_STYLE,
-           pdf_style=OUTPUT_STYLE)
+@test_plan(
+    name="FXConverter",
+    pdf_path="report.pdf",
+    stdout_style=OUTPUT_STYLE,
+    pdf_style=OUTPUT_STYLE,
+)
 def main(plan):
     """
     Testplan decorated main function to add and execute MultiTests.
@@ -101,15 +109,17 @@ def main(plan):
     :return: Testplan result object.
     :rtype:  ``testplan.base.TestplanResult``
     """
-    test = MultiTest(name='TestFXConverter',
-                     suites=[ConversionTests(), EdgeCases(), RestartEvent()],
-                     environment=converter_environment(),
-                     after_start=after_start,
-                     before_stop=before_stop)
+    test = MultiTest(
+        name="TestFXConverter",
+        suites=[ConversionTests(), EdgeCases(), RestartEvent()],
+        environment=converter_environment(),
+        after_start=after_start,
+        before_stop=before_stop,
+    )
     plan.add(test)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     res = main()
-    print('Exiting code: {}'.format(res.exit_code))
+    print("Exiting code: {}".format(res.exit_code))
     sys.exit(res.exit_code)

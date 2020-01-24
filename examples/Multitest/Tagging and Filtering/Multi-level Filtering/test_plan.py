@@ -14,7 +14,6 @@ from testplan.testing.filtering import Pattern
 
 @testsuite
 class Alpha(object):
-
     @testcase
     def test_1(self, env, result):
         pass
@@ -26,7 +25,6 @@ class Alpha(object):
 
 @testsuite
 class Beta(object):
-
     @testcase
     def test_1(self, env, result):
         pass
@@ -42,7 +40,6 @@ class Beta(object):
 
 @testsuite
 class Gamma(object):
-
     @testcase
     def test_1(self, env, result):
         pass
@@ -63,22 +60,24 @@ class Gamma(object):
 # will run test cases with the name `test_1`. This filter will take precedence
 # over the plan level filter.
 
+
 @test_plan(
-    name='Multi-level Filtering',
-    test_filter=Pattern('*:*:test_3'),
+    name="Multi-level Filtering",
+    test_filter=Pattern("*:*:test_3"),
     # Using testcase level stdout so we can see filtered testcases
-    stdout_style=Style('testcase', 'testcase')
+    stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
 
-    multi_test_1 = MultiTest(name='Primary',
-                             suites=[Alpha(), Beta()],
-                             test_filter=Pattern('*:*:test_1'))
-    multi_test_2 = MultiTest(name='Secondary',
-                             suites=[Gamma()])
+    multi_test_1 = MultiTest(
+        name="Primary",
+        suites=[Alpha(), Beta()],
+        test_filter=Pattern("*:*:test_1"),
+    )
+    multi_test_2 = MultiTest(name="Secondary", suites=[Gamma()])
     plan.add(multi_test_1)
     plan.add(multi_test_2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

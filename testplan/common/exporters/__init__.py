@@ -5,7 +5,6 @@ from testplan.common.config import Config, Configurable
 
 
 class ExporterResult(object):
-
     def __init__(self, exporter, type):
         self.exporter = exporter
         self.type = type
@@ -31,6 +30,7 @@ class ExporterConfig(Config):
     Configuration object for
     :py:class:`BaseExporter <testplan.common.exporters.BaseExporter>` object.
     """
+
     @classmethod
     def get_options(cls):
         return {}
@@ -51,4 +51,4 @@ class BaseExporter(Configurable):
         return self._cfg
 
     def export(self, report):
-        raise NotImplementedError('Exporter must define export().')
+        raise NotImplementedError("Exporter must define export().")

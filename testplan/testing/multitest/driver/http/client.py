@@ -28,12 +28,13 @@ class HTTPClientConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            'host': Or(str, lambda x: is_context(x)),
-            Optional('port', default=None): Or(None, Use(int),
-                                               lambda x: is_context(x)),
-            Optional('protocol', default='http'): str,
-            Optional('timeout', default=5): Use(int),
-            Optional('interval', default=0.01): Use(float)
+            "host": Or(str, lambda x: is_context(x)),
+            Optional("port", default=None): Or(
+                None, Use(int), lambda x: is_context(x)
+            ),
+            Optional("protocol", default="http"): str,
+            Optional("timeout", default=5): Use(int),
+            Optional("interval", default=0.01): Use(float),
         }
 
 
@@ -58,11 +59,12 @@ class HTTPClient(Driver):
 
     CONFIG = HTTPClientConfig
 
-    def __init__(self,
+    def __init__(
+        self,
         name,
         host,
         port=None,
-        protocol='http',
+        protocol="http",
         timeout=5,
         interval=0.01,
         **options
@@ -76,7 +78,7 @@ class HTTPClient(Driver):
         self.interval = None
         self.responses = None
         self.request_threads = []
-        self._logname = '{0}.log'.format(slugify(self.cfg.name))
+        self._logname = "{0}.log".format(slugify(self.cfg.name))
 
     @property
     def logpath(self):
@@ -101,16 +103,16 @@ class HTTPClient(Driver):
         self._setup_file_logger(self.logpath)
         self._host = expand(self.cfg.host, self.context)
         context_port = expand(self.cfg.port, self.context, int)
-        self._port = context_port if context_port else ''
+        self._port = context_port if context_port else ""
         self.protocol = expand(self.cfg.protocol, self.context)
         self.timeout = self.cfg.timeout
         self.interval = self.cfg.interval
         self.responses = queue.Queue()
         self.file_logger.debug(
-            'Started HTTPClient sending requests to {}://{}{}'.format(
+            "Started HTTPClient sending requests to {}://{}{}".format(
                 self.protocol,
                 self.host,
-                ':{}'.format(self.port) if self.port else self.port
+                ":{}".format(self.port) if self.port else self.port,
             )
         )
 
@@ -119,12 +121,12 @@ class HTTPClient(Driver):
         Stop the HTTPClient.
         """
         super(HTTPClient, self).stopping()
-        self.file_logger.debug('Stopped HTTPClient.')
+        self.file_logger.debug("Stopped HTTPClient.")
         self._close_file_logger()
 
     def aborting(self):
         """Abort logic that stops the client."""
-        self.file_logger.debug('Aborting HTTPClient.')
+        self.file_logger.debug("Aborting HTTPClient.")
 
     def _send_request(self, method, api, drop_response, timeout, **kwargs):
         """
@@ -144,18 +146,17 @@ class HTTPClient(Driver):
         :type kwargs: Depends on the argument.
         """
         http_method = getattr(requests, method, requests.get)
-        api = api[1:] if api.startswith('/') else api
-        url = '{protocol}://{host}{port}/{api}'.format(
+        api = api[1:] if api.startswith("/") else api
+        url = "{protocol}://{host}{port}/{api}".format(
             protocol=self.protocol,
             host=self.host,
-            port=':{}'.format(self.port) if self.port else self.port,
-            api=api
+            port=":{}".format(self.port) if self.port else self.port,
+            api=api,
         )
-        timeout = kwargs.pop('timeout', timeout)
-        self.file_logger.debug('Sending {} request: {}'.format(
-            http_method.__name__.upper(),
-            url
-        ))
+        timeout = kwargs.pop("timeout", timeout)
+        self.file_logger.debug(
+            "Sending {} request: {}".format(http_method.__name__.upper(), url)
+        )
         response = http_method(url=url, timeout=timeout, **kwargs)
         if not drop_response.is_set():
             self.responses.put(response)
@@ -176,7 +177,7 @@ class HTTPClient(Driver):
         request_thread = Thread(
             target=self._send_request,
             args=(method, api, drop_response, self.timeout),
-            kwargs=kwargs
+            kwargs=kwargs,
         )
         request_thread.setDaemon(True)
         request_thread.start()
@@ -192,7 +193,7 @@ class HTTPClient(Driver):
           modules docs for these arguments.
         :type kwargs: Depends on the argument.
         """
-        self.send('head', api, **kwargs)
+        self.send("head", api, **kwargs)
 
     def get(self, api, params=None, **kwargs):
         """
@@ -206,7 +207,7 @@ class HTTPClient(Driver):
           modules docs for these arguments.
         :type kwargs: Depends on the argument.
         """
-        self.send('get', api, params=params, **kwargs)
+        self.send("get", api, params=params, **kwargs)
 
     def post(self, api, data=None, json=None, **kwargs):
         """
@@ -222,7 +223,7 @@ class HTTPClient(Driver):
           modules docs for these arguments.
         :type kwargs: Depends on the argument.
         """
-        self.send('post', api, data=data, json=json, **kwargs)
+        self.send("post", api, data=data, json=json, **kwargs)
 
     def put(self, api, data=None, **kwargs):
         """
@@ -236,7 +237,7 @@ class HTTPClient(Driver):
           modules docs for these arguments.
         :type kwargs: Depends on the argument.
         """
-        self.send('put', api, data=data, **kwargs)
+        self.send("put", api, data=data, **kwargs)
 
     def delete(self, api, **kwargs):
         """
@@ -248,7 +249,7 @@ class HTTPClient(Driver):
           modules docs for these arguments.
         :type kwargs: Depends on the argument.
         """
-        self.send('delete', api, **kwargs)
+        self.send("delete", api, **kwargs)
 
     def patch(self, api, data=None, **kwargs):
         """
@@ -262,7 +263,7 @@ class HTTPClient(Driver):
           modules docs for these arguments.
         :type kwargs: Depends on the argument.
         """
-        self.send('patch', api, data=data, **kwargs)
+        self.send("patch", api, data=data, **kwargs)
 
     def options(self, api, **kwargs):
         """
@@ -274,7 +275,7 @@ class HTTPClient(Driver):
           modules docs for these arguments.
         :type kwargs: Depends on the argument.
         """
-        self.send('options', api, **kwargs)
+        self.send("options", api, **kwargs)
 
     def receive(self, timeout=None):
         """
@@ -294,11 +295,11 @@ class HTTPClient(Driver):
             try:
                 response = self.responses.get(False)
             except queue.Empty:
-                self.file_logger.debug('Waiting for response...')
+                self.file_logger.debug("Waiting for response...")
                 response = None
             else:
                 self.responses.task_done()
-                self.file_logger.debug('Received response.')
+                self.file_logger.debug("Received response.")
                 break
             time.sleep(self.interval)
 
@@ -311,13 +312,13 @@ class HTTPClient(Driver):
         """
         for _, drop_message in self.request_threads:
             drop_message.set()
-            self.file_logger.debug('Request thread set to drop response.')
+            self.file_logger.debug("Request thread set to drop response.")
 
         timeout = time.time() + (5 * self.timeout)
         while not self.responses.empty() and time.time() < timeout:
             try:
                 self.responses.get(block=False)
             except queue.Empty:
-                self.file_logger.debug('Responses queue flushed.')
+                self.file_logger.debug("Responses queue flushed.")
             else:
                 self.responses.task_done()

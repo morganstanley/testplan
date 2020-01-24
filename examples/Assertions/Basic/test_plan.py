@@ -18,16 +18,15 @@ from testplan.report.testing.styles import Style, StyleEnum
 
 @testsuite
 class SampleSuite(object):
-
     @testcase
     def test_basic_assertions(self, env, result):
         # Basic assertions contain equality, comparison, membership checks:
-        result.equal('foo', 'foo')  # The most basic syntax
+        result.equal("foo", "foo")  # The most basic syntax
 
         # We can pass description to any assertion method
-        result.equal(1, 2, 'Description for failing equality')
+        result.equal(1, 2, "Description for failing equality")
 
-        result.not_equal('foo', 'bar')
+        result.not_equal("foo", "bar")
         result.greater(5, 2)
         result.greater_equal(2, 2)
         result.greater_equal(2, 1)
@@ -53,30 +52,30 @@ class SampleSuite(object):
         # `result` also has a `log` method that can be used
         # for adding extra information on the output
         result.log(
-            'This is a log message, it will be displayed'
-            ' along with other assertion details.'
+            "This is a log message, it will be displayed"
+            " along with other assertion details."
         )
 
         # Boolean checks
-        result.true('foo' == 'foo', description='Boolean Truthiness check')
-        result.false(5 < 2, description='Boolean Falseness check')
+        result.true("foo" == "foo", description="Boolean Truthiness check")
+        result.false(5 < 2, description="Boolean Falseness check")
 
-        result.fail('This is an explicit failure.')
+        result.fail("This is an explicit failure.")
 
         # Membership checks
-        result.contain('foo', 'foobar', description='Passing membership')
+        result.contain("foo", "foobar", description="Passing membership")
         result.not_contain(
             member=10,
-            container={'a': 1, 'b': 2},
-            description='Failing membership'
+            container={"a": 1, "b": 2},
+            description="Failing membership",
         )
 
         # Slice comparison (inclusion)
         result.equal_slices(
             [1, 2, 3, 4, 5, 6, 7, 8],
-            ['a', 'b', 3, 4, 'c', 'd', 7, 8],
+            ["a", "b", 3, 4, "c", "d", 7, 8],
             slices=[slice(2, 4), slice(6, 8)],
-            description='Comparison of slices'
+            description="Comparison of slices",
         )
 
         # Slice comparison (exclusion)
@@ -86,20 +85,21 @@ class SampleSuite(object):
         # in both iterables.
         result.equal_exclude_slices(
             [1, 2, 3, 4, 5, 6, 7, 8],
-            ['a', 'b', 3, 4, 'c', 'd', 'e', 'f'],
+            ["a", "b", 3, 4, "c", "d", "e", "f"],
             slices=[slice(0, 2), slice(4, 8)],
-            description='Comparison of slices (exclusion)'
+            description="Comparison of slices (exclusion)",
         )
 
         # We can test if 2 blocks of textual content have differences with
         # comparison option --ignore-space-change, --ignore-whitespaces and
         # --ignore-blank-lines, also we can spefify output delta in unified
         # or context mode.
-        result.diff('abc\nxyz\n', 'abc\nxyz\n\n', ignore_blank_lines=True)
+        result.diff("abc\nxyz\n", "abc\nxyz\n\n", ignore_blank_lines=True)
         result.diff(
-            '1\r\n1\r\n1\r\nabc\r\nxy z\r\n2\r\n2\r\n2\r\n',
-            '1\n1\n1\nabc \nxy\t\tz\n2\n2\n2\n',
-            ignore_space_change=True, unified=3
+            "1\r\n1\r\n1\r\nabc\r\nxy z\r\n2\r\n2\r\n2\r\n",
+            "1\n1\n1\nabc \nxy\t\tz\n2\n2\n2\n",
+            ignore_space_change=True,
+            unified=3,
         )
 
     @testcase
@@ -109,22 +109,21 @@ class SampleSuite(object):
         # raises a given exception:
 
         with result.raises(KeyError):
-            {'foo': 3}['bar']
+            {"foo": 3}["bar"]
 
         # Exception message pattern check (`re.search` is used implicitly)
 
         with result.raises(
             ValueError,
-            pattern='foobar',
-            description='Exception raised with custom pattern.'
+            pattern="foobar",
+            description="Exception raised with custom pattern.",
         ):
-            raise ValueError('abc foobar xyz')
+            raise ValueError("abc foobar xyz")
 
         # Custom function check (func should accept
         # exception object as a single arg)
 
         class MyException(Exception):
-
             def __init__(self, value):
                 self.value = value
 
@@ -134,7 +133,7 @@ class SampleSuite(object):
         with result.raises(
             MyException,
             func=custom_func,
-            description='Exception raised with custom func.'
+            description="Exception raised with custom func.",
         ):
             raise MyException(4)
 
@@ -143,7 +142,7 @@ class SampleSuite(object):
         # It is logically inverse of `result.raises`.
 
         with result.not_raises(TypeError):
-            {'foo': 3}['bar']
+            {"foo": 3}["bar"]
 
         # `not_raises` can also check if a certain exception has been raised
         # WITHOUT matching the given `pattern` or `func`
@@ -151,16 +150,16 @@ class SampleSuite(object):
         # Exception type matches but pattern does not -> Pass
         with result.not_raises(
             ValueError,
-            pattern='foobar',
-            description='Exception not raised with custom pattern.'
+            pattern="foobar",
+            description="Exception not raised with custom pattern.",
         ):
-            raise ValueError('abc')
+            raise ValueError("abc")
 
         # Exception type matches but func does not -> Pass
         with result.not_raises(
             MyException,
             func=custom_func,
-            description='Exception not raised with custom func.'
+            description="Exception not raised with custom func.",
         ):
             raise MyException(5)
 
@@ -170,18 +169,19 @@ class SampleSuite(object):
         # assertions together. This has no effect on stdout, however it will
         # be formatted with extra indentation on PDF reports for example.
 
-        result.equal(1, 1, description='Equality assertion outside the group')
+        result.equal(1, 1, description="Equality assertion outside the group")
 
-        with result.group(description='Custom group description') as group:
-            group.not_equal(2, 3, description='Assertion within a group')
+        with result.group(description="Custom group description") as group:
+            group.not_equal(2, 3, description="Assertion within a group")
             group.greater(5, 3)
 
             # Groups can have sub groups as well:
-            with group.group(description='This is a sub group') as sub_group:
-                sub_group.less(6, 3, description='Assertion within sub group')
+            with group.group(description="This is a sub group") as sub_group:
+                sub_group.less(6, 3, description="Assertion within sub group")
 
         result.equal(
-            'foo', 'foo', description='Final assertion outside all groups')
+            "foo", "foo", description="Final assertion outside all groups"
+        )
 
     # `result` object has namespaces that contain specialized
     # methods for more advanced assertions
@@ -192,71 +192,69 @@ class SampleSuite(object):
 
         # `regex.match` applies `re.match` with the given `regexp` and `value`
         result.regex.match(
-            regexp='foo',
-            value='foobar', description='string pattern match')
+            regexp="foo", value="foobar", description="string pattern match"
+        )
 
         # We can also pass compiled SRE objects as well:
         result.regex.match(
-            regexp=re.compile('foo'),
-            value='foobar', description='SRE match')
+            regexp=re.compile("foo"), value="foobar", description="SRE match"
+        )
 
         # `regex.multiline_match` implicitly passes `re.MULTILINE`
         # and `re.DOTALL` flags to `re.match`
 
-        multiline_text = os.linesep.join([
-            'first line',
-            'second line',
-            'third line'
-        ])
+        multiline_text = os.linesep.join(
+            ["first line", "second line", "third line"]
+        )
 
-        result.regex.multiline_match('first line.*second', multiline_text)
+        result.regex.multiline_match("first line.*second", multiline_text)
 
         # `regex.not_match` returns True if the
         # given pattern does not match the value
 
-        result.regex.not_match('baz', 'foobar')
+        result.regex.not_match("baz", "foobar")
 
         # `regex.multiline_not_match` implicitly passes `re.MULTILINE`
         # and `re.DOTALL` flags to `re.match`
 
-        result.regex.multiline_not_match('foobar', multiline_text)
+        result.regex.multiline_not_match("foobar", multiline_text)
 
         # `regex.search` runs pattern match via `re.search`
-        result.regex.search('second', multiline_text)
+        result.regex.search("second", multiline_text)
 
         # `regex.search_empty` returns True when the given
         # pattern does not exist in the text.
         result.regex.search_empty(
-            'foobar', multiline_text, description='Passing search empty')
+            "foobar", multiline_text, description="Passing search empty"
+        )
 
         result.regex.search_empty(
-            'second', multiline_text, description='Failing search_empty')
+            "second", multiline_text, description="Failing search_empty"
+        )
 
         # `regex.findall` matches all of the occurrences of the pattern
         # in the given string and optionally runs an extra condition function
         # against the number of matches
-        text = 'foo foo foo bar bar foo bar'
+        text = "foo foo foo bar bar foo bar"
 
         result.regex.findall(
-            regexp='foo',
+            regexp="foo",
             value=text,
-            condition=lambda num_matches: 2 < num_matches < 5
+            condition=lambda num_matches: 2 < num_matches < 5,
         )
 
         # Equivalent assertion with more readable output
         result.regex.findall(
-            regexp='foo',
+            regexp="foo",
             value=text,
-            condition=comparison.Greater(2) & comparison.Less(5)
+            condition=comparison.Greater(2) & comparison.Less(5),
         )
 
         # `regex.matchline` can be used for checking if a given pattern
         # matches one or more lines in the given text
         result.regex.matchline(
-            regexp=re.compile(r'\w+ line$'),
-            value=multiline_text,
+            regexp=re.compile(r"\w+ line$"), value=multiline_text
         )
-
 
     @testcase
     def test_table_namespace(self, env, result):
@@ -267,110 +265,117 @@ class SampleSuite(object):
         # row values as the rest
 
         list_of_dicts = [
-            {'name': 'Bob', 'age': 32},
-            {'name': 'Susan', 'age': 24},
-            {'name': 'Rick', 'age': 67},
+            {"name": "Bob", "age": 32},
+            {"name": "Susan", "age": 24},
+            {"name": "Rick", "age": 67},
         ]
 
         list_of_lists = [
-            ['name', 'age'],
-            ['Bob', 32],
-            ['Susan', 24],
-            ['Rick', 67]
+            ["name", "age"],
+            ["Bob", 32],
+            ["Susan", 24],
+            ["Rick", 67],
         ]
 
         result.table.match(
-            list_of_lists, list_of_lists,
-            description='Table Match: list of list vs list of list'
+            list_of_lists,
+            list_of_lists,
+            description="Table Match: list of list vs list of list",
         )
 
         result.table.match(
-            list_of_dicts, list_of_dicts,
-            description='Table Match: list of dict vs list of dict'
+            list_of_dicts,
+            list_of_dicts,
+            description="Table Match: list of dict vs list of dict",
         )
 
         result.table.match(
-            list_of_dicts, list_of_lists,
-            description='Table Match: list of dict vs list of list'
+            list_of_dicts,
+            list_of_lists,
+            description="Table Match: list of dict vs list of list",
         )
 
         result.table.diff(
-            list_of_lists, list_of_lists,
-            description='Table Diff: list of list vs list of list'
+            list_of_lists,
+            list_of_lists,
+            description="Table Diff: list of list vs list of list",
         )
 
         result.table.diff(
-            list_of_dicts, list_of_dicts,
-            description='Table Diff: list of dict vs list of dict'
+            list_of_dicts,
+            list_of_dicts,
+            description="Table Diff: list of dict vs list of dict",
         )
 
         result.table.diff(
-            list_of_dicts, list_of_lists,
-            description='Table Diff: list of dict vs list of list'
+            list_of_dicts,
+            list_of_lists,
+            description="Table Diff: list of dict vs list of list",
         )
 
         # For table match, Testplan allows use of custom comparators
         # (callables & regex) instead of plain value matching
 
         actual_table = [
-            ['name', 'age'],
-            ['Bob', 32],
-            ['Susan', 24],
-            ['Rick', 67]
+            ["name", "age"],
+            ["Bob", 32],
+            ["Susan", 24],
+            ["Rick", 67],
         ]
 
         expected_table = [
-            ['name', 'age'],
+            ["name", "age"],
             # Regex match for row 1, name column
             # Callable match for row 1, age column
-            [re.compile(r'\w{3}'), lambda age: 30 < age < 40],
-            ['Susan', 24],  # simple match with exact values for row 2
+            [re.compile(r"\w{3}"), lambda age: 30 < age < 40],
+            ["Susan", 24],  # simple match with exact values for row 2
             # Callable match for row 3 name column
             # Simple match for row 3 age column
-            [
-                lambda name: name in ['David', 'Helen', 'Pablo'],
-                67,
-            ]
+            [lambda name: name in ["David", "Helen", "Pablo"], 67],
         ]
 
         result.table.match(
-            actual_table, expected_table,
-            description='Table Match: simple comparators'
+            actual_table,
+            expected_table,
+            description="Table Match: simple comparators",
         )
 
         result.table.diff(
-            actual_table, expected_table,
-            description='Table Diff: simple comparators'
+            actual_table,
+            expected_table,
+            description="Table Diff: simple comparators",
         )
 
         # Equivalent assertion as above, using Testplan's custom comparators
         # These utilities produce more readable output
 
         expected_table_2 = [
-            ['name', 'age'],
+            ["name", "age"],
             [
-                re.compile(r'\w{3}'),
-                comparison.Greater(30) & comparison.Less(40)
+                re.compile(r"\w{3}"),
+                comparison.Greater(30) & comparison.Less(40),
             ],
-            ['Susan', 24],
-            [comparison.In(['David', 'Helen', 'Pablo']), 67]
+            ["Susan", 24],
+            [comparison.In(["David", "Helen", "Pablo"]), 67],
         ]
 
         result.table.match(
-            actual_table, expected_table_2,
-            description='Table Match: readable comparators'
+            actual_table,
+            expected_table_2,
+            description="Table Match: readable comparators",
         )
 
         result.table.diff(
-            actual_table, expected_table_2,
-            description='Table Diff: readable comparators'
+            actual_table,
+            expected_table_2,
+            description="Table Diff: readable comparators",
         )
 
         # While comparing tables with large number of columns
         # we can 'trim' some of the columns to get more readable output
 
         table_with_many_columns = [
-            {'column_{}'.format(idx): i * idx for idx in range(30)}
+            {"column_{}".format(idx): i * idx for idx in range(30)}
             for i in range(10)
         ]
 
@@ -378,42 +383,42 @@ class SampleSuite(object):
         result.table.match(
             table_with_many_columns,
             table_with_many_columns,
-            include_columns=['column_1', 'column_2'],
+            include_columns=["column_1", "column_2"],
             report_all=False,
-            description='Table Match: Trimmed columns'
+            description="Table Match: Trimmed columns",
         )
 
         result.table.diff(
             table_with_many_columns,
             table_with_many_columns,
-            include_columns=['column_1', 'column_2'],
+            include_columns=["column_1", "column_2"],
             report_all=False,
-            description='Table Diff: Trimmed columns'
+            description="Table Diff: Trimmed columns",
         )
 
         # While comparing tables with large number of rows
         # we can stop comparing if the number of failed rows exceeds the limit
 
         matching_rows_1 = [
-            {'amount': idx * 10, 'product_id': random.randint(1000, 5000)}
+            {"amount": idx * 10, "product_id": random.randint(1000, 5000)}
             for idx in range(5)
         ]
 
         matching_rows_2 = [
-            {'amount': idx * 10, 'product_id': random.randint(1000, 5000)}
+            {"amount": idx * 10, "product_id": random.randint(1000, 5000)}
             for idx in range(500)
         ]
 
         row_diff_a = [
-            {'amount': 25, 'product_id': 1111},
-            {'amount': 20, 'product_id': 2222},
-            {'amount': 50, 'product_id': 3333},
+            {"amount": 25, "product_id": 1111},
+            {"amount": 20, "product_id": 2222},
+            {"amount": 50, "product_id": 3333},
         ]
 
         row_diff_b = [
-            {'amount': 35, 'product_id': 1111},
-            {'amount': 20, 'product_id': 1234},
-            {'amount': 20, 'product_id': 5432},
+            {"amount": 35, "product_id": 1111},
+            {"amount": 20, "product_id": 1234},
+            {"amount": 20, "product_id": 5432},
         ]
 
         table_a = matching_rows_1 + row_diff_a + matching_rows_2
@@ -425,7 +430,7 @@ class SampleSuite(object):
             table_b,
             fail_limit=2,
             report_all=False,
-            description='Table Match: Trimmed rows'
+            description="Table Match: Trimmed rows",
         )
 
         # Only display mismatching rows, with a maximum limit of 2 rows
@@ -434,24 +439,22 @@ class SampleSuite(object):
             table_b,
             fail_limit=2,
             report_all=False,
-            description='Table Diff: Trimmed rows'
+            description="Table Diff: Trimmed rows",
         )
 
         # result.table.column_contain can be used for checking if all of the
         # cells on a table's column exists in a given list of values
         sample_table = [
-            ['symbol', 'amount'],
-            ['AAPL', 12],
-            ['GOOG', 21],
-            ['FB', 32],
-            ['AMZN', 5],
-            ['MSFT', 42]
+            ["symbol", "amount"],
+            ["AAPL", 12],
+            ["GOOG", 21],
+            ["FB", 32],
+            ["AMZN", 5],
+            ["MSFT", 42],
         ]
 
         result.table.column_contain(
-            values=['AAPL', 'AMZN'],
-            table=sample_table,
-            column='symbol',
+            values=["AAPL", "AMZN"], table=sample_table, column="symbol"
         )
 
         # We can use `limit` and `report_fails_only` arguments for producing
@@ -460,164 +463,148 @@ class SampleSuite(object):
         large_table = [sample_table[0]] + sample_table[1:] * 100
 
         result.table.column_contain(
-            values=['AAPL', 'AMZN'],
+            values=["AAPL", "AMZN"],
             table=large_table,
-            column='symbol',
+            column="symbol",
             limit=20,  # Process 50 items at most
             report_fails_only=True,  # Only include failures in the result
         )
 
         # We can log the table using result.table.log, either a list of dicts
         # or a list of lists
-        result.table.log(list_of_dicts, description='Table Log: list of dicts')
-        result.table.log(list_of_lists, description='Table Log: list of lists')
+        result.table.log(list_of_dicts, description="Table Log: list of dicts")
+        result.table.log(list_of_lists, description="Table Log: list of lists")
 
         # When tables with over 10 rows are logged:
         #   * In the PDF report, only the first and last 5 rows are shown. The
         #     row indices are then also shown by default.
         #   * In console out the entire table will be shown, without indices.
-        result.table.log(large_table[:21], description='Table Log: many rows')
+        result.table.log(large_table[:21], description="Table Log: many rows")
 
         # When tables are too wide:
         #   * In the PDF report, the columns are split into tables over multiple
         #     rows. The row indices are then also shown by default.
         #   * In console out the table will be shown as is, if the formatting
         #     looks odd the output can be piped into a file.
-        columns = [['col_{}'.format(i) for i in range(20)]]
-        rows = [['row {} col {}'.format(i, j)
-                 for j in range(20)]
-                for i in range(10)]
-        result.table.log(columns + rows, description='Table Log: many columns')
+        columns = [["col_{}".format(i) for i in range(20)]]
+        rows = [
+            ["row {} col {}".format(i, j) for j in range(20)]
+            for i in range(10)
+        ]
+        result.table.log(columns + rows, description="Table Log: many columns")
 
         # When the cell values exceed the character limit:
         #   * In the PDF report they will be truncated and appended with '...'.
         #   * In console out, should they also be truncated?
         long_cell_table = [
-            ['Name', 'Age', 'Address'],
-            ['Bob Stevens', '33', '89 Trinsdale Avenue, LONDON, E8 0XW'],
-            ['Susan Evans', '21', '100 Loop Road, SWANSEA, U8 12JK'],
-            ['Trevor Dune', '88', '28 Kings Lane, MANCHESTER, MT16 2YT'],
-            ['Belinda Baggins', '38', '31 Prospect Hill, DOYNTON, BS30 9DN'],
-            ['Cosimo Hornblower', '89', '65 Prospect Hill, SURREY, PH33 4TY'],
-            ['Sabine Wurfel', '31', '88 Clasper Way, HEXWORTHY, PL20 4BG'],
+            ["Name", "Age", "Address"],
+            ["Bob Stevens", "33", "89 Trinsdale Avenue, LONDON, E8 0XW"],
+            ["Susan Evans", "21", "100 Loop Road, SWANSEA, U8 12JK"],
+            ["Trevor Dune", "88", "28 Kings Lane, MANCHESTER, MT16 2YT"],
+            ["Belinda Baggins", "38", "31 Prospect Hill, DOYNTON, BS30 9DN"],
+            ["Cosimo Hornblower", "89", "65 Prospect Hill, SURREY, PH33 4TY"],
+            ["Sabine Wurfel", "31", "88 Clasper Way, HEXWORTHY, PL20 4BG"],
         ]
-        result.table.log(long_cell_table, description='Table Log: long cells')
-
+        result.table.log(long_cell_table, description="Table Log: long cells")
 
     @testcase
     def test_dict_namespace(self, env, result):
         # `result.dict` namespace can be used for applying advanced
         # assertion rules to dictionaries, which can be nested.
 
-        actual = {
-            'foo': 1,
-            'bar': 2,
-        }
+        actual = {"foo": 1, "bar": 2}
 
-        expected = {
-            'foo': 1,
-            'bar': 5,
-            'extra-key': 10,
-        }
+        expected = {"foo": 1, "bar": 5, "extra-key": 10}
 
         # `dict.match` (recursively) matches elements of the dictionaries
-        result.dict.match(actual, expected, description='Simple dict match')
+        result.dict.match(actual, expected, description="Simple dict match")
 
         # `dict.match` supports nested data as well
 
-        actual = {
-            'foo': {
-                'alpha': [1, 2, 3],
-                'beta': {'color': 'red'}
-            }
-        }
+        actual = {"foo": {"alpha": [1, 2, 3], "beta": {"color": "red"}}}
 
-        expected = {
-            'foo': {
-                'alpha': [1, 2],
-                'beta': {'color': 'blue'}
-            }
-        }
+        expected = {"foo": {"alpha": [1, 2], "beta": {"color": "blue"}}}
 
-        result.dict.match(actual, expected, description='Nested dict match')
+        result.dict.match(actual, expected, description="Nested dict match")
 
         # It is possible to use custom comparators with `dict.match`
         actual = {
-            'foo': [1, 2, 3],
-            'bar': {'color': 'blue'},
-            'baz': 'hello world',
+            "foo": [1, 2, 3],
+            "bar": {"color": "blue"},
+            "baz": "hello world",
         }
 
         expected = {
-            'foo': [1, 2, lambda v: isinstance(v, int)],
-            'bar': {
-                'color': comparison.In(['blue', 'red', 'yellow'])
-            },
-            'baz': re.compile(r'\w+ world'),
+            "foo": [1, 2, lambda v: isinstance(v, int)],
+            "bar": {"color": comparison.In(["blue", "red", "yellow"])},
+            "baz": re.compile(r"\w+ world"),
         }
 
         result.dict.match(
-            actual, expected, description='Dict match: Custom comparators')
+            actual, expected, description="Dict match: Custom comparators"
+        )
 
         # You can also specify a comparator function to apply to all values in
         # your dict. Standard comparators are available under
         # testplan.common.utils.comparison.COMPARE_FUNCTIONS but any function
         # f(x: Any, y: Any) -> bool can be used.
-        actual = {'foo': 1, 'bar': 2, 'baz': 3}
-        expected = {'foo': 1.0, 'bar': 2.0, 'baz': 3.0}
+        actual = {"foo": 1, "bar": 2, "baz": 3}
+        expected = {"foo": 1.0, "bar": 2.0, "baz": 3.0}
 
         result.dict.match(
             actual,
             expected,
-            description='default assertion passes because the values are '
-                        'numerically equal')
+            description="default assertion passes because the values are "
+            "numerically equal",
+        )
         result.dict.match(
             actual,
             expected,
-            description='when we check types the assertion will fail',
-            value_cmp_func=comparison.COMPARE_FUNCTIONS['check_types'])
+            description="when we check types the assertion will fail",
+            value_cmp_func=comparison.COMPARE_FUNCTIONS["check_types"],
+        )
 
-        actual = {'foo': 1.02, 'bar': 2.28, 'baz': 3.50}
-        expected = {'foo': 0.98, 'bar': 2.33, 'baz': 3.46}
+        actual = {"foo": 1.02, "bar": 2.28, "baz": 3.50}
+        expected = {"foo": 0.98, "bar": 2.33, "baz": 3.46}
         result.dict.match(
             actual,
             expected,
-            description='use a custom comparison function to check within a '
-                        'tolerance',
-            value_cmp_func=lambda x, y: abs(x - y) < 0.1)
+            description="use a custom comparison function to check within a "
+            "tolerance",
+            value_cmp_func=lambda x, y: abs(x - y) < 0.1,
+        )
 
         # The report_mode can be specified to limit the comparison
         # information stored. By default all comparisons are stored and added
         # to the report, but you can choose to discard some comparisons to
         # reduce the size of the report when comparing very large dicts.
-        actual = {'key{}'.format(i): i for i in range(10)}
+        actual = {"key{}".format(i): i for i in range(10)}
         expected = actual.copy()
-        expected['bad_key'] = 'expected'
-        actual['bad_key'] = 'actual'
+        expected["bad_key"] = "expected"
+        actual["bad_key"] = "actual"
         result.dict.match(
             actual,
             expected,
-            description='only report the failing comparison',
-            report_mode=comparison.ReportOptions.FAILS_ONLY)
+            description="only report the failing comparison",
+            report_mode=comparison.ReportOptions.FAILS_ONLY,
+        )
 
         # `dict.check` can be used for checking existence / absence
         # of keys within a dictionary
 
         result.dict.check(
-            dictionary={
-                'foo': 1, 'bar': 2, 'baz': 3,
-            },
-            has_keys=['foo', 'alpha'],
-            absent_keys=['bar', 'beta']
+            dictionary={"foo": 1, "bar": 2, "baz": 3},
+            has_keys=["foo", "alpha"],
+            absent_keys=["bar", "beta"],
         )
 
         # `dict.log` can be used to log a dictionary in human readable format.
 
         result.dict.log(
             dictionary={
-                'foo': [1, 2, 3],
-                'bar': {'color': 'blue'},
-                'baz': 'hello world',
+                "foo": [1, 2, 3],
+                "bar": {"color": "blue"},
+                "baz": "hello world",
             }
         )
 
@@ -639,34 +626,16 @@ class SampleSuite(object):
             38: 5,
             555: [
                 {
-                    600: 'A',
-                    601: 'A',
-                    683: [
-                        {
-                            688: 'a',
-                            689: 'a'
-                        },
-                        {
-                            688: 'b',
-                            689: 'b'
-                        }
-                    ]
+                    600: "A",
+                    601: "A",
+                    683: [{688: "a", 689: "a"}, {688: "b", 689: "b"}],
                 },
                 {
-                    600: 'B',
-                    601: 'B',
-                    683: [
-                        {
-                            688: 'c',
-                            689: 'c'
-                        },
-                        {
-                            688: 'd',
-                            689: 'd'
-                        }
-                    ]
-                }
-            ]
+                    600: "B",
+                    601: "B",
+                    683: [{688: "c", 689: "c"}, {688: "d", 689: "d"}],
+                },
+            ],
         }
 
         fix_msg_2 = {
@@ -676,34 +645,22 @@ class SampleSuite(object):
             38: comparison.GreaterEqual(4),
             555: [
                 {
-                    600: 'A',
-                    601: 'B',
+                    600: "A",
+                    601: "B",
                     683: [
-                        {
-                            688: 'a',
-                            689: re.compile(r'[a-z]')
-                        },
-                        {
-                            688: 'b',
-                            689: 'b'
-                        }
-                    ]
+                        {688: "a", 689: re.compile(r"[a-z]")},
+                        {688: "b", 689: "b"},
+                    ],
                 },
                 {
-                    600: 'C',
-                    601: 'B',
+                    600: "C",
+                    601: "B",
                     683: [
-                        {
-                            688: 'c',
-                            689: comparison.In(('c', 'd'))
-                        },
-                        {
-                            688: 'd',
-                            689: 'd'
-                        }
-                    ]
-                }
-            ]
+                        {688: "c", 689: comparison.In(("c", "d"))},
+                        {688: "d", 689: "d"},
+                    ],
+                },
+            ],
         }
         result.fix.match(fix_msg_1, fix_msg_2)
 
@@ -711,9 +668,7 @@ class SampleSuite(object):
         # of certain tags in a fix message
 
         result.fix.check(
-            msg=fix_msg_1,
-            has_tags=[26, 22, 11],
-            absent_tags=[444, 555],
+            msg=fix_msg_1, has_tags=[26, 22, 11], absent_tags=[444, 555]
         )
 
         # `fix.log` can be used to log a fix message in human readable format.
@@ -724,10 +679,7 @@ class SampleSuite(object):
                 22: 5,
                 55: 2,
                 38: 5,
-                555:[
-                    {556: 'USD', 624: 1},
-                    {556: 'EUR', 624: 2}
-                ]
+                555: [{556: "USD", 624: 1}, {556: "EUR", 624: 2}],
             }
         )
 
@@ -739,33 +691,33 @@ class SampleSuite(object):
         # `xml.check` can be used for checking if given tags & XML namespaces
         # contain the expected values
 
-        xml_1 = '''
+        xml_1 = """
             <Root>
                 <Test>Foo</Test>
             </Root>
-        '''
+        """
 
         result.xml.check(
             element=xml_1,
-            xpath='/Root/Test',
-            description='Simple XML check for existence of xpath.'
+            xpath="/Root/Test",
+            description="Simple XML check for existence of xpath.",
         )
 
-        xml_2 = '''
+        xml_2 = """
             <Root>
                 <Test>Value1</Test>
                 <Test>Value2</Test>
             </Root>
-        '''
+        """
 
         result.xml.check(
             element=xml_2,
-            xpath='/Root/Test',
-            tags=['Value1', 'Value2'],
-            description='XML check for tags in the given xpath.'
+            xpath="/Root/Test",
+            tags=["Value1", "Value2"],
+            description="XML check for tags in the given xpath.",
         )
 
-        xml_3 = '''
+        xml_3 = """
             <SOAP-ENV:Envelope
               xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
                 <SOAP-ENV:Header/>
@@ -774,27 +726,26 @@ class SampleSuite(object):
                       xmlns:ns0="http://testplan">Hello world!</ns0:message>
                 </SOAP-ENV:Body>
             </SOAP-ENV:Envelope>
-        '''
+        """
 
         result.xml.check(
             element=xml_3,
-            xpath='//*/a:message',
-            tags=[re.compile(r'Hello*')],
+            xpath="//*/a:message",
+            tags=[re.compile(r"Hello*")],
             namespaces={"a": "http://testplan"},
-            description='XML check with namespace matching.'
+            description="XML check with namespace matching.",
         )
 
 
 @test_plan(
-    name='Assertions Example',
+    name="Assertions Example",
     stdout_style=Style(
-        passing=StyleEnum.ASSERTION_DETAIL,
-        failing=StyleEnum.ASSERTION_DETAIL
-    )
+        passing=StyleEnum.ASSERTION_DETAIL, failing=StyleEnum.ASSERTION_DETAIL
+    ),
 )
 def main(plan):
-    plan.add(MultiTest(name='Assertions Test', suites=[SampleSuite()]))
+    plan.add(MultiTest(name="Assertions Test", suites=[SampleSuite()]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

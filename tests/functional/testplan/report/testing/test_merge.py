@@ -42,102 +42,81 @@ from testplan.report import TestCaseReport, TestGroupReport
 #
 
 expected_report = TestGroupReport(
-    name='MyMultiTest',
-    category='multitest',
+    name="MyMultiTest",
+    category="multitest",
     uid=0,
-    tags={'color': {'green'}},
+    tags={"color": {"green"}},
     entries=[
         TestGroupReport(
-            name='AlphaSuite',
-            category='testsuite',
+            name="AlphaSuite",
+            category="testsuite",
             uid=10,
-            tags={'color': {'red'}},
+            tags={"color": {"red"}},
             entries=[
+                TestCaseReport(name="test_one", uid=100, entries=[], tags={}),
                 TestCaseReport(
-                    name='test_one',
-                    uid=100,
-                    entries=[],
-                    tags={},
-                ),
-                TestCaseReport(
-                    name='test_two',
+                    name="test_two",
                     uid=101,
                     entries=[],
-                    tags={'environment': {'server'}},
-                )
-            ]
+                    tags={"environment": {"server"}},
+                ),
+            ],
         ),
         TestGroupReport(
-            name='BetaSuite',
-            category='testsuite',
+            name="BetaSuite",
+            category="testsuite",
             uid=11,
             tags={},
             entries=[
                 TestCaseReport(
-                    name='test_one',
+                    name="test_one",
                     uid=102,
                     entries=[],
-                    tags={'color': {'blue'}},
+                    tags={"color": {"blue"}},
                 ),
-                TestCaseReport(
-                    name='test_two',
-                    uid=103,
-                    entries=[],
-                    tags={},
-                ),
+                TestCaseReport(name="test_two", uid=103, entries=[], tags={}),
                 TestGroupReport(
-                    name='test_param',
-                    category='parametrization',
+                    name="test_param",
+                    category="parametrization",
                     uid=999,
-                    tags={
-                        'environment': {'client'},
-                    },
+                    tags={"environment": {"client"}},
                     entries=[
                         TestCaseReport(
-                            name='test_param_0',
-                            uid=104,
-                            entries=[],
+                            name="test_param_0", uid=104, entries=[]
                         ),
                         TestCaseReport(
-                            name='test_param_1',
-                            uid=105,
-                            entries=[],
+                            name="test_param_1", uid=105, entries=[]
                         ),
                         TestCaseReport(
-                            name='test_param_2',
-                            uid=106,
-                            entries=[],
+                            name="test_param_2", uid=106, entries=[]
                         ),
                         TestCaseReport(
-                            name='test_param_3',
-                            uid=107,
-                            entries=[],
+                            name="test_param_3", uid=107, entries=[]
                         ),
-                    ]
-                )
-            ]
+                    ],
+                ),
+            ],
         ),
         TestGroupReport(
-            name='GammaSuite',
-            category='testsuite',
+            name="GammaSuite",
+            category="testsuite",
             uid=12,
             tags={},
             entries=[
                 TestCaseReport(
-                    name='test_one',
+                    name="test_one",
                     uid=108,
                     entries=[],
-                    tags={'environment': {'client'}},
+                    tags={"environment": {"client"}},
                 ),
                 TestCaseReport(
-                    name='test_two',
+                    name="test_two",
                     uid=109,
                     entries=[],
-                    tags={'environment': {'server'}},
+                    tags={"environment": {"server"}},
                 ),
-            ]
-
-        )
+            ],
+        ),
     ],
 )
 
@@ -151,149 +130,128 @@ expected_report = TestGroupReport(
 # suites that have not been run.
 
 mt_report_alpha = TestGroupReport(
-    name='MyMultiTest',
-    category='multitest',
+    name="MyMultiTest",
+    category="multitest",
     uid=0,
-    tags={'color': {'green'}},
+    tags={"color": {"green"}},
     entries=[
         TestGroupReport(
-            name='AlphaSuite',
-            category='testsuite',
+            name="AlphaSuite",
+            category="testsuite",
             uid=10,
-            tags={'color': {'red'}},
+            tags={"color": {"red"}},
             entries=[
+                TestCaseReport(name="test_one", uid=100, entries=[], tags={}),
                 TestCaseReport(
-                    name='test_one',
-                    uid=100,
-                    entries=[],
-                    tags={},
-                ),
-                TestCaseReport(
-                    name='test_two',
+                    name="test_two",
                     uid=101,
                     entries=[],
-                    tags={'environment': {'server'}},
-                )
-            ]
-        ),
-    ]
+                    tags={"environment": {"server"}},
+                ),
+            ],
+        )
+    ],
 )
 
 
 mt_report_beta_1 = TestGroupReport(
-    name='MyMultiTest',
-    category='multitest',
+    name="MyMultiTest",
+    category="multitest",
     uid=0,
-    tags={'color': {'green'}},
+    tags={"color": {"green"}},
     entries=[
         TestGroupReport(
-            name='BetaSuite',
-            category='testsuite',
+            name="BetaSuite",
+            category="testsuite",
             uid=11,
             tags={},
             entries=[
                 TestCaseReport(
-                    name='test_one',
+                    name="test_one",
                     uid=102,
                     entries=[],
-                    tags={'color': {'blue'}},
+                    tags={"color": {"blue"}},
                 ),
-                TestCaseReport(
-                    name='test_two',
-                    uid=103,
-                    entries=[],
-                    tags={},
-                ),
-            ]
+                TestCaseReport(name="test_two", uid=103, entries=[], tags={}),
+            ],
         )
-    ]
+    ],
 )
 
 mt_report_beta_2 = TestGroupReport(
-    name='MyMultiTest',
-    category='multitest',
+    name="MyMultiTest",
+    category="multitest",
     uid=0,
-    tags={'color': {'green'}},
+    tags={"color": {"green"}},
     entries=[
         TestGroupReport(
-            name='BetaSuite',
-            category='testsuite',
+            name="BetaSuite",
+            category="testsuite",
             uid=11,
             tags={},
             entries=[
                 TestGroupReport(
-                    name='test_param',
-                    category='parametrization',
+                    name="test_param",
+                    category="parametrization",
                     uid=999,
-                    tags={
-                        'environment': {'client'},
-                    },
+                    tags={"environment": {"client"}},
                     entries=[
                         TestCaseReport(
-                            name='test_param_0',
-                            uid=104,
-                            entries=[],
+                            name="test_param_0", uid=104, entries=[]
                         ),
                         TestCaseReport(
-                            name='test_param_1',
-                            uid=105,
-                            entries=[],
+                            name="test_param_1", uid=105, entries=[]
                         ),
                         TestCaseReport(
-                            name='test_param_2',
-                            uid=106,
-                            entries=[],
+                            name="test_param_2", uid=106, entries=[]
                         ),
                         TestCaseReport(
-                            name='test_param_3',
-                            uid=107,
-                            entries=[],
-                        )
-                    ]
+                            name="test_param_3", uid=107, entries=[]
+                        ),
+                    ],
                 )
-            ]
+            ],
         )
-    ]
+    ],
 )
 
 
 mt_report_gamma = TestGroupReport(
-    name='MyMultiTest',
-    category='multitest',
+    name="MyMultiTest",
+    category="multitest",
     uid=0,
-    tags={'color': {'green'}},
+    tags={"color": {"green"}},
     entries=[
         TestGroupReport(
-            name='GammaSuite',
-            category='testsuite',
+            name="GammaSuite",
+            category="testsuite",
             uid=12,
             tags={},
             entries=[
                 TestCaseReport(
-                    name='test_one',
+                    name="test_one",
                     uid=108,
                     entries=[],
-                    tags={'environment': {'client'}},
+                    tags={"environment": {"client"}},
                 ),
                 TestCaseReport(
-                    name='test_two',
+                    name="test_two",
                     uid=109,
                     entries=[],
-                    tags={'environment': {'server'}},
+                    tags={"environment": {"server"}},
                 ),
-            ]
-
+            ],
         )
-    ]
+    ],
 )
 
 
 def test_merge():
     mt_report = TestGroupReport(
-        name='MyMultiTest',
-        category='multitest',
+        name="MyMultiTest",
+        category="multitest",
         uid=0,
-        tags={'color': {'green'}},
+        tags={"color": {"green"}},
     )
 
     mt_report.merge(mt_report_alpha, strict=False)

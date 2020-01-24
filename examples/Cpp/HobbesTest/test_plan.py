@@ -11,28 +11,27 @@ from testplan.testing.cpp import HobbesTest
 
 from testplan import test_plan
 
-BINARY_PATH = os.path.join(os.path.dirname(__file__), 'test', 'hobbes-test')
+BINARY_PATH = os.path.join(os.path.dirname(__file__), "test", "hobbes-test")
 
-@test_plan(
-    name='HobbesTestExample',
-)
+
+@test_plan(name="HobbesTestExample")
 def main(plan):
 
     if not os.path.exists(BINARY_PATH):
-        raise RuntimeError('You need to compile test binary first.')
+        raise RuntimeError("You need to compile test binary first.")
 
     else:
         plan.add(
             HobbesTest(
-                name='MyHobbesTest',
+                name="MyHobbesTest",
                 driver=BINARY_PATH,
                 # You can run one or more specified test(s)
                 # tests=['Arrays', 'Compiler', 'Hog'],
                 # You can pass other arguments to the test binary
                 # other_args=['--tests', 'Arrays', 'Compiler']
             )
-
         )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     sys.exit(not main())

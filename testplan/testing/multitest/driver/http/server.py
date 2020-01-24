@@ -20,6 +20,7 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
     Responds to any HTTP request with response in queue. If empty send an error
     message in response.
     """
+
     def _send_header(self, status_code=200, headers=None):
         """
         Send a header response.
@@ -33,7 +34,7 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
         :rtype: ``NoneType``
         """
         if headers is None:
-            headers = {'Content-type': 'text/plain'}
+            headers = {"Content-type": "text/plain"}
         self.send_response(code=int(status_code))
         for keyword, value in headers.items():
             self.send_header(keyword, value)
@@ -48,7 +49,7 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
         """
         for line in content:
             try:
-                line = line.encode('utf-8')
+                line = line.encode("utf-8")
             except AttributeError:
                 pass
             self.wfile.write(line)
@@ -64,21 +65,21 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
         """
         response = self.get_response(request=self.path)
         if not isinstance(response, HTTPResponse):
-            raise TypeError('Response must be of type HTTPResponse')
+            raise TypeError("Response must be of type HTTPResponse")
 
-        self._send_header(status_code=response.status_code,
-                         headers=response.headers)
+        self._send_header(
+            status_code=response.status_code, headers=response.headers
+        )
         self._send_content(response.content)
         self.server.log_callback(
-            'Sent response with:\n  status code {}\n  headers {}'.format(
-                response.status_code,
-                response.headers
+            "Sent response with:\n  status code {}\n  headers {}".format(
+                response.status_code, response.headers
             )
         )
 
     def log_message(self, format, *args):
         """Log messages from the BaseHTTPRequestHandler class."""
-        self.server.log_callback('BASE CLASS: {}'.format(format%args))
+        self.server.log_callback("BASE CLASS: {}".format(format % args))
 
     def get_response(self, request):
         """
@@ -97,54 +98,51 @@ class HTTPRequestHandler(http_server.BaseHTTPRequestHandler):
                 response = self.server.responses.get(False)
             except queue.Empty:
                 response = HTTPResponse(
-                    status_code=500,
-                    content=['No response in driver queue.']
+                    status_code=500, content=["No response in driver queue."]
                 )
-                self.server.log_callback(
-                    'No response found in queue.'
-                )
+                self.server.log_callback("No response found in queue.")
             else:
-                self.server.log_callback('Response popped from queue.')
+                self.server.log_callback("Response popped from queue.")
                 break
             time.sleep(self.server.interval)
         if response.status_code == 500:
-            self.server.log_callback('Responding with 500 error.')
+            self.server.log_callback("Responding with 500 error.")
         return response
 
     def do_HEAD(self):
         """Handles a HEAD request."""
         self._send_header()
-        self.server.log_callback('Sending response to HEAD request.')
+        self.server.log_callback("Sending response to HEAD request.")
 
     def do_GET(self):
         """Handles a GET request."""
         self._parse_request()
-        self.server.log_callback('Sending response to GET request.')
+        self.server.log_callback("Sending response to GET request.")
 
     def do_POST(self):
         """Handles a POST request."""
         self._parse_request()
-        self.server.log_callback('Sending response to POST request.')
+        self.server.log_callback("Sending response to POST request.")
 
     def do_PUT(self):
         """Handles a PUT request."""
         self._parse_request()
-        self.server.log_callback('Sending response to PUT request.')
+        self.server.log_callback("Sending response to PUT request.")
 
     def do_DELETE(self):
         """Handles a DELETE request."""
         self._parse_request()
-        self.server.log_callback('Sending response to DELETE request.')
+        self.server.log_callback("Sending response to DELETE request.")
 
     def do_PATCH(self):
         """Handles a PATCH request."""
         self._parse_request()
-        self.server.log_callback('Sending response to PATCH request.')
+        self.server.log_callback("Sending response to PATCH request.")
 
     def do_OPTIONS(self):
         """Handles a OPTIONS request."""
         self._parse_request()
-        self.server.log_callback('Sending response to OPTIONS request.')
+        self.server.log_callback("Sending response to OPTIONS request.")
 
 
 class HTTPServerConfig(DriverConfig):
@@ -160,13 +158,14 @@ class HTTPServerConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            Optional('host', default='localhost'): str,
-            Optional('port', default=0): Use(int),
-            Optional('request_handler', default=HTTPRequestHandler):
-                lambda v: issubclass(v, http_server.BaseHTTPRequestHandler),
-            Optional('handler_attributes', default={}): dict,
-            Optional('timeout', default=5): Use(int),
-            Optional('interval', default=0.01): Use(float)
+            Optional("host", default="localhost"): str,
+            Optional("port", default=0): Use(int),
+            Optional(
+                "request_handler", default=HTTPRequestHandler
+            ): lambda v: issubclass(v, http_server.BaseHTTPRequestHandler),
+            Optional("handler_attributes", default={}): dict,
+            Optional("timeout", default=5): Use(int),
+            Optional("interval", default=0.01): Use(float),
         }
 
 
@@ -195,9 +194,10 @@ class HTTPServer(Driver):
 
     CONFIG = HTTPServerConfig
 
-    def __init__(self,
+    def __init__(
+        self,
         name,
-        host='localhost',
+        host="localhost",
         port=0,
         request_handler=HTTPRequestHandler,
         handler_attributes=None,
@@ -216,7 +216,7 @@ class HTTPServer(Driver):
         self.requests = None
         self.responses = None
         self._server_thread = None
-        self._logname = '{0}.log'.format(slugify(self.cfg.name))
+        self._logname = "{0}.log".format(slugify(self.cfg.name))
 
     @property
     def logpath(self):
@@ -241,9 +241,9 @@ class HTTPServer(Driver):
         :type response: ``HTTPResponse``
         """
         if not isinstance(response, HTTPResponse):
-            raise TypeError('Response must be of type HTTPResponse')
+            raise TypeError("Response must be of type HTTPResponse")
         self.responses.put(response)
-        self.file_logger.debug('Added response to HTTPServer response queue.')
+        self.file_logger.debug("Added response to HTTPServer response queue.")
 
     def respond(self, response):
         """
@@ -286,17 +286,17 @@ class HTTPServer(Driver):
             handler_attributes=self.handler_attributes,
             request_handler=self.request_handler,
             timeout=self.timeout,
-            logger=self.file_logger)
+            logger=self.file_logger,
+        )
         self._server_thread.setName(self.name)
         self._server_thread.start()
 
-        while not hasattr(self._server_thread.server, 'server_port'):
+        while not hasattr(self._server_thread.server, "server_port"):
             time.sleep(0.1)
         self._host, self._port = self._server_thread.server.server_address
         self.file_logger.debug(
-            'Started HTTPServer listening on http://{host}:{port}'.format(
-                host=self.host,
-                port=self.port
+            "Started HTTPServer listening on http://{host}:{port}".format(
+                host=self.host, port=self.port
             )
         )
 
@@ -309,13 +309,13 @@ class HTTPServer(Driver):
         """Stop the HTTPServer."""
         super(HTTPServer, self).stopping()
         self._stop()
-        self.file_logger.debug('Stopped HTTPServer.')
+        self.file_logger.debug("Stopped HTTPServer.")
         self._close_file_logger()
 
     def aborting(self):
         """Abort logic that stops the server."""
         self._stop()
-        self.file_logger.debug('Aborted HTTPServer.')
+        self.file_logger.debug("Aborted HTTPServer.")
 
 
 class HTTPResponse(object):
@@ -329,9 +329,10 @@ class HTTPResponse(object):
     :param content: A list of strings to be sent back.
     :type content: ``list``
     """
+
     def __init__(self, status_code=None, headers=None, content=None):
         self.status_code = status_code or 200
-        self.headers = headers or {'Content-type': 'text/plain'}
+        self.headers = headers or {"Content-type": "text/plain"}
         self.content = content or []
 
 
@@ -360,9 +361,19 @@ class _HTTPServerThread(Thread):
     :param logger: Logger for the driver.
     :type logger: ``logging.Logger``
     """
-    def __init__(self, host, port, requests_queue, responses_queue,
-                 handler_attributes, request_handler=None, timeout=5,
-                 interval=0.01, logger=None):
+
+    def __init__(
+        self,
+        host,
+        port,
+        requests_queue,
+        responses_queue,
+        handler_attributes,
+        request_handler=None,
+        timeout=5,
+        interval=0.01,
+        logger=None,
+    ):
         super(_HTTPServerThread, self).__init__()
         self.host = host
         self.port = port
@@ -378,8 +389,8 @@ class _HTTPServerThread(Thread):
     def run(self):
         """Start the HTTP server thread."""
         self.server = http_server.HTTPServer(
-          server_address=(self.host, self.port),
-          RequestHandlerClass=self.request_handler
+            server_address=(self.host, self.port),
+            RequestHandlerClass=self.request_handler,
         )
         self.server.requests = self.requests_queue
         self.server.responses = self.responses_queue
@@ -387,10 +398,12 @@ class _HTTPServerThread(Thread):
         self.server.timeout = self.timeout
         self.server.interval = self.interval
         nothing = lambda msg: None
-        self.server.log_callback = self.logger.debug if self.logger else nothing
+        self.server.log_callback = (
+            self.logger.debug if self.logger else nothing
+        )
         self.server.serve_forever()
 
     def stop(self):
         """Stop the HTTP server thread."""
         if self.server is not None:
-          self.server.shutdown()
+            self.server.shutdown()

@@ -48,7 +48,6 @@ def _exclude_assertions_filter(obj):
         return True
 
 
-
 class TestRunnerIHandler(entity.Entity):
     """
     Runnable interactive handler for
@@ -824,21 +823,14 @@ class TestRunnerIHandler(entity.Entity):
                 entity.ResourceStatus.STOPPED
             ) and not test.resources.all_status(entity.ResourceStatus.NONE):
                 # State requires to reset all.
-                self.stop_test_resources(
-                    test_uid,
-                    runner_uid=runner_uid,
-                )
-            self.start_test_resources(
-                test_uid, runner_uid=runner_uid,
-            )
+                self.stop_test_resources(test_uid, runner_uid=runner_uid)
+            self.start_test_resources(test_uid, runner_uid=runner_uid)
             resources_started = True
 
         yield
 
         if resources_started:
-            self.stop_test_resources(
-                test_uid, runner_uid=runner_uid
-            )
+            self.stop_test_resources(test_uid, runner_uid=runner_uid)
 
     def _set_env_status(self, test_uid, new_status):
         """Set the environment status for a given test."""

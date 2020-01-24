@@ -13,9 +13,8 @@ def main():
         if line.strip() == SENTINEL:
             break
         else:
-            print(line.rstrip('\n'))
+            print(line.rstrip("\n"))
 
 
 if __name__ == "__main__":
     main()
-

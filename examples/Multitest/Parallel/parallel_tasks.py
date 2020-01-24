@@ -46,7 +46,7 @@ class SampleTest(object):
         # execution group may be synchronised with each other.
         self._test_g2_1_done = threading.Event()
 
-    @testcase(execution_group='first')
+    @testcase(execution_group="first")
     def test_g1_1(self, env, result):
         """
         Wait for test_g1_2 to also acquire the first resource. Assert that the
@@ -54,15 +54,15 @@ class SampleTest(object):
         """
         self._test_g1_impl(env, result)
 
-    @testcase(execution_group='second')
+    @testcase(execution_group="second")
     def test_g2_1(self, env, result):
         """Assert that no other test holds the second resource."""
-        with env.resources['second'] as res:
+        with env.resources["second"] as res:
             result.true(res.active)
             result.equal(res.refcount, 1)
         self._test_g2_1_done.set()
 
-    @testcase(execution_group='first')
+    @testcase(execution_group="first")
     def test_g1_2(self, env, result):
         """
         Mirror image of test_g1_1. We wait for test_g1_1 to acquire the first
@@ -71,12 +71,12 @@ class SampleTest(object):
         """
         self._test_g1_impl(env, result)
 
-    @testcase(execution_group='second')
+    @testcase(execution_group="second")
     def test_g2_2(self, env, result):
         """Wait for test_g2_1 to release the resource before acquiring it."""
         self._test_g2_1_done.wait()
 
-        with env.resources['second'] as res:
+        with env.resources["second"] as res:
             result.true(res.active)
             result.equal(res.refcount, 1)
 
@@ -85,7 +85,7 @@ class SampleTest(object):
         Implementation of test_g1 testcases. Both testcases use the same logic
         but are run concurrently in separate threads.
         """
-        with env.resources['first'] as res:
+        with env.resources["first"] as res:
             result.true(res.active)
 
             # Wait for both threads to acquire the resource.
@@ -107,8 +107,10 @@ def make_multitest():
     testcases.
     """
     return MultiTest(
-        name='Testcase Parallezation',
+        name="Testcase Parallezation",
         suites=[SampleTest()],
         thread_pool_size=2,
         environment=[
-            resource_manager.ExclusiveResourceManager(name='resources')])
+            resource_manager.ExclusiveResourceManager(name="resources")
+        ],
+    )

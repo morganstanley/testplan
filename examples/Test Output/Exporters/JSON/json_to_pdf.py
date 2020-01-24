@@ -17,7 +17,7 @@ def main(source, target):
         data = json.loads(source_file.read())
         report_obj = TestReport.deserialize(data)
 
-        print('Loaded report: {}'.format(report_obj.name))
+        print("Loaded report: {}".format(report_obj.name))
 
         # We can initialize an exporter object directly, without relying on
         # Testplan internals to trigger the export operation.
@@ -25,17 +25,17 @@ def main(source, target):
             pdf_path=target,
             pdf_style=Style(
                 passing=StyleEnum.ASSERTION_DETAIL,
-                failing=StyleEnum.ASSERTION_DETAIL
-            )
+                failing=StyleEnum.ASSERTION_DETAIL,
+            ),
         )
 
         exporter.export(report_obj)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--source', default='report.json', type=str)
-    parser.add_argument('--target', default='report.pdf', type=str)
+    parser.add_argument("--source", default="report.json", type=str)
+    parser.add_argument("--target", default="report.pdf", type=str)
 
     args = parser.parse_args()
 

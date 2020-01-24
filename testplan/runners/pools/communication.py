@@ -4,20 +4,20 @@
 class Message(object):
     """Object to be used for pool-worker communication."""
 
-    Ack = 'Ack'
-    TaskSending = 'TaskSending'
-    TaskResults = 'TaskResults'
-    TaskPullRequest = 'TaskPullRequest'
-    MetadataPull = 'MetadataPull'
-    Metadata = 'Metadata'
-    Stop = 'Stop'
-    Heartbeat = 'Heartbeat'
-    Message = 'Message'
-    ConfigRequest = 'ConfigRequest'
-    ConfigSending = 'ConfigSending'
-    SetupFailed = 'SetupFailed'
-    InitRequest = 'InitRequest'
-    KeepAlive = 'KeepAlive'
+    Ack = "Ack"
+    TaskSending = "TaskSending"
+    TaskResults = "TaskResults"
+    TaskPullRequest = "TaskPullRequest"
+    MetadataPull = "MetadataPull"
+    Metadata = "Metadata"
+    Stop = "Stop"
+    Heartbeat = "Heartbeat"
+    Message = "Message"
+    ConfigRequest = "ConfigRequest"
+    ConfigSending = "ConfigSending"
+    SetupFailed = "SetupFailed"
+    InitRequest = "InitRequest"
+    KeepAlive = "KeepAlive"
 
     def __init__(self, **sender_metadata):
         """

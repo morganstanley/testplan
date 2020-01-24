@@ -13,7 +13,6 @@ from testplan.report.testing.styles import Style
 
 @testsuite
 class Alpha(object):
-
     @testcase
     def test_b(self, env, result):
         pass
@@ -25,7 +24,6 @@ class Alpha(object):
 
 @testsuite
 class Beta(object):
-
     @testcase
     def test_c(self, env, result):
         pass
@@ -41,7 +39,6 @@ class Beta(object):
 
 @testsuite
 class Gamma(object):
-
     @testcase
     def test_c(self, env, result):
         pass
@@ -69,17 +66,17 @@ class Gamma(object):
 
 
 @test_plan(
-    name='Test Ordering / Shuffling basics (Command line)',
+    name="Test Ordering / Shuffling basics (Command line)",
     # Using testcase level stdout so we can see sorted testcases
-    stdout_style=Style('testcase', 'testcase')
+    stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
 
-    multi_test_1 = MultiTest(name='Primary', suites=[Alpha(), Beta()])
-    multi_test_2 = MultiTest(name='Secondary', suites=[Gamma()])
+    multi_test_1 = MultiTest(name="Primary", suites=[Alpha(), Beta()])
+    multi_test_2 = MultiTest(name="Secondary", suites=[Gamma()])
     plan.add(multi_test_1)
     plan.add(multi_test_2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

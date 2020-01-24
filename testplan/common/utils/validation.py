@@ -15,15 +15,21 @@ def is_subclass(parent_kls):
 
     Using this function will allow us to do ``issubclass`` checks.
     """
+
     def _validator(kls):
         return issubclass(kls, parent_kls)
+
     return _validator
 
 
 def has_method(method_name):
     """Validator that checks if a given class has method with the given name"""
+
     def _validator(kls):
-        return hasattr(kls, method_name) and callable(getattr(kls, method_name))
+        return hasattr(kls, method_name) and callable(
+            getattr(kls, method_name)
+        )
+
     return _validator
 
 

@@ -11,6 +11,7 @@ install:
 
 script:
   - ./scripts/utils/crlf_check.sh
+  - black --check -l 79 .
   - pylint --rcfile pylintrc testplan
   - pytest tests --verbose
 

@@ -72,6 +72,7 @@ def update_options(target, source):
     For the example above, target will not be updated as the 'names' of the
     keys are the same, even if they don't have the same hash.
     """
+
     def get_key_str(option):
         """Will be used for getting name from ConfigOption keys."""
         return option._schema if isinstance(option, Optional) else option
@@ -101,7 +102,7 @@ class Config(object):
         self._options = self.build_schema().validate(options)
 
     def __getattr__(self, name):
-        options = self.__getattribute__('_options')
+        options = self.__getattribute__("_options")
 
         # this option is defined in current entity
         if name in options:
@@ -114,11 +115,13 @@ class Config(object):
             return getattr(self.parent, name)
         else:
             raise AttributeError(
-                'Attribute "{}" not found in {}'.format(name, self))
+                'Attribute "{}" not found in {}'.format(name, self)
+            )
 
     def __repr__(self):
-        return '{}{}'.format(self.__class__.__name__,
-                             self._cfg_input or self._options)
+        return "{}{}".format(
+            self.__class__.__name__, self._cfg_input or self._options
+        )
 
     @property
     def parent(self):
@@ -129,8 +132,9 @@ class Config(object):
     def parent(self, value):
         """Set the parent configuration relation."""
         if self._parent is not None:
-            raise AttributeError('Cannot overwrite parent: {}'.format(
-                self._parent))
+            raise AttributeError(
+                "Cannot overwrite parent: {}".format(self._parent)
+            )
         self._parent = value
 
     def denormalize(self):
@@ -144,13 +148,15 @@ class Config(object):
             if inspect.isclass(value) or inspect.isroutine(value):
                 # Skipping non-serializable classes and routines.
                 logger.TESTPLAN_LOGGER.warning(
-                    'Skip denormalizing option: {}'.format(key))
+                    "Skip denormalizing option: {}".format(key)
+                )
                 continue
             try:
                 new_options[copy.deepcopy(key)] = copy.deepcopy(value)
             except Exception as exc:
                 logger.TESTPLAN_LOGGER.warning(
-                    'Failed to denormalize option: {} - {}'.format(key, exc))
+                    "Failed to denormalize option: {} - {}".format(key, exc)
+                )
 
         new = self.__class__(**new_options)
         return new
@@ -170,14 +176,12 @@ class Config(object):
 
         # All parent classes that are subclasses of Config
         parents = [
-            p for p in inspect.getmro(cls)[1:]
+            p
+            for p in inspect.getmro(cls)[1:]
             if issubclass(p, Config) and p != Config
         ]
 
         for p in parents:
             update_options(target=config_options, source=p.get_options())
 
-        return Schema(
-            config_options,
-            ignore_extra_keys=cls.ignore_extra_keys
-        )
+        return Schema(config_options, ignore_extra_keys=cls.ignore_extra_keys)

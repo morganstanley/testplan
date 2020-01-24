@@ -21,7 +21,7 @@ class Server(object):
     :type listen: ``int``
     """
 
-    def __init__(self, host='localhost', port=0, listen=1):
+    def __init__(self, host="localhost", port=0, listen=1):
         self._input_host = host
         self._input_port = port
         self._listen = listen
@@ -73,7 +73,8 @@ class Server(object):
     def serve(self, loop_sleep=0.005, listening_timeout=5):
         """Start serving connections."""
         self._server_thread = threading.Thread(
-            target=self._serving, kwargs=dict(loop_sleep=loop_sleep))
+            target=self._serving, kwargs=dict(loop_sleep=loop_sleep)
+        )
         self._server_thread.daemon = True
         self._server_thread.start()
 
@@ -89,7 +90,8 @@ class Server(object):
 
         while self._listening:
             readable, writable, exceptional = select.select(
-                inputs, outputs, inputs)
+                inputs, outputs, inputs
+            )
 
             for sock in readable:
                 if sock is self._server:
@@ -138,8 +140,9 @@ class Server(object):
                 return -1
             time.sleep(accept_connection_sleep)
 
-    def receive(self, size=1024, conn_idx=None, timeout=30,
-                wait_full_size=True):
+    def receive(
+        self, size=1024, conn_idx=None, timeout=30, wait_full_size=True
+    ):
         """
         Receive a message of given size (number of bytes) from the given
         connection.
@@ -169,12 +172,12 @@ class Server(object):
             connection.settimeout(0)
         else:
             with self._lock:
-                msg = b''
+                msg = b""
                 try:
                     while len(msg) < size:
                         new_msg = connection.recv(size - len(msg))
                         if not new_msg:
-                            raise Exception('Socket connection broken')
+                            raise Exception("Socket connection broken")
                         msg += new_msg
                 except socket.error:
                     if timeout == 0:
@@ -232,10 +235,10 @@ class Server(object):
                 conn_idx = 0
 
         if self.accepted_connections == 0:
-            raise Exception('No connection accepted')
+            raise Exception("No connection accepted")
 
         if conn_idx not in self._fds:
-            raise Exception('Connection {} not active'.format(conn_idx))
+            raise Exception("Connection {} not active".format(conn_idx))
 
         return conn_idx
 

@@ -15,11 +15,11 @@ def format_duration(seconds):
     Format a duration into a human-readable string.
     """
     mins, secs = divmod(seconds, 60)
-    fmt = '{:.0f}'
+    fmt = "{:.0f}"
     if mins:
-        return '{} minutes {} seconds'.format(fmt, fmt).format(mins, secs)
+        return "{} minutes {} seconds".format(fmt, fmt).format(mins, secs)
     else:
-        return '{} seconds'.format(fmt).format(secs)
+        return "{} seconds".format(fmt).format(secs)
 
 
 class BaseRowRenderer(object):
@@ -51,8 +51,10 @@ class BaseRowRenderer(object):
 
     def should_display(self, source):
         """Use class attribute by default."""
-        return self.always_display or self.get_style(
-            source).display_assertion_detail
+        return (
+            self.always_display
+            or self.get_style(source).display_assertion_detail
+        )
 
 
 class MetadataMixin(object):
@@ -75,8 +77,10 @@ class MetadataMixin(object):
         Return metadata context to be rendered
         on the PDF with readable labels.
         """
-        return collections.OrderedDict([
-            (label, source.meta[key])
-            for key, label in self.get_metadata_labels()
-            if source.meta.get(key)
-        ])
+        return collections.OrderedDict(
+            [
+                (label, source.meta[key])
+                for key, label in self.get_metadata_labels()
+                if source.meta.get(key)
+            ]
+        )

@@ -6,17 +6,19 @@ class TestTaskResultInitialization(object):
 
     def test_basic_init(self):
         """TODO."""
-        task = Task('Runnable', module=__name__)
-        result = 'result'
+        task = Task("Runnable", module=__name__)
+        result = "result"
         for task_result in (
-              TaskResult(task, result, True, None, None),
-              TaskResult(task, result, True, 'msg', None),
-              TaskResult(task, result, True, None, [Task('Runnable',
-                                                         module=__name__)])):
+            TaskResult(task, result, True, None, None),
+            TaskResult(task, result, True, "msg", None),
+            TaskResult(
+                task, result, True, None, [Task("Runnable", module=__name__)]
+            ),
+        ):
             serialized = task_result.dumps()
             new_task_result = TaskResult().loads(serialized)
 
-            for attr in ('_result', 'status', '_reason', '_uid'):
+            for attr in ("_result", "status", "_reason", "_uid"):
                 task_result_attr = getattr(task_result, attr)
                 new_task_result_attr = getattr(new_task_result, attr)
                 assert task_result_attr == new_task_result_attr

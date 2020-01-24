@@ -25,7 +25,11 @@ from testplan.common.utils.process import enforce_timeout, kill_process
 from testplan.common.utils.strings import slugify
 
 from testplan.report import (
-    test_styles, TestGroupReport, TestCaseReport, Status)
+    test_styles,
+    TestGroupReport,
+    TestCaseReport,
+    Status,
+)
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
@@ -52,16 +56,8 @@ class TestIRunner(RunnableIRunner):
                 dict(),
             )
         for resource in self._runnable.resources:
-            yield (
-                resource.start,
-                tuple(),
-                dict(),
-            )
-            yield (
-                resource._wait_started,
-                tuple(),
-                dict(),
-            )
+            yield (resource.start, tuple(), dict())
+            yield (resource._wait_started, tuple(), dict())
         if self._runnable.cfg.after_start:
             yield (
                 self._runnable.cfg.after_start,
@@ -75,16 +71,28 @@ class TestIRunner(RunnableIRunner):
         Generator to stop Test resources.
         """
         if self._runnable.cfg.before_stop:
-            yield (self._runnable.cfg.before_stop,
-                   (self._runnable.resources,), RunnableIRunner.EMPTY_DICT)
+            yield (
+                self._runnable.cfg.before_stop,
+                (self._runnable.resources,),
+                RunnableIRunner.EMPTY_DICT,
+            )
         for resource in self._runnable.resources:
-            yield (resource.stop,
-                   RunnableIRunner.EMPTY_TUPLE, RunnableIRunner.EMPTY_DICT)
-            yield (resource._wait_stopped,
-                   RunnableIRunner.EMPTY_TUPLE, RunnableIRunner.EMPTY_DICT)
+            yield (
+                resource.stop,
+                RunnableIRunner.EMPTY_TUPLE,
+                RunnableIRunner.EMPTY_DICT,
+            )
+            yield (
+                resource._wait_stopped,
+                RunnableIRunner.EMPTY_TUPLE,
+                RunnableIRunner.EMPTY_DICT,
+            )
         if self._runnable.cfg.after_stop:
-            yield (self._runnable.cfg.after_stop,
-                   (self._runnable.resources,), RunnableIRunner.EMPTY_DICT)
+            yield (
+                self._runnable.cfg.after_stop,
+                (self._runnable.resources,),
+                RunnableIRunner.EMPTY_DICT,
+            )
 
 
 class TestConfig(RunnableConfig):
@@ -93,27 +101,24 @@ class TestConfig(RunnableConfig):
     @classmethod
     def get_options(cls):
         start_stop_signature = Or(
-            None,
-            validate_func('env'),
-            validate_func('env', 'result'),
+            None, validate_func("env"), validate_func("env", "result")
         )
 
         return {
             # 'name': And(str, lambda s: s.count(' ') == 0),
-            'name': str,
-            ConfigOption('description', default=None): Or(str, None),
-            ConfigOption('environment', default=[]): [Resource],
-            ConfigOption('before_start', default=None): start_stop_signature,
-            ConfigOption('after_start', default=None): start_stop_signature,
-            ConfigOption('before_stop', default=None): start_stop_signature,
-            ConfigOption('after_stop', default=None): start_stop_signature,
-            ConfigOption('test_filter'): filtering.BaseFilter,
-            ConfigOption('test_sorter'): ordering.BaseSorter,
-            ConfigOption('stdout_style'): test_styles.Style,
-            ConfigOption(
-                'tags',
-                default=None
-            ): Or(None, Use(tagging.validate_tag_value))
+            "name": str,
+            ConfigOption("description", default=None): Or(str, None),
+            ConfigOption("environment", default=[]): [Resource],
+            ConfigOption("before_start", default=None): start_stop_signature,
+            ConfigOption("after_start", default=None): start_stop_signature,
+            ConfigOption("before_stop", default=None): start_stop_signature,
+            ConfigOption("after_stop", default=None): start_stop_signature,
+            ConfigOption("test_filter"): filtering.BaseFilter,
+            ConfigOption("test_sorter"): ordering.BaseSorter,
+            ConfigOption("stdout_style"): test_styles.Style,
+            ConfigOption("tags", default=None): Or(
+                None, Use(tagging.validate_tag_value)
+            ),
         }
 
 
@@ -127,7 +132,7 @@ class TestResult(RunnableResult):
     """
 
     def __init__(self):
-        super(TestResult, self). __init__()
+        super(TestResult, self).__init__()
         self.report = None
         self.run = False
 
@@ -186,14 +191,14 @@ class Test(Runnable):
         self._init_test_report()
 
     def __str__(self):
-        return '{}[{}]'.format(self.__class__.__name__, self.name)
+        return "{}[{}]".format(self.__class__.__name__, self.name)
 
     def _new_test_report(self):
-         return TestGroupReport(
+        return TestGroupReport(
             name=self.cfg.name,
             description=self.cfg.description,
             category=self.__class__.__name__.lower(),
-            tags=self.cfg.tags
+            tags=self.cfg.tags,
         )
 
     def _init_test_report(self):
@@ -212,7 +217,8 @@ class Test(Runnable):
     def get_filter_levels(self):
         if not self.filter_levels:
             raise ValueError(
-                '`filter_levels` is not defined by {}'.format(self))
+                "`filter_levels` is not defined by {}".format(self)
+            )
         return self.filter_levels
 
     @property
@@ -252,12 +258,15 @@ class Test(Runnable):
         return self.cfg.name
 
     def should_run(self):
-        return self.cfg.test_filter.filter(
-            test=self,
-            # Instance level shallow filtering is applied by default
-            suite=None,
-            case=None,
-        ) and self.test_context
+        return (
+            self.cfg.test_filter.filter(
+                test=self,
+                # Instance level shallow filtering is applied by default
+                suite=None,
+                case=None,
+            )
+            and self.test_context
+        )
 
     def should_log_test_result(self, depth, test_obj, style):
         """
@@ -268,18 +277,21 @@ class Test(Runnable):
         if isinstance(test_obj, TestGroupReport):
             if depth == 0:
                 return style.display_test, TEST_INST_INDENT
-            elif test_obj.category == 'testsuite':
+            elif test_obj.category == "testsuite":
                 return style.display_testsuite, SUITE_INDENT
-            elif test_obj.category == 'parametrization':
+            elif test_obj.category == "parametrization":
                 return False, 0  # DO NOT display
             else:
-                raise ValueError('Unexpected test group category: {}'
-                                 .format(test_obj.category))
+                raise ValueError(
+                    "Unexpected test group category: {}".format(
+                        test_obj.category
+                    )
+                )
         elif isinstance(test_obj, TestCaseReport):
             return style.display_testcase, TESTCASE_INDENT
         elif isinstance(test_obj, dict):
             return style.display_assertion, ASSERTION_INDENT
-        raise TypeError('Unsupported test object: {}'.format(test_obj))
+        raise TypeError("Unsupported test object: {}".format(test_obj))
 
     def log_test_results(self, top_down=True):
         """
@@ -294,9 +306,9 @@ class Test(Runnable):
         entries = []  # Composed of (depth, report obj)
 
         def log_entry(depth, obj):
-            name = obj['description'] if isinstance(obj, dict) else obj.name
+            name = obj["description"] if isinstance(obj, dict) else obj.name
             try:
-                passed = obj['passed'] if isinstance(obj, dict) else obj.passed
+                passed = obj["passed"] if isinstance(obj, dict) else obj.passed
             except KeyError:
                 passed = True  # Some report entries (i.e. Log) always pass
 
@@ -305,22 +317,26 @@ class Test(Runnable):
 
             if display:
                 if isinstance(obj, dict):
-                    if obj['type'] == 'RawAssertion':
-                        header = obj['description']
-                        details = obj['content']
-                    elif 'stdout_header' in obj and 'stdout_details' in obj:
-                        header = obj['stdout_header']
-                        details = obj['stdout_details']
+                    if obj["type"] == "RawAssertion":
+                        header = obj["description"]
+                        details = obj["content"]
+                    elif "stdout_header" in obj and "stdout_details" in obj:
+                        header = obj["stdout_header"]
+                        details = obj["stdout_details"]
                     else:
                         return
                     if style.display_assertion:
-                        TESTPLAN_LOGGER.test_info(indent * ' ' + header)
+                        TESTPLAN_LOGGER.test_info(indent * " " + header)
                     if details and style.display_assertion_detail:
-                        details = os.linesep.join((indent + 2) * ' ' + line
-                            for line in details.split(os.linesep))
+                        details = os.linesep.join(
+                            (indent + 2) * " " + line
+                            for line in details.split(os.linesep)
+                        )
                         TESTPLAN_LOGGER.test_info(details)
                 else:
-                    self.logger.log_test_status(name, obj.status, indent=indent)
+                    self.logger.log_test_status(
+                        name, obj.status, indent=indent
+                    )
 
         for depth, obj in items:
             if top_down:
@@ -352,13 +368,13 @@ class ProcessRunnerTestConfig(TestConfig):
     @classmethod
     def get_options(cls):
         return {
-            'driver': str,
-            ConfigOption('proc_env', default={}): dict,
-            ConfigOption('proc_cwd', default=None): Or(str, None),
-            ConfigOption('timeout', default=None): Or(
+            "driver": str,
+            ConfigOption("proc_env", default={}): dict,
+            ConfigOption("proc_cwd", default=None): Or(str, None),
+            ConfigOption("timeout", default=None): Or(
                 float, int, Use(parse_duration)
             ),
-            ConfigOption('ignore_exit_codes', default=[]): [int]
+            ConfigOption("ignore_exit_codes", default=[]): [int],
         }
 
 
@@ -401,7 +417,7 @@ class ProcessRunnerTest(Test):
     # suites/testcases or might not even have the concept of test suites. If
     # no list_command is specified we will store all testcase results in a
     # single suite, with a default name.
-    _DEFAULT_SUITE_NAME = 'AllTests'
+    _DEFAULT_SUITE_NAME = "AllTests"
 
     def __init__(self, **options):
         super(ProcessRunnerTest, self).__init__(**options)
@@ -414,19 +430,19 @@ class ProcessRunnerTest(Test):
 
     @property
     def stderr(self):
-        return os.path.join(self._runpath, 'stderr')
+        return os.path.join(self._runpath, "stderr")
 
     @property
     def stdout(self):
-        return os.path.join(self._runpath, 'stdout')
+        return os.path.join(self._runpath, "stdout")
 
     @property
     def timeout_log(self):
-        return os.path.join(self._runpath, 'timeout.log')
+        return os.path.join(self._runpath, "timeout.log")
 
     @property
     def report_path(self):
-        return os.path.join(self._runpath, 'report.xml')
+        return os.path.join(self._runpath, "report.xml")
 
     @property
     def test_context(self):
@@ -469,7 +485,8 @@ class ProcessRunnerTest(Test):
             cmd,
             cwd=self.cfg.proc_cwd,
             env=self.cfg.proc_env,
-            stdout=subprocess.PIPE)
+            stdout=subprocess.PIPE,
+        )
 
         test_list_output = proc.communicate()[0]
 
@@ -515,15 +532,15 @@ class ProcessRunnerTest(Test):
         self._test_process_killed = True
         with self.result.report.logged_exceptions():
             raise RuntimeError(
-                'Timeout while running {instance} after {timeout}.'.format(
-                    instance=self,
-                    timeout=format_duration(self.cfg.timeout),
-                ))
+                "Timeout while running {instance} after {timeout}.".format(
+                    instance=self, timeout=format_duration(self.cfg.timeout)
+                )
+            )
 
     def get_proc_env(self):
-        self._json_ouput = os.path.join(self.runpath, 'output.json')
-        self.logger.debug('Json output: {}'.format(self._json_ouput))
-        env = {'JSON_REPORT': self._json_ouput}
+        self._json_ouput = os.path.join(self.runpath, "output.json")
+        self.logger.debug("Json output: {}".format(self._json_ouput))
+        env = {"JSON_REPORT": self._json_ouput}
         env.update(
             {key.upper(): val for key, val in self.cfg.proc_env.items()}
         )
@@ -532,11 +549,14 @@ class ProcessRunnerTest(Test):
             driver_name = driver.uid()
             for attr in dir(driver):
                 value = getattr(driver, attr)
-                if attr.startswith('_') or callable(value):
+                if attr.startswith("_") or callable(value):
                     continue
-                env['DRIVER_{}_ATTR_{}'.format(
-                    slugify(driver_name).replace('-', '_'),
-                    slugify(attr).replace('-', '_')).upper()] = str(value)
+                env[
+                    "DRIVER_{}_ATTR_{}".format(
+                        slugify(driver_name).replace("-", "_"),
+                        slugify(attr).replace("-", "_"),
+                    ).upper()
+                ] = str(value)
 
         return env
 
@@ -547,15 +567,16 @@ class ProcessRunnerTest(Test):
         the given timeout log path.
         """
 
-        with self.result.report.logged_exceptions(), \
-                open(self.stderr, 'w') as stderr, \
-                open(self.stdout, 'w') as stdout:
+        with self.result.report.logged_exceptions(), open(
+            self.stderr, "w"
+        ) as stderr, open(self.stdout, "w") as stdout:
 
             if not os.path.exists(self.cfg.driver):
-                raise IOError('No runnable found at {} for {}'.format(
-                    self.cfg.driver,
-                    self
-                ))
+                raise IOError(
+                    "No runnable found at {} for {}".format(
+                        self.cfg.driver, self
+                    )
+                )
 
             # Need to use driver's absolute path if proc_cwd is specified,
             # otherwise won't be able to find the driver.
@@ -565,11 +586,13 @@ class ProcessRunnerTest(Test):
             test_cmd = self.test_command()
 
             self.result.report.logger.debug(
-                'Running {} - Command: {}'.format(self, test_cmd))
+                "Running {} - Command: {}".format(self, test_cmd)
+            )
 
             if not test_cmd:
                 raise ValueError(
-                    'Invalid test command generated for: {}'.format(self))
+                    "Invalid test command generated for: {}".format(self)
+                )
 
             self._test_process = subprocess_popen(
                 test_cmd,
@@ -580,12 +603,12 @@ class ProcessRunnerTest(Test):
             )
 
             if self.cfg.timeout:
-                with open(self.timeout_log, 'w') as timeout_log:
+                with open(self.timeout_log, "w") as timeout_log:
                     enforce_timeout(
                         process=self._test_process,
                         timeout=self.cfg.timeout,
                         output=timeout_log,
-                        callback=self.timeout_callback
+                        callback=self.timeout_callback,
                     )
                     self._test_process_retcode = self._test_process.wait()
             else:
@@ -603,8 +626,9 @@ class ProcessRunnerTest(Test):
         :return: Root node of parsed raw test data
         :rtype: ``xml.etree.Element``
         """
-        with self.result.report.logged_exceptions(), \
-                open(self.report_path) as report_file:
+        with self.result.report.logged_exceptions(), open(
+            self.report_path
+        ) as report_file:
             return objectify.parse(report_file).getroot()
 
     def process_test_data(self, test_data):
@@ -628,32 +652,32 @@ class ProcessRunnerTest(Test):
         """
         from testplan.testing.multitest.entries.assertions import RawAssertion
 
-        assertion_content = os.linesep.join([
-            'Process failure: {}'.format(self.cfg.driver),
-            'Exit code: {}'.format(self._test_process_retcode),
-            'stdout: {}'.format(self.stdout),
-            'stderr: {}'.format(self.stderr)
-        ])
+        assertion_content = os.linesep.join(
+            [
+                "Process failure: {}".format(self.cfg.driver),
+                "Exit code: {}".format(self._test_process_retcode),
+                "stdout: {}".format(self.stdout),
+                "stderr: {}".format(self.stderr),
+            ]
+        )
 
         testcase_report = TestCaseReport(
-            name='failure',
+            name="failure",
             entries=[
                 RawAssertion(
-                    description='Process failure details',
+                    description="Process failure details",
                     content=assertion_content,
-                    passed=False
-                ).serialize(),
-            ]
+                    passed=False,
+                ).serialize()
+            ],
         )
 
         testcase_report.status_override = Status.ERROR
 
         return TestGroupReport(
-            name='ProcessFailure',
-            category='testsuite',
-            entries=[
-                testcase_report
-            ]
+            name="ProcessFailure",
+            category="testsuite",
+            entries=[testcase_report],
         )
 
     def update_test_report(self):
@@ -667,8 +691,9 @@ class ProcessRunnerTest(Test):
 
         if len(self.result.report):
             raise ValueError(
-                'Cannot update test report,'
-                ' it already has children: {}'.format(self.result.report))
+                "Cannot update test report,"
+                " it already has children: {}".format(self.result.report)
+            )
 
         self.result.report.entries = self.process_test_data(
             test_data=self.read_test_data()
@@ -680,9 +705,11 @@ class ProcessRunnerTest(Test):
         # an error log if the test report was populated
         # (with possible failures) already
 
-        if retcode != 0\
-                and retcode not in self.cfg.ignore_exit_codes\
-                and not len(self.result.report):
+        if (
+            retcode != 0
+            and retcode not in self.cfg.ignore_exit_codes
+            and not len(self.result.report)
+        ):
             with self.result.report.logged_exceptions():
                 self.result.report.append(self.get_process_failure_report())
 
@@ -711,4 +738,3 @@ class ProcessRunnerTest(Test):
         if self._test_process is not None:
             kill_process(self._test_process)
             self._test_process_killed = True
-

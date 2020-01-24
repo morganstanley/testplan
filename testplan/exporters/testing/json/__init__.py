@@ -24,11 +24,10 @@ class JSONExporterConfig(ExporterConfig):
     :py:class:`JSONExporter <testplan.exporters.testing.json.JSONExporter>`
     object.
     """
+
     @classmethod
     def get_options(cls):
-        return {
-            ConfigOption('json_path'): str
-        }
+        return {ConfigOption("json_path"): str}
 
 
 class JSONExporter(Exporter):
@@ -41,6 +40,7 @@ class JSONExporter(Exporter):
     Also inherits all
     :py:class:`~testplan.exporters.testing.base.Exporter` options.
     """
+
     CONFIG = JSONExporterConfig
 
     def export(self, source):
@@ -52,18 +52,19 @@ class JSONExporter(Exporter):
             data = test_plan_schema.dump(source).data
 
             # Save the Testplan report.
-            with open(json_path, 'w') as json_file:
+            with open(json_path, "w") as json_file:
                 json.dump(data, json_file)
 
             # Save any attachments.
             attachments_dir = os.path.join(
-                os.path.dirname(json_path),
-                defaults.ATTACHMENTS
+                os.path.dirname(json_path), defaults.ATTACHMENTS
             )
             save_attachments(report=source, directory=attachments_dir)
 
             self.logger.exporter_info(
-                'JSON generated at %s', os.path.abspath(json_path))
+                "JSON generated at %s", os.path.abspath(json_path)
+            )
         else:
             self.logger.exporter_info(
-                'Skipping JSON creation for empty report: %s', source.name)
+                "Skipping JSON creation for empty report: %s", source.name
+            )

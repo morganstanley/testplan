@@ -35,11 +35,19 @@ from functools import reduce
 from datetime import datetime
 
 
-__all__ = ['Match', 'SequenceMatcher', 'get_close_matches',
-           'Differ', 'IS_CHARACTER_JUNK', 'IS_LINE_JUNK',
-           'diff', 'context_diff', 'unified_diff', ]
+__all__ = [
+    "Match",
+    "SequenceMatcher",
+    "get_close_matches",
+    "Differ",
+    "IS_CHARACTER_JUNK",
+    "IS_LINE_JUNK",
+    "diff",
+    "context_diff",
+    "unified_diff",
+]
 
-Match = _namedtuple('Match', 'a b size')
+Match = _namedtuple("Match", "a b size")
 
 
 def _calculate_ratio(matches, length):
@@ -156,7 +164,7 @@ class SequenceMatcher(object):
         Return an upper bound on ratio() very quickly.
     """
 
-    def __init__(self, isjunk=None, a='', b='', autojunk=False):
+    def __init__(self, isjunk=None, a="", b="", autojunk=False):
         """Construct a SequenceMatcher.
 
         Optional arg isjunk is None (the default), or a one-argument
@@ -261,13 +269,19 @@ class SequenceMatcher(object):
         if a is self.a:
             return
         self.a = a
-        self.a_real_content = self.a.real_content() \
-            if isinstance(self.a, FuzzyMatchingString) else None
+        self.a_real_content = (
+            self.a.real_content()
+            if isinstance(self.a, FuzzyMatchingString)
+            else None
+        )
         self.matching_blocks = self.opcodes = self._ratio = None
 
         # cache the data for self.find_longest_match()
-        ajunk = {elt for elt in self.a if self.isjunk(elt)} \
-            if self.isjunk else set()
+        ajunk = (
+            {elt for elt in self.a if self.isjunk(elt)}
+            if self.isjunk
+            else set()
+        )
         self.isajunk = ajunk.__contains__
 
     def set_seq2(self, b):
@@ -294,8 +308,11 @@ class SequenceMatcher(object):
         if b is self.b:
             return
         self.b = b
-        self.b_real_content = self.b.real_content() \
-            if isinstance(self.b, FuzzyMatchingString) else None
+        self.b_real_content = (
+            self.b.real_content()
+            if isinstance(self.b, FuzzyMatchingString)
+            else None
+        )
         self.matching_blocks = self.opcodes = self._ratio = None
         self.fullbcount = None
         self.__chain_b()
@@ -444,11 +461,11 @@ class SequenceMatcher(object):
                     continue
                 if j >= bhi:
                     break
-                k = newj2len[j] = j2lenget(j-1, 0) + 1
+                k = newj2len[j] = j2lenget(j - 1, 0) + 1
                 # with condition 'k == bestsize and j-k+1 < bestj', the longest
                 # substring starts earliest in b will be selected with priority
-                if k > bestsize or k == bestsize and j-k+1 < bestj:
-                    besti, bestj, bestsize = i-k+1, j-k+1, k
+                if k > bestsize or k == bestsize and j - k + 1 < bestj:
+                    besti, bestj, bestsize = i - k + 1, j - k + 1, k
             j2len = newj2len
 
         # Extend the best by non-junk and junk elements repeatedly until
@@ -461,14 +478,21 @@ class SequenceMatcher(object):
             # "popular" non-junk elements aren't in b2j, which greatly speeds
             # the inner loop above, but also means "the best" match so far
             # doesn't contain any junk *or* popular non-junk elements.
-            while besti > alo and bestj > blo and \
-                not isajunk(a[besti-1]) and not isbjunk(b[bestj-1]) and \
-                    a[besti-1] == b[bestj-1]:
-                besti, bestj, bestsize = besti-1, bestj-1, bestsize+1
-            while besti+bestsize < ahi and bestj+bestsize < bhi and \
-                not isajunk(a[besti+bestsize]) and \
-                    not isbjunk(b[bestj+bestsize]) and \
-                        a[besti+bestsize] == b[bestj+bestsize]:
+            while (
+                besti > alo
+                and bestj > blo
+                and not isajunk(a[besti - 1])
+                and not isbjunk(b[bestj - 1])
+                and a[besti - 1] == b[bestj - 1]
+            ):
+                besti, bestj, bestsize = besti - 1, bestj - 1, bestsize + 1
+            while (
+                besti + bestsize < ahi
+                and bestj + bestsize < bhi
+                and not isajunk(a[besti + bestsize])
+                and not isbjunk(b[bestj + bestsize])
+                and a[besti + bestsize] == b[bestj + bestsize]
+            ):
                 bestsize += 1
 
             # Now that we have a wholly interesting match (albeit possibly
@@ -478,13 +502,21 @@ class SequenceMatcher(object):
             # figuring out what to do with it.  In the case of an empty
             # interesting match, this is clearly the right thing to do,
             # because no other kind of match is possible in the regions.
-            while besti > alo and bestj > blo and \
-                isajunk(a[besti-1]) and isbjunk(b[bestj-1]) and \
-                    a[besti-1] == b[bestj-1]:
-                besti, bestj, bestsize = besti-1, bestj-1, bestsize+1
-            while besti+bestsize < ahi and bestj+bestsize < bhi and \
-                isajunk(a[besti+bestsize]) and isbjunk(b[bestj+bestsize]) and \
-                    a[besti+bestsize] == b[bestj+bestsize]:
+            while (
+                besti > alo
+                and bestj > blo
+                and isajunk(a[besti - 1])
+                and isbjunk(b[bestj - 1])
+                and a[besti - 1] == b[bestj - 1]
+            ):
+                besti, bestj, bestsize = besti - 1, bestj - 1, bestsize + 1
+            while (
+                besti + bestsize < ahi
+                and bestj + bestsize < bhi
+                and isajunk(a[besti + bestsize])
+                and isbjunk(b[bestj + bestsize])
+                and a[besti + bestsize] == b[bestj + bestsize]
+            ):
                 bestsize += 1
 
         return Match(besti, bestj, bestsize)
@@ -528,12 +560,12 @@ class SequenceMatcher(object):
             # a[alo:i] vs b[blo:j] unknown
             # a[i:i+k] same as b[j:j+k]
             # a[i+k:ahi] vs b[j+k:bhi] unknown
-            if k:   # if k is 0, there was no matching block
+            if k:  # if k is 0, there was no matching block
                 matching_blocks.append(x)
                 if alo < i and blo < j:
                     queue.append((alo, i, blo, j))
-                if i+k < ahi and j+k < bhi:
-                    queue.append((i+k, ahi, j+k, bhi))
+                if i + k < ahi and j + k < bhi:
+                    queue.append((i + k, ahi, j + k, bhi))
         matching_blocks.sort()
 
         # It's possible that we have adjacent equal blocks in the
@@ -602,20 +634,20 @@ class SequenceMatcher(object):
             # a[ai:ai+size] == b[bj:bj+size].  So we need to pump
             # out a diff to change a[i:ai] into b[j:bj], pump out
             # the matching block, and move (i,j) beyond the match
-            tag = ''
+            tag = ""
             if i < ai and j < bj:
-                tag = 'replace'
+                tag = "replace"
             elif i < ai:
-                tag = 'delete'
+                tag = "delete"
             elif j < bj:
-                tag = 'insert'
+                tag = "insert"
             if tag:
                 answer.append((tag, i, ai, j, bj))
-            i, j = ai+size, bj+size
+            i, j = ai + size, bj + size
             # the list of matching blocks is terminated by a
             # sentinel with size 0
             if size:
-                answer.append(('equal', ai, i, bj, j))
+                answer.append(("equal", ai, i, bj, j))
         return answer
 
     def get_grouped_opcodes(self, n=3):
@@ -649,25 +681,25 @@ class SequenceMatcher(object):
         if not codes:
             codes = [("equal", 0, 1, 0, 1)]
         # Fixup leading and trailing groups if they show no changes.
-        if codes[0][0] == 'equal':
+        if codes[0][0] == "equal":
             tag, i1, i2, j1, j2 = codes[0]
-            codes[0] = tag, max(i1, i2-n), i2, max(j1, j2-n), j2
-        if codes[-1][0] == 'equal':
+            codes[0] = tag, max(i1, i2 - n), i2, max(j1, j2 - n), j2
+        if codes[-1][0] == "equal":
             tag, i1, i2, j1, j2 = codes[-1]
-            codes[-1] = tag, i1, min(i2, i1+n), j1, min(j2, j1+n)
+            codes[-1] = tag, i1, min(i2, i1 + n), j1, min(j2, j1 + n)
 
         nn = n + n
         group = []
         for tag, i1, i2, j1, j2 in codes:
             # End the current group and start a new one whenever
             # there is a large range with no changes.
-            if tag == 'equal' and i2-i1 > nn:
-                group.append((tag, i1, min(i2, i1+n), j1, min(j2, j1+n)))
+            if tag == "equal" and i2 - i1 > nn:
+                group.append((tag, i1, min(i2, i1 + n), j1, min(j2, j1 + n)))
                 yield group
                 group = []
-                i1, j1 = max(i1, i2-n), max(j1, j2-n)
+                i1, j1 = max(i1, i2 - n), max(j1, j2 - n)
             group.append((tag, i1, i2, j1, j2))
-        if group and not (len(group) == 1 and group[0][0] == 'equal'):
+        if group and not (len(group) == 1 and group[0][0] == "equal"):
             yield group
 
     def ratio(self):
@@ -699,7 +731,8 @@ class SequenceMatcher(object):
         # compute the similar ratio and cache it
         matches = reduce(
             lambda count, triple: count + triple[-1],
-            SequenceMatcher(self.isjunk, a, b).get_matching_blocks(), 0
+            SequenceMatcher(self.isjunk, a, b).get_matching_blocks(),
+            0,
         )
         self._ratio = _calculate_ratio(matches, len(a) + len(b))
         return self._ratio
@@ -742,10 +775,12 @@ class SequenceMatcher(object):
         is faster to compute than either .ratio() or .quick_ratio().
         """
 
-        la = len(self.a if self.a_real_content is None
-                 else self.a_real_content)
-        lb = len(self.b if self.b_real_content is None
-                 else self.b_real_content)
+        la = len(
+            self.a if self.a_real_content is None else self.a_real_content
+        )
+        lb = len(
+            self.b if self.b_real_content is None else self.b_real_content
+        )
         # can't have more matches than the number of elements in the
         # shorter sequence
         return _calculate_ratio(min(la, lb), la + lb)
@@ -780,7 +815,7 @@ def get_close_matches(word, possibilities, n=3, cutoff=0.6):
     ['except']
     """
 
-    if not n >  0:
+    if not n > 0:
         raise ValueError("n must be > 0: %r" % (n,))
     if not 0.0 <= cutoff <= 1.0:
         raise ValueError("cutoff must be in [0.0, 1.0]: %r" % (cutoff,))
@@ -789,9 +824,11 @@ def get_close_matches(word, possibilities, n=3, cutoff=0.6):
     s.set_seq2(word)
     for x in possibilities:
         s.set_seq1(x)
-        if s.real_quick_ratio() >= cutoff and \
-           s.quick_ratio() >= cutoff and \
-           s.ratio() >= cutoff:
+        if (
+            s.real_quick_ratio() >= cutoff
+            and s.quick_ratio() >= cutoff
+            and s.ratio() >= cutoff
+        ):
             result.append((s.ratio(), x))
 
     # Move the best scorers to head of list
@@ -810,7 +847,7 @@ class FuzzyMatchingString(str):
         return super(FuzzyMatchingString, cls).__new__(cls, value)
 
     def __init__(self, value, *args, **kwargs):
-        raise NotImplementedError('FuzzyMatchingString: Not implemented!')
+        raise NotImplementedError("FuzzyMatchingString: Not implemented!")
 
     def __hash__(self):
         return hash(str(self))
@@ -834,19 +871,20 @@ class SpaceIgnoredString(FuzzyMatchingString):
     when compared with other strings.
     """
 
-    def __init__(self, value,
-                 ignore_space_change=False, ignore_whitespaces=False):
+    def __init__(
+        self, value, ignore_space_change=False, ignore_whitespaces=False
+    ):
         self.ignore_space_change = ignore_space_change
         self.ignore_whitespaces = ignore_whitespaces
 
     def real_content(self):
         if self.ignore_whitespaces:
-            return re.sub(r'\s+', '', self)
+            return re.sub(r"\s+", "", self)
         elif self.ignore_space_change:
             # gnu diff ignores all whitespace (include line-feed) in the
             # right side when compare with -b or --ignore-space-change,
             # just simulatethat behavior
-            return re.sub(r'\s+', ' ', self).rstrip()
+            return re.sub(r"\s+", " ", self).rstrip()
         else:
             return str(self)
 
@@ -898,10 +936,12 @@ class Differ(object):
     """
 
     def __init__(
-        self, linejunk=None, charjunk=None,
+        self,
+        linejunk=None,
+        charjunk=None,
         ignore_space_change=False,
         ignore_whitespaces=False,
-        ignore_blank_lines=False
+        ignore_blank_lines=False,
     ):
         """
         Construct a text differencer, with optional filters.
@@ -956,29 +996,35 @@ class Differ(object):
         ('insert', 3, 3, 2, 3)
         """
 
-        assert all(str(i) != '' for i in a) and all(str(j) != '' for j in b)
+        assert all(str(i) != "" for i in a) and all(str(j) != "" for j in b)
         if self.ignore_space_change or self.ignore_whitespaces:
             new_a, new_b = [], []
             for i in a:
-                new_a.append(SpaceIgnoredString(i, self.ignore_space_change,
-                                                   self.ignore_whitespaces))
+                new_a.append(
+                    SpaceIgnoredString(
+                        i, self.ignore_space_change, self.ignore_whitespaces
+                    )
+                )
             for j in b:
-                new_b.append(SpaceIgnoredString(j, self.ignore_space_change,
-                                                   self.ignore_whitespaces))
+                new_b.append(
+                    SpaceIgnoredString(
+                        j, self.ignore_space_change, self.ignore_whitespaces
+                    )
+                )
             a, b = new_a, new_b
 
         cruncher = SequenceMatcher(self.linejunk, a, b)
         for tag, alo, ahi, blo, bhi in cruncher.get_opcodes():
-            if tag == 'replace':
+            if tag == "replace":
                 # `_fancy_replace` can give us a more specific result, for
                 # example, it can recognize completely equal lines among
                 # a block of line junks. it is also useful when we want to
                 # show exact difference line by line like what ndiff does.
                 g = self._fancy_replace(a, alo, ahi, b, blo, bhi)
-            elif tag in ('equal', 'delete', 'insert'):
+            elif tag in ("equal", "delete", "insert"):
                 g = ((tag, alo, ahi, blo, bhi),)
             else:
-                raise ValueError('unknown tag %r' % (tag,))
+                raise ValueError("unknown tag %r" % (tag,))
 
             for tag, alo, ahi, blo, bhi in g:
                 yield (tag, alo, ahi, blo, bhi)
@@ -1040,24 +1086,34 @@ class Differ(object):
         """
 
         def _is_blank_block(code):
-            'Check if the opcode represents blank lines'
-            return code[0] == 'equal' and (
-                    code[1] == code[2] or code[3] == code[4])
+            "Check if the opcode represents blank lines"
+            return code[0] == "equal" and (
+                code[1] == code[2] or code[3] == code[4]
+            )
 
         def _check_adjacent_blank_block(codes, i):
-            '''Make change to the nearest opcode of blank lines if there are
-               no more than `n` lines between them.'''
+            """Make change to the nearest opcode of blank lines if there are
+               no more than `n` lines between them."""
             if i >= 0 and i < len(codes) and _is_blank_block(codes[i]):
                 # code[i-1][0] or code[i+1][0] MUST BE 'equal' if it exists
-                if i < len(codes)-2 and codes[i+1][2] - codes[i+1][1] < n and \
-                        codes[i+2][0] != 'equal' or \
-                        i > 1 and codes[i-1][2] - codes[i-1][1] < n and \
-                        codes[i-2][0] != 'equal':
+                if (
+                    i < len(codes) - 2
+                    and codes[i + 1][2] - codes[i + 1][1] < n
+                    and codes[i + 2][0] != "equal"
+                    or i > 1
+                    and codes[i - 1][2] - codes[i - 1][1] < n
+                    and codes[i - 2][0] != "equal"
+                ):
                     tag, i1, i2, j1, j2 = codes[i]
-                    codes[i] = ('insert' if i1 == i2 else 'delete',
-                                i1, i2, j1, j2)
-                    _check_adjacent_blank_block(codes, i-2)
-                    _check_adjacent_blank_block(codes, i+2)
+                    codes[i] = (
+                        "insert" if i1 == i2 else "delete",
+                        i1,
+                        i2,
+                        j1,
+                        j2,
+                    )
+                    _check_adjacent_blank_block(codes, i - 2)
+                    _check_adjacent_blank_block(codes, i + 2)
 
         g = self._merge_opcodes(self.get_opcodes(a, b))
         if self.ignore_blank_lines:
@@ -1074,10 +1130,10 @@ class Differ(object):
         if not codes:
             codes = [("equal", 0, 1, 0, 1)]
         # Fixup leading and trailing groups if they show no changes.
-        if codes[0][0] == 'equal':
+        if codes[0][0] == "equal":
             tag, i1, i2, j1, j2 = codes[0]
             codes[0] = (tag, max(i1, i2 - n), i2, max(j1, j2 - n), j2)
-        if codes[-1][0] == 'equal':
+        if codes[-1][0] == "equal":
             tag, i1, i2, j1, j2 = codes[-1]
             codes[-1] = (tag, i1, min(i2, i1 + n), j1, min(j2, j1 + n))
 
@@ -1086,43 +1142,49 @@ class Differ(object):
         for tag, i1, i2, j1, j2 in codes:
             # End the current group and start a new one whenever
             # there is a large range with no changes.
-            if tag == 'equal' and i2 - i1 > nn:
+            if tag == "equal" and i2 - i1 > nn:
                 group.append((tag, i1, min(i2, i1 + n), j1, min(j2, j1 + n)))
                 yield group
                 group = []
                 i1, j1 = max(i1, i2 - n), max(j1, j2 - n)
             group.append((tag, i1, i2, j1, j2))
 
-        if group and not (len(group) == 1 and group[0][0] == 'equal'):
+        if group and not (len(group) == 1 and group[0][0] == "equal"):
             yield group
 
     def _merge_opcodes(self, generator):
-        'Algorithm for merging opcode'
-        prev_tag = ''
+        "Algorithm for merging opcode"
+        prev_tag = ""
         prev_alo, prev_ahi, prev_blo, prev_bhi = 0, 0, 0, 0
 
         for tag, alo, ahi, blo, bhi in generator:
             assert prev_ahi == alo and prev_bhi == blo
             if prev_tag == tag or not prev_tag:
                 prev_tag, prev_ahi, prev_bhi = tag, ahi, bhi
-            elif tag == 'equal' or prev_tag == 'equal':
+            elif tag == "equal" or prev_tag == "equal":
                 yield (prev_tag, prev_alo, prev_ahi, prev_blo, prev_bhi)
                 prev_tag = tag
                 prev_alo, prev_ahi, prev_blo, prev_bhi = alo, ahi, blo, bhi
             else:
-                prev_tag, prev_ahi, prev_bhi = 'replace', ahi, bhi
+                prev_tag, prev_ahi, prev_bhi = "replace", ahi, bhi
 
         if prev_tag:
             yield (prev_tag, prev_alo, prev_ahi, prev_blo, prev_bhi)
 
     def _verify_blank_lines(self, a, b, g):
-        'Modify tag if all lines in a deletion or insertion block are blank'
+        "Modify tag if all lines in a deletion or insertion block are blank"
         for tag, alo, ahi, blo, bhi in g:
-            if tag == 'delete' and all(str(a[i]) in ('\n', '\r\n', '\r')
-                                       for i in range(alo, ahi)) or \
-                tag == 'insert' and all(str(b[j]) in ('\n', '\r\n', '\r')
-                                        for j in range(blo, bhi)):
-                yield ('equal', alo, ahi, blo, bhi)
+            if (
+                tag == "delete"
+                and all(
+                    str(a[i]) in ("\n", "\r\n", "\r") for i in range(alo, ahi)
+                )
+                or tag == "insert"
+                and all(
+                    str(b[j]) in ("\n", "\r\n", "\r") for j in range(blo, bhi)
+                )
+            ):
+                yield ("equal", alo, ahi, blo, bhi)
             else:
                 yield (tag, alo, ahi, blo, bhi)
 
@@ -1156,7 +1218,7 @@ class Differ(object):
         best_ratio, junk_line_best_ratio, cutoff = 0.74, 0.74, 0.75
         best_i, best_j, junk_line_best_i, junk_line_best_j = -1, -1, -1, -1
         cruncher = SequenceMatcher(self.charjunk)
-        eqi, eqj = None, None   # 1st indices of equal lines (if any)
+        eqi, eqj = None, None  # 1st indices of equal lines (if any)
 
         # search for the pair that matches best without being identical
         # (identical lines must be junk lines, & we don't want to synch up
@@ -1178,14 +1240,17 @@ class Differ(object):
                 # note that ratio() is only expensive to compute the first
                 # time it's called on a sequence pair; the expensive part
                 # of the computation is cached by cruncher
-                if cruncher.real_quick_ratio() > best_ratio and \
-                      cruncher.quick_ratio() > best_ratio and \
-                      cruncher.ratio() > best_ratio:
+                if (
+                    cruncher.real_quick_ratio() > best_ratio
+                    and cruncher.quick_ratio() > best_ratio
+                    and cruncher.ratio() > best_ratio
+                ):
                     # junk line should not be considered as very similar to
                     # normal line or other junk line unless there's no other
                     # similar normal lines found
                     if self.linejunk and (
-                            self.linejunk(ai) or self.linejunk(bj)):
+                        self.linejunk(ai) or self.linejunk(bj)
+                    ):
                         if cruncher.ratio() > junk_line_best_ratio:
                             junk_line_best_ratio = cruncher.ratio()
                             junk_line_best_i, junk_line_best_j = i, j
@@ -1201,7 +1266,7 @@ class Differ(object):
                 if junk_line_best_ratio < cutoff:
                     # even no non-identical "pretty close" line junks found
                     # treat it as a straight replace
-                    yield ('replace', alo, ahi, blo, bhi)
+                    yield ("replace", alo, ahi, blo, bhi)
                     return
                 else:
                     # at least we can find junk lines that are pretty close
@@ -1224,13 +1289,15 @@ class Differ(object):
         # generate op code on the synch pair
         if eqi is None:
             # the synch pair is similar
-            yield ('replace', best_i, best_i+1, best_j, best_j+1)
+            yield ("replace", best_i, best_i + 1, best_j, best_j + 1)
         else:
             # the synch pair is identical
-            yield ('equal', best_i, best_i+1, best_j, best_j+1)
+            yield ("equal", best_i, best_i + 1, best_j, best_j + 1)
 
         # pump out diffs from after the synch point
-        for opcode in self._fancy_helper(a, best_i+1, ahi, b, best_j+1, bhi):
+        for opcode in self._fancy_helper(
+            a, best_i + 1, ahi, b, best_j + 1, bhi
+        ):
             yield opcode
 
     def _fancy_helper(self, a, alo, ahi, b, blo, bhi):
@@ -1239,9 +1306,9 @@ class Differ(object):
             if blo < bhi:
                 g = self._fancy_replace(a, alo, ahi, b, blo, bhi)
             else:
-                g = [('delete', alo, ahi, blo, bhi)]
+                g = [("delete", alo, ahi, blo, bhi)]
         elif blo < bhi:
-            g = [('insert', alo, ahi, blo, bhi)]
+            g = [("insert", alo, ahi, blo, bhi)]
 
         for opcode in g:
             yield opcode
@@ -1264,6 +1331,7 @@ class Differ(object):
 # remaining is that perhaps it was really the case that " volatile"
 # was inserted after "private".  I can live with that <wink>.
 
+
 def IS_LINE_JUNK(line, pat=re.compile(r"\s*#?\s*$").match):
     r"""
     Return 1 for ignorable line: iff `line` is blank or contains a single '#'.
@@ -1279,6 +1347,7 @@ def IS_LINE_JUNK(line, pat=re.compile(r"\s*#?\s*$").match):
     """
 
     return pat(line) is not None
+
 
 def IS_CHARACTER_JUNK(ch, ws=" \t"):
     r"""
@@ -1303,12 +1372,16 @@ def IS_CHARACTER_JUNK(ch, ws=" \t"):
 ###  Diff
 ########################################################################
 
-def diff(a, b,
-         ignore_space_change=False,
-         ignore_whitespaces=False,
-         ignore_blank_lines=False,
-         unified=False, context=False,
-        ):
+
+def diff(
+    a,
+    b,
+    ignore_space_change=False,
+    ignore_whitespaces=False,
+    ignore_blank_lines=False,
+    unified=False,
+    context=False,
+):
     r"""
     Compare two blocks of text or two sequences of lines and generate delta
     as a normal/unified/context diff. Lines that only contain whitespaces
@@ -1336,41 +1409,54 @@ def diff(a, b,
     if unified:
         n = 3 if isinstance(unified, bool) else int(unified)
         assert n > 0
-        g = unified_diff(a, b, n,
-                         ignore_space_change,
-                         ignore_whitespaces,
-                         ignore_blank_lines)
+        g = unified_diff(
+            a,
+            b,
+            n,
+            ignore_space_change,
+            ignore_whitespaces,
+            ignore_blank_lines,
+        )
     elif context:
         n = 3 if isinstance(context, int) else int(context)
         assert n > 0
-        g = context_diff(a, b, n,
-                         ignore_space_change,
-                         ignore_whitespaces,
-                         ignore_blank_lines)
+        g = context_diff(
+            a,
+            b,
+            n,
+            ignore_space_change,
+            ignore_whitespaces,
+            ignore_blank_lines,
+        )
     else:
-        g = _diff(a, b,
-                  ignore_space_change,
-                  ignore_whitespaces,
-                  ignore_blank_lines)
+        g = _diff(
+            a, b, ignore_space_change, ignore_whitespaces, ignore_blank_lines
+        )
 
     return g
+
 
 ########################################################################
 ###  Basic Diff
 ########################################################################
 
+
 def _dump_line(prefix, content):
-    'Add a prefix in front, also add line break at tail if there is not one'
-    if not content.endswith('\n'):
+    "Add a prefix in front, also add line break at tail if there is not one"
+    if not content.endswith("\n"):
         yield prefix + content + os.linesep
-        yield '\\ No newline at end of file' + os.linesep
+        yield "\\ No newline at end of file" + os.linesep
     else:
         yield prefix + content
 
-def _diff(a, b,
-          ignore_space_change=False,
-          ignore_whitespaces=False,
-          ignore_blank_lines=False):
+
+def _diff(
+    a,
+    b,
+    ignore_space_change=False,
+    ignore_whitespaces=False,
+    ignore_blank_lines=False,
+):
     r"""
     Compare `a` and `b` (lists of strings); return a delta of gnu diff style.
 
@@ -1393,54 +1479,70 @@ def _diff(a, b,
     """
 
     for tag, alo, ahi, blo, bhi in Differ(
-        linejunk=IS_LINE_JUNK, charjunk=None,
+        linejunk=IS_LINE_JUNK,
+        charjunk=None,
         ignore_space_change=ignore_space_change,
         ignore_whitespaces=ignore_whitespaces,
-        ignore_blank_lines=ignore_blank_lines
+        ignore_blank_lines=ignore_blank_lines,
     ).get_merged_opcodes(a, b):
-        if tag == 'replace':
-            head_a = '{},{}'.format(alo+1, ahi) if ahi-alo > 1 else str(alo+1)
-            head_b = '{},{}'.format(blo+1, bhi) if bhi-blo > 1 else str(blo+1)
-            yield '{}c{}{}'.format(head_a, head_b, os.linesep)
+        if tag == "replace":
+            head_a = (
+                "{},{}".format(alo + 1, ahi) if ahi - alo > 1 else str(alo + 1)
+            )
+            head_b = (
+                "{},{}".format(blo + 1, bhi) if bhi - blo > 1 else str(blo + 1)
+            )
+            yield "{}c{}{}".format(head_a, head_b, os.linesep)
             for line in a[alo:ahi]:
-                for text in _dump_line('< ', line):
+                for text in _dump_line("< ", line):
                     yield text
-            yield '---' + os.linesep
+            yield "---" + os.linesep
             for line in b[blo:bhi]:
-                for text in _dump_line('> ', line):
+                for text in _dump_line("> ", line):
                     yield text
-        elif tag == 'delete':
-            head_a = '{},{}'.format(alo+1, ahi) if ahi-alo > 1 else str(alo+1)
-            yield '{}d{}{}'.format(head_a, bhi, os.linesep)
+        elif tag == "delete":
+            head_a = (
+                "{},{}".format(alo + 1, ahi) if ahi - alo > 1 else str(alo + 1)
+            )
+            yield "{}d{}{}".format(head_a, bhi, os.linesep)
             for line in a[alo:ahi]:
-                for text in _dump_line('< ', line):
+                for text in _dump_line("< ", line):
                     yield text
-        elif tag == 'insert':
-            head_b = '{},{}'.format(blo+1, bhi) if bhi-blo > 1 else str(blo+1)
-            yield '{}a{}{}'.format(alo, head_b, os.linesep)
+        elif tag == "insert":
+            head_b = (
+                "{},{}".format(blo + 1, bhi) if bhi - blo > 1 else str(blo + 1)
+            )
+            yield "{}a{}{}".format(alo, head_b, os.linesep)
             for line in b[blo:bhi]:
-                for text in _dump_line('> ', line):
+                for text in _dump_line("> ", line):
                     yield text
+
 
 ########################################################################
 ###  Unified Diff
 ########################################################################
 
+
 def _format_range_unified(start, stop):
     'Convert range to the "ed" format'
     # Per the diff spec at http://www.unix.org/single_unix_specification/
-    beginning = start + 1     # lines start numbering with one
+    beginning = start + 1  # lines start numbering with one
     length = stop - start
     if length == 1:
-        return '{}'.format(beginning)
+        return "{}".format(beginning)
     if not length:
-        beginning -= 1        # empty ranges begin at line just before the range
-    return '{},{}'.format(beginning, length)
+        beginning -= 1  # empty ranges begin at line just before the range
+    return "{},{}".format(beginning, length)
 
-def unified_diff(a, b, n=3,
-                 ignore_space_change=False,
-                 ignore_whitespaces=False,
-                 ignore_blank_lines=False):
+
+def unified_diff(
+    a,
+    b,
+    n=3,
+    ignore_space_change=False,
+    ignore_whitespaces=False,
+    ignore_blank_lines=False,
+):
     r"""
     Compare two sequences of lines; generate the delta as a unified diff.
 
@@ -1479,36 +1581,37 @@ def unified_diff(a, b, n=3,
 
     started = False
     for group in Differ(
-        linejunk=IS_LINE_JUNK, charjunk=None,
+        linejunk=IS_LINE_JUNK,
+        charjunk=None,
         ignore_space_change=ignore_space_change,
         ignore_whitespaces=ignore_whitespaces,
-        ignore_blank_lines=ignore_blank_lines
+        ignore_blank_lines=ignore_blank_lines,
     ).get_grouped_opcodes(a, b, n):
         if not started:
             started = True
             utc_time_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
-            fromdate = todate = '\t{}'.format(utc_time_str)
-            yield '--- {}{}{}'.format('a.text', fromdate, os.linesep)
-            yield '+++ {}{}{}'.format('b.text', todate, os.linesep)
+            fromdate = todate = "\t{}".format(utc_time_str)
+            yield "--- {}{}{}".format("a.text", fromdate, os.linesep)
+            yield "+++ {}{}{}".format("b.text", todate, os.linesep)
 
         first, last = group[0], group[-1]
         file1_range = _format_range_unified(first[1], last[2])
         file2_range = _format_range_unified(first[3], last[4])
-        yield '@@ -{} +{} @@{}'.format(file1_range, file2_range, os.linesep)
+        yield "@@ -{} +{} @@{}".format(file1_range, file2_range, os.linesep)
 
         for tag, i1, i2, j1, j2 in group:
-            if tag == 'equal':
+            if tag == "equal":
                 for line in a[i1:i2]:
-                    for text in _dump_line(' ', line):
+                    for text in _dump_line(" ", line):
                         yield text
                 continue
-            if tag in ('replace', 'delete'):
+            if tag in ("replace", "delete"):
                 for line in a[i1:i2]:
-                    for text in _dump_line('-', line):
+                    for text in _dump_line("-", line):
                         yield text
-            if tag in ('replace', 'insert'):
+            if tag in ("replace", "insert"):
                 for line in b[j1:j2]:
-                    for text in _dump_line('+', line):
+                    for text in _dump_line("+", line):
                         yield text
 
 
@@ -1516,22 +1619,28 @@ def unified_diff(a, b, n=3,
 ###  Context Diff
 ########################################################################
 
+
 def _format_range_context(start, stop):
     'Convert range to the "ed" format'
     # Per the diff spec at http://www.unix.org/single_unix_specification/
-    beginning = start + 1     # lines start numbering with one
+    beginning = start + 1  # lines start numbering with one
     length = stop - start
     if not length:
-        beginning -= 1        # empty ranges begin at line just before the range
+        beginning -= 1  # empty ranges begin at line just before the range
     if length <= 1:
-        return '{}'.format(beginning)
-    return '{},{}'.format(beginning, beginning + length - 1)
+        return "{}".format(beginning)
+    return "{},{}".format(beginning, beginning + length - 1)
+
 
 # See http://www.unix.org/single_unix_specification/
-def context_diff(a, b, n=3,
-                 ignore_space_change=False,
-                 ignore_whitespaces=False,
-                 ignore_blank_lines=False):
+def context_diff(
+    a,
+    b,
+    n=3,
+    ignore_space_change=False,
+    ignore_whitespaces=False,
+    ignore_blank_lines=False,
+):
     r"""
     Compare two sequences of lines; generate the delta as a context diff.
 
@@ -1571,40 +1680,41 @@ def context_diff(a, b, n=3,
     + emu
     """
 
-    prefix = dict(insert='+ ', delete='- ', replace='! ', equal='  ')
+    prefix = dict(insert="+ ", delete="- ", replace="! ", equal="  ")
     started = False
     for group in Differ(
-        linejunk=IS_LINE_JUNK, charjunk=None,
+        linejunk=IS_LINE_JUNK,
+        charjunk=None,
         ignore_space_change=ignore_space_change,
         ignore_whitespaces=ignore_whitespaces,
-        ignore_blank_lines=ignore_blank_lines
+        ignore_blank_lines=ignore_blank_lines,
     ).get_grouped_opcodes(a, b, n):
         if not started:
             started = True
             utc_time_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
-            fromdate = todate = '\t{}'.format(utc_time_str)
-            yield '--- {}{}{}'.format('a.text', fromdate, os.linesep)
-            yield '+++ {}{}{}'.format('b.text', todate, os.linesep)
+            fromdate = todate = "\t{}".format(utc_time_str)
+            yield "--- {}{}{}".format("a.text", fromdate, os.linesep)
+            yield "+++ {}{}{}".format("b.text", todate, os.linesep)
 
         first, last = group[0], group[-1]
-        yield '***************' + os.linesep
+        yield "***************" + os.linesep
 
         file1_range = _format_range_context(first[1], last[2])
-        yield '*** {} ****{}'.format(file1_range, os.linesep)
+        yield "*** {} ****{}".format(file1_range, os.linesep)
 
-        if any(tag in ('replace', 'delete') for tag, _, _, _, _ in group):
+        if any(tag in ("replace", "delete") for tag, _, _, _, _ in group):
             for tag, i1, i2, _, _ in group:
-                if tag != 'insert':
+                if tag != "insert":
                     for line in a[i1:i2]:
                         for text in _dump_line(prefix[tag], line):
                             yield text
 
         file2_range = _format_range_context(first[3], last[4])
-        yield '--- {} ----{}'.format(file2_range, os.linesep)
+        yield "--- {} ----{}".format(file2_range, os.linesep)
 
-        if any(tag in ('replace', 'insert') for tag, _, _, _, _ in group):
+        if any(tag in ("replace", "insert") for tag, _, _, _, _ in group):
             for tag, _, _, j1, j2 in group:
-                if tag != 'delete':
+                if tag != "delete":
                     for line in b[j1:j2]:
                         for text in _dump_line(prefix[tag], line):
                             yield text

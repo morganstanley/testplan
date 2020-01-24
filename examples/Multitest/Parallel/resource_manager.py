@@ -19,7 +19,7 @@ class ExclusiveResourceManager(driver.Driver):
     tests execution - not a suggested pattern for managing resources.
     """
 
-    RESOURCE_NAMES = ('first', 'second')
+    RESOURCE_NAMES = ("first", "second")
 
     def __init__(self, **kwargs):
         self._refcounts_mutex = threading.Lock()
@@ -39,19 +39,23 @@ class ExclusiveResourceManager(driver.Driver):
         self._resources[name] = _AcquirableResource(
             acquire_callback=functools.partial(self._acquire, name),
             release_callback=functools.partial(self._release, name),
-            refcount_callback=functools.partial(self._refcount_cbk, name))
+            refcount_callback=functools.partial(self._refcount_cbk, name),
+        )
 
     def _acquire(self, resource_name):
         """
         Check that no other resources are in use. Increment the usage refcount.
         """
         with self._refcounts_mutex:
-            if not all(count == 0
-                       for key, count in self._refcounts.items()
-                       if key != resource_name):
+            if not all(
+                count == 0
+                for key, count in self._refcounts.items()
+                if key != resource_name
+            ):
                 raise RuntimeError(
-                    'Cannot acquire resource {} when other resources are in '
-                    'use.'.format(resource_name))
+                    "Cannot acquire resource {} when other resources are in "
+                    "use.".format(resource_name)
+                )
             self._refcounts[resource_name] += 1
 
     def _release(self, resource_name):

@@ -8,16 +8,15 @@ from my_tests.dependency import VALUE
 
 @testsuite
 class TCPSuite(object):
-
     @testcase
     def send_and_receive_msg(self, env, result):
         """
         Client sends a message, server received and responds back.
         """
-        bytes_sent = env.client.send_text('What is the value?')
+        bytes_sent = env.client.send_text("What is the value?")
         received = env.server.receive_text(size=bytes_sent)
-        result.equal(received, 'What is the value?', 'Server received')
+        result.equal(received, "What is the value?", "Server received")
 
         bytes_sent = env.server.send_text(str(VALUE))
         received = env.client.receive_text(size=bytes_sent)
-        result.equal(received, str(VALUE), 'Client received')
+        result.equal(received, str(VALUE), "Client received")

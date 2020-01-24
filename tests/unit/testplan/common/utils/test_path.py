@@ -7,6 +7,7 @@ import pytest
 
 from testplan.common.utils import path
 
+
 def test_tempdir():
     """
     Test the TemporaryDirectory context manager.
@@ -30,12 +31,13 @@ def test_hashfile(tmpdir):
     given by the sha1sum utility.
     """
     tmpfile = str(tmpdir.join("hash_me.txt"))
-    with open(tmpfile, 'w') as f:
+    with open(tmpfile, "w") as f:
         f.write("testplan\n" * 1000)
 
     try:
         sha_output = subprocess.check_output(
-            ["sha1sum", tmpfile], universal_newlines=True)
+            ["sha1sum", tmpfile], universal_newlines=True
+        )
         ref_sha = re.match(r"([0-9a-f]+)\s+.*", sha_output).group(1)
     except OSError:
         pytest.skip("Cannot call sha1sum to generate reference SHA.")

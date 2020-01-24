@@ -28,19 +28,18 @@ class CustomParser(TestplanParser):
 
     def add_arguments(self, parser):
         """Defining custom arguments for this Testplan."""
-        parser.add_argument('--tasks-num',
-                            action='store', type=int, default=8)
-        parser.add_argument('--pool-size',
-                            action='store', type=int, default=4)
+        parser.add_argument("--tasks-num", action="store", type=int, default=8)
+        parser.add_argument("--pool-size", action="store", type=int, default=4)
 
 
 # Function that creates a file with some content
 # to demonstrate custom file transferring.
 def make_file(filename, dirname, content):
     path = os.path.join(dirname, filename)
-    with open(path, 'w') as fobj:
+    with open(path, "w") as fobj:
         fobj.write(content)
     return path
+
 
 # Using a custom parser to support `--tasks-num` and `--pool-size` command
 # line arguments so that users can experiment with remote pool test execution.
@@ -49,11 +48,13 @@ def make_file(filename, dirname, content):
 # downloadable example gives meaningful and presentable output.
 # NOTE: this programmatic arguments passing approach will cause Testplan
 # to ignore any command line arguments related to that functionality.
-@test_plan(name='RemotePoolExecution',
-           parser=CustomParser,
-           pdf_path=os.path.join(pwd(), 'report.pdf'),
-           stdout_style=OUTPUT_STYLE,
-           pdf_style=OUTPUT_STYLE)
+@test_plan(
+    name="RemotePoolExecution",
+    parser=CustomParser,
+    pdf_path=os.path.join(pwd(), "report.pdf"),
+    stdout_style=OUTPUT_STYLE,
+    pdf_style=OUTPUT_STYLE,
+)
 def main(plan):
     """
     Testplan decorated main function to add and execute MultiTests.
@@ -62,22 +63,22 @@ def main(plan):
     :rtype:  ``testplan.base.TestplanResult``
     """
     import testplan
+
     workspace = os.path.abspath(
-        os.path.join(
-            os.path.dirname(module_abspath(testplan)),
-            '..', '..'))
+        os.path.join(os.path.dirname(module_abspath(testplan)), "..", "..")
+    )
 
     # Create two temporary files locally. For demonstration, just write the
     # filename as the content of each.
     assert TEMP_DIR is not None
-    for filename in ('file1', 'file2'):
+    for filename in ("file1", "file2"):
         make_file(filename, TEMP_DIR, content=filename)
 
     # Explicitly specify the full paths to both the local source files just
     # created and the destination filepaths on the remote host.
     push_files = [
-        (os.path.join(TEMP_DIR, 'file1'), '/tmp/remote_example/file1'),
-        (os.path.join(TEMP_DIR, 'file2'), '/tmp/remote_example/file2')
+        (os.path.join(TEMP_DIR, "file1"), "/tmp/remote_example/file1"),
+        (os.path.join(TEMP_DIR, "file2"), "/tmp/remote_example/file2"),
     ]
 
     # Check if the remote host has been specified in the environment. Remote
@@ -85,34 +86,33 @@ def main(plan):
     # Linux system we can default to using the localhost as our "remote"
     # worker. Whichever remote host is used must be configured to accept SSH
     # connections from the localhost.
-    remote_host = os.environ.get('TESTPLAN_REMOTE_HOST')
+    remote_host = os.environ.get("TESTPLAN_REMOTE_HOST")
     if not remote_host:
-        if os.name == 'posix':
+        if os.name == "posix":
             remote_host = socket.gethostname()
         else:
             raise RuntimeError(
-                'You must specify a remote host via the TESTPLAN_REMOTE_HOST '
-                'environment var on non-Linux systems.')
+                "You must specify a remote host via the TESTPLAN_REMOTE_HOST "
+                "environment var on non-Linux systems."
+            )
 
     # Add a remote pool test execution resource to the plan of given size.
-    pool = RemotePool(name='MyPool',
-
-                      # Create 3 workers on the same remote host.
-                      hosts={remote_host: 3},
-
-                      # Allow the remote port to be overridden by the
-                      # environment. Default to 0, which will make testplan use
-                      # the default SSH port for connections.
-                      port=int(os.environ.get('TESTPLAN_REMOTE_PORT', 0)),
-                      setup_script=['/bin/bash', 'setup_script.ksh'],
-                      env={'LOCAL_USER': getpass.getuser(),
-                           'LOCAL_WORKSPACE': workspace},
-                      workspace_exclude=['.git/', '.cache/', 'doc/', 'test/'],
-
-                      # We push local files to the remote worker using the
-                      # explicit source and destination locations defined above.
-                      push=push_files,
-                      workspace=workspace)
+    pool = RemotePool(
+        name="MyPool",
+        # Create 3 workers on the same remote host.
+        hosts={remote_host: 3},
+        # Allow the remote port to be overridden by the
+        # environment. Default to 0, which will make testplan use
+        # the default SSH port for connections.
+        port=int(os.environ.get("TESTPLAN_REMOTE_PORT", 0)),
+        setup_script=["/bin/bash", "setup_script.ksh"],
+        env={"LOCAL_USER": getpass.getuser(), "LOCAL_WORKSPACE": workspace},
+        workspace_exclude=[".git/", ".cache/", "doc/", "test/"],
+        # We push local files to the remote worker using the
+        # explicit source and destination locations defined above.
+        push=push_files,
+        workspace=workspace,
+    )
 
     plan.add_resource(pool)
 
@@ -120,18 +120,23 @@ def main(plan):
     # to be executed in parallel.
     for idx in range(plan.args.tasks_num):
         # All Task arguments need to be serializable.
-        task = Task(target='make_multitest',
-                    module='tasks',
+        task = Task(
+            target="make_multitest",
+            module="tasks",
+            # We specify the full paths to files as they will be found
+            # on the remote host.
+            kwargs={
+                "index": idx,
+                "files": [
+                    "/tmp/remote_example/file1",
+                    "/tmp/remote_example/file2",
+                ],
+            },
+        )
+        plan.schedule(task, resource="MyPool")
 
-                    # We specify the full paths to files as they will be found
-                    # on the remote host.
-                    kwargs={'index': idx,
-                            'files': ['/tmp/remote_example/file1',
-                                      '/tmp/remote_example/file2']})
-        plan.schedule(task, resource='MyPool')
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Create a new temporary directory for this test plan.
     TEMP_DIR = tempfile.mkdtemp()
 
@@ -141,5 +146,5 @@ if __name__ == '__main__':
     # Clean up all the temporary files used by this test plan.
     shutil.rmtree(TEMP_DIR)
 
-    print('Exiting code: {}'.format(res.exit_code))
+    print("Exiting code: {}".format(res.exit_code))
     sys.exit(res.exit_code)

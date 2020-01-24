@@ -28,11 +28,13 @@ class TestplanConfig(entity.RunnableManagerConfig, TestRunnerConfig):
     def get_options(cls):
         """Additional config options for Testplan class"""
         return {
-            ConfigOption(
-                'runnable', default=TestRunner): is_subclass(TestRunner),
-            ConfigOption('resources', default=[]): [entity.Resource],
-            ConfigOption(
-                'parser', default=TestplanParser): has_method('parse_args')
+            ConfigOption("runnable", default=TestRunner): is_subclass(
+                TestRunner
+            ),
+            ConfigOption("resources", default=[]): [entity.Resource],
+            ConfigOption("parser", default=TestplanParser): has_method(
+                "parse_args"
+            ),
         }
 
 
@@ -44,19 +46,20 @@ class TestplanResult(TestRunnerResult):
     """
 
     def __init__(self):
-        super(TestplanResult, self). __init__()
+        super(TestplanResult, self).__init__()
         self.decorated_value = None
 
     @property
     def exit_code(self):
         """System exit code based on successful run."""
-        return 0 if getattr(self, 'run', False) and self.success else 1
+        return 0 if getattr(self, "run", False) and self.success else 1
 
     def __bool__(self):
         """
         To be used by ``sys.exit(not main())`` pattern.
         """
         return True if self.exit_code == 0 else False
+
     __nonzero__ = __bool__
 
 
@@ -162,42 +165,44 @@ class Testplan(entity.RunnableManager):
     # NOTE: if adding, deleting or modifying a constructor parameter here you
     # MUST also update the class docstring above and main_wrapper entry point
     # below with the same change.
-    def __init__(self,
-                 name,
-                 description=None,
-                 parse_cmdline=True,
-                 interactive_port=None,
-                 abort_signals=None,
-                 logger_level=logger.TEST_INFO,
-                 file_log_level=logger.DEBUG,
-                 runpath=path.default_runpath,
-                 path_cleanup=True,
-                 all_tasks_local=False,
-                 shuffle=None,
-                 shuffle_seed=float(random.randint(1, 9999)),
-                 exporters=None,
-                 stdout_style=defaults.STDOUT_STYLE,
-                 report_dir=defaults.REPORT_DIR,
-                 xml_dir=None,
-                 json_path=None,
-                 http_url=None,
-                 pdf_path=None,
-                 pdf_style=defaults.PDF_STYLE,
-                 report_tags=None,
-                 report_tags_all=None,
-                 merge_scheduled_parts=False,
-                 browse=False,
-                 ui_port=None,
-                 web_server_startup_timeout=defaults.WEB_SERVER_TIMEOUT,
-                 test_filter=filtering.Filter(),
-                 test_sorter=ordering.NoopSorter(),
-                 test_lister=None,
-                 verbose=False,
-                 debug=False,
-                 timeout=None,
-                 interactive_handler=TestRunnerIHandler,
-                 extra_deps=None,
-                 **options):
+    def __init__(
+        self,
+        name,
+        description=None,
+        parse_cmdline=True,
+        interactive_port=None,
+        abort_signals=None,
+        logger_level=logger.TEST_INFO,
+        file_log_level=logger.DEBUG,
+        runpath=path.default_runpath,
+        path_cleanup=True,
+        all_tasks_local=False,
+        shuffle=None,
+        shuffle_seed=float(random.randint(1, 9999)),
+        exporters=None,
+        stdout_style=defaults.STDOUT_STYLE,
+        report_dir=defaults.REPORT_DIR,
+        xml_dir=None,
+        json_path=None,
+        http_url=None,
+        pdf_path=None,
+        pdf_style=defaults.PDF_STYLE,
+        report_tags=None,
+        report_tags_all=None,
+        merge_scheduled_parts=False,
+        browse=False,
+        ui_port=None,
+        web_server_startup_timeout=defaults.WEB_SERVER_TIMEOUT,
+        test_filter=filtering.Filter(),
+        test_sorter=ordering.NoopSorter(),
+        test_lister=None,
+        verbose=False,
+        debug=False,
+        timeout=None,
+        interactive_handler=TestRunnerIHandler,
+        extra_deps=None,
+        **options
+    ):
 
         # Set mutable defaults.
         if abort_signals is None:
@@ -246,21 +251,23 @@ class Testplan(entity.RunnableManager):
             timeout=timeout,
             interactive_handler=interactive_handler,
             extra_deps=extra_deps,
-            **options)
+            **options
+        )
         for resource in self._cfg.resources:
             self._runnable.add_resource(resource)
 
         # Stores local tests.
-        self._runnable.add_resource(LocalRunner(), uid='local_runner')
+        self._runnable.add_resource(LocalRunner(), uid="local_runner")
 
         # Stores independent environments.
-        self._runnable.add_resource(Environments(), uid='environments')
+        self._runnable.add_resource(Environments(), uid="environments")
 
     @property
     def parser(self):
         """Returns a new command line parser."""
-        return self._cfg.parser(name=self._cfg.name,
-                                default_options=self._default_options)
+        return self._cfg.parser(
+            name=self._cfg.name, default_options=self._default_options
+        )
 
     @property
     def runnable(self):
@@ -314,49 +321,52 @@ class Testplan(entity.RunnableManager):
     # duplicated here in order to provide good IDE auto-complete experience
     # for users.
     @classmethod
-    def main_wrapper(cls,
-                     name,
-                     description=None,
-                     parse_cmdline=True,
-                     interactive=False,
-                     port=None,
-                     abort_signals=None,
-                     logger_level=logger.TEST_INFO,
-                     file_log_level=logger.DEBUG,
-                     runpath=path.default_runpath,
-                     path_cleanup=True,
-                     all_tasks_local=False,
-                     shuffle=None,
-                     shuffle_seed=float(random.randint(1, 9999)),
-                     exporters=None,
-                     stdout_style=defaults.STDOUT_STYLE,
-                     report_dir=defaults.REPORT_DIR,
-                     xml_dir=None,
-                     json_path=None,
-                     http_url=None,
-                     pdf_path=None,
-                     pdf_style=defaults.PDF_STYLE,
-                     report_tags=None,
-                     report_tags_all=None,
-                     merge_scheduled_parts=False,
-                     browse=False,
-                     ui_port=None,
-                     web_server_startup_timeout=defaults.WEB_SERVER_TIMEOUT,
-                     test_filter=filtering.Filter(),
-                     test_sorter=ordering.NoopSorter(),
-                     test_lister=None,
-                     verbose=False,
-                     debug=False,
-                     timeout=None,
-                     interactive_handler=TestRunnerIHandler,
-                     extra_deps=None,
-                     **options):
+    def main_wrapper(
+        cls,
+        name,
+        description=None,
+        parse_cmdline=True,
+        interactive=False,
+        port=None,
+        abort_signals=None,
+        logger_level=logger.TEST_INFO,
+        file_log_level=logger.DEBUG,
+        runpath=path.default_runpath,
+        path_cleanup=True,
+        all_tasks_local=False,
+        shuffle=None,
+        shuffle_seed=float(random.randint(1, 9999)),
+        exporters=None,
+        stdout_style=defaults.STDOUT_STYLE,
+        report_dir=defaults.REPORT_DIR,
+        xml_dir=None,
+        json_path=None,
+        http_url=None,
+        pdf_path=None,
+        pdf_style=defaults.PDF_STYLE,
+        report_tags=None,
+        report_tags_all=None,
+        merge_scheduled_parts=False,
+        browse=False,
+        ui_port=None,
+        web_server_startup_timeout=defaults.WEB_SERVER_TIMEOUT,
+        test_filter=filtering.Filter(),
+        test_sorter=ordering.NoopSorter(),
+        test_lister=None,
+        verbose=False,
+        debug=False,
+        timeout=None,
+        interactive_handler=TestRunnerIHandler,
+        extra_deps=None,
+        **options
+    ):
         """
         Decorator that will be used for wrapping `main` methods in test scripts.
 
         It accepts all arguments of a
         :py:class:`~testplan.base.Testplan` entity.
         """
+
         def test_plan_inner(definition):
             """
             This is being passed the user-defined testplan entry point.
@@ -403,21 +413,24 @@ class Testplan(entity.RunnableManager):
                     timeout=timeout,
                     interactive_handler=interactive_handler,
                     extra_deps=extra_deps,
-                    **options)
+                    **options
+                )
                 try:
                     if arity(definition) == 2:
                         returned = definition(plan, plan.parser)
                     else:
                         returned = definition(plan)
                 except Exception:
-                    print('Exception in test_plan definition, aborting plan..')
+                    print("Exception in test_plan definition, aborting plan..")
                     plan.abort()
                     raise
 
                 plan_result = plan.run()
                 plan_result.decorated_value = returned
                 return plan_result
+
             return test_plan_inner_inner
+
         return test_plan_inner
 
 

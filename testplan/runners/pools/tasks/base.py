@@ -60,8 +60,15 @@ class Task(object):
 
     """
 
-    def __init__(self, target=None, module=None, path=None,
-                 args=None, kwargs=None, uid=None):
+    def __init__(
+        self,
+        target=None,
+        module=None,
+        path=None,
+        args=None,
+        kwargs=None,
+        uid=None,
+    ):
         self._target = target
         self._path = path
         self._args = args or tuple()
@@ -70,12 +77,11 @@ class Task(object):
         self._uid = uid or str(uuid.uuid4())
 
     def __str__(self):
-        return '{}[{}]'.format(self.__class__.__name__, self._uid)
+        return "{}[{}]".format(self.__class__.__name__, self._uid)
 
     @property
     def all_attrs(self):
-        return ('_target', '_path', '_args',
-                '_kwargs', '_module', '_uid')
+        return ("_target", "_path", "_args", "_kwargs", "_module", "_uid")
 
     def uid(self):
         """Task string uid."""
@@ -91,7 +97,7 @@ class Task(object):
                 name = self._target
         else:
             name = self._target
-        return 'Task[{}]'.format(name)
+        return "Task[{}]".format(name)
 
     @property
     def args(self):
@@ -118,19 +124,21 @@ class Task(object):
         target = target or self._target
         if not isinstance(target, six.string_types):
             try:
-                run_method = getattr(target, 'run')
+                run_method = getattr(target, "run")
                 if not inspect.ismethod(run_method):
                     raise AttributeError
             except AttributeError:
                 if callable(target):
-                    return self.materialize(target(*self._args,
-                                                   **self._kwargs))
+                    return self.materialize(
+                        target(*self._args, **self._kwargs)
+                    )
                 try:
                     name = target.__class__.__name__
                 except:
                     name = target
-                raise RuntimeError(('Task {} must have a '
-                                    '.run() method.').format(name))
+                raise RuntimeError(
+                    ("Task {} must have a " ".run() method.").format(name)
+                )
             else:
                 return target
         else:
@@ -143,16 +151,18 @@ class Task(object):
             sys.path.insert(0, self._path)
             path_inserted = True
 
-        elements = self._target.split('.')
+        elements = self._target.split(".")
         target_src = elements.pop(-1)
         try:
             if len(elements):
-                mod = importlib.import_module('.'.join(elements))
+                mod = importlib.import_module(".".join(elements))
                 target = getattr(mod, target_src)
             else:
                 if self._module is None:
-                    msg = 'Task parameters are not sufficient '\
-                          'for target {} materialization'.format(self._target)
+                    msg = (
+                        "Task parameters are not sufficient "
+                        "for target {} materialization".format(self._target)
+                    )
                     raise TaskMaterializationError(msg)
                 mod = importlib.import_module(self._module)
                 target = getattr(mod, self._target)
@@ -193,8 +203,9 @@ class TaskResult(object):
     May contain follow up tasks.
     """
 
-    def __init__(self, task=None, result=None, status=False, reason=None,
-                 follow=None):
+    def __init__(
+        self, task=None, result=None, status=False, reason=None, follow=None
+    ):
         self._task = task
         self._result = result
         self._status = status
@@ -233,8 +244,7 @@ class TaskResult(object):
 
     @property
     def all_attrs(self):
-        return ('_task', '_status', '_reason',
-                '_result', '_follow', '_uid')
+        return ("_task", "_status", "_reason", "_result", "_follow", "_uid")
 
     def dumps(self, check_loadable=False):
         """Serialize a task result."""
@@ -260,13 +270,13 @@ class TaskResult(object):
         return self
 
     def __str__(self):
-        return 'TaskResult[{}, {}]'.format(self.status, self.reason)
+        return "TaskResult[{}, {}]".format(self.status, self.reason)
 
 
 class RunnableTaskAdaptor(object):
     """Minimal callable to runnable task adaptor."""
 
-    __slots__ = ('_target', '_args', '_kwargs')
+    __slots__ = ("_target", "_args", "_kwargs")
 
     def __init__(self, target, *args, **kwargs):
         self._target = target

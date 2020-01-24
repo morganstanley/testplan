@@ -23,22 +23,25 @@ class Sqlite3Config(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            'db_name': str,
-            ConfigOption('connect_at_start', default=True): bool
+            "db_name": str,
+            ConfigOption("connect_at_start", default=True): bool,
         }
 
 
 def _rollback_on_error(func):
     """Rollback the databse if db operation raises."""
+
     @functools.wraps(func)
     def wrap(self, *args):
         try:
             return func(self, *args)
         except Exception as exc:
-            self.logger.error('Exception while executing: {}{}{}'.format(
-                args, os.sep, exc))
+            self.logger.error(
+                "Exception while executing: {}{}{}".format(args, os.sep, exc)
+            )
             self.db.rollback()
             raise
+
     return wrap
 
 
@@ -56,12 +59,7 @@ class Sqlite3(Driver):
 
     CONFIG = Sqlite3Config
 
-    def __init__(self,
-        name,
-        db_name,
-        connect_at_start=True,
-        **options
-    ):
+    def __init__(self, name, db_name, connect_at_start=True, **options):
         options.update(self.filter_locals(locals()))
         super(Sqlite3, self).__init__(**options)
         self.db = None
@@ -154,11 +152,10 @@ class Sqlite3(Driver):
         :rtype: ``list`` of ``list`` of values.
         """
         if columns is None:
-            self.execute('PRAGMA table_info({})'.format(table))
+            self.execute("PRAGMA table_info({})".format(table))
             columns = [str(col[1]) for col in self.cursor.fetchall()]
 
-        self.execute('SELECT {} FROM {}'.format(
-            ', '.join(columns), table))
+        self.execute("SELECT {} FROM {}".format(", ".join(columns), table))
 
         table = [columns]
         for row in self.cursor.fetchall():

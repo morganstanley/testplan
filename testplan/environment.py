@@ -7,6 +7,7 @@ class EnvironmentCreator(object):
     """
     Environment creator interface.
     """
+
     def __init__(self, uid, resources=None):
         self._uid = uid
         self._resources = resources or []
@@ -34,13 +35,15 @@ class LocalEnvironment(EnvironmentCreator):
     """
     Creator class of a local environment.
     """
+
     def add_resource(self, resource):
         """
         Add a resource to the future created environment.
         """
         if any(obj.uid() == resource.uid() for obj in self._resources):
-            raise RuntimeError('Resource with uid {} already exists.'.format(
-                resource.uid()))
+            raise RuntimeError(
+                "Resource with uid {} already exists.".format(resource.uid())
+            )
         self._resources.append(resource)
 
     def create(self, parent):
@@ -60,6 +63,7 @@ class Environments(Resource):
     Also inherits all
     :py:class:`~testplan.common.entity.base.Resource` options.
     """
+
     def __init__(self, **options):
         super(Environments, self).__init__(**options)
         self._envs = {}
@@ -87,7 +91,7 @@ class Environments(Resource):
     def add(self, env, uid):
         """Add an environment."""
         if uid in self._envs:
-            raise ValueError('{} already exists.'.format(uid))
+            raise ValueError("{} already exists.".format(uid))
         self._envs[uid] = env
 
     def starting(self):

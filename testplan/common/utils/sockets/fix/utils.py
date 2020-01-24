@@ -2,7 +2,7 @@
 
 import datetime
 
-DATEFORMAT = '%Y%m%d-%H:%M:%S.%f'
+DATEFORMAT = "%Y%m%d-%H:%M:%S.%f"
 
 
 def utc_timestamp():

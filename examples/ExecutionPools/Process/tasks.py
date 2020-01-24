@@ -32,26 +32,35 @@ class TCPTestsuite(object):
         """
         # Client sends a message.
         msg = env.client.cfg.name
-        result.log('Client with process id {} is sending: {}'.format(
-            self._process_id, msg))
+        result.log(
+            "Client with process id {} is sending: {}".format(
+                self._process_id, msg
+            )
+        )
         bytes_sent = env.client.send_text(msg)
         received = env.server.receive_text(size=bytes_sent)
-        result.equal(received, msg, 'Server received')
+        result.equal(received, msg, "Server received")
 
         start_time = time.time()
         # Sleeping here to represent a time consuming processing
         # of the message received by the server before replying back.
         time.sleep(1)
-        result.log('Server was processing message for {}s'.format(
-            round(time.time() - start_time, 1)))
-        response = 'Hello {}'.format(received)
+        result.log(
+            "Server was processing message for {}s".format(
+                round(time.time() - start_time, 1)
+            )
+        )
+        response = "Hello {}".format(received)
 
-        result.log('Server with process id {} is responding: {}'.format(
-            self._process_id, response))
+        result.log(
+            "Server with process id {} is responding: {}".format(
+                self._process_id, response
+            )
+        )
         # Server sends the reply.
         bytes_sent = env.server.send_text(response)
         received = env.client.receive_text(size=bytes_sent)
-        result.equal(received, response, 'Client received')
+        result.equal(received, response, "Client received")
 
 
 def make_multitest(index=0):
@@ -59,14 +68,18 @@ def make_multitest(index=0):
     Creates a new MultiTest that runs TCP connection tests.
     This will be created inside a process worker.
     """
-    print('Creating a MultiTest on process id {}.'.format(
-        os.getpid()))
-    test = MultiTest(name='TCPMultiTest_{}'.format(index),
-                     suites=[TCPTestsuite()],
-                     environment=[
-                         TCPServer(name='server'),
-                         TCPClient(name='client',
-                                   host=context('server', '{{host}}'),
-                                   port=context('server', '{{port}}'))],
-                     after_start=after_start)
+    print("Creating a MultiTest on process id {}.".format(os.getpid()))
+    test = MultiTest(
+        name="TCPMultiTest_{}".format(index),
+        suites=[TCPTestsuite()],
+        environment=[
+            TCPServer(name="server"),
+            TCPClient(
+                name="client",
+                host=context("server", "{{host}}"),
+                port=context("server", "{{port}}"),
+            ),
+        ],
+        after_start=after_start,
+    )
     return test

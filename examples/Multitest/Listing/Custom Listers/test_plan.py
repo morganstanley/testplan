@@ -13,44 +13,41 @@ from testplan.testing.listing import BaseLister
 
 @testsuite
 class Alpha(object):
-
     @testcase
     def test_a(self, env, result):
         pass
 
-    @testcase(tags='server')
+    @testcase(tags="server")
     def test_b(self, env, result):
         pass
 
-    @testcase(tags={'color': 'blue'})
+    @testcase(tags={"color": "blue"})
     def test_c(self, env, result):
         pass
 
 
-@testsuite(tags='server')
+@testsuite(tags="server")
 class Beta(object):
-
-    @testcase(tags='client')
+    @testcase(tags="client")
     def test_a(self, env, result):
         pass
 
-    @testcase(tags={'color': 'red'})
+    @testcase(tags={"color": "red"})
     def test_b(self, env, result):
         pass
 
-    @testcase(tags={'color': ('blue', 'yellow')})
+    @testcase(tags={"color": ("blue", "yellow")})
     def test_c(self, env, result):
         pass
 
 
-@testsuite(tags='client')
+@testsuite(tags="client")
 class Gamma(object):
-
     @testcase
     def test_a(self, env, result):
         pass
 
-    @testcase(tags={'color': ('yellow', 'red')})
+    @testcase(tags={"color": ("yellow", "red")})
     def test_b(self, env, result):
         pass
 
@@ -63,6 +60,7 @@ class Gamma(object):
 # override `get_output` method and return a string representation of
 # the current test instance (e.g. multitest) and possibly its test
 #  context, like suites & testcases
+
 
 class ExampleLister(BaseLister):
     """
@@ -79,16 +77,17 @@ class ExampleLister(BaseLister):
         if isinstance(instance, MultiTest):
             test_context = instance.test_context
             if test_context:
-                suite_data = ', '.join([
-                    '{suite_name} ({num_testcases} testcases)'.format(
-                        suite_name=suite.__class__.__name__,
-                        num_testcases=len(testcases)
-                    )
-                    for suite, testcases in test_context
-                ])
-                return '{instance_name}: {suite_data}'.format(
-                    instance_name=instance.name,
-                    suite_data=suite_data
+                suite_data = ", ".join(
+                    [
+                        "{suite_name} ({num_testcases} testcases)".format(
+                            suite_name=suite.__class__.__name__,
+                            num_testcases=len(testcases),
+                        )
+                        for suite, testcases in test_context
+                    ]
+                )
+                return "{instance_name}: {suite_data}".format(
+                    instance_name=instance.name, suite_data=suite_data
                 )
         else:
             # Coming soon in future releases
@@ -97,19 +96,14 @@ class ExampleLister(BaseLister):
 
 # Running this plan will print out the test information using the
 # custom test lister we defined above.
-@test_plan(
-    name='Custom test lister example',
-    test_lister=ExampleLister()
-)
+@test_plan(name="Custom test lister example", test_lister=ExampleLister())
 def main(plan):
 
-    test1 = MultiTest(name='Primary',
-                      suites=[Alpha(), Beta()])
-    test2 = MultiTest(name='Secondary',
-                      suites=[Gamma()])
+    test1 = MultiTest(name="Primary", suites=[Alpha(), Beta()])
+    test2 = MultiTest(name="Secondary", suites=[Gamma()])
     plan.add(test1)
     plan.add(test2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

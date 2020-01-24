@@ -11,16 +11,18 @@ from ..base import ProcessRunnerTest, ProcessRunnerTestConfig
 import os
 import json
 
+
 class HobbesTestConfig(ProcessRunnerTestConfig):
     """
     Configuration object for :py:class:`~testplan.testing.cpp.HobbesTest`.
     """
+
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('tests', default=None): Or(None, list),
-            ConfigOption('json', default='report.json'): str,
-            ConfigOption('other_args', default=[]): list,
+            ConfigOption("tests", default=None): Or(None, list),
+            ConfigOption("json", default="report.json"): str,
+            ConfigOption("other_args", default=[]): list,
         }
 
 
@@ -51,32 +53,33 @@ class HobbesTest(ProcessRunnerTest):
 
     CONFIG = HobbesTestConfig
 
-    def __init__(self,
+    def __init__(
+        self,
         name,
         driver,
         description=None,
         tests=None,
-        json='report.json',
+        json="report.json",
         other_args=None,
         **options
     ):
         options.update(self.filter_locals(locals()))
-        options['driver'] = os.path.abspath(options['driver'])
+        options["driver"] = os.path.abspath(options["driver"])
         # Change working directory to where the test binary is,
         # as it might look under current directory for other binaries.
-        options['proc_cwd'] = os.path.dirname(options['driver'])
+        options["proc_cwd"] = os.path.dirname(options["driver"])
         super(HobbesTest, self).__init__(**options)
 
     def test_command(self):
-        cmd = [self.cfg.driver] + ['--json', self.report_path]
+        cmd = [self.cfg.driver] + ["--json", self.report_path]
         if self.cfg.tests:
-            cmd.append('--tests')
+            cmd.append("--tests")
             cmd += self.cfg.tests
         cmd += self.cfg.other_args
         return cmd
 
     def list_command(self):
-        cmd = [self.cfg.driver, '--list']
+        cmd = [self.cfg.driver, "--list"]
         return cmd
 
     def read_test_data(self):
@@ -92,20 +95,19 @@ class HobbesTest(ProcessRunnerTest):
         result = []
         for suite in test_data:
             suite_report = TestGroupReport(
-                name=suite['name'],
-                category='testsuite',
+                name=suite["name"], category="testsuite"
             )
             suite_has_run = False
 
-            for testcase in suite['data']:
-                if testcase['status'] != 'skipped':
+            for testcase in suite["data"]:
+                if testcase["status"] != "skipped":
                     suite_has_run = True
 
-                    testcase_report = TestCaseReport(name=testcase['name'])
+                    testcase_report = TestCaseReport(name=testcase["name"])
                     assertion_obj = RawAssertion(
-                        passed=testcase['status'] == 'pass',
-                        content=testcase['error'] or testcase['duration'],
-                        description=testcase['name']
+                        passed=testcase["status"] == "pass",
+                        content=testcase["error"] or testcase["duration"],
+                        description=testcase["name"],
                     )
                     testcase_report.append(registry.serialize(assertion_obj))
                     suite_report.append(testcase_report)

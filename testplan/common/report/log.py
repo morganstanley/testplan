@@ -26,20 +26,23 @@ class ReportLogHandler(logging.Handler):
     """
 
     def emit(self, record):
-        if hasattr(record, 'report_obj_id'):
+        if hasattr(record, "report_obj_id"):
             report = REPORT_MAP.get(record.report_obj_id)
             if report is not None:
                 created = datetime.datetime.utcfromtimestamp(
-                    record.created).replace(tzinfo=tzutc())
-                report.logs.append({
-                    'message': self.format(record),
-                    'levelname': record.levelname,
-                    'levelno': record.levelno,
-                    'created': created,
-                    'funcName': record.funcName,
-                    'lineno': record.lineno,
-                    'uid': uuid.uuid4()
-                })
+                    record.created
+                ).replace(tzinfo=tzutc())
+                report.logs.append(
+                    {
+                        "message": self.format(record),
+                        "levelname": record.levelname,
+                        "levelno": record.levelno,
+                        "created": created,
+                        "funcName": record.funcName,
+                        "lineno": record.lineno,
+                        "uid": uuid.uuid4(),
+                    }
+                )
 
 
 LOGGER.addHandler(ReportLogHandler())
@@ -56,4 +59,4 @@ def create_logging_adapter(report):
     if REPORT_MAP.get(obj_id) is None:
         REPORT_MAP[obj_id] = report
 
-    return logging.LoggerAdapter(LOGGER, {'report_obj_id': obj_id})
+    return logging.LoggerAdapter(LOGGER, {"report_obj_id": obj_id})

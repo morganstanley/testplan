@@ -8,11 +8,7 @@ from testplan.common.serialization import schemas, fields as custom_fields
 from .base import Report, ReportGroup
 
 
-__all__ = [
-    'ReportLogSchema',
-    'ReportSchema',
-    'ReportGroupSchema'
-]
+__all__ = ["ReportLogSchema", "ReportSchema", "ReportGroupSchema"]
 
 
 class ReportLogSchema(Schema):
@@ -44,7 +40,7 @@ class ReportSchema(schemas.TreeNodeSchema):
     @post_load
     def make_report(self, data):
         """Create report object, attach log list."""
-        logs = data.pop('logs', [])
+        logs = data.pop("logs", [])
         rep = self.get_source_class()(**data)
         rep.logs = logs
         return rep
@@ -56,9 +52,6 @@ class ReportGroupSchema(ReportSchema):
     source_class = ReportGroup
 
     entries = custom_fields.GenericNested(
-        schema_context={
-            'Report': ReportSchema,
-            'ReportGroup': 'self'
-        },
-        many=True
+        schema_context={"Report": ReportSchema, "ReportGroup": "self"},
+        many=True,
     )

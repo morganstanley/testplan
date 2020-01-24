@@ -14,10 +14,10 @@ PDF_STYLE = StyleArg.SUMMARY.value
 STDOUT_STYLE = StyleArg.EXTENDED_SUMMARY.value
 
 REPORT_DIR = os.getcwd()
-XML_DIR = os.path.join(REPORT_DIR, 'xml')
-PDF_PATH = os.path.join(REPORT_DIR, 'report.pdf')
-JSON_PATH = os.path.join(REPORT_DIR, 'report.json')
-ATTACHMENTS = '_attachments'
+XML_DIR = os.path.join(REPORT_DIR, "xml")
+PDF_PATH = os.path.join(REPORT_DIR, "report.pdf")
+JSON_PATH = os.path.join(REPORT_DIR, "report.json")
+ATTACHMENTS = "_attachments"
 ATTACHMENTS_DIR = os.path.join(REPORT_DIR, ATTACHMENTS)
 
 WEB_SERVER_HOSTNAME = "0.0.0.0"

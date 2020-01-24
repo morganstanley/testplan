@@ -7,9 +7,6 @@ from my_tests.dependency import VALUE
 
 @testsuite
 class BasicSuite(object):
-
     @testcase(parameters=range(2))
     def basic_case(self, env, result, arg):
-        result.equal(1, VALUE, description='Passing assertion')
-
-
+        result.equal(1, VALUE, description="Passing assertion")

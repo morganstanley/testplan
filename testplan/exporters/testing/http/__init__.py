@@ -18,6 +18,7 @@ from ..base import Exporter
 
 class CustomJsonEncoder(json.JSONEncoder):
     """To jsonify data that cannot be serialized by default JSONEncoder."""
+
     def default(self, obj):  # pylint: disable = method-hidden
         return str(obj)
 
@@ -28,12 +29,14 @@ class HTTPExporterConfig(ExporterConfig):
     :py:class:`HTTPExporter <testplan.exporters.testing.http.HTTPExporter>`
     object.
     """
+
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption('http_url'): is_valid_url,
-            ConfigOption('timeout', default=60):
-                Or(None, And(Use(int), lambda n: n > 0))
+            ConfigOption("http_url"): is_valid_url,
+            ConfigOption("timeout", default=60): Or(
+                None, And(Use(int), lambda n: n > 0)
+            ),
         }
 
 
@@ -49,6 +52,7 @@ class HTTPExporter(Exporter):
     Also inherits all
     :py:class:`~testplan.exporters.testing.base.Exporter` options.
     """
+
     CONFIG = HTTPExporterConfig
 
     def _upload_report(self, url, data):
@@ -57,25 +61,27 @@ class HTTPExporter(Exporter):
         error message (if any).
         """
         response = None
-        errmsg = ''
+        errmsg = ""
 
-        if data and data['entries']:
-            headers = {'Content-Type': 'application/json'}
+        if data and data["entries"]:
+            headers = {"Content-Type": "application/json"}
             try:
                 response = requests.post(
-                    url=url, headers=headers,
+                    url=url,
+                    headers=headers,
                     data=json.dumps(data, cls=CustomJsonEncoder),
-                    timeout=self.cfg.timeout)
+                    timeout=self.cfg.timeout,
+                )
                 response.raise_for_status()
             except requests.exceptions.RequestException as exp:
-                errmsg = 'Failed to export to {}: {}'.format(url, str(exp))
+                errmsg = "Failed to export to {}: {}".format(url, str(exp))
         else:
             errmsg = (
-                'Skipping exporting test report via http '
-                'for empty report: {}'.format(data['name']))
+                "Skipping exporting test report via http "
+                "for empty report: {}".format(data["name"])
+            )
 
         return response, errmsg
-
 
     def export(self, source):
 
@@ -87,4 +93,4 @@ class HTTPExporter(Exporter):
         if errmsg:
             self.logger.exporter_info(errmsg)
         else:
-            self.logger.exporter_info('Test report posted to %s', http_url)
+            self.logger.exporter_info("Test report posted to %s", http_url)

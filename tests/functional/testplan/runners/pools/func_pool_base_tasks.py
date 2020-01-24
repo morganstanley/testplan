@@ -14,10 +14,9 @@ from testplan.testing.multitest.base import MultiTestConfig
 
 @testsuite
 class MySuite(object):
-
     @testcase
     def test_comparison(self, env, result):
-        result.equal(1, 1, 'equality description')
+        result.equal(1, 1, "equality description")
         result.log(env.runpath)
         assert isinstance(env.cfg, MultiTestConfig)
         assert os.path.exists(env.runpath) is True
@@ -26,17 +25,16 @@ class MySuite(object):
 
 def get_mtest(name):
     """TODO."""
-    return MultiTest(name='MTest{}'.format(name), suites=[MySuite()])
+    return MultiTest(name="MTest{}".format(name), suites=[MySuite()])
 
 
 def get_mtest_imported(name):
     """TODO."""
-    return MultiTest(name='MTest{}'.format(name), suites=[MySuite()])
+    return MultiTest(name="MTest{}".format(name), suites=[MySuite()])
 
 
 @testsuite
 class SuiteKillingWorker(object):
-
     def __init__(self, parent_pid, size):
         self._parent_pid = parent_pid
         self._size = size
@@ -45,9 +43,9 @@ class SuiteKillingWorker(object):
     def test_comparison(self, env, result):
         parent = psutil.Process(self._parent_pid)
         if len(parent.children(recursive=True)) == self._size:
-            print('Killing worker {}'.format(os.getpid()))
+            print("Killing worker {}".format(os.getpid()))
             os.kill(os.getpid(), 9)
-        result.equal(1, 1, 'equality description')
+        result.equal(1, 1, "equality description")
         result.log(env.runpath)
         assert isinstance(env.cfg, MultiTestConfig)
         assert os.path.exists(env.runpath) is True
@@ -56,8 +54,10 @@ class SuiteKillingWorker(object):
 
 def multitest_kill_one_worker(name, parent_pid, size):
     """Test that kills one worker."""
-    return MultiTest(name='MTest{}'.format(name),
-                     suites=[SuiteKillingWorker(parent_pid, size)])
+    return MultiTest(
+        name="MTest{}".format(name),
+        suites=[SuiteKillingWorker(parent_pid, size)],
+    )
 
 
 def multitest_kills_worker():
@@ -72,24 +72,26 @@ def schedule_tests_to_pool(name, pool, schedule_path=None, **pool_cfg):
     # from testplan.common.utils.logger import DEBUG
     # TESTPLAN_LOGGER.setLevel(DEBUG)
 
-    plan = Testplan(
-        name=name,
-        parse_cmdline=False,
-        logger_level=10
-    )
+    plan = Testplan(name=name, parse_cmdline=False, logger_level=10)
     pool = pool(name=pool_name, **pool_cfg)
     plan.add_resource(pool)
 
     if schedule_path is None:
         schedule_path = fix_home_prefix(
-            os.path.dirname(os.path.abspath(__file__)))
+            os.path.dirname(os.path.abspath(__file__))
+        )
 
     uids = []
     for idx in range(1, 10):
-        uids.append(plan.schedule(target='get_mtest',
-                                  module='func_pool_base_tasks',
-                                  path=schedule_path, kwargs=dict(name=idx),
-                                  resource=pool_name))
+        uids.append(
+            plan.schedule(
+                target="get_mtest",
+                module="func_pool_base_tasks",
+                path=schedule_path,
+                kwargs=dict(name=idx),
+                resource=pool_name,
+            )
+        )
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         res = plan.run()
@@ -99,18 +101,17 @@ def schedule_tests_to_pool(name, pool, schedule_path=None, **pool_cfg):
     assert plan.report.passed is True
     assert plan.report.status == Status.PASSED
     # 1 testcase * 9 iterations
-    assert plan.report.counter == {'passed': 9, 'total': 9, 'failed': 0}
+    assert plan.report.counter == {"passed": 9, "total": 9, "failed": 0}
 
-    names = sorted(['MTest{}'.format(x) for x in range(1, 10)])
+    names = sorted(["MTest{}".format(x) for x in range(1, 10)])
     assert sorted([entry.name for entry in plan.report.entries]) == names
 
     assert isinstance(plan.report.serialize(), dict)
 
     for idx in range(1, 10):
-        name = 'MTest{}'.format(idx)
-        assert plan.result.test_results[uids[idx-1]].report.name == name
+        name = "MTest{}".format(idx)
+        assert plan.result.test_results[uids[idx - 1]].report.name == name
 
     # All tasks scheduled once
     for uid in pool.task_assign_cnt:
         assert pool.task_assign_cnt[uid] == 1
-

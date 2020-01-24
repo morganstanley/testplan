@@ -5,6 +5,7 @@ import json
 from copy import deepcopy
 import six
 from six.moves import range
+
 # pylint: disable=no-name-in-module,import-error
 if six.PY2:
     from collections import MutableMapping, MutableSequence
@@ -22,11 +23,7 @@ from testplan.common.utils import timing
 
 from .base import TestCaseReport, TestGroupReport, TestReport
 
-__all__ = [
-    'TestCaseReportSchema',
-    'TestGroupReportSchema',
-    'TestReportSchema'
-]
+__all__ = ["TestCaseReportSchema", "TestGroupReportSchema", "TestReportSchema"]
 
 
 class IntervalSchema(Schema):
@@ -48,13 +45,12 @@ class TagField(fields.Field):
         return {
             tag_name: list(tag_values)
             for tag_name, tag_values in value.items()
-            }
+        }
 
     def _deserialize(self, value, attr, data):
         return {
-            tag_name: set(tag_values)
-            for tag_name, tag_values in value.items()
-            }
+            tag_name: set(tag_values) for tag_name, tag_values in value.items()
+        }
 
 
 class TimerField(fields.Field):
@@ -67,13 +63,15 @@ class TimerField(fields.Field):
         return {
             k: IntervalSchema(strict=True).dump(v).data
             for k, v in value.items()
-            }
+        }
 
     def _deserialize(self, value, attr, data):
-        return timing.Timer({
-            k: IntervalSchema(strict=True).load(v).data
-            for k, v in value.items()
-        })
+        return timing.Timer(
+            {
+                k: IntervalSchema(strict=True).load(v).data
+                for k, v in value.items()
+            }
+        )
 
 
 class EntriesField(fields.Field):
@@ -81,14 +79,14 @@ class EntriesField(fields.Field):
     Handle encoding problems gracefully
     """
 
-    _BYTES_KEY = '_BYTES_KEY'
+    _BYTES_KEY = "_BYTES_KEY"
 
     @staticmethod
     def _binary_to_hex_list(binary_obj):
         # make sure the hex repr is capitalized and leftpad'd with a zero
         # because '0x0C' is better than '0xc'.
         return [
-            '0x{}'.format(hex(b)[2:].upper().zfill(2)) 
+            "0x{}".format(hex(b)[2:].upper().zfill(2))
             for b in bytearray(binary_obj)
         ]
 
@@ -96,10 +94,9 @@ class EntriesField(fields.Field):
     def _hex_list_to_binary(hex_list):
         return bytes(bytearray([int(x, 16) for x in hex_list]))
 
-    def _render_unencodable_bytes_by_callable(self, 
-                                              data, 
-                                              binary_serializer, 
-                                              recurse_lvl=0):
+    def _render_unencodable_bytes_by_callable(
+        self, data, binary_serializer, recurse_lvl=0
+    ):
         """
         Find the lowest level at which encoding fails - if at all - and
         serialize the byte-representation of that with the
@@ -127,7 +124,7 @@ class EntriesField(fields.Field):
                     datacp[key] = self._render_unencodable_bytes_by_callable(
                         data=datacp[key],
                         binary_serializer=binary_serializer,
-                        recurse_lvl=(recurse_lvl + 1)
+                        recurse_lvl=(recurse_lvl + 1),
                     )
                 return datacp
             if isinstance(datacp, MutableSequence):
@@ -135,12 +132,10 @@ class EntriesField(fields.Field):
                     datacp[i] = self._render_unencodable_bytes_by_callable(
                         data=datacp[i],
                         binary_serializer=binary_serializer,
-                        recurse_lvl=(recurse_lvl + 1)
+                        recurse_lvl=(recurse_lvl + 1),
                     )
                 return datacp
-            return {
-                self._BYTES_KEY: binary_serializer(datacp),
-            }
+            return {self._BYTES_KEY: binary_serializer(datacp)}
 
     def _serialize(self, value, attr, obj):
         super_serialize = lambda v: (
@@ -151,8 +146,7 @@ class EntriesField(fields.Field):
             return super_serialize(value)
         except (UnicodeDecodeError, TypeError):
             value_new = self._render_unencodable_bytes_by_callable(
-                data=value,
-                binary_serializer=self._binary_to_hex_list
+                data=value, binary_serializer=self._binary_to_hex_list
             )
             return super_serialize(value_new)
 
@@ -173,7 +167,7 @@ class EntriesField(fields.Field):
                     value=valued[key],
                     attr=attr,
                     obj=obj,
-                    recurse_lvl=(recurse_lvl + 1)
+                    recurse_lvl=(recurse_lvl + 1),
                 )
             return valued
         if isinstance(valued, MutableSequence):
@@ -182,7 +176,7 @@ class EntriesField(fields.Field):
                     value=valued[i],
                     attr=attr,
                     obj=obj,
-                    recurse_lvl=(recurse_lvl + 1)
+                    recurse_lvl=(recurse_lvl + 1),
                 )
             return valued
         return valued
@@ -213,13 +207,13 @@ class TestCaseReportSchema(ReportSchema):
         Create the report object, assign ``timer`` &
         ``status_override`` attributes explicitly
         """
-        status_override = data.pop('status_override', None)
-        timer = data.pop('timer')
+        status_override = data.pop("status_override", None)
+        timer = data.pop("timer")
 
         # We can discard the type field since we know what kind of report we
         # are making.
-        if 'type' in data:
-            data.pop('type')
+        if "type" in data:
+            data.pop("type")
 
         rep = super(TestCaseReportSchema, self).make_report(data)
         rep.status_override = status_override
@@ -246,9 +240,9 @@ class TestGroupReportSchema(TestCaseReportSchema):
     entries = custom_fields.GenericNested(
         schema_context={
             TestCaseReport: TestCaseReportSchema,
-            TestGroupReport: 'self'
+            TestGroupReport: "self",
         },
-        many=True
+        many=True,
     )
 
     @post_load
@@ -279,10 +273,7 @@ class TestReportSchema(Schema):
     attachments = fields.Dict()
 
     entries = custom_fields.GenericNested(
-        schema_context={
-            TestGroupReport: TestGroupReportSchema
-        },
-        many=True
+        schema_context={TestGroupReport: TestGroupReportSchema}, many=True
     )
     category = fields.String(dump_only=True)
 
@@ -295,9 +286,9 @@ class TestReportSchema(Schema):
             leaf_schema=TestCaseReportSchema,
         )
 
-        entry_data = data.pop('entries')
-        status_override = data.pop('status_override')
-        timer = data.pop('timer')
+        entry_data = data.pop("entries")
+        status_override = data.pop("status_override")
+        timer = data.pop("timer")
 
         test_plan_report = TestReport(**data)
         test_plan_report.entries = [load_tree(c_data) for c_data in entry_data]
@@ -310,6 +301,7 @@ class TestReportSchema(Schema):
 
 class ShallowTestReportSchema(Schema):
     """Schema for shallow serialization of ``TestReport``."""
+
     name = fields.String(required=True)
     uid = fields.String(required=True)
     timer = TimerField(required=True)
@@ -327,8 +319,8 @@ class ShallowTestReportSchema(Schema):
 
     @post_load
     def make_test_report(self, data):
-        status_override = data.pop('status_override', None)
-        timer = data.pop('timer')
+        status_override = data.pop("status_override", None)
+        timer = data.pop("timer")
 
         test_plan_report = TestReport(**data)
         test_plan_report.propagate_tag_indices()
@@ -342,6 +334,7 @@ class ShallowTestGroupReportSchema(Schema):
     """
     Schema for shallow serialization of ``TestGroupReport``.
     """
+
     name = fields.String(required=True)
     uid = fields.String(required=True)
     timer = TimerField(required=True)
@@ -362,8 +355,8 @@ class ShallowTestGroupReportSchema(Schema):
 
     @post_load
     def make_testgroup_report(self, data):
-        status_override = data.pop('status_override', None)
-        timer = data.pop('timer')
+        status_override = data.pop("status_override", None)
+        timer = data.pop("timer")
 
         group_report = TestGroupReport(**data)
         group_report.status_override = status_override
@@ -371,4 +364,3 @@ class ShallowTestGroupReportSchema(Schema):
         group_report.propagate_tag_indices()
 
         return group_report
-

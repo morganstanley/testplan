@@ -14,7 +14,6 @@ from testplan.testing.ordering import ShuffleSorter, AlphanumericSorter
 
 @testsuite
 class Alpha(object):
-
     @testcase
     def test_b(self, env, result):
         pass
@@ -26,7 +25,6 @@ class Alpha(object):
 
 @testsuite
 class Beta(object):
-
     @testcase
     def test_c(self, env, result):
         pass
@@ -42,7 +40,6 @@ class Beta(object):
 
 @testsuite
 class Zeta(object):
-
     @testcase
     def test_c(self, env, result):
         pass
@@ -58,7 +55,6 @@ class Zeta(object):
 
 @testsuite
 class Gamma(object):
-
     @testcase
     def test_c(self, env, result):
         pass
@@ -76,25 +72,24 @@ class Gamma(object):
 # However on Multitest('Primary') we have an explicit `test_sorter` argument
 # which will take precedence and shuffle the tests instead.
 @test_plan(
-    name='Multi-level Test ordering',
-    test_sorter=AlphanumericSorter('all'),
+    name="Multi-level Test ordering",
+    test_sorter=AlphanumericSorter("all"),
     # Using testcase level stdout so we can see sorted testcases
-    stdout_style=Style('testcase', 'testcase')
+    stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
 
     multi_test_1 = MultiTest(
-        name='Primary',
-        test_sorter=ShuffleSorter('all'),
-        suites=[Alpha(), Beta()])
+        name="Primary",
+        test_sorter=ShuffleSorter("all"),
+        suites=[Alpha(), Beta()],
+    )
 
-    multi_test_2 = MultiTest(
-        name='Secondary',
-        suites=[Zeta(), Gamma()])
+    multi_test_2 = MultiTest(name="Secondary", suites=[Zeta(), Gamma()])
 
     plan.add(multi_test_1)
     plan.add(multi_test_2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

@@ -15,10 +15,12 @@ from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 def tcp_server(runpath):
     """Start and yield a TCP server driver."""
     env = Environment()
-    server = TCPServer(name="server",
-                       host="localhost",
-                       port=0,
-                       runpath=os.path.join(runpath, "server"))
+    server = TCPServer(
+        name="server",
+        host="localhost",
+        port=0,
+        runpath=os.path.join(runpath, "server"),
+    )
     env.add(server)
 
     with server:
@@ -28,10 +30,12 @@ def tcp_server(runpath):
 @pytest.fixture(scope="module")
 def tcp_client(tcp_server, runpath):
     """Start and yield a TCP client driver."""
-    client = TCPClient(name="client",
-                       host=tcp_server.host,
-                       port=tcp_server.port,
-                       runpath=os.path.join(runpath, "client"))
+    client = TCPClient(
+        name="client",
+        host=tcp_server.host,
+        port=tcp_server.port,
+        runpath=os.path.join(runpath, "client"),
+    )
 
     with client:
         yield client
@@ -41,14 +45,17 @@ def test_basic_runpath():
     """Test runpath of TCP client and server."""
     with path.TemporaryDirectory() as svr_path:
         # Server runpath
-        server = TCPServer(name='server', runpath=svr_path)
+        server = TCPServer(name="server", runpath=svr_path)
         assert_obj_runpath(server, svr_path)
 
         with path.TemporaryDirectory() as cli_path:
             # Client runpath
-            client = TCPClient(name='client', runpath=cli_path,
-                               host=server._host,
-                               port=server._port)
+            client = TCPClient(
+                name="client",
+                runpath=cli_path,
+                host=server._host,
+                port=server._port,
+            )
             assert_obj_runpath(client, cli_path)
 
 
@@ -63,10 +70,12 @@ def test_send_receive_with_none_context():
     set. Verify expected ValueError is raised.
     """
     with path.TemporaryDirectory() as runpath:
-        client = TCPClient(name='client',
-                           host=context('server', '{{host}}'),
-                           port=context('server', '{{port}}'),
-                           runpath=runpath)
+        client = TCPClient(
+            name="client",
+            host=context("server", "{{host}}"),
+            port=context("server", "{{port}}"),
+            runpath=runpath,
+        )
     with pytest.raises(ValueError):
         client.start()
 
@@ -77,10 +86,12 @@ def test_send_receive_with_context(tcp_server):
     server via context values.
     """
     with path.TemporaryDirectory() as runpath:
-        client = TCPClient(name='context_client',
-                           host=context('server', '{{host}}'),
-                           port=context('server', '{{port}}'),
-                           runpath=runpath)
+        client = TCPClient(
+            name="context_client",
+            host=context("server", "{{host}}"),
+            port=context("server", "{{port}}"),
+            runpath=runpath,
+        )
         tcp_server.context.add(client)
 
         with client:
@@ -108,19 +119,20 @@ def send_receive_message(server, client):
     Sends:
     Client ---"Hello"---> Server ---"World"---> Client
     """
-    msg_data = 'Hello'
+    msg_data = "Hello"
     msg = Message(data=msg_data, codec=Codec())
     client.send(msg.to_buffer())
     server.accept_connection()
-    recv = Message.from_buffer(data=server.receive(len(msg.data)),
-                               codec=Codec())
+    recv = Message.from_buffer(
+        data=server.receive(len(msg.data)), codec=Codec()
+    )
     # Server received data
     assert recv.data == msg_data
-    msg_data = 'World'
+    msg_data = "World"
     resp = Message(data=msg_data, codec=Codec())
     server.send(resp.to_buffer())
-    recv = Message.from_buffer(data=client.receive(len(resp.data)),
-                               codec=Codec())
+    recv = Message.from_buffer(
+        data=client.receive(len(resp.data)), codec=Codec()
+    )
     # Client received response
     assert recv.data == msg_data
-

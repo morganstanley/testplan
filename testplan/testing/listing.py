@@ -11,12 +11,11 @@ from .multitest import MultiTest
 from .multitest.suite import get_testsuite_name
 from testplan.testing import tagging
 
-INDENT = ' '
+INDENT = " "
 MAX_TESTCASES = 25
 
 
 class BaseLister(object):
-
     def log_test_info(self, instance):
         output = self.get_output(instance)
         if output:
@@ -58,21 +57,19 @@ class ExpandedNameLister(BaseLister):
             return testcase.__name__
 
     def get_testcase_outputs(self, instance, suite, testcases):
-        result = ''
+        result = ""
         for testcase in testcases:
-            result += '{}{}{}'.format(
+            result += "{}{}{}".format(
                 os.linesep,
                 INDENT * 4,
                 self.format_testcase(
-                    instance=instance,
-                    suite=suite,
-                    testcase=testcase
-                )
+                    instance=instance, suite=suite, testcase=testcase
+                ),
             )
         return result
 
     def get_output(self, instance):
-        result = ''
+        result = ""
         test_context = instance.test_context
 
         if not test_context:
@@ -82,13 +79,10 @@ class ExpandedNameLister(BaseLister):
         for suite, testcases in test_context:
             suite_output = self.format_suite(instance, suite)
             testcase_outputs = self.get_testcase_outputs(
-                instance, suite, testcases)
+                instance, suite, testcases
+            )
             if suite_output:
-                result += '{}{}{}'.format(
-                    os.linesep,
-                    INDENT * 2,
-                    suite_output
-                )
+                result += "{}{}{}".format(os.linesep, INDENT * 2, suite_output)
                 if testcase_outputs:
                     result += testcase_outputs
         return result
@@ -116,46 +110,47 @@ class ExpandedPatternLister(ExpandedNameLister):
 
     def apply_tag_label(self, pattern, obj):
         if obj.__tags__:
-            return '{}  --tags {}'.format(
-                pattern, tagging.tag_label(obj.__tags__))
+            return "{}  --tags {}".format(
+                pattern, tagging.tag_label(obj.__tags__)
+            )
         return pattern
 
     def format_suite(self, instance, suite):
         if not isinstance(instance, MultiTest):
-            return '{}:{}'.format(instance.name, suite)
+            return "{}:{}".format(instance.name, suite)
 
-        pattern = '{}:{}'.format(instance.name, get_testsuite_name(suite))
+        pattern = "{}:{}".format(instance.name, get_testsuite_name(suite))
         return self.apply_tag_label(pattern, suite)
 
     def format_testcase(self, instance, suite, testcase):
 
         if not isinstance(instance, MultiTest):
-            return '{}:{}:{}'.format(instance.name, suite, testcase)
+            return "{}:{}:{}".format(instance.name, suite, testcase)
 
-        pattern = '{}:{}:{}'.format(
-            instance.name, get_testsuite_name(suite), testcase.__name__)
+        pattern = "{}:{}:{}".format(
+            instance.name, get_testsuite_name(suite), testcase.__name__
+        )
         return self.apply_tag_label(pattern, testcase)
 
 
 class TrimMixin(object):
-
     def get_testcase_outputs(self, instance, suite, testcases):
-        result = ''
+        result = ""
         testcases_to_display = testcases[:MAX_TESTCASES]
         rest_testcases = testcases[MAX_TESTCASES:]
 
-        prefix = '{}{}'.format(os.linesep, INDENT * 4)
+        prefix = "{}{}".format(os.linesep, INDENT * 4)
 
         for testcase in testcases_to_display:
-            result += '{}{}'.format(prefix, self.format_testcase(
-                instance=instance,
-                suite=suite,
-                testcase=testcase
-            ))
-        if rest_testcases:
-            result += '{}{}'.format(
+            result += "{}{}".format(
                 prefix,
-                '... {} more testcases ...'.format(len(rest_testcases))
+                self.format_testcase(
+                    instance=instance, suite=suite, testcase=testcase
+                ),
+            )
+        if rest_testcases:
+            result += "{}{}".format(
+                prefix, "... {} more testcases ...".format(len(rest_testcases))
             )
         return result
 
@@ -182,17 +177,19 @@ class CountLister(BaseLister):
         if test_context:
             suites, testcase_lists = zip(*test_context)
             total_testcases = sum(map(len, testcase_lists))
-            return '{instance_name}: ({num_suites}' \
-                   ' suite{num_suites_plural},' \
-                   ' {num_testcases}' \
-                   ' testcase{num_testcases_plural})'.format(
+            return (
+                "{instance_name}: ({num_suites}"
+                " suite{num_suites_plural},"
+                " {num_testcases}"
+                " testcase{num_testcases_plural})".format(
                     instance_name=instance.name,
                     num_suites=len(suites),
-                    num_suites_plural='s' if len(suites) > 1 else '',
+                    num_suites_plural="s" if len(suites) > 1 else "",
                     num_testcases=total_testcases,
-                    num_testcases_plural='s' if total_testcases > 1 else ''
+                    num_testcases_plural="s" if total_testcases > 1 else "",
                 )
-        return ''
+            )
+        return ""
 
 
 class ListingArg(ArgMixin, Enum):
@@ -205,25 +202,21 @@ class ListingArg(ArgMixin, Enum):
 
     @classmethod
     def get_descriptions(cls):
-        name_msg = 'List tests in readable format.'
+        name_msg = "List tests in readable format."
         pattern_msg = (
-            'List tests in `--patterns` / `--tags` compatible format.')
-        max_testcases_msg = '\tMax {} testcases per ' \
-                            'suite will be displayed'.format(MAX_TESTCASES)
+            "List tests in `--patterns` / `--tags` compatible format."
+        )
+        max_testcases_msg = (
+            "\tMax {} testcases per "
+            "suite will be displayed".format(MAX_TESTCASES)
+        )
         return {
-            cls.PATTERN: '{}{}{}'.format(
-                pattern_msg,
-                os.linesep,
-                max_testcases_msg
+            cls.PATTERN: "{}{}{}".format(
+                pattern_msg, os.linesep, max_testcases_msg
             ),
-            cls.NAME: '{}{}{}'.format(
-                name_msg,
-                os.linesep,
-                max_testcases_msg
-            ),
+            cls.NAME: "{}{}{}".format(name_msg, os.linesep, max_testcases_msg),
             cls.PATTERN_FULL: pattern_msg,
             cls.NAME_FULL: name_msg,
-            cls.COUNT: 'Lists top level instances and total '
-                       'number of suites & testcases per instance.'
+            cls.COUNT: "Lists top level instances and total "
+            "number of suites & testcases per instance.",
         }
-
