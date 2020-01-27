@@ -11,7 +11,7 @@ install:
 
 script:
   - ./scripts/utils/crlf_check.sh
-  - black --check -l 79 --exclude testplan/vendor .
+  - ./scripts/utils/black_check.py
   - pylint --rcfile pylintrc testplan
   - pytest tests --verbose
 
