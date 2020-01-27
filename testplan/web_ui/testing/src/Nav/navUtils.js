@@ -194,11 +194,11 @@ const GetNavBreadcrumbs = (selected) => {
  */
 const TrimName = (name, maxLength) => {
   if (name.length <= maxLength) {
-    return name
+    return name;
   }
 
-  return name.slice(0, maxLength - 3) + "..."
-}
+  return name.slice(0, maxLength - 3) + "...";
+};
 
 export {
   CreateNavButtons,
