@@ -11,26 +11,34 @@ from testplan.common.utils.context import context
 from my_tests.mtest import make_multitest
 
 # Hard coding interactive mode usage.
-@test_plan(name='MyPlan',
-           interactive=True,
-           stdout_style=Style(
-               passing=StyleEnum.ASSERTION_DETAIL,
-               failing=StyleEnum.ASSERTION_DETAIL))
+@test_plan(
+    name="MyPlan",
+    interactive=True,
+    stdout_style=Style(
+        passing=StyleEnum.ASSERTION_DETAIL, failing=StyleEnum.ASSERTION_DETAIL
+    ),
+)
 def main(plan):
     # Add a test with an environment.
-    plan.add(make_multitest(idx='1'))
+    plan.add(make_multitest(idx="1"))
 
     # Add an independent environment.
     plan.add_environment(
         LocalEnvironment(
-            'my_env1',
-            [TCPServer(name='server'),
-             TCPClient(name='client',
-                       host=context('server', '{{host}}'),
-                       port=context('server', '{{port}}'))]))
+            "my_env1",
+            [
+                TCPServer(name="server"),
+                TCPClient(
+                    name="client",
+                    host=context("server", "{{host}}"),
+                    port=context("server", "{{port}}"),
+                ),
+            ],
+        )
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())
 
 

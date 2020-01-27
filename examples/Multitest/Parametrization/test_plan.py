@@ -15,12 +15,9 @@ from testplan.report.testing.styles import Style
 class SimpleTest(object):
 
     # This will generate 4 new testcase methods, using a tuple for each one.
-    @testcase(parameters=(
-        (5, 5, 10),
-        (3, 2, 5),
-        (0, 0, 0),
-        ('foo', 'bar', 'foobar')
-    ))
+    @testcase(
+        parameters=((5, 5, 10), (3, 2, 5), (0, 0, 0), ("foo", "bar", "foobar"))
+    )
     def addition(self, env, result, a, b, expected):
         result.equal(a + b, expected)
         # Parametrization context for the generated testcases will be:
@@ -32,10 +29,12 @@ class SimpleTest(object):
     # Combinatorial parametrization example
     # Associativity check of addition operation, (a + b = b + a)
     # This will generate 25 (5 x 5) methods.
-    @testcase(parameters={
-        'a': [1, 10, -5, -3.2, 3e12],
-        'b': [0, 42, 4.2, -.231, 5.5e5]
-    })
+    @testcase(
+        parameters={
+            "a": [1, 10, -5, -3.2, 3e12],
+            "b": [0, 42, 4.2, -0.231, 5.5e5],
+        }
+    )
     def addition_associativity(self, env, result, a, b):
         # It's a good practice to generate a description
         # with the parametrized arguments as well.
@@ -43,7 +42,8 @@ class SimpleTest(object):
         result.equal(
             actual=a + b,
             expected=b + a,
-            description='{a} + {b} == {b} + {a}'.format(a=a, b=b))
+            description="{a} + {b} == {b} + {a}".format(a=a, b=b),
+        )
 
         # Generated testcases will have the following contexts:
         # result.equal(1 + 0, 0 + 1, ...)
@@ -59,12 +59,14 @@ class SimpleTest(object):
     # Assigns 1, 2, 3, 4 to `value` for each generated test case
     # Verbose notation would be
     # `parameters=((2,), (4,), (6,), (8,))` which is not that readable.
-    @testcase(parameters=(
-        2,  # first testcase
-        4,  # second testcase
-        6,  # third testcase
-        8   # fourth testcase
-    ))
+    @testcase(
+        parameters=(
+            2,  # first testcase
+            4,  # second testcase
+            6,  # third testcase
+            8,  # fourth testcase
+        )
+    )
     def is_even(self, env, result, value):
         result.equal(value % 2, 0)
 
@@ -80,11 +82,11 @@ class SimpleTest(object):
 # But instead the custom function will give
 # us names like `func_raises_error__ValueError`
 
+
 def custom_error_name_func(func_name, kwargs):
     """Disregard `func` argument, use the error only."""
-    return '{func_name}__{error_type}'.format(
-        func_name=func_name,
-        error_type=kwargs['error'].__name__
+    return "{func_name}__{error_type}".format(
+        func_name=func_name, error_type=kwargs["error"].__name__
     )
 
 
@@ -99,18 +101,16 @@ class ErrorTest(object):
     @testcase(
         parameters=(
             # tuple notation, using default error value (TypeError)
-            ((lambda: 'foo' + 5),),
+            ((lambda: "foo" + 5),),
             # dict notation, using default error value (TypeError)
-            {
-                'func': lambda: 'foo' * 'foo',
-            },
-            (lambda: {'a': 5}['b'], KeyError),
-            (lambda: int('a'), ValueError),
+            {"func": lambda: "foo" * "foo"},
+            (lambda: {"a": 5}["b"], KeyError),
+            (lambda: int("a"), ValueError),
             (lambda: 10 / 0, ZeroDivisionError),
         ),
         # comment out the line below line to see how
         # Testplan falls back to simple method names with integer suffixes
-        name_func=custom_error_name_func
+        name_func=custom_error_name_func,
     )
     def func_raises_error(self, env, result, func, error=TypeError):
         with result.raises(error):
@@ -120,14 +120,12 @@ class ErrorTest(object):
 # This function returns the value of the product directly
 # which will be interpreted as a simple tag.
 def simple_tag_func(kwargs):
-    return kwargs['product'].title()
+    return kwargs["product"].title()
 
 
 # This function returns a dictionary that is interpreted as a named tag.
 def named_tag_func(kwargs):
-    return {
-        'product': kwargs['product'].title(),
-    }
+    return {"product": kwargs["product"].title()}
 
 
 @testsuite
@@ -135,23 +133,17 @@ class ProductTest(object):
     """Sample testsuite that demonstrates how `tag_func` works."""
 
     @testcase(
-        tags={'category': 'CategoryA'},
-        parameters=(
-            (2, 3, 'productA'),
-            (3, 4, 'productB'),
-        ),
-        tag_func=simple_tag_func
+        tags={"category": "CategoryA"},
+        parameters=((2, 3, "productA"), (3, 4, "productB")),
+        tag_func=simple_tag_func,
     )
     def simple_tag_func_test(self, env, result, a, b, product):
         result.true(True)
 
     @testcase(
-        tags={'category': 'CategoryB'},
-        parameters=(
-            (2, 3, 'productA'),
-            (3, 4, 'productB'),
-        ),
-        tag_func=named_tag_func
+        tags={"category": "CategoryB"},
+        parameters=((2, 3, "productA"), (3, 4, "productB")),
+        tag_func=named_tag_func,
     )
     def named_tag_func_test(self, env, result, a, b, product):
         result.true(True)
@@ -172,24 +164,16 @@ def interpolate_docstring(docstring, kwargs):
 
 @testsuite
 class DocStringTest(object):
-
     @testcase(
-        parameters=(
-            (2, 3, 5),
-            (5, 10, 15)
-        ),
-        docstring_func=kwargs_to_string
+        parameters=((2, 3, 5), (5, 10, 15)), docstring_func=kwargs_to_string
     )
     def addition_one(self, env, result, first, second, expected):
         """Test addition of two numbers."""
         return result.equal(first + second, expected)
 
     @testcase(
-        parameters=(
-            (2, 3, 5),
-            (5, 10, 15)
-        ),
-        docstring_func=interpolate_docstring
+        parameters=((2, 3, 5), (5, 10, 15)),
+        docstring_func=interpolate_docstring,
     )
     def addition_two(self, env, result, first, second, expected):
         """
@@ -200,24 +184,19 @@ class DocStringTest(object):
 
 
 @test_plan(
-    name='Parametrization Example',
+    name="Parametrization Example",
     # Using detailed assertions so we can
     # see testcase context for generated testcases
-    stdout_style=Style('assertion-detail', 'assertion-detail')
+    stdout_style=Style("assertion-detail", "assertion-detail"),
 )
 def main(plan):
     plan.add(
         MultiTest(
-            name='Primary',
-            suites=[
-                SimpleTest(),
-                ErrorTest(),
-                ProductTest(),
-                DocStringTest()
-            ]
+            name="Primary",
+            suites=[SimpleTest(), ErrorTest(), ProductTest(), DocStringTest()],
         )
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

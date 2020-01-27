@@ -33,14 +33,11 @@ class TestPytestBasics(object):
         """
         assert False
 
-    @pytest.mark.parametrize("a,b,c", [
-        (1, 2, 3),
-        (-1, -2, -3),
-        (0, 0, 0)
-    ])
+    @pytest.mark.parametrize("a,b,c", [(1, 2, 3), (-1, -2, -3), (0, 0, 0)])
     def test_parametrization(self, a, b, c):
         """Parametrized testcase."""
         assert a + b == c
+
 
 class TestWithDrivers(object):
     """
@@ -51,14 +48,17 @@ class TestWithDrivers(object):
 
     def test_drivers(self, env, result):
         """Testcase using server and client objects from the environment."""
-        message = 'This is a test message'
+        message = "This is a test message"
         env.server.accept_connection()
-        size = env.client.send(bytes(message.encode('utf-8')))
+        size = env.client.send(bytes(message.encode("utf-8")))
         received = env.server.receive(size)
-        result.log('Received Message from server: {}'.format(received),
-                   description='Log a message')
-        result.equal(received.decode('utf-8'), message,
-                     description='Expect a message')
+        result.log(
+            "Received Message from server: {}".format(received),
+            description="Log a message",
+        )
+        result.equal(
+            received.decode("utf-8"), message, description="Expect a message"
+        )
 
 
 class TestPytestMarks(object):
@@ -77,15 +77,15 @@ class TestPytestMarks(object):
         known to cause some bad side effect (e.g. crashing the python
         interpreter process).
         """
-        raise RuntimeError('Testcase should not run.')
+        raise RuntimeError("Testcase should not run.")
 
-    @pytest.mark.skipif(os.name != 'posix', reason='Only run on Linux')
+    @pytest.mark.skipif(os.name != "posix", reason="Only run on Linux")
     def test_skipif(self):
         """
         Tests can be conditionally skipped - useful if a test should only be
         run on a specific platform or python interpreter version.
         """
-        assert os.name == 'posix'
+        assert os.name == "posix"
 
     @pytest.mark.xfail
     def test_xfail(self):
@@ -96,7 +96,7 @@ class TestPytestMarks(object):
         tests so that you can keep running and monitoring the output without
         blocking CI builds.
         """
-        raise NotImplementedError('Testcase expected to fail')
+        raise NotImplementedError("Testcase expected to fail")
 
     @pytest.mark.xfail(raises=NotImplementedError)
     def test_unexpected_error(self):
@@ -106,7 +106,7 @@ class TestPytestMarks(object):
         be considered as failed. Useful to ensure that a test fails for the
         reason you actually expect it to.
         """
-        raise TypeError('oops')
+        raise TypeError("oops")
 
     @pytest.mark.xfail
     def test_xpass(self):
@@ -123,4 +123,3 @@ class TestPytestMarks(object):
         considered to have failed if they pass unexpectedly.
         """
         assert True
-

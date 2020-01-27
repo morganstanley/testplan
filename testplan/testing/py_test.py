@@ -14,9 +14,11 @@ from testplan.common.config import ConfigOption
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.result import Result as MultiTestResult
 from testplan.testing.multitest.entries.schemas.base import (
-    registry as schema_registry)
+    registry as schema_registry,
+)
 from testplan.testing.multitest.entries.stdout.base import (
-    registry as stdout_registry)
+    registry as stdout_registry,
+)
 from testplan.report import TestGroupReport, TestCaseReport, Status
 from testplan.common.utils import validation
 
@@ -30,12 +32,13 @@ class PyTestConfig(testing.TestConfig):
     @classmethod
     def get_options(cls):
         return {
-            'target': schema.Or(str, [str]),
-            ConfigOption('select', default=''): str,
-            ConfigOption('extra_args', default=None): schema.Or([str], None),
-            ConfigOption('quiet', default=True): bool,
-            ConfigOption('result', default=MultiTestResult):
-                validation.is_subclass(MultiTestResult),
+            "target": schema.Or(str, [str]),
+            ConfigOption("select", default=""): str,
+            ConfigOption("extra_args", default=None): schema.Or([str], None),
+            ConfigOption("quiet", default=True): bool,
+            ConfigOption(
+                "result", default=MultiTestResult
+            ): validation.is_subclass(MultiTestResult),
         }
 
 
@@ -65,11 +68,12 @@ class PyTest(testing.Test):
 
     CONFIG = PyTestConfig
 
-    def __init__(self,
+    def __init__(
+        self,
         name,
         target,
         description=None,
-        select='',
+        select="",
         extra_args=None,
         quiet=True,
         result=MultiTestResult,
@@ -97,11 +101,12 @@ class PyTest(testing.Test):
     def run_tests(self):
         """Run pytest and wait for it to terminate."""
         # Execute pytest with self as a plugin for hook support
-        return_code = pytest.main(self._pytest_args,
-                                  plugins=[self._pytest_plugin])
+        return_code = pytest.main(
+            self._pytest_args, plugins=[self._pytest_plugin]
+        )
         if return_code != 0:
             self.result.report.status_override = Status.ERROR
-            self.logger.error('pytest exited with return code %d', return_code)
+            self.logger.error("pytest exited with return code %d", return_code)
 
     def get_test_context(self):
         """
@@ -111,13 +116,16 @@ class PyTest(testing.Test):
         :return: List containing pairs of suite name and testcase names.
         :rtype: List[Tuple[str, List[str]]]
         """
-        return_code = pytest.main(self._pytest_args + ['--collect-only'],
-                                  plugins=[self._collect_plugin])
+        return_code = pytest.main(
+            self._pytest_args + ["--collect-only"],
+            plugins=[self._collect_plugin],
+        )
 
         if return_code != 0:
             self.result.report.status_override = Status.ERROR
-            self.logger.error('Failed to collect tests, exit code = %d',
-                              return_code)
+            self.logger.error(
+                "Failed to collect tests, exit code = %d", return_code
+            )
             return []
 
         # The plugin will handle converting PyTest tests into suites and
@@ -135,7 +143,7 @@ class PyTest(testing.Test):
             pytest_args = self.cfg.target[:]
 
         if self.cfg.select:
-            pytest_args.extend(['-k', self.cfg.select])
+            pytest_args.extend(["-k", self.cfg.select])
 
         if self.cfg.extra_args:
             pytest_args.extend(self.cfg.extra_args)
@@ -151,9 +159,10 @@ class _ReportPlugin(object):
 
     # Regex for parsing suite and case name and case parameters
     _CASE_REGEX = re.compile(
-        r'^(?P<suite_name>.+)::'
-        r'(?P<case_name>[^\[]+)(?:\[(?P<case_params>.+)\])?$',
-        re.DOTALL)
+        r"^(?P<suite_name>.+)::"
+        r"(?P<case_name>[^\[]+)(?:\[(?P<case_params>.+)\])?$",
+        re.DOTALL,
+    )
 
     def __init__(self, parent, report, quiet):
         self._parent = parent
@@ -179,6 +188,7 @@ class _ReportPlugin(object):
         """
         Register fixtures with pytest.
         """
+
         @pytest.fixture
         def result():
             """
@@ -217,10 +227,10 @@ class _ReportPlugin(object):
         :return: a tuple consisting of (suite name, case name, case parameters)
         :rtype: ``tuple``
         """
-        match = self._CASE_REGEX.match(nodeid.replace('::()::', '::'))
+        match = self._CASE_REGEX.match(nodeid.replace("::()::", "::"))
 
         if match is None:
-            raise ValueError('Invalid nodeid')
+            raise ValueError("Invalid nodeid")
 
         return match.groups()
 
@@ -249,10 +259,11 @@ class _ReportPlugin(object):
             if group_report is None:
                 # create group report for parametrized testcases
                 group_report = TestGroupReport(
-                    name=case_name, category='parametrization')
+                    name=case_name, category="parametrization"
+                )
                 self._suite_reports[suite_name][case_name] = group_report
 
-            case_name = '{}[{}]'.format(case_name, case_params)
+            case_name = "{}[{}]".format(case_name, case_params)
             try:
                 report = group_report.get_by_uid(case_name)
             except:
@@ -278,13 +289,14 @@ class _ReportPlugin(object):
 
         if func_doc is not None:
             report.description = os.linesep.join(
-                '    {}'.format(line) for line in inspect.getdoc(
-                    item.function).split(os.linesep))
+                "    {}".format(line)
+                for line in inspect.getdoc(item.function).split(os.linesep)
+            )
 
         self._current_case_report = report
         self._current_result_obj = self._parent.cfg.result(
             stdout_style=self._parent.stdout_style,
-            _scratch=self._parent.scratch
+            _scratch=self._parent.scratch,
         )
 
     def pytest_runtest_teardown(self, item):
@@ -303,30 +315,33 @@ class _ReportPlugin(object):
         :param report: the test report for the item just tested (see pytest
                        documentation)
         """
-        if report.when == 'setup':
+        if report.when == "setup":
             if report.skipped and self._current_case_report is not None:
                 # Status set to be SKIPPED if testcase is marked skip or xfail
                 # lower versioned PyTest does not support this feature
                 self._current_case_report.status_override = Status.SKIPPED
 
-        elif report.when == 'call':
+        elif report.when == "call":
             if self._current_case_report is None:
                 raise RuntimeError(
-                    'Cannot store testcase results to report: no report '
-                    'object was created.')
+                    "Cannot store testcase results to report: no report "
+                    "object was created."
+                )
 
             if self._current_result_obj.entries:
                 # Add the assertion entry to the case report
                 for entry in self._current_result_obj.entries:
                     stdout_renderer = stdout_registry[entry]()
                     stdout_header = stdout_renderer.get_header(entry)
-                    stdout_details = stdout_renderer.get_details(entry) or ''
+                    stdout_details = stdout_renderer.get_details(entry) or ""
 
                     # Add 'stdout_header' and 'stdout_details' attributes to
                     # serialized entries for standard output later
                     serialized_entry = schema_registry.serialize(entry)
-                    serialized_entry.update(stdout_header=stdout_header,
-                                            stdout_details=stdout_details)
+                    serialized_entry.update(
+                        stdout_header=stdout_header,
+                        stdout_details=stdout_details,
+                    )
                     self._current_case_report.append(serialized_entry)
 
             if report.failed:
@@ -341,55 +356,71 @@ class _ReportPlugin(object):
         :param call: PyTest CallInfo object
         :param report: PyTest TestReport or CollectReport object
         """
-        if call.when in ('memocollect', 'collect'):
+        if call.when in ("memocollect", "collect"):
             # Failed to collect tests: log to console and mark the report as
             # ERROR.
-            self._report.logger.error(''.join(traceback.format_exception(
-                call.excinfo.type,
-                call.excinfo.value,
-                call.excinfo.tb,
-            )))
+            self._report.logger.error(
+                "".join(
+                    traceback.format_exception(
+                        call.excinfo.type, call.excinfo.value, call.excinfo.tb
+                    )
+                )
+            )
             self._report.status_override = Status.ERROR
 
         elif self._current_case_report is not None:
             # Log assertion errors or exceptions in testcase report
             trace = call.excinfo.traceback[-1]
-            message = getattr(call.excinfo.value, 'message', None) or \
-                      getattr(call.excinfo.value, 'msg', None) or \
-                     getattr(call.excinfo.value, 'args', None) or ''
+            message = (
+                getattr(call.excinfo.value, "message", None)
+                or getattr(call.excinfo.value, "msg", None)
+                or getattr(call.excinfo.value, "args", None)
+                or ""
+            )
             if isinstance(message, (tuple, list)):
                 message = message[0]
 
-            header = (('Assertion - Fail' if
-                call.excinfo.typename == 'AssertionError' else
-                'Exception raised') if call.when == 'call' else
-                    '{} - Fail'.format(call.when))
-            details = 'File: {}\nLine: {}\n{}: {}'.format(
-                trace.path.strpath,
-                trace.lineno + 1,
-                call.excinfo.typename,
-                message
-            ) if call.excinfo.typename == 'AssertionError' else (
-                report.longreprtext if hasattr(report, 'longreprtext') else
-                    str(report.longrepr))
+            header = (
+                (
+                    "Assertion - Fail"
+                    if call.excinfo.typename == "AssertionError"
+                    else "Exception raised"
+                )
+                if call.when == "call"
+                else "{} - Fail".format(call.when)
+            )
+            details = (
+                "File: {}\nLine: {}\n{}: {}".format(
+                    trace.path.strpath,
+                    trace.lineno + 1,
+                    call.excinfo.typename,
+                    message,
+                )
+                if call.excinfo.typename == "AssertionError"
+                else (
+                    report.longreprtext
+                    if hasattr(report, "longreprtext")
+                    else str(report.longrepr)
+                )
+            )
 
             assertion_obj = assertions.RawAssertion(
-                description=header,
-                content=details,
-                passed=False
+                description=header, content=details, passed=False
             )
             serialized_obj = schema_registry.serialize(assertion_obj)
             self._current_case_report.append(serialized_obj)
             self._current_case_report.status_override = Status.FAILED
         else:
             self._report.logger.error(
-                'Exception occured outside of a testcase: during %s',
-                call.when)
-            self._report.logger.error(''.join(traceback.format_exception(
-                call.excinfo.type,
-                call.excinfo.value,
-                call.excinfo.tb,
-            )))
+                "Exception occured outside of a testcase: during %s", call.when
+            )
+            self._report.logger.error(
+                "".join(
+                    traceback.format_exception(
+                        call.excinfo.type, call.excinfo.value, call.excinfo.tb
+                    )
+                )
+            )
 
     @pytest.hookimpl(trylast=True)
     def pytest_configure(self, config):
@@ -399,7 +430,7 @@ class _ReportPlugin(object):
         :param config: pytest config object
         """
         if self._quiet:
-            config.pluginmanager.unregister(name='terminalreporter')
+            config.pluginmanager.unregister(name="terminalreporter")
 
     def pytest_unconfigure(self, config):
         """
@@ -410,7 +441,8 @@ class _ReportPlugin(object):
         # Collate suite reports
         for suite_name, cases in self._suite_reports.items():
             suite_report = TestGroupReport(
-                name=suite_name, category='testsuite')
+                name=suite_name, category="testsuite"
+            )
 
             for case in cases.values():
                 suite_report.append(case)
@@ -436,7 +468,7 @@ class _CollectPlugin(object):
         :param config: pytest config object
         """
         if self._quiet:
-            config.pluginmanager.unregister(name='terminalreporter')
+            config.pluginmanager.unregister(name="terminalreporter")
 
     def pytest_collection_modifyitems(self, items):
         """

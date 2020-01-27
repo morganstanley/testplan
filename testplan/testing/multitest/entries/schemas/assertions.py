@@ -15,7 +15,7 @@ from .. import assertions as asr
 # pylint: disable=missing-docstring, abstract-method
 
 
-@registry.bind_default(category='assertion')
+@registry.bind_default(category="assertion")
 class AssertionSchema(BaseSchema):
     passed = fields.Boolean()
 
@@ -31,7 +31,7 @@ class RawAssertionSchema(AssertionSchema):
     asr.Less,
     asr.LessEqual,
     asr.Greater,
-    asr.GreaterEqual
+    asr.GreaterEqual,
 )
 class FuncAssertionSchema(AssertionSchema):
 
@@ -50,19 +50,13 @@ class ApproximateEqualitySchema(AssertionSchema):
     label = fields.String()
 
 
-@registry.bind(
-    asr.IsTrue,
-    asr.IsFalse
-)
+@registry.bind(asr.IsTrue, asr.IsFalse)
 class BooleanSchema(AssertionSchema):
 
     expr = custom_fields.NativeOrPretty()
 
 
-@registry.bind(
-    asr.Contain,
-    asr.NotContain
-)
+@registry.bind(asr.Contain, asr.NotContain)
 class MembershipSchema(AssertionSchema):
 
     member = custom_fields.NativeOrPretty()
@@ -96,10 +90,7 @@ class RegexFindIterSchema(RegexSchema):
     condition = custom_fields.NativeOrPretty()
 
 
-@registry.bind(
-    asr.ExceptionRaised,
-    asr.ExceptionNotRaised
-)
+@registry.bind(asr.ExceptionRaised, asr.ExceptionNotRaised)
 class ExceptionRaisedSchema(AssertionSchema):
 
     raised_exception = custom_fields.ExceptionField()
@@ -113,10 +104,7 @@ class ExceptionRaisedSchema(AssertionSchema):
     pattern_match = fields.Boolean()
 
 
-@registry.bind(
-    asr.EqualSlices,
-    asr.EqualExcludeSlices
-)
+@registry.bind(asr.EqualSlices, asr.EqualExcludeSlices)
 class EqualSlicesSchema(AssertionSchema):
 
     data = fields.List(custom_fields.SliceComparisonField())
@@ -156,15 +144,12 @@ class ColumnContainSchema(AssertionSchema):
     data = fields.List(custom_fields.ColumnContainComparisonField())
 
 
-@registry.bind(
-    asr.TableMatch,
-    asr.TableDiff
-)
+@registry.bind(asr.TableMatch, asr.TableDiff)
 class TableMatchSchema(AssertionSchema):
 
     strict = fields.Boolean()
 
-    columns = fields.List(fields.String(), attribute='display_columns')
+    columns = fields.List(fields.String(), attribute="display_columns")
 
     # Row data with diffs, errors, extra ctx for comparators
     data = fields.List(custom_fields.RowComparisonField())
@@ -182,17 +167,14 @@ class XMLCheckSchema(AssertionSchema):
     xpath = fields.String()
     tags = fields.List(fields.String())
 
-    xml = custom_fields.XMLElementField(attribute='element')
+    xml = custom_fields.XMLElementField(attribute="element")
 
     namespaces = fields.Dict(fields.String())
     data = fields.List(fields.List(custom_fields.NativeOrPretty()))
     message = fields.String()
 
 
-@registry.bind(
-    asr.DictCheck,
-    asr.FixCheck
-)
+@registry.bind(asr.DictCheck, asr.FixCheck)
 class DictCheckSchema(AssertionSchema):
 
     has_keys = fields.List(custom_fields.NativeOrPretty())
@@ -202,10 +184,7 @@ class DictCheckSchema(AssertionSchema):
     absent_keys_diff = fields.List(custom_fields.NativeOrPretty())
 
 
-@registry.bind(
-    asr.DictMatch,
-    asr.FixMatch
-)
+@registry.bind(asr.DictMatch, asr.FixMatch)
 class DictMatchSchema(AssertionSchema):
 
     include_keys = fields.List(custom_fields.NativeOrPretty())
@@ -215,11 +194,8 @@ class DictMatchSchema(AssertionSchema):
     comparison = fields.Raw()
 
 
-@registry.bind(
-    asr.DictMatchAll,
-    asr.FixMatchAll
-)
+@registry.bind(asr.DictMatchAll, asr.FixMatchAll)
 class DictMatchAllSchema(AssertionSchema):
 
     key_weightings = fields.Raw()
-    matches = fields.Function(lambda obj: {'matches': obj.matches})
+    matches = fields.Function(lambda obj: {"matches": obj.matches})

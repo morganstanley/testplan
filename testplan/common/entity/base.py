@@ -74,7 +74,7 @@ class Environment(object):
             uid = item.uid()
         item.context = self
         if uid in self._resources:
-            raise RuntimeError('Uid {} already in context.'.format(uid))
+            raise RuntimeError("Uid {} already in context.".format(uid))
         self._resources[uid] = item
         return uid
 
@@ -88,7 +88,7 @@ class Environment(object):
         return next(uid for uid in self._resources.keys())
 
     def __getattr__(self, item):
-        context = self.__getattribute__('_resources')
+        context = self.__getattribute__("_resources")
 
         if item in context:
             return context[item]
@@ -114,10 +114,11 @@ class Environment(object):
             initial = {key: val for key, val in ctx.items()}
             res = {key: val for key, val in self._resources.items()}
             initial.update(res)
-            return '{}[{}]'.format(self.__class__.__name__, initial)
+            return "{}[{}]".format(self.__class__.__name__, initial)
         else:
-            return '{}[{}]'.format(self.__class__.__name__,
-                                   list(self._resources.items()))
+            return "{}[{}]".format(
+                self.__class__.__name__, list(self._resources.items())
+            )
 
     def __len__(self):
         return len(self._resources)
@@ -126,8 +127,10 @@ class Environment(object):
         """
         Check all resources has target status.
         """
-        return all(self._resources[resource].status.tag == target
-                   for resource in self._resources)
+        return all(
+            self._resources[resource].status.tag == target
+            for resource in self._resources
+        )
 
     def start(self):
         """
@@ -140,9 +143,8 @@ class Environment(object):
                 if not resource.cfg.async_start:
                     resource.wait(resource.STATUS.STARTED)
             except Exception:
-                msg = 'While starting resource [{}]\n{}'.format(
-                    resource.cfg.name,
-                    traceback.format_exc(),
+                msg = "While starting resource [{}]\n{}".format(
+                    resource.cfg.name, traceback.format_exc()
                 )
                 self.logger.error(msg)
                 self.start_exceptions[resource] = msg
@@ -159,15 +161,12 @@ class Environment(object):
                 resource.wait(resource.STATUS.STARTED)
 
     def _log_exception(self, resource, func):
-
         def wrapper(*args, **kargs):
             try:
                 func(*args, **kargs)
             except Exception:
-                msg = 'While executing {} of resource [{}]\n{}'.format(
-                    func.__name__,
-                    resource.cfg.name,
-                    traceback.format_exc(),
+                msg = "While executing {} of resource [{}]\n{}".format(
+                    func.__name__, resource.cfg.name, traceback.format_exc()
                 )
                 self.logger.error(msg)
                 self.start_exceptions[resource] = msg
@@ -182,9 +181,9 @@ class Environment(object):
         for resource in self._resources.values():
             if not resource.cfg.async_start:
                 raise RuntimeError(
-                    'Cannot start resource {} in thread pool, '
-                    'its async_start attr is set to False'.format(
-                        resource))
+                    "Cannot start resource {} in thread pool, "
+                    "its async_start attr is set to False".format(resource)
+                )
 
         for resource in self._resources.values():
             pool.apply_async(self._log_exception(resource, resource.start))
@@ -204,15 +203,15 @@ class Environment(object):
         # Stop all resources
         for resource in resources:
             if (resource.status.tag is None) or (
-                    resource.status.tag == resource.STATUS.STOPPED):
+                resource.status.tag == resource.STATUS.STOPPED
+            ):
                 # Skip resources not even triggered to start.
                 continue
             try:
                 resource.stop()
             except Exception:
-                msg = 'While stopping resource [{}]\n{}'.format(
-                    resource.cfg.name,
-                    traceback.format_exc(),
+                msg = "While stopping resource [{}]\n{}".format(
+                    resource.cfg.name, traceback.format_exc()
                 )
                 self.stop_exceptions[resource] = msg
 
@@ -238,7 +237,8 @@ class Environment(object):
         for resource in resources:
             # Skip resources not even triggered to start.
             if (resource.status.tag is None) or (
-                    resource.status.tag == resource.STATUS.STOPPED):
+                resource.status.tag == resource.STATUS.STOPPED
+            ):
                 continue
 
             pool.apply_async(self._log_exception(resource, resource.stop))
@@ -261,6 +261,7 @@ class Environment(object):
 
 class StatusTransitionException(Exception):
     """To be raised on illegal state transition attempt."""
+
     pass
 
 
@@ -273,9 +274,9 @@ class EntityStatus(object):
     """
 
     NONE = None
-    PAUSING = 'PAUSING'
-    PAUSED = 'PAUSED'
-    RESUMING = 'RESUMING'
+    PAUSING = "PAUSING"
+    PAUSED = "PAUSED"
+    RESUMING = "RESUMING"
 
     def __init__(self):
         """TODO."""
@@ -300,11 +301,12 @@ class EntityStatus(object):
             if current == new or new in self._transitions[current]:
                 self._current = new
             else:
-                msg = 'On status change from {} to {}'.format(current, new)
+                msg = "On status change from {} to {}".format(current, new)
                 raise StatusTransitionException(msg)
         except KeyError as exc:
-            msg = 'On status change from {} to {} - {}'.format(
-                current, new, exc)
+            msg = "On status change from {} to {} - {}".format(
+                current, new, exc
+            )
             raise StatusTransitionException(msg)
 
     def update_metadata(self, **metadata):
@@ -320,10 +322,7 @@ class EntityStatus(object):
         Returns all legal transitions of the status of the
         :py:class:`Entity <testplan.common.entity.base.Entity>`.
         """
-        return {
-            self.PAUSING: {self.PAUSED},
-            self.PAUSED: {self.RESUMING}
-        }
+        return {self.PAUSING: {self.PAUSED}, self.PAUSED: {self.RESUMING}}
 
 
 class EntityConfig(Config):
@@ -340,13 +339,13 @@ class EntityConfig(Config):
     def get_options(cls):
         """Config options for base Entity class."""
         return {
-            ConfigOption('runpath',): Or(None, str, callable),
-            ConfigOption('initial_context', default={}): dict,
-            ConfigOption('path_cleanup', default=False): bool,
-            ConfigOption('status_wait_timeout', default=600): int,
-            ConfigOption('abort_wait_timeout', default=30): int,
+            ConfigOption("runpath"): Or(None, str, callable),
+            ConfigOption("initial_context", default={}): dict,
+            ConfigOption("path_cleanup", default=False): bool,
+            ConfigOption("status_wait_timeout", default=600): int,
+            ConfigOption("abort_wait_timeout", default=30): int,
             # active_loop_sleep impacts cpu usage in interactive mode
-            ConfigOption('active_loop_sleep', default=0.005): float
+            ConfigOption("active_loop_sleep", default=0.005): float,
         }
 
 
@@ -370,6 +369,7 @@ class Entity(logger.Loggable):
     :param active_loop_sleep: Sleep time on busy waiting loops.
     :type active_loop_sleep: ``float``
     """
+
     CONFIG = EntityConfig
     STATUS = EntityStatus
 
@@ -386,7 +386,7 @@ class Entity(logger.Loggable):
         self._aborted = False
 
     def __str__(self):
-        return '{}[{}]'.format(self.__class__.__name__, self.uid())
+        return "{}[{}]".format(self.__class__.__name__, self.uid())
 
     @property
     def cfg(self):
@@ -461,24 +461,29 @@ class Entity(logger.Loggable):
         """Method to abort an entity and log exceptions."""
         timeout = wait_timeout or self.cfg.abort_wait_timeout
         try:
-            self.logger.debug('Aborting {}'.format(entity))
+            self.logger.debug("Aborting {}".format(entity))
             entity.abort()
-            self.logger.debug('Aborted {}'.format(entity))
+            self.logger.debug("Aborted {}".format(entity))
         except Exception as exc:
             self.logger.error(traceback.format_exc())
-            self.logger.error('Exception on aborting {} - {}'.format(
-                self, exc))
+            self.logger.error(
+                "Exception on aborting {} - {}".format(self, exc)
+            )
         else:
             if wait(lambda: entity.aborted is True, timeout) is False:
-                self.logger.error('Timeout on waiting to abort {}.'.format(
-                    self))
+                self.logger.error(
+                    "Timeout on waiting to abort {}.".format(self)
+                )
 
     def aborting(self):
         """
         Aborting logic for self.
         """
-        self.logger.debug('Abort logic not implemented for {}[{}]'.format(
-            self.__class__.__name__, self.uid()))
+        self.logger.debug(
+            "Abort logic not implemented for {}[{}]".format(
+                self.__class__.__name__, self.uid()
+            )
+        )
 
     def pausing(self):
         raise NotImplementedError()
@@ -507,7 +512,7 @@ class Entity(logger.Loggable):
         if self.parent and self.parent.runpath:
             return os.path.join(self.parent.runpath, self.uid())
 
-        runpath = getattr(self.cfg, 'runpath', None)
+        runpath = getattr(self.cfg, "runpath", None)
 
         if runpath:
             return self.cfg.runpath(self) if callable(runpath) else runpath
@@ -519,13 +524,16 @@ class Entity(logger.Loggable):
         Creates runpath related directories.
         """
         self._runpath = self.generate_runpath()
-        self._scratch = os.path.join(self._runpath, 'scratch')
+        self._scratch = os.path.join(self._runpath, "scratch")
         if self.runpath is None:
-            raise RuntimeError('{} runpath cannot be None'.format(
-                self.__class__.__name__
-            ))
-        self.logger.debug('{} has {} runpath and pid {}'.format(
-            self.__class__.__name__, self.runpath, os.getpid()))
+            raise RuntimeError(
+                "{} runpath cannot be None".format(self.__class__.__name__)
+            )
+        self.logger.debug(
+            "{} has {} runpath and pid {}".format(
+                self.__class__.__name__, self.runpath, os.getpid()
+            )
+        )
 
         if self.cfg.path_cleanup is False:
             makedirs(self._runpath)
@@ -541,11 +549,13 @@ class Entity(logger.Loggable):
         defined in its ConfigOption object; also filter out special vars that
         are not init params from local_vars.
         """
-        EXCLUDE = ('cls', 'self', 'kwargs', 'options', '__class__', '__dict__')
+        EXCLUDE = ("cls", "self", "kwargs", "options", "__class__", "__dict__")
         return {
-            key: value for key, value in local_vars.items()
+            key: value
+            for key, value in local_vars.items()
             if key not in EXCLUDE and value is not None
         }
+
 
 class RunnableStatus(EntityStatus):
     """
@@ -553,11 +563,11 @@ class RunnableStatus(EntityStatus):
     :py:class:`Runnable <testplan.common.entity.base.Runnable>` entity.
     """
 
-    EXECUTING = 'EXECUTING'
-    RUNNING = 'RUNNING'
-    FINISHED = 'FINISHED'
-    PAUSING = 'PAUSING'
-    PAUSED = 'PAUSED'
+    EXECUTING = "EXECUTING"
+    RUNNING = "RUNNING"
+    FINISHED = "FINISHED"
+    PAUSING = "PAUSING"
+    PAUSED = "PAUSED"
 
     def transitions(self):
         """"
@@ -572,7 +582,7 @@ class RunnableStatus(EntityStatus):
             self.PAUSING: {self.PAUSED},
             self.PAUSED: {self.RESUMING},
             self.RESUMING: {self.RUNNING},
-            self.FINISHED: {self.RUNNING}
+            self.FINISHED: {self.RUNNING},
         }
         transitions.update(overrides)
         return transitions
@@ -593,6 +603,7 @@ class RunnableIRunner(object):
             for result in func(self, *args, **kwargs):
                 yield result
             self._runnable.status.change(Runnable.STATUS.FINISHED)
+
         return wrapper
 
     def run(self):
@@ -611,12 +622,14 @@ class RunnableConfig(EntityConfig):
         return {
             # Interactive needs to have blocked propagation.
             # IHandlers explicitly enable interactive mode of runnables.
-            ConfigOption('interactive_port', default=None): Or(None, int),
+            ConfigOption("interactive_port", default=None): Or(None, int),
             ConfigOption(
-                'interactive_block',
-                default=hasattr(sys.modules['__main__'], '__file__')): bool,
-            ConfigOption('interactive_runner', default=RunnableIRunner):
-                object
+                "interactive_block",
+                default=hasattr(sys.modules["__main__"], "__file__"),
+            ): bool,
+            ConfigOption(
+                "interactive_runner", default=RunnableIRunner
+            ): object,
         }
 
 
@@ -630,7 +643,7 @@ class RunnableResult(object):
         self.step_results = OrderedDict()
 
     def __repr__(self):
-        return '{}[{}]'.format(self.__class__.__name__, self.__dict__)
+        return "{}[{}]".format(self.__class__.__name__, self.__dict__)
 
 
 class Runnable(Entity):
@@ -657,6 +670,7 @@ class Runnable(Entity):
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.
     """
+
     CONFIG = RunnableConfig
     STATUS = RunnableStatus
     RESULT = RunnableResult
@@ -712,7 +726,7 @@ class Runnable(Entity):
         pass
 
     def _run(self):
-        self.logger.debug('Running %s', self)
+        self.logger.debug("Running %s", self)
         self.status.change(RunnableStatus.RUNNING)
         while self.active:
             if self.status.tag == RunnableStatus.RUNNING:
@@ -721,17 +735,20 @@ class Runnable(Entity):
                     self.pre_step_call(func)
                     if self.skip_step(func) is False:
                         self.logger.debug(
-                            'Executing step of %s - %s', self, func.__name__)
+                            "Executing step of %s - %s", self, func.__name__
+                        )
                         start_time = time.time()
                         self._execute_step(func, *args, **kwargs)
                         self.logger.debug(
-                            'Finished step of %s - %s. Took %ds',
+                            "Finished step of %s - %s. Took %ds",
                             self,
                             func.__name__,
-                            round(time.time() - start_time, 5))
+                            round(time.time() - start_time, 5),
+                        )
                     else:
                         self.logger.debug(
-                            'Skipping step of %s - %s', self, func.__name__)
+                            "Skipping step of %s - %s", self, func.__name__
+                        )
                     self.post_step_call(func)
                 except IndexError:
                     self.status.change(RunnableStatus.FINISHED)
@@ -776,32 +793,41 @@ class Runnable(Entity):
         end_threads = threading.enumerate()
         if start_threads != end_threads:
             new_threads = [
-                thr.name for thr in end_threads if thr not in start_threads]
-            self.logger.warning('New threads are still alive after run: %s',
-                                new_threads)
+                thr.name for thr in end_threads if thr not in start_threads
+            ]
+            self.logger.warning(
+                "New threads are still alive after run: %s", new_threads
+            )
             dead_threads = [
-                thr.name for thr in start_threads if thr not in end_threads]
-            self.logger.warning('Threads have died during run: %s',
-                                dead_threads)
+                thr.name for thr in start_threads if thr not in end_threads
+            ]
+            self.logger.warning(
+                "Threads have died during run: %s", dead_threads
+            )
 
         current_proc = psutil.Process()
         end_procs = current_proc.children()
         if start_procs != end_procs:
-            new_procs = [
-                proc for proc in end_procs if proc not in start_procs]
-            self.logger.warning('New processes are still alive after run: %s',
-                                new_procs)
+            new_procs = [proc for proc in end_procs if proc not in start_procs]
+            self.logger.warning(
+                "New processes are still alive after run: %s", new_procs
+            )
             dead_procs = [
-                proc for proc in start_procs if proc not in end_procs]
-            self.logger.warning('Child processes have died during run: %s',
-                                dead_procs)
+                proc for proc in start_procs if proc not in end_procs
+            ]
+            self.logger.warning(
+                "Child processes have died during run: %s", dead_procs
+            )
 
     def _execute_step(self, step, *args, **kwargs):
         try:
             res = step(*args, **kwargs)
         except Exception as exc:
-            print('Exception on {} {}, step {} - {}'.format(
-                self.__class__.__name__, self.uid(), step.__name__, exc))
+            print(
+                "Exception on {} {}, step {} - {}".format(
+                    self.__class__.__name__, self.uid(), step.__name__, exc
+                )
+            )
             self.logger.error(traceback.format_exc())
             res = exc
         finally:
@@ -854,12 +880,15 @@ class Runnable(Entity):
         try:
             if self.cfg.interactive_port is not None:
                 if self._ihandler is not None:
-                    raise RuntimeError('{} already has an active {}'.format(
-                        self, self._ihandler))
-                self.logger.test_info(
-                    'Starting %s in interactive mode', self)
+                    raise RuntimeError(
+                        "{} already has an active {}".format(
+                            self, self._ihandler
+                        )
+                    )
+                self.logger.test_info("Starting %s in interactive mode", self)
                 self._ihandler = self.cfg.interactive_handler(
-                    target=self, http_port=self.cfg.interactive_port)
+                    target=self, http_port=self.cfg.interactive_port
+                )
                 thread = threading.Thread(target=self._ihandler)
                 thread.start()
                 # Check if we are on interactive session.
@@ -874,14 +903,18 @@ class Runnable(Entity):
             self.logger.error(traceback.format_exc())
         else:
             # TODO fix swallow exceptions in self._result.step_results.values()
-            self._result.run = self.status.tag == RunnableStatus.FINISHED and\
-                self.run_result() is True
+            self._result.run = (
+                self.status.tag == RunnableStatus.FINISHED
+                and self.run_result() is True
+            )
         return self._result
 
     def run_result(self):
         """Returns if a run was successful."""
-        return all(not isinstance(val, Exception) and val is not False
-                   for val in self._result.step_results.values())
+        return all(
+            not isinstance(val, Exception) and val is not False
+            for val in self._result.step_results.values()
+        )
 
     def dry_run(self):
         """A testing process that creates result for each step."""
@@ -914,9 +947,7 @@ class ResourceConfig(EntityConfig):
     @classmethod
     def get_options(cls):
         """Resource specific config options."""
-        return {
-            ConfigOption('async_start', default=True): bool
-        }
+        return {ConfigOption("async_start", default=True): bool}
 
 
 class ResourceStatus(EntityStatus):
@@ -925,10 +956,10 @@ class ResourceStatus(EntityStatus):
     :py:class:`Resource <testplan.common.entity.base.Resource>` entity.
     """
 
-    STARTING = 'STARTING'
-    STARTED = 'STARTED'
-    STOPPING = 'STOPPING'
-    STOPPED = 'STOPPED'
+    STARTING = "STARTING"
+    STARTED = "STARTED"
+    STOPPING = "STOPPING"
+    STOPPED = "STOPPED"
 
     def transitions(self):
         """"
@@ -944,7 +975,7 @@ class ResourceStatus(EntityStatus):
             self.PAUSED: {self.RESUMING, self.STOPPING},
             self.RESUMING: {self.STARTED},
             self.STOPPING: {self.STOPPED},
-            self.STOPPED: {self.STARTING}
+            self.STOPPED: {self.STARTING},
         }
         transitions.update(overrides)
         return transitions
@@ -966,6 +997,7 @@ class Resource(Entity):
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.
     """
+
     CONFIG = ResourceConfig
     STATUS = ResourceStatus
 
@@ -973,8 +1005,11 @@ class Resource(Entity):
         super(Resource, self).__init__(**options)
         self._context = None
         self._wait_handlers.update(
-            {self.STATUS.STARTED: self._wait_started,
-             self.STATUS.STOPPED: self._wait_stopped})
+            {
+                self.STATUS.STARTED: self._wait_started,
+                self.STATUS.STOPPED: self._wait_stopped,
+            }
+        )
 
     @property
     def context(self):
@@ -993,10 +1028,10 @@ class Resource(Entity):
         `Resource.starting <testplan.common.entity.base.Resource.starting>`
         method.
         """
-        self.logger.debug('Starting %r', self)
+        self.logger.debug("Starting %r", self)
         self.status.change(self.STATUS.STARTING)
         self.starting()
-        self.logger.debug('Started %r', self)
+        self.logger.debug("Started %r", self)
 
     def stop(self):
         """
@@ -1005,11 +1040,11 @@ class Resource(Entity):
         `Resource.stopping <testplan.common.entity.base.Resource.stopping>`
         method.
         """
-        self.logger.debug('Stopping %r', self)
+        self.logger.debug("Stopping %r", self)
         self.status.change(self.STATUS.STOPPING)
         if self.active:
             self.stopping()
-        self.logger.debug('Stopped %r', self)
+        self.logger.debug("Stopped %r", self)
 
     def _wait_started(self, timeout=None):
         self.status.change(self.STATUS.STARTED)
@@ -1068,6 +1103,7 @@ class Resource(Entity):
 
 DEFAULT_RUNNABLE_ABORT_SIGNALS = [signal.SIGINT, signal.SIGTERM]
 
+
 class RunnableManagerConfig(EntityConfig):
     """
     Configuration object for
@@ -1079,13 +1115,13 @@ class RunnableManagerConfig(EntityConfig):
     def get_options(cls):
         """RunnableManager specific config options."""
         return {
-            ConfigOption('parse_cmdline', default=True): bool,
-            ConfigOption('port', default=None):
-                Or(None,
-                   And(Use(int),
-                       lambda n: n > 0)),
-            ConfigOption('abort_signals',
-                         default=DEFAULT_RUNNABLE_ABORT_SIGNALS): [int]
+            ConfigOption("parse_cmdline", default=True): bool,
+            ConfigOption("port", default=None): Or(
+                None, And(Use(int), lambda n: n > 0)
+            ),
+            ConfigOption(
+                "abort_signals", default=DEFAULT_RUNNABLE_ABORT_SIGNALS
+            ): [int],
         }
 
 
@@ -1114,6 +1150,7 @@ class RunnableManager(Entity):
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.
     """
+
     CONFIG = RunnableManagerConfig
 
     def __init__(self, **options):
@@ -1129,7 +1166,7 @@ class RunnableManager(Entity):
         try:
             return self.__getattribute__(item)
         except AttributeError:
-            if '_runnable' in self.__dict__:
+            if "_runnable" in self.__dict__:
                 return getattr(self._runnable, item)
             raise
 
@@ -1163,8 +1200,12 @@ class RunnableManager(Entity):
         """
         for sig in self._cfg.abort_signals:
             signal.signal(sig, self._handle_abort)
-        execute_as_thread(self._runnable.run, daemon=True, join=True,
-                          break_join=lambda: self.aborted is True)
+        execute_as_thread(
+            self._runnable.run,
+            daemon=True,
+            join=True,
+            break_join=lambda: self.aborted is True,
+        )
         if self._runnable.interactive is not None:
             return self._runnable.interactive
         if isinstance(self._runnable.result, Exception):
@@ -1179,8 +1220,11 @@ class RunnableManager(Entity):
     def _handle_abort(self, signum, frame):
         for sig in self._cfg.abort_signals:
             signal.signal(sig, signal.SIG_IGN)
-        self.logger.debug('Signal handler called for signal {} from {}'.format(
-            signum, threading.current_thread()))
+        self.logger.debug(
+            "Signal handler called for signal {} from {}".format(
+                signum, threading.current_thread()
+            )
+        )
         self.abort()
 
     def pausing(self):

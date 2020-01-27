@@ -68,19 +68,20 @@ class Client(logger.Loggable):
         try:
             self.send(message)
         except Exception as exc:
-            self.logger.exception('Exception on transport send: %s.', exc)
-            raise RuntimeError('On transport send - {}.'.format(exc))
+            self.logger.exception("Exception on transport send: %s.", exc)
+            raise RuntimeError("On transport send - {}.".format(exc))
 
         try:
             received = self.receive()
         except Exception as exc:
-            self.logger.exception('Exception on transport receive: %s.', exc)
-            raise RuntimeError('On transport receive - {}.'.format(exc))
+            self.logger.exception("Exception on transport receive: %s.", exc)
+            raise RuntimeError("On transport receive - {}.".format(exc))
 
         if expect is not None:
             if received is None:
-                raise RuntimeError('Received None when {} was expected.'
-                                   .format(expect))
+                raise RuntimeError(
+                    "Received None when {} was expected.".format(expect)
+                )
             assert received.cmd == expect
         return received
 
@@ -147,7 +148,7 @@ class QueueClient(Client):
         if self.active:
             self.responses.append(message)
         else:
-            raise RuntimeError('Responding to inactive worker')
+            raise RuntimeError("Responding to inactive worker")
 
 
 class ZMQClient(Client):
@@ -213,14 +214,17 @@ class ZMQClient(Client):
                 try:
                     loaded = pickle.loads(received)
                 except Exception as exc:
-                    print('Deserialization error. - {}'.format(exc))
+                    print("Deserialization error. - {}".format(exc))
                     raise
                 else:
                     return loaded
             except zmq.Again:
                 if time.time() - start_time > self._recv_timeout:
-                    print('Transport receive timeout {}s reached!'.format(
-                        self._recv_timeout))
+                    print(
+                        "Transport receive timeout {}s reached!".format(
+                            self._recv_timeout
+                        )
+                    )
                     return None
                 time.sleep(self._recv_sleep)
         return None
@@ -258,7 +262,8 @@ class ZMQClientProxy(object):
         if self.active:
             self.connection.send(pickle.dumps(message))
         else:
-            raise RuntimeError('Responding to inactive worker')
+            raise RuntimeError("Responding to inactive worker")
+
 
 @six.add_metaclass(abc.ABCMeta)
 class Server(entity.Resource):
@@ -291,8 +296,9 @@ class Server(entity.Resource):
         """
         if self.status.tag != self.status.STARTED:
             raise RuntimeError(
-                'Can only register workers when started. Current state is {}'
-                .format(self.status.tag))
+                "Can only register workers when started. Current state is "
+                "{}".format(self.status.tag)
+            )
 
     @abc.abstractmethod
     def accept(self):
@@ -368,23 +374,27 @@ class ZMQServer(Server):
     def starting(self):
         """Create a ZMQ context and socket to handle TCP communication."""
         if self.parent is None:
-            raise RuntimeError('Parent pool was not set - cannot start.')
+            raise RuntimeError("Parent pool was not set - cannot start.")
 
         self._zmq_context = zmq.Context()
         self._sock = self._zmq_context.socket(zmq.REP)
         if self.parent.cfg.port == 0:
             port_selected = self._sock.bind_to_random_port(
-                "tcp://{}".format(self.parent.cfg.host))
+                "tcp://{}".format(self.parent.cfg.host)
+            )
         else:
-            self._sock.bind("tcp://{}:{}".format(self.parent.cfg.host,
-                                                 self.parent.cfg.port))
+            self._sock.bind(
+                "tcp://{}:{}".format(
+                    self.parent.cfg.host, self.parent.cfg.port
+                )
+            )
             port_selected = self.parent.cfg.port
-        self._address = '{}:{}'.format(self.parent.cfg.host, port_selected)
+        self._address = "{}:{}".format(self.parent.cfg.host, port_selected)
         super(ZMQServer, self).starting()
 
     def _close(self):
         """Closes TCP connections managed by this object.."""
-        self.logger.debug('Closing TCP connections for %s', self.parent)
+        self.logger.debug("Closing TCP connections for %s", self.parent)
         self._sock.close()
         self._sock = None
         self._zmq_context.destroy()
@@ -432,7 +442,8 @@ class ZMQServer(Server):
         """
         # Use getattr() with a default here - there is no guarantee that
         # __init__() has completed successfully when __del__() is called.
-        if (getattr(self, '_sock', None) is not None) or (
-                getattr(self, '_zmq_context', None) is not None):
-            warnings.warn('Pool TCP connections were not closed.')
+        if (getattr(self, "_sock", None) is not None) or (
+            getattr(self, "_zmq_context", None) is not None
+        ):
+            warnings.warn("Pool TCP connections were not closed.")
             self._close()

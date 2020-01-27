@@ -16,8 +16,10 @@ class TableEntry(object):
 
     def _check_table(self, table):
         """Make the original table argument is a valid."""
-        error_msg = '`table` must be a list of' \
-                    ' lists or list of dicts: {}'.format(table)
+        error_msg = (
+            "`table` must be a list of"
+            " lists or list of dicts: {}".format(table)
+        )
 
         if not isinstance(table, (list, tuple)):
             raise TypeError(error_msg)
@@ -28,10 +30,14 @@ class TableEntry(object):
         if not (is_list_of_dict or is_list_of_list) and table:
             raise TypeError(error_msg)
 
-        if is_list_of_list and table and not all(
-                isinstance(col, six.string_types) for col in table[0]):
+        if (
+            is_list_of_list
+            and table
+            and not all(isinstance(col, six.string_types) for col in table[0])
+        ):
             raise TypeError(
-                'Table headers must all be strings - got {}'.format(table[0]))
+                "Table headers must all be strings - got {}".format(table[0])
+            )
 
     def __len__(self):
         if not self.table:
@@ -55,7 +61,7 @@ class TableEntry(object):
             return self.table[0]
 
     @staticmethod
-    def consolidate_columns(list_of_dict, placeholder='ABSENT'):
+    def consolidate_columns(list_of_dict, placeholder="ABSENT"):
         """
         In some cases the raw DB results may return a
         list of dictionaries that have different keys.

@@ -18,24 +18,22 @@ def format_regexp_matches(name, regexps, unmatched):
     so it can rendered via TimeoutException
     """
     if unmatched:
-        err = '{newline} {name} matched: {matched}'.format(
+        err = "{newline} {name} matched: {matched}".format(
             newline=os.linesep,
             name=name,
             matched=[
                 "REGEX('{}')".format(e.pattern)
                 for e in regexps
                 if e not in unmatched
-            ])
+            ],
+        )
 
-        err += '{newline}Unmatched: {unmatched}'.format(
+        err += "{newline}Unmatched: {unmatched}".format(
             newline=os.linesep,
-            unmatched=[
-                "REGEX('{}')".format(e.pattern)
-                for e in unmatched
-            ]
+            unmatched=["REGEX('{}')".format(e.pattern) for e in unmatched],
         )
         return err
-    return ''
+    return ""
 
 
 class DriverConfig(ResourceConfig):
@@ -50,21 +48,16 @@ class DriverConfig(ResourceConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            'name': str,
-            ConfigOption('install_files', default=None):
-                Or(None, list),
-            ConfigOption('timeout', default=60): int,
-            ConfigOption('logfile', default=None):
-                Or(None, str),
-            ConfigOption('log_regexps', default=None):
-                Or(None, list),
-            ConfigOption('stdout_regexps', default=None):
-                Or(None, list),
-            ConfigOption('stderr_regexps', default=None):
-                Or(None, list),
-            ConfigOption('async_start', default=False): bool,
-            ConfigOption('report_errors_from_logs', default=False): bool,
-            ConfigOption('error_logs_max_lines', default=10): int
+            "name": str,
+            ConfigOption("install_files", default=None): Or(None, list),
+            ConfigOption("timeout", default=60): int,
+            ConfigOption("logfile", default=None): Or(None, str),
+            ConfigOption("log_regexps", default=None): Or(None, list),
+            ConfigOption("stdout_regexps", default=None): Or(None, list),
+            ConfigOption("stderr_regexps", default=None): Or(None, list),
+            ConfigOption("async_start", default=False): bool,
+            ConfigOption("report_errors_from_logs", default=False): bool,
+            ConfigOption("error_logs_max_lines", default=10): int,
         }
 
 
@@ -148,8 +141,11 @@ class Driver(Resource):
 
     def started_check(self, timeout=None):
         """Driver started status condition check."""
-        wait(lambda: self.extract_values(), self.cfg.timeout,
-             raise_on_timeout=True)
+        wait(
+            lambda: self.extract_values(),
+            self.cfg.timeout,
+            raise_on_timeout=True,
+        )
 
     def pre_stop(self):
         """Callable to be executed right before driver stops."""
@@ -205,19 +201,20 @@ class Driver(Resource):
         regex_sources = []
         if self.logpath and self.cfg.log_regexps:
             regex_sources.append(
-                (self.logpath, self.cfg.log_regexps, log_unmatched))
+                (self.logpath, self.cfg.log_regexps, log_unmatched)
+            )
         if self.outpath and self.cfg.stdout_regexps:
             regex_sources.append(
-                (self.outpath, self.cfg.stdout_regexps, stdout_unmatched))
+                (self.outpath, self.cfg.stdout_regexps, stdout_unmatched)
+            )
         if self.errpath and self.cfg.stderr_regexps:
             regex_sources.append(
-                (self.errpath, self.cfg.stderr_regexps, stderr_unmatched))
+                (self.errpath, self.cfg.stderr_regexps, stderr_unmatched)
+            )
 
         for outfile, regexps, unmatched in regex_sources:
             file_result, file_extracts, file_unmatched = match_regexps_in_file(
-                logpath=outfile,
-                log_extracts=regexps,
-                return_unmatched=True
+                logpath=outfile, log_extracts=regexps, return_unmatched=True
             )
             unmatched.extend(file_unmatched)
             self.extracts.update(file_extracts)
@@ -226,35 +223,37 @@ class Driver(Resource):
         if log_unmatched or stdout_unmatched or stderr_unmatched:
 
             err = (
-                "Timed out starting {}({}):"
-                " unmatched log_regexps in {}."
+                "Timed out starting {}({}):" " unmatched log_regexps in {}."
             ).format(type(self).__name__, self.name, self.logpath)
 
             err += format_regexp_matches(
-                name='log_regexps',
+                name="log_regexps",
                 regexps=self.cfg.log_regexps,
-                unmatched=log_unmatched
+                unmatched=log_unmatched,
             )
 
             err += format_regexp_matches(
-                name='stdout_regexps',
+                name="stdout_regexps",
                 regexps=self.cfg.stdout_regexps,
-                unmatched=stdout_unmatched
+                unmatched=stdout_unmatched,
             )
 
             err += format_regexp_matches(
-                name='stderr_regexps',
+                name="stderr_regexps",
                 regexps=self.cfg.stderr_regexps,
-                unmatched=stderr_unmatched
+                unmatched=stderr_unmatched,
             )
 
             if self.extracts:
-                err += '{newline}Matching groups:{newline}'.format(
-                    newline=os.linesep)
-                err += os.linesep.join([
-                    '\t{}: {}'.format(key, value)
-                    for key, value in self.extracts.items()
-                ])
+                err += "{newline}Matching groups:{newline}".format(
+                    newline=os.linesep
+                )
+                err += os.linesep.join(
+                    [
+                        "\t{}: {}".format(key, value)
+                        for key, value in self.extracts.items()
+                    ]
+                )
             return FailedAction(error_msg=err)
         return result
 
@@ -279,10 +278,10 @@ class Driver(Resource):
         if self.file_logger is not None:
             raise RuntimeError("File logger already exists")
 
-        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
         handler = logging.FileHandler(path)
         handler.setFormatter(formatter)
-        logger = logging.getLogger('FileLogger_{}'.format(self.cfg.name))
+        logger = logging.getLogger("FileLogger_{}".format(self.cfg.name))
         logger.addHandler(handler)
         logger.setLevel(self.logger.getEffectiveLevel())
         self.file_logger = logger
@@ -325,9 +324,9 @@ class Driver(Resource):
             # Assume that in average a line has 512 characters at most
             block_size = max_count * 512 if max_count > 0 else file_size
 
-            with open(log_file, 'r') as file_handle:
+            with open(log_file, "r") as file_handle:
                 if file_size > block_size > 0:
-                    max_seek_point = (file_size // block_size)
+                    max_seek_point = file_size // block_size
                     file_handle.seek((max_seek_point - 1) * block_size)
                 elif file_size:
                     file_handle.seek(0, os.SEEK_SET)
@@ -337,12 +336,15 @@ class Driver(Resource):
                 return lines[-max_count:] if max_count > 0 else lines
 
         for path in (self.errpath, self.outpath, self.logpath):
-            lines = get_lines_at_tail(
-                path, self.cfg.error_logs_max_lines) if path else []
+            lines = (
+                get_lines_at_tail(path, self.cfg.error_logs_max_lines)
+                if path
+                else []
+            )
             if lines:
                 if content:
-                    content.append('')
-                content.append('Information from log file: {}'.format(path))
-                content.extend(['  {}'.format(line) for line in lines])
+                    content.append("")
+                content.append("Information from log file: {}".format(path))
+                content.extend(["  {}".format(line) for line in lines])
 
         return content

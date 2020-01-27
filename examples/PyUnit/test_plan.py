@@ -20,19 +20,22 @@ class MyTest(unittest.TestCase):
         self.assertFalse(False)
 
 
-@testplan.test_plan(name='PyUnit',
-                    description='UnitTest example')
+@testplan.test_plan(name="PyUnit", description="UnitTest example")
 def main(plan):
     # Now we are inside a function that will be passed a plan object, we
     # can add tests to this plan. Here we will add a unittest suite, made up
     # of a single TestCase defined above.
-    plan.add(pyunit.PyUnit(name='My PyUnit',
-                           description='PyUnit example testcase',
-                           suite=unittest.makeSuite(MyTest)))
+    plan.add(
+        pyunit.PyUnit(
+            name="My PyUnit",
+            description="PyUnit example testcase",
+            suite=unittest.makeSuite(MyTest),
+        )
+    )
 
 
 # Finally we trigger our main function when the script is run, and
 # set the return status.
-if __name__ == '__main__':
+if __name__ == "__main__":
     res = main()
     sys.exit(res.exit_code)

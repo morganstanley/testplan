@@ -25,12 +25,15 @@ def context_wrapper(ctx_manager, *ctx_args, **ctx_kwargs):
     func within the context of the given `ctx_manager` initialized
     by `ctx_args` and `ctx_kwargs`
     """
+
     def _wrapper(func):
         @functools.wraps(func)
         def _inner(*args, **kwargs):
             with ctx_manager(*ctx_args, **ctx_kwargs):
                 return func(*args, **kwargs)
+
         return _inner
+
     return _wrapper
 
 
@@ -97,8 +100,7 @@ def captured_logging(logger, level=logging.INFO):
             if self._output is None:
                 self.stream_handler.flush()
                 # Standardize line endings
-                self._output = self.buffer\
-                    .getvalue().replace('\r\n', '\n')
+                self._output = self.buffer.getvalue().replace("\r\n", "\n")
             return self._output
 
     log_wrapper = LogWrapper()
@@ -113,7 +115,7 @@ def to_stdout(*items):
     Utility function that can be used for testing
     logging output along with `captured_logging`.
     """
-    return '\n'.join(items) + '\n'
+    return "\n".join(items) + "\n"
 
 
 @contextmanager
@@ -130,8 +132,7 @@ def suppress_warnings(func):
 
 
 def check_iterable(
-    expected, actual, curr_path='ROOT',
-    _orig_exp=None, _orig_act=None
+    expected, actual, curr_path="ROOT", _orig_exp=None, _orig_act=None
 ):
     """
     Utility for checking an iterable, supports custom
@@ -142,30 +143,29 @@ def check_iterable(
 
     def render_mismatch(act, exp, full_path):
         return (
-            '{linesep}'
+            "{linesep}"
             'Mismatch: "{full_path}",{linesep}'
-            'Expected value: {expected}{linesep}'
-            'Actual value: {actual}{linesep}'
-            'Expected Data:{linesep}{exp_data}{linesep}'
-            'Actual Data:{linesep}{act_data}'
+            "Expected value: {expected}{linesep}"
+            "Actual value: {actual}{linesep}"
+            "Expected Data:{linesep}{exp_data}{linesep}"
+            "Actual Data:{linesep}{act_data}"
         ).format(
             full_path=full_path,
             linesep=os.linesep,
             expected=pprint.pformat(exp, indent=2),
             actual=pprint.pformat(act, indent=2),
             exp_data=pprint.pformat(_orig_exp, indent=2),
-            act_data=pprint.pformat(_orig_act, indent=2)
+            act_data=pprint.pformat(_orig_act, indent=2),
         )
 
-    msg = render_mismatch(
-        act=actual, exp=expected, full_path=curr_path)
+    msg = render_mismatch(act=actual, exp=expected, full_path=curr_path)
 
     if isinstance(expected, (list, tuple)):
         for idx, (exp_item, act_item) in enumerate(zip(expected, actual)):
             check_iterable(
                 expected=exp_item,
                 actual=act_item,
-                curr_path='{} | [{}]'.format(curr_path, idx),
+                curr_path="{} | [{}]".format(curr_path, idx),
                 _orig_exp=_orig_exp,
                 _orig_act=_orig_act,
             )
@@ -174,7 +174,7 @@ def check_iterable(
             check_iterable(
                 actual=actual[key],
                 expected=value,
-                curr_path='{} | {}'.format(curr_path, key),
+                curr_path="{} | {}".format(curr_path, key),
                 _orig_exp=_orig_exp,
                 _orig_act=_orig_act,
             )
@@ -182,9 +182,7 @@ def check_iterable(
         assert bool(expected(actual)), msg
     elif is_regex(expected):
         msg = render_mismatch(
-            act=actual,
-            exp=expected.pattern,
-            full_path=curr_path
+            act=actual, exp=expected.pattern, full_path=curr_path
         )
         assert expected.search(actual), msg
     else:
@@ -193,12 +191,12 @@ def check_iterable(
 
 def check_entry(expected, actual):
     """Utility function for comparing serialized entries."""
-    if expected['type'] == 'Group':
-        assert len(expected['entries']) == len(actual['entries'])
+    if expected["type"] == "Group":
+        assert len(expected["entries"]) == len(actual["entries"])
         for expected_child, actual_child in zip(
-                expected['entries'], actual['entries']):
-            check_entry(
-                expected_child, actual_child)
+            expected["entries"], actual["entries"]
+        ):
+            check_entry(expected_child, actual_child)
     else:
         check_iterable(expected, actual, _orig_act=actual, _orig_exp=expected)
 
@@ -212,8 +210,9 @@ def check_report(expected, actual, skip=None):
     """
     skip = skip or []
     attrs = [
-        attr for attr in expected._get_comparison_attrs()
-        if attr not in ['entries', 'uid', 'timer', 'logs'] + skip
+        attr
+        for attr in expected._get_comparison_attrs()
+        if attr not in ["entries", "uid", "timer", "logs"] + skip
     ]
 
     for attr in attrs:
@@ -225,51 +224,47 @@ def check_report(expected, actual, skip=None):
                 check_iterable(exp_value, act_value)
             except AssertionError as err:
                 msg = (
-                    'Report name: {report_name}{linesep}'
-                    'Attribute: {attr}{linesep}'
+                    "Report name: {report_name}{linesep}"
+                    "Attribute: {attr}{linesep}"
                 ).format(
-                    linesep=os.linesep,
-                    attr=attr,
-                    report_name=actual.name,
+                    linesep=os.linesep, attr=attr, report_name=actual.name
                 )
                 raise AssertionError(
-                    '{linesep}{report_msg}{error_msg}'.format(
-                        linesep=os.linesep,
-                        report_msg=msg,
-                        error_msg=str(err)
+                    "{linesep}{report_msg}{error_msg}".format(
+                        linesep=os.linesep, report_msg=msg, error_msg=str(err)
                     )
                 )
         else:
-            msg = '{}Expected: {} {}Actual: {}'.format(
-                os.linesep,
-                expected,
-                os.linesep,
-                actual
+            msg = "{}Expected: {} {}Actual: {}".format(
+                os.linesep, expected, os.linesep, actual
             )
             msg += '{}Mismatch: "{}", `{}` != `{}`'.format(
-                os.linesep, attr, exp_value, act_value)
+                os.linesep, attr, exp_value, act_value
+            )
             assert exp_value == act_value, msg
 
     if isinstance(expected, ReportGroup):
-        msg = '{} {} {}'.format(
+        msg = "{} {} {}".format(
             pprint.pformat(expected, indent=2),
             os.linesep,
-            pprint.pformat(actual, indent=2)
+            pprint.pformat(actual, indent=2),
         )
         assert len(expected) == len(actual), msg
         for expected_child, actual_child in zip(
-                expected.entries, actual.entries):
+            expected.entries, actual.entries
+        ):
             check_report(expected_child, actual_child, skip=skip)
 
     elif isinstance(expected, Report):
-        msg = '{} {} {}'.format(
+        msg = "{} {} {}".format(
             pprint.pformat(expected.entries, indent=2),
             os.linesep,
-            pprint.pformat(actual.entries, indent=2)
+            pprint.pformat(actual.entries, indent=2),
         )
         assert len(expected) == len(actual), msg
         for expected_entry, actual_entry in zip(
-                expected.entries, actual.entries):
+            expected.entries, actual.entries
+        ):
             check_entry(expected_entry, actual_entry)
 
 
@@ -285,8 +280,9 @@ def check_report_context(report, ctx):
 
         for suite_report, (suite_name, testcases) in zip(mt_report, suite_ctx):
             assert suite_report.name == suite_name
-            assert len(suite_report) == len(testcases), '{}, {}'.format(
-                suite_report.entries, testcases)
+            assert len(suite_report) == len(testcases), "{}, {}".format(
+                suite_report.entries, testcases
+            )
 
             for testcase_report, testcase_name in zip(suite_report, testcases):
                 assert testcase_report.name == testcase_name
@@ -354,18 +350,22 @@ class XMLComparison(object):
         self.attrib = kwargs
 
     def _compare_value(self, first, second, key):
-        msg = 'Attrib mismatch key: `{key}`, ' \
-            'expected: `{expected}`, actual: `{actual}`'
+        msg = (
+            "Attrib mismatch key: `{key}`, "
+            "expected: `{expected}`, actual: `{actual}`"
+        )
 
         if is_regex(first):
             assert first.search(second), msg.format(
-                key=key, expected=first.pattern, actual=second)
+                key=key, expected=first.pattern, actual=second
+            )
         else:
             assert first == second, msg.format(
-                key=key, expected=first, actual=second)
+                key=key, expected=first, actual=second
+            )
 
     def _compare_obj(self, xml_obj):
-        self._compare_value(self.tag, xml_obj.tag, key='tag')
+        self._compare_value(self.tag, xml_obj.tag, key="tag")
         for key, value in self.attrib.items():
             self._compare_value(value, xml_obj.attrib[key], key)
 
@@ -373,15 +373,16 @@ class XMLComparison(object):
         num_children = len(self.children)
         num_xml_children = len(xml_children)
 
-        assert num_children == num_xml_children, \
-            'Mismatching number of children ({} vs {})'.format(
-                num_children,
-                num_xml_children)
+        assert (
+            num_children == num_xml_children
+        ), "Mismatching number of children ({} vs {})".format(
+            num_children, num_xml_children
+        )
 
         for curr_child, xml_child in zip(self.children, xml_children):
             curr_child._compare_obj(xml_child)
 
-    def compare(self, xml_str, encoding='utf-8'):
+    def compare(self, xml_str, encoding="utf-8"):
         """Compare with xml string input."""
         # fromstring complains when we have UTF declaration like
         # `<?xml version="1.0" encoding="utf-8" ?>`, so we use bytes instead
@@ -399,7 +400,7 @@ class FixMessage(collections.OrderedDict):
 
     def __init__(self, *args, **kwargs):
         # Default to untyped if no typed_values kwarg was provided.
-        self.typed_values = kwargs.pop('typed_values', False)
+        self.typed_values = kwargs.pop("typed_values", False)
         super(FixMessage, self).__init__(*args, **kwargs)
 
     def copy(self):

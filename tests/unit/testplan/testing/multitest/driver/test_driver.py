@@ -31,7 +31,7 @@ class TestPrePostCallables(object):
         Test pre/post start callables when starting/stopping the driver
         explicitly.
         """
-        driver = self.MyDriver(name='MyDriver', runpath=runpath)
+        driver = self.MyDriver(name="MyDriver", runpath=runpath)
 
         assert not driver.pre_start_called
         assert not driver.post_start_called
@@ -60,7 +60,7 @@ class TestPrePostCallables(object):
         """Test pre/post start callables when starting/stopping the driver
         implicitly via a context manager.
         """
-        driver = self.MyDriver(name='MyDriver', runpath=runpath)
+        driver = self.MyDriver(name="MyDriver", runpath=runpath)
 
         assert not driver.pre_start_called
         assert not driver.post_start_called

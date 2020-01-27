@@ -12,17 +12,21 @@ from tests.unit.testplan.runners.pools.tasks.data.sample_tasks import Runnable
 
 def test_pool_basic():
     dirname = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(dirname, 'tasks', 'data', 'relative')
+    path = os.path.join(dirname, "tasks", "data", "relative")
 
     task1 = Task(target=Runnable(5))
-    task2 = Task(target='Runnable', module='sample_tasks', path=path,
-                 args=(10,), kwargs=dict(multiplier=3))
+    task2 = Task(
+        target="Runnable",
+        module="sample_tasks",
+        path=path,
+        args=(10,),
+        kwargs=dict(multiplier=3),
+    )
 
     assert task1.materialize().run() == 10
     assert task2.materialize().run() == 30
 
-    pool = pools_base.Pool(
-        name='MyPool', size=4, runpath=default_runpath)
+    pool = pools_base.Pool(name="MyPool", size=4, runpath=default_runpath)
     pool.add(task1, uid=task1.uid())
     pool.add(task2, uid=task2.uid())
     assert pool._input[task1.uid()] is task1
@@ -32,10 +36,12 @@ def test_pool_basic():
         while pool.ongoing:
             pass
 
-    assert pool.get(task1.uid()).result ==\
-           pool.results[task1.uid()].result == 10
-    assert pool.get(task2.uid()).result ==\
-           pool.results[task2.uid()].result == 30
+    assert (
+        pool.get(task1.uid()).result == pool.results[task1.uid()].result == 10
+    )
+    assert (
+        pool.get(task2.uid()).result == pool.results[task2.uid()].result == 30
+    )
 
 
 class ControllableWorker(pools_base.Worker):
@@ -71,7 +77,7 @@ class ControllableWorker(pools_base.Worker):
         return self._is_alive
 
 
-class TestPoolIsolated():
+class TestPoolIsolated:
     """
     Test the Pool class in isolation, using a custom testbed worker that allows
     us to send in individual worker requests and check their responses.
@@ -84,7 +90,8 @@ class TestPoolIsolated():
         results of executing that task.
         """
         pool = pools_base.Pool(
-            name='MyPool', size=1, worker_type=ControllableWorker)
+            name="MyPool", size=1, worker_type=ControllableWorker
+        )
 
         # Start the pool via its context manager - this starts the Pool's main
         # work loop in a separate thread.
@@ -94,7 +101,7 @@ class TestPoolIsolated():
 
             # Retrieve the only worker assigned to this pool.
             assert len(pool._workers) == 1
-            worker = pool._workers['0']
+            worker = pool._workers["0"]
             assert worker.is_alive and worker.active
             assert worker.status.tag == worker.status.STARTED
 
@@ -103,7 +110,8 @@ class TestPoolIsolated():
             # Send a TaskPullRequest from the worker to the Pool. The Pool
             # should respond with an Ack since no Tasks have been added yet.
             received = worker.transport.send_and_receive(
-                msg_factory.make(msg_factory.TaskPullRequest, data=1))
+                msg_factory.make(msg_factory.TaskPullRequest, data=1)
+            )
             assert received.cmd == communication.Message.Ack
 
             # Add a task to the pool.
@@ -113,7 +121,8 @@ class TestPoolIsolated():
             # Send in another TaskPullRequest - the Pool should respond with
             # the task we just added.
             received = worker.transport.send_and_receive(
-                msg_factory.make(msg_factory.TaskPullRequest, data=1))
+                msg_factory.make(msg_factory.TaskPullRequest, data=1)
+            )
             assert received.cmd == communication.Message.TaskSending
             assert len(received.data) == 1
             assert received.data[0] == task1
@@ -122,7 +131,8 @@ class TestPoolIsolated():
             task_result = worker.execute(task1)
             results = [task_result]
             received = worker.transport.send_and_receive(
-                msg_factory.make(msg_factory.TaskResults, data=results))
+                msg_factory.make(msg_factory.TaskResults, data=results)
+            )
             assert received.cmd == communication.Message.Ack
 
             # Check that the pool now has the results stored.
@@ -134,29 +144,32 @@ class TestPoolIsolated():
 
     def test_restart_worker_inactive(self):
         pool = pools_base.Pool(
-            name='MyPool', size=1, worker_type=ControllableWorker)
+            name="MyPool", size=1, worker_type=ControllableWorker
+        )
         pool._start_monitor_thread = False
 
         with pool:
 
-            worker = pool._workers['0']
-            assert pool._query_worker_status(worker) == ('active', None)
+            worker = pool._workers["0"]
+            assert pool._query_worker_status(worker) == ("active", None)
 
             worker._is_alive = False
-            assert pool._query_worker_status(worker) == \
-                   ('inactive',
-                    'Deco {}, handler no longer alive'.format(worker))
+            assert pool._query_worker_status(worker) == (
+                "inactive",
+                "Deco {}, handler no longer alive".format(worker),
+            )
 
-            assert pool._handle_inactive(worker, 'test restart') == True
+            assert pool._handle_inactive(worker, "test restart") == True
             assert worker._restart_count == 1
 
     def test_restart_pool_stopping(self):
 
         pool = pools_base.Pool(
-            name='MyPool', size=1, worker_type=ControllableWorker)
+            name="MyPool", size=1, worker_type=ControllableWorker
+        )
         pool._start_monitor_thread = False
 
         with pool:
-            worker = pool._workers['0']
+            worker = pool._workers["0"]
 
         assert worker._restart_count == 0

@@ -27,7 +27,7 @@ def test_basic_server_client():
     assert server.accepted_connections == 1
 
     # Client sends message
-    msg = b'Hello'
+    msg = b"Hello"
     _, size = client.send(msg)
     assert size == len(msg)
 
@@ -36,7 +36,7 @@ def test_basic_server_client():
     assert received == msg
 
     # Server sends reply
-    msg = b'World'
+    msg = b"World"
     server.send(msg, conn_idx)
     received = client.receive(1024)
     assert received == msg
@@ -56,23 +56,23 @@ def test_two_clients():
     # Client 1 connect and send message
     client1.connect()
     conn_1 = server.accept_connection(5)
-    msg1 = b'Hello!'
+    msg1 = b"Hello!"
     _, size1 = client1.send(msg1)
 
     # Client 2 connect and send message before server received msg from 1
     client2.connect()
     conn_2 = server.accept_connection(5)
-    msg2 = b'Hey'
+    msg2 = b"Hey"
     _, size2 = client2.send(msg2)
 
     # Server responds to 1
     assert server.receive(size1, conn_idx=conn_1) == msg1
-    resp1 = b'Yo1'
+    resp1 = b"Yo1"
     server.send(resp1, conn_idx=conn_1)
 
     # Server responds to 2
     assert server.receive(size2, conn_idx=conn_2) == msg2
-    resp2 = b'Yo2'
+    resp2 = b"Yo2"
     server.send(resp2, conn_idx=conn_2)
 
     # Clients receiving responses
@@ -82,4 +82,3 @@ def test_two_clients():
     client1.close()
     client2.close()
     server.close()
-

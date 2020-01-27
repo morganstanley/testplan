@@ -14,6 +14,7 @@ import traceback
 
 class TimeoutException(Exception):
     """Timeout exception error."""
+
     pass
 
 
@@ -37,19 +38,23 @@ class TimeoutExceptionInfo(object):
         timing information.
         """
         ended = time.time()
-        started_wait = datetime.datetime.fromtimestamp(
-            self.started).strftime('%Y-%m-%d %H:%M:%S')
-        raised_date = datetime.datetime.fromtimestamp(
-            ended).strftime('%Y-%m-%d %H:%M:%S')
+        started_wait = datetime.datetime.fromtimestamp(self.started).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+        raised_date = datetime.datetime.fromtimestamp(ended).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
         duration = ended - self.started
-        return 'Info[started at {}, raised at {} after {}s]'.format(
-            started_wait, raised_date, round(duration, 2))
+        return "Info[started at {}, raised at {} after {}s]".format(
+            started_wait, raised_date, round(duration, 2)
+        )
 
 
 class KThread(threading.Thread):
     """
     A subclass of threading.Thread, with a kill() method.
     """
+
     def __init__(self, *args, **kwargs):
         threading.Thread.__init__(self, *args, **kwargs)
         self._will_kill = False
@@ -67,10 +72,10 @@ class KThread(threading.Thread):
         self.run = self.__run_backup
 
     def globaltrace(self, frame, event, arg):
-        return self.localtrace if event == 'call' else None
+        return self.localtrace if event == "call" else None
 
     def localtrace(self, frame, event, arg):
-        if self._will_kill and event == 'line':
+        if self._will_kill and event == "line":
             raise SystemExit()
 
         return self.localtrace
@@ -79,7 +84,7 @@ class KThread(threading.Thread):
         self._will_kill = True
 
 
-def timeout(seconds, err_msg='Timeout after {} seconds.'):
+def timeout(seconds, err_msg="Timeout after {} seconds."):
     """
     Decorator for a normal funtion to limit its execution time.
 
@@ -90,8 +95,10 @@ def timeout(seconds, err_msg='Timeout after {} seconds.'):
     :return: Decorated function.
     :rtype: ``callable``
     """
+
     def timeout_decorator(func):
         """"""
+
         def _new_func(result, old_func, old_func_args, old_func_kwargs):
             try:
                 result.append(old_func(*old_func_args, **old_func_kwargs))
@@ -102,10 +109,10 @@ def timeout(seconds, err_msg='Timeout after {} seconds.'):
         def wrapper(*args, **kwargs):
             result = [True]
             new_kwargs = {
-                'result': result,
-                'old_func': func,
-                'old_func_args': args,
-                'old_func_kwargs': kwargs
+                "result": result,
+                "old_func": func,
+                "old_func_args": args,
+                "old_func_kwargs": kwargs,
             }
             thd = KThread(target=_new_func, args=(), kwargs=new_kwargs)
             thd.start()
@@ -141,7 +148,7 @@ def wait(predicate, timeout, interval=0.05, raise_on_timeout=False):
     end_time = start_time + timeout
     while True:
         res = predicate()
-        error_msg = getattr(res, 'error_msg', '')
+        error_msg = getattr(res, "error_msg", "")
         if res is True:
             return res
         elif time.time() < end_time:
@@ -149,9 +156,9 @@ def wait(predicate, timeout, interval=0.05, raise_on_timeout=False):
             time.sleep(interval)
         else:
             if raise_on_timeout is True:
-                msg = 'Timeout after {} seconds.'.format(timeout)
+                msg = "Timeout after {} seconds.".format(timeout)
                 if error_msg:
-                    msg = '{}{}{}'.format(msg, os.linesep, error_msg)
+                    msg = "{}{}{}".format(msg, os.linesep, error_msg)
                 raise TimeoutException(msg)
             else:
                 return res
@@ -177,12 +184,20 @@ def wait_until_predicate(predicate, timeout, interval=1.0):
     except TimeoutException:
         return
     else:
-        raise RuntimeError('Early finish of wait(), predicate: {}.'.format(
-            res))
+        raise RuntimeError(
+            "Early finish of wait(), predicate: {}.".format(res)
+        )
 
 
-def retry_until_timeout(exception, item, timeout, args=None, kwargs=None,
-                        interval=0.05, raise_on_timeout=False):
+def retry_until_timeout(
+    exception,
+    item,
+    timeout,
+    args=None,
+    kwargs=None,
+    interval=0.05,
+    raise_on_timeout=False,
+):
     """
     Retry calling an item until timeout duration while ignoring exceptions.
 
@@ -201,11 +216,14 @@ def retry_until_timeout(exception, item, timeout, args=None, kwargs=None,
             else:
                 if raise_on_timeout is True:
                     raise TimeoutException(
-                        'Timeout waiting for {0}'
-                        ' to return without {1}. {2}. {3}'.format(
+                        "Timeout waiting for {0}"
+                        " to return without {1}. {2}. {3}".format(
                             item.__name__,
                             exception.__name__,
-                            timeout_info.msg(), str(exc)))
+                            timeout_info.msg(),
+                            str(exc),
+                        )
+                    )
                 else:
                     return None
         else:
@@ -217,7 +235,7 @@ def utcnow():
     return datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
 
 
-_Interval = collections.namedtuple('_Interval', 'start end')
+_Interval = collections.namedtuple("_Interval", "start end")
 
 
 class Interval(_Interval):
@@ -239,7 +257,7 @@ class TimerCtxManager(object):
 
     def __init__(self, timer, key):
         if key in timer:
-            raise ValueError('Cannot overwrite `Interval` for: {}'.format(key))
+            raise ValueError("Cannot overwrite `Interval` for: {}".format(key))
 
         self.timer = timer
         self.key = key
@@ -274,7 +292,8 @@ class Timer(dict):
         """Record the start timestamp for the given key."""
         if key in self:
             raise ValueError(
-                '`start` already recorded for key: `{}`'.format(key))
+                "`start` already recorded for key: `{}`".format(key)
+            )
         self[key] = Interval(utcnow(), None)
 
     def end(self, key):
@@ -285,20 +304,21 @@ class Timer(dict):
         """
         if key not in self:
             raise KeyError(
-                '`start` missing for {}, cannot record end.'.format(key))
+                "`start` missing for {}, cannot record end.".format(key)
+            )
         self[key] = Interval(self[key].start, utcnow())
 
 
 DURATION_REGEX = re.compile(
-    r'((?P<hours>\d+)[H|h])?\s*'
-    r'((?P<minutes>\d+)[M|m])?\s*?'
-    r'((?P<seconds>\d+)[S|s])?'
+    r"((?P<hours>\d+)[H|h])?\s*"
+    r"((?P<minutes>\d+)[M|m])?\s*?"
+    r"((?P<seconds>\d+)[S|s])?"
 )
 
 DURATION_MSG = (
-    'Invalid duration pattern: {pattern}.'
-    ' Please use the format <hours>h <minutes>m <seconds>s'
-    ' (e.g. `2h 30m`, `15m`, `3m 15s`, `10s`) with nonzero values.'
+    "Invalid duration pattern: {pattern}."
+    " Please use the format <hours>h <minutes>m <seconds>s"
+    " (e.g. `2h 30m`, `15m`, `3m 15s`, `10s`) with nonzero values."
 )
 
 
@@ -312,6 +332,7 @@ def parse_duration(duration):
     :rtype: ``int``
 
     """
+
     def _get_value(match_obj, group_name):
         val = match_obj.group(group_name)
         return int(val) if val is not None else 0
@@ -322,9 +343,9 @@ def parse_duration(duration):
     if not match:
         raise ValueError(err_msg)
 
-    hours = _get_value(match, 'hours')
-    minutes = _get_value(match, 'minutes')
-    seconds = _get_value(match, 'seconds')
+    hours = _get_value(match, "hours")
+    minutes = _get_value(match, "minutes")
+    seconds = _get_value(match, "seconds")
 
     result = (hours * 3600) + (minutes * 60) + seconds
 
@@ -346,7 +367,7 @@ def format_duration(duration):
     :return: Duration in readable format.
     :rtype: ``str``
     """
-    assert duration > 0, '`duration` must be nonzero number.'
+    assert duration > 0, "`duration` must be nonzero number."
 
     hours = duration / 3600
     minutes = duration // 60 % 60
@@ -354,16 +375,18 @@ def format_duration(duration):
 
     result = []
     if hours >= 1:
-        result.append('{} hours'.format(hours))
+        result.append("{} hours".format(hours))
     if minutes >= 1:
-        result.append('{} minutes'.format(minutes))
+        result.append("{} minutes".format(minutes))
     if seconds:
-        result.append('{} seconds'.format(seconds))
+        result.append("{} seconds".format(seconds))
 
-    return ' '.join(result)
+    return " ".join(result)
 
 
-def exponential_interval(initial=0.1, multiplier=2, maximum=None, minimum=None):
+def exponential_interval(
+    initial=0.1, multiplier=2, maximum=None, minimum=None
+):
     """
     Generator that returns exponentially increasing/decreasing values,
     can be used for generating values for `time.sleep` for periodic checks.
@@ -393,7 +416,8 @@ def exponential_interval(initial=0.1, multiplier=2, maximum=None, minimum=None):
 
 
 def get_sleeper(
-    interval, timeout=10, raise_timeout_with_msg=None, timeout_info=False):
+    interval, timeout=10, raise_timeout_with_msg=None, timeout_info=False
+):
     """
     Generator that implements sleep steps for replacing
     *while True: do task; time.sleep()* code blocks. Depending on the interval
@@ -434,11 +458,11 @@ def get_sleeper(
                 else:
                     msg = raise_timeout_with_msg
                 if timeout_info:
-                    msg = '{}. {}'.format(msg, timeout_info_obj.msg())
+                    msg = "{}. {}".format(msg, timeout_info_obj.msg())
                 raise TimeoutException(msg)
             break
 
         if incr_interval:
-            interval = min(interval*2, max_interval)
+            interval = min(interval * 2, max_interval)
 
     yield False

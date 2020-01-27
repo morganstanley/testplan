@@ -14,6 +14,7 @@ class GTestConfig(ProcessRunnerTestConfig):
     Configuration object for
     :py:class:`~testplan.testing.cpp.gtest.GTest`.
     """
+
     @classmethod
     def get_options(cls):
         # `gtest_output` is implicitly overridden to generate xml output
@@ -27,20 +28,18 @@ class GTestConfig(ProcessRunnerTestConfig):
         # is not possible within Testplan.
 
         return {
-            ConfigOption('gtest_filter', default=''): str,
-            ConfigOption('gtest_also_run_disabled_tests', default=False): bool,
-
+            ConfigOption("gtest_filter", default=""): str,
+            ConfigOption("gtest_also_run_disabled_tests", default=False): bool,
             # Originally Google Test allows negative values, causing test to
             # be repeated indefinitely, which would always cause a timeout
             # error within Testplan context, so we
             # only allow non-negative values.
-
-            ConfigOption('gtest_repeat', default=1): int,
-            ConfigOption('gtest_shuffle', default=False): bool,
-            ConfigOption('gtest_random_seed', default=0): int,
-            ConfigOption('gtest_stream_result_to', default=''): str,
-            ConfigOption('gtest_death_test_style', default='fast'): Or(
-                'fast', 'threadsafe'
+            ConfigOption("gtest_repeat", default=1): int,
+            ConfigOption("gtest_shuffle", default=False): bool,
+            ConfigOption("gtest_random_seed", default=0): int,
+            ConfigOption("gtest_stream_result_to", default=""): str,
+            ConfigOption("gtest_death_test_style", default="fast"): Or(
+                "fast", "threadsafe"
             ),
         }
 
@@ -92,17 +91,18 @@ class GTest(ProcessRunnerTest):
 
     CONFIG = GTestConfig
 
-    def __init__(self,
+    def __init__(
+        self,
         name,
         driver,
         description=None,
-        gtest_filter='',
+        gtest_filter="",
         gtest_also_run_disabled_tests=False,
         gtest_repeat=1,
         gtest_shuffle=False,
         gtest_random_seed=0,
-        gtest_stream_result_to='',
-        gtest_death_test_style='fast',
+        gtest_stream_result_to="",
+        gtest_death_test_style="fast",
         **options
     ):
         options.update(self.filter_locals(locals()))
@@ -111,39 +111,41 @@ class GTest(ProcessRunnerTest):
     def base_command(self):
         cmd = [self.cfg.driver]
         if self.cfg.gtest_filter:
-            cmd.append('--gtest_filter={}'.format(self.cfg.gtest_filter))
+            cmd.append("--gtest_filter={}".format(self.cfg.gtest_filter))
         return cmd
 
     def test_command(self):
         cmd = self.base_command() + [
-            '--gtest_output=xml:{}'.format(self.report_path),
-            '--gtest_death_test_style={}'.format(
+            "--gtest_output=xml:{}".format(self.report_path),
+            "--gtest_death_test_style={}".format(
                 self.cfg.gtest_death_test_style
-            )
+            ),
         ]
 
         if self.cfg.gtest_also_run_disabled_tests:
-            cmd.append('--gtest_also_run_disabled_tests')
+            cmd.append("--gtest_also_run_disabled_tests")
         if self.cfg.gtest_repeat > 1:
-            cmd.append('--gtest_repeat={}'.format(self.cfg.gtest_repeat))
+            cmd.append("--gtest_repeat={}".format(self.cfg.gtest_repeat))
 
         # TODO: Add integration with ShuffleSorter
         if self.cfg.gtest_shuffle:
-            cmd.append('--gtest_shuffle')
+            cmd.append("--gtest_shuffle")
             if self.cfg.gtest_random_seed:
                 cmd.append(
-                    '--gtest_random_seed={}'.format(
-                        self.cfg.gtest_random_seed))
+                    "--gtest_random_seed={}".format(self.cfg.gtest_random_seed)
+                )
 
         if self.cfg.gtest_stream_result_to:
             cmd.append(
-                '--gtest_stream_result_to={}'.format(
-                    self.cfg.gtest_stream_result_to))
+                "--gtest_stream_result_to={}".format(
+                    self.cfg.gtest_stream_result_to
+                )
+            )
 
         return cmd
 
     def list_command(self):
-        return self.base_command() + ['--gtest_list_tests']
+        return self.base_command() + ["--gtest_list_tests"]
 
     def process_test_data(self, test_data):
         """
@@ -153,14 +155,13 @@ class GTest(ProcessRunnerTest):
         result = []
         for suite in test_data.getchildren():
             suite_report = TestGroupReport(
-                name=suite.attrib['name'],
-                category='testsuite',
+                name=suite.attrib["name"], category="testsuite"
             )
             suite_has_run = False
 
             for testcase in suite.getchildren():
 
-                testcase_report = TestCaseReport(name=testcase.attrib['name'])
+                testcase_report = TestCaseReport(name=testcase.attrib["name"])
 
                 if not testcase.getchildren():
                     testcase_report.status_override = Status.PASSED
@@ -169,11 +170,11 @@ class GTest(ProcessRunnerTest):
                     assertion_obj = RawAssertion(
                         description=entry.tag,
                         content=entry.text,
-                        passed=entry.tag != 'failure'
+                        passed=entry.tag != "failure",
                     )
                     testcase_report.append(registry.serialize(assertion_obj))
 
-                if testcase.attrib['status'] != 'notrun':
+                if testcase.attrib["status"] != "notrun":
                     suite_report.append(testcase_report)
                     suite_has_run = True
 
@@ -219,7 +220,7 @@ class GTest(ProcessRunnerTest):
         # ]
         result = []
         for line in test_list_output.splitlines():
-            if line.endswith('.'):
+            if line.endswith("."):
                 result.append([line[:-1], []])
             else:
                 result[-1][1].append(line.strip())

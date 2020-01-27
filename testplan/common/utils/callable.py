@@ -8,17 +8,17 @@ import six
 
 
 WRAPPER_ASSIGNMENTS = functools.WRAPPER_ASSIGNMENTS + (
-    '__tags__',
-    '__tags_index__',
-    'wrapper_of',
-    'summarize',
-    'summarize_num_passing',
-    'summarize_num_failing'
+    "__tags__",
+    "__tags_index__",
+    "wrapper_of",
+    "summarize",
+    "summarize_num_passing",
+    "summarize_num_failing",
 )
 
 # Local copy of inspect.ArgSpec namedtuple - see notes on inspect.getargspec()
 # deprecation within getargspec() below.
-ArgSpec = namedtuple('ArgSpec', ['args', 'varargs', 'keywords', 'defaults'])
+ArgSpec = namedtuple("ArgSpec", ["args", "varargs", "keywords", "defaults"])
 
 
 def arity(function):
@@ -65,21 +65,26 @@ def getargspec(callable_):
         # type annotations.
         if full_argspec.kwonlyargs:
             raise ValueError(
-                'Cannot get argspec for function with keyword-only args '
-                'defined: {}'.format(func))
-        return ArgSpec(args=full_argspec.args,
-                       varargs=full_argspec.varargs,
-                       keywords=full_argspec.varkw,
-                       defaults=full_argspec.defaults)
+                "Cannot get argspec for function with keyword-only args "
+                "defined: {}".format(func)
+            )
+        return ArgSpec(
+            args=full_argspec.args,
+            varargs=full_argspec.varargs,
+            keywords=full_argspec.varkw,
+            defaults=full_argspec.defaults,
+        )
     else:
         return inspect.getargspec(func)
 
 
 # backport from python 3.6, 2.7 version does not catch AttributeError
-def update_wrapper(wrapper,
-                   wrapped,
-                   assigned=WRAPPER_ASSIGNMENTS,
-                   updated=functools.WRAPPER_UPDATES):
+def update_wrapper(
+    wrapper,
+    wrapped,
+    assigned=WRAPPER_ASSIGNMENTS,
+    updated=functools.WRAPPER_UPDATES,
+):
     """
     Update a wrapper function to look like the wrapped function.
 
@@ -114,23 +119,29 @@ def update_wrapper(wrapper,
     return wrapper
 
 
-def wraps(wrapped,
-          assigned=WRAPPER_ASSIGNMENTS,
-          updated=functools.WRAPPER_UPDATES):
+def wraps(
+    wrapped, assigned=WRAPPER_ASSIGNMENTS, updated=functools.WRAPPER_UPDATES
+):
     """
     Custom wraps function that uses the backported ``update_wrapper``.
 
     Also sets ``wrapper_of`` attribute for code highlighting, for methods that
     are decorated for the first time.
     """
+
     def _inner(wrapper):
-        wrapper = update_wrapper(wrapper=wrapper, wrapped=wrapped,
-                                 assigned=assigned, updated=updated)
+        wrapper = update_wrapper(
+            wrapper=wrapper,
+            wrapped=wrapped,
+            assigned=assigned,
+            updated=updated,
+        )
 
         # When a method is decorated for the first time it will not have
         # `wrapper_of` attribute set, so `update_wrapper` won't be able to copy
         # it over. That's why we have to explicitly assign it here.
-        if not hasattr(wrapped, 'wrapper_of'):
+        if not hasattr(wrapped, "wrapper_of"):
             wrapper.wrapper_of = wrapped
         return wrapper
+
     return _inner

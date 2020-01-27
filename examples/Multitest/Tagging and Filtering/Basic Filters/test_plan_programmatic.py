@@ -21,7 +21,6 @@ from testplan.testing.filtering import Filter, Pattern, Tags, TagsAll
 # if it is added to a multitest with tags.
 @testsuite
 class Alpha(object):
-
     @testcase
     def test_1(self, env, result):
         pass
@@ -37,35 +36,34 @@ class Beta(object):
 
     # A testcase tagged with a simple tag: `server`
     # This is a shortcut notation for {'simple': 'server'}
-    @testcase(tags='server')
+    @testcase(tags="server")
     def test_1(self, env, result):
         pass
 
     # A testcase tagged with a named (`color`) tag: `blue`
-    @testcase(tags={'color': 'blue'})
+    @testcase(tags={"color": "blue"})
     def test_2(self, env, result):
         pass
 
     # A testcase tagged with both simple and named tag
-    @testcase(tags={'simple': 'server', 'color': 'blue'})
+    @testcase(tags={"simple": "server", "color": "blue"})
     def test_3(self, env, result):
         pass
 
 
 # A suite with class level tags, these class level tags
 #  will be propagated to each test case as well.
-@testsuite(tags=('server', 'client'))
+@testsuite(tags=("server", "client"))
 class Gamma(object):
-
-    @testcase(tags={'color': 'red'})
+    @testcase(tags={"color": "red"})
     def test_1(self, env, result):
         pass
 
-    @testcase(tags={'color': ('blue', 'red')})
+    @testcase(tags={"color": ("blue", "red")})
     def test_2(self, env, result):
         pass
 
-    @testcase(tags={'color': 'yellow'})
+    @testcase(tags={"color": "yellow"})
     def test_3(self, env, result):
         pass
 
@@ -74,39 +72,39 @@ class Gamma(object):
 default_filter = Filter()
 
 # Run all Multitest named `Primary` and all of its suites & testcases.
-pattern_filter_1 = Pattern('Primary')
+pattern_filter_1 = Pattern("Primary")
 
 # Run `Alpha` suite (and all testcases) from `Primary` multitest.
-pattern_filter_2 = Pattern('Primary:Alpha')
+pattern_filter_2 = Pattern("Primary:Alpha")
 
 # Run `Alpha.test_1` from `Primary` multitest.
-pattern_filter_3 = Pattern('Primary:Alpha:test_1')
+pattern_filter_3 = Pattern("Primary:Alpha:test_1")
 
 # Run all testcases named `test_1` from all suites & multitests.
-pattern_filter_4 = Pattern('*:*:test_1')
+pattern_filter_4 = Pattern("*:*:test_1")
 
 # Multi-pattern filtering, runs multitests with names `Primary` and `Secondary`
-pattern_filter_5 = Pattern.any('Primary', 'Secondary')
+pattern_filter_5 = Pattern.any("Primary", "Secondary")
 
 # Run all multitests that end with `ary` (Primary & Secondary)
-pattern_filter_6 = Pattern('*ary')
+pattern_filter_6 = Pattern("*ary")
 
 # Tag based filtering, runs all testcases that are tagged with `server`.
 # Suite level tags propagate to testcases as well.
-tag_filter_1 = Tags('server')
+tag_filter_1 = Tags("server")
 
 # Run all testcases with the named tag: `color = blue`
-tag_filter_2 = Tags({'color': 'blue'})
+tag_filter_2 = Tags({"color": "blue"})
 
 # Multi tag filtering, run all testcases tagged with `server` OR `client`.
-tag_filter_3 = Tags(('server', 'client'))
+tag_filter_3 = Tags(("server", "client"))
 
 # Multi tag filtering, run all testcases tagged with
 #  `server` OR `color = red` OR `color = blue`
-tag_filter_4 = Tags({'simple': 'server', 'color': ('red', 'blue')})
+tag_filter_4 = Tags({"simple": "server", "color": ("red", "blue")})
 
 # Multi tag filtering, run all testcases tagged with `server` AND `client`.
-tag_filter_5 = TagsAll(('server', 'client'))
+tag_filter_5 = TagsAll(("server", "client"))
 
 # Run all tests that are tagged with `color` = `white`.
 # None of the suite classes and their testcases have such tag,
@@ -115,27 +113,25 @@ tag_filter_5 = TagsAll(('server', 'client'))
 # Alpha and Beta suites (and to their testcases). This only affects the
 # instances of the suites and the original classes' tag indices
 # remain unchanged.
-tag_filter_6 = Tags({'color': 'white'})
+tag_filter_6 = Tags({"color": "white"})
 
 # Replace the `test_filter` argument with the
 # filters declared above to see how they work.
 @test_plan(
-    name='Tagging & Filtering (Programmatic)',
+    name="Tagging & Filtering (Programmatic)",
     test_filter=default_filter,
     # Using testcase level stdout so we can see filtered testcases
-    stdout_style=Style('testcase', 'testcase')
+    stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
 
     multi_test_1 = MultiTest(
-        name='Primary',
-        suites=[Alpha(), Beta()],
-        tags={'color': 'white'}
+        name="Primary", suites=[Alpha(), Beta()], tags={"color": "white"}
     )
-    multi_test_2 = MultiTest(name='Secondary', suites=[Gamma()])
+    multi_test_2 = MultiTest(name="Secondary", suites=[Gamma()])
     plan.add(multi_test_1)
     plan.add(multi_test_2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

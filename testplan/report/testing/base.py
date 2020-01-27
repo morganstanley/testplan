@@ -57,7 +57,10 @@ from collections import Counter
 from marshmallow import exceptions
 
 from testplan.common.report import (
-    ExceptionLogger as ExceptionLoggerBase, Report, ReportGroup)
+    ExceptionLogger as ExceptionLoggerBase,
+    Report,
+    ReportGroup,
+)
 from testplan.common.utils import timing
 from testplan.testing import tagging
 
@@ -67,16 +70,11 @@ class RuntimeStatus(object):
     Constants for test runtime status - for interactive mode
     """
 
-    READY = 'ready'
-    RUNNING = 'running'
-    FINISHED = 'finished'
+    READY = "ready"
+    RUNNING = "running"
+    FINISHED = "finished"
 
-    STATUS_PRECEDENCE = (
-        READY,
-        RUNNING,
-        FINISHED,
-        None
-    )
+    STATUS_PRECEDENCE = (READY, RUNNING, FINISHED, None)
 
     @classmethod
     def precedent(cls, stats, rule=STATUS_PRECEDENCE):
@@ -89,35 +87,33 @@ class RuntimeStatus(object):
         :param rule: Precedence rules for the given statuses.
         :type rule: ``sequence``
         """
-        return min(
-            stats,
-            key=lambda stat: rule.index(stat)
-        )
+        return min(stats, key=lambda stat: rule.index(stat))
 
 
 class Status(object):
     """
     Constants for test result and utilities for propagating status upward.
     """
-    ERROR = 'error'
-    FAILED = 'failed'
-    INCOMPLETE = 'incomplete'
-    PASSED = 'passed'
-    SKIPPED = 'skipped'
-    XFAIL = 'xfail'
-    XPASS = 'xpass'
-    XPASS_STRICT = 'xpass-strict'
-    UNSTABLE = 'unstable'
-    UNKNOWN = 'unknown'
+
+    ERROR = "error"
+    FAILED = "failed"
+    INCOMPLETE = "incomplete"
+    PASSED = "passed"
+    SKIPPED = "skipped"
+    XFAIL = "xfail"
+    XPASS = "xpass"
+    XPASS_STRICT = "xpass-strict"
+    UNSTABLE = "unstable"
+    UNKNOWN = "unknown"
 
     # We only maintain precedence among these status categories
     STATUS_PRECEDENCE = (
-        ERROR,      # red
-        FAILED,     # red
-        UNKNOWN,    # black
-        PASSED,     # green
-        UNSTABLE,   # yellow
-        None        # `status_override` is default to None
+        ERROR,  # red
+        FAILED,  # red
+        UNKNOWN,  # black
+        PASSED,  # green
+        UNSTABLE,  # yellow
+        None,  # `status_override` is default to None
     )
 
     # And we map status to a category when we propagate upward or decide
@@ -133,7 +129,7 @@ class Status(object):
         XFAIL: UNSTABLE,
         XPASS: UNSTABLE,
         UNSTABLE: UNSTABLE,
-        None: None  # `status_override` is default to None
+        None: None,  # `status_override` is default to None
     }
 
     @classmethod
@@ -149,7 +145,7 @@ class Status(object):
         """
         return min(
             [cls.STATUS_CATEGORY[stat] for stat in stats],
-            key=lambda stat: rule.index(stat)
+            key=lambda stat: rule.index(stat),
         )
 
 
@@ -162,7 +158,7 @@ class ReportCategories(object):
     """
 
     TESTPLAN = "testplan"
-    TESTGROUP = "testgroup"     # test group of unspecific type?
+    TESTGROUP = "testgroup"  # test group of unspecific type?
     MULTITEST = "multitest"
     TESTSUITE = "testsuite"
     TESTCASE = "testcase"
@@ -186,15 +182,16 @@ class ExceptionLogger(ExceptionLoggerBase):
     """
 
     def __init__(self, *exception_classes, **kwargs):
-        self.fail = kwargs.get('fail', True)
+        self.fail = kwargs.get("fail", True)
         super(ExceptionLogger, self).__init__(*exception_classes, **kwargs)
 
     def __exit__(self, exc_type, exc_value, tb):
-        if exc_type is not None and issubclass(exc_type,
-                                               self.exception_classes):
+        if exc_type is not None and issubclass(
+            exc_type, self.exception_classes
+        ):
 
             # Custom exception message with extra args
-            exc_msg = ''.join(
+            exc_msg = "".join(
                 traceback.format_exception(exc_type, exc_value, tb)
             )
             self.report.logger.error(exc_msg)
@@ -210,16 +207,18 @@ class BaseReportGroup(ReportGroup):
     exception_logger = ExceptionLogger
 
     def __init__(self, *args, **kwargs):
-        self.meta = kwargs.pop('meta', {})
-        self.status_reason = kwargs.pop('status_reason', None)
+        self.meta = kwargs.pop("meta", {})
+        self.status_reason = kwargs.pop("status_reason", None)
         super(BaseReportGroup, self).__init__(*args, **kwargs)
         self.status_override = None
         self.timer = timing.Timer()
         self._status = Status.UNKNOWN
 
     def _get_comparison_attrs(self):
-        return super(BaseReportGroup, self)._get_comparison_attrs() +\
-            ['status_override', 'timer']
+        return super(BaseReportGroup, self)._get_comparison_attrs() + [
+            "status_override",
+            "timer",
+        ]
 
     @property
     def passed(self):
@@ -231,8 +230,10 @@ class BaseReportGroup(ReportGroup):
         """
         Shortcut for checking if report status should be considered failed.
         """
-        return Status.STATUS_CATEGORY[self.status] in (Status.FAILED,
-                                                      Status.ERROR)
+        return Status.STATUS_CATEGORY[self.status] in (
+            Status.FAILED,
+            Status.ERROR,
+        )
 
     @property
     def unstable(self):
@@ -247,7 +248,6 @@ class BaseReportGroup(ReportGroup):
         Shortcut for checking if report status is unknown.
         """
         return Status.STATUS_CATEGORY[self.status] == Status.UNKNOWN
-
 
     @property
     def status(self):
@@ -289,7 +289,8 @@ class BaseReportGroup(ReportGroup):
         """
         if self.entries:
             return RuntimeStatus.precedent(
-                [entry.runtime_status for entry in self])
+                [entry.runtime_status for entry in self]
+            )
 
         # runtime_status does not really make sense for an empty test group,
         # since it has nothing to be run. We return FINISHED as a sensible
@@ -330,7 +331,8 @@ class BaseReportGroup(ReportGroup):
         self.timer.update(report.timer)
         self.status_override = Status.precedent(
             [self.status_override, report.status_override],
-            rule=Status.STATUS_PRECEDENCE)
+            rule=Status.STATUS_PRECEDENCE,
+        )
 
     @property
     def counter(self):
@@ -338,13 +340,11 @@ class BaseReportGroup(ReportGroup):
         Return counts for each status, will recursively get aggregates from
         children and so on.
         """
-        counter = Counter({Status.PASSED: 0,
-                           Status.FAILED: 0,
-                           'total': 0})
+        counter = Counter({Status.PASSED: 0, Status.FAILED: 0, "total": 0})
 
         for child in self:
             if child.category == ReportCategories.ERROR:
-                counter.update({Status.ERROR: 1, 'total': 1})
+                counter.update({Status.ERROR: 1, "total": 1})
             else:
                 counter.update(child.counter)
 
@@ -362,12 +362,13 @@ class BaseReportGroup(ReportGroup):
         # then tag propagation will be called for each filter call on
         # sub-nodes which is going to be a redundant operation.
 
-        if kwargs.get('__copy', True):
+        if kwargs.get("__copy", True):
             result.propagate_tag_indices()
         return result
 
     def filter_by_tags(self, tag_value, all_tags=False):
         """Shortcut method for filtering the report by given tags."""
+
         def _filter_func(obj):
             # Include all testcase entries, which are in dict form
             if isinstance(obj, dict):
@@ -380,7 +381,8 @@ class BaseReportGroup(ReportGroup):
                 match_func = tagging.check_any_matching_tags
 
             return match_func(
-                tag_arg_dict=tag_dict, target_tag_dict=obj.tags_index)
+                tag_arg_dict=tag_dict, target_tag_dict=obj.tags_index
+            )
 
         return self.filter(_filter_func)
 
@@ -397,11 +399,13 @@ class BaseReportGroup(ReportGroup):
         :return: a hash of all entries in this report group.
         :rtype: ``int``
         """
-        return hash((
-            self.uid,
-            self.status,
-            self.runtime_status,
-            tuple(entry.hash for entry in self.entries))
+        return hash(
+            (
+                self.uid,
+                self.status,
+                self.runtime_status,
+                tuple(entry.hash for entry in self.entries),
+            )
         )
 
     def xfail(self, strict):
@@ -424,18 +428,16 @@ class BaseReportGroup(ReportGroup):
         for child in self:
             child.xfail(strict)
 
+
 class TestReport(BaseReportGroup):
     """
     Report for a Testplan test run, sits at the root of the report tree.
     Only contains TestGroupReports as children.
     """
 
-    def __init__(self,
-                 meta=None,
-                 attachments=None,
-                 information=None,
-                 *args,
-                 **kwargs):
+    def __init__(
+        self, meta=None, attachments=None, information=None, *args, **kwargs
+    ):
         self.meta = meta or {}
         self._tags_index = None
         self.information = information or []
@@ -444,12 +446,14 @@ class TestReport(BaseReportGroup):
         except (ImportError, OSError):
             # if the USERNAME env variable is unset on Windows, this fails
             # with ImportError
-            user = 'unknown'
-        self.information.extend([
-            ('user', user),
-            ('command_line_string', ' '.join(sys.argv)),
-            ('python_version', platform.python_version())
-        ])
+            user = "unknown"
+        self.information.extend(
+            [
+                ("user", user),
+                ("command_line_string", " ".join(sys.argv)),
+                ("python_version", platform.python_version()),
+            ]
+        )
 
         # Report attachments: Dict[dst: str, src: str].
         # Maps from destination path (relative from attachments root dir)
@@ -467,9 +471,11 @@ class TestReport(BaseReportGroup):
         (e.g Give me all test runs from all projects that have these tags)
         """
         from testplan.testing.tagging import merge_tag_dicts
+
         if self._tags_index is None:
             self._tags_index = merge_tag_dicts(
-                *[child.tags_index for child in self])
+                *[child.tags_index for child in self]
+            )
         return self._tags_index
 
     def propagate_tag_indices(self):
@@ -495,7 +501,7 @@ class TestReport(BaseReportGroup):
         will be used by Exporters to export attachments as well as the report.
         """
         for child in self:
-            if getattr(child, 'fix_spec_path', None):
+            if getattr(child, "fix_spec_path", None):
                 self._bubble_up_fix_spec(child)
             for attachment in child.attachments:
                 self.attachments[attachment.dst_path] = attachment.source_path
@@ -503,17 +509,18 @@ class TestReport(BaseReportGroup):
     def _bubble_up_fix_spec(self, child):
         """Bubble up a "fix_spec_path" from a child report."""
         real_path = child.fix_spec_path
-        hash_dir = hashlib.md5(real_path.encode('utf-8')).hexdigest()
+        hash_dir = hashlib.md5(real_path.encode("utf-8")).hexdigest()
         hash_path = os.path.join(
-            hash_dir,
-            os.path.basename(child.fix_spec_path)
+            hash_dir, os.path.basename(child.fix_spec_path)
         )
         child.fix_spec_path = hash_path
         self.attachments[hash_path] = real_path
 
     def _get_comparison_attrs(self):
-        return super(TestReport, self)._get_comparison_attrs() +\
-            ['tags_index', 'meta']
+        return super(TestReport, self)._get_comparison_attrs() + [
+            "tags_index",
+            "meta",
+        ]
 
     def serialize(self):
         """
@@ -521,6 +528,7 @@ class TestReport(BaseReportGroup):
         to nested python dictionaries.
         """
         from .schemas import TestReportSchema
+
         return TestReportSchema(strict=True).dump(self).data
 
     @classmethod
@@ -530,11 +538,13 @@ class TestReport(BaseReportGroup):
         from nested python dictionaries.
         """
         from .schemas import TestReportSchema
+
         return TestReportSchema(strict=True).load(data).data
 
     def shallow_serialize(self):
         """Shortcut for shallow-serializing test report data."""
         from .schemas import ShallowTestReportSchema
+
         return ShallowTestReportSchema(strict=True).dump(self).data
 
     @classmethod
@@ -544,11 +554,13 @@ class TestReport(BaseReportGroup):
         serialized representation.
         """
         from .schemas import ShallowTestReportSchema
+
         deserialized = ShallowTestReportSchema(strict=True).load(data).data
         deserialized.entries = old_report.entries
         deserialized._index = old_report._index
 
         return deserialized
+
 
 class TestGroupReport(BaseReportGroup):
     """
@@ -556,15 +568,17 @@ class TestGroupReport(BaseReportGroup):
     TestCaseReports.
     """
 
-    def __init__(self,
-                 name,
-                 category=ReportCategories.TESTGROUP,
-                 tags=None,
-                 part=None,
-                 extra_attributes=None,
-                 fix_spec_path=None,
-                 env_status=None,
-                 **kwargs):
+    def __init__(
+        self,
+        name,
+        category=ReportCategories.TESTGROUP,
+        tags=None,
+        part=None,
+        extra_attributes=None,
+        fix_spec_path=None,
+        env_status=None,
+        **kwargs
+    ):
         super(TestGroupReport, self).__init__(name=name, **kwargs)
 
         # This will be used for distinguishing test type (Multitest, GTest
@@ -593,7 +607,7 @@ class TestGroupReport(BaseReportGroup):
     def __str__(self):
         return (
             '{kls}(name="{name}", category="{category}", id="{uid}"),'
-            ' tags={tags})'
+            " tags={tags})"
         ).format(
             kls=self.__class__.__name__,
             name=self.name,
@@ -605,7 +619,7 @@ class TestGroupReport(BaseReportGroup):
     def __repr__(self):
         return (
             '{kls}(name="{name}", category="{category}", id="{uid}",'
-            ' entries={entries}, tags={tags})'
+            " entries={entries}, tags={tags})"
         ).format(
             kls=self.__class__.__name__,
             name=self.name,
@@ -616,8 +630,11 @@ class TestGroupReport(BaseReportGroup):
         )
 
     def _get_comparison_attrs(self):
-        return super(TestGroupReport, self)._get_comparison_attrs() +\
-            ['category', 'tags', 'tags_index']
+        return super(TestGroupReport, self)._get_comparison_attrs() + [
+            "category",
+            "tags",
+            "tags_index",
+        ]
 
     def append(self, item):
         """Update tag indices if item or self has tag data."""
@@ -631,6 +648,7 @@ class TestGroupReport(BaseReportGroup):
         dictionaries.
         """
         from .schemas import TestGroupReportSchema
+
         return TestGroupReportSchema(strict=strict).dump(self).data
 
     @classmethod
@@ -640,11 +658,13 @@ class TestGroupReport(BaseReportGroup):
         (and its children) from nested python dictionaries.
         """
         from .schemas import TestGroupReportSchema
+
         return TestGroupReportSchema(strict=True).load(data).data
 
     def shallow_serialize(self):
         """Shortcut for shallow-serializing test report data."""
         from .schemas import ShallowTestGroupReportSchema
+
         return ShallowTestGroupReportSchema(strict=True).dump(self).data
 
     @classmethod
@@ -654,8 +674,10 @@ class TestGroupReport(BaseReportGroup):
         shallow serialized representation.
         """
         from .schemas import ShallowTestGroupReportSchema
-        deserialized = ShallowTestGroupReportSchema(
-            strict=True).load(data).data
+
+        deserialized = (
+            ShallowTestGroupReportSchema(strict=True).load(data).data
+        )
         deserialized.entries = old_report.entries
         deserialized._index = old_report._index
         return deserialized
@@ -686,10 +708,12 @@ class TestGroupReport(BaseReportGroup):
 
             elif isinstance(child, TestCaseReport):
                 child.tags_index = tagging.merge_tag_dicts(
-                    child.tags, tags_index)
+                    child.tags, tags_index
+                )
 
         self.tags_index = tagging.merge_tag_dicts(
-            tags_index, self._collect_tag_indices())
+            tags_index, self._collect_tag_indices()
+        )
 
     def merge(self, report, strict=True):
         """Propagate tag indices after merge operations."""
@@ -700,7 +724,8 @@ class TestGroupReport(BaseReportGroup):
     def attachments(self):
         """Return all attachments from child reports."""
         return itertools.chain.from_iterable(
-            child.attachments for child in self)
+            child.attachments for child in self
+        )
 
     @property
     def hash(self):
@@ -715,12 +740,14 @@ class TestGroupReport(BaseReportGroup):
         :return: a hash of all entries in this report group.
         :rtype: ``int``
         """
-        return hash((
-            self.uid,
-            self.status,
-            self.runtime_status,
-            self.env_status,
-            tuple(entry.hash for entry in self.entries))
+        return hash(
+            (
+                self.uid,
+                self.status,
+                self.runtime_status,
+                self.env_status,
+                tuple(entry.hash for entry in self.entries),
+            )
         )
 
 
@@ -731,13 +758,15 @@ class TestCaseReport(Report):
 
     exception_logger = ExceptionLogger
 
-    def __init__(self,
-                 name,
-                 tags=None,
-                 suite_related=False,
-                 status_override=None,
-                 status_reason=None,
-                 **kwargs):
+    def __init__(
+        self,
+        name,
+        tags=None,
+        suite_related=False,
+        status_override=None,
+        status_reason=None,
+        **kwargs
+    ):
         super(TestCaseReport, self).__init__(name=name, **kwargs)
 
         self.tags = tagging.validate_tag_value(tags) if tags else {}
@@ -755,8 +784,12 @@ class TestCaseReport(Report):
         self.status_reason = status_reason
 
     def _get_comparison_attrs(self):
-        return super(TestCaseReport, self)._get_comparison_attrs() +\
-            ['status_override', 'timer', 'tags', 'tags_index']
+        return super(TestCaseReport, self)._get_comparison_attrs() + [
+            "status_override",
+            "timer",
+            "tags",
+            "tags_index",
+        ]
 
     @property
     def passed(self):
@@ -829,7 +862,7 @@ class TestCaseReport(Report):
         if new_status == RuntimeStatus.RUNNING and self.entries:
             self.entries = []
             self._status = Status.UNKNOWN
-        if new_status == 'finished':
+        if new_status == "finished":
             self._status = Status.PASSED
 
     def _assertions_status(self):
@@ -845,9 +878,9 @@ class TestCaseReport(Report):
         test cases, choose the one whose status is of higher precedence.
         """
         self._check_report(report)
-        if self.suite_related and \
-                Status.precedent([self.status]) < \
-                Status.precedent([report.status]):
+        if self.suite_related and Status.precedent(
+            [self.status]
+        ) < Status.precedent([report.status]):
             return
 
         self.status_override = report.status_override
@@ -859,14 +892,16 @@ class TestCaseReport(Report):
 
     def flattened_entries(self, depth):
         """Need to take assertion groups into account."""
+
         def flatten_dicts(dicts, _depth):
             """Recursively flatten serialized entry list."""
             result = []
             for d in dicts:
                 result.append((_depth, d))
-                if d['type'] == 'Group' or d['type'] == 'Summary':
-                    result.extend(flatten_dicts(d['entries'], _depth + 1))
+                if d["type"] == "Group" or d["type"] == "Summary":
+                    result.extend(flatten_dicts(d["entries"], _depth + 1))
             return result
+
         return flatten_dicts(self.entries, depth)
 
     def serialize(self):
@@ -875,6 +910,7 @@ class TestCaseReport(Report):
         to nested python dictionaries.
         """
         from .schemas import TestCaseReportSchema
+
         return TestCaseReportSchema(strict=True).dump(self).data
 
     @classmethod
@@ -884,6 +920,7 @@ class TestCaseReport(Report):
         from nested python dictionaries.
         """
         from .schemas import TestCaseReportSchema
+
         return TestCaseReportSchema(strict=True).load(data).data
 
     @property
@@ -899,11 +936,13 @@ class TestCaseReport(Report):
         :return: a hash of all entries in this report group.
         :rtype: ``int``
         """
-        return hash((
-            self.uid,
-            self.status,
-            self.runtime_status,
-            tuple(id(entry) for entry in self.entries))
+        return hash(
+            (
+                self.uid,
+                self.status,
+                self.runtime_status,
+                tuple(id(entry) for entry in self.entries),
+            )
         )
 
     def xfail(self, strict):
@@ -926,11 +965,9 @@ class TestCaseReport(Report):
         children and so on.
         """
 
-        counter = Counter({Status.PASSED: 0,
-                           Status.FAILED: 0,
-                           'total': 0})
+        counter = Counter({Status.PASSED: 0, Status.FAILED: 0, "total": 0})
 
-        counter.update({self.status: 1, 'total': 1})
+        counter.update({self.status: 1, "total": 1})
 
         return counter
 

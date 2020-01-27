@@ -19,8 +19,8 @@ from testplan.common.utils.testing import check_report
 from testplan.testing.multitest.result import Result
 from testplan.common import entity
 
-DummyReport = functools.partial(TestCaseReport, name='dummy')
-DummyReportGroup = functools.partial(BaseReportGroup, name='dummy')
+DummyReport = functools.partial(TestCaseReport, name="dummy")
+DummyReportGroup = functools.partial(BaseReportGroup, name="dummy")
 
 
 def test_report_status_precedent():
@@ -31,8 +31,12 @@ def test_report_status_precedent():
 
     assert Status.FAILED == Status.precedent([Status.FAILED, Status.UNKNOWN])
     assert Status.ERROR == Status.precedent([Status.ERROR, Status.UNKNOWN])
-    assert Status.FAILED == Status.precedent([Status.INCOMPLETE, Status.UNKNOWN])
-    assert Status.FAILED == Status.precedent([Status.XPASS_STRICT, Status.UNKNOWN])
+    assert Status.FAILED == Status.precedent(
+        [Status.INCOMPLETE, Status.UNKNOWN]
+    )
+    assert Status.FAILED == Status.precedent(
+        [Status.XPASS_STRICT, Status.UNKNOWN]
+    )
     assert Status.UNKNOWN == Status.precedent([Status.UNKNOWN, Status.PASSED])
     assert Status.PASSED == Status.precedent([Status.PASSED, Status.SKIPPED])
     assert Status.PASSED == Status.precedent([Status.PASSED, Status.XFAIL])
@@ -40,49 +44,48 @@ def test_report_status_precedent():
     assert Status.PASSED == Status.precedent([Status.PASSED, Status.UNSTABLE])
     assert Status.UNSTABLE == Status.precedent([Status.UNSTABLE, None])
 
+
 @disable_log_propagation(report.log.LOGGER)
 def test_report_exception_logger():
     """
       `TestReportExceptionLogger` should set `status_override` to
       `TestReportStatus.FAILED` if `fail` argument is True.
     """
-    rep = TestCaseReport(name='foo')
+    rep = TestCaseReport(name="foo")
     assert rep.status_override is None
 
     # should not change status_override
     with rep.logged_exceptions(fail=False):
-        raise Exception('foo')
+        raise Exception("foo")
 
     assert rep.status_override is None
 
     # should change status_override
     with rep.logged_exceptions():
-        raise Exception('foo')
+        raise Exception("foo")
 
     assert rep.status_override is Status.ERROR
 
 
 class DummyStatusReport(object):
-
     def __init__(self, status, uid=None):
         self.uid = uid or 0
         self.status = status
 
 
 class TestBaseReportGroup(object):
-
     @pytest.mark.parametrize(
-        'statuses,expected',
+        "statuses,expected",
         (
             ([Status.ERROR, Status.FAILED, Status.PASSED], Status.ERROR),
             ([Status.FAILED, Status.PASSED], Status.FAILED),
             (
                 [Status.INCOMPLETE, Status.PASSED, Status.SKIPPED],
-                Status.FAILED
+                Status.FAILED,
             ),
             ([Status.SKIPPED, Status.PASSED], Status.PASSED),
             ([Status.INCOMPLETE, Status.FAILED], Status.FAILED),
-        )
+        ),
     )
     def test_status(self, statuses, expected):
         """Should return the precedent status from children."""
@@ -110,7 +113,8 @@ class TestBaseReportGroup(object):
         precedence over child statuses.
         """
         group = DummyReportGroup(
-            entries=[DummyStatusReport(status=Status.FAILED)])
+            entries=[DummyStatusReport(status=Status.FAILED)]
+        )
 
         assert group.status == Status.FAILED
 
@@ -130,10 +134,11 @@ class TestBaseReportGroup(object):
 
         report_clone.status_override = Status.PASSED
 
-        with mock.patch.object(report_orig, 'merge_children'):
+        with mock.patch.object(report_orig, "merge_children"):
             report_orig.merge(report_clone)
             report_orig.merge_children.assert_called_once_with(
-                report_clone, strict=True)
+                report_clone, strict=True
+            )
             assert report_orig.status_override == report_clone.status_override
 
     def test_merge_children_not_strict(self):
@@ -144,7 +149,8 @@ class TestBaseReportGroup(object):
         child_clone_1 = DummyReport(uid=1)
         child_clone_2 = DummyReport(uid=2)
         parent_clone = DummyReportGroup(
-            uid=0, entries=[child_clone_1, child_clone_2])
+            uid=0, entries=[child_clone_1, child_clone_2]
+        )
 
         child_orig_1 = DummyReport(uid=1)
         parent_orig = DummyReportGroup(uid=0, entries=[child_orig_1])
@@ -203,42 +209,41 @@ class TestBaseReportGroup(object):
 
 
 class TestTestCaseReport(object):
-
     @pytest.mark.parametrize(
-        'entries,expected_status',
+        "entries,expected_status",
         (
             ([], Status.UNKNOWN),
-            ([{'foo': 2}, {'bar': 3}], Status.PASSED),
-            ([{'foo': True}], Status.PASSED),
-            ([{'passed': True}], Status.PASSED),
-            ([{'passed': False}], Status.FAILED),
-            ([{'passed': None}], Status.PASSED),
-            ([{'passed': False}, {'passed': True}], Status.FAILED)
-        )
+            ([{"foo": 2}, {"bar": 3}], Status.PASSED),
+            ([{"foo": True}], Status.PASSED),
+            ([{"passed": True}], Status.PASSED),
+            ([{"passed": False}], Status.FAILED),
+            ([{"passed": None}], Status.PASSED),
+            ([{"passed": False}, {"passed": True}], Status.FAILED),
+        ),
     )
     def test_status(self, entries, expected_status):
         """
           TestCaseReport status should be `Status.FAILED` if it has a
           `dict` entry with the key `passed` = `False`.
         """
-        rep = TestCaseReport(name='foo', entries=entries)
+        rep = TestCaseReport(name="foo", entries=entries)
         assert rep.status == expected_status
 
     @pytest.mark.parametrize(
-        'entries,status_override',
+        "entries,status_override",
         (
             ([], Status.PASSED),
             ([], Status.FAILED),
-            ([{'passed': True}], Status.FAILED),
-            ([{'passed': False}], Status.PASSED)
-        )
+            ([{"passed": True}], Status.FAILED),
+            ([{"passed": False}], Status.PASSED),
+        ),
     )
     def test_status_override(self, entries, status_override):
         """
         TestCaseReport `status_override` should
         take precedence over `status` logic.
         """
-        rep = TestCaseReport(name='foo', entries=entries)
+        rep = TestCaseReport(name="foo", entries=entries)
         rep.status_override = status_override
         assert rep.status == status_override
 
@@ -247,11 +252,11 @@ class TestTestCaseReport(object):
           `TestCaseReport.merge` should assign basic attributes
           (`status_override`, `logs`, `entries`) in place.
         """
-        rep = TestCaseReport(uid=1, name='foo', entries=[1, 2, 3])
+        rep = TestCaseReport(uid=1, name="foo", entries=[1, 2, 3])
         rep.logs = [4, 5, 6]
         rep.status_override = Status.PASSED
 
-        rep2 = TestCaseReport(uid=1, name='foo', entries=[10, 20, 30])
+        rep2 = TestCaseReport(uid=1, name="foo", entries=[10, 20, 30])
         rep2.logs = [40, 50, 60]
         rep2.status_override = Status.FAILED
 
@@ -274,43 +279,41 @@ class TestTestCaseReport(object):
 
 def generate_dummy_testgroup():
 
-    tag_data_1 = {'tagname': {'tag1', 'tag2'}}
-    tag_data_2 = {'other_tagname': {'tag4', 'tag5'}}
+    tag_data_1 = {"tagname": {"tag1", "tag2"}}
+    tag_data_2 = {"other_tagname": {"tag4", "tag5"}}
 
     tc_1 = TestCaseReport(
-        name='test_case_1',
-        description='test case 1 description',
+        name="test_case_1",
+        description="test case 1 description",
         tags=tag_data_1,
     )
 
     with tc_1.logged_exceptions():
-        raise Exception('some error')
+        raise Exception("some error")
 
     tc_2 = TestCaseReport(
-        name='test_case_2',
-        description='test case 2 description',
-        tags={},
+        name="test_case_2", description="test case 2 description", tags={}
     )
 
     tg_1 = TestGroupReport(
-        name='Test Group 1',
-        description='Test Group 1 description',
+        name="Test Group 1",
+        description="Test Group 1 description",
         category=ReportCategories.TESTGROUP,
         entries=[tc_1, tc_2],
         tags=tag_data_2,
     )
 
     tc_3 = TestCaseReport(
-        name='test_case_3',
-        description='test case 3 description',
+        name="test_case_3",
+        description="test case 3 description",
         tags=tag_data_2,
     )
 
     tc_3.status_override = Status.PASSED
 
     return TestGroupReport(
-        name='Test Group 2',
-        description='Test Group 2 description',
+        name="Test Group 2",
+        description="Test Group 2 description",
         category=ReportCategories.TESTGROUP,
         entries=[tg_1, tc_3],
         tags={},
@@ -323,13 +326,9 @@ def dummy_test_plan_report():
 
     tg_2 = generate_dummy_testgroup()
 
-    rep = TestReport(
-        name='My Plan',
-        entries=[tg_2],
-        meta={'foo': 'baz'}
-    )
+    rep = TestReport(name="My Plan", entries=[tg_2], meta={"foo": "baz"})
 
-    with rep.timer.record('foo'):
+    with rep.timer.record("foo"):
         pass
 
     return rep
@@ -342,31 +341,29 @@ def dummy_test_plan_report_with_binary_asserts():
     tg_2 = generate_dummy_testgroup()
 
     res = Result()
-    res.equal(1, 1, 'IGNORE THIS')
-    res.equal(b'\xF2', b'\xf2', 'IGNORE THIS')
-    res.equal(b'\x00\xb1\xC1', b'\x00\xB2\xc2', 'IGNORE THIS')
+    res.equal(1, 1, "IGNORE THIS")
+    res.equal(b"\xF2", b"\xf2", "IGNORE THIS")
+    res.equal(b"\x00\xb1\xC1", b"\x00\xB2\xc2", "IGNORE THIS")
 
     btc_1 = TestCaseReport(
-        name='binary_test_case_1',
-        description='binary test case 1 description',
-        entries=res.serialized_entries
+        name="binary_test_case_1",
+        description="binary test case 1 description",
+        entries=res.serialized_entries,
     )
 
     btg_1 = TestGroupReport(
-        name='Binary Test Group 2',
-        description='Binary Test Group 1 description',
+        name="Binary Test Group 2",
+        description="Binary Test Group 1 description",
         category=ReportCategories.TESTGROUP,
         entries=[btc_1],
         tags={},
     )
 
     rep = TestReport(
-        name='My Bin Plan',
-        entries=[tg_2, btg_1],
-        meta={'foobin': 'bazbin'}
+        name="My Bin Plan", entries=[tg_2, btg_1], meta={"foobin": "bazbin"}
     )
 
-    with rep.timer.record('foobin'):
+    with rep.timer.record("foobin"):
         pass
 
     return rep
@@ -388,8 +385,8 @@ def test_report_json_serialization(dummy_test_plan_report):
 
 
 def test_report_json_binary_serialization(
-        dummy_test_plan_report_with_binary_asserts
-    ):
+    dummy_test_plan_report_with_binary_asserts
+):
     """JSON Serialized & deserialized reports should be equal."""
     test_plan_schema = TestReportSchema(strict=True)
     data = test_plan_schema.dumps(
@@ -397,57 +394,52 @@ def test_report_json_binary_serialization(
     ).data
 
     j = json.loads(data)
-    bkey = EntriesField._BYTES_KEY 
-    
+    bkey = EntriesField._BYTES_KEY
+
     # passing assertion
-    hx_1_1 = j['entries'][1]['entries'][0]['entries'][1]['first'][bkey]
-    hx_1_2 = j['entries'][1]['entries'][0]['entries'][1]['second'][bkey]
-    assert ['0xF2'] == hx_1_1 == hx_1_2
+    hx_1_1 = j["entries"][1]["entries"][0]["entries"][1]["first"][bkey]
+    hx_1_2 = j["entries"][1]["entries"][0]["entries"][1]["second"][bkey]
+    assert ["0xF2"] == hx_1_1 == hx_1_2
 
     # failing assertion
-    hx_2_1 = j['entries'][1]['entries'][0]['entries'][2]['first'][bkey]
-    hx_2_2 = j['entries'][1]['entries'][0]['entries'][2]['second'][bkey]
-    assert ['0x00', '0xB1', '0xC1'] == hx_2_1
-    assert ['0x00', '0xB2', '0xC2'] == hx_2_2
+    hx_2_1 = j["entries"][1]["entries"][0]["entries"][2]["first"][bkey]
+    hx_2_2 = j["entries"][1]["entries"][0]["entries"][2]["second"][bkey]
+    assert ["0x00", "0xB1", "0xC1"] == hx_2_1
+    assert ["0x00", "0xB2", "0xC2"] == hx_2_2
 
     deserialized_report = test_plan_schema.loads(data).data
     check_report(
         actual=deserialized_report,
-        expected=dummy_test_plan_report_with_binary_asserts
+        expected=dummy_test_plan_report_with_binary_asserts,
     )
 
 
 class TestReportTags(object):
-
     def get_reports(self):
         tc_report_1 = TestCaseReport(
-            name='My Test Case',
-            tags={'simple': {'baz'}},
+            name="My Test Case", tags={"simple": {"baz"}}
         )
 
         tc_report_2 = TestCaseReport(
-            name='My Test Case 2',
-            tags={'simple': {'bat'}},
+            name="My Test Case 2", tags={"simple": {"bat"}}
         )
 
         tg_report_3 = TestGroupReport(
-            name='My Group 3',
-            category=ReportCategories.TESTGROUP,
-            tags={},
+            name="My Group 3", category=ReportCategories.TESTGROUP, tags={}
         )
 
         tg_report_2 = TestGroupReport(
-            name='My Group 2',
+            name="My Group 2",
             category=ReportCategories.TESTGROUP,
-            tags={'simple': {'bar'}},
-            entries=[tc_report_1, tc_report_2]
+            tags={"simple": {"bar"}},
+            entries=[tc_report_1, tc_report_2],
         )
 
         tg_report_1 = TestGroupReport(
-            name='My Group',
+            name="My Group",
             category=ReportCategories.TESTGROUP,
-            tags={'simple': {'foo'}},
-            entries=[tg_report_2, tg_report_3]
+            tags={"simple": {"foo"}},
+            entries=[tg_report_2, tg_report_3],
         )
 
         return tg_report_1, tg_report_2, tg_report_3, tc_report_1, tc_report_2
@@ -459,20 +451,20 @@ class TestReportTags(object):
         """
         tg_rep_1, tg_rep_2, tg_rep_3, tc_rep_1, tc_rep_2 = self.get_reports()
 
-        assert tg_rep_1.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
-        assert tg_rep_1.tags == {'simple': {'foo'}}
+        assert tg_rep_1.tags_index == {"simple": {"foo", "bar", "baz", "bat"}}
+        assert tg_rep_1.tags == {"simple": {"foo"}}
 
-        assert tg_rep_2.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
-        assert tg_rep_2.tags == {'simple': {'bar'}}
+        assert tg_rep_2.tags_index == {"simple": {"foo", "bar", "baz", "bat"}}
+        assert tg_rep_2.tags == {"simple": {"bar"}}
 
-        assert tg_rep_3.tags_index == {'simple': {'foo'}}
+        assert tg_rep_3.tags_index == {"simple": {"foo"}}
         assert tg_rep_3.tags == {}
 
-        assert tc_rep_1.tags_index == {'simple': {'foo', 'bar', 'baz'}}
-        assert tc_rep_1.tags == {'simple': {'baz'}}
+        assert tc_rep_1.tags_index == {"simple": {"foo", "bar", "baz"}}
+        assert tc_rep_1.tags == {"simple": {"baz"}}
 
-        assert tc_rep_2.tags_index == {'simple': {'foo', 'bar', 'bat'}}
-        assert tc_rep_2.tags == {'simple': {'bat'}}
+        assert tc_rep_2.tags_index == {"simple": {"foo", "bar", "bat"}}
+        assert tc_rep_2.tags == {"simple": {"bat"}}
 
     def test_tag_propagation_on_append(self):
         """
@@ -482,22 +474,18 @@ class TestReportTags(object):
         tg_rep_1, tg_rep_2, tg_rep_3, tc_rep_1, tc_rep_2 = self.get_reports()
 
         tc_report_3 = TestCaseReport(
-            name='My Test Case 3',
-            tags={'color': {'blue'}}
+            name="My Test Case 3", tags={"color": {"blue"}}
         )
 
         # root node
         tg_rep_1.append(tc_report_3)
 
         assert tg_rep_1.tags_index == {
-            'simple': {'foo', 'bar', 'baz', 'bat'},
-            'color': {'blue'}
+            "simple": {"foo", "bar", "baz", "bat"},
+            "color": {"blue"},
         }
 
-        assert tc_report_3.tags_index == {
-            'simple': {'foo'},
-            'color': {'blue'}
-        }
+        assert tc_report_3.tags_index == {"simple": {"foo"}, "color": {"blue"}}
 
     def test_tag_propagation_on_filter(self):
         """
@@ -510,9 +498,10 @@ class TestReportTags(object):
             Keep all test groups, discard testcase
             report with name `My Test Case 2`
             """
-            return isinstance(obj, TestGroupReport)\
-                or (isinstance(obj, TestCaseReport) and
-                    obj.name != 'My Test Case 2')
+            return isinstance(obj, TestGroupReport) or (
+                isinstance(obj, TestCaseReport)
+                and obj.name != "My Test Case 2"
+            )
 
         tg_rep_1, tg_rep_2, tg_rep_3, tc_rep_1, tc_rep_2 = self.get_reports()
 
@@ -521,18 +510,18 @@ class TestReportTags(object):
         new_tg_rep_2, new_tg_rep_3 = new_tg_rep_1
         new_tc_rep_1 = new_tg_rep_2.entries[0]
 
-        assert new_tc_rep_1.name == 'My Test Case'
+        assert new_tc_rep_1.name == "My Test Case"
 
-        assert new_tg_rep_1.tags_index == {'simple': {'foo', 'bar', 'baz'}}
-        assert new_tg_rep_2.tags_index == {'simple': {'foo', 'bar', 'baz'}}
-        assert new_tg_rep_3.tags_index == {'simple': {'foo'}}
+        assert new_tg_rep_1.tags_index == {"simple": {"foo", "bar", "baz"}}
+        assert new_tg_rep_2.tags_index == {"simple": {"foo", "bar", "baz"}}
+        assert new_tg_rep_3.tags_index == {"simple": {"foo"}}
 
         # tag indices from the original should have stayed same
-        assert tg_rep_1.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
-        assert tg_rep_2.tags_index == {'simple': {'foo', 'bar', 'baz', 'bat'}}
-        assert tg_rep_3.tags_index == {'simple': {'foo'}}
-        assert tc_rep_1.tags_index == {'simple': {'foo', 'bar', 'baz'}}
-        assert tc_rep_2.tags_index == {'simple': {'foo', 'bar', 'bat'}}
+        assert tg_rep_1.tags_index == {"simple": {"foo", "bar", "baz", "bat"}}
+        assert tg_rep_2.tags_index == {"simple": {"foo", "bar", "baz", "bat"}}
+        assert tg_rep_3.tags_index == {"simple": {"foo"}}
+        assert tc_rep_1.tags_index == {"simple": {"foo", "bar", "baz"}}
+        assert tc_rep_2.tags_index == {"simple": {"foo", "bar", "bat"}}
 
 
 def test_env_status_hash():
@@ -541,9 +530,9 @@ def test_env_status_hash():
     cause the hash to change.
     """
     report_group = TestGroupReport(
-        name='MTest1',
+        name="MTest1",
         category=ReportCategories.MULTITEST,
-        description='MTest1 description',
+        description="MTest1 description",
         env_status=entity.ResourceStatus.STOPPED,
     )
 
@@ -551,4 +540,3 @@ def test_env_status_hash():
     report_group.env_status = entity.ResourceStatus.STARTED
 
     assert report_group.hash != orig_hash
-

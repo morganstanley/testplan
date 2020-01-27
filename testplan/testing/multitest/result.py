@@ -30,8 +30,14 @@ class ExceptionCapture(object):
     """
 
     def __init__(
-        self, result, assertion_kls, exceptions,
-        pattern=None, func=None, description=None, category=None,
+        self,
+        result,
+        assertion_kls,
+        exceptions,
+        pattern=None,
+        func=None,
+        description=None,
+        category=None,
     ):
         """
         :param result: Result object of the current testcase.
@@ -77,8 +83,7 @@ class ExceptionCapture(object):
         # We cannot use `bind_entry` here as this block will
         # be run when an exception is raised
         stdout_registry.log_entry(
-            entry=exc_assertion,
-            stdout_style=self.result.stdout_style
+            entry=exc_assertion, stdout_style=self.result.stdout_style
         )
         self.result.entries.append(exc_assertion)
         return True
@@ -89,6 +94,7 @@ def bind_entry(method):
     Appends return value of a assertion / log method to the ``Result`` object's
     ``entries`` list.
     """
+
     @functools.wraps(method)
     def _wrapper(obj, *args, **kwargs):
         entry = method(obj, *args, **kwargs)
@@ -103,19 +109,19 @@ def bind_entry(method):
         elif isinstance(obj, Result):
             result_obj = obj
         else:
-            raise TypeError('Invalid assertion container: {}'.format(obj))
+            raise TypeError("Invalid assertion container: {}".format(obj))
 
         result_obj.entries.append(entry)
 
         stdout_registry.log_entry(
-            entry=entry,
-            stdout_style=result_obj.stdout_style,
+            entry=entry, stdout_style=result_obj.stdout_style
         )
 
         if not entry and not result_obj.continue_on_failure:
             raise AssertionError(entry)
 
         return entry
+
     return _wrapper
 
 
@@ -124,6 +130,7 @@ class AssertionNamespace(object):
     Base class for assertion namespaces.
     Users can inherit from this class to implement custom namespaces.
     """
+
     def __init__(self, result):
         self.result = result
 
@@ -156,14 +163,15 @@ class RegexNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         return assertions.RegexMatch(
-            regexp=regexp, string=value,
-            flags=flags, description=description, category=category)
+            regexp=regexp,
+            string=value,
+            flags=flags,
+            description=description,
+            category=category,
+        )
 
     @bind_entry
-    def multiline_match(
-        self, regexp, value,
-        description=None, category=None
-    ):
+    def multiline_match(self, regexp, value, description=None, category=None):
         """
         Checks if the given ``regexp`` matches the ``value``
         via ``re.match`` operation, uses ``re.MULTILINE`` and ``re.DOTALL``
@@ -192,14 +200,16 @@ class RegexNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         return assertions.RegexMatch(
-            regexp=regexp, string=value,
+            regexp=regexp,
+            string=value,
             flags=re.MULTILINE | re.DOTALL,
-            description=description, category=category)
+            description=description,
+            category=category,
+        )
 
     @bind_entry
     def not_match(
-        self, regexp, value,
-        description=None, category=None, flags=0
+        self, regexp, value, description=None, category=None, flags=0
     ):
         """
         Checks if the given ``regexp`` does not match the ``value``
@@ -224,8 +234,12 @@ class RegexNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         return assertions.RegexMatchNotExists(
-            regexp=regexp, string=value,
-            flags=flags, description=description, category=category)
+            regexp=regexp,
+            string=value,
+            flags=flags,
+            description=description,
+            category=category,
+        )
 
     @bind_entry
     def multiline_not_match(
@@ -259,9 +273,12 @@ class RegexNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         return assertions.RegexMatchNotExists(
-            regexp=regexp, string=value,
+            regexp=regexp,
+            string=value,
             flags=re.MULTILINE | re.DOTALL,
-            description=description, category=category)
+            description=description,
+            category=category,
+        )
 
     @bind_entry
     def search(self, regexp, value, description=None, category=None, flags=0):
@@ -288,8 +305,12 @@ class RegexNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         return assertions.RegexSearch(
-            regexp=regexp, string=value,
-            flags=flags, description=description, category=category)
+            regexp=regexp,
+            string=value,
+            flags=flags,
+            description=description,
+            category=category,
+        )
 
     @bind_entry
     def search_empty(
@@ -318,14 +339,22 @@ class RegexNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         return assertions.RegexSearchNotExists(
-            regexp=regexp, string=value,
-            flags=flags, description=description, category=category)
+            regexp=regexp,
+            string=value,
+            flags=flags,
+            description=description,
+            category=category,
+        )
 
     @bind_entry
     def findall(
-        self, regexp, value,
-        description=None, category=None,
-        flags=0, condition=None
+        self,
+        regexp,
+        value,
+        description=None,
+        category=None,
+        flags=0,
+        condition=None,
     ):
         """
         Checks if there are one or more matches of the ``regexp`` exist in
@@ -413,9 +442,14 @@ class TableNamespace(AssertionNamespace):
 
     @bind_entry
     def column_contain(
-        self, table, values, column,
-        description=None, category=None,
-        limit=None, report_fails_only=False
+        self,
+        table,
+        values,
+        column,
+        description=None,
+        category=None,
+        limit=None,
+        report_fails_only=False,
     ):
         """
         Checks if all of the values of a table's
@@ -456,17 +490,26 @@ class TableNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         return assertions.ColumnContain(
-            table=table, values=values, column=column, limit=limit,
-            report_fails_only=report_fails_only, description=description,
+            table=table,
+            values=values,
+            column=column,
+            limit=limit,
+            report_fails_only=report_fails_only,
+            description=description,
             category=category,
         )
 
     @bind_entry
     def match(
-        self, actual, expected,
-        description=None, category=None,
-        include_columns=None, exclude_columns=None,
-        report_all=True, fail_limit=0,
+        self,
+        actual,
+        expected,
+        description=None,
+        category=None,
+        include_columns=None,
+        exclude_columns=None,
+        report_all=True,
+        fail_limit=0,
     ):
         r"""
         Compares two tables, uses equality for each table cell for plain
@@ -533,18 +576,27 @@ class TableNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         return assertions.TableMatch(
-            table=actual, expected_table=expected,
-            include_columns=include_columns, exclude_columns=exclude_columns,
-            report_all=report_all, fail_limit=fail_limit,
-            description=description, category=category,
+            table=actual,
+            expected_table=expected,
+            include_columns=include_columns,
+            exclude_columns=exclude_columns,
+            report_all=report_all,
+            fail_limit=fail_limit,
+            description=description,
+            category=category,
         )
 
     @bind_entry
     def diff(
-        self, actual, expected,
-        description=None, category=None,
-        include_columns=None, exclude_columns=None,
-        report_all=True, fail_limit=0,
+        self,
+        actual,
+        expected,
+        description=None,
+        category=None,
+        include_columns=None,
+        exclude_columns=None,
+        report_all=True,
+        fail_limit=0,
     ):
         r"""
         Find differences of two tables, uses equality for each table cell
@@ -612,11 +664,15 @@ class TableNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         return assertions.TableDiff(
-            table=actual, expected_table=expected,
-            include_columns=include_columns, exclude_columns=exclude_columns,
-            report_all=report_all, fail_limit=fail_limit,
+            table=actual,
+            expected_table=expected,
+            include_columns=include_columns,
+            exclude_columns=exclude_columns,
+            report_all=report_all,
+            fail_limit=fail_limit,
             report_fail_only=True,
-            description=description, category=category,
+            description=description,
+            category=category,
         )
 
     @bind_entry
@@ -644,8 +700,9 @@ class TableNamespace(AssertionNamespace):
                  fail.
         :rtype: ``bool``
         """
-        return base.TableLog(table=table, display_index=display_index,
-                             description=description)
+        return base.TableLog(
+            table=table, display_index=display_index, description=description
+        )
 
 
 class XMLNamespace(AssertionNamespace):
@@ -653,9 +710,13 @@ class XMLNamespace(AssertionNamespace):
 
     @bind_entry
     def check(
-        self, element, xpath,
-        description=None, category=None,
-        tags=None, namespaces=None,
+        self,
+        element,
+        xpath,
+        description=None,
+        category=None,
+        tags=None,
+        namespaces=None,
     ):
         """
         Checks if given xpath and tags exist in the XML body.
@@ -707,8 +768,11 @@ class XMLNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         return assertions.XMLCheck(
-            element=element, xpath=xpath, tags=tags,
-            namespaces=namespaces, description=description,
+            element=element,
+            xpath=xpath,
+            tags=tags,
+            namespaces=namespaces,
+            description=description,
             category=category,
         )
 
@@ -718,8 +782,12 @@ class DictNamespace(AssertionNamespace):
 
     @bind_entry
     def check(
-        self, dictionary, description=None, category=None,
-        has_keys=None, absent_keys=None
+        self,
+        dictionary,
+        description=None,
+        category=None,
+        has_keys=None,
+        absent_keys=None,
     ):
         """
         Checks for existence / absence of dictionary keys, uses top
@@ -749,23 +817,27 @@ class DictNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         return assertions.DictCheck(
-            dictionary=dictionary, has_keys=has_keys,
-            absent_keys=absent_keys, description=description,
+            dictionary=dictionary,
+            has_keys=has_keys,
+            absent_keys=absent_keys,
+            description=description,
             category=category,
         )
 
     @bind_entry
-    def match(self,
-              actual,
-              expected,
-              description=None,
-              category=None,
-              include_keys=None,
-              exclude_keys=None,
-              report_mode=comparison.ReportOptions.ALL,
-              actual_description=None,
-              expected_description=None,
-              value_cmp_func=comparison.COMPARE_FUNCTIONS['native_equality']):
+    def match(
+        self,
+        actual,
+        expected,
+        description=None,
+        category=None,
+        include_keys=None,
+        exclude_keys=None,
+        report_mode=comparison.ReportOptions.ALL,
+        actual_description=None,
+        expected_description=None,
+        value_cmp_func=comparison.COMPARE_FUNCTIONS["native_equality"],
+    ):
         r"""
         Matches two dictionaries, supports nested data. Custom
         comparators can be used as values on the ``expected`` dict.
@@ -842,12 +914,17 @@ class DictNamespace(AssertionNamespace):
             expected_description=expected_description,
             actual_description=actual_description,
             category=category,
-            value_cmp_func=value_cmp_func)
+            value_cmp_func=value_cmp_func,
+        )
 
     @bind_entry
     def match_all(
-        self, values, comparisons,
-        description=None, category=None, key_weightings=None
+        self,
+        values,
+        comparisons,
+        description=None,
+        category=None,
+        key_weightings=None,
     ):
         """
         Match multiple unordered dictionaries.
@@ -933,8 +1010,12 @@ class FixNamespace(AssertionNamespace):
 
     @bind_entry
     def check(
-        self, msg, description=None, category=None,
-        has_tags=None, absent_tags=None
+        self,
+        msg,
+        description=None,
+        category=None,
+        has_tags=None,
+        absent_tags=None,
     ):
         """
         Checks existence / absence of tags in a Fix message.
@@ -968,22 +1049,26 @@ class FixNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         return assertions.FixCheck(
-            msg=msg, has_tags=has_tags,
-            absent_tags=absent_tags, description=description,
+            msg=msg,
+            has_tags=has_tags,
+            absent_tags=absent_tags,
+            description=description,
             category=category,
         )
 
     @bind_entry
-    def match(self,
-              actual,
-              expected,
-              description=None,
-              category=None,
-              include_tags=None,
-              exclude_tags=None,
-              report_mode=comparison.ReportOptions.ALL,
-              actual_description=None,
-              expected_description=None):
+    def match(
+        self,
+        actual,
+        expected,
+        description=None,
+        category=None,
+        include_tags=None,
+        exclude_tags=None,
+        report_mode=comparison.ReportOptions.ALL,
+        actual_description=None,
+        expected_description=None,
+    ):
         """
         Matches two FIX messages, supports repeating groups (nested data).
         Custom comparators can be used as values on the ``expected`` msg.
@@ -1045,12 +1130,17 @@ class FixNamespace(AssertionNamespace):
             exclude_tags=exclude_tags,
             report_mode=report_mode,
             expected_description=expected_description,
-            actual_description=actual_description)
+            actual_description=actual_description,
+        )
 
     @bind_entry
     def match_all(
-        self, values, comparisons,
-        description=None, category=None, tag_weightings=None
+        self,
+        values,
+        comparisons,
+        description=None,
+        category=None,
+        tag_weightings=None,
     ):
         """
         Match multiple unordered FIX messages.
@@ -1144,11 +1234,11 @@ class Result(object):
     """
 
     namespaces = {
-        'regex': RegexNamespace,
-        'table': TableNamespace,
-        'xml': XMLNamespace,
-        'dict': DictNamespace,
-        'fix': FixNamespace,
+        "regex": RegexNamespace,
+        "table": TableNamespace,
+        "xml": XMLNamespace,
+        "dict": DictNamespace,
+        "fix": FixNamespace,
     }
 
     def __init__(
@@ -1172,7 +1262,8 @@ class Result(object):
         for key, value in self.get_namespaces().items():
             if hasattr(self, key):
                 raise AttributeError(
-                    'Name clash, cannot assign namespace: {}'.format(key))
+                    "Name clash, cannot assign namespace: {}".format(key)
+                )
             setattr(self, key, value(result=self))
 
         self._parent = _parent
@@ -1192,7 +1283,8 @@ class Result(object):
             _summarize=self._summarize,
             _num_passing=self._num_passing,
             _num_failing=self._num_failing,
-            _scratch=self._scratch)
+            _scratch=self._scratch,
+        )
 
     def append(self, result):
         """Append entries from another result."""
@@ -1205,8 +1297,9 @@ class Result(object):
     def __enter__(self):
         if self._parent is None:
             raise RuntimeError(
-                'Cannot use root level result objects as context managers.'
-                ' Use `with result.group(...)` instead.')
+                "Cannot use root level result objects as context managers."
+                " Use `with result.group(...)` instead."
+            )
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -1215,12 +1308,11 @@ class Result(object):
                 entries=self.entries,
                 description=self._group_description,
                 num_passing=self._num_passing,
-                num_failing=self._num_failing
+                num_failing=self._num_failing,
             )
         else:
             entry_group = base.Group(
-                entries=self.entries,
-                description=self._group_description
+                entries=self.entries, description=self._group_description
             )
         self._parent.entries.append(entry_group)
         return exc_type is None  # re-raise errors if there is any
@@ -1290,13 +1382,13 @@ class Result(object):
             _parent=self,
             _summarize=summarize,
             _num_passing=num_passing,
-            _num_failing=num_failing
+            _num_failing=num_failing,
         )
 
     @property
     def passed(self):
         """Entries stored passed status."""
-        return all(getattr(entry, 'passed', True) for entry in self.entries)
+        return all(getattr(entry, "passed", True) for entry in self.entries)
 
     @bind_entry
     def log(self, message, description=None):
@@ -1356,7 +1448,8 @@ class Result(object):
         :rtype: ``bool``
         """
         return assertions.IsTrue(
-            value, description=description, category=category)
+            value, description=description, category=category
+        )
 
     @bind_entry
     def false(self, value, description=None, category=None):
@@ -1377,7 +1470,8 @@ class Result(object):
         :rtype: ``bool``
         """
         return assertions.IsFalse(
-            value, description=description, category=category)
+            value, description=description, category=category
+        )
 
     @bind_entry
     def equal(self, actual, expected, description=None, category=None):
@@ -1401,7 +1495,8 @@ class Result(object):
         :rtype: ``bool``
         """
         return assertions.Equal(
-            actual, expected, description=description, category=category)
+            actual, expected, description=description, category=category
+        )
 
     @bind_entry
     def not_equal(self, actual, expected, description=None, category=None):
@@ -1425,7 +1520,8 @@ class Result(object):
         :rtype: ``bool``
         """
         return assertions.NotEqual(
-            actual, expected, description=description, category=category)
+            actual, expected, description=description, category=category
+        )
 
     @bind_entry
     def less(self, first, second, description=None, category=None):
@@ -1449,7 +1545,8 @@ class Result(object):
         :rtype: ``bool``
         """
         return assertions.Less(
-            first, second, description=description, category=category)
+            first, second, description=description, category=category
+        )
 
     @bind_entry
     def greater(self, first, second, description=None, category=None):
@@ -1473,7 +1570,8 @@ class Result(object):
         :rtype: ``bool``
         """
         return assertions.Greater(
-            first, second, description=description, category=category)
+            first, second, description=description, category=category
+        )
 
     @bind_entry
     def less_equal(self, first, second, description=None, category=None):
@@ -1497,12 +1595,11 @@ class Result(object):
         :rtype: ``bool``
         """
         return assertions.LessEqual(
-            first, second, description=description, category=category)
+            first, second, description=description, category=category
+        )
 
     @bind_entry
-    def greater_equal(
-        self, first, second, description=None, category=None
-    ):
+    def greater_equal(self, first, second, description=None, category=None):
         """
         Checks if ``first >= second``.
         Can be used via shortcut: ``result.ge``
@@ -1523,7 +1620,8 @@ class Result(object):
         :rtype: ``bool``
         """
         return assertions.GreaterEqual(
-            first, second, description=description, category=category)
+            first, second, description=description, category=category
+        )
 
     # Shortcut aliases for basic comparators
     eq = equal
@@ -1535,8 +1633,13 @@ class Result(object):
 
     @bind_entry
     def isclose(
-        self, first, second, rel_tol=1e-09, abs_tol=0.0,
-        description=None, category=None
+        self,
+        first,
+        second,
+        rel_tol=1e-09,
+        abs_tol=0.0,
+        description=None,
+        category=None,
     ):
         """
         Checks if ``first`` and ``second`` are approximately equal.
@@ -1562,7 +1665,8 @@ class Result(object):
             rel_tol,
             abs_tol,
             description=description,
-            category=category)
+            category=category,
+        )
 
     @bind_entry
     def contain(self, member, container, description=None, category=None):
@@ -1586,12 +1690,11 @@ class Result(object):
         :rtype: ``bool``
         """
         return assertions.Contain(
-            member, container, description=description, category=category)
+            member, container, description=description, category=category
+        )
 
     @bind_entry
-    def not_contain(
-        self, member, container, description=None, category=None
-    ):
+    def not_contain(self, member, container, description=None, category=None):
         """
         Checks if ``member not in container``.
 
@@ -1612,7 +1715,8 @@ class Result(object):
         :rtype: ``bool``
         """
         return assertions.NotContain(
-            member, container, description=description, category=category)
+            member, container, description=description, category=category
+        )
 
     @bind_entry
     def equal_slices(
@@ -1688,12 +1792,16 @@ class Result(object):
             actual=actual,
             slices=slices,
             description=description,
-            category=category
+            category=category,
         )
 
     def raises(
-        self, exceptions, description=None,
-        category=None, pattern=None, func=None
+        self,
+        exceptions,
+        description=None,
+        category=None,
+        pattern=None,
+        func=None,
     ):
         """
         Checks if given code block raises certain type(s) of exception(s).
@@ -1742,8 +1850,12 @@ class Result(object):
         )
 
     def not_raises(
-        self, exceptions, description=None,
-        category=None, pattern=None, func=None
+        self,
+        exceptions,
+        description=None,
+        category=None,
+        pattern=None,
+        func=None,
     ):
         """
         Checks if given code block does not raise
@@ -1795,12 +1907,16 @@ class Result(object):
 
     @bind_entry
     def diff(
-        self, first, second,
+        self,
+        first,
+        second,
         ignore_space_change=False,
         ignore_whitespaces=False,
         ignore_blank_lines=False,
-        unified=False, context=False,
-        description=None, category=None
+        unified=False,
+        context=False,
+        description=None,
+        category=None,
     ):
         r"""
         Line diff assertion. Fail if at least one difference found.
@@ -1835,17 +1951,26 @@ class Result(object):
         :rtype: ``bool``
         """
         return assertions.LineDiff(
-            first, second,
+            first,
+            second,
             ignore_space_change=ignore_space_change,
             ignore_whitespaces=ignore_whitespaces,
             ignore_blank_lines=ignore_blank_lines,
-            unified=unified, context=context,
-            description=description, category=category
+            unified=unified,
+            context=context,
+            description=description,
+            category=category,
         )
 
     @bind_entry
-    def graph(self, graph_type, graph_data, description,
-              series_options, graph_options):
+    def graph(
+        self,
+        graph_type,
+        graph_data,
+        description,
+        series_options,
+        graph_options,
+    ):
         """
         Displays a Graph in the report.
 
@@ -1887,7 +2012,7 @@ class Result(object):
             graph_data=graph_data,
             description=description,
             series_options=series_options,
-            graph_options=graph_options
+            graph_options=graph_options,
         )
 
     @bind_entry
@@ -1914,14 +2039,14 @@ class Result(object):
                  fail.
         :rtype: ``bool``
         """
-        filename = '{0}.png'.format(uuid.uuid4())
+        filename = "{0}.png".format(uuid.uuid4())
         image_file_path = os.path.join(self._scratch, filename)
         matplot = base.MatPlot(
             pyplot=pyplot,
             image_file_path=image_file_path,
             width=width,
             height=height,
-            description=description
+            description=description,
         )
         self.attachments.append(matplot)
         return matplot

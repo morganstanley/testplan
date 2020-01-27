@@ -13,8 +13,9 @@ from testplan.testing.filtering import Filter, Pattern
 
 def check_priority(value):
     """Validator for priority values."""
-    assert isinstance(value, int) and value > 0, \
-        'Priority must be positive integer.'
+    assert (
+        isinstance(value, int) and value > 0
+    ), "Priority must be positive integer."
 
 
 def priority(value):
@@ -24,17 +25,18 @@ def priority(value):
     def wrapper(func):
         func.priority = value
         return func
+
     return wrapper
 
 
 class BaseSuite(object):
     """Base suite class for suite level custom filtering demonstration."""
+
     pass
 
 
 @testsuite
 class Alpha(BaseSuite):
-
     @priority(1)
     @testcase
     def test_1(self, env, result):
@@ -53,7 +55,6 @@ class Alpha(BaseSuite):
 
 @testsuite
 class Beta(BaseSuite):
-
     @priority(1)
     @testcase
     def test_1(self, env, result):
@@ -71,7 +72,6 @@ class Beta(BaseSuite):
 
 @testsuite
 class Gamma(object):
-
     @testcase
     def test_1(self, env, result):
         pass
@@ -102,7 +102,7 @@ class PriorityFilter(Filter):
         self.maximum = maximum
 
     def filter_case(self, case):
-        if not hasattr(case, 'priority'):
+        if not hasattr(case, "priority"):
             return False
 
         if self.maximum is not None:
@@ -115,10 +115,12 @@ class SubclassFilter(Filter):
     Suite level filter that runs suites
     that inherit from the given base class.
     """
+
     def __init__(self, base_kls):
-        assert isinstance(base_kls, type), \
-            '`base_kls` must be of type' \
-            ' `type`, it was: {}'.format(type(base_kls))
+        assert isinstance(base_kls, type), (
+            "`base_kls` must be of type"
+            " `type`, it was: {}".format(type(base_kls))
+        )
 
         self.base_kls = base_kls
 
@@ -153,26 +155,25 @@ composed_filter_2 = subclass_filter & composed_filter_1
 # Run test cases that:
 # Belong to suites that inherit from BaseSuite
 # AND have the name `test_2`
-composed_filter_3 = subclass_filter & Pattern('*:*:test_2')
+composed_filter_3 = subclass_filter & Pattern("*:*:test_2")
 
 
 # Replace the `test_filter` argument with the
 # filters declared above to see how they work.
 
+
 @test_plan(
-    name='Custom Test Filters',
+    name="Custom Test Filters",
     test_filter=priority_filter_1,
     # Using testcase level stdout so we can see filtered testcases
-    stdout_style=Style('testcase', 'testcase')
+    stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
 
-    multi_test = MultiTest(
-        name='Sample',
-        suites=[Alpha(), Beta(), Gamma()])
+    multi_test = MultiTest(name="Sample", suites=[Alpha(), Beta(), Gamma()])
 
     plan.add(multi_test)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

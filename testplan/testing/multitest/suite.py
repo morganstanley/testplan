@@ -28,7 +28,8 @@ def update_tag_index(obj, tag_dict):
         obj = obj.__func__
 
     obj.__tags_index__ = tagging.merge_tag_dicts(
-        tag_dict, getattr(obj, '__tags_index__', {}))
+        tag_dict, getattr(obj, "__tags_index__", {})
+    )
 
 
 def propagate_tag_indices(suite, tag_dict):
@@ -101,10 +102,12 @@ def get_testsuite_name(suite):
     :rtype: ``str``
     """
     name = suite.__class__.__name__
-    if hasattr(suite, 'suite_name') and\
-          callable(getattr(suite, 'suite_name')) and\
-                suite.suite_name() is not None:
-        return '{} - {}'.format(name, suite.suite_name())
+    if (
+        hasattr(suite, "suite_name")
+        and callable(getattr(suite, "suite_name"))
+        and suite.suite_name() is not None
+    ):
+        return "{} - {}".format(name, suite.suite_name())
     return name
 
 
@@ -134,8 +137,9 @@ def set_testsuite_testcases(suite):
         testcase_method = getattr(suite, testcase_name)
 
         if not testcase_method:
-            msg = '{} does not have a testcase method named: {}'.format(
-                suite, testcase_name)
+            msg = "{} does not have a testcase method named: {}".format(
+                suite, testcase_name
+            )
             raise AttributeError(msg)
 
         if testcase_name in testcases:
@@ -146,18 +150,20 @@ def set_testsuite_testcases(suite):
                         suite.__class__.__name__,
                         testcase_name,
                         inspect.getsourcefile(offending_obj),
-                        inspect.getsourcelines(offending_obj)[1]
+                        inspect.getsourcelines(offending_obj)[1],
                     )
                 )
             except IOError:
                 raise ValueError(
                     "Duplicate definition of {}.{}".format(
-                        suite.__class__.__name__, testcase_name))
+                        suite.__class__.__name__, testcase_name
+                    )
+                )
 
         skip_funcs = suite.__skip__[testcase_name]
         if not any(skip_func(suite) for skip_func in skip_funcs):
             testcases.append(testcase_name)
-    setattr(suite, '__testcases__', testcases)
+    setattr(suite, "__testcases__", testcases)
 
 
 def get_testcase_desc(suite, testcase_name):
@@ -169,7 +175,7 @@ def get_testcase_desc(suite, testcase_name):
     in the reports (text and otherwise)
     """
     desc = getattr(suite, testcase_name).__doc__
-    return format_description(desc.rstrip()) if desc else ''
+    return format_description(desc.rstrip()) if desc else ""
 
 
 def get_testcase_methods(suite):
@@ -209,6 +215,7 @@ def _selective_call(decorator_func, meta_func, wrapper_func):
     The ``meta_func`` must also return a wrapper function that accepts a single
     argument and calls the original ``decorator_func`` with that arg.
     """
+
     def wrapper(*args, **kwargs):
         """
         Only allow 2 scenarios:
@@ -223,15 +230,18 @@ def _selective_call(decorator_func, meta_func, wrapper_func):
         """
         if (args and kwargs) or (args and len(args) > 1):
             raise ValueError(
-                'Only `@{func_name}` or `@{func_name}(**kwargs)` '
-                'calls are allowed.'.format(func_name=wrapper_func.__name__))
+                "Only `@{func_name}` or `@{func_name}(**kwargs)` "
+                "calls are allowed.".format(func_name=wrapper_func.__name__)
+            )
 
         if args:
             if not callable(args[0]):
-                raise ValueError('args[0] must be callable, it was {}'.format(
-                    type(args[0])))
+                raise ValueError(
+                    "args[0] must be callable, it was {}".format(type(args[0]))
+                )
             return decorator_func(args[0])
         return meta_func(**kwargs)
+
     return wrapper
 
 
@@ -252,17 +262,23 @@ def _testsuite(klass):
     klass.__testcases__ = __TESTCASES__
     klass.__skip__ = __SKIP__
 
-    if not hasattr(klass, '__tags__'):
+    if not hasattr(klass, "__tags__"):
         klass.__tags__ = {}  # used for UI
         klass.__tags_index__ = {}  # used for actual filtering
 
     # Attributes defined in test suite will be saved in test report,
     # they should be normal objects which can be serialized with json
     klass.__extra_attributes__ = {
-        attrib: getattr(klass, attrib) for attrib in dir(klass) if not (
-            attrib.startswith('__') or callable(getattr(klass, attrib))
-            or attrib in klass.__testcases__ or getattr(
-                getattr(klass, attrib), '__parametrization_template__', False))
+        attrib: getattr(klass, attrib)
+        for attrib in dir(klass)
+        if not (
+            attrib.startswith("__")
+            or callable(getattr(klass, attrib))
+            or attrib in klass.__testcases__
+            or getattr(
+                getattr(klass, attrib), "__parametrization_template__", False
+            )
+        )
     }
 
     klass.get_testcases = get_testcase_methods
@@ -280,7 +296,9 @@ def _testsuite(klass):
     update_tag_index(
         obj=klass,
         tag_dict=tagging.merge_tag_dicts(
-            *[tc.__tags_index__ for tc in testcase_methods]))
+            *[tc.__tags_index__ for tc in testcase_methods]
+        ),
+    )
 
     __GENERATED_TESTCASES__ = []
     __TESTCASES__ = []
@@ -305,6 +323,7 @@ def _testsuite_meta(tags=None):
         suite = _testsuite(klass)
 
         return suite
+
     return wrapper
 
 
@@ -337,7 +356,7 @@ def testsuite(*args, **kwargs):
 
 def _validate_testcase(func):
     """Validate the expected function signature of a testcase."""
-    interface.check_signature(func, ['self', 'env', 'result'])
+    interface.check_signature(func, ["self", "env", "result"])
 
 
 def _mark_function_as_testcase(func):
@@ -346,7 +365,7 @@ def _mark_function_as_testcase(func):
 
 def _testcase(func):
     """Actual decorator that validates & registers a method as a testcase."""
-    if not hasattr(func, '__tags__'):
+    if not hasattr(func, "__tags__"):
         func.__tags__ = {}
         func.__tags_index__ = {}
 
@@ -368,12 +387,13 @@ def _testcase_meta(
     num_failing=defaults.SUMMARY_NUM_FAILING,
     key_combs_limit=defaults.SUMMARY_KEY_COMB_LIMIT,
     execution_group=None,
-    timeout=None
+    timeout=None,
 ):
     """
     Wrapper function that allows us to call :py:func:`@testcase <testcase>`
     decorator with extra arguments.
     """
+
     @functools.wraps(_testcase)
     def wrapper(function):
         """Meta logic for test case goes here"""
@@ -397,7 +417,7 @@ def _testcase_meta(
                 num_failing=num_failing,
                 key_combs_limit=key_combs_limit,
                 execution_group=execution_group,
-                timeout=timeout
+                timeout=timeout,
             )
 
             # Register generated functions as test_cases
@@ -432,6 +452,7 @@ def _testcase_meta(
             function.__tags_index__ = copy.deepcopy(tag_dict)
 
             return _testcase(function)
+
     return wrapper
 
 
@@ -442,7 +463,7 @@ def is_testcase(func):
 
     :return: True if the function is decorated with testcase.
     """
-    return hasattr(func, '__testcase__')
+    return hasattr(func, "__testcase__")
 
 
 def testcase(*args, **kwargs):
@@ -528,7 +549,7 @@ def testcase(*args, **kwargs):
     return _selective_call(
         decorator_func=_testcase,
         meta_func=_testcase_meta,
-        wrapper_func=testcase
+        wrapper_func=testcase,
     )(*args, **kwargs)
 
 
@@ -538,7 +559,7 @@ def _validate_skip_if_predicates(predicates):
     the testcase method.
     """
     for predicate in predicates:
-        interface.check_signature(predicate, ['testsuite'])
+        interface.check_signature(predicate, ["testsuite"])
 
     return predicates
 
@@ -563,13 +584,15 @@ def skip_if(*predicates):
         result = _validate_skip_if_predicates(predicates)
         __SKIP__[testcase_method.__name__] += result
         return testcase_method
+
     return skipper
 
 
 def _get_kwargs(kwargs, testcase_method):
     """Compatibility with parametrization"""
-    return dict(kwargs,
-                **getattr(testcase_method, '_parametrization_kwargs', {}))
+    return dict(
+        kwargs, **getattr(testcase_method, "_parametrization_kwargs", {})
+    )
 
 
 def _gen_testcase_with_pre(testcase_method, preludes):
@@ -581,16 +604,20 @@ def _gen_testcase_with_pre(testcase_method, preludes):
 
     :return: testcase with prelude attached
     """
+
     @wraps(testcase_method)
     def testcase_with_pre(*args, **kwargs):
         """
         Testcase with prelude
         """
         for prelude in preludes:
-            prelude(testcase_method.__name__,
-                    *args,
-                    **_get_kwargs(kwargs, testcase_method))
+            prelude(
+                testcase_method.__name__,
+                *args,
+                **_get_kwargs(kwargs, testcase_method)
+            )
         return testcase_method(*args, **kwargs)
+
     return testcase_with_pre
 
 
@@ -615,6 +642,7 @@ def _gen_testcase_with_post(testcase_method, epilogues):
 
     :return: testcase with epilogue attached
     """
+
     @wraps(testcase_method)
     def testcase_with_post(*args, **kwargs):
         """
@@ -624,13 +652,14 @@ def _gen_testcase_with_post(testcase_method, epilogues):
         try:
             testcase_method(*args, **kwargs)
         except Exception:
-            run_epilogues(epilogues, testcase_method.__name__,
-                          *args, **epilogue_kwargs)
+            run_epilogues(
+                epilogues, testcase_method.__name__, *args, **epilogue_kwargs
+            )
             raise
         else:
-            run_epilogues(epilogues, testcase_method.__name__,
-                          *args, **epilogue_kwargs)
-
+            run_epilogues(
+                epilogues, testcase_method.__name__, *args, **epilogue_kwargs
+            )
 
     return testcase_with_post
 
@@ -647,11 +676,13 @@ def skip_if_testcase(*predicates):
     If any of the predicates returns true for a test case method
     then the method will be skipped.
     """
+
     def _skip_if_testcase_inner(klass):
         _validate_skip_if_predicates(predicates)
         for testcase_method in get_testcase_methods(klass):
             klass.__skip__[testcase_method.__name__] += predicates
         return klass
+
     return _skip_if_testcase_inner
 
 
@@ -717,10 +748,7 @@ def xfail(reason, strict=False):
     """
 
     def _xfail_test(test):
-        test.__xfail__ = {
-            'reason': reason,
-            'strict': strict
-        }
+        test.__xfail__ = {"reason": reason, "strict": strict}
         return test
 
     return _xfail_test

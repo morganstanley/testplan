@@ -13,15 +13,14 @@ def always_true(obj):
 
 @testsuite
 class MySuite(object):
-
     @testcase
     def test_log(self, env, result):
-        result.log('hello world')
-        result.log('hello python', description='log description')
+        result.log("hello world")
+        result.log("hello python", description="log description")
 
     @testcase
     def test_comparison(self, env, result):
-        result.equal(1, 1, 'equality description')
+        result.equal(1, 1, "equality description")
         result.not_equal(1, 2)
         result.less(1, 2)
         result.greater(2, 1)
@@ -35,23 +34,23 @@ class MySuite(object):
     @testcase
     def test_membership(self, env, result):
         result.contain(1, [1, 2, 3])
-        result.not_contain('foo', 'bar')
+        result.not_contain("foo", "bar")
 
     @testcase
     def test_regex(self, env, result):
-        result.regex.match('foo', 'foobar')
-        result.regex.not_match('foo', 'bar')
+        result.regex.match("foo", "foobar")
+        result.regex.not_match("foo", "bar")
 
     @testcase
     def test_group_assertions(self, env, result):
-        result.equal('foo', 'foo')
+        result.equal("foo", "foo")
 
-        with result.group('assertion group description') as my_group:
+        with result.group("assertion group description") as my_group:
             my_group.equal(1, 1)
-            my_group.regex.match('hello', 'hello world')
+            my_group.regex.match("hello", "hello world")
 
-            with my_group.group('sub group description') as sub_group:
-                sub_group.equal('foo', 'foo')
+            with my_group.group("sub group description") as sub_group:
+                sub_group.equal("foo", "foo")
 
     @testcase
     def test_summary_assertions(self, env, result):
@@ -66,242 +65,230 @@ class MySuite(object):
 
     @testcase
     def test_exception_assertions(self, env, result):
-        with result.raises(KeyError, description='key error description'):
-            {}['foo']
+        with result.raises(KeyError, description="key error description"):
+            {}["foo"]
 
         with result.not_raises(TypeError):
-            {}['foo']
+            {}["foo"]
 
-        with result.raises(TypeError, pattern='hello'):
-            raise TypeError('hello world')
+        with result.raises(TypeError, pattern="hello"):
+            raise TypeError("hello world")
 
         class MyException(Exception):
-
             def __init__(self, num, msg):
                 super(MyException, self).__init__(msg)
                 self.num = num
 
         with result.raises(MyException, func=lambda exc: exc.num % 2 == 0):
-            raise MyException(4, 'exception msg')
+            raise MyException(4, "exception msg")
 
     @testcase
     def test_equal_slices_assertions(self, env, result):
         result.equal_slices(
-            expected=['a', 'b', 3, 4],
+            expected=["a", "b", 3, 4],
             actual=[1, 2, 3, 4],
             slices=[slice(2, None)],
-            description='passing equal slices'
+            description="passing equal slices",
         )
 
         result.equal_exclude_slices(
-            expected=['a', 'b', 3, 4],
+            expected=["a", "b", 3, 4],
             actual=[1, 2, 3, 4],
             slices=[slice(0, 2)],
-            description='passing equal exclude slices'
+            description="passing equal exclude slices",
         )
 
     @testcase
     def test_diff_assertions(self, env, result):
         result.diff(
-            first='abc\nxyz\n',
-            second='abc\nxyz\n',
-            description = 'no difference found'
+            first="abc\nxyz\n",
+            second="abc\nxyz\n",
+            description="no difference found",
         )
 
         result.diff(
-            first='abc \nxy z\n',
-            second='abc\r\nxy\tz\r\n',
+            first="abc \nxy z\n",
+            second="abc\r\nxy\tz\r\n",
             ignore_space_change=True,
             context=True,
-            description = 'no difference found with option -b'
+            description="no difference found with option -b",
         )
 
     @testcase
     def test_column_contain(self, env, result):
         table = [
-            ['foo', 'bar'],
+            ["foo", "bar"],
             [1, 2],
             [10, 20],
             [30, 40],
             [0, 0],
             [100, 200],
             [1000, 2000],
-            [10000, 20000]
+            [10000, 20000],
         ]
 
         result.table.column_contain(
             table=table,
-            column='foo',
+            column="foo",
             values=[1, 5, 10, 30, 50],
-            description='column contain passing',
+            description="column contain passing",
             limit=3,
         )
 
     @testcase
     def test_table_match(self, env, result):
         table = [
-            ['name', 'value'],
-            ['aaa', 1],
-            ['bbb', 2],
-            ['ccc', 3],
-            ['ddd', 4],
+            ["name", "value"],
+            ["aaa", 1],
+            ["bbb", 2],
+            ["ccc", 3],
+            ["ddd", 4],
         ]
 
         result.table.match(
-            actual=table,
-            expected=table,
-            description='basic table match')
+            actual=table, expected=table, description="basic table match"
+        )
 
         result.table.match(
-            actual=table,
-            expected=table[:-1] + [[always_true, 4]])
+            actual=table, expected=table[:-1] + [[always_true, 4]]
+        )
 
         result.table.match(
-            actual=table,
-            expected=table[:-1] + [[re.compile(r'd+'), 4]])
+            actual=table, expected=table[:-1] + [[re.compile(r"d+"), 4]]
+        )
 
         table_2 = [
-            ['name', 'value', 'is_finished'],
-            ['aaa', 10, True],
-            ['bbb', 20, False],
-            ['ccc', 30, True],
-            ['ddd', 40, False],
+            ["name", "value", "is_finished"],
+            ["aaa", 10, True],
+            ["bbb", 20, False],
+            ["ccc", 30, True],
+            ["ddd", 40, False],
         ]
 
         result.table.match(
             actual=table_2,
             expected=table,
-            include_columns=['name'],
-            report_all=False
-        )
-
-        result.table.match(
-            actual=table_2,
-            expected=table,
-            include_columns=['name'],
-            report_all=True,
-        )
-
-        result.table.match(
-            actual=table_2,
-            expected=table,
-            exclude_columns=['value', 'is_finished'],
+            include_columns=["name"],
             report_all=False,
         )
 
         result.table.match(
             actual=table_2,
             expected=table,
-            exclude_columns=['value', 'is_finished'],
+            include_columns=["name"],
+            report_all=True,
+        )
+
+        result.table.match(
+            actual=table_2,
+            expected=table,
+            exclude_columns=["value", "is_finished"],
+            report_all=False,
+        )
+
+        result.table.match(
+            actual=table_2,
+            expected=table,
+            exclude_columns=["value", "is_finished"],
             report_all=True,
         )
 
     @testcase
     def test_table_diff(self, env, result):
         table = [
-            ['name', 'value'],
-            ['aaa', 1],
-            ['bbb', 2],
-            ['ccc', 3],
-            ['ddd', 4],
+            ["name", "value"],
+            ["aaa", 1],
+            ["bbb", 2],
+            ["ccc", 3],
+            ["ddd", 4],
         ]
 
         result.table.diff(
-            actual=table,
-            expected=table,
-            description='basic table diff')
+            actual=table, expected=table, description="basic table diff"
+        )
 
         result.table.diff(
-            actual=table,
-            expected=table[:-1] + [[always_true, 4]])
+            actual=table, expected=table[:-1] + [[always_true, 4]]
+        )
 
         result.table.diff(
-            actual=table,
-            expected=table[:-1] + [[re.compile(r'd+'), 4]])
+            actual=table, expected=table[:-1] + [[re.compile(r"d+"), 4]]
+        )
 
         table_2 = [
-            ['name', 'value', 'is_finished'],
-            ['aaa', 10, True],
-            ['bbb', 20, False],
-            ['ccc', 30, True],
-            ['ddd', 40, False],
+            ["name", "value", "is_finished"],
+            ["aaa", 10, True],
+            ["bbb", 20, False],
+            ["ccc", 30, True],
+            ["ddd", 40, False],
         ]
 
         result.table.diff(
             actual=table_2,
             expected=table,
-            include_columns=['name'],
-            report_all=False
-        )
-
-        result.table.diff(
-            actual=table_2,
-            expected=table,
-            include_columns=['name'],
-            report_all=True,
-        )
-
-        result.table.diff(
-            actual=table_2,
-            expected=table,
-            exclude_columns=['value', 'is_finished'],
+            include_columns=["name"],
             report_all=False,
         )
 
         result.table.diff(
             actual=table_2,
             expected=table,
-            exclude_columns=['value', 'is_finished'],
+            include_columns=["name"],
+            report_all=True,
+        )
+
+        result.table.diff(
+            actual=table_2,
+            expected=table,
+            exclude_columns=["value", "is_finished"],
+            report_all=False,
+        )
+
+        result.table.diff(
+            actual=table_2,
+            expected=table,
+            exclude_columns=["value", "is_finished"],
             report_all=True,
         )
 
     @testcase
     def test_table_log(self, env, result):
         table = [
-            ['name', 'value'],
-            ['aaa', 1],
-            ['bbb', 2],
-            ['ccc', 3],
-            ['ddd', 4],
+            ["name", "value"],
+            ["aaa", 1],
+            ["bbb", 2],
+            ["ccc", 3],
+            ["ddd", 4],
         ]
 
-        result.table.log(
-            table=table,
-            description='basic table log'
-        )
+        result.table.log(table=table, description="basic table log")
 
-        result.table.log(
-            table=table,
-            display_index=True
-        )
+        result.table.log(table=table, display_index=True)
 
     @testcase
     def test_xml_check(self, env, result):
 
         # Passing assertions
         result.xml.check(
-            element='<Root><Test>Foo</Test></Root>',
-            xpath='/Root/Test',
-            description='basic XML check'
+            element="<Root><Test>Foo</Test></Root>",
+            xpath="/Root/Test",
+            description="basic XML check",
         )
 
         result.xml.check(
-            element='<Root><Test>Value1</Test><Test>Value2</Test></Root>',
-            xpath='/Root/Test',
-            tags=['Value1', 'Value2'],
+            element="<Root><Test>Value1</Test><Test>Value2</Test></Root>",
+            xpath="/Root/Test",
+            tags=["Value1", "Value2"],
         )
 
         result.xml.check(
-            element='<Root><Test>Value1</Test><Test>Value2</Test></Root>',
-            xpath='/Root/Test',
-            tags=[
-                cmp.In(['a', 'b', 'Value1']),
-                re.compile('.*lue2')
-            ],
+            element="<Root><Test>Value1</Test><Test>Value2</Test></Root>",
+            xpath="/Root/Test",
+            tags=[cmp.In(["a", "b", "Value1"]), re.compile(".*lue2")],
         )
 
         result.xml.check(
-            element='''
+            element="""
                 <SOAP-ENV:Envelope
                    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
                     <SOAP-ENV:Header/>
@@ -310,9 +297,9 @@ class MySuite(object):
                          xmlns:ns0="http://testplan">Hello world!</ns0:message>
                       </SOAP-ENV:Body>
                 </SOAP-ENV:Envelope>
-            ''',
-            xpath='//*/a:message',
-            tags=['Hello*'],
+            """,
+            xpath="//*/a:message",
+            tags=["Hello*"],
             namespaces={"a": "http://testplan"},
         )
 
@@ -320,38 +307,37 @@ class MySuite(object):
     def test_dict_check(self, env, result):
 
         result.dict.check(
-            dictionary={'foo': 1, 'bar': 2},
-            has_keys=['foo'], absent_keys=['baz'],
-            description='basic dict check'
+            dictionary={"foo": 1, "bar": 2},
+            has_keys=["foo"],
+            absent_keys=["baz"],
+            description="basic dict check",
         )
 
     @testcase
     def test_dict_match(self, env, result):
 
         result.dict.match(
-            actual={'foo': 1, 'bar': 2, 'baz': 2},
-            expected={'foo': 1, 'bar': 2, 'bat': 3},
-            description='basic dict match',
-            actual_description='description for actual',
-            expected_description='description for expected',
-            include_keys=['foo', 'bar'],
-            exclude_keys=['baz', 'bat']
+            actual={"foo": 1, "bar": 2, "baz": 2},
+            expected={"foo": 1, "bar": 2, "bat": 3},
+            description="basic dict match",
+            actual_description="description for actual",
+            expected_description="description for expected",
+            include_keys=["foo", "bar"],
+            exclude_keys=["baz", "bat"],
         )
 
         result.dict.match(
-            actual={'foo': 1, 'bar': 'hello'},
-            expected={
-                'foo': cmp.Equal(1),
-                'bar': re.compile('he*')
-            },
-            description='match with regex & custom func'
+            actual={"foo": 1, "bar": "hello"},
+            expected={"foo": cmp.Equal(1), "bar": re.compile("he*")},
+            description="match with regex & custom func",
         )
 
         result.dict.match(
-            actual={'foo': 1, 'bar': '2'},
-            expected={'foo': 1, 'bar': '2'},
-            description='dict match checking types',
-            value_cmp_func=cmp.COMPARE_FUNCTIONS['check_types'])
+            actual={"foo": 1, "bar": "2"},
+            expected={"foo": 1, "bar": "2"},
+            description="dict match checking types",
+            value_cmp_func=cmp.COMPARE_FUNCTIONS["check_types"],
+        )
 
         class AlwaysComparesTrue(object):
             """Object that compares equal to any other object."""
@@ -360,123 +346,133 @@ class MySuite(object):
                 return True
 
         result.dict.match(
-            actual={'foo': 1, 'bar': 2},
-            expected={'foo': AlwaysComparesTrue(),
-                      'bar': AlwaysComparesTrue()},
-            description='comparison of different types')
+            actual={"foo": 1, "bar": 2},
+            expected={
+                "foo": AlwaysComparesTrue(),
+                "bar": AlwaysComparesTrue(),
+            },
+            description="comparison of different types",
+        )
 
         class HelloObj(object):
             """Object that returns 'hello' as its str() representation."""
 
             def __str__(self):
-                return 'hello'
+                return "hello"
 
         result.dict.match(
-            actual={'foo': 1, 'bar': 'hello'},
-            expected={'foo': '1', 'bar': HelloObj()},
-            description='match with stringify method',
-            value_cmp_func=cmp.COMPARE_FUNCTIONS['stringify'])
+            actual={"foo": 1, "bar": "hello"},
+            expected={"foo": "1", "bar": HelloObj()},
+            description="match with stringify method",
+            value_cmp_func=cmp.COMPARE_FUNCTIONS["stringify"],
+        )
 
     @testcase
     def test_dict_match_all(self, env, result):
         result.dict.match_all(
-            values=[
-                {'foo': 1, 'bar': 2},
-                {'foo': 10, 'bar': 20}
-            ],
+            values=[{"foo": 1, "bar": 2}, {"foo": 10, "bar": 20}],
             comparisons=[
-                cmp.Expected({'foo': 10, 'bar': 20}),
-                cmp.Expected({'foo': 1, 'bar': 2}),
+                cmp.Expected({"foo": 10, "bar": 20}),
+                cmp.Expected({"foo": 1, "bar": 2}),
             ],
-            description='basic unordered dict match all'
+            description="basic unordered dict match all",
         )
 
     @testcase
     def test_dict_log(self, env, result):
-        result.dict.log({}, description='Log an empty dictionary')
+        result.dict.log({}, description="Log an empty dictionary")
 
-        result.dict.log(OrderedDict([
-            ('alpha', ['foobar', {'foo': 'bar'}]),
-            ('beta', 'hello world')
-        ]))
+        result.dict.log(
+            OrderedDict(
+                [
+                    ("alpha", ["foobar", {"foo": "bar"}]),
+                    ("beta", "hello world"),
+                ]
+            )
+        )
 
     @testcase
     def test_fix_check(self, env, result):
 
         result.fix.check(
-            msg={'foo': 1, 'bar': 2},
-            has_tags=['foo'], absent_tags=['baz'],
-            description='basic fix check'
+            msg={"foo": 1, "bar": 2},
+            has_tags=["foo"],
+            absent_tags=["baz"],
+            description="basic fix check",
         )
 
     @testcase
     def test_fix_match(self, env, result):
         result.fix.match(
-            actual={'foo': 1, 'bar': 2, 'baz': 2},
-            expected={'foo': 1, 'bar': 2, 'bat': 3},
-            description='basic fix match',
-            actual_description='description for actual',
-            expected_description='description for expected',
-            include_tags=['foo', 'bar'],
-            exclude_tags=['baz', 'bat']
+            actual={"foo": 1, "bar": 2, "baz": 2},
+            expected={"foo": 1, "bar": 2, "bat": 3},
+            description="basic fix match",
+            actual_description="description for actual",
+            expected_description="description for expected",
+            include_tags=["foo", "bar"],
+            exclude_tags=["baz", "bat"],
         )
 
         result.fix.match(
-            actual={'foo': 1, 'bar': 'hello'},
-            expected={
-                'foo': cmp.Equal(1),
-                'bar': re.compile('he*')
-            },
-            description='match with regex & custom func'
+            actual={"foo": 1, "bar": "hello"},
+            expected={"foo": cmp.Equal(1), "bar": re.compile("he*")},
+            description="match with regex & custom func",
         )
 
         result.fix.match(
-            actual={'foo': 1, 'bar': 1.54},
-            expected={'foo': '1', 'bar': '1.54'},
-            description='default untyped fixmatch will stringify')
+            actual={"foo": 1, "bar": 1.54},
+            expected={"foo": "1", "bar": "1.54"},
+            description="default untyped fixmatch will stringify",
+        )
 
         typed_fixmsg = test_utils.FixMessage(
-            (('foo', 1), ('bar', 1.54)), typed_values=True)
+            (("foo", 1), ("bar", 1.54)), typed_values=True
+        )
         result.fix.match(
             actual=typed_fixmsg,
             expected=typed_fixmsg.copy(),
-            description='typed fixmatch will compare types')
+            description="typed fixmatch will compare types",
+        )
 
         untyped_fixmsg = test_utils.FixMessage(
-            (('foo', '1'), ('bar', '1.54')), typed_values=False)
+            (("foo", "1"), ("bar", "1.54")), typed_values=False
+        )
         result.fix.match(
             actual=typed_fixmsg,
             expected=untyped_fixmsg,
-            description='mixed fixmatch will compare string values')
+            description="mixed fixmatch will compare string values",
+        )
 
     @testcase
     def test_fix_match_all(self, env, result):
         result.fix.match_all(
             values=[
-                test_utils.FixMessage([(10914, 'c1dec2c5'),
-                                       (38, '500'),
-                                       (44, '9')],
-                                      typed_values=False),
-                test_utils.FixMessage([(10914, 'f3ea6276'),
-                                       (38, 501),
-                                       (44, 9.1)],
-                                      typed_values=True),
+                test_utils.FixMessage(
+                    [(10914, "c1dec2c5"), (38, "500"), (44, "9")],
+                    typed_values=False,
+                ),
+                test_utils.FixMessage(
+                    [(10914, "f3ea6276"), (38, 501), (44, 9.1)],
+                    typed_values=True,
+                ),
             ],
             comparisons=[
                 cmp.Expected(
-                    test_utils.FixMessage([(10914, re.compile('.+')),
-                                           (38, 501),
-                                           (44, 9.10)],
-                                          typed_values=True)),
+                    test_utils.FixMessage(
+                        [(10914, re.compile(".+")), (38, 501), (44, 9.10)],
+                        typed_values=True,
+                    )
+                ),
                 cmp.Expected(
-                    test_utils.FixMessage([(10914, 'c1dec2c5'),
-                                           (38, '500'),
-                                           (44, 9.0)],
-                                          typed_values=True)),
+                    test_utils.FixMessage(
+                        [(10914, "c1dec2c5"), (38, "500"), (44, 9.0)],
+                        typed_values=True,
+                    )
+                ),
             ],
-            description='untyped / unordered fix match all'
+            description="untyped / unordered fix match all",
         )
 
 
 def make_multitest():
-    return MultiTest(name='MyMultitest', suites=[MySuite()])
+    return MultiTest(name="MyMultitest", suites=[MySuite()])

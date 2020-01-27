@@ -10,14 +10,14 @@ from testplan.testing import multitest
 
 @multitest.testsuite
 class Suite1(object):
-
     def __init__(self, attachment_filepath):
         self._attachment_filepath = attachment_filepath
 
     @multitest.testcase
     def attach(self, env, result):
-        result.attach(self._attachment_filepath,
-                      description="attaching a file")
+        result.attach(
+            self._attachment_filepath, description="attaching a file"
+        )
 
 
 # NOTE: Suite 1 and 2 are identical except for their name. Unfortunately it is
@@ -28,33 +28,36 @@ class Suite1(object):
 # again.
 @multitest.testsuite
 class Suite2(object):
-
     def __init__(self, attachment_filepath):
         self._attachment_filepath = attachment_filepath
 
     @multitest.testcase
     def attach(self, env, result):
-        result.attach(self._attachment_filepath,
-                      description="attaching a file")
+        result.attach(
+            self._attachment_filepath, description="attaching a file"
+        )
 
 
 @pytest.fixture(scope="function")
 def attachment_plan(tmpdir):
     attachment_path = str(tmpdir.join("attachment.txt"))
-    with open(attachment_path , "w") as f:
+    with open(attachment_path, "w") as f:
         f.write("testplan\n" * 100)
 
     plan = testplan.Testplan(name="AttachmentPlan", parse_cmdline=False)
-    plan.add(multitest.MultiTest(
-            name="AttachmentTest",
-            suites=[Suite1(attachment_path)]))
+    plan.add(
+        multitest.MultiTest(
+            name="AttachmentTest", suites=[Suite1(attachment_path)]
+        )
+    )
     return plan
 
 
 @pytest.fixture(scope="function")
 def multi_attachments_plan(tmpdir):
-    attachment_paths = [str(tmpdir.join("attachment{}.txt".format(i)))
-                        for i in range(2)]
+    attachment_paths = [
+        str(tmpdir.join("attachment{}.txt".format(i))) for i in range(2)
+    ]
 
     # Write different content to each file to ensure they get a unique hash.
     for i, attachment_path in enumerate(attachment_paths):
@@ -62,9 +65,12 @@ def multi_attachments_plan(tmpdir):
             f.write("testplan{}\n".format(i) * 100)
 
     plan = testplan.Testplan(name="AttachmentPlan", parse_cmdline=False)
-    plan.add(multitest.MultiTest(
+    plan.add(
+        multitest.MultiTest(
             name="AttachmentTest",
-            suites=[Suite1(attachment_paths[0]), Suite2(attachment_paths[1])]))
+            suites=[Suite1(attachment_paths[0]), Suite2(attachment_paths[1])],
+        )
+    )
     return plan
 
 
@@ -75,9 +81,12 @@ def same_attachments_plan(tmpdir):
         f.write("testplan\n" * 100)
 
     plan = testplan.Testplan(name="AttachmentPlan", parse_cmdline=False)
-    plan.add(multitest.MultiTest(
+    plan.add(
+        multitest.MultiTest(
             name="AttachmentTest",
-            suites=[Suite1(attachment_path), Suite2(attachment_path)]))
+            suites=[Suite1(attachment_path), Suite2(attachment_path)],
+        )
+    )
     return plan
 
 
@@ -115,23 +124,25 @@ def test_multi_attachments(multi_attachments_plan):
     attachments = report.attachments
     assert len(attachments) == 2  # Two unique file attachments
 
-    testcase_reports = [suite_report.entries[0]
-                        for suite_report in report.entries[0].entries]
+    testcase_reports = [
+        suite_report.entries[0] for suite_report in report.entries[0].entries
+    ]
     assert len(testcase_reports) == 2
 
-    attachment_entries = [testcase_report.entries[0]
-                          for testcase_report in testcase_reports]
+    attachment_entries = [
+        testcase_report.entries[0] for testcase_report in testcase_reports
+    ]
     assert len(attachment_entries) == 2
 
     for entry in attachment_entries:
-        dst_path = entry['dst_path']
+        dst_path = entry["dst_path"]
 
         # Expect the attachment to be stored as
         # "attachmenti-[HASH]-[FILESIZE].txt"
         assert re.match(r"attachment\d-[0-9a-f]+-[0-9]+.txt", dst_path)
 
         # Check that the source and dst paths match.
-        assert attachments[dst_path] == entry['source_path']
+        assert attachments[dst_path] == entry["source_path"]
 
 
 def test_same_attachments(same_attachments_plan):
@@ -147,12 +158,14 @@ def test_same_attachments(same_attachments_plan):
     attachments = report.attachments
     assert len(attachments) == 1  # Only one unique file is attached.
 
-    testcase_reports = [suite_report.entries[0]
-                        for suite_report in report.entries[0].entries]
+    testcase_reports = [
+        suite_report.entries[0] for suite_report in report.entries[0].entries
+    ]
     assert len(testcase_reports) == 2
 
-    attachment_entries = [testcase_report.entries[0]
-                          for testcase_report in testcase_reports]
+    attachment_entries = [
+        testcase_report.entries[0] for testcase_report in testcase_reports
+    ]
     assert len(attachment_entries) == 2
 
     dst_path = list(attachments.keys())[0]
@@ -162,4 +175,3 @@ def test_same_attachments(same_attachments_plan):
 
     for attachment_entry in attachment_entries:
         assert attachments[dst_path] == attachment_entry["source_path"]
-

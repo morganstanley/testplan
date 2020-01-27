@@ -24,10 +24,12 @@ OUTPUT_STYLE = Style(StyleEnum.ASSERTION_DETAIL, StyleEnum.ASSERTION_DETAIL)
 # downloadable example gives meaningful and presentable output.
 # NOTE: this programmatic arguments passing approach will cause Testplan
 # to ignore any command line arguments related to that functionality.
-@test_plan(name='FIXCommunication',
-           pdf_path='report.pdf',
-           stdout_style=OUTPUT_STYLE,
-           pdf_style=OUTPUT_STYLE)
+@test_plan(
+    name="FIXCommunication",
+    pdf_path="report.pdf",
+    stdout_style=OUTPUT_STYLE,
+    pdf_style=OUTPUT_STYLE,
+)
 def main(plan):
     """
     Testplan decorated main function to add and execute MultiTests.
@@ -39,7 +41,7 @@ def main(plan):
     plan.add(over_two_sessions.get_multitest())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     res = main()
-    print('Exiting code: {}'.format(res.exit_code))
+    print("Exiting code: {}".format(res.exit_code))
     sys.exit(res.exit_code)

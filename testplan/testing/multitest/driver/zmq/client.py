@@ -23,11 +23,12 @@ class ZMQClientConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            'hosts': Or(*make_iterables([str, ContextValue])),
-            'ports': Or(*make_iterables([int, ContextValue])),
-            Optional('message_pattern', default=zmq.PAIR):
-                Or(zmq.PAIR, zmq.REQ, zmq.SUB, zmq.PULL),
-            Optional('connect_at_start', default=True): bool
+            "hosts": Or(*make_iterables([str, ContextValue])),
+            "ports": Or(*make_iterables([int, ContextValue])),
+            Optional("message_pattern", default=zmq.PAIR): Or(
+                zmq.PAIR, zmq.REQ, zmq.SUB, zmq.PULL
+            ),
+            Optional("connect_at_start", default=True): bool,
         }
 
 
@@ -60,7 +61,8 @@ class ZMQClient(Driver):
 
     CONFIG = ZMQClientConfig
 
-    def __init__(self,
+    def __init__(
+        self,
         name,
         hosts,
         ports,
@@ -92,8 +94,11 @@ class ZMQClient(Driver):
         for i, host in enumerate(self.cfg.hosts):
             self._hosts.append(expand(host, self.context))
             self._ports.append(expand(self.cfg.ports[i], self.context, int))
-            self._socket.connect('tcp://{host}:{port}'.format(
-                host=self._hosts[i], port=self._ports[i]))
+            self._socket.connect(
+                "tcp://{host}:{port}".format(
+                    host=self._hosts[i], port=self._ports[i]
+                )
+            )
 
     def disconnect(self):
         """
@@ -104,10 +109,13 @@ class ZMQClient(Driver):
             return
         for i, host in enumerate(self._hosts):
             try:
-                self._socket.disconnect('tcp://{host}:{port}'.format(
-                    host=host, port=self._ports[i]))
+                self._socket.disconnect(
+                    "tcp://{host}:{port}".format(
+                        host=host, port=self._ports[i]
+                    )
+                )
             except zmq.ZMQError as exc:
-                if str(exc) != 'No such file or directory':
+                if str(exc) != "No such file or directory":
                     raise exc
 
     def reconnect(self):
@@ -129,10 +137,13 @@ class ZMQClient(Driver):
         :return: ``None``
         :rtype: ``NoneType``
         """
-        return retry_until_timeout(exception=zmq.ZMQError,
-                                   item=self._socket.send,
-                                   kwargs={'data': data, 'flags': zmq.NOBLOCK},
-                                   timeout=timeout, raise_on_timeout=True)
+        return retry_until_timeout(
+            exception=zmq.ZMQError,
+            item=self._socket.send,
+            kwargs={"data": data, "flags": zmq.NOBLOCK},
+            timeout=timeout,
+            raise_on_timeout=True,
+        )
 
     def receive(self, timeout=30):
         """
@@ -145,10 +156,13 @@ class ZMQClient(Driver):
         :return: The received message.
         :rtype: ``bytes`` or ``zmq.sugar.frame.Frame`` or ``memoryview``
         """
-        return retry_until_timeout(exception=zmq.ZMQError,
-                                   item=self._socket.recv,
-                                   kwargs={'flags': zmq.NOBLOCK},
-                                   timeout=timeout, raise_on_timeout=True)
+        return retry_until_timeout(
+            exception=zmq.ZMQError,
+            item=self._socket.recv,
+            kwargs={"flags": zmq.NOBLOCK},
+            timeout=timeout,
+            raise_on_timeout=True,
+        )
 
     def subscribe(self, topic_filter):
         """

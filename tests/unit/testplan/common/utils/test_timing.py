@@ -15,30 +15,29 @@ def test_interval():
 
 
 class TestTimer(object):
-
     def test_start(self):
         """`Timer.start` should create an `Interval` that has `start` attribute set."""
         timer = Timer()
 
-        assert 'my_key' not in timer
+        assert "my_key" not in timer
 
         prev_now = utcnow()
         time.sleep(0.001)
 
-        timer.start('my_key')
+        timer.start("my_key")
 
-        assert prev_now < timer['my_key'].start
-        assert timer['my_key'].end is None
+        assert prev_now < timer["my_key"].start
+        assert timer["my_key"].end is None
 
     def test_start_fail(self):
         """`Timer.start` should fail if it was already called before for the given key."""
         timer = Timer()
 
-        with timer.record('my_key'):
+        with timer.record("my_key"):
             pass
 
         with pytest.raises(ValueError):
-            timer.start('my_key')
+            timer.start("my_key")
 
     def test_end(self):
         """`timer.end` should update the matching `Interval.end` for the given key."""
@@ -46,30 +45,30 @@ class TestTimer(object):
 
         # Explicitly set value for testing
         # don't care about start
-        timer['my_key'] = Interval('foo', None)
+        timer["my_key"] = Interval("foo", None)
 
         prev_now = utcnow()
 
         time.sleep(0.001)
 
-        timer.end('my_key')
+        timer.end("my_key")
 
-        assert prev_now < timer['my_key'].end
+        assert prev_now < timer["my_key"].end
 
     def test_end_overwrite(self):
         """`timer.end` should overwrite previous `end` value for the given key."""
         timer = Timer()
 
-        with timer.record('my_key'):
+        with timer.record("my_key"):
             pass
 
-        prev_end = timer['my_key'].end
+        prev_end = timer["my_key"].end
 
         time.sleep(0.001)
 
-        timer.end('my_key')
+        timer.end("my_key")
 
-        new_end = timer['my_key'].end
+        new_end = timer["my_key"].end
 
         assert new_end > prev_end
 
@@ -78,7 +77,7 @@ class TestTimer(object):
         timer = Timer()
 
         with pytest.raises(KeyError):
-            timer.end('my_key')
+            timer.end("my_key")
 
     def test_record(self):
         """`Timer.record` should record an interval for the given context."""
@@ -89,7 +88,7 @@ class TestTimer(object):
             time.sleep(sleep_duration)
 
         timer = Timer()
-        with timer.record('my_key'):
+        with timer.record("my_key"):
             sleeper()
 
         # TODO check why 1 (sleep_durtion) <= 0.9999 (elapsed)

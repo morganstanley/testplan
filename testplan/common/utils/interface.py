@@ -9,6 +9,7 @@ class MethodSignature(object):
     """
     Encapsulates a method signature
     """
+
     def __init__(self, name, args, varargs=None, keywords=None, defaults=None):
         """
         Construct a MethodSignature.
@@ -43,11 +44,13 @@ class MethodSignature(object):
         :return: new MethodSignature instance
         """
         argspec = getargspec(func)
-        return cls(func.__name__,
-                   argspec.args,
-                   argspec.varargs,
-                   argspec.keywords,
-                   argspec.defaults)
+        return cls(
+            func.__name__,
+            argspec.args,
+            argspec.varargs,
+            argspec.keywords,
+            argspec.defaults,
+        )
 
     def __eq__(self, rhs):
         """
@@ -59,10 +62,12 @@ class MethodSignature(object):
         :return: True if self and rhs are equivalent, False otherwise
         :rtype: C{bool}
         """
-        return ((self.name == rhs.name) and
-                (self.args == rhs.args) and
-                (self.varargs == rhs.varargs) and
-                (self.keywords == rhs.keywords))
+        return (
+            (self.name == rhs.name)
+            and (self.args == rhs.args)
+            and (self.varargs == rhs.varargs)
+            and (self.keywords == rhs.keywords)
+        )
 
     def __ne__(self, rhs):
         """
@@ -83,6 +88,7 @@ class MethodSignature(object):
         :return: string representation for the MethodSignature
         :rtype: ``str``
         """
+
         def args_with_defaults(args, defaults):
             """
             Args to string, with defaults inserted where appropriate
@@ -95,6 +101,7 @@ class MethodSignature(object):
             :return: string representation of the signature arguments
             :rtype: ``str``
             """
+
             def argument(arg, default):
                 """
                 Arg=Default pair if Default is present
@@ -107,30 +114,38 @@ class MethodSignature(object):
                 :return: string representation
                 :rtype: ``str``
                 """
-                return '{0}={1}'.format(arg, default) if default else arg
-            return ', '.join(reversed(
-                [argument(arg, default) for arg, default in zip_longest(
-                    reversed(args),
-                    reversed(defaults))]))
+                return "{0}={1}".format(arg, default) if default else arg
 
-        args = ''.join([
-            args_with_defaults(self.args, self.defaults),
-            ', *{0}'.format(
-                self.varargs) if self.varargs else '',
-            ', **{0}'.format(
-                self.keywords) if self.keywords else ''
-        ])
+            return ", ".join(
+                reversed(
+                    [
+                        argument(arg, default)
+                        for arg, default in zip_longest(
+                            reversed(args), reversed(defaults)
+                        )
+                    ]
+                )
+            )
 
-        return '{0}({1})'.format(self.name, args)
+        args = "".join(
+            [
+                args_with_defaults(self.args, self.defaults),
+                ", *{0}".format(self.varargs) if self.varargs else "",
+                ", **{0}".format(self.keywords) if self.keywords else "",
+            ]
+        )
+
+        return "{0}({1})".format(self.name, args)
 
     def __repr__(self):
-        return '<{}> - {}'.format(self.__class__.__name__, self.__str__())
+        return "<{}> - {}".format(self.__class__.__name__, self.__str__())
 
 
 class NoSuchMethodInClass(Exception):
     """
     NoSuchMethodInClass Exception
     """
+
     pass
 
 
@@ -138,6 +153,7 @@ class MethodSignatureMismatch(Exception):
     """
     MethodSignatureMismatch Exception
     """
+
     pass
 
 
@@ -156,6 +172,7 @@ def check_signature(func, args_list):
     refsig = MethodSignature(func.__name__, args_list)
     actualsig = MethodSignature.from_callable(func)
     if refsig != actualsig:
-        raise MethodSignatureMismatch('Expected {0}, not {1}'.format(
-            refsig, actualsig))
+        raise MethodSignatureMismatch(
+            "Expected {0}, not {1}".format(refsig, actualsig)
+        )
     return True

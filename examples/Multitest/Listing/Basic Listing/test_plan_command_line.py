@@ -11,44 +11,41 @@ from testplan import test_plan
 
 @testsuite
 class Alpha(object):
-
     @testcase
     def test_a(self, env, result):
         pass
 
-    @testcase(tags='server')
+    @testcase(tags="server")
     def test_b(self, env, result):
         pass
 
-    @testcase(tags={'color': 'blue'})
+    @testcase(tags={"color": "blue"})
     def test_c(self, env, result):
         pass
 
 
-@testsuite(tags='server')
+@testsuite(tags="server")
 class Beta(object):
-
-    @testcase(tags='client')
+    @testcase(tags="client")
     def test_a(self, env, result):
         pass
 
-    @testcase(tags={'color': 'red'})
+    @testcase(tags={"color": "red"})
     def test_b(self, env, result):
         pass
 
-    @testcase(tags={'color': ('blue', 'yellow')})
+    @testcase(tags={"color": ("blue", "yellow")})
     def test_c(self, env, result):
         pass
 
 
-@testsuite(tags='client')
+@testsuite(tags="client")
 class Gamma(object):
-
     @testcase
     def test_a(self, env, result):
         pass
 
-    @testcase(tags={'color': ('yellow', 'red')})
+    @testcase(tags={"color": ("yellow", "red")})
     def test_b(self, env, result):
         pass
 
@@ -109,16 +106,15 @@ class Gamma(object):
 # `--info name --shuffle all --patterns Primary`
 # `--info pattern --patterns Primary --tags client color=blue`
 
-@test_plan(name='Command Line Listing Example')
+
+@test_plan(name="Command Line Listing Example")
 def main(plan):
 
-    multi_test_1 = MultiTest(name='Primary',
-                             suites=[Alpha(), Beta()])
-    multi_test_2 = MultiTest(name='Secondary',
-                             suites=[Gamma()])
+    multi_test_1 = MultiTest(name="Primary", suites=[Alpha(), Beta()])
+    multi_test_2 = MultiTest(name="Secondary", suites=[Gamma()])
     plan.add(multi_test_1)
     plan.add(multi_test_2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

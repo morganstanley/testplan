@@ -26,7 +26,7 @@ def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
 
     extracts_status = [False for _ in log_extracts]
 
-    with open(logpath, 'r') as log:
+    with open(logpath, "r") as log:
         for line in log:
             for pos, regexp in enumerate(log_extracts):
                 match = regexp.match(line)
@@ -36,7 +36,8 @@ def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
 
     if return_unmatched:
         unmatched = [
-            exc for idx, exc in enumerate(log_extracts)
+            exc
+            for idx, exc in enumerate(log_extracts)
             if not extracts_status[idx]
         ]
         return all(extracts_status), extracted_values, unmatched
@@ -113,10 +114,10 @@ class LogMatcher(logger.Loggable):
 
         # As a convenience, we create the compiled regex if a string was
         # passed.
-        if not hasattr(regex, 'match'):
+        if not hasattr(regex, "match"):
             regex = re.compile(regex)
 
-        with open(self.log_path, 'r') as log:
+        with open(self.log_path, "r") as log:
             log.seek(self.position)
 
             while match is None:
@@ -134,8 +135,8 @@ class LogMatcher(logger.Loggable):
 
         if match is None:
             raise timing.TimeoutException(
-                'No matches found in {}s'.format(timeout))
+                "No matches found in {}s".format(timeout)
+            )
         else:
-            self.logger.debug('Match found in %.2fs', time.time() - start_time)
+            self.logger.debug("Match found in %.2fs", time.time() - start_time)
         return match
-

@@ -10,8 +10,7 @@ from schema import Use
 from testplan.common.config import ConfigOption
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.sockets.fix.server import Server
-from testplan.common.utils.timing import (TimeoutException,
-                                          TimeoutExceptionInfo)
+from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 
 from ..base import Driver, DriverConfig
 
@@ -28,11 +27,11 @@ class FixServerConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            'msgclass': type,
-            'codec': object,
-            ConfigOption('host', default='localhost'): str,
-            ConfigOption('port', default=0): Use(int),
-            ConfigOption('version', default='FIX.4.2'): str
+            "msgclass": type,
+            "codec": object,
+            ConfigOption("host", default="localhost"): str,
+            ConfigOption("port", default=0): Use(int),
+            ConfigOption("version", default="FIX.4.2"): str,
         }
 
 
@@ -72,28 +71,29 @@ class FixServer(Driver):
 
     CONFIG = FixServerConfig
 
-    def __init__(self,
+    def __init__(
+        self,
         name,
         msgclass,
         codec,
-        host='localhost',
+        host="localhost",
         port=0,
-        version='FIX.4.2',
+        version="FIX.4.2",
         **options
     ):
         options.update(self.filter_locals(locals()))
 
-        if not hasattr(select, 'poll'):
+        if not hasattr(select, "poll"):
             raise RuntimeError(
-                'select.poll() is required for FixServer but is not available '
-                'on the current platform ({})'.format(platform.system())
+                "select.poll() is required for FixServer but is not available "
+                "on the current platform ({})".format(platform.system())
             )
 
         super(FixServer, self).__init__(**options)
         self._host = None
         self._port = None
         self._server = None
-        self._logname = '{0}.log'.format(slugify(self.cfg.name))
+        self._logname = "{0}.log".format(slugify(self.cfg.name))
 
     @property
     def logpath(self):
@@ -114,10 +114,14 @@ class FixServer(Driver):
         """Starts the TCP server."""
         super(FixServer, self).starting()
         self._setup_file_logger(self.logpath)
-        self._server = Server(msgclass=self.cfg.msgclass, codec=self.cfg.codec,
-                              host=self.cfg.host, port=self.cfg.port,
-                              version=self.cfg.version,
-                              logger=self.file_logger)
+        self._server = Server(
+            msgclass=self.cfg.msgclass,
+            codec=self.cfg.codec,
+            host=self.cfg.host,
+            port=self.cfg.port,
+            version=self.cfg.version,
+            logger=self.file_logger,
+        )
         self._server.start()
         self._host = self.cfg.host
         self._port = self._server.port
@@ -127,6 +131,7 @@ class FixServer(Driver):
         Docstring from Server.active_connections
         """
         return self._server.active_connections()
+
     active_connections.__doc__ = Server.active_connections.__doc__
 
     def is_connection_active(self, conn_name):
@@ -134,6 +139,7 @@ class FixServer(Driver):
         Docstring from Server.is_connection_active
         """
         return self._server.is_connection_active(conn_name)
+
     is_connection_active.__doc__ = Server.is_connection_active.__doc__
 
     def send(self, msg, conn_name=(None, None)):
@@ -141,6 +147,7 @@ class FixServer(Driver):
         Docstring from Server.send
         """
         return self._server.send(msg, conn_name)
+
     send.__doc__ = Server.send.__doc__
 
     def receive(self, conn_name=(None, None), timeout=60):
@@ -175,15 +182,20 @@ class FixServer(Driver):
             received = self._server.receive(conn_name, timeout=timeout or 0)
         except queue.Empty:
             self.logger.debug(
-                'Timed out waiting for message for {} seconds'.format(
-                    timeout or 0))
+                "Timed out waiting for message for {} seconds".format(
+                    timeout or 0
+                )
+            )
             if timeout is not None:
                 raise TimeoutException(
-                    'Timed out waiting for message on {0}. {1}'.format(
-                        self.cfg.name, timeout_info.msg()))
+                    "Timed out waiting for message on {0}. {1}".format(
+                        self.cfg.name, timeout_info.msg()
+                    )
+                )
 
-        self.file_logger.debug('Received from connection {} msg {}'.format(
-            conn_name, received))
+        self.file_logger.debug(
+            "Received from connection {} msg {}".format(conn_name, received)
+        )
         return received
 
     def flush(self):

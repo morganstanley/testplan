@@ -24,11 +24,10 @@ class TCPClientConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            'host': Or(str,
-                       lambda x: is_context(x)),
-            'port': Or(Use(int), lambda x: is_context(x)),
-            ConfigOption('interface', default=None): Or(None, tuple),
-            ConfigOption('connect_at_start', default=True): bool
+            "host": Or(str, lambda x: is_context(x)),
+            "port": Or(Use(int), lambda x: is_context(x)),
+            ConfigOption("interface", default=None): Or(None, tuple),
+            ConfigOption("connect_at_start", default=True): bool,
         }
 
 
@@ -61,7 +60,8 @@ class TCPClient(Driver):
 
     CONFIG = TCPClientConfig
 
-    def __init__(self,
+    def __init__(
+        self,
         name,
         host,
         port,
@@ -92,7 +92,7 @@ class TCPClient(Driver):
         self._client.connect()
         self._host, self._port = self._client.address
 
-    def send_text(self, msg, standard='utf-8'):
+    def send_text(self, msg, standard="utf-8"):
         """
         Encodes to bytes and calls
         :py:meth:`TCPClient.send
@@ -125,7 +125,7 @@ class TCPClient(Driver):
         """
         return self._client.send(msg)
 
-    def receive_text(self, standard='utf-8', **kwargs):
+    def receive_text(self, standard="utf-8", **kwargs):
         """
         Calls
         :py:meth:`TCPClient.receive
@@ -143,8 +143,10 @@ class TCPClient(Driver):
         except socket.timeout:
             if timeout is not None:
                 raise TimeoutException(
-                    'Timed out waiting for message on {0}. {1}'.format(
-                        self.cfg.name, timeout_info.msg()))
+                    "Timed out waiting for message on {0}. {1}".format(
+                        self.cfg.name, timeout_info.msg()
+                    )
+                )
         return received
 
     def reconnect(self):

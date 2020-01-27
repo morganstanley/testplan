@@ -14,8 +14,12 @@ from testplan.common.utils.strings import slugify
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import ExporterConfig
 
-from testplan.report import (TestCaseReport, TestGroupReport,
-                             ReportCategories, Status)
+from testplan.report import (
+    TestCaseReport,
+    TestGroupReport,
+    ReportCategories,
+    Status,
+)
 
 from ..base import Exporter
 from collections import Counter
@@ -51,9 +55,10 @@ class BaseRenderer(object):
 
         return E.testsuites(
             *testsuites,
-            tests=str(counter['total']),
-            errors=str(counter['error']),
-            failures=str(counter['failed']))
+            tests=str(counter["total"]),
+            errors=str(counter["error"]),
+            failures=str(counter["failed"])
+        )
 
     def get_testcase_reports(self, testsuite_report):
         """
@@ -70,7 +75,7 @@ class BaseRenderer(object):
                 for testcase in self.get_testcase_reports(child):
                     yield testcase
             else:
-                raise TypeError('Unsupported report type: {}'.format(child))
+                raise TypeError("Unsupported report type: {}".format(child))
 
     def render_testsuite(self, index, test_report, testsuite_report):
         """
@@ -79,26 +84,23 @@ class BaseRenderer(object):
         """
         cases = [
             self.render_testcase(
-                test_report,
-                testsuite_report,
-                testcase_report
+                test_report, testsuite_report, testcase_report
             )
-            for testcase_report in self.get_testcase_reports(testsuite_report)]
+            for testcase_report in self.get_testcase_reports(testsuite_report)
+        ]
 
         return E.testsuite(
             *cases,
             hostname=socket.gethostname(),
             id=str(index),
-            package='{}:{}'.format(
-                test_report.name, testsuite_report.name),
+            package="{}:{}".format(test_report.name, testsuite_report.name),
             name=testsuite_report.name,
-            errors=str(testsuite_report.counter['error']),
-            failures=str(testsuite_report.counter['failed']),
-            tests=str(testsuite_report.counter['total'])
+            errors=str(testsuite_report.counter["error"]),
+            failures=str(testsuite_report.counter["failed"]),
+            tests=str(testsuite_report.counter["total"])
         )
 
-    def render_testcase(
-        self, test_report, testsuite_report, testcase_report):
+    def render_testcase(self, test_report, testsuite_report, testcase_report):
         """
         Render a testcase with errors & failures within a `testcase`
         tag.
@@ -115,12 +117,11 @@ class BaseRenderer(object):
             *details,
             name=testcase_report.name,
             classname="{}:{}:{}".format(
-                test_report.name,
-                testsuite_report.name,
-                testcase_report.name
+                test_report.name, testsuite_report.name, testcase_report.name
             ),
-            time=str(testcase_report.timer['run'].elapsed)
-            if 'run' in testcase_report.timer else '0'
+            time=str(testcase_report.timer["run"].elapsed)
+            if "run" in testcase_report.timer
+            else "0"
         )
 
     def render_testcase_errors(self, testcase_report):
@@ -129,8 +130,9 @@ class BaseRenderer(object):
         report's logs.
         """
         return [
-            E.error(message=log['message'])
-            for log in testcase_report.logs if log['levelname'] == 'ERROR'
+            E.error(message=log["message"])
+            for log in testcase_report.logs
+            if log["levelname"] == "ERROR"
         ]
 
     def render_testcase_failures(self, testcase_report):
@@ -145,22 +147,21 @@ class BaseRenderer(object):
         flat_dicts = list(zip(*testcase_report.flattened_entries(depth=0)))[1]
 
         failed_assertions = [
-            entry for entry in flat_dicts
+            entry
+            for entry in flat_dicts
             # Only get failing assertions
-            if entry['meta_type'] == 'assertion' and
-            not entry['passed'] and
+            if entry["meta_type"] == "assertion" and not entry["passed"] and
             # Groups have no use in XML output
-            not entry['type'] in ('Group', 'Summary')
+            not entry["type"] in ("Group", "Summary")
         ]
 
         failures = []
         for entry in failed_assertions:
             failure = E.failure(
-                message=entry['description'] or entry['type'],
-                type='assertion'
+                message=entry["description"] or entry["type"], type="assertion"
             )
-            if entry['type'] == 'RawAssertion':
-                failure.text = etree.CDATA(entry['content'])
+            if entry["type"] == "RawAssertion":
+                failure.text = etree.CDATA(entry["content"])
             failures.append(failure)
 
         return failures
@@ -197,11 +198,13 @@ class MultiTestRenderer(BaseRenderer):
         for child in testsuite_report:
             if isinstance(child, TestCaseReport):
                 testcase_reports.append(child)
-            elif isinstance(child, TestGroupReport) and\
-                    child.category == ReportCategories.PARAMETRIZATION:
+            elif (
+                isinstance(child, TestGroupReport)
+                and child.category == ReportCategories.PARAMETRIZATION
+            ):
                 testcase_reports.extend(child.entries)
             else:
-                raise TypeError('Unsupported report type: {}'.format(child))
+                raise TypeError("Unsupported report type: {}".format(child))
         return testcase_reports
 
 
@@ -211,11 +214,10 @@ class XMLExporterConfig(ExporterConfig):
     :py:class:`XMLExporter <testplan.exporters.testing.xml.XMLExporter>`
     object.
     """
+
     @classmethod
     def get_options(cls):
-        return {
-            ConfigOption('xml_dir'): str
-        }
+        return {ConfigOption("xml_dir"): str}
 
 
 class XMLExporter(Exporter):
@@ -229,11 +231,10 @@ class XMLExporter(Exporter):
     Also inherits all
     :py:class:`~testplan.exporters.testing.base.Exporter` options.
     """
+
     CONFIG = XMLExporterConfig
 
-    renderer_map = {
-        ReportCategories.MULTITEST: MultiTestRenderer,
-    }
+    renderer_map = {ReportCategories.MULTITEST: MultiTestRenderer}
 
     def export(self, source):
         """
@@ -250,7 +251,7 @@ class XMLExporter(Exporter):
         files = set(os.listdir(xml_dir))
 
         for child_report in source:
-            filename = '{}.xml'.format(slugify(child_report.name))
+            filename = "{}.xml".format(slugify(child_report.name))
             filename = unique_name(filename, files)
             files.add(filename)
             file_path = os.path.join(xml_dir, filename)
@@ -260,21 +261,21 @@ class XMLExporter(Exporter):
             # already, meaning we don't need to re-generate the XML
             # contents, but can directly write the contents to a file
             # instead.
-            if hasattr(child_report, 'xml_string'):
-                with open(file_path, 'w') as xml_target:
+            if hasattr(child_report, "xml_string"):
+                with open(file_path, "w") as xml_target:
                     xml_target.write(child_report.xml_string)
             else:
-                renderer = self.renderer_map.get(child_report.category,
-                                                 BaseRenderer)()
+                renderer = self.renderer_map.get(
+                    child_report.category, BaseRenderer
+                )()
                 element = etree.ElementTree(renderer.render(child_report))
                 element.write(
                     file_path,
                     pretty_print=True,
                     xml_declaration=True,
-                    encoding='UTF-8'
+                    encoding="UTF-8",
                 )
 
         self.logger.exporter_info(
-            '%s XML files created at %s', len(source), os.path.abspath(xml_dir)
+            "%s XML files created at %s", len(source), os.path.abspath(xml_dir)
         )
-

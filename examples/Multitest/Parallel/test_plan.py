@@ -10,10 +10,12 @@ from testplan.report.testing.styles import Style, StyleEnum
 OUTPUT_STYLE = Style(StyleEnum.ASSERTION_DETAIL, StyleEnum.ASSERTION_DETAIL)
 
 
-@test_plan(name='ParallelMultiTest',
-           pdf_path='report.pdf',
-           stdout_style=OUTPUT_STYLE,
-           pdf_style=OUTPUT_STYLE)
+@test_plan(
+    name="ParallelMultiTest",
+    pdf_path="report.pdf",
+    stdout_style=OUTPUT_STYLE,
+    pdf_style=OUTPUT_STYLE,
+)
 def main(plan):
     """
     Testplan decorated main function. Adds a single parallel MultiTest to the
@@ -22,8 +24,8 @@ def main(plan):
     :param plan: Plan to add MultiTest to.
     :return: Results of tests.
     """
-    plan.schedule(target='make_multitest', module='parallel_tasks')
+    plan.schedule(target="make_multitest", module="parallel_tasks")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main().exit_code)

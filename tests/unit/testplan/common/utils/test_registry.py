@@ -11,5 +11,5 @@ def test_registry():
     class OtherClass(object):
         pass
 
-    assert reg.data[MyClass] is OtherClass, 'bind operation failed'
-    assert reg[MyClass()] is OtherClass, 'obj lookup failed'
+    assert reg.data[MyClass] is OtherClass, "bind operation failed"
+    assert reg[MyClass()] is OtherClass, "obj lookup failed"

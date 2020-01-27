@@ -1,5 +1,6 @@
 import operator
 import decimal
+
 try:
     from collections.abc import Mapping, Iterable
 except ImportError:
@@ -14,7 +15,7 @@ from .reporting import Absent, fmt, NATIVE_TYPES, callable_name
 
 def is_regex(obj):
     """Cannot do type check against SRE_Pattern, so we use duck typing."""
-    return hasattr(obj, 'match') and hasattr(obj, 'pattern')
+    return hasattr(obj, "match") and hasattr(obj, "pattern")
 
 
 def basic_compare(first, second, strict=False):
@@ -51,7 +52,8 @@ def check_dict_keys(data, has_keys=None, absent_keys=None):
 
     if not (has_keys or absent_keys):
         raise ValueError(
-            'Either `has_keys` or `absent_keys` must be provided.')
+            "Either `has_keys` or `absent_keys` must be provided."
+        )
 
     keys = set(data.keys())
     has_keys = set(has_keys) if has_keys else set()
@@ -100,47 +102,46 @@ class OperatorCallable(Callable):
         return self.func(value, self.reference)  # pylint: disable=not-callable
 
     def __repr__(self):
-        return '{}({})'.format(self.__class__.__name__, repr(self.reference))
+        return "{}({})".format(self.__class__.__name__, repr(self.reference))
 
     def __eq__(self, other):
         return self.reference == other.reference
 
     def __str__(self):
-        return 'VAL {} {}'.format(self.func_repr, self.reference)
+        return "VAL {} {}".format(self.func_repr, self.reference)
 
 
 class Less(OperatorCallable):
     func = operator.lt
-    func_repr = '<'
+    func_repr = "<"
 
 
 class LessEqual(OperatorCallable):
     func = operator.le
-    func_repr = '<='
+    func_repr = "<="
 
 
 class Greater(OperatorCallable):
     func = operator.gt
-    func_repr = '>'
+    func_repr = ">"
 
 
 class GreaterEqual(OperatorCallable):
     func = operator.ge
-    func_repr = '>='
+    func_repr = ">="
 
 
 class Equal(OperatorCallable):
     func = operator.eq
-    func_repr = '=='
+    func_repr = "=="
 
 
 class NotEqual(OperatorCallable):
     func = operator.ne
-    func_repr = '!='
+    func_repr = "!="
 
 
 class In(Callable):
-
     def __init__(self, container):
         self.container = container
 
@@ -151,43 +152,40 @@ class In(Callable):
         return self.container == other.container
 
     def __str__(self):
-        return 'VAL in {}'.format(self.container)
+        return "VAL in {}".format(self.container)
 
     def __repr__(self):
-        return '{}({})'.format(self.__class__.__name__, self.container)
+        return "{}({})".format(self.__class__.__name__, self.container)
 
 
 class NotIn(In):
-
     def __call__(self, value):
         return value not in self.container
 
     def __str__(self):
-        return 'VAL not in {}'.format(self.container)
+        return "VAL not in {}".format(self.container)
 
 
 class IsTrue(Callable):
-
     def __call__(self, value):
         return bool(value)
 
     def __str__(self):
-        return 'bool(VAL) is True'
+        return "bool(VAL) is True"
 
     def __eq__(self, other):
         return self.__class__ == other.__class__
 
     def __repr__(self):
-        return '{}()'.format(self.__class__.__name__)
+        return "{}()".format(self.__class__.__name__)
 
 
 class IsFalse(IsTrue):
-
     def __call__(self, value):
         return not bool(value)
 
     def __str__(self):
-        return 'bool(VAL) is False'
+        return "bool(VAL) is False"
 
 
 class MetaCallable(Callable):
@@ -202,19 +200,19 @@ class MetaCallable(Callable):
         return self.callables == other.callables
 
     def __repr__(self):
-        args = ', '.join(repr(clb) for clb in self.callables)
-        return '{}({})'.format(self.__class__.__name__, args)
+        args = ", ".join(repr(clb) for clb in self.callables)
+        return "{}({})".format(self.__class__.__name__, args)
 
     def __str__(self):
-        delimiter = ' {} '.format(self.delimiter)
-        return '({})'.format(
+        delimiter = " {} ".format(self.delimiter)
+        return "({})".format(
             delimiter.join(str(clb) for clb in self.callables)
         )
 
 
 class Or(MetaCallable):
 
-    delimiter = 'or'
+    delimiter = "or"
 
     def __call__(self, value):
         for clb in self.callables:
@@ -225,7 +223,7 @@ class Or(MetaCallable):
 
 class And(MetaCallable):
 
-    delimiter = 'and'
+    delimiter = "and"
 
     def __call__(self, value):
         for clb in self.callables:
@@ -235,13 +233,13 @@ class And(MetaCallable):
 
 
 class Not(Callable):
-
     def __repr__(self):
-        return '{}({})'.format(
-            self.__class__.__name__, repr(self.callable_obj))
+        return "{}({})".format(
+            self.__class__.__name__, repr(self.callable_obj)
+        )
 
     def __str__(self):
-        return 'not ({})'.format(self.callable_obj)
+        return "not ({})".format(self.callable_obj)
 
     def __init__(self, callable_obj):
         assert isinstance(callable_obj, Callable)
@@ -251,8 +249,10 @@ class Not(Callable):
         return not self.callable_obj(value)
 
     def __eq__(self, other):
-        return self.__class__ == other.__class__ and \
-               self.callable_obj == other.callable_obj
+        return (
+            self.__class__ == other.__class__
+            and self.callable_obj == other.callable_obj
+        )
 
 
 class Custom(Callable):
@@ -271,6 +271,7 @@ class Custom(Callable):
             description='`value.custom_method()` returns True'
         )
     """
+
     def __init__(self, callable_obj, description):
         self.callable_obj = callable_obj
         self.description = description
@@ -282,18 +283,18 @@ class Custom(Callable):
         return self.description
 
     def __repr__(self):
-        return '{}({}, description={})'.format(
-            self.__class__.__name__,
-            repr(self.callable_obj),
-            self.description
+        return "{}({}, description={})".format(
+            self.__class__.__name__, repr(self.callable_obj), self.description
         )
 
     def __eq__(self, other):
-        return all([
-            self.__class__ == other.__class__,
-            self.callable_obj == other.callable_obj,
-            self.description == other.description
-        ])
+        return all(
+            [
+                self.__class__ == other.__class__,
+                self.callable_obj == other.callable_obj,
+                self.description == other.description,
+            ]
+        )
 
 
 ########################################################################
@@ -326,7 +327,7 @@ class RegexAdapter(object):
     @classmethod
     def serialize(cls, obj):
         # TODO: add distinction for flags (e.g. multiline)
-        return 0, 'REGEX', obj.pattern
+        return 0, "REGEX", obj.pattern
 
     @classmethod
     def match(cls, regex, value):
@@ -343,6 +344,7 @@ class Category(object):
     """
     Internal enum. Categorises objects for comparison
     """
+
     ABSENT = 0
     VALUE = 1
     CALLABLE = 2
@@ -370,7 +372,7 @@ def _categorise(obj, _regex_adapter=RegexAdapter):
         return Category.DICT
     elif issubclass(obj_t, Iterable):
         return Category.ITERABLE
-    else: # catch-all for types like decimal.Decimal, uuid.UUID, et cetera
+    else:  # catch-all for types like decimal.Decimal, uuid.UUID, et cetera
         return Category.VALUE
 
 
@@ -378,6 +380,7 @@ class Match(object):
     """
     Internal enum. Represents the result of a match.
     """
+
     IGNORED = "i"
     FAIL = "f"
     PASS = "p"
@@ -416,7 +419,7 @@ class Match(object):
         """
         if match == Match.FAIL:
             return False
-        else: # if (match == Match.PASS) or (match == Match.IGNORED)
+        else:  # if (match == Match.PASS) or (match == Match.IGNORED)
             return True
 
 
@@ -444,7 +447,7 @@ def _idictzip_all(lhs_dict, rhs_dict, default=Absent):
     for key, lhs_val in lhs_dict.items():
         yield key, lhs_val, rhs_dict.get(key, default)
     for key, rhs_val in rhs_dict.items():
-        if key not in lhs_dict: # if not previously iterated
+        if key not in lhs_dict:  # if not previously iterated
             yield key, default, rhs_val
 
 
@@ -477,6 +480,7 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
     """
     Compares dictionaries
     """
+
     def should_ignore_key(key):
         """
             Decide if a key should be ignored.
@@ -498,11 +502,14 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
     for iter_key, lhs_val, rhs_val in _idictzip_all(lhs, rhs):
         if should_ignore_key(iter_key):
             if report_mode == ReportOptions.ALL:
-                results.append(_build_res(
-                    key=iter_key,
-                    match=Match.IGNORED,
-                    lhs=fmt(lhs_val),
-                    rhs=fmt(rhs_val)))
+                results.append(
+                    _build_res(
+                        key=iter_key,
+                        match=Match.IGNORED,
+                        lhs=fmt(lhs_val),
+                        rhs=fmt(rhs_val),
+                    )
+                )
         else:
             result = _rec_compare(
                 lhs_val,
@@ -511,7 +518,8 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
                 only,
                 iter_key,
                 report_mode,
-                value_cmp_func)
+                value_cmp_func,
+            )
 
             # Decide whether to keep or discard the result, depending on the
             # reporting mode.
@@ -520,7 +528,7 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
             elif report_mode == ReportOptions.FAILS_ONLY:
                 keep_result = not Match.to_bool(result[1])
             else:
-                raise ValueError('Invalid report mode {}'.format(report_mode))
+                raise ValueError("Invalid report mode {}".format(report_mode))
 
             if keep_result:
                 results.append(result)
@@ -528,14 +536,16 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
     return match, results
 
 
-def _rec_compare(lhs,
-                 rhs,
-                 ignore,
-                 only,
-                 key,
-                 report_mode,
-                 value_cmp_func,
-                 _regex_adapter=RegexAdapter):
+def _rec_compare(
+    lhs,
+    rhs,
+    ignore,
+    only,
+    key,
+    report_mode,
+    value_cmp_func,
+    _regex_adapter=RegexAdapter,
+):
     """
     Recursive deep comparison implementation
     """
@@ -544,13 +554,17 @@ def _rec_compare(lhs,
     rhs_cat = _categorise(rhs)
 
     ## NO VALS
-    if ((lhs_cat == Category.ABSENT) or (rhs_cat == Category.ABSENT)) and \
-            (lhs_cat != Category.CALLABLE) and (rhs_cat != Category.CALLABLE):
+    if (
+        ((lhs_cat == Category.ABSENT) or (rhs_cat == Category.ABSENT))
+        and (lhs_cat != Category.CALLABLE)
+        and (rhs_cat != Category.CALLABLE)
+    ):
         return _build_res(
             key=key,
             match=Match.PASS if lhs_cat == rhs_cat else Match.FAIL,
             lhs=fmt(lhs),
-            rhs=fmt(rhs))
+            rhs=fmt(rhs),
+        )
 
     ## CALLABLES
     if lhs_cat == rhs_cat == Category.CALLABLE:
@@ -558,26 +572,31 @@ def _rec_compare(lhs,
         return _build_res(
             key=key,
             match=match,
-            lhs=(0, 'func', callable_name(lhs)),
-            rhs=(0, 'func', callable_name(rhs)))
+            lhs=(0, "func", callable_name(lhs)),
+            rhs=(0, "func", callable_name(rhs)),
+        )
 
     if lhs_cat == Category.CALLABLE:
         result, error = compare_with_callable(callable_obj=lhs, value=rhs)
         return _build_res(
             key=key,
             match=Match.from_bool(result),
-            lhs=(0, 'func', callable_name(lhs)),
-            rhs='Value: {}, Error: {}'.format(
-                rhs, error) if error else fmt(rhs))
+            lhs=(0, "func", callable_name(lhs)),
+            rhs="Value: {}, Error: {}".format(rhs, error)
+            if error
+            else fmt(rhs),
+        )
 
     if rhs_cat == Category.CALLABLE:
         result, error = compare_with_callable(callable_obj=rhs, value=lhs)
         return _build_res(
             key=key,
             match=Match.from_bool(result),
-            lhs='Value: {}, Error: {}'.format(
-                lhs, error) if error else fmt(lhs),
-            rhs=(0, 'func', callable_name(rhs)))
+            lhs="Value: {}, Error: {}".format(lhs, error)
+            if error
+            else fmt(lhs),
+            rhs=(0, "func", callable_name(rhs)),
+        )
 
     ## REGEXES
     if lhs_cat == rhs_cat == Category.REGEX:
@@ -586,7 +605,8 @@ def _rec_compare(lhs,
             key=key,
             match=match,
             lhs=_regex_adapter.serialize(lhs),
-            rhs=_regex_adapter.serialize(rhs))
+            rhs=_regex_adapter.serialize(rhs),
+        )
 
     if lhs_cat == Category.REGEX:
         match = _regex_adapter.match(regex=lhs, value=rhs)
@@ -594,7 +614,8 @@ def _rec_compare(lhs,
             key=key,
             match=match,
             lhs=_regex_adapter.serialize(lhs),
-            rhs=fmt(rhs))
+            rhs=fmt(rhs),
+        )
 
     if rhs_cat == Category.REGEX:
         match = _regex_adapter.match(regex=rhs, value=lhs)
@@ -602,18 +623,15 @@ def _rec_compare(lhs,
             key=key,
             match=match,
             lhs=fmt(lhs),
-            rhs=_regex_adapter.serialize(rhs))
+            rhs=_regex_adapter.serialize(rhs),
+        )
 
     ## VALUES
     if lhs_cat == rhs_cat == Category.VALUE:
         response = value_cmp_func(lhs, rhs)
 
         match = Match.from_bool(response)
-        return _build_res(
-            key=key,
-            match=match,
-            lhs=fmt(lhs),
-            rhs=fmt(rhs))
+        return _build_res(key=key, match=match, lhs=fmt(lhs), rhs=fmt(rhs))
 
     ## ITERABLE
     if lhs_cat == rhs_cat == Category.ITERABLE:
@@ -628,7 +646,8 @@ def _rec_compare(lhs,
                 only,
                 key=None,
                 report_mode=report_mode,
-                value_cmp_func=value_cmp_func)
+                value_cmp_func=value_cmp_func,
+            )
 
             match = Match.combine(match, result[1])
             results.append(result)
@@ -637,29 +656,22 @@ def _rec_compare(lhs,
         # list of objects with lhs/rhs attributes
         lhs_vals, rhs_vals = _partition(results)
         return _build_res(
-            key=key,
-            match=match,
-            lhs=(1, lhs_vals),
-            rhs=(1, rhs_vals))
+            key=key, match=match, lhs=(1, lhs_vals), rhs=(1, rhs_vals)
+        )
 
     ## DICTS
     if lhs_cat == rhs_cat == Category.DICT:
         match, results = _cmp_dicts(
-            lhs, rhs, ignore, only, report_mode, value_cmp_func)
+            lhs, rhs, ignore, only, report_mode, value_cmp_func
+        )
         lhs_vals, rhs_vals = _partition(results)
         return _build_res(
-            key=key,
-            match=match,
-            lhs=(2, lhs_vals),
-            rhs=(2, rhs_vals))
+            key=key, match=match, lhs=(2, lhs_vals), rhs=(2, rhs_vals)
+        )
 
     ## DIFF TYPES -- catch-all for unhandled
     #  combinations, e.g. VALUE vs ITERABLE
-    return _build_res(
-        key=key,
-        match=Match.FAIL,
-        lhs=fmt(lhs),
-        rhs=fmt(rhs))
+    return _build_res(key=key, match=Match.FAIL, lhs=fmt(lhs), rhs=fmt(rhs))
 
 
 def untyped_fixtag(x, y):
@@ -674,11 +686,15 @@ def untyped_fixtag(x, y):
     ret = x_ == y_
 
     if not ret:
-        if any(isinstance(val, float) or isinstance(val, decimal.Decimal)
-               for val in (x, y)):
+        if any(
+            isinstance(val, float) or isinstance(val, decimal.Decimal)
+            for val in (x, y)
+        ):
 
-            x_, y_ = (val.rstrip('0').rstrip('.') if "." in val else val
-                      for val in (x_, y_))
+            x_, y_ = (
+                val.rstrip("0").rstrip(".") if "." in val else val
+                for val in (x_, y_)
+            )
 
             ret = x_ == y_
 
@@ -687,21 +703,16 @@ def untyped_fixtag(x, y):
 
 # Built-in functions for comparing values in a dict.
 COMPARE_FUNCTIONS = {
-
     # Compare values in their native types using operator.eq.
-    'native_equality': operator.eq,
-
+    "native_equality": operator.eq,
     # Enforce that object types must be strictly equal before comparing using
     # operator.eq.
-    'check_types': lambda x, y: (type(x) == type(y)) and (x == y),
-
+    "check_types": lambda x, y: (type(x) == type(y)) and (x == y),
     # Convert all objects to strings using str() before making the comparison.
-    'stringify': lambda x, y: str(x) == str(y),
-
+    "stringify": lambda x, y: str(x) == str(y),
     # Custom stringify logic for fix msg tag value
-    'untyped_fixtag': untyped_fixtag
+    "untyped_fixtag": untyped_fixtag,
 }
-
 
 
 @enum.unique
@@ -725,12 +736,14 @@ class ReportOptions(enum.Enum):
     FAILS_ONLY = 3
 
 
-def compare(lhs,
-            rhs,
-            ignore=None,
-            only=None,
-            report_mode=ReportOptions.ALL,
-            value_cmp_func=COMPARE_FUNCTIONS['native_equality']):
+def compare(
+    lhs,
+    rhs,
+    ignore=None,
+    only=None,
+    report_mode=ReportOptions.ALL,
+    value_cmp_func=COMPARE_FUNCTIONS["native_equality"],
+):
     """
     Compare two iterable key, value objects (e.g. dict or dict-like mapping)
     and return a status and a detailed comparison table, useful for reporting.
@@ -763,23 +776,32 @@ def compare(lhs,
         return (True, [])
 
     if (lhs is None) or (lhs is Absent):
-        return (False, [_build_res(key=entry[0],
-                                   match=Match.FAIL,
-                                   lhs=fmt(lhs),
-                                   rhs=entry[1])
-                        for entry in fmt(rhs)[1]])
+        return (
+            False,
+            [
+                _build_res(
+                    key=entry[0], match=Match.FAIL, lhs=fmt(lhs), rhs=entry[1]
+                )
+                for entry in fmt(rhs)[1]
+            ],
+        )
 
     if (rhs is None) or (rhs is Absent):
-        return (False, [_build_res(key=entry[0],
-                                   match=Match.FAIL,
-                                   lhs=entry[1],
-                                   rhs=fmt(rhs))
-                        for entry in fmt(lhs)[1]])
+        return (
+            False,
+            [
+                _build_res(
+                    key=entry[0], match=Match.FAIL, lhs=entry[1], rhs=fmt(rhs)
+                )
+                for entry in fmt(lhs)[1]
+            ],
+        )
 
     ignore = ignore or []
 
     match, comparisons = _cmp_dicts(
-        lhs, rhs, ignore, only, report_mode, value_cmp_func)
+        lhs, rhs, ignore, only, report_mode, value_cmp_func
+    )
 
     # For the keys in only not matching anything,
     # we report them as absent in expected and value.
@@ -790,7 +812,8 @@ def compare(lhs,
         for key in only:
             if key not in keys_found:
                 comparisons.append(
-                    (key, Match.IGNORED, Absent.descr, Absent.descr))
+                    (key, Match.IGNORED, Absent.descr, Absent.descr)
+                )
 
     return Match.to_bool(match), comparisons
 
@@ -836,8 +859,9 @@ def _best_permutation(grid):
             return 0, []
 
         # [(cost:int, indx:int)]
-        level_permutations = [(grid[level][indx], indx)
-                              for indx in outstanding]
+        level_permutations = [
+            (grid[level][indx], indx) for indx in outstanding
+        ]
         level_permutations.sort()
         min_cost = None
         min_path = None
@@ -873,27 +897,35 @@ def _to_error(cmpr_tuple, weights):
     Each key may have its own weight. The default weight is 100,
     however this may be otherwise specified in the "weights" dict.
     """
+
     def is_missed_message(comparisons):
         """
         Returns True if all lhs or rhs values of a dict match are Absent
         """
         absent_side = (0, None, Absent.descr)
         return (
-            (
-                sum([(0 if entry[2] == absent_side else 1)
-                     for entry in comparisons]) == 0
-            ) or
-            (
-                sum([(0 if entry[3] == absent_side else 1)
-                     for entry in comparisons]) == 0
+            sum(
+                [
+                    (0 if entry[2] == absent_side else 1)
+                    for entry in comparisons
+                ]
             )
+            == 0
+        ) or (
+            sum(
+                [
+                    (0 if entry[3] == absent_side else 1)
+                    for entry in comparisons
+                ]
+            )
+            == 0
         )
 
     pass_flag, comparisons = cmpr_tuple
     if pass_flag is True:
-        return 0 # perfect match
+        return 0  # perfect match
     if pass_flag is False and is_missed_message(comparisons):
-        return 100000 # missed message
+        return 100000  # missed message
 
     # worst possible error: value to normalise against
     worst_error = 0
@@ -902,14 +934,15 @@ def _to_error(cmpr_tuple, weights):
     for comparison in comparisons:
         comparison_match = comparison[1]
         # tag exists and matches, or ignored
-        if (comparison_match == Match.PASS) or\
-                (comparison_match == Match.IGNORED):
+        if (comparison_match == Match.PASS) or (
+            comparison_match == Match.IGNORED
+        ):
             match_err = 0
-        else: # tag exists, but wrong data or tag is missing
+        else:  # tag exists, but wrong data or tag is missing
             match_err = 1
         tag_weight = weights.get(str(comparison[0]), 100)
         worst_error += tag_weight
-        current_error += (match_err * tag_weight)
+        current_error += match_err * tag_weight
     return int(current_error * 10000.0 / worst_error + 0.5)
 
 
@@ -920,6 +953,7 @@ class Expected(object):
 
     Input to the "unordered_compare" function.
     """
+
     def __init__(self, value, ignore=None, only=None):
         """
         :param value: object compared against
@@ -935,9 +969,14 @@ class Expected(object):
         self.only = only
 
 
-def unordered_compare(match_name, values, comparisons,
-                      description=None, tag_weightings=None,
-                      value_cmp_func=COMPARE_FUNCTIONS['native_equality']):
+def unordered_compare(
+    match_name,
+    values,
+    comparisons,
+    description=None,
+    tag_weightings=None,
+    value_cmp_func=COMPARE_FUNCTIONS["native_equality"],
+):
     """
     Matches a list of expected values against a list of expected comparisons.
 
@@ -987,7 +1026,8 @@ def unordered_compare(match_name, values, comparisons,
     """
     # make sure that all keys are strings
     weights = {
-        str(key): int(val) for key, val in (tag_weightings or {}).items()}
+        str(key): int(val) for key, val in (tag_weightings or {}).items()
+    }
 
     # input may be generators, we need lists from this point onwards
     list_msgs = list(values)
@@ -998,8 +1038,10 @@ def unordered_compare(match_name, values, comparisons,
     # it would take too long to process
     #  (expotential complexity algorithm involved)
     if max(len(list_msgs), len(list_cmps)) > MAX_UNORDERED_COMPARE:
-        raise Exception("Too many values being compared. "+
-                        "Unordered matching supports up to 16 comparisons")
+        raise Exception(
+            "Too many values being compared. "
+            + "Unordered matching supports up to 16 comparisons"
+        )
 
     # Generate fake comparisons or values in case that the number of values
     # is different from what was expected.
@@ -1023,12 +1065,19 @@ def unordered_compare(match_name, values, comparisons,
     #                   [tpl20, tpl21, tpl22, tpl23], # msg2
     #                   [tpl30, tpl31, tpl32, tpl33]] # msg3
     #
-    match_matrix = [[compare(cmpr.value,
-                             msg,
-                             ignore=cmpr.ignore,
-                             only=cmpr.only,
-                             value_cmp_func=value_cmp_func)
-                     for cmpr in proc_cmps] for msg in proc_msgs]
+    match_matrix = [
+        [
+            compare(
+                cmpr.value,
+                msg,
+                ignore=cmpr.ignore,
+                only=cmpr.only,
+                value_cmp_func=value_cmp_func,
+            )
+            for cmpr in proc_cmps
+        ]
+        for msg in proc_msgs
+    ]
 
     # generate a 2D square "matrix" of error integers (0 <= err <= 1000000)
     # where:
@@ -1040,8 +1089,10 @@ def unordered_compare(match_name, values, comparisons,
     # Each object in "match_matrix" is mapped to this error int.
     # The shape and position of the matrix is preserved.
     #
-    errors_matrix = [[_to_error(cmpr_tuple, weights)
-                      for cmpr_tuple in row] for row in match_matrix]
+    errors_matrix = [
+        [_to_error(cmpr_tuple, weights) for cmpr_tuple in row]
+        for row in match_matrix
+    ]
 
     # compute the optimal matching based on the permutation between actual and
     # expected message that results in the least error
@@ -1056,24 +1107,32 @@ def unordered_compare(match_name, values, comparisons,
          if the message was missed or unexpected.
         """
         prefix = "{} {}/{}:".format(
-            base_descr, msg_indx+1, len(matched_indices))
+            base_descr, msg_indx + 1, len(matched_indices)
+        )
         if received_msg is Absent:
-            return '{} expected[{}] vs Absent'.format(prefix, cmp_indx)
+            return "{} expected[{}] vs Absent".format(prefix, cmp_indx)
         elif expected_msg is Absent:
-            return '{} Absent vs values[{}]'.format(prefix, msg_indx)
+            return "{} Absent vs values[{}]".format(prefix, msg_indx)
         else:
-            return '{} expected[{}] vs values[{}]'.format(
-                prefix, cmp_indx, msg_indx)
+            return "{} expected[{}] vs values[{}]".format(
+                prefix, cmp_indx, msg_indx
+            )
 
-    return [{'description': build_descr(msg_indx,
-                                        cmp_indx,
-                                        proc_cmps[cmp_indx].value,
-                                        proc_msgs[msg_indx]),
-             # 'time': now(),  # TODO: use local and UTC times
-             'comparison': match_matrix[msg_indx][cmp_indx][1],
-             'passed': bool(match_matrix[msg_indx][cmp_indx][0]),
-             'comparison_index': cmp_indx}
-            for msg_indx, cmp_indx in enumerate(matched_indices)]
+    return [
+        {
+            "description": build_descr(
+                msg_indx,
+                cmp_indx,
+                proc_cmps[cmp_indx].value,
+                proc_msgs[msg_indx],
+            ),
+            # 'time': now(),  # TODO: use local and UTC times
+            "comparison": match_matrix[msg_indx][cmp_indx][1],
+            "passed": bool(match_matrix[msg_indx][cmp_indx][0]),
+            "comparison_index": cmp_indx,
+        }
+        for msg_indx, cmp_indx in enumerate(matched_indices)
+    ]
 
 
 def tuplefy_item(item, list_entry=False):
@@ -1084,23 +1143,28 @@ def tuplefy_item(item, list_entry=False):
 
     # TODO: Replace magical numbers with constants
 
-    if 'list' in item:
-        ret = (1, [tuplefy_item(obj, list_entry=True) for obj in item['list']])
-        match = item.get('match')
-    elif 'dict' in item:
-        ret = (2, [(pair['key'], pair['match'][0], tuplefy_item(pair))
-                   if 'match' in pair
-                   else (pair['key'], tuplefy_item(pair))
-                   for pair in item['dict']])
-        match = item.get('match')
-    elif 'value' in item:
-        if isinstance(item['value'], int):
-            ret = (0, item.get('type'), str(item['value']))
+    if "list" in item:
+        ret = (1, [tuplefy_item(obj, list_entry=True) for obj in item["list"]])
+        match = item.get("match")
+    elif "dict" in item:
+        ret = (
+            2,
+            [
+                (pair["key"], pair["match"][0], tuplefy_item(pair))
+                if "match" in pair
+                else (pair["key"], tuplefy_item(pair))
+                for pair in item["dict"]
+            ],
+        )
+        match = item.get("match")
+    elif "value" in item:
+        if isinstance(item["value"], int):
+            ret = (0, item.get("type"), str(item["value"]))
         else:
-            ret = (0, item.get('type'), item['value'])
-        match = item.get('match')
+            ret = (0, item.get("type"), item["value"])
+        match = item.get("match")
     else:
-        raise ValueError('Unmatched type for tuplefy')
+        raise ValueError("Unmatched type for tuplefy")
 
     if list_entry and match:
         # list entry that contains match information
@@ -1115,19 +1179,19 @@ def tuplefy_comparisons(comparisons, table=False):
     """
     if table:
         return [
-            (tuplefy_comparisons(entry['cols']), entry['idx'])
+            (tuplefy_comparisons(entry["cols"]), entry["idx"])
             for entry in comparisons
         ]
     else:
         return [
             (
-                comparison['key'],
-                comparison['match'][0],
-                tuplefy_item(comparison['lhs']),
-                tuplefy_item(comparison['rhs'])
+                comparison["key"],
+                comparison["match"][0],
+                tuplefy_item(comparison["lhs"]),
+                tuplefy_item(comparison["rhs"]),
             )
-            if 'lhs' in comparison and 'rhs' in comparison
-            else (comparison['key'], tuplefy_item(comparison['lhs']))
+            if "lhs" in comparison and "rhs" in comparison
+            else (comparison["key"], tuplefy_item(comparison["lhs"]))
             for comparison in comparisons
         ]
 
@@ -1230,14 +1294,14 @@ class DictmatchAllResult(object):
         self.passed = passed
         self.index_match_levels = index_match_levels
 
-    def __bool__(self): # python 3 bool()
+    def __bool__(self):  # python 3 bool()
         """
         :return: True if assertion passed, False otherwise
         :rtype: ``bool``
         """
         return self.passed
 
-    def __nonzero__(self): # python 2 bool()
+    def __nonzero__(self):  # python 2 bool()
         """
         :return: True if assertion passed, False otherwise
         :rtype: ``bool``
@@ -1245,9 +1309,14 @@ class DictmatchAllResult(object):
         return self.passed
 
 
-def dictmatch_all_compat(match_name, comparisons, values,
-                         description, key_weightings,
-                         value_cmp_func=COMPARE_FUNCTIONS['native_equality']):
+def dictmatch_all_compat(
+    match_name,
+    comparisons,
+    values,
+    description,
+    key_weightings,
+    value_cmp_func=COMPARE_FUNCTIONS["native_equality"],
+):
     """This is being used for internal compatibility."""
     matches = unordered_compare(
         match_name=match_name,
@@ -1264,8 +1333,8 @@ def dictmatch_all_compat(match_name, comparisons, values,
 
     for mtch in matches:
         # mtch['is_fix'] = is_fix
-        passed = mtch['passed']
-        cmp_indx = mtch['comparison_index']
+        passed = mtch["passed"]
+        cmp_indx = mtch["comparison_index"]
         indices.append(cmp_indx)
         if passed:
             level = DictmatchAllResult.MATCH

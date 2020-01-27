@@ -11,29 +11,30 @@ from testplan.common.utils.context import context
 
 
 # Specify the name and description of the testplan via the decorator.
-@testplan.test_plan(name='PyTestExample',
-                    description='PyTest basic example')
+@testplan.test_plan(name="PyTestExample", description="PyTest basic example")
 def main(plan):
     # Now we are inside a function that will be passed a plan object, we
     # can add tests to this plan. Here we will add a PyTest instance that
     # targets the tests in pytest_basics.py.
-    plan.add(py_test.PyTest(
-        name='PyTest',
-        description='PyTest example - pytest basics',
-        target=['pytest_tests.py'],
-        environment=[
-            TCPServer(name='server',
-                      host='localhost',
-                      port=0),
-            TCPClient(name='client',
-                      host=context('server', '{{host}}'),
-                      port=context('server', '{{port}}')),
-        ],
-    ))
+    plan.add(
+        py_test.PyTest(
+            name="PyTest",
+            description="PyTest example - pytest basics",
+            target=["pytest_tests.py"],
+            environment=[
+                TCPServer(name="server", host="localhost", port=0),
+                TCPClient(
+                    name="client",
+                    host=context("server", "{{host}}"),
+                    port=context("server", "{{port}}"),
+                ),
+            ],
+        )
+    )
 
 
 # Finally we trigger our main function when the script is run, and
 # set the return status.
-if __name__ == '__main__':
+if __name__ == "__main__":
     res = main()
     sys.exit(res.exit_code)

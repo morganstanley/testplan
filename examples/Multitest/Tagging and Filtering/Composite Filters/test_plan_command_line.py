@@ -12,7 +12,6 @@ from testplan.report.testing.styles import Style
 
 @testsuite
 class Alpha(object):
-
     @testcase
     def test_1(self, env, result):
         pass
@@ -24,39 +23,36 @@ class Alpha(object):
 
 @testsuite
 class Beta(object):
-
-    @testcase(tags='server')
+    @testcase(tags="server")
     def test_1(self, env, result):
         pass
 
-    @testcase(tags={'color': 'blue'})
+    @testcase(tags={"color": "blue"})
     def test_2(self, env, result):
         pass
 
-    @testcase(tags={'simple': 'server', 'color': 'blue'})
+    @testcase(tags={"simple": "server", "color": "blue"})
     def test_3(self, env, result):
         pass
 
 
-@testsuite(tags=('server', 'client'))
+@testsuite(tags=("server", "client"))
 class Gamma(object):
-
-    @testcase(tags={'color': 'red'})
+    @testcase(tags={"color": "red"})
     def test_1(self, env, result):
         pass
 
-    @testcase(tags={'color': ('blue', 'green')})
+    @testcase(tags={"color": ("blue", "green")})
     def test_2(self, env, result):
         pass
 
-    @testcase(tags={'color': 'yellow'})
+    @testcase(tags={"color": "yellow"})
     def test_3(self, env, result):
         pass
 
 
 @testsuite
 class Delta(object):
-
     @testcase
     def test_1(self, env, result):
         pass
@@ -105,19 +101,19 @@ class Delta(object):
 
 
 @test_plan(
-    name='Composite Filters (Command line)',
+    name="Composite Filters (Command line)",
     # Using testcase level stdout so we can see filtered testcases
-    stdout_style=Style('testcase', 'testcase')
+    stdout_style=Style("testcase", "testcase"),
 )
 def main(plan):
 
-    multi_test_1 = MultiTest(name='Primary', suites=[Alpha(), Beta()])
-    multi_test_2 = MultiTest(name='Secondary', suites=[Gamma()])
-    multi_test_3 = MultiTest(name='Other', suites=[Delta()])
+    multi_test_1 = MultiTest(name="Primary", suites=[Alpha(), Beta()])
+    multi_test_2 = MultiTest(name="Secondary", suites=[Gamma()])
+    multi_test_3 = MultiTest(name="Other", suites=[Delta()])
     plan.add(multi_test_1)
     plan.add(multi_test_2)
     plan.add(multi_test_3)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(not main())

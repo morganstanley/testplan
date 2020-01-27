@@ -12,28 +12,15 @@ def test_double_summary_prevention():
     asr_1 = assertions.Equal(1, 1)
     asr_2 = assertions.Equal(2, 2)
     asr_3 = base.Group(
-        entries=[
-            assertions.Equal(3, 3),
-            assertions.Equal(3, 3)
-        ]
+        entries=[assertions.Equal(3, 3), assertions.Equal(3, 3)]
     )
     asr_4 = base.Summary(
-        entries=[
-            assertions.IsTrue(True),
-            assertions.Greater(3, 2)
-        ]
+        entries=[assertions.IsTrue(True), assertions.Greater(3, 2)]
     )
     asr_5 = assertions.Equal(3, 3)
 
     summary = base.Summary(
-        entries=[
-            asr_1,
-            asr_2,
-            asr_3,
-            asr_4,
-            asr_5
-        ],
-        num_passing=5,
+        entries=[asr_1, asr_2, asr_3, asr_4, asr_5], num_passing=5
     )
 
     assert len(summary.entries) == 2
@@ -52,23 +39,31 @@ def test_summary():
     """
 
     asr_1 = assertions.Equal(1, 1)
-    asr_2 = assertions.Equal(1, 1, category='alpha')
+    asr_2 = assertions.Equal(1, 1, category="alpha")
     asr_3 = assertions.Less(1, 2)
-    asr_4 = assertions.Less(3, 4, category='alpha')
+    asr_4 = assertions.Less(3, 4, category="alpha")
     asr_5 = assertions.Equal(1, 2)
-    asr_6 = assertions.Less(4, 4, category='alpha')
+    asr_6 = assertions.Less(4, 4, category="alpha")
     less_failing = [
-        assertions.Less(4, 4, category='alpha') for _ in range(100)
-        ]
+        assertions.Less(4, 4, category="alpha") for _ in range(100)
+    ]
     less_passing = [
-        assertions.Less(3, 4, category='alpha') for _ in range(100)
-        ]
+        assertions.Less(3, 4, category="alpha") for _ in range(100)
+    ]
 
     summary = base.Summary(
         entries=[
-            asr_1, asr_2, base.Log('foo'),
-            asr_3, asr_4, base.Log('bar'), asr_5, asr_6
-        ] + less_failing + less_passing,
+            asr_1,
+            asr_2,
+            base.Log("foo"),
+            asr_3,
+            asr_4,
+            base.Log("bar"),
+            asr_5,
+            asr_6,
+        ]
+        + less_failing
+        + less_passing,
         num_passing=3,
         num_failing=4,
     )

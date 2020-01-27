@@ -26,7 +26,8 @@ class UnPickleableInt(int):
 
     def __repr__(self):
         return "{}[{}]".format(
-            self.__class__.__name__, super(UnPickleableInt, self).__repr__())
+            self.__class__.__name__, super(UnPickleableInt, self).__repr__()
+        )
 
 
 class SerializationTargets(object):
@@ -41,7 +42,7 @@ class SerializationTargets(object):
         self.z = None
 
         self.serializable = SerializeMe()
-        self.unpickleable= UnPickleableInt(42)
+        self.unpickleable = UnPickleableInt(42)
 
 
 @pytest.fixture
@@ -50,16 +51,15 @@ def targets():
 
 
 class TestNativeOrPretty(object):
-
     def test_basic(self, native_or_pretty, targets):
         """Test serialization of basic types: no change is required."""
-        for attr in ('x', 'y', 'z'):
+        for attr in ("x", "y", "z"):
             serialized = native_or_pretty.serialize(attr, targets)
             assert serialized == getattr(targets, attr)
 
     def test_format(self, native_or_pretty, targets):
         """Test serializing of a custom type."""
-        serialized = native_or_pretty.serialize('serializable', targets)
+        serialized = native_or_pretty.serialize("serializable", targets)
         assert serialized == "I have been serialized!"
 
     def test_derived_type(self, native_or_pretty, targets):
@@ -68,5 +68,5 @@ class TestNativeOrPretty(object):
         itself pickle-able. The correct behaviour is to return a formatted
         string.
         """
-        serialized = native_or_pretty.serialize('unpickleable', targets)
-        assert serialized == 'UnPickleableInt[42]'
+        serialized = native_or_pretty.serialize("unpickleable", targets)
+        assert serialized == "UnPickleableInt[42]"

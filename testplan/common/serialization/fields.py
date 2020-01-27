@@ -4,10 +4,11 @@ Custom marshmallow fields.
 import pprint
 import six
 import warnings
+
 try:
     from lxml import etree
 except Exception as exc:
-    warnings.warn('lxml need to be supported: {}'.format(exc))
+    warnings.warn("lxml need to be supported: {}".format(exc))
 from dateutil import parser
 import pytz
 
@@ -30,8 +31,7 @@ from testplan.common.utils import comparison
 # We explicitly enumerate types that are known to be safe to serialize by
 # pickle. All other types will be converted to strings before pickling.
 # types.NoneType is gone in python3 so we inspect the type of None directly.
-COMPATIBLE_TYPES = (
-    bool, float, type(None), str, bytes, int)
+COMPATIBLE_TYPES = (bool, float, type(None), str, bytes, int)
 
 # For Python 2 only, also consider unicode and long types to be pickle-safe.
 # These types are removed from Python 3.
@@ -52,11 +52,11 @@ def _repr_obj(obj):
 def native_or_pformat(value):
     """Generic serialization compatible value formatter."""
     if comparison.is_regex(value):
-        value = 'REGEX({})'.format(value.pattern)
+        value = "REGEX({})".format(value.pattern)
     elif isinstance(value, comparison.Callable):
         value = str(value)
     elif callable(value):
-        value = getattr(value, '__name__', _repr_obj(value))
+        value = getattr(value, "__name__", _repr_obj(value))
 
     # For basic builtin types we return the value unchanged. All other types
     # will be formatted as strings.
@@ -67,7 +67,7 @@ def native_or_pformat(value):
 
     obj_repr = _repr_obj(result)
     if len(obj_repr) > MAX_LENGTH:
-        result = obj_repr[:MAX_LENGTH] + '[truncated]...'
+        result = obj_repr[:MAX_LENGTH] + "[truncated]..."
 
     return result
 
@@ -77,9 +77,7 @@ def native_or_pformat_dict(value):
     Converter utility for dictionaries,
     converts values to JSON friendly format
     """
-    return {
-        k: native_or_pformat(v) for k, v in value.items()
-    }
+    return {k: native_or_pformat(v) for k, v in value.items()}
 
 
 def native_or_pformat_list(value):
@@ -98,7 +96,7 @@ class Unicode(fields.Field):
     So we have this field with explicit codecs instead.
     """
 
-    codecs = ['utf-8', 'latin-1']  # Ideally we will let users override this
+    codecs = ["utf-8", "latin-1"]  # Ideally we will let users override this
 
     def _serialize(self, value, attr, obj):
         if isinstance(value, text_type) or value is None:
@@ -111,9 +109,11 @@ class Unicode(fields.Field):
                 except UnicodeDecodeError:
                     pass
             raise ValueError(
-                'Could not decode {value} to unicode'
-                ' with the given codecs: {codecs}'.format(
-                    value=value, codecs=self.codecs))
+                "Could not decode {value} to unicode"
+                " with the given codecs: {codecs}".format(
+                    value=value, codecs=self.codecs
+                )
+            )
         else:
             return text_type(value)
 
@@ -134,18 +134,22 @@ class NativeOrPrettyDict(fields.Field):
     Keys should be JSON serializable (str type),
     should be used for flat dicts only.
     """
+
     def _serialize(self, value, attr, obj):
         if not isinstance(value, dict):
             raise TypeError(
-                '`value` ({value}) should be'
-                ' `dict` type, it was: {type}'.format(
-                    value=value, type=type(value)))
+                "`value` ({value}) should be"
+                " `dict` type, it was: {type}".format(
+                    value=value, type=type(value)
+                )
+            )
 
         for k in value:
             if not isinstance(k, six.string_types):
                 raise TypeError(
-                    '`key` ({key}) should be of'
-                    ' `str` type, it was: {type}'.format(key=k, type=type(k)))
+                    "`key` ({key}) should be of"
+                    " `str` type, it was: {type}".format(key=k, type=type(k))
+                )
 
         return native_or_pformat_dict(value)
 
@@ -161,7 +165,7 @@ class RowComparisonField(fields.Field):
             native_or_pformat_list(row),
             native_or_pformat_dict(diff),
             native_or_pformat_dict(errors),
-            native_or_pformat_dict(extra)
+            native_or_pformat_dict(extra),
         )
 
 
@@ -169,10 +173,12 @@ class SliceComparisonField(fields.Field):
     """Serialization logic for SliceComparison"""
 
     def _serialize(self, value, attr, obj):
-
         def str_or_iterable(val):
-            return val if isinstance(val, six.string_types)\
+            return (
+                val
+                if isinstance(val, six.string_types)
                 else native_or_pformat_list(val)
+            )
 
         slice_obj, comp_indices, mismatch_indices, actual, expected = value
 
@@ -181,7 +187,7 @@ class SliceComparisonField(fields.Field):
             comp_indices,
             mismatch_indices,
             str_or_iterable(actual),
-            str_or_iterable(expected)
+            str_or_iterable(expected),
         )
 
 
@@ -190,19 +196,14 @@ class ColumnContainComparisonField(fields.Field):
 
     def _serialize(self, value, attr, obj):
 
-        return (
-            value.idx,
-            native_or_pformat(value.value),
-            value.passed
-        )
-
+        return (value.idx, native_or_pformat(value.value), value.passed)
 
 
 class XMLElementField(fields.Field):
     """Custom field for `lxml.etree.Element serialization`."""
 
     def _serialize(self, value, attr, obj):
-        return etree.tostring(value, pretty_print=True).decode('utf-8')
+        return etree.tostring(value, pretty_print=True).decode("utf-8")
 
 
 class ClassName(fields.Field):
@@ -218,9 +219,8 @@ class ClassName(fields.Field):
 
 
 class DictMatch(fields.Field):
-
     def _serialize(self, value, attr, obj):
-        keys = ('value', 'ignore', 'only')
+        keys = ("value", "ignore", "only")
         return {key: getattr(value, key) for key in keys}
 
 
@@ -240,39 +240,40 @@ class GenericNested(fields.Field):
     """
 
     def __init__(
-            self,
-            schema_context,
-            type_field='type',
-            default=missing_, **kwargs
+        self, schema_context, type_field="type", default=missing_, **kwargs
     ):
         self.schema_context = schema_context
         self.type_field = type_field
-        self.many = kwargs.get('many', False)
+        self.many = kwargs.get("many", False)
         super(GenericNested, self).__init__(default=default, **kwargs)
 
     def _get_schema_obj(self, schema_value):
-        parent_ctx = getattr(self.parent, 'context', {})
+        parent_ctx = getattr(self.parent, "context", {})
 
         if isinstance(schema_value, SchemaABC):
             schema_value.context.update(parent_ctx)
             return schema_value
 
-        elif isinstance(schema_value, type) and\
-                issubclass(schema_value, SchemaABC):
+        elif isinstance(schema_value, type) and issubclass(
+            schema_value, SchemaABC
+        ):
             return schema_value(many=self.many, context=parent_ctx)
 
         elif isinstance(schema_value, six.string_types):
 
             if schema_value == _RECURSIVE_NESTED:
                 return self.parent.__class__(
-                    many=self.many, context=parent_ctx)
+                    many=self.many, context=parent_ctx
+                )
             else:
                 schema_class = class_registry.get_class(schema_value)
                 return schema_class(many=self.many, context=parent_ctx)
 
         raise ValueError(
-            'Invalid value for schema: {}, {}'.format(
-                schema_value, type(schema_value)))
+            "Invalid value for schema: {}, {}".format(
+                schema_value, type(schema_value)
+            )
+        )
 
     @property
     def schemas(self):
@@ -285,8 +286,9 @@ class GenericNested(fields.Field):
                 key = object_type.__name__
             else:
                 raise ValueError(
-                    'Invalid value for object type ({}), strings'
-                    ' and class objects are allowed.'.format(object_type))
+                    "Invalid value for object type ({}), strings"
+                    " and class objects are allowed.".format(object_type)
+                )
 
             result[key] = self._get_schema_obj(schema_value)
         return result
@@ -305,13 +307,15 @@ class GenericNested(fields.Field):
 
         if class_name not in schemas:
             raise KeyError(
-                'No schema declaration found in'
-                ' `schema_context` for : {}'.format(class_name))
+                "No schema declaration found in"
+                " `schema_context` for : {}".format(class_name)
+            )
 
         schema_obj = schemas[class_name]
 
         ret, errors = schema_obj.dump(
-            nested_obj, many=False, update_fields=False)
+            nested_obj, many=False, update_fields=False
+        )
 
         if errors:
             raise ValidationError(errors, data=ret)
@@ -337,6 +341,7 @@ class UTCDateTime(fields.DateTime):
 
     def _deserialize(self, value, attr, data):
         return parser.parse(value).replace(tzinfo=pytz.UTC)
+
 
 class ExceptionField(fields.Field):
     """

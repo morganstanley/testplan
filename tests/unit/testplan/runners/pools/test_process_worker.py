@@ -15,7 +15,7 @@ logger.TESTPLAN_LOGGER.setLevel(logger.DEBUG)
 
 @pytest.fixture
 def proc_pool():
-    return process.ProcessPool(name='ProcPool', size=2, restart_count=0)
+    return process.ProcessPool(name="ProcPool", size=2, restart_count=0)
 
 
 class TestProcPool(object):
@@ -28,9 +28,10 @@ class TestProcPool(object):
         # Create and add a basic example Task. When materialized and run,
         # the Runnable will return the product of its args: 7 * 3 => 21.
         example_task = tasks.Task(
-            target='Runnable',
-            module='tests.unit.testplan.runners.pools.tasks.data.sample_tasks',
-            args=(7, 3))
+            target="Runnable",
+            module="tests.unit.testplan.runners.pools.tasks.data.sample_tasks",
+            args=(7, 3),
+        )
         proc_pool.add(example_task, example_task.uid())
         with proc_pool:
             assert proc_pool.status.tag == proc_pool.status.STARTED
@@ -50,7 +51,7 @@ class TestProcPool(object):
         Test scheduling a Task from the __main__ module. This should not be
         allowed, since __main__ is a different module for the child process.
         """
-        main_task = tasks.Task(target='runnable', module='__main__')
+        main_task = tasks.Task(target="runnable", module="__main__")
         with pytest.raises(ValueError):
             proc_pool.add(main_task, main_task.uid())
 
@@ -68,4 +69,3 @@ class TestProcPool(object):
 
             assert proc_pool.status.tag == proc_pool.status.STOPPED
             assert len(current_proc.children()) == len(start_children)
-

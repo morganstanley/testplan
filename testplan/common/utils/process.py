@@ -16,7 +16,7 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 def _log_proc(msg, warn=False, output=None):
     if output is not None:
         try:
-            output.write('{}{}'.format(msg, '\n'))
+            output.write("{}{}".format(msg, "\n"))
         except:
             pass
     if warn:
@@ -61,14 +61,11 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
 
     if retcode is None:
         try:
-            _log(msg='Binary still alive, killing it')
+            _log(msg="Binary still alive, killing it")
             proc.kill()
             proc.wait()
         except (RuntimeError, OSError) as error:
-            _log(
-                msg='Could not kill process - {}'.format(error),
-                warn=True
-            )
+            _log(msg="Could not kill process - {}".format(error), warn=True)
 
     _, alive = psutil.wait_procs(child_procs, timeout=timeout)
     for p in alive:
@@ -78,8 +75,8 @@ def kill_process(proc, timeout=5, signal_=None, output=None):
             pass  # already dead
         except Exception as exc:
             _log(
-                msg='While terminating child process - {}'.format(exc),
-                warn=True
+                msg="While terminating child process - {}".format(exc),
+                warn=True,
             )
 
     return proc.returncode
@@ -114,10 +111,7 @@ def kill_process_psutil(proc, timeout=5, signal_=None, output=None):
     except psutil.NoSuchProcess:
         pass  # already dead
     except Exception as exc:
-        _log(
-            msg='While terminating process - {}'.format(exc),
-            warn=True
-        )
+        _log(msg="While terminating process - {}".format(exc), warn=True)
     _, alive = psutil.wait_procs(all_procs, timeout=timeout)
 
     if len(alive) > 0:
@@ -127,24 +121,30 @@ def kill_process_psutil(proc, timeout=5, signal_=None, output=None):
             except psutil.NoSuchProcess:
                 pass  # already dead
             except Exception as exc:
-                _log(
-                    msg='Could not kill process - {}'.format(exc),
-                    warn=True
-                )
+                _log(msg="Could not kill process - {}".format(exc), warn=True)
         _, alive = psutil.wait_procs(alive, timeout=timeout)
 
     return alive
 
 
-DEFAULT_CLOSE_FDS = platform.system() != 'Windows'
+DEFAULT_CLOSE_FDS = platform.system() != "Windows"
 
 
 def subprocess_popen(
-        args, bufsize=0, executable=None, stdin=None,
-        stdout=None, stderr=None, preexec_fn=None,
-        close_fds=DEFAULT_CLOSE_FDS, shell=False, cwd=None,
-        env=None, universal_newlines=False,
-        startupinfo=None, creationflags=0
+    args,
+    bufsize=0,
+    executable=None,
+    stdin=None,
+    stdout=None,
+    stderr=None,
+    preexec_fn=None,
+    close_fds=DEFAULT_CLOSE_FDS,
+    shell=False,
+    cwd=None,
+    env=None,
+    universal_newlines=False,
+    startupinfo=None,
+    creationflags=0,
 ):
     """
     Wrapper for Subprocess.Popen, which defaults close_fds=True on Linux.
@@ -159,20 +159,30 @@ def subprocess_popen(
 
     try:
         handle = subprocess.Popen(
-            args, bufsize=bufsize, executable=executable, stdin=stdin,
-            stdout=stdout, stderr=stderr, preexec_fn=preexec_fn,
-            close_fds=close_fds, shell=shell, cwd=cwd,
-            env=env, universal_newlines=universal_newlines,
-            startupinfo=startupinfo, creationflags=creationflags
+            args,
+            bufsize=bufsize,
+            executable=executable,
+            stdin=stdin,
+            stdout=stdout,
+            stderr=stderr,
+            preexec_fn=preexec_fn,
+            close_fds=close_fds,
+            shell=shell,
+            cwd=cwd,
+            env=env,
+            universal_newlines=universal_newlines,
+            startupinfo=startupinfo,
+            creationflags=creationflags,
         )
         return handle
     except:
-        print('subprocess.Popen failed, args: `{}`'.format(args))
+        print("subprocess.Popen failed, args: `{}`".format(args))
         raise
 
 
 def execute_cmd(
-        cmd, label=None, check=True, stdout=None, stderr=None, logger=None):
+    cmd, label=None, check=True, stdout=None, stderr=None, logger=None
+):
     """
     Execute a subprocess command.
 
@@ -192,7 +202,7 @@ def execute_cmd(
 
     if isinstance(cmd, list):
         cmd = [str(a) for a in cmd]
-        cmd_string = ' '.join(cmd)  # for logging, easy to copy and execute
+        cmd_string = " ".join(cmd)  # for logging, easy to copy and execute
     else:
         cmd_string = cmd
 
@@ -213,22 +223,24 @@ def execute_cmd(
     elapsed = time.time() - start_time
 
     if handler.returncode != 0:
-        logger.debug('Failed executing command [%s] after %.2f sec.',
-                     label,
-                     elapsed)
+        logger.debug(
+            "Failed executing command [%s] after %.2f sec.", label, elapsed
+        )
 
         if stdout:
-            logger.debug('Stdout:\n%s', stdout)
+            logger.debug("Stdout:\n%s", stdout)
 
         if stderr:
-            logger.debug('Stderr:\n%s', stderr)
+            logger.debug("Stderr:\n%s", stderr)
 
         if check:
             raise RuntimeError(
-                "Command '{}' returned with non-zero exit code {}"
-                .format(cmd_string, handler.returncode))
+                "Command '{}' returned with non-zero exit code {}".format(
+                    cmd_string, handler.returncode
+                )
+            )
     else:
-        logger.debug('Command [%s] finished in %.2f sec', label, elapsed)
+        logger.debug("Command [%s] finished in %.2f sec", label, elapsed)
 
     return handler.returncode
 
@@ -242,11 +254,13 @@ def enforce_timeout(process, timeout=1, callback=None, output=None):
 
         while True:
             if process.returncode is not None:
-                _log(msg='Process returncode: {}'.format(process.returncode))
+                _log(msg="Process returncode: {}".format(process.returncode))
                 break
             elif time.time() - begin >= timeout:
-                _log(msg='Killing binary after'
-                         ' reaching timeout value {}s'.format(timeout))
+                _log(
+                    msg="Killing binary after"
+                    " reaching timeout value {}s".format(timeout)
+                )
 
                 try:
                     if callback:
@@ -257,9 +271,9 @@ def enforce_timeout(process, timeout=1, callback=None, output=None):
                 break
             else:
                 delay = next(intervals)
-                _log(msg='Sleeping for {}'.format(delay))
+                _log(msg="Sleeping for {}".format(delay))
                 time.sleep(delay)
-        _log('Exiting loop')
+        _log("Exiting loop")
 
     timeout_checker = threading.Thread(target=_inner)
     timeout_checker.daemon = True

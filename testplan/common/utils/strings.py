@@ -9,13 +9,14 @@ import textwrap
 import six
 
 import colorama
+
 colorama.init()
 from termcolor import colored
 
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
 
-_DESCRIPTION_CUTOFF_REGEX = re.compile(r'^(\s|\t)+')
+_DESCRIPTION_CUTOFF_REGEX = re.compile(r"^(\s|\t)+")
 
 
 def format_description(description):
@@ -41,10 +42,11 @@ def format_description(description):
     lines = [line for line in description.split(os.linesep) if line.strip()]
     matches = [_DESCRIPTION_CUTOFF_REGEX.match(line) for line in lines]
     if matches:
-        min_offset = \
-            min(match.end() if match is not None else 0 for match in matches)
+        min_offset = min(
+            match.end() if match is not None else 0 for match in matches
+        )
         return os.linesep.join([line[min_offset:] for line in lines])
-    return ''
+    return ""
 
 
 def slugify(value):
@@ -58,18 +60,16 @@ def slugify(value):
     :return: slugified string value, suitable as a directory or filename
     :rtype: ``str``
     """
-    if sys.hexversion >= 0x30303f0:
-        value = unicodedata.normalize('NFKD',
-                                      value).encode('ascii', 'ignore')
-        value = re.sub(br'[^\w\s-]', b'', value).strip().lower()
-        return re.sub(br'[-\s]+', b'-', value).decode('ascii')
+    if sys.hexversion >= 0x30303F0:
+        value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore")
+        value = re.sub(br"[^\w\s-]", b"", value).strip().lower()
+        return re.sub(br"[-\s]+", b"-", value).decode("ascii")
     else:
-        value = unicodedata.normalize(
-            'NFKD',
-            six.text_type(value)
-        ).encode('ascii', 'ignore')
-        value = six.text_type(re.sub(r'[^\w\s-]', '', value).strip().lower())
-        return str(re.sub(r'[-\s]+', '-', value))
+        value = unicodedata.normalize("NFKD", six.text_type(value)).encode(
+            "ascii", "ignore"
+        )
+        value = six.text_type(re.sub(r"[^\w\s-]", "", value).strip().lower())
+        return str(re.sub(r"[-\s]+", "-", value))
 
 
 class Color(object):
@@ -81,27 +81,27 @@ class Color(object):
 
     @staticmethod
     def green(msg):
-        return colored(msg, 'green')
+        return colored(msg, "green")
 
     @staticmethod
     def red(msg):
-        return colored(msg, 'red')
+        return colored(msg, "red")
 
     @staticmethod
     def yellow(msg):
-        return colored(msg, 'yellow')
+        return colored(msg, "yellow")
 
     @staticmethod
     def passed(msg=None, check=None):
         if msg is None:
-            msg = 'Pass' if check else 'Fail'
+            msg = "Pass" if check else "Fail"
 
         if callable(check):
             check = check()
         return Color.green(msg) if check else Color.red(msg)
 
 
-INDENT_REGEX = re.compile(r'^\s*')
+INDENT_REGEX = re.compile(r"^\s*")
 
 
 def wrap(text, width=150):
@@ -123,9 +123,10 @@ def wrap(text, width=150):
         first, rest = line_list[0], line_list[1:]
         indent_match = INDENT_REGEX.match(first)
         if indent_match:
-            prefix = ' ' * (indent_match.end() - indent_match.start())
+            prefix = " " * (indent_match.end() - indent_match.start())
             result.extend(
-                [first] + ['{}{}'.format(prefix, line) for line in rest])
+                [first] + ["{}{}".format(prefix, line) for line in rest]
+            )
         else:
             result.extend(line_list)
     return os.linesep.join(result)
@@ -143,9 +144,12 @@ def split_line(line, max_width, get_width_func=None):
     """
     result = []
     total_width = 0
-    tmp_str = ''
-    get_text_width = get_width_func if get_width_func else \
-        lambda text: stringWidth(text, 'Helvetica', 9)
+    tmp_str = ""
+    get_text_width = (
+        get_width_func
+        if get_width_func
+        else lambda text: stringWidth(text, "Helvetica", 9)
+    )
 
     for ch in line:
         char_width = get_text_width(ch)
@@ -163,8 +167,9 @@ def split_line(line, max_width, get_width_func=None):
     return result
 
 
-def split_text(text, font_name, font_size, max_width,
-               keep_leading_whitespace=False):
+def split_text(
+    text, font_name, font_size, max_width, keep_leading_whitespace=False
+):
     """
     Wraps `text` within given `max_width` limit (measured in px), keeping
     initial indentation of each line (and generated lines) if
@@ -178,11 +183,12 @@ def split_text(text, font_name, font_size, max_width,
                                     whitespace.
     :return: list of lines
     """
+
     def get_text_width(text, name=font_name, size=font_size):
         return stringWidth(text, name, size)
 
     result = []
-    lines = [line for line in re.split(r'[\r\n]+', text) if line]
+    lines = [line for line in re.split(r"[\r\n]+", text) if line]
 
     for line in lines:
         line_list = split_line(line, max_width, get_text_width)
@@ -190,10 +196,8 @@ def split_text(text, font_name, font_size, max_width,
             first, rest = line_list[0], line_list[1:]
             indent_match = _DESCRIPTION_CUTOFF_REGEX.match(first)
             if indent_match:
-                prefix = first[indent_match.start():indent_match.end()]
-                line_list = [first] + [
-                    '{}{}'.format(prefix, s) for s in rest
-                ]
+                prefix = first[indent_match.start() : indent_match.end()]
+                line_list = [first] + ["{}{}".format(prefix, s) for s in rest]
         result.extend(line_list)
 
     return os.linesep.join(result)
@@ -211,6 +215,7 @@ def indent(lines_str, indent_size=2):
     :rtype: ``str``
     """
     indent = " " * indent_size
-    return "\n".join("{indent}{line}".format(indent=indent, line=line)
-                     for line in lines_str.splitlines())
-
+    return "\n".join(
+        "{indent}{line}".format(indent=indent, line=line)
+        for line in lines_str.splitlines()
+    )

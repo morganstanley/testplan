@@ -8,8 +8,8 @@ from testplan.common.serialization import fields as custom_fields
 from testplan.common.serialization.schemas import SchemaRegistry
 from .. import base
 
-class AssertionSchemaRegistry(SchemaRegistry):
 
+class AssertionSchemaRegistry(SchemaRegistry):
     def get_category(self, obj):
         return obj.meta_type
 
@@ -18,7 +18,6 @@ registry = AssertionSchemaRegistry()
 
 
 class GenericEntryList(fields.Field):
-
     def _serialize(self, value, attr, obj):
         return [registry.serialize(entry) for entry in value]
 
@@ -34,7 +33,7 @@ class BaseSchema(Schema):
     category = fields.String()
 
     def load(self, *args, **kwargs):
-        raise NotImplementedError('Only serialization is supported.')
+        raise NotImplementedError("Only serialization is supported.")
 
 
 @registry.bind(base.Group, base.Summary)
@@ -59,10 +58,7 @@ class TableLogSchema(BaseSchema):
     columns = fields.List(fields.String(), allow_none=False)
 
 
-@registry.bind(
-    base.DictLog,
-    base.FixLog
-)
+@registry.bind(base.DictLog, base.FixLog)
 class DictLogSchema(BaseSchema):
     flattened_dict = fields.Raw()
 

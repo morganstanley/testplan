@@ -35,7 +35,7 @@ class RunnableThatRaises(Runnable):
 
     def run(self):
         """TODO."""
-        raise Exception('123')
+        raise Exception("123")
 
 
 class RunnableStopRaises(Runnable):
@@ -43,7 +43,7 @@ class RunnableStopRaises(Runnable):
 
     def stop(self):
         """TODO."""
-        raise Exception('123')
+        raise Exception("123")
 
 
 class NonSerializableResult(Runnable):

@@ -6,16 +6,20 @@ from my_tests.basic import BasicSuite
 from my_tests.tcp import TCPSuite
 
 
-def make_multitest(idx=''):
+def make_multitest(idx=""):
     def accept_connection(env):
         env.server.accept_connection()
 
     return MultiTest(
-        name='Test{}'.format(idx),
+        name="Test{}".format(idx),
         suites=[BasicSuite(), TCPSuite()],
         environment=[
-            TCPServer(name='server'),
-            TCPClient(name='client',
-                      host=context('server', '{{host}}'),
-                      port=context('server', '{{port}}'))],
-        after_start=accept_connection)
+            TCPServer(name="server"),
+            TCPClient(
+                name="client",
+                host=context("server", "{{host}}"),
+                port=context("server", "{{port}}"),
+            ),
+        ],
+        after_start=accept_connection,
+    )

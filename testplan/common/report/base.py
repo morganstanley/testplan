@@ -25,7 +25,7 @@ class ExceptionLogger(object):
     """
 
     def __init__(self, *exception_classes, **kwargs):
-        self.report = kwargs['report']
+        self.report = kwargs["report"]
         self.exception_classes = exception_classes or (Exception,)
 
     def __enter__(self):
@@ -47,12 +47,9 @@ class Report(object):
 
     exception_logger = ExceptionLogger
 
-    def __init__(self,
-                 name,
-                 description=None,
-                 uid=None,
-                 entries=None,
-                 parent_uids=None):
+    def __init__(
+        self, name, description=None, uid=None, entries=None, parent_uids=None
+    ):
         self.name = name
         self.description = description
 
@@ -75,16 +72,15 @@ class Report(object):
 
     def __str__(self):
         return '{kls}(name="{name}", id="{uid}")'.format(
-            kls=self.__class__.__name__,
-            name=self.name,
-            uid=self.uid)
+            kls=self.__class__.__name__, name=self.name, uid=self.uid
+        )
 
     def __repr__(self):
         return '{kls}(name="{name}", id="{uid}", entries={entries})'.format(
             kls=self.__class__.__name__,
             name=self.name,
             uid=self.uid,
-            entries=repr(self.entries)
+            entries=repr(self.entries),
         )
 
     def __iter__(self):
@@ -98,10 +94,10 @@ class Report(object):
 
     def __getstate__(self):
         # Omitting logger as it is not compatible with deep copy.
-        return {k: v for k, v in self.__dict__.items() if k != 'logger'}
+        return {k: v for k, v in self.__dict__.items() if k != "logger"}
 
     def _get_comparison_attrs(self):  # pylint: disable=no-self-use
-        return ['name', 'description', 'uid', 'entries', 'logs']
+        return ["name", "description", "uid", "entries", "logs"]
 
     def __eq__(self, other):
         for attr in self._get_comparison_attrs():
@@ -110,7 +106,7 @@ class Report(object):
         return True
 
     def __setstate__(self, data):
-        data['logger'] = create_logging_adapter(report=self)
+        data["logger"] = create_logging_adapter(report=self)
         self.__dict__.update(data)
 
     def logged_exceptions(self, *exception_classes, **kwargs):
@@ -124,25 +120,31 @@ class Report(object):
             with report.logged_exceptions(TypeError, ValueError):
                 raise some errors here ...
         """
-        kwargs['report'] = self
+        kwargs["report"] = self
         return self.exception_logger(*exception_classes, **kwargs)
 
     def _check_report(self, report):
         """
         Utility method for checking `report` `type` and `uid`.
         """
-        msg = 'Report check failed for `{}` and `{}`. '.format(self, report)
+        msg = "Report check failed for `{}` and `{}`. ".format(self, report)
 
         if report.uid != self.uid:
             raise AttributeError(
-                msg + '`uid` attributes (`{}`, `{}`) do not match.'.format(
-                    self.uid, report.uid))
+                msg
+                + "`uid` attributes (`{}`, `{}`) do not match.".format(
+                    self.uid, report.uid
+                )
+            )
 
         # We need exact type match, rather than `isinstance` check
         if type(report) != type(self):  # pylint: disable=unidiomatic-typecheck
             raise TypeError(
-                msg + 'Report types (`{}`, `{}`) do not match.'.format(
-                    type(self), type(report)))
+                msg
+                + "Report types (`{}`, `{}`) do not match.".format(
+                    type(self), type(report)
+                )
+            )
 
     def merge(self, report, strict=True):  # pylint: disable=unused-argument
         """
@@ -158,8 +160,8 @@ class Report(object):
         """
         self._check_report(report)
         # Merge logs
-        log_ids = [rec['uid'] for rec in self.logs]
-        self.logs += [rec for rec in report.logs if rec['uid'] not in log_ids]
+        log_ids = [rec["uid"] for rec in self.logs]
+        self.logs += [rec for rec in report.logs if rec["uid"] not in log_ids]
 
     def append(self, item):
         """Append ``item`` to ``self.entries``, no restrictions."""
@@ -176,12 +178,12 @@ class Report(object):
         for a given entry, it will be kept.
         """
         report_obj = self
-        if kwargs.get('__copy', True):
+        if kwargs.get("__copy", True):
             report_obj = copy.deepcopy(self)
 
         report_obj.entries = [
-            e for e in self.entries
-            if any(func(e) for func in functions)]
+            e for e in self.entries if any(func(e) for func in functions)
+        ]
 
         return report_obj
 
@@ -204,10 +206,7 @@ class Report(object):
     @property
     def hash(self):
         """Return a hash of all entries in this report."""
-        return hash((
-            self.uid,
-            tuple(id(entry) for entry in self.entries))
-        )
+        return hash((self.uid, tuple(id(entry) for entry in self.entries)))
 
 
 class ReportGroup(Report):
@@ -235,14 +234,17 @@ class ReportGroup(Report):
         """
         child_ids = [child.uid for child in self]
         dupe_ids = [
-            cid for cid, count in collections.Counter(child_ids).items()
+            cid
+            for cid, count in collections.Counter(child_ids).items()
             if count > 1
         ]
 
         if dupe_ids:
             raise ValueError(
-                'Cannot build index with duplicate uids: `{}`'.format(
-                    list(dupe_ids)))
+                "Cannot build index with duplicate uids: `{}`".format(
+                    list(dupe_ids)
+                )
+            )
 
         self._index = {child.uid: i for i, child in enumerate(self)}
 
@@ -278,7 +280,8 @@ class ReportGroup(Report):
         """
         if uid != item.uid:
             raise ValueError(
-                "UIDs don't match: {} != {}".format(uid, item.uid))
+                "UIDs don't match: {} != {}".format(uid, item.uid)
+            )
 
         if uid in self._index:
             entry_ix = self._index[uid]
@@ -305,9 +308,11 @@ class ReportGroup(Report):
                 self.get_by_uid(entry.uid).merge(entry, strict=strict)
             except KeyError:
                 raise MergeError(
-                    'Cannot merge {report} onto {self},'
-                    ' child report with `uid`: {uid} not found.'.format(
-                        report=report, self=self, uid=entry.uid))
+                    "Cannot merge {report} onto {self},"
+                    " child report with `uid`: {uid} not found.".format(
+                        report=report, self=self, uid=entry.uid
+                    )
+                )
 
     def merge(self, report, strict=True):
         """Merge child reports first, propagating `strict` flag."""
@@ -318,15 +323,17 @@ class ReportGroup(Report):
         """Add `item` to `self.entries`, checking type & index."""
         if not isinstance(item, Report):
             raise TypeError(
-                'ReportGroup entries must be of '
-                '`Report` type, {item} was of: {type} type.'.format(
-                    item=item,
-                    type=type(item)))
+                "ReportGroup entries must be of "
+                "`Report` type, {item} was of: {type} type.".format(
+                    item=item, type=type(item)
+                )
+            )
 
         if item.uid in self._index:
             raise ValueError(
-                'Child report with `uid`: {uid}'
-                ' already exists in {self}'.format(uid=item.uid, self=self))
+                "Child report with `uid`: {uid}"
+                " already exists in {self}".format(uid=item.uid, self=self)
+            )
 
         super(ReportGroup, self).append(item)
         self._index[item.uid] = len(self.entries) - 1
@@ -349,7 +356,7 @@ class ReportGroup(Report):
 
     def filter(self, *functions, **kwargs):
         """Recursively filter report entries and sub-entries."""
-        is_root = kwargs.get('__copy', True)
+        is_root = kwargs.get("__copy", True)
         report_obj = copy.deepcopy(self) if is_root else self
 
         entries = []
@@ -386,6 +393,7 @@ class ReportGroup(Report):
         :param depths: Flag for enabling/disabling depth data in result.
         :return: List of reports or list of (`depth`, `report`) tuples.
         """
+
         def flat_func(rep_obj, depth):
             result = [(depth, rep_obj)]
 
@@ -407,7 +415,8 @@ class ReportGroup(Report):
     @property
     def flattened_logs(self):
         """Return a flattened list of the logs from each Report."""
-        return list(itertools.chain.from_iterable((rep.logs)
-                                                  for rep in self.flatten()
-                                                  if isinstance(rep, Report)))
-
+        return list(
+            itertools.chain.from_iterable(
+                (rep.logs) for rep in self.flatten() if isinstance(rep, Report)
+            )
+        )

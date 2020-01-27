@@ -21,16 +21,16 @@ class TCPTestsuite(object):
         Client sends a message, server received and responds back.
         """
         msg = env.client.cfg.name
-        result.log('Client is sending: {}'.format(msg))
+        result.log("Client is sending: {}".format(msg))
         bytes_sent = env.client.send_text(msg)
         received = env.server.receive_text(size=bytes_sent)
-        result.equal(received, msg, 'Server received')
+        result.equal(received, msg, "Server received")
 
-        response = 'Hello {}'.format(received)
-        result.log('Server is responding: {}'.format(response))
+        response = "Hello {}".format(received)
+        result.log("Server is responding: {}".format(response))
         bytes_sent = env.server.send_text(response)
         received = env.client.receive_text(size=bytes_sent)
-        result.equal(received, response, 'Client received')
+        result.equal(received, response, "Client received")
 
 
 def get_multitest(name):
@@ -39,11 +39,16 @@ def get_multitest(name):
     The environment is a server and a client connecting using the context
     functionality that retrieves host/port of the server after is started.
     """
-    test = MultiTest(name=name,
-                     suites=[TCPTestsuite()],
-                      environment=[
-                         TCPServer(name='server'),
-                         TCPClient(name='client',
-                                   host=context('server', '{{host}}'),
-                                   port=context('server', '{{port}}'))])
+    test = MultiTest(
+        name=name,
+        suites=[TCPTestsuite()],
+        environment=[
+            TCPServer(name="server"),
+            TCPClient(
+                name="client",
+                host=context("server", "{{host}}"),
+                port=context("server", "{{port}}"),
+            ),
+        ],
+    )
     return test

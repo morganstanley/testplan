@@ -16,6 +16,7 @@ class Client(object):
         3. send and/or receive
         4. close
     """
+
     def __init__(self, host, port, interface=None):
         """
         Create a new TCP client.

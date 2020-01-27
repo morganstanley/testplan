@@ -12,7 +12,7 @@ from .strings import slugify
 
 from testplan.vendor.tempita import Template
 
-VAR_TMP = os.path.join(os.sep, 'var', 'tmp')
+VAR_TMP = os.path.join(os.sep, "var", "tmp")
 
 
 def fix_home_prefix(path):
@@ -22,13 +22,13 @@ def fix_home_prefix(path):
     directory.
     """
 
-    path = path.replace(' ', r'\ ')
-    userhome = os.path.expanduser('~')
+    path = path.replace(" ", r"\ ")
+    userhome = os.path.expanduser("~")
     realhome = os.path.realpath(userhome)
     if path.startswith(realhome):
         return path.replace(realhome, userhome)
 
-    pwd = os.environ.get('PWD')
+    pwd = os.environ.get("PWD")
     if pwd:
         realpwd = os.path.realpath(pwd)
         if path.startswith(realpwd):
@@ -59,14 +59,16 @@ def default_runpath(entity):
     """
     # On POSIX systems, use /var/tmp in preference to /tmp for the runpath if it
     # exists.
-    if os.name == 'posix' and os.path.exists(VAR_TMP):
+    if os.name == "posix" and os.path.exists(VAR_TMP):
         runpath_prefix = VAR_TMP
     else:
         runpath_prefix = tempfile.gettempdir()
 
     runpath = os.path.join(
-        runpath_prefix, getpass.getuser(), 'testplan', slugify(entity.uid()))
+        runpath_prefix, getpass.getuser(), "testplan", slugify(entity.uid())
+    )
     return runpath
+
 
 @contextlib.contextmanager
 def change_directory(directory):
@@ -79,14 +81,14 @@ def change_directory(directory):
     """
     old_directory = os.getcwd()
     os.chdir(directory)
-    if 'PWD' in os.environ:
-        os.environ['PWD'] = directory
+    if "PWD" in os.environ:
+        os.environ["PWD"] = directory
     try:
         yield
     finally:
         os.chdir(old_directory)
-        if 'PWD' in os.environ:
-            os.environ['PWD'] = old_directory
+        if "PWD" in os.environ:
+            os.environ["PWD"] = old_directory
 
 
 def makedirs(path):
@@ -127,23 +129,24 @@ class StdFiles(object):
     """
     stderr and stdout file creation and management
     """
+
     def __init__(self, directory):
         """
         Create files and initialize fds
         """
-        self.err_path = os.path.join(directory, 'stderr')
-        self.out_path = os.path.join(directory, 'stdout')
+        self.err_path = os.path.join(directory, "stderr")
+        self.out_path = os.path.join(directory, "stdout")
 
-        self.err = open(self.err_path, 'w')
-        self.out = open(self.out_path, 'w')
+        self.err = open(self.err_path, "w")
+        self.out = open(self.out_path, "w")
 
     def open_out(self):
         """Open the stdout file with read access"""
-        return open(self.out_path, 'r')
+        return open(self.out_path, "r")
 
     def open_err(self):
         """Open the stderr file with read access"""
-        return open(self.err_path, 'r')
+        return open(self.err_path, "r")
 
     def close(self):
         """
@@ -173,15 +176,17 @@ def instantiate(template, values, destination):
     makedirs(os.path.dirname(destination))
     if os.path.isdir(destination):
         destination = os.path.join(destination, os.path.basename(template))
-    with open(destination, 'w') as target:
-        with open(template, 'r') as source:
+    with open(destination, "w") as target:
+        with open(template, "r") as source:
             try:
                 tmplt = Template(source.read())
                 target.write(tmplt.substitute(values))
             except Exception as exc:
                 raise Exception(
-                    'On reading/writing template: {} - of file {}'.format(
-                        exc, template))
+                    "On reading/writing template: {} - of file {}".format(
+                        exc, template
+                    )
+                )
 
 
 def unique_name(name, names):
@@ -207,11 +212,11 @@ def unique_name(name, names):
     :return: Either the same, or a new unique name
     :rtype: ``str``
     """
-    suffix = ''
+    suffix = ""
     orig_name = name
     while name in names:
-        if suffix == '':
-            suffix = '-1'
+        if suffix == "":
+            suffix = "-1"
         else:
             suffix = "-{}".format(int(suffix[1:]) + 1)
         base, ext = os.path.splitext(orig_name)
@@ -226,7 +231,7 @@ def to_posix_path(from_path):
     :return: POSIX-formatted path.
     :rtype: ``str``
     """
-    return '/'.join(from_path.split(os.sep))
+    return "/".join(from_path.split(os.sep))
 
 
 def is_subdir(child, parent):
@@ -252,7 +257,7 @@ class _TemporaryDirectory(object):
     Parameters are passed through to ``tempfile.mkdtemp()``.
     """
 
-    def __init__(self, suffix='', prefix='tmp', dir=None):
+    def __init__(self, suffix="", prefix="tmp", dir=None):
         self.name = None
         self._suffix = suffix
         self._prefix = prefix
@@ -261,8 +266,9 @@ class _TemporaryDirectory(object):
     def __enter__(self):
         """Create temporary dir, return its path."""
         if self.name is not None:
-            raise RuntimeError("name already set to {} on enter"
-                               .format(self.name))
+            raise RuntimeError(
+                "name already set to {} on enter".format(self.name)
+            )
         self.name = tempfile.mkdtemp(self._suffix, self._prefix, self._dir)
         return self.name
 
