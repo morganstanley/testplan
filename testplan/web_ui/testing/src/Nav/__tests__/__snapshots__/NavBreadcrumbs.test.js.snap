@@ -2,17 +2,17 @@
 
 exports[`NavBreadcrumbs shallow renders the correct HTML structure 1`] = `
 <div
-  className="navBreadcrumbs_qyzuci"
+  className="navBreadcrumbs_1qja1s6"
 >
   <ul
-    className="breadcrumbContainer_1f5xahc"
+    className="breadcrumbContainer_1qdzaym"
   >
     <li
       key="123"
       onClick={[Function]}
     >
       <div
-        className="breadcrumbEntry_e4f33-o_O-unselectable_16maxrd"
+        className="breadcrumbEntry_qbjkug-o_O-unselectable_16maxrd"
       >
         <NavEntry
           caseCountFailed={0}

@@ -188,22 +188,9 @@ const GetNavBreadcrumbs = (selected) => {
   }
 };
 
-/**
- * Trim a name if necessary to ensure it fits into a maximum length. Inserts
- * "..." to indicate the name was trimmed.
- */
-const TrimName = (name, maxLength) => {
-  if (name.length <= maxLength) {
-    return name;
-  }
-
-  return name.slice(0, maxLength - 3) + "...";
-};
-
 export {
   CreateNavButtons,
   GetSelectedUid,
   GetNavEntries,
   GetNavBreadcrumbs,
-  TrimName,
 };

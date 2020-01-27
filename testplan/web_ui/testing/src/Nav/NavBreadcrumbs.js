@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import {StyleSheet, css} from 'aphrodite';
 
 import NavEntry from './NavEntry';
-import {TrimName} from "./navUtils";
 import {
-  LIGHT_GREY, MEDIUM_GREY, DARK_GREY, STATUS, RUNTIME_STATUS, MAX_NAME_LENGTH
+  LIGHT_GREY, MEDIUM_GREY, DARK_GREY, STATUS, RUNTIME_STATUS
 } from "../Common/defaults";
 import CommonStyles from "../Common/Styles.js";
 
@@ -34,7 +33,7 @@ return (
     onClick={((e) => props.handleNavClick(e, entry, depth))}>
     <div className={css(styles.breadcrumbEntry, CommonStyles.unselectable)}>
       <NavEntry
-        name={TrimName(entry.name, MAX_NAME_LENGTH)}
+        name={entry.name}
         status={entry.status}
         type={entry.category}
         caseCountPassed={entry.counter.passed}
@@ -66,17 +65,18 @@ const styles = StyleSheet.create({
     borderBottom: 'solid 1px rgba(0, 0, 0, 0.1)',
     zIndex: 300,
     position: 'fixed',
-    display: 'inline-block',
+    display: 'block',
     height: '2em',
     width: '100%',
     backgroundColor: LIGHT_GREY,
-    overflowY: 'hidden',
+    overflowY: "hidden",
   },
   breadcrumbContainer: {
     listStyle: 'none',
     padding: 0,
     margin: 0,
-    height: '100%',
+    //height: '100%',
+    height: '2em',
     width: '100%',
   },
   breadcrumbEntry: {
@@ -84,9 +84,10 @@ const styles = StyleSheet.create({
     padding: '0.25em 0em 0.25em 2em',
     float: 'left',
     position: 'relative',
-    display: 'block',
+    display: 'inline-block',
     cursor: 'pointer',
     backgroundColor: MEDIUM_GREY,
+    height: '2em',
     ':before': {
       content: '\' \'',
       display: 'block',

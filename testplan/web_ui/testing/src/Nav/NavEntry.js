@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {Badge} from 'reactstrap';
 import {StyleSheet, css} from "aphrodite";
 
-import {TrimName} from "./navUtils";
 import {
   RED,
   GREEN,
@@ -13,7 +12,6 @@ import {
   ENTRY_TYPES,
   STATUS,
   STATUS_CATEGORY,
-  MAX_NAME_LENGTH,
 } from "../Common/defaults";
 
 /**
@@ -25,11 +23,12 @@ import {
 const NavEntry = (props) => {
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
   return (
-    <div className='d-flex justify-content-between'>
+    <div className='d-flex justify-content-between align-items-center'>
       <div
         className={css(styles.entryName, styles[STATUS_CATEGORY[props.status]])}
-        title={props.name}>
-        {TrimName(props.name, MAX_NAME_LENGTH)}
+        title={props.name}
+      >
+        {props.name}
       </div>
       <div className={css(styles.entryIcons)}>
         <i className={css(styles.entryIcon)} title='passed/failed testcases'>
@@ -63,10 +62,12 @@ NavEntry.propTypes = {
 
 const styles = StyleSheet.create({
   entryName: {
-    overflow: 'hidden',
+    "overflow": "hidden",
+    "text-overflow": "ellipsis",
+    "white-space": "nowrap",
+    "max-width": "22em",
     fontSize: '1em',
     fontWeight: 500,
-    flex: 1,
   },
   entryIcons: {
     paddingLeft: '1em',

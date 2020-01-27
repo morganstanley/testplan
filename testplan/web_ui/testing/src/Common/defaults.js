@@ -167,10 +167,6 @@ const DICT_GRID_STYLE = {
 // us when updates are available.
 const POLL_MS = 1000;
 
-// The max length of a name to display. Longer names are allowed but will be
-// truncated for display purposes.
-const MAX_NAME_LENGTH = 32;
-
 export {
   GREEN,
   RED,
@@ -195,5 +191,4 @@ export {
   SORT_TYPES,
   DICT_GRID_STYLE,
   POLL_MS,
-  MAX_NAME_LENGTH,
 };

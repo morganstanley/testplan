@@ -2,10 +2,10 @@
 
 exports[`NavEntry shallow renders the correct HTML structure 1`] = `
 <div
-  className="d-flex justify-content-between"
+  className="d-flex justify-content-between align-items-center"
 >
   <div
-    className="entryName_3yx7w6-o_O-passed_1kh4m98"
+    className="entryName_xhpbj9-o_O-passed_1kh4m98"
     title="entry name"
   >
     entry name
@@ -44,10 +44,10 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
 
 exports[`NavEntry when prop status="failed" name div and Badge have correct styles 1`] = `
 <div
-  className="d-flex justify-content-between"
+  className="d-flex justify-content-between align-items-center"
 >
   <div
-    className="entryName_3yx7w6-o_O-failed_11es5k7"
+    className="entryName_xhpbj9-o_O-failed_11es5k7"
     title="entry name"
   >
     entry name
@@ -86,10 +86,10 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
 
 exports[`NavEntry when prop status="xfail" name div and Badge have correct styles 1`] = `
 <div
-  className="d-flex justify-content-between"
+  className="d-flex justify-content-between align-items-center"
 >
   <div
-    className="entryName_3yx7w6-o_O-unstable_eujaab"
+    className="entryName_xhpbj9-o_O-unstable_eujaab"
     title="entry name"
   >
     entry name
