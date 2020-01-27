@@ -742,14 +742,13 @@ class TestRunnerIHandler(entity.Entity):
         """
         host, port = self.http_handler_info
 
-        self.logger.warning(
-            "Interactive web viewer is not yet implemented. Interactive mode "
-            "currently only allows control of a Testplan via its HTTP API."
-        )
-
         self.logger.test_info(
-            "Interactive Testplan API is running. View the API schema:\n%s",
+            "\nInteractive Testplan API is running. View the API schema:\n%s",
             networking.format_access_urls(host, port, "/api/v1/interactive/"),
+        )
+        self.logger.critical(
+            "\nInteractive Testplan web UI is running. Access it at:\n%s",
+            networking.format_access_urls(host, port, "/interactive/"),
         )
 
     def _initial_report(self):
