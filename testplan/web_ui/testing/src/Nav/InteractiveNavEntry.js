@@ -42,10 +42,13 @@ const InteractiveNavEntry = (props) => {
   );
 
   return (
-    <div className='d-flex justify-content-between'>
-      <div className={
-        css(styles.entryName, styles[STATUS_CATEGORY[props.status]])
-        }>
+    <div className='d-flex justify-content-between align-items-center'>
+      <div
+        className={
+          css(styles.entryName, styles[STATUS_CATEGORY[props.status]])
+        }
+        title={props.name}
+      >
         {props.name}
       </div>
       <div className={css(styles.entryIcons)}>
@@ -180,7 +183,10 @@ InteractiveNavEntry.propTypes = {
 
 const styles = StyleSheet.create({
   entryName: {
-    overflow: 'hidden',
+    overflow: "hidden",
+    "text-overflow": "ellipsis",
+    "white-space": "nowrap",
+    "max-width": "22em",
     fontSize: '1em',
     fontWeight: 500,
   },

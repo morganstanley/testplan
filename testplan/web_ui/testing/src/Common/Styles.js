@@ -1,0 +1,18 @@
+/**
+ * Common aphrodite styles.
+ */
+import {StyleSheet} from 'aphrodite';
+
+
+const Styles = StyleSheet.create({
+  unselectable: {
+    "moz-user-select": "-moz-none",
+    "khtml-user-select": "none",
+    "webkit-user-select": "none",
+    "ms-user-select": "none",
+    "user-select": "none",
+  },
+});
+
+export default Styles;
+

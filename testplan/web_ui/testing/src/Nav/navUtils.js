@@ -7,6 +7,7 @@ import {StyleSheet, css} from 'aphrodite';
 
 import TagList from './TagList';
 import {LIGHT_GREY, DARK_GREY} from "../Common/defaults";
+import CommonStyles from "../Common/Styles.js";
 
 /**
  * Create the list entry buttons or a single button stating nothing can be
@@ -33,10 +34,13 @@ const CreateNavButtons = (
     );
 
     const tabIndex = entryIndex + 1;
-    const cssName = [styles.navButton, styles.navButtonInteract];
+    const cssName = [
+      styles.navButton, styles.navButtonInteract, CommonStyles.unselectable
+    ];
     if (selectedUid && selectedUid === entry.uid) {
       cssName.push(styles.navButtonInteractFocus);
     }
+
     return (
       <ListGroupItem
         tabIndex={tabIndex.toString()}
@@ -103,10 +107,11 @@ const applyNamedFilter = (entries, filter) => {
 const styles = StyleSheet.create({
   navButton: {
     position: 'relative',
-    display: 'inline-block',
+    display: 'block',
     border: 'none',
     backgroundColor: LIGHT_GREY,
     cursor: 'pointer',
+    height: '70px',
   },
   navButtonInteract: {
     ':hover': {
@@ -182,7 +187,6 @@ const GetNavBreadcrumbs = (selected) => {
     return selected;
   }
 };
-
 
 export {
   CreateNavButtons,

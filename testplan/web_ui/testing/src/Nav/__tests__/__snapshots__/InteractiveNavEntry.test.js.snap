@@ -2,10 +2,11 @@
 
 exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
 <div
-  className="d-flex justify-content-between"
+  className="d-flex justify-content-between align-items-center"
 >
   <div
-    className="entryName_1w2kiva-o_O-failed_11es5k7"
+    className="entryName_xhpbj9-o_O-failed_11es5k7"
+    title="FakeTestcase"
   >
     FakeTestcase
   </div>
@@ -74,10 +75,11 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
 
 exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
 <div
-  className="d-flex justify-content-between"
+  className="d-flex justify-content-between align-items-center"
 >
   <div
-    className="entryName_1w2kiva-o_O-passed_1kh4m98"
+    className="entryName_xhpbj9-o_O-passed_1kh4m98"
+    title="FakeTestcase"
   >
     FakeTestcase
   </div>
@@ -146,10 +148,11 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
 
 exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
 <div
-  className="d-flex justify-content-between"
+  className="d-flex justify-content-between align-items-center"
 >
   <div
-    className="entryName_1w2kiva"
+    className="entryName_xhpbj9"
+    title="FakeTestcase"
   >
     FakeTestcase
   </div>
@@ -218,10 +221,11 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
 
 exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
 <div
-  className="d-flex justify-content-between"
+  className="d-flex justify-content-between align-items-center"
 >
   <div
-    className="entryName_1w2kiva"
+    className="entryName_xhpbj9"
+    title="FakeTestcase"
   >
     FakeTestcase
   </div>
@@ -269,10 +273,11 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
 
 exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`] = `
 <div
-  className="d-flex justify-content-between"
+  className="d-flex justify-content-between align-items-center"
 >
   <div
-    className="entryName_1w2kiva"
+    className="entryName_xhpbj9"
+    title="FakeTestcase"
   >
     FakeTestcase
   </div>
@@ -372,10 +377,11 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
 
 exports[`InteractiveNavEntry renders an entry with environment status STARTING 1`] = `
 <div
-  className="d-flex justify-content-between"
+  className="d-flex justify-content-between align-items-center"
 >
   <div
-    className="entryName_1w2kiva"
+    className="entryName_xhpbj9"
+    title="FakeTestcase"
   >
     FakeTestcase
   </div>
@@ -474,10 +480,11 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
 
 exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`] = `
 <div
-  className="d-flex justify-content-between"
+  className="d-flex justify-content-between align-items-center"
 >
   <div
-    className="entryName_1w2kiva"
+    className="entryName_xhpbj9"
+    title="FakeTestcase"
   >
     FakeTestcase
   </div>
@@ -577,10 +584,11 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
 
 exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1`] = `
 <div
-  className="d-flex justify-content-between"
+  className="d-flex justify-content-between align-items-center"
 >
   <div
-    className="entryName_1w2kiva"
+    className="entryName_xhpbj9"
+    title="FakeTestcase"
   >
     FakeTestcase
   </div>
