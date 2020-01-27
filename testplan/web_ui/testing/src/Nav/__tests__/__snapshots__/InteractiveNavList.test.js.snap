@@ -2,13 +2,13 @@
 
 exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
 <Column
-  width={24}
+  width={28}
 >
   <ListGroup
     tag="ul"
   >
     <ListGroupItem
-      className="navButton_6hkfbl-o_O-navButtonInteract_1ofjo98"
+      className="navButton_1lm7voz-o_O-navButtonInteract_1ofjo98-o_O-unselectable_16maxrd"
       key="bbb"
       onClick={[Function]}
       tabIndex="1"

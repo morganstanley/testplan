@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {Badge} from 'reactstrap';
 import {StyleSheet, css} from "aphrodite";
 
+import {TrimName} from "./navUtils";
 import {
   RED,
   GREEN,
@@ -11,7 +12,8 @@ import {
   CATEGORY_ICONS,
   ENTRY_TYPES,
   STATUS,
-  STATUS_CATEGORY
+  STATUS_CATEGORY,
+  MAX_NAME_LENGTH,
 } from "../Common/defaults";
 
 /**
@@ -27,7 +29,7 @@ const NavEntry = (props) => {
       <div
         className={css(styles.entryName, styles[STATUS_CATEGORY[props.status]])}
         title={props.name}>
-        {props.name}
+        {TrimName(props.name, MAX_NAME_LENGTH)}
       </div>
       <div className={css(styles.entryIcons)}>
         <i className={css(styles.entryIcon)} title='passed/failed testcases'>

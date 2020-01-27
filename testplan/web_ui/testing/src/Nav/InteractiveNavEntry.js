@@ -21,7 +21,9 @@ import {
   STATUS,
   STATUS_CATEGORY,
   RUNTIME_STATUS,
+  MAX_NAME_LENGTH,
 } from "../Common/defaults";
+import {TrimName} from "./navUtils";
 
 /**
  * Display interactive NavEntry information:
@@ -46,7 +48,7 @@ const InteractiveNavEntry = (props) => {
       <div className={
         css(styles.entryName, styles[STATUS_CATEGORY[props.status]])
         }>
-        {props.name}
+        {TrimName(props.name, getMaxLength(props.type))}
       </div>
       <div className={css(styles.entryIcons)}>
         <i className={css(styles.entryIcon)} title='passed/failed testcases'>
@@ -66,6 +68,21 @@ const InteractiveNavEntry = (props) => {
       </div>
     </div>
   );
+};
+
+/**
+ * Get the maximum length for a particular entry's name. For MultiTest entries,
+ * we require a shorter name to make room for the extra environment control
+ * toggle.
+ */
+const getMaxLength = (category) => {
+  switch (category) {
+    case "multitest":
+      return MAX_NAME_LENGTH - 6;
+
+    default:
+      return MAX_NAME_LENGTH;
+  }
 };
 
 /**

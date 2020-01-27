@@ -9,8 +9,8 @@ const MEDIUM_GREY = '#D0D0D0';
 const DARK_GREY = '#ADADAD';
 const BLACK = '#404040';
 
-const COLUMN_WIDTH = 18;
-const INTERACTIVE_COL_WIDTH = 24;  // wider to fit interactive buttons
+const COLUMN_WIDTH = 22;
+const INTERACTIVE_COL_WIDTH = 28;  // wider to fit interactive buttons
 
 const INDENT_MULTIPLIER = 1.5;
 
@@ -167,6 +167,10 @@ const DICT_GRID_STYLE = {
 // us when updates are available.
 const POLL_MS = 1000;
 
+// The max length of a name to display. Longer names are allowed but will be
+// truncated for display purposes.
+const MAX_NAME_LENGTH = 32;
+
 export {
   GREEN,
   RED,
@@ -191,4 +195,5 @@ export {
   SORT_TYPES,
   DICT_GRID_STYLE,
   POLL_MS,
+  MAX_NAME_LENGTH,
 };

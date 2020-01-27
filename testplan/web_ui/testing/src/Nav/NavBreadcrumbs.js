@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import {StyleSheet, css} from 'aphrodite';
 
 import NavEntry from './NavEntry';
+import {TrimName} from "./navUtils";
 import {
-  LIGHT_GREY, MEDIUM_GREY, DARK_GREY, STATUS, RUNTIME_STATUS
+  LIGHT_GREY, MEDIUM_GREY, DARK_GREY, STATUS, RUNTIME_STATUS, MAX_NAME_LENGTH
 } from "../Common/defaults";
+import CommonStyles from "../Common/Styles.js";
 
 /**
  * Render a horizontal menu of all the currently selected entries.
@@ -30,9 +32,9 @@ return (
   <li
     key={entry.uid}
     onClick={((e) => props.handleNavClick(e, entry, depth))}>
-    <div className={css(styles.breadcrumbEntry)}>
+    <div className={css(styles.breadcrumbEntry, CommonStyles.unselectable)}>
       <NavEntry
-        name={entry.name}
+        name={TrimName(entry.name, MAX_NAME_LENGTH)}
         status={entry.status}
         type={entry.category}
         caseCountPassed={entry.counter.passed}

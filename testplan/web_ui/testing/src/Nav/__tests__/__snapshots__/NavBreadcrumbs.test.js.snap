@@ -12,7 +12,7 @@ exports[`NavBreadcrumbs shallow renders the correct HTML structure 1`] = `
       onClick={[Function]}
     >
       <div
-        className="breadcrumbEntry_e4f33"
+        className="breadcrumbEntry_e4f33-o_O-unselectable_16maxrd"
       >
         <NavEntry
           caseCountFailed={0}

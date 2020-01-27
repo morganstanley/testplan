@@ -17,7 +17,7 @@ exports[`EmptyReport renders a custom error message 1`] = `
     saveAssertions={[Function]}
   />
   <Message
-    left={18}
+    left={22}
     message="418 I'm a teapot"
   />
 </div>
@@ -40,7 +40,7 @@ exports[`EmptyReport shallow renders and matches snapshot 1`] = `
     saveAssertions={[Function]}
   />
   <Message
-    left={18}
+    left={22}
     message="404: Page Not Found"
   />
 </div>

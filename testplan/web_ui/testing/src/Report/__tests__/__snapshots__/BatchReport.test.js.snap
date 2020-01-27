@@ -535,7 +535,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     selected={Array []}
   />
   <Message
-    left={18}
+    left={22}
     message="Please select an entry."
   />
 </div>
