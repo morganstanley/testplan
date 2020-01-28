@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {StyleSheet, css} from 'aphrodite';
+import {css} from 'aphrodite';
 import {
   Button,
   Collapse,
@@ -21,9 +21,7 @@ import {
 } from 'reactstrap';
 
 import FilterBox from "../Toolbar/FilterBox";
-import {
-  GREEN, RED, ORANGE, BLACK, DARK_GREY, STATUS, STATUS_CATEGORY
-} from "../Common/defaults";
+import {STATUS, STATUS_CATEGORY} from "../Common/defaults";
 
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
@@ -36,6 +34,8 @@ import {
   faTags,
   faQuestionCircle,
 } from '@fortawesome/free-solid-svg-icons';
+
+import styles from "./navStyles";
 
 
 library.add(
@@ -109,222 +109,308 @@ class Toolbar extends Component {
     }));
   }
 
-  printOnClick() {
-    window.print();
+  /**
+   * Return the info button which toggles the info modal.
+   */
+  infoButton() {
+    return (
+      <NavItem>
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key='toolbar-info'
+            className={css(styles.toolbarButton)}
+            icon='info'
+            title='Info'
+            onClick={this.toggleInfoOnClick}
+          />
+        </div>
+      </NavItem>
+    );
   }
 
-  getInfoTable(report) {
-    if (report && report.information) {
-      const infoList = report.information.map((item, i) => {
-        return (
-          <tr key={i}>
-            <td className={css(styles.infoTableKey)}>{item[0]}</td>
-            <td className={css(styles.infoTableValue)}>{item[1]}</td>
-          </tr>
-        );
-      });
-      if (report.timer && report.timer.run) {
-        if (report.timer.run.start) {
-          infoList.push(
-            <tr key='start'>
-              <td>start</td>
-              <td>{report.timer.run.start}</td>
-            </tr>
-          );
-        }
-        if (report.timer.run.end) {
-          infoList.push(
-            <tr key='end'>
-              <td>end</td>
-              <td>{report.timer.run.end}</td>
-            </tr>
-          );
-        }
-      }
-      return (
-        <Table bordered responsive className={css(styles.infoTable)}>
-          <tbody>
-            {infoList}
-          </tbody>
-        </Table>
-      );
-    } else {
-      return null;
-    }
+  /**
+   * Return the filter button which opens a drop-down menu.
+   */
+  filterButton(toolbarStyle) {
+    return (
+      <UncontrolledDropdown nav inNavbar>
+        <div className={css(styles.buttonsBar)}>
+          <DropdownToggle nav className={toolbarStyle}>
+            <FontAwesomeIcon
+              key='toolbar-filter'
+              icon='filter'
+              title='Choose filter'
+              className={css(styles.toolbarButton)}
+            />
+          </DropdownToggle>
+        </div>
+        <DropdownMenu className={css(styles.filterDropdown)}>
+          <DropdownItem toggle={false}
+            className={css(styles.dropdownItem)}>
+            <Label check className={css(styles.filterLabel)}>
+              <Input type="radio" name="filter" value='all'
+                checked={this.state.filter === 'all'}
+                onChange={this.filterOnClick}/>{' '}
+              All
+            </Label>
+          </DropdownItem>
+          <DropdownItem toggle={false}
+            className={css(styles.dropdownItem)}>
+            <Label check className={css(styles.filterLabel)}>
+              <Input type="radio" name="filter" value='fail'
+                checked={this.state.filter === 'fail'}
+                onChange={this.filterOnClick}/>{' '}
+              Failed only
+            </Label>
+          </DropdownItem>
+          <DropdownItem toggle={false}
+            className={css(styles.dropdownItem)}>
+            <Label check className={css(styles.filterLabel)}>
+              <Input type="radio" name="filter" value='pass'
+                checked={this.state.filter === 'pass'}
+                onChange={this.filterOnClick}/>{' '}
+              Passed only
+            </Label>
+          </DropdownItem>
+          <DropdownItem divider />
+          <DropdownItem toggle={false}
+            className={css(styles.dropdownItem)}>
+            <Label check className={css(styles.filterLabel)}>
+              <Input type="checkbox" name="displayEmptyTest"
+                checked={!this.state.displayEmpty}
+                onChange={this.toggleEmptyDisplay}/>{' '}
+              Hide empty testcase
+            </Label>
+          </DropdownItem>
+        </DropdownMenu>
+      </UncontrolledDropdown>
+    );
   }
 
-  render() {
-    var toolbarStyle;
-    switch (STATUS_CATEGORY[this.props.status]){
-        case 'passed':
-            toolbarStyle = css(styles.toolbar, styles.toolbarPassed);
-            break;
-        case 'failed':
-        case 'error':
-            toolbarStyle = css(styles.toolbar, styles.toolbarFailed);
-            break;
-        case 'unstable':
-            toolbarStyle = css(styles.toolbar, styles.toolbarUnstable);
-            break;
-        default:
-            toolbarStyle = css(styles.toolbar, styles.toolbarUnknown);
-    }
+  /**
+   * Return the button which prints the current testplan.
+   */
+  printButton() {
+    return (
+      <NavItem>
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key='toolbar-print'
+            className={css(styles.toolbarButton)}
+            icon='print'
+            title='Print page'
+            onClick={window.print}
+          />
+        </div>
+      </NavItem>
+    );
+  }
+
+  /**
+   * Return the button which toggles the display of tags.
+   */
+  tagsButton() {
+    return (
+      <NavItem>
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key='toolbar-tags'
+            className={css(styles.toolbarButton)}
+            icon='tags'
+            title='Toggle tags'
+            onClick={this.toggleTagsDisplay}
+          />
+        </div>
+      </NavItem>
+    );
+  }
+
+  /**
+   * Return the button which toggles the help modal.
+   */
+  helpButton() {
+    return (
+      <NavItem>
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key='toolbar-question'
+            className={css(styles.toolbarButton)}
+            icon='question-circle'
+            title='Help'
+            onClick={this.toggleHelpOnClick}
+          />
+        </div>
+      </NavItem>
+    );
+  }
+
+  /**
+   * Return the button which links to the documentation.
+   */
+  documentationButton() {
+    return (
+      <NavItem>
+        <a href='http://testplan.readthedocs.io'
+          rel='noopener noreferrer' target='_blank'
+          className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key='toolbar-document'
+            className={css(styles.toolbarButton)}
+            icon='book'
+            title='Documentation'
+          />
+        </a>
+      </NavItem>
+    );
+  }
+
+  /**
+   * Return the navbar including all buttons.
+   */
+  navbar() {
+    const toolbarStyle = getToolbarStyle(this.props.status);
 
     return (
+      <Navbar light expand="md" className={css(styles.toolbar)}>
+        <div className={css(styles.filterBox)}>
+          <FilterBox handleNavFilter={this.props.handleNavFilter}/>
+        </div>
+        <Collapse isOpen={this.state.isOpen} navbar className={toolbarStyle}>
+          <Nav navbar className='ml-auto'>
+            {this.props.extraButtons}
+            {this.infoButton()}
+            {this.filterButton(toolbarStyle)}
+            {this.printButton()}
+            {this.tagsButton()}
+            {this.helpButton()}
+            {this.documentationButton()}
+          </Nav>
+        </Collapse>
+      </Navbar>
+    );
+  }
+
+  /**
+   * Return the help modal.
+   */
+  helpModal() {
+    return (
+      <Modal
+        isOpen={this.state.helpModal}
+        toggle={this.toggleHelpOnClick}
+        className='HelpModal'
+      >
+        <ModalHeader toggle={this.toggleHelpOnClick}>Help</ModalHeader>
+        <ModalBody>
+          This is filter box help!
+        </ModalBody>
+        <ModalFooter>
+          <Button color="light" onClick={this.toggleHelpOnClick}>
+            Close
+          </Button>
+        </ModalFooter>
+      </Modal>
+    );
+  }
+
+  /**
+   * Return the information modal.
+   */
+  infoModal() {
+    return (
+      <Modal
+        isOpen={this.state.infoModal}
+        toggle={this.toggleInfoOnClick}
+        size='lg'
+        className='infoModal'
+      >
+        <ModalHeader toggle={this.toggleInfoOnClick}>
+          Information
+        </ModalHeader>
+        <ModalBody>
+          {getInfoTable(this.props.report)}
+        </ModalBody>
+        <ModalFooter>
+          <Button color="light" onClick={this.toggleInfoOnClick}>
+            Close
+          </Button>
+        </ModalFooter>
+      </Modal>
+    );
+  }
+
+  /**
+   * Render the toolbar component.
+   */
+  render() {
+    return (
       <div>
-        <Navbar light expand="md" className={css(styles.toolbar)}>
-          <div className={css(styles.filterBox)}>
-            <FilterBox handleNavFilter={this.props.handleNavFilter}/>
-          </div>
-          <Collapse isOpen={this.state.isOpen} navbar className={toolbarStyle}>
-            <Nav navbar className='ml-auto'>
-              <NavItem>
-                <div className={css(styles.buttonsBar)}>
-                  <FontAwesomeIcon
-                    key='toolbar-info'
-                    className={css(styles.toolbarButton)}
-                    icon='info'
-                    title='Documentation'
-                    onClick={this.toggleInfoOnClick}
-                  />
-                </div>
-              </NavItem>
-              <UncontrolledDropdown nav inNavbar>
-                <div className={css(styles.buttonsBar)}>
-                  <DropdownToggle nav className={toolbarStyle}>
-                    <FontAwesomeIcon
-                      key='toolbar-filter'
-                      icon='filter'
-                      title='Choose filter'
-                      className={css(styles.toolbarButton)}
-                    />
-                  </DropdownToggle>
-                </div>
-                <DropdownMenu className={css(styles.filterDropdown)}>
-                  <DropdownItem toggle={false}
-                    className={css(styles.dropdownItem)}>
-                    <Label check className={css(styles.filterLabel)}>
-                      <Input type="radio" name="filter" value='all'
-                        checked={this.state.filter === 'all'}
-                        onChange={this.filterOnClick}/>{' '}
-                      All
-                    </Label>
-                  </DropdownItem>
-                  <DropdownItem toggle={false}
-                    className={css(styles.dropdownItem)}>
-                    <Label check className={css(styles.filterLabel)}>
-                      <Input type="radio" name="filter" value='fail'
-                        checked={this.state.filter === 'fail'}
-                        onChange={this.filterOnClick}/>{' '}
-                      Failed only
-                    </Label>
-                  </DropdownItem>
-                  <DropdownItem toggle={false}
-                    className={css(styles.dropdownItem)}>
-                    <Label check className={css(styles.filterLabel)}>
-                      <Input type="radio" name="filter" value='pass'
-                        checked={this.state.filter === 'pass'}
-                        onChange={this.filterOnClick}/>{' '}
-                      Passed only
-                    </Label>
-                  </DropdownItem>
-                  <DropdownItem divider />
-                  <DropdownItem toggle={false}
-                    className={css(styles.dropdownItem)}>
-                    <Label check className={css(styles.filterLabel)}>
-                      <Input type="checkbox" name="displayEmptyTest"
-                        checked={!this.state.displayEmpty}
-                        onChange={this.toggleEmptyDisplay}/>{' '}
-                      Hide empty testcase
-                    </Label>
-                  </DropdownItem>
-                </DropdownMenu>
-              </UncontrolledDropdown>
-              <NavItem>
-                <div className={css(styles.buttonsBar)}>
-                  <FontAwesomeIcon
-                    key='toolbar-print'
-                    className={css(styles.toolbarButton)}
-                    icon='print'
-                    title='Print page'
-                    onClick={this.printOnClick}
-                  />
-                </div>
-              </NavItem>
-              <NavItem>
-                <div className={css(styles.buttonsBar)}>
-                  <FontAwesomeIcon
-                    key='toolbar-tags'
-                    className={css(styles.toolbarButton)}
-                    icon='tags'
-                    title='Toggle tags'
-                    onClick={this.toggleTagsDisplay}
-                  />
-                </div>
-              </NavItem>
-              <NavItem>
-                <div className={css(styles.buttonsBar)}>
-                  <FontAwesomeIcon
-                    key='toolbar-question'
-                    className={css(styles.toolbarButton)}
-                    icon='question-circle'
-                    title='Help'
-                    onClick={this.toggleHelpOnClick}
-                  />
-                </div>
-              </NavItem>
-              <NavItem>
-                <a href='http://testplan.readthedocs.io'
-                  rel='noopener noreferrer' target='_blank'
-                  className={css(styles.buttonsBar)}>
-                  <FontAwesomeIcon
-                    key='toolbar-document'
-                    className={css(styles.toolbarButton)}
-                    icon='book'
-                    title='Documentation'
-                  />
-                </a>
-              </NavItem>
-            </Nav>
-          </Collapse>
-        </Navbar>
-        <Modal
-            isOpen={this.state.helpModal}
-            toggle={this.toggleHelpOnClick}
-            className='HelpModal'
-          >
-            <ModalHeader toggle={this.toggleHelpOnClick}>Help</ModalHeader>
-            <ModalBody>
-              This is filter box help!
-            </ModalBody>
-            <ModalFooter>
-              <Button color="light" onClick={this.toggleHelpOnClick}>
-                Close
-              </Button>
-            </ModalFooter>
-          </Modal>
-          <Modal
-            isOpen={this.state.infoModal}
-            toggle={this.toggleInfoOnClick}
-            size='lg'
-            className='infoModal'
-          >
-            <ModalHeader toggle={this.toggleInfoOnClick}>
-              Information
-            </ModalHeader>
-            <ModalBody>
-              {this.getInfoTable(this.props.report)}
-            </ModalBody>
-            <ModalFooter>
-              <Button color="light" onClick={this.toggleInfoOnClick}>
-                Close
-              </Button>
-            </ModalFooter>
-          </Modal>
+        {this.navbar()}
+        {this.helpModal()}
+        {this.infoModal()}
       </div>
     );
   }
 }
+
+/**
+ * Get the current toolbar style based on the testplan status.
+ */
+const getToolbarStyle = (status) => {
+  switch (STATUS_CATEGORY[status]){
+    case 'passed':
+        return css(styles.toolbar, styles.toolbarPassed);
+    case 'failed':
+    case 'error':
+        return css(styles.toolbar, styles.toolbarFailed);
+    case 'unstable':
+        return css(styles.toolbar, styles.toolbarUnstable);
+    default:
+        return css(styles.toolbar, styles.toolbarUnknown);
+  }
+};
+
+/**
+ * Get the metadata from the report and render it as a table.
+ */
+const getInfoTable = (report) => {
+  if (!report || !report.information) {
+    return "No information to display.";
+  }
+  const infoList = report.information.map((item, i) => {
+    return (
+      <tr key={i}>
+        <td className={css(styles.infoTableKey)}>{item[0]}</td>
+        <td className={css(styles.infoTableValue)}>{item[1]}</td>
+      </tr>
+    );
+  });
+  if (report.timer && report.timer.run) {
+    if (report.timer.run.start) {
+      infoList.push(
+        <tr key='start'>
+          <td>start</td>
+          <td>{report.timer.run.start}</td>
+        </tr>
+      );
+    }
+    if (report.timer.run.end) {
+      infoList.push(
+        <tr key='end'>
+          <td>end</td>
+          <td>{report.timer.run.end}</td>
+        </tr>
+      );
+    }
+  }
+  return (
+    <Table bordered responsive className={css(styles.infoTable)}>
+      <tbody>
+        {infoList}
+      </tbody>
+    </Table>
+  );
+};
 
 Toolbar.propTypes = {
   /** Testplan report's status */
@@ -340,78 +426,5 @@ Toolbar.propTypes = {
   /** Function to handle expressions entered into the Filter box */
   handleNavFilter: PropTypes.func,
 };
-
-const styles = StyleSheet.create({
-  toolbar: {
-    padding: '0',
-  },
-
-  filterBox: {
-    float: 'left',
-    height: '100%',
-  },
-  buttonsBar: {
-    float: 'left',
-    height: '100%',
-    color: 'white',
-  },
-  filterLabel: {
-    width: '100%',
-    display: 'inlinde-block',
-    cursor: 'pointer',
-    padding: '0.2em',
-    'margin-left': '2em',
-  },
-  dropdownItem: {
-    padding: '0',
-    ':focus': {
-      outline: '0',
-    },
-  },
-  toolbarButton: {
-    textDecoration: 'none',
-    position: 'relative',
-    display: 'inline-block',
-    height: '2.4em',
-    width: '2.4em',
-    cursor: 'pointer',
-    color: 'white',
-    padding: '0.7em 0em 0.7em 0em',
-    transition: 'all 0.3s ease-out 0s',
-    ':hover': {
-        color: DARK_GREY
-    }
-  },
-  toolbarUnstable: {
-    backgroundColor: ORANGE,
-    color: 'white'
-  },
-  toolbarUnknown: {
-    backgroundColor: BLACK,
-    color: 'white'
-  },
-  toolbarPassed: {
-    backgroundColor: GREEN,
-    color: 'white'
-  },
-  toolbarFailed: {
-    backgroundColor: RED,
-    color: 'white'
-  },
-  filterDropdown: {
-    'margin-top': '-0.3em'
-  },
-  infoTable: {
-    'table-layout': 'fixed',
-    width: '100%'
-  },
-  infoTableKey: {
-    width: '25%',
-  },
-  infoTableValue: {
-    'word-wrap': 'break-word',
-    'overflow-wrap': 'break-word',
-  }
-});
 
 export default Toolbar;

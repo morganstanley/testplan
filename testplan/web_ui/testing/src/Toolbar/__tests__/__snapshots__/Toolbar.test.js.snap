@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] = `
+exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
 <div>
   <Navbar
     className="toolbar_l6n5rs"
@@ -41,6 +41,46 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
         vertical={false}
       >
         <NavItem
+          key="reset-button"
+          tag="li"
+        >
+          <div
+            className="buttonsBar_13xq1v"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_z1gq62"
+              fixedWidth={false}
+              flip={null}
+              icon={
+                Object {
+                  "icon": Array [
+                    512,
+                    512,
+                    Array [],
+                    "f01e",
+                    "M500.333 0h-47.411c-6.853 0-12.314 5.729-11.986 12.574l3.966 82.759C399.416 41.899 331.672 8 256.001 8 119.34 8 7.899 119.526 8 256.187 8.101 393.068 119.096 504 256 504c63.926 0 122.202-24.187 166.178-63.908 5.113-4.618 5.354-12.561.482-17.433l-33.971-33.971c-4.466-4.466-11.64-4.717-16.38-.543C341.308 415.448 300.606 432 256 432c-97.267 0-176-78.716-176-176 0-97.267 78.716-176 176-176 60.892 0 114.506 30.858 146.099 77.8l-101.525-4.865c-6.845-.328-12.574 5.133-12.574 11.986v47.411c0 6.627 5.373 12 12 12h200.333c6.627 0 12-5.373 12-12V12c0-6.627-5.373-12-12-12z",
+                  ],
+                  "iconName": "redo",
+                  "prefix": "fas",
+                }
+              }
+              inverse={false}
+              key="toolbar-reset"
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Reset state"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <NavItem
           tag="li"
         >
           <div
@@ -63,7 +103,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
               size={null}
               spin={false}
               symbol={false}
-              title="Documentation"
+              title="Info"
               transform={null}
             />
           </div>
@@ -436,7 +476,463 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
     </ModalHeader>
     <ModalBody
       tag="div"
-    />
+    >
+      No information to display.
+    </ModalBody>
+    <ModalFooter
+      tag="div"
+    >
+      <Button
+        color="light"
+        onClick={[Function]}
+        tag="button"
+      >
+        Close
+      </Button>
+    </ModalFooter>
+  </Modal>
+</div>
+`;
+
+exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] = `
+<div>
+  <Navbar
+    className="toolbar_l6n5rs"
+    expand="md"
+    light={true}
+    tag="nav"
+  >
+    <div
+      className="filterBox_1kzbnzj"
+    >
+      <FilterBox
+        handleNavFilter={[MockFunction]}
+      />
+    </div>
+    <Collapse
+      appear={false}
+      className="toolbar_l6n5rs-o_O-toolbarPassed_1bjpgj2"
+      enter={true}
+      exit={true}
+      in={false}
+      isOpen={false}
+      mountOnEnter={false}
+      navbar={true}
+      onEnter={[Function]}
+      onEntered={[Function]}
+      onEntering={[Function]}
+      onExit={[Function]}
+      onExited={[Function]}
+      onExiting={[Function]}
+      tag="div"
+      timeout={350}
+      unmountOnExit={false}
+    >
+      <Nav
+        className="ml-auto"
+        navbar={true}
+        tag="ul"
+        vertical={false}
+      >
+        <NavItem
+          tag="li"
+        >
+          <div
+            className="buttonsBar_13xq1v"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_z1gq62"
+              fixedWidth={false}
+              flip={null}
+              icon="info"
+              inverse={false}
+              key="toolbar-info"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Info"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <UncontrolledDropdown
+          inNavbar={true}
+          nav={true}
+        >
+          <div
+            className="buttonsBar_13xq1v"
+          >
+            <DropdownToggle
+              aria-haspopup={true}
+              className="toolbar_l6n5rs-o_O-toolbarPassed_1bjpgj2"
+              color="secondary"
+              nav={true}
+            >
+              <FontAwesomeIcon
+                border={false}
+                className="toolbarButton_z1gq62"
+                fixedWidth={false}
+                flip={null}
+                icon="filter"
+                inverse={false}
+                key="toolbar-filter"
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title="Choose filter"
+                transform={null}
+              />
+            </DropdownToggle>
+          </div>
+          <DropdownMenu
+            className="filterDropdown_biw13d"
+            flip={true}
+            tag="div"
+          >
+            <DropdownItem
+              className="dropdownItem_1bl0z5g"
+              tag="button"
+              toggle={false}
+            >
+              <Label
+                check={true}
+                className="filterLabel_17zzvy"
+                tag="label"
+                widths={
+                  Array [
+                    "xs",
+                    "sm",
+                    "md",
+                    "lg",
+                    "xl",
+                  ]
+                }
+              >
+                <Input
+                  checked={true}
+                  name="filter"
+                  onChange={[Function]}
+                  type="radio"
+                  value="all"
+                />
+                 
+                All
+              </Label>
+            </DropdownItem>
+            <DropdownItem
+              className="dropdownItem_1bl0z5g"
+              tag="button"
+              toggle={false}
+            >
+              <Label
+                check={true}
+                className="filterLabel_17zzvy"
+                tag="label"
+                widths={
+                  Array [
+                    "xs",
+                    "sm",
+                    "md",
+                    "lg",
+                    "xl",
+                  ]
+                }
+              >
+                <Input
+                  checked={false}
+                  name="filter"
+                  onChange={[Function]}
+                  type="radio"
+                  value="fail"
+                />
+                 
+                Failed only
+              </Label>
+            </DropdownItem>
+            <DropdownItem
+              className="dropdownItem_1bl0z5g"
+              tag="button"
+              toggle={false}
+            >
+              <Label
+                check={true}
+                className="filterLabel_17zzvy"
+                tag="label"
+                widths={
+                  Array [
+                    "xs",
+                    "sm",
+                    "md",
+                    "lg",
+                    "xl",
+                  ]
+                }
+              >
+                <Input
+                  checked={false}
+                  name="filter"
+                  onChange={[Function]}
+                  type="radio"
+                  value="pass"
+                />
+                 
+                Passed only
+              </Label>
+            </DropdownItem>
+            <DropdownItem
+              divider={true}
+              tag="button"
+              toggle={true}
+            />
+            <DropdownItem
+              className="dropdownItem_1bl0z5g"
+              tag="button"
+              toggle={false}
+            >
+              <Label
+                check={true}
+                className="filterLabel_17zzvy"
+                tag="label"
+                widths={
+                  Array [
+                    "xs",
+                    "sm",
+                    "md",
+                    "lg",
+                    "xl",
+                  ]
+                }
+              >
+                <Input
+                  checked={false}
+                  name="displayEmptyTest"
+                  onChange={[Function]}
+                  type="checkbox"
+                />
+                 
+                Hide empty testcase
+              </Label>
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
+        <NavItem
+          tag="li"
+        >
+          <div
+            className="buttonsBar_13xq1v"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_z1gq62"
+              fixedWidth={false}
+              flip={null}
+              icon="print"
+              inverse={false}
+              key="toolbar-print"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Print page"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <NavItem
+          tag="li"
+        >
+          <div
+            className="buttonsBar_13xq1v"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_z1gq62"
+              fixedWidth={false}
+              flip={null}
+              icon="tags"
+              inverse={false}
+              key="toolbar-tags"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Toggle tags"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <NavItem
+          tag="li"
+        >
+          <div
+            className="buttonsBar_13xq1v"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_z1gq62"
+              fixedWidth={false}
+              flip={null}
+              icon="question-circle"
+              inverse={false}
+              key="toolbar-question"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Help"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <NavItem
+          tag="li"
+        >
+          <a
+            className="buttonsBar_13xq1v"
+            href="http://testplan.readthedocs.io"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_z1gq62"
+              fixedWidth={false}
+              flip={null}
+              icon="book"
+              inverse={false}
+              key="toolbar-document"
+              listItem={false}
+              mask={null}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Documentation"
+              transform={null}
+            />
+          </a>
+        </NavItem>
+      </Nav>
+    </Collapse>
+  </Navbar>
+  <Modal
+    autoFocus={true}
+    backdrop={true}
+    backdropTransition={
+      Object {
+        "mountOnEnter": true,
+        "timeout": 150,
+      }
+    }
+    centered={false}
+    className="HelpModal"
+    fade={true}
+    isOpen={false}
+    keyboard={true}
+    modalTransition={
+      Object {
+        "timeout": 300,
+      }
+    }
+    onClosed={[Function]}
+    onOpened={[Function]}
+    role="dialog"
+    toggle={[Function]}
+    zIndex={1050}
+  >
+    <ModalHeader
+      closeAriaLabel="Close"
+      tag="h5"
+      toggle={[Function]}
+      wrapTag="div"
+    >
+      Help
+    </ModalHeader>
+    <ModalBody
+      tag="div"
+    >
+      This is filter box help!
+    </ModalBody>
+    <ModalFooter
+      tag="div"
+    >
+      <Button
+        color="light"
+        onClick={[Function]}
+        tag="button"
+      >
+        Close
+      </Button>
+    </ModalFooter>
+  </Modal>
+  <Modal
+    autoFocus={true}
+    backdrop={true}
+    backdropTransition={
+      Object {
+        "mountOnEnter": true,
+        "timeout": 150,
+      }
+    }
+    centered={false}
+    className="infoModal"
+    fade={true}
+    isOpen={false}
+    keyboard={true}
+    modalTransition={
+      Object {
+        "timeout": 300,
+      }
+    }
+    onClosed={[Function]}
+    onOpened={[Function]}
+    role="dialog"
+    size="lg"
+    toggle={[Function]}
+    zIndex={1050}
+  >
+    <ModalHeader
+      closeAriaLabel="Close"
+      tag="h5"
+      toggle={[Function]}
+      wrapTag="div"
+    >
+      Information
+    </ModalHeader>
+    <ModalBody
+      tag="div"
+    >
+      No information to display.
+    </ModalBody>
     <ModalFooter
       tag="div"
     >
@@ -515,7 +1011,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
               size={null}
               spin={false}
               symbol={false}
-              title="Documentation"
+              title="Info"
               transform={null}
             />
           </div>
@@ -888,7 +1384,9 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
     </ModalHeader>
     <ModalBody
       tag="div"
-    />
+    >
+      No information to display.
+    </ModalBody>
     <ModalFooter
       tag="div"
     >
