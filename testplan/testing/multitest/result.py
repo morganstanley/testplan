@@ -654,7 +654,7 @@ class TableNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.TableDiff(
+        entry = assertions.TableDiff(
             table=actual,
             expected_table=expected,
             include_columns=include_columns,
@@ -665,6 +665,8 @@ class TableNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
     def log(self, table, display_index=False, description=None):
         """
