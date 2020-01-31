@@ -6,12 +6,10 @@ log data. Entries contained in the result are copied into the Report object
 after testcases have finished running.
 
 """
-import functools
 import inspect
 import os
 import re
 import uuid
-import hashlib
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
@@ -89,40 +87,24 @@ class ExceptionCapture(object):
         return True
 
 
-def bind_entry(method):
+def _bind_entry(entry, result_obj):
     """
     Appends return value of a assertion / log method to the ``Result`` object's
     ``entries`` list.
     """
+    # Second element is the caller
+    caller_frame = inspect.stack()[1]
+    entry.file_path = os.path.abspath(caller_frame[1])
+    entry.line_no = caller_frame[2]
 
-    @functools.wraps(method)
-    def _wrapper(obj, *args, **kwargs):
-        entry = method(obj, *args, **kwargs)
+    result_obj.entries.append(entry)
 
-        # Second element is the caller
-        caller_frame = inspect.stack()[1]
-        entry.file_path = os.path.abspath(caller_frame[1])
-        entry.line_no = caller_frame[2]
+    stdout_registry.log_entry(
+        entry=entry, stdout_style=result_obj.stdout_style
+    )
 
-        if isinstance(obj, AssertionNamespace):
-            result_obj = obj.result
-        elif isinstance(obj, Result):
-            result_obj = obj
-        else:
-            raise TypeError("Invalid assertion container: {}".format(obj))
-
-        result_obj.entries.append(entry)
-
-        stdout_registry.log_entry(
-            entry=entry, stdout_style=result_obj.stdout_style
-        )
-
-        if not entry and not result_obj.continue_on_failure:
-            raise AssertionError(entry)
-
-        return entry
-
-    return _wrapper
+    if not entry and not result_obj.continue_on_failure:
+        raise AssertionError(entry)
 
 
 class AssertionNamespace(object):
@@ -138,7 +120,6 @@ class AssertionNamespace(object):
 class RegexNamespace(AssertionNamespace):
     """Contains logic for regular expression assertions."""
 
-    @bind_entry
     def match(self, regexp, value, description=None, category=None, flags=0):
         """
         Checks if the given ``regexp`` matches the ``value``
@@ -162,15 +143,16 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.RegexMatch(
+        entry = assertions.RegexMatch(
             regexp=regexp,
             string=value,
             flags=flags,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def multiline_match(self, regexp, value, description=None, category=None):
         """
         Checks if the given ``regexp`` matches the ``value``
@@ -199,15 +181,16 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status.
         :rtype: ``bool``
         """
-        return assertions.RegexMatch(
+        entry = assertions.RegexMatch(
             regexp=regexp,
             string=value,
             flags=re.MULTILINE | re.DOTALL,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def not_match(
         self, regexp, value, description=None, category=None, flags=0
     ):
@@ -233,15 +216,16 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status.
         :rtype: ``bool``
         """
-        return assertions.RegexMatchNotExists(
+        entry = assertions.RegexMatchNotExists(
             regexp=regexp,
             string=value,
             flags=flags,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def multiline_not_match(
         self, regexp, value, description=None, category=None
     ):
@@ -272,15 +256,16 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.RegexMatchNotExists(
+        entry = assertions.RegexMatchNotExists(
             regexp=regexp,
             string=value,
             flags=re.MULTILINE | re.DOTALL,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def search(self, regexp, value, description=None, category=None, flags=0):
         """
         Checks if the given ``regexp`` exists in the ``value``
@@ -304,15 +289,16 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.RegexSearch(
+        entry = assertions.RegexSearch(
             regexp=regexp,
             string=value,
             flags=flags,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def search_empty(
         self, regexp, value, description=None, category=None, flags=0
     ):
@@ -338,15 +324,16 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.RegexSearchNotExists(
+        entry = assertions.RegexSearchNotExists(
             regexp=regexp,
             string=value,
             flags=flags,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def findall(
         self,
         regexp,
@@ -386,7 +373,7 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.RegexFindIter(
+        entry = assertions.RegexFindIter(
             regexp=regexp,
             string=value,
             description=description,
@@ -394,8 +381,9 @@ class RegexNamespace(AssertionNamespace):
             condition=condition,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def matchline(
         self, regexp, value, description=None, category=None, flags=0
     ):
@@ -428,19 +416,20 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.RegexMatchLine(
+        entry = assertions.RegexMatchLine(
             regexp=regexp,
             string=value,
             description=description,
             flags=flags,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
 
 class TableNamespace(AssertionNamespace):
     """Contains logic for regular expression assertions."""
 
-    @bind_entry
     def column_contain(
         self,
         table,
@@ -489,7 +478,7 @@ class TableNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.ColumnContain(
+        entry = assertions.ColumnContain(
             table=table,
             values=values,
             column=column,
@@ -498,8 +487,9 @@ class TableNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def match(
         self,
         actual,
@@ -575,7 +565,7 @@ class TableNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.TableMatch(
+        entry = assertions.TableMatch(
             table=actual,
             expected_table=expected,
             include_columns=include_columns,
@@ -585,8 +575,9 @@ class TableNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def diff(
         self,
         actual,
@@ -663,7 +654,7 @@ class TableNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.TableDiff(
+        entry = assertions.TableDiff(
             table=actual,
             expected_table=expected,
             include_columns=include_columns,
@@ -674,8 +665,9 @@ class TableNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def log(self, table, display_index=False, description=None):
         """
         Logs a table to the report.
@@ -700,15 +692,15 @@ class TableNamespace(AssertionNamespace):
                  fail.
         :rtype: ``bool``
         """
-        return base.TableLog(
+        entry = base.TableLog(
             table=table, display_index=display_index, description=description
         )
+        _bind_entry(entry, self.result)
 
 
 class XMLNamespace(AssertionNamespace):
     """Contains logic for XML related assertions."""
 
-    @bind_entry
     def check(
         self,
         element,
@@ -767,7 +759,7 @@ class XMLNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.XMLCheck(
+        entry = assertions.XMLCheck(
             element=element,
             xpath=xpath,
             tags=tags,
@@ -775,12 +767,13 @@ class XMLNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
 
 class DictNamespace(AssertionNamespace):
     """Contains logic for Dictionary related assertions."""
 
-    @bind_entry
     def check(
         self,
         dictionary,
@@ -816,15 +809,16 @@ class DictNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.DictCheck(
+        entry = assertions.DictCheck(
             dictionary=dictionary,
             has_keys=has_keys,
             absent_keys=absent_keys,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def match(
         self,
         actual,
@@ -904,7 +898,7 @@ class DictNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.DictMatch(
+        entry = assertions.DictMatch(
             value=actual,
             expected=expected,
             description=description,
@@ -916,8 +910,9 @@ class DictNamespace(AssertionNamespace):
             category=category,
             value_cmp_func=value_cmp_func,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def match_all(
         self,
         values,
@@ -971,15 +966,16 @@ class DictNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.DictMatchAll(
+        entry = assertions.DictMatchAll(
             values=values,
             comparisons=comparisons,
             key_weightings=key_weightings,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def log(self, dictionary, description=None):
         """
         Logs a dictionary to the report.
@@ -1002,13 +998,14 @@ class DictNamespace(AssertionNamespace):
                  fail.
         :rtype: ``bool``
         """
-        return base.DictLog(dictionary=dictionary, description=description)
+        entry = base.DictLog(dictionary=dictionary, description=description)
+        _bind_entry(entry, self.result)
+        return entry
 
 
 class FixNamespace(AssertionNamespace):
     """Contains assertion logic that operates on fix messages."""
 
-    @bind_entry
     def check(
         self,
         msg,
@@ -1048,15 +1045,16 @@ class FixNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.FixCheck(
+        entry = assertions.FixCheck(
             msg=msg,
             has_tags=has_tags,
             absent_tags=absent_tags,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def match(
         self,
         actual,
@@ -1120,8 +1118,7 @@ class FixNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-
-        return assertions.FixMatch(
+        entry = assertions.FixMatch(
             value=actual,
             expected=expected,
             description=description,
@@ -1132,8 +1129,9 @@ class FixNamespace(AssertionNamespace):
             expected_description=expected_description,
             actual_description=actual_description,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def match_all(
         self,
         values,
@@ -1190,15 +1188,16 @@ class FixNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.FixMatchAll(
+        entry = assertions.FixMatchAll(
             values=values,
             comparisons=comparisons,
             tag_weightings=tag_weightings,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def log(self, msg, description=None):
         """
         Logs a fix message to the report.
@@ -1223,7 +1222,9 @@ class FixNamespace(AssertionNamespace):
                  fail.
         :rtype: ``bool``
         """
-        return base.FixLog(msg=msg, description=description)
+        entry = base.FixLog(msg=msg, description=description)
+        _bind_entry(entry, self.result)
+        return entry
 
 
 class Result(object):
@@ -1390,7 +1391,6 @@ class Result(object):
         """Entries stored passed status."""
         return all(getattr(entry, "passed", True) for entry in self.entries)
 
-    @bind_entry
     def log(self, message, description=None):
         """
         Create a string message entry, can be used for providing additional
@@ -1407,9 +1407,10 @@ class Result(object):
         :return: ``True``
         :rtype: ``bool``
         """
-        return base.Log(message=message, description=description)
+        entry = base.Log(message=message, description=description)
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def fail(self, description, category=None):
         """
         Failure assertion, can be used for explicitly failing a testcase.
@@ -1427,9 +1428,10 @@ class Result(object):
         :return: ``False``
         :rtype: ``bool``
         """
-        return assertions.Fail(description, category=category)
+        entry = assertions.Fail(description, category=category)
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def true(self, value, description=None, category=None):
         """
         Boolean assertion, checks if ``value`` is truthy.
@@ -1447,11 +1449,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.IsTrue(
+        entry = assertions.IsTrue(
             value, description=description, category=category
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def false(self, value, description=None, category=None):
         """
         Boolean assertion, checks if ``value`` is falsy.
@@ -1469,11 +1472,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.IsFalse(
+        entry = assertions.IsFalse(
             value, description=description, category=category
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def equal(self, actual, expected, description=None, category=None):
         """
         Equality assertion, checks if ``actual == expected``.
@@ -1494,11 +1498,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.Equal(
+        entry = assertions.Equal(
             actual, expected, description=description, category=category
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def not_equal(self, actual, expected, description=None, category=None):
         """
         Inequality assertion, checks if ``actual != expected``.
@@ -1519,11 +1524,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.NotEqual(
+        entry = assertions.NotEqual(
             actual, expected, description=description, category=category
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def less(self, first, second, description=None, category=None):
         """
         Checks if ``first < second``.
@@ -1544,11 +1550,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.Less(
+        entry = assertions.Less(
             first, second, description=description, category=category
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def greater(self, first, second, description=None, category=None):
         """
         Checks if ``first > second``.
@@ -1569,11 +1576,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.Greater(
+        entry = assertions.Greater(
             first, second, description=description, category=category
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def less_equal(self, first, second, description=None, category=None):
         """
         Checks if ``first <= second``.
@@ -1594,11 +1602,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.LessEqual(
+        entry = assertions.LessEqual(
             first, second, description=description, category=category
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def greater_equal(self, first, second, description=None, category=None):
         """
         Checks if ``first >= second``.
@@ -1619,9 +1628,11 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.GreaterEqual(
+        entry = assertions.GreaterEqual(
             first, second, description=description, category=category
         )
+        _bind_entry(entry, self)
+        return entry
 
     # Shortcut aliases for basic comparators
     eq = equal
@@ -1631,7 +1642,6 @@ class Result(object):
     le = less_equal
     ge = greater_equal
 
-    @bind_entry
     def isclose(
         self,
         first,
@@ -1659,7 +1669,7 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.IsClose(
+        entry = assertions.IsClose(
             first,
             second,
             rel_tol,
@@ -1667,8 +1677,9 @@ class Result(object):
             description=description,
             category=category,
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def contain(self, member, container, description=None, category=None):
         """
         Checks if ``member in container``.
@@ -1689,11 +1700,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.Contain(
+        entry = assertions.Contain(
             member, container, description=description, category=category
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def not_contain(self, member, container, description=None, category=None):
         """
         Checks if ``member not in container``.
@@ -1714,11 +1726,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.NotContain(
+        entry = assertions.NotContain(
             member, container, description=description, category=category
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def equal_slices(
         self, actual, expected, slices, description=None, category=None
     ):
@@ -1748,15 +1761,16 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.EqualSlices(
+        entry = assertions.EqualSlices(
             expected=expected,
             actual=actual,
             slices=slices,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def equal_exclude_slices(
         self, actual, expected, slices, description=None, category=None
     ):
@@ -1787,13 +1801,15 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.EqualExcludeSlices(
+        entry = assertions.EqualExcludeSlices(
             expected=expected,
             actual=actual,
             slices=slices,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self)
+        return entry
 
     def raises(
         self,
@@ -1905,7 +1921,6 @@ class Result(object):
             pattern=pattern,
         )
 
-    @bind_entry
     def diff(
         self,
         first,
@@ -1950,7 +1965,7 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.LineDiff(
+        entry = assertions.LineDiff(
             first,
             second,
             ignore_space_change=ignore_space_change,
@@ -1961,8 +1976,9 @@ class Result(object):
             description=description,
             category=category,
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def graph(
         self,
         graph_type,
@@ -2007,22 +2023,23 @@ class Result(object):
                                legend (Default: false)
         :type graph_options: ``dict[str, object]``.
         """
-        return base.Graph(
+        entry = base.Graph(
             graph_type=graph_type,
             graph_data=graph_data,
             description=description,
             series_options=series_options,
             graph_options=graph_options,
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def attach(self, filepath, description=None):
         """Attaches a file to the report."""
         attachment = base.Attachment(filepath, description)
         self.attachments.append(attachment)
+        _bind_entry(attachment, self)
         return attachment
 
-    @bind_entry
     def matplot(self, pyplot, width=2, height=2, description=None):
         """
         Displays a Matplotlib plot in the report.
@@ -2049,6 +2066,7 @@ class Result(object):
             description=description,
         )
         self.attachments.append(matplot)
+        _bind_entry(matplot, self)
         return matplot
 
     @property
