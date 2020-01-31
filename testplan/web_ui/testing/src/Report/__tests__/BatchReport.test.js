@@ -5,7 +5,7 @@ import moxios from 'moxios';
 
 import BatchReport from '../BatchReport';
 import Message from '../../Common/Message';
-import {TESTPLAN_REPORT} from "../../Common/sampleReports";
+import {TESTPLAN_REPORT, SIMPLE_REPORT} from "../../Common/sampleReports";
 
 describe('BatchReport', () => {
   const renderBatchReport = (uid="123") => {
@@ -58,6 +58,48 @@ describe('BatchReport', () => {
     expect(message.props().message).toEqual(expectedMessage);
   });
 
+  it('loads a simple report and autoselects entries', done => {
+    const batchReport = renderBatchReport();
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe("/api/v1/reports/123");
+      request.respondWith({
+        status: 200,
+        response: SIMPLE_REPORT,
+      }).then(() => {
+        batchReport.update();
+        const selection = batchReport.state("selectedUIDs");
+        expect(selection.length).toBe(3);
+        expect(selection).toEqual([
+          "520a92e4-325e-4077-93e6-55d7091a3f83",
+          "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+          "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+        ]);
+        expect(batchReport).toMatchSnapshot();
+        done();
+      });
+    });
+  });
+
+  it('loads a more complex report and autoselects entries', done => {
+    const batchReport = renderBatchReport();
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe("/api/v1/reports/123");
+      request.respondWith({
+        status: 200,
+        response: TESTPLAN_REPORT,
+      }).then(() => {
+        batchReport.update();
+        const selection = batchReport.state("selectedUIDs");
+        expect(selection.length).toBe(1);
+        expect(selection).toEqual(["520a92e4-325e-4077-93e6-55d7091a3f83"]);
+        expect(batchReport).toMatchSnapshot();
+        done();
+      });
+    });
+  });
+
   it('renders an error message when Testplan report cannot be found.', done => {
     const batchReport = renderBatchReport();
     moxios.wait(function () {
@@ -74,4 +116,5 @@ describe('BatchReport', () => {
       })
     })
   });
+
 });

@@ -82,9 +82,11 @@ class BatchReport extends React.Component {
 
   /**
    * Auto-select an entry in the report when it is first loaded.
+   * @param {reportNode} reportEntry - the current report entry to select from.
+   * @return {Array[string]} List of UIDs of the currently selected entries.
    */
   autoSelect(reportEntry) {
-    const selection = [reportEntry];
+    const selection = [reportEntry.uid];
 
     // If the current report entry has only one child entry and that entry is
     // not a testcase, we automatically expand it.
