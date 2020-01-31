@@ -9,6 +9,7 @@ import axios from 'axios';
 
 import {INTERACTIVE_COL_WIDTH} from "../Common/defaults";
 import Toolbar from '../Toolbar/Toolbar.js';
+import {ResetButton} from  '../Toolbar/InteractiveButtons';
 import InteractiveNav from '../Nav/InteractiveNav.js';
 import {FakeInteractiveReport} from '../Common/sampleReports.js';
 import {
@@ -35,11 +36,13 @@ class InteractiveReport extends React.Component {
       selectedUIDs: [],
       loading: false,
       error: null,
+      resetting: false,
     };
     this.handleNavClick = this.handleNavClick.bind(this);
     this.handlePlayClick = this.handlePlayClick.bind(this);
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.getReport = this.getReport.bind(this);
+    this.resetReport = this.resetReport.bind(this);
   }
 
   /**
@@ -213,7 +216,7 @@ class InteractiveReport extends React.Component {
    */
   putUpdatedReportEntry(updatedReportEntry) {
     const apiUrl = this.getApiUrl(updatedReportEntry);
-    axios.put(apiUrl, updatedReportEntry).then(
+    return axios.put(apiUrl, updatedReportEntry).then(
       response => this.setShallowReportEntry(response.data)
     ).catch(
       error => this.setState({error: error})
@@ -403,6 +406,52 @@ class InteractiveReport extends React.Component {
   }
 
   /**
+   * Reset the report state, by updating all testcases to have no entries.
+   */
+  resetReport() {
+    let needReset = false;
+    this.setState((state) => {
+        if (state.resetting) {
+          return null;
+        }
+
+        needReset = true;
+        return {resetting: true};
+      },
+      () => {
+        if (needReset) {
+          this.resetTestcasesRecur(this.state.report).then(
+            () => this.setState({resetting: false})
+          );
+        }
+      }
+    );
+  }
+
+  /**
+   * Recursievly dig down into the report tree and reset the state of any
+   * testcase entries. Other entries derive their state from the testcases
+   * so their state updates will be provided to us by the backend.
+   */
+  resetTestcasesRecur(reportEntry) {
+    if (reportEntry.category === "testcase") {
+      if (reportEntry.entries.length === 0) {
+        return null;
+      } else {
+        const updatedReportEntry = {
+          ...reportEntry,
+          entries: [],
+        };
+        return this.putUpdatedReportEntry(updatedReportEntry);
+      }
+    } else if (reportEntry.entries) {
+      return Promise.all(reportEntry.entries.map(
+        childEntry => this.resetTestcasesRecur(childEntry)
+      ));
+    }
+  }
+
+  /**
    * Render the InteractiveReport component based on its current state.
    */
   render() {
@@ -427,6 +476,10 @@ class InteractiveReport extends React.Component {
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
           updateTagsDisplayFunc={noop}
+          extraButtons={[<ResetButton
+            resetStateCbk={this.resetReport}
+            resetting={this.state.resetting}
+          />]}
         />
         <InteractiveNav
           report={this.state.report}

@@ -7,7 +7,7 @@ import moxios from 'moxios';
 import InteractiveReport from '../InteractiveReport.js';
 import {FakeInteractiveReport} from '../../Common/sampleReports.js';
 
-const INITIAL_REPORT = {
+const initialReport = () => ({
   "category": "testplan",
   "uid": "TestplanUID",
   "timer": {},
@@ -119,7 +119,7 @@ const INITIAL_REPORT = {
       ],
     }],
   }],
-};
+});
 
 
 describe('InteractiveReport', () => {
@@ -307,35 +307,39 @@ describe('InteractiveReport', () => {
 
   it("handles navigation entries being clicked", () => {
     const interactiveReport = shallow(<InteractiveReport />);
+    const report = initialReport();
+
     interactiveReport.setState({
-      report: INITIAL_REPORT,
-      selectedUIDs: interactiveReport.instance().autoSelect(INITIAL_REPORT),
+      report: report,
+      selectedUIDs: interactiveReport.instance().autoSelect(report),
     });
     interactiveReport.update();
     expect(interactiveReport.state("selectedUIDs")).toStrictEqual([
-      INITIAL_REPORT.uid,
+      report.uid,
     ]);
 
     const mockEvent = {stopPropagation: jest.fn()};
     interactiveReport.instance().handleNavClick(
       mockEvent,
-      INITIAL_REPORT.entries[0],
+      report.entries[0],
       1,
     );
     interactiveReport.update();
 
     expect(interactiveReport.state("selectedUIDs")).toStrictEqual([
-      INITIAL_REPORT.uid,
-      INITIAL_REPORT.entries[0].uid,
+      report.uid,
+      report.entries[0].uid,
     ]);
     expect(interactiveReport).toMatchSnapshot();
   });
 
   const testRunEntry = (done, clickedEntry, expectedURL) => {
     const interactiveReport = shallow(<InteractiveReport />);
+    const report = initialReport()
+
     interactiveReport.setState({
-      report: INITIAL_REPORT,
-      selectedUIDs: interactiveReport.instance().autoSelect(INITIAL_REPORT),
+      report: report,
+      selectedUIDs: interactiveReport.instance().autoSelect(report),
     });
     interactiveReport.update();
 
@@ -362,26 +366,26 @@ describe('InteractiveReport', () => {
 
   it("handles tests being run", done => testRunEntry(
     done,
-    INITIAL_REPORT.entries[0],
+    initialReport().entries[0],
     "/api/v1/interactive/report/tests/MultiTestUID",
   ));
 
   it("handles individual test suites being run", done => testRunEntry(
     done,
-    INITIAL_REPORT.entries[0].entries[0],
+    initialReport().entries[0].entries[0],
     "/api/v1/interactive/report/tests/MultiTestUID/suites/SuiteUID",
   ));
 
   it("handles individual testcases being run", done => testRunEntry(
     done,
-    INITIAL_REPORT.entries[0].entries[0].entries[0],
+    initialReport().entries[0].entries[0].entries[0],
     "/api/v1/interactive/report/tests/MultiTestUID/suites/SuiteUID"
     + "/testcases/testcaseUID",
   ));
 
   it("handles individual parametrizations being run", done => testRunEntry(
     done,
-    INITIAL_REPORT.entries[0].entries[0].entries[1].entries[0],
+    initialReport().entries[0].entries[0].entries[1].entries[0],
     "/api/v1/interactive/report/tests/MultiTestUID/suites/SuiteUID"
     + "/testcases/ParametrizationUID/parametrizations"
     + "/ParametrizationUID__val_1",
@@ -389,9 +393,11 @@ describe('InteractiveReport', () => {
 
   it("Parially refreshes the report on update.", done => {
     const interactiveReport = shallow(<InteractiveReport />);
+    const report = initialReport();
+
     interactiveReport.setState({
-      report: INITIAL_REPORT,
-      selectedUIDs: interactiveReport.instance().autoSelect(INITIAL_REPORT),
+      report: report,
+      selectedUIDs: interactiveReport.instance().autoSelect(report),
     });
     interactiveReport.update();
 
@@ -434,9 +440,11 @@ describe('InteractiveReport', () => {
 
   it("Updates testcase state", done => {
     const interactiveReport = shallow(<InteractiveReport />);
+    const report = initialReport();
+
     interactiveReport.setState({
-      report: INITIAL_REPORT,
-      selectedUIDs: interactiveReport.instance().autoSelect(INITIAL_REPORT),
+      report: report,
+      selectedUIDs: interactiveReport.instance().autoSelect(report),
     });
     interactiveReport.update();
 
@@ -560,13 +568,15 @@ describe('InteractiveReport', () => {
 
   it('Handles environment being started', done => {
     const interactiveReport = shallow(<InteractiveReport />);
+    const report = initialReport();
+
     interactiveReport.setState({
-      report: INITIAL_REPORT,
-      selectedUIDs: interactiveReport.instance().autoSelect(INITIAL_REPORT),
+      report: report,
+      selectedUIDs: interactiveReport.instance().autoSelect(report),
     });
     interactiveReport.update();
 
-    const clickedEntry = INITIAL_REPORT.entries[0];
+    const clickedEntry = report.entries[0];
     const mockEvent = {stopPropagation: jest.fn()};
     interactiveReport.instance().envCtrlCallback(
       mockEvent, clickedEntry, "start",
@@ -589,6 +599,47 @@ describe('InteractiveReport', () => {
         expect(interactiveReport).toMatchSnapshot();
         done();
       });
+    });
+  });
+
+  it('Resets testcase state', done => {
+    const interactiveReport = shallow(<InteractiveReport />);
+
+    const report = initialReport();
+    const testcase = report.entries[0].entries[0].entries[0];
+    expect(testcase.category).toBe("testcase");
+
+    // Add an assertion entry.
+    testcase.entries = [{
+      machine_time: "2020-01-28T17:27:46.134440+00:00",
+      second: "foo",
+      description: null,
+      passed: true,
+      meta_type: "assertion",
+      type: "Equal",
+      category: "DEFAULT",
+      utc_time: "2020-01-28T17:27:46.134429+00:00",
+      line_no: 24,
+      label: "==",
+      first: "foo",
+    }];
+
+    interactiveReport.setState({
+      report: report,
+      selectedUIDs: interactiveReport.instance().autoSelect(report),
+    });
+    interactiveReport.update();
+    interactiveReport.instance().resetReport();
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe(
+        "/api/v1/interactive/report/tests/MultiTestUID/suites/SuiteUID/" +
+        "testcases/testcaseUID"
+      );
+      expect(request.config.method).toBe("put");
+      const putData = JSON.parse(request.config.data);
+      expect(putData.entries.length).toBe(0);
+      done();
     });
   });
 });
