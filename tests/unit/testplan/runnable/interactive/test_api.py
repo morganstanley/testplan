@@ -472,12 +472,8 @@ class TestParametrizedTestCase(object):
         assert rsp.status == "200 OK"
         compare_json(rsp.get_json(), testcase_json)
 
-        ihandler.run_parametrized_test_case.assert_called_once_with(
-            "MTest1",
-            "MT1Suite1",
-            "MT1S1TC2",
-            "MT1S1TC2_0",
-            await_results=False,
+        ihandler.run_test_case.assert_called_once_with(
+            "MTest1", "MT1Suite1", "MT1S1TC2_0", await_results=False
         )
 
 

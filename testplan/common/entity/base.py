@@ -588,28 +588,6 @@ class RunnableStatus(EntityStatus):
         return transitions
 
 
-class RunnableIRunner(object):
-    EMPTY_DICT = dict()
-    EMPTY_TUPLE = tuple()
-
-    def __init__(self, runnable):
-        self._runnable = runnable
-
-    @staticmethod
-    def set_run_status(func):
-        @functools.wraps(func)
-        def wrapper(self, *args, **kwargs):
-            self._runnable.status.change(Runnable.STATUS.RUNNING)
-            for result in func(self, *args, **kwargs):
-                yield result
-            self._runnable.status.change(Runnable.STATUS.FINISHED)
-
-        return wrapper
-
-    def run(self):
-        yield self._runnable.run, tuple(), dict()
-
-
 class RunnableConfig(EntityConfig):
     """
     Configuration object for
@@ -627,9 +605,6 @@ class RunnableConfig(EntityConfig):
                 "interactive_block",
                 default=hasattr(sys.modules["__main__"], "__file__"),
             ): bool,
-            ConfigOption(
-                "interactive_runner", default=RunnableIRunner
-            ): object,
         }
 
 
@@ -663,9 +638,6 @@ class Runnable(Entity):
     :type interactive: ``bool``
     :param interactive_no_block: Do not block on run() on interactive mode.
     :type interactive_no_block: ``bool``
-    :param interactive_runner: Interactive runner set for the runnable.
-    :type interactive_runner: Subclass of
-        :py:class:`~testplan.common.entity.base.RunnableIRunner`
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.

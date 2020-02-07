@@ -13,7 +13,6 @@ from .base import (
     RunnableStatus,
     RunnableConfig,
     RunnableResult,
-    RunnableIRunner,
     FailedAction,
     DEFAULT_RUNNABLE_ABORT_SIGNALS,
 )

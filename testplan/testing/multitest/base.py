@@ -41,37 +41,6 @@ def iterable_suites(obj):
     return suites
 
 
-class MultitestIRunner(testing_base.TestIRunner):
-    """
-    Interactive runner of MultiTest class.
-    """
-
-    @testing_base.TestIRunner.set_run_status
-    def dry_run(self):
-        """
-        Generator for dry_run execution.
-        """
-        yield (
-            self._runnable.dry_run,
-            tuple(),
-            {"status": testplan.report.Status.INCOMPLETE},
-        )
-
-    @testing_base.TestIRunner.set_run_status
-    def run(self, suite="*", case="*"):
-        """
-        Generator for run execution.
-        """
-        pattern = filtering.Pattern("*:{}:{}".format(suite, case))
-        for entry in self._runnable.get_test_context(test_filter=pattern):
-            for case in entry[1]:
-                yield (
-                    self._runnable.run_tests,
-                    tuple(),
-                    {"ctx": [(entry[0], [case])]},
-                )
-
-
 class MultiTestConfig(testing_base.TestConfig):
     """
     Configuration object for
@@ -98,9 +67,6 @@ class MultiTestConfig(testing_base.TestConfig):
             config.ConfigOption(
                 "result", default=result.Result
             ): validation.is_subclass(result.Result),
-            config.ConfigOption(
-                "interactive_runner", default=MultitestIRunner
-            ): object,
             config.ConfigOption("fix_spec_path", default=None): schema.Or(
                 None, schema.And(str, os.path.exists)
             ),
@@ -151,9 +117,6 @@ class MultiTest(testing_base.Test):
     :param result: Result class definition for result object made available
         from within the testcases.
     :type result: :py:class:`~testplan.testing.multitest.result.result.Result`
-    :param interactive_runner: Interactive runner set for the MultiTest.
-    :type interactive_runner: Subclass of
-        :py:class:`~testplan.testing.multitest.base.MultitestIRunner`
     :param fix_spec_path: Path of fix specification file.
     :type fix_spec_path: ``NoneType`` or ``str``.
 
@@ -187,7 +150,6 @@ class MultiTest(testing_base.Test):
         stdout_style=None,
         tags=None,
         result=result.Result,
-        interactive_runner=MultitestIRunner,
         fix_spec_path=None,
         **options
     ):
@@ -299,16 +261,11 @@ class MultiTest(testing_base.Test):
 
         return self.result
 
-    def run_tests(self, ctx=None, patch_report=False):
-        """Test execution loop."""
-        testsuites = ctx or self.test_context
-
-        if patch_report:
-            report = self._new_test_report()
-        else:
-            self._init_test_report()
-            report = self.report
-
+    def run_tests(self):
+        """Run all tests as a batch and return the results."""
+        testsuites = self.test_context
+        self._init_test_report()
+        report = self.report
         report.runtime_status = testplan.report.RuntimeStatus.RUNNING
 
         with report.timer.record("run"):
@@ -346,10 +303,72 @@ class MultiTest(testing_base.Test):
 
         report.runtime_status = testplan.report.RuntimeStatus.FINISHED
 
-        if patch_report:
-            self.report.merge(report, strict=False)
-
         return report
+
+    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+        """Run all testcases and yield testcase reports."""
+        pattern = filtering.Pattern(
+            "*:{}:{}".format(testsuite_pattern, testcase_pattern)
+        )
+        testsuites = self.get_test_context(test_filter=pattern)
+
+        for testsuite, testcases in testsuites:
+            if not self.active:
+                break
+
+            for testcase_report, parent_uids in self._run_suite_iter(
+                testsuite, testcases
+            ):
+                yield testcase_report, parent_uids
+
+    def _run_suite_iter(self, testsuite, testcases):
+        """Runs a testsuite object and returns its report."""
+        _check_testcases(testcases)
+        setup_report = self._setup_testsuite(testsuite)
+        testsuite_uid = mtest_suite.get_testsuite_name(testsuite)
+
+        if setup_report is not None:
+            yield setup_report, [self.name, testsuite_uid]
+
+            if setup_report.failed:
+                return
+
+        for testcase_report, parent_uids in self._run_testcases_iter(
+            testsuite, testcases
+        ):
+            yield testcase_report, parent_uids
+
+        teardown_report = self._teardown_testsuite(testsuite)
+        if teardown_report is not None:
+            yield teardown_report, [self.name, testsuite_uid]
+
+    def _run_testcases_iter(self, testsuite, testcases):
+        """Run testcases serially and yield testcase reports."""
+        pre_testcase = getattr(testsuite, "pre_testcase", None)
+        post_testcase = getattr(testsuite, "post_testcase", None)
+        testsuite_uid = mtest_suite.get_testsuite_name(testsuite)
+
+        for testcase in testcases:
+            if not self.active:
+                break
+
+            testcase_report = self._run_testcase(
+                testcase, pre_testcase, post_testcase
+            )
+
+            param_template = getattr(
+                testcase, "_parametrization_template", None
+            )
+            if param_template:
+                parent_uids = [
+                    self.name,
+                    testsuite_uid,
+                    testcase._parametrization_template,
+                ]
+            else:
+                parent_uids = [self.name, testsuite_uid]
+
+            yield testcase_report, parent_uids
 
     def append_pre_post_step_report(self):
         """
