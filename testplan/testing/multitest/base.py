@@ -316,58 +316,11 @@ class MultiTest(testing_base.Test):
             if not self.active:
                 break
 
-            for testcase_report, parent_uids in self._run_suite_iter(
-                testsuite, testcases
-            ):
-                yield testcase_report, parent_uids
-
-    def _run_suite_iter(self, testsuite, testcases):
-        """Runs a testsuite object and returns its report."""
-        _check_testcases(testcases)
-        setup_report = self._setup_testsuite(testsuite)
-        testsuite_uid = mtest_suite.get_testsuite_name(testsuite)
-
-        if setup_report is not None:
-            yield setup_report, [self.name, testsuite_uid]
-
-            if setup_report.failed:
-                return
-
-        for testcase_report, parent_uids in self._run_testcases_iter(
+        # In python 3 we would use "yield from" but have to explicitly write
+        # out the loop for python 2 support...
+        for testcase_report, parent_uids in self._run_testsuite_iter(
             testsuite, testcases
         ):
-            yield testcase_report, parent_uids
-
-        teardown_report = self._teardown_testsuite(testsuite)
-        if teardown_report is not None:
-            yield teardown_report, [self.name, testsuite_uid]
-
-    def _run_testcases_iter(self, testsuite, testcases):
-        """Run testcases serially and yield testcase reports."""
-        pre_testcase = getattr(testsuite, "pre_testcase", None)
-        post_testcase = getattr(testsuite, "post_testcase", None)
-        testsuite_uid = mtest_suite.get_testsuite_name(testsuite)
-
-        for testcase in testcases:
-            if not self.active:
-                break
-
-            testcase_report = self._run_testcase(
-                testcase, pre_testcase, post_testcase
-            )
-
-            param_template = getattr(
-                testcase, "_parametrization_template", None
-            )
-            if param_template:
-                parent_uids = [
-                    self.name,
-                    testsuite_uid,
-                    testcase._parametrization_template,
-                ]
-            else:
-                parent_uids = [self.name, testsuite_uid]
-
             yield testcase_report, parent_uids
 
     def append_pre_post_step_report(self):
@@ -925,6 +878,60 @@ class MultiTest(testing_base.Test):
         self.logger.log_test_status(
             name=report.name, status=report.status, indent=indent
         )
+
+    def _run_testsuite_iter(self, testsuite, testcases):
+        """Runs a testsuite object and returns its report."""
+        _check_testcases(testcases)
+        setup_report = self._setup_testsuite(testsuite)
+        testsuite_uid = mtest_suite.get_testsuite_name(testsuite)
+
+        if setup_report is not None:
+            yield setup_report, [self.name, testsuite_uid]
+
+            if setup_report.failed:
+                return
+
+        for testcase_report, parent_uids in self._run_testcases_iter(
+            testsuite, testcases
+        ):
+            yield testcase_report, parent_uids
+
+        teardown_report = self._teardown_testsuite(testsuite)
+        if teardown_report is not None:
+            yield teardown_report, [self.name, testsuite_uid]
+
+    def _run_testcases_iter(self, testsuite, testcases):
+        """
+        Run testcases serially and yield testcase reports.
+
+        Note that we never use a thread pool when running iteratively, so all
+        testcases (even those marked with an execution group) are run serially.
+        """
+        pre_testcase = getattr(testsuite, "pre_testcase", None)
+        post_testcase = getattr(testsuite, "post_testcase", None)
+        testsuite_uid = mtest_suite.get_testsuite_name(testsuite)
+
+        for testcase in testcases:
+            if not self.active:
+                break
+
+            testcase_report = self._run_testcase(
+                testcase, pre_testcase, post_testcase
+            )
+
+            param_template = getattr(
+                testcase, "_parametrization_template", None
+            )
+            if param_template:
+                parent_uids = [
+                    self.name,
+                    testsuite_uid,
+                    testcase._parametrization_template,
+                ]
+            else:
+                parent_uids = [self.name, testsuite_uid]
+
+            yield testcase_report, parent_uids
 
 
 def _need_threadpool(testsuites):

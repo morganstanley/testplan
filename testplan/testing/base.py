@@ -301,6 +301,29 @@ class Test(Runnable):
         if len(self.report):
             self.report.propagate_tag_indices()
 
+    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+        """
+        For a Test to be run interactively, it must implement this method.
+
+        It is expected to run tests iteratively and yield a tuple containing
+        a testcase report and the list of parent UIDs required to merge the
+        testcase report into the main report tree.
+
+        If it is not possible or very inefficient to run individual testcases
+        in an iteratie manner, this method may instead run all the testcases
+        in a batch and then return an iterator for the testcase reports and
+        parent UIDs.
+
+        :param testsuite_pattern: Filter pattern for testsuite level.
+        :type testsuite_pattern: ``str``
+        :param testcase_pattern: Filter pattern for testcase level.
+        :type testsuite_pattern: ``str``
+        :yield: generate tuples containing testcase reports and a list of the
+            UIDs required to merge this into the main report tree, starting
+            with the UID of this test.
+        """
+        raise NotImplementedError
+
 
 class ProcessRunnerTestConfig(TestConfig):
     """
