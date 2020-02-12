@@ -29,7 +29,7 @@ def main(plan):
         pyunit.PyUnit(
             name="My PyUnit",
             description="PyUnit example testcase",
-            suites=[unittest.makeSuite(MyTest)],
+            suite=unittest.makeSuite(MyTest),
         )
     )
 
