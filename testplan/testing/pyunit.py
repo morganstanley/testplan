@@ -4,6 +4,7 @@ from testplan.testing import base as testing
 from testplan.report import testing as report_testing
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries import schemas
+from testplan.testing.multitest.entries import base as base_entries
 
 import unittest
 
@@ -25,7 +26,7 @@ class PyUnit(testing.Test):
 
     :param name: Test instance name. Also used as uid.
     :type name: ``str``
-    :param suite: Description of test instance.
+    :param suite: PyUnit testsuite
     :type suite: :py:class:`~unittest.suite.TestSuite`
     :param description: Description of test instance.
     :type description: ``str``
@@ -35,13 +36,7 @@ class PyUnit(testing.Test):
     """
 
     CONFIG = PyUnitConfig
-
-    def __init__(self, name, suite, description=None, **options):
-        options.update(self.filter_locals(locals()))
-        super(PyUnit, self).__init__(**options)
-        self._suite_report = report_testing.TestGroupReport(
-            name=self.cfg.name, category="testsuite"
-        )
+    _TESTCASE_NAME = "PyUnit test results"
 
     def main_batch_steps(self):
         """Specify the test steps: run the tests, then log the results."""
@@ -53,26 +48,53 @@ class PyUnit(testing.Test):
         suite_result = unittest.TestResult()
         self.cfg.suite.run(suite_result)
 
+        # Since we can't reliably inspect the individual testcases of a PyUnit
+        # suite, we put all results into a single "testcase" report. This
+        # will only list failures and errors and not give detail on individual
+        # assertions like with MultiTest.
+        testcase_report = report_testing.TestCaseReport(
+            name=self._TESTCASE_NAME
+        )
+
         for call, error in suite_result.errors:
-            testcase_report = report_testing.TestCaseReport(name=str(call))
             assertion_obj = assertions.RawAssertion(
                 description=str(call), content=str(error).strip(), passed=False
             )
             testcase_report.append(
                 schemas.base.registry.serialize(assertion_obj)
             )
-            self.result.report.entries.append(testcase_report)
 
         for call, error in suite_result.failures:
-            testcase_report = report_testing.TestCaseReport(name=str(call))
             assertion_obj = assertions.RawAssertion(
                 description=str(call), content=str(error).strip(), passed=False
             )
             testcase_report.append(
                 schemas.base.registry.serialize(assertion_obj)
             )
-            self.result.report.entries.append(testcase_report)
+
+        # In case of no failures or errors we need to explicitly mark the
+        # testsuite as passed.
+        if not testcase_report.entries:
+            log_entry = base_entries.Log(
+                "All PyUnit testcases passed", description="PyUnit success"
+            )
+            testcase_report.append(schemas.base.registry.serialize(log_entry))
+
+        self.result.report.append(testcase_report)
 
     def get_test_context(self):
-        """TODO find out if we can inspect suites/testcases."""
-        return []
+        """
+        Currently we do not inspect individual PyUnit testcases - only allow
+        the whole suite to be run.
+        """
+        return [self._TESTCASE_NAME, []]
+
+    def dry_run(self):
+        """Return an empty report tree."""
+        report = self._new_test_report()
+        testcase_report = report_testing.TestCaseReport(
+            name=self._TESTCASE_NAME
+        )
+        report.append(testcase_report)
+
+        return report
