@@ -594,7 +594,7 @@ class TestGroupReport(BaseReportGroup):
         self.part = part  # i.e. (m, n), while 0 <= m < n and n > 1
         self.part_report_lookup = {}
 
-        self.extra_attributes = extra_attributes
+        self.extra_attributes = extra_attributes or {}
 
         self.fix_spec_path = fix_spec_path
 

@@ -533,6 +533,7 @@ class MultiTest(testing_base.Test):
             category=testplan.report.ReportCategories.TESTSUITE,
             uid=mtest_suite.get_testsuite_name(testsuite),
             tags=testsuite.__tags__,
+            extra_attributes=testsuite.__extra_attributes__,
         )
 
     def _new_testcase_report(self, testcase):
