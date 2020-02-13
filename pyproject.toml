@@ -1,7 +1,12 @@
+[build-system]
+requires = [
+  "black==19.10b0; python_version >= '3.0'"
+]
+
 [tool.black]
 line-length = 79
 exclude = '''(
-    vendor
-    | node_modules
+  vendor
+  | node_modules
 )'''
 

@@ -8,8 +8,6 @@ python:
 install:
   - pip install -r requirements.txt -U
   - python install-testplan-ui --verbose --dev
-
-script:
   # Travis uses pyenv to manage a virtualenv / venv whose 'bin' dir is placed
   # at the front of PATH. The version of Python depends on which version in the
   # 'python' array is currently being tested.
@@ -38,8 +36,11 @@ script:
   #                        ...
   #                        /opt/pyenv/shims/pip3
   - pyenv global 3.7
-  - ./scripts/utils/crlf_check.sh
+  - pip3 install .  # pulls requirements from pyproject.toml
+
+script:
   - python3 -m black .  # black configuration lives in pyproject.toml
+  - ./scripts/utils/crlf_check.sh
   - pylint --rcfile pylintrc testplan
   - pytest tests --verbose
 
