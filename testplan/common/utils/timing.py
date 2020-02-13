@@ -129,7 +129,7 @@ def timeout(seconds, err_msg="Timeout after {} seconds."):
     return timeout_decorator
 
 
-def wait(predicate, timeout, interval=0.05, raise_on_timeout=False):
+def wait(predicate, timeout, interval=0.05, raise_on_timeout=True):
     """
     Wait until a predicate evaluates to True.
 
@@ -139,7 +139,7 @@ def wait(predicate, timeout, interval=0.05, raise_on_timeout=False):
     :type timeout: ``int``
     :param interval: Sleep interval for predicate check.
     :type interval: ``float``
-    :param raise_on_timeout: Raise exception if hits timeout.
+    :param raise_on_timeout: Raise exception if hits timeout, defaults to True.
     :type raise_on_timeout: ``bool``
     :return: Predicate result.
     :rtype: ``bool``
@@ -155,7 +155,7 @@ def wait(predicate, timeout, interval=0.05, raise_on_timeout=False):
             # no timeout yet
             time.sleep(interval)
         else:
-            if raise_on_timeout is True:
+            if raise_on_timeout:
                 msg = "Timeout after {} seconds.".format(timeout)
                 if error_msg:
                     msg = "{}{}{}".format(msg, os.linesep, error_msg)
@@ -196,13 +196,25 @@ def retry_until_timeout(
     args=None,
     kwargs=None,
     interval=0.05,
-    raise_on_timeout=False,
+    raise_on_timeout=True,
 ):
     """
     Retry calling an item until timeout duration while ignoring exceptions.
 
+    :param exception: Exception class to catch.
+    :type exception: ``type``
+    :param item: Function to call.
+    :type item: ``callable``
+    :param args: Positional args to pass to ``item``
+    :type args: ``Optional[Iterable[Any]]``
+    :param kwargs: Keyword args to pass to ``item``
+    :type kwargs: ``Optional[Dict[str, Any]]``
+    :param interval: time to wait between successive call attempts, in seconds.
+    :type interval: ``int``
+    :param raise_on_timeout: Whether to raise a TimeoutException on timeout,
+        defaults to True.
     :return: Result of item.
-    :rtype: ``object``
+    :rtype: ``Any``
     """
     timeout_info = TimeoutExceptionInfo()
     end_time = timeout_info.started + timeout
@@ -214,7 +226,7 @@ def retry_until_timeout(
                 # no timeout yet
                 time.sleep(interval)
             else:
-                if raise_on_timeout is True:
+                if raise_on_timeout:
                     raise TimeoutException(
                         "Timeout waiting for {0}"
                         " to return without {1}. {2}. {3}".format(
