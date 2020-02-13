@@ -42,7 +42,7 @@ install:
   - pip3 install black==$BLACK_VERSION
 
 script:
-  - python3 -m black .  # black configuration lives in pyproject.toml
+  - python3 -m black --check .  # black configuration lives in pyproject.toml
   - ./scripts/utils/crlf_check.sh
   - pylint --rcfile pylintrc testplan
   - pytest tests --verbose
