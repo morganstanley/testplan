@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-  "black==19.10b0; python_version >= '3.0'",
+  "black==19.10b0",
   # see https://pip.pypa.io/en/stable/reference/pip/#pep-517-and-518-support
   "setuptools>=40.8.0",
   "wheel"
