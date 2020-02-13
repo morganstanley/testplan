@@ -385,7 +385,7 @@ def test_report_json_serialization(dummy_test_plan_report):
 
 
 def test_report_json_binary_serialization(
-    dummy_test_plan_report_with_binary_asserts
+    dummy_test_plan_report_with_binary_asserts,
 ):
     """JSON Serialized & deserialized reports should be equal."""
     test_plan_schema = TestReportSchema(strict=True)
