@@ -36,7 +36,7 @@ install:
   #                        ...
   #                        /opt/pyenv/shims/pip3
   - pyenv global 3.7
-  - pip3 install .  # pulls requirements from pyproject.toml
+  - pip3 install --no-use-pep517 .  # pulls requirements from pyproject.toml
 
 script:
   - python3 -m black .  # black configuration lives in pyproject.toml
