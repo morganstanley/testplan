@@ -1,6 +1,9 @@
 dist: xenial  # required for Python >= 3.7
 language: python
 
+env:
+  - BLACK_VERSION: "19.10b0"
+
 python:
   - "2.7"
   - "3.7"
@@ -36,7 +39,7 @@ install:
   #                        ...
   #                        /opt/pyenv/shims/pip3
   - pyenv global 3.7
-  - pip3 install --no-use-pep517 .  # pulls requirements from pyproject.toml
+  - pip3 install black==$BLACK_VERSION
 
 script:
   - python3 -m black .  # black configuration lives in pyproject.toml

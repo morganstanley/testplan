@@ -1,11 +1,3 @@
-[build-system]
-requires = [
-  "black==19.10b0",
-  # see https://pip.pypa.io/en/stable/reference/pip/#pep-517-and-518-support
-  "setuptools>=40.8.0",
-  "wheel"
-]
-
 [tool.black]
 line-length = 79
 exclude = '''(
