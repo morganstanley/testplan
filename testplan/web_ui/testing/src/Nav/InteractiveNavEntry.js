@@ -9,7 +9,6 @@ import {
   faToggleOff,
   faToggleOn
 } from '@fortawesome/free-solid-svg-icons';
-import {BarLoader} from 'react-spinners';
 
 import {
   RED,
@@ -33,9 +32,8 @@ import {
  */
 const InteractiveNavEntry = (props) => {
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
-
   const statusIcon = getStatusIcon(
-    props.runtime_status, props.handlePlayClick
+    props.runtime_status, props.handlePlayClick, props.suiteRelated,
   );
   const envStatusIcon = getEnvStatusIcon(
     props.envStatus, props.envCtrlCallback
@@ -81,8 +79,16 @@ const InteractiveNavEntry = (props) => {
  *   something is being run.
  *
  * * When the entry has been run, render a replay button.
+ *
+ * * Special suite-related "testcase" entries, such as setup and teardown
+ *   reports, cannot be directly run and are instead run automatically as
+ *   required. So we do not render buttons to control them.
  */
-const getStatusIcon = (entryStatus, handlePlayClick) => {
+const getStatusIcon = (entryStatus, handlePlayClick, suiteRelated) => {
+  if (suiteRelated) {
+    return null;
+  }
+
   switch (entryStatus) {
     case 'ready':
       return (
@@ -96,10 +102,11 @@ const getStatusIcon = (entryStatus, handlePlayClick) => {
 
     case 'running':
       return (
-        <BarLoader
-          color={'#123abc'}
-          loading={true}
-          size={4}
+        <FontAwesomeIcon
+          className={css(styles.entryButton)}
+          icon={faRedo}
+          title='Running...'
+          spin
         />
       );
 

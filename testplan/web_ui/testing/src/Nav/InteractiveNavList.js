@@ -30,6 +30,7 @@ const InteractiveNavList = (props) => {
         envCtrlCallback={
           (e, action) => props.envCtrlCallback(e, entry, action)
         }
+        suiteRelated={entry.suite_related}
       />
     ),
     props.selectedUid,

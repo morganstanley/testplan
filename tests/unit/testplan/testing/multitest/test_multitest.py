@@ -190,15 +190,7 @@ def test_run_all_tests():
     assert len(suite_report.entries) == 2  # Two testcases.
 
     testcase_report = suite_report.entries[0]
-    assert testcase_report.passed
-    assert testcase_report.name == "case"
-    assert testcase_report.category == report.ReportCategories.TESTCASE
-    assert len(testcase_report.entries) == 1  # One assertion.
-
-    truth_assertion = testcase_report.entries[0]
-    assert truth_assertion["passed"]
-    assert truth_assertion["type"] == "IsTrue"
-    assert truth_assertion["expr"] is True
+    _check_testcase_report(testcase_report)
 
     param_report = suite_report.entries[1]
     assert param_report.passed
@@ -207,16 +199,7 @@ def test_run_all_tests():
     assert len(param_report.entries) == 3  # Three parametrized testcases
 
     for i, testcase_report in enumerate(param_report.entries):
-        assert testcase_report.passed
-        assert testcase_report.name == "parametrized__val_{}".format(i + 1)
-        assert testcase_report.category == report.ReportCategories.TESTCASE
-        assert len(testcase_report.entries) == 1  # One assertion
-
-        greater_assertion = testcase_report.entries[0]
-        assert greater_assertion["passed"]
-        assert greater_assertion["type"] == "Greater"
-        assert greater_assertion["first"] == i + 1
-        assert greater_assertion["second"] == 0
+        _check_param_testcase_report(testcase_report, i)
 
 
 def test_run_tests_parallel():
@@ -246,6 +229,27 @@ def test_run_tests_parallel():
         _check_parallel_testcase(suite_report[case_name], i)
 
     _check_parallel_param(suite_report["parametrized"])
+
+
+def test_run_testcases_iter():
+    """Test running tests iteratively."""
+    mtest = multitest.MultiTest(
+        name="MTest",
+        suites=[Suite()],
+        thread_pool_size=3,
+        **MTEST_DEFAULT_PARAMS
+    )
+
+    results = list(mtest.run_testcases_iter())
+    assert len(results) == 4
+
+    testcase_report, parent_uids = results[0]
+    assert parent_uids == ["MTest", "Suite"]
+    _check_testcase_report(testcase_report)
+
+    for i, (testcase_report, parent_uids) in enumerate(results[1:]):
+        assert parent_uids == ["MTest", "Suite", "parametrized"]
+        _check_param_testcase_report(testcase_report, i)
 
 
 def _check_parallel_testcase(testcase_report, i):
@@ -283,3 +287,36 @@ def _check_parallel_param(param_report):
         assert greater_assertion["type"] == "Greater"
         assert greater_assertion["first"] == i + 1
         assert greater_assertion["second"] == 0
+
+
+def _check_testcase_report(testcase_report):
+    """
+    Check the testcase report generated for the "case" testcase from the
+    "Suite" testsuite.
+    """
+    assert testcase_report.passed
+    assert testcase_report.name == "case"
+    assert testcase_report.category == report.ReportCategories.TESTCASE
+    assert len(testcase_report.entries) == 1  # One assertion.
+
+    truth_assertion = testcase_report.entries[0]
+    assert truth_assertion["passed"]
+    assert truth_assertion["type"] == "IsTrue"
+    assert truth_assertion["expr"] is True
+
+
+def _check_param_testcase_report(testcase_report, i):
+    """
+    Check the testcase report generated for the ith parametrization of the
+    "parametrized" testcase from the "Suite" testsuite.
+    """
+    assert testcase_report.passed
+    assert testcase_report.name == "parametrized__val_{}".format(i + 1)
+    assert testcase_report.category == report.ReportCategories.TESTCASE
+    assert len(testcase_report.entries) == 1  # One assertion
+
+    greater_assertion = testcase_report.entries[0]
+    assert greater_assertion["passed"]
+    assert greater_assertion["type"] == "Greater"
+    assert greater_assertion["first"] == i + 1
+    assert greater_assertion["second"] == 0

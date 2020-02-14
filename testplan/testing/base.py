@@ -17,7 +17,6 @@ from testplan.common.entity import (
     Runnable,
     RunnableResult,
     RunnableConfig,
-    RunnableIRunner,
 )
 from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
@@ -37,62 +36,6 @@ TEST_INST_INDENT = 2
 SUITE_INDENT = 4
 TESTCASE_INDENT = 6
 ASSERTION_INDENT = 8
-
-
-class TestIRunner(RunnableIRunner):
-    """
-    Interactive runner for Test case class.
-    """
-
-    @RunnableIRunner.set_run_status
-    def start_resources(self):
-        """
-        Generator to start Test resources.
-        """
-        if self._runnable.cfg.before_start:
-            yield (
-                self._runnable.cfg.before_start,
-                (self._runnable.resources,),
-                dict(),
-            )
-        for resource in self._runnable.resources:
-            yield (resource.start, tuple(), dict())
-            yield (resource._wait_started, tuple(), dict())
-        if self._runnable.cfg.after_start:
-            yield (
-                self._runnable.cfg.after_start,
-                (self._runnable.resources,),
-                dict(),
-            )
-
-    @RunnableIRunner.set_run_status
-    def stop_resources(self):
-        """
-        Generator to stop Test resources.
-        """
-        if self._runnable.cfg.before_stop:
-            yield (
-                self._runnable.cfg.before_stop,
-                (self._runnable.resources,),
-                RunnableIRunner.EMPTY_DICT,
-            )
-        for resource in self._runnable.resources:
-            yield (
-                resource.stop,
-                RunnableIRunner.EMPTY_TUPLE,
-                RunnableIRunner.EMPTY_DICT,
-            )
-            yield (
-                resource._wait_stopped,
-                RunnableIRunner.EMPTY_TUPLE,
-                RunnableIRunner.EMPTY_DICT,
-            )
-        if self._runnable.cfg.after_stop:
-            yield (
-                self._runnable.cfg.after_stop,
-                (self._runnable.resources,),
-                RunnableIRunner.EMPTY_DICT,
-            )
 
 
 class TestConfig(RunnableConfig):
@@ -357,6 +300,29 @@ class Test(Runnable):
         """
         if len(self.report):
             self.report.propagate_tag_indices()
+
+    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+        """
+        For a Test to be run interactively, it must implement this method.
+
+        It is expected to run tests iteratively and yield a tuple containing
+        a testcase report and the list of parent UIDs required to merge the
+        testcase report into the main report tree.
+
+        If it is not possible or very inefficient to run individual testcases
+        in an iteratie manner, this method may instead run all the testcases
+        in a batch and then return an iterator for the testcase reports and
+        parent UIDs.
+
+        :param testsuite_pattern: Filter pattern for testsuite level.
+        :type testsuite_pattern: ``str``
+        :param testcase_pattern: Filter pattern for testcase level.
+        :type testsuite_pattern: ``str``
+        :yield: generate tuples containing testcase reports and a list of the
+            UIDs required to merge this into the main report tree, starting
+            with the UID of this test.
+        """
+        raise NotImplementedError
 
 
 class ProcessRunnerTestConfig(TestConfig):

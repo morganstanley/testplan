@@ -157,10 +157,8 @@ class TestRunnerIHandler(entity.Entity):
 
         all_tests = self.all_tests(runner_uid)
 
-        return self._create_testplan_report(
+        for test_uid, real_runner_uid in all_tests:
             self.run_test(test_uid, real_runner_uid)
-            for test_uid, real_runner_uid in all_tests
-        )
 
     def run_test(self, test_uid, runner_uid=None, await_results=True):
         """
@@ -179,15 +177,9 @@ class TestRunnerIHandler(entity.Entity):
             return self._run_async(self.run_test, test_uid, runner_uid)
 
         test = self.test(test_uid, runner_uid=runner_uid)
-        irunner = test.cfg.interactive_runner(test)
-        test_run_generator = irunner.run()
 
         with self._auto_start_stop_environment(test_uid, runner_uid):
-            return self._merge_test_reports(
-                self._run_all_test_operations(test_run_generator),
-                test_uid,
-                runner_uid,
-            )
+            self._merge_testcase_reports(test.run_testcases_iter())
 
     def run_test_suite(
         self, test_uid, suite_uid, runner_uid=None, await_results=True
@@ -211,20 +203,11 @@ class TestRunnerIHandler(entity.Entity):
             )
 
         test = self.test(test_uid, runner_uid=runner_uid)
-        irunner = test.cfg.interactive_runner(test)
-        test_run_generator = irunner.run(suite=suite_uid)
 
         with self._auto_start_stop_environment(test_uid, runner_uid):
-            test_report = self._merge_test_reports(
-                self._run_all_test_operations(test_run_generator),
-                test_uid,
-                runner_uid,
+            self._merge_testcase_reports(
+                test.run_testcases_iter(testsuite_pattern=suite_uid)
             )
-
-        if test_report:
-            return test_report[suite_uid]
-        else:
-            return None
 
     def run_test_case(
         self,
@@ -254,69 +237,13 @@ class TestRunnerIHandler(entity.Entity):
             )
 
         test = self.test(test_uid, runner_uid=runner_uid)
-        irunner = test.cfg.interactive_runner(test)
-        test_run_generator = irunner.run(suite=suite_uid, case=case_uid)
 
         with self._auto_start_stop_environment(test_uid, runner_uid):
-            test_report = self._merge_test_reports(
-                self._run_all_test_operations(test_run_generator),
-                test_uid,
-                runner_uid,
+            self._merge_testcase_reports(
+                test.run_testcases_iter(
+                    testsuite_pattern=suite_uid, testcase_pattern=case_uid
+                )
             )
-
-        if test_report:
-            return test_report[suite_uid][case_uid]
-        else:
-            return None
-
-    def run_parametrized_test_case(
-        self,
-        test_uid,
-        suite_uid,
-        case_uid,
-        param_uid,
-        runner_uid=None,
-        await_results=True,
-    ):
-        """
-        Run a single parametrized testcase.
-
-        :param test_uid: UID of the test that owns the testcase.
-        :param suite_uid: UID of the suite that owns the testcase.
-        :param param_uid: UID of the parametrized testcase to run.
-        :param runner_uid: UID of a specific test runner, or None to use the
-            default local runner.
-        :param await_results: Whether to block until the testcase is finished,
-            defaults to True.
-        :return: If await_results is True, returns a testcase report.
-            Otherwise, returns a future which will yield a testcase report when
-            ready.
-        """
-        if not await_results:
-            return self._run_async(
-                self.run_parametrized_test_case,
-                test_uid,
-                suite_uid,
-                case_uid,
-                param_uid,
-                runner_uid,
-            )
-
-        test = self.test(test_uid, runner_uid=runner_uid)
-        irunner = test.cfg.interactive_runner(test)
-        test_run_generator = irunner.run(suite=suite_uid, case=param_uid)
-
-        with self._auto_start_stop_environment(test_uid, runner_uid):
-            test_report = self._merge_test_reports(
-                self._run_all_test_operations(test_run_generator),
-                test_uid,
-                runner_uid,
-            )
-
-        if test_report:
-            return test_report[suite_uid][case_uid][param_uid]
-        else:
-            return None
 
     def test(self, test_uid, runner_uid=None):
         """
@@ -352,19 +279,19 @@ class TestRunnerIHandler(entity.Entity):
             of each resource start operation, otherwise returns a list of async
             result objects.
         """
-        test = self.test(test_uid, runner_uid=runner_uid)
-        test_irunner = test.cfg.interactive_runner(test)
-
-        if await_results:
-            return self._start_environment(
-                test_uid, test_irunner.start_resources()
-            )
-        else:
+        if not await_results:
             return self._run_async(
-                self._start_environment,
-                test_uid,
-                test_irunner.start_resources(),
+                self.start_test_resources, test_uid, runner_uid
             )
+
+        with self.report_mutex:
+            self.report[test_uid].env_status = entity.ResourceStatus.STARTING
+
+        test = self.test(test_uid, runner_uid=runner_uid)
+        test.resources.start()
+
+        with self.report_mutex:
+            self.report[test_uid].env_status = entity.ResourceStatus.STARTED
 
     def stop_test_resources(
         self, test_uid, runner_uid=None, await_results=True
@@ -381,17 +308,19 @@ class TestRunnerIHandler(entity.Entity):
             of each resource stop operation, otherwise returns a list of async
             result objects.
         """
-        test = self.test(test_uid, runner_uid=runner_uid)
-        test_irunner = test.cfg.interactive_runner(test)
-
-        if await_results:
-            return self._stop_environment(
-                test_uid, test_irunner.stop_resources()
-            )
-        else:
+        if not await_results:
             return self._run_async(
-                self._stop_environment, test_uid, test_irunner.stop_resources()
+                self.stop_test_resources, test_uid, runner_uid
             )
+
+        with self.report_mutex:
+            self.report[test_uid].env_status = entity.ResourceStatus.STOPPING
+
+        test = self.test(test_uid, runner_uid=runner_uid)
+        test.resources.stop(reversed=True)
+
+        with self.report_mutex:
+            self.report[test_uid].env_status = entity.ResourceStatus.STOPPED
 
     def get_environment(self, env_uid):
         """Get an environment."""
@@ -571,25 +500,6 @@ class TestRunnerIHandler(entity.Entity):
             resource = self.get_environment_resource(env_uid, resource_uid)
             func = getattr(resource, res_op)
             return func(**kwargs)
-
-    def reset_test_report(self, test_uid, runner_uid=None):
-        """Reset a Test instance report."""
-        test = self.test(test_uid, runner_uid=runner_uid)
-        test_irunner = test.cfg.interactive_runner(test)
-        test_dry_run_generator = test_irunner.dry_run()
-        operation, args, kwargs = next(test_dry_run_generator)
-        operation(*args, **kwargs)
-
-    def reset_reports(self, runner_uid=None):
-        """Reset all tests reports."""
-        all_tests = self.all_tests(runner_uid)
-        while self.active and self.target.active:
-            try:
-                test_uid, real_runner_uid = next(all_tests)
-            except StopIteration:
-                break
-            else:
-                self.reset_test_report(test_uid, runner_uid=real_runner_uid)
 
     def all_tests(self, runner_uid=None):
         """Get all added tests."""
@@ -785,32 +695,6 @@ class TestRunnerIHandler(entity.Entity):
             )
         return result
 
-    def _start_environment(self, test_uid, start_generator):
-        """Stop the environment of a test."""
-        try:
-            results = self._run_all_test_operations(start_generator)
-        except Exception:
-            self.logger.exception(
-                "Exception starting environment fort test {}".format(test_uid)
-            )
-            # TODO - need new error status?
-            self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
-        else:
-            self._set_env_status(test_uid, entity.ResourceStatus.STARTED)
-
-    def _stop_environment(self, test_uid, stop_generator):
-        """Start the environment of a test."""
-        try:
-            results = self._run_all_test_operations(stop_generator)
-        except Exception:
-            self.logger.exception(
-                "Exception stopping environment for test {}".format(test_uid)
-            )
-            # TODO - need new error status?
-            self._set_env_status(test_uid, entity.ResourceStatus.STARTED)
-        else:
-            self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
-
     @contextlib.contextmanager
     def _auto_start_stop_environment(self, test_uid, runner_uid):
         """Context manager for automatic environment control."""
@@ -856,32 +740,18 @@ class TestRunnerIHandler(entity.Entity):
         except Exception:
             self.logger.exception("Exception caught in async function")
 
-    def _create_testplan_report(self, test_reports):
-        """Create a single testplan report from many test reports."""
-        report = testplan.report.TestReport(
-            name=self.cfg.name, uid=self.cfg.name
-        )
+    def _merge_testcase_reports(self, testcase_reports):
+        """Merge all test reports from a test run into our report."""
+        with self.report_mutex:
+            for report, parent_uids in testcase_reports:
+                self.logger.debug(
+                    "Merging testcase report %s with parent UIDs %s",
+                    report,
+                    testcase_reports,
+                )
 
-        for test_report in test_reports:
-            report.append(test_report)
+                parent_entry = self.report
+                for uid in parent_uids:
+                    parent_entry = parent_entry[uid]
 
-        return report
-
-    def _merge_test_reports(self, results, test_uid, runner_uid):
-        """Merge all test reports from a test run into one."""
-        test_reports = [
-            res
-            for res in results
-            if isinstance(res, testplan.report.TestGroupReport)
-        ]
-
-        if not test_reports:
-            return None
-
-        test = self.test(test_uid, runner_uid=runner_uid)
-        initial_report = test.dry_run().report
-
-        for report in test_reports:
-            initial_report.merge(report)
-
-        return initial_report
+                parent_entry[report.uid] = report
