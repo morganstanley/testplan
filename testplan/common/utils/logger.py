@@ -212,3 +212,13 @@ class Loggable(object):
         self.logger = logging.getLogger(logger_name)
 
         super(Loggable, self).__init__()
+
+    @property
+    def _debug_logging_enabled(self):
+        """
+        :return: True if the logging level is DEBUG (or lower) for the stdout
+            handler. We don't consider the file handler because that always
+            logs at DEBUG level.
+        :rtype: ``bool``
+        """
+        return STDOUT_HANDLER.level <= DEBUG
