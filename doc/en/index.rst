@@ -183,6 +183,7 @@ License information `here <https://github.com/Morgan-Stanley/testplan/blob/maste
    drivers
    assertions
    output
+   interactive
    pools
    api
    download/index
