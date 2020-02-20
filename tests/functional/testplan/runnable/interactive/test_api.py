@@ -290,7 +290,7 @@ EXPECTED_INITIAL_GET = [
                     "total": 3,
                     "unknown": 3,
                 },
-                "description": "Parametrized testcase.",
+                "description": None,
                 "entry_uids": [
                     "test_parametrized__val_1",
                     "test_parametrized__val_2",
@@ -344,7 +344,7 @@ EXPECTED_INITIAL_GET = [
         [
             {
                 "category": "testcase",
-                "description": None,
+                "description": "Parametrized testcase.",
                 "entries": [],
                 "logs": [],
                 "name": "test_parametrized__val_1",
@@ -366,7 +366,7 @@ EXPECTED_INITIAL_GET = [
             },
             {
                 "category": "testcase",
-                "description": None,
+                "description": "Parametrized testcase.",
                 "entries": [],
                 "logs": [],
                 "name": "test_parametrized__val_2",
@@ -388,7 +388,7 @@ EXPECTED_INITIAL_GET = [
             },
             {
                 "category": "testcase",
-                "description": None,
+                "description": "Parametrized testcase.",
                 "entries": [],
                 "logs": [],
                 "name": "test_parametrized__val_3",
@@ -415,7 +415,7 @@ EXPECTED_INITIAL_GET = [
         "test_parametrized/parametrizations/test_parametrized__val_1",
         {
             "category": "testcase",
-            "description": None,
+            "description": "Parametrized testcase.",
             "entries": [],
             "logs": [],
             "name": "test_parametrized__val_1",
