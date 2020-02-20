@@ -67,23 +67,26 @@ def test_basic_parametrization():
 
     parametrization_group = TestGroupReport(
         name="test_add",
-        description="Simple docstring",
         category=ReportCategories.PARAMETRIZATION,
         entries=[
             TestCaseReport(
                 name="test_add__a_1__b_2__expected_3",
+                description="Simple docstring",
                 entries=[{"type": "Equal", "first": 3, "second": 3}],
             ),
             TestCaseReport(
                 name="test_add__0",
+                description="Simple docstring",
                 entries=[{"type": "Equal", "first": 0, "second": 0}],
             ),
             TestCaseReport(
                 name="test_add__1",
+                description="Simple docstring",
                 entries=[{"type": "Equal", "first": 0, "second": 0}],
             ),
             TestCaseReport(
                 name="test_add__a_3__b_1__expected_4",
+                description="Simple docstring",
                 entries=[{"type": "Equal", "first": 4, "second": 4}],
             ),
         ],
@@ -337,7 +340,9 @@ def test_tag_func(tag_func, expected_tags, expected_tags_index):
 @pytest.mark.parametrize(
     "docstring_func, expected_docstring",
     (
-        (None, None),  # by default generated testcases have no docstring
+        # By default, generated testcases inherit the docstring from the
+        # template method.
+        (None, "Original docstring"),
         (lambda docstring, kwargs: "foo", "foo"),
         (
             lambda docstring, kwargs: "{docstring} "

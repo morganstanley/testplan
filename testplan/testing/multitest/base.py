@@ -523,9 +523,10 @@ class MultiTest(testing_base.Test):
         """
         :return: A new and empty report for a parametrization group.
         """
+        # Don't include the template method's docstring in the report to
+        # avoid duplication with the generated testcases.
         return testplan.report.TestGroupReport(
             name=param_template,
-            description=param_method.__doc__,
             category=testplan.report.ReportCategories.PARAMETRIZATION,
             uid=param_template,
             tags=param_method.__tags__,

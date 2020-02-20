@@ -151,7 +151,7 @@ class ProductTest(object):
 
 # Discard the original docstring, convert kwargs to str
 def kwargs_to_string(docstring, kwargs):
-    return str(kwargs)
+    return "\n".join([docstring, str(kwargs)])
 
 
 # Use the original docstring, formatting
