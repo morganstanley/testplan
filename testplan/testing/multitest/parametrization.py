@@ -226,9 +226,13 @@ def _generate_func(
     def _generated(self, env, result):
         return function(self, env, result, **kwargs)
 
-    _generated.__doc__ = (
-        docstring_func(function.__doc__, kwargs) if docstring_func else None
-    )
+    # If we were given a docstring function, we use it to generate the
+    # docstring for each testcase. Otherwise we just copy the docstring from
+    # the template method.
+    if docstring_func:
+        _generated.__doc__ = docstring_func(function.__doc__, kwargs)
+    else:
+        _generated.__doc__ = function.__doc__
 
     _generated.__name__ = _name_func_wrapper(
         name_func=name_func, func_name=function.__name__, kwargs=kwargs

@@ -131,23 +131,25 @@ EXPECTED_REPORT_SKELETON = report.TestGroupReport(
                 ),
                 report.TestGroupReport(
                     name="parametrized",
-                    description="Parametrized testcase.",
                     category=report.ReportCategories.PARAMETRIZATION,
                     uid="parametrized",
                     parent_uids=["MTest", "Suite"],
                     entries=[
                         report.TestCaseReport(
                             name="parametrized__val_1",
+                            description="Parametrized testcase.",
                             uid="parametrized__val_1",
                             parent_uids=["MTest", "Suite", "parametrized"],
                         ),
                         report.TestCaseReport(
                             name="parametrized__val_2",
+                            description="Parametrized testcase.",
                             uid="parametrized__val_2",
                             parent_uids=["MTest", "Suite", "parametrized"],
                         ),
                         report.TestCaseReport(
                             name="parametrized__val_3",
+                            description="Parametrized testcase.",
                             uid="parametrized__val_3",
                             parent_uids=["MTest", "Suite", "parametrized"],
                         ),
