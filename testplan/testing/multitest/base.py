@@ -162,6 +162,12 @@ class MultiTest(testing_base.Test):
         # along with parametrization template methods)
         # update tag indices with native tags of this instance.
 
+        # these methods are by default PASS
+        if callable(before_start):
+            before_start._status = testplan.report.Status.PASSED
+        if callable(after_start):
+            after_start._status = testplan.report.Status.PASSED
+
         if self.cfg.tags:
             for suite in self.suites:
                 mtest_suite.propagate_tag_indices(suite, self.cfg.tags)
