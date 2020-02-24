@@ -27,14 +27,22 @@ def example_report():
                 uid="MTest1",
                 category=report.ReportCategories.MULTITEST,
                 env_status=entity.ResourceStatus.STOPPED,
+                parent_uids=["Interactive API Test"],
                 entries=[
                     report.TestGroupReport(
                         name="Suite1",
                         uid="MT1Suite1",
                         category=report.ReportCategories.TESTSUITE,
+                        parent_uids=["Interactive API Test", "MTest1"],
                         entries=[
                             report.TestCaseReport(
-                                name="TestCase1", uid="MT1S1TC1"
+                                name="TestCase1",
+                                uid="MT1S1TC1",
+                                parent_uids=[
+                                    "Interactive API Test",
+                                    "MTest1",
+                                    "MT1Suite1",
+                                ],
                             ),
                             report.TestGroupReport(
                                 name="ParametrizedTestCase",
@@ -42,18 +50,41 @@ def example_report():
                                 category=(
                                     report.ReportCategories.PARAMETRIZATION
                                 ),
+                                parent_uids=[
+                                    "Interactive API Test",
+                                    "MTest1",
+                                    "MT1Suite1",
+                                ],
                                 entries=[
                                     report.TestCaseReport(
                                         name="ParametrizedTestCase_0",
                                         uid="MT1S1TC2_0",
+                                        parent_uids=[
+                                            "Interactive API Test",
+                                            "MTest1",
+                                            "MT1Suite1",
+                                            "MT1S1TC2",
+                                        ],
                                     ),
                                     report.TestCaseReport(
                                         name="ParametrizedTestCase_1",
                                         uid="MT1S1TC2_1",
+                                        parent_uids=[
+                                            "Interactive API Test",
+                                            "MTest1",
+                                            "MT1Suite1",
+                                            "MT1S1TC2",
+                                        ],
                                     ),
                                     report.TestCaseReport(
                                         name="ParametrizedTestCase_2",
                                         uid="MT1S1TC2_2",
+                                        parent_uids=[
+                                            "Interactive API Test",
+                                            "MTest1",
+                                            "MT1Suite1",
+                                            "MT1S1TC2",
+                                        ],
                                     ),
                                 ],
                             ),
@@ -119,16 +150,21 @@ class TestReport(object):
 
     def test_put_validation(self, api_env):
         """Test that 400 BAD REQUEST is returned for invalid PUT data."""
-        client, _ = api_env
+        client, ihandler = api_env
+        api_url = "/api/v1/interactive/report"
 
         # JSON body is required.
-        rsp = client.put("/api/v1/interactive/report")
+        rsp = client.put(api_url)
         assert rsp.status == "400 BAD REQUEST"
 
         # "uid" field is required.
-        rsp = client.put(
-            "/api/v1/interactive/report", json={"name": "ReportName"}
-        )
+        rsp = client.put(api_url, json={"name": "ReportName"})
+        assert rsp.status == "400 BAD REQUEST"
+
+        # "uid" field cannot be changed.
+        shallow_report = ihandler.report.shallow_serialize()
+        shallow_report["uid"] = "I have changed"
+        rsp = client.put(api_url, json=shallow_report)
         assert rsp.status == "400 BAD REQUEST"
 
 
@@ -214,17 +250,21 @@ class TestSingleTest(object):
 
     def test_put_validation(self, api_env):
         """Test that 400 BAD REQUEST is returned for invalid PUT data."""
-        client, _ = api_env
+        client, ihandler = api_env
+        api_url = "/api/v1/interactive/report/tests/MTest1"
 
         # JSON body is required.
-        rsp = client.put("/api/v1/interactive/report/tests/MTest1")
+        rsp = client.put(api_url)
         assert rsp.status == "400 BAD REQUEST"
 
         # "uid" field is required.
-        rsp = client.put(
-            "/api/v1/interactive/report/tests/MTest1",
-            json={"name": "MTestName"},
-        )
+        rsp = client.put(api_url, json={"name": "MTestName"})
+        assert rsp.status == "400 BAD REQUEST"
+
+        # "uid" field cannot be changed.
+        shallow_test = ihandler.report["MTest1"].shallow_serialize()
+        shallow_test["uid"] = "I have changed"
+        rsp = client.put(api_url, json=shallow_test)
         assert rsp.status == "400 BAD REQUEST"
 
 
@@ -286,19 +326,23 @@ class TestSingleSuite(object):
 
     def test_put_validation(self, api_env):
         """Test that 400 BAD REQUEST is returned for invalid PUT data."""
-        client, _ = api_env
+        client, ihandler = api_env
+        api_url = "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1"
 
         # JSON body is required.
-        rsp = client.put(
-            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1"
-        )
+        rsp = client.put(api_url)
         assert rsp.status == "400 BAD REQUEST"
 
         # "uid" field is required.
-        rsp = client.put(
-            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1",
-            json={"name": "SuiteName"},
-        )
+        rsp = client.put(api_url, json={"name": "SuiteName"})
+        assert rsp.status == "400 BAD REQUEST"
+
+        # "uid" field cannot be changed.
+        shallow_suite = ihandler.report["MTest1"][
+            "MT1Suite1"
+        ].shallow_serialize()
+        shallow_suite["uid"] = "I have changed"
+        rsp = client.put(api_url, json=shallow_suite)
         assert rsp.status == "400 BAD REQUEST"
 
 
@@ -385,21 +429,26 @@ class TestSingleTestcase(object):
 
     def test_put_validation(self, api_env):
         """Test that 400 BAD REQUEST is returned for invalid PUT data."""
-        client, _ = api_env
-
-        # JSON body is required.
-        rsp = client.put(
+        client, ihandler = api_env
+        api_url = (
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
             "testcases/MT1S1TC1"
         )
+
+        # JSON body is required.
+        rsp = client.put(api_url)
         assert rsp.status == "400 BAD REQUEST"
 
         # "uid" field is required.
-        rsp = client.put(
-            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
-            "testcases/MT1S1TC1",
-            json={"name": "TestcaseName"},
-        )
+        rsp = client.put(api_url, json={"name": "TestcaseName"})
+        assert rsp.status == "400 BAD REQUEST"
+
+        # "uid" field cannot be changed.
+        serialized_testcase = ihandler.report["MTest1"]["MT1Suite1"][
+            "MT1S1TC1"
+        ].serialize()
+        serialized_testcase["uid"] = "I have changed"
+        rsp = client.put(api_url, json=serialized_testcase)
         assert rsp.status == "400 BAD REQUEST"
 
 
@@ -475,6 +524,30 @@ class TestParametrizedTestCase(object):
         ihandler.run_test_case.assert_called_once_with(
             "MTest1", "MT1Suite1", "MT1S1TC2_0", await_results=False
         )
+
+    def test_put_validation(self, api_env):
+        """Test that 400 BAD REQUEST is returned for invalid PUT data."""
+        client, ihandler = api_env
+        api_url = (
+            "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
+            "testcases/MT1S1TC2/parametrizations/MT1S1TC2_0"
+        )
+
+        # JSON body is required.
+        rsp = client.put(api_url)
+        assert rsp.status == "400 BAD REQUEST"
+
+        # "uid" field is required.
+        rsp = client.put(api_url, json={"name": "TestcaseName"})
+        assert rsp.status == "400 BAD REQUEST"
+
+        # "uid" field cannot be changed.
+        serialized_testcase = ihandler.report["MTest1"]["MT1Suite1"][
+            "MT1S1TC2"
+        ]["MT1S1TC2_0"].serialize()
+        serialized_testcase["uid"] = "I have changed"
+        rsp = client.put(api_url, json=serialized_testcase)
+        assert rsp.status == "400 BAD REQUEST"
 
 
 def compare_json(actual, expected):

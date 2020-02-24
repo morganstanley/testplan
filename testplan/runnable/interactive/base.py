@@ -747,7 +747,7 @@ class TestRunnerIHandler(entity.Entity):
                 self.logger.debug(
                     "Merging testcase report %s with parent UIDs %s",
                     report,
-                    testcase_reports,
+                    parent_uids,
                 )
 
                 parent_entry = self.report

@@ -286,6 +286,7 @@ class ReportGroup(Report):
         if uid in self._index:
             entry_ix = self._index[uid]
             self.entries[entry_ix] = item
+            self.set_parent_uids(item)
         else:
             self.append(item)
 
@@ -337,17 +338,17 @@ class ReportGroup(Report):
 
         super(ReportGroup, self).append(item)
         self._index[item.uid] = len(self.entries) - 1
-        self._set_parent_uids(item)
+        self.set_parent_uids(item)
 
-    def _set_parent_uids(self, item):
+    def set_parent_uids(self, item):
         """
         Set the parent UIDs recursively of an item and its child entries
         after it has been added into this report group.
         """
-        item.parent_uids = self.parent_uids + [self.uid] + item.parent_uids
+        item.parent_uids = self.parent_uids + [self.uid]
         if isinstance(item, ReportGroup):
             for child in item.entries:
-                self._set_parent_uids(child)
+                item.set_parent_uids(child)
 
     def extend(self, items):
         """Add `items` to `self.entries`, checking type & index."""
