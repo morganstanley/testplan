@@ -2,7 +2,7 @@
 
 exports[`NavBreadcrumbs shallow renders the correct HTML structure 1`] = `
 <div
-  className="navBreadcrumbs_1qja1s6"
+  className="navBreadcrumbs_koaten"
 >
   <ul
     className="breadcrumbContainer_1qdzaym"
