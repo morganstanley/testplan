@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     height: '2em',
     width: '100%',
     backgroundColor: LIGHT_GREY,
-    overflowY: "hidden",
+    overflow: "hidden",
   },
   breadcrumbContainer: {
     listStyle: 'none',
