@@ -120,6 +120,17 @@ def generate_interactive_api(ihandler):
         corresponding UID.
         """
 
+        _ENV_TRANSITIONS = {
+            entity.ResourceStatus.STOPPED: (
+                entity.ResourceStatus.STARTING,
+                ihandler.start_test_resources,
+            ),
+            entity.ResourceStatus.STARTED: (
+                entity.ResourceStatus.STOPPING,
+                ihandler.stop_test_resources,
+            ),
+        }
+
         def get(self, test_uid):
             """Get the state of a specific test from the testplan."""
             with ihandler.report_mutex:
@@ -150,35 +161,51 @@ def generate_interactive_api(ihandler):
 
                 _check_uids_match(current_test.uid, new_test.uid)
 
-                ihandler.report[test_uid] = new_test
-
                 # Trigger a side-effect if either the report or environment
                 # statuses have been updated.
                 if _should_run(current_test.runtime_status):
+                    if current_test.env_status != new_test.env_status:
+                        raise werkzeug.exceptions.BadRequest(
+                            "env_status cannot change when test status is "
+                            "changing. Current env status is {}".format(
+                                current_test.env_status
+                            )
+                        )
+
                     new_test.runtime_status = report.RuntimeStatus.RUNNING
                     ihandler.run_test(test_uid, await_results=False)
-                elif should_start_env(current_test, new_test):
-                    ihandler.start_test_resources(
-                        test_uid, await_results=False
+                else:
+                    env_action = self._check_env_transition(
+                        current_test.env_status, new_test.env_status
                     )
-                elif should_stop_env(current_test, new_test):
-                    ihandler.stop_test_resources(test_uid, await_results=False)
+                    if env_action is not None:
+                        env_action(test_uid, await_results=False)
 
+                ihandler.report[test_uid] = new_test
                 return ihandler.report[test_uid].shallow_serialize()
 
-    def should_start_env(current_test, new_test):
-        """Check if we should start a test environment after a PUT update."""
-        return (
-            current_test.env_status == entity.ResourceStatus.STOPPED
-            and new_test.env_status == entity.ResourceStatus.STARTING
-        )
+        def _check_env_transition(self, current_state, new_state):
+            """
+            Validate the new environment state by comparing with the current
+            state. Only updates which leave the environment status unchanged
+            or which follow an allowed transition will be accepted.
 
-    def should_stop_env(current_test, new_test):
-        """Check if we should stop a test environment after a PUT update."""
-        return (
-            current_test.env_status == entity.ResourceStatus.STARTED
-            and new_test.env_status == entity.ResourceStatus.STOPPING
-        )
+            Returns an action if one is required, or else None.
+            """
+            if current_state == new_state:
+                return None
+
+            allowed_transition, action = self._ENV_TRANSITIONS.get(
+                current_state, (None, None)
+            )
+            if allowed_transition is None or new_state != allowed_transition:
+                raise werkzeug.exceptions.BadRequest(
+                    "Cannot transition environment state from {} to {}".format(
+                        current_state, new_state
+                    )
+                )
+
+            return action
 
     @api.route("/report/tests/<string:test_uid>/suites")
     class AllSuites(flask_restplus.Resource):
@@ -391,8 +418,12 @@ def generate_interactive_api(ihandler):
 
                 if _should_run(current_testcase.runtime_status):
                     new_testcase.runtime_status = report.RuntimeStatus.RUNNING
-                    ihandler.run_test_case(
-                        test_uid, suite_uid, param_uid, await_results=False
+                    ihandler.run_test_case_param(
+                        test_uid,
+                        suite_uid,
+                        testcase_uid,
+                        param_uid,
+                        await_results=False,
                     )
 
                 param_group[param_uid] = new_testcase
