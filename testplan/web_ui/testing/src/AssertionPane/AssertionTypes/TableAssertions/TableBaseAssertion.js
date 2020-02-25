@@ -24,7 +24,7 @@ class TableBaseAssertion extends Component {
   }
 
   /**
-   * Handler for the grid's onGridReady event. The grid's api is loaded and the 
+   * Handler for the grid's onGridReady event. The grid's api is loaded and the
    * columns are resized.
    * @param params
    * @public
@@ -36,7 +36,7 @@ class TableBaseAssertion extends Component {
   }
 
   /**
-   * Resize every column to take up all the available space but do not exceed 
+   * Resize every column to take up all the available space but do not exceed
    * the width of the grid.
    * @public
    */
@@ -59,7 +59,7 @@ class TableBaseAssertion extends Component {
         </div>
         <div className={
           `ag-theme-balham ${css(styles.isResizable)} ${css(styles.gridFont)}`
-          } 
+          }
           style={{height: `${height}px`}}>
           <AgGridReact
             suppressColumnVirtualisation={true}
@@ -88,7 +88,7 @@ TableBaseAssertion.propTypes = {
 
 const styles = StyleSheet.create({
   gridFont: {
-    fontSize: '13px',
+    fontSize: 'small',
     fontFamily: 'monospace',
   },
 

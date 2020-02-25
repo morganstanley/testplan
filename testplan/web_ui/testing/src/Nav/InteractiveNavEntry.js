@@ -40,7 +40,10 @@ const InteractiveNavEntry = (props) => {
   );
 
   return (
-    <div className='d-flex justify-content-between align-items-center'>
+    <div
+      className='d-flex justify-content-between align-items-center'
+      style={{height: "1.5em"}}
+    >
       <div
         className={
           css(styles.entryName, styles[STATUS_CATEGORY[props.status]])
@@ -194,7 +197,7 @@ const styles = StyleSheet.create({
     "text-overflow": "ellipsis",
     "white-space": "nowrap",
     "max-width": "22em",
-    fontSize: '1em',
+    fontSize: "small",
     fontWeight: 500,
   },
   entryIcons: {
@@ -204,7 +207,7 @@ const styles = StyleSheet.create({
     "align-items": "center",
   },
   entryIcon: {
-    fontSize: '0.6em',
+    fontSize: 'x-small',
     margin: '0em 0.5em 0em 0.5em',
   },
   entryButton: {

@@ -111,7 +111,6 @@ const styles = StyleSheet.create({
     border: 'none',
     backgroundColor: LIGHT_GREY,
     cursor: 'pointer',
-    height: '70px',
   },
   navButtonInteract: {
     ':hover': {

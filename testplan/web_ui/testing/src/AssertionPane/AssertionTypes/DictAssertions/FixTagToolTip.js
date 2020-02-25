@@ -96,7 +96,7 @@ FixTagToolTip.propTypes = {
 const styles = StyleSheet.create({
   toolTipCard: {
     maxWidth: '250px',
-    fontSize: '13px',
+    fontSize: 'small',
   },
 
   toolTipPadding: {

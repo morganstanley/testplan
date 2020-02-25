@@ -10,7 +10,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
   }
 >
   <input
-    className="searchBoxInput_1cy72x1"
+    className="searchBoxInput_kcbf9x"
     onKeyUp={[MockFunction]}
     placeholder=" Filter"
     type="text"
