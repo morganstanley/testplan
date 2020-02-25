@@ -4,7 +4,7 @@
 import {StyleSheet} from 'aphrodite';
 
 import {
-  GREEN, RED, ORANGE, BLACK, DARK_GREY,
+  GREEN, RED, ORANGE, BLACK, DARK_GREY
 } from "../Common/defaults";
 
 
@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
   },
   toolbarInactive: {
     cursor: 'auto',
+    color: DARK_GREY,
   },
   toolbarUnstable: {
     backgroundColor: ORANGE,
