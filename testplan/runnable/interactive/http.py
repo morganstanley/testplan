@@ -93,7 +93,9 @@ def generate_interactive_api(ihandler):
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
-                if should_run(ihandler.report.runtime_status):
+                _check_uids_match(ihandler.report.uid, new_report.uid)
+
+                if _should_run(ihandler.report.runtime_status):
                     new_report.runtime_status = report.RuntimeStatus.RUNNING
                     ihandler.run_all_tests(await_results=False)
 
@@ -146,11 +148,13 @@ def generate_interactive_api(ihandler):
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
+                _check_uids_match(current_test.uid, new_test.uid)
+
                 ihandler.report[test_uid] = new_test
 
                 # Trigger a side-effect if either the report or environment
                 # statuses have been updated.
-                if should_run(current_test.runtime_status):
+                if _should_run(current_test.runtime_status):
                     new_test.runtime_status = report.RuntimeStatus.RUNNING
                     ihandler.run_test(test_uid, await_results=False)
                 elif should_start_env(current_test, new_test):
@@ -229,7 +233,9 @@ def generate_interactive_api(ihandler):
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
-                if should_run(current_suite.runtime_status):
+                _check_uids_match(current_suite.uid, new_suite.uid)
+
+                if _should_run(current_suite.runtime_status):
                     new_suite.runtime_status = report.RuntimeStatus.RUNNING
                     ihandler.run_test_suite(
                         test_uid, suite_uid, await_results=False
@@ -252,7 +258,7 @@ def generate_interactive_api(ihandler):
             with ihandler.report_mutex:
                 try:
                     return [
-                        serialize_testcase(entry)
+                        _serialize_testcase(entry)
                         for entry in ihandler.report[test_uid][suite_uid]
                     ]
                 except KeyError:
@@ -279,7 +285,7 @@ def generate_interactive_api(ihandler):
                 except KeyError:
                     raise werkzeug.exceptions.NotFound
 
-                return serialize_testcase(report_entry)
+                return _serialize_testcase(report_entry)
 
         def put(self, test_uid, suite_uid, testcase_uid):
             """Update the state of a specific testcase."""
@@ -296,20 +302,22 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.NotFound
 
                 try:
-                    new_testcase = deserialize_testcase(
+                    new_testcase = _deserialize_testcase(
                         current_testcase, flask.request.json
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
-                if should_run(current_testcase.runtime_status):
+                _check_uids_match(current_testcase.uid, new_testcase.uid)
+
+                if _should_run(current_testcase.runtime_status):
                     new_testcase.runtime_status = report.RuntimeStatus.RUNNING
                     ihandler.run_test_case(
                         test_uid, suite_uid, testcase_uid, await_results=False
                     )
 
                 suite[testcase_uid] = new_testcase
-                return serialize_testcase(suite[testcase_uid])
+                return _serialize_testcase(suite[testcase_uid])
 
     @api.route(
         "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
@@ -379,7 +387,9 @@ def generate_interactive_api(ihandler):
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
-                if should_run(current_testcase.runtime_status):
+                _check_uids_match(current_testcase.uid, new_testcase.uid)
+
+                if _should_run(current_testcase.runtime_status):
                     new_testcase.runtime_status = report.RuntimeStatus.RUNNING
                     ihandler.run_test_case(
                         test_uid, suite_uid, param_uid, await_results=False
@@ -388,72 +398,87 @@ def generate_interactive_api(ihandler):
                 param_group[param_uid] = new_testcase
                 return param_group[param_uid].serialize()
 
-    def serialize_testcase(report_entry):
-        """
-        Serialize a report entry representing a testcase. Since the
-        testcase may be parametrized, we check for that and return
-        the shallow serialization instead.
-        """
-        if isinstance(report_entry, report.TestCaseReport):
-            return report_entry.serialize()
-        elif isinstance(report_entry, report.TestGroupReport):
-            return report_entry.shallow_serialize()
-        else:
-            raise TypeError(
-                "Unexpected report entry type: {}".format(type(report_entry))
-            )
-
-    def deserialize_testcase(current_testcase, serialized):
-        """
-        Deserialize an updated testcase entry.
-
-        We need to inspect the type of the current testcase
-        object in order to decide how to deserialize the update.
-        If a testcase is parametrized, it will be represented
-        as a TestGroupReport type at this level of the report
-        tree. Non-parametrized testcases are represented
-        as a TestCaseReport.
-        """
-        if isinstance(current_testcase, report.TestCaseReport):
-            return report.TestCaseReport.deserialize(serialized)
-        elif isinstance(current_testcase, report.TestGroupReport):
-            return report.TestGroupReport.shallow_deserialize(
-                serialized, current_testcase
-            )
-        else:
-            raise TypeError(
-                "Unexpected report type %s", type(current_testcase)
-            )
-
-    def should_run(curr_status):
-        """
-        Check if any test(s) should be triggered to run from a state
-        update.
-
-        The only allowed state transition on update is to set the status
-        to RUNNING to trigger test(s) to run. Any other state update (e.g.
-        setting the state of a running test to PASSED) is not allowed - only
-        the server may make those transitions. A BadRequest exception will be
-        raised if the requested status is not valid.
-
-        TODO: from api design perspective, should_run should take a curr_status
-        and a new_status, rather than looking at request directly
-        """
-        try:
-            new_status = flask.request.json["runtime_status"]
-        except KeyError:
-            raise werkzeug.exceptions.BadRequest("runtime_status is required")
-
-        if new_status == curr_status:
-            return False
-        elif new_status == report.RuntimeStatus.RUNNING:
-            return True
-        else:
-            raise werkzeug.exceptions.BadRequest(
-                "Cannot update status to {}".format(new_status)
-            )
-
     return app, api
+
+
+def _serialize_testcase(report_entry):
+    """
+    Serialize a report entry representing a testcase. Since the
+    testcase may be parametrized, we check for that and return
+    the shallow serialization instead.
+    """
+    if isinstance(report_entry, report.TestCaseReport):
+        return report_entry.serialize()
+    elif isinstance(report_entry, report.TestGroupReport):
+        return report_entry.shallow_serialize()
+    else:
+        raise TypeError(
+            "Unexpected report entry type: {}".format(type(report_entry))
+        )
+
+
+def _deserialize_testcase(current_testcase, serialized):
+    """
+    Deserialize an updated testcase entry.
+
+    We need to inspect the type of the current testcase
+    object in order to decide how to deserialize the update.
+    If a testcase is parametrized, it will be represented
+    as a TestGroupReport type at this level of the report
+    tree. Non-parametrized testcases are represented
+    as a TestCaseReport.
+    """
+    if isinstance(current_testcase, report.TestCaseReport):
+        return report.TestCaseReport.deserialize(serialized)
+    elif isinstance(current_testcase, report.TestGroupReport):
+        return report.TestGroupReport.shallow_deserialize(
+            serialized, current_testcase
+        )
+    else:
+        raise TypeError("Unexpected report type %s", type(current_testcase))
+
+
+def _should_run(curr_status):
+    """
+    Check if any test(s) should be triggered to run from a state
+    update.
+
+    The only allowed state transition on update is to set the status
+    to RUNNING to trigger test(s) to run. Any other state update (e.g.
+    setting the state of a running test to PASSED) is not allowed - only
+    the server may make those transitions. A BadRequest exception will be
+    raised if the requested status is not valid.
+
+    TODO: from api design perspective, _should_run should take a curr_status
+    and a new_status, rather than looking at request directly
+    """
+    try:
+        new_status = flask.request.json["runtime_status"]
+    except KeyError:
+        raise werkzeug.exceptions.BadRequest("runtime_status is required")
+
+    if new_status == curr_status:
+        return False
+    elif new_status == report.RuntimeStatus.RUNNING:
+        return True
+    else:
+        raise werkzeug.exceptions.BadRequest(
+            "Cannot update status to {}".format(new_status)
+        )
+
+
+def _check_uids_match(current_uid, new_uid):
+    """
+    Check that the UID from the updated entry matches the current one.
+    UIDs cannot be changed, so raise a BadRequest error if they do not
+    match.
+    """
+    if new_uid != current_uid:
+        raise werkzeug.exceptions.BadRequest(
+            "Cannot update UID of entry from {} to {}".format(
+                current_uid, new_uid
+            )
+        )
 
 
 class TestRunnerHTTPHandlerConfig(entity.EntityConfig):
