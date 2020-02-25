@@ -130,7 +130,7 @@ class TestReport(object):
 
         json_report = ihandler.report.shallow_serialize()
         rsp = client.get("/api/v1/interactive/report")
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
         json_rsp = rsp.get_json()
         assert json_rsp["runtime_status"] == "ready"
         compare_json(json_rsp, json_report)
@@ -142,7 +142,7 @@ class TestReport(object):
         json_report = ihandler.report.shallow_serialize()
         json_report["runtime_status"] = "running"
         rsp = client.put("/api/v1/interactive/report", json=json_report)
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
         rsp_json = rsp.get_json()
         assert rsp_json["runtime_status"] == "running"
         compare_json(rsp_json, json_report)
@@ -155,17 +155,17 @@ class TestReport(object):
 
         # JSON body is required.
         rsp = client.put(api_url)
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
         # "uid" field is required.
         rsp = client.put(api_url, json={"name": "ReportName"})
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
         # "uid" field cannot be changed.
         shallow_report = ihandler.report.shallow_serialize()
         shallow_report["uid"] = "I have changed"
         rsp = client.put(api_url, json=shallow_report)
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
 
 class TestAllTests(object):
@@ -175,7 +175,7 @@ class TestAllTests(object):
         """Test reading the AllTests resource via GET."""
         client, ihandler = api_env
         rsp = client.get("/api/v1/interactive/report/tests")
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
         json_rsp = rsp.get_json()
         json_tests = [test.shallow_serialize() for test in ihandler.report]
         compare_json(json_rsp, json_tests)
@@ -187,7 +187,7 @@ class TestAllTests(object):
         """
         client, _ = api_env
         rsp = client.put("/api/v1/interactive/report/tests")
-        assert rsp.status == "405 METHOD NOT ALLOWED"
+        assert rsp.status_code == 405
 
 
 class TestSingleTest(object):
@@ -197,7 +197,7 @@ class TestSingleTest(object):
         """Test reading the SingleTest resource via GET."""
         client, ihandler = api_env
         rsp = client.get("/api/v1/interactive/report/tests/MTest1")
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
 
         json_rsp = rsp.get_json()
         json_test = ihandler.report["MTest1"].shallow_serialize()
@@ -212,7 +212,7 @@ class TestSingleTest(object):
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
         compare_json(rsp.get_json(), json_test)
 
         ihandler.run_test.assert_called_once_with(
@@ -228,7 +228,7 @@ class TestSingleTest(object):
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
         compare_json(rsp.get_json(), json_test)
 
         ihandler.start_test_resources.assert_called_once_with(
@@ -241,7 +241,7 @@ class TestSingleTest(object):
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1", json=json_test
         )
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
         compare_json(rsp.get_json(), json_test)
 
         ihandler.stop_test_resources.assert_called_once_with(
@@ -255,17 +255,17 @@ class TestSingleTest(object):
 
         # JSON body is required.
         rsp = client.put(api_url)
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
         # "uid" field is required.
         rsp = client.put(api_url, json={"name": "MTestName"})
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
         # "uid" field cannot be changed.
         shallow_test = ihandler.report["MTest1"].shallow_serialize()
         shallow_test["uid"] = "I have changed"
         rsp = client.put(api_url, json=shallow_test)
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
 
 class TestAllSuites(object):
@@ -275,7 +275,7 @@ class TestAllSuites(object):
         """Test reading the AllSuites resource via GET."""
         client, ihandler = api_env
         rsp = client.get("/api/v1/interactive/report/tests/MTest1/suites")
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
         json_rsp = rsp.get_json()
         json_suites = [
             suite.shallow_serialize() for suite in ihandler.report["MTest1"]
@@ -289,7 +289,7 @@ class TestAllSuites(object):
         """
         client, _ = api_env
         rsp = client.put("/api/v1/interactive/report/tests/MTest1/suites")
-        assert rsp.status == "405 METHOD NOT ALLOWED"
+        assert rsp.status_code == 405
 
 
 class TestSingleSuite(object):
@@ -301,7 +301,7 @@ class TestSingleSuite(object):
         rsp = client.get(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1"
         )
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
 
         json_rsp = rsp.get_json()
         suite_json = ihandler.report["MTest1"]["MT1Suite1"].shallow_serialize()
@@ -317,7 +317,7 @@ class TestSingleSuite(object):
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1",
             json=suite_json,
         )
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
         compare_json(rsp.get_json(), suite_json)
 
         ihandler.run_test_suite.assert_called_once_with(
@@ -331,11 +331,11 @@ class TestSingleSuite(object):
 
         # JSON body is required.
         rsp = client.put(api_url)
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
         # "uid" field is required.
         rsp = client.put(api_url, json={"name": "SuiteName"})
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
         # "uid" field cannot be changed.
         shallow_suite = ihandler.report["MTest1"][
@@ -343,7 +343,7 @@ class TestSingleSuite(object):
         ].shallow_serialize()
         shallow_suite["uid"] = "I have changed"
         rsp = client.put(api_url, json=shallow_suite)
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
 
 class TestAllTestcases(object):
@@ -355,7 +355,7 @@ class TestAllTestcases(object):
         rsp = client.get(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/testcases"
         )
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
         json_rsp = rsp.get_json()
         json_testcases = [
             serialize_testcase(testcase)
@@ -372,7 +372,7 @@ class TestAllTestcases(object):
         rsp = client.put(
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/testcases"
         )
-        assert rsp.status == "405 METHOD NOT ALLOWED"
+        assert rsp.status_code == 405
 
 
 class TestSingleTestcase(object):
@@ -386,7 +386,7 @@ class TestSingleTestcase(object):
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
             "testcases/{}".format(testcase_uid)
         )
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
 
         json_rsp = rsp.get_json()
 
@@ -420,7 +420,7 @@ class TestSingleTestcase(object):
             "testcases/{}".format(testcase_uid),
             json=testcase_json,
         )
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
         compare_json(rsp.get_json(), testcase_json)
 
         ihandler.run_test_case.assert_called_once_with(
@@ -437,11 +437,11 @@ class TestSingleTestcase(object):
 
         # JSON body is required.
         rsp = client.put(api_url)
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
         # "uid" field is required.
         rsp = client.put(api_url, json={"name": "TestcaseName"})
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
         # "uid" field cannot be changed.
         serialized_testcase = ihandler.report["MTest1"]["MT1Suite1"][
@@ -449,7 +449,7 @@ class TestSingleTestcase(object):
         ].serialize()
         serialized_testcase["uid"] = "I have changed"
         rsp = client.put(api_url, json=serialized_testcase)
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
 
 class TestAllParametrizations(object):
@@ -462,7 +462,7 @@ class TestAllParametrizations(object):
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
             "testcases/MT1S1TC2/parametrizations"
         )
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
         json_rsp = rsp.get_json()
         json_parametrizations = [
             param.serialize()
@@ -480,7 +480,7 @@ class TestAllParametrizations(object):
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
             "testcases/MT1S1TC2/parametrizations"
         )
-        assert rsp.status == "405 METHOD NOT ALLOWED"
+        assert rsp.status_code == 405
 
 
 class TestParametrizedTestCase(object):
@@ -493,7 +493,7 @@ class TestParametrizedTestCase(object):
             "/api/v1/interactive/report/tests/MTest1/suites/MT1Suite1/"
             "testcases/MT1S1TC2/parametrizations/MT1S1TC2_0"
         )
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
 
         json_rsp = rsp.get_json()
 
@@ -518,7 +518,7 @@ class TestParametrizedTestCase(object):
             "testcases/MT1S1TC2/parametrizations/MT1S1TC2_0",
             json=testcase_json,
         )
-        assert rsp.status == "200 OK"
+        assert rsp.status_code == 200
         compare_json(rsp.get_json(), testcase_json)
 
         ihandler.run_test_case.assert_called_once_with(
@@ -535,11 +535,11 @@ class TestParametrizedTestCase(object):
 
         # JSON body is required.
         rsp = client.put(api_url)
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
         # "uid" field is required.
         rsp = client.put(api_url, json={"name": "TestcaseName"})
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
         # "uid" field cannot be changed.
         serialized_testcase = ihandler.report["MTest1"]["MT1Suite1"][
@@ -547,7 +547,7 @@ class TestParametrizedTestCase(object):
         ]["MT1S1TC2_0"].serialize()
         serialized_testcase["uid"] = "I have changed"
         rsp = client.put(api_url, json=serialized_testcase)
-        assert rsp.status == "400 BAD REQUEST"
+        assert rsp.status_code == 400
 
 
 def compare_json(actual, expected):
