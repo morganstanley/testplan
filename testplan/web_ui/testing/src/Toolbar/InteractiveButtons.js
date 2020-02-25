@@ -4,7 +4,7 @@
 import React from 'react';
 import {NavItem} from 'reactstrap';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faBackward} from '@fortawesome/free-solid-svg-icons';
+import {faBackspace} from '@fortawesome/free-solid-svg-icons';
 import {css} from 'aphrodite';
 
 import styles from './navStyles';
@@ -23,7 +23,7 @@ const ResetButton = (props) => {
           <FontAwesomeIcon
             key='toolbar-reset'
             className={css(styles.toolbarButton, styles.toolbarInactive)}
-            icon={faBackward}
+            icon={faBackspace}
             title='Resetting...'
           />
         </div>
@@ -36,7 +36,7 @@ const ResetButton = (props) => {
           <FontAwesomeIcon
             key='toolbar-reset'
             className={css(styles.toolbarButton)}
-            icon={faBackward}
+            icon={faBackspace}
             title='Reset state'
             onClick={props.resetStateCbk}
           />
