@@ -46,7 +46,7 @@ software distributed by the Project:
   * if any third party, including your employer and/or its affiliates, has rights to any intellectual property
     included in your Contribution, then (i) each such third party has provided you written permission to make the
     Contribution as specified herein or a written waiver of such rights in and to your
-    Contribution,  **[and (ii) such third party(ies) is/are Dobra Gábor]**;
+    Contribution,  **[and (ii) such third party(ies) is/are <name of copyright holder(s)>]**;
   * your Contribution is an original work created by you, and except for third parties who have given permission
     to make the Contribution as set forth above, to your knowledge, no other person or entity has claimed,
     claims, or has the right to claim any right whatsoever in the Contribution; and
