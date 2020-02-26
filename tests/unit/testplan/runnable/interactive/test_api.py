@@ -110,7 +110,7 @@ def api_env(example_report):
     ihandler.run_test = mock.MagicMock()
     ihandler.run_test_suite = mock.MagicMock()
     ihandler.run_test_case = mock.MagicMock()
-    ihandler.run_parametrized_test_case = mock.MagicMock()
+    ihandler.run_test_case_param = mock.MagicMock()
     ihandler.start_test_resources = mock.MagicMock()
     ihandler.stop_test_resources = mock.MagicMock()
 
@@ -247,6 +247,15 @@ class TestSingleTest(object):
         ihandler.stop_test_resources.assert_called_once_with(
             "MTest1", await_results=False
         )
+
+        # Try requesting an invalid environment state change - should be
+        # rejected.
+        ihandler.report["MTest1"].env_status = "STARTING"
+        json_test["env_status"] = "STOPPING"
+        rsp = client.put(
+            "/api/v1/interactive/report/tests/MTest1", json=json_test
+        )
+        assert rsp.status_code == 400
 
     def test_put_validation(self, api_env):
         """Test that 400 BAD REQUEST is returned for invalid PUT data."""
@@ -521,8 +530,12 @@ class TestParametrizedTestCase(object):
         assert rsp.status_code == 200
         compare_json(rsp.get_json(), testcase_json)
 
-        ihandler.run_test_case.assert_called_once_with(
-            "MTest1", "MT1Suite1", "MT1S1TC2_0", await_results=False
+        ihandler.run_test_case_param.assert_called_once_with(
+            "MTest1",
+            "MT1Suite1",
+            "MT1S1TC2",
+            "MT1S1TC2_0",
+            await_results=False,
         )
 
     def test_put_validation(self, api_env):

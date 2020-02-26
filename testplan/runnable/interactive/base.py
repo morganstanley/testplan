@@ -178,8 +178,17 @@ class TestRunnerIHandler(entity.Entity):
 
         test = self.test(test_uid, runner_uid=runner_uid)
 
-        with self._auto_start_stop_environment(test_uid, runner_uid):
-            self._merge_testcase_reports(test.run_testcases_iter())
+        try:
+            self._auto_start_environment(test_uid, runner_uid)
+        except RuntimeError:
+            self.logger.exception("Failed to start environment for test.")
+            with self.report_mutex:
+                self.report[
+                    test_uid
+                ].runtime_status = testplan.report.RuntimeStatus.FINISHED
+            return
+
+        self._merge_testcase_reports(test.run_testcases_iter())
 
     def run_test_suite(
         self, test_uid, suite_uid, runner_uid=None, await_results=True
@@ -204,10 +213,19 @@ class TestRunnerIHandler(entity.Entity):
 
         test = self.test(test_uid, runner_uid=runner_uid)
 
-        with self._auto_start_stop_environment(test_uid, runner_uid):
-            self._merge_testcase_reports(
-                test.run_testcases_iter(testsuite_pattern=suite_uid)
-            )
+        try:
+            self._auto_start_environment(test_uid, runner_uid)
+        except RuntimeError:
+            self.logger.exception("Failed to start environment for testsuite.")
+            with self.report_mutex:
+                self.report[test_uid][
+                    suite_uid
+                ].runtime_status = testplan.report.RuntimeStatus.FINISHED
+            return
+
+        self._merge_testcase_reports(
+            test.run_testcases_iter(testsuite_pattern=suite_uid)
+        )
 
     def run_test_case(
         self,
@@ -238,12 +256,73 @@ class TestRunnerIHandler(entity.Entity):
 
         test = self.test(test_uid, runner_uid=runner_uid)
 
-        with self._auto_start_stop_environment(test_uid, runner_uid):
-            self._merge_testcase_reports(
-                test.run_testcases_iter(
-                    testsuite_pattern=suite_uid, testcase_pattern=case_uid
-                )
+        try:
+            self._auto_start_environment(test_uid, runner_uid)
+        except RuntimeError:
+            self.logger.exception("Failed to start environment for testcase.")
+            with self.report_mutex:
+                self.report[test_uid][suite_uid][
+                    case_uid
+                ].runtime_status = testplan.report.RuntimeStatus.FINISHED
+            return
+
+        self._merge_testcase_reports(
+            test.run_testcases_iter(
+                testsuite_pattern=suite_uid, testcase_pattern=case_uid
             )
+        )
+
+    def run_test_case_param(
+        self,
+        test_uid,
+        suite_uid,
+        case_uid,
+        param_uid,
+        runner_uid=None,
+        await_results=True,
+    ):
+        """
+        Run a single parametrization of a testcase.
+
+        :param test_uid: UID of the test that owns the testcase.
+        :param suite_uid: UID of the suite that owns the testcase.
+        :param case_uid: UID of the testcase to run.
+        :param param_uid: UID of the parametrization to run.
+        :param runner_uid: UID of a specific test runner, or None to use the
+            default local runner.
+        :param await_results: Whether to block until the testcase is finished,
+            defaults to True.
+        :return: If await_results is True, returns a testcase report.
+            Otherwise, returns a future which will yield a testcase report when
+            ready.
+        """
+        if not await_results:
+            return self._run_async(
+                self.run_test_case_param,
+                test_uid,
+                suite_uid,
+                case_uid,
+                param_uid,
+                runner_uid,
+            )
+
+        test = self.test(test_uid, runner_uid=runner_uid)
+
+        try:
+            self._auto_start_environment(test_uid, runner_uid)
+        except RuntimeError:
+            self.logger.exception("Failed to start environment for testcase.")
+            with self.report_mutex:
+                self.report[test_uid][suite_uid][case_uid][
+                    param_uid
+                ].runtime_status = testplan.report.RuntimeStatus.FINISHED
+            return
+
+        self._merge_testcase_reports(
+            test.run_testcases_iter(
+                testsuite_pattern=suite_uid, testcase_pattern=param_uid
+            )
+        )
 
     def test(self, test_uid, runner_uid=None):
         """
@@ -695,25 +774,15 @@ class TestRunnerIHandler(entity.Entity):
             )
         return result
 
-    @contextlib.contextmanager
-    def _auto_start_stop_environment(self, test_uid, runner_uid):
-        """Context manager for automatic environment control."""
-        test = self.test(test_uid, runner_uid=runner_uid)
-        resources_started = False
-
-        if not test.resources.all_status(entity.ResourceStatus.STARTED):
-            if not test.resources.all_status(
-                entity.ResourceStatus.STOPPED
-            ) and not test.resources.all_status(entity.ResourceStatus.NONE):
-                # State requires to reset all.
-                self.stop_test_resources(test_uid, runner_uid=runner_uid)
-            self.start_test_resources(test_uid, runner_uid=runner_uid)
-            resources_started = True
-
-        yield
-
-        if resources_started:
-            self.stop_test_resources(test_uid, runner_uid=runner_uid)
+    def _auto_start_environment(self, test_uid, runner_uid):
+        """Start environment if required."""
+        env_status = self.report[test_uid].env_status
+        if env_status == entity.ResourceStatus.STOPPED:
+            self.start_test_resources(test_uid, runner_uid)
+        elif env_status != entity.ResourceStatus.STARTED:
+            raise RuntimeError(
+                "Cannot auto-start environment in state {}".format(env_status)
+            )
 
     def _set_env_status(self, test_uid, new_status):
         """Set the environment status for a given test."""
@@ -742,14 +811,14 @@ class TestRunnerIHandler(entity.Entity):
 
     def _merge_testcase_reports(self, testcase_reports):
         """Merge all test reports from a test run into our report."""
-        with self.report_mutex:
-            for report, parent_uids in testcase_reports:
-                self.logger.debug(
-                    "Merging testcase report %s with parent UIDs %s",
-                    report,
-                    parent_uids,
-                )
+        for report, parent_uids in testcase_reports:
+            self.logger.debug(
+                "Merging testcase report %s with parent UIDs %s",
+                report,
+                parent_uids,
+            )
 
+            with self.report_mutex:
                 parent_entry = self.report
                 for uid in parent_uids:
                     parent_entry = parent_entry[uid]
