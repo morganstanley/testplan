@@ -3,6 +3,7 @@
 """
 
 import os
+import traceback
 import uuid
 import warnings
 
@@ -42,8 +43,15 @@ try:
         serialized_entry_registry,
         constants as const,
     )
+
+    stored_exc = None
 except Exception as exc:
     warnings.warn("reportlab must be supported: {}".format(exc))
+    traceback.print_exc()
+    report_registry = None
+    serialized_entry_registry = None
+    const = None
+    stored_exc = exc
 
 
 MAX_FILENAME_LENGTH = 100
@@ -98,6 +106,15 @@ def generate_path_for_tags(config, tag_dict, filter_type):
 
 def create_pdf(source, config):
     """Entry point for PDF generation."""
+    if stored_exc is not None:
+        # We cannot generate a PDF if there was an exception importing the
+        # dependencies, so raise and abort here.
+        #
+        # Need to explicitly disable the raising-bad-type check here since
+        # pylint isn't smart enough to know that we explicitly checked that
+        # the stored_exc is not None above.
+        raise stored_exc  # pylint: disable=raising-bad-type
+
     # Depth values will be used for indentation on PDF, however
     # we want first level children to have depth = 0 (otherwise we'll have to
     # do `depth + 1` everywhere in the renderers.
