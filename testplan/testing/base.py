@@ -324,6 +324,24 @@ class Test(Runnable):
         """
         raise NotImplementedError
 
+    def start_test_resources(self):
+        """
+        Start all test resources but do not run any tests. Used in the
+        interactive mode when environments may be started/stopped on demand.
+        The base implementation is very simple but may be overridden in sub-
+        classes to run additional setup pre- and post-environment start.
+        """
+        self.make_runpath_dirs()
+        self.resources.start()
+
+    def stop_test_resources(self):
+        """
+        Stop all test resources. As above, this method is used for the
+        interactive mode and is very simple in this base Test class, but may
+        be overridden by sub-classes.
+        """
+        self.resources.stop()
+
 
 class ProcessRunnerTestConfig(TestConfig):
     """

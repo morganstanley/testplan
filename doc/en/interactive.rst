@@ -116,14 +116,14 @@ your testcases in Java using JUnit but make API calls to a Testplan process to
 control your test environment before and after running tests. There are many
 similar possibilities!
 
-When Testplan is started in interactive mode, as well as displaying a link to
-the web UI it will also display a link to view and interact with the API
-schema, using a generated Swagger UI. Take a look at the schema if you would
-like to learn more.
+When Testplan is started in interactive mode with debug logging enabled, as
+well as displaying a link to the web UI it will also display a link to view and
+interact with the API schema, using a generated Swagger UI. Take a look at the
+schema if you would like to learn more.
 
 .. code-block:: bash
 
-    $ python test_plan.py -i
+    $ python test_plan.py -di
     ...
     Interactive Testplan API is running. View the API schema:
         Local: http://localhost:36718/api/v1/interactive/

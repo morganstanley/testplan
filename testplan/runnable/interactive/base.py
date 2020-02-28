@@ -6,27 +6,22 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 from builtins import super
-from builtins import next
 from future import standard_library
 
 standard_library.install_aliases()
-import functools
 import re
 import six
 import numbers
 import threading
-import itertools
 from concurrent import futures
-import contextlib
 
 from testplan.common import entity
 from testplan.common import config
 from testplan.common.utils import networking
 import testplan.report
 from testplan.runnable.interactive import http
-from testplan.runners.base import Executor
-from testplan.runnable.interactive.reloader import ModuleReloader
-from testplan.runnable.interactive.resource_loader import ResourceLoader
+from testplan.runnable.interactive import reloader
+from testplan.runnable.interactive import resource_loader
 
 
 class TestRunnerIHandlerConfig(config.Config):
@@ -69,8 +64,10 @@ class TestRunnerIHandler(entity.Entity):
         self._http_handler = None
 
         self._created_environments = {}
-        self._reloader = ModuleReloader(extra_deps=self.cfg.extra_deps)
-        self._resource_loader = ResourceLoader()
+        self._reloader = reloader.ModuleReloader(
+            extra_deps=self.cfg.extra_deps
+        )
+        self._resource_loader = resource_loader.ResourceLoader()
 
     def __call__(self, *args, **kwargs):
         """
@@ -140,12 +137,10 @@ class TestRunnerIHandler(entity.Entity):
         """
         pass
 
-    def run_all_tests(self, runner_uid=None, await_results=True):
+    def run_all_tests(self, await_results=True):
         """
         Run all tests.
 
-        :param runner_uid: UID of a specific test runner, or None to use the
-            default local runner.
         :param await_results: Whether to block until tests are finished,
             defaults to True.
         :return: If await_results is True, returns a testplan report.
@@ -153,20 +148,18 @@ class TestRunnerIHandler(entity.Entity):
             ready.
         """
         if not await_results:
-            return self._run_async(self.run_all_tests, runner_uid)
+            return self._run_async(self.run_all_tests)
 
-        all_tests = self.all_tests(runner_uid)
+        all_tests = self.all_tests()
 
-        for test_uid, real_runner_uid in all_tests:
-            self.run_test(test_uid, real_runner_uid)
+        for test_uid in all_tests:
+            self.run_test(test_uid)
 
-    def run_test(self, test_uid, runner_uid=None, await_results=True):
+    def run_test(self, test_uid, await_results=True):
         """
         Run a single Test instance.
 
         :param test_uid: UID of test to run.
-        :param runner_uid: UID of a specific test runner, or None to use the
-            default local runner.
         :param await_results: Whether to block until the test is finished,
             defaults to True.
         :return: If await_results is True, returns a test report.
@@ -174,12 +167,12 @@ class TestRunnerIHandler(entity.Entity):
             ready.
         """
         if not await_results:
-            return self._run_async(self.run_test, test_uid, runner_uid)
+            return self._run_async(self.run_test, test_uid)
 
-        test = self.test(test_uid, runner_uid=runner_uid)
+        test = self.test(test_uid)
 
         try:
-            self._auto_start_environment(test_uid, runner_uid)
+            self._auto_start_environment(test_uid)
         except RuntimeError:
             self.logger.exception("Failed to start environment for test.")
             with self.report_mutex:
@@ -190,16 +183,12 @@ class TestRunnerIHandler(entity.Entity):
 
         self._merge_testcase_reports(test.run_testcases_iter())
 
-    def run_test_suite(
-        self, test_uid, suite_uid, runner_uid=None, await_results=True
-    ):
+    def run_test_suite(self, test_uid, suite_uid, await_results=True):
         """
         Run a single test suite.
 
         :param test_uid: UID of the test that owns the suite.
         :param suite_uid: UID of the suite to run.
-        :param runner_uid: UID of a specific test runner, or None to use the
-            default local runner.
         :param await_results: Whether to block until the suite is finished,
             defaults to True.
         :return: If await_results is True, returns a testsuite report.
@@ -207,14 +196,12 @@ class TestRunnerIHandler(entity.Entity):
             when ready.
         """
         if not await_results:
-            return self._run_async(
-                self.run_test_suite, test_uid, suite_uid, runner_uid
-            )
+            return self._run_async(self.run_test_suite, test_uid, suite_uid,)
 
-        test = self.test(test_uid, runner_uid=runner_uid)
+        test = self.test(test_uid)
 
         try:
-            self._auto_start_environment(test_uid, runner_uid)
+            self._auto_start_environment(test_uid)
         except RuntimeError:
             self.logger.exception("Failed to start environment for testsuite.")
             with self.report_mutex:
@@ -228,12 +215,7 @@ class TestRunnerIHandler(entity.Entity):
         )
 
     def run_test_case(
-        self,
-        test_uid,
-        suite_uid,
-        case_uid,
-        runner_uid=None,
-        await_results=True,
+        self, test_uid, suite_uid, case_uid, await_results=True,
     ):
         """
         Run a single testcase.
@@ -241,8 +223,6 @@ class TestRunnerIHandler(entity.Entity):
         :param test_uid: UID of the test that owns the testcase.
         :param suite_uid: UID of the suite that owns the testcase.
         :param case_uid: UID of the testcase to run.
-        :param runner_uid: UID of a specific test runner, or None to use the
-            default local runner.
         :param await_results: Whether to block until the testcase is finished,
             defaults to True.
         :return: If await_results is True, returns a testcase report.
@@ -251,13 +231,13 @@ class TestRunnerIHandler(entity.Entity):
         """
         if not await_results:
             return self._run_async(
-                self.run_test_case, test_uid, suite_uid, case_uid, runner_uid
+                self.run_test_case, test_uid, suite_uid, case_uid,
             )
 
-        test = self.test(test_uid, runner_uid=runner_uid)
+        test = self.test(test_uid)
 
         try:
-            self._auto_start_environment(test_uid, runner_uid)
+            self._auto_start_environment(test_uid)
         except RuntimeError:
             self.logger.exception("Failed to start environment for testcase.")
             with self.report_mutex:
@@ -273,13 +253,7 @@ class TestRunnerIHandler(entity.Entity):
         )
 
     def run_test_case_param(
-        self,
-        test_uid,
-        suite_uid,
-        case_uid,
-        param_uid,
-        runner_uid=None,
-        await_results=True,
+        self, test_uid, suite_uid, case_uid, param_uid, await_results=True,
     ):
         """
         Run a single parametrization of a testcase.
@@ -288,8 +262,6 @@ class TestRunnerIHandler(entity.Entity):
         :param suite_uid: UID of the suite that owns the testcase.
         :param case_uid: UID of the testcase to run.
         :param param_uid: UID of the parametrization to run.
-        :param runner_uid: UID of a specific test runner, or None to use the
-            default local runner.
         :param await_results: Whether to block until the testcase is finished,
             defaults to True.
         :return: If await_results is True, returns a testcase report.
@@ -303,13 +275,12 @@ class TestRunnerIHandler(entity.Entity):
                 suite_uid,
                 case_uid,
                 param_uid,
-                runner_uid,
             )
 
-        test = self.test(test_uid, runner_uid=runner_uid)
+        test = self.test(test_uid)
 
         try:
-            self._auto_start_environment(test_uid, runner_uid)
+            self._auto_start_environment(test_uid)
         except RuntimeError:
             self.logger.exception("Failed to start environment for testcase.")
             with self.report_mutex:
@@ -324,34 +295,21 @@ class TestRunnerIHandler(entity.Entity):
             )
         )
 
-    def test(self, test_uid, runner_uid=None):
+    def test(self, test_uid):
         """
         Get a test instance with the specified UID.
 
         :param test_uid: UID of test to find.
-        :param runner_uid: UID of test runner that owns the test, or None to
-            specify the default local runner.
         """
-        if runner_uid is None:
-            runner = self.target.resources.local_runner
-        else:
-            runner = getattr(self.target.resources, runner_uid)
-            if not isinstance(runner, Executor):
-                raise RuntimeError(
-                    "Invalid runner executor: {}".format(runner_uid)
-                )
+        runner = self.target.resources[self.target.resources.first()]
         item = runner.added_item(test_uid)
         return item
 
-    def start_test_resources(
-        self, test_uid, runner_uid=None, await_results=True
-    ):
+    def start_test_resources(self, test_uid, await_results=True):
         """
         Start all test resources.
 
         :param test_uid: UID of test to start resources for
-        :param runner_uid: UID of test runner that owns the test, or None to
-            specify the default local runner.
         :param await_results: Whether to block until the test resources have
             all started, defaults to True.
         :return: If await_results is True, returns a list of the return values
@@ -359,28 +317,22 @@ class TestRunnerIHandler(entity.Entity):
             result objects.
         """
         if not await_results:
-            return self._run_async(
-                self.start_test_resources, test_uid, runner_uid
-            )
+            return self._run_async(self.start_test_resources, test_uid,)
 
         with self.report_mutex:
             self.report[test_uid].env_status = entity.ResourceStatus.STARTING
 
-        test = self.test(test_uid, runner_uid=runner_uid)
-        test.resources.start()
+        test = self.test(test_uid)
+        test.start_test_resources()
 
         with self.report_mutex:
             self.report[test_uid].env_status = entity.ResourceStatus.STARTED
 
-    def stop_test_resources(
-        self, test_uid, runner_uid=None, await_results=True
-    ):
+    def stop_test_resources(self, test_uid, await_results=True):
         """
         Stop all test resources.
 
         :param test_uid: UID of test to stop resources for
-        :param runner_uid: UID of test runner that owns the test, or None to
-            specify the default local runner.
         :param await_results: Whether to block until the test resources have
             all stopped, defaults to True.
         :return: If await_results is True, returns a list of the return values
@@ -388,15 +340,13 @@ class TestRunnerIHandler(entity.Entity):
             result objects.
         """
         if not await_results:
-            return self._run_async(
-                self.stop_test_resources, test_uid, runner_uid
-            )
+            return self._run_async(self.stop_test_resources, test_uid,)
 
         with self.report_mutex:
             self.report[test_uid].env_status = entity.ResourceStatus.STOPPING
 
-        test = self.test(test_uid, runner_uid=runner_uid)
-        test.resources.stop(reversed=True)
+        test = self.test(test_uid)
+        test.stop_test_resources()
 
         with self.report_mutex:
             self.report[test_uid].env_status = entity.ResourceStatus.STOPPED
@@ -409,27 +359,16 @@ class TestRunnerIHandler(entity.Entity):
         """Get a resource from an environment."""
         return self.target.resources.environments[env_uid][resource_uid]
 
-    def get_resource(self, runner_uid=None):
-        """Get a runner resource."""
-        if runner_uid is None:
-            return self.target.resources.local_runner
-        else:
-            return getattr(self.target.resources, runner_uid)
-
-    def test_resource(self, test_uid, resource_uid, runner_uid=None):
+    def test_resource(self, test_uid, resource_uid):
         """Get a resource of a Test instance."""
-        test = self.test(test_uid, runner_uid=runner_uid)
+        test = self.test(test_uid)
         return test.resources[resource_uid]
 
     def test_report(
-        self,
-        test_uid,
-        runner_uid=None,
-        serialized=True,
-        exclude_assertions=False,
+        self, test_uid, serialized=True, exclude_assertions=False,
     ):
         """Get a test report."""
-        test = self.test(test_uid, runner_uid=runner_uid)
+        test = self.test(test_uid)
         report = test.result.report
         if exclude_assertions is True:
             report = report.filter(_exclude_assertions_filter)
@@ -437,13 +376,9 @@ class TestRunnerIHandler(entity.Entity):
             return report.serialize(strict=False)
         return report
 
-    def test_case_report(
-        self, test_uid, suite_uid, case_uid, runner_uid=None, serialized=True
-    ):
+    def test_case_report(self, test_uid, suite_uid, case_uid, serialized=True):
         """Get a testcase report."""
-        report = self.test_report(
-            test_uid, runner_uid=runner_uid, serialized=False
-        )
+        report = self.test_report(test_uid, serialized=False)
 
         def is_assertion(obj):
             try:
@@ -490,26 +425,22 @@ class TestRunnerIHandler(entity.Entity):
         resource._wait_stopped()
 
     def test_resource_operation(
-        self, test_uid, resource_uid, operation, runner_uid=None, **kwargs
+        self, test_uid, resource_uid, operation, **kwargs
     ):
         """Perform an operation on a test environment resource."""
-        test = self.test(test_uid, runner_uid=runner_uid)
+        test = self.test(test_uid)
         resource = getattr(test.resources, resource_uid)
         func = getattr(resource, operation)
         return func(**kwargs)
 
-    def test_resource_start(self, test_uid, resource_uid, runner_uid=None):
+    def test_resource_start(self, test_uid, resource_uid):
         """Start a resource of a Test instance."""
-        resource = self.test_resource(
-            test_uid, resource_uid, runner_uid=runner_uid
-        )
+        resource = self.test_resource(test_uid, resource_uid,)
         self.start_resource(resource)
 
-    def test_resource_stop(self, test_uid, resource_uid, runner_uid=None):
+    def test_resource_stop(self, test_uid, resource_uid):
         """Stop a resource of a Test instance."""
-        resource = self.test_resource(
-            test_uid, resource_uid, runner_uid=runner_uid
-        )
+        resource = self.test_resource(test_uid, resource_uid,)
         self.stop_resource(resource)
 
     def get_environment_context(
@@ -580,57 +511,43 @@ class TestRunnerIHandler(entity.Entity):
             func = getattr(resource, res_op)
             return func(**kwargs)
 
-    def all_tests(self, runner_uid=None):
+    def all_tests(self):
         """Get all added tests."""
-        for runner in self.target.resources:
-            if runner_uid is None or runner_uid == runner.uid():
-                if not isinstance(runner, Executor):
-                    continue
-                for test_uid in runner.added_items:
-                    yield test_uid, runner.uid()
+        try:
+            runner = self.target.resources[self.target.resources.first()]
+        except StopIteration:
+            return
+        for test_uid in runner.added_items:
+            yield test_uid
 
-    def start_tests(self, runner_uid=None):
+    def start_tests(self):
         """Start all tests environments."""
-        self.all_tests_operation("start", runner_uid=runner_uid)
+        self.all_tests_operation("start")
 
     def stop_tests(self, runner_uid=None):
         """Stop all tests environments."""
-        self.all_tests_operation("stop", runner_uid=runner_uid)
+        self.all_tests_operation("stop")
 
-    def all_tests_operation(
-        self, operation, runner_uid=None, await_results=True
-    ):
+    def all_tests_operation(self, operation, await_results=True):
         """Perform an operation in all tests."""
-        test_found = False
-        all_tests = self.all_tests(runner_uid)
-        while self.active and self.target.active:
-            try:
-                test_uid, real_runner_uid = next(all_tests)
-            except StopIteration:
+        all_tests = self.all_tests()
+
+        for test_uid in all_tests:
+            if not (self.active and self.target.active):
                 break
-            else:
-                self.logger.debug(
-                    "Operation {} for test: {} from {}".format(
-                        operation, test_uid, real_runner_uid
-                    )
-                )
-                if operation == "run":
-                    self.run_test(
-                        test_uid,
-                        runner_uid=runner_uid,
-                        await_results=await_results,
-                    )
-                elif operation == "start":
-                    self.start_test_resources(test_uid, runner_uid=runner_uid)
-                elif operation == "stop":
-                    self.stop_test_resources(test_uid, runner_uid=runner_uid)
-                else:
-                    raise ValueError("Unknown operation: {}".format(operation))
-                test_found = True
-        if test_found is False:
-            self.logger.test_info(
-                "No tests found for runner: {}".format(runner_uid)
+            self.logger.debug(
+                "Operation {} for test: {}".format(operation, test_uid)
             )
+            if operation == "run":
+                self.run_test(
+                    test_uid, await_results=await_results,
+                )
+            elif operation == "start":
+                self.start_test_resources(test_uid)
+            elif operation == "stop":
+                self.stop_test_resources(test_uid)
+            else:
+                raise ValueError("Unknown operation: {}".format(operation))
 
     def create_new_environment(self, env_uid, env_type="local_environment"):
         """Dynamically create an environment maker object."""
@@ -699,10 +616,7 @@ class TestRunnerIHandler(entity.Entity):
 
     def reload(self, rebuild_dependencies=False):
         """Reload test suites."""
-        tests = (
-            self.test(test, runner_uid=runner_uid)
-            for test, runner_uid in self.all_tests()
-        )
+        tests = (self.test(test) for test in self.all_tests())
         self._reloader.reload(tests, rebuild_dependencies)
 
     def _setup_http_handler(self):
@@ -731,7 +645,7 @@ class TestRunnerIHandler(entity.Entity):
         """
         host, port = self.http_handler_info
 
-        self.logger.test_info(
+        self.logger.debug(
             "\nInteractive Testplan API is running. View the API schema:\n%s",
             networking.format_access_urls(host, port, "/api/v1/interactive/"),
         )
@@ -746,8 +660,8 @@ class TestRunnerIHandler(entity.Entity):
             name=self.cfg.name, uid=self.cfg.name
         )
 
-        for test_uid, runner_uid in self.all_tests():
-            test = self.test(test_uid, runner_uid=runner_uid)
+        for test_uid in self.all_tests():
+            test = self.test(test_uid)
             test_report = test.dry_run().report
             report.append(test_report)
 
@@ -774,11 +688,11 @@ class TestRunnerIHandler(entity.Entity):
             )
         return result
 
-    def _auto_start_environment(self, test_uid, runner_uid):
+    def _auto_start_environment(self, test_uid):
         """Start environment if required."""
         env_status = self.report[test_uid].env_status
         if env_status == entity.ResourceStatus.STOPPED:
-            self.start_test_resources(test_uid, runner_uid)
+            self.start_test_resources(test_uid)
         elif env_status != entity.ResourceStatus.STARTED:
             raise RuntimeError(
                 "Cannot auto-start environment in state {}".format(env_status)

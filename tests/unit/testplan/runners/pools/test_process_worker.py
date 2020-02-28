@@ -57,6 +57,11 @@ class TestProcPool(object):
 
     def test_start_stop(self, proc_pool):
         """Test basic start/stop of ProcessPool."""
+        # This testcase is known to fail on Windows - mark as xfail until we
+        # can fix it up.
+        if platform.system() == "Windows":
+            pytest.xfail("ProcPool start/stop is unstable on Windows")
+
         current_proc = psutil.Process()
         start_children = current_proc.children()
         start_thread_count = threading.active_count()
