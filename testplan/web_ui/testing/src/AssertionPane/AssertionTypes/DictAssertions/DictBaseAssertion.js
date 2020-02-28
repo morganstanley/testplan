@@ -11,10 +11,10 @@ import {
 /**
  * Base assertion that are used to render dict-like data.
  * It renders the cells with the following content:
- * 
+ *
  * {Buttons}
  * {Ag-Grid Table}
- * 
+ *
  */
 class DictBaseAssertion extends Component {
   constructor(props) {
@@ -95,7 +95,7 @@ DictBaseAssertion.propTypes = {
 
 const styles = StyleSheet.create({
   gridFont: {
-    fontSize: '13px',
+    fontSize: 'small',
     fontFamily: 'monospace',
   },
 

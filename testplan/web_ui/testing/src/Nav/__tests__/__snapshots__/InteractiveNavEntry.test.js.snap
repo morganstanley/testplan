@@ -3,9 +3,14 @@
 exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
 <div
   className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
 >
   <div
-    className="entryName_xhpbj9-o_O-failed_11es5k7"
+    className="entryName_1h7ucmb-o_O-failed_11es5k7"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -14,7 +19,7 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
     className="entryIcons_195essn"
   >
     <i
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -30,7 +35,7 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
       </span>
     </i>
     <Badge
-      className="entryIcon_ull2p3-o_O-failedBadge_1wefnsd"
+      className="entryIcon_9gb3m5-o_O-failedBadge_1wefnsd"
       color="secondary"
       pill={true}
       tag="span"
@@ -76,9 +81,14 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
 exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
 <div
   className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
 >
   <div
-    className="entryName_xhpbj9-o_O-passed_1kh4m98"
+    className="entryName_1h7ucmb-o_O-passed_1kh4m98"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -87,7 +97,7 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
     className="entryIcons_195essn"
   >
     <i
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -103,7 +113,7 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
       </span>
     </i>
     <Badge
-      className="entryIcon_ull2p3-o_O-passedBadge_1gkx146"
+      className="entryIcon_9gb3m5-o_O-passedBadge_1gkx146"
       color="secondary"
       pill={true}
       tag="span"
@@ -149,9 +159,14 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
 exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
 <div
   className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
 >
   <div
-    className="entryName_xhpbj9"
+    className="entryName_1h7ucmb"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -160,7 +175,7 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
     className="entryIcons_195essn"
   >
     <i
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -176,7 +191,7 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
       </span>
     </i>
     <Badge
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       color="secondary"
       pill={true}
       tag="span"
@@ -222,9 +237,14 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
 exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
 <div
   className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
 >
   <div
-    className="entryName_xhpbj9"
+    className="entryName_1h7ucmb"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -233,7 +253,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
     className="entryIcons_195essn"
   >
     <i
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -249,7 +269,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
       </span>
     </i>
     <Badge
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       color="secondary"
       pill={true}
       tag="span"
@@ -294,9 +314,14 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
 exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`] = `
 <div
   className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
 >
   <div
-    className="entryName_xhpbj9"
+    className="entryName_1h7ucmb"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -305,7 +330,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
     className="entryIcons_195essn"
   >
     <i
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -321,7 +346,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       </span>
     </i>
     <Badge
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       color="secondary"
       pill={true}
       tag="span"
@@ -398,9 +423,14 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
 exports[`InteractiveNavEntry renders an entry with environment status STARTING 1`] = `
 <div
   className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
 >
   <div
-    className="entryName_xhpbj9"
+    className="entryName_1h7ucmb"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -409,7 +439,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
     className="entryIcons_195essn"
   >
     <i
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -425,7 +455,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       </span>
     </i>
     <Badge
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       color="secondary"
       pill={true}
       tag="span"
@@ -501,9 +531,14 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
 exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`] = `
 <div
   className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
 >
   <div
-    className="entryName_xhpbj9"
+    className="entryName_1h7ucmb"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -512,7 +547,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
     className="entryIcons_195essn"
   >
     <i
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -528,7 +563,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       </span>
     </i>
     <Badge
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       color="secondary"
       pill={true}
       tag="span"
@@ -605,9 +640,14 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
 exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1`] = `
 <div
   className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
 >
   <div
-    className="entryName_xhpbj9"
+    className="entryName_1h7ucmb"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -616,7 +656,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
     className="entryIcons_195essn"
   >
     <i
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       title="passed/failed testcases"
     >
       <span
@@ -632,7 +672,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       </span>
     </i>
     <Badge
-      className="entryIcon_ull2p3"
+      className="entryIcon_9gb3m5"
       color="secondary"
       pill={true}
       tag="span"

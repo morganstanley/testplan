@@ -56,19 +56,19 @@ class AssertionHeader extends Component {
       let tooltipDate = new Date(this.props.assertion.utc_time);
 
       starterIcon =
-        <FontAwesomeIcon 
-          size='sm' 
-          key='faClock' 
-          icon='clock' 
-          className={css(styles.icon)} 
-          id={tooltipId} 
+        <FontAwesomeIcon
+          size='sm'
+          key='faClock'
+          icon='clock'
+          className={css(styles.icon)}
+          id={tooltipId}
         />;
 
       tooltip =
-        <Tooltip 
-          placement='bottom' 
-          isOpen={this.state.isTooltipOpen} 
-          target={tooltipId} 
+        <Tooltip
+          placement='bottom'
+          isOpen={this.state.isTooltipOpen}
+          target={tooltipId}
           toggle={this.toggleTooltip}
         >
           {tooltipDate.toUTCString()}
@@ -76,19 +76,19 @@ class AssertionHeader extends Component {
     }
 
     return (
-      <CardHeader 
-        className={css(styles.cardHeader, cardHeaderStyle)} 
+      <CardHeader
+        className={css(styles.cardHeader, cardHeaderStyle)}
         onClick={this.props.onClick}
       >
         {starterIcon}
         {tooltip}
         <span>
-          <strong>{this.props.assertion.description}</strong> 
+          <strong>{this.props.assertion.description}</strong>
           ({this.props.assertion.type})
         </span>
-        {/* 
-          TODO will be implemented when complete permalink feature 
-          linkIcon 
+        {/*
+          TODO will be implemented when complete permalink feature
+          linkIcon
         */}
       </CardHeader>
     );
@@ -107,7 +107,7 @@ AssertionHeader.propTypes = {
 const styles = StyleSheet.create({
   cardHeader: {
     padding: '.25rem .75rem',
-    fontSize: '13px',
+    fontSize: 'small',
     backgroundColor: 'rgba(0,0,0,0)', // Move to defaults?
     cursor: 'pointer',
     borderBottom: '1px solid',

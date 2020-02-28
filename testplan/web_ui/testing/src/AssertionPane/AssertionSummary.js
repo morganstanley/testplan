@@ -22,7 +22,7 @@ class SummaryBaseAssertion extends Component  {
               (
                 <Row>
                  <Col sm={{ offset: 1 }}
-                    style={{ fontSize: 18 }}>
+                    style={{ fontSize: "small" }}>
                    <strong>{assertions_types.description}</strong>
                  </Col>
                 </Row>
@@ -63,7 +63,7 @@ class SummaryBaseAssertion extends Component  {
            return (
                    <div key={category.description}>
                     <Row>
-                      <Col lg='14' style={{ fontSize: 20 }}>
+                      <Col lg='14' style={{ fontSize: "small" }}>
                         <strong>{category_description}</strong>
                       </Col>
                     </Row>

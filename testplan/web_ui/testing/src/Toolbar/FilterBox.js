@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     padding: '0.4em 0.8em 0.4em 0.8em',
     position: 'relative',
     fontFamily: 'FontAwesome, "Helvetica Neue", Helvetica, Arial, sans-serif',
-    fontSize: '0.9em',
+    fontSize: "small",
   }
 });
 
