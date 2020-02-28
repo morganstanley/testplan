@@ -18,7 +18,7 @@
     "react-dom": "16.6.0",
     "react-portal-tooltip": "2.4.0",
     "react-router-dom": "^5.0.0",
-    "react-scripts": "^3.4.0",
+    "react-scripts": "3.0.1",
     "react-spinners": "^0.6.0",
     "react-syntax-highlighter": "^11.0.2",
     "react-test-renderer": "16.6.0",
@@ -26,6 +26,7 @@
     "reactstrap": "6.3.0"
   },
   "devDependencies": {
+    "babel-preset-react-app": "^7.0.0",
     "enzyme": "3.7.0",
     "enzyme-adapter-react-16": "1.6.0",
     "enzyme-to-json": "^3.3.5",
