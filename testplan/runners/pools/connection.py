@@ -413,7 +413,8 @@ class ZMQServer(Server):
 
     def aborting(self):
         """Terminate the ZMQ context and socket when aborting."""
-        self._close()
+        if self._sock is not None:
+            self._close()
         super(ZMQServer, self).aborting()
 
     def register(self, worker):

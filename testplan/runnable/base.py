@@ -436,19 +436,27 @@ class TestRunner(Runnable):
             if not self.should_be_added(runnable):
                 return None
 
+        local_runner = self.resources.first()
         if resource is None:
-            resource = self.resources.first()  # Implies local_runner
+            resource = local_runner
+
         if resource not in self.resources:
             raise RuntimeError(
                 'Resource "{}" does not exist.'.format(resource)
             )
-        if (self.cfg.interactive_port is not None) and isinstance(
-            runnable, Task
-        ):
-            runnable = runnable.materialize()
-            self.resources[resource].add(runnable, runnable.uid() or uid)
+
+        # When running interactively, add all tasks to the local runner even
+        # if they were scheduled into a pool. It greatly simplifies the
+        # interactive runner if it only has to deal with the local runner.
+        if self.cfg.interactive_port is not None:
+            if isinstance(runnable, Task):
+                runnable = runnable.materialize()
+                runnable.cfg.parent = self.cfg
+                runnable.parent = self
+            self.resources[local_runner].add(runnable, runnable.uid() or uid)
         else:
             self.resources[resource].add(runnable, uid)
+
         self._tests[uid] = resource
         return uid
 

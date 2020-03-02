@@ -422,6 +422,42 @@ class MultiTest(testing_base.Test):
     def aborting(self):
         """Suppressing not implemented debug log from parent class."""
 
+    def start_test_resources(self):
+        """
+        Start all test resources but do not run any tests. Used in the
+        interactive mode when environments may be started/stopped on demand -
+        this method handles running the before/after_start callables if
+        required.
+        """
+        self.make_runpath_dirs()
+        if self.cfg.before_start:
+            self._wrap_run_step(
+                label="before_start", func=self.cfg.before_start
+            )()
+
+        self.resources.start()
+
+        if self.cfg.after_start:
+            self._wrap_run_step(
+                label="after_start", func=self.cfg.after_start
+            )()
+
+    def stop_test_resources(self):
+        """
+        Stop all test resources. As above, this method is used for the
+        interactive mode where a test environment may be stopped on-demand.
+        Handles running before/after_stop callables if required.
+        """
+        if self.cfg.before_stop:
+            self._wrap_run_step(
+                label="before_stop", func=self.cfg.before_stop
+            )()
+
+        self.resources.stop()
+
+        if self.cfg.after_stop:
+            self._wrap_run_step(label="after_stop", func=self.cfg.after_stop)()
+
     @property
     def _thread_pool_size(self):
         """
@@ -871,6 +907,7 @@ class MultiTest(testing_base.Test):
             if self.get_stdout_style(testcase_report.passed).display_testcase:
                 self.log_testcase_status(testcase_report)
 
+            testcase_report.pass_if_empty()
             self.pre_post_step_report.append(testcase_report)
 
         return _wrapper
