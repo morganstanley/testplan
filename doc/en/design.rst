@@ -1,13 +1,13 @@
 Design doc
 ==========
 
-Testplan structure is written in way to promote usage of base classes that
-provide common functionality and be inherited by more complex classes and that
-can be applied to each area: tests, drivers, pools, exporters, etc. Each class
-accepts associated configuration and that can inherit the configuration of the
-base class as well.
+Testplan structure is written in a way to promote usage of base classes that
+provide common functionality. These base classes may be inherited by more
+complex classes which represent objects in diferent areas: tests, drivers,
+pools, exporters, etc. Each class accepts configuration and can inherit the
+configuration of the base class as well.
 
-Key areas for ending up to this structure:
+Key reasons for using this structure:
 
   1. Avoid code copy-paste across similar classes.
   2. Provide a way to define relations between classes
@@ -233,12 +233,12 @@ testcases is :py:class:`~testplan.testing.base.ProcessRunnerTest`.
 Tests
 +++++
 
-**test/functional** directory contains all functional tests organised in a
+**tests/functional** directory contains all functional tests organised in a
 directory structure mirroring testplan code structure.
 
     * *test/functional/examples* contains the tests of the downloadable examples.
 
-**test/unit** directory contains all unit tests organised in a directory
+**tests/unit** directory contains all unit tests organised in a directory
 structure mirroring testplan code structure.
 
 Docs
@@ -284,96 +284,157 @@ Execution modes
     as documented.
 
 Interactive mode
-++++++++++++++++
+----------------
 
-Testplan :py:class:`runnable <testplan.common.entity.base.Runnable>` entities
-support interactive execution based on an API they provide. The idea is that
-a user may want to develop tests or debug certain use-cases and re-try
-interactively variations of scenarios like restart drivers, edit and re-run a
-specific testcase etc. There are 3 main classes that provide this functionality
-of runnables:
+By default, testplan will operate in a "batch" mode - it will run all tests
+in a pre-defined order (either sequentially or parallelised by some execution
+pool), produce a hierarchical report tree containing the test results, and then
+run exporters to convert the report tree into various output forms (JSON, PDF,
+web UI etc.). Once started to run in batch mode, Testplan needs no further
+input and will run to completion unless interrupted by some signal.
 
-  1. :py:class:`~testplan.common.entity.base.RunnableIHandler` which is a
-     configuration option of runnables that this component **provides the API**
-     to add small interactive *operations* and executes them in a loop as long as
-     the underlying runnable is *active* (i.e run a test case, start a driver).
-     It also starts an HTTP handler if provided in the config like the following.
+The interactive mode on the other hand allows tests to be run on-demand, with
+the results immediately displayed as they are available. Interactive mode
+is useful for local development - it provides a graphical interface for
+choosing which testcases to run and allows testcases to be modified and re-run
+iteratively without having to restart a testing environment.
 
-  2. :py:class:`~testplan.runnable.interactive.http.TestRunnerHTTPHandler` which
-     is a config option of :py:class:`~testplan.runnable.interactive.base.TestRunnerIHandler`
-     subclass of :py:class:`~testplan.common.entity.base.RunnableIHandler` and
-     translates **HTTP requests** and performs the relative *sync* or *async*
-     operation based on the API of the corresponding RunnableIHandler.
+The main technical challenge introduced by the interactive mode is having to
+manage updating a mutable report tree as testcases are run in a consistent and
+thread-safe manner.
 
-  3. :py:class:`~testplan.common.entity.base.RunnableIRunner` which is a
-     configuration option of runnables that define the interactive mode operations
-     that the runnable supports and **yields** the steps of interactive execution.
-     In example, for running a MultiTest testsuite, the associated
-     :py:class:`~testplan.testing.multitest.base.MultitestIRunner` that inherits
-     from base TestIRunner provides the
-     :py:meth:`~testplan.testing.multitest.base.MultitestIRunner.run` generator
-     to break down the execution in steps of single testcases instead of running
-     the testsuite as one operation.
+When testplan is running interactively, it can be thought of as separated into
+two main software layers:
 
-The functional tests that demonstrate interactive mode usage are
-`here <https://github.com/Morgan-Stanley/testplan/blob/master/test/functional/testplan/runnable/interactive/test_interactive.py>`__
-and the downloadable examples (including jupyter usage) are
-`here <https://github.com/Morgan-Stanley/testplan/tree/master/examples/Interactive>`__.
+  1. The back-end: a multi-threaded python process, running an HTTP server
+     which presents a REST API for reading and updating the report state.
 
-In interactive mode, a common use case is addition of standalone environments
-of drivers that are not associated with tests. This makes Testplan useful
-but Testing frameworks of other languages that miss this functionality.
+  2. The front-end: a web app running in the browser, powered by React JS.
+     In most cases, only one client is expected to connect to the back-end at a
+     time - however, the interactive mode has been architected to allow multiple
+     clients to connect without conflicting.
 
-And example **Java testplan-interactive** layer that has the capability to
-make use of Testplan environment is
-`here <https://github.com/Morgan-Stanley/testplan/tree/master/examples/Interactive/Frameworks/Java>`__.
+REST is a very popular API architecture used widely in modern web services.
+REST means "REpresentational State Transfer" - which, in short, means it is all
+about managing the transfer of **state** and not **actions**. Typically,
+actions will be triggered as side-effects of state updates. It is very
+useful to focus on the management of mutable state when dealing with
+applications running in more than one location. For more information on REST,
+I recommend reading this article:
+https://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api
 
-Using the aboe layer, this is the recipe of using Testplan environment in a Java
-IDE to test a java application that connects to this environment dynamically:
+The Golden Rule underlying the design of the interactive mode is that
+**the back-end is the sole owner of the report state**. The front-end will
+read the report state by making HTTP GET requests, storing a copy locally,
+and it will **request** to update the report state on the backend by making
+HTTP PUT requests. However, it is at the discretion of the back-end to accept
+or deny update requests. This means the back-end is the sole decider of what
+happens if the front-end mistakenly sends multiple conflicting updates, or if
+multiple clients are connected to the same back-end at once. As a
+corollary of this Golden Rule, the front-end should not update its own copy
+of the report state unless told to do so by the back-end, through the content
+of a GET or PUT response.
 
-.. code-block:: java
+Interactive back-end design
++++++++++++++++++++++++++++
 
-    // ------------------         -----------------         ------------------
-    // |                | ------> |     Java      | ------> |     DriverX    |
-    // |     Client     |         |               |         |     DriverY    |
-    // |                | <------ |  Application  | <------ |     DriverZ    |
-    // ------------------         -----------------         ------------------
+In python-land, the interactive mode is implemented through a few key classes:
 
-    @Before
-    public void setUp() throws Exception {
-        // Start Testplan interactive mode.
-        plan = new TestplanInteractive(..., ...)
-        plan.startInteractive();
+  1. :py:class:`~testplan.interactive.base.TestRunnerIHandler` is the overall
+     manager when running interactively. It owns the report tree, which is
+     initialised to an empty skeleton containing testcases but no results.
+     The :py:class:`~testplan.interactive.base.TestRunnerIHandler` handles
+     running individual testcases and merges their results into its report
+     tree when they complete. It owns a thread pool to allow multiple tests
+     to be run (or queued for running) asynchonously. To be thread-safe, a
+     report_mutex is provided by this class which **must** be held when
+     either reading or mutating any part of the report tree.
 
-        // Add and start and environment of drivers.
-        plan.addAndStartEnvironment(createEnv("myEnv"));
+  2. :py:class:`~testplan.interactive.http.TestRunnerHTTPHandler` defines the
+     REST API and owns an HTTP server which is used to serve the API as well
+     as the static HTML/JS/CSS etc. files required for the front-end web app.
+     The :py:class:`~testplan.interactive.http.TestRunnerHTTPHandler` will
+     call methods on its owning
+     :py:class:`~testplan.interactive.base.TestRunnerIHandler` instance when
+     required to perform actions such as running tests or starting test
+     resources, as a side-effect from accepting certain state update requests
+     (e.g. when updating the status of a testcase to RUNNING, it will trigger
+     that testcase to actually run). It handles all validation of update
+     requests.
 
-        // Get a port of the started environment that the Java app needs to
-        // connect to.
-        Integer serverPort = ((Double) plan.getDriverContextValue(
-                "myEnv", "server", "port")).intValue();
+  3. :py:class:`~testplan.testing.base.Test` is the base class all Tests
+     inherit from, and defines abstract methods required for a Test sub-class
+     to be compatible with the interactive mode. Unlike batch mode, where a
+     Test runner will run a pre-defined list of testcases and return a single
+     report sub-tree, for interactive mode a Test runner needs to run
+     testcases iteratively. As mentioned above, the
+     :py:class:`~testplan.interactive.base.TestRunnerIHandler` instance
+     owns the main report tree, so individual Test runners should not directly
+     mutate any part of the report tree - instead, they should yield individual
+     testcase reports as the testcases are run, and let the
+     :py:class:`~testplan.interactive.base.TestRunnerIHandler` handle merging
+     those testcase reports into the main report tree. Currently
+     :py:class:`~testplan.testing.multitest.MultiTest` is the only Test
+     sub-class which correctly implements all methods required to run
+     interactively.
 
-        // Make an instance of a java app to be tested connecting it to the
-        / started environment.
-        JavaApp app = new JavaApp(port=serverPort);
-        ...
+Each of the classes above has unit-tests to cover their respective
+functionalities in isolation. In addition, there is a functional test
+(**tests/functional/testplan/runnable/interactive/test_api.py**)
+which spins up an interactive testplan with real testcases and tests running
+tests and reading their results by sending HTTP requests into the REST API.
 
-        // Add client driver to the environment to connect to local java app.
-        plan.addAndStartDriver(
-                "myEnv",
-                new DriverEntry(
-                        "Client",
-                        new HashMap<String, Object>(){{
-                            this.put("name", "client");
-                            this.put("host", app.host);  // Connect to Java app.
-                            this.put("port", app.port);  // Connect to Java app.
-                        }}));
-    }
+Interactive front-end design
+++++++++++++++++++++++++++++
 
-We are currently working on a front-end web page that will provide more
-user-friendly interaction with Testplan in the interactive mode. The
-interactive UI will build on top of the existing static report UI
-documented below.
+The front-end is actually the exact same web-app used to render test results
+from the batch mode. The single web-app uses
+`react-router <https://reacttraining.com/react-router/web/guides/quick-start>`_
+to distinguish between the URLs used for batch or interactive modes and
+tweak its behaviour in each case. It would have been possible to create a
+completely separate package for the interactive web-app and extract the
+common code into a library, however this would significantly increase the
+complexity of developing and building both UIs so this hybrid approach was
+chosen instead.
+
+All web-app code can be found under **testplan/web_ui/testing/src**. The key
+component for interactive mode is the ``InteractiveReport`` component. It owns
+a copy of the report tree (though as noted above, ultimately the back-end
+is the master of the report tree), and handles the necessary API requests to
+keep the report state in sync and make API update requests to trigger tests to
+run, test environments to start/stop etc.
+
+Currently, the front-end uses a simple short-polling method to keep its report
+state in sync with the back-end. Every second, it polls the back-end for
+changes. Since refreshing the report state entirely every second would quickly
+become untenable as the report grows in size, the back-end does not return
+the entire report (sub-)tree for each endpoint but rather a "shallow" copy.
+A shallow copy includes all data associated with that node in the tree, but
+instead of directly embedding its child entries, only the UIDs of each child
+is included. That way, multiple API requests are required to query the entire
+report tree. Further, each node in the report tree has a hash value which can
+be used to check if it or any of its children have been modified. Therefore,
+the report tree is updated recursively with the hash value used to
+short-circuit when there are no modifications down a given branch.
+
+There are many alternative strategies which could have been used to keep the
+report in sync with the backend. Websockets, Server Sent Events (SSEs) or
+HTTP long-polling could allow the backend to notify the front-end when some
+part of the report tree is updated. These techniques would allow the UI to
+update more quicker and in a more efficient manner than simple short-polling
+allows, however they would add complexity and need to be carefully designed
+to not allow the front-end state to become unsynchronised, or allow
+either back- or front-end to be overwhelmed with pushing notifications when
+many updates are available at once. Right now, the responsiveness of the
+UI using simple short-polling is not amazing but (to my mind) "good enough".
+We may want to revisit this area when dealing with larger reports or when we
+wish to polish the UI to be more than simply "good enough".
+
+The navigation-related UI components are significantly modified for use in the
+interactive mode, in order to accomodate the extra buttons to trigger tests to
+run or to toggle the state of test environments. The modified components can
+be found by searching for names beginning with ``InteractiveNav``.
+
 
 User Interface
 --------------
