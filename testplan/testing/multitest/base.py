@@ -316,12 +316,12 @@ class MultiTest(testing_base.Test):
             if not self.active:
                 break
 
-        # In python 3 we would use "yield from" but have to explicitly write
-        # out the loop for python 2 support...
-        for testcase_report, parent_uids in self._run_testsuite_iter(
-            testsuite, testcases
-        ):
-            yield testcase_report, parent_uids
+            # In python 3 we would use "yield from" but have to explicitly write
+            # out the loop for python 2 support...
+            for testcase_report, parent_uids in self._run_testsuite_iter(
+                testsuite, testcases
+            ):
+                yield testcase_report, parent_uids
 
     def append_pre_post_step_report(self):
         """
