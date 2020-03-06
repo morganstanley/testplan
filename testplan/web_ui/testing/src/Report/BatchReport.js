@@ -64,7 +64,17 @@ class BatchReport extends React.Component {
         }),
         1500);
     } else {
-      axios.get(`/api/v1/reports/${uid}`)
+      const axiosConfig = {};
+      // allow overriding where we fetch the report from in deveopment, see src/Common/Home.jsx:12
+      if(process.env.NODE_ENV === "development" && typeof process.env.REACT_APP_COUCHDB_HOST !== "undefined") {
+        axiosConfig.baseURL = process.env.REACT_APP_COUCHDB_HOST;
+        const COUCHDB_ORIGIN = new URL(process.env.REACT_APP_COUCHDB_HOST).origin;
+        if(window.location.origin !== COUCHDB_ORIGIN) {
+          // CORS headers https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+          axiosConfig.headers = {"Access-Control-Allow-Origin": COUCHDB_ORIGIN};
+        }
+      }
+      axios.get(`/api/v1/reports/${uid}`, axiosConfig)
         .then(response => {
           const processedReport = PropagateIndices(response.data);
           this.setState({
@@ -83,7 +93,7 @@ class BatchReport extends React.Component {
   /**
    * Auto-select an entry in the report when it is first loaded.
    * @param {reportNode} reportEntry - the current report entry to select from.
-   * @return {Array[string]} List of UIDs of the currently selected entries.
+   * @return {Array<string>} List of UIDs of the currently selected entries.
    */
   autoSelect(reportEntry) {
     const selection = [reportEntry.uid];
