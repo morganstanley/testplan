@@ -81,6 +81,11 @@ class TestRunnerIHandler(entity.Entity):
         finally:
             self.teardown()
 
+    @property
+    def exit_code(self):
+        """Code to indicate success or failure."""
+        return int(not self.report.passed)
+
     def setup(self):
         """Set up the task pool and HTTP handler."""
         self.logger.test_info(
