@@ -42,7 +42,7 @@ class SuiteKillingWorker(object):
     @testcase
     def test_comparison(self, env, result):
         parent = psutil.Process(self._parent_pid)
-        if len(parent.children(recursive=True)) == self._size:
+        if len(parent.children(recursive=False)) == self._size:
             print("Killing worker {}".format(os.getpid()))
             os.kill(os.getpid(), 9)
         result.equal(1, 1, "equality description")

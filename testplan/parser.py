@@ -76,7 +76,7 @@ class TestplanParser(object):
             "--info",
             dest="test_lister",
             metavar="TEST_INFO",
-            **listing.ListingArg.get_parser_context(
+            **listing.listing_registry.to_arg().get_parser_context(
                 default=self._default_options["test_lister"]
             )
         )
