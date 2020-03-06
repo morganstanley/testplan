@@ -77,6 +77,37 @@ exports[`AttachmentAssertion renders an attached text file 1`] = `
 </Fragment>
 `;
 
+exports[`AttachmentAssertion renders an attachment using interactive API 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_12mhtst"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <TextAttachment
+          devMode={false}
+          file_name="tmpthpcdtwn.txt"
+          src="/api/v1/interactive/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt"
+        />
+      </span>
+    </Col>
+  </Row>
+</Fragment>
+`;
+
 exports[`AttachmentAssertion renders an unknown filetype 1`] = `
 <Fragment>
   <Row

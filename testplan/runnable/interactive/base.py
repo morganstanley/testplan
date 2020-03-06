@@ -742,4 +742,9 @@ class TestRunnerIHandler(entity.Entity):
                 for uid in parent_uids:
                     parent_entry = parent_entry[uid]
 
+                for attachment in report.attachments:
+                    self.report.attachments[
+                        attachment.dst_path
+                    ] = attachment.source_path
+
                 parent_entry[report.uid] = report

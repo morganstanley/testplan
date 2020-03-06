@@ -114,6 +114,12 @@ def api_env(example_report):
     ihandler.start_test_resources = mock.MagicMock()
     ihandler.stop_test_resources = mock.MagicMock()
 
+    # Add a couple of fake attachments.
+    ihandler.report.attachments = {
+        "attached_log.txt": "/path/to/attached_log.txt",
+        "attached_image.png": "/path/to/attached_image.png",
+    }
+
     app, _ = http.generate_interactive_api(ihandler)
     app.config["TESTING"] = True
 
@@ -561,6 +567,50 @@ class TestParametrizedTestCase(object):
         serialized_testcase["uid"] = "I have changed"
         rsp = client.put(api_url, json=serialized_testcase)
         assert rsp.status_code == 400
+
+
+class TestAllAttachments(object):
+    """Test the AllAttachments resource."""
+
+    def test_get(self, api_env):
+        """
+        Test that getting AllAttachments returns a list of the attachment UIDs.
+        """
+        client, _ = api_env
+        rsp = client.get("/api/v1/interactive/attachments")
+        assert rsp.status_code == 200
+        assert rsp.get_json() == ["attached_log.txt", "attached_image.png"]
+
+    def test_put(self, api_env):
+        """
+        Test attempting to update the AllAttachments resource via PUT.
+        This resource is read-only so PUT is not allowed.
+        """
+        client, _ = api_env
+        rsp = client.put("/api/v1/interactive/attachments")
+        assert rsp.status_code == 405
+
+
+class TestSingleAttachment(object):
+    """Test the SingleAttachment resource."""
+
+    @mock.patch("flask.send_file", return_value="texttexttext")
+    def test_get(self, mock_send_file, api_env):
+        """Test that a specific attachment can be retrieved."""
+        client, _ = api_env
+        rsp = client.get("/api/v1/interactive/attachments/attached_log.txt")
+        assert rsp.status_code == 200
+        assert rsp.get_json() == "texttexttext"
+        mock_send_file.assert_called_once_with("/path/to/attached_log.txt")
+
+    def test_put(self, api_env):
+        """
+        Test attempting to update the SingleAttachment resource via PUT.
+        This resource is read-only so PUT is not allowed.
+        """
+        client, _ = api_env
+        rsp = client.put("/api/v1/interactive/attachments/attached_log.txt")
+        assert rsp.status_code == 405
 
 
 def compare_json(actual, expected):
