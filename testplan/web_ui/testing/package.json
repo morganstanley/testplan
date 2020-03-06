@@ -16,7 +16,7 @@
     "react": "~16.12.0",
     "react-copy-html-to-clipboard": "6.0.4",
     "react-custom-scrollbars": "4.2.1",
-    "react-dom": "16.6.0",
+    "react-dom": "~16.12.0",
     "react-portal-tooltip": "2.4.0",
     "react-router-dom": "^5.0.0",
     "react-scripts": "^3.4.0",
