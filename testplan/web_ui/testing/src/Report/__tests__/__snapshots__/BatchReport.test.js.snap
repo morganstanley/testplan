@@ -47,12 +47,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
-                    "name_type_index": Set {
+                    "name_type_index": Array [
                       "test_equality_passing|testcase",
                       "AlphaSuite|testsuite",
                       "Primary|multitest",
                       "Sample Testplan|testplan",
-                    },
+                    ],
                     "status": "passed",
                     "status_override": null,
                     "tags": Object {
@@ -100,12 +100,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing2",
-                    "name_type_index": Set {
+                    "name_type_index": Array [
                       "test_equality_passing2|testcase",
                       "AlphaSuite|testsuite",
                       "Primary|multitest",
                       "Sample Testplan|testplan",
-                    },
+                    ],
                     "status": "failed",
                     "status_override": null,
                     "tags": Object {
@@ -130,13 +130,13 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                 ],
                 "logs": Array [],
                 "name": "AlphaSuite",
-                "name_type_index": Set {
+                "name_type_index": Array [
                   "AlphaSuite|testsuite",
                   "Primary|multitest",
                   "Sample Testplan|testplan",
                   "test_equality_passing|testcase",
                   "test_equality_passing2|testcase",
-                },
+                ],
                 "status": "failed",
                 "status_override": null,
                 "tags": Object {
@@ -185,12 +185,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
-                    "name_type_index": Set {
+                    "name_type_index": Array [
                       "test_equality_passing|testcase",
                       "BetaSuite|testsuite",
                       "Primary|multitest",
                       "Sample Testplan|testplan",
-                    },
+                    ],
                     "status": "passed",
                     "status_override": null,
                     "tags": Object {
@@ -217,12 +217,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                 ],
                 "logs": Array [],
                 "name": "BetaSuite",
-                "name_type_index": Set {
+                "name_type_index": Array [
                   "BetaSuite|testsuite",
                   "Primary|multitest",
                   "Sample Testplan|testplan",
                   "test_equality_passing|testcase",
-                },
+                ],
                 "status": "passed",
                 "status_override": null,
                 "tags": Object {
@@ -249,14 +249,14 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
             ],
             "logs": Array [],
             "name": "Primary",
-            "name_type_index": Set {
+            "name_type_index": Array [
               "Primary|multitest",
               "Sample Testplan|testplan",
               "AlphaSuite|testsuite",
               "test_equality_passing|testcase",
               "test_equality_passing2|testcase",
               "BetaSuite|testsuite",
-            },
+            ],
             "status": "failed",
             "status_override": null,
             "tags": Object {
@@ -310,12 +310,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
-                    "name_type_index": Set {
+                    "name_type_index": Array [
                       "test_equality_passing|testcase",
                       "GammaSuite|testsuite",
                       "Secondary|multitest",
                       "Sample Testplan|testplan",
-                    },
+                    ],
                     "status": "passed",
                     "status_override": null,
                     "tags": Object {},
@@ -332,12 +332,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                 ],
                 "logs": Array [],
                 "name": "GammaSuite",
-                "name_type_index": Set {
+                "name_type_index": Array [
                   "GammaSuite|testsuite",
                   "Secondary|multitest",
                   "Sample Testplan|testplan",
                   "test_equality_passing|testcase",
-                },
+                ],
                 "status": "passed",
                 "status_override": null,
                 "tags": Object {},
@@ -354,12 +354,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
             ],
             "logs": Array [],
             "name": "Secondary",
-            "name_type_index": Set {
+            "name_type_index": Array [
               "Secondary|multitest",
               "Sample Testplan|testplan",
               "GammaSuite|testsuite",
               "test_equality_passing|testcase",
-            },
+            ],
             "status": "passed",
             "status_override": null,
             "tags": Object {},
@@ -376,7 +376,7 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
         ],
         "meta": Object {},
         "name": "Sample Testplan",
-        "name_type_index": Set {
+        "name_type_index": Array [
           "Sample Testplan|testplan",
           "Primary|multitest",
           "AlphaSuite|testsuite",
@@ -385,7 +385,7 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
           "BetaSuite|testsuite",
           "Secondary|multitest",
           "GammaSuite|testsuite",
-        },
+        ],
         "status": "failed",
         "status_override": null,
         "tags_index": Object {
@@ -451,12 +451,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
-                    "name_type_index": Set {
+                    "name_type_index": Array [
                       "test_equality_passing|testcase",
                       "AlphaSuite|testsuite",
                       "Primary|multitest",
                       "Sample Testplan|testplan",
-                    },
+                    ],
                     "status": "passed",
                     "status_override": null,
                     "tags": Object {
@@ -504,12 +504,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing2",
-                    "name_type_index": Set {
+                    "name_type_index": Array [
                       "test_equality_passing2|testcase",
                       "AlphaSuite|testsuite",
                       "Primary|multitest",
                       "Sample Testplan|testplan",
-                    },
+                    ],
                     "status": "failed",
                     "status_override": null,
                     "tags": Object {
@@ -534,13 +534,13 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                 ],
                 "logs": Array [],
                 "name": "AlphaSuite",
-                "name_type_index": Set {
+                "name_type_index": Array [
                   "AlphaSuite|testsuite",
                   "Primary|multitest",
                   "Sample Testplan|testplan",
                   "test_equality_passing|testcase",
                   "test_equality_passing2|testcase",
-                },
+                ],
                 "status": "failed",
                 "status_override": null,
                 "tags": Object {
@@ -589,12 +589,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
-                    "name_type_index": Set {
+                    "name_type_index": Array [
                       "test_equality_passing|testcase",
                       "BetaSuite|testsuite",
                       "Primary|multitest",
                       "Sample Testplan|testplan",
-                    },
+                    ],
                     "status": "passed",
                     "status_override": null,
                     "tags": Object {
@@ -621,12 +621,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                 ],
                 "logs": Array [],
                 "name": "BetaSuite",
-                "name_type_index": Set {
+                "name_type_index": Array [
                   "BetaSuite|testsuite",
                   "Primary|multitest",
                   "Sample Testplan|testplan",
                   "test_equality_passing|testcase",
-                },
+                ],
                 "status": "passed",
                 "status_override": null,
                 "tags": Object {
@@ -653,14 +653,14 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
             ],
             "logs": Array [],
             "name": "Primary",
-            "name_type_index": Set {
+            "name_type_index": Array [
               "Primary|multitest",
               "Sample Testplan|testplan",
               "AlphaSuite|testsuite",
               "test_equality_passing|testcase",
               "test_equality_passing2|testcase",
               "BetaSuite|testsuite",
-            },
+            ],
             "status": "failed",
             "status_override": null,
             "tags": Object {
@@ -714,12 +714,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
-                    "name_type_index": Set {
+                    "name_type_index": Array [
                       "test_equality_passing|testcase",
                       "GammaSuite|testsuite",
                       "Secondary|multitest",
                       "Sample Testplan|testplan",
-                    },
+                    ],
                     "status": "passed",
                     "status_override": null,
                     "tags": Object {},
@@ -736,12 +736,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                 ],
                 "logs": Array [],
                 "name": "GammaSuite",
-                "name_type_index": Set {
+                "name_type_index": Array [
                   "GammaSuite|testsuite",
                   "Secondary|multitest",
                   "Sample Testplan|testplan",
                   "test_equality_passing|testcase",
-                },
+                ],
                 "status": "passed",
                 "status_override": null,
                 "tags": Object {},
@@ -758,12 +758,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
             ],
             "logs": Array [],
             "name": "Secondary",
-            "name_type_index": Set {
+            "name_type_index": Array [
               "Secondary|multitest",
               "Sample Testplan|testplan",
               "GammaSuite|testsuite",
               "test_equality_passing|testcase",
-            },
+            ],
             "status": "passed",
             "status_override": null,
             "tags": Object {},
@@ -780,7 +780,7 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
         ],
         "meta": Object {},
         "name": "Sample Testplan",
-        "name_type_index": Set {
+        "name_type_index": Array [
           "Sample Testplan|testplan",
           "Primary|multitest",
           "AlphaSuite|testsuite",
@@ -789,7 +789,7 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
           "BetaSuite|testsuite",
           "Secondary|multitest",
           "GammaSuite|testsuite",
-        },
+        ],
         "status": "failed",
         "status_override": null,
         "tags_index": Object {
@@ -843,12 +843,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                       ],
                       "logs": Array [],
                       "name": "test_equality_passing",
-                      "name_type_index": Set {
+                      "name_type_index": Array [
                         "test_equality_passing|testcase",
                         "AlphaSuite|testsuite",
                         "Primary|multitest",
                         "Sample Testplan|testplan",
-                      },
+                      ],
                       "status": "passed",
                       "status_override": null,
                       "tags": Object {
@@ -896,12 +896,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                       ],
                       "logs": Array [],
                       "name": "test_equality_passing2",
-                      "name_type_index": Set {
+                      "name_type_index": Array [
                         "test_equality_passing2|testcase",
                         "AlphaSuite|testsuite",
                         "Primary|multitest",
                         "Sample Testplan|testplan",
-                      },
+                      ],
                       "status": "failed",
                       "status_override": null,
                       "tags": Object {
@@ -926,13 +926,13 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                   ],
                   "logs": Array [],
                   "name": "AlphaSuite",
-                  "name_type_index": Set {
+                  "name_type_index": Array [
                     "AlphaSuite|testsuite",
                     "Primary|multitest",
                     "Sample Testplan|testplan",
                     "test_equality_passing|testcase",
                     "test_equality_passing2|testcase",
-                  },
+                  ],
                   "status": "failed",
                   "status_override": null,
                   "tags": Object {
@@ -981,12 +981,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                       ],
                       "logs": Array [],
                       "name": "test_equality_passing",
-                      "name_type_index": Set {
+                      "name_type_index": Array [
                         "test_equality_passing|testcase",
                         "BetaSuite|testsuite",
                         "Primary|multitest",
                         "Sample Testplan|testplan",
-                      },
+                      ],
                       "status": "passed",
                       "status_override": null,
                       "tags": Object {
@@ -1013,12 +1013,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                   ],
                   "logs": Array [],
                   "name": "BetaSuite",
-                  "name_type_index": Set {
+                  "name_type_index": Array [
                     "BetaSuite|testsuite",
                     "Primary|multitest",
                     "Sample Testplan|testplan",
                     "test_equality_passing|testcase",
-                  },
+                  ],
                   "status": "passed",
                   "status_override": null,
                   "tags": Object {
@@ -1045,14 +1045,14 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
               ],
               "logs": Array [],
               "name": "Primary",
-              "name_type_index": Set {
+              "name_type_index": Array [
                 "Primary|multitest",
                 "Sample Testplan|testplan",
                 "AlphaSuite|testsuite",
                 "test_equality_passing|testcase",
                 "test_equality_passing2|testcase",
                 "BetaSuite|testsuite",
-              },
+              ],
               "status": "failed",
               "status_override": null,
               "tags": Object {
@@ -1106,12 +1106,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                       ],
                       "logs": Array [],
                       "name": "test_equality_passing",
-                      "name_type_index": Set {
+                      "name_type_index": Array [
                         "test_equality_passing|testcase",
                         "GammaSuite|testsuite",
                         "Secondary|multitest",
                         "Sample Testplan|testplan",
-                      },
+                      ],
                       "status": "passed",
                       "status_override": null,
                       "tags": Object {},
@@ -1128,12 +1128,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                   ],
                   "logs": Array [],
                   "name": "GammaSuite",
-                  "name_type_index": Set {
+                  "name_type_index": Array [
                     "GammaSuite|testsuite",
                     "Secondary|multitest",
                     "Sample Testplan|testplan",
                     "test_equality_passing|testcase",
-                  },
+                  ],
                   "status": "passed",
                   "status_override": null,
                   "tags": Object {},
@@ -1150,12 +1150,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
               ],
               "logs": Array [],
               "name": "Secondary",
-              "name_type_index": Set {
+              "name_type_index": Array [
                 "Secondary|multitest",
                 "Sample Testplan|testplan",
                 "GammaSuite|testsuite",
                 "test_equality_passing|testcase",
-              },
+              ],
               "status": "passed",
               "status_override": null,
               "tags": Object {},
@@ -1172,7 +1172,7 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
           ],
           "meta": Object {},
           "name": "Sample Testplan",
-          "name_type_index": Set {
+          "name_type_index": Array [
             "Sample Testplan|testplan",
             "Primary|multitest",
             "AlphaSuite|testsuite",
@@ -1181,7 +1181,7 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
             "BetaSuite|testsuite",
             "Secondary|multitest",
             "GammaSuite|testsuite",
-          },
+          ],
           "status": "failed",
           "status_override": null,
           "tags_index": Object {
@@ -1258,12 +1258,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
-                    "name_type_index": Set {
+                    "name_type_index": Array [
                       "test_equality_passing|testcase",
                       "AlphaSuite|testsuite",
                       "Primary|multitest",
                       "Sample Testplan|testplan",
-                    },
+                    ],
                     "status": "passed",
                     "status_override": null,
                     "tags": Object {
@@ -1294,12 +1294,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                 ],
                 "logs": Array [],
                 "name": "AlphaSuite",
-                "name_type_index": Set {
+                "name_type_index": Array [
                   "AlphaSuite|testsuite",
                   "Primary|multitest",
                   "Sample Testplan|testplan",
                   "test_equality_passing|testcase",
-                },
+                ],
                 "status": "failed",
                 "status_override": null,
                 "tags": Object {
@@ -1327,12 +1327,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
             ],
             "logs": Array [],
             "name": "Primary",
-            "name_type_index": Set {
+            "name_type_index": Array [
               "Primary|multitest",
               "Sample Testplan|testplan",
               "AlphaSuite|testsuite",
               "test_equality_passing|testcase",
-            },
+            ],
             "status": "failed",
             "status_override": null,
             "tags": Object {
@@ -1360,12 +1360,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
         ],
         "meta": Object {},
         "name": "Sample Testplan",
-        "name_type_index": Set {
+        "name_type_index": Array [
           "Sample Testplan|testplan",
           "Primary|multitest",
           "AlphaSuite|testsuite",
           "test_equality_passing|testcase",
-        },
+        ],
         "status": "failed",
         "status_override": null,
         "tags_index": Object {
@@ -1430,12 +1430,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
-                    "name_type_index": Set {
+                    "name_type_index": Array [
                       "test_equality_passing|testcase",
                       "AlphaSuite|testsuite",
                       "Primary|multitest",
                       "Sample Testplan|testplan",
-                    },
+                    ],
                     "status": "passed",
                     "status_override": null,
                     "tags": Object {
@@ -1466,12 +1466,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                 ],
                 "logs": Array [],
                 "name": "AlphaSuite",
-                "name_type_index": Set {
+                "name_type_index": Array [
                   "AlphaSuite|testsuite",
                   "Primary|multitest",
                   "Sample Testplan|testplan",
                   "test_equality_passing|testcase",
-                },
+                ],
                 "status": "failed",
                 "status_override": null,
                 "tags": Object {
@@ -1499,12 +1499,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
             ],
             "logs": Array [],
             "name": "Primary",
-            "name_type_index": Set {
+            "name_type_index": Array [
               "Primary|multitest",
               "Sample Testplan|testplan",
               "AlphaSuite|testsuite",
               "test_equality_passing|testcase",
-            },
+            ],
             "status": "failed",
             "status_override": null,
             "tags": Object {
@@ -1532,12 +1532,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
         ],
         "meta": Object {},
         "name": "Sample Testplan",
-        "name_type_index": Set {
+        "name_type_index": Array [
           "Sample Testplan|testplan",
           "Primary|multitest",
           "AlphaSuite|testsuite",
           "test_equality_passing|testcase",
-        },
+        ],
         "status": "failed",
         "status_override": null,
         "tags_index": Object {
@@ -1590,12 +1590,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                       ],
                       "logs": Array [],
                       "name": "test_equality_passing",
-                      "name_type_index": Set {
+                      "name_type_index": Array [
                         "test_equality_passing|testcase",
                         "AlphaSuite|testsuite",
                         "Primary|multitest",
                         "Sample Testplan|testplan",
-                      },
+                      ],
                       "status": "passed",
                       "status_override": null,
                       "tags": Object {
@@ -1626,12 +1626,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                   ],
                   "logs": Array [],
                   "name": "AlphaSuite",
-                  "name_type_index": Set {
+                  "name_type_index": Array [
                     "AlphaSuite|testsuite",
                     "Primary|multitest",
                     "Sample Testplan|testplan",
                     "test_equality_passing|testcase",
-                  },
+                  ],
                   "status": "failed",
                   "status_override": null,
                   "tags": Object {
@@ -1659,12 +1659,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
               ],
               "logs": Array [],
               "name": "Primary",
-              "name_type_index": Set {
+              "name_type_index": Array [
                 "Primary|multitest",
                 "Sample Testplan|testplan",
                 "AlphaSuite|testsuite",
                 "test_equality_passing|testcase",
-              },
+              ],
               "status": "failed",
               "status_override": null,
               "tags": Object {
@@ -1692,12 +1692,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
           ],
           "meta": Object {},
           "name": "Sample Testplan",
-          "name_type_index": Set {
+          "name_type_index": Array [
             "Sample Testplan|testplan",
             "Primary|multitest",
             "AlphaSuite|testsuite",
             "test_equality_passing|testcase",
-          },
+          ],
           "status": "failed",
           "status_override": null,
           "tags_index": Object {
@@ -1744,12 +1744,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                   ],
                   "logs": Array [],
                   "name": "test_equality_passing",
-                  "name_type_index": Set {
+                  "name_type_index": Array [
                     "test_equality_passing|testcase",
                     "AlphaSuite|testsuite",
                     "Primary|multitest",
                     "Sample Testplan|testplan",
-                  },
+                  ],
                   "status": "passed",
                   "status_override": null,
                   "tags": Object {
@@ -1780,12 +1780,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
               ],
               "logs": Array [],
               "name": "AlphaSuite",
-              "name_type_index": Set {
+              "name_type_index": Array [
                 "AlphaSuite|testsuite",
                 "Primary|multitest",
                 "Sample Testplan|testplan",
                 "test_equality_passing|testcase",
-              },
+              ],
               "status": "failed",
               "status_override": null,
               "tags": Object {
@@ -1813,12 +1813,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
           ],
           "logs": Array [],
           "name": "Primary",
-          "name_type_index": Set {
+          "name_type_index": Array [
             "Primary|multitest",
             "Sample Testplan|testplan",
             "AlphaSuite|testsuite",
             "test_equality_passing|testcase",
-          },
+          ],
           "status": "failed",
           "status_override": null,
           "tags": Object {
@@ -1867,12 +1867,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
               ],
               "logs": Array [],
               "name": "test_equality_passing",
-              "name_type_index": Set {
+              "name_type_index": Array [
                 "test_equality_passing|testcase",
                 "AlphaSuite|testsuite",
                 "Primary|multitest",
                 "Sample Testplan|testplan",
-              },
+              ],
               "status": "passed",
               "status_override": null,
               "tags": Object {
@@ -1903,12 +1903,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
           ],
           "logs": Array [],
           "name": "AlphaSuite",
-          "name_type_index": Set {
+          "name_type_index": Array [
             "AlphaSuite|testsuite",
             "Primary|multitest",
             "Sample Testplan|testplan",
             "test_equality_passing|testcase",
-          },
+          ],
           "status": "failed",
           "status_override": null,
           "tags": Object {

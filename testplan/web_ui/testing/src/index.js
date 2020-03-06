@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import BatchReport from './Report/BatchReport';
+import BatchReportBeta from './Report/BatchReportBeta';
 import InteractiveReport from './Report/InteractiveReport';
 import EmptyReport from './Report/EmptyReport';
 import {POLL_MS} from './Common/defaults.js';
@@ -17,6 +18,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 const AppRouter = () => (
   <Router>
     <Switch>
+      <Route path="/testplan/beta/1004/:uid" component={BatchReportBeta} />
       <Route path="/testplan/:uid" component={BatchReport} />
       <Route path="/interactive/_dev">
         <InteractiveReport dev={true} />

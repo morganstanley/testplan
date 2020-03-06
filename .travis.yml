@@ -2,7 +2,10 @@ dist: bionic
 language: python
 
 env:
-  - BLACK_VERSION: "19.10b0"
+  global:
+    - REACT_APP_API_BASE_URL: "/fake/api/endpoint"
+  jobs:
+    - BLACK_VERSION: "19.10b0"
 
 python:
   - "2.7"
@@ -53,4 +56,3 @@ script:
   - ./scripts/utils/crlf_check.sh
   - pylint --rcfile pylintrc testplan
   - pytest tests --verbose
-

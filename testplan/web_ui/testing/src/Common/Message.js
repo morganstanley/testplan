@@ -13,9 +13,10 @@ class Message extends Component {
       paddingLeft: this.props.left,
       paddingTop: '4.5em',
     };
+    const Tag = this.props.tag || 'h1';
     return (
       <div style={paneStyle}>
-        <h1 className={css(styles.message)}>{this.props.message}</h1>
+        <Tag className={css(styles.message)}>{this.props.message}</Tag>
       </div>
     );
   }
