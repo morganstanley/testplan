@@ -81,6 +81,26 @@ describe('AttachmentAssertion', () => {
     );
     expect(shallowComponent).toMatchSnapshot();
   });
+
+  it('renders an attachment using interactive API', () => {
+    const assertionProps = {
+      ...defaultAssertionProps,
+      type: "Attachment",
+      dst_path: 'tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt',
+      filesize: 900,
+      hash: 'cd4f4c6e94971896a71b4a1d47785a90b19f6565',
+      orig_filename: 'tmpthpcdtwn.txt',
+      source_path: '/tmp/tmpthpcdtwn.txt',
+    }
+    const shallowComponent = shallow(
+      <AttachmentAssertion
+        assertion={assertionProps}
+        reportUid={null}
+      />
+    );
+    expect(shallowComponent).toMatchSnapshot();
+  });
+
 });
 
 describe('MatplotAssertion', () => {

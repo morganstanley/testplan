@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 These examples show usage of graphs
 """

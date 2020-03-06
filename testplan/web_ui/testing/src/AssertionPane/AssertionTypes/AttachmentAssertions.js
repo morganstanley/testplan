@@ -31,7 +31,12 @@ export const AttachmentAssertion = (props) => {
 const getAttachmentContent = (assertion, reportUid) => {
   const file_type = assertion.orig_filename.split('.').pop();
   const file_path = assertion.dst_path;
-  const get_path = `/api/v1/reports/${reportUid}/attachments/${file_path}`;
+  let get_path;
+  if (reportUid) {
+    get_path = `/api/v1/reports/${reportUid}/attachments/${file_path}`;
+  } else {
+    get_path = `/api/v1/interactive/attachments/${file_path}`;
+  }
 
   switch (file_type) {
     case 'txt':

@@ -81,6 +81,11 @@ class TestRunnerIHandler(entity.Entity):
         finally:
             self.teardown()
 
+    @property
+    def exit_code(self):
+        """Code to indicate success or failure."""
+        return int(not self.report.passed)
+
     def setup(self):
         """Set up the task pool and HTTP handler."""
         self.logger.test_info(
@@ -736,5 +741,10 @@ class TestRunnerIHandler(entity.Entity):
                 parent_entry = self.report
                 for uid in parent_uids:
                     parent_entry = parent_entry[uid]
+
+                for attachment in report.attachments:
+                    self.report.attachments[
+                        attachment.dst_path
+                    ] = attachment.source_path
 
                 parent_entry[report.uid] = report
