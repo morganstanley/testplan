@@ -1,5 +1,12 @@
 import re
-from cgi import escape
+import functools
+
+try:
+    from html import escape as _orig_escape
+
+    escape = functools.partial(_orig_escape, quote=False)
+except ImportError:
+    from cgi import escape
 
 from reportlab.lib import colors
 from reportlab.platypus import Paragraph
