@@ -1,6 +1,10 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
 
+const NoReport = () => (
+  <h1 style={{ color: "red" }}>NO TEST REPORT TO RENDER</h1>
+);
+
 /**
  * When NODE_ENV === 'development' we can choose an actual report to render
  * by setting the environment variable REACT_APP_REPORT_GUID_OVERRIDE
@@ -18,6 +22,7 @@ const DevHome = () => {
   } else {
     return (
       <>
+        <NoReport/>
         <h2 style={{ color: "green" }}>
           Set these environment variables before compiling:
           <ul>
@@ -38,6 +43,7 @@ const DevHome = () => {
 
 const ProdHome = () => (
     <>
+      <NoReport/>
       <h2>Navigate to the test report link printed at the end of your testplan run.</h2>
     </>
 );
@@ -46,7 +52,6 @@ const ProdHome = () => (
 export default function Home() {
   return (
     <>
-      <h1 style={{ color: "red" }}>NO TEST REPORT TO RENDER</h1>
       {process.env.NODE_ENV === "development" ? <DevHome /> : <ProdHome />}
     </>
   );
