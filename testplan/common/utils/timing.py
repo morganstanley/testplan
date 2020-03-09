@@ -117,7 +117,7 @@ def timeout(seconds, err_msg="Timeout after {} seconds."):
             thd = KThread(target=_new_func, args=(), kwargs=new_kwargs)
             thd.start()
             thd.join(seconds)
-            if thd.isAlive():
+            if thd.is_alive():
                 thd.kill()
                 thd.join()
                 raise TimeoutException(err_msg.format(seconds))
