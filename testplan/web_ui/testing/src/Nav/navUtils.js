@@ -143,8 +143,8 @@ const GetSelectedUid = (selected) => {
  * we do not drill down any further and instead display all entries in the
  * suite that testcase belongs to.
  *
- * @param {Array[ReportNode]} selected - Current selection hierarchy.
- * @return {Array[ReportNode]} Report nodes to display in the navigation
+ * @param {Array<ReportNode>} selected - Current selection hierarchy.
+ * @return {Array<ReportNode>} Report nodes to display in the navigation
  *                             column.
  */
 const GetNavEntries = (selected) => {
@@ -173,8 +173,8 @@ const GetNavEntries = (selected) => {
  * this is just the selection hierarchy. As a special case, when a testcase
  * is selected, we only display up to the suite level in the breadcrumb bar.
  *
- * @param {Array[ReportNode]} selected - Current selection hierarchy.
- * @return {Array[ReportNode]} Report nodes to display in the breadcrumb bar.
+ * @param {Array<ReportNode>} selected - Current selection hierarchy.
+ * @return {Array<ReportNode>} Report nodes to display in the breadcrumb bar.
  */
 const GetNavBreadcrumbs = (selected) => {
   const selectedEntry = selected[selected.length - 1];
