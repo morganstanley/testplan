@@ -429,6 +429,34 @@ def generate_interactive_api(ihandler):
                 param_group[param_uid] = new_testcase
                 return param_group[param_uid].serialize()
 
+    @api.route("/attachments")
+    class AllAttachments(flask_restplus.Resource):
+        """
+        Represents all files currently attached to the Testplan interactive
+        report.
+        """
+
+        def get(self):
+            """Return a list of all attachment UIDs."""
+            with ihandler.report_mutex:
+                return list(ihandler.report.attachments.keys())
+
+    @api.route("/attachments/<path:attachment_uid>")
+    class SingleAttachment(flask_restplus.Resource):
+        """
+        Represents a specific file attached to the Testplan interactive report.
+        """
+
+        def get(self, attachment_uid):
+            """Get a file attachment."""
+            with ihandler.report_mutex:
+                try:
+                    filepath = ihandler.report.attachments[attachment_uid]
+                except KeyError:
+                    raise werkzeug.exceptions.NotFound
+
+            return flask.send_file(filepath)
+
     return app, api
 
 

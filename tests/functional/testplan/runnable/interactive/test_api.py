@@ -9,9 +9,10 @@ from future import standard_library
 standard_library.install_aliases()
 import functools
 
-import six
+import os
 import pytest
 import requests
+import six
 
 import testplan
 from testplan import report
@@ -25,6 +26,9 @@ from tests.unit.testplan.runnable.interactive import test_api
 @multitest.testsuite
 class ExampleSuite(object):
     """Example test suite."""
+
+    def __init__(self, tmpfile):
+        self._tmpfile = tmpfile
 
     @multitest.testcase
     def test_passes(self, env, result):
@@ -41,6 +45,11 @@ class ExampleSuite(object):
         """Testcase that makes a log."""
         result.log("Here I share my deepest thoughts")
 
+    @multitest.testcase
+    def test_attach(self, env, result):
+        """Testcase that attaches a file."""
+        result.attach(self._tmpfile)
+
     @multitest.testcase(parameters=[1, 2, 3])
     def test_parametrized(self, env, result, val):
         """Parametrized testcase."""
@@ -50,7 +59,7 @@ class ExampleSuite(object):
 
 
 @pytest.fixture
-def plan():
+def plan(tmpdir):
     """Yield an interactive testplan."""
     plan = testplan.Testplan(
         name=six.ensure_str("InteractiveAPITest"),
@@ -58,9 +67,16 @@ def plan():
         interactive_block=False,
         parse_cmdline=False,
     )
+
+    logfile = tmpdir / "attached_log.txt"
+    logfile.write_text(
+        "This text will be written into the attached file.", encoding="utf8",
+    )
+
     plan.add(
         multitest.MultiTest(
-            name=six.ensure_str("ExampleMTest"), suites=[ExampleSuite()]
+            name=six.ensure_str("ExampleMTest"),
+            suites=[ExampleSuite(str(logfile))],
         )
     )
     plan.run()
@@ -87,7 +103,7 @@ EXPECTED_INITIAL_GET = [
             "parent_uids": [],
             "status": "unknown",
             "runtime_status": "ready",
-            "counter": {"failed": 0, "passed": 0, "total": 6, "unknown": 6},
+            "counter": {"failed": 0, "passed": 0, "total": 7, "unknown": 7},
             "status_override": None,
             "tags_index": {},
             "timer": {},
@@ -111,8 +127,8 @@ EXPECTED_INITIAL_GET = [
                 "counter": {
                     "failed": 0,
                     "passed": 0,
-                    "total": 6,
-                    "unknown": 6,
+                    "total": 7,
+                    "unknown": 7,
                 },
                 "status_override": None,
                 "tags": {},
@@ -134,7 +150,7 @@ EXPECTED_INITIAL_GET = [
             "part": None,
             "status": "unknown",
             "runtime_status": "ready",
-            "counter": {"failed": 0, "passed": 0, "total": 6, "unknown": 6},
+            "counter": {"failed": 0, "passed": 0, "total": 7, "unknown": 7},
             "status_override": None,
             "tags": {},
             "timer": {},
@@ -151,6 +167,7 @@ EXPECTED_INITIAL_GET = [
                     "test_passes",
                     "test_fails",
                     "test_logs",
+                    "test_attach",
                     "test_parametrized",
                 ],
                 "env_status": None,
@@ -163,8 +180,8 @@ EXPECTED_INITIAL_GET = [
                 "counter": {
                     "failed": 0,
                     "passed": 0,
-                    "total": 6,
-                    "unknown": 6,
+                    "total": 7,
+                    "unknown": 7,
                 },
                 "status_override": None,
                 "tags": {},
@@ -182,6 +199,7 @@ EXPECTED_INITIAL_GET = [
                 "test_passes",
                 "test_fails",
                 "test_logs",
+                "test_attach",
                 "test_parametrized",
             ],
             "env_status": None,
@@ -191,7 +209,7 @@ EXPECTED_INITIAL_GET = [
             "part": None,
             "status": "unknown",
             "runtime_status": "ready",
-            "counter": {"failed": 0, "passed": 0, "total": 6, "unknown": 6},
+            "counter": {"failed": 0, "passed": 0, "total": 7, "unknown": 7},
             "status_override": None,
             "tags": {},
             "timer": {},
@@ -280,6 +298,33 @@ EXPECTED_INITIAL_GET = [
                 "timer": {},
                 "type": "TestCaseReport",
                 "uid": "test_logs",
+                "status_reason": None,
+            },
+            {
+                "category": "testcase",
+                "description": "Testcase that attaches a file.",
+                "entries": [],
+                "logs": [],
+                "name": "test_attach",
+                "parent_uids": [
+                    "InteractiveAPITest",
+                    "ExampleMTest",
+                    "ExampleSuite",
+                ],
+                "status": "unknown",
+                "runtime_status": "ready",
+                "status_override": None,
+                "counter": {
+                    "passed": 0,
+                    "failed": 0,
+                    "total": 1,
+                    "unknown": 1,
+                },
+                "suite_related": False,
+                "tags": {},
+                "timer": {},
+                "type": "TestCaseReport",
+                "uid": "test_attach",
                 "status_reason": None,
             },
             {
@@ -505,6 +550,9 @@ def test_run_all_tests(plan):
         raise_on_timeout=True,
     )
 
+    # After running all tests, check that we can retrieve the attached file.
+    _test_attachments(port)
+
 
 def test_run_mtest(plan):
     """Test running a single MultiTest."""
@@ -702,6 +750,29 @@ def test_run_param_testcase(plan):
             timeout=300,
             raise_on_timeout=True,
         )
+
+
+def _test_attachments(port):
+    """
+    Test retrieving an attached file. The test_attach testcase needs to have
+    been run first.
+    """
+    all_attachments_url = "http://localhost:{port}/api/v1/interactive/attachments".format(
+        port=port
+    )
+
+    rsp = requests.get(all_attachments_url)
+    assert rsp.status_code == 200
+    attachments = rsp.json()
+    assert len(attachments) == 1
+    assert attachments[0].startswith("attached_log")
+
+    attachment_uid = attachments[0]
+    single_attachment_url = all_attachments_url + "/" + attachment_uid
+
+    rsp = requests.get(single_attachment_url)
+    assert rsp.status_code == 200
+    assert rsp.text == "This text will be written into the attached file."
 
 
 def _check_test_status(test_url, expected_status, last_hash):
