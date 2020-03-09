@@ -122,7 +122,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
  *   * name_type_index - its, its ancestors & its descendents names & types.
  *   * counter - number of passing & failing descendent testcases.
  *
- * @param {Array} entries - A single Testplan report in an Array.
+ * @param {Array} report - A single Testplan report in an Array.
  * @returns {Array} - The Testplan report with indices, in an Array.
  */
 const PropagateIndices = (report) => {
