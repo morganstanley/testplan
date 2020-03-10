@@ -276,10 +276,9 @@ and overriding ``get_output`` method.
 An example implementation of custom test lister can be seen
 :ref:`here <example_multitest_listing_custom>`.
 
-If the lister provide, name and description it can be used to extend the ``--info`` commandline
-parameter and the lister can be selected from the commandline.
+Listers can be registered to be used with the ``--info`` commandline parameter the same way as the built in listers.
 
-The class should provide:
+The custom lister class should provide:
 
 * it's name either setting the :py:attr:`NAME <testplan.testing.listing.BaseLister.NAME>` or override the
   :py:meth:`name() <testplan.testing.listing.BaseLister.name>` method. This should be an Enum name like ``NAME_FULL``.
@@ -302,7 +301,7 @@ and it need to be registered with :py:data:`testplan.testing.listing.listing_reg
     def get_output(self, instance):
         return "Hello World"
 
-  testing_registry.add_lister(HelloWorldLister())
+  listing_registry.add_lister(HelloWorldLister())
 
   # check --info hello-world
   @test_plan()
