@@ -305,7 +305,7 @@ and it need to be registered with :py:data:`testplan.testing.listing.listing_reg
   testing_registry.add_lister(HelloWorldLister())
 
   # check --info hello-world
-  @test_plan():
+  @test_plan()
   def main(plan):
     ....
 

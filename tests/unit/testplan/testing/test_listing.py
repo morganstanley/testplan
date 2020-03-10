@@ -43,7 +43,7 @@ def test_help_text():
 
     arg_enum = registry.to_arg()
 
-    help_text = arg_enum.get_help_text(None).split(os.linesep)
+    help_text = arg_enum.get_help_text(None).split("\n")
 
     assert len(help_text) == 3  # the default + the two lister
 
