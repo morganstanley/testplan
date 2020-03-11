@@ -34,6 +34,7 @@ from testplan.report import (
 )
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing.multitest.entries.assertions import RawAssertion
+from testplan.testing.multitest.entries.base import Log
 
 
 TEST_INST_INDENT = 2
@@ -656,7 +657,7 @@ class ProcessRunnerTest(Test):
         """
         raise NotImplementedError
 
-    def get_process_check_report(self, retcode):
+    def get_process_check_report(self, retcode, stdout, stderr):
         """
         When running a process fails (e.g. binary crash, timeout etc)
         we can still generate dummy testsuite / testcase reports with
@@ -680,9 +681,16 @@ class ProcessRunnerTest(Test):
                     description="Process exit code check",
                     content=assertion_content,
                     passed=passed,
-                ).serialize()
+                ).serialize(),
+                Log(
+                    message=stdout.read(), description="Process stdout",
+                ).serialize(),
+                Log(
+                    message=stderr.read(), description="Process stderr",
+                ).serialize(),
             ],
         )
+
         testcase_report.runtime_status = RuntimeStatus.FINISHED
 
         suite_report = TestGroupReport(
@@ -698,30 +706,35 @@ class ProcessRunnerTest(Test):
         Update current instance's test report with generated sub reports from
         raw test data. Skip report updates if the process was killed.
         """
-        if self._test_process_killed or not self._test_has_run:
+        with open(self.stdout) as stdout, open(self.stderr) as stderr:
+            if self._test_process_killed or not self._test_has_run:
+                self.result.report.append(
+                    self.get_process_check_report(
+                        self._test_process_retcode, stdout, stderr,
+                    )
+                )
+                return
+
+            if len(self.result.report):
+                raise ValueError(
+                    "Cannot update test report,"
+                    " it already has children: {}".format(self.result.report)
+                )
+
+            self.result.report.entries = self.process_test_data(
+                test_data=self.read_test_data()
+            )
+
+            retcode = self._test_process_retcode
+
+            # Check process exit code as last step, as we don't want to create
+            # an error log if the test report was populated
+            # (with possible failures) already
             self.result.report.append(
-                self.get_process_check_report(self._test_process_retcode,)
+                self.get_process_check_report(
+                    self._test_process_retcode, stdout, stderr,
+                )
             )
-            return
-
-        if len(self.result.report):
-            raise ValueError(
-                "Cannot update test report,"
-                " it already has children: {}".format(self.result.report)
-            )
-
-        self.result.report.entries = self.process_test_data(
-            test_data=self.read_test_data()
-        )
-
-        retcode = self._test_process_retcode
-
-        # Check process exit code as last step, as we don't want to create
-        # an error log if the test report was populated
-        # (with possible failures) already
-        self.result.report.append(
-            self.get_process_check_report(self._test_process_retcode)
-        )
 
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
@@ -799,7 +812,9 @@ class ProcessRunnerTest(Test):
         )
         self.logger.debug("test_cmd = %s", test_cmd)
 
-        with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
+        with tempfile.TemporaryFile(
+            mode="w+"
+        ) as stdout, tempfile.TemporaryFile(mode="w+") as stderr:
             exit_code = subprocess.call(
                 test_cmd,
                 stderr=stderr,
@@ -808,7 +823,12 @@ class ProcessRunnerTest(Test):
                 env=self.get_proc_env(),
             )
 
-        check_report = self.get_process_check_report(exit_code)
+            stdout.seek(0)
+            stderr.seek(0)
+            check_report = self.get_process_check_report(
+                exit_code, stdout, stderr
+            )
+
         yield check_report["ExitCodeCheck"], [self.name, check_report.name]
 
         for suite_report in self.process_test_data(self.read_test_data()):
