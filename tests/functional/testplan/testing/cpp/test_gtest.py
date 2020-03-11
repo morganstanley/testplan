@@ -43,7 +43,7 @@ You need to compile the files at "{binary_dir}" to be able to run this test.
         (
             os.path.join(fixture_root, "empty"),
             gtest.empty.report.expected_report,
-            Status.UNKNOWN,
+            Status.PASSED,
         ),
     ),
 )

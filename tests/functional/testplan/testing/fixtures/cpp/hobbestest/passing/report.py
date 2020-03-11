@@ -126,6 +126,16 @@ expected_report = TestReport(
                     ],
                     tags=None,
                 ),
+                TestGroupReport(
+                    name="ProcessChecks",
+                    category="testsuite",
+                    entries=[
+                        TestCaseReport(
+                            name="ExitCodeCheck",
+                            entries=[{"type": "RawAssertion", "passed": True}],
+                        ),
+                    ],
+                ),
             ],
             tags=None,
         )

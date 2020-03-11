@@ -19,8 +19,7 @@ expected_report = TestReport(
                         ),
                         TestCaseReport(
                             name="NegativeNos",
-                            status_override="passed",
-                            entries=[],
+                            entries=[{"type": "RawAssertion", "passed": True}],
                         ),
                     ],
                 ),
@@ -37,8 +36,19 @@ expected_report = TestReport(
                         ),
                         TestCaseReport(
                             name="NegativeNos",
-                            status_override="passed",
-                            entries=[],
+                            entries=[{"type": "RawAssertion", "passed": True}],
+                        ),
+                    ],
+                ),
+                TestGroupReport(
+                    name="ProcessChecks",
+                    category="testsuite",
+                    entries=[
+                        TestCaseReport(
+                            name="ExitCodeCheck",
+                            entries=[
+                                {"type": "RawAssertion", "passed": False}
+                            ],
                         ),
                     ],
                 ),

@@ -4,7 +4,21 @@ expected_report = TestReport(
     name="plan",
     entries=[
         TestGroupReport(
-            name="MyGTest", category="gtest", entries=[], tags=None
-        )
+            name="MyGTest",
+            category="gtest",
+            tags=None,
+            entries=[
+                TestGroupReport(
+                    name="ProcessChecks",
+                    category="testsuite",
+                    entries=[
+                        TestCaseReport(
+                            name="ExitCodeCheck",
+                            entries=[{"type": "RawAssertion", "passed": True}],
+                        ),
+                    ],
+                ),
+            ],
+        ),
     ],
 )
