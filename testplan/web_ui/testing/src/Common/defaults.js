@@ -141,6 +141,7 @@ const BASIC_ASSERTION_TYPES = [
   'EqualSlices', 'EqualExcludeSlices',
   'DictCheck', 'FixCheck',
   'Attachment', 'MatPlot',
+  'RawAssertion',
 ];
 
 const SORT_TYPES = {

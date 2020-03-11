@@ -696,7 +696,10 @@ class TestRunnerIHandler(entity.Entity):
     def _auto_start_environment(self, test_uid):
         """Start environment if required."""
         env_status = self.report[test_uid].env_status
-        if env_status == entity.ResourceStatus.STOPPED:
+
+        if env_status is None:
+            return
+        elif env_status == entity.ResourceStatus.STOPPED:
             self.start_test_resources(test_uid)
         elif env_status != entity.ResourceStatus.STARTED:
             raise RuntimeError(

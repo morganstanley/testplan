@@ -530,6 +530,28 @@ function prepareDictCheckContent(assertion, defaultContent) {
 }
 
 /**
+ * Prepare the content for the RawAssertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for dict match assertion
+ * @private
+ */
+function prepareRawAssertionContent(assertion, defaultContent) {
+  const preContent = (
+    <pre>
+      {assertion.content}
+     </pre>
+  );
+
+  return {
+    ...defaultContent,
+    preContent: preContent,
+    leftTitle: null,
+    rightTitle: null,
+  };
+}
+
+/**
  * Prepare the contents of the BasicAssertion component.
  *
  * @param {object} assertion
@@ -613,6 +635,9 @@ function prepareBasicContent(assertion) {
     case 'DictCheck':
     case 'FixCheck':
       return prepareDictCheckContent(assertion, defaultContent);
+
+    case 'RawAssertion':
+      return prepareRawAssertionContent(assertion, defaultContent);
 
     default:
       return defaultContent;

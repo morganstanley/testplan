@@ -2,7 +2,12 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 
-from testplan.report import TestGroupReport, TestCaseReport, Status
+from testplan.report import (
+    TestGroupReport,
+    TestCaseReport,
+    Status,
+    RuntimeStatus,
+)
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 
@@ -154,25 +159,38 @@ class GTest(ProcessRunnerTest):
         """
         result = []
         for suite in test_data.getchildren():
+            suite_name = suite.attrib["name"]
             suite_report = TestGroupReport(
-                name=suite.attrib["name"], category="testsuite"
+                name=suite_name, uid=suite_name, category="testsuite"
             )
             suite_has_run = False
 
             for testcase in suite.getchildren():
 
-                testcase_report = TestCaseReport(name=testcase.attrib["name"])
+                testcase_name = testcase.attrib["name"]
+                testcase_report = TestCaseReport(
+                    name=testcase_name, uid=testcase_name
+                )
 
                 if not testcase.getchildren():
-                    testcase_report.status_override = Status.PASSED
-
-                for entry in testcase.getchildren():
                     assertion_obj = RawAssertion(
-                        description=entry.tag,
-                        content=entry.text,
-                        passed=entry.tag != "failure",
+                        description="Passed",
+                        content="Testcase {} passed".format(testcase_name),
+                        passed=True,
                     )
                     testcase_report.append(registry.serialize(assertion_obj))
+                else:
+                    for entry in testcase.getchildren():
+                        assertion_obj = RawAssertion(
+                            description=entry.tag,
+                            content=entry.text,
+                            passed=entry.tag != "failure",
+                        )
+                        testcase_report.append(
+                            registry.serialize(assertion_obj)
+                        )
+
+                testcase_report.runtime_status = RuntimeStatus.FINISHED
 
                 if testcase.attrib["status"] != "notrun":
                     suite_report.append(testcase_report)
@@ -235,3 +253,17 @@ class GTest(ProcessRunnerTest):
 
         with open(self.report_path) as report_xml:
             self.result.report.xml_string = report_xml.read()
+
+    def test_command_filter(self, testsuite_pattern, testcase_pattern):
+        """
+        Return the base test command with additional filtering to run a
+        specific set of testcases.
+        """
+        test_cmd = self.test_command()
+        if testsuite_pattern != "*" or testcase_pattern != "*":
+            test_cmd.append(
+                "--gtest_filter={}.{}".format(
+                    testsuite_pattern, testcase_pattern,
+                )
+            )
+        return test_cmd
