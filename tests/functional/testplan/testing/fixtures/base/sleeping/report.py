@@ -15,7 +15,9 @@ testcase_report = TestCaseReport(
             "type": "RawAssertion",
             "description": "Process exit code check",
             "passed": False,
-        }
+        },
+        {"type": "Log", "description": "Process stdout",},
+        {"type": "Log", "description": "Process stderr",},
     ],
 )
 

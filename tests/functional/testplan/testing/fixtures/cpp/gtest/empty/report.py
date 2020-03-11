@@ -14,7 +14,17 @@ expected_report = TestReport(
                     entries=[
                         TestCaseReport(
                             name="ExitCodeCheck",
-                            entries=[{"type": "RawAssertion", "passed": True}],
+                            entries=[
+                                {"type": "RawAssertion", "passed": True},
+                                {
+                                    "type": "Log",
+                                    "description": "Process stdout",
+                                },
+                                {
+                                    "type": "Log",
+                                    "description": "Process stderr",
+                                },
+                            ],
                         ),
                     ],
                 ),
