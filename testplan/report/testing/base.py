@@ -212,7 +212,12 @@ class BaseReportGroup(ReportGroup):
         super(BaseReportGroup, self).__init__(*args, **kwargs)
         self.status_override = None
         self.timer = timing.Timer()
+
+        # Normally, a report group inherits its statuses from its child
+        # entries. However, in case there are no child entries we use the
+        # following values as a fallback.
         self._status = Status.UNKNOWN
+        self._runtime_status = RuntimeStatus.READY
 
     def _get_comparison_attrs(self):
         return super(BaseReportGroup, self)._get_comparison_attrs() + [
@@ -292,16 +297,14 @@ class BaseReportGroup(ReportGroup):
                 [entry.runtime_status for entry in self]
             )
 
-        # runtime_status does not really make sense for an empty test group,
-        # since it has nothing to be run. We return FINISHED as a sensible
-        # default.
-        return RuntimeStatus.FINISHED
+        return self._runtime_status
 
     @runtime_status.setter
     def runtime_status(self, new_status):
         """Set the runtime_status of all child entries."""
         for entry in self:
             entry.runtime_status = new_status
+        self._runtime_status = new_status
 
     def merge_children(self, report, strict=True):
         """

@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {ListGroup} from 'reactstrap';
 
 import InteractiveNavEntry from './InteractiveNavEntry';
-import Column from './Column';
-import {CreateNavButtons} from './navUtils.js';
+import {CreateNavButtons, GetNavColumn} from './navUtils.js';
 import {
   STATUS, RUNTIME_STATUS,
   INTERACTIVE_COL_WIDTH
@@ -36,13 +34,9 @@ const InteractiveNavList = (props) => {
     props.selectedUid,
   );
 
-  return (
-    // Make the column a little wider for the interactive mode, to account for
-    // extra space used by the interactive buttons.
-    <Column width={INTERACTIVE_COL_WIDTH} >
-      <ListGroup>{navButtons}</ListGroup>
-    </Column>
-  );
+  // Make the column a little wider for the interactive mode, to account for
+  // extra space used by the interactive buttons.
+  return GetNavColumn(INTERACTIVE_COL_WIDTH, navButtons);
 };
 
 InteractiveNavList.propTypes = {
