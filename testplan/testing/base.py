@@ -3,6 +3,7 @@ import os
 import sys
 import subprocess
 import six
+import tempfile
 
 from lxml import objectify
 from schema import Or, Use, And
@@ -28,8 +29,12 @@ from testplan.report import (
     TestGroupReport,
     TestCaseReport,
     Status,
+    ReportCategories,
+    RuntimeStatus,
 )
 from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.testing.multitest.entries.assertions import RawAssertion
+from testplan.testing.multitest.entries.base import Log
 
 
 TEST_INST_INDENT = 2
@@ -139,6 +144,7 @@ class Test(Runnable):
     def _new_test_report(self):
         return TestGroupReport(
             name=self.cfg.name,
+            uid=self.cfg.name,
             description=self.cfg.description,
             category=self.__class__.__name__.lower(),
             tags=self.cfg.tags,
@@ -341,6 +347,29 @@ class Test(Runnable):
         be overridden by sub-classes.
         """
         self.resources.stop()
+
+    def dry_run(self):
+        """
+        Return an empty report skeleton for this Test including all
+        testsuites, testcases etc. hierarchy. Does not run any tests.
+        """
+        suites_to_run = self.test_context
+        self.result.report = self._new_test_report()
+
+        for testsuite, testcases in suites_to_run:
+            testsuite_report = TestGroupReport(
+                name=testsuite,
+                category=ReportCategories.TESTSUITE,
+                uid=testsuite,
+            )
+
+            for testcase in testcases:
+                testcase_report = TestCaseReport(name=testcase, uid=testcase,)
+                testsuite_report.append(testcase_report)
+
+            self.result.report.append(testsuite_report)
+
+        return self.result
 
 
 class ProcessRunnerTestConfig(TestConfig):
@@ -628,74 +657,84 @@ class ProcessRunnerTest(Test):
         """
         raise NotImplementedError
 
-    def get_process_failure_report(self):
+    def get_process_check_report(self, retcode, stdout, stderr):
         """
         When running a process fails (e.g. binary crash, timeout etc)
         we can still generate dummy testsuite / testcase reports with
         a certain hierarchy compatible with exporters and XUnit conventions.
         """
-        from testplan.testing.multitest.entries.assertions import RawAssertion
-
-        assertion_content = os.linesep.join(
+        assertion_content = "\n".join(
             [
-                "Process failure: {}".format(self.cfg.driver),
-                "Exit code: {}".format(self._test_process_retcode),
-                "stdout: {}".format(self.stdout),
-                "stderr: {}".format(self.stderr),
+                "Process: {}".format(self.cfg.driver),
+                "Exit code: {}".format(retcode),
             ]
         )
 
+        passed = retcode == 0 or retcode in self.cfg.ignore_exit_codes
+
         testcase_report = TestCaseReport(
-            name="failure",
+            name="ExitCodeCheck",
+            uid="ExitCodeCheck",
+            suite_related=True,
             entries=[
                 RawAssertion(
-                    description="Process failure details",
+                    description="Process exit code check",
                     content=assertion_content,
-                    passed=False,
-                ).serialize()
+                    passed=passed,
+                ).serialize(),
+                Log(
+                    message=stdout.read(), description="Process stdout",
+                ).serialize(),
+                Log(
+                    message=stderr.read(), description="Process stderr",
+                ).serialize(),
             ],
         )
 
-        testcase_report.status_override = Status.ERROR
+        testcase_report.runtime_status = RuntimeStatus.FINISHED
 
-        return TestGroupReport(
-            name="ProcessFailure",
-            category="testsuite",
+        suite_report = TestGroupReport(
+            name="ProcessChecks",
+            category=ReportCategories.TESTSUITE,
             entries=[testcase_report],
         )
+
+        return suite_report
 
     def update_test_report(self):
         """
         Update current instance's test report with generated sub reports from
         raw test data. Skip report updates if the process was killed.
         """
-        if self._test_process_killed or not self._test_has_run:
-            self.result.report.append(self.get_process_failure_report())
-            return
+        with open(self.stdout) as stdout, open(self.stderr) as stderr:
+            if self._test_process_killed or not self._test_has_run:
+                self.result.report.append(
+                    self.get_process_check_report(
+                        self._test_process_retcode, stdout, stderr,
+                    )
+                )
+                return
 
-        if len(self.result.report):
-            raise ValueError(
-                "Cannot update test report,"
-                " it already has children: {}".format(self.result.report)
+            if len(self.result.report):
+                raise ValueError(
+                    "Cannot update test report,"
+                    " it already has children: {}".format(self.result.report)
+                )
+
+            self.result.report.entries = self.process_test_data(
+                test_data=self.read_test_data()
             )
 
-        self.result.report.entries = self.process_test_data(
-            test_data=self.read_test_data()
-        )
+            retcode = self._test_process_retcode
 
-        retcode = self._test_process_retcode
-
-        # Check process exit code as last step, as we don't want to create
-        # an error log if the test report was populated
-        # (with possible failures) already
-
-        if (
-            retcode != 0
-            and retcode not in self.cfg.ignore_exit_codes
-            and not len(self.result.report)
-        ):
-            with self.result.report.logged_exceptions():
-                self.result.report.append(self.get_process_failure_report())
+            # Check process exit code as last step, as we don't want to create
+            # an error log if the test report was populated
+            # (with possible failures) already
+            self.result.report.append(
+                self.get_process_check_report(
+                    self._test_process_retcode, stdout, stderr,
+                )
+            )
 
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
@@ -722,3 +761,84 @@ class ProcessRunnerTest(Test):
         if self._test_process is not None:
             kill_process(self._test_process)
             self._test_process_killed = True
+
+    def dry_run(self):
+        """
+        Return an empty report skeleton for this Test including all
+        testsuites, testcases etc. hierarchy. Does not run any tests.
+        """
+        result = super(ProcessRunnerTest, self).dry_run()
+        report = result.report
+
+        testsuite_report = TestGroupReport(
+            name="ProcessChecks",
+            category=ReportCategories.TESTSUITE,
+            uid="ProcessChecks",
+        )
+
+        testcase_report = TestCaseReport(
+            name="ExitCodeCheck", uid="ExitCodeCheck", suite_related=True,
+        )
+        testsuite_report.append(testcase_report)
+        report.append(testsuite_report)
+
+        return result
+
+    def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
+        """
+        Runs testcases as defined by the given filter patterns and yields
+        testcase reports. A single testcase report is made for general checks
+        of the test process, including checking the exit code and loggin stdout
+        and stderr of the process. Then, testcase reports are generated from
+        the output of the test process.
+
+        For efficiency, we run all testcases in a single subprocess rather than
+        running each testcase in a seperate process. This reduces the total
+        time taken to run all testcases, however it will mean that testcase
+        reports will not be generated until all testcases have finished
+        running.
+
+        :param testsuite_pattern: Filter pattern for testsuite level.
+        :type testsuite_pattern: ``str``
+        :param testcase_pattern: Filter pattern for testcase level.
+        :type testsuite_pattern: ``str``
+        :yield: generate tuples containing testcase reports and a list of the
+            UIDs required to merge this into the main report tree, starting
+            with the UID of this test.
+        """
+        self.make_runpath_dirs()
+        test_runner = os.path.abspath(self.cfg.driver)
+        test_cmd = self.test_command_filter(
+            testsuite_pattern, testcase_pattern
+        )
+        self.logger.debug("test_cmd = %s", test_cmd)
+
+        with tempfile.TemporaryFile(
+            mode="w+"
+        ) as stdout, tempfile.TemporaryFile(mode="w+") as stderr:
+            exit_code = subprocess.call(
+                test_cmd,
+                stderr=stderr,
+                stdout=stdout,
+                cwd=self.cfg.proc_cwd,
+                env=self.get_proc_env(),
+            )
+
+            stdout.seek(0)
+            stderr.seek(0)
+            check_report = self.get_process_check_report(
+                exit_code, stdout, stderr
+            )
+
+        yield check_report["ExitCodeCheck"], [self.name, check_report.name]
+
+        for suite_report in self.process_test_data(self.read_test_data()):
+            for testcase_report in suite_report:
+                yield testcase_report, [self.name, suite_report.name]
+
+    def test_command_filter(self, testsuite_pattern, testcase_pattern):
+        """
+        Return the base test command with additional filtering to run a
+        specific set of testcases. To be implemented by concrete subclasses.
+        """
+        raise NotImplementedError
