@@ -55,15 +55,19 @@ class ModelExamplesSuite(object):
         Log this data as a table in the report.
         """
         # Load the raw cosine data from the CSV file.
-        self.X, self.y = np.loadtxt(
-            "cos_data.csv", delimiter=",", unpack=True, skiprows=1
+
+        self.x, self.y = np.loadtxt(
+            os.path.join(os.path.dirname(__file__), "cos_data.csv"),
+            delimiter=",",
+            unpack=True,
+            skiprows=1,
         )
-        self.X_test = np.linspace(0, 1, 100)
+        self.x_test = np.linspace(0, 1, 100)
 
         # Log it to display in the report, this will show the first 5 and last 5
         # rows if there are more than 10 rows.
         data = [["X", "y"]] + [
-            [self.X[i], self.y[i]] for i in range(len(self.X))
+            [self.x[i], self.y[i]] for i in range(len(self.x))
         ]
         result.table.log(data, description="Raw cosine data")
 
@@ -96,10 +100,10 @@ class ModelExamplesSuite(object):
         # Train the model and record how long this takes.
         timer = Timer()
         with timer.record("train_model"):
-            pipeline.fit(self.X[:, np.newaxis], self.y)
+            pipeline.fit(self.x[:, np.newaxis], self.y)
         scores = cross_val_score(
             pipeline,
-            self.X[:, np.newaxis],
+            self.x[:, np.newaxis],
             self.y,
             scoring="neg_mean_squared_error",
             cv=10,
@@ -121,13 +125,13 @@ class ModelExamplesSuite(object):
         # Display the train data and the model on a plot.
         create_scatter_plot(
             title="{} degrees of freedom model & Train data".format(degrees),
-            x=self.X,
+            x=self.x,
             y=self.y,
             label="Samples",
             c="black",
         )
-        y_test = pipeline.predict(self.X_test[:, np.newaxis])
-        plot.plot(self.X_test, y_test, label="Model")
+        y_test = pipeline.predict(self.x_test[:, np.newaxis])
+        plot.plot(self.x_test, y_test, label="Model")
         plot.legend(loc="best")
         result.matplot(plot)
 
