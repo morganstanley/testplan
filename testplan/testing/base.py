@@ -786,16 +786,17 @@ class ProcessRunnerTest(Test):
 
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
         """
-        For a Test to be run interactively, it must implement this method.
+        Runs testcases as defined by the given filter patterns and yields
+        testcase reports. A single testcase report is made for general checks
+        of the test process, including checking the exit code and loggin stdout
+        and stderr of the process. Then, testcase reports are generated from
+        the output of the test process.
 
-        It is expected to run tests iteratively and yield a tuple containing
-        a testcase report and the list of parent UIDs required to merge the
-        testcase report into the main report tree.
-
-        If it is not possible or very inefficient to run individual testcases
-        in an iteratie manner, this method may instead run all the testcases
-        in a batch and then return an iterator for the testcase reports and
-        parent UIDs.
+        For efficiency, we run all testcases in a single subprocess rather than
+        running each testcase in a seperate process. This reduces the total
+        time taken to run all testcases, however it will mean that testcase
+        reports will not be generated until all testcases have finished
+        running.
 
         :param testsuite_pattern: Filter pattern for testsuite level.
         :type testsuite_pattern: ``str``
@@ -838,6 +839,6 @@ class ProcessRunnerTest(Test):
     def test_command_filter(self, testsuite_pattern, testcase_pattern):
         """
         Return the base test command with additional filtering to run a
-        specific set of testcases.
+        specific set of testcases. To be implemented by concrete subclasses.
         """
         raise NotImplementedError
