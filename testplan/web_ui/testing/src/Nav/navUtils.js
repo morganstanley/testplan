@@ -2,10 +2,11 @@
  * Navigation utility functions.
  */
 import React from 'react';
-import {ListGroupItem} from 'reactstrap';
+import {ListGroup, ListGroupItem} from 'reactstrap';
 import {StyleSheet, css} from 'aphrodite';
 
 import TagList from './TagList';
+import Column from './Column';
 import {LIGHT_GREY, DARK_GREY} from "../Common/defaults";
 import CommonStyles from "../Common/Styles.js";
 
@@ -121,6 +122,10 @@ const styles = StyleSheet.create({
     backgroundColor: DARK_GREY,
     outline: 'none',
   },
+  buttonList: {
+    'overflow-y': 'auto',
+    'height': '100%',
+  },
 });
 
 /**
@@ -187,9 +192,16 @@ const GetNavBreadcrumbs = (selected) => {
   }
 };
 
+const GetNavColumn = (width, navButtons) => (
+  <Column width={width} >
+    <ListGroup className={css(styles.buttonList)}>{navButtons}</ListGroup>
+  </Column>
+);
+
 export {
   CreateNavButtons,
   GetSelectedUid,
   GetNavEntries,
   GetNavBreadcrumbs,
+  GetNavColumn,
 };
