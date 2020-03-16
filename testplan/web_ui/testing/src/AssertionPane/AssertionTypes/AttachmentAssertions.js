@@ -29,23 +29,18 @@ export const AttachmentAssertion = (props) => {
 
 /* Render the attachment content, depending on the filetype. */
 const getAttachmentContent = (assertion, reportUid) => {
-  const file_type = assertion.orig_filename.split('.').pop();
-  const file_path = assertion.dst_path;
-  let get_path;
-  if (reportUid) {
-    get_path = `/api/v1/reports/${reportUid}/attachments/${file_path}`;
-  } else {
-    get_path = `/api/v1/interactive/attachments/${file_path}`;
-  }
+  const fileType = assertion.orig_filename.split('.').pop();
+  const filePath = assertion.dst_path;
+  const getPath = getAttachmentUrl(filePath, reportUid);
 
-  switch (file_type) {
+  switch (fileType) {
     case 'txt':
     case 'log':
     case 'out':
     case 'csv':
       return (
         <TextAttachment
-          src={get_path}
+          src={getPath}
           file_name={assertion.orig_filename}
           devMode={reportUid === "_dev"}
         />
@@ -55,7 +50,7 @@ const getAttachmentContent = (assertion, reportUid) => {
     case 'jpg':
     case 'bmp':
     case 'png':
-        return getImageContent(get_path, assertion.description);
+        return getImageContent(getPath, assertion.description);
 
     default:
       // When running the development server, the real Testplan back-end is not
@@ -63,17 +58,31 @@ const getAttachmentContent = (assertion, reportUid) => {
       // gives a debug message instead of the real link.
       if (reportUid === "_dev") {
         return (
-          <button onClick={() => alert("Would download: " + file_path)}>
+          <button onClick={() => alert("Would download: " + filePath)}>
             {assertion.orig_filename}
           </button>
         );
       } else {
         return (
-          <a href={get_path}>
+          <a href={getPath}>
             {assertion.orig_filename}
           </a>
         );
       }
+  }
+};
+
+/**
+ * Get the URL to retrieve the attachment from. Depending on whether we are
+ * running in batch or interactive mode, the API for accessing attachments
+ * is slightly different. We know we are running in interactive mode if there
+ * is no report UID.
+ */
+const getAttachmentUrl = (filePath, reportUid) => {
+  if (reportUid) {
+    return `/api/v1/reports/${reportUid}/attachments/${filePath}`;
+  } else {
+    return `/api/v1/interactive/attachments/${filePath}`;
   }
 };
 
@@ -122,21 +131,19 @@ export const MatplotAssertion = (props) => {
  */
 const getMatplotContent = (assertion, reportUid) => {
     const description = assertion.description;
-    const get_path = (
-      `/api/v1/reports/${reportUid}/attachments/${assertion.dst_path}`
-    );
+    const getPath = getAttachmentUrl(assertion.dst_path, reportUid);
 
     if (reportUid === "_dev") {
       return (
         <figure className={css(styles.caption)}>
-          Would display MatPlot from: {get_path}
+          Would display MatPlot from: {getPath}
           <figcaption className={css(styles.caption)}>
             <u>{description ? description: "MatPlot Image"}</u>
           </figcaption>
         </figure>
       );
     } else {
-      return getImageContent(get_path, description);
+      return getImageContent(getPath, description);
     }
 };
 
