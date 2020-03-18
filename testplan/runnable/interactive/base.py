@@ -68,7 +68,7 @@ class TestRunnerIHandler(entity.Entity):
             self._reloader = reloader.ModuleReloader(
                 extra_deps=self.cfg.extra_deps
             )
-        except FileNotFoundError:
+        except RuntimeError:
             self._reloader = None
         self._resource_loader = resource_loader.ResourceLoader()
 

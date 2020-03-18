@@ -92,7 +92,7 @@ class ModuleReloader(logger.Loggable):
         """
         main_module_file = sys.modules["__main__"].__file__
         if not main_module_file:
-            raise FileNotFoundError(
+            raise RuntimeError(
                 "Can only use interactive reloader when the __main__ module "
                 "is a file."
             )
@@ -152,7 +152,10 @@ class ModuleReloader(logger.Loggable):
         :type reload_dirs: ``Iterable[str]``
         """
         finder = _GraphModuleFinder(path=self._filtered_syspath(reload_dirs))
-        finder.run_script(main_module_file)
+        try:
+            finder.run_script(main_module_file)
+        except OSError:
+            raise RuntimeError("Could not run main module {} as a script.".format(main_module_file))
         return finder.build_dep_graph()
 
     def _filtered_syspath(self, reload_dirs):
