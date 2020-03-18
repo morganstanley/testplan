@@ -155,7 +155,11 @@ class ModuleReloader(logger.Loggable):
         try:
             finder.run_script(main_module_file)
         except OSError:
-            raise RuntimeError("Could not run main module {} as a script.".format(main_module_file))
+            raise RuntimeError(
+                "Could not run main module {} as a script.".format(
+                    main_module_file
+                )
+            )
         return finder.build_dep_graph()
 
     def _filtered_syspath(self, reload_dirs):
