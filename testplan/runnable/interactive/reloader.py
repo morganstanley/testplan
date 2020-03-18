@@ -92,7 +92,7 @@ class ModuleReloader(logger.Loggable):
         """
         main_module_file = sys.modules["__main__"].__file__
         if not main_module_file:
-            raise RuntimeError(
+            raise FileNotFoundError(
                 "Can only use interactive reloader when the __main__ module "
                 "is a file."
             )

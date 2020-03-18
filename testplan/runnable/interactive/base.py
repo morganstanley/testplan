@@ -64,9 +64,12 @@ class TestRunnerIHandler(entity.Entity):
         self._http_handler = None
 
         self._created_environments = {}
-        self._reloader = reloader.ModuleReloader(
-            extra_deps=self.cfg.extra_deps
-        )
+        try:
+            self._reloader = reloader.ModuleReloader(
+                extra_deps=self.cfg.extra_deps
+            )
+        except FileNotFoundError:
+            self._reloader = None
         self._resource_loader = resource_loader.ResourceLoader()
 
     def __call__(self, *args, **kwargs):
@@ -621,6 +624,8 @@ class TestRunnerIHandler(entity.Entity):
 
     def reload(self, rebuild_dependencies=False):
         """Reload test suites."""
+        if self._reloader is None:
+            raise RuntimeError("Reloader failed to initialize.")
         tests = (self.test(test) for test in self.all_tests())
         self._reloader.reload(tests, rebuild_dependencies)
 

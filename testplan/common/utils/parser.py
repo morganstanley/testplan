@@ -75,7 +75,7 @@ class ArgMixin(object):
                     '"{}" - {}'.format(cls.enum_to_str(enm), descriptions[enm])
                 )
 
-        return os.linesep.join(help_strings)
+        return "\n".join(help_strings)
 
     @classmethod
     def get_parser_context(cls, default=None, **kwargs):
