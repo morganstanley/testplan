@@ -59,7 +59,7 @@ NavBreadcrumbs.propTypes = {
   handleNavClick: PropTypes.func,
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   navBreadcrumbs: {
     top: '2.5em',
     borderBottom: 'solid 1px rgba(0, 0, 0, 0.1)',

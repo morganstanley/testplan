@@ -104,7 +104,7 @@ const applyNamedFilter = (entries, filter) => {
   }
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   navButton: {
     position: 'relative',
     display: 'block',

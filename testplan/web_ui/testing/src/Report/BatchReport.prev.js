@@ -20,7 +20,7 @@ import {fakeReportAssertions} from "../Common/fakeReport";
  *   * display messages when loading report or error in report.
  *   * render toolbar, nav & assertion components.
  */
-class BatchReport extends React.Component {
+class BatchReportPrev extends React.Component {
   constructor(props) {
     super(props);
     this.handleNavFilter = this.handleNavFilter.bind(this);
@@ -65,13 +65,15 @@ class BatchReport extends React.Component {
         1500);
     } else {
       const axiosConfig = {};
-      // allow overriding where we fetch the report from in deveopment, see src/Common/Home.jsx:12
-      if(process.env.NODE_ENV === "development" && typeof process.env.REACT_APP_COUCHDB_HOST !== "undefined") {
-        axiosConfig.baseURL = process.env.REACT_APP_COUCHDB_HOST;
-        const COUCHDB_ORIGIN = new URL(process.env.REACT_APP_COUCHDB_HOST).origin;
-        if(window.location.origin !== COUCHDB_ORIGIN) {
+      // allow overriding where we fetch the report from in deveopment,
+      // see src/Common/Home.jsx:12
+      if(process.env.NODE_ENV === "development" &&
+          typeof process.env.REACT_APP_DB_HOST !== "undefined") {
+        axiosConfig.baseURL = process.env.REACT_APP_DB_HOST;
+        const DB_ORIGIN = new URL(process.env.REACT_APP_DB_HOST).origin;
+        if(window.location.origin !== DB_ORIGIN) {
           // CORS headers https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
-          axiosConfig.headers = {"Access-Control-Allow-Origin": COUCHDB_ORIGIN};
+          axiosConfig.headers = {"Access-Control-Allow-Origin": DB_ORIGIN};
         }
       }
       axios.get(`/api/v1/reports/${uid}`, axiosConfig)
@@ -201,4 +203,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default BatchReport;
+export default BatchReportPrev;

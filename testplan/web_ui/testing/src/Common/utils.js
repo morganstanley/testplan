@@ -97,3 +97,70 @@ export {
   hashCode,
   domToString,
 };
+
+/**
+ * Callback which takes one argument.
+ * @template T
+ * @callback Callback1Arg<T>
+ * @param {T} arg1
+ *//**
+ * Callback which takes no arguments.
+ * @callback Callback0Arg
+ *//**
+ * Functional version of `try { ... } catch(err) { ... }`.
+ * @param {Callback0Arg} tryFunc0Args -
+ *     Will be run as `try { tryFunc0Args(); } ...`
+ * @param {Callback1Arg<Error>=} catchFunc1Arg -
+ *     Will be run as `.. catch(err) { catchFunc1Arg(err); }`
+ * @returns {undefined}
+ */
+export function tryCatch(tryFunc0Args, catchFunc1Arg = () => undefined) {
+  try { return tryFunc0Args(); }
+  catch(e) { return catchFunc1Arg(e); }
+}
+
+/**
+ * @class
+ * @extends URLSearchParams
+ * @classdesc
+ * Subclass of `URLSearchParams` that parses all query params as JSON upon
+ * instantiation and adds some convenience methods.
+ * @example
+ * const pqp = new ParsedQueryParams('?a=1&b=true&c=%7B"x"%3A+true%7D');
+ * pqp.get('c') === {"x": true}
+ * pqp.get('d', 'HEY') === "HEY"
+ * pqp.firstOf(['q', 'b']) === true
+ */
+export class ParsedQueryParams extends URLSearchParams {
+  /** @param {string} queryString */
+  constructor(queryString) {
+    const parsedValEntries = [];
+    for(const [key, val] of new URLSearchParams(queryString)) {
+      parsedValEntries.push([
+        key, tryCatch(() => JSON.parse(val)) || val
+      ]);
+    }
+    // we do this last since `URLSearchParams.set` eliminates duplicates
+    // (which we may want to preserve)
+    super(parsedValEntries);
+  }
+  get = (key, defaultVal = null) => super.get(key) || defaultVal;
+  getAll(key, defaultVal = null) {
+    const tudo = super.getAll(key);
+    return tudo.length ? tudo : defaultVal;
+  }
+  /**
+   * Try all keys, falling back to `defaultVal` if none are present
+   * @param {Array<string>} keys - Keys to try in sequence
+   * @param {*} [defaultVal=null] - Return value of none of `keys` are present
+   * @returns {*}
+   */
+  firstOf(keys, defaultVal = null) {
+    if(!Array.isArray(keys)) return this.get(keys, defaultVal);
+    for(const key of keys) {
+      if(this.has(key))
+        return this.getAll(key).slice(0)[0] || defaultVal;
+    }
+    return defaultVal;
+  }
+}

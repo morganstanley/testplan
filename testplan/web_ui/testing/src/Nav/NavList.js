@@ -33,7 +33,7 @@ const NavList = (props) => {
   );
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   buttonList: {
     'overflow-y': 'auto',
     'height': '100%',
