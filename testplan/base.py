@@ -288,9 +288,8 @@ class Testplan(entity.RunnableManager):
         """
         Enrich the options using parsed command line arguments.
 
-        The command line arguments will not have any effect if we
-        already have an explicit programmatic declaration for a given
-        keyword.
+        The command line arguments will override any explicit programmatic
+        declaration for a given keyword.
         """
         self._default_options = options
         parser = self.parser

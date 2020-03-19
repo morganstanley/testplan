@@ -214,7 +214,7 @@ class TestRunnerResult(RunnableResult):
 
 
 class TestRunner(Runnable):
-    r"""
+    """
     Adds tests to test
     :py:class:`executor <testplan.runners.base.Executor>` resources
     and invoke report
