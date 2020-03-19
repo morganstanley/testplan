@@ -1,11 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {ListGroup} from 'reactstrap';
-import {StyleSheet, css} from 'aphrodite';
 
 import NavEntry from './NavEntry';
-import {CreateNavButtons} from './navUtils.js';
-import Column from './Column';
+import {CreateNavButtons, GetNavColumn} from './navUtils.js';
 import {STATUS, COLUMN_WIDTH} from "../Common/defaults";
 
 /**
@@ -26,20 +23,8 @@ const NavList = (props) => {
     props.selectedUid
   );
 
-  return (
-    <Column width={COLUMN_WIDTH} >
-      <ListGroup className={css(styles.buttonList)}>{navButtons}</ListGroup>
-    </Column>
-  );
+  return GetNavColumn(COLUMN_WIDTH, navButtons);
 };
-
-export const styles = StyleSheet.create({
-  buttonList: {
-    'overflow-y': 'auto',
-    'height': '100%',
-  }
-});
-
 
 NavList.propTypes = {
   /** Nav list entries to be displayed */

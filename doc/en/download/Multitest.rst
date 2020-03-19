@@ -35,6 +35,18 @@ test_plan.py
 ````````````
 .. literalinclude:: ../../../examples/Multitest/Listing/Custom Listers/test_plan.py
 
+.. _example_multitest_listing_custom_cmd:
+
+Custom with commandline
++++++++++++++++++++++++
+
+Required files:
+  - :download:`test_plan_command_line.py <../../../examples/Multitest/Listing/Custom Listers/test_plan_command_line.py>`
+
+test_plan_commandline.py
+````````````````````````
+.. literalinclude:: ../../../examples/Multitest/Listing/Custom Listers/test_plan_command_line.py
+
 .. _example_multitest_ordering:
 
 Ordering

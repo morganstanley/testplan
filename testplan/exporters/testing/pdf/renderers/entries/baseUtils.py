@@ -121,11 +121,11 @@ def plot_graph(source, graph_type):
     for entry in data:
         colour = get_colour(series_options, entry)
         x_values, y_values = get_xy_coords(data[entry])
-        if graph_type is "Line":
+        if graph_type == "Line":
             plot.plot(x_values, y_values, color=colour, label=entry)
-        if graph_type is "Scatter":
+        elif graph_type == "Scatter":
             plot.scatter(x_values, y_values, color=colour, label=entry)
-        if graph_type is "Bar":
+        elif graph_type == "Bar":
             x = np.arange(len(x_values))
             ax.bar(
                 x + starting_placement,
@@ -137,11 +137,11 @@ def plot_graph(source, graph_type):
             starting_placement += single_bar_width
             ax.set_xticks(x)
             ax.set_xticklabels(x_values)
-        if graph_type is "Hexbin":
+        elif graph_type == "Hexbin":
             plot.hexbin(x_values, y_values, color=colour, label=entry)
-        if graph_type is "Contour":
+        elif graph_type == "Contour":
             plot.contour([x_values, y_values])
-        if graph_type is "Whisker":
+        elif graph_type == "Whisker":
             x_err = []
             y_err = []
             for point in data[entry]:
@@ -173,7 +173,7 @@ def plot_chart(source, graph_type):
     data = source["graph_data"]
 
     for entry in data:
-        if graph_type is "Pie":
+        if graph_type == "Pie":
             angles = []
             names = []
             for coord in data[entry]:

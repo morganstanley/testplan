@@ -13,13 +13,15 @@ expected_report = TestReport(
                     entries=[
                         TestCaseReport(
                             name="PositiveNos",
-                            status_override="passed",
-                            entries=[],
+                            entries=[
+                                {"type": "RawAssertion", "passed": True},
+                            ],
                         ),
                         TestCaseReport(
                             name="NegativeNos",
-                            status_override="passed",
-                            entries=[],
+                            entries=[
+                                {"type": "RawAssertion", "passed": True},
+                            ],
                         ),
                     ],
                 ),
@@ -29,13 +31,35 @@ expected_report = TestReport(
                     entries=[
                         TestCaseReport(
                             name="PositiveNos",
-                            status_override="passed",
-                            entries=[],
+                            entries=[
+                                {"type": "RawAssertion", "passed": True},
+                            ],
                         ),
                         TestCaseReport(
                             name="NegativeNos",
-                            status_override="passed",
-                            entries=[],
+                            entries=[
+                                {"type": "RawAssertion", "passed": True},
+                            ],
+                        ),
+                    ],
+                ),
+                TestGroupReport(
+                    name="ProcessChecks",
+                    category="testsuite",
+                    entries=[
+                        TestCaseReport(
+                            name="ExitCodeCheck",
+                            entries=[
+                                {"type": "RawAssertion", "passed": True},
+                                {
+                                    "type": "Log",
+                                    "description": "Process stdout",
+                                },
+                                {
+                                    "type": "Log",
+                                    "description": "Process stderr",
+                                },
+                            ],
                         ),
                     ],
                 ),

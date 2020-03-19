@@ -194,7 +194,7 @@ const GetCenterPane = (
   });
   const assertions = getAssertions(selectedEntries);
 
-  if (assertions !== null || logs.length !==0) {
+  if (assertions.length > 0 || logs.length > 0) {
     return (
       <AssertionPane
         assertions={assertions}
@@ -229,7 +229,7 @@ const getAssertions = (selectedEntries) => {
   if (selectedEntry && selectedEntry.category === 'testcase') {
     return selectedEntry.entries;
   } else {
-    return null;
+    return [];
   }
 };
 

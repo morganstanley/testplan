@@ -16,6 +16,12 @@ MAX_TESTCASES = 25
 
 
 class BaseLister(object):
+    """ Base of all listers, implement the :py:meth:`get_output` give it a name in :py:attr:`NAME` and a description in :py:attr:`DESCRIPTION` or
+    alternatively override :py:meth:`name` and/or :py:meth:`description` and it is good to be added to :py:data:`listing_registry`"""
+
+    NAME = None
+    DESCRIPTION = None
+
     def log_test_info(self, instance):
         output = self.get_output(instance)
         if output:
@@ -23,6 +29,12 @@ class BaseLister(object):
 
     def get_output(self, instance):
         raise NotImplementedError
+
+    def name(self):
+        return self.NAME
+
+    def description(self):
+        return self.DESCRIPTION
 
 
 class ExpandedNameLister(BaseLister):
@@ -40,6 +52,9 @@ class ExpandedNameLister(BaseLister):
     MultitestBeta
         ...
     """
+
+    NAME = "NAME_FULL"
+    DESCRIPTION = "List tests in readable format."
 
     def format_instance(self, instance):
         return instance.name
@@ -105,6 +120,9 @@ class ExpandedPatternLister(ExpandedNameLister):
         ...
     """
 
+    NAME = "PATTERN_FULL"
+    DESCRIPTION = "List tests in `--patterns` / `--tags` compatible format."
+
     def format_instance(self, instance):
         return instance.name
 
@@ -134,6 +152,10 @@ class ExpandedPatternLister(ExpandedNameLister):
 
 
 class TrimMixin(object):
+    DESCRIPTION = "\tMax {} testcases per suite will be displayed".format(
+        MAX_TESTCASES
+    )
+
     def get_testcase_outputs(self, instance, suite, testcases):
         result = ""
         testcases_to_display = testcases[:MAX_TESTCASES]
@@ -164,13 +186,26 @@ class PatternLister(TrimMixin, ExpandedPatternLister):
     testcases via parametrization.
     """
 
+    NAME = "PATTERN"
+    DESCRIPTION = "{}{}{}".format(
+        ExpandedPatternLister.DESCRIPTION, os.linesep, TrimMixin.DESCRIPTION
+    )
+
 
 class NameLister(TrimMixin, ExpandedNameLister):
     """Trimmed version of ExpandedNameLister"""
 
+    NAME = "NAME"
+    DESCRIPTION = "{}{}{}".format(
+        ExpandedNameLister.DESCRIPTION, os.linesep, TrimMixin.DESCRIPTION
+    )
+
 
 class CountLister(BaseLister):
     """Displays the number of suites and total testcases per test instance."""
+
+    NAME = "COUNT"
+    DESCRIPTION = "Lists top level instances and total number of suites & testcases per instance."
 
     def get_output(self, instance):
         test_context = instance.test_context
@@ -192,31 +227,40 @@ class CountLister(BaseLister):
         return ""
 
 
-class ListingArg(ArgMixin, Enum):
-
-    PATTERN_FULL = ExpandedPatternLister()
-    NAME_FULL = ExpandedNameLister()
-    COUNT = CountLister()
-    PATTERN = PatternLister()
-    NAME = NameLister()
-
+class ListingArgMixin(ArgMixin):
     @classmethod
     def get_descriptions(cls):
-        name_msg = "List tests in readable format."
-        pattern_msg = (
-            "List tests in `--patterns` / `--tags` compatible format."
+        return dict([(lister, lister.value.description()) for lister in cls])
+
+
+class ListingRegistry(object):
+    """ A registry to store listers, add listers to the :py:data:`listing_registry` instance which is used to create the
+    commandline parser"""
+
+    def __init__(self):
+        self.listers = []
+
+    def add_lister(self, lister):
+        self.listers.append(lister)
+
+    @staticmethod
+    def get_arg_name(lister):
+        return lister.name()
+
+    def to_arg(self):
+        return Enum(
+            "ListingArg",
+            [(self.get_arg_name(lister), lister) for lister in self.listers],
+            type=ListingArgMixin,
         )
-        max_testcases_msg = (
-            "\tMax {} testcases per "
-            "suite will be displayed".format(MAX_TESTCASES)
-        )
-        return {
-            cls.PATTERN: "{}{}{}".format(
-                pattern_msg, os.linesep, max_testcases_msg
-            ),
-            cls.NAME: "{}{}{}".format(name_msg, os.linesep, max_testcases_msg),
-            cls.PATTERN_FULL: pattern_msg,
-            cls.NAME_FULL: name_msg,
-            cls.COUNT: "Lists top level instances and total "
-            "number of suites & testcases per instance.",
-        }
+
+
+listing_registry = ListingRegistry()
+"""Registry instance that will be used to create the commandline parser, this can be extended with new listers"""
+
+# Add default listers
+listing_registry.add_lister(PatternLister())
+listing_registry.add_lister(NameLister())
+listing_registry.add_lister(ExpandedPatternLister())
+listing_registry.add_lister(ExpandedNameLister())
+listing_registry.add_lister(CountLister())

@@ -2,7 +2,7 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 
-from testplan.report import TestGroupReport, TestCaseReport
+from testplan.report import TestGroupReport, TestCaseReport, RuntimeStatus
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 
@@ -78,6 +78,14 @@ class HobbesTest(ProcessRunnerTest):
         cmd += self.cfg.other_args
         return cmd
 
+    def test_command_filter(self, testsuite_pattern="*", testcase_pattern="*"):
+        cmd = self.test_command()
+        if testcase_pattern != "*":
+            raise RuntimeError("Cannot run individual testcases")
+        if testsuite_pattern != "*":
+            cmd.extend(["--tests", testsuite_pattern])
+        return cmd
+
     def list_command(self):
         cmd = [self.cfg.driver, "--list"]
         return cmd
@@ -95,7 +103,7 @@ class HobbesTest(ProcessRunnerTest):
         result = []
         for suite in test_data:
             suite_report = TestGroupReport(
-                name=suite["name"], category="testsuite"
+                name=suite["name"], uid=suite["name"], category="testsuite"
             )
             suite_has_run = False
 
@@ -103,13 +111,18 @@ class HobbesTest(ProcessRunnerTest):
                 if testcase["status"] != "skipped":
                     suite_has_run = True
 
-                    testcase_report = TestCaseReport(name=testcase["name"])
+                    testcase_report = TestCaseReport(
+                        name=testcase["name"],
+                        uid=testcase["name"],
+                        suite_related=True,
+                    )
                     assertion_obj = RawAssertion(
                         passed=testcase["status"] == "pass",
                         content=testcase["error"] or testcase["duration"],
                         description=testcase["name"],
                     )
                     testcase_report.append(registry.serialize(assertion_obj))
+                    testcase_report.runtime_status = RuntimeStatus.FINISHED
                     suite_report.append(testcase_report)
 
             if suite_has_run:

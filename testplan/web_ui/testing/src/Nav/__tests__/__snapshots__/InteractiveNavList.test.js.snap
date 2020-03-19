@@ -5,6 +5,7 @@ exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
   width={28}
 >
   <ListGroup
+    className="buttonList_mjw45f"
     tag="ul"
   >
     <ListGroupItem

@@ -38,7 +38,7 @@ def test_hashfile(tmpdir):
         sha_output = subprocess.check_output(
             ["sha1sum", tmpfile], universal_newlines=True
         )
-        ref_sha = re.match(r"([0-9a-f]+)\s+.*", sha_output).group(1)
+        ref_sha = re.match(r"\\?([0-9a-f]+)\s+.*", sha_output).group(1)
     except OSError:
         pytest.skip("Cannot call sha1sum to generate reference SHA.")
         return
