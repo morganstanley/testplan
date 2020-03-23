@@ -1,11 +1,11 @@
 /* Tests the InteractiveReport component. */
 import React from 'react';
-import {shallow} from 'enzyme';
-import {StyleSheetTestUtils} from "aphrodite";
+import { shallow } from 'enzyme';
+import { StyleSheetTestUtils } from "aphrodite";
 import moxios from 'moxios';
 
 import InteractiveReport from '../InteractiveReport.js';
-import {FakeInteractiveReport} from '../../Common/sampleReports.js';
+import { FakeInteractiveReport } from '../../Common/sampleReports.js';
 
 const initialReport = () => ({
   "category": "testplan",
@@ -318,7 +318,7 @@ describe('InteractiveReport', () => {
       report.uid,
     ]);
 
-    const mockEvent = {stopPropagation: jest.fn()};
+    const mockEvent = { stopPropagation: jest.fn() };
     interactiveReport.instance().handleNavClick(
       mockEvent,
       report.entries[0],
@@ -343,7 +343,7 @@ describe('InteractiveReport', () => {
     });
     interactiveReport.update();
 
-    const mockEvent = {stopPropagation: jest.fn()};
+    const mockEvent = { stopPropagation: jest.fn() };
     interactiveReport.instance().handlePlayClick(mockEvent, clickedEntry);
 
     moxios.wait(() => {
@@ -577,7 +577,7 @@ describe('InteractiveReport', () => {
     interactiveReport.update();
 
     const clickedEntry = report.entries[0];
-    const mockEvent = {stopPropagation: jest.fn()};
+    const mockEvent = { stopPropagation: jest.fn() };
     interactiveReport.instance().envCtrlCallback(
       mockEvent, clickedEntry, "start",
     );
@@ -606,6 +606,10 @@ describe('InteractiveReport', () => {
     const interactiveReport = shallow(<InteractiveReport />);
 
     const report = initialReport();
+    const multitest = report.entries[0];
+    expect(multitest.category).toBe("multitest");
+    multitest.env_status = "STARTED";
+
     const testcase = report.entries[0].entries[0].entries[0];
     expect(testcase.category).toBe("testcase");
 
@@ -633,13 +637,28 @@ describe('InteractiveReport', () => {
     moxios.wait(() => {
       const request = moxios.requests.mostRecent();
       expect(request.url).toBe(
-        "/api/v1/interactive/report/tests/MultiTestUID/suites/SuiteUID/" +
-        "testcases/testcaseUID"
+        "/api/v1/interactive/report/tests/MultiTestUID"
       );
       expect(request.config.method).toBe("put");
       const putData = JSON.parse(request.config.data);
-      expect(putData.entries.length).toBe(0);
-      done();
+      expect(putData.env_status).toBe("STOPPING");
+
+      request.respondWith({
+        status: 200,
+        response: putData,
+      }).then(() => {
+        moxios.wait(() => {
+          const request = moxios.requests.mostRecent();
+          expect(request.url).toBe(
+            "/api/v1/interactive/report/tests/MultiTestUID" +
+            "/suites/SuiteUID/testcases/testcaseUID"
+          );
+          expect(request.config.method).toBe("put");
+          const putData = JSON.parse(request.config.data);
+          expect(putData.entries.length).toBe(0);
+          done();
+        });
+      });
     });
   });
 });

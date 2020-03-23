@@ -90,7 +90,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
       // Propagate indices to children.
       let descendantsIndices = propagateIndicesRecur(
         entry.entries,
-        {tags_index: tags, name_type_index: nameTypeIndex}
+        { tags_index: tags, name_type_index: nameTypeIndex }
       );
       tagsIndex = _mergeTags(tagsIndex, descendantsIndices.tags_index);
       nameTypeIndex = new Set([
@@ -194,7 +194,14 @@ const GetCenterPane = (
   });
   const assertions = getAssertions(selectedEntries);
 
-  if (assertions.length > 0 || logs.length > 0) {
+  if (state.error) {
+    return (
+      <Message
+        message={`Error: ${state.error.message}`}
+        left={state.navWidth}
+      />
+    );
+  } else if (assertions.length > 0 || logs.length > 0) {
     return (
       <AssertionPane
         assertions={assertions}
@@ -239,8 +246,6 @@ const getAssertions = (selectedEntries) => {
 const getReportFetchMessage = (state) => {
   if (state.loading) {
     return 'Fetching Testplan report...';
-  } else if (state.error !== null){
-    return `Error fetching Testplan report. (${state.error.message})`;
   } else {
     return 'Waiting to fetch Testplan report...';
   }

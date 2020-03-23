@@ -4,14 +4,14 @@
  * interactive API backend to be running.
  */
 import React from 'react';
-import {StyleSheet, css} from 'aphrodite';
+import { StyleSheet, css } from 'aphrodite';
 import axios from 'axios';
 
-import {INTERACTIVE_COL_WIDTH} from "../Common/defaults";
+import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
 import Toolbar from '../Toolbar/Toolbar.js';
-import {ResetButton} from  '../Toolbar/InteractiveButtons';
+import { ResetButton } from '../Toolbar/InteractiveButtons';
 import InteractiveNav from '../Nav/InteractiveNav.js';
-import {FakeInteractiveReport} from '../Common/sampleReports.js';
+import { FakeInteractiveReport } from '../Common/sampleReports.js';
 import {
   PropagateIndices,
   UpdateSelectedState,
@@ -50,7 +50,7 @@ class InteractiveReport extends React.Component {
    * @public
    */
   componentDidMount() {
-    this.setState({loading: true}, this.getReport);
+    this.setState({ loading: true }, this.getReport);
   }
 
   /**
@@ -70,27 +70,27 @@ class InteractiveReport extends React.Component {
       );
     } else {
       axios.get('/api/v1/interactive/report')
-      .then(response => {
-        if (!this.state.report ||
+        .then(response => {
+          if (!this.state.report ||
             this.state.report.hash !== response.data.hash) {
-          this.getTests().then(tests => {
-            const rawReport = {...response.data, entries: tests};
-            const processedReport = PropagateIndices(rawReport);
-            this.setState(
-              (state, props) => ({
-                report: processedReport,
-                selectedUIDs: state.selectedUIDs.length > 0 ?
-                  state.selectedUIDs : this.autoSelect(processedReport),
-                loading: false,
-              })
-            );
-          });
-        }
-      })
-      .catch(error => {
-        console.log(error);
-        this.setState({error: error, loading: false});
-      });
+            this.getTests().then(tests => {
+              const rawReport = { ...response.data, entries: tests };
+              const processedReport = PropagateIndices(rawReport);
+              this.setState(
+                (state, props) => ({
+                  report: processedReport,
+                  selectedUIDs: state.selectedUIDs.length > 0 ?
+                    state.selectedUIDs : this.autoSelect(processedReport),
+                  loading: false,
+                })
+              );
+            });
+          }
+        })
+        .catch(error => {
+          console.log(error);
+          this.setState({ error: error, loading: false });
+        });
 
       // We poll for updates to the report every second.
       if (this.props.poll_ms) {
@@ -116,9 +116,9 @@ class InteractiveReport extends React.Component {
           );
 
           if (!existingTest ||
-              existingTest.hash !== newTest.hash) {
+            existingTest.hash !== newTest.hash) {
             return this.getSuites(newTest, existingTest).then(
-              suites => ({...newTest, entries: suites})
+              suites => ({ ...newTest, entries: suites })
             );
           } else {
             return existingTest;
@@ -142,9 +142,9 @@ class InteractiveReport extends React.Component {
           );
 
           if (!existingSuite ||
-              existingSuite.hash !== newSuite.hash) {
+            existingSuite.hash !== newSuite.hash) {
             return this.getTestCases(newTest, newSuite, existingSuite).then(
-              testcases => ({...newSuite, entries: testcases})
+              testcases => ({ ...newSuite, entries: testcases })
             );
           } else {
             return existingSuite;
@@ -164,31 +164,33 @@ class InteractiveReport extends React.Component {
     ).then(response => {
       return Promise.all(response.data.map((newTestCase) => {
         switch (newTestCase.category) {
-        case "testcase":
-          return newTestCase;
+          case "testcase":
+            return newTestCase;
 
-        case "parametrization":
-          const existingParametrization = (
-            existingSuite && existingSuite.entries.find(
-              entry => entry.uid === newTestCase
-            )
-          );
-
-          if (
-            !existingParametrization ||
-            existingParametrization.hash !== newTestCase.hash
-          ) {
-            return this.getParametrizations(test, newSuite, newTestCase).then(
-              parametrizations => ({...newTestCase, entries: parametrizations})
+          case "parametrization":
+            const existingParametrization = (
+              existingSuite && existingSuite.entries.find(
+                entry => entry.uid === newTestCase
+              )
             );
-          } else {
-            return existingParametrization;
-          }
 
-        default:
-          throw new Error(
-            "Unexpected testcase category: " + newTestCase.category
-          );
+            if (
+              !existingParametrization ||
+              existingParametrization.hash !== newTestCase.hash
+            ) {
+              return this.getParametrizations(test, newSuite, newTestCase).then(
+                parametrizations => ({
+                  ...newTestCase, entries: parametrizations
+                })
+              );
+            } else {
+              return existingParametrization;
+            }
+
+          default:
+            throw new Error(
+              "Unexpected testcase category: " + newTestCase.category
+            );
         }
       }));
     });
@@ -219,7 +221,7 @@ class InteractiveReport extends React.Component {
     return axios.put(apiUrl, updatedReportEntry).then(
       response => this.setShallowReportEntry(response.data)
     ).catch(
-      error => this.setState({error: error})
+      error => this.setState({ error: error })
     );
   }
 
@@ -294,7 +296,7 @@ class InteractiveReport extends React.Component {
    * Update a single entry in the report tree recursively. This function
    * returns a new report object, it does not mutate the current report.
    */
-  updateReportEntryRecur(shallowReportEntry, currEntry, depth=0) {
+  updateReportEntryRecur(shallowReportEntry, currEntry, depth = 0) {
     if (depth < shallowReportEntry.parent_uids.length) {
       if (currEntry.uid === shallowReportEntry.parent_uids[depth]) {
         return {
@@ -400,7 +402,7 @@ class InteractiveReport extends React.Component {
    * with an array of entry UIDs.
    */
   shallowReportEntry(reportEntry) {
-    const {entries, ...shallowEntry} = reportEntry;
+    const { entries, ...shallowEntry } = reportEntry;
     shallowEntry.entry_uids = entries.map((entry) => entry.uid);
     return shallowEntry;
   }
@@ -411,18 +413,23 @@ class InteractiveReport extends React.Component {
   resetReport() {
     let needReset = false;
     this.setState((state) => {
-        if (state.resetting) {
-          return null;
-        }
+      if (state.resetting) {
+        return null;
+      }
 
-        needReset = true;
-        return {resetting: true};
-      },
+      needReset = true;
+      return { resetting: true };
+    },
       () => {
         if (needReset) {
-          this.resetTestcasesRecur(this.state.report).then(
-            () => this.setState({resetting: false})
-          );
+          this.resetEnvironment().then(() => {
+            this.resetTestcasesRecur(this.state.report).then(
+              () => this.setState({ resetting: false })
+            );
+          }).catch(error => {
+            console.log(error);
+            this.setState({ resetting: false, error: error });
+          });
         }
       }
     );
@@ -452,11 +459,25 @@ class InteractiveReport extends React.Component {
   }
 
   /**
+   * Reset the environment state by stopping all started environments.
+   */
+  resetEnvironment() {
+    return Promise.all(this.state.report.entries.map(reportEntry => {
+      const updatedReportEntry = {
+        ...reportEntry,
+        env_status: reportEntry.env_status === "STARTED" ?
+          "STOPPING" : reportEntry.env_status,
+      };
+      return this.putUpdatedReportEntry(updatedReportEntry);
+    }));
+  }
+
+  /**
    * Render the InteractiveReport component based on its current state.
    */
   render() {
     const noop = () => undefined;
-    const {reportStatus, reportFetchMessage} = GetReportState(this.state);
+    const { reportStatus, reportFetchMessage } = GetReportState(this.state);
     const selectedEntries = GetSelectedEntries(
       this.state.selectedUIDs, this.state.report
     );
@@ -497,7 +518,7 @@ class InteractiveReport extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({interactiveReport: {}});
+const styles = StyleSheet.create({ interactiveReport: {} });
 
 export default InteractiveReport;
 
