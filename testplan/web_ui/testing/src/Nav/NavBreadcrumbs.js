@@ -37,7 +37,10 @@ return (
         status={entry.status}
         type={entry.category}
         caseCountPassed={entry.counter.passed}
-        caseCountFailed={entry.counter.failed} />
+        caseCountFailed={entry.counter.failed}
+        executionTime={null}
+        displayTime={false}
+      />
     </div>
   </li>
 );});

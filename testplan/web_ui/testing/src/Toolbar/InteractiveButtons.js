@@ -18,7 +18,7 @@ import styles from './navStyles';
 const ResetButton = (props) => {
   if (props.resetting) {
     return (
-      <NavItem key="reset-button" >
+      <NavItem key="reset-button">
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
             key='toolbar-reset'
@@ -31,7 +31,7 @@ const ResetButton = (props) => {
     );
   } else {
     return (
-      <NavItem key="reset-button" >
+      <NavItem key="reset-button">
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
             key='toolbar-reset'

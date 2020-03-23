@@ -39,6 +39,7 @@ const InteractiveNav = (props) => {
         filter={null}
         displayEmpty={true}
         displayTags={false}
+        displayTime={false}
         selectedUid={GetSelectedUid(props.selected)}
         handlePlayClick={props.handlePlayClick}
         envCtrlCallback={props.envCtrlCallback}

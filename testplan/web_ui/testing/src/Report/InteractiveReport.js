@@ -499,7 +499,7 @@ class InteractiveReport extends React.Component {
           updateTagsDisplayFunc={noop}
           extraButtons={[<ResetButton
             resetStateCbk={this.resetReport}
-            resetting={this.state.resetting}
+            resetting={false}
           />]}
         />
         <InteractiveNav
@@ -508,6 +508,7 @@ class InteractiveReport extends React.Component {
           filter={null}
           displayEmpty={true}
           displayTags={false}
+          displayTime={false}
           handleNavClick={this.handleNavClick}
           handlePlayClick={this.handlePlayClick}
           envCtrlCallback={this.envCtrlCallback}

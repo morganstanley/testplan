@@ -23,6 +23,7 @@ function defaultProps() {
     filter: 'all',
     displayEmpty: true,
     displayTags: true,
+    displayTime: false,
     handleNavClick: jest.fn(),
   };
 }

@@ -3,6 +3,7 @@ import {StyleSheet, css} from 'aphrodite';
 import axios from 'axios';
 
 import Toolbar from '../Toolbar/Toolbar';
+import { TimeButton } from '../Toolbar/Buttons';
 import Nav from '../Nav/Nav';
 import {
   PropagateIndices,
@@ -26,6 +27,7 @@ class BatchReport extends React.Component {
     this.handleNavFilter = this.handleNavFilter.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
+    this.toggleTimeDisplay = this.toggleTimeDisplay.bind(this);
     this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
     this.handleNavClick = this.handleNavClick.bind(this);
 
@@ -37,6 +39,7 @@ class BatchReport extends React.Component {
       error: null,
       filter: null,
       displayTags: false,
+      displayTime: false,
       displayEmpty: true,
       selectedUIDs: [],
     };
@@ -134,6 +137,12 @@ class BatchReport extends React.Component {
     this.setState({displayEmpty: displayEmpty});
   }
 
+  toggleTimeDisplay() {
+    this.setState(prevState => ({
+      displayTime: !prevState.displayTime
+    }));
+  }
+
   /**
    * Handle a navigation entry being clicked.
    */
@@ -169,6 +178,10 @@ class BatchReport extends React.Component {
           updateFilterFunc={this.updateFilter}
           updateEmptyDisplayFunc={this.updateDisplayEmpty}
           updateTagsDisplayFunc={this.updateTagsDisplay}
+          extraButtons={[<TimeButton
+            key="time-button"
+            toggleTimeDisplayCbk={this.toggleTimeDisplay}
+          />]}
         />
         <Nav
           report={this.state.report}
@@ -176,6 +189,7 @@ class BatchReport extends React.Component {
           filter={this.state.filter}
           displayEmpty={this.state.displayEmpty}
           displayTags={this.state.displayTags}
+          displayTime={this.state.displayTime}
           handleNavClick={this.handleNavClick}
         />
         {centerPane}

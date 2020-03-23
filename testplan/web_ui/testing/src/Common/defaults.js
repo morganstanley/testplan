@@ -15,6 +15,7 @@ const INTERACTIVE_COL_WIDTH = 28;  // wider to fit interactive buttons
 const INDENT_MULTIPLIER = 1.5;
 
 const TOOLBAR_BUTTONS_BATCH = [
+  {name: 'cl', type: 'clock'},
   {name: 'pr', type: 'print'},
   {name: 'if', type: 'info-circle'},
   {name: 'qu', type: 'question-circle'},

@@ -17,6 +17,8 @@ exports[`NavBreadcrumbs shallow renders the correct HTML structure 1`] = `
         <NavEntry
           caseCountFailed={0}
           caseCountPassed={0}
+          displayTime={false}
+          executionTime={null}
           name="test"
           status="passed"
           type="testplan"

@@ -22,6 +22,15 @@ import {
  */
 const NavEntry = (props) => {
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
+  const executionTime = (
+    props.displayTime && props.executionTime ? (
+      <i className={css(styles.entryIcon)} title='Execution time'>
+        <span className={css(styles[STATUS_CATEGORY[props.status]])}>
+          {props.executionTime}s
+        </span>
+      </i>
+    ) : null
+  );
   return (
     <div
       className='d-flex justify-content-between align-items-center'
@@ -34,6 +43,7 @@ const NavEntry = (props) => {
         {props.name}
       </div>
       <div className={css(styles.entryIcons)}>
+        {executionTime}
         <i className={css(styles.entryIcon)} title='passed/failed testcases'>
           <span className={css(styles.passed)}>{props.caseCountPassed}</span>
           /
@@ -61,6 +71,10 @@ NavEntry.propTypes = {
   caseCountPassed: PropTypes.number,
   /** Number of failing testcases entry has */
   caseCountFailed: PropTypes.number,
+  /** Execution time measured in seconds */
+  executionTime: PropTypes.number,
+  /** If to display execution time */
+  displayTime: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({

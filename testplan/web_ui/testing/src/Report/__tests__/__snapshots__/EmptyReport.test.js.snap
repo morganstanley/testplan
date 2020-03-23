@@ -5,6 +5,13 @@ exports[`EmptyReport renders a custom error message 1`] = `
   className="emptyReport_3hmsj"
 >
   <Toolbar
+    extraButtons={
+      Array [
+        <TimeButton
+          toggleTimeDisplayCbk={[Function]}
+        />,
+      ]
+    }
     handleNavFilter={[Function]}
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
@@ -13,6 +20,7 @@ exports[`EmptyReport renders a custom error message 1`] = `
   <Nav
     displayEmpty={true}
     displayTags={false}
+    displayTime={false}
     report={null}
     saveAssertions={[Function]}
   />
@@ -28,6 +36,13 @@ exports[`EmptyReport shallow renders and matches snapshot 1`] = `
   className="emptyReport_3hmsj"
 >
   <Toolbar
+    extraButtons={
+      Array [
+        <TimeButton
+          toggleTimeDisplayCbk={[Function]}
+        />,
+      ]
+    }
     handleNavFilter={[Function]}
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
@@ -36,6 +51,7 @@ exports[`EmptyReport shallow renders and matches snapshot 1`] = `
   <Nav
     displayEmpty={true}
     displayTags={false}
+    displayTime={false}
     report={null}
     saveAssertions={[Function]}
   />
