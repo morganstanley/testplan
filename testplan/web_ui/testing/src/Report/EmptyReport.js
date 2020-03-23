@@ -22,7 +22,7 @@ const EmptyReport = (props) => {
   const centerPane = (
     <Message
       message={message}
-      left={COLUMN_WIDTH}
+      left={`${COLUMN_WIDTH}em`}
     />
   );
 
@@ -31,6 +31,7 @@ const EmptyReport = (props) => {
   return (
     <div className={css(styles.emptyReport)}>
       <Toolbar
+        filterBoxWidth={`${COLUMN_WIDTH}em`}
         status={undefined}
         handleNavFilter={noop}
         updateFilterFunc={noop}

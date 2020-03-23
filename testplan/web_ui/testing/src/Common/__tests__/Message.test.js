@@ -6,6 +6,7 @@ import Message from '../Message';
 
 function defaultProps() {
   return {
+    left: '1.5em',
     message: 'test',
   };
 }

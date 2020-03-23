@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import NavEntry from './NavEntry';
 import {CreateNavButtons, GetNavColumn} from './navUtils.js';
-import {STATUS, COLUMN_WIDTH} from "../Common/defaults";
+import {STATUS} from "../Common/defaults";
 
 /**
  * Render a vertical list of all the currently selected entries children.
@@ -31,7 +31,7 @@ const NavList = (props) => {
     props.selectedUid
   );
 
-  return GetNavColumn(COLUMN_WIDTH, navButtons);
+  return GetNavColumn(props, navButtons);
 };
 
 NavList.propTypes = {
@@ -49,6 +49,8 @@ NavList.propTypes = {
   breadcrumbLength: PropTypes.number,
   /** Function to handle Nav entries being clicked (selected) */
   handleNavClick: PropTypes.func,
+  /** Function to handle Nav list resizing */
+  handleColumnResizing: PropTypes.func,
   /** Entity filter */
   filter: PropTypes.string,
   /** Flag to display empty testcase on navbar */

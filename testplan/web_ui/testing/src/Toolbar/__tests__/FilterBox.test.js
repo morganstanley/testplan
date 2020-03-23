@@ -6,6 +6,7 @@ import FilterBox from '../FilterBox';
 
 function defaultProps() {
   return {
+    width: '19.5em',
     handleNavFilter: jest.fn(),
   };
 }

@@ -181,7 +181,6 @@ const GetReportState = (state) => {
  */
 const GetCenterPane = (
   state,
-  props,
   reportFetchMessage,
   reportUid,
   selectedEntries
@@ -207,7 +206,7 @@ const GetCenterPane = (
         assertions={assertions}
         logs={logs}
         descriptionEntries={selectedDescription}
-        left={state.navWidth + 1.5}
+        left={state.navWidth}
         testcaseUid={state.testcaseUid}
         filter={state.filter}
         reportUid={reportUid}

@@ -7,10 +7,10 @@ import React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import axios from 'axios';
 
-import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
 import Toolbar from '../Toolbar/Toolbar.js';
 import { ResetButton } from '../Toolbar/InteractiveButtons';
 import InteractiveNav from '../Nav/InteractiveNav.js';
+import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
 import { FakeInteractiveReport } from '../Common/sampleReports.js';
 import {
   PropagateIndices,
@@ -31,7 +31,7 @@ class InteractiveReport extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      navWidth: INTERACTIVE_COL_WIDTH,
+      navWidth: `${INTERACTIVE_COL_WIDTH}em`,
       report: null,
       selectedUIDs: [],
       loading: false,
@@ -43,6 +43,7 @@ class InteractiveReport extends React.Component {
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.getReport = this.getReport.bind(this);
     this.resetReport = this.resetReport.bind(this);
+    this.handleColumnResizing = this.handleColumnResizing.bind(this);
   }
 
   /**
@@ -343,6 +344,12 @@ class InteractiveReport extends React.Component {
   }
 
   /**
+   * Handle resizing event and update NavList & Center Pane.
+   */
+  handleColumnResizing(navWidth) {
+    this.setState({navWidth: navWidth});
+  }
+  /**
    * Handle a navigation entry being clicked. Update the current selection
    * state and displayed assertions.
    */
@@ -483,7 +490,6 @@ class InteractiveReport extends React.Component {
     );
     const centerPane = GetCenterPane(
       this.state,
-      this.props,
       reportFetchMessage,
       null,
       selectedEntries,
@@ -492,17 +498,20 @@ class InteractiveReport extends React.Component {
     return (
       <div className={css(styles.batchReport)}>
         <Toolbar
+          filterBoxWidth={this.state.navWidth}
           status={reportStatus}
           handleNavFilter={noop}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
           updateTagsDisplayFunc={noop}
           extraButtons={[<ResetButton
+            key="time-button"
             resetStateCbk={this.resetReport}
             resetting={false}
           />]}
         />
         <InteractiveNav
+          navListWidth={this.state.navWidth}
           report={this.state.report}
           selected={selectedEntries}
           filter={null}
@@ -512,6 +521,7 @@ class InteractiveReport extends React.Component {
           handleNavClick={this.handleNavClick}
           handlePlayClick={this.handlePlayClick}
           envCtrlCallback={this.envCtrlCallback}
+          handleColumnResizing={this.handleColumnResizing}
         />
         {centerPane}
       </div>

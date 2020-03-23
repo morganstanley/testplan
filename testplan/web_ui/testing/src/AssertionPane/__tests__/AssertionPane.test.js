@@ -21,7 +21,7 @@ function defaultProps() {
         "first":"foo"
       }
     ],
-    left: 19.5,
+    left: "19.5em",
     testcaseUid: "22758cc5-8a89-472b-bf67-b64dbc2c0b40"
   };
 }

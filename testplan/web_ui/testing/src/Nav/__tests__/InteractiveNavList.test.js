@@ -22,6 +22,7 @@ describe('InteractiveNavList', () => {
       <InteractiveNavList
         entries={FakeInteractiveReport.entries}
         breadcrumbLength={1}
+        width={'28em'}
         handleNavClick={() => undefined}
         autoSelect={() => undefined}
         filter={null}

@@ -4,7 +4,7 @@ exports[`Message shallow renders the correct HTML structure 1`] = `
 <div
   style={
     Object {
-      "paddingLeft": "undefinedem",
+      "paddingLeft": "1.5em",
       "paddingTop": "4.5em",
     }
   }

@@ -273,7 +273,10 @@ class Toolbar extends Component {
     return (
       <Navbar light expand="md" className={css(styles.toolbar)}>
         <div className={css(styles.filterBox)}>
-          <FilterBox handleNavFilter={this.props.handleNavFilter}/>
+          <FilterBox
+            width={this.props.filterBoxWidth}
+            handleNavFilter={this.props.handleNavFilter}
+          />
         </div>
         <Collapse isOpen={this.state.isOpen} navbar className={toolbarStyle}>
           <Nav navbar className='ml-auto'>
