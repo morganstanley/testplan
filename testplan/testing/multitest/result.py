@@ -1391,7 +1391,7 @@ class Result(object):
         """Entries stored passed status."""
         return all(getattr(entry, "passed", True) for entry in self.entries)
 
-    def log(self, message, description=None, category=None):
+    def log(self, message, description=None):
         """
         Create a string message entry, can be used for providing additional
         context related to test steps.
@@ -1404,15 +1404,11 @@ class Result(object):
         :type message: ``str`` or instance
         :param description: Text description for the assertion.
         :type description: ``str``
-        :param category: Custom category for the assertion, set to 'email' to
-            include message in email exporter.
-        :type category: ``str``
         :return: ``True``
         :rtype: ``bool``
         """
         entry = base.Log(message=message,
-                         description=description,
-                         category=category)
+                         description=description)
         _bind_entry(entry, self)
         return entry
 
