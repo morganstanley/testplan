@@ -2,6 +2,7 @@
 # This plan contains tests that demonstrate failures as well.
 """Example to demonstrate PyTest integration with Testplan."""
 import sys
+import os
 
 import testplan
 from testplan.testing import py_test
@@ -20,7 +21,9 @@ def main(plan):
         py_test.PyTest(
             name="PyTest",
             description="PyTest example - pytest basics",
-            target=["pytest_tests.py"],
+            target=[
+                os.path.join(os.path.dirname(__file__), "pytest_tests.py")
+            ],
             environment=[
                 TCPServer(name="server", host="localhost", port=0),
                 TCPClient(
