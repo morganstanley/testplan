@@ -1407,8 +1407,7 @@ class Result(object):
         :return: ``True``
         :rtype: ``bool``
         """
-        entry = base.Log(message=message,
-                         description=description)
+        entry = base.Log(message=message, description=description)
         _bind_entry(entry, self)
         return entry
 
@@ -1459,11 +1458,11 @@ class Result(object):
         return entry
 
     def conditional_log(
-            self,
-            condition,
-            passing_description,
-            failing_description,
-            category=None
+        self,
+        condition,
+        passing_description,
+        failing_description,
+        category=None,
     ):
         """
         A compound assertion that does result.passing() or result.failing()
@@ -1502,7 +1501,6 @@ class Result(object):
                 return self.passing(passing_description, category=category)
         else:
             return self.failing(failing_description, category=category)
-
 
     def true(self, value, description=None, category=None):
         """
