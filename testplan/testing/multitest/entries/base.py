@@ -220,13 +220,13 @@ class Summary(Group):
 class Log(BaseEntry):
     """Log a str to the report."""
 
-    def __init__(self, message, description=None, category=None):
+    def __init__(self, message, description=None):
         if isinstance(message, basestring):
             self.message = message
         else:
             self.message = pprint.pformat(message)
 
-        super(Log, self).__init__(description=description, category=category)
+        super(Log, self).__init__(description=description)
 
 
 class TableLog(BaseEntry):
