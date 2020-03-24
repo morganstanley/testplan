@@ -60,7 +60,8 @@ class SampleSuite(object):
         result.true("foo" == "foo", description="Boolean Truthiness check")
         result.false(5 < 2, description="Boolean Falseness check")
 
-        result.fail("This is an explicit failure.")
+        result.passing("This is a passing assertion")
+        result.failing("This is an explicit failure.")
 
         # Membership checks
         result.contain("foo", "foobar", description="Passing membership")

@@ -173,6 +173,23 @@ function prepareFailContent(assertion, defaultContent) {
 }
 
 /**
+ * Prepare the content for the Pass assertion.
+ * @param {object} assertion
+ * @param {AssertionContent} defaultContent
+ * @return {AssertionContent} Content for Pass assertion
+ * @private
+ */
+function preparePassContent(assertion, defaultContent) {
+  return {
+    ...defaultContent,
+    leftTitle: null,
+    rightTitle: null,
+    leftContent: null,
+    rightContent: null,
+  };
+}
+
+/**
  * Prepare the content for the Contain assertion.
  * @param {object} assertion
  * @param {AssertionContent} defaultContent
@@ -601,6 +618,9 @@ function prepareBasicContent(assertion) {
 
     case 'Fail':
       return prepareFailContent(assertion, defaultContent);
+
+    case 'Pass':
+      return preparePassContent(assertion, defaultContent);
 
     case 'Contain':
       return prepareContainContent(assertion, defaultContent);

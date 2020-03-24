@@ -118,6 +118,11 @@ class IsFalse(IsTrue):
         return not bool(self.expr)
 
 
+class Pass(Assertion):
+    def evaluate(self):
+        return True
+
+
 class Fail(Assertion):
     def evaluate(self):
         return False

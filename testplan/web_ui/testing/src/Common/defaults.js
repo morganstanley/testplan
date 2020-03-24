@@ -133,7 +133,7 @@ const BASIC_ASSERTION_TYPES = [
   'Log',
   'Equal', 'NotEqual', 'Greater', 'GreaterEqual', 'Less', 'LessEqual',
   'IsClose', 'IsTrue', 'IsFalse',
-  'Fail', 'Contain', 'NotContain', 'LineDiff',
+  'Pass', 'Fail', 'Contain', 'NotContain', 'LineDiff',
   'ExceptionRaised', 'ExceptionNotRaised',
   'RegexMatch', 'RegexMatchNotExists', 'RegexSearch', 'RegexSearchNotExists',
   'RegexFindIter', 'RegexMatchLine',

@@ -39,7 +39,7 @@ class Suite(object):
     def case_3(self, env, result):
         """Oops we failed"""
         del env  # Unused
-        result.fail("oops")
+        result.failing("oops")
 
 
 # Mapping of module name to filepath and a list of owned objects for the mocked

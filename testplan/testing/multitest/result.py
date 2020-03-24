@@ -1416,15 +1416,40 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
-    def fail(self, description, category=None):
+    def passing(self, description, category=None):
         """
-        Failure assertion, can be used for explicitly failing a testcase.
-        Most common usage is within a conditional block.
+        Explicit passing assertion, can be used for noting down a single passing
+        message with no further detail. The message will be included by email
+        exporter. Most common usage is within a conditional block.
 
         .. code-block:: python
+            if some_condition:
+                result.passing('Check passes: {}'.format(...))
+            else:
+                result.failing('Unexpected failure: {}'.format(...))
 
-            if not some_condition:
-                result.fail('Unexpected failure: {}'.format(...))
+        :param description: Text description of the passing assertion.
+        :type description: ``str``
+        :param category: Custom category that will be used for summarization.
+        :type category: ``str``
+        :return: ``True``
+        :rtype: ``bool``
+        """
+        entry = assertions.Pass(description, category=category)
+        _bind_entry(entry, self)
+        return entry
+
+    def failing(self, description, category=None):
+        """
+        Failure assertion, can be used for explicitly failing a testcase.
+        The message will be included by email exporter. Most common usage is
+        within a conditional block.
+
+        .. code-block:: python
+            if some_condition:
+                result.passing('Check passes: {}'.format(...))
+            else:
+                result.failing('Unexpected failure: {}'.format(...))
 
         :param description: Text description of the failure.
         :type description: ``str``
@@ -1436,6 +1461,52 @@ class Result(object):
         entry = assertions.Fail(description, category=category)
         _bind_entry(entry, self)
         return entry
+
+    def conditional_log(
+            self,
+            condition,
+            passing_description,
+            failing_description,
+            category=None
+    ):
+        """
+        A compound assertion that does result.passing() or result.failing()
+        depending on the truthiness of condition.
+
+        .. code-block:: python
+
+            result.conditional_log(
+                some_condition,
+                'Check passes: {}'.format(...),
+                'Unexpected failure: {}'.format(...)
+            )
+
+        is a shortcut for writing:
+
+        .. code-block:: python
+            if some_condition:
+                result.passing('Check passes: {}'.format(...))
+            else:
+                result.failing('Unexpected failure: {}'.format(...))
+
+
+        :param condition: Value to be evaluated for truthiness
+        :param condition: ``object``
+        :param passing_description: Description if condition evaluates to True.
+        :type passing_description: ``str``
+        :param failing_description: Description if condition evaluates to False.
+        :type failing_description: ``str``
+        :param category: Custom category that will be used for summarization.
+        :type category: ``str``
+        :return: ``True``
+        :rtype: ``bool``
+        """
+        if condition:
+            if passing_description:
+                return self.passing(passing_description, category=category)
+        else:
+            return self.failing(failing_description, category=category)
+
 
     def true(self, value, description=None, category=None):
         """
