@@ -16,7 +16,7 @@ def pytest_test_inst():
     # This file is at tests/unit/testplan/testing/test_pytest.py, we want to run
     # the pytest example at examples/PyTest/pytest_tests.py.
     root_path = os.path.join(
-        os.path.dirname(__file__), *(os.pardir for _ in range(4)),
+        os.path.dirname(__file__), *(os.pardir for _ in range(4))
     )
     example_path = os.path.join(
         root_path, "examples", "PyTest", "pytest_tests.py"

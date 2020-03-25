@@ -90,10 +90,9 @@ class PyTest(testing.Test):
         # Initialise a seperate plugin object to pass to PyTest. This avoids
         # namespace clashes with the PyTest object, since PyTest will scan for
         # methods that look like hooks in the plugin.
-        self._pytest_plugin = _ReportPlugin(
-            self, self.report, self._debug_logging_enabled
-        )
-        self._collect_plugin = _CollectPlugin(self._debug_logging_enabled)
+        quiet = not self._debug_logging_enabled
+        self._pytest_plugin = _ReportPlugin(self, self.report, quiet)
+        self._collect_plugin = _CollectPlugin(quiet)
         self._pytest_args = self._build_pytest_args()
 
         # Map from testsuite/testcase name to nodeid. Filled out after
@@ -196,9 +195,8 @@ class PyTest(testing.Test):
             self.dry_run()
 
         test_report = self._new_test_report()
-        pytest_plugin = _ReportPlugin(
-            self, test_report, self._debug_logging_enabled
-        )
+        quiet = not self._debug_logging_enabled
+        pytest_plugin = _ReportPlugin(self, test_report, quiet)
         pytest_plugin.setup()
 
         pytest_args = self._build_iter_pytest_args(
