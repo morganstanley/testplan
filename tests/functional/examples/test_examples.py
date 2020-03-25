@@ -31,6 +31,7 @@ KNOWN_EXCEPTIONS = [
     r"RuntimeError: You need to compile test binary first.",  # Need to compile cpp binary first. Will skip GTest example.
     r"FATAL ERROR: Network error: Connection refused",  # We don't fail a pool test for connection incapability.
     r"lost connection",
+    r"RuntimeError: Testcase raises",  # Expected error raised by PyUnit example.
 ]
 
 SKIP = [
