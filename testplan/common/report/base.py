@@ -222,6 +222,9 @@ class ReportGroup(Report):
         self._index = {}
         self.build_index()
 
+        for child in self.entries:
+            self.set_parent_uids(child)
+
     def build_index(self, recursive=False):
         """
         Build (refresh) indexes for this report and
