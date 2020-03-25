@@ -1391,7 +1391,7 @@ class Result(object):
         """Entries stored passed status."""
         return all(getattr(entry, "passed", True) for entry in self.entries)
 
-    def log(self, message, description=None):
+    def log(self, message, description=None, flag=None):
         """
         Create a string message entry, can be used for providing additional
         context related to test steps.
@@ -1404,37 +1404,17 @@ class Result(object):
         :type message: ``str`` or instance
         :param description: Text description for the assertion.
         :type description: ``str``
+        :param flag: Custom flag for the assertion, set to 'email' to
+            include message in email exporter.
+        :param flag: ``str``
         :return: ``True``
         :rtype: ``bool``
         """
-        entry = base.Log(message=message, description=description)
+        entry = base.Log(message=message, description=description, flag=flag)
         _bind_entry(entry, self)
         return entry
 
-    def passing(self, description, category=None):
-        """
-        Explicit passing assertion, can be used for noting down a single passing
-        message with no further detail. The message will be included by email
-        exporter. Most common usage is within a conditional block.
-
-        .. code-block:: python
-            if some_condition:
-                result.passing('Check passes: {}'.format(...))
-            else:
-                result.failing('Unexpected failure: {}'.format(...))
-
-        :param description: Text description of the passing assertion.
-        :type description: ``str``
-        :param category: Custom category that will be used for summarization.
-        :type category: ``str``
-        :return: ``True``
-        :rtype: ``bool``
-        """
-        entry = assertions.Pass(description, category=category)
-        _bind_entry(entry, self)
-        return entry
-
-    def failing(self, description, category=None):
+    def fail(self, description, category=None, flag=None):
         """
         Failure assertion, can be used for explicitly failing a testcase.
         The message will be included by email exporter. Most common usage is
@@ -1442,65 +1422,74 @@ class Result(object):
 
         .. code-block:: python
             if some_condition:
-                result.passing('Check passes: {}'.format(...))
-            else:
-                result.failing('Unexpected failure: {}'.format(...))
+                result.fail('Unexpected failure: {}'.format(...))
 
         :param description: Text description of the failure.
         :type description: ``str``
         :param category: Custom category that will be used for summarization.
         :type category: ``str``
+        :param flag: Custom flag for the assertion, set to 'email' to
+            include message in email exporter.
+        :param flag: ``str``
         :return: ``False``
         :rtype: ``bool``
         """
-        entry = assertions.Fail(description, category=category)
+        entry = assertions.Fail(description, category=category, flag=flag)
         _bind_entry(entry, self)
         return entry
 
     def conditional_log(
         self,
         condition,
-        passing_description,
-        failing_description,
-        category=None,
+        log_message,
+        log_description,
+        fail_description,
+        flag=None,
     ):
         """
-        A compound assertion that does result.passing() or result.failing()
+        A compound assertion that does result.log() or result.fail()
         depending on the truthiness of condition.
 
         .. code-block:: python
 
             result.conditional_log(
                 some_condition,
-                'Check passes: {}'.format(...),
-                'Unexpected failure: {}'.format(...)
+                log_message,
+                log_description,
+                fail_description,
             )
 
         is a shortcut for writing:
 
         .. code-block:: python
             if some_condition:
-                result.passing('Check passes: {}'.format(...))
+                result.log(log_message, description=log_description)
             else:
-                result.failing('Unexpected failure: {}'.format(...))
-
+                result.fail(fail_description)
 
         :param condition: Value to be evaluated for truthiness
         :param condition: ``object``
-        :param passing_description: Description if condition evaluates to True.
-        :type passing_description: ``str``
-        :param failing_description: Description if condition evaluates to False.
-        :type failing_description: ``str``
-        :param category: Custom category that will be used for summarization.
-        :type category: ``str``
+        :param log_message: Message to pass to result.log if condition
+            evaluates to True.
+        :type log_message: ``str``
+        :param log_description: Description to pass to result.log if
+            condition evaluates to True.
+        :type log_description: ``str``
+        :param fail_description: Description to pass to result.fail if
+            condition evaluates to False.
+        :type fail_description: ``str``
+        :param flag: Custom flag for the assertion, set to 'email' to
+            include message in email exporter.
         :return: ``True``
         :rtype: ``bool``
         """
         if condition:
-            if passing_description:
-                return self.passing(passing_description, category=category)
+            if log_description:
+                return self.log(
+                    log_message, description=log_description, flag=flag,
+                )
         else:
-            return self.failing(failing_description, category=category)
+            return self.fail(fail_description, flag=flag)
 
     def true(self, value, description=None, category=None):
         """

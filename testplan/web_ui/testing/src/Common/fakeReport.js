@@ -650,9 +650,9 @@ var fakeReportAssertions = {
                                     "category": "DEFAULT",
                                     "description": "This is an explicit failure.",
                                     "meta_type": "assertion",
-                                    "type": "Pass",
+                                    "type": "Fail",
                                     "utc_time": "2020-01-10T03:06:58.924595+00:00",
-                                    "passed": true,
+                                    "passed": false,
                                     "machine_time": "2020-01-10T11:06:58.924621+00:00",
                                     "line_no": 64
                                 },
