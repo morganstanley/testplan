@@ -9,6 +9,8 @@ from testplan.testing import ordering
 from testplan import defaults
 import testplan.report
 
+from tests.unit.testplan.testing import pyunit_expected_data
+
 PYUNIT_DEFAULT_PARAMS = {
     "test_filter": filtering.Filter(),
     "test_sorter": ordering.NoopSorter(),
@@ -46,7 +48,7 @@ def pyunit_runner_inst():
     """Return a PyUnit test runner instance."""
     return pyunit.PyUnit(
         name="My PyUnit",
-        description="PyUnit example gttest",
+        description="PyUnit example test",
         testcases=[Passing, Failing],
         **PYUNIT_DEFAULT_PARAMS
     )
@@ -76,41 +78,11 @@ def test_run_tests(pyunit_runner_inst):
     _check_failing_testcase_report(failing_testcase_report)
 
 
-_EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
-    name="My PyUnit",
-    uid="My PyUnit",
-    description="PyUnit example test",
-    category="pyunit",
-    entries=[
-        testplan.report.TestGroupReport(
-            name="Passing",
-            uid="Passing",
-            category=testplan.report.ReportCategories.TESTSUITE,
-            entries=[
-                testplan.report.TestCaseReport(
-                    name="PyUnit test results", uid="PyUnit test results",
-                )
-            ],
-        ),
-        testplan.report.TestGroupReport(
-            name="Failing",
-            uid="Failing",
-            category=testplan.report.ReportCategories.TESTSUITE,
-            entries=[
-                testplan.report.TestCaseReport(
-                    name="PyUnit test results", uid="PyUnit test results",
-                )
-            ],
-        ),
-    ],
-)
-
-
 def test_dry_run(pyunit_runner_inst):
     """Test that the dry_run() method returns the expected report skeleton."""
     result = pyunit_runner_inst.dry_run()
     report = result.report
-    assert report == _EXPECTED_DRY_RUN_REPORT
+    assert report == pyunit_expected_data.EXPECTED_DRY_RUN_REPORT
 
 
 def test_run_testcases_iter_all(pyunit_runner_inst):
