@@ -9,99 +9,26 @@ from testplan.testing import py_test as pytest_runner
 import testplan.report
 from testplan import defaults
 
+from tests.unit.testplan.testing import pytest_expected_data
+
 
 @pytest.fixture
-def pytest_test_inst():
+def pytest_test_inst(repo_root_path):
     """Return a PyTest test instance, with the example tests as its target."""
-    # This file is at tests/unit/testplan/testing/test_pytest.py, we want to run
-    # the pytest example at examples/PyTest/pytest_tests.py.
-    root_path = os.path.join(
-        os.path.dirname(__file__), *(os.pardir for _ in range(4))
-    )
+    # For testing purposes, we want to run the pytest example at
+    # examples/PyTest/pytest_tests.py.
     example_path = os.path.join(
-        root_path, "examples", "PyTest", "pytest_tests.py"
+        repo_root_path, "examples", "PyTest", "pytest_tests.py"
     )
+
+    # We need to explicitly set the stdout_style in UT, normally it is inherited
+    # from the parent object but that doesn't work when testing PyTest in
+    # isolation.
     return pytest_runner.PyTest(
         name="pytest example",
         target=example_path,
         stdout_style=defaults.STDOUT_STYLE,
     )
-
-
-_EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
-    name="pytest example",
-    uid="pytest example",
-    category="pytest",
-    entries=[
-        testplan.report.TestGroupReport(
-            name="pytest_tests.py::TestPytestBasics",
-            uid="pytest_tests.py::TestPytestBasics",
-            category="testsuite",
-            entries=[
-                testplan.report.TestCaseReport(
-                    name="test_success", uid="test_success",
-                ),
-                testplan.report.TestCaseReport(
-                    name="test_failure", uid="test_failure",
-                ),
-                testplan.report.TestGroupReport(
-                    name="test_parametrization",
-                    uid="test_parametrization",
-                    category="parametrization",
-                    entries=[
-                        testplan.report.TestCaseReport(
-                            name="test_parametrization[1-2-3]",
-                            uid="test_parametrization[1-2-3]",
-                        ),
-                        testplan.report.TestCaseReport(
-                            name="test_parametrization[-1--2--3]",
-                            uid="test_parametrization[-1--2--3]",
-                        ),
-                        testplan.report.TestCaseReport(
-                            name="test_parametrization[0-0-0]",
-                            uid="test_parametrization[0-0-0]",
-                        ),
-                    ],
-                ),
-            ],
-        ),
-        testplan.report.TestGroupReport(
-            name="pytest_tests.py::TestWithDrivers",
-            uid="pytest_tests.py::TestWithDrivers",
-            category="testsuite",
-            entries=[
-                testplan.report.TestCaseReport(
-                    name="test_drivers", uid="test_drivers",
-                )
-            ],
-        ),
-        testplan.report.TestGroupReport(
-            name="pytest_tests.py::TestPytestMarks",
-            uid="pytest_tests.py::TestPytestMarks",
-            category="testsuite",
-            entries=[
-                testplan.report.TestCaseReport(
-                    name="test_skipped", uid="test_skipped",
-                ),
-                testplan.report.TestCaseReport(
-                    name="test_skipif", uid="test_skipif",
-                ),
-                testplan.report.TestCaseReport(
-                    name="test_xfail", uid="test_xfail",
-                ),
-                testplan.report.TestCaseReport(
-                    name="test_unexpected_error", uid="test_unexpected_error",
-                ),
-                testplan.report.TestCaseReport(
-                    name="test_xpass", uid="test_xpass",
-                ),
-                testplan.report.TestCaseReport(
-                    name="test_xpass_strict", uid="test_xpass_strict",
-                ),
-            ],
-        ),
-    ],
-)
 
 
 def test_dry_run(pytest_test_inst):
@@ -110,7 +37,7 @@ def test_dry_run(pytest_test_inst):
     """
     result = pytest_test_inst.dry_run()
     report = result.report
-    assert report == _EXPECTED_DRY_RUN_REPORT
+    assert report == pytest_expected_data.EXPECTED_DRY_RUN_REPORT
 
 
 def test_run_tests(pytest_test_inst):

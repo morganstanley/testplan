@@ -218,7 +218,7 @@ class PyTest(testing.Test):
                     if child_report.category != "parametrization":
                         raise RuntimeError(
                             "Unexpected report category: {}".format(
-                                testcase_report.category
+                                child_report.category
                             )
                         )
 
