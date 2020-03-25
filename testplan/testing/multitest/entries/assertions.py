@@ -67,9 +67,9 @@ class Assertion(BaseEntry):
 
     meta_type = "assertion"
 
-    def __init__(self, description=None, category=None):
+    def __init__(self, description=None, category=None, flag=None):
         super(Assertion, self).__init__(
-            description=description, category=category
+            description=description, category=category, flag=flag,
         )
         self.passed = bool(self.evaluate())
 
@@ -116,11 +116,6 @@ class IsTrue(Assertion):
 class IsFalse(IsTrue):
     def evaluate(self):
         return not bool(self.expr)
-
-
-class Pass(Assertion):
-    def evaluate(self):
-        return True
 
 
 class Fail(Assertion):

@@ -31,6 +31,7 @@ class BaseSchema(Schema):
     description = custom_fields.Unicode()
     line_no = fields.Integer()
     category = fields.String()
+    flag = fields.String()
 
     def load(self, *args, **kwargs):
         raise NotImplementedError("Only serialization is supported.")
