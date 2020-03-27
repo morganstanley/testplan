@@ -274,6 +274,7 @@ def _testsuite(klass):
         if not (
             attrib.startswith("__")
             or callable(getattr(klass, attrib))
+            or isinstance(getattr(klass, attrib), property)
             or attrib in klass.__testcases__
             or getattr(
                 getattr(klass, attrib), "__parametrization_template__", False

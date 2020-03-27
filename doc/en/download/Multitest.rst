@@ -201,3 +201,17 @@ resource_manager.py
 ```````````````````
 .. literalinclude:: ../../../examples/Multitest/Parallel/resource_manager.py
 
+
+Logging
+-------
+
+.. _example_multitest_logging:
+
+Basic
++++++
+
+test_plan_logging.py
+````````````````````
+
+.. literalinclude:: ../../../examples/Multitest/Logging/test_plan_logging.py
+

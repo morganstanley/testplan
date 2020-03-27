@@ -1323,3 +1323,54 @@ If a test is expect to fail all the time, you can also use the `strict=True` the
     @xfail(reason='api changes', strict=True)
     def fail_testcase(self, env, result):
         ...
+
+Logging
+-------
+
+Python standard logging infrastructure can be used for logging, however testplan provide mixins to use a conveniently configured logger from testcases.
+
+See also the :ref:`a downloadable example <example_multitest_logging>`.
+
+:py:class:`LogCaptureMixin <testplan.testing.multitest.logging.LogCaptureMixin>` when inherited provide a ``self.logger`` which will log to the normal testplan log. Furthermore the mixin provide a context manager :py:meth:`capture_log(result) <testplan.testing.multitest.logging.LogCaptureMixin.capture_log>` which can be used to automatically capture logs happening in teh context and attaching it to the result.
+
+.. code-block:: python
+
+    @testsuite
+    class LoggingSuite(LogCaptureMixin):
+
+        @testcase
+        def testsuite_level(self, env, result):
+            with self.capture_log(
+                result
+            ) as logger:  # as convenience the logger is returned but is is really the same as self.logger
+                logger.info("Hello")
+                self.logger.info("Logged as well")
+
+The code above will capture the two log line and inject it into the result. The capture can be configured to capture log to a file and attach to the result. It also possible to capture the base testplan logger, or even the root logger during the execution of the context. If the default formatting is not good enough it can be changed for the report. For all these options see :py:meth:`LogCaptureMixin.capture_log <testplan.testing.multitest.logging.LogCaptureMixin.capture_log>`
+
+:py:class:`AutoLogCaptureMixin <testplan.testing.multitest.logging.AutoLogCaptureMixin>` when inherited it automatically capture and insert logs to the result for every testcase.
+
+.. code-block:: python
+
+    @testsuite
+    class AutoLoggingSuite(AutoLogCaptureMixin):
+        """
+        AutoLogCaptureMixin will automatically add captured log at the end of all testcase
+        """
+
+        @testcase
+        def case(self, env, result):
+            self.logger.info("Hello")
+
+        @testcase
+        def case2(self, env, result):
+            self.logger.info("Do it for all the testcases")
+
+The capture can be tweaked to set up ``self.log_capture_config`` during construction time, very similar to the :py:meth:`LogCaptureMixin.capture_log <testplan.testing.multitest.logging.LogCaptureMixin.capture_log>`
+
+.. code-block:: python
+
+    def __init__(self):
+        super(AutoLoggingSuiteThatAttach, self).__init__()
+        self.log_capture_config.attach_log = True
+

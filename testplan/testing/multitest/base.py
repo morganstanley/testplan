@@ -804,7 +804,7 @@ class MultiTest(testing_base.Test):
         return method_report
 
     def _run_case_related(self, method, testcase, case_result):
-        interface.check_signature(method, ["name", "self", "env", "result"])
+        interface.check_signature(method, ["self", "name", "env", "result"])
         method(testcase.__name__, self.resources, case_result)
 
     def _run_testcase(self, testcase, pre_testcase, post_testcase):

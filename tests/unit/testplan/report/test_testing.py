@@ -1,7 +1,13 @@
 import functools
 import json
+import six
 import pytest
-import mock
+
+if six.PY2:
+    import mock
+else:
+    from unittest import mock
+
 
 from testplan.common.utils.testing import disable_log_propagation
 

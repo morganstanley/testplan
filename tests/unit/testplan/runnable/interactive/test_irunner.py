@@ -1,5 +1,11 @@
 """Test the interactive test runner."""
-import mock
+import six
+
+if six.PY2:
+    import mock
+else:
+    from unittest import mock
+
 import pytest
 
 from testplan import defaults

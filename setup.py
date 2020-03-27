@@ -23,7 +23,6 @@ REQUIRED = [
     "python-dateutil",
     "reportlab",
     "marshmallow==3.0.0b2",
-    "mock",
     "termcolor",
     "colorama",
     "enum34",
@@ -43,6 +42,7 @@ REQUIRED = [
     "ipaddress",
     "futures; python_version <= '2.7'",
     "Werkzeug<1.0.0",
+    "mock; python_version <= '2.7'",
 ]
 
 setup(

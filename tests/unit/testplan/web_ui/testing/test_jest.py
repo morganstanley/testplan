@@ -46,4 +46,4 @@ def test_testplan_ui():
 )
 def test_eslint():
     """Run eslint over the UI source code."""
-    subprocess.check_call(["npm", "run", "lint"], cwd=TESTPLAN_UI_DIR)
+    subprocess.check_call("npm run lint", shell=True, cwd=TESTPLAN_UI_DIR)
