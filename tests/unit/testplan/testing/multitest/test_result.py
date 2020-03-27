@@ -1,7 +1,13 @@
 """Unit tests for the testplan.testing.multitest.result module."""
 
 import collections
-import mock
+import six
+
+if six.PY2:
+    import mock
+else:
+    from unittest import mock
+
 import os
 
 import pytest

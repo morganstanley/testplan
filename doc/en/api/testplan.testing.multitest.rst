@@ -23,6 +23,16 @@ testplan.testing.multitest.base module
     :inherited-members:
 
 
+testplan.testing.multitest.logging module
++++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.testing.multitest.logging
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+
 testplan.testing.multitest.parametrization module
 +++++++++++++++++++++++++++++++++++++++++++++++++
 

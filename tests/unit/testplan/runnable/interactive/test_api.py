@@ -6,7 +6,14 @@ from __future__ import absolute_import
 from future import standard_library
 
 standard_library.install_aliases()
-import mock
+
+import six
+
+if six.PY2:
+    import mock
+else:
+    from unittest import mock
+
 import pytest
 
 from testplan.runnable.interactive import http

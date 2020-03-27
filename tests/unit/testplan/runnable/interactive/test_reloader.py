@@ -6,7 +6,13 @@ from builtins import range
 from future import standard_library
 
 standard_library.install_aliases()
-import mock
+import six
+
+if six.PY2:
+    import mock
+else:
+    from unittest import mock
+
 import modulefinder
 import os
 import time
