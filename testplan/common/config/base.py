@@ -147,8 +147,8 @@ class Config(object):
             value = getattr(self, key)
             if inspect.isclass(value) or inspect.isroutine(value):
                 # Skipping non-serializable classes and routines.
-                logger.TESTPLAN_LOGGER.warning(
-                    "Skip denormalizing option: {}".format(key)
+                logger.TESTPLAN_LOGGER.debug(
+                    "Skip denormalizing option: %s", key
                 )
                 continue
             try:
