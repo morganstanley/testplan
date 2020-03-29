@@ -1,346 +1,38 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, css } from 'aphrodite';
+import React, { useRef, useEffect, useCallback, useMemo } from 'react';
+import _at from 'lodash/at';
+import _isEqual from 'lodash/isEqual';
+import { css } from 'aphrodite';
 import axios from 'axios';
 import { ListGroupItem, ListGroup } from 'reactstrap';
 import {
-  HashRouter, Redirect, Route, NavLink, useRouteMatch, useParams, generatePath,
-  matchPath
+  Redirect, Route, NavLink, useRouteMatch, useParams, useLocation, Switch
 } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 import { PropagateIndices } from '../reportUtils';
-import AssertionPane from '../../AssertionPane/AssertionPane';
-import Toolbar from '../../Toolbar/Toolbar';
+import CenterPane from './CenterPane';
+import Toolbar from './Toolbar';
 import NavEntry from '../../Nav/NavEntry';
 import TagList from '../../Nav/TagList';
 import Column from '../../Nav/Column';
-import Message from '../../Common/Message';
-import { ParsedQueryParams, tryCatch } from '../../Common/utils';
+import { queryStringToMap } from '../../Common/utils';
 
 import {
-  CommonStyles, navBreadcrumbStyles, navUtilsStyles, navListStyles, COLUMN_WIDTH
+  CommonStyles, navBreadcrumbStyles, navUtilsStyles, navListStyles,
+  COLUMN_WIDTH, batchReportStyles,
 } from './style';
 import uriComponentCodec from './uriComponentCodec';
 import { AppStateProvider, useAppState } from './state';
+import UIRouter from './UIRouter';
 
-const batchReportStyles = StyleSheet.create({
-  batchReport: {
-    /** overflow will hide dropdown div */
-    // overflow: 'hidden'
-  }
-});
+const BOTTOMMOST_ENTRY_CATEGORY = 'testcase';
 
 const safeGetNumPassedFailedErrored = (counter, coalesceVal = null) => counter ?
   [
     counter.passed || coalesceVal,
     counter.failed || coalesceVal,
     counter.error || coalesceVal,
-  ] : [ null, null, null ];
-
-const EmptyListGroupItem = () => (
-  <ListGroupItem className={css(navUtilsStyles.navButton)}>
-    No entries to display...
-  </ListGroupItem>
-);
-
-const NavBreadcrumbContainer = ({ children }) => (
-  <div className={css(navBreadcrumbStyles.navBreadcrumbs)}>
-    <ul className={css(navBreadcrumbStyles.breadcrumbContainer)}>
-      {children}
-    </ul>
-  </div>
-);
-
-function encodeRememberURIComponent(rawURIComponent, setAlias, aliasMap) {
-  const encodedURIComponent = uriComponentCodec.encode(rawURIComponent);
-  if(!aliasMap.has(rawURIComponent)) {
-    setAlias(rawURIComponent, encodedURIComponent);
-  }
-  return encodedURIComponent;
-}
-
-function decodeForgetURIComponent(encodedURIComponent, deleteAlias, aliasMap) {
-  const rawURIComponent = uriComponentCodec.decode(encodedURIComponent);
-  if(aliasMap.has(rawURIComponent)) {
-    deleteAlias(rawURIComponent, encodedURIComponent);
-  }
-  return rawURIComponent;
-}
-
-function segregateByEncoded({ url, path, id }) {
-
-  let idIsProbablyEncoded = false;
-  try {
-    idIsProbablyEncoded = id.length >= decodeURIComponent(id).length;
-  } catch(e) {}
-
-  const [ idEncoded, idUnencoded ] = (
-    idIsProbablyEncoded
-      ? [ id, decodeURIComponent(id) ]
-      : [ encodeURIComponent(id), id ]
-  );
-
-  let urlIsProbablyEncoded = false;
-  try {
-    urlIsProbablyEncoded = url.length >= decodeURI(url).length;
-  } catch(e) {}
-
-  const [ urlEncoded, urlUnencoded] = (
-    urlIsProbablyEncoded  // assuming if url is encoded then path is enccoded
-      ? [ generatePath(path, { idUnencoded }), decodeURI(url) ]
-      : [ decodeURI(url), generatePath(path, { idUnencoded }) ]
-  );
-
-  return {
-    encoded: {
-      url: urlEncoded,
-      id: idEncoded,
-    },
-    unencoded: {
-      url: urlUnencoded,
-      id: idUnencoded,
-    }
-  };
-}
-
-const NavBreadcrumb = ({ entry }) => {
-  const { name, status, category, counter } = entry;
-  const { url } = useRouteMatch();
-  const lkCss = css(
-    navBreadcrumbStyles.breadcrumbEntry,
-    CommonStyles.unselectable,
-  );
-  const [ numPassed, numFailed ] = safeGetNumPassedFailedErrored(counter, 0);
-  const lkStyle = { textDecoration: 'none', color: 'currentColor' };
-  return (
-    <NavLink to={url} className={lkCss} isActive={() => false} style={lkStyle}>
-      <NavEntry name={name}
-                status={status}
-                type={category}
-                caseCountPassed={numPassed}
-                caseCountFailed={numFailed}
-      />
-    </NavLink>
-  );
-};
-
-const NavSidebar = ({ entries, filter, displayTags }) => {
-
-  let { url } = useRouteMatch();
-  const [ appState, appAction ] = useAppState();
-
-  const aliasMap = appState.app.reports.batch.uri.hash.componentAliases;
-  const setAlias = appAction.setUriHashComponentAlias;
-
-  const StyledListGroupItemLink = ({ children, to, linkIdx }) => {
-    const StyledLink = props => (
-      <NavLink style={{ textDecoration: 'none', color: 'currentColor' }}
-               isActive={() => false}
-               to={to}
-               {...props}
-      />
-    );
-    return (
-      <ListGroupItem tabIndex={`${linkIdx + 1}`}
-                     tag={StyledLink}
-                     className={css(
-                       navUtilsStyles.navButton,
-                       navUtilsStyles.navButtonInteract,
-                     )}
-      >
-        {children}
-      </ListGroupItem>
-    );
-  };
-
-  const isFilteredOut = ([ numPassed, numFailed, numErrored ]) =>
-    (filter === 'pass' && numPassed === 0) ||
-    (filter === 'fail' && (numFailed + numErrored) === 0);
-
-  function BoundStyledListGroupItemLink({ entry, idx, nPass, nFail }) {
-    const { name, status, category, tags, uid } = entry;
-    const encodedName = encodeRememberURIComponent(name, setAlias, aliasMap);
-    const toURL = `${url}/${encodedName}`;
-    return (
-      <StyledListGroupItemLink key={uid} linkIdx={idx} to={toURL}>
-        {displayTags && tags ? <TagList entryName={name} tags={tags}/> : null}
-        <NavEntry caseCountPassed={nPass}
-                  caseCountFailed={nFail}
-                  type={category}
-                  status={status}
-                  name={name}
-        />
-      </StyledListGroupItemLink>
-    );
-  }
-
-  const items = entries.map((entry, idx) => {
-    const [ nPass, nFail ] = safeGetNumPassedFailedErrored(entry.counter, 0);
-    return isFilteredOut([ nPass, nFail ]) ? null : (
-      <BoundStyledListGroupItemLink entry={entry}
-                                    idx={idx}
-                                    nPass={nPass}
-                                    nFail={nFail}
-      />
-    );
-  }).filter(e => !!e);
-
-  return (
-    <Column width={COLUMN_WIDTH}>
-      <ListGroup className={css(navListStyles.buttonList)}>
-        {
-          items.length
-            ? items
-            : <EmptyListGroupItem/>
-        }
-      </ListGroup>
-    </Column>
-  );
-};
-
-const NavBreadcrumbWithNextRoute = ({ entries }) => {
-  // Assume:
-  // - The route that was matched === "/aaa/bbb/ccc/:id"
-  // - The URL that matched       === "/aaa/bbb/ccc/12345"
-  // Then the value of the following variables are:
-  // *   url = "/aaa/bbb/ccc/12345"
-  // *  path = "/aaa/bbb/ccc/:id"
-  // *    id = "12345"
-  const { url, ...matchProps } = useRouteMatch();
-  const { id } = useParams();
-
-  // this is needed so any forward slashes in `id` are URL encoded
-  // const encodedURL = generatePath(path, { id });
-
-  const tgtEntry =
-    entries && Array.isArray(entries) && entries.find(e => id === e.name);
-  if(!tgtEntry) return null;
-  return !tgtEntry ? null : (
-    <>
-      <NavBreadcrumb entry={tgtEntry}/>
-      <Route path={`${url}/:id`} render={() =>
-        <NavBreadcrumbWithNextRoute entries={tgtEntry.entries || []}/>
-      }/>
-    </>
-  );
-};
-
-const NavSidebarWithNextRoute = ({ entries, filter, displayTags }) => {
-  const { url, path } = useRouteMatch();
-  const { id: encodedID } = useParams();
-
-  const decodedID = uriComponentCodec.decode(encodedID);
-  const tgtEntry = Array.isArray(entries) &&
-                   entries.find(e => decodedID === e.name);
-  if(!tgtEntry) return null;
-
-  return !tgtEntry ? null : (
-    <>
-      <Route exact path={url} render={() =>
-        <NavSidebar entries={tgtEntry.entries}
-                    filter={filter}
-                    displayTags={displayTags}
-        />
-      }/>
-      <Route path={`${url}/:id`}>
-        <NavSidebarWithNextRoute entries={tgtEntry.entries}
-                                 displayTags={displayTags}
-                                 filter={filter}
-        />
-      </Route>
-    </>
-  );
-};
-
-const NavPanes = ({
-  isFetching, isLoading, isError, report, filter, displayTags
-}) => (
-  (isFetching || isLoading || isError || !report)
-    ? <EmptyListGroupItem/>
-    : (
-      <>
-        {
-          /** Here each path component adds a new breadcrumb to the top nav,
-           * and it sets up the next route that will receive the next path
-           * component when the user navigates further
-           */
-        }
-        <NavBreadcrumbContainer>
-          <Route path='/:id' render={() => (
-            <NavBreadcrumbWithNextRoute entries={[ report ]}/>
-          )}/>
-        </NavBreadcrumbContainer>
-        {
-          /** Here each path component completely replaces the nav sidebar.
-           * This contains the links that will determine the next set of routes.
-           */
-        }
-        <Route path='/:id'>
-          <NavSidebarWithNextRoute entries={[ report ]}
-                                   displayTags={displayTags}
-                                   filter={filter}
-          />
-        </Route>
-        <Route exact path='/' component={() => (
-          <Redirect to={`/${report.name}`}/>
-        )}/>
-      </>
-    )
-);
-
-const CenterPane = ({
-  isFetching, isLoading, error, assertions, logs, filter, reportUid,
-  testcaseUid, description,
-}) => {
-  if(isFetching) {
-    return (
-      <Message left={COLUMN_WIDTH}
-               message='Fetching Testplan report...'
-      />
-    );
-  }
-  if(error) {
-    return (
-      <Message left={COLUMN_WIDTH}
-               message={() =>
-                 'Error fetching Testplan report. '
-                 + (error instanceof Error ? ` (${error.message})` : '')
-               }
-      />
-    );
-  }
-  if(isLoading) {
-    return (
-      <Message left={COLUMN_WIDTH}
-               message='Waiting to fetch Testplan report...'
-      />
-    );
-  }
-  if(reportUid && (assertions || (Array.isArray(logs) && logs.length))) {
-    return (
-      <AssertionPane assertions={assertions}
-                     logs={logs}
-                     descriptionEntries={description}
-                     left={COLUMN_WIDTH + 1.5}
-                     testcaseUid={testcaseUid}
-                     filter={filter}
-                     reportUid={reportUid}
-      />
-    );
-  }
-  return (
-    <Message left={COLUMN_WIDTH} message='Please select an entry.'/>
-  );
-};
-
-/**
- * If the current report entry has only one child entry and that entry is
- * not a testcase, we automatically expand it.
- */
-const autoSelect = ({ reportUid, reportEntries}) => [ reportUid ].concat(
-  reportEntries.length === 1 && reportEntries[0].category !== 'testcase'
-    ? autoSelect(reportEntries[0])
-    : []
-);
+  ] : [ coalesceVal, coalesceVal, coalesceVal ];
 
 function getAxiosConfig() {
   const axiosConf = { headers: axios.defaults.headers.common };
@@ -376,87 +68,541 @@ function getUidOverride() {
   }
 }
 
-export default function TopLevel(browserRouterProps) {
+const isFilteredOut = (filter, [ numPassed, numFailed, numErrored ]) =>
+  (filter === 'pass' && numPassed === 0) ||
+  (filter === 'fail' && (numFailed + numErrored) === 0);
 
-  const urlQuery = new ParsedQueryParams(browserRouterProps.location.search);
+function useFetchJsonReport(reportUid, isDev = false) {
 
-  // <editor-fold desc="State setters & variables">
-  const [ isDev, setDev ] = useState(
-    tryCatch(() => process.env.NODE_ENV === 'development') &&
-    urlQuery.firstOf(['dev', 'devel', 'development'], false)
-  );
-  const [ displayEmpty, setDisplayEmpty ] = useState(
-    !!urlQuery.get('displayEmpty', true)
-  );
-  const [ filter, setFilter ] = useState(
-    urlQuery.get('filter', 'all')
-  );  // or 'pass' or 'fail'
-  const [ navFilter, setNavFilter ] = useState(
-    urlQuery.get('navFilter', null)
-  );
-  const [ displayTags, setDisplayTags ] = useState(
-    urlQuery.get('displayTags', false)
-  );
-  const [ loading, setLoading ] = useState(true);
-  const [ fetching, setFetching ] = useState(false);
-  const [ report, setReport ] = useState({});
-  const [ fetchError, setFetchError ] = useState(null);
-  const [ centerPane, setCenterPane ] = useState(null);
-  const [ selectedUIDs, setselectedUIDs ] = useState([]);
-  //</editor-fold>
+  const [, [ setJsonReport, setLoading, setFetching, setFetchError, ]] =
+    useAppState(false, [
+      'setAppBatchReportJsonReport',
+      'setAppBatchReportIsLoading',
+      'setAppBatchReportIsFetching',
+      'setAppBatchReportFetchError',
+    ]);
 
-  const reportUid = browserRouterProps.match.params.uid;
+  const setJsonReportCb = useCallback(setJsonReport, []),
+    setLoadingCb = useCallback(setLoading, []),
+    setFetchingCb = useCallback(setFetching, []),
+    setFetchErrorCb = useCallback(setFetchError, []);
+
   useEffect(() => {
     console.debug('>>> Starting fetch...');
+    const fetchCanceller = axios.CancelToken.source();
+    // importing like this means webpack *may* exclude fakeReport.js from the
+    // production bundle
+    const fetchFakeAssertions = () => import('../../Common/fakeReport').then(
+      fakeReport => fakeReport.fakeReportAssertions
+    );
+    const fetchReport = () => axios.get(
+      `/api/v1/reports/${reportUid}`,
+      { ...getAxiosConfig(), cancelToken: fetchCanceller.token }
+    );
     (async () => {
-      setLoading(true);
+      let isCancelled = false;
+      setLoadingCb(true);
       try {
-        const axiosConfig = getAxiosConfig();
-        setFetching(true);
-        const report = (
-          isDev && !getUidOverride()
-            // importing like this means webpack *may* exclude fakeReport.js
-            // from the production bundle
-            ? (await import('../../Common/fakeReport')).fakeReportAssertions
-            : await axios.get(
-              `/api/v1/reports/${reportUid}`,
-              axiosConfig
-            )
+        setFetchingCb(true);
+        const report = await (
+          isDev && !getUidOverride() ? fetchFakeAssertions() : fetchReport()
         );
-        setFetching(false);
-        setReport(PropagateIndices(report.data));
+        setFetchingCb(false);
+        setJsonReportCb(PropagateIndices(report.data));
       } catch(err) {
-        setFetchError(err);
+        if(!axios.isCancel(err)) { // can't set state after cleanup func runs
+          setFetchErrorCb(err);
+        } else {
+          isCancelled = true;
+          console.error(err);
+        }
       }
-      setLoading(false);
-      console.debug('>>> Ending fetch...');
+      if(!isCancelled) {
+        setLoadingCb(false);
+        console.debug('>>> Ending fetch...');
+      }
     })();
-  }, [ reportUid, isDev ]);
+    return () => {
+      fetchCanceller.cancel('Fetch cancelled due to component cleanup');
+    };
+  }, [
+    reportUid, isDev,
+    setLoadingCb, setFetchingCb, setJsonReportCb, setFetchErrorCb,
+  ]);
+}
+
+function useTargetEntry(entries) {
+  // Assume:
+  // - The route that was matched === "/aaa/bbb/ccc/:id"
+  // - The URL that matched       === "/aaa/bbb/ccc/12345"
+  // Then the value of the following variables are:
+  // *   url = "/aaa/bbb/ccc/12345"
+  // *  path = "/aaa/bbb/ccc/:id"
+  // *    id = "12345"
+  const { id: encodedID } = useParams();
+  const [ aliases, setUriHashPathComponentAlias ] = useAppState(
+    'uri.hash.aliases',
+    'setUriHashPathComponentAlias'
+  );
+
+  // gotta run hooks before we do this check since they must run unconditionally
+  if(!Array.isArray(entries)) return null;
+  if(
+    !!entries && typeof entries === 'object' &&
+    entries.category === BOTTOMMOST_ENTRY_CATEGORY
+  ) return entries;
+
+  // ths incoming `encodedID` may be URL-encoded and so it won't match
+  // `entry.name` in the `entries` array, so we grab whatever `id` is actually
+  // an alias for, and use that to find our target `entry` object.
+  let decodedID = aliases.get(encodedID);
+
+  // on refresh on an aliased path, the `componentAliases` will be empty so we
+  // need to fill it with the aliased component
+  if(!decodedID) {
+    decodedID = uriComponentCodec.decode(encodedID);
+    setUriHashPathComponentAlias(decodedID, encodedID);
+  }
+  return entries.find(e => decodedID === e.name);
+}
+
+const EmptyListGroupItem = () => (
+  <ListGroupItem className={css(navUtilsStyles.navButton)}>
+    No entries to display...
+  </ListGroupItem>
+);
+
+const NavBreadcrumbContainer = ({ children }) => (
+  <div className={css(navBreadcrumbStyles.navBreadcrumbs)}>
+    <ul className={css(navBreadcrumbStyles.breadcrumbContainer)}>
+      {children}
+    </ul>
+  </div>
+);
+
+const StyledNavLink = ({
+  style = { textDecoration: 'none', color: 'currentColor' },
+  isActive = () => false,  // this just makes it look better
+  pathname,
+  dataUid,
+  ...props
+}) => {
+  const [ selectedTestCase ] =
+    useAppState('app.reports.batch.selectedTestCase');
+  // ensure links always include the current query params
+  const { search } = useLocation();
+  // remove repeating slashes
+  const normPathname = pathname.replace(/\/{2,}/g, '/');
+  const to = { search, pathname: normPathname };
+  return /*useMemo(() =>*/ (
+    <NavLink style={style}
+             data-uid={dataUid}
+             isActive={(match, location) =>
+               !!selectedTestCase &&
+               !!(selectedTestCase.uid) &&
+               selectedTestCase.uid === dataUid
+             }
+             activeClassName={css(navUtilsStyles.navButtonInteract)}
+             to={to}
+             {...props}
+    />
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  )/*, [ search, normPathname, props, style, isActive, selectedTestCase ])*/;
+};
+StyledNavLink.propTypes = {
+  pathname: PropTypes.string.isRequired,
+  dataUid: PropTypes.string.isRequired,
+  style: PropTypes.object,
+  isActive: PropTypes.func
+};
+
+const NavBreadcrumb = ({ entry }) => {
+  const { name, status, category, counter, uid } = entry;
+  const [, setSelectedTestCase ] = useAppState(
+    false, 'setAppBatchReportSelectedTestCase'
+  );
+  // this is the matched Route, not necessarily the current URL
+  const { url: matchedPath } = useRouteMatch();
+  const [ numPassed, numFailed ] = safeGetNumPassedFailedErrored(counter, 0);
+  return (
+    <StyledNavLink pathname={matchedPath}
+                   dataUid={uid}
+                   className={css(
+                     navBreadcrumbStyles.breadcrumbEntry,
+                     CommonStyles.unselectable,
+                   )}
+                   onClick={evt => {
+                     setSelectedTestCase(null);
+                   }}
+    >
+      <NavEntry name={name}
+                status={status}
+                type={category}
+                caseCountPassed={numPassed}
+                caseCountFailed={numFailed}
+      />
+    </StyledNavLink>
+  );
+};
+
+const StyledListGroupItemLink = props => (
+  <ListGroupItem {...props}
+                 tag={StyledNavLink}
+                 className={css(
+                   navUtilsStyles.navButton,
+                   navUtilsStyles.navButtonInteract,
+                 )}
+  />
+);
+
+function BoundStyledListGroupItemLink({ entry, idx, nPass, nFail }) {
+
+  const
+    { url } = useRouteMatch(),
+    { name, status, category, tags, uid } = entry,
+    [ isShowTags, [ setUriHashPathComponentAlias, setSelectedTestCase ] ] =
+      useAppState(
+        'app.reports.batch.isShowTags',
+        [ 'setUriHashPathComponentAlias', 'setAppBatchReportSelectedTestCase' ]
+      );
+  // setSelectedTestCase(null);
+  const
+    isBottommost = category === BOTTOMMOST_ENTRY_CATEGORY,
+    encodedName = uriComponentCodec.encode(name),
+    nextPathname = /**/isBottommost ? url :/**/ `${url}/${encodedName}`,
+    onClickOverride = !isBottommost ? {
+      onClick(evt) { setSelectedTestCase(null); }
+    } : {
+      onClick(evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+        setSelectedTestCase(entry);
+      }
+    };
+  setUriHashPathComponentAlias(encodedName, name);
 
   return (
-    <HashRouter basename='/'>
-      <AppStateProvider>
-        <div className={css(batchReportStyles.batchReport)}>
-          <Toolbar status={report.status}
-                   report={report}
-                   handleNavFilter={setNavFilter}
-                   updateFilterFunc={setFilter}
-                   updateEmptyDisplayFunc={setDisplayEmpty}
-                   updateTagsDisplayFunc={setDisplayTags}
-          />
-          <NavPanes isFetching={fetching}
-                    isLoading={loading}
-                    isError={!!fetchError}
-                    report={report}
-                    filter={filter}
-                    displayTags={displayTags}
-          />
-          <CenterPane isFetching={fetching}
-                      isLoading={loading}
-                      error={fetchError}
-          />
-        </div>
-      </AppStateProvider>
-    </HashRouter>
+    <StyledListGroupItemLink key={uid}
+                             uid={uid}
+                             tabIndex={`${idx + 1}`}
+                             pathname={nextPathname}
+                             {...onClickOverride}
+    >
+      {
+        isShowTags && tags
+          ? <TagList entryName={name} tags={tags}/>
+          : null
+      }
+      <NavEntry caseCountPassed={nPass}
+                caseCountFailed={nFail}
+                type={category}
+                status={status}
+                name={name}
+      />
+    </StyledListGroupItemLink>
+  );
+}
+
+const NavSidebar = ({ entries }) => {
+  const [ filter ] = useAppState('app.reports.batch.filter', false);
+  const items = entries.map((entry, idx) => {
+    const [ nPass, nFail ] = safeGetNumPassedFailedErrored(entry.counter, 0);
+    return isFilteredOut(filter, [ nPass, nFail ]) ? null : (
+      <BoundStyledListGroupItemLink entry={entry}
+                                    idx={idx}
+                                    key={`${idx}`}
+                                    nPass={nPass}
+                                    nFail={nFail}
+      />
+    );
+  }).filter(e => !!e);
+  return (
+    <Column width={COLUMN_WIDTH}>
+      <ListGroup className={css(navListStyles.buttonList)}>
+        {items.length ? items : <EmptyListGroupItem/>}
+      </ListGroup>
+    </Column>
+  );
+};
+
+const NavBreadcrumbWithNextRoute = ({ entries }) => {
+  const { url } = useRouteMatch();
+  const tgtEntry = useTargetEntry(entries);
+  return !tgtEntry ? null : (
+    <>
+      <NavBreadcrumb entry={tgtEntry}/>
+      <Route path={`${url}/:id`} render={() =>
+        <NavBreadcrumbWithNextRoute entries={tgtEntry.entries}/>
+      }/>
+    </>
+  );
+};
+
+/**
+ * @param {any | any[] | null} entries
+ * @param {React.Component | null} PreviousNavSidebar
+ * @param {string | null} previousUrl
+ * @returns {React.FunctionComponentElement}
+ */
+const NavSidebarWithNextRoute = ({
+  /*match,*/ /*location,*/
+  entries, PreviousNavSidebar = null,
+  previousPath = null, isBottom = false, bottommostPath = null,
+}) => {
+  const match = useRouteMatch();
+  // const location = useLocation();
+  const tgtEntry = useTargetEntry(entries);
+
+  // const [, setSelectedTestCase ] = useAppState(
+  //   false,
+  //   'setAppBatchReportSelectedTestCase'
+  // );
+
+  if(!tgtEntry) return null;
+  const isBottommost = tgtEntry.category === BOTTOMMOST_ENTRY_CATEGORY;
+  // let nextRoutePath = `${url}/:id`;
+  // if(isBottommost) {
+  // if(tgtEntry.category === BOTTOMMOST_ENTRY_CATEGORY) {
+  //   [ nextEntries, nextSuperEntries ] = [ entries, superEntries ];
+  //   nextRoutePath = url;
+  //   setSelectedTestCase(isBottommost ? tgtEntry : null);
+  //   const toLocation = {
+  //     ...location,
+  //     pathname: previousPath || location.pathname
+  //   };
+  //   return <Redirect to={toLocation} push={false} />;
+    // return PreviousNavSidebar === null ? null : <PreviousNavSidebar/>;
+  // }
+
+  const ThisNavSidebar = props => (
+  //   <Route exact path={match.url} render={routeProps =>
+      <NavSidebar entries={tgtEntry.entries} {...props} />
+  //   }/>
+  );
+
+  if(isBottom) {
+    let x = 1;
+  }
+
+  if(isBottommost) {
+    let x = 1;
+  }
+
+  if(bottommostPath === null && isBottommost) {
+    bottommostPath = previousPath;
+  }
+
+  const routePath =
+    typeof bottommostPath === 'string' ?
+      bottommostPath :
+      match.url;
+
+  return (
+    <>
+      <Route exact path={routePath} render={props => {
+        // <NavSidebar entries={tgtEntry.entries} {...routeProps} />
+        // <ThisNavSidebar {...routeProps}/>
+        // if(isBottommost) {
+          // setSelectedTestCase(tgtEntry);
+          // return <PreviousNavSidebar/>;
+        // }
+        // return <NavSidebar entries={tgtEntry.entries} {...props} />;
+        return <ThisNavSidebar/>;
+      }}/>
+      <Route path={`${routePath}/:id`}>
+        {(() => {
+          // setSelectedTestCase(null);
+          return isBottommost ?
+            <Redirect to={bottommostPath} push={false} /> : (
+              <NavSidebarWithNextRoute entries={tgtEntry.entries}
+                                       PreviousNavSidebar={() =>
+                                         <ThisNavSidebar/>
+                                       }
+                                       previousPath={routePath}
+                                       isBottom={isBottommost}
+                                       bottommostPath={bottommostPath}
+              />
+            );
+        })()}
+      </Route>
+    </>
+  );
+
+  // if(isBottommost) {
+  //   return (
+  //     <>
+  //       {/*<NavSidebar entries={tgtEntry.entries} />*/}
+  //       <PreviousNavSidebar/>
+  //       <Route path={`${match.url}/:id`}>
+  //         <NavSidebarWithNextRoute entries={tgtEntry.entries}
+  //                                  PreviousNavSidebar={PreviousNavSidebar}
+  //                                  previousPath={location.pathname}
+  //         />
+  //       </Route>
+  //     </>
+  //   );
+  // } else {
+  //   return (
+  //     <>
+  //       <Route exact path={match.url} render={routeProps =>
+  //         // <NavSidebar entries={tgtEntry.entries} {...routeProps} />
+  //         <ThisNavSidebar {...routeProps}/>
+  //       }/>
+  //       <Route path={`${match.url}/:id`}>
+  //         <NavSidebarWithNextRoute entries={tgtEntry.entries}
+  //                                  PreviousNavSidebar={ThisNavSidebar}
+  //                                  previousPath={location.pathname}
+  //         />
+  //       </Route>
+  //     </>
+  // );
+  // }
+
+  // return (
+  //   <>
+  //     <ThisNavSidebar/>
+  //
+  //     {/*<Route path={`${match.url}/:id`} render={routeProps =>*/}
+  //     {/*  <NavSidebarWithNextRoute entries={tgtEntry.entries}*/}
+  //     {/*                           PreviousNavSidebar={ThisNavSidebar}*/}
+  //     {/*                           previousPath={location.pathname}*/}
+  //     {/*                           {...routeProps}*/}
+  //     {/*  />*/}
+  //     {/*}/>*/}
+  //
+  //     {/*<Route path={`${match.url}/:id`} component={routeProps =>*/}
+  //     {/*  <NavSidebarWithNextRoute entries={tgtEntry.entries}*/}
+  //     {/*                           PreviousNavSidebar={ThisNavSidebar}*/}
+  //     {/*                           previousPath={location.pathname}*/}
+  //     {/*                           {...routeProps}*/}
+  //     {/*  />*/}
+  //     {/*}/>*/}
+  //
+  //     <Route path={`${match.url}/:id`}>
+  //       <NavSidebarWithNextRoute entries={tgtEntry.entries}
+  //                                PreviousNavSidebar={ThisNavSidebar}
+  //                                previousPath={location.pathname}
+  //       />
+  //     </Route>
+  //
+  //   </>
+  // );
+};
+
+/**
+ * Jump ahead through objects with only one entry if we don't have
+ * `doAutoSelect === false`
+ * @param {React.PropsWithoutRef<{entry: any, basePath: string}>} props
+ * @returns {Redirect}
+ */
+function AutoSelectRedirect({ entry, basePath }) {
+  const [ doAutoSelect ] = useAppState('app.reports.batch.doAutoSelect', false);
+  // trim trailing slashes from basePath and join with the first entry's name
+  let toPath = `${basePath.replace(/\/+$/, '')}/${entry.name || ''}`;
+  if(doAutoSelect) {
+    while(entry.category !== 'testcase'
+          && Array.isArray(entry.entries)
+          && entry.entries.length === 1
+          && typeof (entry = entry.entries[0] || {}) === 'object'
+          && typeof (entry.name) === 'string'
+      ) { toPath = `${toPath}/${entry.name}`; }
+  }
+  return <Redirect to={toPath} push={false} />;
+}
+
+function NavPanes() {
+  const [
+    [ jsonReport, fetchError, isFetching ],
+    // setSelectedTestCase,
+  ] = useAppState([
+    'jsonReport', 'fetchError', 'isFetching',
+  ].map(e => `app.reports.batch.${e}`),
+  false  // 'setAppBatchReportSelectedTestCase',
+  );
+
+  // setSelectedTestCase(null);
+  return (isFetching || fetchError || !jsonReport)
+    ? <EmptyListGroupItem/>
+    : (
+      <>
+        {
+          /**
+           * Here each path component adds a new breadcrumb to the top nav,
+           * and it sets up the next route that will receive the next path
+           * component when the user navigates further
+           */
+        }
+        <NavBreadcrumbContainer>
+          <Route path='/:id' render={() => (
+            <NavBreadcrumbWithNextRoute entries={[ jsonReport ]}/>
+          )}/>
+        </NavBreadcrumbContainer>
+        {
+          /**
+           * Here each path component completely replaces the nav sidebar.
+           * This contains the links that will determine the next set of routes.
+           */
+        }
+
+    {/*<Route path='/:id'>*/}
+    {/* <NavSidebarWithNextRoute entries={[ jsonReport ]} filter={filter} />*/}
+    {/*</Route>*/}
+
+        <Route path='/:id' render={props =>
+          <NavSidebarWithNextRoute entries={[ jsonReport ]} {...props} />
+        }/>
+
+        <Route exact path='/' component={() =>
+          <AutoSelectRedirect basePath='/' entry={jsonReport}/>
+        }/>
+      </>
+    );
+}
+
+function BatchReportStartup({ browserProps, children = null }) {
+  const currLocation = useLocation();
+  const [, mapQueryToState ] = useAppState(false, 'mapUriHashQueryToState');
+  const isFirstRenderRef = useRef(true);
+  const currQueryMap = queryStringToMap(currLocation.search);
+  const prevQueryMapRef = useRef(currQueryMap);
+  const queryChanged = !_isEqual(currQueryMap, prevQueryMapRef.current);
+  if(queryChanged || isFirstRenderRef.current) {
+    prevQueryMapRef.current = currQueryMap;
+    isFirstRenderRef.current = false;
+    mapQueryToState(currQueryMap);
+  }
+  useFetchJsonReport(browserProps.match.params.uid, !!(
+    process.env.NODE_ENV === 'development' && _at(
+      Object.fromEntries([
+        ...queryStringToMap(browserProps.location.search),
+        ...currQueryMap,
+      ]),
+      ['dev', 'devel', 'development'],
+    ).filter(e => !!e).reduce((p, c) => p || c)
+  ));
+  return children;
+}
+BatchReportStartup.propTypes = {
+  browserProps: PropTypes.shape({
+    match: PropTypes.object,
+    location: PropTypes.object,
+    history: PropTypes.object,
+  }).isRequired,
+  children: PropTypes.element,
+};
+
+export default function BatchReport({ match, location, history }) {
+  return (
+    <AppStateProvider>
+      <UIRouter>
+        <BatchReportStartup browserProps={{ match, location, history }} >
+          <div className={css(batchReportStyles.batchReport)}>
+            <Toolbar/>
+            <NavPanes/>
+            <CenterPane/>
+          </div>
+        </BatchReportStartup>
+      </UIRouter>
+    </AppStateProvider>
   );
 }

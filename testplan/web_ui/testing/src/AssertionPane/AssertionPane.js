@@ -156,7 +156,7 @@ AssertionPane.propTypes = {
   descriptionEntries: PropTypes.arrayOf(PropTypes.string),
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   icon: {
     margin: '0rem .75rem 0rem 0rem',
     cursor: 'pointer',

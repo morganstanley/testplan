@@ -22,7 +22,7 @@ const AppRouter = () => (
     <SwitchRequireSlash>
       <Route exact path="/" component={Home} />
       <Route path="/testplan/:uid" render={props => (
-        JSON.parse(new URLSearchParams(props.location.search).get('dev'))
+        JSON.parse(new URLSearchParams(props.location.search).get('dev') || '')
           ? <BatchReport {...props} />
           : <BatchReportPrev {...props} />
       )} />
