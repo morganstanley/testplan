@@ -21,6 +21,8 @@ def pytest_test_inst(repo_root_path):
         repo_root_path, "examples", "PyTest", "pytest_tests.py"
     )
 
+    rootdir = os.path.commonprefix([str(pytest.config.rootdir), os.getcwd()])
+
     # We need to explicitly set the stdout_style in UT, normally it is inherited
     # from the parent object but that doesn't work when testing PyTest in
     # isolation.
@@ -28,6 +30,7 @@ def pytest_test_inst(repo_root_path):
         name="pytest example",
         target=example_path,
         stdout_style=defaults.STDOUT_STYLE,
+        extra_args=["--rootdir", rootdir],
     )
 
 
