@@ -327,6 +327,8 @@ class TestRunnerIHandler(entity.Entity):
         if not await_results:
             return self._run_async(self.start_test_resources, test_uid,)
 
+        self.logger.debug("Starting test resources for %s", test_uid)
+
         with self.report_mutex:
             self.report[test_uid].env_status = entity.ResourceStatus.STARTING
 
@@ -349,6 +351,8 @@ class TestRunnerIHandler(entity.Entity):
         """
         if not await_results:
             return self._run_async(self.stop_test_resources, test_uid,)
+
+        self.logger.debug("Stopping test resources for %s", test_uid)
 
         with self.report_mutex:
             self.report[test_uid].env_status = entity.ResourceStatus.STOPPING

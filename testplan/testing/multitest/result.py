@@ -93,7 +93,7 @@ def _bind_entry(entry, result_obj):
     ``entries`` list.
     """
     # Second element is the caller
-    caller_frame = inspect.stack()[1]
+    caller_frame = inspect.stack()[2]
     entry.file_path = os.path.abspath(caller_frame[1])
     entry.line_no = caller_frame[2]
 
@@ -1391,7 +1391,7 @@ class Result(object):
         """Entries stored passed status."""
         return all(getattr(entry, "passed", True) for entry in self.entries)
 
-    def log(self, message, description=None):
+    def log(self, message, description=None, flag=None):
         """
         Create a string message entry, can be used for providing additional
         context related to test steps.
@@ -1404,33 +1404,92 @@ class Result(object):
         :type message: ``str`` or instance
         :param description: Text description for the assertion.
         :type description: ``str``
+        :param flag: Custom flag for the assertion, set to 'email' to
+            include message in email exporter.
+        :param flag: ``str``
         :return: ``True``
         :rtype: ``bool``
         """
-        entry = base.Log(message=message, description=description)
+        entry = base.Log(message=message, description=description, flag=flag)
         _bind_entry(entry, self)
         return entry
 
-    def fail(self, description, category=None):
+    def fail(self, description, category=None, flag=None):
         """
         Failure assertion, can be used for explicitly failing a testcase.
-        Most common usage is within a conditional block.
+        The message will be included by email exporter. Most common usage is
+        within a conditional block.
 
         .. code-block:: python
-
-            if not some_condition:
+            if some_condition:
                 result.fail('Unexpected failure: {}'.format(...))
 
         :param description: Text description of the failure.
         :type description: ``str``
         :param category: Custom category that will be used for summarization.
         :type category: ``str``
+        :param flag: Custom flag for the assertion, set to 'email' to
+            include message in email exporter.
+        :param flag: ``str``
         :return: ``False``
         :rtype: ``bool``
         """
-        entry = assertions.Fail(description, category=category)
+        entry = assertions.Fail(description, category=category, flag=flag)
         _bind_entry(entry, self)
         return entry
+
+    def conditional_log(
+        self,
+        condition,
+        log_message,
+        log_description,
+        fail_description,
+        flag=None,
+    ):
+        """
+        A compound assertion that does result.log() or result.fail()
+        depending on the truthiness of condition.
+
+        .. code-block:: python
+
+            result.conditional_log(
+                some_condition,
+                log_message,
+                log_description,
+                fail_description,
+            )
+
+        is a shortcut for writing:
+
+        .. code-block:: python
+            if some_condition:
+                result.log(log_message, description=log_description)
+            else:
+                result.fail(fail_description)
+
+        :param condition: Value to be evaluated for truthiness
+        :param condition: ``object``
+        :param log_message: Message to pass to result.log if condition
+            evaluates to True.
+        :type log_message: ``str``
+        :param log_description: Description to pass to result.log if
+            condition evaluates to True.
+        :type log_description: ``str``
+        :param fail_description: Description to pass to result.fail if
+            condition evaluates to False.
+        :type fail_description: ``str``
+        :param flag: Custom flag for the assertion, set to 'email' to
+            include message in email exporter.
+        :return: ``True``
+        :rtype: ``bool``
+        """
+        if condition:
+            if log_description:
+                return self.log(
+                    log_message, description=log_description, flag=flag,
+                )
+        else:
+            return self.fail(fail_description, flag=flag)
 
     def true(self, value, description=None, category=None):
         """

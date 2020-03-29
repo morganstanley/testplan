@@ -67,9 +67,9 @@ class Assertion(BaseEntry):
 
     meta_type = "assertion"
 
-    def __init__(self, description=None, category=None):
+    def __init__(self, description=None, category=None, flag=None):
         super(Assertion, self).__init__(
-            description=description, category=category
+            description=description, category=category, flag=flag,
         )
         self.passed = bool(self.evaluate())
 
@@ -1253,7 +1253,7 @@ class FixMatch(DictMatch):
         if typed_value and typed_expected:
             value_cmp_func = comparison.COMPARE_FUNCTIONS["check_types"]
         else:
-            value_cmp_func = comparison.COMPARE_FUNCTIONS["stringify"]
+            value_cmp_func = comparison.COMPARE_FUNCTIONS["untyped_fixtag"]
 
         super(FixMatch, self).__init__(
             value=value,

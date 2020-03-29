@@ -522,7 +522,9 @@ def _should_run(curr_status):
         return True
     else:
         raise werkzeug.exceptions.BadRequest(
-            "Cannot update status to {}".format(new_status)
+            "Cannot update runtime status from {} to {}".format(
+                curr_status, new_status
+            )
         )
 
 

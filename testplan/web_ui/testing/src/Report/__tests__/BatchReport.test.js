@@ -1,18 +1,18 @@
 import React from 'react';
-import {shallow} from 'enzyme';
-import {StyleSheetTestUtils} from "aphrodite";
+import { shallow } from 'enzyme';
+import { StyleSheetTestUtils } from "aphrodite";
 import moxios from 'moxios';
 
 import BatchReportPrev from '../BatchReport.prev';
 import BatchReport from '../BatchReport';
 import Message from '../../Common/Message';
-import {TESTPLAN_REPORT, SIMPLE_REPORT} from "../../Common/sampleReports";
+import { TESTPLAN_REPORT, SIMPLE_REPORT } from "../../Common/sampleReports";
 
 describe('BatchReport', () => {
-  const renderBatchReport = (uid="123") => {
+  const renderBatchReport = (uid = "123") => {
     // Mock the match object that would be passed down from react-router.
     // BatchReport uses this object to get the report UID.
-    const mockMatch = {params: {uid: uid}};
+    const mockMatch = { params: { uid: uid } };
     return shallow(
       <BatchReport match={mockMatch} />
     );
@@ -36,14 +36,14 @@ describe('BatchReport', () => {
 
   it('shallow renders the correct HTML structure when report loaded', () => {
     const batchReport = renderBatchReport();
-    batchReport.setState({report: TESTPLAN_REPORT});
+    batchReport.setState({ report: TESTPLAN_REPORT });
     batchReport.update();
     expect(batchReport).toMatchSnapshot();
   });
 
   it('renders loading message when fetching report', () => {
     const batchReport = renderBatchReport();
-    batchReport.setState({loading: true});
+    batchReport.setState({ loading: true });
     batchReport.update();
     const message = batchReport.find(Message);
     const expectedMessage = 'Fetching Testplan report...';
@@ -52,7 +52,7 @@ describe('BatchReport', () => {
 
   it('renders waiting message when waiting to start fetch', () => {
     const batchReport = renderBatchReport();
-    batchReport.setState({loading: false, error: null});
+    batchReport.setState({ loading: false, error: null });
     batchReport.update();
     const message = batchReport.find(Message);
     const expectedMessage = 'Waiting to fetch Testplan report...';
@@ -110,8 +110,7 @@ describe('BatchReport', () => {
       }).then(function () {
         batchReport.update();
         const message = batchReport.find(Message);
-        const expectedMessage = 'Error fetching Testplan report. ' +
-          '(Request failed with status code 404)';
+        const expectedMessage = 'Error: Request failed with status code 404';
         expect(message.props().message).toEqual(expectedMessage);
         done();
       })

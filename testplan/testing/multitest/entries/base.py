@@ -25,6 +25,7 @@ __all__ = ["BaseEntry", "Group", "Summary", "Log"]
 ENTRY_NAME_PATTERN = re.compile(r"([A-Z])")
 
 DEFAULT_CATEGORY = "DEFAULT"
+DEFAULT_FLAG = "DEFAULT"
 
 
 def readable_name(class_name):
@@ -55,11 +56,12 @@ class BaseEntry(object):
 
     meta_type = "entry"
 
-    def __init__(self, description, category=None):
+    def __init__(self, description, category=None, flag=None):
         self.utc_time = utcnow()
         self.machine_time = datetime.datetime.now()
         self.description = description
         self.category = category or DEFAULT_CATEGORY
+        self.flag = flag or DEFAULT_FLAG
 
         # Will be set explicitly via containers
         self.line_no = None
@@ -220,13 +222,13 @@ class Summary(Group):
 class Log(BaseEntry):
     """Log a str to the report."""
 
-    def __init__(self, message, description=None):
+    def __init__(self, message, description=None, flag=None):
         if isinstance(message, basestring):
             self.message = message
         else:
             self.message = pprint.pformat(message)
 
-        super(Log, self).__init__(description=description)
+        super(Log, self).__init__(description=description, flag=flag)
 
 
 class TableLog(BaseEntry):
