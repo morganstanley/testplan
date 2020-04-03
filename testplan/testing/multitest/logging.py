@@ -51,9 +51,7 @@ class LogCaptureConfig(object):
 
 
 class LogCaptureMixin(Loggable):
-    """ Mixin to add easy logging support to any @multitest.testsuite
-
-    """
+    """ Mixin to add easy logging support to any @multitest.testsuite"""
 
     _LogCaptureInfo = namedtuple(
         "LogCaptureInfo", ["result", "handler", "attach_file", "capture_level"]
