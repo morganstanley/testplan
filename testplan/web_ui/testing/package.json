@@ -2,6 +2,9 @@
   "name": "testplan",
   "version": "0.2.0",
   "private": true,
+  "resolutions": {
+    "@babel/preset-env": "^7.8.7"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "1.2.2",
     "@fortawesome/free-solid-svg-icons": "5.2.0",
@@ -29,7 +32,8 @@
     "enzyme": "3.7.0",
     "enzyme-adapter-react-16": "1.6.0",
     "enzyme-to-json": "^3.3.5",
-    "moxios": "0.4.0"
+    "moxios": "0.4.0",
+    "npm-force-resolutions": "0.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
