@@ -1331,7 +1331,7 @@ Python standard logging infrastructure can be used for logging, however testplan
 
 See also the :ref:`a downloadable example <example_multitest_logging>`.
 
-:py:class:`LogCaptureMixin <testplan.testing.multitest.logging.LogCaptureMixin>` when inherited provide a ``self.logger`` which will log to the normal testplan log. Furthermore the mixin provide a context manager :py:meth:`capture_log(result) <testplan.testing.multitest.logging.LogCaptureMixin.capture_log>` which can be used to automatically capture logs happening in teh context and attaching it to the result.
+:py:class:`LogCaptureMixin <testplan.testing.multitest.logging.LogCaptureMixin>` when inherited provide a ``self.logger`` which will log to the normal testplan log. Furthermore the mixin provide a context manager :py:meth:`capture_log(result) <testplan.testing.multitest.logging.LogCaptureMixin.capture_log>` which can be used to automatically capture logs happening in the context and attaching it to the result.
 
 .. code-block:: python
 
