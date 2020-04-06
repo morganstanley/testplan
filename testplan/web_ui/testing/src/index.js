@@ -1,3 +1,4 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import BatchReportPrev from './Report/BatchReport.prev';
@@ -7,9 +8,6 @@ import EmptyReport from './Report/EmptyReport';
 import {POLL_MS} from './Common/defaults.js';
 import Home from './Common/Home';
 import SwitchRequireSlash from './Common/SwitchRequireSlash';
-
-// import registerServiceWorker from './registerServiceWorker';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter, Route } from 'react-router-dom';
 
 /**
@@ -42,4 +40,3 @@ const AppRouter = () => (
 );
 
 ReactDOM.render(<AppRouter />, document.getElementById('root'));
-// registerServiceWorker();

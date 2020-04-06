@@ -259,7 +259,7 @@ const TESTPLAN_REPORT = {
   ],
 };
 
-var fakeReportAssertions = {
+const fakeReportAssertions = {
     "category": "testplan",
     "tags_index": {},
     "meta": {},
@@ -3929,7 +3929,7 @@ var fakeReportAssertions = {
             ]
         }
     ]
-}
+};
 
 
 export {

@@ -68,9 +68,9 @@ class BatchReportPrev extends React.Component {
       // allow overriding where we fetch the report from in deveopment,
       // see src/Common/Home.jsx:12
       if(process.env.NODE_ENV === "development" &&
-          typeof process.env.REACT_APP_DB_HOST !== "undefined") {
-        axiosConfig.baseURL = process.env.REACT_APP_DB_HOST;
-        const DB_ORIGIN = new URL(process.env.REACT_APP_DB_HOST).origin;
+          typeof process.env.REACT_APP_API_BASE_URL !== "undefined") {
+        axiosConfig.baseURL = process.env.REACT_APP_API_BASE_URL;
+        const DB_ORIGIN = new URL(process.env.REACT_APP_API_BASE_URL).origin;
         if(window.location.origin !== DB_ORIGIN) {
           // CORS headers https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
           axiosConfig.headers = {"Access-Control-Allow-Origin": DB_ORIGIN};

@@ -7,8 +7,8 @@
  * Return the JSX for the 'style' parameter for the graph component
  * to help render nicer graphs, not currently set by the user
  *
- * @param {str} graph_type - The type of graph being rendered
- * @return {dict[key: object]} Returns any style required for the graph
+ * @param {string} graph_type - The type of graph being rendered
+ * @return {Object.<string, any>|undefined} Returns any style required for the graph
  */
 export function returnStyle(graph_type){
   if(graph_type === 'Contour'){
@@ -25,8 +25,8 @@ export function returnStyle(graph_type){
  * Return the JSX for the 'XType' parameter for the XYPlot
  * component to be make the x axis increment either numerical or ordinal
  *
- * @param {str} graph_type - The type of graph being rendered
- * @return {str} Returns ordinal if x-axis should be
+ * @param {string} graph_type - The type of graph being rendered
+ * @return {string|undefined} Returns ordinal if x-axis should be
  *               letters instead of numerical
  */
 export function returnXType(graph_type){
@@ -43,11 +43,12 @@ const COLOUR_PALETTE=['#1c5c9c', '#68caea', '#7448c5', '#633836',
  * otherwise return from a colour scheme/palette, then random colours
  * (tinted darker/blue)
  *
- * @param {dict[str, dict[str, object]]} series_options - dictionary with
- *                                       series name and user specified options
- * @param {dict[str, list]} data - every data series name along
- *                                 with the relative list of data
- * @return {dict[str, str]} Every series name and it's display colour
+ * @param {Object.<string, Object.<string, any>>} series_options -
+ *   dictionary with series name and user specified options
+ * @param {Object.<string, any[]>} data -
+ *   every data series name along with the relative list of data
+ * @return {Object.<string, string | any>}
+ *   Every series name and it's display colour
  */
 export function returnColour(series_options, data){
   const series_names = Object.keys(data);
@@ -92,10 +93,10 @@ export function returnColour(series_options, data){
  * Return an xAxisTitle for the graph component
  * or nothing if it has not been set
  *
- * @param {dict[str: object]} graph_options - user specified options
+ * @param {Object.<string, any>} graph_options - user specified options
  *                                            for the entire graph
  *
- * @return {str/null} The axis title, or null if not set
+ * @return {string | undefined} The axis title, or null if not set
  */
 export function returnXAxisTitle(graph_options){
   if(graph_options == null){
@@ -109,10 +110,10 @@ export function returnXAxisTitle(graph_options){
 /**
  * Return an yAxisTitle for the graph component
  * or nothing if it has not been set
- * @param {dict[str: object]} graph_options - user specified options
+ * @param {Object.<string, any>} graph_options - user specified options
  *                                            for the entire graph
  *
- * @return {str/null} The axis title, or null if not set
+ * @return {string | undefined} The axis title, or null if not set
  */
 export function returnYAxisTitle(graph_options){
   if(graph_options == null){

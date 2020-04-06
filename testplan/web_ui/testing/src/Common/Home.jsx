@@ -34,8 +34,8 @@ const DevHome = () => {
               REACT_APP_REPORT_UID_OVERRIDE - UID of an existing report
             </li>
             <li>
-              REACT_APP_DB_HOST - Full 'scheme://host:port/path' of your
-              database server, e.g. 'http://couch.example.com/devel'
+              REACT_APP_API_BASE_URL - Full 'scheme://host:port/path' of your
+              API server, e.g. 'http://couch.example.com/devel'
             </li>
           </ul>
           If your database server has a different origin than your development

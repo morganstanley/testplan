@@ -1,7 +1,7 @@
 /**
  * Common utility functions.
  */
-import {NAV_ENTRY_DISPLAY_DATA} from "./defaults";
+import { NAV_ENTRY_DISPLAY_DATA } from "./defaults";
 
 /**
  * Get the data to be used when displaying the nav entry.
@@ -62,7 +62,7 @@ function uniqueId() {
  * @returns {number}
  */
 function hashCode(str) {
-  var hash = 0, i, chr, len;
+  let hash = 0, i, chr, len;
   if (str.length === 0) return hash;
   for (i = 0, len = str.length; i < len; i++) {
     chr = str.charCodeAt(i);
@@ -93,52 +93,6 @@ export {
 };
 
 /**
- * Convert a URL query string to a Map with JSON-parsed values
- * @example
- * queryStringToMap('?a=1&b=true&c=%7B"x"%3A+null%7D') === new Map([
- *   ['a', 1],
- *   ['b', true],
- *   ['c', { x: null }],
- * ])
- * @param {string} queryString - a URL query string
- * @returns {Map<string, any>}
- */
-export function queryStringToMap(queryString) {
-  const parsedEntries = new Map();
-  // @ts-ignore
-  for(const [ qKey, qVal ] of new URLSearchParams(queryString).entries()) {
-    try {
-      parsedEntries.set(qKey, JSON.parse(qVal));
-    } catch(err) {
-      parsedEntries.set(qKey, qVal);
-    }
-  }
-  return parsedEntries;
-}
-
-/** @typedef {any |string |number |boolean |null |symbol |BigInt} ActuallyAny */
-/**
- * Convert a URL query string to a JSON-parsed object
- * @example
- * mapToQueryString(new Map([
- *   ['a', 1],
- *   ['b', true],
- *   ['c', { x: null }],
- * ])) === '?a=1&b=true&c=%7B"x"%3A+null%7D'
- * @param {Map<string, ActuallyAny>} mapObj - a Map
- * @returns {string}
- */
-export function mapToQueryString(mapObj) {
-  const stringifiedEntries = [];
-  for(const [ oKey, oVal ] of mapObj) {
-    stringifiedEntries.push([
-      oKey,
-      typeof oVal === 'string' ? oVal : JSON.stringify(oVal)
-    ]);
-  }
-  return new URLSearchParams(stringifiedEntries).toString();
-}
-/**
  * @desc
  * Repeatedly calls
  * [Array.flat]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat}
@@ -150,3 +104,13 @@ export function mapToQueryString(mapObj) {
  */
 export const flatten = it =>
   Array.isArray(it) ? it.flatMap(e => flatten(e)) : it;
+
+/**
+ * Returns the single value from an array containing one element, else just
+ * returns the array.
+ * @template T
+ * @param {Array<T>} arr
+ * @returns {T | Array<T>}
+ */
+export const singletonToValue = arr =>
+  Array.isArray(arr) && arr.length === 1 ? arr[0] : arr;

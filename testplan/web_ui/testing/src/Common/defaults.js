@@ -1,20 +1,22 @@
 /**
  * Constants used across the entire application.
  */
-const GREEN = '#228F1D';
-const RED = '#A2000C';
-const ORANGE = '#FFA500';
-const LIGHT_GREY = '#F3F3F3';
-const MEDIUM_GREY = '#D0D0D0';
-const DARK_GREY = '#ADADAD';
-const BLACK = '#404040';
+export const GREEN = '#228F1D';
+export const RED = '#A2000C';
+export const ORANGE = '#FFA500';
+export const LIGHT_GREY = '#F3F3F3';
+export const MEDIUM_GREY = '#D0D0D0';
+export const DARK_GREY = '#ADADAD';
+export const BLACK = '#404040';
 
-const COLUMN_WIDTH = 22;
-const INTERACTIVE_COL_WIDTH = 28;  // wider to fit interactive buttons
+export const BOTTOMMOST_ENTRY_CATEGORY = 'testcase';
 
-const INDENT_MULTIPLIER = 1.5;
+export const COLUMN_WIDTH = 22;
+export const INTERACTIVE_COL_WIDTH = 28;  // wider to fit interactive buttons
 
-const TOOLBAR_BUTTONS_BATCH = [
+export const INDENT_MULTIPLIER = 1.5;
+
+export const TOOLBAR_BUTTONS_BATCH = [
   {name: 'pr', type: 'print'},
   {name: 'if', type: 'info-circle'},
   {name: 'qu', type: 'question-circle'},
@@ -26,7 +28,7 @@ const TOOLBAR_BUTTONS_BATCH = [
   {name: 'mo', type: 'chart-bar'}
 ];
 
-const TOOLBAR_BUTTONS_INTERACTIVE = [
+export const TOOLBAR_BUTTONS_INTERACTIVE = [
   {name: 'po', type: 'fa-power-off'},
   {name: 'bg', type: 'fa-bug'},
   {name: 'rf', type: 'fa-refresh'},
@@ -35,7 +37,7 @@ const TOOLBAR_BUTTONS_INTERACTIVE = [
   {name: 'fp', type: 'fa-floppy-o'}
 ];
 
-const CATEGORIES = {
+export const CATEGORIES = {
   'test': 'test',
   'multitest': 'test',
   'cppunit': 'test',
@@ -51,7 +53,7 @@ const CATEGORIES = {
   'testcase': 'testcase'
 };
 
-const CATEGORY_ICONS = {
+export const CATEGORY_ICONS = {
   'testplan': 'TP',
   'test': 'T',
   'multitest': 'MT',
@@ -68,7 +70,7 @@ const CATEGORY_ICONS = {
   'testcase': 'C'
 };
 
-const ENTRY_TYPES = [
+export const ENTRY_TYPES = [
   'testplan',
   'multitest',
   'gtest',
@@ -81,7 +83,7 @@ const ENTRY_TYPES = [
   'testcase',
 ];
 
-const STATUS = [
+export const STATUS = [
   'error',
   'failed',
   'passed',
@@ -96,7 +98,7 @@ const STATUS = [
   'unknown',
 ];
 
-const STATUS_CATEGORY = {
+export const STATUS_CATEGORY = {
   'error': 'error',
   'failed': 'failed',
   'incomplete': 'failed',
@@ -109,14 +111,14 @@ const STATUS_CATEGORY = {
   'unknown': 'unknown',
 };
 
-const RUNTIME_STATUS = [
+export const RUNTIME_STATUS = [
   'ready',
   'running',
   'finished',
 ];
 
 
-const NAV_ENTRY_DISPLAY_DATA = [
+export const NAV_ENTRY_DISPLAY_DATA = [
   'name',
   'uid',
   'type',
@@ -129,7 +131,7 @@ const NAV_ENTRY_DISPLAY_DATA = [
   'logs',
 ];
 
-const BASIC_ASSERTION_TYPES = [
+export const BASIC_ASSERTION_TYPES = [
   'Log',
   'Equal', 'NotEqual', 'Greater', 'GreaterEqual', 'Less', 'LessEqual',
   'IsClose', 'IsTrue', 'IsFalse',
@@ -144,7 +146,7 @@ const BASIC_ASSERTION_TYPES = [
   'RawAssertion',
 ];
 
-const SORT_TYPES = {
+export const SORT_TYPES = {
   NONE: 0,
   ALPHABETICAL: 1,
   REVERSE_ALPHABETICAL: 2,
@@ -152,7 +154,7 @@ const SORT_TYPES = {
   ONLY_FAILURES: 4,
 };
 
-const DICT_GRID_STYLE = {
+export const DICT_GRID_STYLE = {
   MAX_VISIBLE_ROW: 20,
   ROW_HEIGHT: 28,
   EMPTY_ROW_HEIGHT: 5,
@@ -166,30 +168,4 @@ const DICT_GRID_STYLE = {
 // NOTE: currently we poll for updates using HTTP for simplicity but in future
 // it might be better to use websockets or SSEs to allow the backend to notify
 // us when updates are available.
-const POLL_MS = 1000;
-
-export {
-  GREEN,
-  RED,
-  ORANGE,
-  LIGHT_GREY,
-  MEDIUM_GREY,
-  DARK_GREY,
-  BLACK,
-  COLUMN_WIDTH,
-  INTERACTIVE_COL_WIDTH,
-  INDENT_MULTIPLIER,
-  TOOLBAR_BUTTONS_BATCH,
-  TOOLBAR_BUTTONS_INTERACTIVE,
-  CATEGORIES,
-  CATEGORY_ICONS,
-  ENTRY_TYPES,
-  STATUS,
-  STATUS_CATEGORY,
-  RUNTIME_STATUS,
-  NAV_ENTRY_DISPLAY_DATA,
-  BASIC_ASSERTION_TYPES,
-  SORT_TYPES,
-  DICT_GRID_STYLE,
-  POLL_MS,
-};
+export const POLL_MS = 1000;

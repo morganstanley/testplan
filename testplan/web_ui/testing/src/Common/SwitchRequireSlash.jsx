@@ -8,8 +8,8 @@ import { Route, Switch, Redirect } from "react-router-dom";
  * the user that don't contain a trailing slash, e.g. "/:url", and redirects
  * them to e.g. "/:url/".
  */
-export default props => (
-    <Switch>
+export default ({ children = null, location = null }) => (
+    <Switch location={location}>
       {/* Must be first - require trailing slash */}
       <Route strict exact sensitive from=':pathNoSlash(|.*?[^/])'
              component={routeProps => (
@@ -19,6 +19,6 @@ export default props => (
                }} />
              )}
       />
-      {props.children}
+      {children}
     </Switch>
 );

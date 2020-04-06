@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
   },
   filterLabel: {
     width: '100%',
-    display: 'inlinde-block',
+    display: 'inline-block',
     cursor: 'pointer',
     padding: '0.2em',
     'margin-left': '2em',
