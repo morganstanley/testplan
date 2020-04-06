@@ -8,38 +8,52 @@ Install & Build the Testplan UI code.
 import subprocess
 import argparse
 import logging
+import json
 import sys
 import os
 
 from testplan import web_ui
 
-TESTPLAN_UI_DIR = os.path.join(
-    os.path.dirname(web_ui.__file__),
-    'testing'
-)
+TESTPLAN_UI_DIR = os.path.join(os.path.dirname(web_ui.__file__), "testing")
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
 
 
 def parse_cli_args():
     """Parse cli args."""
-    parser = argparse.ArgumentParser(description='Run this script to install & '
-                                                 'build the Testplan UI.')
-    parser.add_argument('-v', '--verbose', action='store_true', dest='verbose',
-                        help='Display verbose logs (stdout from npm commands).')
-    parser.add_argument('-d', '--dev', action='store_true', dest='dev',
-                        help='Install dev dependencies, use if developing UI.')
-    parser.add_argument('-p', '--path', action='store', dest='path',
-                        default=TESTPLAN_UI_DIR,
-                        help='The path to the testplan UI directory.')
+    parser = argparse.ArgumentParser(
+        description="Run this script to install & " "build the Testplan UI."
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        dest="verbose",
+        help="Display verbose logs (stdout from npm commands).",
+    )
+    parser.add_argument(
+        "-d",
+        "--dev",
+        action="store_true",
+        dest="dev",
+        help="Install dev dependencies, use if developing UI.",
+    )
+    parser.add_argument(
+        "-p",
+        "--path",
+        action="store",
+        dest="path",
+        default=TESTPLAN_UI_DIR,
+        help="The path to the testplan UI directory.",
+    )
     return parser.parse_args()
 
 
 def npm_installed():
     """Check if npm has been installed."""
-    with open(os.devnull, 'w') as FNULL:
+    with open(os.devnull, "w") as FNULL:
         try:
-            subprocess.check_call('npm --version', shell=True, stdout=FNULL)
+            subprocess.check_call("npm --version", shell=True, stdout=FNULL)
         except subprocess.CalledProcessError:
             return False
         else:
@@ -59,33 +73,65 @@ def install_and_build_ui(path=TESTPLAN_UI_DIR, dev=False, verbose=False):
     """
 
     if not npm_installed():
-        logging.warning('='*54)
-        logging.warning('NPM NOT INSTALLED.')
-        logging.warning('Testplan UI is built using npm, please follow these')
-        logging.warning('instructions to install https://www.npmjs.com/get-npm')
-        logging.warning('='*54)
+        logging.warning("=" * 54)
+        logging.warning("NPM NOT INSTALLED.")
+        logging.warning("Testplan UI is built using npm, please follow these")
+        logging.warning(
+            "instructions to install https://www.npmjs.com/get-npm"
+        )
+        logging.warning("=" * 54)
         sys.exit(1)
 
-    with open(os.devnull, 'w') as FNULL:
+    with open(os.devnull, "w") as FNULL:
         output = FNULL
         if verbose:
             output = None
 
-        production_cmd = ' --production'
+        production_cmd = " --production"
         if dev:
-            production_cmd = ''
+            production_cmd = ""
 
-        logging.info('Installing Testplan UI dependencies...')
-        logging.info('Installing to path: {}'.format(os.path.abspath(path)))
+        logging.info("Installing Testplan UI dependencies...")
+        logging.info("Installing to path: {}".format(os.path.abspath(path)))
         subprocess.check_call(
-            'npm install --no-package-lock{}'.format(production_cmd),
-            shell=True, cwd=path, stdout=output, stderr=subprocess.STDOUT)
-        logging.info('Building Testplan UI...')
-        subprocess.check_call('npm run build', shell=True, cwd=path,
-                              stdout=output, stderr=subprocess.STDOUT)
-    logging.info('Testplan UI install & build have completed successfully.')
+            "npm install {}".format(production_cmd),
+            shell=True,
+            cwd=path,
+            stdout=output,
+            stderr=subprocess.STDOUT,
+        )
+        package_path = os.path.join(path, "package.json")
+        with open(package_path) as package_file:
+            packages = json.load(package_file)
+            if "resolutions" in packages:
+                logging.info(
+                    "Found resolutions in package.json! Running npm-force-resolutions..."
+                )
+                subprocess.check_call(
+                    "npx npm-force-resolutions".format(production_cmd),
+                    shell=True,
+                    cwd=path,
+                    stdout=output,
+                    stderr=subprocess.STDOUT,
+                )
+                subprocess.check_call(
+                    "npm install {}".format(production_cmd),
+                    shell=True,
+                    cwd=path,
+                    stdout=output,
+                    stderr=subprocess.STDOUT,
+                )
+        logging.info("Building Testplan UI...")
+        subprocess.check_call(
+            "npm run build",
+            shell=True,
+            cwd=path,
+            stdout=output,
+            stderr=subprocess.STDOUT,
+        )
+    logging.info("Testplan UI install & build have completed successfully.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = parse_cli_args()
     install_and_build_ui(path=args.path, dev=args.dev, verbose=args.verbose)
