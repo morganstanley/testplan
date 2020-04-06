@@ -11,15 +11,23 @@ import {STATUS, COLUMN_WIDTH} from "../Common/defaults";
 const NavList = (props) => {
   const navButtons = CreateNavButtons(
     props,
-    (entry) => (
-      <NavEntry
-        name={entry.name}
-        status={entry.status}
-        type={entry.category}
-        caseCountPassed={entry.counter.passed}
-        caseCountFailed={entry.counter.failed}
-      />
-    ),
+    (entry) => {
+      const executionTime = (entry.timer && entry.timer.run) ? (
+        (new Date(entry.timer.run.end)).getTime() -
+        (new Date(entry.timer.run.start)).getTime()) / 1000 : null;
+
+      return (
+        <NavEntry
+          name={entry.name}
+          status={entry.status}
+          type={entry.category}
+          caseCountPassed={entry.counter.passed}
+          caseCountFailed={entry.counter.failed}
+          executionTime={executionTime}
+          displayTime={props.displayTime}
+        />
+      );
+    },
     props.selectedUid
   );
 
@@ -43,10 +51,12 @@ NavList.propTypes = {
   handleNavClick: PropTypes.func,
   /** Entity filter */
   filter: PropTypes.string,
-  /** Flag to display tags on navbar */
-  displayEmpty: PropTypes.bool,
   /** Flag to display empty testcase on navbar */
+  displayEmpty: PropTypes.bool,
+  /** Flag to display tags on navbar */
   displayTags: PropTypes.bool,
+  /** Flag to display execution time on navbar */
+  displayTime: PropTypes.bool,
   /** Entry uid to be focused */
   selectedUid: PropTypes.string,
 };

@@ -417,6 +417,8 @@ Toolbar.propTypes = {
   status: PropTypes.oneOf(STATUS),
   /** Report object to display information */
   report: PropTypes.object,
+  /** Additional buttons added to toolbar */
+  extraButtons: PropTypes.array,
   /** Function to handle filter changing in the Filter box */
   updateFilterFunc: PropTypes.func,
   /** Function to handle toggle of displaying empty entries in the navbar */

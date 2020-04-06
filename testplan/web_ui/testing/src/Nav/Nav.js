@@ -29,6 +29,7 @@ const Nav = (props) => {
         filter={props.filter}
         displayEmpty={props.displayEmpty}
         displayTags={props.displayTags}
+        displayTime={props.displayTime}
         selectedUid={GetSelectedUid(props.selected)}
       />
     </>
@@ -46,6 +47,8 @@ Nav.propTypes = {
   filter: PropTypes.string,
   /** Flag to display tags on navbar */
   displayTags: PropTypes.bool,
+  /** Flag to display execution time on navbar */
+  displayTime: PropTypes.bool,
   /** Flag to display empty testcase on navbar */
   displayEmpty: PropTypes.bool,
   /** Callback when a navigation entry is clicked. */

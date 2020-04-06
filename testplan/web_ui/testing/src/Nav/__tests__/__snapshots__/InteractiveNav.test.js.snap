@@ -95,6 +95,7 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
     breadcrumbLength={1}
     displayEmpty={true}
     displayTags={false}
+    displayTime={false}
     entries={
       Array [
         Object {

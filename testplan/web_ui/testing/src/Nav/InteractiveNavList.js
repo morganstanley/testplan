@@ -59,10 +59,12 @@ InteractiveNavList.propTypes = {
   autoSelect: PropTypes.func,
   /** Entity filter */
   filter: PropTypes.string,
-  /** Flag to display tags on navbar */
-  displayEmpty: PropTypes.bool,
   /** Flag to display empty testcase on navbar */
+  displayEmpty: PropTypes.bool,
+  /** Flag to display tags on navbar */
   displayTags: PropTypes.bool,
+  /** Flag to display execution time on navbar */
+  displayTime: PropTypes.bool,
 };
 
 export default InteractiveNavList;

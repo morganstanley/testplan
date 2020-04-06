@@ -5,6 +5,13 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
   className="batchReport_3hmsj"
 >
   <Toolbar
+    extraButtons={
+      Array [
+        <TimeButton
+          toggleTimeDisplayCbk={[Function]}
+        />,
+      ]
+    }
     handleNavFilter={[Function]}
     report={
       Object {
@@ -405,6 +412,7 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
   <Nav
     displayEmpty={true}
     displayTags={false}
+    displayTime={false}
     filter={null}
     handleNavClick={[Function]}
     report={
@@ -1204,6 +1212,13 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
   className="batchReport_3hmsj"
 >
   <Toolbar
+    extraButtons={
+      Array [
+        <TimeButton
+          toggleTimeDisplayCbk={[Function]}
+        />,
+      ]
+    }
     handleNavFilter={[Function]}
     report={
       Object {
@@ -1372,6 +1387,7 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
   <Nav
     displayEmpty={true}
     displayTags={false}
+    displayTime={false}
     filter={null}
     handleNavClick={[Function]}
     report={
@@ -1924,6 +1940,13 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
   className="batchReport_3hmsj"
 >
   <Toolbar
+    extraButtons={
+      Array [
+        <TimeButton
+          toggleTimeDisplayCbk={[Function]}
+        />,
+      ]
+    }
     handleNavFilter={[Function]}
     report={
       Object {
@@ -2191,6 +2214,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
   <Nav
     displayEmpty={true}
     displayTags={false}
+    displayTime={false}
     filter={null}
     handleNavClick={[Function]}
     report={
