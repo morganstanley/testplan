@@ -6,7 +6,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faBook } from '@fortawesome/free-solid-svg-icons';
 
 import useReportState from '../hooks/useReportState';
-import { default as navStyles } from '../../../Toolbar/navStyles';
+import navStyles from '../../../Toolbar/navStyles';
 
 library.add(faBook);
 

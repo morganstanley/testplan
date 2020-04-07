@@ -1,7 +1,7 @@
 /**
  * Sample Testplan reports to be used in development & testing.
  */
-const TESTPLAN_REPORT = {
+export const TESTPLAN_REPORT = {
   "name": "Sample Testplan",
   "status": "failed",
   "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
@@ -259,7 +259,7 @@ const TESTPLAN_REPORT = {
   ],
 };
 
-const fakeReportAssertions = {
+export const fakeReportAssertions = {
     "category": "testplan",
     "tags_index": {},
     "meta": {},
@@ -3930,9 +3930,3 @@ const fakeReportAssertions = {
         }
     ]
 };
-
-
-export {
-  TESTPLAN_REPORT,
-  fakeReportAssertions,
-}

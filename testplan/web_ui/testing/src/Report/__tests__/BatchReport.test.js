@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 import { StyleSheetTestUtils } from "aphrodite";
 import moxios from 'moxios';
 
-import { default as BatchReport } from '../BatchReport.prev';
+import BatchReport from '../BatchReport';
 import Message from '../../Common/Message';
 import { TESTPLAN_REPORT, SIMPLE_REPORT } from "../../Common/sampleReports";
 

@@ -12,8 +12,8 @@ import { getObservedBitsGetter } from '../utils';
 
 const getObservedStateBits = getObservedBitsGetter(stateMaskMap);
 const getObservedActionsBits = getObservedBitsGetter(actionsMaskMap);
-const resolveSlicer = ({ slicer, ifFalse, ifUndef, func }) => (
-  slicer === false ? ifFalse : slicer === undefined ? ifUndef : func()
+export const resolveSlicer = ({ slicer, ifFalse, ifUndef, elseFunc }) => (
+  slicer === false ? ifFalse : slicer === undefined ? ifUndef : elseFunc()
 );
 
 /**
@@ -78,8 +78,8 @@ const resolveSlicer = ({ slicer, ifFalse, ifUndef, func }) => (
  */
 export default function useReportState(stateSlices, actionsSlices) {
   const currentState = React.useContext(
-    // @ts-ignore
-    ReportStateContext, getObservedStateBits(stateSlices),
+      // @ts-ignore
+      ReportStateContext, getObservedStateBits(stateSlices),
     ),
     boundActions = React.useContext(
       // @ts-ignore
@@ -89,14 +89,14 @@ export default function useReportState(stateSlices, actionsSlices) {
       resolveSlicer({
         slicer: stateSlices, ifFalse: null, ifUndef: [ currentState ],
         // @ts-ignore
-        func: () => _at(currentState, stateSlices),
+        elseFunc: () => _at(currentState, stateSlices),
       })
     ),
     subActions = singletonToValue(
       resolveSlicer({
         slicer: actionsSlices, ifFalse: null, ifUndef: [ boundActions ],
         // @ts-ignore
-        func: () => _at(boundActions, actionsSlices),
+        elseFunc: () => _at(boundActions, actionsSlices),
       })
     );
   return React.useMemo(

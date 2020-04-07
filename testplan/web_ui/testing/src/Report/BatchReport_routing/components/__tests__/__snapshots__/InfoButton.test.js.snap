@@ -1,0 +1,137 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InfoButton { [ false, [Function mockConstructor] ] = useReportState(...["app.reports.batch.isShowInfoModal","setAppBatchReportShowInfoModal"]) } <SPAN> onClick event correctly renders & handles onClick 1`] = `
+<div>
+  <li
+    class="nav-item"
+  >
+    <div
+      class="buttonsBar_13xq1v"
+    >
+      <span>
+        <svg
+          aria-labelledby="svg-inline--fa-title-1"
+          class="svg-inline--fa fa-info fa-w-6 toolbarButton_z1gq62"
+          data-icon="info"
+          data-prefix="fas"
+          role="img"
+          viewBox="0 0 192 512"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <title
+            id="svg-inline--fa-title-1"
+          >
+            Info
+          </title>
+          <path
+            d="M20 424.229h20V279.771H20c-11.046 0-20-8.954-20-20V212c0-11.046 8.954-20 20-20h112c11.046 0 20 8.954 20 20v212.229h20c11.046 0 20 8.954 20 20V492c0 11.046-8.954 20-20 20H20c-11.046 0-20-8.954-20-20v-47.771c0-11.046 8.954-20 20-20zM96 0C56.235 0 24 32.235 24 72s32.235 72 72 72 72-32.235 72-72S135.764 0 96 0z"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
+    </div>
+  </li>
+</div>
+`;
+
+exports[`InfoButton { [ false, [Function mockConstructor] ] = useReportState(...["app.reports.batch.isShowInfoModal","setAppBatchReportShowInfoModal"]) } correctly renders + calls hook & runs no event handlers 1`] = `
+<div>
+  <li
+    class="nav-item"
+  >
+    <div
+      class="buttonsBar_13xq1v"
+    >
+      <span>
+        <svg
+          aria-labelledby="svg-inline--fa-title-1"
+          class="svg-inline--fa fa-info fa-w-6 toolbarButton_z1gq62"
+          data-icon="info"
+          data-prefix="fas"
+          role="img"
+          viewBox="0 0 192 512"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <title
+            id="svg-inline--fa-title-1"
+          >
+            Info
+          </title>
+          <path
+            d="M20 424.229h20V279.771H20c-11.046 0-20-8.954-20-20V212c0-11.046 8.954-20 20-20h112c11.046 0 20 8.954 20 20v212.229h20c11.046 0 20 8.954 20 20V492c0 11.046-8.954 20-20 20H20c-11.046 0-20-8.954-20-20v-47.771c0-11.046 8.954-20 20-20zM96 0C56.235 0 24 32.235 24 72s32.235 72 72 72 72-32.235 72-72S135.764 0 96 0z"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
+    </div>
+  </li>
+</div>
+`;
+
+exports[`InfoButton { [ true, [Function mockConstructor] ] = useReportState(...["app.reports.batch.isShowInfoModal","setAppBatchReportShowInfoModal"]) } <SPAN> onClick event correctly renders & handles onClick 1`] = `
+<div>
+  <li
+    class="nav-item"
+  >
+    <div
+      class="buttonsBar_13xq1v"
+    >
+      <span>
+        <svg
+          aria-labelledby="svg-inline--fa-title-1"
+          class="svg-inline--fa fa-info fa-w-6 toolbarButton_z1gq62"
+          data-icon="info"
+          data-prefix="fas"
+          role="img"
+          viewBox="0 0 192 512"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <title
+            id="svg-inline--fa-title-1"
+          >
+            Info
+          </title>
+          <path
+            d="M20 424.229h20V279.771H20c-11.046 0-20-8.954-20-20V212c0-11.046 8.954-20 20-20h112c11.046 0 20 8.954 20 20v212.229h20c11.046 0 20 8.954 20 20V492c0 11.046-8.954 20-20 20H20c-11.046 0-20-8.954-20-20v-47.771c0-11.046 8.954-20 20-20zM96 0C56.235 0 24 32.235 24 72s32.235 72 72 72 72-32.235 72-72S135.764 0 96 0z"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
+    </div>
+  </li>
+</div>
+`;
+
+exports[`InfoButton { [ true, [Function mockConstructor] ] = useReportState(...["app.reports.batch.isShowInfoModal","setAppBatchReportShowInfoModal"]) } correctly renders + calls hook & runs no event handlers 1`] = `
+<div>
+  <li
+    class="nav-item"
+  >
+    <div
+      class="buttonsBar_13xq1v"
+    >
+      <span>
+        <svg
+          aria-labelledby="svg-inline--fa-title-1"
+          class="svg-inline--fa fa-info fa-w-6 toolbarButton_z1gq62"
+          data-icon="info"
+          data-prefix="fas"
+          role="img"
+          viewBox="0 0 192 512"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <title
+            id="svg-inline--fa-title-1"
+          >
+            Info
+          </title>
+          <path
+            d="M20 424.229h20V279.771H20c-11.046 0-20-8.954-20-20V212c0-11.046 8.954-20 20-20h112c11.046 0 20 8.954 20 20v212.229h20c11.046 0 20 8.954 20 20V492c0 11.046-8.954 20-20 20H20c-11.046 0-20-8.954-20-20v-47.771c0-11.046 8.954-20 20-20zM96 0C56.235 0 24 32.235 24 72s32.235 72 72 72 72-32.235 72-72S135.764 0 96 0z"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
+    </div>
+  </li>
+</div>
+`;

@@ -1,7 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import BatchReportPrev from './Report/BatchReport.prev';
 import BatchReport from './Report/BatchReport';
 import InteractiveReport from './Report/InteractiveReport';
 import EmptyReport from './Report/EmptyReport';
@@ -22,7 +21,7 @@ const AppRouter = () => (
       <Route path="/testplan/:uid" render={props => (
         JSON.parse(new URLSearchParams(props.location.search).get('dev') || '')
           ? <BatchReport {...props} />
-          : <BatchReportPrev {...props} />
+          : <BatchReport {...props} />
       )} />
       {/*<Route path="/testplan/:uid" >
          <BatchReport />

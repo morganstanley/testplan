@@ -2,30 +2,35 @@ import React from 'react';
 import NavItem from 'reactstrap/lib/NavItem';
 import { css } from 'aphrodite';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInfo } from '@fortawesome/free-solid-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
+import { faTags } from '@fortawesome/free-solid-svg-icons';
 
 import useReportState from '../hooks/useReportState';
 import navStyles from '../../../Toolbar/navStyles';
 
-library.add(faInfo);
+library.add(faTags);
 
 /**
- * Return the info button which toggles the info modal.
+ * Return the button which toggles the display of tags.
  * @returns {React.FunctionComponentElement}
  */
-export default function InfoButton() {
-  const [ isShowInfoModal, setShowInfoModal ] = useReportState(
-    'app.reports.batch.isShowInfoModal', 'setAppBatchReportShowInfoModal',
+export default function TagsButton() {
+  const [ isShowTags, setShowTags ] = useReportState(
+    'app.reports.batch.isShowTags',
+    'setAppBatchReportIsShowTags',
   );
+  const onClick = evt => {
+    evt.stopPropagation();
+    setShowTags(!isShowTags);
+  };
   return (
     <NavItem>
       <div className={css(navStyles.buttonsBar)}>
-        <span onClick={() => setShowInfoModal(!isShowInfoModal)}>
-          <FontAwesomeIcon key='toolbar-info'
+        <span onClick={onClick}>
+          <FontAwesomeIcon key='toolbar-tags'
                            className={css(navStyles.toolbarButton)}
-                           icon={faInfo.iconName}
-                           title='Info'
+                           icon={faTags.iconName}
+                           title='Toggle tags'
           />
         </span>
       </div>

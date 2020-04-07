@@ -14,7 +14,6 @@
     "aphrodite": "2.2.3",
     "axios": "0.19.0",
     "bootstrap": "4.3.1",
-    "eslint-plugin-react": "^7.14.3",
     "history": "^4.10.1",
     "immer": "^6.0.0",
     "jest": "^24.9.0",
@@ -30,7 +29,6 @@
     "react-scripts": "^3.4.0",
     "react-spinners": "^0.6.0",
     "react-syntax-highlighter": "^11.0.2",
-    "react-test-renderer": "16.6.0",
     "react-vis": "^1.11.7",
     "reactstrap": "6.3.0"
   },
@@ -39,7 +37,9 @@
     "enzyme-adapter-react-16": "1.6.0",
     "enzyme-to-json": "^3.3.5",
     "moxios": "0.4.0",
-    "npm-force-resolutions": "0.0.3"
+    "eslint-plugin-react": "^7.14.3",
+    "npm-force-resolutions": "0.0.3",
+    "react-test-renderer": "^16.10.2"
   },
   "scripts": {
     "start": "react-scripts start",

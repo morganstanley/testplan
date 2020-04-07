@@ -20,7 +20,7 @@ import {fakeReportAssertions} from "../Common/fakeReport";
  *   * display messages when loading report or error in report.
  *   * render toolbar, nav & assertion components.
  */
-class BatchReportPrev extends React.Component {
+class BatchReport extends React.Component {
   constructor(props) {
     super(props);
     this.handleNavFilter = this.handleNavFilter.bind(this);
@@ -203,4 +203,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default BatchReportPrev;
+export default BatchReport;

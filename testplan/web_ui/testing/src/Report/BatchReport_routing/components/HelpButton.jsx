@@ -19,10 +19,14 @@ export default function HelpButton() {
     'app.reports.batch.isShowHelpModal',
     'setAppBatchReportShowHelpModal',
   );
-  return React.useMemo(() => (
+  const onClick = evt => {
+    evt.stopPropagation();
+    setShowHelpModal(!isShowHelpModal);
+  };
+  return (
     <NavItem>
       <div className={css(navStyles.buttonsBar)}>
-        <span onClick={() => setShowHelpModal(!isShowHelpModal)}>
+        <span onClick={onClick}>
           <FontAwesomeIcon key='toolbar-question'
                            className={css(navStyles.toolbarButton)}
                            icon={faQuestionCircle.iconName}
@@ -31,5 +35,5 @@ export default function HelpButton() {
         </span>
       </div>
     </NavItem>
-  ), [ isShowHelpModal, setShowHelpModal ]);
+  );
 }

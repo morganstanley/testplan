@@ -179,13 +179,9 @@ class InteractiveReport extends React.Component {
               existingParametrization.hash !== newTestCase.hash
             ) {
               return this.getParametrizations(test, newSuite, newTestCase).then(
-<<<<<<< HEAD
                 parametrizations => ({
                   ...newTestCase, entries: parametrizations
                 })
-=======
-                parametrizations => ({ ...newTestCase, entries: parametrizations })
->>>>>>> 76ab581... Reset environment state before testcase state
               );
             } else {
               return existingParametrization;

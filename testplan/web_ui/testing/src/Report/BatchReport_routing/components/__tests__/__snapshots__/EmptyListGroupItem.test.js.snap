@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EmptyListGroupItem renders correctly 1`] = `
+<li
+  class="navButton_1x055n9 list-group-item"
+>
+  No entries to display...
+</li>
+`;
