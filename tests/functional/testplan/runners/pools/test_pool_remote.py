@@ -49,9 +49,9 @@ def copytree(src, dst):
 
 def setup_workspace():
     """
-    Sets up the workspace to use for testing the remote pool. We need two
-    directories in the workspace: "testplan" containing the testplan package,
-    and "test" containing tests to be scheduled.
+    Sets up the workspace to use for testing the remote pool. We will copy the
+    tests subdir to workspace, and remote pool logic will copy the workspace
+    to remote host.
 
     :return: paths to the workspace root and where to schedule tests from.
     """
