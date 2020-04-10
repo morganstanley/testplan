@@ -187,13 +187,14 @@ class RemoteWorker(ProcessWorker):
             source=local_path, target=remote_path, remote_target=True
         )
 
+    def _get_testplan_import_path(self):
+
+        return os.path.dirname(os.path.dirname(module_abspath(testplan)))
+
     def _copy_testplan_package(self):
         """Make testplan package available on remote host"""
 
-        module_path = os.path.dirname(module_abspath(testplan))
-        self._testplan_import_path.local = os.path.abspath(
-            os.path.join(module_path, "..")
-        )
+        self._testplan_import_path.local = self._get_testplan_import_path()
 
         if self.cfg.testplan_path:
             self._testplan_import_path.remote = self.cfg.testplan_path
@@ -218,10 +219,12 @@ class RemoteWorker(ProcessWorker):
             self._testplan_import_path.remote = os.path.join(
                 self._remote_testplan_path, "testplan_lib"
             )
-            # as module_path has no trailing /
-            # this will copy the entire testplan subdir to testplan_lib
+            # add trailing / to _testplan_import_path.local
+            # this will copy everything under import path to to testplan_lib
             self._transfer_data(
-                source=module_path,
+                source=os.path.join(
+                    self._testplan_import_path.local, os.path.sep
+                ),
                 target=self._testplan_import_path.remote,
                 remote_target=True,
                 deref_links=True,
