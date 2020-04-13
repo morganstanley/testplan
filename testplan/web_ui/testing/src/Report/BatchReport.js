@@ -30,9 +30,10 @@ class BatchReport extends React.Component {
     this.toggleTimeDisplay = this.toggleTimeDisplay.bind(this);
     this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
     this.handleNavClick = this.handleNavClick.bind(this);
+    this.handleColumnResizing = this.handleColumnResizing.bind(this);
 
     this.state = {
-      navWidth: COLUMN_WIDTH,
+      navWidth: `${COLUMN_WIDTH}em`,
       report: null,
       testcaseUid: null,
       loading: false,
@@ -144,6 +145,13 @@ class BatchReport extends React.Component {
   }
 
   /**
+   * Handle resizing event and update NavList & Center Pane.
+   */
+  handleColumnResizing(navWidth) {
+    this.setState({navWidth: navWidth});
+  }
+
+  /**
    * Handle a navigation entry being clicked.
    */
   handleNavClick(e, entry, depth) {
@@ -163,7 +171,6 @@ class BatchReport extends React.Component {
     );
     const centerPane = GetCenterPane(
       this.state,
-      this.props,
       reportFetchMessage,
       this.props.match.params.uid,
       selectedEntries,
@@ -172,6 +179,7 @@ class BatchReport extends React.Component {
     return (
       <div className={css(styles.batchReport)}>
         <Toolbar
+          filterBoxWidth={this.state.navWidth}
           status={reportStatus}
           report={this.state.report}
           handleNavFilter={this.handleNavFilter}
@@ -184,6 +192,7 @@ class BatchReport extends React.Component {
           />]}
         />
         <Nav
+          navListWidth={this.state.navWidth}
           report={this.state.report}
           selected={selectedEntries}
           filter={this.state.filter}
@@ -191,6 +200,7 @@ class BatchReport extends React.Component {
           displayTags={this.state.displayTags}
           displayTime={this.state.displayTime}
           handleNavClick={this.handleNavClick}
+          handleColumnResizing={this.handleColumnResizing}
         />
         {centerPane}
       </div>

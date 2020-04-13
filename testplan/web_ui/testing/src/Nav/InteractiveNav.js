@@ -32,9 +32,11 @@ const InteractiveNav = (props) => {
         handleNavClick={props.handleNavClick}
       />
       <InteractiveNavList
+        width={props.navListWidth}
         entries={navEntries}
         breadcrumbLength={breadCrumbEntries.length}
         handleNavClick={props.handleNavClick}
+        handleColumnResizing={props.handleColumnResizing}
         autoSelect={() => undefined}
         filter={null}
         displayEmpty={true}

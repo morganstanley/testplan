@@ -2,7 +2,7 @@
 
 exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
 <Column
-  width={28}
+  width="28em"
 >
   <ListGroup
     className="buttonList_mjw45f"

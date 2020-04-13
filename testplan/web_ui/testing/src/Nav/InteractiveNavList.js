@@ -3,10 +3,7 @@ import PropTypes from 'prop-types';
 
 import InteractiveNavEntry from './InteractiveNavEntry';
 import {CreateNavButtons, GetNavColumn} from './navUtils.js';
-import {
-  STATUS, RUNTIME_STATUS,
-  INTERACTIVE_COL_WIDTH
-} from "../Common/defaults";
+import {STATUS, RUNTIME_STATUS} from "../Common/defaults";
 
 /**
  * Render a vertical list of all the currently selected entries children for
@@ -36,7 +33,7 @@ const InteractiveNavList = (props) => {
 
   // Make the column a little wider for the interactive mode, to account for
   // extra space used by the interactive buttons.
-  return GetNavColumn(INTERACTIVE_COL_WIDTH, navButtons);
+  return GetNavColumn(props, navButtons);
 };
 
 InteractiveNavList.propTypes = {
@@ -55,6 +52,8 @@ InteractiveNavList.propTypes = {
   breadcrumbLength: PropTypes.number,
   /** Function to handle Nav entries being clicked (selected) */
   handleNavClick: PropTypes.func,
+  /** Function to handle Nav list resizing */
+  handleColumnResizing: PropTypes.func,
   /** Function to automatically select Nav entries */
   autoSelect: PropTypes.func,
   /** Entity filter */

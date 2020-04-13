@@ -13,6 +13,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
         />,
       ]
     }
+    filterBoxWidth="28em"
     handleNavFilter={[Function]}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
@@ -25,8 +26,10 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleColumnResizing={[Function]}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
+    navListWidth="28em"
     report={
       Object {
         "attachments": Object {},
@@ -291,7 +294,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     }
   />
   <Message
-    left={28}
+    left="28em"
     message="Please select an entry."
   />
 </div>
@@ -312,6 +315,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
         />,
       ]
     }
+    filterBoxWidth="28em"
     handleNavFilter={[Function]}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
@@ -324,8 +328,10 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleColumnResizing={[Function]}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
+    navListWidth="28em"
     report={
       Object {
         "attachments": Object {},
@@ -584,7 +590,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     }
   />
   <Message
-    left={28}
+    left="28em"
     message="Please select an entry."
   />
 </div>
@@ -603,6 +609,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
         />,
       ]
     }
+    filterBoxWidth="28em"
     handleNavFilter={[Function]}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
@@ -615,8 +622,10 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleColumnResizing={[Function]}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
+    navListWidth="28em"
     report={
       Object {
         "attachments": Object {},
@@ -849,7 +858,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     }
   />
   <Message
-    left={28}
+    left="28em"
     message="Please select an entry."
   />
 </div>
@@ -868,6 +877,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
         />,
       ]
     }
+    filterBoxWidth="28em"
     handleNavFilter={[Function]}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
@@ -880,8 +890,10 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleColumnResizing={[Function]}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
+    navListWidth="28em"
     report={
       Object {
         "attachments": Object {},
@@ -1146,7 +1158,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     }
   />
   <Message
-    left={28}
+    left="28em"
     message="Please select an entry."
   />
 </div>
@@ -1165,6 +1177,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
         />,
       ]
     }
+    filterBoxWidth="28em"
     handleNavFilter={[Function]}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
@@ -1177,8 +1190,10 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleColumnResizing={[Function]}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
+    navListWidth="28em"
     report={
       Object {
         "attachments": Object {},
@@ -1443,7 +1458,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     }
   />
   <Message
-    left={28}
+    left="28em"
     message="Please select an entry."
   />
 </div>
@@ -1462,6 +1477,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
         />,
       ]
     }
+    filterBoxWidth="28em"
     handleNavFilter={[Function]}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
@@ -1474,8 +1490,10 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleColumnResizing={[Function]}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
+    navListWidth="28em"
     report={
       Object {
         "attachments": Object {},
@@ -1740,7 +1758,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     }
   />
   <Message
-    left={28}
+    left="28em"
     message="Please select an entry."
   />
 </div>
@@ -1759,6 +1777,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
         />,
       ]
     }
+    filterBoxWidth="28em"
     handleNavFilter={[Function]}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
@@ -1771,8 +1790,10 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleColumnResizing={[Function]}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
+    navListWidth="28em"
     report={
       Object {
         "attachments": Object {},
@@ -2138,7 +2159,7 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
     }
   />
   <Message
-    left={28}
+    left="28em"
     message="Please select an entry."
   />
 </div>
@@ -2157,6 +2178,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
         />,
       ]
     }
+    filterBoxWidth="28em"
     handleNavFilter={[Function]}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
@@ -2169,8 +2191,10 @@ exports[`InteractiveReport handles tests being run 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleColumnResizing={[Function]}
     handleNavClick={[Function]}
     handlePlayClick={[Function]}
+    navListWidth="28em"
     report={
       Object {
         "attachments": Object {},
@@ -2435,7 +2459,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
     }
   />
   <Message
-    left={28}
+    left="28em"
     message="Please select an entry."
   />
 </div>

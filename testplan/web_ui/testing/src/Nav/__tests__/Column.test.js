@@ -17,7 +17,7 @@ describe('Column', () => {
 
   it('shallow renders the correct HTML structure', () => {
     const column = shallow(
-      <Column width={20} >
+      <Column width={"20em"} >
         <p className='unique' />
       </Column>
     );

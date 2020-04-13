@@ -23,9 +23,11 @@ const Nav = (props) => {
         handleNavClick={props.handleNavClick}
       />
       <NavList
+        width={props.navListWidth}
         entries={navEntries}
         breadcrumbLength={breadCrumbEntries.length}
         handleNavClick={props.handleNavClick}
+        handleColumnResizing={props.handleColumnResizing}
         filter={props.filter}
         displayEmpty={props.displayEmpty}
         displayTags={props.displayTags}

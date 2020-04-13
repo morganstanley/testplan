@@ -5,7 +5,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
   className="searchBox_1yfus1e"
   style={
     Object {
-      "width": "22em",
+      "width": "19.5em",
     }
   }
 >

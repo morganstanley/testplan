@@ -192,8 +192,11 @@ const GetNavBreadcrumbs = (selected) => {
   }
 };
 
-const GetNavColumn = (width, navButtons) => (
-  <Column width={width} >
+const GetNavColumn = (props, navButtons) => (
+  <Column
+    width={props.width}
+    handleColumnResizing={props.handleColumnResizing}
+  >
     <ListGroup className={css(styles.buttonList)}>{navButtons}</ListGroup>
   </Column>
 );

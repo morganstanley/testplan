@@ -6,6 +6,7 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
     Object {
       "height": "calc(100% - 5em)",
       "left": "19.5em",
+      "paddingLeft": "20px",
       "position": "absolute",
       "top": "5em",
       "width": "calc(100% - 19.5em)",

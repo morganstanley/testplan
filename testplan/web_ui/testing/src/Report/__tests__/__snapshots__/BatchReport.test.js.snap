@@ -12,6 +12,7 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
         />,
       ]
     }
+    filterBoxWidth="22em"
     handleNavFilter={[Function]}
     report={
       Object {
@@ -414,7 +415,9 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
     displayTags={false}
     displayTime={false}
     filter={null}
+    handleColumnResizing={[Function]}
     handleNavClick={[Function]}
+    navListWidth="22em"
     report={
       Object {
         "category": "testplan",
@@ -1201,7 +1204,7 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
     }
   />
   <Message
-    left={22}
+    left="22em"
     message="Please select an entry."
   />
 </div>
@@ -1219,6 +1222,7 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
         />,
       ]
     }
+    filterBoxWidth="22em"
     handleNavFilter={[Function]}
     report={
       Object {
@@ -1389,7 +1393,9 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
     displayTags={false}
     displayTime={false}
     filter={null}
+    handleColumnResizing={[Function]}
     handleNavClick={[Function]}
+    navListWidth="22em"
     report={
       Object {
         "category": "testplan",
@@ -1929,7 +1935,7 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
     }
   />
   <Message
-    left={22}
+    left="22em"
     message="Please select an entry."
   />
 </div>
@@ -1947,6 +1953,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
         />,
       ]
     }
+    filterBoxWidth="22em"
     handleNavFilter={[Function]}
     report={
       Object {
@@ -2216,7 +2223,9 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     displayTags={false}
     displayTime={false}
     filter={null}
+    handleColumnResizing={[Function]}
     handleNavClick={[Function]}
+    navListWidth="22em"
     report={
       Object {
         "category": "testplan",
@@ -2478,7 +2487,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     selected={Array []}
   />
   <Message
-    left={22}
+    left="22em"
     message="Please select an entry."
   />
 </div>

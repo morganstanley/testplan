@@ -20,6 +20,7 @@ function defaultProps() {
   return {
     entries: [entry],
     breadcrumbLength: 1,
+    width: '22em',
     filter: 'all',
     displayEmpty: true,
     displayTags: true,

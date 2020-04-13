@@ -80,10 +80,11 @@ class AssertionPane extends Component {
   render() {
     let assertionPaneStyle = {
       position: 'absolute',
-      left: `${this.props.left}em`,
+      left: this.props.left,
+      paddingLeft: '20px',
       top: '5em',
       height: `calc(100% - 5em)`,
-      width: `calc(100% - ${this.props.left}em)`,
+      width: `calc(100% - ${this.props.left})`,
     };
 
     if (this.props.assertions.length !== 0 || this.props.logs.length !==0) {
@@ -147,7 +148,7 @@ AssertionPane.propTypes = {
   /** Unique identifier of the test case */
   testcaseUid: PropTypes.string,
   /** Left positional value */
-  left: PropTypes.number,
+  left: PropTypes.string,
   /** Assertion filter */
   filter: PropTypes.string,
   /** Report UID */

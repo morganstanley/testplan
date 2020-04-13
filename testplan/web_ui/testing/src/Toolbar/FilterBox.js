@@ -2,24 +2,24 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {StyleSheet, css} from 'aphrodite';
 
-import {COLUMN_WIDTH} from "../Common/defaults";
-
 /**
  * Filter box, enter filter expressions to filter entries from the Nav
  * component.
  */
 class FilterBox extends Component {
-  render() {return (
-    <div
-      className={css(styles.searchBox)}
-      style={{width: `${COLUMN_WIDTH}em`}}>
-      <input
-        className={css(styles.searchBoxInput)}
-        type="text"
-        placeholder="&#xf002; Filter"
-        onKeyUp={this.props.handleNavFilter} />
-    </div>
-  );
+  render() {
+    return (
+      <div
+        className={css(styles.searchBox)}
+        style={{width: this.props.width}}>
+        <input
+          className={css(styles.searchBoxInput)}
+          type="text"
+          placeholder="&#xf002; Filter"
+          onKeyUp={this.props.handleNavFilter}
+      />
+      </div>
+    );
   }
 }
 

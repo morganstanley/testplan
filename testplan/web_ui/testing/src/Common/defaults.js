@@ -9,7 +9,8 @@ const MEDIUM_GREY = '#D0D0D0';
 const DARK_GREY = '#ADADAD';
 const BLACK = '#404040';
 
-const COLUMN_WIDTH = 22;
+const COLUMN_WIDTH = 22;  // unit: em
+const MIN_COLUMN_WIDTH = 180;  // unit: px
 const INTERACTIVE_COL_WIDTH = 28;  // wider to fit interactive buttons
 
 const INDENT_MULTIPLIER = 1.5;
@@ -178,6 +179,7 @@ export {
   DARK_GREY,
   BLACK,
   COLUMN_WIDTH,
+  MIN_COLUMN_WIDTH,
   INTERACTIVE_COL_WIDTH,
   INDENT_MULTIPLIER,
   TOOLBAR_BUTTONS_BATCH,
