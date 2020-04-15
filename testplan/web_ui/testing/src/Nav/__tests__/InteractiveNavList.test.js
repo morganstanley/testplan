@@ -3,8 +3,8 @@ import React from 'react';
 import {shallow} from 'enzyme';
 import {StyleSheetTestUtils} from "aphrodite";
 
-import InteractiveNavList from '../InteractiveNavList.js';
-import {FakeInteractiveReport} from '../../Common/sampleReports.js';
+import InteractiveNavList from '../InteractiveNavList';
+import FakeInteractiveReport from '../../__tests__/fixtures/FakeInteractiveReport';
 
 describe('InteractiveNavList', () => {
   beforeEach(() => {

@@ -1,9 +1,8 @@
-/// <reference types="jest" />
+/** @jest-environment jsdom */
 // @ts-nocheck
-/* eslint-disable max-len */
 import React from 'react';
 import { render } from 'react-dom';
-import { act } from 'react-dom/test-utils';
+import { act, Simulate } from 'react-dom/test-utils';
 import { StyleSheetTestUtils } from 'aphrodite';
 import _shuffle from 'lodash/shuffle';
 
@@ -23,33 +22,32 @@ describe('HelpButton', () => {
     [ true, mkSetShowHelpModal() ],
     [ false, mkSetShowHelpModal() ],
   ]))(
-    `\{ [ %O, %p ] = useReportState(...${JSON.stringify(expectedArgs)}) \}`,
+    `{ [ %O, %p ] = useReportState(...${JSON.stringify(expectedArgs)}) }`,
     (isShowHelpModal, setShowHelpModal) => {
 
       beforeEach(() => {
         StyleSheetTestUtils.suppressStyleInjection();
-        self.container = self.document.createElement('div');
-        self.document.body.appendChild(self.container);
-        useReportState
-          .mockReturnValue([ isShowHelpModal, setShowHelpModal ])
+        global.container = global.document.createElement('div');
+        global.document.body.appendChild(global.container);
+        useReportState.mockReturnValue([ isShowHelpModal, setShowHelpModal ])
           .mockName('useReportState');
         jest.isolateModules(() => {
           const { default: HelpButton } = require('../HelpButton');
           act(() => {
-            render(<HelpButton/>, self.container);
+            render(<HelpButton/>, global.container);
           });
         });
       });
 
       afterEach(() => {
         StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
-        self.document.body.removeChild(self.container);
-        self.container = null;
+        global.document.body.removeChild(global.container);
+        global.container = null;
         jest.resetAllMocks();
       });
 
       it("correctly renders + calls hook & runs no event handlers", () => {
-        expect(self.container).toMatchSnapshot();
+        expect(global.container).toMatchSnapshot();
         expect(useReportState).toHaveBeenCalledTimes(1);
         expect(useReportState).toHaveBeenLastCalledWith(...expectedArgs);
         expect(setShowHelpModal).not.toHaveBeenCalled();
@@ -57,14 +55,10 @@ describe('HelpButton', () => {
 
       describe(`<${clickTgtQuery.toUpperCase()}> onClick event`, () => {
         beforeEach(() => {
-          act(() => {
-            self.container.querySelector(clickTgtQuery).dispatchEvent(
-              new MouseEvent('click', { bubbles: true })
-            );
-          });
+          Simulate.click(global.container.querySelector(clickTgtQuery));
         });
         it('correctly renders & handles onClick', () => {
-          expect(self.container).toMatchSnapshot();
+          expect(global.container).toMatchSnapshot();
           expect(setShowHelpModal).toHaveBeenCalledTimes(1);
           expect(setShowHelpModal).not
             .toHaveBeenLastCalledWith(isShowHelpModal);

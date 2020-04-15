@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InfoTable renders as expected 1`] = `
+<div>
+  <div
+    class="table-responsive"
+  >
+    <table
+      class="infoTable_bqrygy table table-bordered"
+    >
+      <tbody>
+        <tr>
+          <td
+            class="infoTableKey_1ki1om5"
+          >
+            user
+          </td>
+          <td
+            class="infoTableValue_x5c1q5"
+          >
+            unknown
+          </td>
+        </tr>
+        <tr>
+          <td
+            class="infoTableKey_1ki1om5"
+          >
+            command_line_string
+          </td>
+          <td
+            class="infoTableValue_x5c1q5"
+          >
+            /home/unknown/path_to_testplan_script/testplan.py
+          </td>
+        </tr>
+        <tr>
+          <td>
+            start
+          </td>
+          <td>
+            2018-10-15T14:30:10.998071+00:00
+          </td>
+        </tr>
+        <tr>
+          <td>
+            end
+          </td>
+          <td>
+            2018-10-15T14:30:11.296158+00:00
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+`;

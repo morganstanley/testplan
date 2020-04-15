@@ -56,5 +56,5 @@ export const hashQueryActionCreatorMap = () => ({
  * @returns {Object.<string, ActionCreatorType[keyof ActionCreatorType]>}
  */
 export const queryActionCreatorMap = () => ({
-
+  isTesting: actionCreators.setIsTesting,
 });

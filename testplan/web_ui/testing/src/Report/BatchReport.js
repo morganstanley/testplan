@@ -12,7 +12,9 @@ import {
   GetSelectedEntries,
 } from "./reportUtils";
 import {COLUMN_WIDTH} from "../Common/defaults";
-import {fakeReportAssertions} from "../Common/fakeReport";
+
+const fakeReportAssertions =
+  require('../__tests__/fixtures/documents/fakeReportAssertions.json');
 
 /**
  * BatchReport component:

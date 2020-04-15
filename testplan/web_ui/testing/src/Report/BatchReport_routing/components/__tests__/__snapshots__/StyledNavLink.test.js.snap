@@ -1,0 +1,509 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"8865a23d-1823-4c8d-ab37-58d24fc8ac05","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite/test_equality_passing?d=3" => "/Sample Testplan/Primary/AlphaSuite/test_equality_passing2" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="78686a4d-7b94-4ae6-ab50-d9960a7fb714"
+    href="/Sample Testplan/Primary/AlphaSuite/test_equality_passing2?c=2"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"8865a23d-1823-4c8d-ab37-58d24fc8ac05","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite/test_equality_passing2?e=4" => "/Sample Testplan/Primary/BetaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="6fc5c008-4d1a-454e-80b6-74bdc9bca49e"
+    href="/Sample Testplan/Primary/BetaSuite?d=3"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"8865a23d-1823-4c8d-ab37-58d24fc8ac05","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite?c=2" => "/Sample Testplan/Primary/AlphaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="736706ef-ba65-475d-96c5-f2855f431028"
+    href="/Sample Testplan/Primary/AlphaSuite/test_equality_passing?b=1"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"8865a23d-1823-4c8d-ab37-58d24fc8ac05","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/BetaSuite/test_equality_passing?g=6" => "/Sample Testplan/Secondary" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="8c3c7e6b-48e8-40cd-86db-8c8aed2592c8"
+    href="/Sample Testplan/Secondary?f=5"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"8865a23d-1823-4c8d-ab37-58d24fc8ac05","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/BetaSuite?f=5" => "/Sample Testplan/Primary/BetaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    aria-current="page"
+    class="navButtonInteract_1ofjo98"
+    data-uid="8865a23d-1823-4c8d-ab37-58d24fc8ac05"
+    href="/Sample Testplan/Primary/BetaSuite/test_equality_passing?e=4"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"8865a23d-1823-4c8d-ab37-58d24fc8ac05","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary?b=1" => "/Sample Testplan/Primary/AlphaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="cb144b10-bdb0-44d3-9170-d8016dd19ee7"
+    href="/Sample Testplan/Primary/AlphaSuite?a=0"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"8865a23d-1823-4c8d-ab37-58d24fc8ac05","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Secondary/GammaSuite/test_equality_passing" => "/" renders as expected 1`] = `
+<div>
+  <a
+    data-uid=""
+    href="/?i=8"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"8865a23d-1823-4c8d-ab37-58d24fc8ac05","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Secondary/GammaSuite?i=8" => "/Sample Testplan/Secondary/GammaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+    href="/Sample Testplan/Secondary/GammaSuite/test_equality_passing?h=7"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"8865a23d-1823-4c8d-ab37-58d24fc8ac05","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Secondary?h=7" => "/Sample Testplan/Secondary/GammaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="08d4c671-d55d-49d4-96ba-dc654d12be26"
+    href="/Sample Testplan/Secondary/GammaSuite?g=6"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"8865a23d-1823-4c8d-ab37-58d24fc8ac05","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan?a=0" => "/Sample Testplan/Primary" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="21739167-b30f-4c13-a315-ef6ae52fd1f7"
+    href="/Sample Testplan/Primary"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"736706ef-ba65-475d-96c5-f2855f431028","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite/test_equality_passing?d=3" => "/Sample Testplan/Primary/AlphaSuite/test_equality_passing2" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="78686a4d-7b94-4ae6-ab50-d9960a7fb714"
+    href="/Sample Testplan/Primary/AlphaSuite/test_equality_passing2?c=2"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"736706ef-ba65-475d-96c5-f2855f431028","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite/test_equality_passing2?e=4" => "/Sample Testplan/Primary/BetaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="6fc5c008-4d1a-454e-80b6-74bdc9bca49e"
+    href="/Sample Testplan/Primary/BetaSuite?d=3"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"736706ef-ba65-475d-96c5-f2855f431028","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite?c=2" => "/Sample Testplan/Primary/AlphaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    aria-current="page"
+    class="navButtonInteract_1ofjo98"
+    data-uid="736706ef-ba65-475d-96c5-f2855f431028"
+    href="/Sample Testplan/Primary/AlphaSuite/test_equality_passing?b=1"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"736706ef-ba65-475d-96c5-f2855f431028","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/BetaSuite/test_equality_passing?g=6" => "/Sample Testplan/Secondary" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="8c3c7e6b-48e8-40cd-86db-8c8aed2592c8"
+    href="/Sample Testplan/Secondary?f=5"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"736706ef-ba65-475d-96c5-f2855f431028","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/BetaSuite?f=5" => "/Sample Testplan/Primary/BetaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="8865a23d-1823-4c8d-ab37-58d24fc8ac05"
+    href="/Sample Testplan/Primary/BetaSuite/test_equality_passing?e=4"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"736706ef-ba65-475d-96c5-f2855f431028","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary?b=1" => "/Sample Testplan/Primary/AlphaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="cb144b10-bdb0-44d3-9170-d8016dd19ee7"
+    href="/Sample Testplan/Primary/AlphaSuite?a=0"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"736706ef-ba65-475d-96c5-f2855f431028","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Secondary/GammaSuite/test_equality_passing" => "/" renders as expected 1`] = `
+<div>
+  <a
+    data-uid=""
+    href="/?i=8"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"736706ef-ba65-475d-96c5-f2855f431028","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Secondary/GammaSuite?i=8" => "/Sample Testplan/Secondary/GammaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+    href="/Sample Testplan/Secondary/GammaSuite/test_equality_passing?h=7"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"736706ef-ba65-475d-96c5-f2855f431028","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Secondary?h=7" => "/Sample Testplan/Secondary/GammaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="08d4c671-d55d-49d4-96ba-dc654d12be26"
+    href="/Sample Testplan/Secondary/GammaSuite?g=6"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"736706ef-ba65-475d-96c5-f2855f431028","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan?a=0" => "/Sample Testplan/Primary" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="21739167-b30f-4c13-a315-ef6ae52fd1f7"
+    href="/Sample Testplan/Primary"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"f73bd6ea-d378-437b-a5db-00d9e427f36a","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite/test_equality_passing?d=3" => "/Sample Testplan/Primary/AlphaSuite/test_equality_passing2" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="78686a4d-7b94-4ae6-ab50-d9960a7fb714"
+    href="/Sample Testplan/Primary/AlphaSuite/test_equality_passing2?c=2"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"f73bd6ea-d378-437b-a5db-00d9e427f36a","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite/test_equality_passing2?e=4" => "/Sample Testplan/Primary/BetaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="6fc5c008-4d1a-454e-80b6-74bdc9bca49e"
+    href="/Sample Testplan/Primary/BetaSuite?d=3"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"f73bd6ea-d378-437b-a5db-00d9e427f36a","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite?c=2" => "/Sample Testplan/Primary/AlphaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="736706ef-ba65-475d-96c5-f2855f431028"
+    href="/Sample Testplan/Primary/AlphaSuite/test_equality_passing?b=1"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"f73bd6ea-d378-437b-a5db-00d9e427f36a","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/BetaSuite/test_equality_passing?g=6" => "/Sample Testplan/Secondary" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="8c3c7e6b-48e8-40cd-86db-8c8aed2592c8"
+    href="/Sample Testplan/Secondary?f=5"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"f73bd6ea-d378-437b-a5db-00d9e427f36a","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/BetaSuite?f=5" => "/Sample Testplan/Primary/BetaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="8865a23d-1823-4c8d-ab37-58d24fc8ac05"
+    href="/Sample Testplan/Primary/BetaSuite/test_equality_passing?e=4"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"f73bd6ea-d378-437b-a5db-00d9e427f36a","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary?b=1" => "/Sample Testplan/Primary/AlphaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="cb144b10-bdb0-44d3-9170-d8016dd19ee7"
+    href="/Sample Testplan/Primary/AlphaSuite?a=0"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"f73bd6ea-d378-437b-a5db-00d9e427f36a","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Secondary/GammaSuite/test_equality_passing" => "/" renders as expected 1`] = `
+<div>
+  <a
+    data-uid=""
+    href="/?i=8"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"f73bd6ea-d378-437b-a5db-00d9e427f36a","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Secondary/GammaSuite?i=8" => "/Sample Testplan/Secondary/GammaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    aria-current="page"
+    class="navButtonInteract_1ofjo98"
+    data-uid="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+    href="/Sample Testplan/Secondary/GammaSuite/test_equality_passing?h=7"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"f73bd6ea-d378-437b-a5db-00d9e427f36a","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Secondary?h=7" => "/Sample Testplan/Secondary/GammaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="08d4c671-d55d-49d4-96ba-dc654d12be26"
+    href="/Sample Testplan/Secondary/GammaSuite?g=6"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing","category":"testcase","uid":"f73bd6ea-d378-437b-a5db-00d9e427f36a","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan?a=0" => "/Sample Testplan/Primary" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="21739167-b30f-4c13-a315-ef6ae52fd1f7"
+    href="/Sample Testplan/Primary"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing2","category":"testcase","uid":"78686a4d-7b94-4ae6-ab50-d9960a7fb714","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite/test_equality_passing?d=3" => "/Sample Testplan/Primary/AlphaSuite/test_equality_passing2" renders as expected 1`] = `
+<div>
+  <a
+    aria-current="page"
+    class="navButtonInteract_1ofjo98"
+    data-uid="78686a4d-7b94-4ae6-ab50-d9960a7fb714"
+    href="/Sample Testplan/Primary/AlphaSuite/test_equality_passing2?c=2"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing2","category":"testcase","uid":"78686a4d-7b94-4ae6-ab50-d9960a7fb714","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite/test_equality_passing2?e=4" => "/Sample Testplan/Primary/BetaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="6fc5c008-4d1a-454e-80b6-74bdc9bca49e"
+    href="/Sample Testplan/Primary/BetaSuite?d=3"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing2","category":"testcase","uid":"78686a4d-7b94-4ae6-ab50-d9960a7fb714","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite?c=2" => "/Sample Testplan/Primary/AlphaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="736706ef-ba65-475d-96c5-f2855f431028"
+    href="/Sample Testplan/Primary/AlphaSuite/test_equality_passing?b=1"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing2","category":"testcase","uid":"78686a4d-7b94-4ae6-ab50-d9960a7fb714","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/BetaSuite/test_equality_passing?g=6" => "/Sample Testplan/Secondary" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="8c3c7e6b-48e8-40cd-86db-8c8aed2592c8"
+    href="/Sample Testplan/Secondary?f=5"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing2","category":"testcase","uid":"78686a4d-7b94-4ae6-ab50-d9960a7fb714","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary/BetaSuite?f=5" => "/Sample Testplan/Primary/BetaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="8865a23d-1823-4c8d-ab37-58d24fc8ac05"
+    href="/Sample Testplan/Primary/BetaSuite/test_equality_passing?e=4"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing2","category":"testcase","uid":"78686a4d-7b94-4ae6-ab50-d9960a7fb714","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Primary?b=1" => "/Sample Testplan/Primary/AlphaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="cb144b10-bdb0-44d3-9170-d8016dd19ee7"
+    href="/Sample Testplan/Primary/AlphaSuite?a=0"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing2","category":"testcase","uid":"78686a4d-7b94-4ae6-ab50-d9960a7fb714","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Secondary/GammaSuite/test_equality_passing" => "/" renders as expected 1`] = `
+<div>
+  <a
+    data-uid=""
+    href="/?i=8"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing2","category":"testcase","uid":"78686a4d-7b94-4ae6-ab50-d9960a7fb714","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Secondary/GammaSuite?i=8" => "/Sample Testplan/Secondary/GammaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+    href="/Sample Testplan/Secondary/GammaSuite/test_equality_passing?h=7"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing2","category":"testcase","uid":"78686a4d-7b94-4ae6-ab50-d9960a7fb714","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan/Secondary?h=7" => "/Sample Testplan/Secondary/GammaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="08d4c671-d55d-49d4-96ba-dc654d12be26"
+    href="/Sample Testplan/Secondary/GammaSuite?g=6"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report {"name":"test_equality_passing2","category":"testcase","uid":"78686a4d-7b94-4ae6-ab50-d9960a7fb714","entries":[{"category":"DEFAULT"}]} current URL => linked-to pathname: "/Sample Testplan?a=0" => "/Sample Testplan/Primary" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="21739167-b30f-4c13-a315-ef6ae52fd1f7"
+    href="/Sample Testplan/Primary"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report null current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite/test_equality_passing?d=3" => "/Sample Testplan/Primary/AlphaSuite/test_equality_passing2" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="78686a4d-7b94-4ae6-ab50-d9960a7fb714"
+    href="/Sample Testplan/Primary/AlphaSuite/test_equality_passing2?c=2"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report null current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite/test_equality_passing2?e=4" => "/Sample Testplan/Primary/BetaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="6fc5c008-4d1a-454e-80b6-74bdc9bca49e"
+    href="/Sample Testplan/Primary/BetaSuite?d=3"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report null current URL => linked-to pathname: "/Sample Testplan/Primary/AlphaSuite?c=2" => "/Sample Testplan/Primary/AlphaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="736706ef-ba65-475d-96c5-f2855f431028"
+    href="/Sample Testplan/Primary/AlphaSuite/test_equality_passing?b=1"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report null current URL => linked-to pathname: "/Sample Testplan/Primary/BetaSuite/test_equality_passing?g=6" => "/Sample Testplan/Secondary" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="8c3c7e6b-48e8-40cd-86db-8c8aed2592c8"
+    href="/Sample Testplan/Secondary?f=5"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report null current URL => linked-to pathname: "/Sample Testplan/Primary/BetaSuite?f=5" => "/Sample Testplan/Primary/BetaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="8865a23d-1823-4c8d-ab37-58d24fc8ac05"
+    href="/Sample Testplan/Primary/BetaSuite/test_equality_passing?e=4"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report null current URL => linked-to pathname: "/Sample Testplan/Primary?b=1" => "/Sample Testplan/Primary/AlphaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="cb144b10-bdb0-44d3-9170-d8016dd19ee7"
+    href="/Sample Testplan/Primary/AlphaSuite?a=0"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report null current URL => linked-to pathname: "/Sample Testplan/Secondary/GammaSuite/test_equality_passing" => "/" renders as expected 1`] = `
+<div>
+  <a
+    data-uid=""
+    href="/?i=8"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report null current URL => linked-to pathname: "/Sample Testplan/Secondary/GammaSuite?i=8" => "/Sample Testplan/Secondary/GammaSuite/test_equality_passing" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+    href="/Sample Testplan/Secondary/GammaSuite/test_equality_passing?h=7"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report null current URL => linked-to pathname: "/Sample Testplan/Secondary?h=7" => "/Sample Testplan/Secondary/GammaSuite" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="08d4c671-d55d-49d4-96ba-dc654d12be26"
+    href="/Sample Testplan/Secondary/GammaSuite?g=6"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;
+
+exports[`<StyledNavLink .../> with report null current URL => linked-to pathname: "/Sample Testplan?a=0" => "/Sample Testplan/Primary" renders as expected 1`] = `
+<div>
+  <a
+    data-uid="21739167-b30f-4c13-a315-ef6ae52fd1f7"
+    href="/Sample Testplan/Primary"
+    style="text-decoration: none; color: currentColor;"
+  />
+</div>
+`;

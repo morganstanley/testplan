@@ -1,0 +1,99 @@
+{
+  "category": "testplan",
+  "name": "Sample Testplan",
+  "status": "failed",
+  "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+  "tags_index": {},
+  "status_override": null,
+  "meta": {},
+  "timer": {
+    "run": {
+      "start": "2018-10-15T14:30:10.998071+00:00",
+      "end": "2018-10-15T14:30:11.296158+00:00"
+    }
+  },
+  "entries": [
+    {
+      "name": "Primary",
+      "status": "failed",
+      "category": "multitest",
+      "description": null,
+      "status_override": null,
+      "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+      "type": "TestGroupReport",
+      "logs": [],
+      "tags": {
+        "simple": [
+          "server"
+        ]
+      },
+      "timer": {
+        "run": {
+          "start": "2018-10-15T14:30:11.009705+00:00",
+          "end": "2018-10-15T14:30:11.159661+00:00"
+        }
+      },
+      "entries": [
+        {
+          "status": "failed",
+          "category": "testsuite",
+          "name": "AlphaSuite",
+          "status_override": null,
+          "description": null,
+          "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+          "type": "TestGroupReport",
+          "logs": [],
+          "tags": {
+            "simple": [
+              "server"
+            ]
+          },
+          "timer": {
+            "run": {
+              "start": "2018-10-15T14:30:11.009872+00:00",
+              "end": "2018-10-15T14:30:11.158224+00:00"
+            }
+          },
+          "entries": [
+            {
+              "category": "testcase",
+              "name": "test_equality_passing",
+              "status": "passed",
+              "status_override": null,
+              "description": null,
+              "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+              "type": "TestCaseReport",
+              "logs": [],
+              "tags": {
+                "colour": [
+                  "white"
+                ]
+              },
+              "timer": {
+                "run": {
+                  "start": "2018-10-15T14:30:11.010072+00:00",
+                  "end": "2018-10-15T14:30:11.132214+00:00"
+                }
+              },
+              "entries": [
+                {
+                  "category": "DEFAULT",
+                  "machine_time": "2018-10-15T15:30:11.010098+00:00",
+                  "description": "passing equality",
+                  "line_no": 24,
+                  "label": "==",
+                  "second": 1,
+                  "meta_type": "assertion",
+                  "passed": true,
+                  "type": "Equal",
+                  "utc_time": "2018-10-15T14:30:11.010094+00:00",
+                  "first": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

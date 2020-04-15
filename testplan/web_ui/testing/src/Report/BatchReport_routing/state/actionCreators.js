@@ -31,7 +31,7 @@ const actionCreators = {
   setIsTesting: (isTesting) => {
     const NODE_ENV = process.env.NODE_ENV,
       CI = process.env.CI,
-      acceptableNodeEnvVals = [ 'development', 'testing' ],
+      acceptableNodeEnvVals = [ 'development', 'test' ],
       // @ts-ignore
       testingAllowed = acceptableNodeEnvVals.includes(NODE_ENV) ||
                        typeof CI !== 'undefined',

@@ -4,8 +4,7 @@ import {shallow} from 'enzyme';
 import {StyleSheetTestUtils} from "aphrodite";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
-import InteractiveNavEntry from '../InteractiveNavEntry.js';
-import {FakeInteractiveReport} from '../../Common/sampleReports.js';
+import InteractiveNavEntry from '../InteractiveNavEntry';
 
 describe('InteractiveNavEntry', () => {
   beforeEach(() => {

@@ -2,7 +2,9 @@ import React from 'react';
 import {StyleSheetTestUtils} from "aphrodite";
 
 import {CreateNavButtons, GetSelectedUid} from '../navUtils';
-import {TESTPLAN_REPORT} from '../../Common/sampleReports';
+
+const TESTPLAN_REPORT =
+  require('../../__tests__/mocks/documents/TESTPLAN_REPORT_1.json');
 
 describe('navUtils', () => {
 

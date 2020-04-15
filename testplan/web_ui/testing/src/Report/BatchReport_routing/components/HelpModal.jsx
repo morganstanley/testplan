@@ -13,14 +13,12 @@ import useReportState from '../hooks/useReportState';
  */
 export default function HelpModal() {
   const [ isShowHelpModal, setShowHelpModal ] = useReportState(
-    'app.reports.batch.isShowHelpModal', 'setAppBatchReportShowHelpModal',
+    'app.reports.batch.isShowHelpModal',
+    'setAppBatchReportShowHelpModal',
   );
   const toggle = () => setShowHelpModal(!isShowHelpModal);
   return (
-    <Modal isOpen={isShowHelpModal}
-           toggle={toggle}
-           className='HelpModal'
-    >
+    <Modal isOpen={isShowHelpModal} toggle={toggle} className='HelpModal'>
       <ModalHeader toggle={toggle}>Help</ModalHeader>
       <ModalBody>
         This is filter box help!

@@ -5,7 +5,11 @@ import moxios from 'moxios';
 
 import BatchReport from '../BatchReport';
 import Message from '../../Common/Message';
-import { TESTPLAN_REPORT, SIMPLE_REPORT } from "../../Common/sampleReports";
+
+const TESTPLAN_REPORT =
+  require('../../__tests__/mocks/documents/TESTPLAN_REPORT_1.json');
+const SIMPLE_REPORT =
+  require('../../__tests__/mocks/documents/SIMPLE_REPORT.json');
 
 describe('BatchReport', () => {
   const renderBatchReport = (uid = "123") => {

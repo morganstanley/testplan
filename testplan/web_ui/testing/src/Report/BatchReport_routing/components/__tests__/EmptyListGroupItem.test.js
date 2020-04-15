@@ -1,6 +1,4 @@
-/// <reference types="jest" />
-// @ts-nocheck
-/* eslint-disable max-len */
+/** @jest-environment jsdom */
 import React from 'react';
 import EmptyListGroupItem from '../EmptyListGroupItem';
 import { render } from 'enzyme';

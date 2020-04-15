@@ -12,9 +12,10 @@ import navStyles from '../../../Toolbar/navStyles';
  * @param {React.PropsWithoutRef<{label: string}>} props
  * @returns {React.FunctionComponentElement}
  */
-export default function DisplayEmptyCheckBox({ label }) {
+export default function DisplayEmptyCheckBox({ label = '' }) {
   const [ isDisplayEmpty, setDisplayEmpty ] = useReportState(
-    'app.reports.batch.isDisplayEmpty', 'setAppBatchReportIsDisplayEmpty',
+    'app.reports.batch.isDisplayEmpty',
+    'setAppBatchReportIsDisplayEmpty',
   );
   return (
     <DropdownItem toggle={false} className={css(navStyles.dropdownItem)}>

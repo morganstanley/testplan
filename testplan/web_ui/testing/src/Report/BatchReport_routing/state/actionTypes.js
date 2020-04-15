@@ -1,3 +1,26 @@
+/**
+ * These double as slicers that can be passed to lodash.at to grab part of the
+ * state. This is what's used behind the scenes in `useReportState`.
+ * @example
+ * lodash.at({ isTesting: true, ... }, IS_TESTING) === [ true ]
+ * lodash.at({
+ *   app: {
+ *     reports: {
+ *       batch: {
+ *         fetchError: new Error("sample error")
+ *       }
+ *     }
+ *   }
+ * }, APP_BATCHREPORT_FETCH_ERROR)[0].message === "sample error"
+ * lodash.at({
+ *   uri: {
+ *     query: '?a=1&b=2',
+ *     hash: {
+ *       query: '?c=3&d=4',
+ *     }
+ *   }
+ * }, [ URI_HASH_QUERY, URI_QUERY ]) === [ '?c=3&d=4', '?a=1&b=2' ]
+ */
 export const IS_TESTING = 'isTesting';
 export const URI_HASH_ALIASES = 'uri.hash.aliases';
 export const URI_HASH_QUERY = 'uri.hash.query';

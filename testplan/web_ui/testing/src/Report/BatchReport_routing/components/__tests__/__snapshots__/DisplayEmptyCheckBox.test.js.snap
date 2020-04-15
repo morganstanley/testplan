@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DisplayEmptyCheckBox renders as expected when .checked === \`isDisplayEmpty\` === false 1`] = `
+<div>
+  <button
+    class="dropdownItem_1bl0z5g dropdown-item"
+    tabindex="0"
+  >
+    <label
+      class="filterLabel_1r0c7l6 form-check-label"
+    >
+      <input
+        checked=""
+        class="form-check-input"
+        name="displayEmpty"
+        type="checkbox"
+      />
+       DISPLAY_EMPTY_LABEL
+    </label>
+  </button>
+</div>
+`;
+
+exports[`DisplayEmptyCheckBox renders as expected when .checked === \`isDisplayEmpty\` === true 1`] = `
+<div>
+  <button
+    class="dropdownItem_1bl0z5g dropdown-item"
+    tabindex="0"
+  >
+    <label
+      class="filterLabel_1r0c7l6 form-check-label"
+    >
+      <input
+        class="form-check-input"
+        name="displayEmpty"
+        type="checkbox"
+      />
+       DISPLAY_EMPTY_LABEL
+    </label>
+  </button>
+</div>
+`;

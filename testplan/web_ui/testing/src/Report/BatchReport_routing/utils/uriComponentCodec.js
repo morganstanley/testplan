@@ -22,7 +22,7 @@ const originalToPctEscapedMap = new Map(
  * So while we're DIY-ing part of the routes' URL encoding, we can make the
  * URL itself OPTIONALLY better resemble what the user sees on the page. This
  * is safe because (as-of March 2020) since there seem to be no restrictions
- * on characters in the fragment portion of the URL in Chrome and since we're
+ * on characters in the fragment portion of the URL in Chrome. Since we're
  * inside a HashRouter, we're always in the fragment portion (though it may
  * not be technically permitted, see https://superuser.com/a/425351 & the
  * linked RFC).

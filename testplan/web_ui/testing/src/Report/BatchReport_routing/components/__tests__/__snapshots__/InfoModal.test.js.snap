@@ -1,0 +1,109 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InfoModal renders as expected when modal is NOT showing 1`] = `
+<Modal
+  autoFocus={true}
+  backdrop={true}
+  backdropTransition={
+    Object {
+      "mountOnEnter": true,
+      "timeout": 150,
+    }
+  }
+  centered={false}
+  className="infoModal"
+  fade={true}
+  isOpen={false}
+  keyboard={true}
+  modalTransition={
+    Object {
+      "timeout": 300,
+    }
+  }
+  onClosed={[Function]}
+  onOpened={[Function]}
+  role="dialog"
+  size="lg"
+  toggle={[Function]}
+  zIndex={1050}
+>
+  <ModalHeader
+    closeAriaLabel="Close"
+    tag="h5"
+    toggle={[Function]}
+    wrapTag="div"
+  >
+    Information
+  </ModalHeader>
+  <ModalBody
+    tag="div"
+  >
+    <InfoTable />
+  </ModalBody>
+  <ModalFooter
+    tag="div"
+  >
+    <Button
+      color="light"
+      onClick={[Function]}
+      tag="button"
+    >
+      Close
+    </Button>
+  </ModalFooter>
+</Modal>
+`;
+
+exports[`InfoModal renders as expected when modal is showing 1`] = `
+<Modal
+  autoFocus={true}
+  backdrop={true}
+  backdropTransition={
+    Object {
+      "mountOnEnter": true,
+      "timeout": 150,
+    }
+  }
+  centered={false}
+  className="infoModal"
+  fade={true}
+  isOpen={true}
+  keyboard={true}
+  modalTransition={
+    Object {
+      "timeout": 300,
+    }
+  }
+  onClosed={[Function]}
+  onOpened={[Function]}
+  role="dialog"
+  size="lg"
+  toggle={[Function]}
+  zIndex={1050}
+>
+  <ModalHeader
+    closeAriaLabel="Close"
+    tag="h5"
+    toggle={[Function]}
+    wrapTag="div"
+  >
+    Information
+  </ModalHeader>
+  <ModalBody
+    tag="div"
+  >
+    <InfoTable />
+  </ModalBody>
+  <ModalFooter
+    tag="div"
+  >
+    <Button
+      color="light"
+      onClick={[Function]}
+      tag="button"
+    >
+      Close
+    </Button>
+  </ModalFooter>
+</Modal>
+`;

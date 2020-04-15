@@ -4,8 +4,7 @@ import { shallow } from 'enzyme';
 import { StyleSheetTestUtils } from "aphrodite";
 import moxios from 'moxios';
 
-import InteractiveReport from '../InteractiveReport.js';
-import { FakeInteractiveReport } from '../../Common/sampleReports.js';
+import InteractiveReport from '../InteractiveReport';
 
 const initialReport = () => ({
   "category": "testplan",

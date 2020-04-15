@@ -1,10 +1,10 @@
-import React from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
 import Axios from 'axios';
 import _cloneDeep from 'lodash/cloneDeep';
 import { PropagateIndices } from '../../reportUtils';
 import useReportState from './useReportState';
 
-export default function useFetchJsonReport(
+export default function useFetchReport(
   reportUid, isDev = false, skipFetch = false, axiosInstance = null
 ) {
   const [
@@ -18,16 +18,16 @@ export default function useFetchJsonReport(
       'setAppBatchReportIsFetching',
       'setAppBatchReportFetchError',
     ]),
-    setJsonReportCb = React.useCallback(setJsonReport, []),
-    setLoadingCb = React.useCallback(setLoading, []),
-    setFetchingCb = React.useCallback(setFetching, []),
-    setFetchErrorCb = React.useCallback(setFetchError, []),
-    currAxiosInstance = React.useMemo(() => axiosInstance || Axios.create({
+    setJsonReportCb = useCallback(setJsonReport, []),
+    setLoadingCb = useCallback(setLoading, []),
+    setFetchingCb = useCallback(setFetching, []),
+    setFetchErrorCb = useCallback(setFetchError, []),
+    currAxiosInstance = useMemo(() => axiosInstance || Axios.create({
       baseURL: apiBaseURL,
       headers: apiHeaders,
     }), [ axiosInstance, apiBaseURL, apiHeaders ]);
 
-  const fetchRealReport = React.useCallback(() => {
+  const fetchRealReport = useCallback(() => {
     const fetchCanceller = Axios.CancelToken.source();
     (async () => {
       setLoadingCb(true);
@@ -62,32 +62,38 @@ export default function useFetchJsonReport(
     setFetchErrorCb,
   ]);
 
-  const fetchFakeReport = React.useCallback(() => {
-    (async () => {
-      try {
-        setLoadingCb(true);
-        setFetchingCb(true);
-        const fakeAssertions = await import('../../../Common/fakeReport').then(
-          fakeReport => fakeReport.fakeReportAssertions
-        );
-        setFetchingCb(false);
-        // @ts-ignore
-        const propagatedFakeAssertions = PropagateIndices(fakeAssertions);
-        setJsonReportCb(propagatedFakeAssertions);
-        setLoadingCb(false);
-      } catch(err) {
-        setFetchErrorCb(err);
-        setLoadingCb(false);
-        setFetchingCb(false);
-      }
-    })();
-  }, [ setLoadingCb, setFetchingCb, setJsonReportCb, setFetchErrorCb ]);
+  let fetchFakeReport;
+  if(process.env.NODE_ENV !== 'production') {
+    fetchFakeReport = () => {
+      (async () => {
+        try {
+          setLoadingCb(true);
+          setFetchingCb(true);
+          const fakeAssertions = await import(
+            '../../../__tests__/mocks/documents/fakeReportAssertions.json'
+            );
+          setFetchingCb(false);
+          // @ts-ignore
+          const propagatedFakeAssertions = PropagateIndices(fakeAssertions);
+          setJsonReportCb(propagatedFakeAssertions);
+          setLoadingCb(false);
+        } catch(err) {
+          setFetchErrorCb(err);
+          setLoadingCb(false);
+          setFetchingCb(false);
+        }
+      })();
+    };
+  }
 
-  React.useEffect(() => (
-    skipFetch
-      ? undefined
-      : isDev === true /* dont allow "truthy" values */
-      ? fetchFakeReport()
-      : fetchRealReport()
-  ), [ isDev, fetchFakeReport, fetchRealReport, skipFetch ]);
+  useEffect(() => {
+    if(process.env.NODE_ENV !== 'production') {
+      return skipFetch
+        ? undefined
+        : isDev === true /* dont allow "truthy" values */
+          ? fetchFakeReport()
+          : fetchRealReport();
+    }
+    return fetchRealReport();
+  }, [ isDev, fetchRealReport, skipFetch ]);
 }

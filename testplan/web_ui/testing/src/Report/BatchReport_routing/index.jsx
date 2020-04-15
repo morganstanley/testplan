@@ -10,10 +10,10 @@ import Toolbar from './components/Toolbar';
 import { batchReportStyles } from './style';
 import ReportStateProvider from './state/ReportStateProvider';
 import useReportState from './hooks/useReportState';
-import useFetchJsonReport from './hooks/useFetchJsonReport';
+import useFetchReport from './hooks/useFetchReport';
 import UIRouter from './components/UIRouter';
 import NavPanes from './components/NavPanes';
-import { queryStringToMap } from './utils';
+import { queryStringToMap } from '../../Common/utils';
 
 export function BatchReportStartup({
   browserProps,
@@ -34,7 +34,7 @@ export function BatchReportStartup({
     isDevelopment =
       process.env.NODE_ENV === 'development' && !!uriQueryMap.dev,
     isTesting =
-      process.env.NODE_ENV === 'testing' && !!uriQueryMap.isTesting;
+      process.env.NODE_ENV === 'test' && !!uriQueryMap.isTesting;
 
   // always sync on first render
   const isFirstRenderRef = React.useRef(true);
@@ -58,7 +58,7 @@ export function BatchReportStartup({
     prevHashQueryMapRef.current = uriHashQueryMap;
   }
 
-  useFetchJsonReport(
+  useFetchReport(
     browserProps.match.params.uid,
     isDevelopment || isTesting,
     skipFetch,

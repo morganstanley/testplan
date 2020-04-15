@@ -1,0 +1,193 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FilterRadioButton renders correctly when { value: "a", filter: "a" } 1`] = `
+<div>
+  <button
+    class="dropdownItem_1bl0z5g dropdown-item"
+    tabindex="0"
+  >
+    <label
+      class="filterLabel_1r0c7l6 form-check-label"
+    >
+      <input
+        checked=""
+        class="form-check-input"
+        name="filter"
+        type="radio"
+        value="a"
+      />
+       FILTER_RADIO_LABEL
+    </label>
+  </button>
+</div>
+`;
+
+exports[`FilterRadioButton renders correctly when { value: "a", filter: "b" } 1`] = `
+<div>
+  <button
+    class="dropdownItem_1bl0z5g dropdown-item"
+    tabindex="0"
+  >
+    <label
+      class="filterLabel_1r0c7l6 form-check-label"
+    >
+      <input
+        class="form-check-input"
+        name="filter"
+        type="radio"
+        value="a"
+      />
+       FILTER_RADIO_LABEL
+    </label>
+  </button>
+</div>
+`;
+
+exports[`FilterRadioButton renders correctly when { value: "a", filter: "c" } 1`] = `
+<div>
+  <button
+    class="dropdownItem_1bl0z5g dropdown-item"
+    tabindex="0"
+  >
+    <label
+      class="filterLabel_1r0c7l6 form-check-label"
+    >
+      <input
+        class="form-check-input"
+        name="filter"
+        type="radio"
+        value="a"
+      />
+       FILTER_RADIO_LABEL
+    </label>
+  </button>
+</div>
+`;
+
+exports[`FilterRadioButton renders correctly when { value: "b", filter: "a" } 1`] = `
+<div>
+  <button
+    class="dropdownItem_1bl0z5g dropdown-item"
+    tabindex="0"
+  >
+    <label
+      class="filterLabel_1r0c7l6 form-check-label"
+    >
+      <input
+        class="form-check-input"
+        name="filter"
+        type="radio"
+        value="b"
+      />
+       FILTER_RADIO_LABEL
+    </label>
+  </button>
+</div>
+`;
+
+exports[`FilterRadioButton renders correctly when { value: "b", filter: "b" } 1`] = `
+<div>
+  <button
+    class="dropdownItem_1bl0z5g dropdown-item"
+    tabindex="0"
+  >
+    <label
+      class="filterLabel_1r0c7l6 form-check-label"
+    >
+      <input
+        checked=""
+        class="form-check-input"
+        name="filter"
+        type="radio"
+        value="b"
+      />
+       FILTER_RADIO_LABEL
+    </label>
+  </button>
+</div>
+`;
+
+exports[`FilterRadioButton renders correctly when { value: "b", filter: "c" } 1`] = `
+<div>
+  <button
+    class="dropdownItem_1bl0z5g dropdown-item"
+    tabindex="0"
+  >
+    <label
+      class="filterLabel_1r0c7l6 form-check-label"
+    >
+      <input
+        class="form-check-input"
+        name="filter"
+        type="radio"
+        value="b"
+      />
+       FILTER_RADIO_LABEL
+    </label>
+  </button>
+</div>
+`;
+
+exports[`FilterRadioButton renders correctly when { value: "c", filter: "a" } 1`] = `
+<div>
+  <button
+    class="dropdownItem_1bl0z5g dropdown-item"
+    tabindex="0"
+  >
+    <label
+      class="filterLabel_1r0c7l6 form-check-label"
+    >
+      <input
+        class="form-check-input"
+        name="filter"
+        type="radio"
+        value="c"
+      />
+       FILTER_RADIO_LABEL
+    </label>
+  </button>
+</div>
+`;
+
+exports[`FilterRadioButton renders correctly when { value: "c", filter: "b" } 1`] = `
+<div>
+  <button
+    class="dropdownItem_1bl0z5g dropdown-item"
+    tabindex="0"
+  >
+    <label
+      class="filterLabel_1r0c7l6 form-check-label"
+    >
+      <input
+        class="form-check-input"
+        name="filter"
+        type="radio"
+        value="c"
+      />
+       FILTER_RADIO_LABEL
+    </label>
+  </button>
+</div>
+`;
+
+exports[`FilterRadioButton renders correctly when { value: "c", filter: "c" } 1`] = `
+<div>
+  <button
+    class="dropdownItem_1bl0z5g dropdown-item"
+    tabindex="0"
+  >
+    <label
+      class="filterLabel_1r0c7l6 form-check-label"
+    >
+      <input
+        checked=""
+        class="form-check-input"
+        name="filter"
+        type="radio"
+        value="c"
+      />
+       FILTER_RADIO_LABEL
+    </label>
+  </button>
+</div>
+`;

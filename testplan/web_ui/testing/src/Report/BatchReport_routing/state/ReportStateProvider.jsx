@@ -5,7 +5,7 @@ import ReportActionsContext from './ReportActionsContext';
 import * as uriQueryActions from './uriQueryActions';
 import actionCreators from './actionCreators';
 import { uiHistory } from '../components/UIRouter';
-import { mapToQueryString } from '../utils';
+import { mapToQueryString } from '../../../Common/utils';
 
 /**
  * This function adds hooks to {@link actionCreators} such that whenever one is
@@ -93,7 +93,7 @@ export default function ReportStateProvider({ children, ...props }) {
     // @ts-ignore
     <ReportActionsContext.Provider value={boundActions}>
       <ReportStateContext.Provider value={state}>
-        {React.Children.map(children, C => React.cloneElement(C, props))}
+        {children}
       </ReportStateContext.Provider>
     </ReportActionsContext.Provider>
   );

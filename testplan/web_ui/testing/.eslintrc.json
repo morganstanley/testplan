@@ -1,9 +1,8 @@
 {
   "env": {
-    "browser": 2,
-    "es6": 2,
-    "node": 2,
-    "commonjs": 2
+    "browser": true,
+    "es6": true,
+    "commonjs": true
   },
   "extends": [
     "react-app"
@@ -14,21 +13,30 @@
         "*.test.js",
         "*.test.jsx",
         "*.test.ts",
-        "*.test.tsx"
+        "*.test.tsx",
+        "./src/setupTests.js",
+        "./jest-puppeteer.config.js"
       ],
       "env": {
-        "jest": true
+        "jest": true,
+        "node": true
+      },
+      "globals": {
+        "page": true,
+        "browser": true,
+        "context": true,
+        "jestPuppeteer": true
       }
     }
   ],
   "parserOptions": {
     "ecmaFeatures": {
-      "experimentalObjectRestSpread": 2,
-      "jsx": 2,
-      "arrowFunctions": 2,
-      "classes": 2,
-      "modules": 2,
-      "defaultParams": 2
+      "experimentalObjectRestSpread": true,
+      "jsx": true,
+      "arrowFunctions": true,
+      "classes": true,
+      "modules": true,
+      "defaultParams": true
     },
     "sourceType": "module"
   },

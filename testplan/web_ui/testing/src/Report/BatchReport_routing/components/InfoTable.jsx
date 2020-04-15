@@ -24,7 +24,7 @@ export default function InfoTable() {
       );
     }
     const infoList = jsonReport.information.map((item, i) => (
-      <tr key={i.toString()}>
+      <tr key={`${i}`}>
         <td className={css(navStyles.infoTableKey)}>{item[0]}</td>
         <td className={css(navStyles.infoTableValue)}>{item[1]}</td>
       </tr>
@@ -50,7 +50,7 @@ export default function InfoTable() {
     return (
       <Table bordered responsive={true} className={css(navStyles.infoTable)}>
         <tbody>
-        {infoList}
+          {infoList}
         </tbody>
       </Table>
     );

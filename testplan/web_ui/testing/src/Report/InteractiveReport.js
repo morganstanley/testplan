@@ -8,17 +8,17 @@ import { StyleSheet, css } from 'aphrodite';
 import axios from 'axios';
 
 import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
-import Toolbar from '../Toolbar/Toolbar.js';
+import Toolbar from '../Toolbar/Toolbar';
 import { ResetButton } from '../Toolbar/InteractiveButtons';
-import InteractiveNav from '../Nav/InteractiveNav.js';
-import { FakeInteractiveReport } from '../Common/sampleReports.js';
+import InteractiveNav from '../Nav/InteractiveNav';
+import FakeInteractiveReport from '../__tests__/fixtures/FakeInteractiveReport';
 import {
   PropagateIndices,
   UpdateSelectedState,
   GetReportState,
   GetCenterPane,
   GetSelectedEntries,
-} from './reportUtils.js';
+} from './reportUtils';
 
 /**
  * Interactive report viewer. As opposed to a batch report, an interactive

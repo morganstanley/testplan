@@ -8,15 +8,17 @@ import useReportState from '../hooks/useReportState';
 import navStyles from '../../../Toolbar/navStyles';
 
 /**
- * Buttons used to set the filters
+ * Buttons used to set the filters. The placeholders "<none>" are meant to alert
+ * the user / developer to an omission that should be fixed.
  * @param {Object} obj
- * @param {string} obj.value
- * @param {string} obj.label
+ * @param {string} [obj.value="<none>"]
+ * @param {string} [obj.label="<none>"]
  * @returns {React.FunctionComponentElement}
  */
-export default function FilterRadioButton({ value, label }) {
+export default ({ value = '<none>', label = '<none>' }) => {
   const [ filter, setFilter ] = useReportState(
-    'app.reports.batch.filter', 'setAppBatchReportFilter',
+    'app.reports.batch.filter',
+    'setAppBatchReportFilter',
   );
   return (
     <DropdownItem toggle={false} className={css(navStyles.dropdownItem)}>
@@ -31,4 +33,4 @@ export default function FilterRadioButton({ value, label }) {
       </Label>
     </DropdownItem>
   );
-}
+};

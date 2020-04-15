@@ -3,7 +3,9 @@ import {shallow} from 'enzyme';
 import {StyleSheetTestUtils} from "aphrodite";
 
 import Nav from '../Nav';
-import {TESTPLAN_REPORT} from '../../Common/sampleReports';
+
+const TESTPLAN_REPORT =
+  require('../../__tests__/mocks/documents/TESTPLAN_REPORT_1.json');
 
 const defaultProps = {
   report: TESTPLAN_REPORT,

@@ -1,0 +1,321 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FilterButton, status="error" renders correctly 1`] = `
+<UncontrolledDropdown
+  inNavbar={true}
+  nav={true}
+>
+  <div
+    className="buttonsBar_13xq1v"
+  >
+    <DropdownToggle
+      aria-haspopup={true}
+      className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
+      color="secondary"
+      nav={true}
+    >
+      <FontAwesomeIcon
+        border={false}
+        className="toolbarButton_z1gq62"
+        fixedWidth={false}
+        flip={null}
+        icon="filter"
+        inverse={false}
+        key="toolbar-filter"
+        listItem={false}
+        mask={null}
+        pull={null}
+        pulse={false}
+        rotation={null}
+        size={null}
+        spin={false}
+        symbol={false}
+        title="Choose filter"
+        transform={null}
+      />
+    </DropdownToggle>
+  </div>
+  <DropdownMenu
+    className="filterDropdown_biw13d"
+    flip={true}
+    tag="div"
+  >
+    <FilterRadioButton
+      label="All"
+      value="all"
+    />
+    <FilterRadioButton
+      label="Failed only"
+      value="fail"
+    />
+    <FilterRadioButton
+      label="Passed only"
+      value="pass"
+    />
+    <DropdownItem
+      divider={true}
+      tag="button"
+      toggle={true}
+    />
+    <DisplayEmptyCheckBox
+      label="Hide empty testcase"
+    />
+  </DropdownMenu>
+</UncontrolledDropdown>
+`;
+
+exports[`FilterButton, status="failed" renders correctly 1`] = `
+<UncontrolledDropdown
+  inNavbar={true}
+  nav={true}
+>
+  <div
+    className="buttonsBar_13xq1v"
+  >
+    <DropdownToggle
+      aria-haspopup={true}
+      className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
+      color="secondary"
+      nav={true}
+    >
+      <FontAwesomeIcon
+        border={false}
+        className="toolbarButton_z1gq62"
+        fixedWidth={false}
+        flip={null}
+        icon="filter"
+        inverse={false}
+        key="toolbar-filter"
+        listItem={false}
+        mask={null}
+        pull={null}
+        pulse={false}
+        rotation={null}
+        size={null}
+        spin={false}
+        symbol={false}
+        title="Choose filter"
+        transform={null}
+      />
+    </DropdownToggle>
+  </div>
+  <DropdownMenu
+    className="filterDropdown_biw13d"
+    flip={true}
+    tag="div"
+  >
+    <FilterRadioButton
+      label="All"
+      value="all"
+    />
+    <FilterRadioButton
+      label="Failed only"
+      value="fail"
+    />
+    <FilterRadioButton
+      label="Passed only"
+      value="pass"
+    />
+    <DropdownItem
+      divider={true}
+      tag="button"
+      toggle={true}
+    />
+    <DisplayEmptyCheckBox
+      label="Hide empty testcase"
+    />
+  </DropdownMenu>
+</UncontrolledDropdown>
+`;
+
+exports[`FilterButton, status="passed" renders correctly 1`] = `
+<UncontrolledDropdown
+  inNavbar={true}
+  nav={true}
+>
+  <div
+    className="buttonsBar_13xq1v"
+  >
+    <DropdownToggle
+      aria-haspopup={true}
+      className="toolbar_l6n5rs-o_O-toolbarPassed_1bjpgj2"
+      color="secondary"
+      nav={true}
+    >
+      <FontAwesomeIcon
+        border={false}
+        className="toolbarButton_z1gq62"
+        fixedWidth={false}
+        flip={null}
+        icon="filter"
+        inverse={false}
+        key="toolbar-filter"
+        listItem={false}
+        mask={null}
+        pull={null}
+        pulse={false}
+        rotation={null}
+        size={null}
+        spin={false}
+        symbol={false}
+        title="Choose filter"
+        transform={null}
+      />
+    </DropdownToggle>
+  </div>
+  <DropdownMenu
+    className="filterDropdown_biw13d"
+    flip={true}
+    tag="div"
+  >
+    <FilterRadioButton
+      label="All"
+      value="all"
+    />
+    <FilterRadioButton
+      label="Failed only"
+      value="fail"
+    />
+    <FilterRadioButton
+      label="Passed only"
+      value="pass"
+    />
+    <DropdownItem
+      divider={true}
+      tag="button"
+      toggle={true}
+    />
+    <DisplayEmptyCheckBox
+      label="Hide empty testcase"
+    />
+  </DropdownMenu>
+</UncontrolledDropdown>
+`;
+
+exports[`FilterButton, status="unknown" renders correctly 1`] = `
+<UncontrolledDropdown
+  inNavbar={true}
+  nav={true}
+>
+  <div
+    className="buttonsBar_13xq1v"
+  >
+    <DropdownToggle
+      aria-haspopup={true}
+      className="toolbar_l6n5rs-o_O-toolbarUnknown_1mqui2p"
+      color="secondary"
+      nav={true}
+    >
+      <FontAwesomeIcon
+        border={false}
+        className="toolbarButton_z1gq62"
+        fixedWidth={false}
+        flip={null}
+        icon="filter"
+        inverse={false}
+        key="toolbar-filter"
+        listItem={false}
+        mask={null}
+        pull={null}
+        pulse={false}
+        rotation={null}
+        size={null}
+        spin={false}
+        symbol={false}
+        title="Choose filter"
+        transform={null}
+      />
+    </DropdownToggle>
+  </div>
+  <DropdownMenu
+    className="filterDropdown_biw13d"
+    flip={true}
+    tag="div"
+  >
+    <FilterRadioButton
+      label="All"
+      value="all"
+    />
+    <FilterRadioButton
+      label="Failed only"
+      value="fail"
+    />
+    <FilterRadioButton
+      label="Passed only"
+      value="pass"
+    />
+    <DropdownItem
+      divider={true}
+      tag="button"
+      toggle={true}
+    />
+    <DisplayEmptyCheckBox
+      label="Hide empty testcase"
+    />
+  </DropdownMenu>
+</UncontrolledDropdown>
+`;
+
+exports[`FilterButton, status="unstable" renders correctly 1`] = `
+<UncontrolledDropdown
+  inNavbar={true}
+  nav={true}
+>
+  <div
+    className="buttonsBar_13xq1v"
+  >
+    <DropdownToggle
+      aria-haspopup={true}
+      className="toolbar_l6n5rs-o_O-toolbarUnstable_1m5tk7l"
+      color="secondary"
+      nav={true}
+    >
+      <FontAwesomeIcon
+        border={false}
+        className="toolbarButton_z1gq62"
+        fixedWidth={false}
+        flip={null}
+        icon="filter"
+        inverse={false}
+        key="toolbar-filter"
+        listItem={false}
+        mask={null}
+        pull={null}
+        pulse={false}
+        rotation={null}
+        size={null}
+        spin={false}
+        symbol={false}
+        title="Choose filter"
+        transform={null}
+      />
+    </DropdownToggle>
+  </div>
+  <DropdownMenu
+    className="filterDropdown_biw13d"
+    flip={true}
+    tag="div"
+  >
+    <FilterRadioButton
+      label="All"
+      value="all"
+    />
+    <FilterRadioButton
+      label="Failed only"
+      value="fail"
+    />
+    <FilterRadioButton
+      label="Passed only"
+      value="pass"
+    />
+    <DropdownItem
+      divider={true}
+      tag="button"
+      toggle={true}
+    />
+    <DisplayEmptyCheckBox
+      label="Hide empty testcase"
+    />
+  </DropdownMenu>
+</UncontrolledDropdown>
+`;

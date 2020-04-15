@@ -1,6 +1,5 @@
-/// <reference types="jest" />
+/** @jest-environment jsdom */
 // @ts-nocheck
-/* eslint-disable max-len */
 import React from 'react';
 import PrintButton from '../PrintButton';
 import { render } from 'enzyme';

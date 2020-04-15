@@ -5,7 +5,6 @@ import Nav from 'reactstrap/lib/Nav';
 import Collapse from 'reactstrap/lib/Collapse';
 
 import navStyles from '../../../Toolbar/navStyles';
-import { STATUS_CATEGORY } from '../../../Common/defaults';
 import useReportState from '../hooks/useReportState';
 import FilterBox from '../../../Toolbar/FilterBox';
 import InfoButton from './InfoButton';
@@ -14,21 +13,7 @@ import PrintButton from './PrintButton';
 import TagsButton from './TagsButton';
 import HelpButton from './HelpButton';
 import DocumentationButton from './DocumentationButton';
-
-/**
- * Get the current toolbar style based on the testplan status.
- * @param {StatusType} [status]
- * @returns {ReturnType<typeof css>}
- */
-export const getToolbarStyle = (status) => css(
-  navStyles.toolbar,
-  {
-    passed: navStyles.toolbarPassed,
-    failed: navStyles.toolbarFailed,
-    error: navStyles.toolbarFailed,
-    unstable: navStyles.toolbarUnstable,
-  }[STATUS_CATEGORY[status]] || navStyles.toolbarUnknown
-);
+import getToolbarStyle from '../utils/getToolbarStyle';
 
 /**
  * Return the navbar including all buttons.

@@ -1,7 +1,9 @@
 import React from 'react';
 
-import {TESTPLAN_REPORT} from "../../Common/sampleReports";
 import {PropagateIndices} from "../reportUtils";
+
+const TESTPLAN_REPORT =
+  require('../../__tests__/mocks/documents/TESTPLAN_REPORT_1.json');
 
 describe('Report/reportUtils', () => {
 

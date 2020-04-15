@@ -1,7 +1,5 @@
 import { useParams } from 'react-router-dom';
-
-import { BOTTOMMOST_ENTRY_CATEGORY } from '../../../Common/defaults';
-import { uriComponentCodec } from '../utils';
+import uriComponentCodec from '../utils/uriComponentCodec';
 import useReportState from './useReportState';
 
 export default function useTargetEntry(entries) {
@@ -19,11 +17,6 @@ export default function useTargetEntry(entries) {
 
   // gotta run hooks before we do this check since they must run unconditionally
   if(!Array.isArray(entries)) return null;
-  if(
-    !!entries && typeof entries === 'object' &&
-    // @ts-ignore
-    entries.category === BOTTOMMOST_ENTRY_CATEGORY
-  ) return entries;
 
   // ths incoming `encodedID` may be URL-encoded and so it won't match
   // `entry.name` in the `entries` array, so we grab whatever `id` is actually

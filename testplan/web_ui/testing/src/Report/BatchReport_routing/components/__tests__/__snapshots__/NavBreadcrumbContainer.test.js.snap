@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NavBreadcrumbContainer renders correctly with dummy child 1`] = `
+<div>
+  <div
+    class="navBreadcrumbs_koaten"
+  >
+    <ul
+      class="breadcrumbContainer_1qdzaym"
+    >
+      <li>
+        Dummy LI element
+      </li>
+    </ul>
+  </div>
+</div>
+`;
+
+exports[`NavBreadcrumbContainer renders correctly without children 1`] = `
+<div>
+  <div
+    class="navBreadcrumbs_koaten"
+  >
+    <ul
+      class="breadcrumbContainer_1qdzaym"
+    />
+  </div>
+</div>
+`;
