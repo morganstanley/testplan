@@ -222,9 +222,7 @@ class RemoteWorker(ProcessWorker):
             # add trailing / to _testplan_import_path.local
             # this will copy everything under import path to to testplan_lib
             self._transfer_data(
-                source=os.path.join(
-                    self._testplan_import_path.local, os.path.sep
-                ),
+                source=os.path.join(self._testplan_import_path.local, ""),
                 target=self._testplan_import_path.remote,
                 remote_target=True,
                 deref_links=True,
