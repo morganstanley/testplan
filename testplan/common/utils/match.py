@@ -111,13 +111,16 @@ class LogMatcher(logger.Loggable):
         match = None
         start_time = time.time()
         end_time = start_time + timeout
+        read_mode = "r"
 
         # As a convenience, we create the compiled regex if a string was
         # passed.
         if not hasattr(regex, "match"):
             regex = re.compile(regex)
+        if isinstance(regex.pattern, bytes):
+            read_mode = "rb"
 
-        with open(self.log_path, "r") as log:
+        with open(self.log_path, read_mode) as log:
             log.seek(self.position)
 
             while match is None:
