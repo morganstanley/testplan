@@ -2,6 +2,7 @@
 
 import os
 import logging
+from past.builtins import basestring
 
 from schema import Or
 
@@ -67,16 +68,20 @@ class Driver(Resource):
 
     :param name: Driver name. Also uid.
     :type name: ``str``
-    :param install_files: List of filepaths, those files will be instantiated
-        and placed under path returned by ``_install_target`` method call. Among
-        other cases this is meant to be used with configuration files that may
-        need to be templated and expanded using the runtime context, i.e:
+    :param install_files: list of files to be installed. This list may contain
+        ``str`` or ``tuple``:
+          - ``str``: Name of the file to be copied to path returned by
+            ``_install_target`` method call
+          - ``tuple``: A (source, destination) pair; source file
+            will be copied to destination.
+        Among other cases this is meant to be used with configuration files that
+        may need to be templated and expanded using the runtime context, i.e:
 
         .. code-block:: xml
 
             <address>localhost:{{context['server'].port}}</address>
 
-    :type install_files: ``list`` of ``str``
+    :type install_files: ``List[Union[str, tuple]]``
     :param timeout: Timeout duration for status condition check.
     :type timeout: ``int``
     :param logfile: Driver logfile path.
@@ -261,8 +266,24 @@ class Driver(Resource):
         raise NotImplementedError()
 
     def _install_files(self):
-        for template in self.cfg.install_files:
-            instantiate(template, self.context_input(), self._install_target())
+
+        for install_file in self.cfg.install_files:
+            if isinstance(install_file, basestring):
+                if not os.path.isfile(install_file):
+                    raise ValueError("{} is not a file".format(install_file))
+                instantiate(
+                    install_file, self.context_input(), self._install_target(),
+                )
+            elif isinstance(install_file, tuple):
+                if len(install_file) != 2:
+                    raise ValueError(
+                        "Expected the the source filepath, or a (source, "
+                        "destination) pair; got {}".format(install_file)
+                    )
+                src, dst = install_file
+                instantiate(
+                    src, self.context_input(), dst,
+                )
 
     def _setup_file_logger(self, path):
         """
