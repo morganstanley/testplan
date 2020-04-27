@@ -16,6 +16,7 @@ def basic_logfile():
 
     with tempfile.NamedTemporaryFile("w", delete=False) as logfile:
         logfile.writelines(log_lines)
+        logfile.flush()
         filepath = logfile.name
 
     yield filepath
@@ -29,6 +30,7 @@ def large_logfile():
         # Write 1 million lines of 'blah' followed by one line 'Match me!'.
         logfile.writelines("blah\n" for _ in range(int(1e6)))
         logfile.write("Match me!\n")
+        logfile.flush()
         filepath = logfile.name
 
     yield filepath
