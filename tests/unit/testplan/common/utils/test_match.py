@@ -49,6 +49,14 @@ class TestLogMatcher(object):
         assert match is not None
         assert match.group(0) == "second"
 
+    def test_binary_match_found(self, basic_logfile):
+        matcher = LogMatcher(log_path=basic_logfile)
+        regex_exp = re.compile(b"second")
+        match = matcher.match(regex=regex_exp)
+
+        assert match is not None
+        assert match.group(0) == b"second"
+
     def test_match_only_searches_after_position(self, basic_logfile):
         """
         LogMatcher should only search the text after the position, therefore it
@@ -72,6 +80,13 @@ class TestLogMatcher(object):
         """Does the LogMatcher raise an exception when no match is found."""
         matcher = LogMatcher(log_path=basic_logfile)
         regex_exp = re.compile(r"bob")
+        with pytest.raises(timing.TimeoutException):
+            matcher.match(regex=regex_exp, timeout=0.5)
+
+    def test_binary_match_not_found(self, basic_logfile):
+        """Does the LogMatcher raise an exception when no match is found."""
+        matcher = LogMatcher(log_path=basic_logfile)
+        regex_exp = re.compile(b"bob")
         with pytest.raises(timing.TimeoutException):
             matcher.match(regex=regex_exp, timeout=0.5)
 
