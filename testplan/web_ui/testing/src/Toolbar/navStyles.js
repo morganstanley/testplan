@@ -4,7 +4,7 @@
 import {StyleSheet} from 'aphrodite';
 
 import {
-  GREEN, RED, ORANGE, BLACK, DARK_GREY
+  GREEN, DARK_GREEN, RED, DARK_RED, ORANGE, DARK_ORANGE, BLACK, DARK_GREY
 } from "../Common/defaults";
 
 
@@ -12,7 +12,6 @@ const styles = StyleSheet.create({
   toolbar: {
     padding: '0',
   },
-
   filterBox: {
     float: 'left',
     height: '100%',
@@ -20,6 +19,7 @@ const styles = StyleSheet.create({
   buttonsBar: {
     float: 'left',
     height: '100%',
+    lineHeight: '100%',
     color: 'white',
   },
   filterLabel: {
@@ -39,26 +39,26 @@ const styles = StyleSheet.create({
     textDecoration: 'none',
     position: 'relative',
     display: 'inline-block',
-    height: '2.4em',
-    width: '2.4em',
+    height: '2.5em',
+    width: '2.5em',
     cursor: 'pointer',
     color: 'white',
-    padding: '0.7em 0em 0.7em 0em',
+    padding: '0.75em 0em 0.75em 0em',
     transition: 'all 0.3s ease-out 0s',
     ':hover': {
-        color: DARK_GREY
-    }
+        color: DARK_GREY,
+    },
   },
   toolbarInactive: {
     cursor: 'auto',
     color: DARK_GREY,
   },
-  toolbarUnstable: {
-    backgroundColor: ORANGE,
-    color: 'white'
-  },
   toolbarUnknown: {
     backgroundColor: BLACK,
+    color: 'white'
+  },
+  toolbarUnstable: {
+    backgroundColor: ORANGE,
     color: 'white'
   },
   toolbarPassed: {
@@ -67,6 +67,22 @@ const styles = StyleSheet.create({
   },
   toolbarFailed: {
     backgroundColor: RED,
+    color: 'white'
+  },
+  toolbarButtonToggledUnknown: {
+    backgroundColor: 'black',
+    color: 'white'
+  },
+  toolbarButtonToggledUnstable: {
+    backgroundColor: DARK_ORANGE,
+    color: 'white'
+  },
+  toolbarButtonToggledPassed: {
+    backgroundColor: DARK_GREEN,
+    color: 'white'
+  },
+  toolbarButtonToggledFailed: {
+    backgroundColor: DARK_RED,
     color: 'white'
   },
   filterDropdown: {

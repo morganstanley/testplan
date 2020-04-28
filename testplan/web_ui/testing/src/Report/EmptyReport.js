@@ -7,7 +7,7 @@ import {StyleSheet, css} from 'aphrodite';
 
 import Message from '../Common/Message';
 import Toolbar from '../Toolbar/Toolbar';
-import { TimeButton } from '../Toolbar/Buttons';
+import {TimeButton} from '../Toolbar/Buttons';
 import Nav from '../Nav/Nav';
 import {COLUMN_WIDTH} from "../Common/defaults";
 
@@ -39,7 +39,8 @@ const EmptyReport = (props) => {
         updateTagsDisplayFunc={noop}
         extraButtons={[<TimeButton
             key="time-button"
-            toggleTimeDisplayCbk={noop}
+            status={undefined}
+            updateTimeDisplayCbk={noop}
           />]}
       />
       <Nav

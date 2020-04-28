@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import {StyleSheet, css} from 'aphrodite';
 
 import {LIGHT_GREY, MIN_COLUMN_WIDTH} from "../Common/defaults";
@@ -7,7 +7,7 @@ import {LIGHT_GREY, MIN_COLUMN_WIDTH} from "../Common/defaults";
  * Vertical column for navigation bar.
  */
 
-class Column extends React.Component {
+class Column extends Component {
   constructor(props) {
     super(props);
     this.mouseDown = this.mouseDown.bind(this);
