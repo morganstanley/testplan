@@ -26,9 +26,23 @@ def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
 
     extracts_status = [False for _ in log_extracts]
 
-    with open(logpath, "r") as log:
+    # If log_extracts contain bytes regex, will convert all log_extracts to
+    # bytes regex.
+    if not all([isinstance(x.pattern, str) for x in log_extracts]):
+        read_mode = "rb"
+        _log_extracts = []
+        for regex in log_extracts:
+            if isinstance(regex.pattern, str):
+                _log_extracts.append(re.compile(regex.pattern.encode()))
+            else:
+                _log_extracts.append(regex)
+    else:
+        read_mode = "r"
+        _log_extracts = log_extracts
+
+    with open(logpath, read_mode) as log:
         for line in log:
-            for pos, regexp in enumerate(log_extracts):
+            for pos, regexp in enumerate(_log_extracts):
                 match = regexp.match(line)
                 if match:
                     extracted_values.update(match.groupdict())
@@ -103,7 +117,7 @@ class LogMatcher(logger.Loggable):
 
         :param regex: regex string or compiled regular expression
             (``re.compile``)
-        :type regex: ``Union[str, re.Pattern]``
+        :type regex: ``Union[str, re.Pattern, bytes]``
 
         :return: The regex match or raise an Exception if no match is found.
         :rtype: ``re.Match``

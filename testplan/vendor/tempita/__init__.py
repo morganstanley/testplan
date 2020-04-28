@@ -1172,6 +1172,7 @@ def parse_signature(sig_text, name, pos):
             start_pos = end_pos = None
             parts = []
             while 1:
+                # pylint: disable=unbalanced-tuple-unpacking
                 tok_type, tok_string, s, e = get_token(True)
                 if start_pos is None:
                     start_pos = s
