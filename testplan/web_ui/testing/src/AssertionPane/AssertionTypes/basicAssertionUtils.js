@@ -29,9 +29,24 @@ import {hashCode} from '../../Common/utils';
  * @private
  */
 function prepareLogContent(assertion, defaultContent) {
+  let decodedMsg = null;
+
+  if (assertion.message !== undefined) {
+    let bytearray;
+    if(typeof assertion.message === 'object' 
+      && typeof (bytearray = assertion.message['_BYTES_KEY']) !== 'undefined' 
+      && Array.isArray(bytearray)
+      && bytearray.length
+      ) {
+      decodedMsg = String.fromCodePoint(...bytearray);
+    } else {
+      decodedMsg = assertion.message;
+    }
+  }
+
   const preContent = (
     <pre>
-      {assertion.message !== undefined ? assertion.message : null}
+      {decodedMsg}
      </pre>
   );
 
