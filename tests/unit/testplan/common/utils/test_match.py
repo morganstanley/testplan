@@ -45,7 +45,7 @@ class TestMatchRegexpsInFile(object):
     def test_string(self, basic_logfile):
         log_extracts = [
             re.compile(r"(?P<first>first)"),
-            re.compile(r"(?P<second>second)")
+            re.compile(r"(?P<second>second)"),
         ]
 
         status, values = match_regexps_in_file(basic_logfile, log_extracts)
@@ -56,7 +56,7 @@ class TestMatchRegexpsInFile(object):
     def test_bytes(self, basic_logfile):
         log_extracts = [
             re.compile(br"(?P<first>first)"),
-            re.compile(br"(?P<second>second)")
+            re.compile(br"(?P<second>second)"),
         ]
 
         status, values = match_regexps_in_file(basic_logfile, log_extracts)
@@ -67,7 +67,7 @@ class TestMatchRegexpsInFile(object):
     def test_mixture(self, basic_logfile):
         log_extracts = [
             re.compile(r"(?P<first>first)"),
-            re.compile(br"(?P<second>second)")
+            re.compile(br"(?P<second>second)"),
         ]
 
         status, values = match_regexps_in_file(basic_logfile, log_extracts)
