@@ -222,7 +222,11 @@ class Driver(Resource):
                 logpath=outfile, log_extracts=regexps, return_unmatched=True
             )
             unmatched.extend(file_unmatched)
-            self.extracts.update(file_extracts)
+            for k, v in file_extracts.items():
+                if isinstance(v, bytes):
+                    self.extracts[k] = v.decode("utf_8")
+                else:
+                    self.extracts[k] = v
             result = result and file_result
 
         if log_unmatched or stdout_unmatched or stderr_unmatched:

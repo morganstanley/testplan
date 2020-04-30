@@ -5,7 +5,7 @@ import tempfile
 
 import pytest
 
-from testplan.common.utils.match import LogMatcher
+from testplan.common.utils.match import LogMatcher, match_regexps_in_file
 from testplan.common.utils import timing
 
 
@@ -35,6 +35,45 @@ def large_logfile():
 
     yield filepath
     os.remove(filepath)
+
+
+class TestMatchRegexpsInFile(object):
+    """
+    Test the match_regexps_in_file function
+    """
+
+    def test_string(self, basic_logfile):
+        log_extracts = [
+            re.compile(r"(?P<first>first)"),
+            re.compile(r"(?P<second>second)"),
+        ]
+
+        status, values = match_regexps_in_file(basic_logfile, log_extracts)
+        assert status is True
+        assert isinstance(values["first"], str)
+        assert isinstance(values["second"], str)
+
+    def test_bytes(self, basic_logfile):
+        log_extracts = [
+            re.compile(br"(?P<first>first)"),
+            re.compile(br"(?P<second>second)"),
+        ]
+
+        status, values = match_regexps_in_file(basic_logfile, log_extracts)
+        assert status is True
+        assert isinstance(values["first"], bytes)
+        assert isinstance(values["second"], bytes)
+
+    def test_mixture(self, basic_logfile):
+        log_extracts = [
+            re.compile(r"(?P<first>first)"),
+            re.compile(br"(?P<second>second)"),
+        ]
+
+        status, values = match_regexps_in_file(basic_logfile, log_extracts)
+        assert status is True
+        assert isinstance(values["first"], bytes)
+        assert isinstance(values["second"], bytes)
 
 
 class TestLogMatcher(object):
