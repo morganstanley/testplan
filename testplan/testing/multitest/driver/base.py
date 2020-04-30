@@ -219,7 +219,7 @@ class Driver(Resource):
             unmatched.extend(file_unmatched)
             for k, v in file_extracts.items():
                 if isinstance(v, bytes):
-                    self.extracts[k] = v.decode()
+                    self.extracts[k] = v.decode("utf_8")
                 else:
                     self.extracts[k] = v
             result = result and file_result
