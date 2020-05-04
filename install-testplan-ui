@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
 Install & Build the Testplan UI code.
-  * "npm install" - install the necessary dependencies under node_modules
+  * "yarn install" - install the necessary dependencies under node_modules
     directory.
-  * "npm run build" - build the Testplan UI, place it under build directory.
+  * "yarn run build" - build the Testplan UI, place it under build directory.
 """
 import subprocess
 import argparse
@@ -29,7 +29,7 @@ def parse_cli_args():
         "--verbose",
         action="store_true",
         dest="verbose",
-        help="Display verbose logs (stdout from npm commands).",
+        help="Display verbose logs (stdout from yarn commands).",
     )
     parser.add_argument(
         "-d",
@@ -49,11 +49,11 @@ def parse_cli_args():
     return parser.parse_args()
 
 
-def npm_installed():
-    """Check if npm has been installed."""
+def yarn_installed():
+    """Check if yarn has been installed."""
     with open(os.devnull, "w") as FNULL:
         try:
-            subprocess.check_call("npm --version", shell=True, stdout=FNULL)
+            subprocess.check_call("yarn --version", shell=True, stdout=FNULL)
         except subprocess.CalledProcessError:
             return False
         else:
@@ -72,12 +72,12 @@ def install_and_build_ui(path=TESTPLAN_UI_DIR, dev=False, verbose=False):
     :type verbose: ``bool``
     """
 
-    if not npm_installed():
+    if not yarn_installed():
         logging.warning("=" * 54)
-        logging.warning("NPM NOT INSTALLED.")
-        logging.warning("Testplan UI is built using npm, please follow these")
+        logging.warning("YARN NOT INSTALLED.")
+        logging.warning("Testplan UI is built using yarn, please follow these")
         logging.warning(
-            "instructions to install https://www.npmjs.com/get-npm"
+            "instructions to install https://www.yarnpkg.com"
         )
         logging.warning("=" * 54)
         sys.exit(1)
@@ -94,36 +94,16 @@ def install_and_build_ui(path=TESTPLAN_UI_DIR, dev=False, verbose=False):
         logging.info("Installing Testplan UI dependencies...")
         logging.info("Installing to path: {}".format(os.path.abspath(path)))
         subprocess.check_call(
-            "npm install {}".format(production_cmd),
+            "yarn install {}".format(production_cmd),
             shell=True,
             cwd=path,
             stdout=output,
             stderr=subprocess.STDOUT,
         )
-        package_path = os.path.join(path, "package.json")
-        with open(package_path) as package_file:
-            packages = json.load(package_file)
-            if "resolutions" in packages:
-                logging.info(
-                    "Found resolutions in package.json! Running npm-force-resolutions..."
-                )
-                subprocess.check_call(
-                    "npx npm-force-resolutions".format(production_cmd),
-                    shell=True,
-                    cwd=path,
-                    stdout=output,
-                    stderr=subprocess.STDOUT,
-                )
-                subprocess.check_call(
-                    "npm install {}".format(production_cmd),
-                    shell=True,
-                    cwd=path,
-                    stdout=output,
-                    stderr=subprocess.STDOUT,
-                )
+
         logging.info("Building Testplan UI...")
         subprocess.check_call(
-            "npm run build",
+            "yarn run build",
             shell=True,
             cwd=path,
             stdout=output,
