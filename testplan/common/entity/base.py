@@ -634,10 +634,10 @@ class Runnable(Entity):
     :py:class:`~testplan.common.entity.base.Resource` objects
     that can be started/stopped and utilized by the steps defined.
 
-    :param interactive: Enable interactive execution mode.
-    :type interactive: ``bool``
-    :param interactive_no_block: Do not block on run() on interactive mode.
-    :type interactive_no_block: ``bool``
+    :param interactive_port: Enable interactive execution mode on a port.
+    :type interactive_port: ``int`` or ``NoneType``
+    :param interactive_block: Block on run() on interactive mode.
+    :type interactive_block: ``bool``
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.
