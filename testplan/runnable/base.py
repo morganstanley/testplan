@@ -37,27 +37,6 @@ from testplan.testing import listing, filtering, ordering, tagging
 from testplan.testing.base import TestResult
 
 
-def get_default_exporters(config):
-    """
-    Instantiate certain exporters if related cmdline argument (e.g. --pdf)
-    is passed but there aren't any exporter declarations.
-    """
-    result = []
-    if config.pdf_path:
-        result.append(test_exporters.PDFExporter())
-    if config.report_tags or config.report_tags_all:
-        result.append(test_exporters.TagFilteredPDFExporter())
-    if config.json_path:
-        result.append(test_exporters.JSONExporter())
-    if config.xml_dir:
-        result.append(test_exporters.XMLExporter())
-    if config.http_url:
-        result.append(test_exporters.HTTPExporter())
-    if config.ui_port is not None:
-        result.append(test_exporters.WebServerExporter(ui_port=config.ui_port))
-    return result
-
-
 def get_exporters(values):
     """
     Validation function for exporter declarations.
@@ -322,7 +301,7 @@ class TestRunner(Runnable):
         :py:class:`Resources <testplan.exporters.testing.base.Exporter>`.
         """
         if self._exporters is None:
-            self._exporters = get_default_exporters(self.cfg)
+            self._exporters = self.get_default_exporters()
             if self.cfg.exporters:
                 self._exporters.extend(self.cfg.exporters)
             for exporter in self._exporters:
@@ -330,6 +309,28 @@ class TestRunner(Runnable):
                     exporter.cfg.parent = self.cfg
                 exporter.parent = self
         return self._exporters
+
+    def get_default_exporters(self):
+        """
+        Instantiate certain exporters if related cmdline argument (e.g. --pdf)
+        is passed but there aren't any exporter declarations.
+        """
+        exporters = []
+        if self.cfg.pdf_path:
+            exporters.append(test_exporters.PDFExporter())
+        if self.cfg.report_tags or self.cfg.report_tags_all:
+            exporters.append(test_exporters.TagFilteredPDFExporter())
+        if self.cfg.json_path:
+            exporters.append(test_exporters.JSONExporter())
+        if self.cfg.xml_dir:
+            exporters.append(test_exporters.XMLExporter())
+        if self.cfg.http_url:
+            exporters.append(test_exporters.HTTPExporter())
+        if self.cfg.ui_port is not None:
+            exporters.append(
+                test_exporters.WebServerExporter(ui_port=self.cfg.ui_port)
+            )
+        return exporters
 
     def add_environment(self, env, resource=None):
         """
