@@ -13,7 +13,7 @@ from my_tests.mtest import make_multitest
 # Hard coding interactive mode usage.
 @test_plan(
     name="MyPlan",
-    interactive=True,
+    interactive_port=0,
     stdout_style=Style(
         passing=StyleEnum.ASSERTION_DETAIL, failing=StyleEnum.ASSERTION_DETAIL
     ),

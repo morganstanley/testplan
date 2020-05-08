@@ -84,12 +84,10 @@ class Testplan(entity.RunnableManager):
     :type name: ``str``
     :param description: Description of test plan.
     :type description: ``str``
-    :param parse_cmdline: Parse command lne arguments.
+    :param parse_cmdline: Parse command line arguments.
     :type parse_cmdline: ``bool``
-    :param interactive: Enable interactive execution mode.
-    :type interactive: ``bool``
-    :param port: Port for interactive mode.
-    :type port: ``bool``
+    :param interactive_port: Enable interactive execution mode on a port.
+    :type interactive_port: ``int`` or ``NoneType``
     :param abort_signals: Signals to catch and trigger abort. By default,
         SIGINT and SIGTERM will trigger Testplan to abort.
     :type abort_signals: ``list`` of signals
@@ -325,8 +323,7 @@ class Testplan(entity.RunnableManager):
         name,
         description=None,
         parse_cmdline=True,
-        interactive=False,
-        port=None,
+        interactive_port=None,
         abort_signals=None,
         logger_level=logger.TEST_INFO,
         file_log_level=logger.DEBUG,
@@ -380,8 +377,7 @@ class Testplan(entity.RunnableManager):
                     name=name,
                     description=description,
                     parse_cmdline=parse_cmdline,
-                    interactive=interactive,
-                    port=port,
+                    interactive_port=interactive_port,
                     abort_signals=abort_signals,
                     logger_level=logger_level,
                     file_log_level=file_log_level,
