@@ -82,12 +82,16 @@ class EntriesField(fields.Field):
     _BYTES_KEY = "_BYTES_KEY"
 
     @staticmethod
+    def _ensure_bytearray(binary_obj):
+        return bytearray(binary_obj)
+
+    @staticmethod
     def _binary_to_hex_list(binary_obj):
         # make sure the hex repr is capitalized and leftpad'd with a zero
         # because '0x0C' is better than '0xc'.
         return [
             "0x{}".format(hex(b)[2:].upper().zfill(2))
-            for b in bytearray(binary_obj)
+            for b in EntriesField._ensure_bytearray(binary_obj)
         ]
 
     @staticmethod
