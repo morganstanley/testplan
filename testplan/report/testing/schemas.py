@@ -82,8 +82,15 @@ class EntriesField(fields.Field):
     _BYTES_KEY = "_BYTES_KEY"
 
     @staticmethod
-    def _ensure_bytearray(binary_obj):
-        return bytearray(binary_obj)
+    def _ensure_bytes(binary_obj):
+        """
+        See #427 for motivation behind this function
+        """
+        # always safe types
+        resolved_binary_obj = binary_obj
+        if not isinstance(binary_obj, bool):
+            
+            
 
     @staticmethod
     def _binary_to_hex_list(binary_obj):
@@ -122,7 +129,7 @@ class EntriesField(fields.Field):
         try:
             json.dumps(datacp, ensure_ascii=True)
             return datacp
-        except (UnicodeDecodeError, TypeError):
+        except (UnicodeDecodeError, TypeError, ValueError):
             if isinstance(datacp, MutableMapping):
                 for key in six.iterkeys(datacp):
                     datacp[key] = self._render_unencodable_bytes_by_callable(
@@ -148,7 +155,7 @@ class EntriesField(fields.Field):
         try:
             json.dumps(value, ensure_ascii=True)
             return super_serialize(value)
-        except (UnicodeDecodeError, TypeError):
+        except (UnicodeDecodeError, TypeError, ValueError):
             value_new = self._render_unencodable_bytes_by_callable(
                 data=value, binary_serializer=self._binary_to_hex_list
             )
