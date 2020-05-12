@@ -156,7 +156,7 @@ class TestPoolIsolated:
             worker._is_alive = False
             assert pool._query_worker_status(worker) == (
                 "inactive",
-                "Deco {}, handler no longer alive".format(worker),
+                "Decommission {}, handler no longer alive".format(worker),
             )
 
             assert pool._handle_inactive(worker, "test restart") == True

@@ -160,6 +160,7 @@ class ReportCategories(object):
     TESTPLAN = "testplan"
     TESTGROUP = "testgroup"  # test group of unspecific type?
     MULTITEST = "multitest"
+    TASK_RERUN = "task_rerun"
     TESTSUITE = "testsuite"
     TESTCASE = "testcase"
     PARAMETRIZATION = "parametrization"
@@ -348,6 +349,8 @@ class BaseReportGroup(ReportGroup):
         for child in self:
             if child.category == ReportCategories.ERROR:
                 counter.update({Status.ERROR: 1, "total": 1})
+            elif child.category == ReportCategories.TASK_RERUN:
+                pass
             else:
                 counter.update(child.counter)
 

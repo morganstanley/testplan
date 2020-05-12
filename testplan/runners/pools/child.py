@@ -87,6 +87,7 @@ class ChildLoop(object):
             worker_type=self._worker_type,
             size=self._pool_size,
             runpath=self.runpath,
+            should_rerun=lambda pool, task_result: False,  # always return False
         )
         self._pool.parent = self
         self._pool.cfg.parent = self._pool_cfg

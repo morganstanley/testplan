@@ -83,12 +83,10 @@ def test_kill_one_worker():
     assert res.success is True
     assert plan.report.status == Status.PASSED
 
-    # All tasks scheduled once
-    for uid in pool.task_assign_cnt:
-        if uid == kill_uid:
-            assert pool.task_assign_cnt[uid] == 2
-        else:
-            assert pool.task_assign_cnt[uid] == 1
+    # All tasks scheduled once except the killed one
+    for idx in range(1, 25):
+        if uids[idx - 1] == kill_uid:
+            assert pool._task_retries_cnt[uids[idx - 1]] == 1
 
 
 def test_kill_all_workers():
@@ -96,15 +94,16 @@ def test_kill_all_workers():
     pool_name = ProcessPool.__name__
     plan = Testplan(name="ProcPlan", parse_cmdline=False)
     pool_size = 4
+    retries_limit = 3
     pool = ProcessPool(
         name=pool_name,
         size=pool_size,
-        task_retries_limit=pool_size,
         worker_heartbeat=2,
         heartbeats_miss_limit=2,
         max_active_loop_sleep=1,
         restart_count=0,
     )
+    pool._task_retries_limit = retries_limit
     pool_uid = plan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -128,12 +127,12 @@ def test_kill_all_workers():
                 if worker._aborted is True
             ]
         )
-        == pool_size
+        == pool_size  # == retries_limit + 1
     )
 
     assert res.success is False
     # scheduled X times and killed all workers
-    assert pool.task_assign_cnt[uid] == pool_size
+    assert pool._task_retries_cnt[uid] == retries_limit + 1
     assert plan.report.status == Status.ERROR
 
 
@@ -147,12 +146,12 @@ def test_reassign_times_limit():
     pool = ProcessPool(
         name=pool_name,
         size=pool_size,
-        task_retries_limit=retries_limit,
         worker_heartbeat=2,
         heartbeats_miss_limit=2,
         max_active_loop_sleep=1,
         restart_count=0,
     )
+    pool._task_retries_limit = retries_limit
     pool_uid = plan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -176,24 +175,24 @@ def test_reassign_times_limit():
                 if worker._aborted is True
             ]
         )
-        == retries_limit
+        == retries_limit + 1
     )
 
     assert res.success is False
-    assert pool.task_assign_cnt[uid] == retries_limit
+    assert pool._task_retries_cnt[uid] == retries_limit + 1
     assert plan.report.status == Status.ERROR
     assert plan.report.counter["error"] == 1
 
 
-def test_custom_reschedule_condition():
+def test_custom_rerun_condition():
     """Force reschedule task X times to test logic."""
     pool_name = ProcessPool.__name__
     plan = Testplan(name="ProcPlan", parse_cmdline=False)
     uid = "custom_task_uid"
-    max_reschedules = 2
+    rerun_limit = 2
 
-    def custom_reschedule(pool, task_result):
-        if pool.task_assign_cnt[uid] == max_reschedules:
+    def custom_rerun(pool, task_result):
+        if task_result.task.reassign_cnt > task_result.task.rerun:
             return False
         return True
 
@@ -206,18 +205,19 @@ def test_custom_reschedule_condition():
         max_active_loop_sleep=1,
         restart_count=0,
     )
-    pool.set_reschedule_check(custom_reschedule)
+    pool.set_rerun_check(custom_rerun)
     pool_uid = plan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
 
-    plan.schedule(
+    uid = plan.schedule(
         target="get_mtest",
         module="func_pool_base_tasks",
         path=dirname,
         kwargs=dict(name="0"),
         resource=pool_name,
         uid=uid,
+        rerun=rerun_limit,
     )
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
@@ -235,8 +235,8 @@ def test_custom_reschedule_condition():
     )
 
     assert res.success is True
-    assert pool.task_assign_cnt[uid] == max_reschedules
     assert plan.report.status == Status.PASSED
+    assert pool.added_item(uid).reassign_cnt == rerun_limit
 
 
 def test_schedule_from_main():
@@ -313,11 +313,11 @@ def test_restart_worker():
     pool = ProcessPool(
         name=pool_name,
         size=pool_size,
-        task_retries_limit=retries_limit,
         worker_heartbeat=2,
         heartbeats_miss_limit=3,
         max_active_loop_sleep=1,
     )
+    pool._task_retries_limit = retries_limit
     pool_uid = plan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))

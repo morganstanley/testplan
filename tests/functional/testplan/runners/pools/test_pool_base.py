@@ -2,13 +2,13 @@
 
 import os
 
-from testplan.common.utils.testing import log_propagation_disabled
-
 from testplan import Testplan, Task
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.base import MultiTestConfig
 from testplan.runners.pools.base import Pool, Worker
-from testplan.common.utils.logger import TESTPLAN_LOGGER
+
+# from testplan.common.utils.testing import log_propagation_disabled
+# from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 @testsuite

@@ -60,6 +60,23 @@ setup_script.ksh
 ++++++++++++++++
 .. literalinclude:: ../../../examples/ExecutionPools/Remote/setup_script.ksh
 
+.. _example_task_rerun:
+
+Task Rerun
+----------
+
+Required files:
+  - :download:`test_plan.py <../../../examples/ExecutionPools/Rerun/test_plan.py>`
+  - :download:`tasks.py <../../../examples/ExecutionPools/Rerun/tasks.py>`
+
+test_plan.py
+++++++++++++
+.. literalinclude:: ../../../examples/ExecutionPools/Rerun/test_plan.py
+
+tasks.py
++++++++++
+.. literalinclude:: ../../../examples/ExecutionPools/Rerun/tasks.py
+
 .. _example_multiTest_parts:
 
 MultiTest parts scheduling
