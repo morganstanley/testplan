@@ -13,7 +13,7 @@ from tests.unit.testplan.testing import pytest_expected_data
 
 
 @pytest.fixture
-def pytest_test_inst(repo_root_path):
+def pytest_test_inst(repo_root_path, root_directory):
     """Return a PyTest test instance, with the example tests as its target."""
     # For testing purposes, we want to run the pytest example at
     # examples/PyTest/pytest_tests.py.
@@ -21,7 +21,7 @@ def pytest_test_inst(repo_root_path):
         repo_root_path, "examples", "PyTest", "pytest_tests.py"
     )
 
-    rootdir = os.path.commonprefix([str(pytest.config.rootdir), os.getcwd()])
+    rootdir = os.path.commonprefix([root_directory, os.getcwd()])
 
     # We need to explicitly set the stdout_style in UT, normally it is inherited
     # from the parent object but that doesn't work when testing PyTest in
