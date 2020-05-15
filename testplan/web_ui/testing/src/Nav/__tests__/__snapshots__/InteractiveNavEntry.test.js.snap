@@ -10,7 +10,7 @@ exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
   }
 >
   <div
-    className="entryName_1h7ucmb-o_O-failed_11es5k7"
+    className="entryName_1dd7qci-o_O-failed_11es5k7"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -88,7 +88,7 @@ exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
   }
 >
   <div
-    className="entryName_1h7ucmb-o_O-passed_1kh4m98"
+    className="entryName_1dd7qci-o_O-passed_1kh4m98"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -166,7 +166,7 @@ exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
   }
 >
   <div
-    className="entryName_1h7ucmb"
+    className="entryName_1dd7qci"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -244,7 +244,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
   }
 >
   <div
-    className="entryName_1h7ucmb"
+    className="entryName_1dd7qci"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -321,7 +321,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
   }
 >
   <div
-    className="entryName_1h7ucmb"
+    className="entryName_1dd7qci"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -430,7 +430,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
   }
 >
   <div
-    className="entryName_1h7ucmb"
+    className="entryName_1dd7qci"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -538,7 +538,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
   }
 >
   <div
-    className="entryName_1h7ucmb"
+    className="entryName_1dd7qci"
     title="FakeTestcase"
   >
     FakeTestcase
@@ -647,7 +647,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
   }
 >
   <div
-    className="entryName_1h7ucmb"
+    className="entryName_1dd7qci"
     title="FakeTestcase"
   >
     FakeTestcase

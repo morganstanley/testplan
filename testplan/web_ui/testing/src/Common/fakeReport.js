@@ -1094,7 +1094,7 @@ var fakeReportAssertions = {
                             },
                             "hash": -2707574492059523373,
                             "runtime_status": "finished",
-                            "name": "test_assertion_group",
+                            "name": "test_assertion_group  -- very long long long long long long long longlong long long longlong long long long name",
                             "status_override": null,
                             "tags": {},
                             "entries": [
