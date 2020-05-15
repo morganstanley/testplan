@@ -8,7 +8,8 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
     extraButtons={
       Array [
         <TimeButton
-          toggleTimeDisplayCbk={[Function]}
+          status="failed"
+          updateTimeDisplayCbk={[Function]}
         />,
       ]
     }
@@ -1218,7 +1219,8 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
     extraButtons={
       Array [
         <TimeButton
-          toggleTimeDisplayCbk={[Function]}
+          status="failed"
+          updateTimeDisplayCbk={[Function]}
         />,
       ]
     }
@@ -1949,7 +1951,8 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     extraButtons={
       Array [
         <TimeButton
-          toggleTimeDisplayCbk={[Function]}
+          status="failed"
+          updateTimeDisplayCbk={[Function]}
         />,
       ]
     }

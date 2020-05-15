@@ -45,11 +45,11 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon={
@@ -84,11 +84,11 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="info"
@@ -113,7 +113,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           nav={true}
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <DropdownToggle
               aria-haspopup={true}
@@ -123,7 +123,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             >
               <FontAwesomeIcon
                 border={false}
-                className="toolbarButton_z1gq62"
+                className="toolbarButton_1d6e8oq"
                 fixedWidth={false}
                 flip={null}
                 icon="filter"
@@ -277,11 +277,11 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="print"
@@ -305,11 +305,11 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="tags"
@@ -324,7 +324,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
               size={null}
               spin={false}
               symbol={false}
-              title="Toggle tags"
+              title="Display tags"
               transform={null}
             />
           </div>
@@ -333,11 +333,11 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="question-circle"
@@ -361,14 +361,14 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           tag="li"
         >
           <a
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
             href="http://testplan.readthedocs.io"
             rel="noopener noreferrer"
             target="_blank"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="book"
@@ -538,11 +538,11 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="info"
@@ -567,7 +567,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
           nav={true}
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <DropdownToggle
               aria-haspopup={true}
@@ -577,7 +577,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
             >
               <FontAwesomeIcon
                 border={false}
-                className="toolbarButton_z1gq62"
+                className="toolbarButton_1d6e8oq"
                 fixedWidth={false}
                 flip={null}
                 icon="filter"
@@ -731,11 +731,11 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="print"
@@ -759,11 +759,11 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="tags"
@@ -778,7 +778,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
               size={null}
               spin={false}
               symbol={false}
-              title="Toggle tags"
+              title="Display tags"
               transform={null}
             />
           </div>
@@ -787,11 +787,11 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="question-circle"
@@ -815,14 +815,14 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
           tag="li"
         >
           <a
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
             href="http://testplan.readthedocs.io"
             rel="noopener noreferrer"
             target="_blank"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="book"
@@ -992,11 +992,11 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="info"
@@ -1021,7 +1021,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
           nav={true}
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <DropdownToggle
               aria-haspopup={true}
@@ -1031,7 +1031,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
             >
               <FontAwesomeIcon
                 border={false}
-                className="toolbarButton_z1gq62"
+                className="toolbarButton_1d6e8oq"
                 fixedWidth={false}
                 flip={null}
                 icon="filter"
@@ -1185,11 +1185,11 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="print"
@@ -1213,11 +1213,11 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="tags"
@@ -1232,7 +1232,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
               size={null}
               spin={false}
               symbol={false}
-              title="Toggle tags"
+              title="Display tags"
               transform={null}
             />
           </div>
@@ -1241,11 +1241,11 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
           tag="li"
         >
           <div
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="question-circle"
@@ -1269,14 +1269,14 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
           tag="li"
         >
           <a
-            className="buttonsBar_13xq1v"
+            className="buttonsBar_6zsntc"
             href="http://testplan.readthedocs.io"
             rel="noopener noreferrer"
             target="_blank"
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_z1gq62"
+              className="toolbarButton_1d6e8oq"
               fixedWidth={false}
               flip={null}
               icon="book"

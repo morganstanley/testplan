@@ -3,7 +3,7 @@ import {StyleSheet, css} from 'aphrodite';
 import axios from 'axios';
 
 import Toolbar from '../Toolbar/Toolbar';
-import { TimeButton } from '../Toolbar/Buttons';
+import {TimeButton} from '../Toolbar/Buttons';
 import Nav from '../Nav/Nav';
 import {
   PropagateIndices,
@@ -27,7 +27,7 @@ class BatchReport extends React.Component {
     this.handleNavFilter = this.handleNavFilter.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
-    this.toggleTimeDisplay = this.toggleTimeDisplay.bind(this);
+    this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
     this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
     this.handleNavClick = this.handleNavClick.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
@@ -130,18 +130,34 @@ class BatchReport extends React.Component {
     this.setState({filter: filter});
   }
 
+  /**
+   * Update tag display of each navigation entry.
+   *
+   * @param {boolean} displayTags.
+   * @public
+   */
   updateTagsDisplay(displayTags) {
     this.setState({displayTags: displayTags});
   }
 
+  /**
+   * Update navigation pane to show/hide entries of empty testcases.
+   *
+   * @param {boolean} displayEmpty.
+   * @public
+   */
   updateDisplayEmpty(displayEmpty) {
     this.setState({displayEmpty: displayEmpty});
   }
 
-  toggleTimeDisplay() {
-    this.setState(prevState => ({
-      displayTime: !prevState.displayTime
-    }));
+  /**
+   * Update execution time display of each navigation entry and each assertion.
+   *
+   * @param {boolean} displayTime.
+   * @public
+   */
+  updateTimeDisplay(displayTime) {
+    this.setState({displayTime: displayTime});
   }
 
   /**
@@ -188,7 +204,8 @@ class BatchReport extends React.Component {
           updateTagsDisplayFunc={this.updateTagsDisplay}
           extraButtons={[<TimeButton
             key="time-button"
-            toggleTimeDisplayCbk={this.toggleTimeDisplay}
+            status={reportStatus}
+            updateTimeDisplayCbk={this.updateTimeDisplay}
           />]}
         />
         <Nav

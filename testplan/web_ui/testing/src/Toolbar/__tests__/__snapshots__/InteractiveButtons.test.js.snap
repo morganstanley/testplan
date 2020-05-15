@@ -6,11 +6,11 @@ exports[`ResetButton Renders a clickable button 1`] = `
   tag="li"
 >
   <div
-    className="buttonsBar_13xq1v"
+    className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
       border={false}
-      className="toolbarButton_z1gq62"
+      className="toolbarButton_1d6e8oq"
       fixedWidth={false}
       flip={null}
       icon={
@@ -50,11 +50,11 @@ exports[`ResetButton Renders a spinning icon when reset is in-progress 1`] = `
   tag="li"
 >
   <div
-    className="buttonsBar_13xq1v"
+    className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
       border={false}
-      className="toolbarButton_z1gq62-o_O-toolbarInactive_51g7gx"
+      className="toolbarButton_1d6e8oq-o_O-toolbarInactive_51g7gx"
       fixedWidth={false}
       flip={null}
       icon={

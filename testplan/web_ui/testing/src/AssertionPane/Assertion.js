@@ -38,15 +38,32 @@ class Assertion extends Component {
     super(props);
 
     this.toggleAssertion = this.toggleAssertion.bind(this);
-    this.state = {isOpen: this.props.assertion.passed === false};
+    this.state = {
+      isOpen: this.props.assertion.passed === false,
+    };
   }
 
   shouldComponentUpdate(nextProps, nextState) {
+    const timeInfoIsEqual = (arr1, arr2) => {
+      if (arr1 === undefined && arr2 === undefined) {
+        return true;
+      } else if (arr1 !== undefined && arr2 !== undefined &&
+                 arr1.length === arr2.length) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
     // If we used a PureComponent it would do a shallow prop comparison which
     // might suffice and we wouldn't need to include this.
     return (nextProps.assertion !== this.props.assertion) ||
       (nextProps.globalIsOpen !== this.props.globalIsOpen) ||
-      (nextState.isOpen !== this.state.isOpen);
+      (nextState.isOpen !== this.state.isOpen) ||
+      // Inside the group assertions may need to be updated
+      (nextProps.assertion.type === 'Group') ||
+      !timeInfoIsEqual(
+        nextProps.assertion.timeInfoArray, this.props.timeInfoArray);
   }
 
   /**
@@ -117,33 +134,37 @@ class Assertion extends Component {
   render() {
     let isAssertionGroup = false;
     let assertionType = this.props.assertion.type;
-    switch(assertionType){
+    switch (assertionType) {
       case 'Group':
         isAssertionGroup = true;
-        assertionType = <AssertionGroup
-                    entries={this.props.assertion.entries}
-                    globalIsOpen={this.props.globalIsOpen}
-                    resetGlobalIsOpen={this.props.resetGlobalIsOpen}
-                    filter={this.props.filter}
-                     />;
+        assertionType = (
+          <AssertionGroup
+            entries={this.props.assertion.entries}
+            globalIsOpen={this.props.globalIsOpen}
+            resetGlobalIsOpen={this.props.resetGlobalIsOpen}
+            filter={this.props.filter}
+          />
+        );
         break;
       case 'Summary':
-        assertionType = <SummaryBaseAssertion
-                    assertion={this.props.assertion}
-                    globalIsOpen={this.props.globalIsOpen}
-                    resetGlobalIsOpen={this.props.resetGlobalIsOpen}
-                    filter={this.props.filter}
-                    />;
+        assertionType = (
+          <SummaryBaseAssertion
+            assertion={this.props.assertion}
+            globalIsOpen={this.props.globalIsOpen}
+            resetGlobalIsOpen={this.props.resetGlobalIsOpen}
+            filter={this.props.filter}
+          />
+        );
         break;
       default: {
         const AssertionTypeComponent = this.assertionComponent(assertionType);
         if (AssertionTypeComponent) {
-        assertionType = (
-          <AssertionTypeComponent
-            assertion={this.props.assertion}
-            reportUid={this.props.reportUid}
-          />
-        );
+          assertionType = (
+            <AssertionTypeComponent
+              assertion={this.props.assertion}
+              reportUid={this.props.reportUid}
+            />
+          );
         } else {
           assertionType = <NotImplementedAssertion />;
         }
@@ -167,7 +188,8 @@ class Assertion extends Component {
               css(
                 isAssertionGroup
                   ? styles.groupCardBody
-                  : styles.assertionCardBody)
+                  : styles.assertionCardBody
+              )
             }
           >
             {assertionType}

@@ -6,48 +6,16 @@ exports[`AssertionHeader shallow renders the correct HTML structure 1`] = `
   onClick={[MockFunction]}
   tag="div"
 >
-  <FontAwesomeIcon
-    border={false}
-    className="icon_erbgzi"
-    fixedWidth={false}
-    flip={null}
-    icon="clock"
-    id="tooltip_0"
-    inverse={false}
-    key="faClock"
-    listItem={false}
-    mask={null}
-    pull={null}
-    pulse={false}
-    rotation={null}
-    size="sm"
-    spin={false}
-    symbol={false}
-    title=""
-    transform={null}
-  />
-  <Tooltip
-    autohide={true}
-    delay={
-      Object {
-        "hide": 250,
-        "show": 0,
-      }
-    }
-    hideArrow={false}
-    isOpen={false}
-    placement="bottom"
-    placementPrefix="bs-tooltip"
-    target="tooltip_0"
-    toggle={[Function]}
-  >
-    Tue, 12 Feb 2019 17:41:42 GMT
-  </Tooltip>
   <span>
     <strong />
+  </span>
+  <span>
     (
     Equal
     )
   </span>
+  <span
+    className="cardHeaderAlignRight_107ja4p"
+  />
 </CardHeader>
 `;

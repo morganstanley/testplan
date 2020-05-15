@@ -90,7 +90,7 @@ class AssertionPane extends Component {
     if (this.props.assertions.length !== 0 || this.props.logs.length !==0) {
       return (
         <div style={assertionPaneStyle}>
-          <DescriptionPane 
+          <DescriptionPane
             descriptionEntries={this.props.descriptionEntries}
           />
           <div className={css(styles.buttonsDiv)}>

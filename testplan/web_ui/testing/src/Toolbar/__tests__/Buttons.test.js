@@ -19,12 +19,12 @@ describe("TimeButton", () => {
   });
 
   it("Renders a clickable button", () => {
-    const toggleTimeDisplayCbk = jest.fn();
+    const updateTimeDisplayCbk = jest.fn();
     const button = shallow(
-      <TimeButton toggleTimeDisplayCbk={toggleTimeDisplayCbk} />
+      <TimeButton updateTimeDisplayCbk={updateTimeDisplayCbk} />
     );
     expect(button).toMatchSnapshot();
-    button.find({title: "Toggle execution time"}).simulate("click");
-    expect(toggleTimeDisplayCbk.mock.calls.length).toBe(1);
+    button.find({title: "Display time information"}).simulate("click");
+    expect(updateTimeDisplayCbk.mock.calls.length).toBe(1);
   });
 });

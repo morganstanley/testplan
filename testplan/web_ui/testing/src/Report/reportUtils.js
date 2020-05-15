@@ -191,7 +191,7 @@ const GetCenterPane = (
   }).filter((element) => {
     return element; // filter empty description
   });
-  const assertions = getAssertions(selectedEntries);
+  const assertions = getAssertions(selectedEntries, state.displayTime);
 
   if (state.error) {
     return (
@@ -229,12 +229,90 @@ const GetCenterPane = (
   }
 };
 
+// eslint-disable   -next-line
+const formatDate = (date, fmt) => {
+  var o = {
+    "M+" : date.getMonth() + 1,
+    "d+" : date.getDate(),
+    "h+" : date.getHours(),
+    "m+" : date.getMinutes(),
+    "s+" : date.getSeconds(),
+    "q+" : Math.floor((date.getMonth() + 3) / 3),
+    "S"  : date.getMilliseconds()
+  };
+
+  if (/(y+)/.test(fmt)) {
+    fmt = fmt.replace(
+      RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length)
+    );
+  }
+
+  for (var k in o) {
+    if (new RegExp("(" + k + ")").test(fmt)) {
+      fmt = fmt.replace(
+        RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (
+          ("00" + o[k]).substr(("" + o[k]).length)
+        )
+      );
+    }
+  }
+
+  return fmt;
+};
+
 /** TODO */
-const getAssertions = (selectedEntries) => {
+const getAssertions = (selectedEntries, displayTime) => {
+  // get all assertions from groups and list them sequentially in an array
+  const getAssertionsRecursively = (links, entries) => {
+    for (let i = 0; i < entries.length; ++i) {
+      if (entries[i].type === 'Group') {
+        getAssertionsRecursively(links, entries[i].entries);
+      }
+      else {
+        links.push(entries[i]);
+      }
+    }
+  };
+
   const selectedEntry = selectedEntries[selectedEntries.length - 1];
   if (selectedEntry && selectedEntry.category === 'testcase') {
+    let links = [];
+    getAssertionsRecursively(links, selectedEntry.entries);
+
+    // get time information of each assertion if needed
+    if (displayTime) {
+      for (let i = 0; i < links.length; ++i) {
+        links[i].timeInfoArray = [i]; // [index, start_time, duration]
+        links[i].timeInfoArray.push(links[i].utc_time ? (
+          formatDate(new Date(links[i].utc_time), "hh:mm:ss.S")
+        ) + " UTC" : "");
+      }
+      for (let i = 0; i < links.length - 1; ++i) {
+        links[i].timeInfoArray.push(
+          links[i].utc_time && links[i+1].utc_time ?
+          "(" + (
+            (new Date(links[i+1].utc_time)).getTime() -
+            (new Date(links[i].utc_time)).getTime()
+          ) + "ms)": "(Unknown)");
+      }
+      if (links.length > 0) {
+        links[links.length - 1].timeInfoArray.push(
+          selectedEntry.timer && selectedEntry.timer.run.end &&
+          links[links.length - 1].utc_time ?
+          "(" + (
+            (new Date(selectedEntry.timer.run.end)).getTime() -
+            (new Date(links[links.length - 1].utc_time)).getTime()
+          ) + "ms)": "(Unknown)");
+      }
+    }
+    else {
+      for (let i = 0; i < links.length; ++i) {
+        links[i].timeInfoArray = [];
+      }
+    }
     return selectedEntry.entries;
-  } else {
+  }
+  else {
     return [];
   }
 };
