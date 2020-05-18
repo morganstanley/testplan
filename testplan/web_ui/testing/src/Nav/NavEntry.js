@@ -82,7 +82,6 @@ const styles = StyleSheet.create({
     "overflow": "hidden",
     "text-overflow": "ellipsis",
     "white-space": "nowrap",
-    "max-width": "22em",
     fontSize: 'small',
     fontWeight: 500,
   },

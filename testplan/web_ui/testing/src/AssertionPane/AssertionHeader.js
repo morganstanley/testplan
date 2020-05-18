@@ -4,15 +4,9 @@ import {css, StyleSheet} from 'aphrodite';
 import {CardHeader, Tooltip} from 'reactstrap';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {
-  faClock,
-  faLayerGroup,
-} from '@fortawesome/free-solid-svg-icons';
+import {faLayerGroup} from '@fortawesome/free-solid-svg-icons';
 
-library.add(
-  faClock,
-  faLayerGroup
-);
+library.add(faLayerGroup);
 
 /**
  * Header component of an assertion.
@@ -21,71 +15,103 @@ class AssertionHeader extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {isTooltipOpen: false};
-    this.toggleTooltip = this.toggleTooltip.bind(this);
+    this.state = {
+      isUTCTooltipOpen: false,
+      isDurationTooltipOpen: false,
+    };
+    this.toggleUTCTooltip = this.toggleUTCTooltip.bind(this);
+    this.toggleDurationTooltip = this.toggleDurationTooltip.bind(this);
   }
 
   /**
-   * Toggle the visibility of the header's tooltip.
+   * Toggle the visibility of tooltip of assertion start time.
    */
-  toggleTooltip() {
-    this.setState({
-      isTooltipOpen: !this.state.isTooltipOpen
-    });
+  toggleUTCTooltip() {
+    this.setState(prevState => ({
+      isUTCTooltipOpen: !prevState.isUTCTooltipOpen
+    }));
+  }
+
+  /**
+   * Toggle the visibility of tooltip of duration between assertions.
+   */
+  toggleDurationTooltip() {
+    this.setState(prevState => ({
+      isDurationTooltipOpen: !prevState.isDurationTooltipOpen
+    }));
   }
 
   render() {
-    let tooltip = null;
-    let starterIcon = null;
-    const tooltipId = 'tooltip_' + this.props.index;
     const cardHeaderStyle = this.props.assertion.passed === undefined
       ? styles.cardHeaderColorLog
       : this.props.assertion.passed
         ? styles.cardHeaderColorPassed
         : styles.cardHeaderColorFailed;
 
-    if (this.props.assertion.utc_time === undefined) {
-      starterIcon =
-        <FontAwesomeIcon
+    const timeInfoArray = this.props.assertion.timeInfoArray || [];
+    let component = (this.props.assertion.utc_time === undefined) ? (
+      <span className={css(styles.cardHeaderAlignRight)}>
+        <FontAwesomeIcon  // Should be a nested assertion group
           size='sm'
           key='faLayerGroup'
           icon='layer-group'
           className={css(styles.icon)}
-        />;
-    } else {
-      let tooltipDate = new Date(this.props.assertion.utc_time);
-
-      starterIcon =
-        <FontAwesomeIcon
-          size='sm'
-          key='faClock'
-          icon='clock'
-          className={css(styles.icon)}
-          id={tooltipId}
-        />;
-
-      tooltip =
-        <Tooltip
-          placement='bottom'
-          isOpen={this.state.isTooltipOpen}
-          target={tooltipId}
-          toggle={this.toggleTooltip}
-        >
-          {tooltipDate.toUTCString()}
-        </Tooltip>;
-    }
+        />
+      </span>
+    ) : ((timeInfoArray.length === 0) ? (
+        <span className={css(styles.cardHeaderAlignRight)}></span>
+      ) : (
+        <>
+          <span
+            className={css(styles.cardHeaderAlignRight)}
+            id={`tooltip_duration_${timeInfoArray[0]}`}
+          >
+            {timeInfoArray[2]}
+          </span>
+          <span className={css(styles.cardHeaderAlignRight)}>
+            &nbsp;&nbsp;
+          </span>
+          <span
+            className={css(styles.cardHeaderAlignRight)}
+            id={`tooltip_utc_${timeInfoArray[0]}`}
+          >
+            {timeInfoArray[1]}
+          </span>
+          <Tooltip
+            placement='bottom'
+            isOpen={this.state.isUTCTooltipOpen}
+            target={`tooltip_utc_${timeInfoArray[0]}`}
+            toggle={this.toggleUTCTooltip}
+          >
+            {"Assertion start time"}
+          </Tooltip>
+          <Tooltip
+            placement='bottom'
+            isOpen={this.state.isDurationTooltipOpen}
+            target={`tooltip_duration_${timeInfoArray[0]}`}
+            toggle={this.toggleDurationTooltip}
+          >
+            {"Assertion duration"}
+          </Tooltip>
+        </>
+      )
+    );
 
     return (
       <CardHeader
         className={css(styles.cardHeader, cardHeaderStyle)}
         onClick={this.props.onClick}
       >
-        {starterIcon}
-        {tooltip}
         <span>
-          <strong>{this.props.assertion.description}</strong>
+          <strong>
+            {this.props.assertion.description ? (
+             this.props.assertion.description + " ") : ""}
+          </strong>
+        </span>
+        <span>
           ({this.props.assertion.type})
         </span>
+        {component}
         {/*
           TODO will be implemented when complete permalink feature
           linkIcon
@@ -126,6 +152,10 @@ const styles = StyleSheet.create({
   cardHeaderColorFailed: {
     borderBottomColor: '#dc3545', // Move to defaults
     color: '#dc3545', // Move to defaults
+  },
+
+  cardHeaderAlignRight: {
+    float: 'right',
   },
 
   collapseDiv: {

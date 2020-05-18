@@ -210,14 +210,18 @@ class Toolbar extends Component {
    * Return the button which toggles the display of tags.
    */
   tagsButton() {
+    const toolbarButtonStyle = this.state.displayTags ? (
+      getToggledButtonStyle(this.props.status)): css(styles.toolbarButton);
+    const iconTooltip = this.state.displayTags ? "Hide tags" : "Display tags";
+
     return (
       <NavItem>
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
             key='toolbar-tags'
-            className={css(styles.toolbarButton)}
+            className={toolbarButtonStyle}
             icon='tags'
-            title='Toggle tags'
+            title={iconTooltip}
             onClick={this.toggleTagsDisplay}
           />
         </div>
@@ -360,7 +364,7 @@ class Toolbar extends Component {
  * Get the current toolbar style based on the testplan status.
  */
 const getToolbarStyle = (status) => {
-  switch (STATUS_CATEGORY[status]){
+  switch (STATUS_CATEGORY[status]) {
     case 'passed':
         return css(styles.toolbar, styles.toolbarPassed);
     case 'failed':
@@ -370,6 +374,23 @@ const getToolbarStyle = (status) => {
         return css(styles.toolbar, styles.toolbarUnstable);
     default:
         return css(styles.toolbar, styles.toolbarUnknown);
+  }
+};
+
+/**
+ * Get the current toggled toolbar button style in based on the testplan status.
+ */
+const getToggledButtonStyle = (status) => {
+  switch (STATUS_CATEGORY[status]) {
+    case 'passed':
+        return css(styles.toolbarButton, styles.toolbarButtonToggledPassed);
+    case 'failed':
+    case 'error':
+        return css(styles.toolbarButton, styles.toolbarButtonToggledFailed);
+    case 'unstable':
+        return css(styles.toolbarButton, styles.toolbarButtonToggledUnstable);
+    default:
+        return css(styles.toolbarButton, styles.toolbarButtonToggledUnknown);
   }
 };
 
@@ -433,3 +454,4 @@ Toolbar.propTypes = {
 };
 
 export default Toolbar;
+export {getToggledButtonStyle};

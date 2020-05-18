@@ -2,8 +2,11 @@
  * Constants used across the entire application.
  */
 const GREEN = '#228F1D';
+const DARK_GREEN = '#1A721D';
 const RED = '#A2000C';
+const DARK_RED = '#840008';
 const ORANGE = '#FFA500';
+const DARK_ORANGE = '#DD8800';
 const LIGHT_GREY = '#F3F3F3';
 const MEDIUM_GREY = '#D0D0D0';
 const DARK_GREY = '#ADADAD';
@@ -172,8 +175,11 @@ const POLL_MS = 1000;
 
 export {
   GREEN,
+  DARK_GREEN,
   RED,
+  DARK_RED,
   ORANGE,
+  DARK_ORANGE,
   LIGHT_GREY,
   MEDIUM_GREY,
   DARK_GREY,

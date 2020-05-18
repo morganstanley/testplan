@@ -5,11 +5,11 @@ exports[`TimeButton Renders a clickable button 1`] = `
   tag="li"
 >
   <div
-    className="buttonsBar_13xq1v"
+    className="buttonsBar_6zsntc"
   >
     <FontAwesomeIcon
       border={false}
-      className="toolbarButton_z1gq62"
+      className="toolbarButton_1d6e8oq"
       fixedWidth={false}
       flip={null}
       icon={
@@ -29,14 +29,14 @@ exports[`TimeButton Renders a clickable button 1`] = `
       key="toolbar-time"
       listItem={false}
       mask={null}
-      onClick={[MockFunction]}
+      onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
       size={null}
       spin={false}
       symbol={false}
-      title="Toggle execution time"
+      title="Display time information"
       transform={null}
     />
   </div>
