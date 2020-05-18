@@ -8,9 +8,9 @@ from six.moves import range
 
 # pylint: disable=no-name-in-module,import-error
 if six.PY2:
-    from collections import MutableMapping, MutableSequence
+    from collections import Mapping, Sequence
 else:
-    from collections.abc import MutableMapping, MutableSequence
+    from collections.abc import Mapping, Sequence
 # pylint: enable=no-name-in-module,import-error
 
 from marshmallow import Schema, fields, post_load
@@ -130,7 +130,7 @@ class EntriesField(fields.Field):
             json.dumps(datacp, ensure_ascii=True)
             return datacp
         except (UnicodeDecodeError, TypeError, ValueError):
-            if isinstance(datacp, MutableMapping):
+            if isinstance(datacp, Mapping):
                 for key in six.iterkeys(datacp):
                     datacp[key] = self._render_unencodable_bytes_by_callable(
                         data=datacp[key],
@@ -138,7 +138,7 @@ class EntriesField(fields.Field):
                         recurse_lvl=(recurse_lvl + 1),
                     )
                 return datacp
-            if isinstance(datacp, MutableSequence):
+            if isinstance(datacp, Sequence):
                 for i in range(len(datacp)):
                     datacp[i] = self._render_unencodable_bytes_by_callable(
                         data=datacp[i],
@@ -170,7 +170,7 @@ class EntriesField(fields.Field):
             valued = super(EntriesField, self)._deserialize(value, attr, obj)
         else:
             valued = value
-        if isinstance(valued, MutableMapping):
+        if isinstance(valued, Mapping):
             for key in six.iterkeys(valued):
                 if key == self._BYTES_KEY:
                     return self._hex_list_to_binary(valued[key])
@@ -181,7 +181,7 @@ class EntriesField(fields.Field):
                     recurse_lvl=(recurse_lvl + 1),
                 )
             return valued
-        if isinstance(valued, MutableSequence):
+        if isinstance(valued, Sequence):
             for i in range(len(valued)):
                 valued[i] = self._deserialize(
                     value=valued[i],
