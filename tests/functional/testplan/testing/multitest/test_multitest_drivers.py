@@ -165,8 +165,8 @@ class BaseDriver(Driver):
 
     @property
     def logpath(self):
-        if self.cfg.logfile:
-            return os.path.join(self.runpath, self.cfg.logfile)
+        if self.cfg.logname:
+            return os.path.join(self.runpath, self.cfg.logname)
         return self.outpath
 
     @property
@@ -233,7 +233,7 @@ def test_multitest_driver_failure():
             environment=[
                 VulnerableDriver2(
                     name="vulnerable_driver_2",
-                    logfile="logfile",
+                    logname="logfile",
                     report_errors_from_logs=True,
                     error_logs_max_lines=10,
                 )

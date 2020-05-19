@@ -52,13 +52,14 @@ class DriverConfig(ResourceConfig):
             "name": str,
             ConfigOption("install_files", default=None): Or(None, list),
             ConfigOption("timeout", default=60): int,
-            ConfigOption("logfile", default=None): Or(None, str),
+            ConfigOption("logname", default=None): Or(None, str),
             ConfigOption("log_regexps", default=None): Or(None, list),
             ConfigOption("stdout_regexps", default=None): Or(None, list),
             ConfigOption("stderr_regexps", default=None): Or(None, list),
             ConfigOption("async_start", default=False): bool,
             ConfigOption("report_errors_from_logs", default=False): bool,
             ConfigOption("error_logs_max_lines", default=10): int,
+            ConfigOption("path_cleanup", default=True): bool,
         }
 
 
@@ -84,8 +85,8 @@ class Driver(Resource):
     :type install_files: ``List[Union[str, tuple]]``
     :param timeout: Timeout duration for status condition check.
     :type timeout: ``int``
-    :param logfile: Driver logfile path.
-    :type logfile: ``str``
+    :param logname: Driver logfile name.
+    :type logname: ``str``
     :param log_regexps: A list of regular expressions, any named groups matched
         in the logfile will be made available through ``extracts`` attribute.
         These will be start-up conditions.
@@ -102,6 +103,8 @@ class Driver(Resource):
     :param error_logs_max_lines: Number of lines to be reported if using
         `report_errors_from_logs` option.
     :type error_logs_max_lines: ``int``
+    :param path_cleanup: Remove previous runpath created dirs/files.
+    :type path_cleanup: ``bool``
 
 
     Also inherits all
@@ -180,6 +183,14 @@ class Driver(Resource):
     def context_input(self):
         """Driver context information."""
         return {attr: getattr(self, attr) for attr in dir(self)}
+
+    @property
+    def logname(self):
+        """
+        :return: Configured logname
+        :rtype: ``str``
+        """
+        return self.cfg.logname
 
     @property
     def logpath(self):
