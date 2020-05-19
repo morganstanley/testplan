@@ -198,15 +198,18 @@ class App(Driver):
                 os.path.basename(self.cfg.binary), uuid.uuid4()
             )
 
+        self.binary = self.cfg.binary
         if os.path.isfile(self.cfg.binary):
             target = os.path.join(self._binpath, name)
             if self.cfg.binary_copy:
                 shutil.copyfile(self.cfg.binary, target)
+                self.binary = target
             else:
-                os.symlink(self.cfg.binary, target)
-            self.binary = target
-        else:
-            self.binary = self.cfg.binary
+                try:
+                    os.symlink(self.cfg.binary, target)
+                    self.binary = target
+                except AttributeError:
+                    pass
 
         makedirs(self.app_path)
         self.std = StdFiles(self.app_path)
