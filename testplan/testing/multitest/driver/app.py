@@ -5,6 +5,7 @@ import uuid
 import shutil
 import warnings
 import subprocess
+import datetime
 
 from schema import Or
 from past.builtins import basestring
@@ -150,8 +151,8 @@ class App(Driver):
     @property
     def logpath(self):
         """Path for log regex matching."""
-        if self.cfg.logfile:
-            return os.path.join(self.app_path, self.cfg.logfile)
+        if self.cfg.logname:
+            return os.path.join(self.app_path, self.cfg.logname)
         return self.outpath
 
     @property
@@ -189,16 +190,20 @@ class App(Driver):
         super(App, self).pre_start()
 
         self._make_dirs()
-        if self.cfg.binary_copy:
-            if self.cfg.path_cleanup is True:
-                name = os.path.basename(self.cfg.binary)
-            else:
-                name = "{}-{}".format(
-                    os.path.basename(self.cfg.binary), uuid.uuid4()
-                )
 
+        if self.cfg.path_cleanup is True:
+            name = os.path.basename(self.cfg.binary)
+        else:
+            name = "{}-{}".format(
+                os.path.basename(self.cfg.binary), uuid.uuid4()
+            )
+
+        if os.path.isfile(self.cfg.binary):
             target = os.path.join(self._binpath, name)
-            shutil.copyfile(self.cfg.binary, target)
+            if self.cfg.binary_copy:
+                shutil.copyfile(self.cfg.binary, target)
+            else:
+                os.symlink(self.cfg.binary, target)
             self.binary = target
         else:
             self.binary = self.cfg.binary
@@ -243,6 +248,11 @@ class App(Driver):
                 self.cfg.name,
                 cmd if self.cfg.shell else " ".join(cmd),
             )
+            if self.proc is not None:
+                if self.proc.poll() is None:
+                    kill_process(self.proc)
+                assert self.proc.returncode is not None
+                self._proc = None
             raise
 
     def stopping(self):
@@ -269,6 +279,47 @@ class App(Driver):
 
     def _install_target(self):
         return self.etcpath
+
+    def restart(self):
+        """
+        Stop the driver, archive the app_dir or rename std/log, and then restart
+        the driver.
+        """
+        self.stop()
+        self.wait(self.status.STOPPED)
+
+        if self.cfg.app_dir_name:
+            self._move_app_path()
+        else:
+            self._rename_std_and_log()
+
+        path_cleanup = self.cfg.path_cleanup
+        self.cfg.path_cleanup = False
+        # we don't want to cleanup runpath during restart
+        self.start()
+        self.wait(self.status.STARTED)
+        self.cfg.path_cleanup = path_cleanup
+
+    def _move_app_path(self):
+        """
+        Move app_path directory to an archive location
+        """
+        snapshot_path = self.app_path + datetime.datetime.now().strftime(
+            "_%Y%m%d_%H%M%S"
+        )
+
+        shutil.move(self.app_path, snapshot_path)
+        os.makedirs(self.app_path)
+
+    def _rename_std_and_log(self):
+        """
+        Rename std and log files
+        """
+        timestamp = datetime.datetime.now().strftime("_%Y%m%d_%H%M%S")
+
+        for file in (self.outpath, self.errpath, self.logpath):
+            if os.path.isfile(file):
+                os.rename(file, file + timestamp)
 
     def aborting(self):
         """Abort logic to force kill the child binary."""

@@ -82,13 +82,13 @@ def test_app_cwd(runpath):
 def test_app_logfile(runpath):
     """Test running an App that writes to a logfile."""
     app_dir = "AppDir"
-    logfile = "file.log"
+    logname = "file.log"
     app = App(
         name="App",
         binary="echo",
-        args=["hello", ">", os.path.join("AppDir", logfile)],
+        args=["hello", ">", os.path.join("AppDir", logname)],
         app_dir_name=app_dir,
-        logfile=logfile,
+        logname=logname,
         shell=True,
         runpath=runpath,
     )
@@ -102,7 +102,7 @@ def test_app_logfile(runpath):
 
 def test_extract_from_logfile(runpath):
     """Test extracting values from a logfile via regex matching."""
-    logfile = "file.log"
+    logname = "file.log"
     a = "1"
     b = "23a"
     message = "Value a={a} b={b}".format(a=a, b=b)
@@ -114,8 +114,8 @@ def test_extract_from_logfile(runpath):
     app = CustomApp(
         name="App",
         binary="echo",
-        args=[message, ">", logfile],
-        logfile=logfile,
+        args=[message, ">", logname],
+        logname=logname,
         log_regexps=log_regexps,
         shell=True,
         runpath=runpath,
@@ -128,7 +128,7 @@ def test_extract_from_logfile(runpath):
 def test_extract_from_logfile_with_appdir(runpath):
     """Test extracting values from a logfile within an app sub-directory."""
     app_dir = "AppDir"
-    logfile = "file.log"
+    logname = "file.log"
     a = "1"
     b = "23a"
     message = "Value a={a} b={b}".format(a=a, b=b)
@@ -140,9 +140,9 @@ def test_extract_from_logfile_with_appdir(runpath):
     app = CustomApp(
         name="App",
         binary="echo",
-        args=[message, ">", os.path.join("AppDir", logfile)],
+        args=[message, ">", os.path.join("AppDir", logname)],
         app_dir_name=app_dir,
-        logfile=logfile,
+        logname=logname,
         log_regexps=log_regexps,
         shell=True,
         runpath=runpath,
