@@ -2,6 +2,7 @@ import functools
 import json
 import six
 import pytest
+from collections import OrderedDict
 
 if six.PY2:
     import mock
@@ -342,14 +343,33 @@ def dummy_test_plan_report():
 
 @disable_log_propagation(report.log.LOGGER)
 @pytest.fixture
-def dummy_test_plan_report_with_binary_asserts():
+def dummy_test_bin_plan_report():
 
     tg_2 = generate_dummy_testgroup()
 
     res = Result()
-    res.equal(1, 1, "IGNORE THIS")
-    res.equal(b"\xF2", b"\xf2", "IGNORE THIS")
-    res.equal(b"\x00\xb1\xC1", b"\x00\xB2\xc2", "IGNORE THIS")
+    res.equal(1, 1, "trivial assert")
+    res.equal(b"\xF2", b"\xf2", "mix-caps single byte")
+    res.equal(
+        b"\x00\xb1\xC1",
+        b"\x00\xB2\xc2",
+        "mix-caps multi byte"
+    )
+    res.equal(
+        [b"\x00\xb1\xC1"],
+        {b"\x00\xB2\xc2"},
+        "mix-caps multi byte mutable containers"
+    )
+    res.equal(
+        (b"\x00\xb1\xC1",),
+        frozenset({b"\x00\xB2\xc2"}),
+        "mix-caps multi byte immutable containers"
+    )
+    res.equal(
+        OrderedDict({100: frozenset([b"\xdd"])}),
+        OrderedDict({100: frozenset([b"\xdd"])}),
+        "multi byte nested mixed containers"
+    )
 
     btc_1 = TestCaseReport(
         name="binary_test_case_1",
@@ -366,7 +386,9 @@ def dummy_test_plan_report_with_binary_asserts():
     )
 
     rep = TestReport(
-        name="My Bin Plan", entries=[tg_2, btg_1], meta={"foobin": "bazbin"}
+        name="My Bin Plan",
+        entries=[tg_2, btg_1],
+        meta={"foobin": "bazbin"}
     )
 
     with rep.timer.record("foobin"):
@@ -390,33 +412,48 @@ def test_report_json_serialization(dummy_test_plan_report):
     check_report(actual=deserialized_report, expected=dummy_test_plan_report)
 
 
-def test_report_json_binary_serialization(
-    dummy_test_plan_report_with_binary_asserts,
-):
+def test_report_json_binary_serialization(dummy_test_bin_plan_report):
     """JSON Serialized & deserialized reports should be equal."""
     test_plan_schema = TestReportSchema(strict=True)
     data = test_plan_schema.dumps(
-        dummy_test_plan_report_with_binary_asserts
+        dummy_test_bin_plan_report
     ).data
 
     j = json.loads(data)
     bkey = EntriesField._BYTES_KEY
+    tgt_entries = j["entries"][1]["entries"][0]["entries"]
 
-    # passing assertion
-    hx_1_1 = j["entries"][1]["entries"][0]["entries"][1]["first"][bkey]
-    hx_1_2 = j["entries"][1]["entries"][0]["entries"][1]["second"][bkey]
+    # mix-caps single byte (pass)
+    hx_1_1 = tgt_entries[1]["first"][bkey]
+    hx_1_2 = tgt_entries[1]["second"][bkey]
     assert ["0xF2"] == hx_1_1 == hx_1_2
 
-    # failing assertion
-    hx_2_1 = j["entries"][1]["entries"][0]["entries"][2]["first"][bkey]
-    hx_2_2 = j["entries"][1]["entries"][0]["entries"][2]["second"][bkey]
+    # mix-caps multi byte (fail)
+    hx_2_1 = tgt_entries[2]["first"][bkey]
+    hx_2_2 = tgt_entries[2]["second"][bkey]
     assert ["0x00", "0xB1", "0xC1"] == hx_2_1
     assert ["0x00", "0xB2", "0xC2"] == hx_2_2
+
+    # mix-caps multi byte mutable containers (pass)
+    hx_3_1 = tgt_entries[3]["first"][0][bkey]
+    hx_3_2 = tgt_entries[3]["second"][0][bkey]
+    assert ["0x00", "0xB1", "0xC1"] == hx_3_1 == hx_3_2
+
+    # mix-caps multi byte immutable containers (fail)
+    hx_4_1 = tgt_entries[4]["first"][0][bkey]
+    hx_4_2 = tgt_entries[4]["second"][0][bkey]
+    assert ["0x00", "0xB1", "0xC1"] == hx_4_1
+    assert ["0x00", "0xB2", "0xC2"] == hx_4_2
+
+    # multi byte nested mixed containers (pass)
+    hx_5_1 = tgt_entries[5]["first"][100][0][bkey]
+    hx_5_2 = tgt_entries[5]["second"][100][0][bkey]
+    assert ["0xDD"] == hx_5_1 == hx_5_2
 
     deserialized_report = test_plan_schema.loads(data).data
     check_report(
         actual=deserialized_report,
-        expected=dummy_test_plan_report_with_binary_asserts,
+        expected=dummy_test_bin_plan_report,
     )
 
 

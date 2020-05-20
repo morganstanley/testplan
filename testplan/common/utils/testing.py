@@ -16,6 +16,15 @@ from ..report.base import Report, ReportGroup
 from ..utils.comparison import is_regex
 import collections
 
+if six.PY2:
+    ByteString = (bytearray,)
+else:
+    # pylint: disable=no-name-in-module,import-error
+    from collections.abc import ByteString
+    # pylint: enable=no-name-in-module,import-error
+
+from testplan.report.testing.schemas import EntriesField
+
 null_handler = logging.NullHandler()
 
 
@@ -131,6 +140,23 @@ def suppress_warnings(func):
     return context_wrapper(warnings_suppressed)
 
 
+def _render_mismatch(orig_act, act, orig_exp, exp, full_path):
+    return (
+        "{linesep}"
+        'Mismatch: "{full_path}",{linesep}'
+        "Expected value: {expected}{linesep}"
+        "Actual value: {actual}{linesep}"
+        "Expected Data:{linesep}{exp_data}{linesep}"
+        "Actual Data:{linesep}{act_data}"
+    ).format(
+        full_path=full_path,
+        linesep=os.linesep,
+        expected=pprint.pformat(exp, indent=2),
+        actual=pprint.pformat(act, indent=2),
+        exp_data=pprint.pformat(orig_exp, indent=2),
+        act_data=pprint.pformat(orig_act, indent=2),
+    )
+
 def check_iterable(
     expected, actual, curr_path="ROOT", _orig_exp=None, _orig_act=None
 ):
@@ -140,26 +166,6 @@ def check_iterable(
     """
     _orig_act = _orig_act or actual
     _orig_exp = _orig_exp or expected
-
-    def render_mismatch(act, exp, full_path):
-        return (
-            "{linesep}"
-            'Mismatch: "{full_path}",{linesep}'
-            "Expected value: {expected}{linesep}"
-            "Actual value: {actual}{linesep}"
-            "Expected Data:{linesep}{exp_data}{linesep}"
-            "Actual Data:{linesep}{act_data}"
-        ).format(
-            full_path=full_path,
-            linesep=os.linesep,
-            expected=pprint.pformat(exp, indent=2),
-            actual=pprint.pformat(act, indent=2),
-            exp_data=pprint.pformat(_orig_exp, indent=2),
-            act_data=pprint.pformat(_orig_act, indent=2),
-        )
-
-    msg = render_mismatch(act=actual, exp=expected, full_path=curr_path)
-
     if isinstance(expected, (list, tuple)):
         for idx, (exp_item, act_item) in enumerate(zip(expected, actual)):
             check_iterable(
@@ -178,15 +184,29 @@ def check_iterable(
                 _orig_exp=_orig_exp,
                 _orig_act=_orig_act,
             )
-    elif callable(expected):
-        assert bool(expected(actual)), msg
     elif is_regex(expected):
-        msg = render_mismatch(
-            act=actual, exp=expected.pattern, full_path=curr_path
+        msg = _render_mismatch(
+            orig_act=_orig_act,
+            act=actual,
+            orig_exp=_orig_exp,
+            exp=expected.pattern,
+            full_path=curr_path
         )
         assert expected.search(actual), msg
+    elif isinstance(expected, ByteString):
+        return  # this has special handling that's already tested for
     else:
-        assert expected == actual, msg
+        msg = _render_mismatch(
+            orig_act=_orig_act,
+            act=actual,
+            orig_exp=_orig_exp,
+            exp=expected,
+            full_path=curr_path
+        )
+        if callable(expected):
+            assert bool(expected(actual)), msg
+        else:
+            assert expected == actual, msg
 
 
 def check_entry(expected, actual):
