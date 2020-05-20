@@ -6,6 +6,7 @@ import shutil
 import warnings
 import subprocess
 import datetime
+import platform
 
 from schema import Or
 from past.builtins import basestring
@@ -18,6 +19,8 @@ from testplan.common.utils.process import kill_process
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from .base import Driver, DriverConfig
+
+IS_WIN = platform.system() == "Windows"
 
 
 class AppConfig(DriverConfig):
@@ -38,8 +41,8 @@ class AppConfig(DriverConfig):
             ConfigOption("shell", default=False): bool,
             ConfigOption("env", default=None): Or(None, dict),
             ConfigOption("binary_copy", default=False): bool,
-            ConfigOption("app_dir_name", default=None): Or(None, str),
-            ConfigOption("working_dir", default=None): Or(None, str),
+            ConfigOption("app_dir_name", default=None): Or(None, basestring),
+            ConfigOption("working_dir", default=None): Or(None, basestring),
         }
 
 
@@ -204,12 +207,9 @@ class App(Driver):
             if self.cfg.binary_copy:
                 shutil.copyfile(self.cfg.binary, target)
                 self.binary = target
-            else:
-                try:
-                    os.symlink(self.cfg.binary, target)
-                    self.binary = target
-                except AttributeError:
-                    pass
+            elif not IS_WIN:
+                os.symlink(self.cfg.binary, target)
+                self.binary = target
 
         makedirs(self.app_path)
         self.std = StdFiles(self.app_path)
