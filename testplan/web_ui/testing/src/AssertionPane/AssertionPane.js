@@ -90,9 +90,6 @@ class AssertionPane extends Component {
     if (this.props.assertions.length !== 0 || this.props.logs.length !==0) {
       return (
         <div style={assertionPaneStyle}>
-          <DescriptionPane
-            descriptionEntries={this.props.descriptionEntries}
-          />
           <div className={css(styles.buttonsDiv)}>
             <FontAwesomeIcon
               size='1x'
@@ -121,6 +118,9 @@ class AssertionPane extends Component {
               key={this.props.testcaseUid}
               items={this.props.assertions}
             >
+              <DescriptionPane
+                descriptionEntries={this.props.descriptionEntries}
+              />
               <AssertionGroup
                 entries={[]}
                 globalIsOpen={this.state.globalIsOpen}

@@ -361,7 +361,7 @@ var fakeReportAssertions = {
                         {
                             "category": "testcase",
                             "logs": [],
-                            "description": null,
+                            "description": "Description test\nSecond description",
                             "suite_related": false,
                             "counter": {
                                 "passed": 0,

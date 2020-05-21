@@ -13,7 +13,6 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
     }
   }
 >
-  <DescriptionPane />
   <div
     className="buttonsDiv_140n9qh"
   >
@@ -81,6 +80,7 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
       }
       key="22758cc5-8a89-472b-bf67-b64dbc2c0b40"
     >
+      <DescriptionPane />
       <AssertionGroup
         entries={Array []}
         resetGlobalIsOpen={[Function]}
