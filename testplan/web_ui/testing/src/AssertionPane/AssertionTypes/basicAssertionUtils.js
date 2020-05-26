@@ -36,9 +36,8 @@ function prepareLogContent(assertion, defaultContent) {
     if(typeof assertion.message === 'object' 
       && typeof (bytearray = assertion.message['_BYTES_KEY']) !== 'undefined' 
       && Array.isArray(bytearray)
-      && bytearray.length
       ) {
-      decodedMsg = String.fromCodePoint(...bytearray);
+      decodedMsg = bytearray.length ? String.fromCodePoint(...bytearray) : "";
     } else {
       decodedMsg = assertion.message;
     }
