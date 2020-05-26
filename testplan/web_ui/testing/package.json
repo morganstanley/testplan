@@ -3,7 +3,8 @@
   "version": "0.2.0",
   "private": true,
   "resolutions": {
-    "@babel/preset-env": "^7.8.7"
+    "@babel/preset-env": "^7.8.7",
+    "watchpack": "1.6.1"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "1.2.2",
