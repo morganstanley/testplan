@@ -23,8 +23,9 @@ class StyleEnum(ArgMixin, Enum):
     """
     Incremental output levels, this will be used by
     `StyleFlag` class to set styling flags like:
-        display_result = True
-        display_multitest = False
+
+        * display_result = True
+        * display_multitest = False
 
     Note: Multiple inheritance seems to break with IntEnum.
     """
@@ -57,12 +58,13 @@ class StyleFlag(object):
     Produces:
 
         StyleFlag
-            display_result = True
-            display_test = True
-            display_testsuite = True
-            display_testcase = True
-            display_assertion = False
-            display_assertion_detail = False
+
+            * display_result = True
+            * display_test = True
+            * display_testsuite = True
+            * display_testcase = True
+            * display_assertion = False
+            * display_assertion_detail = False
     """
 
     attrs = ["display_{}".format(enm.name.lower()) for enm in StyleEnum]
@@ -111,7 +113,7 @@ class Style(object):
     2 StyleFlag objects for passing / failing test result rendering.
 
     e.g. Render passing multitests, but render
-        failing multitest & suite & testcases.
+    failing multitest & suite & testcases.
     """
 
     def __init__(self, passing, failing):

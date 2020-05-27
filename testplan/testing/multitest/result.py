@@ -1421,6 +1421,7 @@ class Result(object):
         within a conditional block.
 
         .. code-block:: python
+
             if some_condition:
                 result.fail('Unexpected failure: {}'.format(...))
 
@@ -1462,6 +1463,7 @@ class Result(object):
         is a shortcut for writing:
 
         .. code-block:: python
+
             if some_condition:
                 result.log(log_message, description=log_description)
             else:

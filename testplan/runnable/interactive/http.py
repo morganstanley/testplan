@@ -566,7 +566,7 @@ class TestRunnerHTTPHandler(entity.Entity):
     Server that invokes an interactive handler to perform dynamic operations.
 
     :param ihandler: Runnable interactive handler instance.
-    :type ihandler: ``Entity ``
+    :type ihandler: ``Entity``
     :param host: Host to bind to.
     :type host: ``str``
     :param port: Port to bind to.

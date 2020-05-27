@@ -28,12 +28,16 @@ def nested_groups(iterable, key_funcs):
     first function (top level).
 
     The sample below will give us 2 top level groups and 4 sub groups:
+
         * Numbers divisible by 10
-            * Numbers divisible by 10 and divisible by 3
-            * Numbers divisible by 10 and not divisible by 3
+
+            - Numbers divisible by 10 and divisible by 3
+            - Numbers divisible by 10 and not divisible by 3
+
         * Numbers not divisible by 10
-            * Numbers not divisible by 10 and divisible by 3
-            * Numbers not divisible by 10 and not divisible by 3
+
+            - Numbers not divisible by 10 and divisible by 3
+            - Numbers not divisible by 10 and not divisible by 3
 
     >>> nested_groups(
     ...    range(1, 100),
