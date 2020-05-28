@@ -31,6 +31,7 @@ class TestPytestBasics(object):
         """
         Similar to above, except this time the test case will always fail.
         """
+        print("test output")
         assert False
 
     @pytest.mark.parametrize("a,b,c", [(1, 2, 3), (-1, -2, -3), (0, 0, 0)])

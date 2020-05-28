@@ -7,6 +7,7 @@ import warnings
 import subprocess
 import datetime
 import platform
+import socket
 
 from schema import Or
 from past.builtins import basestring
@@ -185,6 +186,14 @@ class App(Driver):
         """'etc' directory under runpath."""
         return self._etcpath
 
+    @property
+    def hostname(self):
+        """
+        :return: hostname where the ETSApp is running
+        :rtype: ``str``
+        """
+        return socket.gethostname()
+
     def pre_start(self):
         """
         Create mandatory directories and install files from given templates
@@ -208,7 +217,7 @@ class App(Driver):
                 shutil.copyfile(self.cfg.binary, target)
                 self.binary = target
             elif not IS_WIN:
-                os.symlink(self.cfg.binary, target)
+                os.symlink(os.path.abspath(self.cfg.binary), target)
                 self.binary = target
 
         makedirs(self.app_path)
