@@ -13,6 +13,7 @@ from testplan.testing import base as testing
 from testplan.common.config import ConfigOption
 from testplan.testing.base import TestResult
 from testplan.testing.multitest.entries import assertions
+from testplan.testing.multitest.entries.base import Log as LogAssertion
 from testplan.testing.multitest.result import Result as MultiTestResult
 from testplan.testing.multitest.entries.schemas.base import (
     registry as schema_registry,
@@ -529,6 +530,20 @@ class _ReportPlugin(object):
             serialized_obj = schema_registry.serialize(assertion_obj)
             self._current_case_report.append(serialized_obj)
             self._current_case_report.status_override = Status.FAILED
+
+            for capture, description in (
+                ("caplog", "Captured Log"),
+                ("capstdout", "Captured Stdout"),
+                ("capstderr", "Captured Stderr"),
+            ):
+                message = getattr(report, capture)
+                if message:
+                    assertion_obj = LogAssertion(
+                        message, description=description
+                    )
+                    serialized_obj = schema_registry.serialize(assertion_obj)
+                    self._current_case_report.append(serialized_obj)
+
         else:
             self._report.logger.error(
                 "Exception occured outside of a testcase: during %s", call.when
