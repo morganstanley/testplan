@@ -91,7 +91,7 @@ def test_process_runner(binary_path, expected_report, test_kwargs):
 
     plan = Testplan(name="plan", parse_cmdline=False)
 
-    process_test = DummyTest(name="MyTest", driver=binary_path, **test_kwargs)
+    process_test = DummyTest(name="MyTest", binary=binary_path, **test_kwargs)
 
     plan.add(process_test)
 

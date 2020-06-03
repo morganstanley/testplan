@@ -33,8 +33,8 @@ class HobbesTest(ProcessRunnerTest):
 
     :param name: Test instance name. Also used as uid.
     :type name: ``str``
-    :param driver: Path the to application binary.
-    :type driver: ``str``
+    :param binary: Path the to application binary or script.
+    :type binary: ``str``
     :param description: Description of test instance.
     :type description: ``str``
     :param tests: Run one or more specified test(s).
@@ -56,7 +56,7 @@ class HobbesTest(ProcessRunnerTest):
     def __init__(
         self,
         name,
-        driver,
+        binary,
         description=None,
         tests=None,
         json="report.json",
@@ -64,14 +64,14 @@ class HobbesTest(ProcessRunnerTest):
         **options
     ):
         options.update(self.filter_locals(locals()))
-        options["driver"] = os.path.abspath(options["driver"])
+        options["binary"] = os.path.abspath(options["binary"])
         # Change working directory to where the test binary is,
         # as it might look under current directory for other binaries.
-        options["proc_cwd"] = os.path.dirname(options["driver"])
+        options["proc_cwd"] = os.path.dirname(options["binary"])
         super(HobbesTest, self).__init__(**options)
 
     def test_command(self):
-        cmd = [self.cfg.driver] + ["--json", self.report_path]
+        cmd = [self.cfg.binary] + ["--json", self.report_path]
         if self.cfg.tests:
             cmd.append("--tests")
             cmd += self.cfg.tests
@@ -87,7 +87,7 @@ class HobbesTest(ProcessRunnerTest):
         return cmd
 
     def list_command(self):
-        cmd = [self.cfg.driver, "--list"]
+        cmd = [self.cfg.binary, "--list"]
         return cmd
 
     def read_test_data(self):

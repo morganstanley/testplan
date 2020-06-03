@@ -5,7 +5,7 @@ Module containing configuration objects and utilities.
 import copy
 import inspect
 
-from schema import Schema, Optional, And, Or, Use
+from schema import Schema, Optional
 
 from testplan.common.utils.interface import check_signature
 from testplan.common.utils import logger

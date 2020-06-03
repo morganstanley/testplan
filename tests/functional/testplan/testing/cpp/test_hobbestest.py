@@ -56,7 +56,7 @@ def test_hobbestest(binary_dir, expected_report):
     plan.add(
         HobbesTest(
             name="MyHobbesTest",
-            driver=binary_path,
+            binary=binary_path,
             tests=["Hog", "Net", "Recursives"],
         )
     )
@@ -92,7 +92,7 @@ def test_hobbestest_listing(binary_dir, expected_output):
                 plan.add(
                     HobbesTest(
                         name="MyHobbesTest",
-                        driver=binary_path,
+                        binary=binary_path,
                         tests=["Hog", "Net", "Recursives"],
                     )
                 )

@@ -5,7 +5,6 @@ from testplan.common.config import ConfigOption
 from testplan.report import (
     TestGroupReport,
     TestCaseReport,
-    Status,
     RuntimeStatus,
 )
 from testplan.testing.multitest.entries.assertions import RawAssertion
@@ -63,8 +62,8 @@ class GTest(ProcessRunnerTest):
 
     :param name: Test instance name. Also used as uid.
     :type name: ``str``
-    :param driver: Path the to application binary.
-    :type driver: ``str``
+    :param binary: Path the to application binary or script.
+    :type binary: ``str``
     :param description: Description of test instance.
     :type description: ``str``
     :param gtest_filter: Native test filter pattern that will be
@@ -91,7 +90,7 @@ class GTest(ProcessRunnerTest):
     :type gtest_death_test_style: ``str``
 
     Also inherits all
-    :py:class:`~testplan.testing.base.ProcessTest` options.
+    :py:class:`~testplan.testing.base.ProcessRunnerTest` options.
     """
 
     CONFIG = GTestConfig
@@ -99,7 +98,7 @@ class GTest(ProcessRunnerTest):
     def __init__(
         self,
         name,
-        driver,
+        binary,
         description=None,
         gtest_filter="",
         gtest_also_run_disabled_tests=False,
@@ -114,7 +113,7 @@ class GTest(ProcessRunnerTest):
         super(GTest, self).__init__(**options)
 
     def base_command(self):
-        cmd = [self.cfg.driver]
+        cmd = [self.cfg.binary]
         if self.cfg.gtest_filter:
             cmd.append("--gtest_filter={}".format(self.cfg.gtest_filter))
         return cmd
@@ -233,8 +232,8 @@ class GTest(ProcessRunnerTest):
         # Sample Result:
         #
         # [
-        #     ['SquareRootTest', ['PositiveNos', 'NegativeNos'],
-        #     ['SquareRootTestNonFatal', ['PositiveNos', 'NegativeNos'],
+        #     ['SquareRootTest', ['PositiveNos', 'NegativeNos']],
+        #     ['SquareRootTestNonFatal', ['PositiveNos', 'NegativeNos']],
         # ]
         result = []
         for line in test_list_output.splitlines():
@@ -259,11 +258,11 @@ class GTest(ProcessRunnerTest):
         Return the base test command with additional filtering to run a
         specific set of testcases.
         """
-        test_cmd = self.test_command()
+        cmd = self.test_command()
         if testsuite_pattern != "*" or testcase_pattern != "*":
-            test_cmd.append(
+            cmd.append(
                 "--gtest_filter={}.{}".format(
                     testsuite_pattern, testcase_pattern,
                 )
             )
-        return test_cmd
+        return cmd
