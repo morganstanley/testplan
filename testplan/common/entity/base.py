@@ -798,7 +798,7 @@ class Runnable(Entity):
             res = step(*args, **kwargs)
         except Exception as exc:
             print(
-                "Exception on {} {}, step {} - {}".format(
+                "Exception on {}[{}], step {} - {}".format(
                     self.__class__.__name__, self.uid(), step.__name__, exc
                 )
             )

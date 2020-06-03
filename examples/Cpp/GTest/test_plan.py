@@ -31,7 +31,7 @@ def main(plan):
         plan.add(
             GTest(
                 name="My GTest",
-                driver=BINARY_PATH,
+                binary=BINARY_PATH,
                 # You can apply GTest specific filtering via `gtest_filter` arg
                 # gtest_filter='SquareRootTest.*',
                 # You can also shuffle test order via `gtest_shuffle` arg

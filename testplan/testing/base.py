@@ -381,7 +381,7 @@ class ProcessRunnerTestConfig(TestConfig):
     @classmethod
     def get_options(cls):
         return {
-            "driver": str,
+            "binary": str,
             ConfigOption("proc_env", default={}): dict,
             ConfigOption("proc_cwd", default=None): Or(str, None),
             ConfigOption("timeout", default=None): Or(
@@ -400,8 +400,8 @@ class ProcessRunnerTest(Test):
     Test report will be populated by parsing the generated report output file
     (report.xml file by default.)
 
-    :param driver: Path the to application binary.
-    :type driver: ``str``
+    :param binary: Path to the application binary or script.
+    :type binary: ``str``
     :param proc_env: Environment overrides for ``subprocess.Popen``.
     :type proc_env: ``dict``
     :param proc_cwd: Directory override for ``subprocess.Popen``.
@@ -430,7 +430,7 @@ class ProcessRunnerTest(Test):
     # suites/testcases or might not even have the concept of test suites. If
     # no list_command is specified we will store all testcase results in a
     # single suite, with a default name.
-    _DEFAULT_SUITE_NAME = "AllTests"
+    _DEFAULT_SUITE_NAME = "All Tests"
 
     def __init__(self, **options):
         super(ProcessRunnerTest, self).__init__(**options)
@@ -467,18 +467,18 @@ class ProcessRunnerTest(Test):
         """
         Override this to add extra options to the test command.
 
-        :return: command to run test process
-        :rtype: List[str]
+        :return: Command to run test process
+        :rtype: ``list`` of ``str``
         """
-        return [self.cfg.driver]
+        return [self.cfg.binary]
 
     def list_command(self):
         """
         Override this to generate the shell command that will cause the
         testing framework to list the tests available on stdout.
 
-        :return: command to list tests
-        :rtype: Optional[List[str]]
+        :return: Command to list tests
+        :rtype: ``list`` of ``str`` or ``NoneType``
         """
         return None
 
@@ -584,17 +584,17 @@ class ProcessRunnerTest(Test):
             self.stderr, "w"
         ) as stderr, open(self.stdout, "w") as stdout:
 
-            if not os.path.exists(self.cfg.driver):
+            if not os.path.exists(self.cfg.binary):
                 raise IOError(
                     "No runnable found at {} for {}".format(
-                        self.cfg.driver, self
+                        self.cfg.binary, self
                     )
                 )
 
-            # Need to use driver's absolute path if proc_cwd is specified,
-            # otherwise won't be able to find the driver.
+            # Need to use the binary's absolute path if proc_cwd is specified,
+            # otherwise won't be able to find the binary.
             if self.cfg.proc_cwd:
-                self.cfg.driver = os.path.abspath(self.cfg.driver)
+                self.cfg._options["binary"] = os.path.abspath(self.cfg.binary)
 
             test_cmd = self.test_command()
 
@@ -635,7 +635,7 @@ class ProcessRunnerTest(Test):
 
         You can override this if the test is generating a JSON file and you
         need custom logic to parse its contents for example.
-
+\
         :return: Root node of parsed raw test data
         :rtype: ``xml.etree.Element``
         """
@@ -665,7 +665,7 @@ class ProcessRunnerTest(Test):
         """
         assertion_content = "\n".join(
             [
-                "Process: {}".format(self.cfg.driver),
+                "Process: {}".format(self.cfg.binary),
                 "Exit code: {}".format(retcode),
             ]
         )
@@ -706,30 +706,29 @@ class ProcessRunnerTest(Test):
         Update current instance's test report with generated sub reports from
         raw test data. Skip report updates if the process was killed.
         """
-        with open(self.stdout) as stdout, open(self.stderr) as stderr:
-            if self._test_process_killed or not self._test_has_run:
+        if self._test_process_killed or not self._test_has_run:
+            with open(self.stdout) as stdout, open(self.stderr) as stderr:
                 self.result.report.append(
                     self.get_process_check_report(
                         self._test_process_retcode, stdout, stderr,
                     )
                 )
-                return
+            return
 
-            if len(self.result.report):
-                raise ValueError(
-                    "Cannot update test report,"
-                    " it already has children: {}".format(self.result.report)
-                )
-
-            self.result.report.entries = self.process_test_data(
-                test_data=self.read_test_data()
+        if len(self.result.report):
+            raise ValueError(
+                "Cannot update test report, "
+                "it already has children: {}".format(self.result.report)
             )
 
-            retcode = self._test_process_retcode
+        self.result.report.entries = self.process_test_data(
+            test_data=self.read_test_data()
+        )
 
-            # Check process exit code as last step, as we don't want to create
-            # an error log if the test report was populated
-            # (with possible failures) already
+        # Check process exit code as last step, as we don't want to create
+        # an error log if the test report was populated
+        # (with possible failures) already
+        with open(self.stdout) as stdout, open(self.stderr) as stderr:
             self.result.report.append(
                 self.get_process_check_report(
                     self._test_process_retcode, stdout, stderr,
@@ -807,7 +806,6 @@ class ProcessRunnerTest(Test):
             with the UID of this test.
         """
         self.make_runpath_dirs()
-        test_runner = os.path.abspath(self.cfg.driver)
         test_cmd = self.test_command_filter(
             testsuite_pattern, testcase_pattern
         )

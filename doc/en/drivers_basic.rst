@@ -122,7 +122,7 @@ started test process. Have a look at the following code:
 
     plan.add(GTest(
         name='My GTest',
-        driver=BINARY_PATH,
+        binary=BINARY_PATH,
         environment=[
             TCPServer(name='my server'),
             TCPClient(name='client-101',

@@ -3,8 +3,6 @@
 *.json
 *.xml
 
-/testplan/examples/**/*report.txt
-
 .idea/
 build/
 dist/
@@ -16,10 +14,11 @@ dist/
 CMakeFiles/
 CMakeCache.txt
 Makefile
-*.cmake
+cmake_install.cmake
 
-/test/functional/**/runTests
-/testplan/examples/**/runTests
+/tests/functional/**/runTests
+/examples/**/runTests
+/examples/**/*report.txt
 
 /ms
 /venv
