@@ -26,10 +26,8 @@ class PyUnit(testing.Test):
 
     :param name: Test instance name. Also used as uid.
     :type name: ``str``
-    :param suite: PyUnit testsuite
-    :type suite: :py:class:`~unittest.suite.TestSuite`
-    :param description: Description of test instance.
-    :type description: ``str``
+    :param testcases: PyUnit testcases
+    :type testcases: :py:class:`~unittest.TestCase`
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -58,7 +56,10 @@ class PyUnit(testing.Test):
         Currently we do not inspect individual PyUnit testcases - only allow
         the whole suite to be run.
         """
-        return [self._TESTSUITE_NAME, [self._TESTCASE_NAME]]
+        return [
+            (testcase, [testcase])
+            for testcase in self._pyunit_testcases.keys()
+        ]
 
     def dry_run(self):
         """Return an empty report tree."""

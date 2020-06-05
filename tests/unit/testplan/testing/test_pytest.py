@@ -129,6 +129,18 @@ def test_run_testcases_iter_param(pytest_test_inst):
     assert counter["skipped"] == 0
 
 
+def test_capture_stdout(pytest_test_inst):
+    """Test running a single testcase iteratively."""
+    all_results = list(
+        pytest_test_inst.run_testcases_iter(
+            testsuite_pattern="pytest_tests.py::TestPytestBasics",
+            testcase_pattern="test_failure",
+        )
+    )
+
+    assert all_results[0][0].entries[1]["message"] == "test output\n"
+
+
 def _check_all_testcounts(counter):
     """Check the pass/fail/skip counts after running all tests."""
     # One testcase is conditionally skipped when not running on a posix OS, so

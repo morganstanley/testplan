@@ -25,7 +25,7 @@ REQUIRED = [
     "marshmallow==3.0.0b2",
     "termcolor",
     "colorama",
-    "enum34",
+    "enum34; python_version < '3.4'",
     "pyzmq",
     "terminaltables",
     "pyparsing",

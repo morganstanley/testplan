@@ -53,3 +53,19 @@ testplan.testing.tagging module
     :members:
     :undoc-members:
     :show-inheritance:
+
+testplan.testing.py_test module
++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.testing.py_test
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testplan.testing.pyunit module
++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.testing.pyunit
+    :members:
+    :undoc-members:
+    :show-inheritance:
