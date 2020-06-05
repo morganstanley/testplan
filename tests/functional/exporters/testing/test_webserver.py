@@ -12,7 +12,7 @@ import requests
 from testplan.common.utils.process import kill_process
 
 _TIMEOUT = 60
-_REQUEST_TIMEOUT = 0.1
+_REQUEST_TIMEOUT = 0.5
 _URL_RE = re.compile(r"^\s*Local: (?P<url>[^\s]+)\s*$")
 
 

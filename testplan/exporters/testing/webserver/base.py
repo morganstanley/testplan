@@ -50,6 +50,14 @@ class WebServerExporter(Exporter):
 
     CONFIG = WebServerExporterConfig
 
+    def __init__(self, **options):
+        super(WebServerExporter, self).__init__(**options)
+        self._report_url = None
+
+    @property
+    def report_url(self):
+        return self._report_url
+
     def export(self, source):
         """Serve the web UI locally for our test report."""
         if not len(source):
@@ -102,6 +110,7 @@ class WebServerExporter(Exporter):
         )
 
         (host, port) = self._web_server_thread.server.bind_addr
+        self._report_url = "http://localhost:{}/testplan/local".format(port)
 
         self.logger.exporter_info(
             "View the JSON report in the browser:\n%s",
