@@ -185,6 +185,10 @@ class App(Driver):
         """'etc' directory under runpath."""
         return self._etcpath
 
+    def _prepare_binary(self, path):
+        """prepare binary path"""
+        return path
+
     def pre_start(self):
         """
         Create mandatory directories and install files from given templates
@@ -201,14 +205,14 @@ class App(Driver):
                 os.path.basename(self.cfg.binary), uuid.uuid4()
             )
 
-        self.binary = self.cfg.binary
-        if os.path.isfile(self.cfg.binary):
+        self.binary = self._prepare_binary(self.cfg.binary)
+        if os.path.isfile(self.binary):
             target = os.path.join(self._binpath, name)
             if self.cfg.binary_copy:
-                shutil.copyfile(self.cfg.binary, target)
+                shutil.copyfile(self.binary, target)
                 self.binary = target
             elif not IS_WIN:
-                os.symlink(self.cfg.binary, target)
+                os.symlink(self.binary, target)
                 self.binary = target
 
         makedirs(self.app_path)
