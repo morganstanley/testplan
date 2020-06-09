@@ -232,13 +232,13 @@ const GetCenterPane = (
 // eslint-disable   -next-line
 const formatDate = (date, fmt) => {
   var o = {
-    "M+" : date.getMonth() + 1,
-    "d+" : date.getDate(),
-    "h+" : date.getHours(),
-    "m+" : date.getMinutes(),
-    "s+" : date.getSeconds(),
-    "q+" : Math.floor((date.getMonth() + 3) / 3),
-    "S"  : date.getMilliseconds()
+    "M+" : date.getUTCMonth() + 1,
+    "d+" : date.getUTCDate(),
+    "h+" : date.getUTCHours(),
+    "m+" : date.getUTCMinutes(),
+    "s+" : date.getUTCSeconds(),
+    "q+" : Math.floor((date.getUTCMonth() + 3) / 3),
+    "S"  : date.getUTCMilliseconds()
   };
 
   if (/(y+)/.test(fmt)) {
