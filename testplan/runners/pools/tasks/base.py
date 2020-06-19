@@ -4,7 +4,10 @@ import sys
 import six
 import uuid
 import inspect
+import warnings
 import importlib
+from collections import OrderedDict
+
 from six.moves import cPickle
 
 
@@ -57,8 +60,13 @@ class Task(object):
     :type kwargs: ``kwargs``
     :param uid: Task uid.
     :type uid: ``str``
-
+    :param rerun: Rerun the task up to user specified times unless it passes,
+        by default 0 (no rerun). To enable task rerun feature, this value can
+        be at most 3.
+    :type rerun: ``int``
     """
+
+    MAX_RERUN_LIMIT = 3
 
     def __init__(
         self,
@@ -68,13 +76,31 @@ class Task(object):
         args=None,
         kwargs=None,
         uid=None,
+        rerun=0,
     ):
         self._target = target
+        self._module = module
         self._path = path
         self._args = args or tuple()
         self._kwargs = kwargs or dict()
-        self._module = module
         self._uid = uid or str(uuid.uuid4())
+        self._max_rerun_limit = (
+            self.MAX_RERUN_LIMIT
+            if rerun > self.MAX_RERUN_LIMIT
+            else int(rerun)
+        )
+        self._assign_for_rerun = 0
+        self._executors = OrderedDict()
+
+        if self._max_rerun_limit < 0:
+            raise ValueError("Value of `rerun` cannot be negative.")
+        elif self._max_rerun_limit > self.MAX_RERUN_LIMIT:
+            warnings.warn(
+                "Value of `rerun` cannot exceed {}".format(
+                    self.MAX_RERUN_LIMIT
+                )
+            )
+            self._max_rerun_limit = self.MAX_RERUN_LIMIT
 
     def __str__(self):
         return "{}[{}]".format(self.__class__.__name__, self._uid)
@@ -116,6 +142,33 @@ class Task(object):
             return self._target.__module__
         else:
             return self._module
+
+    @property
+    def rerun(self):
+        """how many times the task is allowed to rerun."""
+        return self._max_rerun_limit
+
+    @property
+    def reassign_cnt(self):
+        """how many times the task is reassigned for rerun."""
+        return self._assign_for_rerun
+
+    @reassign_cnt.setter
+    def reassign_cnt(self, value):
+        if value < 0:
+            raise ValueError("Value of `reassign_cnt` cannot be negative")
+        elif value > self.MAX_RERUN_LIMIT:
+            raise ValueError(
+                "Value of `reassign_cnt` cannot exceed {}".format(
+                    self.MAX_RERUN_LIMIT
+                )
+            )
+        self._assign_for_rerun = value
+
+    @property
+    def executors(self):
+        """Executors to which the task had been assigned."""
+        return self._executors
 
     def materialize(self, target=None):
         """

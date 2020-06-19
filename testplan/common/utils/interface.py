@@ -166,8 +166,8 @@ def check_signature(func, args_list):
     :param args_list: list of arg names to match as signature
     :type args_list: ``list`` of ``str``
 
-    :return: ``None``
-    :rtype: ``NoneType``
+    :return: ``None`` or ``True``
+    :rtype: ``NoneType`` or ``bool``
     """
     refsig = MethodSignature(func.__name__, args_list)
     actualsig = MethodSignature.from_callable(func)

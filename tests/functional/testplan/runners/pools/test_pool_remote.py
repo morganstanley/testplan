@@ -1,4 +1,4 @@
-"""Remote worker pool unit tests."""
+"""Remote worker pool functional tests."""
 
 import os
 import pytest

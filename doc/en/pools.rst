@@ -76,8 +76,32 @@ and many Test instances can be created from the same target function:
     for idx in range(10):
         task = Task(target='make_multitest',
                     module='tasks',
-                    path=os.path.dirname(os.path.abspath(__file__)),  # same dir
+                    path=os.path.dirname(os.path.abspath(__file__)),
                     args=(idx,))  # or kwargs={'index': idx}
+
+With argument `rerun` testplan can rerun the task up to user specified times
+unless it passes:
+
+.. code-block:: python
+
+    # ./test_plan.py
+
+    task = Task(target='make_multitest',
+                module='tasks',
+                path=os.path.dirname(os.path.abspath(__file__)),
+                rerun=3)  # default value 0 means no rerun
+
+A custom funtion can be used to determine if the task needs to run again, the
+default implementation is to check that task has been executed and the status
+of report is PASS.
+
+.. code-block:: python
+
+    # ./test_plan.py
+
+    pool = ThreadPool(name="MyPool", should_rerun=custom_func)
+    # can also set the custom func later
+    pool.set_rerun_check(custom_func)
 
 TaskResult
 ++++++++++

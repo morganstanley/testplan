@@ -112,6 +112,7 @@ def schedule_tests_to_pool(name, pool, schedule_path=None, **pool_cfg):
         name = "MTest{}".format(idx)
         assert plan.result.test_results[uids[idx - 1]].report.name == name
 
-    # All tasks scheduled once
-    for uid in pool.task_assign_cnt:
-        assert pool.task_assign_cnt[uid] == 1
+    # All tasks assigned once
+    for uid in pool._task_retries_cnt:
+        assert pool._task_retries_cnt[uid] == 0
+        assert pool.added_item(uid).reassign_cnt == 0
