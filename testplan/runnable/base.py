@@ -732,23 +732,31 @@ class TestRunner(Runnable):
                 )
 
     def _post_exporters(self):
+        # View report in web browser if "--browse" specified
+        report_urls = []
         report_opened = False
+
         for result in self._result.exporter_results:
-            if getattr(result.exporter, "url", None) and self.cfg.browse:
-                webbrowser.open(result.exporter.url)
+            exporter = result.exporter
+            if getattr(exporter, "report_url", None) and self.cfg.browse:
+                report_urls.append(exporter.report_url)
+            if getattr(exporter, "_web_server_thread", None):
+                # Give priority to open report from local server
+                webbrowser.open(exporter.report_url)
                 report_opened = True
-            if getattr(result.exporter, "_web_server_thread", None):
-                # Wait for web server to terminate.
-                self._web_server_thread = result.exporter._web_server_thread
+                # Stuck here waiting for web server to terminate
+                self._web_server_thread = exporter._web_server_thread
                 self._web_server_thread.join()
 
         if self.cfg.browse and not report_opened:
-            self.logger.warning(
-                (
-                    "No reports opened, could not find an "
-                    "exported result to browse"
+            if len(report_urls) > 0:
+                for report_url in report_urls:
+                    webbrowser.open(report_url)
+            else:
+                self.logger.warning(
+                    "No reports opened, could not find "
+                    "an exported result to browse"
                 )
-            )
 
     def aborting(self):
         """Stop the web server if it is running."""

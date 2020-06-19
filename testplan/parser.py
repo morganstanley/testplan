@@ -246,8 +246,10 @@ Test filter, runs tests that match ALL of the given tags.
             "--browse",
             action="store_true",
             dest="browse",
-            help="Automatically open report to browse. Must be specifed with "
-            '"--pdf" or "--json --ui" or there will be nothing to open.',
+            help="Automatically open report to browse. Must be specified "
+            'with "--ui" to open it locally, or upload it to a web server '
+            "with a customized exporter which has a `report_url`, or there "
+            "will be nothing to open.",
         )
 
         report_group.add_argument(
