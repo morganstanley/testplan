@@ -6,7 +6,6 @@ import time
 import signal
 import socket
 import shutil
-import inspect
 import logging
 import argparse
 import platform
@@ -144,8 +143,16 @@ class ChildLoop(object):
 
     def _pre_loop_setup(self, message):
         response = self._send_and_expect(
-            message, message.ConfigRequest, message.ConfigSending
+            message,
+            message.ConfigRequest,
+            [message.ConfigSending, message.Stop],
         )
+
+        # Process pool might be exiting after worker restarts and tries
+        # to connect, at this time worker can gracefully exit.
+        if response.cmd == message.Stop:
+            self.logger.debug("Stop message received, child exits.")
+            os._exit(0)
 
         # Response.data: [cfg, cfg.parent, cfg.parent.parent, ...]
         pool_cfg = response.data[0]

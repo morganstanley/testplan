@@ -56,8 +56,8 @@ class Client(logger.Loggable):
         :param message: Message sent.
         :type message:
             :py:class:`~testplan.runners.pools.communication.Message`
-        :param expect: Assert message received command is the expected.
-        :type expect: ``NoneType`` or
+        :param expect: Expected command of message received.
+        :type expect: ``NoneType`` or ``tuple`` or ``list`` or
             :py:class:`~testplan.runners.pools.communication.Message`
         :return: Message received.
         :rtype: ``object``
@@ -82,7 +82,10 @@ class Client(logger.Loggable):
                 raise RuntimeError(
                     "Received None when {} was expected.".format(expect)
                 )
-            assert received.cmd == expect
+            if isinstance(expect, (tuple, list)):
+                assert received.cmd in expect
+            else:
+                assert received.cmd == expect
         return received
 
 

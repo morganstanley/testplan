@@ -664,7 +664,7 @@ class Pool(Executor):
             worker.status.STOPPING,
             worker.status.STOPPED,
         ):
-            return "inactive", "Worker in stop/abort status"
+            return "inactive", "Worker {} in stop/abort status"
 
         if worker.status.tag in (worker.status.NONE, worker.status.STARTING):
             return "initializing", None
@@ -700,9 +700,13 @@ class Pool(Executor):
     def _handle_inactive(self, worker, reason):
         """
         Handle an inactive worker.
+
         :param worker: worker object
+        :type worker: :py:class:`~testplan.runners.pool.base.Worker`
         :param reason: why worker is considered inactive
+        :type reason: ``str``
         :return: True if worker restarted, else False
+        :rtype: ``bool``
         """
         if worker.status.tag != worker.status.STARTED:
             return False
