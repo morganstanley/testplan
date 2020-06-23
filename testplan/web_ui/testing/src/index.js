@@ -7,6 +7,7 @@ import EmptyReport from './Report/EmptyReport';
 import {POLL_MS} from './Common/defaults.js';
 
 // import registerServiceWorker from './registerServiceWorker';
+import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 

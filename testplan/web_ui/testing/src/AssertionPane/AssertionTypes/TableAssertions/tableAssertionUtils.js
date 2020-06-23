@@ -8,32 +8,48 @@ import {domToString} from './../../../Common/utils';
  * @param {Array} columns
  * @returns {object} 
  *  {
- *    headerName: string, 
+ *    title: string, 
  *    field: string, 
- *    pinned: string, 
- *    suppressResize: boolean, 
- *    suppressSizeToFit: boolean, 
- *    width: number
+ *    cellStyle: object, 
+ *    headerStyle: object, 
  *  }
  * @private
  */
-function prepareTableLogColumnDefs(columns) {
+
+const cellStyle = {
+  fontSize: 'small',
+  border: '1px solid',
+  borderColor: '#d9dcde',
+  padding: '6px 11px 6px 11px'
+};
+
+const headerStyle = {
+  border: '1px solid',
+  borderColor: '#d9dcde',
+};
+
+export function prepareTableColumn(columns) {
   let columnDefs = [{
-    headerName: 'ID',
+    title: 'ID',
     field: 'id',
-    pinned: 'left',
-    suppressResize: true,
-    suppressSizeToFit: true,
-    width: 72,
+    cellStyle: {
+      width: '72px',
+      ...cellStyle
+    },
+    headerStyle: {
+      width: '72px',
+      ...headerStyle
+    }
   }];
 
   columns.forEach(column => {
     columnDefs.push({
-      headerName: column,
+      title: column,
       field: column,
+      cellStyle: cellStyle,
+      headerStyle: headerStyle
     });
   });
-
   return columnDefs;
 }
 
@@ -47,7 +63,7 @@ function prepareTableLogColumnDefs(columns) {
  * @returns {Array}
  * @private
  */
-function prepareTableLogRowData(indexes, table, columns) {
+export function prepareTableLogRowData(indexes, table, columns) {
   let rowData = [];
 
   indexes.forEach(index => {
@@ -71,32 +87,47 @@ function prepareTableLogRowData(indexes, table, columns) {
  * @returns {Array}
  * @private
  */
-function prepareTableColumnDefs(columns) {
-  let columnDefs = [
-    {
-      headerName: 'ID', field: 'id', pinned: 'left', width: 72,
-      suppressResize: true,
-      suppressSizeToFit: true,
-      cellStyle: tableCellStyle,
+export function prepareTableMatchColumn(columns) {
+  let columnDefs = [{
+    title: 'ID',
+    field: 'id',
+    cellStyle: {
+      width: '72px',
+      ...cellStyle
     },
-    {
-      headerName: 'Expected/Value', field: 'ev', pinned: 'left', width: 121,
-      suppressResize: true,
-      suppressSizeToFit: true,
-      suppressFilter: true,
-      cellStyle: tableCellStyle,
+    headerStyle: {
+      width: '72px',
+      ...headerStyle
+    }
+  }, {
+    title: 'Expected/Value',
+    field: 'ev',
+    cellStyle: {
+      width: '121px',
+      ...cellStyle
     },
-    {
-      headerName: 'State', field: 'state',
-      hide: true,
-    },
-  ];
+    headerStyle: {
+      width: '121px',
+      ...headerStyle
+    }
+  }];
 
   columns.forEach(column => {
     columnDefs.push({
-      headerName: column,
+      title: column,
       field: column,
-      cellStyle: tableCellStyle,
+      cellStyle: (value, rowData) => {
+        if (rowData.passed[column]) {
+          return cellStyle;
+        } else {
+          return {
+            color: 'red',
+            fontWidth: 'bold',
+            ...cellStyle
+          };
+        }
+      },
+      headerStyle: headerStyle
     });
   });
 
@@ -112,7 +143,7 @@ function prepareTableColumnDefs(columns) {
  * @returns {Array}
  * @private
  */
-function prepareTableRowData(data, columns) {
+export function prepareTableRowData(data, columns) {
   let rowData = [];
 
   data.forEach(line => {
@@ -173,22 +204,43 @@ function prepareTableRowData(data, columns) {
  * @returns {Array}
  * @private
  */
-function prepareTableColumnContainDefs(column) {
+export function prepareTableColumnContainColumn(column) {
   return [
     {
-      headerName: 'ID', field: 'id', pinned: 'left', width: 72,
-      suppressResize: true,
-      suppressSizeToFit: true,
-      cellStyle: (params) => {
-        return !params.data.passed ? {color: 'red', fontWeight: 'bold'} : null;
+      title: 'ID',
+      field: 'id',
+      cellStyle: (value, rowData) => {
+        let style = {width: '72px', ...cellStyle};
+        if (rowData.passed) {
+          return style;
+        } else {
+          return {
+            color: 'red',
+            fontWidth: 'bold',
+            ...style
+          };
+        }
       },
+      headerStyle: {
+        width: '72px',
+        ...headerStyle,
+      }
     },
-
     {
-      headerName: column, field: 'value',
-      cellStyle: (params) => {
-        return !params.data.passed ? {color: 'red', fontWeight: 'bold'} : null;
+      title: column,
+      field: 'value',
+      cellStyle: (value, rowData) => {
+        if (rowData.passed) {
+          return cellStyle;
+        } else {
+          return {
+            color: 'red',
+            fontWidth: 'bold',
+            ...cellStyle
+          };
+        }
       },
+      headerStyle: headerStyle
     },
   ];
 }
@@ -201,7 +253,7 @@ function prepareTableColumnContainDefs(column) {
  * @returns {Array}
  * @private
  */
-function prepareTableColumnContainRowData(data, values) {
+export function prepareTableColumnContainRowData(data, values) {
   return data.map(line => {
     const [
       index,
@@ -219,30 +271,6 @@ function prepareTableColumnContainRowData(data, values) {
 }
 
 /**
- * Function to add styling to table cells with conditions based on their values.
- *
- * @param {Array} params
- * @returns {object}
- * @private
- */
-function tableCellStyle(params) {
-  const isValueRow = params.data.ev === 'Value';
-  const isCellFailed = params.data.passed[params.colDef.field] === false;
-  let cellStyle = {};
-
-  if (isValueRow)
-    cellStyle['borderBottomColor'] = '#827878';
-
-  if (isCellFailed) {
-    cellStyle['color'] = 'red';
-    cellStyle['fontWeight'] = 'bold';
-  }
-
-  return cellStyle;
-
-}
-
-/**
  * Prepare the text display before the table for ColumnContain assertions.
  * The text is the values that are checked against the table.
  *
@@ -250,7 +278,7 @@ function tableCellStyle(params) {
  * @returns {Array}
  * @private
  */
-function prepareTableColumnContainPreText(values) {
+export function prepareTableColumnContainPreText(values) {
   return values.map(value => JSON.stringify(value))
     .reduce((prev, curr) => [prev, ', ', curr]);
 }
@@ -267,7 +295,7 @@ function prepareTableColumnContainPreText(values) {
  * @returns {number}
  * @private
  */
-function calculateTableGridHeight(
+export function calculateTableGridHeight(
   numberOfRows, 
   maximumNumberOfRowsVisible = 20
 ) {
@@ -289,7 +317,7 @@ function calculateTableGridHeight(
  * @param {Array} rowData - Ag-Grid data
  * @returns {string} - HTML Table
  */
-function gridToDOM(columnDefs, rowData) {
+export function gridToDOM(columnDefs, rowData) {
   let headerKey = [];
   let table = document.createElement('table');
 
@@ -316,15 +344,3 @@ function gridToDOM(columnDefs, rowData) {
   });
   return domToString(table);
 }
-
-export {
-  prepareTableLogColumnDefs,
-  prepareTableLogRowData,
-  prepareTableColumnDefs,
-  prepareTableRowData,
-  prepareTableColumnContainDefs,
-  prepareTableColumnContainRowData,
-  prepareTableColumnContainPreText,
-  calculateTableGridHeight,
-  gridToDOM,
-};

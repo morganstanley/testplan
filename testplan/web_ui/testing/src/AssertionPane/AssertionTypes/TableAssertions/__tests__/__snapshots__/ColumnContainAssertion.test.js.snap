@@ -2,21 +2,26 @@
 
 exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
 <TableBaseAssertion
-  columnDefs={
+  columns={
     Array [
       Object {
         "cellStyle": [Function],
         "field": "id",
-        "headerName": "ID",
-        "pinned": "left",
-        "suppressResize": true,
-        "suppressSizeToFit": true,
-        "width": 72,
+        "headerStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+          "width": "72px",
+        },
+        "title": "ID",
       },
       Object {
         "cellStyle": [Function],
         "field": "value",
-        "headerName": "symbol",
+        "headerStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+        },
+        "title": "symbol",
       },
     ]
   }
@@ -29,7 +34,7 @@ exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
       ]
     </React.Fragment>
   }
-  rowData={
+  rows={
     Array [
       Object {
         "expected": Array [

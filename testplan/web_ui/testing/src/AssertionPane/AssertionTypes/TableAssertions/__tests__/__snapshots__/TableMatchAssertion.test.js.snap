@@ -2,45 +2,61 @@
 
 exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
 <TableBaseAssertion
-  columnDefs={
+  columns={
     Array [
       Object {
-        "cellStyle": [Function],
+        "cellStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+          "fontSize": "small",
+          "padding": "6px 11px 6px 11px",
+          "width": "72px",
+        },
         "field": "id",
-        "headerName": "ID",
-        "pinned": "left",
-        "suppressResize": true,
-        "suppressSizeToFit": true,
-        "width": 72,
+        "headerStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+          "width": "72px",
+        },
+        "title": "ID",
       },
       Object {
-        "cellStyle": [Function],
+        "cellStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+          "fontSize": "small",
+          "padding": "6px 11px 6px 11px",
+          "width": "121px",
+        },
         "field": "ev",
-        "headerName": "Expected/Value",
-        "pinned": "left",
-        "suppressFilter": true,
-        "suppressResize": true,
-        "suppressSizeToFit": true,
-        "width": 121,
-      },
-      Object {
-        "field": "state",
-        "headerName": "State",
-        "hide": true,
+        "headerStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+          "width": "121px",
+        },
+        "title": "Expected/Value",
       },
       Object {
         "cellStyle": [Function],
         "field": "name",
-        "headerName": "name",
+        "headerStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+        },
+        "title": "name",
       },
       Object {
         "cellStyle": [Function],
         "field": "age",
-        "headerName": "age",
+        "headerStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+        },
+        "title": "age",
       },
     ]
   }
-  rowData={
+  rows={
     Array [
       Object {
         "age": 32,

@@ -1,9 +1,9 @@
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import TableBaseAssertion from './TableBaseAssertion';
 
 import {
-  prepareTableColumnDefs,
+  prepareTableMatchColumn,
   prepareTableRowData,
 } from './tableAssertionUtils';
 
@@ -11,27 +11,20 @@ import {
 /**
  * Component that are used to render TableMatch assertion.
  */
-class TableMatchAssertion extends Component {
-  render() {
-    let columnDefs = prepareTableColumnDefs(this.props.assertion.columns);
-    let rowData = prepareTableRowData(
-      this.props.assertion.data, 
-      this.props.assertion.columns
-    );
+export default function TableMatchAssertion (props) {
+  let columns = prepareTableMatchColumn(props.assertion.columns);
+  let rows = prepareTableRowData(
+    props.assertion.data, 
+    props.assertion.columns
+  );
 
-    return (
-      <TableBaseAssertion
-        columnDefs={columnDefs}
-        rowData={rowData}
-      />
-    );
-  }
-}
+  return (
+    <TableBaseAssertion columns={columns} rows={rows} />
+  );
+};
+
 
 TableMatchAssertion.propTypes = {
   /** Assertion being rendered */
   assertion: PropTypes.object,
 };
-
-
-export default TableMatchAssertion;

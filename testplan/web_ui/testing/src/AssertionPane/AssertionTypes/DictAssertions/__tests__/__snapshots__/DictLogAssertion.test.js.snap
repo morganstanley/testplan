@@ -2,7 +2,7 @@
 
 exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
 <DictBaseAssertion
-  buttonGroup={
+  buttons={
     <DictButtonGroup
       flattenedDict={
         Array [
@@ -67,30 +67,42 @@ exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
       }
     />
   }
-  columnDefs={
+  columns={
     Array [
       Object {
-        "field": "descriptor",
-        "headerName": "Descriptor",
-        "hide": true,
-      },
-      Object {
-        "cellRendererFramework": [Function],
-        "cellStyle": [Function],
+        "cellStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+          "fontSize": "small",
+          "padding": "6px 11px 6px 11px",
+        },
         "field": "key",
-        "headerName": "Key",
-        "pinned": "left",
-        "suppressMovable": true,
+        "headerStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+        },
+        "render": [Function],
+        "title": "Key",
       },
       Object {
-        "cellRendererFramework": [Function],
-        "cellStyle": [Function],
+        "cellStyle": Object {
+          "backgroundColor": "#BDC3C750",
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+          "fontSize": "small",
+          "padding": "6px 11px 6px 11px",
+        },
         "field": "value",
-        "headerName": "Value",
+        "headerStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+        },
+        "render": [Function],
+        "title": "Value",
       },
     ]
   }
-  rowData={
+  rows={
     Array [
       Object {
         "descriptor": Object {
@@ -120,6 +132,10 @@ exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
         "key": Object {
           "type": "key",
           "value": "foo",
+        },
+        "value": Object {
+          "type": undefined,
+          "value": undefined,
         },
       },
       Object {
@@ -184,6 +200,10 @@ exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
         "key": Object {
           "type": "key",
           "value": "bar",
+        },
+        "value": Object {
+          "type": undefined,
+          "value": undefined,
         },
       },
       Object {

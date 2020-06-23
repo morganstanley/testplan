@@ -21,7 +21,7 @@ library.add(faInfoCircle);
  *  - mainText is the main data of the cell, it can be a key or a value,
  *  - subText is the type of the value in subscript and
  */
-class FixCellRenderer extends Component {
+export default class FixCellRenderer extends Component {
   constructor(props) {
     super(props);
 
@@ -48,22 +48,21 @@ class FixCellRenderer extends Component {
   }
 
   render() {
-    if (!this.props.value) {
+    if (!this.props.data) {
       return null;
     }
 
     const lineNo = this.props.data.descriptor.lineNo;
     const rowIndex = this.props.rowIndex;
-    const colField = this.props.colDef.field;
+    const colField = this.props.field;
     const toolTipId = `id_${lineNo}_${rowIndex}_${colField}`;
 
     return (
       <Fragment>
         <DictCellRenderer
           id={toolTipId}
-          value={this.props.value}
           data={this.props.data}
-          colDef={this.props.colDef}
+          field={this.props.field}
           onMouseEnter={this.onMouseEnter}
           onMouseLeave={this.onMouseLeave}
         />
@@ -81,15 +80,10 @@ class FixCellRenderer extends Component {
 
 
 FixCellRenderer.propTypes = {
-  /** The value of the current cell */
-  value: PropTypes.object,
   /** The meta info of current cell */
   data: PropTypes.object,
   /** The row index of the current cell */
   rowIndex: PropTypes.number,
   /** The Column definition of the current cell */
-  colDef: PropTypes.object,
+  field: PropTypes.string,
 };
-
-
-export default FixCellRenderer;

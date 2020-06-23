@@ -1,13 +1,12 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import DictBaseAssertion from './DictBaseAssertion';
-import DictCellRenderer from './DictCellRenderer';
 import DictButtonGroup from './DictButtonGroup';
+import DictCellRenderer from './DictCellRenderer';
 import {
-  prepareDictColumnDefs,
+  prepareDictColumn,
   prepareDictRowData,
   sortFlattenedJSON,
-  dictCellStyle,
 } from './dictAssertionUtils';
 import {SORT_TYPES} from '../../../Common/defaults';
 
@@ -42,57 +41,40 @@ import {SORT_TYPES} from '../../../Common/defaults';
  *  - Value: Actual value for the given key.
  *
  */
-class DictMatchAssertion extends Component {
-  constructor(props) {
-    super(props);
 
-    this.flattenedDict = this.props.assertion.comparison;
-    this.columnDefs = prepareDictColumnDefs(
-      dictCellStyle, DictCellRenderer, true);
-    this.state = {
-      rowData: prepareDictRowData(
-        sortFlattenedJSON(this.flattenedDict, 0, false, true),
-        this.props.assertion.line_no
-      ),
-    };
+export default function DictMatchAssertion(props) {
+  const flattenedDict = sortFlattenedJSON(
+    props.assertion.comparison, 0, false, true
+  );
+  const columns = prepareDictColumn(DictCellRenderer, true);
 
-    this.setRowData = this.setRowData.bind(this);
-  }
+  const [rowData, setRowData] = useState(flattenedDict);
+  
+  const buttonGroup = (
+    <DictButtonGroup
+      sortTypeList={[
+        SORT_TYPES.ALPHABETICAL,
+        SORT_TYPES.REVERSE_ALPHABETICAL,
+        SORT_TYPES.BY_STATUS,
+        SORT_TYPES.ONLY_FAILURES
+      ]}
+      flattenedDict={flattenedDict}
+      setRowData={setRowData}
+      defaultSortType={SORT_TYPES.BY_STATUS}
+    />
+  );
 
-  setRowData(sortedData) {
-    this.setState({
-      rowData: prepareDictRowData(sortedData, this.props.assertion.line_no)
-    });
-  }
-
-  render() {
-    let buttonGroup = (
-      <DictButtonGroup
-        sortTypeList={[
-          SORT_TYPES.ALPHABETICAL,
-          SORT_TYPES.REVERSE_ALPHABETICAL,
-          SORT_TYPES.BY_STATUS,
-          SORT_TYPES.ONLY_FAILURES
-        ]}
-        flattenedDict={this.flattenedDict}
-        setRowData={this.setRowData}
-        defaultSortType={SORT_TYPES.BY_STATUS}
-      />
-    );
-
-    return (
-      <DictBaseAssertion
-        buttonGroup={buttonGroup}
-        columnDefs={this.columnDefs}
-        rowData={this.state.rowData}
-      />
-    );
-  }
+  return (
+    <DictBaseAssertion
+      buttons={buttonGroup}
+      columns={columns}
+      rows={prepareDictRowData(rowData, props.assertion.line_no)}
+    />
+  );
 }
+
 
 DictMatchAssertion.propTypes = {
   /** Assertion being rendered */
   assertion: PropTypes.object.isRequired,
 };
-
-export default DictMatchAssertion;
