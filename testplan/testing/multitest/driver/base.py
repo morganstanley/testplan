@@ -11,6 +11,7 @@ from testplan.common.entity import Resource, ResourceConfig, FailedAction
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.path import instantiate
 from testplan.common.utils.timing import wait
+from testplan.common.config.base import validate_func
 
 
 def format_regexp_matches(name, regexps, unmatched):
@@ -60,6 +61,10 @@ class DriverConfig(ResourceConfig):
             ConfigOption("report_errors_from_logs", default=False): bool,
             ConfigOption("error_logs_max_lines", default=10): int,
             ConfigOption("path_cleanup", default=True): bool,
+            ConfigOption("pre_start", default=None): validate_func("driver"),
+            ConfigOption("post_start", default=None): validate_func("driver"),
+            ConfigOption("pre_stop", default=None): validate_func("driver"),
+            ConfigOption("post_stop", default=None): validate_func("driver"),
         }
 
 
@@ -105,7 +110,14 @@ class Driver(Resource):
     :type error_logs_max_lines: ``int``
     :param path_cleanup: Remove previous runpath created dirs/files.
     :type path_cleanup: ``bool``
-
+    :param pre_start: Callable to execute before starting the driver.
+    :type pre_start: ``callable`` taking a driver argument.
+    :param post_start: Callable to execute after the driver is started.
+    :type post_start: ``callable`` taking a driver argument.
+    :param pre_stop: Callable to execute before stopping the driver.
+    :type post_stop: ``callable`` taking a driver argument.
+    :param pre_stop: Callable to execute after the driver is stopped.
+    :type post_stop: ``callable`` taking a driver argument.
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Resource` options.
@@ -130,6 +142,8 @@ class Driver(Resource):
     def start(self):
         """Start the driver."""
         self.status.change(self.STATUS.STARTING)
+        if self.cfg.pre_start:
+            self.cfg.pre_start(self)
         self.pre_start()
         self.starting()
 
@@ -137,15 +151,17 @@ class Driver(Resource):
         """Stop the driver."""
         self.status.change(self.STATUS.STOPPING)
         if self.active:
+            if self.cfg.pre_stop:
+                self.cfg.pre_stop(self)
             self.pre_stop()
             self.stopping()
 
     def pre_start(self):
-        """Callable to be executed right before driver starts."""
+        """Steps to be executed right before driver starts."""
         self.make_runpath_dirs()
 
     def post_start(self):
-        """Callable to be executed right after driver starts."""
+        """Steps to be executed right after driver is started."""
 
     def started_check(self, timeout=None):
         """Driver started status condition check."""
@@ -156,10 +172,10 @@ class Driver(Resource):
         )
 
     def pre_stop(self):
-        """Callable to be executed right before driver stops."""
+        """Steps to be executed right before driver stops."""
 
     def post_stop(self):
-        """Callable to be executed right after driver stops."""
+        """Steps to be executed right after driver is stopped"""
 
     def stopped_check(self, timeout=None):
         """Driver stopped status condition check."""
@@ -174,11 +190,15 @@ class Driver(Resource):
         self.started_check(timeout=timeout)
         self.status.change(self.STATUS.STARTED)
         self.post_start()
+        if self.cfg.post_start:
+            self.cfg.post_start(self)
 
     def _wait_stopped(self, timeout=None):
         self.stopped_check(timeout=timeout)
         self.status.change(self.STATUS.STOPPED)
         self.post_stop()
+        if self.cfg.post_stop:
+            self.cfg.post_stop(self)
 
     def context_input(self):
         """Driver context information."""

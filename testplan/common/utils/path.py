@@ -181,6 +181,8 @@ def instantiate(template, values, destination):
             try:
                 tmplt = Template(source.read())
                 target.write(tmplt.substitute(values))
+            except UnicodeDecodeError:
+                shutil.copy(template, destination)
             except Exception as exc:
                 raise Exception(
                     "On reading/writing template: {} - of file {}".format(
