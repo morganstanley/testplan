@@ -4,6 +4,7 @@ import sys
 
 import re
 import os
+import inspect
 import unicodedata
 import textwrap
 import six
@@ -219,3 +220,17 @@ def indent(lines_str, indent_size=2):
         "{indent}{line}".format(indent=indent, line=line)
         for line in lines_str.splitlines()
     )
+
+
+def get_docstring(obj):
+    """
+    Get object docstring without leading whitespace.
+    :param obj: Object to be extracted docstring.
+    :type obj: ``object``
+    :return: Docstring of the object.
+    :rtype: ``str`` or ``NoneType``
+    """
+    if hasattr(obj, "__doc__"):
+        if obj.__doc__:
+            return inspect.cleandoc(obj.__doc__)
+    return None

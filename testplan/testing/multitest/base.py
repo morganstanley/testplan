@@ -23,6 +23,7 @@ from testplan.common.utils import interface
 from testplan.common.utils import validation
 from testplan.common.utils import timing
 from testplan.common.utils import callable as callable_utils
+from testplan.common.utils import strings
 import testplan.report
 from testplan.testing import tagging
 from testplan.testing import filtering
@@ -537,7 +538,7 @@ class MultiTest(testing_base.Test):
         """
         return testplan.report.TestGroupReport(
             name=mtest_suite.get_testsuite_name(testsuite),
-            description=testsuite.__class__.__doc__,
+            description=strings.get_docstring(testsuite.__class__),
             category=testplan.report.ReportCategories.TESTSUITE,
             uid=mtest_suite.get_testsuite_name(testsuite),
             tags=testsuite.__tags__,
@@ -550,7 +551,7 @@ class MultiTest(testing_base.Test):
         """
         return testplan.report.TestCaseReport(
             name=testcase.__name__,
-            description=testcase.__doc__,
+            description=strings.get_docstring(testcase),
             uid=testcase.__name__,
             tags=testcase.__tags__,
         )
@@ -888,7 +889,7 @@ class MultiTest(testing_base.Test):
 
             testcase_report = testplan.report.TestCaseReport(
                 name="{} - {}".format(label, func.__name__),
-                description=func.__doc__,
+                description=strings.get_docstring(func),
             )
 
             num_args = len(callable_utils.getargspec(func).args)
