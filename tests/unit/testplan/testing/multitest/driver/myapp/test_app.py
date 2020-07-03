@@ -189,6 +189,9 @@ def test_install_files(runpath):
     config = os.path.join(
         os.path.abspath(os.path.dirname(__file__)), "config.yaml"
     )
+    bfile = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)), "binary_file"
+    )
     log_regexps = [
         re.compile(r".*binary=(?P<binary>.*)"),
         re.compile(r".*command=(?P<command>.*)"),
@@ -199,7 +202,11 @@ def test_install_files(runpath):
             name="App",
             binary=binary,
             pre_args=[sys.executable],
-            install_files=[config, (config, os.path.join(dst, "config.yaml"))],
+            install_files=[
+                config,
+                bfile,
+                (config, os.path.join(dst, "config.yaml")),
+            ],
             log_regexps=log_regexps,
             shell=True,
             runpath=runpath,
@@ -208,6 +215,9 @@ def test_install_files(runpath):
             assert os.path.exists(app.extracts["binary"])
             assert bool(json.loads(app.extracts["command"]))
             assert os.path.exists(app.extracts["app_path"])
+            assert os.path.exists(
+                os.path.join(app.app_path, "etc", "binary_file")
+            )
             assert os.path.exists(os.path.join(dst, "config.yaml"))
 
 

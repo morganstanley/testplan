@@ -4,7 +4,7 @@ import os
 import sys
 import tempfile
 
-import testplan
+from testplan import test_plan
 from testplan.testing import multitest
 
 try:
@@ -82,7 +82,7 @@ class TestSuite(object):
         result.attach(img_path, description="I drew some rectangles")
 
 
-@testplan.test_plan(name="AttachmentPlan")
+@test_plan(name="AttachmentPlan")
 def main(plan):
     """Define a Testplan with a single MultiTest."""
     plan.add(multitest.MultiTest(name="TestAttachments", suites=[TestSuite()]))
