@@ -51,9 +51,6 @@ SKIP_ON_WINDOWS = [
     os.path.join("Transports", "FIX", "test_plan.py"),
 ]
 
-# Contents to look for under root dir.
-ROOT_DIR_CONTENTS = ["examples", "test", "testplan"]
-
 
 def _param_formatter(param):
     if "examples" in param:

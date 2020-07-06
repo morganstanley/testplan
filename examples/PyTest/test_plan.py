@@ -4,7 +4,7 @@
 import sys
 import os
 
-import testplan
+from testplan import test_plan
 from testplan.testing import py_test
 
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
@@ -12,9 +12,9 @@ from testplan.common.utils.context import context
 
 
 # Specify the name and description of the testplan via the decorator.
-@testplan.test_plan(name="PyTestExample", description="PyTest basic example")
+@test_plan(name="PyTestExample", description="PyTest basic example")
 def main(plan):
-    # Since this function is decorated with `@testplan.test_plan`, the first
+    # Since this function is decorated with `@test_plan`, the first
     # argument will be a `Testplan` instance, to which we attach out test
     # targets. Here we will add a PyTest instance which targets the tests
     # in pytest_basics.py.
