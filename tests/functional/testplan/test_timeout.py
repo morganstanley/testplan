@@ -20,7 +20,7 @@ def _timeout_cbk(proc):
 def test_runner_timeout():
     """Test the globsl Testplan timeout feature."""
     testplan_script = os.path.join(
-        os.path.dirname(__file__), "test_plan_timeout.py"
+        os.path.dirname(__file__), "timeout_test_plan.py"
     )
     assert os.path.isfile(testplan_script)
 

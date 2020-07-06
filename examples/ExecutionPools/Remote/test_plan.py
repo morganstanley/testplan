@@ -11,7 +11,8 @@ import getpass
 import shutil
 import tempfile
 
-from testplan import test_plan, Task
+from testplan import test_plan
+from testplan import Task
 from testplan.runners.pools import RemotePool
 
 from testplan.common.utils.path import module_abspath, pwd

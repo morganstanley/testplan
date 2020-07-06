@@ -5,7 +5,8 @@ This example is to demonstrate parallel test execution in a process pool.
 
 import sys
 
-from testplan import test_plan, Task
+from testplan import test_plan
+from testplan import Task
 from testplan.runners.pools import ProcessPool
 
 from testplan.parser import TestplanParser

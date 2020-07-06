@@ -9,7 +9,8 @@ import uuid
 import getpass
 import tempfile
 
-from testplan import test_plan, Task
+from testplan import test_plan
+from testplan import Task
 from testplan.runners.pools import ThreadPool
 
 from testplan.parser import TestplanParser

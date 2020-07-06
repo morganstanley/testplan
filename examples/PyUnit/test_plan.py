@@ -3,8 +3,8 @@
 """Example to demonstrate PyUnit integration with Testplan."""
 
 import sys
-import testplan
 import unittest
+from testplan import test_plan
 from testplan.testing import pyunit
 
 
@@ -37,7 +37,7 @@ class TestBeta(unittest.TestCase):
         raise RuntimeError("Testcase raises")
 
 
-@testplan.test_plan(name="PyUnit", description="UnitTest example")
+@test_plan(name="PyUnit", description="UnitTest example")
 def main(plan):
     # Now we are inside a function that will be passed a plan object, we
     # can add tests to this plan. Here we will add a unittest suite, made up

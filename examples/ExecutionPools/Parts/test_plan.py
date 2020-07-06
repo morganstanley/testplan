@@ -5,7 +5,8 @@ This example is to demonstrate parallel test execution with parts in a pool.
 
 import sys
 
-from testplan import test_plan, Task
+from testplan import test_plan
+from testplan import Task
 from testplan.parser import TestplanParser
 from testplan.runners.pools import ThreadPool
 from testplan.report.testing.styles import Style, StyleEnum
