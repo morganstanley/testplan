@@ -15,6 +15,7 @@
     "aphrodite": "2.2.3",
     "axios": "0.19.0",
     "bootstrap": "4.3.1",
+    "date-fns": "^2.14.0",
     "eslint-plugin-react": "^7.14.3",
     "react": "16.6.0",
     "react-copy-html-to-clipboard": "6.0.4",
