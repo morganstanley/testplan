@@ -2,6 +2,7 @@
  * Report utility functions.
  */
 import React from "react";
+import format from 'date-fns/format';
 
 import AssertionPane from '../AssertionPane/AssertionPane';
 import Message from '../Common/Message';
@@ -229,37 +230,6 @@ const GetCenterPane = (
   }
 };
 
-// eslint-disable   -next-line
-const formatDate = (date, fmt) => {
-  var o = {
-    "M+" : date.getUTCMonth() + 1,
-    "d+" : date.getUTCDate(),
-    "h+" : date.getUTCHours(),
-    "m+" : date.getUTCMinutes(),
-    "s+" : date.getUTCSeconds(),
-    "q+" : Math.floor((date.getUTCMonth() + 3) / 3),
-    "S"  : date.getUTCMilliseconds()
-  };
-
-  if (/(y+)/.test(fmt)) {
-    fmt = fmt.replace(
-      RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length)
-    );
-  }
-
-  for (var k in o) {
-    if (new RegExp("(" + k + ")").test(fmt)) {
-      fmt = fmt.replace(
-        RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (
-          ("00" + o[k]).substr(("" + o[k]).length)
-        )
-      );
-    }
-  }
-
-  return fmt;
-};
-
 /** TODO */
 const getAssertions = (selectedEntries, displayTime) => {
   // get all assertions from groups and list them sequentially in an array
@@ -283,8 +253,11 @@ const getAssertions = (selectedEntries, displayTime) => {
     if (displayTime) {
       for (let i = 0; i < links.length; ++i) {
         links[i].timeInfoArray = [i]; // [index, start_time, duration]
-        links[i].timeInfoArray.push(links[i].utc_time ? (
-          formatDate(new Date(links[i].utc_time), "hh:mm:ss.S")
+        const idx = links[i].utc_time.lastIndexOf('+');
+        links[i].timeInfoArray.push(links[i].utc_time ?
+        (format(new Date(
+          idx === -1 ? links[i].utc_time : links[i].utc_time.substring(0, idx)),
+          "hh:mm:ss.SSS")
         ) + " UTC" : "");
       }
       for (let i = 0; i < links.length - 1; ++i) {
