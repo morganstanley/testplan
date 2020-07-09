@@ -18,6 +18,7 @@ from testplan.testing import multitest
 from testplan.testing import ordering
 from testplan.runnable.interactive import base
 from testplan.testing.multitest import driver
+from testplan.common.utils.path import default_runpath
 
 
 @multitest.testsuite
@@ -46,6 +47,8 @@ def test_startup():
         irunner = base.TestRunnerIHandler(target)
 
         irunner.setup()
+        assert irunner.target.runpath == default_runpath(target)
+
         mock_server.prepare.assert_called_once()
         mock_server.bind_addr = ("hostname", 1234)
         assert irunner.http_handler_info == mock_server.bind_addr

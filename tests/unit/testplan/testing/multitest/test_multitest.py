@@ -21,7 +21,17 @@ MTEST_DEFAULT_PARAMS = {
 
 def test_multitest_runpath():
     """Test setting of runpath."""
-    # # No runpath specified
+
+    class Parent(object):
+        def __init__(self, runpath):
+            self.runpath = runpath
+
+    global_runpath = os.path.join("", "var", "tmp", "global_level")
+    local_runpath = os.path.join("", "var", "tmp", "local_runpath")
+
+    par = Parent(global_runpath)
+
+    # No runpath specified - take default runpath
     mtest = multitest.MultiTest(
         name="Mtest", suites=[], **MTEST_DEFAULT_PARAMS
     )
@@ -31,38 +41,32 @@ def test_multitest_runpath():
     assert mtest.runpath == path.default_runpath(mtest)
     assert mtest._runpath == path.default_runpath(mtest)
 
-    # runpath in local cfg
-    custom = os.path.join("", "var", "tmp", "custom")
-    mtest = multitest.MultiTest(
-        name="Mtest", suites=[], runpath=custom, **MTEST_DEFAULT_PARAMS
-    )
-    assert mtest.runpath is None
-    assert mtest._runpath is None
-    mtest.run()
-    assert mtest.runpath == custom
-    assert mtest._runpath == custom
-
-    # runpath in global cfg
-    global_runpath = os.path.join("", "var", "tmp", "global_level")
-    par = base.MultiTestConfig(name="Mtest", suites=[], runpath=global_runpath)
-    mtest = multitest.MultiTest(
-        name="Mtest", suites=[], **MTEST_DEFAULT_PARAMS
-    )
-    mtest.cfg.parent = par
-    assert mtest.runpath is None
-    assert mtest._runpath is None
-    mtest.run()
-    assert mtest.runpath == global_runpath
-    assert mtest._runpath == global_runpath
-
-    # runpath in global cfg and local
-    global_runpath = os.path.join("", "var", "tmp", "global_level")
-    local_runpath = os.path.join("", "var", "tmp", "local_runpath")
-    par = base.MultiTestConfig(name="Mtest", suites=[], runpath=global_runpath)
+    # runpath in local cfg - take local cfg
     mtest = multitest.MultiTest(
         name="Mtest", suites=[], runpath=local_runpath, **MTEST_DEFAULT_PARAMS
     )
-    mtest.cfg.parent = par
+    assert mtest.runpath is None
+    assert mtest._runpath is None
+    mtest.run()
+    assert mtest.runpath == local_runpath
+    assert mtest._runpath == local_runpath
+
+    # runpath in global cfg - take parent's runpath and append uid
+    mtest = multitest.MultiTest(
+        name="Mtest", suites=[], **MTEST_DEFAULT_PARAMS
+    )
+    mtest.parent = par
+    assert mtest.runpath is None
+    assert mtest._runpath is None
+    mtest.run()
+    assert mtest.runpath == os.path.join(global_runpath, "mtest")
+    assert mtest._runpath == os.path.join(global_runpath, "mtest")
+
+    # runpath in global cfg and local - take local cfg
+    mtest = multitest.MultiTest(
+        name="Mtest", suites=[], runpath=local_runpath, **MTEST_DEFAULT_PARAMS
+    )
+    mtest.parent = par
     assert mtest.runpath is None
     assert mtest._runpath is None
     mtest.run()
