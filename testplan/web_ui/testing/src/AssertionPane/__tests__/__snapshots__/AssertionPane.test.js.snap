@@ -33,7 +33,7 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
       size="1x"
       spin={false}
       symbol={false}
-      title=""
+      title="Expand all"
       transform={null}
     />
     <FontAwesomeIcon
@@ -53,7 +53,7 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
       size="1x"
       spin={false}
       symbol={false}
-      title=""
+      title="Collapse all"
       transform={null}
     />
   </div>
