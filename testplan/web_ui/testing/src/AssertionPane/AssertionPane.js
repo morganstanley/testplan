@@ -95,6 +95,7 @@ class AssertionPane extends Component {
               size='1x'
               key='faPlusCircle'
               icon='plus-circle'
+              title='Expand all'
               onClick={this.expandAllAssertions}
               className={css(styles.icon)}
             />
@@ -102,6 +103,7 @@ class AssertionPane extends Component {
               size='1x'
               key='faMinusCircle'
               icon='minus-circle'
+              title='Collapse all'
               onClick={this.collapseAllAssertions}
               className={css(styles.icon)}
             />
