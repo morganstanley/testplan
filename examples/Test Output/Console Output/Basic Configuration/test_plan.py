@@ -111,11 +111,7 @@ style_4_b = Style(passing=StyleEnum.TEST, failing=StyleEnum.TESTSUITE)
 
 
 # Replace the `stdout_style` argument with the styles defined
-#  above to see how they change console output.
-
-# If you want to test out command line configuration for console output
-# please remove `stdout_style` argument completely as programmatic
-# declaration overrides the command line.
+# above to see how they change console output.
 
 
 @test_plan(

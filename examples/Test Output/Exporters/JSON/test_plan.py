@@ -66,9 +66,9 @@ class BetaSuite(object):
 
 # <report-path> should be valid system file path.
 
-# If you want to test out command line configuration for JSON generation please
-# remove `json_path` arguments from below as
-# programmatic declaration overrides command line arguments.
+# If you want to test out command line configuration for JSON generation
+# please directly use --json argument because command line arguments can
+# override programmatic declaration.
 
 # After running this example, you can see how a JSON can be converted back
 # into a report object via `json_to_pdf.py` script.

@@ -236,24 +236,18 @@ Test filter, runs tests that match ALL of the given tags.
             "-v",
             "--verbose",
             action="store_true",
-            dest="verbose",
             help="Enable verbose mode that will also set the stdout-style "
             'option to "detailed".',
         )
 
         report_group.add_argument(
-            "-d",
-            "--debug",
-            action="store_true",
-            dest="debug",
-            help="Enable debug mode.",
+            "-d", "--debug", action="store_true", help="Enable debug mode.",
         )
 
         report_group.add_argument(
             "-b",
             "--browse",
             action="store_true",
-            dest="browse",
             help="Automatically open report to browse. Must be specified "
             'with "--ui" to open it locally, or upload it to a web server '
             "with a customized exporter which has a `report_url`, or there "
@@ -343,9 +337,9 @@ that match ALL of the given tags.
                 seed=args["shuffle_seed"], shuffle_type=args["shuffle"]
             )
 
-        # We can set arguments in @test_plan decorator or by comman line, for
-        # arguments in boolean type if in one place it set tp True, then the
-        # final result is True
+        # We can set arguments in @test_plan decorator or by command line, for
+        # arguments in boolean type if in one place it is set to True, then
+        # the final result is True
         args["browse"] = args["browse"] or self._default_options["browse"]
         args["verbose"] = args["verbose"] or self._default_options["verbose"]
         args["debug"] = args["debug"] or self._default_options["debug"]

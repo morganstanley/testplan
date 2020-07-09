@@ -63,7 +63,7 @@ class HTTPExporter(Exporter):
         response = None
         errmsg = ""
 
-        if data and data["entries"]:
+        if data and (data.get("entries") or data.get("split")):
             headers = {"Content-Type": "application/json"}
             try:
                 response = requests.post(

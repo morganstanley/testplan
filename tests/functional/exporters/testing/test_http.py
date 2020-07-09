@@ -80,7 +80,7 @@ def test_http_exporter(http_server):
     plan = Testplan(
         name="plan",
         parse_cmdline=False,
-        exporters=HTTPExporter(http_url=http_url),
+        exporters=[HTTPExporter(http_url=http_url)],
     )
     multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
     multitest_2 = multitest.MultiTest(name="Secondary", suites=[Beta()])
