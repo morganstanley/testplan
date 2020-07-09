@@ -10,6 +10,7 @@ from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.path import fix_home_prefix
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.base import MultiTestConfig
+from testplan.common.utils.strings import slugify
 
 
 @testsuite
@@ -20,7 +21,7 @@ class MySuite(object):
         result.log(env.runpath)
         assert isinstance(env.cfg, MultiTestConfig)
         assert os.path.exists(env.runpath) is True
-        assert env.runpath.endswith(env.cfg.name)
+        assert env.runpath.endswith(slugify(env.cfg.name))
 
 
 def get_mtest(name):
@@ -49,7 +50,7 @@ class SuiteKillingWorker(object):
         result.log(env.runpath)
         assert isinstance(env.cfg, MultiTestConfig)
         assert os.path.exists(env.runpath) is True
-        assert env.runpath.endswith(env.cfg.name)
+        assert env.runpath.endswith(slugify(env.cfg.name))
 
 
 def multitest_kill_one_worker(name, parent_pid, size):

@@ -21,6 +21,7 @@ from testplan.common.utils.thread import execute_as_thread
 from testplan.common.utils.timing import wait
 from testplan.common.utils.path import makeemptydirs, makedirs, default_runpath
 from testplan.common.utils import logger
+from testplan.common.utils.strings import slugify
 
 
 class Environment(object):
@@ -509,13 +510,14 @@ class Entity(logger.Loggable):
         """
         Returns runpath directory based on parent object and configuration.
         """
-        if self.parent and self.parent.runpath:
-            return os.path.join(self.parent.runpath, self.uid())
-
-        runpath = getattr(self.cfg, "runpath", None)
-
+        # local config has highest precedence
+        runpath = self.cfg.get_local("runpath")
         if runpath:
-            return self.cfg.runpath(self) if callable(runpath) else runpath
+            return runpath(self) if callable(runpath) else runpath
+        # else get container's runpath and append uid
+        elif self.parent and self.parent.runpath:
+            return os.path.join(self.parent.runpath, slugify(self.uid()))
+
         else:
             return default_runpath(self)
 

@@ -6,6 +6,7 @@ from testplan import Testplan, Task
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.base import MultiTestConfig
 from testplan.runners.pools.base import Pool, Worker
+from testplan.common.utils.strings import slugify
 
 # from testplan.common.utils.testing import log_propagation_disabled
 # from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -18,7 +19,7 @@ class MySuite(object):
         result.equal(1, 1, "equality description")
         assert isinstance(env.cfg, MultiTestConfig)
         assert os.path.exists(env.runpath)
-        assert env.runpath.endswith(env.cfg.name)
+        assert env.runpath.endswith(slugify(env.cfg.name))
 
 
 def get_mtest():

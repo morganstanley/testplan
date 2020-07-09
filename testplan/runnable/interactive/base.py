@@ -96,6 +96,7 @@ class TestRunnerIHandler(entity.Entity):
         )
         self._http_handler = self._setup_http_handler()
         self._pool = futures.ThreadPoolExecutor(max_workers=1)
+        self.target.make_runpath_dirs()
 
     def run(self):
         """

@@ -19,6 +19,7 @@ from testplan.testing.multitest.driver.base import Driver
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils.strings import slugify
 
 
 @testsuite
@@ -146,7 +147,9 @@ def test_multitest_drivers_in_testplan(runpath):
             assert plan.runpath == runpath
         else:
             assert plan.runpath == default_runpath(plan._runnable)
-        assert mtest.runpath == os.path.join(plan.runpath, mtest.uid())
+        assert mtest.runpath == os.path.join(
+            plan.runpath, slugify(mtest.uid())
+        )
         assert server.runpath == os.path.join(mtest.runpath, server.uid())
         assert client.runpath == os.path.join(mtest.runpath, client.uid())
         assert server.status.tag == ResourceStatus.STOPPED

@@ -123,6 +123,19 @@ class Config(object):
             self.__class__.__name__, self._cfg_input or self._options
         )
 
+    def get_local(self, name, default=None):
+        """Returns a local config setting (not from container)"""
+        options = self.__getattribute__("_options")
+
+        # this option is defined in current entity
+        if name in options:
+            # has user specified or valid default value
+            if options[name] is not ABSENT:
+                return options[name]
+
+        else:
+            return default
+
     @property
     def parent(self):
         """Returns the parent configuration."""
