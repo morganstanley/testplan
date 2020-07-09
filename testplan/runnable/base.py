@@ -317,7 +317,8 @@ class TestRunner(Runnable):
     def get_default_exporters(self):
         """
         Instantiate certain exporters if related cmdline argument (e.g. --pdf)
-        is passed but there aren't any exporter declarations.
+        or programmatic arguments (e.g. pdf_path) is passed but there are not
+        any exporter declarations.
         """
         exporters = []
         if self.cfg.pdf_path:

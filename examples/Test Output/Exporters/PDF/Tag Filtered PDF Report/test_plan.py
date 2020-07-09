@@ -70,10 +70,10 @@ class BetaSuite(object):
 # You can use `pdf_style` argument to apply common styling to all
 # generated PDF reports.
 
-# If you want to test out command line configuration for PDF generation please
-# remove `report_tags`, `report_tags_all`, `report_dir` and `pdf_style`
-# arguments from below as programmatic declaration overrides
-# command line arguments.
+# If you want to test out command line configuration for PDF generation
+# please directly use --report-tags, --report-tags-all, --report-dir and
+# --pdf-style arguments because command line arguments can override
+# programmatic declaration.
 
 # An example command line call for tag filtered PDFs would be:
 # ./test_plan --report-dir . --report-tags server color=red,blue

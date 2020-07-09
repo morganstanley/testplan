@@ -49,7 +49,7 @@ def test_xml_exporter(tmpdir):
     plan = Testplan(
         name="plan",
         parse_cmdline=False,
-        exporters=XMLExporter(xml_dir=xml_dir.strpath),
+        exporters=[XMLExporter(xml_dir=xml_dir.strpath)],
     )
     multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
     multitest_2 = multitest.MultiTest(name="Secondary", suites=[Beta()])

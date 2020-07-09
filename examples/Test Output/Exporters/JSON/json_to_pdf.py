@@ -15,8 +15,10 @@ def main(source, target):
 
     with open(source) as source_file:
         data = json.loads(source_file.read())
-        report_obj = TestReport.deserialize(data)
+        if data.get("split"):
+            raise RuntimeError("Cannot process JSON report that was split")
 
+        report_obj = TestReport.deserialize(data)
         print("Loaded report: {}".format(report_obj.name))
 
         # We can initialize an exporter object directly, without relying on

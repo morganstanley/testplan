@@ -73,9 +73,9 @@ class BetaSuite(object):
 # <report-path> should be valid system file path and <report-style> should be
 # one of: `result-only`, `summary`, `extended-summary`, `detailed`.
 
-# If you want to test out command line configuration for PDF generation please
-# remove `pdf_path` and `pdf_style` arguments from below as
-# programmatic declaration overrides command line arguments.
+# If you want to test out command line configuration for PDF generation
+# please directly use --pdf argument because command line arguments can
+# override programmatic declaration.
 
 
 @test_plan(

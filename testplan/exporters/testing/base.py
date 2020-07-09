@@ -1,7 +1,7 @@
 import os
 from shutil import copyfile
 
-from schema import Schema, Use, Or
+from schema import Use
 
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import BaseExporter, ExporterConfig

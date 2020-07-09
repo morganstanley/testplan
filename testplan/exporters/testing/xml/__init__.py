@@ -1,9 +1,10 @@
 """
     XML Export logic for test reports.
 """
-import socket
 import os
+import socket
 import shutil
+from collections import Counter
 
 from lxml import etree
 from lxml.builder import E  # pylint: disable=no-name-in-module
@@ -22,7 +23,6 @@ from testplan.report import (
 )
 
 from ..base import Exporter
-from collections import Counter
 
 
 class BaseRenderer(object):

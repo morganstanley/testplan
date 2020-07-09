@@ -23,7 +23,6 @@ from testplan.report.testing.schemas import TestReportSchema, EntriesField
 from testplan.common import report, entity
 from testplan.common.utils.testing import check_report
 from testplan.testing.multitest.result import Result
-from testplan.common import entity
 
 DummyReport = functools.partial(TestCaseReport, name="dummy")
 DummyReportGroup = functools.partial(BaseReportGroup, name="dummy")

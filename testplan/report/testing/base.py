@@ -170,6 +170,8 @@ class ReportCategories(object):
     CPPUNIT_SUITE = "cppunit-suite"
     BOOST_TEST = "boost-test"
     BOOST_SUITE = "boost-suite"
+    PYTEST = "pytest"
+    PYUNIT = "pyunit"
     UNITTEST = "unittest"
     QUNIT = "qunit"
     ERROR = "error"

@@ -44,6 +44,10 @@ class BetaSuite(object):
 # <xml-directory> should be a valid system directory, if this directory already
 # exists it will be removed and recreated.
 
+# If you want to test out command line configuration for XML generation
+# please directly use --xml argument because command line arguments can
+# override programmatic declaration.
+
 
 @test_plan(
     name="Basic XML Report Example",
