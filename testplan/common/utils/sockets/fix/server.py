@@ -446,10 +446,11 @@ class Server(object):
         """
         sender, target = conn_name
         if (sender, target) == (None, None):
-            if len(self._conndetails_by_name) != 1:
+            active = len(self._conndetails_by_name)
+            if active != 1:
                 raise Exception(
-                    "Cannot use default connection "
-                    "since more connections active"
+                    "Cannot use default connection - "
+                    "{} connection(s) active, expect 1".format(active)
                 )
             (sender, target) = (self._first_sender, self._first_target)
 
