@@ -15,6 +15,15 @@ testplan.testing.cpp.gtest module
     :show-inheritance:
     :inherited-members:
 
+testplan.testing.cpp.cppunit module
++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.testing.cpp.cppunit
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
 testplan.testing.cpp.hobbestest module
 ++++++++++++++++++++++++++++++++++++++
 
