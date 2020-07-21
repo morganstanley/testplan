@@ -38,7 +38,7 @@ REQUIRED = [
     "flask",
     "flask_restplus",
     "cheroot",
-    "validators",
+    "validators==0.14.0",
     "ipaddress",
     "futures; python_version <= '2.7'",
     "Werkzeug<1.0.0",

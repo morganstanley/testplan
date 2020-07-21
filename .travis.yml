@@ -8,6 +8,9 @@ python:
   - "2.7"
   - "3.7"
 
+before_install:
+  - sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
+
 install:
   - pip install -r requirements.txt -U
   - python install-testplan-ui --verbose --dev
