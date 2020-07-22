@@ -559,8 +559,7 @@ class RemoteWorker(ProcessWorker):
                 "While fetching result from worker [%s]: %s", self, exc
             )
 
-    def _proc_cmd(self):
-        """Command to start child process."""
+    def _proc_cmd_impl(self):
         if platform.system() == "Windows":
             if platform.python_version().startswith("3"):
                 python_binary = os.environ["PYTHON3_REMOTE_BINARY"]
@@ -598,6 +597,12 @@ class RemoteWorker(ProcessWorker):
         if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
             cmd.extend(["--testplan-deps", self._remote_testplan_path])
 
+        return cmd
+
+    def _proc_cmd(self):
+        """Command to start child process."""
+
+        cmd = self._proc_cmd_impl()
         return self.cfg.ssh_cmd(self.ssh_cfg, " ".join(cmd))
 
     def _write_syspath(self):
