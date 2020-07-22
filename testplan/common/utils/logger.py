@@ -109,6 +109,16 @@ class TestplanLogger(logging.Logger):
         if self.isEnabledFor(level):
             self._log(level, msg, args, **kwargs)
 
+    def set_stdout_level(self, level):
+        """Change the log level of StreamHandler(sys.stdout)."""
+        for handler in self.handlers:
+            if (
+                isinstance(handler, logging.StreamHandler)
+                and handler.stream == sys.stdout
+            ):
+                handler.setLevel(level)
+                break
+
 
 def _initial_setup():
     """
