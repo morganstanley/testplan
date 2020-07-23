@@ -16,7 +16,7 @@ else:
 from marshmallow import Schema, fields, post_load
 
 from testplan.common.serialization.schemas import load_tree_data
-from testplan.common.report.schemas import ReportSchema
+from testplan.common.report.schemas import ReportSchema, ReportLogSchema
 from testplan.common.serialization import fields as custom_fields
 
 from testplan.common.utils import timing
@@ -258,9 +258,9 @@ class TestGroupReportSchema(TestCaseReportSchema):
 class TestReportSchema(Schema):
     """Schema for test report root, ``testing.TestReport``."""
 
-    timer = TimerField()
-    name = fields.String()
-    uid = fields.String()
+    timer = TimerField(required=True)
+    name = fields.String(required=True)
+    uid = fields.String(required=True)
     meta = fields.Dict()
 
     status = fields.String(dump_only=True)
@@ -271,6 +271,8 @@ class TestReportSchema(Schema):
     counter = fields.Dict(dump_only=True)
 
     attachments = fields.Dict()
+    logs = fields.Nested(ReportLogSchema, many=True)
+    timeout = fields.Integer(allow_none=True)
 
     entries = custom_fields.GenericNested(
         schema_context={TestGroupReport: TestGroupReportSchema}, many=True
@@ -289,6 +291,8 @@ class TestReportSchema(Schema):
         entry_data = data.pop("entries")
         status_override = data.pop("status_override")
         timer = data.pop("timer")
+        timeout = data.pop("timeout", None)
+        logs = data.pop("logs", [])
 
         test_plan_report = TestReport(**data)
         test_plan_report.entries = [load_tree(c_data) for c_data in entry_data]
@@ -296,7 +300,43 @@ class TestReportSchema(Schema):
 
         test_plan_report.status_override = status_override
         test_plan_report.timer = timer
+        test_plan_report.timeout = timeout
+        test_plan_report.logs = logs
         return test_plan_report
+
+
+class ShallowTestGroupReportSchema(Schema):
+    """Schema for shallow serialization of ``TestGroupReport``."""
+
+    name = fields.String(required=True)
+    uid = fields.String(required=True)
+    timer = TimerField(required=True)
+    description = fields.String(allow_none=True)
+    part = fields.List(fields.Integer, allow_none=True)
+    fix_spec_path = fields.String(allow_none=True)
+    status_override = fields.String(allow_none=True)
+    status = fields.String(dump_only=True)
+    runtime_status = fields.String(dump_only=True)
+    counter = fields.Dict(dump_only=True)
+    suite_related = fields.Bool()
+    tags = TagField()
+    entry_uids = fields.List(fields.Str(), dump_only=True)
+    parent_uids = fields.List(fields.Str())
+    hash = fields.Integer(dump_only=True)
+    category = fields.String()
+    env_status = fields.String(allow_none=True)
+
+    @post_load
+    def make_testgroup_report(self, data):
+        status_override = data.pop("status_override", None)
+        timer = data.pop("timer")
+
+        group_report = TestGroupReport(**data)
+        group_report.status_override = status_override
+        group_report.timer = timer
+        group_report.propagate_tag_indices()
+
+        return group_report
 
 
 class ShallowTestReportSchema(Schema):
@@ -328,39 +368,3 @@ class ShallowTestReportSchema(Schema):
         test_plan_report.status_override = status_override
         test_plan_report.timer = timer
         return test_plan_report
-
-
-class ShallowTestGroupReportSchema(Schema):
-    """
-    Schema for shallow serialization of ``TestGroupReport``.
-    """
-
-    name = fields.String(required=True)
-    uid = fields.String(required=True)
-    timer = TimerField(required=True)
-    description = fields.String(allow_none=True)
-    part = fields.List(fields.Integer, allow_none=True)
-    fix_spec_path = fields.String(allow_none=True)
-    status_override = fields.String(allow_none=True)
-    status = fields.String(dump_only=True)
-    runtime_status = fields.String(dump_only=True)
-    counter = fields.Dict(dump_only=True)
-    suite_related = fields.Bool()
-    tags = TagField()
-    entry_uids = fields.List(fields.Str(), dump_only=True)
-    parent_uids = fields.List(fields.Str())
-    hash = fields.Integer(dump_only=True)
-    category = fields.String()
-    env_status = fields.String(allow_none=True)
-
-    @post_load
-    def make_testgroup_report(self, data):
-        status_override = data.pop("status_override", None)
-        timer = data.pop("timer")
-
-        group_report = TestGroupReport(**data)
-        group_report.status_override = status_override
-        group_report.timer = timer
-        group_report.propagate_tag_indices()
-
-        return group_report

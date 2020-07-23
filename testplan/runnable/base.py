@@ -3,10 +3,12 @@
 import os
 import random
 import time
+import datetime
 import uuid
 import webbrowser
 from collections import OrderedDict
 
+import pytz
 from schema import Or, And, Use
 
 from testplan import defaults
@@ -148,8 +150,9 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("verbose", default=False): bool,
             ConfigOption("debug", default=False): bool,
             ConfigOption("timeout", default=None): Or(
-                None, And(Or(int, float), lambda t: t >= 0)
+                None, And(int, lambda t: t >= 0)
             ),
+            ConfigOption("abort_wait_timeout", default=60): int,
             ConfigOption(
                 "interactive_handler", default=TestRunnerIHandler
             ): object,
@@ -262,7 +265,9 @@ class TestRunner(Runnable):
     :param debug: Enable or disable debug mode.
     :type debug: ``bool``
     :param timeout: Timeout value for test execution.
-    :type timeout: ``NoneType`` or ``int`` or ``float`` greater than 0.
+    :type timeout: ``NoneType`` or ``int`` (greater than 0).
+    :param abort_wait_timeout: Timeout for test runner abort.
+    :type abort_wait_timeout: ``int``
     :param interactive_handler: Handler for interactive mode execution.
     :type interactive_handler: Subclass of :py:class:
         `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
@@ -279,10 +284,9 @@ class TestRunner(Runnable):
 
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
-        self._start_time = time.time()
         self._tests = OrderedDict()  # uid to resource
         self._result.test_report = TestReport(
-            name=self.cfg.name, uid=self.cfg.name
+            name=self.cfg.name, uid=self.cfg.name, timeout=self.cfg.timeout
         )
         self._exporters = None
         self._web_server_thread = None
@@ -529,11 +533,13 @@ class TestRunner(Runnable):
                 self.logger.error(exception)
                 resource.abort()
 
+        _start_ts = (
+            self.result.test_report.timer["run"][0]
+            - datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
+        ).total_seconds()
+
         while self.active:
-            if (
-                self.cfg.timeout
-                and time.time() - self._start_time > self.cfg.timeout
-            ):
+            if self.cfg.timeout and time.time() - _start_ts > self.cfg.timeout:
                 self.result.test_report.logger.error(
                     "Timeout: Aborting execution after {} seconds".format(
                         self.cfg.timeout
