@@ -442,10 +442,16 @@ class TestReport(BaseReportGroup):
     """
 
     def __init__(
-        self, meta=None, attachments=None, information=None, *args, **kwargs
+        self,
+        meta=None,
+        attachments=None,
+        information=None,
+        timeout=None,
+        *args,
+        **kwargs
     ):
-        self.meta = meta or {}
         self._tags_index = None
+        self.meta = meta or {}
         self.information = information or []
         try:
             user = getpass.getuser()
@@ -465,6 +471,7 @@ class TestReport(BaseReportGroup):
         # Maps from destination path (relative from attachments root dir)
         # to the full source path (absolute or relative from cwd).
         self.attachments = attachments or {}
+        self.timeout = timeout
         self.category = ReportCategories.TESTPLAN
 
         super(TestReport, self).__init__(*args, **kwargs)

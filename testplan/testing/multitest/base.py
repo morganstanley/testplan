@@ -825,7 +825,7 @@ class MultiTest(testing_base.Test):
                 if time_restriction:
                     # pylint: disable=unbalanced-tuple-unpacking
                     executed, execution_result = timing.timeout(
-                        time_restriction, "Testcase timeout after {} seconds"
+                        time_restriction, "Testcase timeout after {} second(s)"
                     )(testcase)(self.resources, case_result)
                     if not executed:
                         testcase_report.logger.error(execution_result)

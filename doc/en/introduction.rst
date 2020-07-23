@@ -318,7 +318,7 @@ Command line
 
     Information:
       -h, --help            show this help message and exit
-      --list                Shortcut for `--info name`
+      --list                Shortcut for `--info name`.
       --info                (default: None)
 
                             "pattern-full" - List tests in `--patterns` / `--tags` compatible format.
@@ -327,12 +327,14 @@ Command line
 
                             "count" - Lists top level instances and total number of suites & testcases per instance.
 
-                            "pattern" - List tests in `--patterns` / `--tags` compatible format. Max 25 testcases per suite will be displayed
+                            "pattern" - List tests in `--patterns` / `--tags` compatible format. Max 25 testcases per suite will be displayed.
 
-                            "name" - List tests in readable format. Max 25 testcases per suite will be displayed
+                            "name" - List tests in readable format. Max 25 testcases per suite will be displayed.
+      -i, --interactive     Enable interactive mode. A port may be specified, otherwise the port defaults to 0.
 
     General:
-      --runpath             Path under which all temp files and logs will be created
+      --runpath             Path under which all temp files and logs will be created.
+      --timeout             Expiry timeout on test execution.
 
     Filtering:
       --patterns            Test filter, supports glob notation & multiple arguments.
@@ -409,6 +411,9 @@ Command line
                             --report-tags-all <tag_name_1> --report-tags-all <tag_name 2>
 
                             --report-tags-all <tag_name_1> <tag_category_1>=<tag_name_2>
+      --file-log-level      {exporter_info,test_info,driver_info,critical,error,warning,info,debug,none}
+
+                            Specify log level for file logs. Set to None to disable file logging.
 
 Highlighted features
 ====================

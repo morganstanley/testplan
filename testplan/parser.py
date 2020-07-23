@@ -69,7 +69,7 @@ class TestplanParser(object):
         )
 
         parser.add_argument(
-            "--list", action="store_true", help="Shortcut for `--info name`"
+            "--list", action="store_true", help="Shortcut for `--info name`."
         )
 
         parser.add_argument(
@@ -81,7 +81,24 @@ class TestplanParser(object):
             )
         )
 
-        parser.add_argument(
+        general_group = parser.add_argument_group("General")
+        general_group.add_argument(
+            "--runpath",
+            type=str,
+            metavar="PATH",
+            default=self._default_options["runpath"],
+            help="Path under which all temp files and logs will be created.",
+        )
+
+        general_group.add_argument(
+            "--timeout",
+            metavar="N",
+            default=self._default_options["timeout"],
+            type=int,
+            help="Expiry timeout on test execution.",
+        )
+
+        general_group.add_argument(
             "-i",
             "--interactive",
             dest="interactive_port",
@@ -90,16 +107,7 @@ class TestplanParser(object):
             const=defaults.WEB_SERVER_PORT,
             type=int,
             help="Enable interactive mode. A port may be specified, otherwise "
-            "the port defaults to {}".format(defaults.WEB_SERVER_PORT),
-        )
-
-        general_group = parser.add_argument_group("General")
-        general_group.add_argument(
-            "--runpath",
-            type=str,
-            metavar="PATH",
-            default=self._default_options["runpath"],
-            help="Path under which all temp files and logs will be created",
+            "the port defaults to {}.".format(defaults.WEB_SERVER_PORT),
         )
 
         filter_group = parser.add_argument_group("Filtering")
@@ -298,7 +306,7 @@ that match ALL of the given tags.
             choices=LogLevelAction.LEVELS.keys(),
             default=self._default_options["file_log_level"],
             action=LogLevelAction,
-            help="Specify log level for file logs. Set to NONE to disable "
+            help="Specify log level for file logs. Set to None to disable "
             "file logging.",
         )
 
@@ -353,7 +361,7 @@ that match ALL of the given tags.
             )
             if args["debug"]:
                 args["logger_level"] = logger.DEBUG
-            else:
+            elif args["verbose"]:
                 args["logger_level"] = logger.INFO
 
         if args["list"] and "info" not in args:
