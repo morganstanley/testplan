@@ -22,7 +22,7 @@ from testplan.common.utils.context import context
 from testplan.common.utils.timing import get_sleeper
 from testplan.common.entity.base import Environment
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.logger import TEST_INFO, DEBUG
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.environment import LocalEnvironment
@@ -60,7 +60,7 @@ class InteractivePlan(object):
         self._kwargs = kwargs
 
     def __enter__(self):
-        self._plan = Testplan(**self._kwargs)
+        self._plan = TestplanMock(**self._kwargs)
         return self._plan
 
     def __exit__(self, *args):

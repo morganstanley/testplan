@@ -6,7 +6,7 @@ import os
 
 import pytest
 
-from testplan import Testplan, Task
+from testplan import TestplanMock, Task
 from testplan.runners.pools import ProcessPool
 
 from testplan.common.utils.testing import (
@@ -43,18 +43,6 @@ def importorxfail(dependency):
         pytest.xfail(str(e))
 
 
-@pytest.fixture(scope="session")
-def report_dir(tmpdir_factory):
-    """
-    `tmpdir` fixture is somehow failing for this module, so this fixture
-    explicitly makes sure that given basetemp exists.
-    """
-    basetemp = tmpdir_factory.getbasetemp().strpath
-    if not os.path.exists(basetemp):
-        os.makedirs(basetemp)
-    return tmpdir_factory.mktemp("report")
-
-
 @pytest.mark.parametrize(
     (
         "multitest_maker,expected_report,pdf_title,"
@@ -85,7 +73,7 @@ def report_dir(tmpdir_factory):
     ),
 )
 def test_local_pool_integration(
-    report_dir,
+    runpath,
     multitest_maker,
     expected_report,
     pdf_title,
@@ -95,13 +83,13 @@ def test_local_pool_integration(
     if dependant_module:
         importorxfail(dependant_module)
 
-    pdf_path = report_dir.join(
-        "test_report_local_{}.pdf".format(pdf_title)
-    ).strpath
-    plan = Testplan(
+    pdf_path = os.path.join(
+        runpath, "test_report_local_{}.pdf".format(pdf_title)
+    )
+    plan = TestplanMock(
         name="plan",
-        parse_cmdline=False,
         exporters=[PDFExporter.with_config(pdf_path=pdf_path)],
+        runpath=runpath,
     )
 
     plan.add(multitest_maker())
@@ -152,7 +140,7 @@ def test_local_pool_integration(
     ),
 )
 def test_process_pool_integration(
-    report_dir,
+    runpath,
     fixture_dirname,
     expected_report,
     pdf_title,
@@ -162,15 +150,15 @@ def test_process_pool_integration(
     if dependant_module:
         importorxfail(dependant_module)
 
-    pool = ProcessPool(name="MyPool", size=1)
-    pdf_path = report_dir.join(
-        "test_report_process_{}.pdf".format(pdf_title)
-    ).strpath
+    pool = ProcessPool(name="MyProcessPool", size=1)
+    pdf_path = os.path.join(
+        runpath, "test_report_local_{}.pdf".format(pdf_title)
+    )
 
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan",
-        parse_cmdline=False,
         exporters=[PDFExporter(pdf_path=pdf_path)],
+        runpath=runpath,
     )
     plan.add_resource(pool)
 
@@ -178,7 +166,7 @@ def test_process_pool_integration(
     fixture_path = os.path.join(runners_path, "fixtures", fixture_dirname)
 
     task = Task(target="make_multitest", module="suites", path=fixture_path)
-    plan.schedule(task, resource="MyPool")
+    plan.schedule(task, resource="MyProcessPool")
 
     assert not os.path.exists(pdf_path)
 

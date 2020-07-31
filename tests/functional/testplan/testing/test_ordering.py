@@ -2,7 +2,7 @@ import pytest
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import (
     log_propagation_disabled,
     argv_overridden,
@@ -133,7 +133,7 @@ class Beta(object):
 )
 def test_programmatic_ordering(sorter, report_ctx):
     multitest_x = MultiTest(name="Multitest", suites=[Beta(), Alpha()])
-    plan = Testplan(name="plan", parse_cmdline=False, test_sorter=sorter)
+    plan = TestplanMock(name="plan", parse_cmdline=False, test_sorter=sorter)
     plan.add(multitest_x)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
@@ -242,7 +242,7 @@ def test_command_line_ordering(cmdline_args, report_ctx):
     multitest_x = MultiTest(name="Multitest", suites=[Beta(), Alpha()])
 
     with argv_overridden(*cmdline_args):
-        plan = Testplan(name="plan", parse_cmdline=True)
+        plan = TestplanMock(name="plan", parse_cmdline=True)
         plan.add(multitest_x)
 
         with log_propagation_disabled(TESTPLAN_LOGGER):

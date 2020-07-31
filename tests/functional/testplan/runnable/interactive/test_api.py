@@ -61,7 +61,7 @@ class ExampleSuite(object):
 @pytest.fixture
 def plan(tmpdir):
     """Yield an interactive testplan."""
-    plan = testplan.Testplan(
+    plan = testplan.TestplanMock(
         name=six.ensure_str("InteractiveAPITest"),
         interactive_port=0,
         interactive_block=False,

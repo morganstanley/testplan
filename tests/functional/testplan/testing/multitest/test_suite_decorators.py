@@ -2,7 +2,6 @@
 
 from testplan.testing.multitest import MultiTest
 
-from testplan import Testplan
 from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report import (
@@ -88,21 +87,20 @@ class Suite2(object):
         result.equal(1, 2)
 
 
-def test_basic_multitest():
-    plan = Testplan(name="Plan", parse_cmdline=False)
+def test_basic_multitest(mockplan):
 
     mtest = MultiTest(name="Name1", suites=[Suite1(), Suite2()])
-    plan.add(mtest)
+    mockplan.add(mtest)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = plan.run()
+        res = mockplan.run()
 
     assert res.run is True
     assert isinstance(res.test_results["Name1"].report, TestGroupReport)
     assert len(res.test_results["Name1"].report.entries) == 2
-    assert isinstance(plan.report, TestReport)
-    assert len(plan.report.entries) == 1  # 1 Multitest
-    for mt_entry in plan.report.entries:
+    assert isinstance(mockplan.report, TestReport)
+    assert len(mockplan.report.entries) == 1  # 1 Multitest
+    for mt_entry in mockplan.report.entries:
         assert isinstance(mt_entry, TestGroupReport)
         assert len(mt_entry.entries) == 2  # 2 Suites
         for st_entry in mt_entry.entries:

@@ -1,6 +1,7 @@
 """Testplan base module."""
 
 import random
+import tempfile
 
 from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
 from testplan.common.config import ConfigOption
@@ -16,6 +17,7 @@ from testplan.common.utils import path
 from testplan import defaults
 from testplan.testing import filtering
 from testplan.testing import ordering
+from testplan.common.utils.path import slugify
 
 
 class TestplanConfig(entity.RunnableManagerConfig, TestRunnerConfig):
@@ -430,3 +432,25 @@ class Testplan(entity.RunnableManager):
 
 
 test_plan = Testplan.main_wrapper
+
+
+def default_runpath_mock(entity):
+    """To avoid runpath collision in testing"""
+    runpath = tempfile.mkdtemp(prefix="{}_".format(slugify(entity.uid())))
+    return runpath
+
+
+class TestplanMock(Testplan):
+    """
+    A mock Testplan class for testing purpose. It is recommended to use mockplan
+    fixture defined in conftest.py if you can. Only use this when necessary, e.g
+    you need to override default parameters.
+    """
+
+    def __init__(self, *args, **kwargs):
+        # mock testplan could run in threads
+        kwargs.setdefault("abort_signals", [])
+        kwargs.setdefault("runpath", default_runpath_mock)
+        kwargs.setdefault("parse_cmdline", False)
+
+        super(TestplanMock, self).__init__(*args, **kwargs)

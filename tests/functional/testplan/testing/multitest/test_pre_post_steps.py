@@ -1,6 +1,5 @@
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
 from testplan.common.utils.testing import (
     check_report,
     log_propagation_disabled,
@@ -71,7 +70,7 @@ expected_report = TestReport(
 )
 
 
-def test_pre_post_steps():
+def test_pre_post_steps(mockplan):
 
     multitest = MultiTest(
         name="MyMultitest",
@@ -82,10 +81,9 @@ def test_pre_post_steps():
         after_stop=check_func_4,
     )
 
-    plan = Testplan(name="plan", parse_cmdline=False)
-    plan.add(multitest)
+    mockplan.add(multitest)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
-        plan.run()
+        mockplan.run()
 
-    check_report(expected_report, plan.report)
+    check_report(expected_report, mockplan.report)

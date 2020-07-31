@@ -1172,8 +1172,14 @@ class RunnableManager(Entity):
         :rtype: :py:class:
             `RunnableResult <testplan.common.entity.base.RunnableResult>`
         """
-        for sig in self._cfg.abort_signals:
-            signal.signal(sig, self._handle_abort)
+        try:
+            for sig in self._cfg.abort_signals:
+                signal.signal(sig, self._handle_abort)
+        except ValueError:
+            self.logger.warning(
+                "Not able to install signal handler - signal only works in main thread"
+            )
+
         execute_as_thread(
             self._runnable.run,
             daemon=True,

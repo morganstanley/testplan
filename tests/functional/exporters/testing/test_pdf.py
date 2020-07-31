@@ -5,7 +5,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.entries import base
 from testplan.testing.multitest.entries.schemas.base import registry
 
-from testplan import Testplan, defaults
+from testplan import TestplanMock, defaults
 from testplan.common.utils.testing import (
     log_propagation_disabled,
     argv_overridden,
@@ -183,7 +183,7 @@ def test_implicit_exporter_initialization(tmpdir):
         ):
             multitest = MultiTest(name="MyMultitest", suites=[MySuite()])
 
-            plan = Testplan(name="plan")
+            plan = TestplanMock(name="plan", parse_cmdline=True)
             plan.add(multitest)
             plan.run()
 

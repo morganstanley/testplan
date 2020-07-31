@@ -63,22 +63,6 @@ class ChildLoop(object):
         """Metadata information."""
         return self._metadata
 
-    def heartbeat_thread(self):
-        """Manage a variable that indicates the sending of next heartbeat."""
-        while self._pool.status.tag == self._pool.STATUS.STARTED:
-            if self._to_heartbeat > 0:
-                sleep_interval = max(float(self._to_heartbeat) / 2, 0.1)
-                self._to_heartbeat -= sleep_interval
-                time.sleep(sleep_interval)
-            else:
-                time.sleep(0.1)
-
-    def heartbeat_setup(self):
-        """Start the heartbeat manager thread."""
-        heartbeat = threading.Thread(target=self.heartbeat_thread)
-        heartbeat.daemon = True
-        heartbeat.start()
-
     def _child_pool(self):
         # Local thread pool will not cleanup the previous layer runpath.
         self._pool = self._pool_type(
@@ -130,7 +114,7 @@ class ChildLoop(object):
         sys.stderr = open(stderr_file, mode)
         fhandler = logging.FileHandler(log_file)
         fhandler.setLevel(self.logger.level)
-        self.logger.addHandler = fhandler
+        self.logger.addHandler(fhandler)
 
     def _send_and_expect(self, message, send, expect):
         try:
@@ -194,13 +178,14 @@ class ChildLoop(object):
             return
 
         with self._child_pool():
-            if self._pool_cfg.worker_heartbeat:
-                self.heartbeat_setup()
             message = Message(**self.metadata)
             next_possible_request = time.time()
+            next_heartbeat = time.time()
             request_delay = self._pool_cfg.active_loop_sleep
             while True:
-                if self._pool_cfg.worker_heartbeat and self._to_heartbeat <= 0:
+                now = time.time()
+
+                if self._pool_cfg.worker_heartbeat and now > next_heartbeat:
                     hb_resp = self._transport.send_and_receive(
                         message.make(message.Heartbeat, data=time.time())
                     )
@@ -217,7 +202,7 @@ class ChildLoop(object):
                                 time.time() - hb_resp.data,
                             )
                         )
-                    self._to_heartbeat = self._pool_cfg.worker_heartbeat
+                    next_heartbeat = now + self._pool_cfg.worker_heartbeat
 
                 # Send back results
                 if self._pool.results:

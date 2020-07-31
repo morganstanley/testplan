@@ -2,7 +2,6 @@ import time
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
 from testplan.common.utils.testing import (
     check_report,
     log_propagation_disabled,
@@ -95,7 +94,7 @@ def _create_testcase_report(name, status_override=None):
     return report
 
 
-def test_execution_order():
+def test_execution_order(mockplan):
 
     multitest_1 = MultiTest(
         name="Multitest_1",
@@ -110,12 +109,11 @@ def test_execution_order():
         stop_on_error=True,
     )
 
-    plan = Testplan(name="plan", parse_cmdline=False)
-    plan.add(multitest_1)
-    plan.add(multitest_2)
+    mockplan.add(multitest_1)
+    mockplan.add(multitest_2)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
-        plan.run()
+        mockplan.run()
 
     expected_report = TestReport(
         name="plan",
@@ -295,4 +293,4 @@ def test_execution_order():
         ],
     )
 
-    check_report(expected_report, plan.report)
+    check_report(expected_report, mockplan.report)

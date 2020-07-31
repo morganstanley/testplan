@@ -2,7 +2,7 @@ import pytest
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import (
     log_propagation_disabled,
     argv_overridden,
@@ -176,7 +176,9 @@ def test_programmatic_filtering(filter_obj, report_ctx):
     multitest_x = MultiTest(name="XXX", suites=[Alpha(), Beta()])
     multitest_y = MultiTest(name="YYY", suites=[Gamma()])
 
-    plan = Testplan(name="plan", parse_cmdline=False, test_filter=filter_obj)
+    plan = TestplanMock(
+        name="plan", parse_cmdline=False, test_filter=filter_obj
+    )
     plan.add(multitest_x)
     plan.add(multitest_y)
 
@@ -278,7 +280,7 @@ def test_command_line_filtering(cmdline_args, report_ctx):
     multitest_y = MultiTest(name="YYY", suites=[Gamma()])
 
     with argv_overridden(*cmdline_args):
-        plan = Testplan(name="plan", parse_cmdline=True)
+        plan = TestplanMock(name="plan", parse_cmdline=True)
         plan.add(multitest_x)
         plan.add(multitest_y)
 

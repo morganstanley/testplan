@@ -9,8 +9,6 @@ from testplan.report import TestReport, TestGroupReport, TestCaseReport
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
-from testplan import Testplan
-
 
 @testsuite(tags={"color": ["red", "blue"]})
 class AlphaSuite(object):
@@ -198,7 +196,7 @@ report_for_multitest_with_tags = TestGroupReport(
         ),
     ),
 )
-def test_multitest_tagging(multitest_tags, expected_report):
+def test_multitest_tagging(mockplan, multitest_tags, expected_report):
 
     multitest = MultiTest(
         name="MyMultitest",
@@ -206,13 +204,12 @@ def test_multitest_tagging(multitest_tags, expected_report):
         tags=multitest_tags,
     )
 
-    plan = Testplan(name="plan", parse_cmdline=False)
-    plan.add(multitest)
+    mockplan.add(multitest)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
-        plan.run()
+        mockplan.run()
 
     check_report(
         expected=TestReport(name="plan", entries=[expected_report]),
-        actual=plan.report,
+        actual=mockplan.report,
     )

@@ -3,7 +3,7 @@
 import os
 import uuid
 
-from testplan import Testplan, TestplanResult
+from testplan import Testplan, TestplanMock, TestplanResult
 from testplan.common.entity import (
     Resource,
     ResourceStatus,
@@ -90,7 +90,7 @@ def test_testplan():
     """TODO."""
     from testplan.base import TestplanParser as MyParser
 
-    plan = Testplan(
+    plan = TestplanMock(
         name="MyPlan", port=800, parse_cmdline=False, parser=MyParser
     )
     assert plan._cfg.name == "MyPlan"
@@ -202,12 +202,14 @@ def test_testplan_runpath():
     assert plan.runpath == default_runpath(plan._runnable)
 
     path = "/var/tmp/user"
-    plan = Testplan(name="MyPlan", port=800, parse_cmdline=False, runpath=path)
+    plan = TestplanMock(
+        name="MyPlan", port=800, parse_cmdline=False, runpath=path
+    )
     assert plan.runpath is None
     plan.run()
     assert plan.runpath == path
 
-    plan = Testplan(
+    plan = TestplanMock(
         name="MyPlan", port=800, parse_cmdline=False, runpath=runpath_maker
     )
     assert plan.runpath is None

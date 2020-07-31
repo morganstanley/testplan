@@ -3,7 +3,7 @@ import platform
 
 import pytest
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import (
     log_propagation_disabled,
     check_report,
@@ -47,7 +47,7 @@ You need to compile the files at "{binary_dir}" to be able to run this test.
         ),
     ),
 )
-def test_cppunit(binary_dir, expected_report, report_status):
+def test_cppunit(mockplan, binary_dir, expected_report, report_status):
 
     binary_path = os.path.join(binary_dir, "runTests")
 
@@ -57,13 +57,11 @@ def test_cppunit(binary_dir, expected_report, report_status):
         )
         pytest.skip(msg)
 
-    plan = Testplan(name="plan", parse_cmdline=False)
-
-    plan.add(Cppunit(name="MyCppunit", binary=binary_path))
+    mockplan.add(Cppunit(name="MyCppunit", binary=binary_path))
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert plan.run().run is True
+        assert mockplan.run().run is True
 
-    check_report(expected=expected_report, actual=plan.report)
+    check_report(expected=expected_report, actual=mockplan.report)
 
-    assert plan.report.status == report_status
+    assert mockplan.report.status == report_status

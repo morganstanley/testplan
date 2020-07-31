@@ -11,7 +11,7 @@ with open("testplan_path.txt", "r") as fobj:
     sys.path.append(fobj.read().strip(os.linesep))
 atexit.register(os.remove, "testplan_path.txt")
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.testing.multitest import MultiTest
 
 from testplan.common.utils.comparison import compare
@@ -48,7 +48,9 @@ FAILED_CASE_REPORT = {
 
 def main():
     # CREATE AN INTERACTIVE TESTPLAN
-    plan = Testplan(name="MyPlan", interactive_port=0, interactive_block=False)
+    plan = TestplanMock(
+        name="MyPlan", interactive_port=0, interactive_block=False
+    )
 
     with open("basic_suite_template.txt") as fobj:
         template = fobj.read()

@@ -2,7 +2,6 @@ import time
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
 from testplan.runners.pools import ThreadPool
 from testplan.runners.pools.tasks import Task
 
@@ -64,17 +63,16 @@ def _create_testcase_report(name, status_override=None, entries=None):
     return report
 
 
-def test_timeout_on_testcases():
+def test_timeout_on_testcases(mockplan):
 
-    plan = Testplan(name="plan", parse_cmdline=False)
     pool = ThreadPool(name="MyPool", size=2)
-    plan.add_resource(pool)
+    mockplan.add_resource(pool)
 
     task = Task(target=get_mtest())
-    plan.schedule(task, resource="MyPool")
+    mockplan.schedule(task, resource="MyPool")
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
-        plan.run()
+        mockplan.run()
 
     expected_report = TestReport(
         name="plan",
@@ -188,4 +186,4 @@ def test_timeout_on_testcases():
         ],
     )
 
-    check_report(expected_report, plan.report)
+    check_report(expected_report, mockplan.report)

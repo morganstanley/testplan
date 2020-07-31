@@ -1,12 +1,5 @@
 from testplan.testing.multitest import MultiTest, testsuite, testcase, xfail
 
-from testplan import Testplan
-from testplan.runners.pools import ThreadPool
-from testplan.runners.pools.tasks import Task
-from testplan.report import Status
-from testplan.common.utils.testing import log_propagation_disabled
-from testplan.common.utils.logger import TESTPLAN_LOGGER
-
 
 @testsuite
 class StrictXfailedSuite(object):
@@ -38,15 +31,14 @@ class NoStrictXfailedSuite(object):
         result.true(val < 100, description="Check if value is true")
 
 
-def test_xfail():
-    plan = Testplan(name="plan", parse_cmdline=False)
-    plan.add(
+def test_xfail(mockplan):
+    mockplan.add(
         MultiTest(
             name="xfail_test",
             suites=[StrictXfailedSuite(), NoStrictXfailedSuite()],
         )
     )
-    result = plan.run()
+    result = mockplan.run()
 
     assert result.report.failed
 

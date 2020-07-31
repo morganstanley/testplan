@@ -82,7 +82,7 @@ def suites():
 @pytest.fixture
 def get_filtered_plan(suites):
     def _factory(pattern=None):
-        plan = testplan.Testplan(
+        plan = testplan.TestplanMock(
             name="Logging TestPlan",
             parse_cmdline=False,
             test_filter=Pattern(pattern) if pattern else Filter(),

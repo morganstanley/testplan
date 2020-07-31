@@ -3,7 +3,7 @@ import platform
 
 import pytest
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import (
     log_propagation_disabled,
     check_report,
@@ -41,7 +41,7 @@ You can either use the mock test binary or replace it with a link to the actual 
         ),
     ),
 )
-def test_hobbestest(binary_dir, expected_report):
+def test_hobbestest(mockplan, binary_dir, expected_report):
 
     binary_path = os.path.join(binary_dir, "hobbes-test")
 
@@ -51,9 +51,7 @@ def test_hobbestest(binary_dir, expected_report):
         )
         pytest.skip(msg)
 
-    plan = Testplan(name="plan", parse_cmdline=False)
-
-    plan.add(
+    mockplan.add(
         HobbesTest(
             name="MyHobbesTest",
             binary=binary_path,
@@ -62,9 +60,9 @@ def test_hobbestest(binary_dir, expected_report):
     )
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert plan.run().run is True
+        assert mockplan.run().run is True
 
-    check_report(expected=expected_report, actual=plan.report)
+    check_report(expected=expected_report, actual=mockplan.report)
 
 
 @pytest.mark.skipif(
@@ -85,7 +83,7 @@ def test_hobbestest_listing(binary_dir, expected_output):
     cmdline_args = ["--list"]
 
     with argv_overridden(*cmdline_args):
-        plan = Testplan(name="plan", parse_cmdline=True)
+        plan = TestplanMock(name="plan", parse_cmdline=True)
 
         with log_propagation_disabled(TESTPLAN_LOGGER):
             with captured_logging(TESTPLAN_LOGGER) as log_capture:
