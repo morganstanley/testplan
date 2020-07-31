@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import log_propagation_disabled
 from testplan.report import TestGroupReport
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -89,7 +89,7 @@ def test_execution_order():
         name="MyMultitest", suites=[MySuite()], thread_pool_size=2
     )
 
-    plan = Testplan(name="plan", parse_cmdline=False)
+    plan = TestplanMock(name="plan", parse_cmdline=False)
     plan.add(multitest)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):

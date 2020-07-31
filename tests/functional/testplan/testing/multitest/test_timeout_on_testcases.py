@@ -2,7 +2,7 @@ import time
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.runners.pools import ThreadPool
 from testplan.runners.pools.tasks import Task
 
@@ -66,7 +66,7 @@ def _create_testcase_report(name, status_override=None, entries=None):
 
 def test_timeout_on_testcases():
 
-    plan = Testplan(name="plan", parse_cmdline=False)
+    plan = TestplanMock(name="plan", parse_cmdline=False)
     pool = ThreadPool(name="MyPool", size=2)
     plan.add_resource(pool)
 

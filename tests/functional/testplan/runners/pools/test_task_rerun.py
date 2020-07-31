@@ -11,7 +11,7 @@ import tempfile
 import getpass
 import uuid
 
-from testplan import Testplan, Task
+from testplan import TestplanMock, Task
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.base import Driver, DriverConfig
 from testplan.runners.pools import ThreadPool, ProcessPool
@@ -167,7 +167,7 @@ def test_task_rerun_in_thread_pool():
       - 2nd rerun: all pass.
     """
     pool_name = ThreadPool.__name__
-    plan = Testplan(name="Plan", parse_cmdline=False)
+    plan = TestplanMock(name="Plan", parse_cmdline=False)
     pool = ThreadPool(name=pool_name, size=2)
     plan.add_resource(pool)
 
@@ -206,7 +206,7 @@ def test_task_rerun_in_process_pool():
         then re-assign it and it passes (no rerun is needed).
     """
     pool_name = ProcessPool.__name__
-    plan = Testplan(name="Plan", parse_cmdline=False)
+    plan = TestplanMock(name="Plan", parse_cmdline=False)
     pool = ProcessPool(name=pool_name, size=2)
     plan.add_resource(pool)
 
@@ -260,7 +260,7 @@ def test_task_rerun_with_more_times():
       - 3rd rerun: all pass.
     """
     pool_name = ThreadPool.__name__
-    plan = Testplan(name="Plan", parse_cmdline=False)
+    plan = TestplanMock(name="Plan", parse_cmdline=False)
     pool = ThreadPool(name=pool_name, size=1)
     plan.add_resource(pool)
 
@@ -282,7 +282,7 @@ def test_task_rerun_with_more_times():
     # test fails, should manually remove it
     _remove_existing_tmp_file(tmp_file)
 
-    plan = Testplan(name="Plan", parse_cmdline=False)
+    plan = TestplanMock(name="Plan", parse_cmdline=False)
     pool = ThreadPool(name=pool_name, size=1)
     plan.add_resource(pool)
 

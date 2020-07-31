@@ -3,7 +3,7 @@ import platform
 
 import pytest
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import (
     log_propagation_disabled,
     check_report,
@@ -51,7 +51,7 @@ def test_hobbestest(binary_dir, expected_report):
         )
         pytest.skip(msg)
 
-    plan = Testplan(name="plan", parse_cmdline=False)
+    plan = TestplanMock(name="plan", parse_cmdline=False)
 
     plan.add(
         HobbesTest(
@@ -85,7 +85,7 @@ def test_hobbestest_listing(binary_dir, expected_output):
     cmdline_args = ["--list"]
 
     with argv_overridden(*cmdline_args):
-        plan = Testplan(name="plan", parse_cmdline=True)
+        plan = TestplanMock(name="plan", parse_cmdline=True)
 
         with log_propagation_disabled(TESTPLAN_LOGGER):
             with captured_logging(TESTPLAN_LOGGER) as log_capture:

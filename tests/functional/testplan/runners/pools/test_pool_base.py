@@ -2,7 +2,7 @@
 
 import os
 
-from testplan import Testplan, Task
+from testplan import TestplanMock, Task
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.base import MultiTestConfig
 from testplan.runners.pools.base import Pool, Worker
@@ -28,7 +28,7 @@ def get_mtest():
 
 def schedule_tests_to_pool(pool, **pool_cfg):
     pool_name = pool.__name__
-    plan = Testplan(name="Plan", parse_cmdline=False)
+    plan = TestplanMock(name="Plan", parse_cmdline=False)
     pool = pool(name=pool_name, **pool_cfg)
     plan.add_resource(pool)
 

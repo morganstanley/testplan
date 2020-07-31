@@ -3,7 +3,7 @@ import platform
 
 import pytest
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import (
     log_propagation_disabled,
     check_report,
@@ -57,7 +57,7 @@ def test_gtest(binary_dir, expected_report, report_status):
         )
         pytest.skip(msg)
 
-    plan = Testplan(name="plan", parse_cmdline=False)
+    plan = TestplanMock(name="plan", parse_cmdline=False)
 
     plan.add(GTest(name="MyGTest", binary=binary_path))
 

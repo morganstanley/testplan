@@ -2,7 +2,7 @@ import time
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import (
     check_report,
     log_propagation_disabled,
@@ -110,7 +110,7 @@ def test_execution_order():
         stop_on_error=True,
     )
 
-    plan = Testplan(name="plan", parse_cmdline=False)
+    plan = TestplanMock(name="plan", parse_cmdline=False)
     plan.add(multitest_1)
     plan.add(multitest_2)
 

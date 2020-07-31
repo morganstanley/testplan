@@ -1,6 +1,6 @@
 from testplan.testing.multitest import MultiTest, testsuite, testcase, xfail
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.runners.pools import ThreadPool
 from testplan.runners.pools.tasks import Task
 from testplan.report import Status
@@ -39,7 +39,7 @@ class NoStrictXfailedSuite(object):
 
 
 def test_xfail():
-    plan = Testplan(name="plan", parse_cmdline=False)
+    plan = TestplanMock(name="plan", parse_cmdline=False)
     plan.add(
         MultiTest(
             name="xfail_test",

@@ -5,7 +5,7 @@ import pytest
 from six.moves.BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 
 from testplan.testing import multitest
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import argv_overridden
 from testplan.exporters.testing import HTTPExporter
 
@@ -77,7 +77,7 @@ def test_http_exporter(http_server):
     """
     http_url = "http://localhost:{}".format(http_server.server_port)
 
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan",
         parse_cmdline=False,
         exporters=HTTPExporter(http_url=http_url),
@@ -100,7 +100,7 @@ def test_implicit_exporter_initialization(http_server):
     http_url = "http://localhost:{}".format(http_server.server_port)
 
     with argv_overridden("--http", http_url):
-        plan = Testplan(name="plan")
+        plan = TestplanMock(name="plan")
         multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
         plan.add(multitest_1)
         plan.run()

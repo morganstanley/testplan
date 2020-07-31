@@ -2,7 +2,7 @@
 
 from testplan.testing.multitest import MultiTest
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report import (
@@ -89,7 +89,7 @@ class Suite2(object):
 
 
 def test_basic_multitest():
-    plan = Testplan(name="Plan", parse_cmdline=False)
+    plan = TestplanMock(name="Plan", parse_cmdline=False)
 
     mtest = MultiTest(name="Name1", suites=[Suite1(), Suite2()])
     plan.add(mtest)

@@ -7,7 +7,7 @@ import pytest
 from testplan.common.utils.testing import log_propagation_disabled
 from testplan.report import Status
 from testplan.runners.pools import ProcessPool
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing import multitest
 
@@ -30,7 +30,7 @@ def test_pool_basic():
 def test_kill_one_worker():
     """Kill one worker but pass after reassigning task."""
     pool_name = ProcessPool.__name__
-    plan = Testplan(name="ProcPlan", parse_cmdline=False)
+    plan = TestplanMock(name="ProcPlan", parse_cmdline=False)
     pool_size = 4
     pool = ProcessPool(
         name=pool_name,
@@ -92,7 +92,7 @@ def test_kill_one_worker():
 def test_kill_all_workers():
     """Kill all workers and create a failed report."""
     pool_name = ProcessPool.__name__
-    plan = Testplan(name="ProcPlan", parse_cmdline=False)
+    plan = TestplanMock(name="ProcPlan", parse_cmdline=False)
     pool_size = 4
     retries_limit = 3
     pool = ProcessPool(
@@ -139,7 +139,7 @@ def test_kill_all_workers():
 def test_reassign_times_limit():
     """Kill workers and reassign task up to limit times."""
     pool_name = ProcessPool.__name__
-    plan = Testplan(name="ProcPlan", parse_cmdline=False)
+    plan = TestplanMock(name="ProcPlan", parse_cmdline=False)
 
     pool_size = 4
     retries_limit = int(pool_size / 2)
@@ -187,7 +187,7 @@ def test_reassign_times_limit():
 def test_custom_rerun_condition():
     """Force reschedule task X times to test logic."""
     pool_name = ProcessPool.__name__
-    plan = Testplan(name="ProcPlan", parse_cmdline=False)
+    plan = TestplanMock(name="ProcPlan", parse_cmdline=False)
     uid = "custom_task_uid"
     rerun_limit = 2
 
@@ -245,7 +245,7 @@ def test_schedule_from_main():
     ProcessPool.
     """
     # Set up a testplan and add a ProcessPool.
-    plan = Testplan(name="ProcPlan", parse_cmdline=False)
+    plan = TestplanMock(name="ProcPlan", parse_cmdline=False)
     pool = ProcessPool(name="ProcPool", size=2)
     plan.add_resource(pool)
 
@@ -291,7 +291,7 @@ def make_serialization_mtest():
 
 def test_serialization():
     """Test serialization of test results."""
-    plan = Testplan(name="SerializationPlan", parse_cmdline=False)
+    plan = TestplanMock(name="SerializationPlan", parse_cmdline=False)
     pool = ProcessPool(name="ProcPool", size=2)
     plan.add_resource(pool)
     plan.schedule(
@@ -306,7 +306,7 @@ def test_serialization():
 
 def test_restart_worker():
     pool_name = ProcessPool.__name__
-    plan = Testplan(name="ProcPlan", parse_cmdline=False)
+    plan = TestplanMock(name="ProcPlan", parse_cmdline=False)
     pool_size = 4
     retries_limit = int(pool_size / 2)
 

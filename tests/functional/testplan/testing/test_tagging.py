@@ -9,7 +9,7 @@ from testplan.report import TestReport, TestGroupReport, TestCaseReport
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
-from testplan import Testplan
+from testplan import TestplanMock
 
 
 @testsuite(tags={"color": ["red", "blue"]})
@@ -206,7 +206,7 @@ def test_multitest_tagging(multitest_tags, expected_report):
         tags=multitest_tags,
     )
 
-    plan = Testplan(name="plan", parse_cmdline=False)
+    plan = TestplanMock(name="plan", parse_cmdline=False)
     plan.add(multitest)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):

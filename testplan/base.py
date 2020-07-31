@@ -1,6 +1,7 @@
 """Testplan base module."""
 
 import random
+import tempfile
 
 from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
 from testplan.common.config import ConfigOption
@@ -430,3 +431,12 @@ class Testplan(entity.RunnableManager):
 
 
 test_plan = Testplan.main_wrapper
+
+
+class TestplanMock(Testplan):
+    """A mock Testplan class for testing purpose"""
+
+    def __init__(self, *args, **kwargs):
+        kwargs["abort_signals"] = []    # mock testplan could run in threads
+        kwargs.setdefault("runpath", tempfile.mkdtemp())
+        super(TestplanMock, self).__init__(*args, **kwargs)

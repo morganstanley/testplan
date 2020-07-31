@@ -1,6 +1,6 @@
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.runners.pools import ThreadPool
 from testplan.runners.pools.tasks import Task
 from testplan.report import Status
@@ -35,15 +35,15 @@ def get_mtest(part_tuple=None):
 
 def test_multi_parts_not_merged():
     """Execute MultiTest parts but do not merge report."""
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan", parse_cmdline=False, merge_scheduled_parts=False
     )
-    pool = ThreadPool(name="MyPool", size=2)
+    pool = ThreadPool(name="MyThreadPool", size=2)
     plan.add_resource(pool)
 
     for idx in range(3):
         task = Task(target=get_mtest(part_tuple=(idx, 3)))
-        plan.schedule(task, resource="MyPool")
+        plan.schedule(task, resource="MyThreadPool")
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         assert plan.run().run is True
@@ -65,15 +65,15 @@ def test_multi_parts_not_merged():
 
 def test_multi_parts_merged():
     """Execute MultiTest parts and merge report."""
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan", parse_cmdline=False, merge_scheduled_parts=True
     )
-    pool = ThreadPool(name="MyPool", size=2)
+    pool = ThreadPool(name="MyThreadPool", size=2)
     plan.add_resource(pool)
 
     for idx in range(3):
         task = Task(target=get_mtest(part_tuple=(idx, 3)))
-        plan.schedule(task, resource="MyPool")
+        plan.schedule(task, resource="MyThreadPool")
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         assert plan.run().run is True
@@ -96,16 +96,16 @@ def test_multi_parts_invalid_parameter_1():
     Execute MultiTest parts with invalid parameters that a part of
     MultiTest has been scheduled twice.
     """
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan", parse_cmdline=False, merge_scheduled_parts=True
     )
-    pool = ThreadPool(name="MyPool", size=2)
+    pool = ThreadPool(name="MyThreadPool", size=2)
     plan.add_resource(pool)
 
     for idx in range(3):
         task = Task(target=get_mtest(part_tuple=(idx, 3)))
-        plan.schedule(task, resource="MyPool")
-    plan.schedule(Task(target=get_mtest(part_tuple=(1, 3))), resource="MyPool")
+        plan.schedule(task, resource="MyThreadPool")
+    plan.schedule(Task(target=get_mtest(part_tuple=(1, 3))), resource="MyThreadPool")
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         result = plan.run()
@@ -130,18 +130,18 @@ def test_multi_parts_invalid_parameter_2():
     Execute MultiTest parts with invalid parameters that a MultiTest
     has been scheduled twice.
     """
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan", parse_cmdline=False, merge_scheduled_parts=True
     )
-    pool = ThreadPool(name="MyPool", size=2)
+    pool = ThreadPool(name="MyThreadPool", size=2)
     plan.add_resource(pool)
 
     for idx in range(3):
         task = Task(target=get_mtest(part_tuple=(idx, 3)))
-        plan.schedule(task, resource="MyPool")
+        plan.schedule(task, resource="MyThreadPool")
     for idx in range(2):
         task = Task(target=get_mtest(part_tuple=(idx, 2)))
-        plan.schedule(task, resource="MyPool")
+        plan.schedule(task, resource="MyThreadPool")
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         assert plan.run().run is False
@@ -163,15 +163,15 @@ def test_multi_parts_missing_parts():
     Execute MultiTest parts with invalid parameters that not all
     parts of a MultiTest has been scheduled.
     """
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan", parse_cmdline=False, merge_scheduled_parts=True
     )
-    pool = ThreadPool(name="MyPool", size=2)
+    pool = ThreadPool(name="MyThreadPool", size=2)
     plan.add_resource(pool)
 
     for idx in range(1, 3):
         task = Task(target=get_mtest(part_tuple=(idx, 3)))
-        plan.schedule(task, resource="MyPool")
+        plan.schedule(task, resource="MyThreadPool")
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         assert plan.run().run is False

@@ -777,10 +777,7 @@ class Pool(Executor):
 
         # Currently prints report top level result and not details.
         name = task_result.result.report.name
-        if task_result.result.report.passed is True:
-            self.logger.test_info("{} -> {}".format(name, Color.green("Pass")))
-        else:
-            self.logger.test_info("{} -> {}".format(name, Color.red("Fail")))
+        self.logger.log_test_status(name, task_result.result.report.status)
 
     def _add_workers(self):
         """Initialise worker instances."""

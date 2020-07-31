@@ -6,7 +6,7 @@ import pytest
 from testplan.testing.base import ProcessRunnerTest
 from testplan.testing.multitest.driver.base import Driver, DriverConfig
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.config import ConfigOption
 from testplan.common.utils.testing import (
     log_propagation_disabled,
@@ -89,7 +89,7 @@ fixture_root = os.path.join(os.path.dirname(__file__), "fixtures", "base")
 )
 def test_process_runner(binary_path, expected_report, test_kwargs):
 
-    plan = Testplan(name="plan", parse_cmdline=False)
+    plan = TestplanMock(name="plan", parse_cmdline=False)
 
     process_test = DummyTest(name="MyTest", binary=binary_path, **test_kwargs)
 

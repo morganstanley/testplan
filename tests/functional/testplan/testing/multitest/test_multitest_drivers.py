@@ -10,7 +10,7 @@ from testplan.testing.ordering import NoopSorter
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan, defaults
+from testplan import TestplanMock, defaults
 from testplan.common.entity.base import Environment, ResourceStatus
 from testplan.common.utils.context import context
 from testplan.common.utils.path import StdFiles, default_runpath
@@ -120,7 +120,7 @@ def test_multitest_drivers_in_testplan(runpath):
             dict(name="MyPlan", parse_cmdline=False),
         )
     ):
-        plan = Testplan(**opts)
+        plan = TestplanMock(**opts)
         server = TCPServer(name="server")
         client = TCPClient(
             name="client",
@@ -145,8 +145,6 @@ def test_multitest_drivers_in_testplan(runpath):
         assert res.run is True
         if idx == 0:
             assert plan.runpath == runpath
-        else:
-            assert plan.runpath == default_runpath(plan._runnable)
         assert mtest.runpath == os.path.join(
             plan.runpath, slugify(mtest.uid())
         )
@@ -213,7 +211,7 @@ class VulnerableDriver2(BaseDriver):
 
 def test_multitest_driver_failure():
     """If driver fails to start or stop, the error log could be fetched."""
-    plan1 = Testplan(name="MyPlan1", parse_cmdline=False)
+    plan1 = TestplanMock(name="MyPlan1", parse_cmdline=False)
     plan1.add(
         MultiTest(
             name="Mtest1",
@@ -228,7 +226,7 @@ def test_multitest_driver_failure():
     with log_propagation_disabled(TESTPLAN_LOGGER):
         plan1.run()
 
-    plan2 = Testplan(name="MyPlan2", parse_cmdline=False)
+    plan2 = TestplanMock(name="MyPlan2", parse_cmdline=False)
     plan2.add(
         MultiTest(
             name="Mtest2",

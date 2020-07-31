@@ -1,6 +1,6 @@
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import (
     check_report,
     log_propagation_disabled,
@@ -82,7 +82,7 @@ def test_pre_post_steps():
         after_stop=check_func_4,
     )
 
-    plan = Testplan(name="plan", parse_cmdline=False)
+    plan = TestplanMock(name="plan", parse_cmdline=False)
     plan.add(multitest)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):

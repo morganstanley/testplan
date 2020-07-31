@@ -3,7 +3,7 @@ import re
 
 from testplan.testing import multitest
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import argv_overridden, XMLComparison as XC
 from testplan.exporters.testing import XMLExporter
 from testplan.report import (
@@ -46,7 +46,7 @@ def test_xml_exporter(tmpdir):
     """
     xml_dir = tmpdir.mkdir("xml")
 
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan",
         parse_cmdline=False,
         exporters=XMLExporter(xml_dir=xml_dir.strpath),
@@ -192,7 +192,7 @@ def test_implicit_exporter_initialization(tmpdir):
     xml_dir = tmpdir.mkdir("xml")
 
     with argv_overridden("--xml", xml_dir.strpath):
-        plan = Testplan(name="plan")
+        plan = TestplanMock(name="plan")
         multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
         plan.add(multitest_1)
         plan.run()

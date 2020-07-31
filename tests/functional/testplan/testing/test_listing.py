@@ -2,7 +2,7 @@ import pytest
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import (
     captured_logging,
     log_propagation_disabled,
@@ -168,7 +168,7 @@ def test_programmatic_listing(
     multitest_x = MultiTest(name="Primary", suites=[Beta(), Alpha()])
     multitest_y = MultiTest(name="Secondary", suites=[Gamma()])
 
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan",
         parse_cmdline=False,
         test_lister=listing_obj,
@@ -212,7 +212,7 @@ def test_command_line_listing(cmdline_args, expected_output):
     multitest_y = MultiTest(name="Secondary", suites=[Gamma()])
 
     with argv_overridden(*cmdline_args):
-        plan = Testplan(name="plan", parse_cmdline=True)
+        plan = TestplanMock(name="plan", parse_cmdline=True)
 
         with log_propagation_disabled(TESTPLAN_LOGGER):
             with captured_logging(TESTPLAN_LOGGER) as log_capture:
@@ -287,7 +287,7 @@ class ParametrizedSuite(object):
 def test_testcase_trimming(listing_obj, expected_output):
     multitest_x = MultiTest(name="Primary", suites=[ParametrizedSuite()])
 
-    plan = Testplan(name="plan", parse_cmdline=False, test_lister=listing_obj)
+    plan = TestplanMock(name="plan", parse_cmdline=False, test_lister=listing_obj)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         with captured_logging(TESTPLAN_LOGGER) as log_capture:

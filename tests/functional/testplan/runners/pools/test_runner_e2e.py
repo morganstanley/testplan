@@ -6,7 +6,7 @@ import os
 
 import pytest
 
-from testplan import Testplan, Task
+from testplan import TestplanMock, Task
 from testplan.runners.pools import ProcessPool
 
 from testplan.common.utils.testing import (
@@ -98,7 +98,7 @@ def test_local_pool_integration(
     pdf_path = report_dir.join(
         "test_report_local_{}.pdf".format(pdf_title)
     ).strpath
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan",
         parse_cmdline=False,
         exporters=[PDFExporter.with_config(pdf_path=pdf_path)],
@@ -162,15 +162,15 @@ def test_process_pool_integration(
     if dependant_module:
         importorxfail(dependant_module)
 
-    pool = ProcessPool(name="MyPool", size=1)
+    pool = ProcessPool(name="MyProcessPool", size=1)
     pdf_path = report_dir.join(
         "test_report_process_{}.pdf".format(pdf_title)
     ).strpath
 
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan",
         parse_cmdline=False,
-        exporters=[PDFExporter(pdf_path=pdf_path)],
+        exporters=[PDFExporter(pdf_path=pdf_path)]
     )
     plan.add_resource(pool)
 
@@ -178,7 +178,7 @@ def test_process_pool_integration(
     fixture_path = os.path.join(runners_path, "fixtures", fixture_dirname)
 
     task = Task(target="make_multitest", module="suites", path=fixture_path)
-    plan.schedule(task, resource="MyPool")
+    plan.schedule(task, resource="MyProcessPool")
 
     assert not os.path.exists(pdf_path)
 

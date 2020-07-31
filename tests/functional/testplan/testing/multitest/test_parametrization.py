@@ -9,7 +9,7 @@ from testplan.testing.multitest.parametrization import (
     MAX_METHOD_NAME_LENGTH,
 )
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import (
     check_report,
     warnings_suppressed,
@@ -31,7 +31,7 @@ def check_parametrization(suite_kls, parametrization_group):
 
     multitest = MultiTest(name="MyMultitest", suites=[suite_kls()])
 
-    plan = Testplan(name="plan", parse_cmdline=False)
+    plan = TestplanMock(name="plan", parse_cmdline=False)
     plan.add(multitest)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
@@ -401,7 +401,7 @@ def test_parametrization_tagging():
 
     multitest = MultiTest(name="MyMultitest", suites=[DummySuite()])
 
-    plan = Testplan(name="plan", parse_cmdline=False)
+    plan = TestplanMock(name="plan", parse_cmdline=False)
     plan.add(multitest)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):

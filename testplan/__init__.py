@@ -17,5 +17,5 @@ if TESTPLAN_DEPENDENCIES_PATH in os.environ:
 
     sys.path.remove(os.environ[TESTPLAN_DEPENDENCIES_PATH])
 
-from testplan.base import Testplan, TestplanConfig, TestplanResult, test_plan
+from testplan.base import Testplan, TestplanConfig, TestplanResult, test_plan, TestplanMock
 from testplan.runners.pools.tasks import Task, TaskResult

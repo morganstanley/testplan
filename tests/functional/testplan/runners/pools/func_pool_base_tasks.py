@@ -3,7 +3,7 @@
 import os
 import psutil
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report import Status
 from testplan.common.utils.testing import log_propagation_disabled
@@ -73,7 +73,7 @@ def schedule_tests_to_pool(name, pool, schedule_path=None, **pool_cfg):
     # from testplan.common.utils.logger import DEBUG
     # TESTPLAN_LOGGER.setLevel(DEBUG)
 
-    plan = Testplan(name=name, parse_cmdline=False, logger_level=10)
+    plan = TestplanMock(name=name, parse_cmdline=False, logger_level=10)
     pool = pool(name=pool_name, **pool_cfg)
     plan.add_resource(pool)
 

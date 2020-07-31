@@ -5,7 +5,7 @@ import tempfile
 
 from testplan.testing import multitest
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import argv_overridden
 from testplan.exporters.testing import JSONExporter
 
@@ -47,7 +47,7 @@ def test_json_exporter(tmpdir):
     """
     json_path = tmpdir.mkdir("reports").join("report.json").strpath
 
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan",
         parse_cmdline=False,
         exporters=JSONExporter(json_path=json_path),
@@ -85,7 +85,7 @@ def test_implicit_exporter_initialization(tmpdir):
     json_path = tmpdir.mkdir("reports").join("report.json").strpath
 
     with argv_overridden("--json", json_path):
-        plan = Testplan(name="plan")
+        plan = TestplanMock(name="plan")
         multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
         plan.add(multitest_1)
         plan.run()

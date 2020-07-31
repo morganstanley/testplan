@@ -44,7 +44,7 @@ def attachment_plan(tmpdir):
     with open(attachment_path, "w") as f:
         f.write("testplan\n" * 100)
 
-    plan = testplan.Testplan(name="AttachmentPlan", parse_cmdline=False)
+    plan = testplan.TestplanMock(name="AttachmentPlan", parse_cmdline=False)
     plan.add(
         multitest.MultiTest(
             name="AttachmentTest", suites=[Suite1(attachment_path)]
@@ -64,7 +64,7 @@ def multi_attachments_plan(tmpdir):
         with open(attachment_path, "w") as f:
             f.write("testplan{}\n".format(i) * 100)
 
-    plan = testplan.Testplan(name="AttachmentPlan", parse_cmdline=False)
+    plan = testplan.TestplanMock(name="AttachmentPlan", parse_cmdline=False)
     plan.add(
         multitest.MultiTest(
             name="AttachmentTest",
@@ -80,7 +80,7 @@ def same_attachments_plan(tmpdir):
     with open(attachment_path, "w") as f:
         f.write("testplan\n" * 100)
 
-    plan = testplan.Testplan(name="AttachmentPlan", parse_cmdline=False)
+    plan = testplan.TestplanMock(name="AttachmentPlan", parse_cmdline=False)
     plan.add(
         multitest.MultiTest(
             name="AttachmentTest",
