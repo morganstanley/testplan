@@ -5,7 +5,7 @@ import pytest
 from six.moves.BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 
 from testplan.testing import multitest
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import argv_overridden
 from testplan.exporters.testing import HTTPExporter
 
@@ -71,16 +71,14 @@ def http_server():
     start_thread.join()
 
 
-def test_http_exporter(http_server):
+def test_http_exporter(runpath, http_server):
     """
     HTTP Exporter should send a json report to the given `http_url`.
     """
     http_url = "http://localhost:{}".format(http_server.server_port)
 
-    plan = Testplan(
-        name="plan",
-        parse_cmdline=False,
-        exporters=[HTTPExporter(http_url=http_url)],
+    plan = TestplanMock(
+        "plan", exporters=HTTPExporter(http_url=http_url), runpath=runpath
     )
     multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
     multitest_2 = multitest.MultiTest(name="Secondary", suites=[Beta()])
@@ -92,7 +90,7 @@ def test_http_exporter(http_server):
     PostHandler.post_data.pop()
 
 
-def test_implicit_exporter_initialization(http_server):
+def test_implicit_exporter_initialization(runpath, http_server):
     """
     An implicit exporting should be done if `http_url` is available
     via cmdline args but no exporters were declared programmatically.
@@ -100,7 +98,7 @@ def test_implicit_exporter_initialization(http_server):
     http_url = "http://localhost:{}".format(http_server.server_port)
 
     with argv_overridden("--http", http_url):
-        plan = Testplan(name="plan")
+        plan = TestplanMock("plan", parse_cmdline=True, runpath=runpath)
         multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
         plan.add(multitest_1)
         plan.run()

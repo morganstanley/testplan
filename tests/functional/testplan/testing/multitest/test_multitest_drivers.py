@@ -10,7 +10,7 @@ from testplan.testing.ordering import NoopSorter
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan, defaults
+from testplan import TestplanMock, defaults
 from testplan.common.entity.base import Environment, ResourceStatus
 from testplan.common.utils.context import context
 from testplan.common.utils.path import StdFiles, default_runpath
@@ -120,7 +120,7 @@ def test_multitest_drivers_in_testplan(runpath):
             dict(name="MyPlan", parse_cmdline=False),
         )
     ):
-        plan = Testplan(**opts)
+        plan = TestplanMock(**opts)
         server = TCPServer(name="server")
         client = TCPClient(
             name="client",
@@ -145,8 +145,6 @@ def test_multitest_drivers_in_testplan(runpath):
         assert res.run is True
         if idx == 0:
             assert plan.runpath == runpath
-        else:
-            assert plan.runpath == default_runpath(plan._runnable)
         assert mtest.runpath == os.path.join(
             plan.runpath, slugify(mtest.uid())
         )
@@ -211,10 +209,9 @@ class VulnerableDriver2(BaseDriver):
         raise Exception("Shutdown error")
 
 
-def test_multitest_driver_failure():
+def test_multitest_driver_failure(mockplan):
     """If driver fails to start or stop, the error log could be fetched."""
-    plan1 = Testplan(name="MyPlan1", parse_cmdline=False)
-    plan1.add(
+    mockplan.add(
         MultiTest(
             name="Mtest1",
             suites=[MySuite()],
@@ -226,10 +223,22 @@ def test_multitest_driver_failure():
         )
     )
     with log_propagation_disabled(TESTPLAN_LOGGER):
-        plan1.run()
+        mockplan.run()
 
-    plan2 = Testplan(name="MyPlan2", parse_cmdline=False)
-    plan2.add(
+    res = mockplan.result
+    assert res.run is True
+    report = res.report
+
+    assert "Exception: Startup error" in report.entries[0].logs[0]["message"]
+    text = report.entries[0].logs[1]["message"].split(os.linesep)
+    assert re.match(r".*Information from log file:.+stderr.*", text[0])
+    assert re.match(r".*Error found.*", text[1])
+
+
+def test_multitest_driver_failure2(mockplan):
+    """If driver fails to start or stop, the error log could be fetched."""
+
+    mockplan.add(
         MultiTest(
             name="Mtest2",
             suites=[MySuite()],
@@ -244,19 +253,15 @@ def test_multitest_driver_failure():
         )
     )
     with log_propagation_disabled(TESTPLAN_LOGGER):
-        plan2.run()
+        mockplan.run()
 
-    res1, res2 = plan1.result, plan2.result
-    assert res1.run is True and res2.run is True
+    res = mockplan.result
+    assert res.run is True
 
-    report1, report2 = res1.report, res2.report
-    assert "Exception: Startup error" in report1.entries[0].logs[0]["message"]
-    assert "Exception: Shutdown error" in report2.entries[0].logs[0]["message"]
+    report = res.report
+    assert "Exception: Shutdown error" in report.entries[0].logs[0]["message"]
 
-    text1 = report1.entries[0].logs[1]["message"].split(os.linesep)
-    text2 = report2.entries[0].logs[1]["message"].split(os.linesep)
-    assert re.match(r".*Information from log file:.+stderr.*", text1[0])
-    assert re.match(r".*Error found.*", text1[1])
-    assert re.match(r".*Information from log file:.+logfile.*", text2[0])
-    for idx, line in enumerate(text2[1:]):
+    text = report.entries[0].logs[1]["message"].split(os.linesep)
+    assert re.match(r".*Information from log file:.+logfile.*", text[0])
+    for idx, line in enumerate(text[1:]):
         assert re.match(r".*This is line 99{}.*".format(idx), line)

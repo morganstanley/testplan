@@ -2,7 +2,7 @@
 
 import os
 
-from testplan import Testplan, Task
+from testplan import Task
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.base import MultiTestConfig
 from testplan.runners.pools.base import Pool, Worker
@@ -26,9 +26,8 @@ def get_mtest():
     return MultiTest(name="MTest3", suites=[MySuite()])
 
 
-def schedule_tests_to_pool(pool, **pool_cfg):
+def schedule_tests_to_pool(plan, pool, **pool_cfg):
     pool_name = pool.__name__
-    plan = Testplan(name="Plan", parse_cmdline=False)
     pool = pool(name=pool_name, **pool_cfg)
     plan.add_resource(pool)
 
@@ -85,12 +84,12 @@ def schedule_tests_to_pool(pool, **pool_cfg):
     assert plan.result.test_results[uid6].report.name == "MTest6"
 
 
-def test_pool_basic():
-    schedule_tests_to_pool(Pool, size=2)
+def test_pool_basic(mockplan):
+    schedule_tests_to_pool(mockplan, Pool, size=2)
 
 
-def test_pool_custom_worker():
+def test_pool_custom_worker(mockplan):
     class ThreadWorker(Worker):
         pass
 
-    schedule_tests_to_pool(Pool, worker_type=ThreadWorker, size=1)
+    schedule_tests_to_pool(mockplan, Pool, worker_type=ThreadWorker, size=1)

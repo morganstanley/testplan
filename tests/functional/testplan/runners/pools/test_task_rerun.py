@@ -11,7 +11,7 @@ import tempfile
 import getpass
 import uuid
 
-from testplan import Testplan, Task
+from testplan import Task
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.base import Driver, DriverConfig
 from testplan.runners.pools import ThreadPool, ProcessPool
@@ -159,7 +159,7 @@ def _remove_existing_tmp_file(tmp_file):
         os.remove(tmp_file)
 
 
-def test_task_rerun_in_thread_pool():
+def test_task_rerun_in_thread_pool(mockplan):
     """
     Test procedure:
       - 1st run: `unstable_case` fails.
@@ -167,9 +167,8 @@ def test_task_rerun_in_thread_pool():
       - 2nd rerun: all pass.
     """
     pool_name = ThreadPool.__name__
-    plan = Testplan(name="Plan", parse_cmdline=False)
     pool = ThreadPool(name=pool_name, size=2)
-    plan.add_resource(pool)
+    mockplan.add_resource(pool)
 
     directory = os.path.dirname(os.path.abspath(__file__))
     tmp_file = os.path.join(
@@ -178,23 +177,23 @@ def test_task_rerun_in_thread_pool():
     task = Task(
         target=make_multitest_1, path=directory, args=(tmp_file,), rerun=2
     )
-    uid = plan.schedule(task=task, resource=pool_name)
+    uid = mockplan.schedule(task=task, resource=pool_name)
 
-    assert plan.run().run is True
-    assert plan.report.passed is True
-    assert plan.report.counter == {"passed": 3, "total": 3, "failed": 0}
+    assert mockplan.run().run is True
+    assert mockplan.report.passed is True
+    assert mockplan.report.counter == {"passed": 3, "total": 3, "failed": 0}
 
-    assert isinstance(plan.report.serialize(), dict)
-    assert plan.result.test_results[uid].report.name == "Unstable MTest1"
-    assert len(plan.report.entries) == 3
-    assert plan.report.entries[-1].category == ReportCategories.TASK_RERUN
-    assert plan.report.entries[-2].category == ReportCategories.TASK_RERUN
+    assert isinstance(mockplan.report.serialize(), dict)
+    assert mockplan.result.test_results[uid].report.name == "Unstable MTest1"
+    assert len(mockplan.report.entries) == 3
+    assert mockplan.report.entries[-1].category == ReportCategories.TASK_RERUN
+    assert mockplan.report.entries[-2].category == ReportCategories.TASK_RERUN
 
     assert task.reassign_cnt == 2
     _remove_existing_tmp_file(tmp_file)
 
 
-def test_task_rerun_in_process_pool():
+def test_task_rerun_in_process_pool(mockplan):
     """
     Test 1 procedure:
       - 1st run: `unstable_case` fails.
@@ -206,9 +205,8 @@ def test_task_rerun_in_process_pool():
         then re-assign it and it passes (no rerun is needed).
     """
     pool_name = ProcessPool.__name__
-    plan = Testplan(name="Plan", parse_cmdline=False)
     pool = ProcessPool(name=pool_name, size=2)
-    plan.add_resource(pool)
+    mockplan.add_resource(pool)
 
     directory = os.path.dirname(os.path.abspath(__file__))
     tmp_file_1 = os.path.join(
@@ -223,19 +221,19 @@ def test_task_rerun_in_process_pool():
     task2 = Task(
         target=make_multitest_2, path=directory, args=(tmp_file_2,), rerun=0
     )
-    uid1 = plan.schedule(task=task1, resource=pool_name)
-    uid2 = plan.schedule(task=task2, resource=pool_name)
+    uid1 = mockplan.schedule(task=task1, resource=pool_name)
+    uid2 = mockplan.schedule(task=task2, resource=pool_name)
 
-    assert plan.run().run is True
-    assert plan.report.passed is True
-    assert plan.report.counter == {"passed": 5, "total": 5, "failed": 0}
+    assert mockplan.run().run is True
+    assert mockplan.report.passed is True
+    assert mockplan.report.counter == {"passed": 5, "total": 5, "failed": 0}
 
-    assert isinstance(plan.report.serialize(), dict)
-    assert plan.result.test_results[uid1].report.name == "Unstable MTest1"
-    assert plan.result.test_results[uid2].report.name == "Unstable MTest2"
-    assert len(plan.report.entries) == 4
-    assert plan.report.entries[-1].category == ReportCategories.TASK_RERUN
-    assert plan.report.entries[-2].category == ReportCategories.TASK_RERUN
+    assert isinstance(mockplan.report.serialize(), dict)
+    assert mockplan.result.test_results[uid1].report.name == "Unstable MTest1"
+    assert mockplan.result.test_results[uid2].report.name == "Unstable MTest2"
+    assert len(mockplan.report.entries) == 4
+    assert mockplan.report.entries[-1].category == ReportCategories.TASK_RERUN
+    assert mockplan.report.entries[-2].category == ReportCategories.TASK_RERUN
 
     assert task1.reassign_cnt == 2
     assert task2.reassign_cnt == 0  # 1st run: assigned but not executed
@@ -244,25 +242,17 @@ def test_task_rerun_in_process_pool():
     _remove_existing_tmp_file(tmp_file_2)
 
 
-def test_task_rerun_with_more_times():
+def test_task_rerun_with_more_times(mockplan):
     """
     Test procedure 1:
       (set `task_rerun_limit` to 2, a task can be scheduled 3 times in total)
       - 1st run: `unstable_case` fails.
       - 1st rerun: `unstable_case` fails.
       - 2nd rerun: `unstable_case` fails.
-
-    Test procedure 2:
-      (set `task_rerun_limit` to 4, a task can be scheduled 5 times in total)
-      - 1st run: `unstable_case` fails.
-      - 1st rerun: `unstable_case` fails.
-      - 2nd rerun: `unstable_case` fails.
-      - 3rd rerun: all pass.
     """
     pool_name = ThreadPool.__name__
-    plan = Testplan(name="Plan", parse_cmdline=False)
     pool = ThreadPool(name=pool_name, size=1)
-    plan.add_resource(pool)
+    mockplan.add_resource(pool)
 
     directory = os.path.dirname(os.path.abspath(__file__))
     tmp_file = os.path.join(
@@ -271,33 +261,44 @@ def test_task_rerun_with_more_times():
     task = Task(
         target=make_multitest_3, path=directory, args=(tmp_file,), rerun=2
     )
-    uid = plan.schedule(task=task, resource=pool_name)
+    uid = mockplan.schedule(task=task, resource=pool_name)
 
-    assert plan.run().run is True
-    assert plan.report.passed is False
-    assert plan.report.counter == {"passed": 1, "total": 2, "failed": 1}
-    assert plan.result.test_results[uid].report.name == "Unstable MTest3"
+    assert mockplan.run().run is True
+    assert mockplan.report.passed is False
+    assert mockplan.report.counter == {"passed": 1, "total": 2, "failed": 1}
+    assert mockplan.result.test_results[uid].report.name == "Unstable MTest3"
 
     assert task.reassign_cnt == 2
     # test fails, should manually remove it
     _remove_existing_tmp_file(tmp_file)
 
-    plan = Testplan(name="Plan", parse_cmdline=False)
-    pool = ThreadPool(name=pool_name, size=1)
-    plan.add_resource(pool)
 
+def test_task_rerun_with_more_times_2(mockplan):
+    """
+    Test procedure 2:
+      (set `task_rerun_limit` to 4, a task can be scheduled 5 times in total)
+      - 1st run: `unstable_case` fails.
+      - 1st rerun: `unstable_case` fails.
+      - 2nd rerun: `unstable_case` fails.
+      - 3rd rerun: all pass.
+    """
+    pool_name = ThreadPool.__name__
+    pool = ThreadPool(name=pool_name, size=1)
+    mockplan.add_resource(pool)
+
+    directory = os.path.dirname(os.path.abspath(__file__))
     tmp_file = os.path.join(
         tempfile.gettempdir(), getpass.getuser(), "{}.tmp".format(uuid.uuid4())
     )
     task = Task(
         target=make_multitest_3, path=directory, args=(tmp_file,), rerun=3
     )
-    uid = plan.schedule(task=task, resource=pool_name)
+    uid = mockplan.schedule(task=task, resource=pool_name)
 
-    assert plan.run().run is True
-    assert plan.report.passed is True
-    assert plan.report.counter == {"passed": 2, "total": 2, "failed": 0}
-    assert plan.result.test_results[uid].report.name == "Unstable MTest3"
+    assert mockplan.run().run is True
+    assert mockplan.report.passed is True
+    assert mockplan.report.counter == {"passed": 2, "total": 2, "failed": 0}
+    assert mockplan.result.test_results[uid].report.name == "Unstable MTest3"
 
     assert task.reassign_cnt == 3
     _remove_existing_tmp_file(tmp_file)

@@ -8,35 +8,35 @@ import requests
 import pytest
 
 from testplan.testing.multitest.driver import http
+from testplan.common.utils import path
 
 
 @pytest.fixture(scope="module")
-def http_server(runpath):
+def http_server():
     """Start and yield an HTTP server driver."""
-    server = http.HTTPServer(
-        name="http_server",
-        host="localhost",
-        port=0,
-        runpath=os.path.join(runpath, "server"),
-    )
+    with path.TemporaryDirectory() as runpath:
+        server = http.HTTPServer(
+            name="http_server", host="localhost", port=0, runpath=runpath,
+        )
 
-    with server:
-        yield server
+        with server:
+            yield server
 
 
 @pytest.fixture(scope="module")
-def http_client(http_server, runpath):
+def http_client(http_server):
     """Start and yield an HTTP client."""
-    client = http.HTTPClient(
-        name="http_client",
-        host=http_server.host,
-        port=http_server.port,
-        timeout=10,
-        runpath=os.path.join(runpath, "client"),
-    )
+    with path.TemporaryDirectory() as runpath:
+        client = http.HTTPClient(
+            name="http_client",
+            host=http_server.host,
+            port=http_server.port,
+            timeout=10,
+            runpath=runpath,
+        )
 
-    with client:
-        yield client
+        with client:
+            yield client
 
 
 class TestHTTP(object):

@@ -82,7 +82,8 @@ def setup_workspace():
 
 
 @pytest.mark.skipif(IS_WIN, reason="Remote pool is skipped on Windows.")
-def test_pool_basic():
+@pytest.mark.parametrize("remote_pool_type", ("thread", "process"))
+def test_pool_basic(mockplan, remote_pool_type):
     """Basic test scheduling."""
     workspace, schedule_path = setup_workspace()
 
@@ -92,18 +93,17 @@ def test_pool_basic():
         orig_dir = os.getcwd()
         os.chdir(workspace)
 
-        for remote_pool_type in ("thread", "process"):
-            schedule_tests_to_pool(
-                "RemotePlan",
-                RemotePool,
-                hosts={"localhost": 2},
-                ssh_cmd=mock_ssh,
-                copy_cmd=strip_host,
-                workspace=workspace,
-                copy_workspace_check=None,
-                pool_type=remote_pool_type,
-                schedule_path=schedule_path,
-            )
+        schedule_tests_to_pool(
+            mockplan,
+            RemotePool,
+            hosts={"localhost": 2},
+            ssh_cmd=mock_ssh,
+            copy_cmd=strip_host,
+            workspace=workspace,
+            copy_workspace_check=None,
+            pool_type=remote_pool_type,
+            schedule_path=schedule_path,
+        )
     finally:
         os.chdir(orig_dir)
         shutil.rmtree(workspace)

@@ -2,7 +2,7 @@ import pytest
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import (
     captured_logging,
     log_propagation_disabled,
@@ -163,17 +163,17 @@ DEFAULT_NAME_OUTPUT = to_stdout(
     ],
 )
 def test_programmatic_listing(
-    listing_obj, filter_obj, sorter_obj, expected_output
+    runpath, listing_obj, filter_obj, sorter_obj, expected_output
 ):
     multitest_x = MultiTest(name="Primary", suites=[Beta(), Alpha()])
     multitest_y = MultiTest(name="Secondary", suites=[Gamma()])
 
-    plan = Testplan(
+    plan = TestplanMock(
         name="plan",
-        parse_cmdline=False,
         test_lister=listing_obj,
         test_filter=filter_obj,
         test_sorter=sorter_obj,
+        runpath=runpath,
     )
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
@@ -207,12 +207,12 @@ def test_programmatic_listing(
         ),
     ],
 )
-def test_command_line_listing(cmdline_args, expected_output):
+def test_command_line_listing(runpath, cmdline_args, expected_output):
     multitest_x = MultiTest(name="Primary", suites=[Beta(), Alpha()])
     multitest_y = MultiTest(name="Secondary", suites=[Gamma()])
 
     with argv_overridden(*cmdline_args):
-        plan = Testplan(name="plan", parse_cmdline=True)
+        plan = TestplanMock(name="plan", parse_cmdline=True, runpath=runpath)
 
         with log_propagation_disabled(TESTPLAN_LOGGER):
             with captured_logging(TESTPLAN_LOGGER) as log_capture:
@@ -284,10 +284,10 @@ class ParametrizedSuite(object):
         ),
     ],
 )
-def test_testcase_trimming(listing_obj, expected_output):
+def test_testcase_trimming(runpath, listing_obj, expected_output):
     multitest_x = MultiTest(name="Primary", suites=[ParametrizedSuite()])
 
-    plan = Testplan(name="plan", parse_cmdline=False, test_lister=listing_obj)
+    plan = TestplanMock(name="plan", test_lister=listing_obj, runpath=runpath)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         with captured_logging(TESTPLAN_LOGGER) as log_capture:

@@ -6,7 +6,7 @@ import tempfile
 
 from testplan.testing import multitest
 
-from testplan import Testplan
+from testplan import TestplanMock
 from testplan.common.utils.testing import argv_overridden
 from testplan.exporters.testing import JSONExporter
 
@@ -42,16 +42,14 @@ class Beta(object):
         raise Exception("foo")
 
 
-def test_json_exporter(tmpdir):
+def test_json_exporter(runpath):
     """
     JSON Exporter should generate a json report at the given `json_path`.
     """
-    json_path = tmpdir.mkdir("reports").join("report.json").strpath
+    json_path = os.path.join(runpath, "report.json")
 
-    plan = Testplan(
-        name="plan",
-        parse_cmdline=False,
-        exporters=[JSONExporter(json_path=json_path)],
+    plan = TestplanMock(
+        "plan", exporters=JSONExporter(json_path=json_path), runpath=runpath
     )
     multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
     multitest_2 = multitest.MultiTest(name="Secondary", suites=[Beta()])
@@ -80,18 +78,18 @@ def test_json_exporter(tmpdir):
     assert attachment_file_contents == "testplan\n" * 100
 
 
-def test_json_exporter_split_report(tmpdir):
+def test_json_exporter_split_report(runpath):
     """
     JSON Exporter should generate a json report at the given `json_path`.
     """
-    tmp_dir = tmpdir.mkdir("reports")
-    json_path = tmp_dir.join("report.json").strpath
+    json_path = os.path.join(runpath, "report.json")
 
-    plan = Testplan(
-        name="plan",
-        parse_cmdline=False,
+    plan = TestplanMock(
+        "plan",
         exporters=[JSONExporter(json_path=json_path, split_json_report=True)],
+        runpath=runpath,
     )
+
     multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
     multitest_2 = multitest.MultiTest(name="Secondary", suites=[Beta()])
     plan.add(multitest_1)
@@ -169,15 +167,15 @@ def test_json_exporter_split_report(tmpdir):
     assert len(assertions["plan"]["Secondary"]["Beta"]["test_error"]) == 0
 
 
-def test_implicit_exporter_initialization(tmpdir):
+def test_implicit_exporter_initialization(runpath):
     """
     An implicit JSON should be generated if `json_path` is available
     via cmdline args but no exporters were declared programmatically.
     """
-    json_path = tmpdir.mkdir("reports").join("report.json").strpath
+    json_path = os.path.join(runpath, "report.json")
 
     with argv_overridden("--json", json_path):
-        plan = Testplan(name="plan")
+        plan = TestplanMock(name="plan", parse_cmdline=True)
         multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
         plan.add(multitest_1)
         plan.run()

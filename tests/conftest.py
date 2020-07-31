@@ -1,21 +1,29 @@
 """Shared PyTest fixtures."""
 
 import os
-
 import pytest
-
-import testplan
-from testplan.common.utils import path
+from testplan import TestplanMock
 
 
-@pytest.fixture(scope="module")
-def runpath():
+@pytest.fixture(scope="function")
+def runpath(tmp_path):
     """
-    Yield a temporary runpath for testing. The path will be automatically
-    removed after the test.
+    Return a temporary runpath for testing. The path will not be automatically
+    removed after the test for easier investigation.
+
+    It takes a form like: /tmp/pytest-of-userid/pytest-151/test_sub_pub_unsub0
     """
-    with path.TemporaryDirectory() as runpath:
-        yield runpath
+    return str(tmp_path)
+
+
+@pytest.fixture(scope="function")
+def mockplan(runpath):
+    """
+    Return a temporary TestplanMock for testing. Some components needs a
+    testplan for getting runpath and cfg.
+    """
+    mockplan = TestplanMock("plan", runpath=runpath)
+    return mockplan
 
 
 @pytest.fixture(scope="session")
