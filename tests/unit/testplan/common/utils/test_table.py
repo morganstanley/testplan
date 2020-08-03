@@ -10,7 +10,6 @@ class TestTableEntry(object):
             {1, 2, 3},
             {"foo": "bar"},
             [1, 2, 3],
-            [[1, 2, 3], [1, 2, 3]],
             [["foo", "bar"], [1, 2], {"foo": "bar"}],
         ),
     )
@@ -24,6 +23,7 @@ class TestTableEntry(object):
             tuple(),
             [],
             None,
+            [[1, 2, 3], [1, 2, 3]],
             [["foo", "bar"], [1, 2], [3, 4]],
             [{"foo": 1, "bar": 2}, {"foo": 3, "bar": 4}],
         ),
