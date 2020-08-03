@@ -181,7 +181,13 @@ def subprocess_popen(
 
 
 def execute_cmd(
-    cmd, label=None, check=True, stdout=None, stderr=None, logger=None
+    cmd,
+    label=None,
+    check=True,
+    stdout=None,
+    stderr=None,
+    logger=None,
+    env=None,
 ):
     """
     Execute a subprocess command.
@@ -195,6 +201,7 @@ def execute_cmd(
     :param stdout: Optional file-like object to redirect stdout to.
     :param stderr: Optional file-like object to redirect stderr to.
     :param logger: Optional logger object as logging destination.
+    :param env: Optional dict object as environment variables.
     :return: Return code of the command.
     """
     if not logger:
@@ -218,7 +225,7 @@ def execute_cmd(
     logger.debug("Executing command [%s]: '%s'", label, cmd_string)
     start_time = time.time()
 
-    handler = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+    handler = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, env=env)
     stdout, stderr = handler.communicate()
     elapsed = time.time() - start_time
 
