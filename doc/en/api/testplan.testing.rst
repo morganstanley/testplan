@@ -69,3 +69,11 @@ testplan.testing.pyunit module
     :members:
     :undoc-members:
     :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: testplan.testing
+    :members:
+    :undoc-members:
+    :show-inheritance:

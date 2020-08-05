@@ -23,19 +23,19 @@ testplan.runnable.interactive.http
     :show-inheritance:
 
 
-testplan.runnable.interactive.resource_loader
-+++++++++++++++++++++++++++++++++++++++++++++
+testplan.runnable.interactive.reloader
+++++++++++++++++++++++++++++++++++++++
 
-.. automodule:: testplan.runnable.interactive.resource_loader
+.. automodule:: testplan.runnable.interactive.reloader
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-testplan.runnable.interactive.reloader
-++++++++++++++++++++++++++++++++++++++
+testplan.runnable.interactive.resource_loader
++++++++++++++++++++++++++++++++++++++++++++++
 
-.. automodule:: testplan.runnable.interactive.reloader
+.. automodule:: testplan.runnable.interactive.resource_loader
     :members:
     :undoc-members:
     :show-inheritance:
