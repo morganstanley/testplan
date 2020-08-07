@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     testplan.testing.multitest.driver
+    testplan.testing.multitest.entries
 
 
 Submodules

@@ -9,6 +9,8 @@ Subpackages
     testplan.exporters.testing.json
     testplan.exporters.testing.pdf
     testplan.exporters.testing.xml
+    testplan.exporters.testing.http
+    testplan.exporters.testing.webserver
 
 Submodules
 ----------

@@ -8,7 +8,6 @@ Subpackages
 
     testplan.common
     testplan.exporters
-
     testplan.testing
     testplan.report
     testplan.runners
@@ -28,6 +27,14 @@ testplan.defaults module
 ++++++++++++++++++++++++
 
 .. automodule:: testplan.defaults
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testplan.environment module
++++++++++++++++++++++++++++
+
+.. automodule:: testplan.environment
     :members:
     :undoc-members:
     :show-inheritance:

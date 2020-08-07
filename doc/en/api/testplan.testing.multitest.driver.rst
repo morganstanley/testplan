@@ -15,7 +15,6 @@ Subpackages
 Submodules
 ----------
 
-
 testplan.testing.multitest.driver.app module
 ++++++++++++++++++++++++++++++++++++++++++++
 
@@ -24,6 +23,14 @@ testplan.testing.multitest.driver.app module
     :undoc-members:
     :show-inheritance:
     :inherited-members:
+
+testplan.testing.multitest.driver.base module
++++++++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.testing.multitest.driver.base
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 testplan.testing.multitest.driver.sqlite module
 +++++++++++++++++++++++++++++++++++++++++++++++
@@ -34,10 +41,10 @@ testplan.testing.multitest.driver.sqlite module
     :show-inheritance:
     :inherited-members:
 
-testplan.testing.multitest.driver.base module
-+++++++++++++++++++++++++++++++++++++++++++++
+testplan.testing.multitest.driver.zookeeper module
+++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. automodule:: testplan.testing.multitest.driver.base
+.. automodule:: testplan.testing.multitest.driver.zookeeper
     :members:
     :undoc-members:
     :show-inheritance:

@@ -37,6 +37,14 @@ testplan.runners.pools.communication module
     :undoc-members:
     :show-inheritance:
 
+testplan.runners.pools.connection module
+++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.runners.pools.connection
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 testplan.runners.pools.process module
 +++++++++++++++++++++++++++++++++++++
 

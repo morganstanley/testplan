@@ -20,6 +20,14 @@ testplan.exporters.testing.pdf.renderers.entries.base module
     :undoc-members:
     :show-inheritance:
 
+testplan.exporters.testing.pdf.renderers.entries.baseUtils module
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.exporters.testing.pdf.renderers.entries.baseUtils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Module contents
 ---------------
 
