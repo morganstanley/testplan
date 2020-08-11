@@ -275,14 +275,17 @@ class TestPattern(object):
         assert len(testcases) == 3  # Expect 3 testcases to be generated.
 
         testcase = testcases[0]
-        for pattern in ["*:Delta:parametrized", "*:Delta:parametrized__val_1"]:
+        for pattern in [
+            "*:Delta:parametrized",
+            "*:Delta:parametrized <val=1>",
+        ]:
             filter_obj = filtering.Pattern(pattern=pattern)
             assert filter_obj.filter_case(testcase)
 
     def test_filter_initialization_error(self):
         """
-            Pattern filter should raise error if
-            pattern depth exceeds MAX_LEVEL
+        Symbol ":" or "::" can be used as delimiter and MAX_LEVEL parts
+        can be generated for matching.
         """
         with pytest.raises(ValueError):
             filtering.Pattern("foo:bar:baz:bat")

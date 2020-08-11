@@ -217,16 +217,16 @@ class TestReportGroup(object):
 
     def test_merge_children(self):
         """Should merge each children separately."""
-        child_clone_1 = DummyReport(uid=1)
-        child_clone_2 = DummyReport(uid=2)
+        child_clone_1 = DummyReport(uid=10)
+        child_clone_2 = DummyReport(uid=20)
         parent_clone = DummyReportGroup(
-            uid=0, entries=[child_clone_1, child_clone_2]
+            uid=1, entries=[child_clone_1, child_clone_2]
         )
 
-        child_orig_1 = DummyReport(uid=1)
-        child_orig_2 = DummyReport(uid=2)
+        child_orig_1 = DummyReport(uid=10)
+        child_orig_2 = DummyReport(uid=20)
         parent_orig = DummyReportGroup(
-            uid=0, entries=[child_orig_1, child_orig_2]
+            uid=1, entries=[child_orig_1, child_orig_2]
         )
 
         with mock.patch.object(child_orig_1, "merge"):
@@ -242,14 +242,14 @@ class TestReportGroup(object):
 
     def test_merge_children_fail(self):
         """Should raise `MergeError` if child `uid`s do not match."""
-        child_clone_1 = DummyReport(uid=1)
-        child_clone_2 = DummyReport(uid=2)
+        child_clone_1 = DummyReport(uid=10)
+        child_clone_2 = DummyReport(uid=20)
         parent_clone = DummyReportGroup(
-            uid=0, entries=[child_clone_1, child_clone_2]
+            uid=1, entries=[child_clone_1, child_clone_2]
         )
 
         child_orig_1 = DummyReport(uid=1)
-        parent_orig = DummyReportGroup(uid=0, entries=[child_orig_1])
+        parent_orig = DummyReportGroup(uid=10, entries=[child_orig_1])
 
         with pytest.raises(report.MergeError):
             parent_orig.merge(parent_clone)

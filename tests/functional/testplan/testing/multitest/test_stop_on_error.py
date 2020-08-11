@@ -146,7 +146,7 @@ def test_execution_order(mockplan):
                                 category=ReportCategories.PARAMETRIZATION,
                                 entries=[
                                     TestCaseReport(
-                                        name="test_case_divide_by_arg",
+                                        name="test_case_divide_by_arg <arg=-1>",
                                         entries=[
                                             {
                                                 "type": "Equal",
@@ -156,11 +156,11 @@ def test_execution_order(mockplan):
                                         ],
                                     ),
                                     _create_testcase_report(
-                                        name="test_case_divide_by_arg__arg_0",
+                                        name="test_case_divide_by_arg <arg=0>",
                                         status_override=Status.ERROR,
                                     ),
                                     TestCaseReport(
-                                        name="test_case_divide_by_arg__arg_1",
+                                        name="test_case_divide_by_arg <arg=1>",
                                         entries=[
                                             {
                                                 "type": "Equal",
@@ -176,7 +176,7 @@ def test_execution_order(mockplan):
                                 category=ReportCategories.PARAMETRIZATION,
                                 entries=[
                                     TestCaseReport(
-                                        name="test_case_divide_by_one",
+                                        name="test_case_divide_by_one <arg=-1>",
                                         entries=[
                                             {
                                                 "type": "Equal",
@@ -186,7 +186,7 @@ def test_execution_order(mockplan):
                                         ],
                                     ),
                                     TestCaseReport(
-                                        name="test_case_divide_by_one__arg_0",
+                                        name="test_case_divide_by_one <arg=0>",
                                         entries=[
                                             {
                                                 "type": "Equal",
@@ -196,7 +196,7 @@ def test_execution_order(mockplan):
                                         ],
                                     ),
                                     TestCaseReport(
-                                        name="test_case_divide_by_one__arg_1",
+                                        name="test_case_divide_by_one <arg=1>",
                                         entries=[
                                             {
                                                 "type": "Equal",
@@ -256,7 +256,7 @@ def test_execution_order(mockplan):
                                 category=ReportCategories.PARAMETRIZATION,
                                 entries=[
                                     TestCaseReport(
-                                        name="test_case_divide_by_arg",
+                                        name="test_case_divide_by_arg <arg=-1>",
                                         entries=[
                                             {
                                                 "type": "Equal",
@@ -266,7 +266,7 @@ def test_execution_order(mockplan):
                                         ],
                                     ),
                                     _create_testcase_report(
-                                        name="test_case_divide_by_arg__arg_0",
+                                        name="test_case_divide_by_arg <arg=0>",
                                         status_override=Status.ERROR,
                                     ),
                                 ],

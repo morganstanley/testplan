@@ -6,9 +6,9 @@ import sys
 import time
 import signal
 import subprocess
-from schema import Or
-import psutil
 import tempfile
+
+from schema import Or
 
 import testplan
 from testplan.common.utils.logger import TESTPLAN_LOGGER

@@ -167,7 +167,7 @@ class Driver(Resource):
         """Driver started status condition check."""
         wait(
             lambda: self.extract_values(),
-            self.cfg.timeout,
+            timeout or self.cfg.timeout,
             raise_on_timeout=True,
         )
 

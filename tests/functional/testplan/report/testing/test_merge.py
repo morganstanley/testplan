@@ -44,7 +44,7 @@ from testplan.report import TestCaseReport, TestGroupReport
 expected_report = TestGroupReport(
     name="MyMultiTest",
     category="multitest",
-    uid=0,
+    uid=1,
     tags={"color": {"green"}},
     entries=[
         TestGroupReport(
@@ -132,7 +132,7 @@ expected_report = TestGroupReport(
 mt_report_alpha = TestGroupReport(
     name="MyMultiTest",
     category="multitest",
-    uid=0,
+    uid=1,
     tags={"color": {"green"}},
     entries=[
         TestGroupReport(
@@ -157,7 +157,7 @@ mt_report_alpha = TestGroupReport(
 mt_report_beta_1 = TestGroupReport(
     name="MyMultiTest",
     category="multitest",
-    uid=0,
+    uid=1,
     tags={"color": {"green"}},
     entries=[
         TestGroupReport(
@@ -181,7 +181,7 @@ mt_report_beta_1 = TestGroupReport(
 mt_report_beta_2 = TestGroupReport(
     name="MyMultiTest",
     category="multitest",
-    uid=0,
+    uid=1,
     tags={"color": {"green"}},
     entries=[
         TestGroupReport(
@@ -219,7 +219,7 @@ mt_report_beta_2 = TestGroupReport(
 mt_report_gamma = TestGroupReport(
     name="MyMultiTest",
     category="multitest",
-    uid=0,
+    uid=1,
     tags={"color": {"green"}},
     entries=[
         TestGroupReport(
@@ -250,7 +250,7 @@ def test_merge():
     mt_report = TestGroupReport(
         name="MyMultiTest",
         category="multitest",
-        uid=0,
+        uid=1,
         tags={"color": {"green"}},
     )
 

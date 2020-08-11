@@ -101,7 +101,10 @@ def kill_process_psutil(proc, timeout=5, signal_=None, output=None):
     """
     _log = functools.partial(_log_proc, output=output)
 
-    all_procs = proc.children(recursive=True) + [proc]
+    try:
+        all_procs = proc.children(recursive=True) + [proc]
+    except psutil.NoSuchProcess:
+        return []
 
     try:
         if signal_ is not None:

@@ -6,8 +6,8 @@ import re
 import traceback
 
 import pytest
-import schema
 import six
+from schema import Or
 
 from testplan.testing import base as testing
 from testplan.common.config import ConfigOption
@@ -42,9 +42,9 @@ class PyTestConfig(testing.TestConfig):
     @classmethod
     def get_options(cls):
         return {
-            "target": schema.Or(str, [str]),
+            "target": Or(str, [str]),
             ConfigOption("select", default=""): str,
-            ConfigOption("extra_args", default=None): schema.Or([str], None),
+            ConfigOption("extra_args", default=None): Or([str], None),
             ConfigOption(
                 "result", default=MultiTestResult
             ): validation.is_subclass(MultiTestResult),

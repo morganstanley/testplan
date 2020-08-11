@@ -4,6 +4,7 @@ import sys
 import subprocess
 import six
 import tempfile
+import warnings
 
 from lxml import objectify
 from schema import Or, Use, And
@@ -28,7 +29,6 @@ from testplan.report import (
     test_styles,
     TestGroupReport,
     TestCaseReport,
-    Status,
     ReportCategories,
     RuntimeStatus,
 )
@@ -128,6 +128,12 @@ class Test(Runnable):
     filter_levels = [filtering.FilterLevel.TEST]
 
     def __init__(self, **options):
+        if ":" in options.get("name", ""):
+            warnings.warn(
+                "It is strongly suggested not using colon in name of {} - "
+                "[{}]".format(self.__class__.__name__, options.get("name"))
+            )
+
         super(Test, self).__init__(**options)
 
         for resource in self.cfg.environment:

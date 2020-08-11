@@ -12,11 +12,13 @@ standard_library.install_aliases()
 import os
 import collections
 import functools
-from concurrent import futures
 import itertools
 
-import schema
+import concurrent
 
+from schema import Or, And, Use
+
+import testplan.report
 from testplan.common import config
 from testplan.common import entity
 from testplan.common.utils import interface
@@ -24,7 +26,6 @@ from testplan.common.utils import validation
 from testplan.common.utils import timing
 from testplan.common.utils import callable as callable_utils
 from testplan.common.utils import strings
-import testplan.report
 from testplan.testing import tagging
 from testplan.testing import filtering
 from testplan.testing.multitest.entries import base as entries_base
@@ -37,8 +38,29 @@ def iterable_suites(obj):
     """Create an iterable suites object."""
     suites = [obj] if not isinstance(obj, collections.Iterable) else obj
 
+    name_counts = collections.Counter(suite.name for suite in suites)
+    dupe_names = {k for k, v in name_counts.items() if v > 1}
+
+    if len(dupe_names) > 0:
+        raise ValueError(
+            "Duplicate test suite name found: {}".format(", ".join(dupe_names))
+        )
+
+    func_name_counts = collections.Counter(
+        suite.__class__.__name__ for suite in suites
+    )
+    dupe_func_names = {k for k, v in func_name_counts.items() if v > 1}
+
+    if len(dupe_func_names) > 0:
+        raise ValueError(
+            "Duplicate test suite definition found: {}".format(
+                ", ".join(dupe_func_names)
+            )
+        )
+
     for suite in suites:
         mtest_suite.set_testsuite_testcases(suite)
+
     return suites
 
 
@@ -52,13 +74,13 @@ class MultiTestConfig(testing_base.TestConfig):
     @classmethod
     def get_options(cls):
         return {
-            "suites": schema.Use(iterable_suites),
+            "suites": Use(iterable_suites),
             config.ConfigOption("thread_pool_size", default=0): int,
             config.ConfigOption("max_thread_pool_size", default=10): int,
             config.ConfigOption("stop_on_error", default=True): bool,
-            config.ConfigOption("part", default=None): schema.Or(
+            config.ConfigOption("part", default=None): Or(
                 None,
-                schema.And(
+                And(
                     (int,),
                     lambda tp: len(tp) == 2
                     and 0 <= tp[0] < tp[1]
@@ -68,8 +90,8 @@ class MultiTestConfig(testing_base.TestConfig):
             config.ConfigOption(
                 "result", default=result.Result
             ): validation.is_subclass(result.Result),
-            config.ConfigOption("fix_spec_path", default=None): schema.Or(
-                None, schema.And(str, os.path.exists)
+            config.ConfigOption("fix_spec_path", default=None): Or(
+                None, And(str, os.path.exists)
             ),
         }
 
@@ -265,13 +287,12 @@ class MultiTest(testing_base.Test):
     def run_tests(self):
         """Run all tests as a batch and return the results."""
         testsuites = self.test_context
-        self._init_test_report()
         report = self.report
         report.runtime_status = testplan.report.RuntimeStatus.RUNNING
 
         with report.timer.record("run"):
             if _need_threadpool(testsuites):
-                self._thread_pool = futures.ThreadPoolExecutor(
+                self._thread_pool = concurrent.futures.ThreadPoolExecutor(
                     self._thread_pool_size
                 )
 
@@ -309,7 +330,8 @@ class MultiTest(testing_base.Test):
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
         """Run all testcases and yield testcase reports."""
         pattern = filtering.Pattern(
-            "*:{}:{}".format(testsuite_pattern, testcase_pattern)
+            pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),
+            match_definition=True,
         )
         testsuites = self.get_test_context(test_filter=pattern)
 
@@ -540,7 +562,7 @@ class MultiTest(testing_base.Test):
             name=mtest_suite.get_testsuite_name(testsuite),
             description=strings.get_docstring(testsuite.__class__),
             category=testplan.report.ReportCategories.TESTSUITE,
-            uid=mtest_suite.get_testsuite_name(testsuite),
+            uid=testsuite.__class__.__name__,
             tags=testsuite.__tags__,
             extra_attributes=testsuite.__extra_attributes__,
         )
@@ -550,7 +572,7 @@ class MultiTest(testing_base.Test):
         :return: A new and empty report for a testcase.
         """
         return testplan.report.TestCaseReport(
-            name=testcase.__name__,
+            name=testcase.name,
             description=strings.get_docstring(testcase),
             uid=testcase.__name__,
             tags=testcase.__tags__,
@@ -563,7 +585,7 @@ class MultiTest(testing_base.Test):
         # Don't include the template method's docstring in the report to
         # avoid duplication with the generated testcases.
         return testplan.report.TestGroupReport(
-            name=param_template,
+            name=param_method.name,
             description=strings.get_docstring(param_method),
             category=testplan.report.ReportCategories.PARAMETRIZATION,
             uid=param_template,
@@ -806,7 +828,7 @@ class MultiTest(testing_base.Test):
 
     def _run_case_related(self, method, testcase, case_result):
         interface.check_signature(method, ["self", "name", "env", "result"])
-        method(testcase.__name__, self.resources, case_result)
+        method(testcase.name, self.resources, case_result)
 
     def _run_testcase(
         self, testcase, pre_testcase, post_testcase, testcase_report=None

@@ -54,8 +54,6 @@ import traceback
 
 from collections import Counter
 
-from marshmallow import exceptions
-
 from testplan.common.report import (
     ExceptionLogger as ExceptionLoggerBase,
     Report,

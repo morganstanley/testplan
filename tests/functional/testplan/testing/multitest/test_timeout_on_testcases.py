@@ -42,7 +42,7 @@ class Suite2(object):
         result.log("Testcase will sleep for {} seconds".format(val))
         time.sleep(val)
 
-    @testcase(parameters=(1, 2, 5), execution_group="second", timeout=3)
+    @testcase(parameters=(1, 2, 8), execution_group="second", timeout=3)
     def test_timeout_2(self, env, result, val):
         result.log("Testcase will sleep for {} seconds".format(val))
         time.sleep(val)
@@ -117,7 +117,7 @@ def test_timeout_on_testcases(mockplan):
                                 category=ReportCategories.PARAMETRIZATION,
                                 entries=[
                                     TestCaseReport(
-                                        name="test_timeout_1__val_1",
+                                        name="test_timeout_1 <val=1>",
                                         entries=[
                                             {
                                                 "type": "Log",
@@ -126,7 +126,7 @@ def test_timeout_on_testcases(mockplan):
                                         ],
                                     ),
                                     TestCaseReport(
-                                        name="test_timeout_1__val_2",
+                                        name="test_timeout_1 <val=2>",
                                         entries=[
                                             {
                                                 "type": "Log",
@@ -135,7 +135,7 @@ def test_timeout_on_testcases(mockplan):
                                         ],
                                     ),
                                     TestCaseReport(
-                                        name="test_timeout_1__val_3",
+                                        name="test_timeout_1 <val=3>",
                                         entries=[
                                             {
                                                 "type": "Log",
@@ -150,7 +150,7 @@ def test_timeout_on_testcases(mockplan):
                                 category=ReportCategories.PARAMETRIZATION,
                                 entries=[
                                     TestCaseReport(
-                                        name="test_timeout_2__val_1",
+                                        name="test_timeout_2 <val=1>",
                                         entries=[
                                             {
                                                 "type": "Log",
@@ -159,7 +159,7 @@ def test_timeout_on_testcases(mockplan):
                                         ],
                                     ),
                                     TestCaseReport(
-                                        name="test_timeout_2__val_2",
+                                        name="test_timeout_2 <val=2>",
                                         entries=[
                                             {
                                                 "type": "Log",
@@ -168,12 +168,12 @@ def test_timeout_on_testcases(mockplan):
                                         ],
                                     ),
                                     _create_testcase_report(
-                                        name="test_timeout_2__val_5",
+                                        name="test_timeout_2 <val=8>",
                                         status_override=Status.ERROR,
                                         entries=[
                                             {
                                                 "type": "Log",
-                                                "message": "Testcase will sleep for 5 seconds",
+                                                "message": "Testcase will sleep for 8 seconds",
                                             }
                                         ],
                                     ),

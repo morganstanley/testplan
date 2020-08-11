@@ -265,8 +265,9 @@ class Pattern(Filter):
 
     category = "pattern"
 
-    def __init__(self, pattern):
+    def __init__(self, pattern, match_definition=False):
         self.pattern = pattern
+        self.match_definition = match_definition
         patterns = self.parse_pattern(pattern)
         self.test_pattern, self.suite_pattern, self.case_pattern = patterns
 
@@ -274,7 +275,8 @@ class Pattern(Filter):
         return '{}(pattern="{}")'.format(self.__class__.__name__, self.pattern)
 
     def parse_pattern(self, pattern):
-        patterns = pattern.split(self.DELIMITER)
+        # ":" or "::" can be used as delimiter
+        patterns = [s for s in pattern.split(self.DELIMITER) if s]
 
         if len(patterns) > self.MAX_LEVEL:
             raise ValueError(
@@ -289,10 +291,18 @@ class Pattern(Filter):
         return fnmatch.fnmatch(test.name, self.test_pattern)
 
     def filter_suite(self, suite):
-        return fnmatch.fnmatch(get_testsuite_name(suite), self.suite_pattern)
+        return fnmatch.fnmatch(
+            suite.__class__.__name__
+            if self.match_definition
+            else get_testsuite_name(suite),
+            self.suite_pattern,
+        )
 
     def filter_case(self, case):
-        name_match = fnmatch.fnmatch(case.__name__, self.case_pattern)
+        name_match = fnmatch.fnmatch(
+            case.__name__ if self.match_definition else case.name,
+            self.case_pattern,
+        )
 
         # Check if the testcase is parametrized - if so, we also consider
         # the filter to match if the parametrization template is matched.

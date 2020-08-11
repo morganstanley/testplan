@@ -1,12 +1,16 @@
+import sys
 import logging
+from contextlib import contextmanager
 
 import pytest
 from schema import SchemaError
+from six.moves import reload_module
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.parametrization import (
     ParametrizationError,
     MAX_METHOD_NAME_LENGTH,
+    MAX_TESTCASE_NAME_LENGTH,
 )
 
 from testplan.common.utils.testing import (
@@ -22,17 +26,48 @@ from testplan.report import (
 )
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
-
 LOGGER = logging.getLogger()
 
 
-def check_parametrization(mockplan, suite_kls, report_list, tag_dict=None):
+@contextmanager
+def module_reloaded(mod):
+    """
+    If uncaught exception raised, Testplan process should abort. However,
+    if the process is managed by PyTest for testing purpose, then the
+    exception will be caught and execute the next testcase, but Testplan
+    modules still exist in memory, some global variables need to be reset.
+    """
+    yield
+    if mod in sys.modules:
+        reload_module(sys.modules[mod])
+
+
+def gen_testcase_report(group_report):
+    for report in group_report.entries:
+        if isinstance(report, TestGroupReport):
+            for element in gen_testcase_report(report):
+                yield element
+        else:
+            yield report
+
+
+def check_parametrization(
+    mockplan, suite_kls, report_entries, testcase_uids=None, tag_dict=None
+):
     tag_dict = tag_dict or {}
     multitest = MultiTest(name="MyMultitest", suites=[suite_kls()])
     mockplan.add(multitest)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         mockplan.run()
+
+    if testcase_uids:
+        suite_report = mockplan.report.entries[0].entries[0]
+        assert isinstance(suite_report, TestGroupReport)
+        for testcase_report, uid in zip(
+            gen_testcase_report(suite_report), testcase_uids
+        ):
+            assert testcase_report.uid == uid
 
     expected_report = TestReport(
         name="plan",
@@ -45,7 +80,7 @@ def check_parametrization(mockplan, suite_kls, report_list, tag_dict=None):
                         name="MySuite",
                         tags=tag_dict,
                         category=ReportCategories.TESTSUITE,
-                        entries=report_list,
+                        entries=report_entries,
                     )
                 ],
             )
@@ -69,29 +104,38 @@ def test_basic_parametrization(mockplan):
         category=ReportCategories.PARAMETRIZATION,
         entries=[
             TestCaseReport(
-                name="test_add__a_1__b_2__expected_3",
+                name="test_add <a=1, b=2, expected=3>",
                 description="Simple docstring",
                 entries=[{"type": "Equal", "first": 3, "second": 3}],
             ),
             TestCaseReport(
-                name="test_add__0",
+                name="test_add <a=-1, b=1, expected=0>",
                 description="Simple docstring",
                 entries=[{"type": "Equal", "first": 0, "second": 0}],
             ),
             TestCaseReport(
-                name="test_add__1",
+                name="test_add <a=5, b=-5, expected=0>",
                 description="Simple docstring",
                 entries=[{"type": "Equal", "first": 0, "second": 0}],
             ),
             TestCaseReport(
-                name="test_add__a_3__b_1__expected_4",
+                name="test_add <a=3, b=1, expected=4>",
                 description="Simple docstring",
                 entries=[{"type": "Equal", "first": 4, "second": 4}],
             ),
         ],
     )
 
-    check_parametrization(mockplan, MySuite, [parametrization_group])
+    testcase_uids = [
+        "test_add__a_1__b_2__expected_3",
+        "test_add__0",
+        "test_add__1",
+        "test_add__a_3__b_1__expected_4",
+    ]
+
+    check_parametrization(
+        mockplan, MySuite, [parametrization_group], testcase_uids
+    )
 
 
 def test_combinatorial_parametrization(mockplan):
@@ -106,25 +150,34 @@ def test_combinatorial_parametrization(mockplan):
         category=ReportCategories.PARAMETRIZATION,
         entries=[
             TestCaseReport(
-                name="test_sample__a_1__b_alpha",
+                name="test_sample <a=1, b='alpha'>",
                 entries=[{"type": "IsTrue", "description": "1 - alpha"}],
             ),
             TestCaseReport(
-                name="test_sample__a_1__b_beta",
+                name="test_sample <a=1, b='beta'>",
                 entries=[{"type": "IsTrue", "description": "1 - beta"}],
             ),
             TestCaseReport(
-                name="test_sample__a_2__b_alpha",
+                name="test_sample <a=2, b='alpha'>",
                 entries=[{"type": "IsTrue", "description": "2 - alpha"}],
             ),
             TestCaseReport(
-                name="test_sample__a_2__b_beta",
+                name="test_sample <a=2, b='beta'>",
                 entries=[{"type": "IsTrue", "description": "2 - beta"}],
             ),
         ],
     )
 
-    check_parametrization(mockplan, MySuite, [parametrization_group])
+    testcase_uids = [
+        "test_sample__a_1__b_alpha",
+        "test_sample__a_1__b_beta",
+        "test_sample__a_2__b_alpha",
+        "test_sample__a_2__b_beta",
+    ]
+
+    check_parametrization(
+        mockplan, MySuite, [parametrization_group], testcase_uids
+    )
 
 
 @pytest.mark.parametrize(
@@ -134,7 +187,7 @@ def test_combinatorial_parametrization(mockplan):
         (
             1,
             "Should fail if shortcut notation is used while the testcase"
-            "accepts multiple parametrization arguments.",
+            " accepts multiple parametrization arguments.",
         ),
         ([(1,)], "Should fail if tuple is missing values for required args."),
         (
@@ -143,7 +196,8 @@ def test_combinatorial_parametrization(mockplan):
         ),
         (
             [{"a": 1, "b": 2, "e": 3}],
-            "Should fail if explicit value dict (tuple element) has extra keys.",
+            "Should fail if explicit value dict (tuple element)"
+            " has extra keys.",
         ),
         ({}, "Should fail for empty dict (combinatorial parametrization)."),
         (
@@ -168,7 +222,7 @@ def test_combinatorial_parametrization(mockplan):
     ),
 )
 def test_invalid_parametrization(val, msg):
-
+    """Correct arguments should be passed to parametrized testcases."""
     with pytest.raises(ParametrizationError):
 
         @testsuite
@@ -180,6 +234,154 @@ def test_invalid_parametrization(val, msg):
         pytest.fail(msg)
 
 
+def test_duplicate_parametrization_template_definition():
+    """No duplicate name of testcase or parametrization template allowed."""
+    with pytest.raises(ValueError):
+
+        @testsuite
+        class MySuite(object):
+            @testcase
+            def sample_test(self, env, result):
+                pass
+
+            @testcase(parameters=(1, 2, 3))
+            def sample_test(self, env, result, val):
+                pass
+
+        pytest.fail('Duplicate testcase definition "sample_test" found')
+
+
+def test_auto_resolve_name_conflict(mockplan):
+    """make sure no name conflict of parametrized testcases."""
+
+    @testsuite
+    class MySuite(object):
+        @testcase(parameters=(0, 1))
+        def sample__test(self, env, result, val):
+            pass
+
+        @testcase
+        def sample__test__val_1(self, env, result):
+            pass
+
+        @testcase(parameters=(0, 1))
+        def sample(self, env, result, test__val):
+            pass
+
+    report_entries = [
+        TestGroupReport(
+            name="sample__test",
+            category=ReportCategories.PARAMETRIZATION,
+            entries=[
+                TestCaseReport(name="sample__test <val=0>"),
+                TestCaseReport(name="sample__test <val=1>"),
+            ],
+        ),
+        TestCaseReport(name="sample__test__val_1", uid=""),
+        TestGroupReport(
+            name="sample",
+            category=ReportCategories.PARAMETRIZATION,
+            entries=[
+                TestCaseReport(name="sample <test__val=0>"),
+                TestCaseReport(name="sample <test__val=1>"),
+            ],
+        ),
+    ]
+
+    testcase_uids = [
+        "sample__test__val_0__0",
+        "sample__test__val_1__0",
+        "sample__test__val_1",
+        "sample__test__val_0__1",
+        "sample__test__val_1__1",
+    ]
+
+    check_parametrization(mockplan, MySuite, report_entries, testcase_uids)
+
+
+@pytest.mark.parametrize(
+    "parameters, name_func, testcase_names, testcase_uids, msg",
+    (
+        (
+            ("#@)$*@#%", "a-b"),
+            lambda func_name, kwargs: func_name + ", ".join(kwargs.values()),
+            ["sample_test#@)$*@#%", "sample_testa-b"],
+            ["sample_test__0", "sample_test__1"],
+            "Should use original method name + index fallback if"
+            " generated names are not valid Python attribute names.",
+        ),
+        (
+            ("a" * MAX_METHOD_NAME_LENGTH, "b" * MAX_METHOD_NAME_LENGTH),
+            lambda func_name, kwargs: ", ".join(kwargs.values())[
+                :MAX_TESTCASE_NAME_LENGTH
+            ],
+            ["a" * MAX_TESTCASE_NAME_LENGTH, "b" * MAX_TESTCASE_NAME_LENGTH],
+            ["sample_test__0", "sample_test__1"],
+            "Should use original method name + index fallback if"
+            " generated names are longer than {} characters.".format(
+                MAX_METHOD_NAME_LENGTH
+            ),
+        ),
+    ),
+)
+def test_param_name_func_fallback(
+    mockplan, parameters, name_func, testcase_names, testcase_uids, msg
+):
+    """Testcase uid should be a valid python identifier and not too long."""
+    LOGGER.info(msg)
+
+    with warnings_suppressed():
+
+        @testsuite
+        class MySuite(object):
+            @testcase(parameters=parameters, name_func=name_func)
+            def sample_test(self, env, result, val):
+                pass
+
+    parametrization_group = TestGroupReport(
+        name="sample_test",
+        category=ReportCategories.PARAMETRIZATION,
+        entries=[
+            TestCaseReport(name=testcase_names[0]),
+            TestCaseReport(name=testcase_names[1]),
+        ],
+    )
+
+    testcase_uids = [testcase_uids[0], testcase_uids[1]]
+
+    check_parametrization(
+        mockplan, MySuite, [parametrization_group], testcase_uids
+    )
+
+
+def test_custom_name(mockplan):
+    """User defined name as testcase name in report instead of function name."""
+
+    @testsuite
+    class MySuite(object):
+        @testcase(parameters=(("foo", "bar"), ("alpha", "beta")))
+        def sample_test(self, env, result, a, b):
+            pass
+
+    parametrization_group = TestGroupReport(
+        name="sample_test",
+        category=ReportCategories.PARAMETRIZATION,
+        entries=[
+            TestCaseReport(name="sample_test <a='foo', b='bar'>"),
+            TestCaseReport(name="sample_test <a='alpha', b='beta'>"),
+        ],
+    )
+
+    testcase_uids = [
+        "sample_test__a_foo__b_bar",
+        "sample_test__a_alpha__b_beta",
+    ]
+
+    check_parametrization(
+        mockplan, MySuite, [parametrization_group], testcase_uids
+    )
+
+
 def test_custom_name_func(mockplan):
     """`name_func` should be used for generating method names."""
 
@@ -187,7 +389,7 @@ def test_custom_name_func(mockplan):
     class MySuite(object):
         @testcase(
             parameters=(("foo", "bar"), ("alpha", "beta")),
-            name_func=lambda func_name, kwargs: "XXX_{a}_{b}_XXX".format(
+            name_func=lambda func_name, kwargs: "XXX_{a}_{b}_YYY".format(
                 **kwargs
             ),
         )
@@ -198,61 +400,19 @@ def test_custom_name_func(mockplan):
         name="sample_test",
         category=ReportCategories.PARAMETRIZATION,
         entries=[
-            TestCaseReport(name="XXX_foo_bar_XXX"),
-            TestCaseReport(name="XXX_alpha_beta_XXX"),
+            TestCaseReport(name="XXX_foo_bar_YYY"),
+            TestCaseReport(name="XXX_alpha_beta_YYY"),
         ],
     )
 
-    check_parametrization(mockplan, MySuite, [parametrization_group])
+    testcase_uids = [
+        "sample_test__a_foo__b_bar",
+        "sample_test__a_alpha__b_beta",
+    ]
 
-
-@pytest.mark.parametrize(
-    "name_func, testcase_names, msg",
-    (
-        (
-            lambda func_name, kwargs: "same_method",
-            ["same_method__0", "same_method__1"],
-            "Should use index fallback if generated names are not unique.",
-        ),
-        (
-            lambda func_name, kwargs: "#@)$*@#%_{a}_{b}",
-            ["sample_test__0", "sample_test__1"],
-            "Should use original method_name + index fallback if"
-            " generated names are not valid Python attribute names.",
-        ),
-        (
-            lambda func_name, kwargs: "a" * (MAX_METHOD_NAME_LENGTH + 1),
-            ["sample_test__0", "sample_test__1"],
-            "Should use original method_name + index fallback if generated"
-            " names are longer than {} characters.".format(
-                MAX_METHOD_NAME_LENGTH
-            ),
-        ),
-    ),
-)
-def test_name_func_fallback(mockplan, name_func, testcase_names, msg):
-
-    LOGGER.info(msg)
-
-    with warnings_suppressed():
-
-        @testsuite
-        class MySuite(object):
-            @testcase(parameters=("alpha", "beta"), name_func=name_func)
-            def sample_test(self, env, result, foo):
-                pass
-
-    name_alpha, name_beta = testcase_names
-    parametrization_group = TestGroupReport(
-        name="sample_test",
-        category=ReportCategories.PARAMETRIZATION,
-        entries=[
-            TestCaseReport(name=name_alpha),
-            TestCaseReport(name=name_beta),
-        ],
+    check_parametrization(
+        mockplan, MySuite, [parametrization_group], testcase_uids
     )
-
-    check_parametrization(mockplan, MySuite, [parametrization_group])
 
 
 @pytest.mark.parametrize(
@@ -262,7 +422,7 @@ def test_name_func_fallback(mockplan, name_func, testcase_names, msg):
         (
             lambda foo, bar: "",
             "Should fail if name_func arg names"
-            " does not match func_name, kwargs.",
+            " does not match `func_name` and `kwargs`.",
         ),
         (
             lambda func_name, kwargs, foo: "",
@@ -271,39 +431,40 @@ def test_name_func_fallback(mockplan, name_func, testcase_names, msg):
     ),
 )
 def test_invalid_name_func(name_func, msg):
-
+    """Custom naming function should be correctly defined."""
     with pytest.raises(ParametrizationError):
 
         @testsuite
         class MySuite(object):
             @testcase(parameters=(1, 2), name_func=name_func)
-            def sample_test(self, env, result, a):
+            def sample_test(self, env, result, val):
                 pass
 
         pytest.fail(msg)
 
 
-def test_same_name_func():
-    """`name_func` should be used for generating method names."""
-
-    @testsuite
-    class MySuite(object):
-        @testcase(
-            parameters=(("foo", "bar"), ("alpha", "beta")),
-            name_func=lambda func_name, kwargs: "same_name",
-        )
-        def sample_test(self, env, result, a, b):
-            pass
-
-        @testcase(
-            parameters=(("foo", "bar"), ("alpha", "beta")),
-            name_func=lambda func_name, kwargs: "same_name",
-        )
-        def other_test(self, env, result, a, b):
-            pass
-
+def test_invalid_long_testcase_name(mockplan):
+    """Custom naming function should return a valid non-empty string."""
     with pytest.raises(SchemaError):
-        MultiTest(name="abc", suites=[MySuite()])
+
+        long_string = "a" * (MAX_TESTCASE_NAME_LENGTH + 1)
+
+        @testsuite
+        class MySuite(object):
+            @testcase(
+                parameters=(1,),
+                name_func=lambda func_name, kwargs: long_string,
+            )
+            def sample_test(self, env, result, val):
+                pass
+
+        multitest = MultiTest(name="MyMultitest", suites=[MySuite()])
+        mockplan.add(multitest)
+
+        with log_propagation_disabled(TESTPLAN_LOGGER):
+            mockplan.run()
+
+        pytest.fail("Should fail if name_func returns a very long string.")
 
 
 def test_custom_wrapper():
@@ -347,16 +508,21 @@ def test_tag_func(tag_func, expected_tags, expected_tags_index):
     @testsuite
     class MySuite(object):
         @testcase(
-            parameters=(dict(product="productA", category="dummy-category"),),
+            parameters=(dict(product="productA", category="dummyCategory"),),
             tags="foo",
             tag_func=tag_func,
-            name_func=lambda func_name, kwargs: "dummy_name",
         )
         def adder_test(self, env, result, product, category):
             pass
 
-    assert MySuite.dummy_name.__tags__ == expected_tags
-    assert MySuite.dummy_name.__tags_index__ == expected_tags_index
+    assert (
+        MySuite.adder_test__product_productA__category_dummyCategory.__tags__
+        == expected_tags
+    )
+    assert (
+        MySuite.adder_test__product_productA__category_dummyCategory.__tags_index__
+        == expected_tags_index
+    )
 
 
 @pytest.mark.parametrize(
@@ -377,15 +543,15 @@ def test_docstring_func(docstring_func, expected_docstring):
     @testsuite
     class MySuite(object):
         @testcase(
-            parameters=(("foo", "bar"),),
-            name_func=lambda func_name, kwargs: "dummy_name",
-            docstring_func=docstring_func,
+            parameters=(("foo", "bar"),), docstring_func=docstring_func,
         )
         def adder_test(self, env, result, first, second):
             """Original docstring"""
             pass
 
-    assert MySuite.dummy_name.__doc__ == expected_docstring
+    assert (
+        MySuite.adder_test__first_foo__second_bar.__doc__ == expected_docstring
+    )
 
 
 def test_parametrization_tagging(mockplan):
@@ -410,13 +576,13 @@ def test_parametrization_tagging(mockplan):
         tags={"simple": {"alpha"}},
         entries=[
             TestCaseReport(
-                name="dummy_test__color_red", tags={"color": {"red"}}
+                name="dummy_test <color='red'>", tags={"color": {"red"}},
             ),
             TestCaseReport(
-                name="dummy_test__color_blue", tags={"color": {"blue"}}
+                name="dummy_test <color='blue'>", tags={"color": {"blue"}},
             ),
             TestCaseReport(
-                name="dummy_test__color_green", tags={"color": {"green"}}
+                name="dummy_test <color='green'>", tags={"color": {"green"}},
             ),
         ],
     )
@@ -432,8 +598,8 @@ def test_parametrization_tagging(mockplan):
 def test_order_of_parametrization_report(mockplan):
     """
     In test suite report, parametrization report group should be
-    placed at the correct position according to the order
-     it is defined in source code.
+    placed at the correct position according to the order it is
+    defined in source code.
     """
 
     @testsuite
@@ -446,7 +612,7 @@ def test_order_of_parametrization_report(mockplan):
         def dummy_test_2(self, env, result):
             pass
 
-        @testcase(parameters=("circle", "squre", "triangle"))
+        @testcase(parameters=("circle", "square", "triangle"))
         def dummy_test_3(self, env, result, shape):
             pass
 
@@ -458,14 +624,14 @@ def test_order_of_parametrization_report(mockplan):
         def dummy_test_5(self, env, result, smell):
             pass
 
-    suite_report_entries = [
+    report_entries = [
         TestGroupReport(
             name="dummy_test_1",
             category=ReportCategories.PARAMETRIZATION,
             entries=[
-                TestCaseReport(name="dummy_test_1__color_red"),
-                TestCaseReport(name="dummy_test_1__color_blue"),
-                TestCaseReport(name="dummy_test_1__color_green"),
+                TestCaseReport(name="dummy_test_1 <color='red'>"),
+                TestCaseReport(name="dummy_test_1 <color='blue'>"),
+                TestCaseReport(name="dummy_test_1 <color='green'>"),
             ],
         ),
         TestCaseReport(name="dummy_test_2"),
@@ -473,9 +639,9 @@ def test_order_of_parametrization_report(mockplan):
             name="dummy_test_3",
             category=ReportCategories.PARAMETRIZATION,
             entries=[
-                TestCaseReport(name="dummy_test_3__shape_circle"),
-                TestCaseReport(name="dummy_test_3__shape_squre"),
-                TestCaseReport(name="dummy_test_3__shape_triangle"),
+                TestCaseReport(name="dummy_test_3 <shape='circle'>"),
+                TestCaseReport(name="dummy_test_3 <shape='square'>"),
+                TestCaseReport(name="dummy_test_3 <shape='triangle'>"),
             ],
         ),
         TestCaseReport(name="dummy_test_4"),
@@ -483,11 +649,11 @@ def test_order_of_parametrization_report(mockplan):
             name="dummy_test_5",
             category=ReportCategories.PARAMETRIZATION,
             entries=[
-                TestCaseReport(name="dummy_test_5__smell_fragrant"),
-                TestCaseReport(name="dummy_test_5__smell_stinky"),
-                TestCaseReport(name="dummy_test_5__smell_musty"),
+                TestCaseReport(name="dummy_test_5 <smell='fragrant'>"),
+                TestCaseReport(name="dummy_test_5 <smell='stinky'>"),
+                TestCaseReport(name="dummy_test_5 <smell='musty'>"),
             ],
         ),
     ]
 
-    check_parametrization(mockplan, MySuite, suite_report_entries)
+    check_parametrization(mockplan, MySuite, report_entries)

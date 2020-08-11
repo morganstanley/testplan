@@ -156,6 +156,7 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 "interactive_handler", default=TestRunnerIHandler
             ): object,
+            ConfigOption("reset_report_uid", default=True): bool,
             ConfigOption("extra_deps", default=[]): list,
         }
 
@@ -640,9 +641,10 @@ class TestRunner(Runnable):
         if test_rep_lookup:
             step_result = self._merge_reports(test_rep_lookup) and step_result
 
-        # The uids of a test report and all of its children
-        # should be comply with standard UUID form
-        test_report.reset_uid()
+        # The uids of a test report and all of its children can be made
+        # complied with standard UUID form
+        if self.cfg.reset_report_uid:
+            test_report.reset_uid()
 
         return step_result
 

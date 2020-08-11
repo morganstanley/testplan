@@ -214,9 +214,9 @@ without any trimming the output.
 
     $ test_plan.py --info pattern
     Primary
-    Primary:AlphaSuite
-      Primary:AlphaSuite:testcase_a
-      Primary:AlphaSuite:testcase_b
+    Primary::AlphaSuite
+      Primary::AlphaSuite::testcase_a
+      Primary::AlphaSuite::testcase_b
       ...
 
 
