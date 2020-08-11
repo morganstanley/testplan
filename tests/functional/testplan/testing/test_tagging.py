@@ -98,11 +98,11 @@ report_for_multitest_without_tags = TestGroupReport(
                     tags={"speed": {"slow"}},
                     entries=[
                         TestCaseReport(
-                            name="test_param__value_AAA",
+                            name="test_param <value='AAA'>",
                             tags={"symbol": {"aaa"}},
                         ),
                         TestCaseReport(
-                            name="test_param__value_BBB",
+                            name="test_param <value='BBB'>",
                             tags={"symbol": {"bbb"}},
                         ),
                     ],
@@ -112,8 +112,8 @@ report_for_multitest_without_tags = TestGroupReport(
                     category="parametrization",
                     tags={"speed": {"fast"}},
                     entries=[
-                        TestCaseReport(name="test_param_2__value_XXX"),
-                        TestCaseReport(name="test_param_2__value_YYY"),
+                        TestCaseReport(name="test_param_2 <value='XXX'>"),
+                        TestCaseReport(name="test_param_2 <value='YYY'>"),
                     ],
                 ),
             ],
@@ -162,11 +162,11 @@ report_for_multitest_with_tags = TestGroupReport(
                     tags={"speed": {"slow"}},
                     entries=[
                         TestCaseReport(
-                            name="test_param__value_AAA",
+                            name="test_param <value='AAA'>",
                             tags={"symbol": {"aaa"}},
                         ),
                         TestCaseReport(
-                            name="test_param__value_BBB",
+                            name="test_param <value='BBB'>",
                             tags={"symbol": {"bbb"}},
                         ),
                     ],
@@ -176,8 +176,8 @@ report_for_multitest_with_tags = TestGroupReport(
                     category="parametrization",
                     tags={"speed": {"fast"}},
                     entries=[
-                        TestCaseReport(name="test_param_2__value_XXX"),
-                        TestCaseReport(name="test_param_2__value_YYY"),
+                        TestCaseReport(name="test_param_2 <value='XXX'>"),
+                        TestCaseReport(name="test_param_2 <value='YYY'>"),
                     ],
                 ),
             ],

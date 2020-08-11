@@ -164,4 +164,4 @@ class AlphanumericSorter(TypedSorter):
         return sorted(testsuites, key=get_testsuite_name)
 
     def sort_testcases(self, testcases):
-        return sorted(testcases, key=operator.attrgetter("__name__"))
+        return sorted(testcases, key=operator.attrgetter("name"))

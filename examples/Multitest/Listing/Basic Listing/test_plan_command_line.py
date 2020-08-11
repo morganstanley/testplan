@@ -80,9 +80,9 @@ class Gamma(object):
 # Sample output:
 
 # Primary
-# ..Primary:Alpha
-# ....Primary:Alpha:test_a
-# ....Primary:Alpha:test_b  --tags server
+# ..Primary::Alpha
+# ....Primary::Alpha::test_a
+# ....Primary::Alpha::test_b  --tags server
 # ...
 
 # Pattern listing (without any testcase trimming):

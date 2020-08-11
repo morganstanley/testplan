@@ -2,14 +2,16 @@
 
 import os
 
+
+from testplan.common import entity
 from testplan.common.utils import path
+from testplan.common.utils import testing
 from testplan.testing import multitest
-from testplan.testing.multitest import base
 from testplan.testing import filtering
 from testplan.testing import ordering
 from testplan import defaults
 from testplan import report
-from testplan.common import entity
+
 
 # TODO: shouldn't need to specify these...
 MTEST_DEFAULT_PARAMS = {
@@ -141,19 +143,19 @@ EXPECTED_REPORT_SKELETON = report.TestGroupReport(
                     parent_uids=["MTest", "Suite"],
                     entries=[
                         report.TestCaseReport(
-                            name="parametrized__val_1",
+                            name="parametrized <val=1>",
                             description="Parametrized testcase.",
                             uid="parametrized__val_1",
                             parent_uids=["MTest", "Suite", "parametrized"],
                         ),
                         report.TestCaseReport(
-                            name="parametrized__val_2",
+                            name="parametrized <val=2>",
                             description="Parametrized testcase.",
                             uid="parametrized__val_2",
                             parent_uids=["MTest", "Suite", "parametrized"],
                         ),
                         report.TestCaseReport(
-                            name="parametrized__val_3",
+                            name="parametrized <val=3>",
                             description="Parametrized testcase.",
                             uid="parametrized__val_3",
                             parent_uids=["MTest", "Suite", "parametrized"],
@@ -174,9 +176,10 @@ def test_dry_run():
     result = mtest.dry_run()
     report_skeleton = result.report
 
-    # Comparing the serialized reports makes it much easier to spot any
-    # inconsistencies.
-    assert report_skeleton.serialize() == EXPECTED_REPORT_SKELETON.serialize()
+    # Comparing the reports to spot any inconsistencies.
+    testing.check_report(
+        expected=EXPECTED_REPORT_SKELETON, actual=report_skeleton
+    )
 
 
 def test_run_all_tests():
@@ -285,7 +288,7 @@ def _check_parallel_param(param_report):
     assert len(param_report.entries) == 3  # Three parametrized testcases.
 
     for i, testcase_report in enumerate(param_report.entries):
-        assert testcase_report.name == "parametrized__val_{}".format(i + 1)
+        assert testcase_report.name == "parametrized <val={}>".format(i + 1)
         assert testcase_report.category == report.ReportCategories.TESTCASE
         assert len(testcase_report.entries) == 1  # One assertion
 
@@ -318,7 +321,7 @@ def _check_param_testcase_report(testcase_report, i):
     "parametrized" testcase from the "Suite" testsuite.
     """
     assert testcase_report.passed
-    assert testcase_report.name == "parametrized__val_{}".format(i + 1)
+    assert testcase_report.name == "parametrized <val={}>".format(i + 1)
     assert testcase_report.category == report.ReportCategories.TESTCASE
     assert len(testcase_report.entries) == 1  # One assertion
 

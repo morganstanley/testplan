@@ -41,7 +41,7 @@ def post2(name, self, env, result, a=None, b=None):
 
 @pre_testcase(pre1)
 @post_testcase(post1)
-@testsuite
+@testsuite(name="Test Suite - One")
 class Suite1(object):
     def setup(self, env, result):
         result.equal(2, 2)
@@ -65,10 +65,13 @@ class Suite1(object):
 
 @pre_testcase(pre2)
 @post_testcase(post2)
-@testsuite
+@testsuite(name="Test Suite")
 class Suite2(object):
     def setup(self, env):
         pass
+
+    def suite_name(self):
+        return "Another"
 
     @testcase(parameters=(("aa", "bb"), ("aaa", "bbb")))
     def case4(self, env, result, a, b):
@@ -100,18 +103,23 @@ def test_basic_multitest(mockplan):
     assert len(res.test_results["Name1"].report.entries) == 2
     assert isinstance(mockplan.report, TestReport)
     assert len(mockplan.report.entries) == 1  # 1 Multitest
-    for mt_entry in mockplan.report.entries:
-        assert isinstance(mt_entry, TestGroupReport)
-        assert len(mt_entry.entries) == 2  # 2 Suites
-        for st_entry in mt_entry.entries:
-            assert isinstance(st_entry, TestGroupReport)
-            assert len(st_entry.entries) == 4  # 4 Testcases
-            for tc_entry in st_entry.entries:
-                if tc_entry.name == "case4":
-                    assert isinstance(tc_entry, TestGroupReport)
-                    assert (
-                        tc_entry.category == ReportCategories.PARAMETRIZATION
-                    )
-                    assert len(tc_entry.entries) == 2  # 2 generated testcases
-                else:
-                    assert isinstance(tc_entry, TestCaseReport)
+
+    mt_entry = mockplan.report.entries[0]
+    assert isinstance(mt_entry, TestGroupReport)
+    assert len(mt_entry.entries) == 2  # 2 Suites
+    assert mt_entry.entries[0].name == "Test Suite - One"
+    assert mt_entry.entries[0].uid == "Suite1"
+    assert mt_entry.entries[1].name == "Test Suite - Another"
+    assert mt_entry.entries[1].uid == "Suite2"
+
+    for st_entry in mt_entry.entries:
+        assert isinstance(st_entry, TestGroupReport)
+        assert len(st_entry.entries) == 4  # 4 Testcases
+
+        for tc_entry in st_entry.entries:
+            if tc_entry.name == "case4":
+                assert isinstance(tc_entry, TestGroupReport)
+                assert tc_entry.category == ReportCategories.PARAMETRIZATION
+                assert len(tc_entry.entries) == 2  # 2 generated testcases
+            else:
+                assert isinstance(tc_entry, TestCaseReport)

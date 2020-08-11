@@ -132,8 +132,8 @@ class TestBaseReportGroup(object):
         Should merge children and set `status_override`
         using `report.status_override` precedence.
         """
-        report_orig = DummyReportGroup(uid=0)
-        report_clone = DummyReportGroup(uid=0)
+        report_orig = DummyReportGroup(uid=1)
+        report_clone = DummyReportGroup(uid=1)
 
         assert report_orig.status_override is None
 
@@ -151,17 +151,16 @@ class TestBaseReportGroup(object):
           Not strict merge should append child entries and update
           the index if they do not exist in the parent.
         """
-        child_clone_1 = DummyReport(uid=1)
-        child_clone_2 = DummyReport(uid=2)
+        child_clone_1 = DummyReport(uid=10)
+        child_clone_2 = DummyReport(uid=20)
         parent_clone = DummyReportGroup(
-            uid=0, entries=[child_clone_1, child_clone_2]
+            uid=1, entries=[child_clone_1, child_clone_2]
         )
 
-        child_orig_1 = DummyReport(uid=1)
-        parent_orig = DummyReportGroup(uid=0, entries=[child_orig_1])
+        child_orig_1 = DummyReport(uid=10)
+        parent_orig = DummyReportGroup(uid=1, entries=[child_orig_1])
 
         parent_orig.merge(parent_clone, strict=False)
-
         assert parent_orig.entries == [child_orig_1, child_clone_2]
 
         # Merging a second time should give us the same results

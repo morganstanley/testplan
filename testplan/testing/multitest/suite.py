@@ -1,11 +1,14 @@
 """Multitest testsuite/testcase module."""
-import functools
-import inspect
-import traceback
 import types
 import copy
+import collections
+import functools
+import itertools
+import inspect
+import traceback
+import warnings
 
-from collections import defaultdict
+import six
 
 from testplan import defaults
 from testplan.common.utils.callable import wraps
@@ -15,9 +18,23 @@ from testplan.testing import tagging
 
 from . import parametrization
 
-__GENERATED_TESTCASES__ = []
 __TESTCASES__ = []
-__SKIP__ = defaultdict(tuple)
+__PARAMETRIZATION_TEMPLATE__ = []
+__GENERATED_TESTCASES__ = []
+__SKIP__ = collections.defaultdict(tuple)
+
+
+def reset_globals():
+    # pylint: disable=global-statement
+    global __TESTCASES__
+    global __PARAMETRIZATION_TEMPLATE__
+    global __GENERATED_TESTCASES__
+    global __SKIP__
+
+    __TESTCASES__ = []
+    __PARAMETRIZATION_TEMPLATE__ = []
+    __GENERATED_TESTCASES__ = []
+    __SKIP__ = collections.defaultdict(tuple)
 
 
 def update_tag_index(obj, tag_dict):
@@ -101,14 +118,33 @@ def get_testsuite_name(suite):
     :return: Name of given suite
     :rtype: ``str``
     """
-    name = suite.__class__.__name__
+    testsuite_name = suite.name
+    if not isinstance(testsuite_name, six.string_types):
+        raise ValueError(
+            'Test suite name "{name}" must be a string, it is of type:'
+            " {type}".format(name=testsuite_name, type=type(testsuite_name))
+        )
+
+    if callable(getattr(suite, "suite_name", None)):
+        postfix = suite.suite_name()
+        if postfix is not None:
+            if not isinstance(postfix, six.string_types):
+                raise ValueError("`suite_name()` should return a string")
+            testsuite_name = "{} - {}".format(testsuite_name, postfix)
+
     if (
-        hasattr(suite, "suite_name")
-        and callable(getattr(suite, "suite_name"))
-        and suite.suite_name() is not None
+        not testsuite_name
+        or len(testsuite_name) > parametrization.MAX_TESTSUITE_NAME_LENGTH
     ):
-        return "{} - {}".format(name, suite.suite_name())
-    return name
+        raise ValueError(
+            'Test suite name "{name}" must be a non-empty string with'
+            " length not greater than {length}".format(
+                name=testsuite_name,
+                length=parametrization.MAX_TESTSUITE_NAME_LENGTH,
+            )
+        )
+
+    return testsuite_name
 
 
 def get_testsuite_desc(suite):
@@ -124,7 +160,8 @@ def get_testsuite_desc(suite):
 
 def set_testsuite_testcases(suite):
     """
-    Build the list of testcases to run for the given testsuite
+    Build the list of testcases to run for the given testsuite. The name of
+    each testcase should be unique.
 
     :param suite: Suite object whose testcases need to be set
     :type suite: ``testsuite``
@@ -133,36 +170,41 @@ def set_testsuite_testcases(suite):
     :rtype: ``NoneType``
     """
     testcases = []
-    for testcase_name in suite.__class__.__testcases__:
-        testcase_method = getattr(suite, testcase_name)
+    testcase_names = set()
 
-        if not testcase_method:
-            msg = "{} does not have a testcase method named: {}".format(
-                suite, testcase_name
+    for testcase in suite.__testcases__:
+        if not hasattr(suite, testcase):
+            raise AttributeError(
+                '"{}" does not have a testcase method named: "{}"'.format(
+                    suite, testcase
+                )
             )
-            raise AttributeError(msg)
 
-        if testcase_name in testcases:
-            offending_obj = getattr(suite, testcase_name)
-            try:
-                raise ValueError(
-                    "Duplicate definition of {}.{} at {}:{}".format(
-                        suite.__class__.__name__,
-                        testcase_name,
-                        inspect.getsourcefile(offending_obj),
-                        inspect.getsourcelines(offending_obj)[1],
-                    )
+        name = getattr(suite, testcase).name
+        if not isinstance(name, six.string_types):
+            raise ValueError(
+                'Testcase name "{name}" must be a string, it is'
+                " of type: {type}".format(name=name, type=type(name))
+            )
+        if not name or len(name) > parametrization.MAX_TESTCASE_NAME_LENGTH:
+            raise ValueError(
+                'Testcase name "{name}" must be a non-empty string with'
+                " length not greater than {length}".format(
+                    name=name, length=parametrization.MAX_TESTCASE_NAME_LENGTH
                 )
-            except IOError:
-                raise ValueError(
-                    "Duplicate definition of {}.{}".format(
-                        suite.__class__.__name__, testcase_name
-                    )
-                )
+            )
+        if name in testcase_names:
+            raise ValueError(
+                "Duplicate testcase name {} found, please check."
+                " Or use `name_func` argument to generate names"
+                " for parametrized testcases.".format(name)
+            )
 
-        skip_funcs = suite.__skip__[testcase_name]
+        skip_funcs = suite.__skip__[testcase]
         if not any(skip_func(suite) for skip_func in skip_funcs):
-            testcases.append(testcase_name)
+            testcases.append(testcase)
+            testcase_names.add(name)
+
     setattr(suite, "__testcases__", testcases)
 
 
@@ -245,6 +287,50 @@ def _selective_call(decorator_func, meta_func, wrapper_func):
     return wrapper
 
 
+def _number_of_testcases():
+    """
+    Number of testcases in a test suite.
+    """
+    return len(__TESTCASES__) + len(__GENERATED_TESTCASES__)
+
+
+def _ensure_unique_generated_testcase_names(names, functions):
+    """
+    If function generation ends up with functions with duplicate names, this
+    last step will make sure that they are differentiated by number suffixes.
+    """
+    name_counts = collections.Counter(
+        itertools.chain(names, (func.__name__ for func in functions))
+    )
+    dupe_names = {k for k, v in name_counts.items() if v > 1}
+
+    if len(dupe_names) == 0:
+        return
+
+    dupe_counter = collections.defaultdict(int)
+    valid_names = set(names)
+
+    for func in functions:
+        name = func.__name__
+        if name in dupe_names:
+            count = dupe_counter[name]
+            while True:
+                func.__name__ = "{}__{}".format(name, count)
+                dupe_counter[name] += 1
+                if func.__name__ not in valid_names:
+                    valid_names.add(func.__name__)
+                    break
+        else:
+            valid_names.add(name)
+
+    # Functions should have different __names__ attributes after the step above
+    name_counts = collections.Counter(
+        itertools.chain(names, (func.__name__ for func in functions))
+    )
+    dupe_names = {k for k, v in name_counts.items() if v > 1}
+    assert len(dupe_names) == 0
+
+
 def _testsuite(klass):
     """
     Actual decorator that transforms a class into a suite and registers
@@ -254,13 +340,27 @@ def _testsuite(klass):
     # to preserve the order of definition of the testcases and make sure
     # they get executed in the same order
 
-    # pylint: disable=global-statement
-    global __GENERATED_TESTCASES__
-    global __TESTCASES__
-    global __SKIP__
+    _ensure_unique_generated_testcase_names(
+        __TESTCASES__ + __PARAMETRIZATION_TEMPLATE__, __GENERATED_TESTCASES__
+    )
 
-    klass.__testcases__ = __TESTCASES__
+    klass.__testcases__ = [None] * _number_of_testcases()
     klass.__skip__ = __SKIP__
+
+    for testcase_name in __TESTCASES__:
+        klass.__testcases__[
+            getattr(klass, testcase_name).__seq_number__
+        ] = testcase_name
+
+    for func in __GENERATED_TESTCASES__:
+        klass.__testcases__[func.__seq_number__] = func.__name__
+        setattr(klass, func.__name__, func)
+
+    assert all(testcases for testcases in klass.__testcases__)
+
+    # `name` attribute might be added if decorated with @testsuite(name=...)
+    if not hasattr(klass, "name"):
+        klass.name = klass.__name__
 
     if not hasattr(klass, "__tags__"):
         klass.__tags__ = {}  # used for UI
@@ -283,10 +383,6 @@ def _testsuite(klass):
     }
 
     klass.get_testcases = get_testcase_methods
-
-    for func in __GENERATED_TESTCASES__:
-        setattr(klass, func.__name__, func)
-
     testcase_methods = get_testcase_methods(klass)
 
     # propagate suite's native tags onto itself, which
@@ -301,14 +397,13 @@ def _testsuite(klass):
         ),
     )
 
-    __GENERATED_TESTCASES__ = []
-    __TESTCASES__ = []
-    __SKIP__ = defaultdict(tuple)
+    # Suite resolved, clear global variables for resolving the next suite.
+    reset_globals()
 
     return klass
 
 
-def _testsuite_meta(tags=None):
+def _testsuite_meta(name=None, tags=None):
     """
     Wrapper function that allows us to call :py:func:`@testsuite <testsuite>`
     decorator with extra arguments.
@@ -317,13 +412,19 @@ def _testsuite_meta(tags=None):
     @functools.wraps(_testsuite)
     def wrapper(klass):
         """Meta logic for suite goes here"""
+        klass.name = name or klass.__name__
+
+        if ":" in klass.name:
+            warnings.warn(
+                "It is strongly suggested not using colon in"
+                " name of test suite - [{}]".format(klass.name)
+            )
+
         if tags:
             klass.__tags__ = tagging.validate_tag_value(tags)
             klass.__tags_index__ = copy.deepcopy(klass.__tags__)
 
-        suite = _testsuite(klass)
-
-        return suite
+        return _testsuite(klass)
 
     return wrapper
 
@@ -340,11 +441,12 @@ def testsuite(*args, **kwargs):
     executed respectively before and after the
     :py:func:`@testcase <testcase>`-annotated methods have executed.
 
-    It is possible to assign tags to a suite via `@testsuite(tags=...)` syntax:
+    It is possible to assign name and tags to a suite via `@testsuite(name=...)`
+    and `@testsuite(tags=...)` syntax:
 
     .. code-block:: python
 
-      @testsuite(tags=('server', 'keep-alive'))
+      @testsuite(name="Test Sample", tags=("server", "keep-alive"))
       class SampleSuite(object):
         ...
     """
@@ -353,6 +455,39 @@ def testsuite(*args, **kwargs):
         meta_func=_testsuite_meta,
         wrapper_func=testsuite,
     )(*args, **kwargs)
+
+
+def _validate_testcase_name(func):
+    """Validate the function name is valid for a testcase."""
+    errmsg = None
+
+    if (
+        func.__name__ in __TESTCASES__
+        or func.__name__ in __PARAMETRIZATION_TEMPLATE__
+    ):
+        errmsg = 'Duplicate testcase definition "{}" found'.format(
+            func.__name__
+        )
+
+    elif func.__name__.startswith("__") and func.__name__.endswith("__"):
+        errmsg = 'Cannot define testcase "{}" as a dunder method'.format(
+            func.__name__
+        )
+
+    elif func.__name__ in ("name", "suite_name", "get_testcases"):
+        errmsg = (
+            'Testcase cannot be defined as "name" or "suite_name" or '
+            '"get_testcases" because they are reserved for Testplan'
+        )
+
+    if errmsg is not None:
+        reset_globals()
+        try:
+            src_file = inspect.getsourcefile(func)
+            src_line = inspect.getsourcelines(func)[1]
+            raise ValueError("{} ({}:{})".format(errmsg, src_file, src_line))
+        except IOError:
+            raise ValueError(errmsg)
 
 
 def _validate_testcase(func):
@@ -364,19 +499,31 @@ def _mark_function_as_testcase(func):
     func.__testcase__ = True
 
 
-def _testcase(func):
+def _testcase(function):
     """Actual decorator that validates & registers a method as a testcase."""
-    if not hasattr(func, "__tags__"):
-        func.__tags__ = {}
-        func.__tags_index__ = {}
+    global __TESTCASES__
 
-    _validate_testcase(func)
-    _mark_function_as_testcase(func)
-    __TESTCASES__.append(func.__name__)
-    return func
+    _validate_testcase_name(function)
+
+    # `name` attribute might be added if decorated with @testcase(name=...)
+    if not hasattr(function, "name"):
+        function.name = function.__name__
+
+    if not hasattr(function, "__tags__"):
+        function.__tags__ = {}
+        function.__tags_index__ = {}
+
+    _validate_testcase(function)
+    _mark_function_as_testcase(function)
+
+    function.__seq_number__ = _number_of_testcases()
+    __TESTCASES__.append(function.__name__)
+
+    return function
 
 
 def _testcase_meta(
+    name=None,
     tags=None,
     parameters=None,
     name_func=parametrization.default_name_func,
@@ -398,28 +545,42 @@ def _testcase_meta(
     @functools.wraps(_testcase)
     def wrapper(function):
         """Meta logic for test case goes here"""
+        global __GENERATED_TESTCASES__
+        global __PARAMETRIZATION_TEMPLATE__
+
+        _validate_testcase_name(function)
 
         tag_dict = tagging.validate_tag_value(tags) if tags else {}
         function.__tags__ = copy.deepcopy(tag_dict)
 
         if parameters is not None:  # Empty tuple / dict checks happen later
-
+            function.name = name or function.__name__
             function.__parametrization_template__ = True
+            __PARAMETRIZATION_TEMPLATE__.append(function.__name__)
 
-            functions = parametrization.generate_functions(
-                function=function,
-                parameters=parameters,
-                name_func=name_func,
-                docstring_func=docstring_func,
-                tag_func=tag_func,
-                tag_dict=tag_dict,
-                summarize=summarize,
-                num_passing=num_passing,
-                num_failing=num_failing,
-                key_combs_limit=key_combs_limit,
-                execution_group=execution_group,
-                timeout=timeout,
-            )
+            try:
+                functions = parametrization.generate_functions(
+                    function=function,
+                    name=name,
+                    parameters=parameters,
+                    name_func=name_func,
+                    docstring_func=docstring_func,
+                    tag_func=tag_func,
+                    tag_dict=tag_dict,
+                    summarize=summarize,
+                    num_passing=num_passing,
+                    num_failing=num_failing,
+                    key_combs_limit=key_combs_limit,
+                    execution_group=execution_group,
+                    timeout=timeout,
+                )
+            except parametrization.ParametrizationError as pe:
+                # Testplan stops execution if `ParametrizationError` raises.
+                # However in our test the process will not quit but continue
+                # to run the next testcase, and module will not be reloaded.
+                # So, it is better reset globals before raising this error.
+                reset_globals()
+                raise pe
 
             # Register generated functions as test_cases
             for func in functions:
@@ -429,7 +590,6 @@ def _testcase_meta(
                 _mark_function_as_testcase(func)
 
                 wrappers = custom_wrappers or []
-
                 if not isinstance(wrappers, (list, tuple)):
                     wrappers = [wrappers]
 
@@ -439,11 +599,13 @@ def _testcase_meta(
                 # so that CodeDetails gets the correct line number
                 func.wrapper_of = function
 
-                __TESTCASES__.append(func.__name__)
+                func.__seq_number__ = _number_of_testcases()
                 __GENERATED_TESTCASES__.append(func)
 
             return function
+
         else:
+            function.name = name or function.__name__
             function.summarize = summarize
             function.summarize_num_passing = num_passing
             function.summarize_num_failing = num_failing
@@ -451,6 +613,12 @@ def _testcase_meta(
             function.execution_group = execution_group
             function.timeout = timeout
             function.__tags_index__ = copy.deepcopy(tag_dict)
+
+            if ":" in function.name:
+                warnings.warn(
+                    "It is strongly suggested not using colon in"
+                    " name of testcase - [{}]".format(function.name)
+                )
 
             return _testcase(function)
 
@@ -478,6 +646,9 @@ def testcase(*args, **kwargs):
     wrong signatures (with swapped parameters for example) will cause bugs
     that can be time-consuming to figure out.
 
+    :param name: customized readable name for testcase.
+    :type name: ``str``
+                ``dict( str: str)``/ ``dict( str: tuple(str))``
     :param tags: allows filtering of tests with simple tags/
                  multi-simple tags/named tags/multi-named tags.
     :type tags: ``str``/ ``tuple(str)``/
@@ -499,7 +670,8 @@ def testcase(*args, **kwargs):
                                         A single value (that is not a tuple,
                                         or list) if and only if there is a
                                         single parametrization argument.
-    :param name_func: custom testcase name generation alogorithm.
+    :param name_func: custom testcase name generation algorithm for parametrized
+                      testcases, work with `name` argument.
                         name_func(func_name, kwargs) => testcase_method_name
                         Where:
                         func_name - Name of the parametrization target function
@@ -582,6 +754,7 @@ def skip_if(*predicates):
         """
         Inner implementation of skip
         """
+        global __SKIP__
         result = _validate_skip_if_predicates(predicates)
         __SKIP__[testcase_method.__name__] += result
         return testcase_method

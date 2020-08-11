@@ -60,19 +60,19 @@ class Gamma(object):
 
 DEFAULT_PATTERN_OUTPUT = to_stdout(
     "Primary",
-    "  Primary:Beta  --tags color=yellow",
-    "    Primary:Beta:test_c",
-    "    Primary:Beta:test_b  --tags foo",
-    "    Primary:Beta:test_a  --tags color=red",
-    "  Primary:Alpha",
-    "    Primary:Alpha:test_c",
-    "    Primary:Alpha:test_b  --tags bar foo",
-    "    Primary:Alpha:test_a  --tags color=green",
+    "  Primary::Beta  --tags color=yellow",
+    "    Primary::Beta::test_c",
+    "    Primary::Beta::test_b  --tags foo",
+    "    Primary::Beta::test_a  --tags color=red",
+    "  Primary::Alpha",
+    "    Primary::Alpha::test_c",
+    "    Primary::Alpha::test_b  --tags bar foo",
+    "    Primary::Alpha::test_a  --tags color=green",
     "Secondary",
-    "  Secondary:Gamma",
-    "    Secondary:Gamma:test_c",
-    "    Secondary:Gamma:test_b  --tags bar",
-    "    Secondary:Gamma:test_a  --tags color=blue",
+    "  Secondary::Gamma",
+    "    Secondary::Gamma::test_c",
+    "    Secondary::Gamma::test_b  --tags bar",
+    "    Secondary::Gamma::test_a  --tags color=blue",
 )
 
 
@@ -244,7 +244,7 @@ class ParametrizedSuite(object):
             to_stdout(
                 *["Primary", "  ParametrizedSuite"]
                 + [
-                    "    test_method__val_{}".format(idx)
+                    "    test_method <val={}>".format(idx)
                     for idx in range(NUM_TESTS)
                 ]
             ),
@@ -255,7 +255,7 @@ class ParametrizedSuite(object):
             to_stdout(
                 *["Primary", "  ParametrizedSuite"]
                 + [
-                    "    test_method__val_{}".format(idx)
+                    "    test_method <val={}>".format(idx)
                     for idx in range(listing.MAX_TESTCASES)
                 ]
                 + [
@@ -269,10 +269,10 @@ class ParametrizedSuite(object):
         (
             listing.PatternLister(),
             to_stdout(
-                *["Primary", "  Primary:ParametrizedSuite"]
+                *["Primary", "  Primary::ParametrizedSuite"]
                 + [
-                    "    Primary:ParametrizedSuite"
-                    ":test_method__val_{}".format(idx)
+                    "    Primary::ParametrizedSuite"
+                    "::test_method <val={}>".format(idx)
                     for idx in range(listing.MAX_TESTCASES)
                 ]
                 + [

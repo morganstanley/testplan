@@ -101,9 +101,8 @@ class ErrorTest(object):
     @testcase(
         parameters=(
             # tuple notation, using default error value (TypeError)
-            ((lambda: "foo" + 5),),
-            # dict notation, using default error value (TypeError)
-            {"func": lambda: "foo" * "foo"},
+            (lambda: "foo" + 5,),
+            (lambda: object().b, AttributeError),
             (lambda: {"a": 5}["b"], KeyError),
             (lambda: int("a"), ValueError),
             (lambda: 10 / 0, ZeroDivisionError),

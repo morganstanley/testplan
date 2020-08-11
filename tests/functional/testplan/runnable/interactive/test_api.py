@@ -394,7 +394,7 @@ EXPECTED_INITIAL_GET = [
                 "description": "Parametrized testcase.",
                 "entries": [],
                 "logs": [],
-                "name": "test_parametrized__val_1",
+                "name": "test_parametrized <val=1>",
                 "parent_uids": [
                     "InteractiveAPITest",
                     "ExampleMTest",
@@ -416,7 +416,7 @@ EXPECTED_INITIAL_GET = [
                 "description": "Parametrized testcase.",
                 "entries": [],
                 "logs": [],
-                "name": "test_parametrized__val_2",
+                "name": "test_parametrized <val=2>",
                 "parent_uids": [
                     "InteractiveAPITest",
                     "ExampleMTest",
@@ -438,7 +438,7 @@ EXPECTED_INITIAL_GET = [
                 "description": "Parametrized testcase.",
                 "entries": [],
                 "logs": [],
-                "name": "test_parametrized__val_3",
+                "name": "test_parametrized <val=3>",
                 "parent_uids": [
                     "InteractiveAPITest",
                     "ExampleMTest",
@@ -465,7 +465,7 @@ EXPECTED_INITIAL_GET = [
             "description": "Parametrized testcase.",
             "entries": [],
             "logs": [],
-            "name": "test_parametrized__val_1",
+            "name": "test_parametrized <val=1>",
             "parent_uids": [
                 "InteractiveAPITest",
                 "ExampleMTest",

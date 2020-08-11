@@ -7,9 +7,10 @@ import six
 
 from testplan.common.utils.parser import ArgMixin
 from testplan.common.utils.logger import TESTPLAN_LOGGER
-from .multitest import MultiTest
-from .multitest.suite import get_testsuite_name
+
 from testplan.testing import tagging
+from testplan.testing.multitest import MultiTest
+from testplan.testing.multitest.suite import get_testsuite_name
 
 INDENT = " "
 MAX_TESTCASES = 25
@@ -69,7 +70,7 @@ class ExpandedNameLister(BaseLister):
         if isinstance(testcase, six.string_types):
             return testcase
         else:
-            return testcase.__name__
+            return testcase.name
 
     def get_testcase_outputs(self, instance, suite, testcases):
         result = ""
@@ -135,18 +136,18 @@ class ExpandedPatternLister(ExpandedNameLister):
 
     def format_suite(self, instance, suite):
         if not isinstance(instance, MultiTest):
-            return "{}:{}".format(instance.name, suite)
+            return "{}::{}".format(instance.name, suite)
 
-        pattern = "{}:{}".format(instance.name, get_testsuite_name(suite))
+        pattern = "{}::{}".format(instance.name, get_testsuite_name(suite))
         return self.apply_tag_label(pattern, suite)
 
     def format_testcase(self, instance, suite, testcase):
 
         if not isinstance(instance, MultiTest):
-            return "{}:{}:{}".format(instance.name, suite, testcase)
+            return "{}::{}::{}".format(instance.name, suite, testcase)
 
-        pattern = "{}:{}:{}".format(
-            instance.name, get_testsuite_name(suite), testcase.__name__
+        pattern = "{}::{}::{}".format(
+            instance.name, get_testsuite_name(suite), testcase.name,
         )
         return self.apply_tag_label(pattern, testcase)
 

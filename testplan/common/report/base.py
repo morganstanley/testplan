@@ -53,7 +53,7 @@ class Report(object):
         self.name = name
         self.description = description
 
-        self.uid = uuid.uuid4() if uid is None else uid
+        self.uid = uid or uuid.uuid4()
         self.entries = entries or []
 
         self.logs = []

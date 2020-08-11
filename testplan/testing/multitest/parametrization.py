@@ -6,8 +6,6 @@ import itertools
 import re
 import warnings
 
-import six
-
 from testplan.common.utils.convert import make_tuple
 from testplan.common.utils import callable as callable_utils
 from testplan.testing import tagging
@@ -20,9 +18,12 @@ from testplan.testing import tagging
 PYTHON_VARIABLE_PATTERN = r"^(?![\d])\w+$"
 PYTHON_VARIABLE_REGEX = re.compile(PYTHON_VARIABLE_PATTERN)
 
-# Python attribute names can be of unlimited length.
-# But the UI will not be pleasant when we end up with really long names.
+# Python attribute names can be of unlimited length but we set a limit here
 MAX_METHOD_NAME_LENGTH = 255
+# Name of testcase (usually used for display) cannot be too long,
+# Because the UI will not be pleasant when we end up with really long names
+MAX_TESTSUITE_NAME_LENGTH = 80
+MAX_TESTCASE_NAME_LENGTH = 80
 
 
 class ParametrizationError(ValueError):
@@ -181,40 +182,8 @@ def _generate_kwarg_list(parameters, args, required_args, default_args):
     raise ParametrizationError(msg.format(type(parameters), parameters))
 
 
-def _ensure_unique_names(functions):
-    """
-    If function generation ends up with functions with duplicate names, this
-    last step will make sure that they are differentiated by number suffixes.
-    """
-    name_counts = collections.Counter([f.__name__ for f in functions])
-    dupe_names = {k for k, v in name_counts.items() if v > 1}
-
-    if len(dupe_names) == 0:
-        return
-
-    dupe_counter = collections.defaultdict(int)
-
-    for func in functions:
-        name = func.__name__
-        if name in dupe_names:
-            count = dupe_counter[name]
-            func.__name__ = "{}__{}".format(name, count)
-            dupe_counter[name] += 1
-
-    # Can still have name conflict if user defined name_func does not work well
-    name_counts = collections.Counter([f.__name__ for f in functions])
-    dupe_names = {k for k, v in name_counts.items() if v > 1}
-
-    if len(dupe_names) > 0:
-        msg = (
-            '"name_func" produces duplicated function names and cannot be '
-            "automatically fixed by adding a suffix number, please check it."
-        )
-        raise ParametrizationError(msg)
-
-
 def _generate_func(
-    function, name_func, tag_func, docstring_func, tag_dict, kwargs
+    function, name, name_func, tag_func, docstring_func, tag_dict, kwargs
 ):
     """
     Generates a new function using the original function, name generation
@@ -234,8 +203,14 @@ def _generate_func(
     else:
         _generated.__doc__ = function.__doc__
 
-    _generated.__name__ = _name_func_wrapper(
-        name_func=name_func, func_name=function.__name__, kwargs=kwargs
+    _generated.__name__ = _parametrization_name_func_wrapper(
+        func_name=function.__name__, kwargs=kwargs
+    )
+
+    _generated.name = (
+        name_func(name, kwargs)
+        if name
+        else name_func(function.__name__, kwargs)
     )
 
     if hasattr(function, "__xfail__"):
@@ -300,62 +275,37 @@ def _check_tag_func(tag_func):
     )
 
 
-def _name_func_wrapper(name_func, func_name, kwargs):
+def _parametrization_name_func_wrapper(func_name, kwargs):
     """
     Make sure that name generation doesn't end up with invalid / unreadable
     attribute names/types etc.
 
     If somehow a 'bad' function name is generated, will just return the
     original ``func_name`` instead (which will later on be suffixed with an
-    integer by :py:func:`_ensure_unique_names`)
+    integer by :py:func:`_ensure_unique_testcase_names`)
     """
-    generated_name = name_func(func_name, kwargs)
-    simple_index_suffix_msg = (
-        ' Simple index suffixes (e.g. "{func_name}_1",'
-        ' "{func_name}_2") will be used.'
-    ).format(func_name=func_name)
-
-    if not isinstance(generated_name, six.string_types):
-        msg = (
-            'Generated function name ("{generated_name}"") must be'
-            ' a string, it is of type: "{type}"'
-        ).format(generated_name=generated_name, type=type(generated_name))
-        raise ParametrizationError(msg)
+    generated_name = parametrization_name_func(func_name, kwargs)
 
     if not PYTHON_VARIABLE_REGEX.match(generated_name):
-        if name_func is not default_name_func:
-            msg = (
-                'Generated method name: "{generated_name}"" is not '
-                "a valid Python attribute name."
-            ).format(generated_name=generated_name)
-            warnings.warn(msg + simple_index_suffix_msg)
+        # Generated method name is not a valid Python attribute name
+        # e.g. "{func_name}_1", "{func_name}_2" will be used.
         return func_name
 
     if len(generated_name) > MAX_METHOD_NAME_LENGTH:
-        msg = (
-            'Generated method name: "{generated_name}" is a bit '
-            "too long ({length} characters)."
-        )
-        msg += simple_index_suffix_msg
-        if name_func is not default_name_func:
-            msg += " Consider using a custom name_func instead."
-
-        warnings.warn(
-            msg.format(
-                generated_name=generated_name, length=len(generated_name)
-            )
-        )
+        # Generated method name is a bit too long. Simple index suffixes
+        # e.g. "{func_name}_1", "{func_name}_2" will be used.
         return func_name
+
     return generated_name
 
 
-def default_name_func(func_name, kwargs):
+def parametrization_name_func(func_name, kwargs):
     """
-    Default testcase method name generator.
+    Method name generator for parametrized testcases.
 
     >>> import collections
-    >>> default_name_func('test_method',
-                          collections.OrderedDict(('foo', 5), ('bar', 10)))
+    >>> parametrization_name_func('test_method',
+                               collections.OrderedDict(('foo', 5), ('bar', 10)))
     'test_method__foo_5__bar_10'
 
     :param func_name: Name of the parametrization target function.
@@ -372,9 +322,35 @@ def default_name_func(func_name, kwargs):
     return template.format(func_name=func_name, **kwargs)
 
 
+def default_name_func(func_name, kwargs):
+    """
+    Readable testcase name generator for parametrized testcases.
+
+    >>> import collections
+    >>> default_name_func('Test Method',
+                          collections.OrderedDict(('foo', 5), ('bar', 10)))
+    'Test Method {foo:5, bar:10}'
+
+    :param func_name: Name of the parametrization target function.
+    :type func_name: ``str``
+    :param kwargs: The order of keys will be the same as the order of arguments
+                   in the original function.
+    :type kwargs: ``collections.OrderedDict``
+
+    :return: New readable name testcase method.
+    :rtype: ``str``
+    """
+    arg_strings = ["{arg}={{{arg}}}".format(arg=arg) for arg in kwargs]
+    template = "{func_name} <" + ", ".join(arg_strings) + ">"
+    return template.format(
+        func_name=func_name, **{k: repr(v) for k, v in kwargs.items()}
+    )
+
+
 def generate_functions(
     function,
     parameters,
+    name,
     name_func,
     tag_dict,
     tag_func,
@@ -397,13 +373,15 @@ def generate_functions(
     method will be created for each item in the Cartesian product of all
     combinations of values.
 
-    :param function: A testcase method, with extra
-                     arguments for parametrization.
+    :param function: A testcase method, with extra arguments
+                     for parametrization.
     :type function: ``callable``
     :param parameters: Parametrization context for the test case method.
     :type parameters: ``list`` or ``tuple`` of ``dict`` or ``tuple`` / ``list``
                       OR a ``dict`` of ``tuple`` / ``list``.
-    :param name_func: Function that will generate method names,
+    :param name: Customized readable name for testcase.
+    :type name: ``str``
+    :param name_func: Function for generating names of parametrized testcases,
                       should accept ``func_name`` and ``kwargs`` as parameters.
     :type name_func: ``callable``
     :param docstring_func: Function that will generate docstring,
@@ -456,6 +434,7 @@ def generate_functions(
     functions = [
         _generate_func(
             function=function,
+            name=name,
             name_func=name_func,
             tag_func=tag_func,
             docstring_func=docstring_func,
@@ -465,7 +444,8 @@ def generate_functions(
         for kwargs in kwarg_list
     ]
 
-    for func in functions:
+    for func, kwargs in zip(functions, kwarg_list):
+        func.name = func.name or func.__name__
         func.summarize = summarize
         func.summarize_num_passing = num_passing
         func.summarize_num_failing = num_failing
@@ -473,6 +453,10 @@ def generate_functions(
         func.execution_group = execution_group
         func.timeout = timeout
 
-    _ensure_unique_names(functions)
+        if ":" in func.name:
+            warnings.warn(
+                "It is strongly suggested not using colon in"
+                " name of testcase - [{}]".format(func.name)
+            )
 
     return functions
