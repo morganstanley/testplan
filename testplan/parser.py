@@ -69,7 +69,10 @@ class TestplanParser(object):
         )
 
         parser.add_argument(
-            "--list", action="store_true", help="Shortcut for `--info name`."
+            "--list",
+            action="store_true",
+            default=False,
+            help="Shortcut for `--info name`.",
         )
 
         parser.add_argument(
@@ -220,9 +223,9 @@ Test filter, runs tests that match ALL of the given tags.
 
         report_group.add_argument(
             "--report-dir",
-            help="Target directory for tag filtered report output.",
             default=self._default_options["report_dir"],
             metavar="PATH",
+            help="Target directory for tag filtered report output.",
         )
 
         report_group.add_argument(
@@ -236,18 +239,24 @@ Test filter, runs tests that match ALL of the given tags.
             "-v",
             "--verbose",
             action="store_true",
+            default=self._default_options["verbose"],
             help="Enable verbose mode that will also set the stdout-style "
             'option to "detailed".',
         )
 
         report_group.add_argument(
-            "-d", "--debug", action="store_true", help="Enable debug mode.",
+            "-d",
+            "--debug",
+            action="store_true",
+            default=self._default_options["debug"],
+            help="Enable debug mode.",
         )
 
         report_group.add_argument(
             "-b",
             "--browse",
             action="store_true",
+            default=self._default_options["browse"],
             help="Automatically open report to browse. Must be specified "
             'with "--ui" to open it locally, or upload it to a web server '
             "with a customized exporter which has a `report_url`, or there "
@@ -337,13 +346,6 @@ that match ALL of the given tags.
                 seed=args["shuffle_seed"], shuffle_type=args["shuffle"]
             )
 
-        # We can set arguments in @test_plan decorator or by command line, for
-        # arguments in boolean type if in one place it is set to True, then
-        # the final result is True
-        args["browse"] = args["browse"] or self._default_options["browse"]
-        args["verbose"] = args["verbose"] or self._default_options["verbose"]
-        args["debug"] = args["debug"] or self._default_options["debug"]
-
         # Set stdout style and logging level options according to
         # verbose/debug parameters. Debug output should be a superset of
         # verbose output, i.e. running with just "-d" should automatically
@@ -358,7 +360,7 @@ that match ALL of the given tags.
             elif args["verbose"]:
                 args["logger_level"] = logger.INFO
 
-        if args["list"] and "info" not in args:
+        if args["list"] and not args["test_lister"]:
             args["test_lister"] = listing.NameLister()
 
         return args
