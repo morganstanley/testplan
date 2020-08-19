@@ -133,7 +133,7 @@ class Beta(object):
 )
 def test_programmatic_ordering(sorter, report_ctx):
     multitest_x = MultiTest(name="Multitest", suites=[Beta(), Alpha()])
-    plan = TestplanMock(name="plan", parse_cmdline=False, test_sorter=sorter)
+    plan = TestplanMock(name="plan", test_sorter=sorter)
     plan.add(multitest_x)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):

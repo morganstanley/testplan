@@ -385,7 +385,7 @@ class ProcessRunnerTestConfig(TestConfig):
             ConfigOption("proc_env", default={}): dict,
             ConfigOption("proc_cwd", default=None): Or(str, None),
             ConfigOption("timeout", default=None): Or(
-                float, int, Use(parse_duration)
+                None, float, int, Use(parse_duration)
             ),
             ConfigOption("ignore_exit_codes", default=[]): [int],
         }
@@ -617,15 +617,17 @@ class ProcessRunnerTest(Test):
 
             if self.cfg.timeout:
                 with open(self.timeout_log, "w") as timeout_log:
-                    enforce_timeout(
+                    timeout_checker = enforce_timeout(
                         process=self._test_process,
                         timeout=self.cfg.timeout,
                         output=timeout_log,
                         callback=self.timeout_callback,
                     )
                     self._test_process_retcode = self._test_process.wait()
+                    timeout_checker.join()
             else:
                 self._test_process_retcode = self._test_process.wait()
+
             self._test_has_run = True
 
     def read_test_data(self):

@@ -95,10 +95,11 @@ class TestplanParser(object):
 
         general_group.add_argument(
             "--timeout",
-            metavar="N",
+            metavar="TIMEOUT",
             default=self._default_options["timeout"],
             type=int,
-            help="Expiry timeout on test execution.",
+            help="Timeout value in seconds to kill Testplan and all child "
+            "processes, default to 14400s(4h), set to 0 to disable.",
         )
 
         general_group.add_argument(

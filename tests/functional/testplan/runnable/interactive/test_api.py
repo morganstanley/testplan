@@ -65,7 +65,6 @@ def plan(tmpdir):
         name=six.ensure_str("InteractiveAPITest"),
         interactive_port=0,
         interactive_block=False,
-        parse_cmdline=False,
     )
 
     logfile = tmpdir / "attached_log.txt"

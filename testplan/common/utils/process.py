@@ -285,3 +285,5 @@ def enforce_timeout(process, timeout=1, callback=None, output=None):
     timeout_checker = threading.Thread(target=_inner)
     timeout_checker.daemon = True
     timeout_checker.start()
+
+    return timeout_checker
