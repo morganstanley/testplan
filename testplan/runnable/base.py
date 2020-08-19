@@ -149,8 +149,8 @@ class TestRunnerConfig(RunnableConfig):
             ),
             ConfigOption("verbose", default=False): bool,
             ConfigOption("debug", default=False): bool,
-            ConfigOption("timeout", default=defaults.TESTPLAN_TIMEOUT): And(
-                int, lambda t: t >= 0
+            ConfigOption("timeout", default=defaults.TESTPLAN_TIMEOUT): Or(
+                None, And(int, lambda t: t >= 0)
             ),
             ConfigOption("abort_wait_timeout", default=60): int,
             ConfigOption(
