@@ -11,7 +11,7 @@ import requests
 
 from testplan.common.utils.process import kill_process
 
-_TIMEOUT = 60
+_TIMEOUT = 90
 _REQUEST_TIMEOUT = 0.5
 _URL_RE = re.compile(r"^\s*Local: (?P<url>[^\s]+)\s*$")
 
@@ -31,7 +31,13 @@ def dummy_testplan(request):
     """
     cmd = [sys.executable] + request.param
     cwd = os.path.dirname(os.path.abspath(__file__))
-    testplan_proc = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE)
+    testplan_proc = subprocess.Popen(
+        cmd,
+        cwd=cwd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        bufsize=0,
+    )
 
     # Set up a thread to read from the process' stdout and write to a queue.
     # This prevents the main thread from blocking when there is no output.
