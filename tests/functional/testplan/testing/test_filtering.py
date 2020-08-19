@@ -176,9 +176,7 @@ def test_programmatic_filtering(filter_obj, report_ctx):
     multitest_x = MultiTest(name="XXX", suites=[Alpha(), Beta()])
     multitest_y = MultiTest(name="YYY", suites=[Gamma()])
 
-    plan = TestplanMock(
-        name="plan", parse_cmdline=False, test_filter=filter_obj
-    )
+    plan = TestplanMock(name="plan", test_filter=filter_obj)
     plan.add(multitest_x)
     plan.add(multitest_y)
 

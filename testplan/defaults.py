@@ -3,6 +3,8 @@ import os
 
 from testplan.report.testing.styles import StyleArg
 
+TESTPLAN_TIMEOUT = 14400  # 4h
+
 SUMMARY_NUM_PASSING = 5
 SUMMARY_NUM_FAILING = 5
 SUMMARY_KEY_COMB_LIMIT = 10  # Number of failed key combinations to summary.

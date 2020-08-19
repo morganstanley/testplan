@@ -151,8 +151,9 @@ class Testplan(entity.RunnableManager):
     :type verbose: ``bool``
     :param debug: Enable or disable debug mode.
     :type debug: ``bool``
-    :param timeout: Timeout value for test execution.
-    :type timeout: ``NoneType`` or ``int`` or ``float`` greater than 0.
+    :param timeout: Timeout value in seconds to kill Testplan and all child
+        processes, default to 14400s(4h), set to 0 to disable.
+    :type timeout: ``int``
     :param interactive_handler: Handler for interactive mode execution.
     :type interactive_handler: Subclass of :py:class:
         `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
@@ -198,7 +199,7 @@ class Testplan(entity.RunnableManager):
         test_lister=None,
         verbose=False,
         debug=False,
-        timeout=None,
+        timeout=defaults.TESTPLAN_TIMEOUT,
         interactive_handler=TestRunnerIHandler,
         extra_deps=None,
         **options
@@ -353,7 +354,7 @@ class Testplan(entity.RunnableManager):
         test_lister=None,
         verbose=False,
         debug=False,
-        timeout=None,
+        timeout=defaults.TESTPLAN_TIMEOUT,
         interactive_handler=TestRunnerIHandler,
         extra_deps=None,
         **options

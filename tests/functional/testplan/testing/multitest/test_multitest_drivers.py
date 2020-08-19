@@ -115,10 +115,7 @@ def test_multitest_drivers(runpath):
 def test_multitest_drivers_in_testplan(runpath):
     """TODO."""
     for idx, opts in enumerate(
-        (
-            dict(name="MyPlan", parse_cmdline=False, runpath=runpath),
-            dict(name="MyPlan", parse_cmdline=False),
-        )
+        (dict(name="MyPlan", runpath=runpath), dict(name="MyPlan",),)
     ):
         plan = TestplanMock(**opts)
         server = TCPServer(name="server")
