@@ -9,9 +9,14 @@ from six.moves import queue
 import pytest
 import requests
 
+pytestmark = pytest.mark.skipif(
+    os.name != "posix",
+    reason="Subprocess based approach is problematic on windows.",
+)
+
 from testplan.common.utils.process import kill_process
 
-_TIMEOUT = 90
+_TIMEOUT = 120
 _REQUEST_TIMEOUT = 0.5
 _URL_RE = re.compile(r"^\s*Local: (?P<url>[^\s]+)\s*$")
 
