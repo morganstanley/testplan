@@ -115,7 +115,10 @@ class PyTest(testing.Test):
         return_code = pytest.main(
             self._pytest_args, plugins=[self._pytest_plugin]
         )
-        if return_code != 0:
+        if return_code == 5:
+            self.result.report.status_override = Status.UNSTABLE
+            self.logger.warning("No tests were run")
+        elif return_code != 0:
             self.result.report.status_override = Status.FAILED
             self.logger.error("pytest exited with return code %d", return_code)
 
@@ -126,7 +129,7 @@ class PyTest(testing.Test):
             plugins=[self._collect_plugin],
         )
 
-        if return_code != 0:
+        if return_code not in (0, 5):  # rc 5: no tests were run
             raise RuntimeError(
                 "Collection failure, exit code = {}".format(return_code)
             )
