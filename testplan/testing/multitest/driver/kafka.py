@@ -34,11 +34,11 @@ class KafkaStandalone(app.App):
     """
     Driver for starting a Kafka instance in standalone mode.
 
-    :param cfg_template: Zookeeper config file template.
+    :param cfg_template: Kafka config file template.
     :type cfg_template: ``str``
-    :param binary: zkServer.sh file path.
+    :param binary: kafka-server-start.sh file path.
     :type binary: ``str``
-    :param port: Zookeeper listen port. Zookeeper doesn't support random port
+    :param port: Kafka listen port.
     :type port: ``int``
     :param env: Environmental variables to be made available to Zookeeper process.
     :type env: ``dict``
