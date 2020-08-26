@@ -76,6 +76,10 @@ class ZookeeperStandalone(Driver):
         self.pid_file = None
         self.std = None
 
+    @property
+    def connection_str(self):
+        return "{}:{}".format("localhost", self.port)
+
     def pre_start(self):
         """
         Create mandatory directories and install files from given templates

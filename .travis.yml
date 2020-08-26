@@ -10,6 +10,10 @@ python:
 
 before_install:
   - sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
+  - wget https://downloads.apache.org/kafka/2.6.0/kafka_2.12-2.6.0.tgz -O kafka.tgz
+  - sudo mkdir /opt/kafka
+  - sudo chown -R $USER:$USER /opt/kafka
+  - tar zxf kafka.tgz -C /opt/kafka --strip-components 1
 
 install:
   - pip install -r requirements.txt -U
