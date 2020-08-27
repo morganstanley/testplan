@@ -334,7 +334,7 @@ EXPECTED_INITIAL_GET = [
                     "total": 3,
                     "unknown": 3,
                 },
-                "description": None,
+                "description": "Parametrized testcase.",
                 "entry_uids": [
                     "test_parametrized__val_1",
                     "test_parametrized__val_2",

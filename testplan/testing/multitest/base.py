@@ -349,7 +349,7 @@ class MultiTest(testing_base.Test):
         if step in (self.resources.start, self.resources.stop):
             return False
         elif self.resources.start_exceptions or self.resources.stop_exceptions:
-            self.logger.critical("Skipping step %s", step.__name__)
+            self.logger.critical('Skipping step "%s"', step.__name__)
             return True
         return False
 
@@ -492,8 +492,8 @@ class MultiTest(testing_base.Test):
         Generate a list of reports for testcases, including parametrization
         groups.
         """
-        parametrization_reports = {}
         testcase_reports = []
+        parametrization_reports = {}
 
         for testcase in testcases:
             testcase_report = self._new_testcase_report(testcase)
@@ -564,6 +564,7 @@ class MultiTest(testing_base.Test):
         # avoid duplication with the generated testcases.
         return testplan.report.TestGroupReport(
             name=param_template,
+            description=strings.get_docstring(param_method),
             category=testplan.report.ReportCategories.PARAMETRIZATION,
             uid=param_template,
             tags=param_method.__tags__,
@@ -635,10 +636,8 @@ class MultiTest(testing_base.Test):
 
     def _run_serial_testcases(self, testsuite, testcases):
         """Run testcases serially and return a list of test reports."""
-        parametrization_reports = self._parametrization_reports(
-            testsuite, testcases
-        )
         testcase_reports = []
+        parametrization_reports = {}
         pre_testcase = getattr(testsuite, "pre_testcase", None)
         post_testcase = getattr(testsuite, "post_testcase", None)
 
@@ -654,6 +653,13 @@ class MultiTest(testing_base.Test):
                 testcase, "_parametrization_template", None
             )
             if param_template:
+                if param_template not in parametrization_reports:
+                    param_method = getattr(testsuite, param_template)
+                    param_report = self._new_parametrized_group_report(
+                        param_template, param_method
+                    )
+                    parametrization_reports[param_template] = param_report
+                    testcase_reports.append(param_report)
                 parametrization_reports[param_template].append(testcase_report)
             else:
                 testcase_reports.append(testcase_report)
@@ -661,16 +667,10 @@ class MultiTest(testing_base.Test):
             if testcase_report.status == testplan.report.Status.ERROR:
                 if self.cfg.stop_on_error:
                     self.logger.debug(
-                        "Stopping exeucution of testsuite %s due to error.",
+                        'Stopping exeucution of testsuite "%s" due to error',
                         mtest_suite.get_testsuite_name(testsuite),
                     )
                     break
-
-        # Add all non-empty parametrization reports into the list of returned
-        # testcase reports, to be added to the suite report.
-        for param_report in parametrization_reports.values():
-            if param_report.entries:
-                testcase_reports.append(param_report)
 
         return testcase_reports
 
@@ -690,7 +690,7 @@ class MultiTest(testing_base.Test):
         post_testcase = getattr(testsuite, "post_testcase", None)
 
         for exec_group in execution_groups:
-            self.logger.debug("Running execution group %s", exec_group)
+            self.logger.debug('Running execution group "%s"', exec_group)
             results = [
                 self._thread_pool.submit(
                     self._run_testcase, testcase, pre_testcase, post_testcase
@@ -725,7 +725,7 @@ class MultiTest(testing_base.Test):
 
             if should_stop:
                 self.logger.debug(
-                    "Stopping execution of testsuite %s due to error.",
+                    'Stopping execution of testsuite "%s" due to error',
                     self.cfg.name,
                 )
                 break
@@ -808,9 +808,13 @@ class MultiTest(testing_base.Test):
         interface.check_signature(method, ["self", "name", "env", "result"])
         method(testcase.__name__, self.resources, case_result)
 
-    def _run_testcase(self, testcase, pre_testcase, post_testcase):
+    def _run_testcase(
+        self, testcase, pre_testcase, post_testcase, testcase_report=None
+    ):
         """Runs a testcase method and returns its report."""
-        testcase_report = self._new_testcase_report(testcase)
+        testcase_report = testcase_report or self._new_testcase_report(
+            testcase
+        )
         testcase_report.runtime_status = testplan.report.RuntimeStatus.RUNNING
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self.scratch
