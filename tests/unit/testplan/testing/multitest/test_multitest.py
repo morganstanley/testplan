@@ -135,6 +135,7 @@ EXPECTED_REPORT_SKELETON = report.TestGroupReport(
                 ),
                 report.TestGroupReport(
                     name="parametrized",
+                    description="Parametrized testcase.",
                     category=report.ReportCategories.PARAMETRIZATION,
                     uid="parametrized",
                     parent_uids=["MTest", "Suite"],
