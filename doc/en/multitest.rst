@@ -109,12 +109,13 @@ A MultiTest instance can be constructed from the following parameters:
   required for interacting with it, such as network connections.
 
 * **Initial Context**: The initial context is an optional way to pass
-  information to be used by drivers and fro mwithin testcases. When drivers are
+  information to be used by drivers and from within testcases. When drivers are
   added, they are provided with access to the driver environment that also
   contains the initial_context input. This mechanism is useful to let drivers
   know for example how to connect to other drivers. It is possible to use the
   initial context to pass global values that will be available to all drivers
-  during startup and testcases during execution.
+  during startup and testcases during execution. Example of initial context
+  can be found :ref:`here <example_basic_initial_context>`
 
 
 Example

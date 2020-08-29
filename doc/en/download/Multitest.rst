@@ -1,6 +1,24 @@
 Multitest
 *********
 
+.. _example_basic:
+
+Basic
+-----
+
+.. _example_basic_initial_context:
+
+Initial Context
++++++++++++++++
+
+Required files:
+  - :download:`test_plan.py <../../../examples/Multitest/Basic/Initial Context/test_plan.py>`
+
+test_plan.py
+````````````
+.. literalinclude:: ../../../examples/Multitest/Basic/Initial Context/test_plan.py
+
+
 .. _example_multitest_listing:
 
 Listing
