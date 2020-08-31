@@ -302,6 +302,8 @@ class InteractiveReport extends React.Component {
       if (currEntry.uid === shallowReportEntry.parent_uids[depth]) {
         return {
           ...currEntry,
+          hash: null,  // clear the hash on the path down to the change, as we
+                       // do not know what it would be safe bet to set null
           entries: currEntry.entries.map(
             entry => this.updateReportEntryRecur(
               shallowReportEntry,
