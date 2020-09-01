@@ -153,8 +153,20 @@ class Client(object):
         Receive a FIX message.
         """
         self.socket.settimeout(float(timeout))
-        data = self.socket.recv(4096)
-        return self.msgclass.from_buffer(data, self.codec)
+
+        buffer = self.socket.recv(8)  # 7 + 1 delimiter + checksum tag
+        while 1:
+            data = self.socket.recv(1)
+            if not data:
+                break
+            buffer += data
+            if buffer.endswith(b"\x01"):
+                if buffer[-8:].startswith(
+                    b"\x0110="
+                ):  # If received checksum tag
+                    break
+        self.in_seqno += 1
+        return self.msgclass.from_buffer(buffer, self.codec)
 
     def sendlogoff(self, custom_tags=None):
         """
