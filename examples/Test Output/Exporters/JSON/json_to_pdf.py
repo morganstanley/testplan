@@ -15,8 +15,17 @@ def main(source, target):
 
     with open(source) as source_file:
         data = json.loads(source_file.read())
-        if data.get("split"):
-            raise RuntimeError("Cannot process JSON report that was split")
+        if (
+            data.get("version", 1) >= 2
+            or data.get("structure_file")
+            or data.get("assertions_file")
+        ):
+            raise RuntimeError(
+                "This utility can only process a single all-in-one JSON"
+                " report, you can set `split_json_report` to False in"
+                " `JSONExporter` while running Testplan script to get a"
+                " single JSON report."
+            )
 
         report_obj = TestReport.deserialize(data)
         print("Loaded report: {}".format(report_obj.name))
