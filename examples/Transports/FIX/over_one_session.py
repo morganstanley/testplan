@@ -93,6 +93,11 @@ class FIXTestsuite(object):
         # We use the server to send the response to the client.
         env.server.send(msg)
 
+        # we can also create a heartbeat message (message type 0)
+        heartbeat = fixmsg({35: "0"})
+        # We use the server to send the heartbeat to the client.
+        env.server.send(heartbeat)
+
         # We create a FIX message to describe what we expect the client to
         # receive. The default FIX version FIX.4.2 is expected, together with
         # the right senderCompID and targetCompID.
@@ -105,8 +110,18 @@ class FIXTestsuite(object):
             }
         )
 
+        exp_heartbeat = fixmsg(
+            {
+                8: "FIX.4.2",
+                35: "0",
+                49: env.client.target,
+                56: env.client.sender,
+            }
+        )
+
         # We receive the message from the client.
         received = env.client.receive()
+        received_heartbeat = env.client.receive()
 
         # We expect a message that matches the message we sent. We restrict the
         # comparison to tags 8, 35, 49 and 56, since we want to ignore the
@@ -115,6 +130,12 @@ class FIXTestsuite(object):
         result.fix.match(
             exp_msg,
             received,
+            description="Message sent by server match.",
+            include_tags=[8, 35, 49, 56],
+        )
+        result.fix.match(
+            exp_heartbeat,
+            received_heartbeat,
             description="Message sent by server match.",
             include_tags=[8, 35, 49, 56],
         )
