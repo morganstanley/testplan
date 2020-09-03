@@ -90,15 +90,20 @@ class JSONExporter(Exporter):
                     json.dump(assertions, json_file)
 
                 save_attachments(report=source, directory=attachments_dir)
-                # Modify json data may change the original `TestReport` object
+                meta["version"] = 2
+                # Modify dict ref may change the original `TestReport` object
                 meta["attachments"] = copy.deepcopy(meta["attachments"])
                 meta["attachments"][attachment_1] = attachment_filepath_1
                 meta["attachments"][attachment_2] = attachment_filepath_2
+                meta["structure_file"] = attachment_1
+                meta["assertions_file"] = attachment_2
 
                 with open(json_path, "w") as json_file:
                     json.dump(meta, json_file)
             else:
                 save_attachments(report=source, directory=attachments_dir)
+                data["version"] = 1
+
                 with open(json_path, "w") as json_file:
                     json.dump(data, json_file)
 
@@ -127,7 +132,6 @@ class JSONExporter(Exporter):
                     )
 
         meta, structure, assertions = data, data["entries"], {data["name"]: {}}
-        meta["split"] = True
         meta["entries"] = []
         split_assertions(structure, assertions[meta["name"]])
         return meta, structure, assertions
@@ -155,6 +159,4 @@ class JSONExporter(Exporter):
 
         merge_assertions(structure, assertions, strict)
         meta["entries"] = structure
-        if "split" in meta:
-            del meta["split"]
         return meta

@@ -102,7 +102,7 @@ def test_json_exporter_split_report(runpath):
     # Load the JSON file to validate it contains valid JSON.
     with open(json_path) as json_file:
         report = json.load(json_file)
-    assert report["split"] == True
+    assert "structure_file" in report and "assertions_file" in report
 
     # Check that the expected text file is attached correctly.
     attachments_dir = os.path.join(os.path.dirname(json_path), "_attachments")
@@ -115,6 +115,8 @@ def test_json_exporter_split_report(runpath):
     attachment_2 = "report-assertions-{}.json".format(digest)
     assert attachment_1 in report["attachments"]
     assert attachment_2 in report["attachments"]
+    assert report["structure_file"] == attachment_1
+    assert report["assertions_file"] == attachment_2
 
     attachment_filepath_1 = os.path.join(attachments_dir, attachment_1)
     attachment_filepath_2 = os.path.join(attachments_dir, attachment_2)
