@@ -6,20 +6,16 @@ import argparse
 import json
 
 from testplan.report import TestReport
-from testplan.exporters.testing import PDFExporter
-
 from testplan.report.testing.styles import Style, StyleEnum
+
+from testplan.exporters.testing import PDFExporter
 
 
 def main(source, target):
 
     with open(source) as source_file:
         data = json.loads(source_file.read())
-        if (
-            data.get("version", 1) >= 2
-            or data.get("structure_file")
-            or data.get("assertions_file")
-        ):
+        if data.get("version", 1) >= 2 or len(data.get("entries", [])) == 0:
             raise RuntimeError(
                 "This utility can only process a single all-in-one JSON"
                 " report, you can set `split_json_report` to False in"

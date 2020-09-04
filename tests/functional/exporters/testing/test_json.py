@@ -9,6 +9,7 @@ from testplan.testing import multitest
 from testplan import TestplanMock
 from testplan.common.utils.testing import argv_overridden
 from testplan.exporters.testing import JSONExporter
+from testplan.exporters.testing.json import gen_attached_report_names
 
 
 @multitest.testsuite
@@ -102,7 +103,8 @@ def test_json_exporter_split_report(runpath):
     # Load the JSON file to validate it contains valid JSON.
     with open(json_path) as json_file:
         report = json.load(json_file)
-    assert "structure_file" in report and "assertions_file" in report
+
+    assert report["version"] == 2
 
     # Check that the expected text file is attached correctly.
     attachments_dir = os.path.join(os.path.dirname(json_path), "_attachments")
@@ -110,20 +112,20 @@ def test_json_exporter_split_report(runpath):
     assert len(report["entries"]) == 0
     assert len(report["attachments"]) == 3
 
-    digest = hashlib.md5(json_path.encode("utf-8")).hexdigest()
-    attachment_1 = "report-structure-{}.json".format(digest)
-    attachment_2 = "report-assertions-{}.json".format(digest)
-    assert attachment_1 in report["attachments"]
-    assert attachment_2 in report["attachments"]
-    assert report["structure_file"] == attachment_1
-    assert report["assertions_file"] == attachment_2
+    structure_filename, assertions_filename = gen_attached_report_names(
+        json_path
+    )
+    assert structure_filename in report["attachments"]
+    assert assertions_filename in report["attachments"]
+    assert report["structure_file"] == structure_filename
+    assert report["assertions_file"] == assertions_filename
 
-    attachment_filepath_1 = os.path.join(attachments_dir, attachment_1)
-    attachment_filepath_2 = os.path.join(attachments_dir, attachment_2)
-    assert os.path.isfile(attachment_filepath_1)
-    assert os.path.isfile(attachment_filepath_2)
+    structure_filepath = os.path.join(attachments_dir, structure_filename)
+    assertions_filepath = os.path.join(attachments_dir, assertions_filename)
+    assert os.path.isfile(structure_filepath)
+    assert os.path.isfile(assertions_filepath)
 
-    with open(attachment_filepath_1) as f1, open(attachment_filepath_2) as f2:
+    with open(structure_filepath) as f1, open(assertions_filepath) as f2:
         structure = json.loads(f1.read())
         assertions = json.loads(f2.read())
 
