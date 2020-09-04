@@ -21,6 +21,21 @@ from testplan.report.testing.schemas import TestReportSchema
 from ..base import Exporter, save_attachments
 
 
+def gen_attached_report_names(json_path):
+    """
+    Generate file names of structure JSON report and assertions JSON report.
+    """
+    basename, _ = os.path.splitext(os.path.basename(json_path))
+    digest = hashlib.md5(
+        os.path.realpath(json_path).encode("utf-8")
+    ).hexdigest()
+
+    return (
+        "{}-structure-{}.json".format(basename, digest),
+        "{}-assertions-{}.json".format(basename, digest),
+    )
+
+
 class JSONExporterConfig(ExporterConfig):
     """
     Configuration object for
@@ -67,36 +82,33 @@ class JSONExporter(Exporter):
 
             # Save the Testplan report.
             if self.cfg.split_json_report:
-                basename, _ = os.path.splitext(os.path.basename(json_path))
-                digest = hashlib.md5(
-                    os.path.realpath(json_path).encode("utf-8")
-                ).hexdigest()
-
-                attachment_1 = "{}-structure-{}.json".format(basename, digest)
-                attachment_2 = "{}-assertions-{}.json".format(basename, digest)
-                attachment_filepath_1 = os.path.join(
-                    attachments_dir, attachment_1
+                (
+                    structure_filename,
+                    assertions_filename,
+                ) = gen_attached_report_names(json_path)
+                structure_filepath = os.path.join(
+                    attachments_dir, structure_filename
                 )
-                attachment_filepath_2 = os.path.join(
-                    attachments_dir, attachment_2
+                assertions_filepath = os.path.join(
+                    attachments_dir, assertions_filename
                 )
 
                 meta, structure, assertions = self.split_json_report(data)
                 makedirs(attachments_dir)
 
-                with open(attachment_filepath_1, "w") as json_file:
+                with open(structure_filepath, "w") as json_file:
                     json.dump(structure, json_file)
-                with open(attachment_filepath_2, "w") as json_file:
+                with open(assertions_filepath, "w") as json_file:
                     json.dump(assertions, json_file)
 
                 save_attachments(report=source, directory=attachments_dir)
                 meta["version"] = 2
                 # Modify dict ref may change the original `TestReport` object
                 meta["attachments"] = copy.deepcopy(meta["attachments"])
-                meta["attachments"][attachment_1] = attachment_filepath_1
-                meta["attachments"][attachment_2] = attachment_filepath_2
-                meta["structure_file"] = attachment_1
-                meta["assertions_file"] = attachment_2
+                meta["attachments"][structure_filename] = structure_filepath
+                meta["attachments"][assertions_filename] = assertions_filepath
+                meta["structure_file"] = structure_filename
+                meta["assertions_file"] = assertions_filename
 
                 with open(json_path, "w") as json_file:
                     json.dump(meta, json_file)
