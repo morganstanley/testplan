@@ -22,10 +22,12 @@ class TableEntry(object):
         if isinstance(table, (list, tuple)):
             if all_are(table, dict) or all_are(table, list, tuple):
                 return table
-        raise TypeError((
-            "`table` must be a list of"
-            " lists or list of dicts, got:\n{}".format(table)
-        ))
+        raise TypeError(
+            (
+                "`table` must be a list of"
+                " lists or list of dicts, got:\n{}".format(table)
+            )
+        )
 
     def __len__(self):
         if not self.table:
