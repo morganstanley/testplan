@@ -70,7 +70,7 @@ describe('Report/reportUtils', () => {
     [
       [
         'testplan',
-        new Set([
+        [
           'Sample Testplan|testplan',
           'Primary|multitest',
           'AlphaSuite|testsuite',
@@ -79,37 +79,37 @@ describe('Report/reportUtils', () => {
           'BetaSuite|testsuite',
           'Secondary|multitest',
           'GammaSuite|testsuite',
-      ]),
+      ],
       ],
       [
         'multitest',
-        new Set([
+        [
           'Primary|multitest',
           'Sample Testplan|testplan',
           'AlphaSuite|testsuite',
           'test_equality_passing|testcase',
           'test_equality_passing2|testcase',
           'BetaSuite|testsuite',
-        ]),
+        ],
       ],
       [
         'testsuite',
-        new Set([
+        [
           'AlphaSuite|testsuite',
           'Primary|multitest',
           'Sample Testplan|testplan',
           'test_equality_passing|testcase',
           'test_equality_passing2|testcase',
-        ]),
+        ],
       ],
       [
         'testcase',
-        new Set([
+        [
           'test_equality_passing|testcase',
           'AlphaSuite|testsuite',
           'Primary|multitest',
           'Sample Testplan|testplan',
-        ]),
+        ],
       ],
     ].forEach(([entryType, nameTypeIndex]) => {
       it(`${entryType} name_type_index - stores ancestors & ` +

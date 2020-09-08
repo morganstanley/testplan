@@ -646,12 +646,12 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                     "hash": 44444,
                     "logs": Array [],
                     "name": "testcaseName",
-                    "name_type_index": Set {
+                    "name_type_index": Array [
                       "testcaseName|testcase",
                       "SuiteName|testsuite",
                       "MultitestName|multitest",
                       "TestplanName|testplan",
-                    },
+                    ],
                     "parent_uids": Array [
                       "TestplanUID",
                       "MultitestUID",
@@ -674,12 +674,12 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                 "fix_spec_path": null,
                 "hash": 33333,
                 "name": "SuiteName",
-                "name_type_index": Set {
+                "name_type_index": Array [
                   "SuiteName|testsuite",
                   "MultitestName|multitest",
                   "TestplanName|testplan",
                   "testcaseName|testcase",
-                },
+                ],
                 "parent_uids": Array [
                   "TestplanUID",
                   "MultitestUID",
@@ -700,12 +700,12 @@ exports[`InteractiveReport Updates testcase state 1`] = `
             "fix_spec_path": null,
             "hash": 22222,
             "name": "MultitestName",
-            "name_type_index": Set {
+            "name_type_index": Array [
               "MultitestName|multitest",
               "TestplanName|testplan",
               "SuiteName|testsuite",
               "testcaseName|testcase",
-            },
+            ],
             "parent_uids": Array [
               "TestplanUID",
             ],
@@ -725,12 +725,12 @@ exports[`InteractiveReport Updates testcase state 1`] = `
         "hash": 11111,
         "meta": Object {},
         "name": "TestplanName",
-        "name_type_index": Set {
+        "name_type_index": Array [
           "TestplanName|testplan",
           "MultitestName|multitest",
           "SuiteName|testsuite",
           "testcaseName|testcase",
-        },
+        ],
         "parent_uids": Array [],
         "runtime_status": "running",
         "status": "unknown",
@@ -761,12 +761,12 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                       "hash": 44444,
                       "logs": Array [],
                       "name": "testcaseName",
-                      "name_type_index": Set {
+                      "name_type_index": Array [
                         "testcaseName|testcase",
                         "SuiteName|testsuite",
                         "MultitestName|multitest",
                         "TestplanName|testplan",
-                      },
+                      ],
                       "parent_uids": Array [
                         "TestplanUID",
                         "MultitestUID",
@@ -789,12 +789,12 @@ exports[`InteractiveReport Updates testcase state 1`] = `
                   "fix_spec_path": null,
                   "hash": 33333,
                   "name": "SuiteName",
-                  "name_type_index": Set {
+                  "name_type_index": Array [
                     "SuiteName|testsuite",
                     "MultitestName|multitest",
                     "TestplanName|testplan",
                     "testcaseName|testcase",
-                  },
+                  ],
                   "parent_uids": Array [
                     "TestplanUID",
                     "MultitestUID",
@@ -815,12 +815,12 @@ exports[`InteractiveReport Updates testcase state 1`] = `
               "fix_spec_path": null,
               "hash": 22222,
               "name": "MultitestName",
-              "name_type_index": Set {
+              "name_type_index": Array [
                 "MultitestName|multitest",
                 "TestplanName|testplan",
                 "SuiteName|testsuite",
                 "testcaseName|testcase",
-              },
+              ],
               "parent_uids": Array [
                 "TestplanUID",
               ],
@@ -840,12 +840,12 @@ exports[`InteractiveReport Updates testcase state 1`] = `
           "hash": 11111,
           "meta": Object {},
           "name": "TestplanName",
-          "name_type_index": Set {
+          "name_type_index": Array [
             "TestplanName|testplan",
             "MultitestName|multitest",
             "SuiteName|testsuite",
             "testcaseName|testcase",
-          },
+          ],
           "parent_uids": Array [],
           "runtime_status": "running",
           "status": "unknown",

@@ -3,7 +3,7 @@
  */
 import React from "react";
 import format from 'date-fns/format';
-
+import _ from 'lodash';
 import AssertionPane from '../AssertionPane/AssertionPane';
 import Message from '../Common/Message';
 
@@ -30,7 +30,7 @@ function _mergeTags(tagsA, tagsB) {
       const tags = tagsB[tagName];
       if (tagsA.hasOwnProperty(tagName)) {
         let tagsArray = tags.concat(tagsA[tagName]);
-        let tagsSet = new Set(tagsArray);
+        let tagsSet = _.uniq(tagsArray);
         mergedTags[tagName] = [...tagsSet];
       } else {
         mergedTags[tagName] = tags;
@@ -59,12 +59,12 @@ const propagateIndicesRecur = (entries, parentIndices) => {
   if (parentIndices === undefined) {
     parentIndices = {
       tags_index: {},
-      name_type_index: new Set(),
+      name_type_index: [],
     };
   }
   let indices = {
     tags_index: {},
-    name_type_index: new Set(),
+    name_type_index: [],
     counter: {
       passed: 0,
       failed: 0,
@@ -76,7 +76,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
     // Initialize indices.
     let tagsIndex = {};
     const entryNameType = entry.name + '|' + entryType;
-    let nameTypeIndex = new Set([
+    let nameTypeIndex = _.uniq([
       entryNameType,
       ...parentIndices.name_type_index
     ]);
@@ -94,7 +94,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
         { tags_index: tags, name_type_index: nameTypeIndex }
       );
       tagsIndex = _mergeTags(tagsIndex, descendantsIndices.tags_index);
-      nameTypeIndex = new Set([
+      nameTypeIndex = _.uniq([
         ...nameTypeIndex,
         ...descendantsIndices.name_type_index
       ]);
@@ -107,7 +107,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
 
     // Update Array of entries indices.
     indices.tags_index = _mergeTags(indices.tags_index, tagsIndex);
-    indices.name_type_index = new Set([
+    indices.name_type_index = _.uniq([
       ...indices.name_type_index,
       ...nameTypeIndex
     ]);

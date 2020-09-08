@@ -24,7 +24,7 @@
     "react"
   ],
   "rules": {
-    "max-len": ["error", { "code": 80 }],
+    "max-len": ["error", { "code": 80, "comments": 120 }],
     "linebreak-style": [
       "error",
       "unix"

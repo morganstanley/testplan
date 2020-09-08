@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {any, sorted, domToString} from './../../../Common/utils';
 import {DICT_GRID_STYLE} from './../../../Common/defaults';
 
@@ -51,8 +52,8 @@ function sortFlattenedJSON(
     }
   }
 
-  const set = new Set(origFlattenedJSON.map(line => line[0]));
-  const allItemsAreSameLevel = set.size === 1;
+  const set = _.uniq(origFlattenedJSON.map(line => line[0]));
+  const allItemsAreSameLevel = set.length === 1;
 
   // if all remaining items of the list are on the same depth level, 
   // they can be sorted and returned

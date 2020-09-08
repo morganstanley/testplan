@@ -48,3 +48,5 @@ Thumbs.db
 /doc/en/_build/
 /doc/en/html
 /pip-wheel-metadata
+node_modules/
+yarn-error.log
