@@ -40,6 +40,31 @@ function _mergeTags(tagsA, tagsB) {
   return mergedTags;
 }
 
+
+/**
+ * Merge assertions and structure into main report.
+ *
+ * @param {Object} mainReport - Main report with meta data.
+ * @param {Object} assertions - An object which contains all assertions.
+ * @param {Array} structure - Report structure.
+ * @returns {Object} - Merged report.
+ * @private
+ */
+const MergeSplittedReport = (mainReport, assertions, structure) => {
+  const _mergeStructure = (_structure, _assertions) => {
+    _structure.forEach(element => {
+      if (element.category === 'testcase') {
+        element.entries = _assertions[element.name];
+      } else {
+        _mergeStructure(element.entries, _assertions[element.name]);
+      }
+    });
+  };
+  _mergeStructure(structure, assertions[mainReport.name]);
+  mainReport.entries = structure;
+  return mainReport;
+};
+
 /**
  * Propagate indices through report to be utilised by filter box. A single entry
  * will contain:
@@ -326,5 +351,6 @@ export {
   GetReportState,
   GetCenterPane,
   GetSelectedEntries,
+  MergeSplittedReport,
 };
 
