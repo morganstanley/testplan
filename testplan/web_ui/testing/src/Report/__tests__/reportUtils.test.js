@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {TESTPLAN_REPORT} from "../../Common/sampleReports";
-import {PropagateIndices} from "../reportUtils";
+import {PropagateIndices, MergeSplittedReport} from "../reportUtils";
 
 describe('Report/reportUtils', () => {
 
@@ -119,6 +119,134 @@ describe('Report/reportUtils', () => {
       });
     });
 
+  });
+
+  it('Merge splitted JSON report', () => {
+    const mainReport = {
+      "python_version": "3.7.1",
+      "category": "testplan",
+      "version": 2,
+      "runtime_status": "finished",
+      "status": "failed",
+      "entries": [],
+      "name": "Multiply",
+      "project": "testplan",
+      "timeout": 14400
+    };
+
+    const assertions = {
+      "Multiply": {
+        "MultiplyTest": {
+          "BasicSuite": {
+            "basic_multiply": {
+              "basic_multiply__p1_aaaa__p2_11111": [
+                {"name": "test assertion1"},
+              ], 
+              "basic_multiply__p1_bbbb__p2_2222": [
+                {"name": "test assertion2"},
+              ]
+            }
+          }
+        }
+      }
+    };
+    const structure = [
+      {
+        "category": "multitest",
+        "parent_uids": ["Multiply"],
+        "name": "MultiplyTest",
+        "entries": [
+          {
+            "category": "testsuite",
+            "parent_uids": ["Multiply", "MultiplyTest"],
+            "name": "BasicSuite",
+            "entries": [
+              {
+                "category": "parametrization",
+                "parent_uids": ["Multiply", "MultiplyTest", "BasicSuite"],
+                "name": "basic_multiply",
+                "entries": [
+                  {
+                    "entries": [],
+                    "type": "TestCaseReport",
+                    "category": "testcase",
+                    "parent_uids": ["Multiply", "MultiplyTest", "BasicSuite", "basic_multiply"],
+                    "name": "basic_multiply__p1_aaaa__p2_11111",
+                  },
+                  {
+                    "entries": [],
+                    "type": "TestCaseReport",
+                    "category": "testcase",
+                    "parent_uids": ["Multiply", "MultiplyTest", "BasicSuite", "basic_multiply"],
+                    "name": "basic_multiply__p1_bbbb__p2_2222",
+                  }
+                ],
+                "type": "TestGroupReport"
+              }
+            ],
+            "type": "TestGroupReport",
+          }
+        ],
+        "type": "TestGroupReport",
+      }
+    ];
+
+    const expected = {
+      "python_version": "3.7.1",
+      "category": "testplan",
+      "version": 2,
+      "runtime_status": "finished",
+      "status": "failed",
+      "entries": [
+        {
+          "category": "multitest",
+          "parent_uids": ["Multiply"],
+          "name": "MultiplyTest",
+          "entries": [
+            {
+              "category": "testsuite",
+              "parent_uids": ["Multiply", "MultiplyTest"],
+              "name": "BasicSuite",
+              "entries": [
+                {
+                  "category": "parametrization",
+                  "parent_uids": ["Multiply", "MultiplyTest", "BasicSuite"],
+                  "name": "basic_multiply",
+                  "entries": [
+                    {
+                      "entries": [
+                        {"name": "test assertion1"},
+                      ],
+                      "type": "TestCaseReport",
+                      "category": "testcase",
+                      "parent_uids": ["Multiply", "MultiplyTest", "BasicSuite", "basic_multiply"],
+                      "name": "basic_multiply__p1_aaaa__p2_11111",
+                    },
+                    {
+                      "entries": [
+                        {"name": "test assertion2"}
+                      ],
+                      "type": "TestCaseReport",
+                      "category": "testcase",
+                      "parent_uids": ["Multiply", "MultiplyTest", "BasicSuite", "basic_multiply"],
+                      "name": "basic_multiply__p1_bbbb__p2_2222",
+                    }
+                  ],
+                  "type": "TestGroupReport"
+                }
+              ],
+              "type": "TestGroupReport",
+            }
+          ],
+          "type": "TestGroupReport",
+        }
+      ],
+      "name": "Multiply",
+      "project": "testplan",
+      "timeout": 14400
+    };
+    const resultReport = MergeSplittedReport(mainReport, assertions, structure);
+    expect(resultReport).toEqual(expected);
   });
 
 });

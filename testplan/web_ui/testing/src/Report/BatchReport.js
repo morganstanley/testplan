@@ -11,6 +11,7 @@ import {
   GetReportState,
   GetCenterPane,
   GetSelectedEntries,
+  MergeSplittedReport,
 } from "./reportUtils";
 import {COLUMN_WIDTH} from "../Common/defaults";
 import {fakeReportAssertions} from "../Common/fakeReport";
@@ -24,6 +25,8 @@ import {fakeReportAssertions} from "../Common/fakeReport";
 class BatchReport extends React.Component {
   constructor(props) {
     super(props);
+    this.setError = this.setError.bind(this);
+    this.setReport = this.setReport.bind(this);
     this.handleNavFilter = this.handleNavFilter.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
@@ -46,6 +49,22 @@ class BatchReport extends React.Component {
     };
   }
 
+  setError(error) {
+    this.setState({
+      error: error,
+      loading: false,
+    });
+  }
+
+  setReport(report) {
+    const processedReport = PropagateIndices(report);
+    this.setState({
+      report: processedReport,
+      selectedUIDs: this.autoSelect(processedReport),
+      loading: false,
+    });
+  }
+
   /**
    * Fetch the Testplan report.
    *   * Get the UID from the URL.
@@ -59,28 +78,31 @@ class BatchReport extends React.Component {
     // we will display a fake report for development purposes.
     const uid = this.props.match.params.uid;
     if (uid === "_dev") {
-      const processedReport = PropagateIndices(fakeReportAssertions);
       setTimeout(
-        () => this.setState({
-          report: processedReport,
-          selectedUIDs: this.autoSelect(processedReport),
-          loading: false,
-        }),
+        () => this.setReport(fakeReportAssertions),
         1500);
     } else {
       axios.get(`/api/v1/reports/${uid}`)
         .then(response => {
-          const processedReport = PropagateIndices(response.data);
-          this.setState({
-            report: processedReport,
-            selectedUIDs: this.autoSelect(processedReport),
-            loading: false,
-          });
-        })
-        .catch(error => this.setState({
-          error: error,
-          loading: false,
-        }));
+          const rawReport = response.data;
+          if (rawReport.version === 2) {
+            const assertionsReq = axios.get(
+              `/api/v1/reports/${uid}/attachments/${rawReport.assertions_file}`
+            );
+            const structureReq = axios.get(
+              `/api/v1/reports/${uid}/attachments/${rawReport.structure_file}`
+            );
+            axios.all([assertionsReq, structureReq]).then(
+              axios.spread((assertionsRes, structureRes) => {
+                const mergedReport = MergeSplittedReport(
+                  rawReport, assertionsRes.data, structureRes.data
+                );
+                this.setReport(mergedReport);
+            })).catch(this.setError);
+          } else {
+            this.setReport(rawReport);
+          }
+        }).catch(this.setError);
     }
   }
 
