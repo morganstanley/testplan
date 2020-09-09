@@ -28,14 +28,11 @@ function valueProps() {
         "type": "str"
       },
       "expected": {
-        "value": "B",
-        "type": "B"
+        "value": "BB",
+        "type": "aa"
       }
     },
-    "colDef": {
-      "headerName": "Expected",
-      "field": "expected"
-    }
+    "field": "expected"
   };
 }
 
@@ -60,7 +57,7 @@ function keyProps() {
       },
       "expected": { "value": "B", "type": "B" }
     },
-    "colDef": { "headerName": "Key", "field": "key" }
+    "field": "key"
   };
 }
 
@@ -79,6 +76,7 @@ describe('DictLogAssertion', () => {
     props = valueProps();
     shallowComponent = shallow(<DictCellRenderer {...props} />);
     expect(shallowComponent.find('span').text().trim()).toBe('BB');
+    expect(shallowComponent.find('sub').text().trim()).toBe('aa');
   });
 
   it('shallow renders the dict key', () => {

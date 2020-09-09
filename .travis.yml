@@ -4,6 +4,7 @@ language: python
 env:
   global:
     - REACT_APP_API_BASE_URL: "/fake/api/endpoint"
+    - CI: ""  # Avoid yarn build failure due to the warning of dependencies
   jobs:
     - BLACK_VERSION: "19.10b0"
 

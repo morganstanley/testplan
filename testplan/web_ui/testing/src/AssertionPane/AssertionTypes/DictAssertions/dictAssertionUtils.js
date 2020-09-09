@@ -1,8 +1,21 @@
 import _ from 'lodash';
+import React from 'react';
 import {any, sorted, domToString} from './../../../Common/utils';
-import {DICT_GRID_STYLE} from './../../../Common/defaults';
 
 /** @module dictAssertionUtils */
+
+
+const cellStyle = {
+  fontSize: 'small',
+  border: '1px solid',
+  borderColor: '#d9dcde',
+  padding: '6px 11px 6px 11px'
+};
+
+const headerStyle = {
+  border: '1px solid',
+  borderColor: '#d9dcde',
+};
 
 /**
  * Helper function used to sort the data of DictMatch and FixMatch assertions.
@@ -22,7 +35,7 @@ import {DICT_GRID_STYLE} from './../../../Common/defaults';
  * @returns {Array}
  * @private
  */
-function sortFlattenedJSON(
+export function sortFlattenedJSON(
   origFlattenedJSON, 
   depth = 0, 
   reverse = false, 
@@ -136,51 +149,53 @@ function sortFlattenedJSON(
  * Prepare the column definitions for DictMatch, DictLog, FixMatch, FixLog 
  * assertions. DictMatch and FixMatch should include expect column.
  *
- * @param {string|object|function} cellStyle - A string, object or function that
- * will define the styling of the cells.
- * @param {class} cellRenderer - Custom component used by the grid to render the
+ * @param {class} Renender - Custom component used by the grid to render the
  * cells.
  * @param {boolean} hasExpected - If true, the list will include expect column.
  * @returns {{headerName: string, field: string, hide: boolean}}
  * @private
  */
-function prepareDictColumnDefs(cellStyle, cellRenderer, hasExpected) {
-  const columnDefs = [{
-    headerName: 'Descriptor',
-    field: 'descriptor',
-    hide: true,
+export function prepareDictColumn(Renender, hasExpected) {
+  const columns = [{
+    title: 'Key',
+    field: 'key',
+    render: keyData => {
+      return (<Renender field='key' data={keyData} />);
+    },
+    cellStyle: cellStyle,
+    headerStyle: headerStyle
   }];
 
-  const keyColumn = {
-    headerName: 'Key',
-    field: 'key',
-    suppressMovable: true,
-    pinned: 'left',
-    cellStyle: cellStyle,
-    cellRendererFramework: cellRenderer,
-  };
-  columnDefs.push(keyColumn);
-
   if (hasExpected) {
-    const expectedColumn = {
-      headerName: 'Expected',
+    columns.push({
+      title: 'Expected',
       field: 'expected',
-      cellStyle: cellStyle,
-      cellRendererFramework: cellRenderer,
-    };
-    columnDefs.push(expectedColumn);
+      render: expectedData => {
+        return (<Renender field='expected' data={expectedData} />);
+      },
+      cellStyle: {
+        backgroundColor: '#BDC3C750',
+        ...cellStyle
+      },
+      headerStyle: headerStyle
+    });
   }
 
-  const valueColumn = {
-    headerName: 'Value',
+  columns.push({
+    title: 'Value',
     field: 'value',
-    cellStyle: cellStyle,
-    cellRendererFramework: cellRenderer,
-  };
-  columnDefs.push(valueColumn);
-
-  return columnDefs;
+    render: valueData => {
+      return (<Renender field='value' data={valueData} />);
+    },
+    cellStyle: {
+      backgroundColor: '#BDC3C750',
+      ...cellStyle
+    },
+    headerStyle: headerStyle
+  });
+  return columns;
 }
+
 
 /**
  * Prepare the rows for Dict/FixMatch assertions.
@@ -192,7 +207,7 @@ function prepareDictColumnDefs(cellStyle, cellRenderer, hasExpected) {
  * @returns {Array}
  * @private
  */
-function prepareDictRowData(data, lineNo) {
+export function prepareDictRowData(data, lineNo) {
   return data.map((line, index, originalArray) => {
     let level, key, status, expectedValue, actualValue;
     const isLog = line.length === 3;
@@ -202,7 +217,7 @@ function prepareDictRowData(data, lineNo) {
     } else {
       [level, key, status, actualValue, expectedValue] = line;
     }
-
+    actualValue = actualValue || [];
     const isEmptyLine = key.length === 0 && actualValue.length === 0;
     const hasAcutalValue = Array.isArray(actualValue);
     const hasExpectedValue = Array.isArray(expectedValue);
@@ -239,57 +254,6 @@ function prepareDictRowData(data, lineNo) {
   });
 }
 
-/**
- * Function to add styling to cells with conditions based on their values.
- *
- * @param {Object} params
- * @returns {object} css style object
- * @private
- */
-function dictCellStyle(params) {
-  const isValue = params.colDef.field !== 'key';
-  const isFailed = params.data.descriptor.status === 'Failed';
-  let cellStyle = {};
-
-  if (isFailed) {
-    cellStyle.color = 'red';
-    cellStyle.fontWeight = 'bold';
-  }
-
-  if (isValue) {
-    cellStyle.backgroundColor = '#BDC3C750';
-  }
-
-  return cellStyle;
-}
-
-/**
- * Calculate the height of the grid. If the grid has less than
- * maximumNumberOfRowsVisible, then the grid will display every row of data
- * available. If it has more than that value then maximumNumberOfRowsVisible
- * number of rows will be displayed and the table will be scrollable.
- *
- * @param {number} numberOfRows
- * @param {number} numberOfEmptyRows - Number of rows that contain no data and
- * are only used to seperate list items
- * @param {number} maximumNumberOfRowsVisible - Maximum number of rows to be
- * displayed
- * @returns {number}
- * @private
- */
-function calculateDictGridHeight(
-  numberOfRows, 
-  numberOfEmptyRows, 
-  maximumNumberOfRowsVisible = DICT_GRID_STYLE.MAX_VISIBLE_ROW
-) {
-
-  return numberOfRows <= maximumNumberOfRowsVisible
-    ? numberOfRows * DICT_GRID_STYLE.ROW_HEIGHT + numberOfEmptyRows * 
-      DICT_GRID_STYLE.EMPTY_ROW_HEIGHT + DICT_GRID_STYLE.HEADER_HEIGHT + 
-      DICT_GRID_STYLE.BOTTOM_PADDING
-    : maximumNumberOfRowsVisible * DICT_GRID_STYLE.ROW_HEIGHT + 
-      DICT_GRID_STYLE.HEADER_HEIGHT + DICT_GRID_STYLE.BOTTOM_PADDING;
-}
 
 /**
  * Return the description of the FIX tag in the cell.
@@ -302,7 +266,7 @@ function calculateDictGridHeight(
  * @param {string} colField - The column the current cell is in.
  * @returns {{name: null, descr: null, value: null}}
  */
-function getFixInformation(fixTagInfo, cellValue, keyValue, colField) {
+export function getFixInformation(fixTagInfo, cellValue, keyValue, colField) {
   let fixInfo = {name: null, descr: null, value: null};
 
   // If keyValue is null the current row is empty. Empty rows are used to
@@ -334,7 +298,7 @@ function getFixInformation(fixTagInfo, cellValue, keyValue, colField) {
  * @param {Array} flattenedDict - flattened dict assertion data
  * @returns {string} - HTML table
  */
-function flattenedDictToDOM(flattenedDict) {
+export function flattenedDictToDOM(flattenedDict) {
   let table = document.createElement('table');
 
   /**
@@ -433,6 +397,7 @@ function flattenedDictToDOM(flattenedDict) {
       let [level, key, status, actualValue, expectedValue] = el;
       // If key and value are string and length is 0, the current row is empty.
       // Empty row will be ignored.
+      actualValue = actualValue || [];
       if (key.length === 0 && actualValue.length === 0) {
         return;
       }
@@ -481,14 +446,3 @@ function flattenedDictToDOM(flattenedDict) {
 
   return domToString(table);
 }
-
-
-export {
-  sortFlattenedJSON,
-  prepareDictColumnDefs,
-  prepareDictRowData,
-  dictCellStyle,
-  calculateDictGridHeight,
-  getFixInformation,
-  flattenedDictToDOM,
-};

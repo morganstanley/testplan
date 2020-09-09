@@ -1,13 +1,12 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
-import DictBaseAssertion from './DictBaseAssertion';
-import FixCellRenderer from './FixCellRenderer';
 import DictButtonGroup from './DictButtonGroup';
+import FixCellRenderer from './FixCellRenderer';
+import DictBaseAssertion from './DictBaseAssertion';
 import {
-  prepareDictColumnDefs,
+  prepareDictColumn,
   prepareDictRowData,
   sortFlattenedJSON,
-  dictCellStyle,
 } from './dictAssertionUtils';
 import {SORT_TYPES} from './../../../Common/defaults';
 
@@ -42,60 +41,39 @@ import {SORT_TYPES} from './../../../Common/defaults';
  *  - Value: Actual value for the given key.
  *
  */
-class FixMatchAssertion extends Component {
-  constructor(props) {
-    super(props);
+export default function FixMatchAssertion(props) {
+  const flattenedDict = sortFlattenedJSON(
+    props.assertion.comparison, 0, false, true
+  );
+  const columns = prepareDictColumn(FixCellRenderer, true);
 
-    this.flattenedDict = this.props.assertion.comparison;
-    this.columnDefs = prepareDictColumnDefs(
-      dictCellStyle, FixCellRenderer, true
-    );
-    this.state = {
-      rowData: prepareDictRowData(
-        sortFlattenedJSON(this.flattenedDict, 0, false, true),
-        this.props.assertion.line_no
-      ),
-    };
+  const [rowData, setRowData] = useState(flattenedDict);
 
-    this.setRowData = this.setRowData.bind(this);
-  }
-
-  setRowData(sortedData) {
-    this.setState({
-      rowData: prepareDictRowData(
-        sortedData,
-        this.props.assertion.line_no)
-    });
-  }
-
-  render() {
-    let buttonGroup = (
-      <DictButtonGroup
-        sortTypeList={[
-          SORT_TYPES.ALPHABETICAL, 
-          SORT_TYPES.REVERSE_ALPHABETICAL,
-          SORT_TYPES.BY_STATUS,
-          SORT_TYPES.ONLY_FAILURES
-        ]}
-        flattenedDict={this.flattenedDict}
-        setRowData={this.setRowData}
-        defaultSortType={SORT_TYPES.BY_STATUS}
-      />
-    );
-
-    return (
-			<DictBaseAssertion
-        buttonGroup={buttonGroup}
-        columnDefs={this.columnDefs}
-        rowData={this.state.rowData}
-      />
-		);
-  }
+  const buttonGroup = (
+    <DictButtonGroup
+      sortTypeList={[
+        SORT_TYPES.ALPHABETICAL, 
+        SORT_TYPES.REVERSE_ALPHABETICAL,
+        SORT_TYPES.BY_STATUS,
+        SORT_TYPES.ONLY_FAILURES
+      ]}
+      flattenedDict={flattenedDict}
+      setRowData={setRowData}
+      defaultSortType={SORT_TYPES.BY_STATUS}
+    />
+  );
+  
+  return (
+    <DictBaseAssertion
+      buttons={buttonGroup}
+      columns={columns}
+      rows={prepareDictRowData(rowData, props.assertion.line_no)}
+    />
+  );
 }
+
 
 FixMatchAssertion.propTypes = {
   /** Assertion being rendered */
   assertion: PropTypes.object.isRequired,
 };
-
-export default FixMatchAssertion;

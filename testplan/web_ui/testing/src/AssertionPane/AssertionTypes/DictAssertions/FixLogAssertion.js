@@ -1,12 +1,11 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import DictBaseAssertion from './DictBaseAssertion';
 import FixCellRenderer from './FixCellRenderer';
 import DictButtonGroup from './DictButtonGroup';
 import {
-  prepareDictColumnDefs,
+  prepareDictColumn,
   prepareDictRowData,
-  dictCellStyle,
 } from './dictAssertionUtils';
 import {SORT_TYPES} from './../../../Common/defaults';
 
@@ -38,53 +37,35 @@ import {SORT_TYPES} from './../../../Common/defaults';
  *  - Value: Actual value for the given key.
  *
  */
-class FixLogAssertion extends Component {
-  constructor(props) {
-    super(props);
+export default function FixLogAssertion(props) {
+  const flattenedDict = props.assertion.flattened_dict;
+  const columns = prepareDictColumn(FixCellRenderer);
 
-    this.flattenedDict = this.props.assertion.flattened_dict;
-    this.columnDefs = prepareDictColumnDefs(dictCellStyle, FixCellRenderer);
-    this.state = {
-      rowData: 
-        prepareDictRowData(this.flattenedDict, this.props.assertion.line_no),
-    };
-    this.setRowData = this.setRowData.bind(this);
-  }
+  const [rowData, setRowData] = useState(flattenedDict);
 
-  setRowData(sortedData) {
-    this.setState({
-      rowData: prepareDictRowData(
-        sortedData,
-        this.props.assertion.line_no
-      )
-    });
-  }
+  const buttonGroup = (
+    <DictButtonGroup
+      sortTypeList={[
+        SORT_TYPES.ALPHABETICAL, 
+        SORT_TYPES.REVERSE_ALPHABETICAL
+      ]}
+      flattenedDict={flattenedDict}
+      setRowData={setRowData}
+    />
+  );
 
-  render() {
-    let buttonGroup = (
-      <DictButtonGroup
-        sortTypeList={[
-          SORT_TYPES.ALPHABETICAL, 
-          SORT_TYPES.REVERSE_ALPHABETICAL
-        ]}
-        flattenedDict={this.flattenedDict}
-        setRowData={this.setRowData}
-      />
-    );
-
-    return (
-      <DictBaseAssertion
-        buttonGroup={buttonGroup}
-        columnDefs={this.columnDefs}
-        rowData={this.state.rowData}
-      />
-    );
-  }
+  
+  return (
+    <DictBaseAssertion
+      buttonGroup={buttonGroup}
+      columns={columns}
+      rows={prepareDictRowData(rowData, props.assertion.line_no)}
+    />
+  );
 }
+
 
 FixLogAssertion.propTypes = {
   /** Assertion being rendered */
 	assertion: PropTypes.object.isRequired,
 };
-
-export default FixLogAssertion;

@@ -1,9 +1,9 @@
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import TableBaseAssertion from './TableBaseAssertion';
 
 import {
-  prepareTableLogColumnDefs,
+  prepareTableColumn,
   prepareTableLogRowData,
 } from './tableAssertionUtils';
 
@@ -11,27 +11,19 @@ import {
 /**
  * Component that are used to render TableLog assertion.
  */
-class TableLogAssertion extends Component {
-  render() {
-    let columnDefs = prepareTableLogColumnDefs(this.props.assertion.columns);
-    let rowData = prepareTableLogRowData(
-      this.props.assertion.indices, 
-      this.props.assertion.table,
-      this.props.assertion.columns
-    );
-    return (
-      <TableBaseAssertion
-        columnDefs={columnDefs}
-        rowData={rowData}
-      />
-    );
-  }
-}
+export default function TableLogAssertion (props) {
+  let columns = prepareTableColumn(props.assertion.columns);
+  let rows = prepareTableLogRowData(
+    props.assertion.indices, 
+    props.assertion.table,
+    props.assertion.columns
+  );
+  return (
+    <TableBaseAssertion columns={columns} rows={rows}/>
+  );
+};
 
 TableLogAssertion.propTypes = {
   /** Assertion being rendered */
   assertion: PropTypes.object,
 };
-
-
-export default TableLogAssertion;

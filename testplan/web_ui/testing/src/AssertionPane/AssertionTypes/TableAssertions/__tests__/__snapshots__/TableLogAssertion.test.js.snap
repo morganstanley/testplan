@@ -2,27 +2,55 @@
 
 exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
 <TableBaseAssertion
-  columnDefs={
+  columns={
     Array [
       Object {
+        "cellStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+          "fontSize": "small",
+          "padding": "6px 11px 6px 11px",
+          "width": "72px",
+        },
         "field": "id",
-        "headerName": "ID",
-        "pinned": "left",
-        "suppressResize": true,
-        "suppressSizeToFit": true,
-        "width": 72,
+        "headerStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+          "width": "72px",
+        },
+        "title": "ID",
       },
       Object {
+        "cellStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+          "fontSize": "small",
+          "padding": "6px 11px 6px 11px",
+        },
         "field": "age",
-        "headerName": "age",
+        "headerStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+        },
+        "title": "age",
       },
       Object {
+        "cellStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+          "fontSize": "small",
+          "padding": "6px 11px 6px 11px",
+        },
         "field": "name",
-        "headerName": "name",
+        "headerStyle": Object {
+          "border": "1px solid",
+          "borderColor": "#d9dcde",
+        },
+        "title": "name",
       },
     ]
   }
-  rowData={
+  rows={
     Array [
       Object {
         "age": 32,
