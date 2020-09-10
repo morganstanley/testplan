@@ -197,28 +197,26 @@ def test_install_files(runpath):
         re.compile(r".*command=(?P<command>.*)"),
         re.compile(r".*app_path=(?P<app_path>.*)"),
     ]
-    with path.TemporaryDirectory() as dst:
-        app = CustomApp(
-            name="App",
-            binary=binary,
-            pre_args=[sys.executable],
-            install_files=[
-                config,
-                bfile,
-                (config, os.path.join(dst, "config.yaml")),
-            ],
-            log_regexps=log_regexps,
-            shell=True,
-            runpath=runpath,
-        )
-        with app:
-            assert os.path.exists(app.extracts["binary"])
-            assert bool(json.loads(app.extracts["command"]))
-            assert os.path.exists(app.extracts["app_path"])
-            assert os.path.exists(
-                os.path.join(app.app_path, "etc", "binary_file")
-            )
-            assert os.path.exists(os.path.join(dst, "config.yaml"))
+    dst = runpath
+    app = CustomApp(
+        name="App",
+        binary=binary,
+        pre_args=[sys.executable],
+        install_files=[
+            config,
+            bfile,
+            (config, os.path.join(dst, "config.yaml")),
+        ],
+        log_regexps=log_regexps,
+        shell=True,
+        runpath=runpath,
+    )
+    with app:
+        assert os.path.exists(app.extracts["binary"])
+        assert bool(json.loads(app.extracts["command"]))
+        assert os.path.exists(app.extracts["app_path"])
+        assert os.path.exists(os.path.join(app.app_path, "etc", "binary_file"))
+        assert os.path.exists(os.path.join(dst, "config.yaml"))
 
 
 def test_echo_hello(runpath):

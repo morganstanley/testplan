@@ -322,7 +322,7 @@ def test_custom_wrapper():
             parameters=((1, 2, 3), (3, 3, 6)), custom_wrappers=add_label("foo")
         )
         def adder_test(self, env, result, a, b, expected):
-            result.equal(expected)(a + b)
+            result.equal(actual=a + b, expected=expected)
 
     assert MySuite.adder_test__a_1__b_2__expected_3.label == "foo"
     assert MySuite.adder_test__a_3__b_3__expected_6.label == "foo"

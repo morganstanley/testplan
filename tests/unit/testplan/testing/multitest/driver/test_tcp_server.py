@@ -12,32 +12,30 @@ from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 
 @pytest.fixture(scope="module")
-def tcp_server():
+def tcp_server(runpath_module):
     """Start and yield a TCP server driver."""
-    with path.TemporaryDirectory() as runpath:
-        env = Environment()
-        server = TCPServer(
-            name="server", host="localhost", port=0, runpath=runpath,
-        )
-        env.add(server)
+    env = Environment()
+    server = TCPServer(
+        name="server", host="localhost", port=0, runpath=runpath_module,
+    )
+    env.add(server)
 
-        with server:
-            yield server
+    with server:
+        yield server
 
 
 @pytest.fixture(scope="module")
-def tcp_client(tcp_server):
+def tcp_client(tcp_server, runpath_module):
     """Start and yield a TCP client driver."""
-    with path.TemporaryDirectory() as runpath:
-        client = TCPClient(
-            name="client",
-            host=tcp_server.host,
-            port=tcp_server.port,
-            runpath=runpath,
-        )
+    client = TCPClient(
+        name="client",
+        host=tcp_server.host,
+        port=tcp_server.port,
+        runpath=runpath_module,
+    )
 
-        with client:
-            yield client
+    with client:
+        yield client
 
 
 def test_basic_runpath():

@@ -23,11 +23,11 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 class Suite1(object):
     """A test suite with basic testcases."""
 
-    @testcase(timeout=2)
+    @testcase(timeout=3)
     def test_normal(self, env, result):
         result.log("Testcase will finish execution in time")
 
-    @testcase(timeout=2)
+    @testcase(timeout=3)
     def test_abnormal(self, env, result):
         result.log("Testcase will definitely timeout")
         time.sleep(5)

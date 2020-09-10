@@ -3,17 +3,33 @@
 import os
 import pytest
 from testplan import TestplanMock
+from testplan.common.utils import path
 
 
 @pytest.fixture(scope="function")
-def runpath(tmp_path):
+def runpath():
     """
-    Return a temporary runpath for testing. The path will not be automatically
-    removed after the test for easier investigation.
+    Return a temporary runpath for testing. The path will be automatically
+    removed after the test.
 
-    It takes a form like: /tmp/pytest-of-userid/pytest-151/test_sub_pub_unsub0
+    We were originally using pytest builtin fixture tmp_path, which will create
+    a path in a form like: /tmp/pytest-of-userid/pytest-151/test_sub_pub_unsub0
+    But it has a known issue: https://github.com/pytest-dev/pytest/issues/5456
     """
-    return str(tmp_path)
+    with path.TemporaryDirectory() as runpath:
+        yield runpath
+
+
+@pytest.fixture(scope="class")
+def runpath_class():
+    with path.TemporaryDirectory() as runpath:
+        yield runpath
+
+
+@pytest.fixture(scope="module")
+def runpath_module():
+    with path.TemporaryDirectory() as runpath:
+        yield runpath
 
 
 @pytest.fixture(scope="function")
