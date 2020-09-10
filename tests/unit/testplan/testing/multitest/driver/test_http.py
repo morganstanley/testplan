@@ -12,31 +12,29 @@ from testplan.common.utils import path
 
 
 @pytest.fixture(scope="module")
-def http_server():
+def http_server(runpath_module):
     """Start and yield an HTTP server driver."""
-    with path.TemporaryDirectory() as runpath:
-        server = http.HTTPServer(
-            name="http_server", host="localhost", port=0, runpath=runpath,
-        )
+    server = http.HTTPServer(
+        name="http_server", host="localhost", port=0, runpath=runpath_module,
+    )
 
-        with server:
-            yield server
+    with server:
+        yield server
 
 
 @pytest.fixture(scope="module")
-def http_client(http_server):
+def http_client(http_server, runpath_module):
     """Start and yield an HTTP client."""
-    with path.TemporaryDirectory() as runpath:
-        client = http.HTTPClient(
-            name="http_client",
-            host=http_server.host,
-            port=http_server.port,
-            timeout=10,
-            runpath=runpath,
-        )
+    client = http.HTTPClient(
+        name="http_client",
+        host=http_server.host,
+        port=http_server.port,
+        timeout=10,
+        runpath=runpath_module,
+    )
 
-        with client:
-            yield client
+    with client:
+        yield client
 
 
 class TestHTTP(object):
