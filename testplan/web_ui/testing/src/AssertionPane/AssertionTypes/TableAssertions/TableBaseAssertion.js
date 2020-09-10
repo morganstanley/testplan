@@ -29,6 +29,8 @@ export default function TableBaseAssertion(props) {
           searchFieldAlignment: 'left',
           toolbar: true,
           paging: false,
+          maxBodyHeight: '500px',
+          overflowY: 'hidden',
           fixedColumns: {
             left: 1,
             right: 0
