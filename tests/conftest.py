@@ -33,13 +33,14 @@ def runpath_module():
 
 
 @pytest.fixture(scope="function")
-def mockplan(runpath):
+def mockplan():
     """
     Return a temporary TestplanMock for testing. Some components needs a
     testplan for getting runpath and cfg.
     """
-    mockplan = TestplanMock("plan", runpath=runpath)
-    return mockplan
+    with path.TemporaryDirectory() as runpath:
+        mockplan = TestplanMock("plan", runpath=runpath)
+        yield mockplan
 
 
 @pytest.fixture(scope="session")
