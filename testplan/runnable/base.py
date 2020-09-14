@@ -769,6 +769,7 @@ class TestRunner(Runnable):
         """Stop the web server if it is running."""
         if self._web_server_thread is not None:
             self._web_server_thread.stop()
+        self._close_file_logger()
 
     def _configure_stdout_logger(self):
         """Configure the stdout logger by setting the required level."""
