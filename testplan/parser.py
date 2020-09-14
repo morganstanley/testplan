@@ -342,7 +342,7 @@ that match ALL of the given tags.
             args["test_filter"] = filter_args
 
         # Cmdline supports shuffle ordering only for now
-        if "shuffle" in args:
+        if args.get("shuffle"):
             args["test_sorter"] = ordering.ShuffleSorter(
                 seed=args["shuffle_seed"], shuffle_type=args["shuffle"]
             )
