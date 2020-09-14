@@ -106,6 +106,7 @@ class ProcessWorker(Worker):
                 stdout=out,
                 stderr=out,
                 stdin=subprocess.PIPE,
+                close_fds=True,
             )
         self.logger.debug("Started child process - output at %s", self.outfile)
         self._handler.stdin.write(bytes("y\n".encode("utf-8")))
