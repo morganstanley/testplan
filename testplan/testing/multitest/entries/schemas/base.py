@@ -51,6 +51,12 @@ class LogSchema(BaseSchema):
     message = fields.Raw()
 
 
+@registry.bind(base.Markdown)
+class MarkdownSchema(BaseSchema):
+    message = fields.String()
+    escape = fields.Boolean()
+
+
 @registry.bind(base.TableLog)
 class TableLogSchema(BaseSchema):
     table = fields.List(custom_fields.NativeOrPrettyDict())

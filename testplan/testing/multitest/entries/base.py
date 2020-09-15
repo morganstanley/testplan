@@ -373,3 +373,16 @@ class MatPlot(Attachment):
         super(MatPlot, self).__init__(
             filepath=image_file_path, description=description
         )
+
+
+class Markdown(BaseEntry):
+    """Save markdown to the report."""
+
+    def __init__(self, message, description=None, escape=True):
+        if isinstance(message, basestring):
+            self.message = message
+        else:
+            raise ValueError("Message must be a string")
+        self.escape = escape
+
+        super(Markdown, self).__init__(description=description)
