@@ -102,6 +102,33 @@ class SampleSuite(object):
             unified=3,
         )
 
+        # `result` has a `markdown` method that can be used for adding markdown
+        # text in the report. Set escape=False to allow raw HTML code.
+        result.markdown(
+            """
+<div style="font-size:80px;font-family:Arial;font-weight:bold;">
+    <i class="fa fa-check-square" style="color:green;padding-right:5px;"></i>
+    Testplan
+</div>
+
+Testplan is a [Python](http://python.org) package that can start a local live
+environment, setup mocks, connections to services and run tests against these.
+It provides:
+
+  * ``MultiTest`` a feature extensive functional testing system with a rich set
+    of *assertions* and report rendering logic.
+  * Built-in inheritable drivers to create a local live *environment*.
+  * Configurable, diverse and expandable test execution mechanism including
+    *parallel* execution capability.
+  * Test *tagging* for flexible filtering and selective execution as well as
+    generation of multiple reports (for each tag combination).
+  * Integration with other unit testing frameworks (like GTest).
+  * Rich, unified reports (json/PDF/XML) and soon (HTML/UI).
+        """,
+            description="Testplan",
+            escape=False,
+        )
+
     @testcase
     def test_raised_exceptions(self, env, result):
         # `result` object has `raises` and `not_raises` methods that can be

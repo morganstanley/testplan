@@ -620,6 +620,14 @@ Displays a Matplotlib plot in the report. Downloadable examples that use
 matplot assertion and contain output sample images can be found
 :ref:`here <example_basic_models>`.
 
+
+:py:meth:`result.markdown <testplan.testing.multitest.result.Result.markdown>`
+---------------------------------------------------------------------------------
+Displays Markdown in the report. Downloadable examples that use
+markdown assertion and contain output sample images can be found
+:ref:`here <example_assertions>`.
+
+
 Assertion Groups
 ================
 While writing assertions, it's possible to group them together for formatting purposes.

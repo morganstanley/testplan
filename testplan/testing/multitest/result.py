@@ -1414,6 +1414,34 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    def markdown(self, message, description=None, escape=True):
+        """
+        Create a markdown message entry, can be used for providing additional
+        context related to test steps.
+
+        .. code-block:: python
+
+            result.markdown(
+                'Markdown string ....',
+                description='Test',
+                escape=False
+            )
+
+        :param message: Markdown string
+        :type message: ``str`` or instance
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :param escape: Escape html.
+        :param escape: ``bool``
+        :return: ``True``
+        :rtype: ``bool``
+        """
+        entry = base.Markdown(
+            message=message, description=description, escape=escape
+        )
+        _bind_entry(entry, self)
+        return entry
+
     def fail(self, description, category=None, flag=None):
         """
         Failure assertion, can be used for explicitly failing a testcase.

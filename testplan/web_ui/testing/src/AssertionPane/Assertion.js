@@ -4,6 +4,7 @@ import {Card, CardBody, Collapse} from 'reactstrap';
 import {css, StyleSheet} from 'aphrodite';
 
 import BasicAssertion from './AssertionTypes/BasicAssertion';
+import MarkdownAssertion from './AssertionTypes/MarkdownAssertion';
 import TableLogAssertion
   from './AssertionTypes/TableAssertions/TableLogAssertion';
 import TableMatchAssertion
@@ -122,6 +123,7 @@ class Assertion extends Component {
       Graph: graphAssertion,
       Attachment: AttachmentAssertion,
       MatPlot: MatplotAssertion,
+      Markdown: MarkdownAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];
