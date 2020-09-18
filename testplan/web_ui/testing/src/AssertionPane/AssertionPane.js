@@ -87,7 +87,7 @@ class AssertionPane extends Component {
       width: `calc(100% - ${this.props.left})`,
     };
 
-    if (this.props.assertions.length !== 0 || this.props.logs.length !==0) {
+    if (this.props.assertions.length !== 0 || this.props.logs.length !== 0) {
       return (
         <div style={assertionPaneStyle}>
           <div className={css(styles.buttonsDiv)}>

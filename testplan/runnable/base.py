@@ -286,7 +286,10 @@ class TestRunner(Runnable):
         super(TestRunner, self).__init__(**options)
         self._tests = OrderedDict()  # uid to resource
         self._result.test_report = TestReport(
-            name=self.cfg.name, uid=self.cfg.name, timeout=self.cfg.timeout
+            name=self.cfg.name,
+            description=self.cfg.description,
+            uid=self.cfg.name,
+            timeout=self.cfg.timeout,
         )
         self._exporters = None
         self._web_server_thread = None

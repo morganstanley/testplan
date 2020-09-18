@@ -116,6 +116,7 @@ class ParallelSuite(object):
 
 EXPECTED_REPORT_SKELETON = report.TestGroupReport(
     name="MTest",
+    description="Basic multitest.",
     category=report.ReportCategories.MULTITEST,
     uid="MTest",
     env_status=entity.ResourceStatus.STOPPED,
@@ -169,7 +170,10 @@ EXPECTED_REPORT_SKELETON = report.TestGroupReport(
 def test_dry_run():
     """Test the "dry_run" method which generates an empty report skeleton."""
     mtest = multitest.MultiTest(
-        name="MTest", suites=[Suite()], **MTEST_DEFAULT_PARAMS
+        name="MTest",
+        description="Basic multitest.",
+        suites=[Suite()],
+        **MTEST_DEFAULT_PARAMS
     )
     result = mtest.dry_run()
     report_skeleton = result.report
