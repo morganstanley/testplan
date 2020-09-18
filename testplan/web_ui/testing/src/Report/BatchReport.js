@@ -40,6 +40,7 @@ class BatchReport extends React.Component {
       report: null,
       testcaseUid: null,
       loading: false,
+      logs: [],
       error: null,
       filter: null,
       displayTags: false,
@@ -62,6 +63,7 @@ class BatchReport extends React.Component {
       report: processedReport,
       selectedUIDs: this.autoSelect(processedReport),
       loading: false,
+      logs: report.logs,
     });
   }
 

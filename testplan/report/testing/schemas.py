@@ -260,6 +260,7 @@ class TestReportSchema(Schema):
 
     timer = TimerField(required=True)
     name = fields.String(required=True)
+    description = fields.String(allow_none=True)
     uid = fields.String(required=True)
     meta = fields.Dict()
 

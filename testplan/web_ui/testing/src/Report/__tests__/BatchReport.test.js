@@ -1,11 +1,11 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import { StyleSheetTestUtils } from "aphrodite";
 import moxios from 'moxios';
 
 import BatchReport from '../BatchReport';
 import Message from '../../Common/Message';
-import { TESTPLAN_REPORT, SIMPLE_REPORT } from "../../Common/sampleReports";
+import { TESTPLAN_REPORT, SIMPLE_REPORT, ERROR_REPORT } from "../../Common/sampleReports";
 
 describe('BatchReport', () => {
   const renderBatchReport = (uid = "123") => {
@@ -13,6 +13,15 @@ describe('BatchReport', () => {
     // BatchReport uses this object to get the report UID.
     const mockMatch = { params: { uid: uid } };
     return shallow(
+      <BatchReport match={mockMatch} />
+    );
+  };
+
+  const renderBatchReportFull = (uid = "123") => {
+    // Mock the match object that would be passed down from react-router.
+    // BatchReport uses this object to get the report UID.
+    const mockMatch = { params: { uid: uid } };
+    return mount(
       <BatchReport match={mockMatch} />
     );
   };
@@ -114,6 +123,13 @@ describe('BatchReport', () => {
         done();
       })
     })
+  });
+
+  it('shallow renders the correct HTML structure when report with errors loaded', () => {
+    const batchReport = renderBatchReportFull();
+    batchReport.setState({ report: ERROR_REPORT });
+    batchReport.update();
+    expect(batchReport).toMatchSnapshot();
   });
 
 });

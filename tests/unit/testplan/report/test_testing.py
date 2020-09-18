@@ -365,7 +365,10 @@ def dummy_test_plan_report_with_binary_asserts():
     )
 
     rep = TestReport(
-        name="My Bin Plan", entries=[tg_2, btg_1], meta={"foobin": "bazbin"}
+        name="My Bin Plan",
+        description="Plan executing binary assertions",
+        entries=[tg_2, btg_1],
+        meta={"foobin": "bazbin"},
     )
 
     with rep.timer.record("foobin"):

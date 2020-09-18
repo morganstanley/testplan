@@ -337,6 +337,35 @@ const SIMPLE_REPORT = {
   }],
 };
 
+// Simple report that only contains one MultiTest and one suite.
+const ERROR_REPORT = {
+  "category": "testplan",
+  "name": "Testplan with errors",
+  "status": "error",
+  "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+  "tags_index": {},
+  "status_override": null,
+  "meta": {},
+  "timer": {
+    "run": {
+      "start": "2018-10-15T14:30:10.998071+00:00",
+      "end": "2018-10-15T14:30:11.296158+00:00"
+    }
+  },
+  "entries": [],
+  "logs": [
+    {
+      "message": "While starting resource [client]\nTraceback (most recent call last):\n  File \"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/common/entity/base.py\", line 143, in start\n    resource.start()\n  File \"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/testing/multitest/driver/base.py\", line 148, in start\n    self.starting()\n  File \"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/testing/multitest/driver/tcp/client.py\", line 161, in starting\n    1/0\nZeroDivisionError: integer division or modulo by zero\n",
+      "created": "2018-10-15T14:30:12.971680+00:00",
+      "levelno": 40,
+      "levelname": "ERROR",
+      "funcName": "post_step_call",
+      "lineno": 387,
+      "uid": "dbc47190-505b-4153-ab3e-fec460eac78d"
+    }
+  ]
+};
+
 /**
  * Fake interactive report. All entries start with a status of "ready".
  */

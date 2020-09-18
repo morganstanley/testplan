@@ -672,7 +672,9 @@ class TestRunnerIHandler(entity.Entity):
     def _initial_report(self):
         """Generate the initial report skeleton."""
         report = testplan.report.TestReport(
-            name=self.cfg.name, uid=self.cfg.name
+            name=self.cfg.name,
+            description=self.cfg.description,
+            uid=self.cfg.name,
         )
 
         for test_uid in self.all_tests():
