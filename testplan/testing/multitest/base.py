@@ -908,6 +908,7 @@ class MultiTest(testing_base.Test):
                     func(*args)
 
             testcase_report.extend(case_result.serialized_entries)
+            testcase_report.attachments.extend(case_result.attachments)
 
             if self.get_stdout_style(testcase_report.passed).display_testcase:
                 self.log_testcase_status(testcase_report)

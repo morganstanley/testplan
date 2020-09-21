@@ -1,3 +1,4 @@
+import os
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan.common.utils.testing import (
@@ -11,6 +12,9 @@ from testplan.report import (
     ReportCategories,
 )
 from testplan.common.utils.logger import TESTPLAN_LOGGER
+
+
+CURRENT_FILE = os.path.abspath(__file__)
 
 
 @testsuite
@@ -34,6 +38,7 @@ def check_func_3(env):
 
 def check_func_4(env, result):
     result.equal(1, 2, description="failing assertion")
+    result.attach(CURRENT_FILE, description="current file")
 
 
 expected_report = TestReport(
@@ -60,7 +65,10 @@ expected_report = TestReport(
                         TestCaseReport(name="before_stop - check_func_3"),
                         TestCaseReport(
                             name="after_stop - check_func_4",
-                            entries=[{"type": "Equal", "passed": False}],
+                            entries=[
+                                {"type": "Equal", "passed": False},
+                                {"type": "Attachment"},
+                            ],
                         ),
                     ],
                 ),
@@ -87,3 +95,4 @@ def test_pre_post_steps(mockplan):
         mockplan.run()
 
     check_report(expected_report, mockplan.report)
+    assert len(mockplan.report.attachments) == 1
