@@ -85,7 +85,7 @@ class ZookeeperStandalone(Driver):
         Create mandatory directories and install files from given templates
         using the drivers context before starting zookeeper.
         """
-        self.make_runpath_dirs()
+        super(ZookeeperStandalone, self).pre_start()
         self.zkdata_path = os.path.join(self.runpath, "zkdata")
         self.zklog_path = os.path.join(self.runpath, "zklog")
         self.etc_path = os.path.join(self.runpath, "etc")

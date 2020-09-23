@@ -142,18 +142,18 @@ class Driver(Resource):
     def start(self):
         """Start the driver."""
         self.status.change(self.STATUS.STARTING)
+        self.pre_start()
         if self.cfg.pre_start:
             self.cfg.pre_start(self)
-        self.pre_start()
         self.starting()
 
     def stop(self):
         """Stop the driver."""
         self.status.change(self.STATUS.STOPPING)
         if self.active:
+            self.pre_stop()
             if self.cfg.pre_stop:
                 self.cfg.pre_stop(self)
-            self.pre_stop()
             self.stopping()
 
     def pre_start(self):
@@ -189,16 +189,16 @@ class Driver(Resource):
     def _wait_started(self, timeout=None):
         self.started_check(timeout=timeout)
         self.status.change(self.STATUS.STARTED)
-        self.post_start()
         if self.cfg.post_start:
             self.cfg.post_start(self)
+        self.post_start()
 
     def _wait_stopped(self, timeout=None):
         self.stopped_check(timeout=timeout)
         self.status.change(self.STATUS.STOPPED)
-        self.post_stop()
         if self.cfg.post_stop:
             self.cfg.post_stop(self)
+        self.post_stop()
 
     def context_input(self):
         """Driver context information."""

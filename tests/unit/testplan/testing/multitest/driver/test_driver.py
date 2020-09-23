@@ -4,6 +4,7 @@ from testplan.testing.multitest.driver import base
 
 
 def pre_start_fn(driver):
+    assert driver.pre_start_called
     driver.pre_start_fn_called = True
 
 
@@ -12,6 +13,7 @@ def post_start_fn(driver):
 
 
 def pre_stop_fn(driver):
+    assert driver.pre_stop_called
     driver.pre_stop_fn_called = True
 
 
