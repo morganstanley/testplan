@@ -582,7 +582,7 @@ def _rec_compare(
             key=key,
             match=Match.from_bool(result),
             lhs=(0, "func", callable_name(lhs)),
-            rhs="Value: {}, Error: {}".format(rhs, error)
+            rhs=fmt("Value: {}, Error: {}".format(rhs, error))
             if error
             else fmt(rhs),
         )
@@ -592,7 +592,7 @@ def _rec_compare(
         return _build_res(
             key=key,
             match=Match.from_bool(result),
-            lhs="Value: {}, Error: {}".format(lhs, error)
+            lhs=fmt("Value: {}, Error: {}".format(lhs, error))
             if error
             else fmt(lhs),
             rhs=(0, "func", callable_name(rhs)),
