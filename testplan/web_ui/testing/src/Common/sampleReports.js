@@ -436,5 +436,6 @@ const FakeInteractiveReport = {
 export {
   TESTPLAN_REPORT,
   SIMPLE_REPORT,
+  ERROR_REPORT,
   FakeInteractiveReport,
 }

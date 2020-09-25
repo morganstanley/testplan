@@ -175,6 +175,25 @@ respect to multiple suites is the following:
     4. Stop each driver in reverse order
 
 
+Name customization
+------------------
+
+Testplan supports customizing test suite name or testcase name, which will be saved
+in test report and displayed on UI. displayed inUse ``name`` argument in @testcase
+or ``custom_name`` argument in @testsuite, while ``custom_name`` can be a normal string
+or a callable. Some examples:
+
+    * ``@testcase(name="Testcase name")``
+    * ``@testsuite(custom_name="Test suite name")``
+    * ``@testsuite(custom_name=lambda self, original_name: "{}_{}".format(original_name , id(self)))``
+
+.. note::
+
+    In one test suite no duplicate testcase names are allowed. Similarly, if multiple
+    objects from the same test suite class are added into a multitest, ``custom_name``
+    is required to make different names for test suites.
+
+
 Listing
 -------
 
@@ -681,7 +700,6 @@ How can I troubleshoot a problem?
 
 
 .. _tagging:
-
 
 Tagging
 -------

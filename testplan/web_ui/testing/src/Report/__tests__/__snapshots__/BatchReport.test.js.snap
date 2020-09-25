@@ -2513,14 +2513,52 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
       extraButtons={
         Array [
           <TimeButton
-            status={null}
+            status="error"
             updateTimeDisplayCbk={[Function]}
           />,
         ]
       }
       filterBoxWidth="22em"
       handleNavFilter={[Function]}
-      status={null}
+      report={
+        Object {
+          "category": "testplan",
+          "entries": Array [],
+          "logs": Array [
+            Object {
+              "created": "2018-10-15T14:30:12.971680+00:00",
+              "funcName": "post_step_call",
+              "levelname": "ERROR",
+              "levelno": 40,
+              "lineno": 387,
+              "message": "While starting resource [client]
+Traceback (most recent call last):
+  File \\"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/common/entity/base.py\\", line 143, in start
+    resource.start()
+  File \\"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/testing/multitest/driver/base.py\\", line 148, in start
+    self.starting()
+  File \\"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/testing/multitest/driver/tcp/client.py\\", line 161, in starting
+    1/0
+ZeroDivisionError: integer division or modulo by zero
+",
+              "uid": "dbc47190-505b-4153-ab3e-fec460eac78d",
+            },
+          ],
+          "meta": Object {},
+          "name": "Testplan with errors",
+          "status": "error",
+          "status_override": null,
+          "tags_index": Object {},
+          "timer": Object {
+            "run": Object {
+              "end": "2018-10-15T14:30:11.296158+00:00",
+              "start": "2018-10-15T14:30:10.998071+00:00",
+            },
+          },
+          "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+        }
+      }
+      status="error"
       updateEmptyDisplayFunc={[Function]}
       updateFilterFunc={[Function]}
       updateTagsDisplayFunc={[Function]}
@@ -2561,7 +2599,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
             </div>
             <Collapse
               appear={false}
-              className="toolbar_l6n5rs-o_O-toolbarUnknown_1mqui2p"
+              className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
               enter={true}
               exit={true}
               in={false}
@@ -2594,7 +2632,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
                 unmountOnExit={false}
               >
                 <div
-                  className="toolbar_l6n5rs-o_O-toolbarUnknown_1mqui2p collapse navbar-collapse"
+                  className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx collapse navbar-collapse"
                   style={Object {}}
                 >
                   <Nav
@@ -2608,7 +2646,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
                     >
                       <TimeButton
                         key="time-button"
-                        status={null}
+                        status="error"
                         updateTimeDisplayCbk={[Function]}
                       >
                         <NavItem
@@ -2764,14 +2802,14 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
                               >
                                 <DropdownToggle
                                   aria-haspopup={true}
-                                  className="toolbar_l6n5rs-o_O-toolbarUnknown_1mqui2p"
+                                  className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
                                   color="secondary"
                                   nav={true}
                                 >
                                   <a
                                     aria-expanded={false}
                                     aria-haspopup={true}
-                                    className="toolbar_l6n5rs-o_O-toolbarUnknown_1mqui2p nav-link"
+                                    className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx nav-link"
                                     href="#"
                                     onClick={[Function]}
                                   >
@@ -3335,6 +3373,44 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
       handleColumnResizing={[Function]}
       handleNavClick={[Function]}
       navListWidth="22em"
+      report={
+        Object {
+          "category": "testplan",
+          "entries": Array [],
+          "logs": Array [
+            Object {
+              "created": "2018-10-15T14:30:12.971680+00:00",
+              "funcName": "post_step_call",
+              "levelname": "ERROR",
+              "levelno": 40,
+              "lineno": 387,
+              "message": "While starting resource [client]
+Traceback (most recent call last):
+  File \\"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/common/entity/base.py\\", line 143, in start
+    resource.start()
+  File \\"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/testing/multitest/driver/base.py\\", line 148, in start
+    self.starting()
+  File \\"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/testing/multitest/driver/tcp/client.py\\", line 161, in starting
+    1/0
+ZeroDivisionError: integer division or modulo by zero
+",
+              "uid": "dbc47190-505b-4153-ab3e-fec460eac78d",
+            },
+          ],
+          "meta": Object {},
+          "name": "Testplan with errors",
+          "status": "error",
+          "status_override": null,
+          "tags_index": Object {},
+          "timer": Object {
+            "run": Object {
+              "end": "2018-10-15T14:30:11.296158+00:00",
+              "start": "2018-10-15T14:30:10.998071+00:00",
+            },
+          },
+          "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+        }
+      }
       selected={Array []}
     >
       <NavBreadcrumbs
@@ -3401,7 +3477,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
     </Nav>
     <Message
       left="22em"
-      message="Fetching Testplan report..."
+      message="Please select an entry."
     >
       <div
         style={
@@ -3414,7 +3490,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
         <h1
           className="message_110xrpz"
         >
-          Fetching Testplan report...
+          Please select an entry.
         </h1>
       </div>
     </Message>

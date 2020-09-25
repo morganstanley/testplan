@@ -20,10 +20,6 @@ PYTHON_VARIABLE_REGEX = re.compile(PYTHON_VARIABLE_PATTERN)
 
 # Python attribute names can be of unlimited length but we set a limit here
 MAX_METHOD_NAME_LENGTH = 255
-# Name of testcase (usually used for display) cannot be too long,
-# Because the UI will not be pleasant when we end up with really long names
-MAX_TESTSUITE_NAME_LENGTH = 80
-MAX_TESTCASE_NAME_LENGTH = 80
 
 
 class ParametrizationError(ValueError):
@@ -444,19 +440,12 @@ def generate_functions(
         for kwargs in kwarg_list
     ]
 
-    for func, kwargs in zip(functions, kwarg_list):
-        func.name = func.name or func.__name__
+    for func in functions:
         func.summarize = summarize
         func.summarize_num_passing = num_passing
         func.summarize_num_failing = num_failing
         func.summarize_key_combs_limit = key_combs_limit
         func.execution_group = execution_group
         func.timeout = timeout
-
-        if ":" in func.name:
-            warnings.warn(
-                "It is strongly suggested not using colon in"
-                " name of testcase - [{}]".format(func.name)
-            )
 
     return functions

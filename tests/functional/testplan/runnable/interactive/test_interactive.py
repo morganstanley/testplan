@@ -74,13 +74,12 @@ class BasicSuite(object):
         result.equal(1, 1, description="Passing assertion")
 
 
-@testsuite
+@testsuite(
+    custom_name=lambda self, original_name: "Custom_{}".format(self.arg)
+)
 class TCPSuite(object):
     def __init__(self, arg):
         self.arg = arg
-
-    def suite_name(self):
-        return "Custom_{}".format(self.arg)
 
     @testcase
     def send_and_receive_msg(self, env, result):
