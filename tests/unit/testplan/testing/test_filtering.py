@@ -21,11 +21,11 @@ class Alpha(object):
         pass
 
 
-@testsuite(tags="bar")
+@testsuite(
+    tags="bar",
+    custom_name=lambda self, original_name: original_name + " - Custom",
+)
 class Beta(object):
-    def suite_name(self):
-        return "Custom"
-
     @testcase
     def test_one(self, env, result):
         pass
@@ -238,7 +238,7 @@ class TestPattern(object):
             ("*:Alpha:foo", Alpha(), True),
             ("*:Al*:foo", Alpha(), True),
             ("*:B*:*", Alpha(), False),
-            # suite_name func overrides class name
+            # custom_name func overrides the original class name
             ("*:Beta:*", Beta(), False),
             ("*:Beta - Custom:*", Beta(), True),
         ),

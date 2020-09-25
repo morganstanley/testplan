@@ -11,20 +11,22 @@ import warnings
 import six
 
 from testplan import defaults
-from testplan.common.utils.callable import wraps
+from testplan.common.utils import callable as callable_utils
 from testplan.common.utils import interface
-from testplan.common.utils.strings import format_description
+from testplan.common.utils import strings
+from testplan.common.utils import validation
 from testplan.testing import tagging
 
 from . import parametrization
 
+# Global variables
 __TESTCASES__ = []
 __PARAMETRIZATION_TEMPLATE__ = []
 __GENERATED_TESTCASES__ = []
 __SKIP__ = collections.defaultdict(tuple)
 
 
-def reset_globals():
+def _reset_globals():
     # pylint: disable=global-statement
     global __TESTCASES__
     global __PARAMETRIZATION_TEMPLATE__
@@ -110,7 +112,9 @@ def propagate_tag_indices(suite, tag_dict):
 def get_testsuite_name(suite):
     """
     Returns the name to be used for the given testsuite. This is made of
-    the class name and the result of "suite_name()" method if this exists
+    either the class name or the result of `custom_name` (can be a normal
+    string or a function returning a string) if it exists. The first time
+    this function is called the suite name will be saved for future use.
 
     :param suite: Suite object whose name is needed
     :type suite: ``testsuite``
@@ -118,33 +122,20 @@ def get_testsuite_name(suite):
     :return: Name of given suite
     :rtype: ``str``
     """
-    testsuite_name = suite.name
-    if not isinstance(testsuite_name, six.string_types):
-        raise ValueError(
-            'Test suite name "{name}" must be a string, it is of type:'
-            " {type}".format(name=testsuite_name, type=type(testsuite_name))
-        )
+    if hasattr(suite, "__name__"):
+        return suite.__name__
 
-    if callable(getattr(suite, "suite_name", None)):
-        postfix = suite.suite_name()
-        if postfix is not None:
-            if not isinstance(postfix, six.string_types):
-                raise ValueError("`suite_name()` should return a string")
-            testsuite_name = "{} - {}".format(testsuite_name, postfix)
+    if suite.__class__.custom_name is None:
+        suite.__name__ = suite.__class__.__name__
+    elif isinstance(suite.__class__.custom_name, six.string_types):
+        suite.__name__ = suite.__class__.custom_name
+    elif callable(suite.__class__.custom_name):
+        suite.__name__ = suite.custom_name(suite.__class__.__name__)
+    else:
+        # Should not reach here, something must be wrong
+        assert False, "Unknown `custom_name` of [{}]".format(suite.__class__)
 
-    if (
-        not testsuite_name
-        or len(testsuite_name) > parametrization.MAX_TESTSUITE_NAME_LENGTH
-    ):
-        raise ValueError(
-            'Test suite name "{name}" must be a non-empty string with'
-            " length not greater than {length}".format(
-                name=testsuite_name,
-                length=parametrization.MAX_TESTSUITE_NAME_LENGTH,
-            )
-        )
-
-    return testsuite_name
+    return suite.__name__
 
 
 def get_testsuite_desc(suite):
@@ -155,7 +146,7 @@ def get_testsuite_desc(suite):
     in the reports (text and otherwise)
     """
     desc = suite.__doc__
-    return format_description(desc.rstrip()) if desc else None
+    return strings.format_description(desc.rstrip()) if desc else None
 
 
 def set_testsuite_testcases(suite):
@@ -181,18 +172,6 @@ def set_testsuite_testcases(suite):
             )
 
         name = getattr(suite, testcase).name
-        if not isinstance(name, six.string_types):
-            raise ValueError(
-                'Testcase name "{name}" must be a string, it is'
-                " of type: {type}".format(name=name, type=type(name))
-            )
-        if not name or len(name) > parametrization.MAX_TESTCASE_NAME_LENGTH:
-            raise ValueError(
-                'Testcase name "{name}" must be a non-empty string with'
-                " length not greater than {length}".format(
-                    name=name, length=parametrization.MAX_TESTCASE_NAME_LENGTH
-                )
-            )
         if name in testcase_names:
             raise ValueError(
                 "Duplicate testcase name {} found, please check."
@@ -217,7 +196,7 @@ def get_testcase_desc(suite, testcase_name):
     in the reports (text and otherwise)
     """
     desc = getattr(suite, testcase_name).__doc__
-    return format_description(desc.rstrip()) if desc else ""
+    return strings.format_description(desc.rstrip()) if desc else ""
 
 
 def get_testcase_methods(suite):
@@ -225,7 +204,6 @@ def get_testcase_methods(suite):
     Return the unbound method objects marked as a testcase
     from a testsuite class.
     """
-
     return [
         getattr(suite, testcase_name)
         for testcase_name in suite.__testcases__
@@ -323,7 +301,7 @@ def _ensure_unique_generated_testcase_names(names, functions):
         else:
             valid_names.add(name)
 
-    # Functions should have different __names__ attributes after the step above
+    # Functions should have different __name__ attributes after the step above
     name_counts = collections.Counter(
         itertools.chain(names, (func.__name__ for func in functions))
     )
@@ -358,9 +336,10 @@ def _testsuite(klass):
 
     assert all(testcases for testcases in klass.__testcases__)
 
-    # `name` attribute might be added if decorated with @testsuite(name=...)
-    if not hasattr(klass, "name"):
-        klass.name = klass.__name__
+    # Attributes `custom_name` and `__tags__` are added only when class is
+    # decorated by @testsuite(...) which has the following parentheses.
+    if not hasattr(klass, "custom_name"):
+        klass.custom_name = None
 
     if not hasattr(klass, "__tags__"):
         klass.__tags__ = {}  # used for UI
@@ -368,11 +347,13 @@ def _testsuite(klass):
 
     # Attributes defined in test suite will be saved in test report,
     # they should be normal objects which can be serialized with json
+    # TODO: Attribute `__extra_attributes__` will be removed later
     klass.__extra_attributes__ = {
         attrib: getattr(klass, attrib)
         for attrib in dir(klass)
         if not (
             attrib.startswith("__")
+            or attrib == "custom_name"
             or callable(getattr(klass, attrib))
             or isinstance(getattr(klass, attrib), property)
             or attrib in klass.__testcases__
@@ -398,12 +379,12 @@ def _testsuite(klass):
     )
 
     # Suite resolved, clear global variables for resolving the next suite.
-    reset_globals()
+    _reset_globals()
 
     return klass
 
 
-def _testsuite_meta(name=None, tags=None):
+def _testsuite_meta(custom_name=None, tags=None):
     """
     Wrapper function that allows us to call :py:func:`@testsuite <testsuite>`
     decorator with extra arguments.
@@ -411,18 +392,29 @@ def _testsuite_meta(name=None, tags=None):
 
     @functools.wraps(_testsuite)
     def wrapper(klass):
-        """Meta logic for suite goes here"""
-        klass.name = name or klass.__name__
+        """Meta logic for suite goes here."""
+        if custom_name is None or isinstance(custom_name, six.string_types):
+            pass
+        elif callable(custom_name):
+            try:
+                interface.check_signature(
+                    custom_name, ["self", "original_name"]
+                )
+            except interface.MethodSignatureMismatch as err:
+                _reset_globals()
+                raise err
+        else:
+            _reset_globals()
+            raise TypeError("`custom_name` should be callable or a string")
 
-        if ":" in klass.name:
-            warnings.warn(
-                "It is strongly suggested not using colon in"
-                " name of test suite - [{}]".format(klass.name)
-            )
+        klass.custom_name = custom_name
 
         if tags:
             klass.__tags__ = tagging.validate_tag_value(tags)
             klass.__tags_index__ = copy.deepcopy(klass.__tags__)
+        else:
+            klass.__tags__ = {}
+            klass.__tags_index__ = {}
 
         return _testsuite(klass)
 
@@ -457,7 +449,7 @@ def testsuite(*args, **kwargs):
     )(*args, **kwargs)
 
 
-def _validate_testcase_name(func):
+def _validate_function_name(func):
     """Validate the function name is valid for a testcase."""
     errmsg = None
 
@@ -474,14 +466,14 @@ def _validate_testcase_name(func):
             func.__name__
         )
 
-    elif func.__name__ in ("name", "suite_name", "get_testcases"):
+    elif func.__name__ in ("name", "custom_name", "get_testcases"):
         errmsg = (
-            'Testcase cannot be defined as "name" or "suite_name" or '
-            '"get_testcases" because they are reserved for Testplan'
+            'Testcase cannot be defined as "name" or "custom_name" or'
+            ' "get_testcases" because they are reserved for Testplan'
         )
 
     if errmsg is not None:
-        reset_globals()
+        _reset_globals()
         try:
             src_file = inspect.getsourcefile(func)
             src_line = inspect.getsourcelines(func)[1]
@@ -492,7 +484,14 @@ def _validate_testcase_name(func):
 
 def _validate_testcase(func):
     """Validate the expected function signature of a testcase."""
-    interface.check_signature(func, ["self", "env", "result"])
+    try:
+        interface.check_signature(func, ["self", "env", "result"])
+        validation.validate_display_name(
+            func.name, defaults.MAX_TESTCASE_NAME_LENGTH, "Testcase name"
+        )
+    except Exception as ex:
+        _reset_globals()
+        raise ex
 
 
 def _mark_function_as_testcase(func):
@@ -503,10 +502,10 @@ def _testcase(function):
     """Actual decorator that validates & registers a method as a testcase."""
     global __TESTCASES__
 
-    _validate_testcase_name(function)
-
-    # `name` attribute might be added if decorated with @testcase(name=...)
+    # Attributes `name` and `__tags__` are added only when function is
+    # decorated by @testcase(...) which has the following parentheses.
     if not hasattr(function, "name"):
+        _validate_function_name(function)
         function.name = function.__name__
 
     if not hasattr(function, "__tags__"):
@@ -544,17 +543,17 @@ def _testcase_meta(
 
     @functools.wraps(_testcase)
     def wrapper(function):
-        """Meta logic for test case goes here"""
+        """Meta logic for test case goes here."""
         global __GENERATED_TESTCASES__
         global __PARAMETRIZATION_TEMPLATE__
 
-        _validate_testcase_name(function)
+        _validate_function_name(function)
+        function.name = name or function.__name__
 
         tag_dict = tagging.validate_tag_value(tags) if tags else {}
         function.__tags__ = copy.deepcopy(tag_dict)
 
         if parameters is not None:  # Empty tuple / dict checks happen later
-            function.name = name or function.__name__
             function.__parametrization_template__ = True
             __PARAMETRIZATION_TEMPLATE__.append(function.__name__)
 
@@ -574,13 +573,13 @@ def _testcase_meta(
                     execution_group=execution_group,
                     timeout=timeout,
                 )
-            except parametrization.ParametrizationError as pe:
+            except parametrization.ParametrizationError as err:
                 # Testplan stops execution if `ParametrizationError` raises.
                 # However in our test the process will not quit but continue
                 # to run the next testcase, and module will not be reloaded.
                 # So, it is better reset globals before raising this error.
-                reset_globals()
-                raise pe
+                _reset_globals()
+                raise err
 
             # Register generated functions as test_cases
             for func in functions:
@@ -605,7 +604,6 @@ def _testcase_meta(
             return function
 
         else:
-            function.name = name or function.__name__
             function.summarize = summarize
             function.summarize_num_passing = num_passing
             function.summarize_num_failing = num_failing
@@ -613,12 +611,6 @@ def _testcase_meta(
             function.execution_group = execution_group
             function.timeout = timeout
             function.__tags_index__ = copy.deepcopy(tag_dict)
-
-            if ":" in function.name:
-                warnings.warn(
-                    "It is strongly suggested not using colon in"
-                    " name of testcase - [{}]".format(function.name)
-                )
 
             return _testcase(function)
 
@@ -732,7 +724,11 @@ def _validate_skip_if_predicates(predicates):
     the testcase method.
     """
     for predicate in predicates:
-        interface.check_signature(predicate, ["testsuite"])
+        try:
+            interface.check_signature(predicate, ["testsuite"])
+        except interface.MethodSignatureMismatch as err:
+            _reset_globals()
+            raise err
 
     return predicates
 
@@ -779,7 +775,7 @@ def _gen_testcase_with_pre(testcase_method, preludes):
     :return: testcase with prelude attached
     """
 
-    @wraps(testcase_method)
+    @callable_utils.wraps(testcase_method)
     def testcase_with_pre(*args, **kwargs):
         """
         Testcase with prelude
@@ -817,7 +813,7 @@ def _gen_testcase_with_post(testcase_method, epilogues):
     :return: testcase with epilogue attached
     """
 
-    @wraps(testcase_method)
+    @callable_utils.wraps(testcase_method)
     def testcase_with_post(*args, **kwargs):
         """
         Testcase with epilogue

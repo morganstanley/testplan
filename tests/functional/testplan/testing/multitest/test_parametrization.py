@@ -3,26 +3,24 @@ import logging
 from contextlib import contextmanager
 
 import pytest
-from schema import SchemaError
 from six.moves import reload_module
 
+from testplan.defaults import MAX_TESTCASE_NAME_LENGTH
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.parametrization import (
-    ParametrizationError,
     MAX_METHOD_NAME_LENGTH,
-    MAX_TESTCASE_NAME_LENGTH,
-)
-
-from testplan.common.utils.testing import (
-    check_report,
-    warnings_suppressed,
-    log_propagation_disabled,
+    ParametrizationError,
 )
 from testplan.report import (
     TestReport,
     TestGroupReport,
     TestCaseReport,
     ReportCategories,
+)
+from testplan.common.utils.testing import (
+    check_report,
+    warnings_suppressed,
+    log_propagation_disabled,
 )
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 
@@ -445,7 +443,7 @@ def test_invalid_name_func(name_func, msg):
 
 def test_invalid_long_testcase_name(mockplan):
     """Custom naming function should return a valid non-empty string."""
-    with pytest.raises(SchemaError):
+    with pytest.raises(ValueError):
 
         long_string = "a" * (MAX_TESTCASE_NAME_LENGTH + 1)
 

@@ -19,6 +19,7 @@ import concurrent
 from schema import Or, And, Use
 
 import testplan.report
+from testplan import defaults
 from testplan.common import config
 from testplan.common import entity
 from testplan.common.utils import interface
@@ -28,34 +29,31 @@ from testplan.common.utils import callable as callable_utils
 from testplan.common.utils import strings
 from testplan.testing import tagging
 from testplan.testing import filtering
+from testplan.testing import base as testing_base
 from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
-from testplan.testing import base as testing_base
 
 
 def iterable_suites(obj):
     """Create an iterable suites object."""
     suites = [obj] if not isinstance(obj, collections.Iterable) else obj
 
-    name_counts = collections.Counter(suite.name for suite in suites)
-    dupe_names = {k for k, v in name_counts.items() if v > 1}
+    # No duplicate names of test suites are allowed, if there is any, user
+    # should use `custom_name` argument of @testsuite for customization
+    suite_names = [mtest_suite.get_testsuite_name(suite) for suite in suites]
+    for name in suite_names:
+        validation.validate_display_name(
+            name, defaults.MAX_TESTSUITE_NAME_LENGTH, "Test suite name"
+        )
+
+    suite_name_counts = collections.Counter(suite_names)
+    dupe_names = {k for k, v in suite_name_counts.items() if v > 1}
 
     if len(dupe_names) > 0:
         raise ValueError(
-            "Duplicate test suite name found: {}".format(", ".join(dupe_names))
-        )
-
-    func_name_counts = collections.Counter(
-        suite.__class__.__name__ for suite in suites
-    )
-    dupe_func_names = {k for k, v in func_name_counts.items() if v > 1}
-
-    if len(dupe_func_names) > 0:
-        raise ValueError(
-            "Duplicate test suite definition found: {}".format(
-                ", ".join(dupe_func_names)
-            )
+            "Duplicate test suite name found: {}. Consider using `custom_name`"
+            " argument in @testsuite decorator.".format(", ".join(dupe_names))
         )
 
     for suite in suites:
@@ -562,7 +560,7 @@ class MultiTest(testing_base.Test):
             name=mtest_suite.get_testsuite_name(testsuite),
             description=strings.get_docstring(testsuite.__class__),
             category=testplan.report.ReportCategories.TESTSUITE,
-            uid=testsuite.__class__.__name__,
+            uid=testsuite.__name__,
             tags=testsuite.__tags__,
             extra_attributes=testsuite.__extra_attributes__,
         )

@@ -28,3 +28,9 @@ WEB_SERVER_TIMEOUT = 10
 
 # Default to using 4 threads for interactive pool.
 INTERACTIVE_POOL_SIZE = 4
+
+# Name of multitest/testsuite/testcase (usually used for display) cannot be
+# too long, or the UI will not be pleasant when they end up with long names
+MAX_MULTITEST_NAME_LENGTH = 120
+MAX_TESTSUITE_NAME_LENGTH = 120
+MAX_TESTCASE_NAME_LENGTH = 120

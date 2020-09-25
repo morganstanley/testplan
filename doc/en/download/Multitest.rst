@@ -19,6 +19,19 @@ test_plan.py
 .. literalinclude:: ../../../examples/Multitest/Basic/Initial Context/test_plan.py
 
 
+.. _example_basic_name_customization:
+
+Name Customization
+++++++++++++++++++
+
+Required files:
+  - :download:`test_plan.py <../../../examples/Multitest/Basic/Custom Name/test_plan.py>`
+
+test_plan.py
+````````````
+.. literalinclude:: ../../../examples/Multitest/Basic/Custom Name/test_plan.py
+
+
 .. _example_multitest_listing:
 
 Listing
