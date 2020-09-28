@@ -9,7 +9,6 @@ const FILTER_STATES_ARR = Object.values(filterStates);
 export default createSlice({
   name: 'ui',
   initialState: {
-    isShowHelpModal: false,
     isDisplayEmpty: true,
     filter: filterStates.ALL,
     isShowTags: false,
@@ -30,10 +29,6 @@ export default createSlice({
     setShowTags: {
       reducer(state, { payload }) { state.isShowTags = payload; },
       prepare: (showTags = false) => ({ payload: !!showTags }),
-    },
-    setShowInfoModal: {
-      reducer(state, { payload }) { state.isShowInfoModal = payload; },
-      prepare: (showInfoModal = false) => ({ payload: !!showInfoModal }),
     },
     setFilter: {
       reducer(state, { payload }) { state.filter = payload; },

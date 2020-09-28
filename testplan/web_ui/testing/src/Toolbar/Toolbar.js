@@ -21,6 +21,7 @@ import {
 } from 'reactstrap';
 
 import FilterBox from "../Toolbar/FilterBox";
+import FilterBoxPlaceholder from '../Toolbar/FilterBoxPlaceholder';
 import {STATUS, STATUS_CATEGORY} from "../Common/defaults";
 
 import {library} from '@fortawesome/fontawesome-svg-core';
@@ -55,7 +56,6 @@ class Toolbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      helpModal: false,
       filterOpen: false,
       infoModal: false,
       filter: 'all',
@@ -66,15 +66,8 @@ class Toolbar extends Component {
     this.filterOnClick = this.filterOnClick.bind(this);
     this.toggleInfoOnClick = this.toggleInfoOnClick.bind(this);
     this.toggleEmptyDisplay = this.toggleEmptyDisplay.bind(this);
-    this.toggleHelpOnClick = this.toggleHelpOnClick.bind(this);
     this.toggleTagsDisplay = this.toggleTagsDisplay.bind(this);
     this.toggleFilterOnClick = this.toggleFilterOnClick.bind(this);
-  }
-
-  toggleHelpOnClick() {
-    this.setState(prevState => ({
-      helpModal: !prevState.helpModal
-    }));
   }
 
   toggleInfoOnClick() {
@@ -230,25 +223,6 @@ class Toolbar extends Component {
   }
 
   /**
-   * Return the button which toggles the help modal.
-   */
-  helpButton() {
-    return (
-      <NavItem>
-        <div className={css(styles.buttonsBar)}>
-          <FontAwesomeIcon
-            key='toolbar-question'
-            className={css(styles.toolbarButton)}
-            icon='question-circle'
-            title='Help'
-            onClick={this.toggleHelpOnClick}
-          />
-        </div>
-      </NavItem>
-    );
-  }
-
-  /**
    * Return the button which links to the documentation.
    */
   documentationButton() {
@@ -268,6 +242,23 @@ class Toolbar extends Component {
     );
   }
 
+  filterBox() {
+    return <div className={css(styles.filterBox)}
+      style={{
+        width: this.props.filterBoxWidth,        
+      }}
+    >
+      {this.props.handleNavFilter ? 
+      <FilterBox
+      handleNavFilter={this.props.handleNavFilter}
+      /> : 
+      <FilterBoxPlaceholder/>
+      }
+  </div>;
+    
+
+  }
+
   /**
    * Return the navbar including all buttons.
    */
@@ -275,13 +266,8 @@ class Toolbar extends Component {
     const toolbarStyle = getToolbarStyle(this.props.status);
 
     return (
-      <Navbar light expand="md" className={css(styles.toolbar)}>
-        <div className={css(styles.filterBox)}>
-          <FilterBox
-            width={this.props.filterBoxWidth}
-            handleNavFilter={this.props.handleNavFilter}
-          />
-        </div>
+      <Navbar light expand="md" className={css(styles.toolbar)}>        
+        {this.filterBox()}
         <Collapse isOpen={this.state.isOpen} navbar className={toolbarStyle}>
           <Nav navbar className='ml-auto'>
             {this.props.extraButtons}
@@ -289,34 +275,10 @@ class Toolbar extends Component {
             {this.filterButton(toolbarStyle)}
             {this.printButton()}
             {this.tagsButton()}
-            {this.helpButton()}
             {this.documentationButton()}
           </Nav>
         </Collapse>
       </Navbar>
-    );
-  }
-
-  /**
-   * Return the help modal.
-   */
-  helpModal() {
-    return (
-      <Modal
-        isOpen={this.state.helpModal}
-        toggle={this.toggleHelpOnClick}
-        className='HelpModal'
-      >
-        <ModalHeader toggle={this.toggleHelpOnClick}>Help</ModalHeader>
-        <ModalBody>
-          This is filter box help!
-        </ModalBody>
-        <ModalFooter>
-          <Button color="light" onClick={this.toggleHelpOnClick}>
-            Close
-          </Button>
-        </ModalFooter>
-      </Modal>
     );
   }
 
@@ -353,7 +315,6 @@ class Toolbar extends Component {
     return (
       <div>
         {this.navbar()}
-        {this.helpModal()}
         {this.infoModal()}
       </div>
     );

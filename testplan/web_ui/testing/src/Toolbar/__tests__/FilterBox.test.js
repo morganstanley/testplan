@@ -45,12 +45,12 @@ describe('FilterBox', () => {
     expect(filterBox).toMatchSnapshot();
   });
 
-  it('calls handleNavFilter when onKeyUp event is triggered ' +
+  it('calls handleNavFilter when text written to filter ' +
      'for input box', () => {
     const handleNavFilter = props.handleNavFilter;
     const filterBox = renderFilterBox();
 
-    filterBox.find('input').simulate('keyUp', {keyCode: 13, key: 'Enter'});
+    filterBox.find('DebounceInput').simulate('change', {target: {value: "Test"}});
     expect(handleNavFilter.mock.calls.length).toEqual(1);
   })
 
