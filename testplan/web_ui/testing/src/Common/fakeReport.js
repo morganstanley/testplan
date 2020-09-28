@@ -3931,8 +3931,417 @@ var fakeReportAssertions = {
     ]
 }
 
+const taggedReport = {
+    "meta": {},
+    "tags_index": {
+        "color": ["yellow", "blue", "red", "white"],
+        "simple": ["server", "client"],
+    },
+    "information": [
+        ["user", "KN"],
+        [
+            "command_line_string",
+            "C:/testplan/examples/Multitest/Tagging and Filtering/Basic Filters/test_plan_command_line.py --json a.json",
+        ],
+        ["python_version", "3.8.2"],
+    ],
+    "counter": {"passed": 8, "failed": 0, "total": 8},
+    "timer": {
+        "run": {
+            "end": "2020-09-25T14:37:19.326452+00:00",
+            "start": "2020-09-25T14:37:19.013195+00:00",
+        }
+    },
+    "status": "passed",
+    "logs": [],
+    "uid": "88b2fed0-7c83-4e8c-9ae3-16ea156cf072",
+    "timeout": 14400,
+    "category": "testplan",
+    "name": "Tagging_Filtering_Command_line",
+    "entries": [
+        {
+            "hash": 1590703602743315515,
+            "timer": {
+                "run": {
+                    "end": "2020-09-25T14:37:19.088037+00:00",
+                    "start": "2020-09-25T14:37:19.083079+00:00",
+                }
+            },
+            "logs": [],
+            "status_reason": null,
+            "name": "Primary",
+            "entries": [
+                {
+                    "hash": -3721249419309028807,
+                    "timer": {
+                        "run": {
+                            "end": "2020-09-25T14:37:19.085069+00:00",
+                            "start": "2020-09-25T14:37:19.083079+00:00",
+                        }
+                    },
+                    "logs": [],
+                    "status_reason": null,
+                    "name": "Alpha",
+                    "entries": [
+                        {
+                            "suite_related": false,
+                            "hash": -360398798333668410,
+                            "counter": {"passed": 1, "failed": 0, "total": 1},
+                            "type": "TestCaseReport",
+                            "description": null,
+                            "tags": {},
+                            "timer": {
+                                "run": {
+                                    "end": "2020-09-25T14:37:19.084048+00:00",
+                                    "start": "2020-09-25T14:37:19.084048+00:00",
+                                }
+                            },
+                            "status": "passed",
+                            "logs": [],
+                            "status_reason": null,
+                            "uid": "b0ac9bff-a172-45ea-a9a9-8380dcd60957",
+                            "category": "testcase",
+                            "name": "test_1",
+                            "entries": [],
+                            "parent_uids": [
+                                "Tagging_Filtering_Command_line",
+                                "Primary",
+                                "Alpha",
+                            ],
+                            "runtime_status": "finished",
+                            "status_override": null,
+                        },
+                        {
+                            "suite_related": false,
+                            "hash": 2879499515688307282,
+                            "counter": {"passed": 1, "failed": 0, "total": 1},
+                            "type": "TestCaseReport",
+                            "description": null,
+                            "tags": {},
+                            "timer": {
+                                "run": {
+                                    "end": "2020-09-25T14:37:19.084048+00:00",
+                                    "start": "2020-09-25T14:37:19.084048+00:00",
+                                }
+                            },
+                            "status": "passed",
+                            "logs": [],
+                            "status_reason": null,
+                            "uid": "a4f1c333-2663-4acb-ab07-1ab2410a8636",
+                            "category": "testcase",
+                            "name": "test_2",
+                            "entries": [],
+                            "parent_uids": [
+                                "Tagging_Filtering_Command_line",
+                                "Primary",
+                                "Alpha",
+                            ],
+                            "runtime_status": "finished",
+                            "status_override": null,
+                        },
+                    ],
+                    "status_override": null,
+                    "tags": {},
+                    "env_status": null,
+                    "status": "passed",
+                    "category": "testsuite",
+                    "runtime_status": "finished",
+                    "counter": {"passed": 2, "failed": 0, "total": 2},
+                    "extra_attributes": {},
+                    "part": null,
+                    "type": "TestGroupReport",
+                    "description": null,
+                    "fix_spec_path": null,
+                    "uid": "1f6d810c-122b-45a4-b264-f5f10e51dc11",
+                    "parent_uids": [
+                        "Tagging_Filtering_Command_line",
+                        "Primary",
+                    ],
+                },
+                {
+                    "hash": 7885919957307273304,
+                    "timer": {
+                        "run": {
+                            "end": "2020-09-25T14:37:19.087040+00:00",
+                            "start": "2020-09-25T14:37:19.085069+00:00",
+                        }
+                    },
+                    "logs": [],
+                    "status_reason": null,
+                    "name": "Beta",
+                    "entries": [
+                        {
+                            "suite_related": false,
+                            "hash": -3272901787197531342,
+                            "counter": {"passed": 1, "failed": 0, "total": 1},
+                            "type": "TestCaseReport",
+                            "description": null,
+                            "tags": {"simple": ["server"]},
+                            "timer": {
+                                "run": {
+                                    "end": "2020-09-25T14:37:19.085069+00:00",
+                                    "start": "2020-09-25T14:37:19.085069+00:00",
+                                }
+                            },
+                            "status": "passed",
+                            "logs": [],
+                            "status_reason": null,
+                            "uid": "948d7e14-ff50-4fd1-adf7-b780d90489df",
+                            "category": "testcase",
+                            "name": "test_1",
+                            "entries": [],
+                            "parent_uids": [
+                                "Tagging_Filtering_Command_line",
+                                "Primary",
+                                "Beta",
+                            ],
+                            "runtime_status": "finished",
+                            "status_override": null,
+                        },
+                        {
+                            "suite_related": false,
+                            "hash": 3686869030648441200,
+                            "counter": {"passed": 1, "failed": 0, "total": 1},
+                            "type": "TestCaseReport",
+                            "description": null,
+                            "tags": {"color": ["blue"]},
+                            "timer": {
+                                "run": {
+                                    "end": "2020-09-25T14:37:19.086043+00:00",
+                                    "start": "2020-09-25T14:37:19.086043+00:00",
+                                }
+                            },
+                            "status": "passed",
+                            "logs": [],
+                            "status_reason": null,
+                            "uid": "9a78c628-ea42-40cd-92dd-44aceacba502",
+                            "category": "testcase",
+                            "name": "test_2",
+                            "entries": [],
+                            "parent_uids": [
+                                "Tagging_Filtering_Command_line",
+                                "Primary",
+                                "Beta",
+                            ],
+                            "runtime_status": "finished",
+                            "status_override": null,
+                        },
+                        {
+                            "suite_related": false,
+                            "hash": 5735591787756764475,
+                            "counter": {"passed": 1, "failed": 0, "total": 1},
+                            "type": "TestCaseReport",
+                            "description": null,
+                            "tags": {"simple": ["server"], "color": ["blue"]},
+                            "timer": {
+                                "run": {
+                                    "end": "2020-09-25T14:37:19.086043+00:00",
+                                    "start": "2020-09-25T14:37:19.086043+00:00",
+                                }
+                            },
+                            "status": "passed",
+                            "logs": [],
+                            "status_reason": null,
+                            "uid": "ce66a1a3-bf97-4886-9f7f-d86d1c65525a",
+                            "category": "testcase",
+                            "name": "test_3",
+                            "entries": [],
+                            "parent_uids": [
+                                "Tagging_Filtering_Command_line",
+                                "Primary",
+                                "Beta",
+                            ],
+                            "runtime_status": "finished",
+                            "status_override": null,
+                        },
+                    ],
+                    "status_override": null,
+                    "tags": {},
+                    "env_status": null,
+                    "status": "passed",
+                    "category": "testsuite",
+                    "runtime_status": "finished",
+                    "counter": {"passed": 3, "failed": 0, "total": 3},
+                    "extra_attributes": {},
+                    "part": null,
+                    "type": "TestGroupReport",
+                    "description": null,
+                    "fix_spec_path": null,
+                    "uid": "cdd13895-ad6c-41da-ac91-141c47e0fefa",
+                    "parent_uids": [
+                        "Tagging_Filtering_Command_line",
+                        "Primary",
+                    ],
+                },
+            ],
+            "status_override": null,
+            "tags": {"color": ["white"]},
+            "env_status": "STOPPED",
+            "status": "passed",
+            "category": "multitest",
+            "runtime_status": "finished",
+            "counter": {"passed": 5, "failed": 0, "total": 5},
+            "extra_attributes": {},
+            "part": null,
+            "type": "TestGroupReport",
+            "description": null,
+            "fix_spec_path": null,
+            "uid": "b8feb53b-bc66-4b65-9a22-b9575ad6aaa5",
+            "parent_uids": ["Tagging_Filtering_Command_line"],
+        },
+        {
+            "hash": 2379047133263321405,
+            "timer": {
+                "run": {
+                    "end": "2020-09-25T14:37:19.151866+00:00",
+                    "start": "2020-09-25T14:37:19.149892+00:00",
+                }
+            },
+            "logs": [],
+            "status_reason": null,
+            "name": "Secondary",
+            "entries": [
+                {
+                    "hash": 8336773102611710315,
+                    "timer": {
+                        "run": {
+                            "end": "2020-09-25T14:37:19.150868+00:00",
+                            "start": "2020-09-25T14:37:19.149892+00:00",
+                        }
+                    },
+                    "logs": [],
+                    "status_reason": null,
+                    "name": "Gamma",
+                    "entries": [
+                        {
+                            "suite_related": false,
+                            "hash": -4558038827978282586,
+                            "counter": {"passed": 1, "failed": 0, "total": 1},
+                            "type": "TestCaseReport",
+                            "description": null,
+                            "tags": {"color": ["red"]},
+                            "timer": {
+                                "run": {
+                                    "end": "2020-09-25T14:37:19.149892+00:00",
+                                    "start": "2020-09-25T14:37:19.149892+00:00",
+                                }
+                            },
+                            "status": "passed",
+                            "logs": [],
+                            "status_reason": null,
+                            "uid": "24c4c29d-ae81-4bdd-8dec-d1fd2996d90f",
+                            "category": "testcase",
+                            "name": "test_1",
+                            "entries": [],
+                            "parent_uids": [
+                                "Tagging_Filtering_Command_line",
+                                "Secondary",
+                                "Gamma",
+                            ],
+                            "runtime_status": "finished",
+                            "status_override": null,
+                        },
+                        {
+                            "suite_related": false,
+                            "hash": 1452126978772489752,
+                            "counter": {"passed": 1, "failed": 0, "total": 1},
+                            "type": "TestCaseReport",
+                            "description": null,
+                            "tags": {"color": ["blue", "red"]},
+                            "timer": {
+                                "run": {
+                                    "end": "2020-09-25T14:37:19.150868+00:00",
+                                    "start": "2020-09-25T14:37:19.150868+00:00",
+                                }
+                            },
+                            "status": "passed",
+                            "logs": [],
+                            "status_reason": null,
+                            "uid": "a75e3ac5-a232-4a3e-a0e2-53ae74c30f5c",
+                            "category": "testcase",
+                            "name": "test_2",
+                            "entries": [],
+                            "parent_uids": [
+                                "Tagging_Filtering_Command_line",
+                                "Secondary",
+                                "Gamma",
+                            ],
+                            "runtime_status": "finished",
+                            "status_override": null,
+                        },
+                        {
+                            "suite_related": false,
+                            "hash": 8615470789101300681,
+                            "counter": {"passed": 1, "failed": 0, "total": 1},
+                            "type": "TestCaseReport",
+                            "description": null,
+                            "tags": {"color": ["yellow"]},
+                            "timer": {
+                                "run": {
+                                    "end": "2020-09-25T14:37:19.150868+00:00",
+                                    "start": "2020-09-25T14:37:19.150868+00:00",
+                                }
+                            },
+                            "status": "passed",
+                            "logs": [],
+                            "status_reason": null,
+                            "uid": "2be4ed87-c617-418a-bdfd-554073a12836",
+                            "category": "testcase",
+                            "name": "test_3",
+                            "entries": [],
+                            "parent_uids": [
+                                "Tagging_Filtering_Command_line",
+                                "Secondary",
+                                "Gamma",
+                            ],
+                            "runtime_status": "finished",
+                            "status_override": null,
+                        },
+                    ],
+                    "status_override": null,
+                    "tags": {"simple": ["server", "client"]},
+                    "env_status": null,
+                    "status": "passed",
+                    "category": "testsuite",
+                    "runtime_status": "finished",
+                    "counter": {"passed": 3, "failed": 0, "total": 3},
+                    "extra_attributes": {},
+                    "part": null,
+                    "type": "TestGroupReport",
+                    "description": null,
+                    "fix_spec_path": null,
+                    "uid": "05a137d1-b72b-4cec-b132-8302cce7b02d",
+                    "parent_uids": [
+                        "Tagging_Filtering_Command_line",
+                        "Secondary",
+                    ],
+                }
+            ],
+            "status_override": null,
+            "tags": {},
+            "env_status": "STOPPED",
+            "status": "passed",
+            "category": "multitest",
+            "runtime_status": "finished",
+            "counter": {"passed": 3, "failed": 0, "total": 3},
+            "extra_attributes": {},
+            "part": null,
+            "type": "TestGroupReport",
+            "description": null,
+            "fix_spec_path": null,
+            "uid": "032d6dd5-4be1-45cb-b914-43022acae295",
+            "parent_uids": ["Tagging_Filtering_Command_line"],
+        },
+    ],
+    "attachments": {},
+    "runtime_status": "finished",
+    "status_override": null,
+    "version": 1,
+}
+
 
 export {
   TESTPLAN_REPORT,
   fakeReportAssertions,
+  taggedReport
 }

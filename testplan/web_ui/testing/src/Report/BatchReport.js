@@ -12,9 +12,11 @@ import {
   GetCenterPane,
   GetSelectedEntries,
   MergeSplittedReport,
+  filterReport,
+  isValidSelection,
 } from "./reportUtils";
 import {COLUMN_WIDTH} from "../Common/defaults";
-import {fakeReportAssertions} from "../Common/fakeReport";
+import {taggedReport} from "../Common/fakeReport";
 
 /**
  * BatchReport component:
@@ -38,6 +40,7 @@ class BatchReport extends React.Component {
     this.state = {
       navWidth: `${COLUMN_WIDTH}em`,
       report: null,
+      filteredReport: {filter:null, report: null},
       testcaseUid: null,
       loading: false,
       logs: [],
@@ -47,6 +50,7 @@ class BatchReport extends React.Component {
       displayTime: false,
       displayEmpty: true,
       selectedUIDs: [],
+      lastManualSelectedUIDs: [],
     };
   }
 
@@ -59,9 +63,17 @@ class BatchReport extends React.Component {
 
   setReport(report) {
     const processedReport = PropagateIndices(report);
+    const filteredReport = filterReport(
+      processedReport, 
+      this.state.filteredReport.filter);
+
+    const selectedUIDs = this.autoSelect(filteredReport.report);
+
     this.setState({
       report: processedReport,
-      selectedUIDs: this.autoSelect(processedReport),
+      filteredReport,
+      selectedUIDs,
+      lastManualSelectedUIDs: selectedUIDs,
       loading: false,
       logs: report.logs,
     });
@@ -81,7 +93,7 @@ class BatchReport extends React.Component {
     const uid = this.props.match.params.uid;
     if (uid === "_dev") {
       setTimeout(
-        () => this.setReport(fakeReportAssertions),
+        () => this.setReport(taggedReport),
         1500);
     } else {
       axios.get(`/api/v1/reports/${uid}`)
@@ -135,13 +147,24 @@ class BatchReport extends React.Component {
   }
 
   /**
-   * Handle filter expressions being typed into the filter box. Placeholder.
+   * Handle filter expressions being typed into the filter box.
    *
-   * @param {Object} e - keyup event.
+   * @param {Object} filter - the paresed filter expression
    * @public
    */
-  handleNavFilter(e) { // eslint-disable-line no-unused-vars
-    // Save expressions to state.
+  handleNavFilter(filter) { // eslint-disable-line no-unused-vars
+    const filteredReport = filterReport(this.state.report, filter);
+    
+    let selectedUIDs = 
+      isValidSelection(this.state.lastManualSelectedUIDs.slice(1), 
+                       filteredReport.report) ?
+      this.state.lastManualSelectedUIDs :
+      this.autoSelect(filteredReport.report);
+      
+    this.setState({ 
+      filteredReport,
+      selectedUIDs,
+    }); 
   }
 
   /**
@@ -207,7 +230,7 @@ class BatchReport extends React.Component {
     }
 
     const selectedEntries = GetSelectedEntries(
-      this.state.selectedUIDs, this.state.report
+      this.state.selectedUIDs, this.state.filteredReport.report
     );
     const centerPane = GetCenterPane(
       this.state,
@@ -234,7 +257,7 @@ class BatchReport extends React.Component {
         />
         <Nav
           navListWidth={this.state.navWidth}
-          report={this.state.report}
+          report={this.state.filteredReport.report}
           selected={selectedEntries}
           filter={this.state.filter}
           displayEmpty={this.state.displayEmpty}

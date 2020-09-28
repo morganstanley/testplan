@@ -25,7 +25,7 @@ class TagList extends Component {
     }
 
     for (let tagKey in tags) {
-      for (let tagValue in tags[tagKey]) {
+      for (let tagValue of tags[tagKey]) {
         labels.push(
           <Badge
             key={this.props.entryName+tagKey+tagValue}

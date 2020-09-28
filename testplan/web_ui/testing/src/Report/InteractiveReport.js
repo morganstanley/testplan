@@ -502,7 +502,7 @@ class InteractiveReport extends React.Component {
         <Toolbar
           filterBoxWidth={this.state.navWidth}
           status={reportStatus}
-          handleNavFilter={noop}
+          handleNavFilter={null}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
           updateTagsDisplayFunc={noop}

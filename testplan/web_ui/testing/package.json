@@ -26,6 +26,7 @@
     "react": "16.13.1",
     "react-copy-html-to-clipboard": "6.0.4",
     "react-custom-scrollbars": "4.2.1",
+    "react-debounce-input": "^3.2.2",
     "react-dom": "16.13.1",
     "react-markdown": "^4.3.1",
     "react-portal-tooltip": "2.4.0",
@@ -46,11 +47,13 @@
     "enzyme-to-json": "^3.3.5",
     "jest-canvas-mock": "^2.1.0",
     "moxios": "0.4.0",
-    "npm-force-resolutions": "0.0.3"
+    "npm-force-resolutions": "0.0.3",
+    "pegjs": "^0.11.0-master.b7b87ea"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "prebuild": "pegjs --format es src/Parser/SearchFieldParser.pegjs",
     "test": "react-scripts test",
     "lint": "eslint --ext .js --ext .jsx src",
     "lint:fix": "eslint --ext .js --ext .jsx src --fix",
