@@ -92,12 +92,12 @@ const applyNamedFilter = (entries, filter) => {
   switch (filter) {
     case 'pass':
       return entries.filter(
-        (entry) => entry.counter.passed > 0
+        (entry) => (entry.counter.passed|0) > 0
       );
 
     case 'fail':
       return entries.filter(
-        (entry) => entry.counter.failed + entry.counter.error > 0
+        (entry) => (entry.counter.failed|0) + (entry.counter.error|0) > 0
       );
 
     default:

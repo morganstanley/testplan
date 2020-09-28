@@ -44,6 +44,7 @@
     "enzyme": "3.7.0",
     "enzyme-adapter-react-16": "1.6.0",
     "enzyme-to-json": "^3.3.5",
+    "jest-canvas-mock": "^2.1.0",
     "moxios": "0.4.0",
     "npm-force-resolutions": "0.0.3"
   },
