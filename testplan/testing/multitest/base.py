@@ -819,6 +819,7 @@ class MultiTest(testing_base.Test):
         with method_report.logged_exceptions():
             attr(*method_args)
         method_report.extend(case_result.serialized_entries)
+        method_report.attachments.extend(case_result.attachments)
 
         method_report.pass_if_empty()
 
