@@ -23,6 +23,9 @@ class MySuite(object):
     def test_one(self, env, result):
         pass
 
+    def teardown(self, env, result):
+        result.attach(os.__file__, description="attache file in teardown")
+
 
 def check_func_1(env, result):
     result.equal(1, 1, description="sample assertion")
@@ -51,7 +54,12 @@ expected_report = TestReport(
                 TestGroupReport(
                     name="MySuite",
                     category=ReportCategories.TESTSUITE,
-                    entries=[TestCaseReport(name="test_one")],
+                    entries=[
+                        TestCaseReport(name="test_one"),
+                        TestCaseReport(
+                            name="teardown", entries=[{"type": "Attachment"}]
+                        ),
+                    ],
                 ),
                 TestGroupReport(
                     name="Pre/Post Step Checks",
@@ -95,4 +103,4 @@ def test_pre_post_steps(mockplan):
         mockplan.run()
 
     check_report(expected_report, mockplan.report)
-    assert len(mockplan.report.attachments) == 1
+    assert len(mockplan.report.attachments) == 2
