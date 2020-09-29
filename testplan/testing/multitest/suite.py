@@ -433,14 +433,21 @@ def testsuite(*args, **kwargs):
     executed respectively before and after the
     :py:func:`@testcase <testcase>`-annotated methods have executed.
 
-    It is possible to assign name and tags to a suite via `@testsuite(name=...)`
-    and `@testsuite(tags=...)` syntax:
+    It is possible to assign name and tags to a suite via
+    `@testsuite(custom_name=...)` and `@testsuite(tags=...)` syntax:
 
     .. code-block:: python
 
-      @testsuite(name="Test Sample", tags=("server", "keep-alive"))
+      @testsuite(custom_name="Test Sample", tags=("server", "keep-alive"))
       class SampleSuite(object):
         ...
+
+    :param cusom_name: customized readable name for testcase.
+    :type cusom_name: ``str`` or ``callable``
+    :param tags: allows filtering of tests with simple tags/
+                 multi-simple tags/named tags/multi-named tags.
+    :type tags: ``str``/ ``tuple(str)``/
+                ``dict( str: str)``/ ``dict( str: tuple(str))``
     """
     return _selective_call(
         decorator_func=_testsuite,
