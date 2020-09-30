@@ -95,12 +95,6 @@ A MultiTest instance can be constructed from the following parameters:
    change testsuite and testcase execution order, click
    :ref:`here <ordering_tests>` .
 
-   Testsuites are normally identified in the report by their class name.
-   However, they can also have ``suite_name()`` method. If this is present,
-   then their name is composed of the class name and the return value of this
-   method. This name is set after all the tests and the teardown method
-   (if it exists) have run.
-
 * **Environment**: The environment is a list of
   :py:class:`drivers <testplan.testing.multitest.driver.base.Driver>`. Drivers are
   typically implementations of messaging, protocols or external executables. If
