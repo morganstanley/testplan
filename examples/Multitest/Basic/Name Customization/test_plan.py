@@ -7,9 +7,16 @@ from testplan import test_plan
 from testplan.testing.multitest import testsuite, testcase, MultiTest
 
 
-def _name_func(self, original_name):
+def suite_name_fn(self, original_name):
     """Function to return a customized name for test suite"""
-    return original_name + " - " + str(getattr(self, "val", "Default"))
+    return "{} - {}".format(original_name, self.val)
+
+
+def case_name_fn(func_name, kwargs):
+    """Function to return a customized name for parameterized testcase"""
+    return "{} - {}+{}={}".format(
+        func_name, kwargs["a"], kwargs["b"], kwargs["expected"]
+    )
 
 
 @testsuite(custom_name="A simple test suite")
@@ -18,12 +25,16 @@ class SimpleSuite(object):
     def test_example(self, env, result):
         pass
 
-    @testcase(name="Parametrized testcases", parameters=((1, 2, 3), (1, 0, 1)))
+    @testcase(
+        name="Parametrized testcases",
+        parameters=((1, 2, 3), (1, 0, 1)),
+        name_func=case_name_fn,
+    )
     def test_equal(self, env, result, a, b, expected):
         result.equal(a + b, expected, description="Equality test")
 
 
-@testsuite(custom_name=_name_func)
+@testsuite(custom_name=suite_name_fn)
 class ComplicatedSuite(object):
     def __init__(self, val):
         self.val = val
