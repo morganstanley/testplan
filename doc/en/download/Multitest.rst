@@ -25,7 +25,7 @@ Name Customization
 ++++++++++++++++++
 
 Required files:
-  - :download:`test_plan.py <../../../examples/Multitest/Basic/Custom Name/test_plan.py>`
+  - :download:`test_plan.py <../../../examples/Multitest/Basic/Name Customization/test_plan.py>`
 
 test_plan.py
 ````````````

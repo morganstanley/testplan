@@ -442,8 +442,9 @@ def testsuite(*args, **kwargs):
       class SampleSuite(object):
         ...
 
-    :param cusom_name: customized readable name for testcase.
-    :type cusom_name: ``str`` or ``callable``
+    :param cusom_name: custom name to be used instead of class name for
+                       testsuite in test report.
+    :type cusom_name: ``str`` or ``callable`` taking self and original_name parameters
     :param tags: allows filtering of tests with simple tags/
                  multi-simple tags/named tags/multi-named tags.
     :type tags: ``str``/ ``tuple(str)``/
@@ -645,9 +646,10 @@ def testcase(*args, **kwargs):
     wrong signatures (with swapped parameters for example) will cause bugs
     that can be time-consuming to figure out.
 
-    :param name: customized readable name for testcase.
+    :param name: custom name to be used instead of function name for testcase in
+                 test report. In case of a parameterized testcases, this custom
+                 name will be used as the parameterized group name in report.
     :type name: ``str``
-                ``dict( str: str)``/ ``dict( str: tuple(str))``
     :param tags: allows filtering of tests with simple tags/
                  multi-simple tags/named tags/multi-named tags.
     :type tags: ``str``/ ``tuple(str)``/
@@ -669,14 +671,12 @@ def testcase(*args, **kwargs):
                                         A single value (that is not a tuple,
                                         or list) if and only if there is a
                                         single parametrization argument.
-    :param name_func: custom testcase name generation algorithm for parametrized
-                      testcases, work with `name` argument.
-                        name_func(func_name, kwargs) => testcase_method_name
-                        Where:
-                        func_name - Name of the parametrization target function
-                        kwargs - The order of keys will be the same as the order
-                                of arguments in the original function
-    :type name_func: ``function(string, collections.OrderedDict) => str``
+    :param name_func: custom name generation algorithm for parametrized
+                      testcases.
+    :type name_func: ``callable`` taking func_name and kwargs parameters, where
+                     parameterized group name (function name or as specified in name
+                     parameter) will be passed to func_name and input parameters
+                     will be passed to kwargs.
     :param tag_func: dynamic testcase tag assignment function.
                     tag_func(kwargs) => named_tag_context/ simple_tags
                     Where:
