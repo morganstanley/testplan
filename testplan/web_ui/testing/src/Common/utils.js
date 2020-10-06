@@ -148,8 +148,8 @@ export const flattened = (strArr, ...tagsArr) => {
 export const toPlainObjectIn = (obj, enumerableOnly = false) => {
   const objectify = o => {
     return Object.fromEntries(Object.entries(o)
-      .filter(([_, v]) => _.isPlainObject(v.value))
-      .filter(([_, v]) => !enumerableOnly || v.enumerable)
+      .filter(([__, v]) => _.isPlainObject(v.value))
+      .filter(([__, v]) => !enumerableOnly || v.enumerable)
       .map(([k, v]) => [k, v.value])
     );
   };

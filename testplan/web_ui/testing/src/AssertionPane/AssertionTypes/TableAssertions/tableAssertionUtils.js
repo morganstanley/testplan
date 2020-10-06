@@ -2,6 +2,8 @@
 
 import {domToString} from './../../../Common/utils';
 
+const _TP_BLANK_CELL = '_TP_BLANK_CELL';
+
 /**
  * Function to prepare the column definitions for TableLog assertions.
  *
@@ -68,7 +70,8 @@ export function prepareTableLogRowData(indexes, table, columns) {
 
   indexes.forEach(index => {
     let row = columns.reduce((accumulator, column) => {
-      accumulator[column] = table[index][column];
+      const cellVal = table[index][column];
+      accumulator[column] = cellVal === _TP_BLANK_CELL ? '' : cellVal;
       return accumulator;
     }, {});
 
