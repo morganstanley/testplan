@@ -29,7 +29,7 @@ Required files:
 
 test_plan.py
 ````````````
-.. literalinclude:: ../../../examples/Multitest/Basic/Custom Name/test_plan.py
+.. literalinclude:: ../../../examples/Multitest/Basic/Name Customization/test_plan.py
 
 
 .. _example_multitest_listing:

@@ -3,9 +3,10 @@ import logging
 from contextlib import contextmanager
 
 import pytest
+import mock
 from six.moves import reload_module
 
-from testplan.defaults import MAX_TESTCASE_NAME_LENGTH
+from testplan.defaults import MAX_TEST_NAME_LENGTH
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.parametrization import (
     MAX_METHOD_NAME_LENGTH,
@@ -298,22 +299,21 @@ def test_auto_resolve_name_conflict(mockplan):
 
 
 @pytest.mark.parametrize(
-    "parameters, name_func, testcase_names, testcase_uids, msg",
+    "parameters, testcase_names, testcase_uids, msg",
     (
         (
             ("#@)$*@#%", "a-b"),
-            lambda func_name, kwargs: func_name + ", ".join(kwargs.values()),
-            ["sample_test#@)$*@#%", "sample_testa-b"],
+            ["sample_test <val='#@)$*@#%'>", "sample_test <val='a-b'>"],
             ["sample_test__0", "sample_test__1"],
             "Should use original method name + index fallback if"
             " generated names are not valid Python attribute names.",
         ),
         (
             ("a" * MAX_METHOD_NAME_LENGTH, "b" * MAX_METHOD_NAME_LENGTH),
-            lambda func_name, kwargs: ", ".join(kwargs.values())[
-                :MAX_TESTCASE_NAME_LENGTH
+            [
+                "sample_test <val='{}'>".format("a" * MAX_METHOD_NAME_LENGTH),
+                "sample_test <val='{}'>".format("b" * MAX_METHOD_NAME_LENGTH),
             ],
-            ["a" * MAX_TESTCASE_NAME_LENGTH, "b" * MAX_TESTCASE_NAME_LENGTH],
             ["sample_test__0", "sample_test__1"],
             "Should use original method name + index fallback if"
             " generated names are longer than {} characters.".format(
@@ -323,7 +323,7 @@ def test_auto_resolve_name_conflict(mockplan):
     ),
 )
 def test_param_name_func_fallback(
-    mockplan, parameters, name_func, testcase_names, testcase_uids, msg
+    mockplan, parameters, testcase_names, testcase_uids, msg
 ):
     """Testcase uid should be a valid python identifier and not too long."""
     LOGGER.info(msg)
@@ -332,7 +332,7 @@ def test_param_name_func_fallback(
 
         @testsuite
         class MySuite(object):
-            @testcase(parameters=parameters, name_func=name_func)
+            @testcase(parameters=parameters)
             def sample_test(self, env, result, val):
                 pass
 
@@ -353,53 +353,24 @@ def test_param_name_func_fallback(
 
 
 def test_custom_name(mockplan):
-    """User defined name as testcase name in report instead of function name."""
-
-    @testsuite
-    class MySuite(object):
-        @testcase(parameters=(("foo", "bar"), ("alpha", "beta")))
-        def sample_test(self, env, result, a, b):
-            pass
-
-    parametrization_group = TestGroupReport(
-        name="sample_test",
-        category=ReportCategories.PARAMETRIZATION,
-        entries=[
-            TestCaseReport(name="sample_test <a='foo', b='bar'>"),
-            TestCaseReport(name="sample_test <a='alpha', b='beta'>"),
-        ],
-    )
-
-    testcase_uids = [
-        "sample_test__a_foo__b_bar",
-        "sample_test__a_alpha__b_beta",
-    ]
-
-    check_parametrization(
-        mockplan, MySuite, [parametrization_group], testcase_uids
-    )
-
-
-def test_custom_name_func(mockplan):
-    """`name_func` should be used for generating method names."""
+    """
+    User defined testcase name is saved into report instead of function name.
+    """
 
     @testsuite
     class MySuite(object):
         @testcase(
-            parameters=(("foo", "bar"), ("alpha", "beta")),
-            name_func=lambda func_name, kwargs: "XXX_{a}_{b}_YYY".format(
-                **kwargs
-            ),
+            name="Sample Test", parameters=(("foo", "bar"), ("alpha", "beta"))
         )
         def sample_test(self, env, result, a, b):
             pass
 
     parametrization_group = TestGroupReport(
-        name="sample_test",
+        name="Sample Test",
         category=ReportCategories.PARAMETRIZATION,
         entries=[
-            TestCaseReport(name="XXX_foo_bar_YYY"),
-            TestCaseReport(name="XXX_alpha_beta_YYY"),
+            TestCaseReport(name="Sample Test <a='foo', b='bar'>"),
+            TestCaseReport(name="Sample Test <a='alpha', b='beta'>"),
         ],
     )
 
@@ -414,23 +385,81 @@ def test_custom_name_func(mockplan):
 
 
 @pytest.mark.parametrize(
-    "name_func, msg",
+    "name_func, testcase_names",
     (
-        (5, "Should fail if name_func is not a callable."),
+        (
+            lambda func_name, kwargs: "XXX_{a}_{b}_YYY".format(**kwargs),
+            ("XXX_foo_bar_YYY", "XXX_alpha_beta_YYY"),
+        ),
+        (None, ("Sample Test 0", "Sample Test 1"),),
+    ),
+)
+def test_custom_name_func(mockplan, name_func, testcase_names):
+    """`name_func` is used for generating display names of testcases."""
+
+    @testsuite
+    class MySuite(object):
+        @testcase(
+            parameters=(("foo", "bar"), ("alpha", "beta")),
+            name="Sample Test",
+            name_func=name_func,
+        )
+        def sample_test(self, env, result, a, b):
+            pass
+
+    parametrization_group = TestGroupReport(
+        name="Sample Test",
+        category=ReportCategories.PARAMETRIZATION,
+        entries=[
+            TestCaseReport(name=testcase_names[0]),
+            TestCaseReport(name=testcase_names[1]),
+        ],
+    )
+
+    testcase_uids = [
+        "sample_test__a_foo__b_bar",
+        "sample_test__a_alpha__b_beta",
+    ]
+
+    check_parametrization(
+        mockplan, MySuite, [parametrization_group], testcase_uids
+    )
+
+
+@pytest.mark.parametrize(
+    "name_func, msg, err",
+    (
+        (
+            5,
+            "Should fail if name_func is not a callable.",
+            ParametrizationError,
+        ),
         (
             lambda foo, bar: "",
-            "Should fail if name_func arg names"
+            "Should fail if `name_func` arg names"
             " does not match `func_name` and `kwargs`.",
+            ParametrizationError,
         ),
         (
             lambda func_name, kwargs, foo: "",
-            "Should fail if name_func arg names do not accept 2 arguments.",
+            "Should fail if `name_func` arg names do not accept 2 arguments.",
+            ParametrizationError,
+        ),
+        (
+            lambda func_name, kwargs: "",
+            "Should fail if `name_func` returns an empty string.",
+            ValueError,
+        ),
+        (
+            lambda func_name, kwargs: 999,
+            "Should fail if return type of `name_func` is not string.",
+            ValueError,
         ),
     ),
 )
-def test_invalid_name_func(name_func, msg):
+def test_invalid_name_func(name_func, msg, err):
     """Custom naming function should be correctly defined."""
-    with pytest.raises(ParametrizationError):
+    with pytest.raises(err):
 
         @testsuite
         class MySuite(object):
@@ -441,11 +470,11 @@ def test_invalid_name_func(name_func, msg):
         pytest.fail(msg)
 
 
-def test_invalid_long_testcase_name(mockplan):
+def test_unwanted_testcase_name(mockplan):
     """Custom naming function should return a valid non-empty string."""
-    with pytest.raises(ValueError):
+    with mock.patch("warnings.warn", return_value=None) as mock_warn:
 
-        long_string = "a" * (MAX_TESTCASE_NAME_LENGTH + 1)
+        long_string = "c" * (MAX_TEST_NAME_LENGTH + 1)
 
         @testsuite
         class MySuite(object):
@@ -462,7 +491,7 @@ def test_invalid_long_testcase_name(mockplan):
         with log_propagation_disabled(TESTPLAN_LOGGER):
             mockplan.run()
 
-        pytest.fail("Should fail if name_func returns a very long string.")
+    mock_warn.assert_called_once()
 
 
 def test_custom_wrapper():

@@ -172,21 +172,17 @@ respect to multiple suites is the following:
 Name customization
 ------------------
 
-Testplan supports customizing test suite name or testcase name, which will be saved
-in test report and displayed on UI. displayed inUse ``name`` argument in @testcase
-or ``custom_name`` argument in @testsuite, while ``custom_name`` can be a normal string
-or a callable. Some examples:
+By default, a testsuite is identified in the report by its class name, and testcase
+by its function name. User can specify custom name for testsuite or testcase like this:
 
-    * ``@testcase(name="Testcase name")``
-    * ``@testsuite(custom_name="Test suite name")``
-    * ``@testsuite(custom_name=lambda self, original_name: "{}_{}".format(original_name , id(self)))``
+    * @testcase(name="My Testcase")
+    * @testsuite(name="My Test Suite")
+    * @testsuite(name=lambda cls_name, suite: "{} -- {}".format(cls_name, id(suite)))
 
-.. note::
+Example can be found :ref:`here <example_basic_name_customization>`.
 
-    In one test suite no duplicate testcase names are allowed. Similarly, if multiple
-    objects from the same test suite class are added into a multitest, ``custom_name``
-    is required to make different names for test suites.
-
+To customize names for parametrized testcases another argument ``name_func`` can be
+used, refer to the document of :ref:`name_func <parametrization_custom_name_func>`.
 
 Listing
 -------
@@ -995,9 +991,9 @@ used along with parameterized testcases, then its arguments should contain
 
 .. code-block:: python
 
-  # To be used in pre_testcase/post_testcase
-  def function(name, self, env, result, **kwargs):
-      ...
+    # To be used in pre_testcase/post_testcase
+    def function(name, self, env, result, **kwargs):
+        ...
 
 .. _parametrization_default_values:
 
@@ -1026,75 +1022,65 @@ method has default values assigned to the parametrized arguments:
 Testcase name generation
 ++++++++++++++++++++++++
 
-When you use parametrization, Testplan will try to generate a legible name for
-the test case methods generated. By default the name format is
-``<original_method_name>__<arg_1_name>_<arg_1_value>__...__<arg_n_name>_<arg_n_value>``.
-If the generated method name is longer than 255 characters or does not have a
-valid Python attribute name format (alphanumeric with underscores), Testplan
-will fall back to simple format: ``<original_method_name>__<integer_suffix>``.
+When you use parametrization, Testplan will try creating a sensible name for each
+generated testcase. By default the naming convention is:
+``'ORIGINAL_TESTCASE_NAME <arg1=value1, arg2=value2, ... argN=valueN>'``
 
-In the example below, 2 new testcases will be generated, with the names being
-``'test_add_list__number_list_[1, 2, 3]__expected_6'`` and
-``'test_add_list__number_list_[6, 7, 8, 9]__expected_30'``. These are not valid
-Python attribute names, so Testplan will fall back to ``'test_add_list__0'`` and
-``'test_add_list__1'``.
+In the example below, 2 new testcases will be generated, and their names become
+``'Add List <number_list=[1, 2, 3], expected=6>'``
+and ``'Add List <number_list=[6, 7, 8, 9], expected=30>'``.
 
 .. code-block:: python
 
     @testsuite
     class SampleTest(object):
 
-      @testcase(parameters=(
-          ([1, 2, 3], 6),
-          (range(6, 10), 30),
-      )
-    )
-    def add_list(self, env, result, number_list, expected):
-        result.equal(expected, sum(number_list))
+        @testcase(
+            name="Add List",
+            parameters=(
+                ([1, 2, 3], 6),
+                (range(6, 10), 30),
+            )
+        )
+        def add_list(self, env, result, number_list, expected):
+            result.equal(expected, sum(number_list))
 
-
-However you can provide custom name generation functions to override this
-functionality via ``@testcase(parameters=..., name_func=custom_name_func)``
-syntax. You just need to implement a function that accepts
+User can provide custom name generation functions to override this default behavior
+via ``@testcase(name_func=...)`` syntax. You need to implement a function that accepts
 ``func_name`` and ``kwargs`` as arguments, ``func_name`` being a string and
-``kwargs`` being an ``OrderedDict``.
-See
+``kwargs`` being an ``OrderedDict``. See
 :py:func:`default_name_func <testplan.testing.multitest.parametrization.default_name_func>`
 for sample implementation.
 
 .. code-block:: python
 
-  def custom_name_func(func_name, kwargs):
-      """
-      Will generate names like: method_name__numbers_1_2_3__result_6
-      """
-      number_list = kwargs['number_list']
+    def custom_name_func(func_name, kwargs):
+        return '{func_name} -- (numbers: [{joined_list}], result: {expected})'.format(
+            func_name=func_name,
+            joined_list=' '.join(map(str, kwargs['number_list'])),
+            expected=kwargs['expected']
+        )
 
-      return '{func_name}__numbers_{joined_list}__result_{expected}'.format(
-          func_name=func_name,
-          joined_list='_'.join(map(str, number_list)),
-          expected=kwargs['expected']
-      )
+    @testsuite
+    class SampleTest(object):
 
-  @testsuite
-  class SampleTest(object):
+        @testcase(
+            name="Add List",
+            parameters=(
+                ([1, 2, 3], 6),
+                (range(6, 10), 30),
+            ),
+            name_func=custom_name_func
+        )
+        def add_list(self, env, result, number_list, expected):
+            ...
 
-    @testcase(
-        parameters=(
-            ([1, 2, 3], 6),
-            (range(6, 10), 30),
-        ),
-        name_func=custom_name_func
-    )
-    def add_list(self, env, result, number_list, expected):
-        ...
-
-.. note::
-
-  If your custom name function ends up generating duplicate method names for the
-  given arguments, Testplan will implicitly add integer suffixes to ensure unique
-  names.
-
+In the above example, the custom testcase names should be
+``'"Add List -- (numbers: [1 2 3], result: 6)"'`` and
+``'"Add List -- (numbers: [6 7 8 9], result: 30)"'``. If you deliberately set
+``name_func`` to ``None``, then the display names generated are simply
+``'Add List 0'`` and ``'Add List 1'``, that is, integer suffixes appended to
+the original testcase names, without any argument showed.
 
 .. _parametrization_docstring_func:
 

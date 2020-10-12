@@ -9,7 +9,6 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import test_plan
 from testplan.report.testing.styles import Style
-from testplan.testing.multitest.suite import get_testsuite_name
 from testplan.testing.ordering import NoopSorter, TypedSorter
 
 
@@ -76,11 +75,13 @@ class ReverseNameLengthSorter(TypedSorter):
         )
 
     def sort_testsuites(self, testsuites):
-        return self.reverse_sort_by_name(testsuites, get_testsuite_name)
+        return self.reverse_sort_by_name(
+            testsuites, operator.attrgetter("name")
+        )
 
     def sort_testcases(self, testcases):
         return self.reverse_sort_by_name(
-            testcases, operator.attrgetter("__name__")
+            testcases, operator.attrgetter("name")
         )
 
 

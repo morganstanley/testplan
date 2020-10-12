@@ -10,7 +10,6 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from testplan.testing import tagging
 from testplan.testing.multitest import MultiTest
-from testplan.testing.multitest.suite import get_testsuite_name
 
 INDENT = " "
 MAX_TESTCASES = 25
@@ -64,7 +63,7 @@ class ExpandedNameLister(BaseLister):
         if isinstance(suite, six.string_types):
             return suite
         else:
-            return get_testsuite_name(suite)
+            return suite.name
 
     def format_testcase(self, instance, suite, testcase):
         if isinstance(testcase, six.string_types):
@@ -138,7 +137,7 @@ class ExpandedPatternLister(ExpandedNameLister):
         if not isinstance(instance, MultiTest):
             return "{}::{}".format(instance.name, suite)
 
-        pattern = "{}::{}".format(instance.name, get_testsuite_name(suite))
+        pattern = "{}::{}".format(instance.name, suite.name)
         return self.apply_tag_label(pattern, suite)
 
     def format_testcase(self, instance, suite, testcase):
@@ -147,7 +146,7 @@ class ExpandedPatternLister(ExpandedNameLister):
             return "{}::{}::{}".format(instance.name, suite, testcase)
 
         pattern = "{}::{}::{}".format(
-            instance.name, get_testsuite_name(suite), testcase.name,
+            instance.name, suite.name, testcase.name,
         )
         return self.apply_tag_label(pattern, testcase)
 
