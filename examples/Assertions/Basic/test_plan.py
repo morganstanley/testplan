@@ -125,8 +125,44 @@ It provides:
   * Integration with other unit testing frameworks (like GTest).
   * Rich, unified reports (json/PDF/XML) and soon (HTML/UI).
         """,
-            description="Testplan",
+            description="Markdown example",
             escape=False,
+        )
+
+        # This `log_html` method is a shortcut of `markdown` method  which disabled
+        # escape.
+        result.log_html(
+            """
+<div style="font-size:80px;font-family:Arial;font-weight:bold;">
+    <i class="fa fa-check-square" style="color:green;padding-right:5px;"></i>
+    Testplan
+</div>
+        """,
+            description="HTML example",
+        )
+
+        # `result` has a `log_code` method that can be used for adding
+        # source code in the report.
+        result.log_code(
+            """
+#include<stdio.h>
+
+int main()
+{
+    return 0
+}
+        """,
+            language="c",
+            description="C codelog example",
+        )
+
+        result.log_code(
+            """
+import os
+print(os.uname())
+        """,
+            language="python",
+            description="Python codelog example",
         )
 
     @testcase

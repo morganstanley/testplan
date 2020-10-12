@@ -51,6 +51,12 @@ class LogSchema(BaseSchema):
     message = fields.Raw()
 
 
+@registry.bind(base.CodeLog)
+class CodeLogSchema(BaseSchema):
+    code = fields.String()
+    language = fields.String()
+
+
 @registry.bind(base.Markdown)
 class MarkdownSchema(BaseSchema):
     message = fields.String()

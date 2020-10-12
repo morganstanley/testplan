@@ -5,6 +5,7 @@ import {css, StyleSheet} from 'aphrodite';
 
 import BasicAssertion from './AssertionTypes/BasicAssertion';
 import MarkdownAssertion from './AssertionTypes/MarkdownAssertion';
+import CodeLogAssertion from './AssertionTypes/CodeLogAssertion';
 import TableLogAssertion
   from './AssertionTypes/TableAssertions/TableLogAssertion';
 import TableMatchAssertion
@@ -124,6 +125,7 @@ class Assertion extends Component {
       Attachment: AttachmentAssertion,
       MatPlot: MatplotAssertion,
       Markdown: MarkdownAssertion,
+      CodeLog: CodeLogAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];

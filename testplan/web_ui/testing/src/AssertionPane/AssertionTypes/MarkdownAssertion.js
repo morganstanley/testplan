@@ -6,7 +6,7 @@ import { coy } from "react-syntax-highlighter/dist/cjs/styles/prism/coy";
 
 function CodeComponent(props) {
   return (
-    <SyntaxHighlighter language={props.language} style={coy}>
+    <SyntaxHighlighter language={props.language} style={coy} showLineNumbers>
       {props.value}
     </SyntaxHighlighter>
   );

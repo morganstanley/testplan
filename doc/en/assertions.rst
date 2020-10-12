@@ -505,7 +505,7 @@ of exception has been raised without matching the given ``pattern`` or ``func``.
 
 
 :py:meth:`result.diff <testplan.testing.multitest.result.Result.diff>`
-----------------------------------------------------------------------------
+----------------------------------------------------------------------
 
 Line diff assertion. Checks if textual content ``first`` and ``second`` have difference with given options.
 If difference found, generates a list of strings showing the delta.
@@ -613,19 +613,63 @@ more human readable.
             {100: 'foo', 200: ['bar', 'baz']}
           ...
 
+
+:py:meth:`result.markdown <testplan.testing.multitest.result.Result.markdown>`
+------------------------------------------------------------------------------
+Add Markdown into the report. Useful for displaying blocks of formatted text, code, messages, images etc.
+Downloadable examples that use markdown assertion can be found :ref:`here <example_assertions>`.
+
+    .. code-block:: python
+
+        result.markdown("""
+        Testplan is a [Python](http://python.org) package that can start a local live
+        environment, setup mocks, connections to services and run tests against these.
+        """,
+            description="Testplan"
+        )
+
+
+:py:meth:`result.log_html <testplan.testing.multitest.result.Result.log_html>`
+------------------------------------------------------------------------------
+A shortcut of :py:meth:result.markdown <testplan.testing.multitest.result.Result.markdown> but disable escape flag.
+Downloadable examples that use html assertion can be found :ref:`here <example_assertions>`.
+
+    .. code-block:: python
+
+        result.html("""
+        <div style="font-size:80px;font-family:Arial;font-weight:bold;">
+            <i class="fa fa-check-square" style="color:green;padding-right:5px;"></i>
+            Testplan
+        </div>
+        """,
+            description="Testplan"
+        )
+
+.. warning::
+    Embedded HTML does not support <script> tags. HTML5 specifies script tags within innerHTML shall not execute.
+
+
+:py:meth:`result.log_code <testplan.testing.multitest.result.Result.log_code>`
+------------------------------------------------------------------------------
+Add source code into the report. Useful for displaying source code which generated from a code-generation tool.
+Downloadable examples that use codelog assertion can be found
+:ref:`here <example_assertions>`.
+
+    .. code-block:: python
+
+        result.html("""
+        import this
+        """,
+            language="python"
+        )
+
+
 :py:meth:`result.matplot <testplan.testing.multitest.result.Result.matplot>`
 ----------------------------------------------------------------------------
 
 Displays a Matplotlib plot in the report. Downloadable examples that use
 matplot assertion and contain output sample images can be found
 :ref:`here <example_basic_models>`.
-
-
-:py:meth:`result.markdown <testplan.testing.multitest.result.Result.markdown>`
----------------------------------------------------------------------------------
-Displays Markdown in the report. Downloadable examples that use
-markdown assertion and contain output sample images can be found
-:ref:`here <example_assertions>`.
 
 
 Assertion Groups
@@ -1067,7 +1111,7 @@ values and supports regex / custom comparators as well.
           ...
 
 :py:meth:`result.table.diff <testplan.testing.multitest.result.TableNamespace.diff>`
---------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
 
 Find differences of two tables, uses equality for each table cell for plain
 values and supports regex / custom comparators as well.
