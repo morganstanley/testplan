@@ -31,6 +31,6 @@ INTERACTIVE_POOL_SIZE = 4
 
 # Name of multitest/testsuite/testcase (usually used for display) cannot be
 # too long, or the UI will not be pleasant when they end up with long names
-MAX_MULTITEST_NAME_LENGTH = 120
-MAX_TESTSUITE_NAME_LENGTH = 120
-MAX_TESTCASE_NAME_LENGTH = 120
+MAX_MULTITEST_NAME_LENGTH = 255
+MAX_TESTSUITE_NAME_LENGTH = 255
+MAX_TESTCASE_NAME_LENGTH = 255

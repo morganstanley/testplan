@@ -9,10 +9,12 @@ from builtins import str
 from future import standard_library
 
 standard_library.install_aliases()
+
 import os
 import collections
 import functools
 import itertools
+import warnings
 
 import concurrent
 
@@ -38,22 +40,49 @@ from testplan.testing.multitest import suite as mtest_suite
 def iterable_suites(obj):
     """Create an iterable suites object."""
     suites = [obj] if not isinstance(obj, collections.Iterable) else obj
+    for suite in suites:
+        suite.__name__ = suite.__class__.__name__
+        if "name" in suite.__dict__:
+            raise AttributeError(
+                "Attribute `name` can only be added into a test suite object"
+                " by using argument `name` in @testsuite decorator"
+            )
 
-    # No duplicate names of test suites are allowed, if there is any, user
-    # should use `custom_name` argument of @testsuite for customization
-    suite_names = [mtest_suite.get_testsuite_name(suite) for suite in suites]
-    for name in suite_names:
-        validation.validate_display_name(
-            name, defaults.MAX_TESTSUITE_NAME_LENGTH, "Test suite name"
-        )
-
-    suite_name_counts = collections.Counter(suite_names)
-    dupe_names = {k for k, v in suite_name_counts.items() if v > 1}
+    name_counts = collections.Counter(suite.__name__ for suite in suites)
+    dupe_names = {k for k, v in name_counts.items() if v > 1}
 
     if len(dupe_names) > 0:
-        raise ValueError(
-            "Duplicate test suite name found: {}. Consider using `custom_name`"
-            " argument in @testsuite decorator.".format(", ".join(dupe_names))
+        dupe_counter = collections.defaultdict(int)
+        valid_names = {k for k, v in name_counts.items() if v == 1}
+
+        for suite in suites:
+            name = suite.__name__
+            if name in dupe_names:
+                count = dupe_counter[name]
+                while True:
+                    suite.__name__ = "{}__{}".format(name, count)
+                    dupe_counter[name] += 1
+                    if suite.__name__ not in valid_names:
+                        valid_names.add(suite.__name__)
+                        break
+
+    # Suites should have different __name__ attributes after the step above
+    name_counts = collections.Counter(suite.__name__ for suite in suites)
+    dupe_names = {k for k, v in name_counts.items() if v > 1}
+    assert len(dupe_names) == 0
+
+    # If multiple objects from one test suite class are added into a Multitest,
+    # it's better provide naming function to avoid duplicate test suite names.
+    display_name_counts = collections.Counter(
+        mtest_suite.get_testsuite_name(suite) for suite in suites
+    )
+    dupe_display_names = {k for k, v in display_name_counts.items() if v > 1}
+
+    if len(dupe_display_names) > 0:
+        warnings.warn(
+            'Duplicate test suite name found: "{}".'
+            " Consider customizing test suite names with argument `name`"
+            " in @testsuite decorator.".format(", ".join(dupe_display_names))
         )
 
     for suite in suites:

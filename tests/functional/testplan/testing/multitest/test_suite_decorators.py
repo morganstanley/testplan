@@ -1,6 +1,7 @@
 """TODO."""
 
 import pytest
+import mock
 from schema import SchemaError
 
 from testplan.defaults import MAX_TESTSUITE_NAME_LENGTH
@@ -45,7 +46,7 @@ def post2(name, self, env, result, a=None, b=None):
 
 @pre_testcase(pre1)
 @post_testcase(post1)
-@testsuite(custom_name="Test Suite - One")
+@testsuite(name="Test Suite - One")
 class Suite1(object):
     def setup(self, env, result):
         result.equal(2, 2)
@@ -70,9 +71,7 @@ class Suite1(object):
 @pre_testcase(pre2)
 @post_testcase(post2)
 @testsuite(
-    custom_name=lambda self, original_name: "Test Suite - Another {}".format(
-        self.val
-    )
+    name=lambda cls_name, suite: "Test Suite - Another {}".format(suite.val)
 )
 class Suite2(object):
     def __init__(self, val):
@@ -99,7 +98,7 @@ class Suite2(object):
 
 
 def test_basic_multitest(mockplan):
-
+    """Basic test for suite decorator."""
     mtest = MultiTest(name="MTest", suites=[Suite1(), Suite2(1), Suite2(2)])
     mockplan.add(mtest)
 
@@ -116,11 +115,11 @@ def test_basic_multitest(mockplan):
     assert isinstance(mt_entry, TestGroupReport)
     assert len(mt_entry.entries) == 3  # 2 Suites
     assert mt_entry.entries[0].name == "Test Suite - One"
-    assert mt_entry.entries[0].uid == "Test Suite - One"
+    assert mt_entry.entries[0].uid == "Suite1"
     assert mt_entry.entries[1].name == "Test Suite - Another 1"
-    assert mt_entry.entries[1].uid == "Test Suite - Another 1"
+    assert mt_entry.entries[1].uid == "Suite2__0"
     assert mt_entry.entries[2].name == "Test Suite - Another 2"
-    assert mt_entry.entries[2].uid == "Test Suite - Another 2"
+    assert mt_entry.entries[2].uid == "Suite2__1"
 
     for st_entry in mt_entry.entries:
         assert isinstance(st_entry, TestGroupReport)
@@ -135,14 +134,20 @@ def test_basic_multitest(mockplan):
                 assert isinstance(tc_entry, TestCaseReport)
 
 
-def test_invalid_long_testsuite_name(mockplan):
-    """Custom naming function should return a valid non-empty string."""
-    with pytest.raises(SchemaError):
+@pytest.mark.parametrize(
+    "suite_name", ("s" * (MAX_TESTSUITE_NAME_LENGTH + 1), "My::Suite")
+)
+def test_unwanted_testsuite_name(mockplan, suite_name):
+    """
+    Warning for inappropriate custom suite name.
+    1. Suite name too long
+    2. Colon in suite name
+    """
+    with mock.patch("warnings.warn", return_value=None) as mock_warn:
 
-        long_string = "a" * (MAX_TESTSUITE_NAME_LENGTH + 1)
-
-        @testsuite(custom_name=long_string)
+        @testsuite(name=suite_name)
         class MySuite(object):
+            @testcase
             def sample_test(self, env, result):
                 pass
 
@@ -152,22 +157,77 @@ def test_invalid_long_testsuite_name(mockplan):
         with log_propagation_disabled(TESTPLAN_LOGGER):
             mockplan.run()
 
-        pytest.fail("Should fail if custom_name returns a very long string.")
+    mock_warn.assert_called_once()
 
 
 def test_duplicate_testsuite_names(mockplan):
-    """Custom naming function should return a valid non-empty string."""
-    with pytest.raises(SchemaError):
+    """Warning for duplicate suite names."""
+    with mock.patch("warnings.warn", return_value=None) as mock_warn:
 
         @testsuite
         class MySuite(object):
+            def __init__(self, val):
+                self.val = val
+
+            @testcase
             def sample_test(self, env, result):
                 pass
 
-        multitest = MultiTest(name="MTest", suites=[MySuite(), MySuite()])
+        multitest = MultiTest(name="MTest", suites=[MySuite(0), MySuite(1)])
         mockplan.add(multitest)
 
         with log_propagation_disabled(TESTPLAN_LOGGER):
             mockplan.run()
 
-        pytest.fail("Should fail if 2 Multitests have the same name.")
+    mock_warn.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "deco, attr_name", ((testsuite, 123), (testsuite(name=123), "My Suite"))
+)
+def test_invalid_name_attribute_in_suite_class(mockplan, deco, attr_name):
+    """
+    User should not define invalid attribute `name` in a test suite object.
+    Note: This only happens when @testsuite is used but not @testsuite()
+    """
+    with pytest.raises(TypeError):
+
+        class MySuite(object):
+            name = attr_name
+
+            @testcase
+            def sample_test(self, env, result):
+                pass
+
+        MySuite = deco(MySuite)
+        multitest = MultiTest(name="MyMultitest", suites=[MySuite()])
+        mockplan.add(multitest)
+
+        with log_propagation_disabled(TESTPLAN_LOGGER):
+            mockplan.run()
+
+        pytest.fail("Attribute `name` defined in test suite class is invalid.")
+
+
+def test_unexpected_name_attribute_in_suite_object(mockplan):
+    """
+    User cannot define attribute `name` in a test suite object because
+    it is reserved by Testplan.
+    """
+    with pytest.raises(SchemaError):  # `AttributeError` caught by Schema
+
+        @testsuite
+        class MySuite(object):
+            @testcase
+            def sample_test(self, env, result):
+                pass
+
+        suite = MySuite()
+        suite.name = "My Suite"
+        multitest = MultiTest(name="MyMultitest", suites=[suite])
+        mockplan.add(multitest)
+
+        with log_propagation_disabled(TESTPLAN_LOGGER):
+            mockplan.run()
+
+        pytest.fail("No attribute `name` should exist in a test suite object.")

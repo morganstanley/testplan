@@ -112,9 +112,9 @@ def propagate_tag_indices(suite, tag_dict):
 def get_testsuite_name(suite):
     """
     Returns the name to be used for the given testsuite. This is made of
-    either the class name or the result of `custom_name` (can be a normal
-    string or a function returning a string) if it exists. The first time
-    this function is called the suite name will be saved for future use.
+    either the class name or the result of `name` (can be a normal string
+    or a function returning a string) if it exists. The first time this
+    function is called the suite name will be saved for future use.
 
     :param suite: Suite object whose name is needed
     :type suite: ``testsuite``
@@ -122,20 +122,45 @@ def get_testsuite_name(suite):
     :return: Name of given suite
     :rtype: ``str``
     """
-    if hasattr(suite, "__name__"):
-        return suite.__name__
+    if "name" in suite.__dict__:
+        return suite.name
 
-    if suite.__class__.custom_name is None:
-        suite.__name__ = suite.__class__.__name__
-    elif isinstance(suite.__class__.custom_name, six.string_types):
-        suite.__name__ = suite.__class__.custom_name
-    elif callable(suite.__class__.custom_name):
-        suite.__name__ = suite.custom_name(suite.__class__.__name__)
+    if suite.__class__.name is None:
+        suite.name = suite.__class__.__name__
+    elif isinstance(suite.__class__.name, six.string_types):
+        suite.name = suite.__class__.name
+    elif callable(suite.__class__.name):
+        # In Python2 unbound method cannot be called by class directly
+        suite.name = six.get_method_function(suite.name)(
+            suite.__class__.__name__, suite
+        )
     else:
-        # Should not reach here, something must be wrong
-        assert False, "Unknown `custom_name` of [{}]".format(suite.__class__)
+        raise RuntimeError("Should not reach here: in {}".format(suite))
 
-    return suite.__name__
+    if not isinstance(suite.name, six.string_types):
+        raise ValueError(
+            'Test suite name "{name}" must be a string, it is of type:'
+            " {type}".format(name=suite.name, type=type(suite.name))
+        )
+    elif not suite.name:
+        raise ValueError("Test suite name cannot be an empty string")
+
+    suite.name = six.ensure_str(suite.name)
+
+    if len(suite.name) > defaults.MAX_TESTSUITE_NAME_LENGTH:
+        warnings.warn(
+            'Name defined for test suite "{}" is too long,'
+            ' consider customizing test suite name with argument "name"'
+            " in @testsuite decorator.".format(suite.__class__.__name__)
+        )
+
+    if ":" in suite.name:
+        warnings.warn(
+            "It is strongly suggested that test suite name contains no"
+            " colon, but Testplan found [{name}]".format(name=suite.name)
+        )
+
+    return suite.name
 
 
 def get_testsuite_desc(suite):
@@ -166,7 +191,7 @@ def set_testsuite_testcases(suite):
     for testcase in suite.__testcases__:
         if not hasattr(suite, testcase):
             raise AttributeError(
-                '"{}" does not have a testcase method named: "{}"'.format(
+                "{} does not have a testcase method named: {}".format(
                     suite, testcase
                 )
             )
@@ -175,7 +200,7 @@ def set_testsuite_testcases(suite):
         if name in testcase_names:
             raise ValueError(
                 "Duplicate testcase name {} found, please check."
-                " Or use `name_func` argument to generate names"
+                ' Or use "name_func" argument to generate names'
                 " for parametrized testcases.".format(name)
             )
 
@@ -250,7 +275,7 @@ def _selective_call(decorator_func, meta_func, wrapper_func):
         """
         if (args and kwargs) or (args and len(args) > 1):
             raise ValueError(
-                "Only `@{func_name}` or `@{func_name}(**kwargs)` "
+                'Only "@{func_name}" or "@{func_name}(**kwargs)" '
                 "calls are allowed.".format(func_name=wrapper_func.__name__)
             )
 
@@ -290,7 +315,7 @@ def _ensure_unique_generated_testcase_names(names, functions):
 
     for func in functions:
         name = func.__name__
-        if name in dupe_names:
+        if name in dupe_names or name in valid_names:
             count = dupe_counter[name]
             while True:
                 func.__name__ = "{}__{}".format(name, count)
@@ -334,12 +359,22 @@ def _testsuite(klass):
         klass.__testcases__[func.__seq_number__] = func.__name__
         setattr(klass, func.__name__, func)
 
-    assert all(testcases for testcases in klass.__testcases__)
+    assert all(testcase for testcase in klass.__testcases__)
 
-    # Attributes `custom_name` and `__tags__` are added only when class is
+    # Attributes `name` and `__tags__` are added only when class is
     # decorated by @testsuite(...) which has the following parentheses.
-    if not hasattr(klass, "custom_name"):
-        klass.custom_name = None
+    if not hasattr(klass, "name"):
+        klass.name = None
+
+    if callable(klass.name):
+        try:
+            interface.check_signature(klass.name, ["cls_name", "suite"])
+        except interface.MethodSignatureMismatch as err:
+            _reset_globals()
+            raise err
+    elif not (klass.name is None or isinstance(klass.name, six.string_types)):
+        _reset_globals()
+        raise TypeError('"name" should be a string or a callable or `None`')
 
     if not hasattr(klass, "__tags__"):
         klass.__tags__ = {}  # used for UI
@@ -353,7 +388,7 @@ def _testsuite(klass):
         for attrib in dir(klass)
         if not (
             attrib.startswith("__")
-            or attrib == "custom_name"
+            or attrib == "name"
             or callable(getattr(klass, attrib))
             or isinstance(getattr(klass, attrib), property)
             or attrib in klass.__testcases__
@@ -384,7 +419,7 @@ def _testsuite(klass):
     return klass
 
 
-def _testsuite_meta(custom_name=None, tags=None):
+def _testsuite_meta(name=None, tags=None):
     """
     Wrapper function that allows us to call :py:func:`@testsuite <testsuite>`
     decorator with extra arguments.
@@ -393,21 +428,7 @@ def _testsuite_meta(custom_name=None, tags=None):
     @functools.wraps(_testsuite)
     def wrapper(klass):
         """Meta logic for suite goes here."""
-        if custom_name is None or isinstance(custom_name, six.string_types):
-            pass
-        elif callable(custom_name):
-            try:
-                interface.check_signature(
-                    custom_name, ["self", "original_name"]
-                )
-            except interface.MethodSignatureMismatch as err:
-                _reset_globals()
-                raise err
-        else:
-            _reset_globals()
-            raise TypeError("`custom_name` should be callable or a string")
-
-        klass.custom_name = custom_name
+        klass.name = name
 
         if tags:
             klass.__tags__ = tagging.validate_tag_value(tags)
@@ -434,11 +455,11 @@ def testsuite(*args, **kwargs):
     :py:func:`@testcase <testcase>`-annotated methods have executed.
 
     It is possible to assign name and tags to a suite via
-    `@testsuite(custom_name=...)` and `@testsuite(tags=...)` syntax:
+    `@testsuite(name=...)` and `@testsuite(tags=...)` syntax:
 
     .. code-block:: python
 
-      @testsuite(custom_name="Test Sample", tags=("server", "keep-alive"))
+      @testsuite(name="Test Sample", tags=("server", "keep-alive"))
       class SampleSuite(object):
         ...
 
@@ -474,10 +495,10 @@ def _validate_function_name(func):
             func.__name__
         )
 
-    elif func.__name__ in ("name", "custom_name", "get_testcases"):
+    elif func.__name__ in ("name", "get_testcases"):
         errmsg = (
-            'Testcase cannot be defined as "name" or "custom_name" or'
-            ' "get_testcases" because they are reserved for Testplan'
+            'Testcase cannot be defined as "name" or "get_testcases"'
+            " because they are reserved by Testplan"
         )
 
     if errmsg is not None:
@@ -494,12 +515,27 @@ def _validate_testcase(func):
     """Validate the expected function signature of a testcase."""
     try:
         interface.check_signature(func, ["self", "env", "result"])
-        validation.validate_display_name(
-            func.name, defaults.MAX_TESTCASE_NAME_LENGTH, "Testcase name"
-        )
+
+        if not isinstance(func.name, six.string_types):
+            raise ValueError(
+                'Testcase name "{name}" must be a string, it is of type:'
+                " {type}".format(name=func.name, type=type(func.name))
+            )
+        elif not func.name:
+            raise ValueError("Testcase name cannot be an empty string")
+
     except Exception as ex:
         _reset_globals()
         raise ex
+
+    func.name = six.ensure_str(func.name)
+
+    if len(func.name) > defaults.MAX_TESTCASE_NAME_LENGTH:
+        warnings.warn(
+            'Name defined for testcase "{}" is too long,'
+            ' consider customizing testcase name with argument "name_func"'
+            " in @testcase decorator.".format(func.__name__)
+        )
 
 
 def _mark_function_as_testcase(func):
@@ -568,7 +604,7 @@ def _testcase_meta(
             try:
                 functions = parametrization.generate_functions(
                     function=function,
-                    name=name,
+                    name=function.name,
                     parameters=parameters,
                     name_func=name_func,
                     docstring_func=docstring_func,
@@ -589,7 +625,7 @@ def _testcase_meta(
                 _reset_globals()
                 raise err
 
-            # Register generated functions as test_cases
+            # Register generated functions as testcases
             for func in functions:
                 _validate_testcase(func)
                 # this has to be called before wrappers otherwise wrappers can
@@ -700,7 +736,7 @@ def testcase(*args, **kwargs):
     :param custom_wrappers: wrapper to decorate paraametized testcases (
                             used instead of @decorator syntax) that uses
                             testplan.common.utils.callable.wraps()
-    :type custom_wrappers: ```custom_wrappers(func) => None``
+    :type custom_wrappers: ``custom_wrappers(func) => None``
     :param summarize: Whether the testcase should be summarised in it's output
     :type summarize: ``bool``
     :param num_passing: The number of passing assertions reported per

@@ -22,8 +22,7 @@ class Alpha(object):
 
 
 @testsuite(
-    tags="bar",
-    custom_name=lambda self, original_name: original_name + " - Custom",
+    tags="bar", name=lambda cls_name, suite: cls_name + " -- Custom",
 )
 class Beta(object):
     @testcase
@@ -238,9 +237,9 @@ class TestPattern(object):
             ("*:Alpha:foo", Alpha(), True),
             ("*:Al*:foo", Alpha(), True),
             ("*:B*:*", Alpha(), False),
-            # custom_name func overrides the original class name
+            # Argument ``name`` overrides the original class name
             ("*:Beta:*", Beta(), False),
-            ("*:Beta - Custom:*", Beta(), True),
+            ("*:Beta -- Custom:*", Beta(), True),
         ),
     )
     def test_filter_suite(self, pattern, testsuite_obj, expected):

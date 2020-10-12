@@ -43,7 +43,7 @@ def _check_dict_keys(dictionary, args, required_args):
     if extra:
         msg = (
             "There are extra keys ({extra_keys}) on parameter dict that does "
-            'not match any of the testcase arguments: "{arguments}".'.format(
+            'not match any of the testcase arguments: "{arguments}"'.format(
                 extra_keys=", ".join(extra), arguments=", ".join(args)
             )
         )
@@ -146,9 +146,9 @@ def _generate_kwarg_list(parameters, args, required_args, default_args):
             if not isinstance(obj, (tuple, list, dict)):
                 if len(required_args) > 1:
                     raise ParametrizationError(
-                        "You can use shortcut notation if and only if the "
-                        "testcase has 1 required argument, "
-                        "however it has {}.".format(len(required_args))
+                        "You can use shortcut notation if and only if the"
+                        " testcase has 1 required argument, however"
+                        " it has {}".format(len(required_args))
                     )
 
                 obj = make_tuple(obj, convert_none=True)
@@ -202,12 +202,7 @@ def _generate_func(
     _generated.__name__ = _parametrization_name_func_wrapper(
         func_name=function.__name__, kwargs=kwargs
     )
-
-    _generated.name = (
-        name_func(name, kwargs)
-        if name
-        else name_func(function.__name__, kwargs)
-    )
+    _generated.name = name_func(name, kwargs) if name_func else name
 
     if hasattr(function, "__xfail__"):
         _generated.__xfail__ = function.__xfail__
@@ -230,11 +225,14 @@ def _generate_func(
 
 def _check_name_func(name_func):
     """
-    Make sure ``name_func`` is a callable that takes
-    ``func_name``, ``kwargs`` arguments.
+    Make sure ``name_func`` is `Nonr` or a callable that
+    takes ``func_name``, ``kwargs`` arguments.
     """
+    if name_func is None:
+        return
+
     if not callable(name_func):
-        raise ParametrizationError("name_func must be a callable.")
+        raise ParametrizationError("name_func must be a callable or `None`")
 
     argspec = callable_utils.getargspec(name_func)
 
@@ -245,7 +243,7 @@ def _check_name_func(name_func):
 
     raise ParametrizationError(
         "name_func must be a callable that takes 2 arguments "
-        'named "func_name" and "kwargs".'
+        'named "func_name" and "kwargs"'
         " (e.g. def custom_name_func(func_name, kwargs): ..."
     )
 
@@ -256,7 +254,7 @@ def _check_tag_func(tag_func):
         return
 
     if not callable(tag_func):
-        raise ParametrizationError("tag_func must be a callable.")
+        raise ParametrizationError("tag_func must be a callable")
 
     argspec = callable_utils.getargspec(tag_func)
 
@@ -266,7 +264,7 @@ def _check_tag_func(tag_func):
             return
 
     raise ParametrizationError(
-        'tag_func must be a callable that takes 1 argument named "kwargs".'
+        'tag_func must be a callable that takes 1 argument named "kwargs"'
         " (e.g. def custom_tag_func(kwargs): ..."
     )
 
@@ -440,7 +438,12 @@ def generate_functions(
         for kwargs in kwarg_list
     ]
 
-    for func in functions:
+    for idx, func in enumerate(functions):
+        # Users request the feature that when `name_func` set to `None`,
+        # then simply append integer suffixes to the names of testcases
+        if name_func is None:
+            func.name = "{} {}".format(func.name, idx)
+
         func.summarize = summarize
         func.summarize_num_passing = num_passing
         func.summarize_num_failing = num_failing

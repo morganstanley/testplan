@@ -207,10 +207,10 @@ class BaseReportGroup(ReportGroup):
 
     exception_logger = ExceptionLogger
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, name, *args, **kwargs):
         self.meta = kwargs.pop("meta", {})
         self.status_reason = kwargs.pop("status_reason", None)
-        super(BaseReportGroup, self).__init__(*args, **kwargs)
+        super(BaseReportGroup, self).__init__(name=name, *args, **kwargs)
         self.status_override = None
         self.timer = timing.Timer()
 
@@ -443,6 +443,7 @@ class TestReport(BaseReportGroup):
 
     def __init__(
         self,
+        name,
         meta=None,
         attachments=None,
         information=None,
@@ -474,7 +475,7 @@ class TestReport(BaseReportGroup):
         self.timeout = timeout
         self.category = ReportCategories.TESTPLAN
 
-        super(TestReport, self).__init__(*args, **kwargs)
+        super(TestReport, self).__init__(name=name, *args, **kwargs)
 
     @property
     def tags_index(self):

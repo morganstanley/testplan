@@ -25,7 +25,6 @@ from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
 from testplan.common.utils.process import enforce_timeout, kill_process
 from testplan.common.utils.strings import slugify
-from testplan.common.utils.validation import validate_display_name
 
 from testplan.report import (
     test_styles,
@@ -55,7 +54,7 @@ class TestConfig(RunnableConfig):
         )
 
         return {
-            "name": str,  # And(str, lambda s: s.count(' ') == 0),
+            "name": And(str, lambda s: len(s) <= MAX_MULTITEST_NAME_LENGTH),
             ConfigOption("description", default=None): Or(str, None),
             ConfigOption("environment", default=[]): [Resource],
             ConfigOption("before_start", default=None): start_stop_signature,
@@ -129,9 +128,12 @@ class Test(Runnable):
     filter_levels = [filtering.FilterLevel.TEST]
 
     def __init__(self, **options):
-        validate_display_name(
-            options.get("name"), MAX_MULTITEST_NAME_LENGTH, "MultiTest name"
-        )
+        test_name = options.get("name", "")
+        if isinstance(test_name, str) and ":" in test_name:
+            warnings.warn(
+                "It is strongly suggested that name of test entity contains no"
+                "colon, but Testplan found [{name}]".format(name=test_name)
+            )
 
         super(Test, self).__init__(**options)
 
