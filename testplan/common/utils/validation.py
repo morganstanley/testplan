@@ -44,26 +44,3 @@ def is_valid_url(url):
 def is_valid_email(email):
     """Validator that checks if an email is valid"""
     return bool(validators.email(email))
-
-
-def validate_display_name(name, length, description):
-    """Validator that checks if the name for UI display is valid."""
-    if not isinstance(name, six.string_types):
-        raise ValueError(
-            '{desc} "{name}" must be a string, it is of type:'
-            " {type}".format(name=name, desc=description, type=type(name))
-        )
-
-    if not name or len(name) > length:
-        raise ValueError(
-            '{desc} "{name}" must be a non-empty string with'
-            " length not greater than {length}".format(
-                name=name, desc=description, length=length
-            )
-        )
-
-    if ":" in six.ensure_str(name):
-        warnings.warn(
-            "It is strongly suggested that {desc} contains no colon, but"
-            " Testplan found [{name}]".format(name=name, desc=description)
-        )

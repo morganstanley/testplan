@@ -74,9 +74,7 @@ class BasicSuite(object):
         result.equal(1, 1, description="Passing assertion")
 
 
-@testsuite(
-    custom_name=lambda self, original_name: "Custom_{}".format(self.arg)
-)
+@testsuite(name=lambda cls_name, suite: "Custom_{}".format(suite.arg))
 class TCPSuite(object):
     def __init__(self, arg):
         self.arg = arg

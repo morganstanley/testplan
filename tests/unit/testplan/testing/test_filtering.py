@@ -22,8 +22,7 @@ class Alpha(object):
 
 
 @testsuite(
-    tags="bar",
-    custom_name=lambda self, original_name: original_name + " - Custom",
+    tags="bar", name=lambda cls_name, suite: cls_name + " -- Custom",
 )
 class Beta(object):
     @testcase
@@ -238,13 +237,15 @@ class TestPattern(object):
             ("*:Alpha:foo", Alpha(), True),
             ("*:Al*:foo", Alpha(), True),
             ("*:B*:*", Alpha(), False),
-            # custom_name func overrides the original class name
+            # Argument ``name`` overrides the original class name
             ("*:Beta:*", Beta(), False),
-            ("*:Beta - Custom:*", Beta(), True),
+            ("*:Beta -- Custom:*", Beta(), True),
         ),
     )
     def test_filter_suite(self, pattern, testsuite_obj, expected):
         filter_obj = filtering.Pattern(pattern=pattern)
+        # Test suite object gets its `name` after added into a Multitest
+        MultiTest(name="MTest", suites=testsuite_obj)
         assert bool(filter_obj.filter_suite(testsuite_obj)) == expected
 
     @pytest.mark.parametrize(
