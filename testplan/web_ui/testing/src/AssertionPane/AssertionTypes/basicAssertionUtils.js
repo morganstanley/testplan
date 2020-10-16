@@ -1,5 +1,6 @@
 import React, {Fragment} from 'react';
 import {hashCode} from '../../Common/utils';
+import _ from 'lodash';
 
 /** @module basicAssertionUtils */
 
@@ -65,7 +66,9 @@ function prepareLogContent(assertion, defaultContent) {
  * @private
  */
 function prepareEqualContent(assertion, defaultContent) {
-  const leftContent = <span>{assertion.second}</span>;
+  const leftContent = <span>
+    {_.isNil(assertion.second) ? "" : String(assertion.second)}
+  </span>;
 
   return {
     ...defaultContent,
@@ -81,7 +84,9 @@ function prepareEqualContent(assertion, defaultContent) {
  * @private
  */
 function prepareNotEqualContent(assertion, defaultContent) {
-  const leftContent = <span>&lt;not&gt; {assertion.second}</span>;
+  const leftContent = <span>
+    &lt;not&gt; {_.isNil(assertion.second) ? "" : String(assertion.second)}
+  </span>;
 
   return {
     ...defaultContent,
@@ -99,7 +104,11 @@ function prepareNotEqualContent(assertion, defaultContent) {
  */
 function prepareComparisonContent(assertion, defaultContent) {
     const leftContent = (
-      <span>value {assertion.label} {assertion.second}</span>
+      <span>
+        value {assertion.label} {
+          _.isNil(assertion.second)? "" : String(assertion.second)
+        }
+      </span>
     );
 
   return {
@@ -118,7 +127,9 @@ function prepareComparisonContent(assertion, defaultContent) {
 function prepareIsCloseContent(assertion, defaultContent) {
   const leftContent = (
     <span>
-      value {assertion.label} {assertion.second}
+      value {assertion.label} {
+        _.isNil(assertion.second) ? "" : String(assertion.second)
+      }
       &nbsp;within rel_tol={assertion.rel_tol} or abs_tol={assertion.abs_tol}
     </span>
   );
@@ -580,8 +591,8 @@ function prepareBasicContent(assertion) {
     preContent: null,
     leftTitle: 'Expected:',
     rightTitle: 'Value:',
-    leftContent: assertion.second,
-    rightContent: assertion.first,
+    leftContent: _.isNil(assertion.second) ? "" : String(assertion.second),
+    rightContent: _.isNil(assertion.first) ? "" :String(assertion.first),
     postTitle: null,
     postContent: null,
   };

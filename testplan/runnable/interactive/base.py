@@ -89,6 +89,10 @@ class TestRunnerIHandler(entity.Entity):
         """Code to indicate success or failure."""
         return int(not self.report.passed)
 
+    @property
+    def exporters(self):
+        return self.parent.exporters
+
     def setup(self):
         """Set up the task pool and HTTP handler."""
         self.logger.test_info(
