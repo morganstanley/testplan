@@ -10,7 +10,6 @@ import six
 from enum import Enum
 
 from testplan.common.utils.convert import make_tuple
-from testplan.testing.multitest.suite import get_testsuite_name
 
 
 class SortType(Enum):
@@ -161,7 +160,7 @@ class AlphanumericSorter(TypedSorter):
         return sorted(instances, key=operator.attrgetter("name"))
 
     def sort_testsuites(self, testsuites):
-        return sorted(testsuites, key=get_testsuite_name)
+        return sorted(testsuites, key=operator.attrgetter("name"))
 
     def sort_testcases(self, testcases):
         return sorted(testcases, key=operator.attrgetter("name"))

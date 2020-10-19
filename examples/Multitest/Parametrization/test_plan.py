@@ -77,10 +77,9 @@ class SimpleTest(object):
 # This way we can come up with more readable testcase
 # method names on the test reports.
 
-# If we didn't use a custom name function, we'd end up with method names
-# like `func_raises_error__0`, `func_raises_error__1`
-# But instead the custom function will give
-# us names like `func_raises_error__ValueError`
+# If we didn't use a custom name function, we'd end up with method name
+# like `func_raises_error <func=.., error=...>`, but instead, the custom
+# function will give us names like `func_raises_error__ValueError`.
 
 
 def custom_error_name_func(func_name, kwargs):

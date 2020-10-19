@@ -355,7 +355,7 @@ const ERROR_REPORT = {
   "entries": [],
   "logs": [
     {
-      "message": "While starting resource [client]\nTraceback (most recent call last):\n  File \"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/common/entity/base.py\", line 143, in start\n    resource.start()\n  File \"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/testing/multitest/driver/base.py\", line 148, in start\n    self.starting()\n  File \"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/testing/multitest/driver/tcp/client.py\", line 161, in starting\n    1/0\nZeroDivisionError: integer division or modulo by zero\n",
+      "message": "While starting resource [client]\nTraceback (most recent call last):\n  File \"/tmp/myworkspace/testplan/common/entity/base.py\", line 143, in start\n    resource.start()\n  File \"/tmp/myworkspace/testplan/testing/multitest/driver/base.py\", line 148, in start\n    self.starting()\n  File \"/tmp/myworkspace/testplan/testing/multitest/driver/tcp/client.py\", line 161, in starting\n    1/0\nZeroDivisionError: integer division or modulo by zero\n",
       "created": "2018-10-15T14:30:12.971680+00:00",
       "levelno": 40,
       "levelname": "ERROR",

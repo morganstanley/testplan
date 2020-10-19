@@ -7,7 +7,6 @@ import fnmatch
 from enum import Enum, unique
 
 from testplan.testing import tagging
-from testplan.testing.multitest.suite import get_testsuite_name
 
 
 class FilterLevel(Enum):
@@ -292,9 +291,9 @@ class Pattern(Filter):
 
     def filter_suite(self, suite):
         return fnmatch.fnmatch(
-            suite.__class__.__name__
-            if self.match_definition
-            else get_testsuite_name(suite),
+            # Now, Suite has the same name and uid, just like that of Multitest
+            # suite.__class__.__name__ if self.match_definition else suite.name,
+            suite.name,
             self.suite_pattern,
         )
 

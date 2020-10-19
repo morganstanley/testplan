@@ -2533,11 +2533,11 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
               "lineno": 387,
               "message": "While starting resource [client]
 Traceback (most recent call last):
-  File \\"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/common/entity/base.py\\", line 143, in start
+  File \\"/tmp/myworkspace/testplan/common/entity/base.py\\", line 143, in start
     resource.start()
-  File \\"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/testing/multitest/driver/base.py\\", line 148, in start
+  File \\"/tmp/myworkspace/testplan/testing/multitest/driver/base.py\\", line 148, in start
     self.starting()
-  File \\"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/testing/multitest/driver/tcp/client.py\\", line 161, in starting
+  File \\"/tmp/myworkspace/testplan/testing/multitest/driver/tcp/client.py\\", line 161, in starting
     1/0
 ZeroDivisionError: integer division or modulo by zero
 ",
@@ -3386,11 +3386,11 @@ ZeroDivisionError: integer division or modulo by zero
               "lineno": 387,
               "message": "While starting resource [client]
 Traceback (most recent call last):
-  File \\"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/common/entity/base.py\\", line 143, in start
+  File \\"/tmp/myworkspace/testplan/common/entity/base.py\\", line 143, in start
     resource.start()
-  File \\"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/testing/multitest/driver/base.py\\", line 148, in start
+  File \\"/tmp/myworkspace/testplan/testing/multitest/driver/base.py\\", line 148, in start
     self.starting()
-  File \\"/d/d1/shared/yitaor/ets.testplan.2/ets/testplan/ets.testplan/src/oss/testplan/testing/multitest/driver/tcp/client.py\\", line 161, in starting
+  File \\"/tmp/myworkspace/testplan/testing/multitest/driver/tcp/client.py\\", line 161, in starting
     1/0
 ZeroDivisionError: integer division or modulo by zero
 ",
