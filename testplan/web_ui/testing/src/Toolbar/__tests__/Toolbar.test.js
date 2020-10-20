@@ -1,6 +1,7 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 import {StyleSheetTestUtils} from "aphrodite";
+import {COLUMN_WIDTH} from "../../Common/defaults"
 
 import Toolbar from '../Toolbar';
 import {
@@ -14,6 +15,7 @@ function defaultProps() {
     status: 'passed',
     buttons: TOOLBAR_BUTTONS_BATCH,
     handleNavFilter: jest.fn(),
+    filterBoxWidth: `${COLUMN_WIDTH}em`
   };
 }
 

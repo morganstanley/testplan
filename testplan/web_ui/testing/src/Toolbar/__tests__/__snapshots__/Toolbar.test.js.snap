@@ -12,7 +12,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
       className="filterBox_1kzbnzj"
       style={
         Object {
-          "width": undefined,
+          "width": "22em",
         }
       }
     >
@@ -437,7 +437,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
       className="filterBox_1kzbnzj"
       style={
         Object {
-          "width": undefined,
+          "width": "22em",
         }
       }
     >
@@ -822,7 +822,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
       className="filterBox_1kzbnzj"
       style={
         Object {
-          "width": undefined,
+          "width": "22em",
         }
       }
     >

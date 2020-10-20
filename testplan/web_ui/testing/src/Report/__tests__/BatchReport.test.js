@@ -44,7 +44,7 @@ describe('BatchReport', () => {
 
   it('shallow renders the correct HTML structure when report loaded', () => {
     const batchReport = renderBatchReport();
-    batchReport.setState({ report: TESTPLAN_REPORT });
+    batchReport.instance().setReport(TESTPLAN_REPORT);
     batchReport.update();
     expect(batchReport).toMatchSnapshot();
   });
