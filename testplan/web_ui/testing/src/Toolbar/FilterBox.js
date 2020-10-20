@@ -21,6 +21,7 @@ class FilterBox extends Component {
   constructor(props) {
     super(props);
     this.inputField = createRef();
+    this.helpIcon = createRef();
     this.state = {
       parserError: null,
       showHelp: false,
@@ -28,7 +29,9 @@ class FilterBox extends Component {
   }
 
   componentDidMount() {
-    // this.inputField.current.firstChild.focus();
+    if (this.inputField.current) {
+      this.inputField.current.firstChild.focus();
+    }
   }
 
   toggleHelp = () => {
@@ -53,7 +56,7 @@ class FilterBox extends Component {
           <span
             className={css(styles.searchBoxInfoIcon, this.errorHighlight())}
             onClick={this.toggleHelp}
-            id="SearchHelp"
+            ref={this.helpIcon}
           >
             <FontAwesomeIcon
               key="toolbar-info"
@@ -68,8 +71,9 @@ class FilterBox extends Component {
             placement="bottom"
             className={css(styles.widePopover)}
             isOpen={this.state.showHelp}
-            target={"SearchHelp"}
+            target={this.helpIcon}
             toggle={this.toggleHelp}
+            fade={false}
           >
             <PopoverHeader>How to search</PopoverHeader>
             <PopoverBody className={css(styles.scrollablePopover)}>
@@ -192,19 +196,19 @@ class FilterBox extends Component {
         <td>
           <p>
             {syntax.map((s, index) => (
-              <div key={index}>
+              <span key={index}>
                 <code>{s}</code>
                 <br />
-              </div>
+              </span>
             ))}
           </p>
           <p>
             {examples.map((e, index) => (
-              <div key={index}>
+              <span key={index}>
                 <b>Example: </b>
                 <code>{e}</code>
                 <br />
-              </div>
+              </span>
             ))}
           </p>
         </td>
@@ -213,8 +217,10 @@ class FilterBox extends Component {
     return (
       <Table striped bordered>
         <thead>
-          <th>What you can search by</th>
-          <th>Search operator and example</th>
+          <tr>
+            <th>What you can search by</th>
+            <th>Search operator and example</th>
+          </tr>
         </thead>
         <tbody>{descriptions.map(OperatorRow)}</tbody>
       </Table>
@@ -252,8 +258,10 @@ const styles = StyleSheet.create({
     color: RED,
   },
   widePopover: {
-    width: "600px",
-    maxWidth: "50vw",
+    ":defined .popover": {
+      width: "600px",
+      maxWidth: "50vw",
+    },
   },
   scrollablePopover: {
     overflowY: "auto",

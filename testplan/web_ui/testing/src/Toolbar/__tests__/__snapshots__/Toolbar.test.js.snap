@@ -388,12 +388,16 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
     }
     onClosed={[Function]}
     onOpened={[Function]}
+    returnFocusAfterClose={true}
     role="dialog"
+    scrollable={false}
     size="lg"
     toggle={[Function]}
+    unmountOnClose={true}
     zIndex={1050}
   >
     <ModalHeader
+      charCode={215}
       closeAriaLabel="Close"
       tag="h5"
       toggle={[Function]}
@@ -769,12 +773,16 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
     }
     onClosed={[Function]}
     onOpened={[Function]}
+    returnFocusAfterClose={true}
     role="dialog"
+    scrollable={false}
     size="lg"
     toggle={[Function]}
+    unmountOnClose={true}
     zIndex={1050}
   >
     <ModalHeader
+      charCode={215}
       closeAriaLabel="Close"
       tag="h5"
       toggle={[Function]}
@@ -1150,12 +1158,16 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
     }
     onClosed={[Function]}
     onOpened={[Function]}
+    returnFocusAfterClose={true}
     role="dialog"
+    scrollable={false}
     size="lg"
     toggle={[Function]}
+    unmountOnClose={true}
     zIndex={1050}
   >
     <ModalHeader
+      charCode={215}
       closeAriaLabel="Close"
       tag="h5"
       toggle={[Function]}

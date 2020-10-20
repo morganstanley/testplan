@@ -42,7 +42,6 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
     </span>
     <span
       className="searchBoxInfoIcon_107ja4p"
-      id="SearchHelp"
       onClick={[Function]}
     >
       <FontAwesomeIcon
@@ -78,19 +77,18 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
       />
     </span>
     <Popover
-      className="widePopover_y8c3kx"
-      delay={
-        Object {
-          "hide": 0,
-          "show": 0,
-        }
-      }
-      hideArrow={false}
+      className="widePopover_16mkpl5"
+      fade={false}
       isOpen={false}
       placement="bottom"
       placementPrefix="bs-popover"
-      target="SearchHelp"
+      target={
+        Object {
+          "current": null,
+        }
+      }
       toggle={[Function]}
+      trigger="click"
     >
       <PopoverHeader
         tag="h3"
@@ -129,12 +127,14 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
           tag="table"
         >
           <thead>
-            <th>
-              What you can search by
-            </th>
-            <th>
-              Search operator and example
-            </th>
+            <tr>
+              <th>
+                What you can search by
+              </th>
+              <th>
+                Search operator and example
+              </th>
+            </tr>
           </thead>
           <tbody>
             <tr
@@ -155,25 +155,25 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
               <td>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <code>
                       multitest:
                     </code>
                     <br />
-                  </div>
-                  <div
+                  </span>
+                  <span
                     key="1"
                   >
                     <code>
                       mt:
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <b>
@@ -183,8 +183,8 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       multitest:mt1
                     </code>
                     <br />
-                  </div>
-                  <div
+                  </span>
+                  <span
                     key="1"
                   >
                     <b>
@@ -194,7 +194,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       mt:mt1
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
               </td>
             </tr>
@@ -216,25 +216,25 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
               <td>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <code>
                       testsuite:
                     </code>
                     <br />
-                  </div>
-                  <div
+                  </span>
+                  <span
                     key="1"
                   >
                     <code>
                       s:
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <b>
@@ -244,8 +244,8 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       testsuite:suite2
                     </code>
                     <br />
-                  </div>
-                  <div
+                  </span>
+                  <span
                     key="1"
                   >
                     <b>
@@ -255,7 +255,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       s:suite2
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
               </td>
             </tr>
@@ -277,25 +277,25 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
               <td>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <code>
                       testcase:
                     </code>
                     <br />
-                  </div>
-                  <div
+                  </span>
+                  <span
                     key="1"
                   >
                     <code>
                       c:
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <b>
@@ -305,8 +305,8 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       testcase:case3
                     </code>
                     <br />
-                  </div>
-                  <div
+                  </span>
+                  <span
                     key="1"
                   >
                     <b>
@@ -316,7 +316,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       c:case3
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
               </td>
             </tr>
@@ -338,17 +338,17 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
               <td>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <code>
                       tag:
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <b>
@@ -358,8 +358,8 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       tag:fast
                     </code>
                     <br />
-                  </div>
-                  <div
+                  </span>
+                  <span
                     key="1"
                   >
                     <b>
@@ -369,7 +369,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       tag:color=blue
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
               </td>
             </tr>
@@ -387,17 +387,17 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
               <td>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <code>
                       " "
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <b>
@@ -407,8 +407,8 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       mt:"Demo multitest"
                     </code>
                     <br />
-                  </div>
-                  <div
+                  </span>
+                  <span
                     key="1"
                   >
                     <b>
@@ -418,7 +418,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       suite:"test suite:2"
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
               </td>
             </tr>
@@ -437,7 +437,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               <td>
                 <p />
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <b>
@@ -447,7 +447,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       suite:server c:restart
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
               </td>
             </tr>
@@ -465,25 +465,25 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
               <td>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <code>
                       OR
                     </code>
                     <br />
-                  </div>
-                  <div
+                  </span>
+                  <span
                     key="1"
                   >
                     <code>
                       {}
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <b>
@@ -493,8 +493,8 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       mt:mt1 OR mt:mt2
                     </code>
                     <br />
-                  </div>
-                  <div
+                  </span>
+                  <span
                     key="1"
                   >
                     <b>
@@ -504,7 +504,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       {mt:mt1 mt:mt2}
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
               </td>
             </tr>
@@ -522,17 +522,17 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
               </td>
               <td>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <code>
                       ( )
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
                 <p>
-                  <div
+                  <span
                     key="0"
                   >
                     <b>
@@ -542,7 +542,7 @@ exports[`FilterBox shallow renders the correct HTML structure 1`] = `
                       tag:(client server)
                     </code>
                     <br />
-                  </div>
+                  </span>
                 </p>
               </td>
             </tr>
