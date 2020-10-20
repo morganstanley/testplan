@@ -353,7 +353,6 @@ const GetSelectedEntries = (selectedUIDs, report) => {
 
 const filterReport = (report, filters) => {
 
-  console.log(filters);
   if (filters === null) {
     return { filters, report };
   }
