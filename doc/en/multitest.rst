@@ -969,7 +969,7 @@ This is equivalent to declaring each method call explicitly:
     @testsuite
     class SampleTest(object):
 
-      @testcase(parameters={
+      @testcase(parameters=(
           ('Ben', 'Richard', 'Brown'),
           ('Ben', 'Richard', 'van der Heide'),
           ('Ben', 'Richard', "O'Connell"),
