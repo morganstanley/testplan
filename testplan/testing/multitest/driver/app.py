@@ -236,9 +236,10 @@ class App(Driver):
         cwd = self.cfg.working_dir or self.runpath
         try:
             self.logger.debug(
-                "%(driver)s driver command: %(cmd)s,\n"
-                "\trunpath: %(runpath)s\n"
-                "\tout/err files %(out)s - %(err)s",
+                "%(driver)s driver command: %(cmd)s\n"
+                "\tRunpath: %(runpath)s\n"
+                "\tOut file: %(out)s\n"
+                "\tErr file: %(err)s\n",
                 {
                     "driver": self.uid(),
                     "cmd": cmd,
@@ -307,12 +308,12 @@ class App(Driver):
         else:
             self._rename_std_and_log()
 
-        path_cleanup = self.cfg.path_cleanup
-        self.cfg.path_cleanup = False
         # we don't want to cleanup runpath during restart
+        path_cleanup = self.cfg.path_cleanup
+        self.cfg._options["path_cleanup"] = False
         self.start()
         self.wait(self.status.STARTED)
-        self.cfg.path_cleanup = path_cleanup
+        self.cfg._options["path_cleanup"] = path_cleanup
 
     def _move_app_path(self):
         """

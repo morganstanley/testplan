@@ -90,7 +90,7 @@ class FixClient(Driver):
     :type logoff_timeout: ``int`` or ``float``
 
     Also inherits all
-    :py:class:`~testplan.testing.multitest.driver.base.Driver`` options.
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = FixClientConfig
