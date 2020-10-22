@@ -618,6 +618,8 @@ class TestRunner(Runnable):
                         # a full structured report by dry_run(), thus the order
                         # of testcases can be retained in test report.
                         target = resource_result.task.materialize()
+                        target.parent = self
+                        target.cfg.parent = self.cfg
                         # TODO: Any idea to avoid accessing private members?
                         target.cfg._options["part"] = None
                         target._test_context = None

@@ -13,7 +13,6 @@ from schema import Or, And, Use
 from testplan.common.config import ConfigOption, validate_func
 from testplan.common import entity
 from testplan.common.utils.thread import interruptible_join
-from testplan.common.utils.strings import Color
 from testplan.common.utils.timing import wait_until_predicate
 from testplan.runners.base import Executor, ExecutorConfig
 from testplan.report import ReportCategories

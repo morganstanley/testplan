@@ -208,10 +208,23 @@ class Loggable(object):
         # "testplan.<class name>" as the logger name, since class names are
         # mostly unique.
 
-        logger_name = ".".join(("testplan", self.__class__.__name__))
-        self.logger = logging.getLogger(logger_name)
-
+        self._logger = None
         super(Loggable, self).__init__()
+
+    @property
+    def logger(self):
+        """logger object"""
+        # Define logger as a property instead of self.logger directly.
+        # This is to workaround a python2 issue that logger object cannot be
+        # pickled/deepcopied, but we need to do that for task target which
+        # could be a multitest object.
+
+        if self._logger:
+            return self._logger
+
+        logger_name = ".".join(("testplan", self.__class__.__name__))
+        self._logger = logging.getLogger(logger_name)
+        return self._logger
 
     @property
     def _debug_logging_enabled(self):
