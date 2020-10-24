@@ -374,14 +374,14 @@ const FakeInteractiveReport = {
   entries: [{
     counter: {passed: 0, failed: 0},
     category: "multitest",
-    description: null,
+    description: "Interactive MTest Desc",
     entries: [{
       counter: {passed: 0, failed: 0},
       category: "testsuite",
-      description: null,
+      description: "Interactive Suite Desc",
       entries: [{
         counter: {passed: 0, failed: 0},
-        description: null,
+        description: "Interactive Testcase Desc",
         entries: [],
         logs: [],
         name: "test_interactive",

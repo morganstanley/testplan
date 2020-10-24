@@ -19,6 +19,7 @@ const NavList = (props) => {
       return (
         <NavEntry
           name={entry.name}
+          description={entry.description}
           status={entry.status}
           type={entry.category}
           caseCountPassed={entry.counter.passed}
@@ -39,6 +40,7 @@ NavList.propTypes = {
   entries: PropTypes.arrayOf(PropTypes.shape({
     uid: PropTypes.string,
     name: PropTypes.string,
+    description: PropTypes.string,
     status: PropTypes.oneOf(STATUS),
     counter: PropTypes.shape({
       passed: PropTypes.number,
