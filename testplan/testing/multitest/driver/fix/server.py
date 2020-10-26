@@ -66,7 +66,7 @@ class FixServer(Driver):
     :type version: ``str``
 
     Also inherits all
-    :py:class:`~testplan.testing.multitest.driver.base.Driver`` options.
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = FixServerConfig

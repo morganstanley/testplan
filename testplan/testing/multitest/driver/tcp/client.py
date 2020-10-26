@@ -55,7 +55,7 @@ class TCPClient(Driver):
     :type connect_at_start: ``bool``
 
     Also inherits all
-    :py:class:`~testplan.testing.multitest.driver.base.Driver`` options.
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = TCPClientConfig

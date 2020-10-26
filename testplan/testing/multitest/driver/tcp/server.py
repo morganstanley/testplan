@@ -47,7 +47,7 @@ class TCPServer(Driver):
     :type port: ``int``
 
     Also inherits all
-    :py:class:`~testplan.testing.multitest.driver.base.Driver`` options.
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = TCPServerConfig
