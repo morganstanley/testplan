@@ -1428,7 +1428,7 @@ class Result(object):
             )
 
         :param message: Markdown string
-        :type message: ``str`` or instance
+        :type message: ``str``
         :param description: Text description for the assertion.
         :type description: ``str``
         :param escape: Escape html.
@@ -1441,6 +1441,41 @@ class Result(object):
         )
         _bind_entry(entry, self)
         return entry
+
+    def log_html(self, code, description="Embedded HTML"):
+        """
+        Create a markdown message entry without escape, can be used for
+        providing additional context related to test steps.
+
+        :param code: HTML code string. Tag <script> will not be executed.
+        :type code: ``str``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :return: ``True``
+        :rtype: ``bool``
+        """
+        return self.markdown(code, description=description, escape=False)
+
+    def log_code(self, code, language="python", description=None):
+        """
+        Create a codelog message entry which contains code snippet, can
+        be used for providing additional context related to test steps.
+
+        :param code: The source code string.
+        :type code: ``str``
+        :param language: The language of source code. e.g. js, xml, python,
+            java, c, cpp, bash. Defaults to python.
+        :type language: ``str``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :return: ``True``
+        :rtype: ``bool``
+        """
+        entry = base.CodeLog(
+            code=code, language=language, description=description
+        )
+        _bind_entry(entry, self)
+        return
 
     def fail(self, description, category=None, flag=None):
         """
