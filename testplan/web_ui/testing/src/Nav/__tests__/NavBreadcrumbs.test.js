@@ -8,6 +8,7 @@ function defaultProps() {
   const entry = {
     uid: '123',
     name: 'test',
+    description: 'desc',
     status: 'passed',
     category: 'testplan',
     counter: {

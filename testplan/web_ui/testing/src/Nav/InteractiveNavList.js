@@ -15,6 +15,7 @@ const InteractiveNavList = (props) => {
     (entry) => (
       <InteractiveNavEntry
         name={entry.name}
+        description={entry.description}
         status={entry.status}
         runtime_status={entry.runtime_status}
         envStatus={entry.env_status}
@@ -41,6 +42,7 @@ InteractiveNavList.propTypes = {
   entries: PropTypes.arrayOf(PropTypes.shape({
     uid: PropTypes.string,
     name: PropTypes.string,
+    description: PropTypes.string,
     status: PropTypes.oneOf(STATUS),
     runtime_status: PropTypes.oneOf(RUNTIME_STATUS),
     counter: PropTypes.shape({

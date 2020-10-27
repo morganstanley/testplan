@@ -38,7 +38,7 @@ const NavEntry = (props) => {
     >
       <div
         className={css(styles.entryName, styles[STATUS_CATEGORY[props.status]])}
-        title={props.name}
+        title={props.description || props.name}
       >
         {props.name}
       </div>
@@ -63,6 +63,8 @@ const NavEntry = (props) => {
 NavEntry.propTypes = {
   /** Entry name */
   name: PropTypes.string,
+  /** Entry description */
+  description: PropTypes.string,
   /** Entry status */
   status: PropTypes.oneOf(STATUS),
   /** Entry type */

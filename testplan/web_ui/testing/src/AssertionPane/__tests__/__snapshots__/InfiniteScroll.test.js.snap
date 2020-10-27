@@ -22,7 +22,7 @@ exports[`InfiniteScroll shallow renders the correct HTML structure 1`] = `
   <div
     style={
       Object {
-        "paddingRight": "2rem",
+        "paddingRight": "4rem",
       }
     }
   />

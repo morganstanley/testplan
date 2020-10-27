@@ -82,15 +82,33 @@ class AssertionPane extends Component {
       position: 'absolute',
       left: this.props.left,
       paddingLeft: '20px',
-      top: '5em',
-      height: `calc(100% - 5em)`,
+      top: '5.5em',
+      height: `calc(100% - 5.5em)`,
       width: `calc(100% - ${this.props.left})`,
     };
 
-    if (this.props.assertions.length !== 0 || this.props.logs.length !== 0) {
+    if (
+      this.props.assertions.length !== 0 || this.props.logs.length !== 0
+      || this.props.descriptionEntries.length !== 0
+    ) {
       return (
         <div style={assertionPaneStyle}>
-          <div className={css(styles.buttonsDiv)}>
+          <div className={css(styles.infiniteScrollDiv)}>
+            {/*
+            The key is passed to force InfiniteScroll to update when only the
+            props of AssertionPane are changed. Normally when just props change
+            and not state the child component is not updated. Giving the
+            InfiniteScroll component a key tells react to update it. Unsure if
+            it updates it or creates a new instance, need to check.
+            */}
+            <InfiniteScroll
+              key={this.props.testcaseUid}
+              items={this.props.assertions}
+            >
+              <DescriptionPane
+                descriptionEntries={this.props.descriptionEntries}
+              />
+           <div className={css(styles.buttonsDiv)}>
             <FontAwesomeIcon
               size='1x'
               key='faPlusCircle'
@@ -108,21 +126,6 @@ class AssertionPane extends Component {
               className={css(styles.icon)}
             />
           </div>
-          <div className={css(styles.infiniteScrollDiv)}>
-            {/*
-            The key is passed to force InfiniteScroll to update when only the
-            props of AssertionPane are changed. Normally when just props change
-            and not state the child component is not updated. Giving the
-            InfiniteScroll component a key tells react to update it. Unsure if
-            it updates it or creates a new instance, need to check.
-            */}
-            <InfiniteScroll
-              key={this.props.testcaseUid}
-              items={this.props.assertions}
-            >
-              <DescriptionPane
-                descriptionEntries={this.props.descriptionEntries}
-              />
               <AssertionGroup
                 entries={[]}
                 globalIsOpen={this.state.globalIsOpen}
@@ -165,13 +168,16 @@ const styles = StyleSheet.create({
     cursor: 'pointer',
   },
 
-  buttonsDiv: {
-    textAlign: 'right',
+  infiniteScrollDiv: {
+    height: 'calc(100% - 1.5em)',
   },
 
-  infiniteScrollDiv: {
-    height: 'calc(100% - 35px)',
-  }
+  buttonsDiv: {
+    position: 'absolute',
+    top: '0em',
+    width: '100%',
+    textAlign: 'right',
+  },
 });
 
 export default AssertionPane;

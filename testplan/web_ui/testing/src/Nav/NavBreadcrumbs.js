@@ -34,6 +34,7 @@ return (
     <div className={css(styles.breadcrumbEntry, CommonStyles.unselectable)}>
       <NavEntry
         name={entry.name}
+        description={entry.description}
         status={entry.status}
         type={entry.category}
         caseCountPassed={entry.counter.passed}
@@ -51,6 +52,7 @@ NavBreadcrumbs.propTypes = {
   entries: PropTypes.arrayOf(PropTypes.shape({
     uid: PropTypes.string,
     name: PropTypes.string,
+    description: PropTypes.string,
     status: PropTypes.oneOf(STATUS),
     runtime_status: PropTypes.oneOf(RUNTIME_STATUS),
     counter: PropTypes.shape({

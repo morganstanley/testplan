@@ -18,6 +18,7 @@ exports[`NavList shallow renders and matches snapshot 1`] = `
       <NavEntry
         caseCountFailed={0}
         caseCountPassed={1}
+        description="desc"
         displayTime={false}
         executionTime={null}
         name="test"

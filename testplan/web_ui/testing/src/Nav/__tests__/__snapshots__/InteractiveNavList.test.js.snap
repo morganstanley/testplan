@@ -18,6 +18,7 @@ exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
       <InteractiveNavEntry
         caseCountFailed={0}
         caseCountPassed={0}
+        description="Interactive MTest Desc"
         envCtrlCallback={[Function]}
         handlePlayClick={[Function]}
         name="Interactive MTest"
