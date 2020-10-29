@@ -33,7 +33,7 @@ class ExporterConfig(Config):
 
     @classmethod
     def get_options(cls):
-        return {}
+        return {"name": str}
 
 
 class BaseExporter(Configurable):
@@ -41,9 +41,15 @@ class BaseExporter(Configurable):
 
     CONFIG = ExporterConfig
 
-    def __init__(self, **options):
-        self._cfg = self.CONFIG(**options)
+    def __init__(self, name=None, **options):
+        if name is None:
+            name = self.__class__.__name__
+        self._cfg = self.CONFIG(name=name, **options)
         super(BaseExporter, self).__init__()
+
+    @property
+    def name(self):
+        return self.cfg.name
 
     @property
     def cfg(self):

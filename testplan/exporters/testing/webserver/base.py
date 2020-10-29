@@ -90,6 +90,7 @@ class WebServerExporter(Exporter):
         self.logger.exporter_info("JSON generated at %s", defaults.JSON_PATH)
 
         self.display(defaults.JSON_PATH)
+        return defaults.JSON_PATH
 
     def display(self, json_path):
         """Display a generated JSON in the web UI"""

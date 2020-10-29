@@ -6,6 +6,7 @@ import os
 import traceback
 import uuid
 import warnings
+import time
 
 try:
     from urllib import pathname2url  # Python 2.x
@@ -144,8 +145,20 @@ def create_pdf(source, config):
             reportlab_data.extend(row_data.content)
             reportlab_styles.extend(row_data.style)
 
+    pdf_path = config.pdf_path
+    try:
+        if config.interactive_port is None:
+            override = True
+        else:
+            override = False
+    except AttributeError:
+        override = True
+    if not override and os.path.exists(pdf_path):
+        file_name, ext = os.path.splitext(pdf_path)
+        pdf_path = "{}_{}{}".format(file_name, int(time.time()), ext)
+
     template = SimpleDocTemplate(
-        filename=config.pdf_path,
+        filename=pdf_path,
         pageSize=const.PAGE_SIZE,
         topMargin=const.PAGE_MARGIN,
         bottomMargin=const.PAGE_MARGIN,
@@ -161,6 +174,7 @@ def create_pdf(source, config):
     )
 
     template.build(tables)
+    return pdf_path
 
 
 class BasePDFExporterConfig(ExporterConfig):
@@ -213,22 +227,27 @@ class PDFExporter(Exporter):
 
     CONFIG = PDFExporterConfig
 
+    def __init__(self, name="PDF exporter", **options):
+        super(PDFExporter, self).__init__(name=name, **options)
+
     def export(self, source):
-
-        pdf_path = self.cfg.pdf_path
-
         if len(source):
-            create_pdf(source, self.cfg)
-            self.logger.exporter_info(
-                "PDF generated at %s", os.path.abspath(pdf_path)
-            )
-            self.url = "file:{}".format(
-                pathname2url(os.path.abspath(pdf_path))
-            )
+            pdf_path = os.path.abspath(create_pdf(source, self.cfg))
+            if pdf_path == self.cfg.pdf_path:
+                self.logger.exporter_info("PDF generated at %s", pdf_path)
+            else:
+                self.logger.exporter_info(
+                    "File %s exists! PDF generated at %s",
+                    self.cfg.pdf_path,
+                    pdf_path,
+                )
+            self.url = "file:{}".format(pathname2url(pdf_path))
+            return pdf_path
         else:
             self.logger.exporter_info(
                 "Skipping PDF creation for empty report: %s", source.name
             )
+            return None
 
 
 class TagFilteredPDFExporter(TagFilteredExporter):

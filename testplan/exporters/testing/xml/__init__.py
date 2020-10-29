@@ -236,6 +236,9 @@ class XMLExporter(Exporter):
 
     renderer_map = {ReportCategories.MULTITEST: MultiTestRenderer}
 
+    def __init__(self, name="XML exporter", **options):
+        super(XMLExporter, self).__init__(name=name, **options)
+
     def export(self, source):
         """
         Create multiple XML files in the given directory for each top
@@ -276,6 +279,8 @@ class XMLExporter(Exporter):
                     encoding="UTF-8",
                 )
 
+        xml_dir = os.path.abspath(xml_dir)
         self.logger.exporter_info(
-            "%s XML files created at %s", len(source), os.path.abspath(xml_dir)
+            "%s XML files created at %s", len(source), xml_dir
         )
+        return xml_dir

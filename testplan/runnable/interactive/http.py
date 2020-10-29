@@ -12,9 +12,14 @@ from future import standard_library
 
 standard_library.install_aliases()
 import os
+import time
+import uuid
+import traceback
 
 import flask
 import flask_restplus
+import flask_restplus.fields
+from flask import request
 from cheroot import wsgi
 import werkzeug.exceptions
 import marshmallow.exceptions
@@ -38,6 +43,17 @@ def generate_interactive_api(ihandler):
     api = flask_restplus.Api(api_blueprint)
     app = flask.Flask("testplan", static_folder=static_dir)
     app.register_blueprint(api_blueprint, url_prefix=api_prefix)
+
+    post_export_model = api.model(
+        "Save report",
+        {
+            "exporters": flask_restplus.fields.List(
+                flask_restplus.fields.String(example="PDFExporter")
+            )
+        },
+    )
+
+    export_history = []
 
     @app.route("/interactive/")
     def interactive():
@@ -428,6 +444,57 @@ def generate_interactive_api(ihandler):
 
                 param_group[param_uid] = new_testcase
                 return param_group[param_uid].serialize()
+
+    @api.route("/report/export")
+    class ExportReport(flask_restplus.Resource):
+        """
+        Interactive export endpoint. There is an API for exporting root
+        report object.
+        """
+
+        def get(self):
+            available_exporters = []
+            with ihandler.report_mutex:
+                for exporter in ihandler.exporters:
+                    available_exporters.append(exporter.name)
+            return {
+                "available": available_exporters,
+                "history": export_history,
+            }
+
+        @api.expect(post_export_model)
+        def post(self):
+            save_exports = request.json
+            with ihandler.report_mutex:
+                for exporter in ihandler.exporters:
+                    if exporter.name in save_exports.get("exporters", []):
+                        export_result = {
+                            "time": time.time(),
+                            "name": exporter.name,
+                            "uid": str(uuid.uuid4()),
+                        }
+                        try:
+                            export_path = exporter.export(ihandler.report)
+                            export_result["success"] = True
+                            export_result["message"] = export_path
+                        except Exception:
+                            export_result["success"] = False
+                            export_result["message"] = traceback.format_exc()
+                        export_history.append(export_result)
+            return {"history": export_history}
+
+    @api.route("/report/export/<string:uid>")
+    class ExporterFile(flask_restplus.Resource):
+        """
+        Interactive export download endpoint. There is an API for downloading
+        report file.
+        """
+
+        def get(self, uid):
+            for export in export_history:
+                if export["uid"] == uid:
+                    return flask.send_file(export["message"])
+            raise werkzeug.exceptions.NotFound
 
     @api.route("/attachments")
     class AllAttachments(flask_restplus.Resource):

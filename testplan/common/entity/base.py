@@ -863,6 +863,7 @@ class Runnable(Entity):
                 self._ihandler = self.cfg.interactive_handler(
                     target=self, http_port=self.cfg.interactive_port
                 )
+                self._ihandler.parent = self
                 thread = threading.Thread(target=self._ihandler)
                 thread.start()
                 # Check if we are on interactive session.
