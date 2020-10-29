@@ -14,14 +14,6 @@ inherently limited to a set of APIs or functionalities. While the library
 provides a large amount of drivers and assertions, users can easily provide
 their own as well.
 
-It is possible to use MultiTest to run unit test binaries that require an
-external environment to be present. The MultiTest environment is helpful to
-bring up the right drivers in a dynamic manner, and information can be passed to
-the unit tests to let them interact with that environment in the way they find
-necessary. This is particularly helpful when implementing a client API in a
-particular language when the server is written in a different language for
-example.
-
 For API documentation see the
 :py:class:`MultiTest <testplan.testing.multitest.base.MultiTest>` class reference.
 
