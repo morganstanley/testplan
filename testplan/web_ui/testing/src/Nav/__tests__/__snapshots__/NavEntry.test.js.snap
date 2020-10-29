@@ -11,7 +11,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
 >
   <div
     className="entryName_1dd7qci-o_O-passed_1kh4m98"
-    title="entry name"
+    title="entry description"
   >
     entry name
   </div>
@@ -58,7 +58,7 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
 >
   <div
     className="entryName_1dd7qci-o_O-failed_11es5k7"
-    title="entry name"
+    title="entry description"
   >
     entry name
   </div>
@@ -105,7 +105,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
 >
   <div
     className="entryName_1dd7qci-o_O-unstable_eujaab"
-    title="entry name"
+    title="entry description"
   >
     entry name
   </div>

@@ -22,8 +22,8 @@ class MySuite(object):
         assert env.runpath.endswith(slugify(env.cfg.name))
 
 
-def get_mtest():
-    return MultiTest(name="MTest3", suites=[MySuite()])
+def get_mtest(name):
+    return MultiTest(name="MTest{}".format(name), suites=[MySuite()])
 
 
 def schedule_tests_to_pool(plan, pool, **pool_cfg):
@@ -38,7 +38,7 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
     uid1 = plan.schedule(target=mtest1, resource=pool_name)
     uid2 = plan.schedule(Task(target=mtest2), resource=pool_name)
 
-    task3 = Task(target=get_mtest, path=dirname)
+    task3 = Task(target=get_mtest, path=dirname, kwargs=dict(name=3))
     uid3 = plan.schedule(task=task3, resource=pool_name)
 
     # Task schedule shortcut
@@ -65,14 +65,15 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
         Task(target=get_mtest_imported, kwargs=dict(name=6)),
         resource=pool_name,
     )
+    uid7 = plan.schedule(Task(target=get_mtest(name=7)), resource=pool_name,)
 
     # with log_propagation_disabled(TESTPLAN_LOGGER):
     assert plan.run().run is True
 
     assert plan.report.passed is True
-    assert plan.report.counter == {"passed": 6, "total": 6, "failed": 0}
+    assert plan.report.counter == {"passed": 7, "total": 7, "failed": 0}
 
-    names = sorted(["MTest{}".format(x) for x in range(1, 7)])
+    names = sorted(["MTest{}".format(x) for x in range(1, 8)])
     assert sorted([entry.name for entry in plan.report.entries]) == names
 
     assert isinstance(plan.report.serialize(), dict)
@@ -82,6 +83,7 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
     assert plan.result.test_results[uid4].report.name == "MTest4"
     assert plan.result.test_results[uid5].report.name == "MTest5"
     assert plan.result.test_results[uid6].report.name == "MTest6"
+    assert plan.result.test_results[uid7].report.name == "MTest7"
 
 
 def test_pool_basic(mockplan):

@@ -587,7 +587,6 @@ class TestGroupReport(BaseReportGroup):
         category=ReportCategories.TESTGROUP,
         tags=None,
         part=None,
-        extra_attributes=None,
         fix_spec_path=None,
         env_status=None,
         **kwargs
@@ -606,8 +605,6 @@ class TestGroupReport(BaseReportGroup):
         # can be hold back for merging (if necessary)
         self.part = part  # i.e. (m, n), while 0 <= m < n and n > 1
         self.part_report_lookup = {}
-
-        self.extra_attributes = extra_attributes or {}
 
         self.fix_spec_path = fix_spec_path
 

@@ -22,6 +22,7 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
+        description={'TestCaseDesc'}
         status={'unknown'}
         runtime_status={'ready'}
         envStatus={null}
@@ -39,6 +40,7 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
+        description={'TestCaseDesc'}
         status={'unknown'}
         runtime_status={'running'}
         envStatus={null}
@@ -56,6 +58,7 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
+        description={'TestCaseDesc'}
         status={'passed'}
         runtime_status={'finished'}
         envStatus={null}
@@ -73,6 +76,7 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
+        description={'TestCaseDesc'}
         status={'failed'}
         runtime_status={'finished'}
         envStatus={null}
@@ -91,6 +95,7 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
+        description={'TestCaseDesc'}
         status={'unknown'}
         runtime_status={'ready'}
         envStatus={null}
@@ -111,6 +116,7 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
+        description={'TestCaseDesc'}
         status={'failed'}
         runtime_status={'finished'}
         envStatus={null}
@@ -130,6 +136,7 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
+        description={'TestCaseDesc'}
         status={'unknown'}
         runtime_status={'ready'}
         envStatus={'STOPPED'}
@@ -147,6 +154,7 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
+        description={'TestCaseDesc'}
         status={'unknown'}
         runtime_status={'ready'}
         envStatus={'STARTING'}
@@ -164,6 +172,7 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
+        description={'TestCaseDesc'}
         status={'unknown'}
         runtime_status={'ready'}
         envStatus={'STARTED'}
@@ -181,6 +190,7 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
+        description={'TestCaseDesc'}
         status={'unknown'}
         runtime_status={'ready'}
         envStatus={'STOPPING'}
@@ -199,6 +209,7 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
+        description={'TestCaseDesc'}
         status={'unknown'}
         runtime_status={'ready'}
         envStatus={'STOPPED'}
@@ -230,6 +241,7 @@ describe('InteractiveNavEntry', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
+        description={'TestCaseDesc'}
         status={'unknown'}
         runtime_status={'ready'}
         envStatus={'STARTED'}

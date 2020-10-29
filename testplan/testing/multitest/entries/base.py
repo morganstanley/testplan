@@ -375,6 +375,18 @@ class MatPlot(Attachment):
         )
 
 
+class CodeLog(BaseEntry):
+    """Save source code to the report."""
+
+    def __init__(self, code, language="python", description=None):
+        if isinstance(code, basestring):
+            self.code = code
+        else:
+            raise ValueError("Code must be a string")
+        self.language = language
+        super(CodeLog, self).__init__(description=description)
+
+
 class Markdown(BaseEntry):
     """Save markdown to the report."""
 

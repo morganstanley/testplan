@@ -8,6 +8,7 @@ import NavEntry from '../NavEntry';
 function defaultProps() {
   return {
     name: 'entry name',
+    description: 'entry description',
     status: 'passed',
     type: 'testplan',
     caseCountPassed: 0,

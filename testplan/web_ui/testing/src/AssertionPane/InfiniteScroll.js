@@ -104,7 +104,7 @@ class InfiniteScroll extends Component {
 
     return (
       <Scrollbars autoHide onScroll={this.onScroll} ref={this.scrollbars}>
-        <div style={{paddingRight: '2rem'}}>
+        <div style={{paddingRight: '4rem'}}>
           {children}
           {isLoading && <div>Loading...</div>}
         </div>

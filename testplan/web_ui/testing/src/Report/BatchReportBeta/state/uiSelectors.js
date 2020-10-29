@@ -44,3 +44,4 @@ export const mkGetUISidebarWidthFirstAvailable = () => createUISelector(
 );
 
 export const getUISelectedEntry = mkGetUISelectedEntry();
+export const getSideBarWidth = mkGetUISidebarWidthFirstAvailable();

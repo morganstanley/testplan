@@ -7,6 +7,8 @@ import _ from 'lodash';
 import AssertionPane from '../AssertionPane/AssertionPane';
 import Message from '../Common/Message';
 
+import {filterEntries} from './reportFilter';
+
 /**
  * Merge two tag objects into a single tag object.
  *
@@ -170,12 +172,14 @@ const UpdateSelectedState = (state, entry, depth) => {
   if (entry.category === 'testcase') {
     return {
       selectedUIDs: selectedUIDs,
+      lastManualSelectedUIDs: selectedUIDs,
       testcaseUid: entry.uid,
       logs: entry.logs,
     };
   } else {
     return {
       selectedUIDs: selectedUIDs,
+      lastManualSelectedUIDs: selectedUIDs,
       testcaseUid: null,
       logs: entry.logs,
     };
@@ -212,7 +216,7 @@ const GetCenterPane = (
   selectedEntries
 ) => {
   const logs = state.logs || [];
-  const selectedDescription = selectedEntries.map((element) => {
+  const selectedDescription = selectedEntries.slice(-1).map((element) => {
     return element.description;
   }).filter((element) => {
     return element; // filter empty description
@@ -226,7 +230,10 @@ const GetCenterPane = (
         left={state.navWidth}
       />
     );
-  } else if (assertions.length > 0 || logs.length > 0) {
+  } else if (
+      assertions.length > 0 || logs.length > 0
+      || selectedDescription.length > 0
+    ) {
     return (
       <AssertionPane
         assertions={assertions}
@@ -280,27 +287,28 @@ const getAssertions = (selectedEntries, displayTime) => {
         links[i].timeInfoArray = [i]; // [index, start_time, duration]
         const idx = links[i].utc_time.lastIndexOf('+');
         links[i].timeInfoArray.push(links[i].utc_time ?
-        (format(new Date(
-          idx === -1 ? links[i].utc_time : links[i].utc_time.substring(0, idx)),
-          "hh:mm:ss.SSS")
-        ) + " UTC" : "");
+          (format(new Date(
+            idx === -1 ? links[i].utc_time : 
+                        links[i].utc_time.substring(0, idx)),
+            "hh:mm:ss.SSS")
+          ) + " UTC" : "");
       }
       for (let i = 0; i < links.length - 1; ++i) {
         links[i].timeInfoArray.push(
-          links[i].utc_time && links[i+1].utc_time ?
-          "(" + (
-            (new Date(links[i+1].utc_time)).getTime() -
-            (new Date(links[i].utc_time)).getTime()
-          ) + "ms)": "(Unknown)");
+          links[i].utc_time && links[i + 1].utc_time ?
+            "(" + (
+              (new Date(links[i + 1].utc_time)).getTime() -
+              (new Date(links[i].utc_time)).getTime()
+            ) + "ms)" : "(Unknown)");
       }
       if (links.length > 0) {
         links[links.length - 1].timeInfoArray.push(
           selectedEntry.timer && selectedEntry.timer.run.end &&
-          links[links.length - 1].utc_time ?
-          "(" + (
-            (new Date(selectedEntry.timer.run.end)).getTime() -
-            (new Date(links[links.length - 1].utc_time)).getTime()
-          ) + "ms)": "(Unknown)");
+            links[links.length - 1].utc_time ?
+            "(" + (
+              (new Date(selectedEntry.timer.run.end)).getTime() -
+              (new Date(links[links.length - 1].utc_time)).getTime()
+            ) + "ms)" : "(Unknown)");
       }
     }
     else {
@@ -345,6 +353,31 @@ const GetSelectedEntries = (selectedUIDs, report) => {
   }
 };
 
+
+const filterReport = (report, filters) => {
+
+  if (filters === null) {
+    return { filters, report };
+  }
+
+  return {
+    filters, report: {
+      ...report,
+      entries: filterEntries(report.entries, filters)
+    }
+  };
+};
+
+const isValidSelection = (selection, entry) => {  
+  if (selection.length === 0) return true;
+  
+  const next_element = _.find(entry.entries, 
+                              entry => entry.uid === _.head(selection));
+  return next_element ? 
+         isValidSelection(_.tail(selection), next_element) : 
+         false;
+};
+
 export {
   PropagateIndices,
   UpdateSelectedState,
@@ -352,5 +385,7 @@ export {
   GetCenterPane,
   GetSelectedEntries,
   MergeSplittedReport,
+  filterReport,
+  isValidSelection,
 };
 

@@ -4,61 +4,17 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
 <div
   style={
     Object {
-      "height": "calc(100% - 5em)",
+      "height": "calc(100% - 5.5em)",
       "left": "19.5em",
       "paddingLeft": "20px",
       "position": "absolute",
-      "top": "5em",
+      "top": "5.5em",
       "width": "calc(100% - 19.5em)",
     }
   }
 >
   <div
-    className="buttonsDiv_140n9qh"
-  >
-    <FontAwesomeIcon
-      border={false}
-      className="icon_1rr1rr0"
-      fixedWidth={false}
-      flip={null}
-      icon="plus-circle"
-      inverse={false}
-      key="faPlusCircle"
-      listItem={false}
-      mask={null}
-      onClick={[Function]}
-      pull={null}
-      pulse={false}
-      rotation={null}
-      size="1x"
-      spin={false}
-      symbol={false}
-      title="Expand all"
-      transform={null}
-    />
-    <FontAwesomeIcon
-      border={false}
-      className="icon_1rr1rr0"
-      fixedWidth={false}
-      flip={null}
-      icon="minus-circle"
-      inverse={false}
-      key="faMinusCircle"
-      listItem={false}
-      mask={null}
-      onClick={[Function]}
-      pull={null}
-      pulse={false}
-      rotation={null}
-      size="1x"
-      spin={false}
-      symbol={false}
-      title="Collapse all"
-      transform={null}
-    />
-  </div>
-  <div
-    className="infiniteScrollDiv_4z6319"
+    className="infiniteScrollDiv_gt1n5"
   >
     <InfiniteScroll
       items={
@@ -81,6 +37,50 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
       key="22758cc5-8a89-472b-bf67-b64dbc2c0b40"
     >
       <DescriptionPane />
+      <div
+        className="buttonsDiv_16w4ads"
+      >
+        <FontAwesomeIcon
+          border={false}
+          className="icon_1rr1rr0"
+          fixedWidth={false}
+          flip={null}
+          icon="plus-circle"
+          inverse={false}
+          key="faPlusCircle"
+          listItem={false}
+          mask={null}
+          onClick={[Function]}
+          pull={null}
+          pulse={false}
+          rotation={null}
+          size="1x"
+          spin={false}
+          symbol={false}
+          title="Expand all"
+          transform={null}
+        />
+        <FontAwesomeIcon
+          border={false}
+          className="icon_1rr1rr0"
+          fixedWidth={false}
+          flip={null}
+          icon="minus-circle"
+          inverse={false}
+          key="faMinusCircle"
+          listItem={false}
+          mask={null}
+          onClick={[Function]}
+          pull={null}
+          pulse={false}
+          rotation={null}
+          size="1x"
+          spin={false}
+          symbol={false}
+          title="Collapse all"
+          transform={null}
+        />
+      </div>
       <AssertionGroup
         entries={Array []}
         resetGlobalIsOpen={[Function]}

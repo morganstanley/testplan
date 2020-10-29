@@ -19,6 +19,7 @@ from testplan import report
 from testplan.testing import multitest
 from testplan.common.utils import timing
 from testplan.common import entity
+from testplan.exporters.testing import XMLExporter
 
 from tests.unit.testplan.runnable.interactive import test_api
 
@@ -68,6 +69,7 @@ def plan(tmpdir):
         name=six.ensure_str("InteractiveAPITest"),
         interactive_port=0,
         interactive_block=False,
+        exporters=[XMLExporter(xml_dir=tmpdir / "xml_exporter")],
     )
 
     logfile = tmpdir / "attached_log.txt"
@@ -714,6 +716,24 @@ def test_run_testcase(plan):
             timeout=300,
             raise_on_timeout=True,
         )
+
+
+def test_export_report(plan):
+    host, port = plan.interactive.http_handler_info
+    assert host == "0.0.0.0"
+    export_url = "http://localhost:{port}/api/v1/interactive/report/export".format(
+        port=port
+    )
+    rsp = requests.get(export_url)
+    assert rsp.status_code == 200
+    result = rsp.json()
+    assert result["history"].length == 0
+    assert "XMLExporter" in result["available"]
+
+    rsp = requests.post(export_url, json={"exporters": ["XMLExporter"]})
+    assert rsp.status_code == 200
+    result = rsp.json()
+    assert result["history"].length == 1
 
 
 def test_run_param_testcase(plan):

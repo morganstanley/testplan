@@ -229,7 +229,6 @@ class TestGroupReportSchema(TestCaseReportSchema):
     source_class = TestGroupReport
     # category = fields.String()
     part = fields.List(fields.Integer, allow_none=True)
-    extra_attributes = fields.Dict(allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
     env_status = fields.String(allow_none=True)
 

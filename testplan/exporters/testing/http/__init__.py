@@ -55,6 +55,9 @@ class HTTPExporter(Exporter):
 
     CONFIG = HTTPExporterConfig
 
+    def __init__(self, name="HTTP exporter", **options):
+        super(HTTPExporter, self).__init__(name=name, **options)
+
     def _upload_report(self, url, data):
         """
         Upload Json data, then return the response from server with an
@@ -92,5 +95,7 @@ class HTTPExporter(Exporter):
 
         if errmsg:
             self.logger.exporter_info(errmsg)
+            return None
         else:
             self.logger.exporter_info("Test report posted to %s", http_url)
+            return http_url

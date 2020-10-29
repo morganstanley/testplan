@@ -9,6 +9,7 @@ import importlib
 from collections import OrderedDict
 
 from six.moves import cPickle
+import copy
 
 
 class TaskMaterializationError(Exception):
@@ -174,7 +175,7 @@ class Task(object):
         """
         Create the actual task target executable/runnable/callable object.
         """
-        target = target or self._target
+        target = target or copy.deepcopy(self._target)
         if not isinstance(target, six.string_types):
             try:
                 run_method = getattr(target, "run")

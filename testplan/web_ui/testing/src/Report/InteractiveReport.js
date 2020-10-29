@@ -8,7 +8,7 @@ import { StyleSheet, css } from 'aphrodite';
 import axios from 'axios';
 
 import Toolbar from '../Toolbar/Toolbar.js';
-import { ResetButton } from '../Toolbar/InteractiveButtons';
+import { ResetButton, SaveButton } from '../Toolbar/InteractiveButtons';
 import InteractiveNav from '../Nav/InteractiveNav.js';
 import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
 import { FakeInteractiveReport } from '../Common/sampleReports.js';
@@ -502,15 +502,18 @@ class InteractiveReport extends React.Component {
         <Toolbar
           filterBoxWidth={this.state.navWidth}
           status={reportStatus}
-          handleNavFilter={noop}
+          handleNavFilter={null}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
           updateTagsDisplayFunc={noop}
-          extraButtons={[<ResetButton
-            key="time-button"
-            resetStateCbk={this.resetReport}
-            resetting={false}
-          />]}
+          extraButtons={[
+            <ResetButton
+              key="time-button"
+              resetStateCbk={this.resetReport}
+              resetting={false}
+            />,
+            <SaveButton key="save-button"/>
+          ]}
         />
         <InteractiveNav
           navListWidth={this.state.navWidth}

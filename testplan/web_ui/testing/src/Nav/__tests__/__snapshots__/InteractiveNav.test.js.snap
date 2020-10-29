@@ -17,7 +17,7 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
                 "failed": 0,
                 "passed": 0,
               },
-              "description": null,
+              "description": "Interactive MTest Desc",
               "entries": Array [
                 Object {
                   "category": "testsuite",
@@ -25,14 +25,14 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
                     "failed": 0,
                     "passed": 0,
                   },
-                  "description": null,
+                  "description": "Interactive Suite Desc",
                   "entries": Array [
                     Object {
                       "counter": Object {
                         "failed": 0,
                         "passed": 0,
                       },
-                      "description": null,
+                      "description": "Interactive Testcase Desc",
                       "entries": Array [],
                       "logs": Array [],
                       "name": "test_interactive",
@@ -104,7 +104,7 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
             "failed": 0,
             "passed": 0,
           },
-          "description": null,
+          "description": "Interactive MTest Desc",
           "entries": Array [
             Object {
               "category": "testsuite",
@@ -112,14 +112,14 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
                 "failed": 0,
                 "passed": 0,
               },
-              "description": null,
+              "description": "Interactive Suite Desc",
               "entries": Array [
                 Object {
                   "counter": Object {
                     "failed": 0,
                     "passed": 0,
                   },
-                  "description": null,
+                  "description": "Interactive Testcase Desc",
                   "entries": Array [],
                   "logs": Array [],
                   "name": "test_interactive",

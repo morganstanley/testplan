@@ -10,6 +10,11 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
   >
     <div
       className="filterBox_1kzbnzj"
+      style={
+        Object {
+          "width": "22em",
+        }
+      }
     >
       <FilterBox
         handleNavFilter={[MockFunction]}
@@ -332,34 +337,6 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
         <NavItem
           tag="li"
         >
-          <div
-            className="buttonsBar_6zsntc"
-          >
-            <FontAwesomeIcon
-              border={false}
-              className="toolbarButton_1d6e8oq"
-              fixedWidth={false}
-              flip={null}
-              icon="question-circle"
-              inverse={false}
-              key="toolbar-question"
-              listItem={false}
-              mask={null}
-              onClick={[Function]}
-              pull={null}
-              pulse={false}
-              rotation={null}
-              size={null}
-              spin={false}
-              symbol={false}
-              title="Help"
-              transform={null}
-            />
-          </div>
-        </NavItem>
-        <NavItem
-          tag="li"
-        >
           <a
             className="buttonsBar_6zsntc"
             href="http://testplan.readthedocs.io"
@@ -400,56 +377,6 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
       }
     }
     centered={false}
-    className="HelpModal"
-    fade={true}
-    isOpen={false}
-    keyboard={true}
-    modalTransition={
-      Object {
-        "timeout": 300,
-      }
-    }
-    onClosed={[Function]}
-    onOpened={[Function]}
-    role="dialog"
-    toggle={[Function]}
-    zIndex={1050}
-  >
-    <ModalHeader
-      closeAriaLabel="Close"
-      tag="h5"
-      toggle={[Function]}
-      wrapTag="div"
-    >
-      Help
-    </ModalHeader>
-    <ModalBody
-      tag="div"
-    >
-      This is filter box help!
-    </ModalBody>
-    <ModalFooter
-      tag="div"
-    >
-      <Button
-        color="light"
-        onClick={[Function]}
-        tag="button"
-      >
-        Close
-      </Button>
-    </ModalFooter>
-  </Modal>
-  <Modal
-    autoFocus={true}
-    backdrop={true}
-    backdropTransition={
-      Object {
-        "mountOnEnter": true,
-        "timeout": 150,
-      }
-    }
-    centered={false}
     className="infoModal"
     fade={true}
     isOpen={false}
@@ -461,12 +388,16 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
     }
     onClosed={[Function]}
     onOpened={[Function]}
+    returnFocusAfterClose={true}
     role="dialog"
+    scrollable={false}
     size="lg"
     toggle={[Function]}
+    unmountOnClose={true}
     zIndex={1050}
   >
     <ModalHeader
+      charCode={215}
       closeAriaLabel="Close"
       tag="h5"
       toggle={[Function]}
@@ -504,6 +435,11 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
   >
     <div
       className="filterBox_1kzbnzj"
+      style={
+        Object {
+          "width": "22em",
+        }
+      }
     >
       <FilterBox
         handleNavFilter={[MockFunction]}
@@ -786,34 +722,6 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
         <NavItem
           tag="li"
         >
-          <div
-            className="buttonsBar_6zsntc"
-          >
-            <FontAwesomeIcon
-              border={false}
-              className="toolbarButton_1d6e8oq"
-              fixedWidth={false}
-              flip={null}
-              icon="question-circle"
-              inverse={false}
-              key="toolbar-question"
-              listItem={false}
-              mask={null}
-              onClick={[Function]}
-              pull={null}
-              pulse={false}
-              rotation={null}
-              size={null}
-              spin={false}
-              symbol={false}
-              title="Help"
-              transform={null}
-            />
-          </div>
-        </NavItem>
-        <NavItem
-          tag="li"
-        >
           <a
             className="buttonsBar_6zsntc"
             href="http://testplan.readthedocs.io"
@@ -854,56 +762,6 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
       }
     }
     centered={false}
-    className="HelpModal"
-    fade={true}
-    isOpen={false}
-    keyboard={true}
-    modalTransition={
-      Object {
-        "timeout": 300,
-      }
-    }
-    onClosed={[Function]}
-    onOpened={[Function]}
-    role="dialog"
-    toggle={[Function]}
-    zIndex={1050}
-  >
-    <ModalHeader
-      closeAriaLabel="Close"
-      tag="h5"
-      toggle={[Function]}
-      wrapTag="div"
-    >
-      Help
-    </ModalHeader>
-    <ModalBody
-      tag="div"
-    >
-      This is filter box help!
-    </ModalBody>
-    <ModalFooter
-      tag="div"
-    >
-      <Button
-        color="light"
-        onClick={[Function]}
-        tag="button"
-      >
-        Close
-      </Button>
-    </ModalFooter>
-  </Modal>
-  <Modal
-    autoFocus={true}
-    backdrop={true}
-    backdropTransition={
-      Object {
-        "mountOnEnter": true,
-        "timeout": 150,
-      }
-    }
-    centered={false}
     className="infoModal"
     fade={true}
     isOpen={false}
@@ -915,12 +773,16 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
     }
     onClosed={[Function]}
     onOpened={[Function]}
+    returnFocusAfterClose={true}
     role="dialog"
+    scrollable={false}
     size="lg"
     toggle={[Function]}
+    unmountOnClose={true}
     zIndex={1050}
   >
     <ModalHeader
+      charCode={215}
       closeAriaLabel="Close"
       tag="h5"
       toggle={[Function]}
@@ -958,6 +820,11 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
   >
     <div
       className="filterBox_1kzbnzj"
+      style={
+        Object {
+          "width": "22em",
+        }
+      }
     >
       <FilterBox
         handleNavFilter={[MockFunction]}
@@ -1240,34 +1107,6 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
         <NavItem
           tag="li"
         >
-          <div
-            className="buttonsBar_6zsntc"
-          >
-            <FontAwesomeIcon
-              border={false}
-              className="toolbarButton_1d6e8oq"
-              fixedWidth={false}
-              flip={null}
-              icon="question-circle"
-              inverse={false}
-              key="toolbar-question"
-              listItem={false}
-              mask={null}
-              onClick={[Function]}
-              pull={null}
-              pulse={false}
-              rotation={null}
-              size={null}
-              spin={false}
-              symbol={false}
-              title="Help"
-              transform={null}
-            />
-          </div>
-        </NavItem>
-        <NavItem
-          tag="li"
-        >
           <a
             className="buttonsBar_6zsntc"
             href="http://testplan.readthedocs.io"
@@ -1308,56 +1147,6 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
       }
     }
     centered={false}
-    className="HelpModal"
-    fade={true}
-    isOpen={false}
-    keyboard={true}
-    modalTransition={
-      Object {
-        "timeout": 300,
-      }
-    }
-    onClosed={[Function]}
-    onOpened={[Function]}
-    role="dialog"
-    toggle={[Function]}
-    zIndex={1050}
-  >
-    <ModalHeader
-      closeAriaLabel="Close"
-      tag="h5"
-      toggle={[Function]}
-      wrapTag="div"
-    >
-      Help
-    </ModalHeader>
-    <ModalBody
-      tag="div"
-    >
-      This is filter box help!
-    </ModalBody>
-    <ModalFooter
-      tag="div"
-    >
-      <Button
-        color="light"
-        onClick={[Function]}
-        tag="button"
-      >
-        Close
-      </Button>
-    </ModalFooter>
-  </Modal>
-  <Modal
-    autoFocus={true}
-    backdrop={true}
-    backdropTransition={
-      Object {
-        "mountOnEnter": true,
-        "timeout": 150,
-      }
-    }
-    centered={false}
     className="infoModal"
     fade={true}
     isOpen={false}
@@ -1369,12 +1158,16 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
     }
     onClosed={[Function]}
     onOpened={[Function]}
+    returnFocusAfterClose={true}
     role="dialog"
+    scrollable={false}
     size="lg"
     toggle={[Function]}
+    unmountOnClose={true}
     zIndex={1050}
   >
     <ModalHeader
+      charCode={215}
       closeAriaLabel="Close"
       tag="h5"
       toggle={[Function]}

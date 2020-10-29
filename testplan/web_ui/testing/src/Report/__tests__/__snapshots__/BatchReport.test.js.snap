@@ -1990,11 +1990,28 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
+                    "name_type_index": Array [
+                      "test_equality_passing|testcase",
+                      "AlphaSuite|testsuite",
+                      "Primary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
                     "status": "passed",
                     "status_override": null,
                     "tags": Object {
                       "colour": Array [
                         "white",
+                      ],
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
+                    "tags_index": Object {
+                      "colour": Array [
+                        "white",
+                      ],
+                      "simple": Array [
+                        "server",
                       ],
                     },
                     "timer": Object {
@@ -2026,9 +2043,24 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing2",
+                    "name_type_index": Array [
+                      "test_equality_passing2|testcase",
+                      "AlphaSuite|testsuite",
+                      "Primary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
                     "status": "failed",
                     "status_override": null,
-                    "tags": Object {},
+                    "tags": Object {
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
+                    "tags_index": Object {
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
                     "timer": Object {
                       "run": Object {
                         "end": "2018-10-15T14:30:11.632214+00:00",
@@ -2041,9 +2073,24 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 ],
                 "logs": Array [],
                 "name": "AlphaSuite",
+                "name_type_index": Array [
+                  "AlphaSuite|testsuite",
+                  "Primary|multitest",
+                  "Sample Testplan|testplan",
+                  "test_equality_passing|testcase",
+                  "test_equality_passing2|testcase",
+                ],
                 "status": "failed",
                 "status_override": null,
                 "tags": Object {
+                  "simple": Array [
+                    "server",
+                  ],
+                },
+                "tags_index": Object {
+                  "colour": Array [
+                    "white",
+                  ],
                   "simple": Array [
                     "server",
                   ],
@@ -2081,9 +2128,26 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
+                    "name_type_index": Array [
+                      "test_equality_passing|testcase",
+                      "BetaSuite|testsuite",
+                      "Primary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
                     "status": "passed",
                     "status_override": null,
-                    "tags": Object {},
+                    "tags": Object {
+                      "simple": Array [
+                        "server",
+                        "client",
+                      ],
+                    },
+                    "tags_index": Object {
+                      "simple": Array [
+                        "server",
+                        "client",
+                      ],
+                    },
                     "timer": Object {
                       "run": Object {
                         "end": "2018-10-15T14:30:11.132214+00:00",
@@ -2096,10 +2160,23 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 ],
                 "logs": Array [],
                 "name": "BetaSuite",
+                "name_type_index": Array [
+                  "BetaSuite|testsuite",
+                  "Primary|multitest",
+                  "Sample Testplan|testplan",
+                  "test_equality_passing|testcase",
+                ],
                 "status": "passed",
                 "status_override": null,
                 "tags": Object {
                   "simple": Array [
+                    "server",
+                    "client",
+                  ],
+                },
+                "tags_index": Object {
+                  "simple": Array [
+                    "server",
                     "client",
                   ],
                 },
@@ -2115,11 +2192,28 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             ],
             "logs": Array [],
             "name": "Primary",
+            "name_type_index": Array [
+              "Primary|multitest",
+              "Sample Testplan|testplan",
+              "AlphaSuite|testsuite",
+              "test_equality_passing|testcase",
+              "test_equality_passing2|testcase",
+              "BetaSuite|testsuite",
+            ],
             "status": "failed",
             "status_override": null,
             "tags": Object {
               "simple": Array [
                 "server",
+              ],
+            },
+            "tags_index": Object {
+              "colour": Array [
+                "white",
+              ],
+              "simple": Array [
+                "server",
+                "client",
               ],
             },
             "timer": Object {
@@ -2159,9 +2253,16 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
+                    "name_type_index": Array [
+                      "test_equality_passing|testcase",
+                      "GammaSuite|testsuite",
+                      "Secondary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
                     "status": "passed",
                     "status_override": null,
                     "tags": Object {},
+                    "tags_index": Object {},
                     "timer": Object {
                       "run": Object {
                         "end": "2018-10-15T14:30:12.132214+00:00",
@@ -2174,9 +2275,16 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 ],
                 "logs": Array [],
                 "name": "GammaSuite",
+                "name_type_index": Array [
+                  "GammaSuite|testsuite",
+                  "Secondary|multitest",
+                  "Sample Testplan|testplan",
+                  "test_equality_passing|testcase",
+                ],
                 "status": "passed",
                 "status_override": null,
                 "tags": Object {},
+                "tags_index": Object {},
                 "timer": Object {
                   "run": Object {
                     "end": "2018-10-15T14:30:12.158224+00:00",
@@ -2189,9 +2297,16 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             ],
             "logs": Array [],
             "name": "Secondary",
+            "name_type_index": Array [
+              "Secondary|multitest",
+              "Sample Testplan|testplan",
+              "GammaSuite|testsuite",
+              "test_equality_passing|testcase",
+            ],
             "status": "passed",
             "status_override": null,
             "tags": Object {},
+            "tags_index": Object {},
             "timer": Object {
               "run": Object {
                 "end": "2018-10-15T14:30:12.159661+00:00",
@@ -2204,9 +2319,27 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
         ],
         "meta": Object {},
         "name": "Sample Testplan",
+        "name_type_index": Array [
+          "Sample Testplan|testplan",
+          "Primary|multitest",
+          "AlphaSuite|testsuite",
+          "test_equality_passing|testcase",
+          "test_equality_passing2|testcase",
+          "BetaSuite|testsuite",
+          "Secondary|multitest",
+          "GammaSuite|testsuite",
+        ],
         "status": "failed",
         "status_override": null,
-        "tags_index": Object {},
+        "tags_index": Object {
+          "colour": Array [
+            "white",
+          ],
+          "simple": Array [
+            "server",
+            "client",
+          ],
+        },
         "timer": Object {
           "run": Object {
             "end": "2018-10-15T14:30:11.296158+00:00",
@@ -2261,11 +2394,28 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
+                    "name_type_index": Array [
+                      "test_equality_passing|testcase",
+                      "AlphaSuite|testsuite",
+                      "Primary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
                     "status": "passed",
                     "status_override": null,
                     "tags": Object {
                       "colour": Array [
                         "white",
+                      ],
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
+                    "tags_index": Object {
+                      "colour": Array [
+                        "white",
+                      ],
+                      "simple": Array [
+                        "server",
                       ],
                     },
                     "timer": Object {
@@ -2297,9 +2447,24 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing2",
+                    "name_type_index": Array [
+                      "test_equality_passing2|testcase",
+                      "AlphaSuite|testsuite",
+                      "Primary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
                     "status": "failed",
                     "status_override": null,
-                    "tags": Object {},
+                    "tags": Object {
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
+                    "tags_index": Object {
+                      "simple": Array [
+                        "server",
+                      ],
+                    },
                     "timer": Object {
                       "run": Object {
                         "end": "2018-10-15T14:30:11.632214+00:00",
@@ -2312,9 +2477,24 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 ],
                 "logs": Array [],
                 "name": "AlphaSuite",
+                "name_type_index": Array [
+                  "AlphaSuite|testsuite",
+                  "Primary|multitest",
+                  "Sample Testplan|testplan",
+                  "test_equality_passing|testcase",
+                  "test_equality_passing2|testcase",
+                ],
                 "status": "failed",
                 "status_override": null,
                 "tags": Object {
+                  "simple": Array [
+                    "server",
+                  ],
+                },
+                "tags_index": Object {
+                  "colour": Array [
+                    "white",
+                  ],
                   "simple": Array [
                     "server",
                   ],
@@ -2352,9 +2532,26 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
+                    "name_type_index": Array [
+                      "test_equality_passing|testcase",
+                      "BetaSuite|testsuite",
+                      "Primary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
                     "status": "passed",
                     "status_override": null,
-                    "tags": Object {},
+                    "tags": Object {
+                      "simple": Array [
+                        "server",
+                        "client",
+                      ],
+                    },
+                    "tags_index": Object {
+                      "simple": Array [
+                        "server",
+                        "client",
+                      ],
+                    },
                     "timer": Object {
                       "run": Object {
                         "end": "2018-10-15T14:30:11.132214+00:00",
@@ -2367,10 +2564,23 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 ],
                 "logs": Array [],
                 "name": "BetaSuite",
+                "name_type_index": Array [
+                  "BetaSuite|testsuite",
+                  "Primary|multitest",
+                  "Sample Testplan|testplan",
+                  "test_equality_passing|testcase",
+                ],
                 "status": "passed",
                 "status_override": null,
                 "tags": Object {
                   "simple": Array [
+                    "server",
+                    "client",
+                  ],
+                },
+                "tags_index": Object {
+                  "simple": Array [
+                    "server",
                     "client",
                   ],
                 },
@@ -2386,11 +2596,28 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             ],
             "logs": Array [],
             "name": "Primary",
+            "name_type_index": Array [
+              "Primary|multitest",
+              "Sample Testplan|testplan",
+              "AlphaSuite|testsuite",
+              "test_equality_passing|testcase",
+              "test_equality_passing2|testcase",
+              "BetaSuite|testsuite",
+            ],
             "status": "failed",
             "status_override": null,
             "tags": Object {
               "simple": Array [
                 "server",
+              ],
+            },
+            "tags_index": Object {
+              "colour": Array [
+                "white",
+              ],
+              "simple": Array [
+                "server",
+                "client",
               ],
             },
             "timer": Object {
@@ -2430,9 +2657,16 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
+                    "name_type_index": Array [
+                      "test_equality_passing|testcase",
+                      "GammaSuite|testsuite",
+                      "Secondary|multitest",
+                      "Sample Testplan|testplan",
+                    ],
                     "status": "passed",
                     "status_override": null,
                     "tags": Object {},
+                    "tags_index": Object {},
                     "timer": Object {
                       "run": Object {
                         "end": "2018-10-15T14:30:12.132214+00:00",
@@ -2445,9 +2679,16 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 ],
                 "logs": Array [],
                 "name": "GammaSuite",
+                "name_type_index": Array [
+                  "GammaSuite|testsuite",
+                  "Secondary|multitest",
+                  "Sample Testplan|testplan",
+                  "test_equality_passing|testcase",
+                ],
                 "status": "passed",
                 "status_override": null,
                 "tags": Object {},
+                "tags_index": Object {},
                 "timer": Object {
                   "run": Object {
                     "end": "2018-10-15T14:30:12.158224+00:00",
@@ -2460,9 +2701,16 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             ],
             "logs": Array [],
             "name": "Secondary",
+            "name_type_index": Array [
+              "Secondary|multitest",
+              "Sample Testplan|testplan",
+              "GammaSuite|testsuite",
+              "test_equality_passing|testcase",
+            ],
             "status": "passed",
             "status_override": null,
             "tags": Object {},
+            "tags_index": Object {},
             "timer": Object {
               "run": Object {
                 "end": "2018-10-15T14:30:12.159661+00:00",
@@ -2475,9 +2723,27 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
         ],
         "meta": Object {},
         "name": "Sample Testplan",
+        "name_type_index": Array [
+          "Sample Testplan|testplan",
+          "Primary|multitest",
+          "AlphaSuite|testsuite",
+          "test_equality_passing|testcase",
+          "test_equality_passing2|testcase",
+          "BetaSuite|testsuite",
+          "Secondary|multitest",
+          "GammaSuite|testsuite",
+        ],
         "status": "failed",
         "status_override": null,
-        "tags_index": Object {},
+        "tags_index": Object {
+          "colour": Array [
+            "white",
+          ],
+          "simple": Array [
+            "server",
+            "client",
+          ],
+        },
         "timer": Object {
           "run": Object {
             "end": "2018-10-15T14:30:11.296158+00:00",
@@ -2487,7 +2753,399 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
         "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
       }
     }
-    selected={Array []}
+    selected={
+      Array [
+        Object {
+          "category": "testplan",
+          "entries": Array [
+            Object {
+              "category": "multitest",
+              "description": null,
+              "entries": Array [
+                Object {
+                  "category": "testsuite",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "category": "testcase",
+                      "description": null,
+                      "entries": Array [
+                        Object {
+                          "category": "DEFAULT",
+                          "description": "passing equality",
+                          "first": 1,
+                          "label": "==",
+                          "line_no": 24,
+                          "machine_time": "2018-10-15T15:30:11.010098+00:00",
+                          "meta_type": "assertion",
+                          "passed": true,
+                          "second": 1,
+                          "type": "Equal",
+                          "utc_time": "2018-10-15T14:30:11.010094+00:00",
+                        },
+                      ],
+                      "logs": Array [],
+                      "name": "test_equality_passing",
+                      "name_type_index": Array [
+                        "test_equality_passing|testcase",
+                        "AlphaSuite|testsuite",
+                        "Primary|multitest",
+                        "Sample Testplan|testplan",
+                      ],
+                      "status": "passed",
+                      "status_override": null,
+                      "tags": Object {
+                        "colour": Array [
+                          "white",
+                        ],
+                        "simple": Array [
+                          "server",
+                        ],
+                      },
+                      "tags_index": Object {
+                        "colour": Array [
+                          "white",
+                        ],
+                        "simple": Array [
+                          "server",
+                        ],
+                      },
+                      "timer": Object {
+                        "run": Object {
+                          "end": "2018-10-15T14:30:11.132214+00:00",
+                          "start": "2018-10-15T14:30:11.010072+00:00",
+                        },
+                      },
+                      "type": "TestCaseReport",
+                      "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                    },
+                    Object {
+                      "category": "testcase",
+                      "description": null,
+                      "entries": Array [
+                        Object {
+                          "category": "DEFAULT",
+                          "description": "passing equality",
+                          "first": 1,
+                          "label": "==",
+                          "line_no": 24,
+                          "machine_time": "2018-10-15T15:30:11.510098+00:00",
+                          "meta_type": "assertion",
+                          "passed": true,
+                          "second": 1,
+                          "type": "Equal",
+                          "utc_time": "2018-10-15T14:30:11.510094+00:00",
+                        },
+                      ],
+                      "logs": Array [],
+                      "name": "test_equality_passing2",
+                      "name_type_index": Array [
+                        "test_equality_passing2|testcase",
+                        "AlphaSuite|testsuite",
+                        "Primary|multitest",
+                        "Sample Testplan|testplan",
+                      ],
+                      "status": "failed",
+                      "status_override": null,
+                      "tags": Object {
+                        "simple": Array [
+                          "server",
+                        ],
+                      },
+                      "tags_index": Object {
+                        "simple": Array [
+                          "server",
+                        ],
+                      },
+                      "timer": Object {
+                        "run": Object {
+                          "end": "2018-10-15T14:30:11.632214+00:00",
+                          "start": "2018-10-15T14:30:11.510072+00:00",
+                        },
+                      },
+                      "type": "TestCaseReport",
+                      "uid": "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    },
+                  ],
+                  "logs": Array [],
+                  "name": "AlphaSuite",
+                  "name_type_index": Array [
+                    "AlphaSuite|testsuite",
+                    "Primary|multitest",
+                    "Sample Testplan|testplan",
+                    "test_equality_passing|testcase",
+                    "test_equality_passing2|testcase",
+                  ],
+                  "status": "failed",
+                  "status_override": null,
+                  "tags": Object {
+                    "simple": Array [
+                      "server",
+                    ],
+                  },
+                  "tags_index": Object {
+                    "colour": Array [
+                      "white",
+                    ],
+                    "simple": Array [
+                      "server",
+                    ],
+                  },
+                  "timer": Object {
+                    "run": Object {
+                      "end": "2018-10-15T14:30:11.158224+00:00",
+                      "start": "2018-10-15T14:30:11.009872+00:00",
+                    },
+                  },
+                  "type": "TestGroupReport",
+                  "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                },
+                Object {
+                  "category": "testsuite",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "category": "testcase",
+                      "description": null,
+                      "entries": Array [
+                        Object {
+                          "category": "DEFAULT",
+                          "description": "passing equality",
+                          "first": 1,
+                          "label": "==",
+                          "line_no": 24,
+                          "machine_time": "2018-10-15T15:30:11.010098+00:00",
+                          "meta_type": "assertion",
+                          "passed": true,
+                          "second": 1,
+                          "type": "Equal",
+                          "utc_time": "2018-10-15T14:30:11.010094+00:00",
+                        },
+                      ],
+                      "logs": Array [],
+                      "name": "test_equality_passing",
+                      "name_type_index": Array [
+                        "test_equality_passing|testcase",
+                        "BetaSuite|testsuite",
+                        "Primary|multitest",
+                        "Sample Testplan|testplan",
+                      ],
+                      "status": "passed",
+                      "status_override": null,
+                      "tags": Object {
+                        "simple": Array [
+                          "server",
+                          "client",
+                        ],
+                      },
+                      "tags_index": Object {
+                        "simple": Array [
+                          "server",
+                          "client",
+                        ],
+                      },
+                      "timer": Object {
+                        "run": Object {
+                          "end": "2018-10-15T14:30:11.132214+00:00",
+                          "start": "2018-10-15T14:30:11.010072+00:00",
+                        },
+                      },
+                      "type": "TestCaseReport",
+                      "uid": "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    },
+                  ],
+                  "logs": Array [],
+                  "name": "BetaSuite",
+                  "name_type_index": Array [
+                    "BetaSuite|testsuite",
+                    "Primary|multitest",
+                    "Sample Testplan|testplan",
+                    "test_equality_passing|testcase",
+                  ],
+                  "status": "passed",
+                  "status_override": null,
+                  "tags": Object {
+                    "simple": Array [
+                      "server",
+                      "client",
+                    ],
+                  },
+                  "tags_index": Object {
+                    "simple": Array [
+                      "server",
+                      "client",
+                    ],
+                  },
+                  "timer": Object {
+                    "run": Object {
+                      "end": "2018-10-15T14:30:11.158224+00:00",
+                      "start": "2018-10-15T14:30:11.009872+00:00",
+                    },
+                  },
+                  "type": "TestGroupReport",
+                  "uid": "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                },
+              ],
+              "logs": Array [],
+              "name": "Primary",
+              "name_type_index": Array [
+                "Primary|multitest",
+                "Sample Testplan|testplan",
+                "AlphaSuite|testsuite",
+                "test_equality_passing|testcase",
+                "test_equality_passing2|testcase",
+                "BetaSuite|testsuite",
+              ],
+              "status": "failed",
+              "status_override": null,
+              "tags": Object {
+                "simple": Array [
+                  "server",
+                ],
+              },
+              "tags_index": Object {
+                "colour": Array [
+                  "white",
+                ],
+                "simple": Array [
+                  "server",
+                  "client",
+                ],
+              },
+              "timer": Object {
+                "run": Object {
+                  "end": "2018-10-15T14:30:11.159661+00:00",
+                  "start": "2018-10-15T14:30:11.009705+00:00",
+                },
+              },
+              "type": "TestGroupReport",
+              "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            },
+            Object {
+              "category": "multitest",
+              "description": null,
+              "entries": Array [
+                Object {
+                  "category": "testsuite",
+                  "description": null,
+                  "entries": Array [
+                    Object {
+                      "category": "testcase",
+                      "description": null,
+                      "entries": Array [
+                        Object {
+                          "category": "DEFAULT",
+                          "description": "passing equality",
+                          "first": 1,
+                          "label": "==",
+                          "line_no": 24,
+                          "machine_time": "2018-10-15T15:30:12.010098+00:00",
+                          "meta_type": "assertion",
+                          "passed": true,
+                          "second": 1,
+                          "type": "Equal",
+                          "utc_time": "2018-10-15T14:30:12.010094+00:00",
+                        },
+                      ],
+                      "logs": Array [],
+                      "name": "test_equality_passing",
+                      "name_type_index": Array [
+                        "test_equality_passing|testcase",
+                        "GammaSuite|testsuite",
+                        "Secondary|multitest",
+                        "Sample Testplan|testplan",
+                      ],
+                      "status": "passed",
+                      "status_override": null,
+                      "tags": Object {},
+                      "tags_index": Object {},
+                      "timer": Object {
+                        "run": Object {
+                          "end": "2018-10-15T14:30:12.132214+00:00",
+                          "start": "2018-10-15T14:30:12.010072+00:00",
+                        },
+                      },
+                      "type": "TestCaseReport",
+                      "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    },
+                  ],
+                  "logs": Array [],
+                  "name": "GammaSuite",
+                  "name_type_index": Array [
+                    "GammaSuite|testsuite",
+                    "Secondary|multitest",
+                    "Sample Testplan|testplan",
+                    "test_equality_passing|testcase",
+                  ],
+                  "status": "passed",
+                  "status_override": null,
+                  "tags": Object {},
+                  "tags_index": Object {},
+                  "timer": Object {
+                    "run": Object {
+                      "end": "2018-10-15T14:30:12.158224+00:00",
+                      "start": "2018-10-15T14:30:12.009872+00:00",
+                    },
+                  },
+                  "type": "TestGroupReport",
+                  "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                },
+              ],
+              "logs": Array [],
+              "name": "Secondary",
+              "name_type_index": Array [
+                "Secondary|multitest",
+                "Sample Testplan|testplan",
+                "GammaSuite|testsuite",
+                "test_equality_passing|testcase",
+              ],
+              "status": "passed",
+              "status_override": null,
+              "tags": Object {},
+              "tags_index": Object {},
+              "timer": Object {
+                "run": Object {
+                  "end": "2018-10-15T14:30:12.159661+00:00",
+                  "start": "2018-10-15T14:30:12.009705+00:00",
+                },
+              },
+              "type": "TestGroupReport",
+              "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            },
+          ],
+          "meta": Object {},
+          "name": "Sample Testplan",
+          "name_type_index": Array [
+            "Sample Testplan|testplan",
+            "Primary|multitest",
+            "AlphaSuite|testsuite",
+            "test_equality_passing|testcase",
+            "test_equality_passing2|testcase",
+            "BetaSuite|testsuite",
+            "Secondary|multitest",
+            "GammaSuite|testsuite",
+          ],
+          "status": "failed",
+          "status_override": null,
+          "tags_index": Object {
+            "colour": Array [
+              "white",
+            ],
+            "simple": Array [
+              "server",
+              "client",
+            ],
+          },
+          "timer": Object {
+            "run": Object {
+              "end": "2018-10-15T14:30:11.296158+00:00",
+              "start": "2018-10-15T14:30:10.998071+00:00",
+            },
+          },
+          "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+        },
+      ]
+    }
   />
   <Message
     left="22em"
@@ -2575,25 +3233,245 @@ ZeroDivisionError: integer division or modulo by zero
           >
             <div
               className="filterBox_1kzbnzj"
+              style={
+                Object {
+                  "width": "22em",
+                }
+              }
             >
               <FilterBox
                 handleNavFilter={[Function]}
-                width="22em"
               >
                 <div
-                  className="searchBox_1yfus1e"
-                  style={
-                    Object {
-                      "width": "22em",
-                    }
-                  }
+                  className="searchBox_1la7oqf"
                 >
-                  <input
-                    className="searchBoxInput_kcbf9x"
-                    onKeyUp={[Function]}
-                    placeholder=" Filter"
-                    type="text"
-                  />
+                  <span>
+                    <span
+                      className="searchBoxIcon_ncmdki"
+                    >
+                      <FontAwesomeIcon
+                        border={false}
+                        className=""
+                        fixedWidth={false}
+                        flip={null}
+                        icon={
+                          Object {
+                            "icon": Array [
+                              512,
+                              512,
+                              Array [],
+                              "f002",
+                              "M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z",
+                            ],
+                            "iconName": "search",
+                            "prefix": "fas",
+                          }
+                        }
+                        inverse={false}
+                        key="search"
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title="Search"
+                        transform={null}
+                      >
+                        <svg
+                          aria-labelledby="svg-inline--fa-title-17"
+                          className="svg-inline--fa fa-search fa-w-16 "
+                          data-icon="search"
+                          data-prefix="fas"
+                          role="img"
+                          style={Object {}}
+                          viewBox="0 0 512 512"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <title
+                            id="svg-inline--fa-title-17"
+                            style={Object {}}
+                          >
+                            Search
+                          </title>
+                          <path
+                            d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                            fill="currentColor"
+                            style={Object {}}
+                          />
+                        </svg>
+                      </FontAwesomeIcon>
+                    </span>
+                    <span
+                      className="searchBoxInfoIcon_107ja4p"
+                      onClick={[Function]}
+                    >
+                      <FontAwesomeIcon
+                        border={false}
+                        className=""
+                        fixedWidth={false}
+                        flip={null}
+                        icon={
+                          Object {
+                            "icon": Array [
+                              512,
+                              512,
+                              Array [],
+                              "f059",
+                              "M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z",
+                            ],
+                            "iconName": "question-circle",
+                            "prefix": "fas",
+                          }
+                        }
+                        inverse={false}
+                        key="toolbar-info"
+                        listItem={false}
+                        mask={null}
+                        pull={null}
+                        pulse={false}
+                        rotation={null}
+                        size={null}
+                        spin={false}
+                        symbol={false}
+                        title="Click for help"
+                        transform={null}
+                      >
+                        <svg
+                          aria-labelledby="svg-inline--fa-title-18"
+                          className="svg-inline--fa fa-question-circle fa-w-16 "
+                          data-icon="question-circle"
+                          data-prefix="fas"
+                          role="img"
+                          style={Object {}}
+                          viewBox="0 0 512 512"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <title
+                            id="svg-inline--fa-title-18"
+                            style={Object {}}
+                          >
+                            Click for help
+                          </title>
+                          <path
+                            d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
+                            fill="currentColor"
+                            style={Object {}}
+                          />
+                        </svg>
+                      </FontAwesomeIcon>
+                    </span>
+                    <Popover
+                      className="widePopover_16mkpl5"
+                      fade={false}
+                      isOpen={false}
+                      placement="bottom"
+                      placementPrefix="bs-popover"
+                      target={
+                        Object {
+                          "current": <span
+                            class="searchBoxInfoIcon_107ja4p"
+                          >
+                            <svg
+                              aria-labelledby="svg-inline--fa-title-18"
+                              class="svg-inline--fa fa-question-circle fa-w-16 "
+                              data-icon="question-circle"
+                              data-prefix="fas"
+                              role="img"
+                              viewBox="0 0 512 512"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <title
+                                id="svg-inline--fa-title-18"
+                              >
+                                Click for help
+                              </title>
+                              <path
+                                d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
+                                fill="currentColor"
+                              />
+                            </svg>
+                          </span>,
+                        }
+                      }
+                      toggle={[Function]}
+                      trigger="click"
+                    >
+                      <TooltipPopoverWrapper
+                        autohide={false}
+                        className="widePopover_16mkpl5"
+                        delay={
+                          Object {
+                            "hide": 0,
+                            "show": 0,
+                          }
+                        }
+                        fade={false}
+                        hideArrow={false}
+                        innerClassName="popover-inner"
+                        isOpen={false}
+                        placement="bottom"
+                        placementPrefix="bs-popover"
+                        popperClassName="popover show"
+                        target={
+                          Object {
+                            "current": <span
+                              class="searchBoxInfoIcon_107ja4p"
+                            >
+                              <svg
+                                aria-labelledby="svg-inline--fa-title-18"
+                                class="svg-inline--fa fa-question-circle fa-w-16 "
+                                data-icon="question-circle"
+                                data-prefix="fas"
+                                role="img"
+                                viewBox="0 0 512 512"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <title
+                                  id="svg-inline--fa-title-18"
+                                >
+                                  Click for help
+                                </title>
+                                <path
+                                  d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
+                                  fill="currentColor"
+                                />
+                              </svg>
+                            </span>,
+                          }
+                        }
+                        toggle={[Function]}
+                        trigger="click"
+                      />
+                    </Popover>
+                  </span>
+                  <div
+                    className="searchBoxInner_woxb04"
+                  >
+                    <DebounceInput
+                      className="searchBoxInput_1oulel0"
+                      debounceTimeout={300}
+                      element="input"
+                      forceNotifyByEnter={true}
+                      forceNotifyOnBlur={true}
+                      minLength={2}
+                      onChange={[Function]}
+                      placeholder="Search for tests, or tags..."
+                      type="text"
+                    >
+                      <input
+                        className="searchBoxInput_1oulel0"
+                        onBlur={[Function]}
+                        onChange={[Function]}
+                        onKeyDown={[Function]}
+                        placeholder="Search for tests, or tags..."
+                        type="text"
+                        value=""
+                      />
+                    </DebounceInput>
+                  </div>
                 </div>
               </FilterBox>
             </div>
@@ -2691,7 +3569,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 transform={null}
                               >
                                 <svg
-                                  aria-labelledby="svg-inline--fa-title-15"
+                                  aria-labelledby="svg-inline--fa-title-19"
                                   className="svg-inline--fa fa-clock fa-w-16 toolbarButton_1d6e8oq"
                                   data-icon="clock"
                                   data-prefix="fas"
@@ -2702,7 +3580,7 @@ ZeroDivisionError: integer division or modulo by zero
                                   xmlns="http://www.w3.org/2000/svg"
                                 >
                                   <title
-                                    id="svg-inline--fa-title-15"
+                                    id="svg-inline--fa-title-19"
                                     style={Object {}}
                                   >
                                     Display time information
@@ -2748,7 +3626,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-16"
+                                aria-labelledby="svg-inline--fa-title-20"
                                 className="svg-inline--fa fa-info fa-w-6 toolbarButton_1d6e8oq"
                                 data-icon="info"
                                 data-prefix="fas"
@@ -2759,7 +3637,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-16"
+                                  id="svg-inline--fa-title-20"
                                   style={Object {}}
                                 >
                                   Info
@@ -2788,11 +3666,7 @@ ZeroDivisionError: integer division or modulo by zero
                           setActiveFromChild={false}
                           toggle={[Function]}
                         >
-                          <Manager
-                            className="dropdown nav-item"
-                            onKeyDown={[Function]}
-                            tag="li"
-                          >
+                          <Manager>
                             <li
                               className="dropdown nav-item"
                               onKeyDown={[Function]}
@@ -2833,7 +3707,7 @@ ZeroDivisionError: integer division or modulo by zero
                                       transform={null}
                                     >
                                       <svg
-                                        aria-labelledby="svg-inline--fa-title-17"
+                                        aria-labelledby="svg-inline--fa-title-21"
                                         className="svg-inline--fa fa-filter fa-w-16 toolbarButton_1d6e8oq"
                                         data-icon="filter"
                                         data-prefix="fas"
@@ -2843,7 +3717,7 @@ ZeroDivisionError: integer division or modulo by zero
                                         xmlns="http://www.w3.org/2000/svg"
                                       >
                                         <title
-                                          id="svg-inline--fa-title-17"
+                                          id="svg-inline--fa-title-21"
                                           style={Object {}}
                                         >
                                           Choose filter
@@ -2877,6 +3751,7 @@ ZeroDivisionError: integer division or modulo by zero
                                     <button
                                       className="dropdownItem_1bl0z5g dropdown-item"
                                       onClick={[Function]}
+                                      role="menuitem"
                                       tabIndex="0"
                                     >
                                       <Label
@@ -2926,6 +3801,7 @@ ZeroDivisionError: integer division or modulo by zero
                                     <button
                                       className="dropdownItem_1bl0z5g dropdown-item"
                                       onClick={[Function]}
+                                      role="menuitem"
                                       tabIndex="0"
                                     >
                                       <Label
@@ -2975,6 +3851,7 @@ ZeroDivisionError: integer division or modulo by zero
                                     <button
                                       className="dropdownItem_1bl0z5g dropdown-item"
                                       onClick={[Function]}
+                                      role="menuitem"
                                       tabIndex="0"
                                     >
                                       <Label
@@ -3035,6 +3912,7 @@ ZeroDivisionError: integer division or modulo by zero
                                     <button
                                       className="dropdownItem_1bl0z5g dropdown-item"
                                       onClick={[Function]}
+                                      role="menuitem"
                                       tabIndex="0"
                                     >
                                       <Label
@@ -3110,7 +3988,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-18"
+                                aria-labelledby="svg-inline--fa-title-22"
                                 className="svg-inline--fa fa-print fa-w-16 toolbarButton_1d6e8oq"
                                 data-icon="print"
                                 data-prefix="fas"
@@ -3121,7 +3999,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-18"
+                                  id="svg-inline--fa-title-22"
                                   style={Object {}}
                                 >
                                   Print page
@@ -3166,7 +4044,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-19"
+                                aria-labelledby="svg-inline--fa-title-23"
                                 className="svg-inline--fa fa-tags fa-w-20 toolbarButton_1d6e8oq"
                                 data-icon="tags"
                                 data-prefix="fas"
@@ -3177,69 +4055,13 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-19"
+                                  id="svg-inline--fa-title-23"
                                   style={Object {}}
                                 >
                                   Display tags
                                 </title>
                                 <path
                                   d="M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z"
-                                  fill="currentColor"
-                                  style={Object {}}
-                                />
-                              </svg>
-                            </FontAwesomeIcon>
-                          </div>
-                        </li>
-                      </NavItem>
-                      <NavItem
-                        tag="li"
-                      >
-                        <li
-                          className="nav-item"
-                        >
-                          <div
-                            className="buttonsBar_6zsntc"
-                          >
-                            <FontAwesomeIcon
-                              border={false}
-                              className="toolbarButton_1d6e8oq"
-                              fixedWidth={false}
-                              flip={null}
-                              icon="question-circle"
-                              inverse={false}
-                              key="toolbar-question"
-                              listItem={false}
-                              mask={null}
-                              onClick={[Function]}
-                              pull={null}
-                              pulse={false}
-                              rotation={null}
-                              size={null}
-                              spin={false}
-                              symbol={false}
-                              title="Help"
-                              transform={null}
-                            >
-                              <svg
-                                aria-labelledby="svg-inline--fa-title-20"
-                                className="svg-inline--fa fa-question-circle fa-w-16 toolbarButton_1d6e8oq"
-                                data-icon="question-circle"
-                                data-prefix="fas"
-                                onClick={[Function]}
-                                role="img"
-                                style={Object {}}
-                                viewBox="0 0 512 512"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <title
-                                  id="svg-inline--fa-title-20"
-                                  style={Object {}}
-                                >
-                                  Help
-                                </title>
-                                <path
-                                  d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
                                   fill="currentColor"
                                   style={Object {}}
                                 />
@@ -3280,7 +4102,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-21"
+                                aria-labelledby="svg-inline--fa-title-24"
                                 className="svg-inline--fa fa-book fa-w-14 toolbarButton_1d6e8oq"
                                 data-icon="book"
                                 data-prefix="fas"
@@ -3290,7 +4112,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-21"
+                                  id="svg-inline--fa-title-24"
                                   style={Object {}}
                                 >
                                   Documentation
@@ -3322,31 +4144,6 @@ ZeroDivisionError: integer division or modulo by zero
             }
           }
           centered={false}
-          className="HelpModal"
-          fade={true}
-          isOpen={false}
-          keyboard={true}
-          modalTransition={
-            Object {
-              "timeout": 300,
-            }
-          }
-          onClosed={[Function]}
-          onOpened={[Function]}
-          role="dialog"
-          toggle={[Function]}
-          zIndex={1050}
-        />
-        <Modal
-          autoFocus={true}
-          backdrop={true}
-          backdropTransition={
-            Object {
-              "mountOnEnter": true,
-              "timeout": 150,
-            }
-          }
-          centered={false}
           className="infoModal"
           fade={true}
           isOpen={false}
@@ -3358,9 +4155,12 @@ ZeroDivisionError: integer division or modulo by zero
           }
           onClosed={[Function]}
           onOpened={[Function]}
+          returnFocusAfterClose={true}
           role="dialog"
+          scrollable={false}
           size="lg"
           toggle={[Function]}
+          unmountOnClose={true}
           zIndex={1050}
         />
       </div>
@@ -3373,44 +4173,7 @@ ZeroDivisionError: integer division or modulo by zero
       handleColumnResizing={[Function]}
       handleNavClick={[Function]}
       navListWidth="22em"
-      report={
-        Object {
-          "category": "testplan",
-          "entries": Array [],
-          "logs": Array [
-            Object {
-              "created": "2018-10-15T14:30:12.971680+00:00",
-              "funcName": "post_step_call",
-              "levelname": "ERROR",
-              "levelno": 40,
-              "lineno": 387,
-              "message": "While starting resource [client]
-Traceback (most recent call last):
-  File \\"/tmp/myworkspace/testplan/common/entity/base.py\\", line 143, in start
-    resource.start()
-  File \\"/tmp/myworkspace/testplan/testing/multitest/driver/base.py\\", line 148, in start
-    self.starting()
-  File \\"/tmp/myworkspace/testplan/testing/multitest/driver/tcp/client.py\\", line 161, in starting
-    1/0
-ZeroDivisionError: integer division or modulo by zero
-",
-              "uid": "dbc47190-505b-4153-ab3e-fec460eac78d",
-            },
-          ],
-          "meta": Object {},
-          "name": "Testplan with errors",
-          "status": "error",
-          "status_override": null,
-          "tags_index": Object {},
-          "timer": Object {
-            "run": Object {
-              "end": "2018-10-15T14:30:11.296158+00:00",
-              "start": "2018-10-15T14:30:10.998071+00:00",
-            },
-          },
-          "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
-        }
-      }
+      report={null}
       selected={Array []}
     >
       <NavBreadcrumbs

@@ -48,7 +48,7 @@ const InteractiveNavEntry = (props) => {
         className={
           css(styles.entryName, styles[STATUS_CATEGORY[props.status]])
         }
-        title={props.name}
+        title={props.description || props.name}
       >
         {props.name}
       </div>
@@ -180,6 +180,8 @@ const getEnvStatusIcon = (envStatus, envCtrlCallback) => {
 InteractiveNavEntry.propTypes = {
   /** Entry name */
   name: PropTypes.string,
+  /** Entry description */
+  description: PropTypes.string,
   /** Entry status */
   status: PropTypes.oneOf(STATUS),
   runtime_status: PropTypes.oneOf(RUNTIME_STATUS),

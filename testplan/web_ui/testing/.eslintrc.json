@@ -1,21 +1,21 @@
 {
   "env": {
-    "browser": 2,
-    "es6": 2,
-    "node": 2,
-    "commonjs": 2
+    "browser": true,
+    "es6": true,
+    "node": true,
+    "commonjs": true
   },
   "extends": [
     "react-app"
   ],
   "parserOptions": {
     "ecmaFeatures": {
-      "experimentalObjectRestSpread": 2,
-      "jsx": 2,
-      "arrowFunctions": 2,
-      "classes": 2,
-      "modules": 2,
-      "defaultParams": 2
+      "experimentalObjectRestSpread": true,
+      "jsx": true,
+      "arrowFunctions": true,
+      "classes": true,
+      "modules": true,
+      "defaultParams": true
     },
     "sourceType": "module"
   },
