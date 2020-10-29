@@ -106,11 +106,11 @@ UserInputOutput = namedtuple("UserInputOutput", _userio_params)
     UserInputOutput(
         "a list of dicts",
         intable=[
-            OrderedDict([ 
+            OrderedDict([
                 ("a", 1),
                 ("b", 2),
             ]),
-            OrderedDict([ 
+            OrderedDict([
                 ("a", 1),
                 ("c", 3),
             ]),

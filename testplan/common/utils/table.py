@@ -47,7 +47,7 @@ class TableEntry(object):
     """
     Represents a table. Internally represented as ``List[List[Any]]``.
     """
-        
+
     def __init__(self, table):
         _listoflist = None
         _listofdict = None
