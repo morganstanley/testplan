@@ -1,43 +1,16 @@
 """Utilities for working with tables."""
 import six
-from six.moves import range
 from collections import OrderedDict
+from pprint import pformat
 
 # pylint: disable=import-error, no-name-in-module
 if six.PY3:
-    from collections.abc import Container, Mapping, Sequence
+    from collections.abc import Mapping, Sequence
 else:
-    from collections import Container, Mapping, Sequence
+    from collections import Mapping, Sequence
 # pylint: enable=import-error, no-name-in-module
 
 _TP_BLANK_CELL = "_TP_BLANK_CELL"
-
-
-def _is_nonstr_sequence(obj):
-    return isinstance(obj, Sequence) and not isinstance(obj, six.string_types)
-
-
-def _table_from_list_of_lists(list_of_lists):
-    # type: (Sequence[Sequence[Any]]) -> List[List[Any]]
-    std_tbl = []
-    # all that needs to happen here is that each nested list must be padded to
-    # the length of the longest list
-    tbl_width = 0
-    # this bit finds the longest row and filters out invalid elements
-    for row in list_of_lists:
-        # TODO: determine whether we should raise here, or whether we should
-        #       try harder to guess what is meant by a non-list-like element
-        if not _is_nonstr_sequence(row):
-            continue
-        new_row = list(row)
-        std_tbl.append(new_row)
-        tbl_width = max(tbl_width, len(new_row))
-    for row in std_tbl:
-        pad_cells = tbl_width - len(row)
-        row.extend([_TP_BLANK_CELL] * pad_cells)
-    if len(std_tbl) == 0:  # empty list
-        return [[]]
-    return std_tbl
 
 
 def _table_from_list_of_dicts(list_of_dicts):
@@ -45,11 +18,6 @@ def _table_from_list_of_dicts(list_of_dicts):
     for dict_elem in list_of_dicts:
         for hdr, val in six.iteritems(dict_elem):
             dict_of_lists.setdefault(hdr, []).append(val)
-    return _table_from_dict_of_lists(dict_of_lists)
-
-
-def _table_from_dict_of_lists(dict_of_lists):
-    # type: (Mapping[AnyStr, Any]) -> List[List[Any]]
     tbl_headers = list(six.iterkeys(dict_of_lists))
     n_hdrs = len(tbl_headers)
     if n_hdrs == 0:  # empty dict
@@ -58,7 +26,7 @@ def _table_from_dict_of_lists(dict_of_lists):
     tbl_data = [new_prefilled_row()]
     for col_idx, col_name in enumerate(tbl_headers):
         val = dict_of_lists[col_name]
-        col_cells = list(val) if _is_nonstr_sequence(val) else [val]
+        col_cells = list(val) if isinstance(val, (list, tuple)) else [val]
         for row_idx, cell_val in enumerate(col_cells):
             # 1st iteration:
             #   (a) `row_idx` == 0, `len(tbl_data)` == 1
@@ -79,29 +47,32 @@ class TableEntry(object):
     """
     Represents a table. Internally represented as ``List[List[Any]]``.
     """
-
+        
     def __init__(self, table):
-        self._tbl_list_of_dict = None
-        self._tbl_list_of_list = None
-        if isinstance(table, Container):
-            if isinstance(table, Mapping):
-                new_tbl = OrderedDict(table)
-                self._tbl_list_of_dict = new_tbl
-                self._tbl_list_of_list = _table_from_dict_of_lists(new_tbl)
-                return
-            if _is_nonstr_sequence(table):
-                new_tbl = list(table)
-                if len(new_tbl) > 0 and isinstance(new_tbl[0], Mapping):
-                    self._tbl_list_of_list = _table_from_list_of_dicts(new_tbl)
-                    return
-                self._tbl_list_of_list = _table_from_list_of_lists(new_tbl)
-                return
-        # if we're here then we've been passed an object that cannot be
-        # interpreted as a table, so we return an empty table with
-        # empty headers
-        # TODO: determine whether we should raise an exception here
-        self._tbl_list_of_list = [[]]
-        return
+        _listoflist = None
+        _listofdict = None
+        err_msg = (
+            "`table` must be a nonempty tuple / list of "
+            "tuples / lists of uniform length, or a tuple / list of "
+            "dicts. Got:\n{}".format(pformat(table))
+        )
+        if not isinstance(table, (list, tuple)) or len(table) == 0:
+            raise TypeError(err_msg)
+        if isinstance(table[0], Mapping):
+            _listofdict = []
+            for mapp in table:
+                if not isinstance(mapp, Mapping):
+                    raise TypeError(err_msg)
+                _listofdict.append(OrderedDict(mapp))
+            _listoflist = _table_from_list_of_dicts(_listofdict)
+        else:
+            width = len(table[0])
+            for row in table:
+                if not (isinstance(row, (list, tuple)) and len(row) == width):
+                    raise TypeError(err_msg)
+                _listoflist.append(list(row))
+        self._tbl_list_of_list = _listoflist
+        self._tbl_list_of_dict = _listofdict
 
     def __len__(self):
         return len(self._tbl_list_of_list) - 1
