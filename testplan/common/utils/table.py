@@ -67,6 +67,7 @@ class TableEntry(object):
             _listoflist = _table_from_list_of_dicts(_listofdict)
         else:
             width = len(table[0])
+            _listoflist = []
             for row in table:
                 if not (isinstance(row, (list, tuple)) and len(row) == width):
                     raise TypeError(err_msg)
