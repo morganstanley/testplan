@@ -56,54 +56,6 @@ UserInputOutput = namedtuple("UserInputOutput", _userio_params)
         ],
     ),
     UserInputOutput(
-        "a list of lists, some of which are shorter than the header",
-        intable=[
-            ["a", "b", "c"],
-            [1, 2],
-            [11, 22, 33],
-            [111],
-        ],
-        outtable=[
-            [ "a", "b",             "c"             ],
-            [  1,   2,               _TP_BLANK_CELL ],
-            [  11,  22,              33             ],
-            [  111, _TP_BLANK_CELL,  _TP_BLANK_CELL ],
-        ],
-    ),
-    UserInputOutput(
-        "a list of lists, some of which are longer than the header",
-        intable=[
-            ["a", "b", "c"],
-            [1, 2, 3, 4],
-            [11, 22, 33],
-            [111, 222, 333, 444, 555],
-        ],
-        outtable=[
-            [ "a", "b", "c", _TP_BLANK_CELL, _TP_BLANK_CELL  ],
-            [  1,   2,   3,   4,              _TP_BLANK_CELL ],
-            [  11,  22,  33,  _TP_BLANK_CELL, _TP_BLANK_CELL ],
-            [  111, 222, 333, 444,            555 ],
-        ],
-    ),
-    UserInputOutput(
-        (
-            "a list of lists, some of which are longer than the header "
-            "and some of which are shorter than the header"
-        ),
-        intable=[
-            ["a", "b", "c"],
-            [1, 2, 3, 4],
-            [11],
-            [111, 222, 333, 444, 555],
-        ],
-        outtable=[
-            [ "a", "b",             "c",              _TP_BLANK_CELL, _TP_BLANK_CELL  ],
-            [  1,   2,               3,               4,               _TP_BLANK_CELL ],
-            [  11,  _TP_BLANK_CELL,  _TP_BLANK_CELL,  _TP_BLANK_CELL,  _TP_BLANK_CELL ],
-            [  111, 222,             333,             444,             555            ],
-        ],
-    ),
-    UserInputOutput(
         "a list of dicts",
         intable=[
             OrderedDict([
@@ -120,6 +72,11 @@ UserInputOutput = namedtuple("UserInputOutput", _userio_params)
             [  1,   2,              3              ],
             [  1,   _TP_BLANK_CELL, _TP_BLANK_CELL ],
         ],
+    ),
+    UserInputOutput(
+        "a header-only list of lists",
+        intable=[['a', 'b', 'c']],
+        outtable=[['a', 'b', 'c']],
     ),
     UserInputOutput(
         "a list of one empty list",
