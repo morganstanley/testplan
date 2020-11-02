@@ -93,11 +93,6 @@ UserInputOutput = namedtuple("UserInputOutput", _userio_params)
         intable=[],
         outtable=[[]],
     ),
-    UserInputOutput(
-        "an empty dict",
-        intable={},
-        outtable=[[]],
-    ),
 ])
 # pylint: enable=line-too-long
 # fmt: on

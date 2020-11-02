@@ -49,31 +49,31 @@ class TableEntry(object):
     """
 
     def __init__(self, table):
-        _listoflist = None
-        _listofdict = None
+        self._tbl_list_of_list = []
+        self._tbl_list_of_dict = []
         err_msg = (
             "`table` must be a nonempty tuple / list of "
             "tuples / lists of uniform length, or a tuple / list of "
             "dicts. Got:\n{}".format(pformat(table))
         )
-        if not isinstance(table, (list, tuple)) or len(table) == 0:
+        if not isinstance(table, (list, tuple)):
             raise TypeError(err_msg)
-        if isinstance(table[0], Mapping):
-            _listofdict = []
+        if len(table) == 0:
+            self._tbl_list_of_list.append([])
+        elif isinstance(table[0], Mapping):
             for mapp in table:
                 if not isinstance(mapp, Mapping):
                     raise TypeError(err_msg)
-                _listofdict.append(OrderedDict(mapp))
-            _listoflist = _table_from_list_of_dicts(_listofdict)
+                self._tbl_list_of_dict.append(OrderedDict(mapp))
+            self._tbl_list_of_list = _table_from_list_of_dicts(
+                self._tbl_list_of_dict
+            )
         else:
             width = len(table[0])
-            _listoflist = []
             for row in table:
                 if not (isinstance(row, (list, tuple)) and len(row) == width):
                     raise TypeError(err_msg)
-                _listoflist.append(list(row))
-        self._tbl_list_of_list = _listoflist
-        self._tbl_list_of_dict = _listofdict
+                self._tbl_list_of_list.append(list(row))
 
     def __len__(self):
         return len(self._tbl_list_of_list) - 1
