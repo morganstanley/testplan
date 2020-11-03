@@ -47,11 +47,17 @@ class TestSuite(object):
     def test_attach_again(self, env, result):
         """
         Attach the same file to the report again. This is allowed, only
-        one copy of the file will be made under the attachments dir.
+        one copy of the file will be made under the attachments dir. It works
+        even if the result goes to result group
         """
         result.attach(
             self.tmpfile, description="Attaching the same text file again"
         )
+
+        with result.group() as group:
+            group.attach(
+                self.tmpfile, description="Attaching the same text file again"
+            )
 
     @multitest.testcase
     def test_attach_img(self, env, result):

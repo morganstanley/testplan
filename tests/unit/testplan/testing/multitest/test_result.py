@@ -12,6 +12,11 @@ import os
 
 import pytest
 
+import matplotlib
+
+matplotlib.use("agg")
+import matplotlib.pyplot as plot
+
 from testplan.testing.multitest import result as result_mod
 from testplan.testing.multitest.suite import testcase, testsuite
 from testplan.testing.multitest import MultiTest
@@ -392,3 +397,73 @@ class TestResultBaseNamespace(object):
             hash=attachment_entry.hash, filesize=attachment_entry.filesize
         )
         assert attachment_entry.dst_path == expected_dst_path
+
+    def test_attach_in_result_group(self, tmpdir):
+        """UT for result.attach method."""
+        tmpfile = str(tmpdir.join("attach_me.txt"))
+        with open(tmpfile, "w") as f:
+            f.write("testplan\n" * 1000)
+
+        description = "Attach a text file at level: {}"
+
+        result = result_mod.Result()
+        assert result.attach(tmpfile, description=description.format(0))
+
+        assert len(result.entries) == 1
+
+        with result.group("subgroup") as subgroup:
+            assert subgroup.attach(tmpfile, description=description.format(1))
+            assert len(subgroup.entries) == 1
+
+            with subgroup.group("subgroup") as subsubgroup:
+                assert subsubgroup.attach(
+                    tmpfile, description=description.format(2)
+                )
+                assert len(subsubgroup.entries) == 1
+
+            assert len(subgroup.entries) == 2
+            assert len(subgroup.attachments) == 2
+        assert len(result.entries) == 2
+        assert len(result.attachments) == 3
+
+        file_hash = path_utils.hash_file(tmpfile)
+        size = os.path.getsize(tmpfile)
+
+        for idx, attachment in enumerate(result.attachments):
+            assert attachment.source_path == tmpfile
+            assert attachment.hash == file_hash
+            assert attachment.orig_filename == "attach_me.txt"
+            assert attachment.filesize == size
+            assert attachment.description == description.format(idx)
+
+    def test_matplot(self, tmpdir):
+        result_dir = str(tmpdir)
+        result = result_mod.Result(_scratch=result_dir)
+
+        x = range(0, 10)
+        y = range(0, 10)
+        plot.plot(x, y)
+
+        result.matplot(plot, description="Matplot")
+
+        assert len(result.entries) == 1
+        assert len(result.attachments) == 1
+
+        with result.group(description="subgroup") as subgroup:
+            x = range(0, 10)
+            y = range(0, 10)
+            plot.plot(x, y)
+
+            subgroup.matplot(plot, description="Matplot")
+
+        assert len(result.entries) == 2
+        assert len(result.attachments) == 2
+
+        # two different file, with same content on the same directory
+        assert (
+            result.attachments[0].source_path
+            != result.attachments[1].source_path
+        )
+        assert result.attachments[0].hash == result.attachments[1].hash
+        assert result.attachments[0].source_path.startswith(result_dir)
+        assert result.attachments[1].source_path.startswith(result_dir)

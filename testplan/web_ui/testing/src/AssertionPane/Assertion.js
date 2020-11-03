@@ -147,6 +147,7 @@ class Assertion extends Component {
             globalIsOpen={this.props.globalIsOpen}
             resetGlobalIsOpen={this.props.resetGlobalIsOpen}
             filter={this.props.filter}
+            reportUid={this.props.reportUid}
           />
         );
         break;
