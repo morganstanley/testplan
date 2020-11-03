@@ -75,8 +75,8 @@ UserInputOutput = namedtuple("UserInputOutput", _userio_params)
     ),
     UserInputOutput(
         "a header-only list of lists",
-        intable=[['a', 'b', 'c']],
-        outtable=[['a', 'b', 'c']],
+        intable=[["a", "b", "c"]],
+        outtable=[["a", "b", "c"]],
     ),
     UserInputOutput(
         "a list of one empty list",

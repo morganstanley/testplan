@@ -50,7 +50,7 @@ class TableEntry(object):
 
     def __init__(self, table):
         self._tbl_list_of_list = []
-        self._tbl_list_of_dict = []
+        self._tbl_list_of_dict = None
         err_msg = (
             "`table` must be a nonempty tuple / list of "
             "tuples / lists of uniform length, or a tuple / list of "
@@ -61,6 +61,7 @@ class TableEntry(object):
         if len(table) == 0:
             self._tbl_list_of_list.append([])
         elif isinstance(table[0], Mapping):
+            self._tbl_list_of_dict = []
             for mapp in table:
                 if not isinstance(mapp, Mapping):
                     raise TypeError(err_msg)
