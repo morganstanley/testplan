@@ -50,7 +50,6 @@ class TableEntry(object):
 
     def __init__(self, table):
         self._tbl_list_of_list = []
-        self._tbl_list_of_dict = None
         err_msg = (
             "`table` must be a nonempty tuple / list of "
             "tuples / lists of uniform length, or a tuple / list of "
@@ -61,14 +60,12 @@ class TableEntry(object):
         if len(table) == 0:
             self._tbl_list_of_list.append([])
         elif isinstance(table[0], Mapping):
-            self._tbl_list_of_dict = []
+            list_of_dict = []
             for mapp in table:
                 if not isinstance(mapp, Mapping):
                     raise TypeError(err_msg)
-                self._tbl_list_of_dict.append(OrderedDict(mapp))
-            self._tbl_list_of_list = _table_from_list_of_dicts(
-                self._tbl_list_of_dict
-            )
+                list_of_dict.append(OrderedDict(mapp))
+            self._tbl_list_of_list = _table_from_list_of_dicts(list_of_dict)
         else:
             width = len(table[0])
             for row in table:
@@ -133,15 +130,12 @@ class TableEntry(object):
         :return: the table
         :rtype: ``list`` of ``dict`` for the table
         """
-        if self._tbl_list_of_dict is None:
-            self._tbl_list_of_dict = []
-            # if ``list`` of ``list``, then we convert to ``list`` of ``dict``
-            # with dict elements indexed by headers
-            _Map = OrderedDict if keep_column_order else dict
-            headers = self._tbl_list_of_list[0]
-            if len(self._tbl_list_of_list) > 1:
-                for row in self._tbl_list_of_list[1:]:
-                    self._tbl_list_of_dict.append(
-                        _Map([(hdr, row[n]) for n, hdr in enumerate(headers)])
-                    )
-        return self._tbl_list_of_dict
+        list_of_dict = []
+        _Map = OrderedDict if keep_column_order else dict
+        headers = self._tbl_list_of_list[0]
+        if len(self._tbl_list_of_list) > 1:
+            for row in self._tbl_list_of_list[1:]:
+                list_of_dict.append(
+                    _Map([(hdr, row[n]) for n, hdr in enumerate(headers)])
+                )
+        return list_of_dict
