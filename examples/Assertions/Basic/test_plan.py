@@ -9,6 +9,11 @@ import random
 import re
 import sys
 
+import matplotlib
+
+matplotlib.use("agg")
+import matplotlib.pyplot as plot
+
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import test_plan
@@ -163,6 +168,14 @@ print(os.uname())
         """,
             language="python",
             description="Python codelog example",
+        )
+
+        x = range(0, 10)
+        y = range(0, 10)
+        plot.plot(x, y)
+
+        result.matplot(
+            plot, width=2, height=2, description="Simple matplot example"
         )
 
     @testcase

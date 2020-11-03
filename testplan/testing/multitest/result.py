@@ -1316,6 +1316,7 @@ class Result(object):
                 entries=self.entries, description=self._group_description
             )
         self._parent.entries.append(entry_group)
+        self._parent.attachments.extend(self.attachments)
         return exc_type is None  # re-raise errors if there is any
 
     def get_namespaces(self):
@@ -1384,6 +1385,7 @@ class Result(object):
             _summarize=summarize,
             _num_passing=num_passing,
             _num_failing=num_failing,
+            _scratch=self._scratch,
         )
 
     @property
