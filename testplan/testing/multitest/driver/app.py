@@ -15,7 +15,7 @@ from past.builtins import basestring
 from testplan.common.config import ConfigOption
 from testplan.common.utils.path import StdFiles, makedirs
 from testplan.common.utils.context import is_context, expand
-from testplan.common.utils.process import kill_process
+from testplan.common.utils.process import subprocess_popen, kill_process
 
 from .base import Driver, DriverConfig
 
@@ -248,7 +248,7 @@ class App(Driver):
                     "err": self.std.err_path,
                 },
             )
-            self.proc = subprocess.Popen(
+            self.proc = subprocess_popen(
                 cmd,
                 shell=self.cfg.shell,
                 stdin=subprocess.PIPE,
