@@ -56,13 +56,13 @@ const MergeSplittedReport = (mainReport, assertions, structure) => {
   const _mergeStructure = (_structure, _assertions) => {
     _structure.forEach(element => {
       if (element.category === 'testcase') {
-        element.entries = _assertions[element.name];
+        element.entries = _assertions[element.uid];
       } else {
-        _mergeStructure(element.entries, _assertions[element.name]);
+        _mergeStructure(element.entries, _assertions);
       }
     });
   };
-  _mergeStructure(structure, assertions[mainReport.name]);
+  _mergeStructure(structure, assertions);
   mainReport.entries = structure;
   return mainReport;
 };
