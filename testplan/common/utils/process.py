@@ -135,7 +135,7 @@ DEFAULT_CLOSE_FDS = platform.system() != "Windows"
 
 def subprocess_popen(
     args,
-    bufsize=0,
+    bufsize=0,  # unbuffered (`io.DEFAULT_BUFFER_SIZE` for Python 3 by default)
     executable=None,
     stdin=None,
     stdout=None,
