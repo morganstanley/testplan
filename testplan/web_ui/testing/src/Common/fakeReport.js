@@ -282,7 +282,7 @@ var fakeReportAssertions = {
         "failed": 6,
         "total": 8
     },
-    "uid": "c648a283-22f3-4503-ae6d-c982b4c7cca0",
+    "uid": "_dev",
     "attachments": {},
     "status": "failed",
     "timer": {

@@ -9,6 +9,10 @@ import TagList from './TagList';
 import Column from './Column';
 import {LIGHT_GREY, DARK_GREY} from "../Common/defaults";
 import CommonStyles from "../Common/Styles.js";
+import { Link } from 'react-router-dom';
+import pathToRegexp from "path-to-regexp";
+
+import _ from 'lodash';
 
 /**
  * Create the list entry buttons or a single button stating nothing can be
@@ -19,7 +23,8 @@ import CommonStyles from "../Common/Styles.js";
 const CreateNavButtons = (
   props,
   createEntryComponent,
-  selectedUid
+  selection,
+  url
   ) => {
   const depth = props.breadcrumbLength;
 
@@ -38,18 +43,27 @@ const CreateNavButtons = (
     const cssName = [
       styles.navButton, styles.navButtonInteract, CommonStyles.unselectable
     ];
-    if (selectedUid && selectedUid === entry.uid) {
+    if (_.last(selection) === entry.uid) {
       cssName.push(styles.navButtonInteractFocus);
     }
+
+    let [reportuid, ...selectionuids] = selection;    
+    selectionuids.push(entry.uid);
+
+    const toPath = pathToRegexp.compile(props.url);
+
+    const linkTo = toPath({uid: reportuid, selection:selectionuids});
 
     return (
       <ListGroupItem
         tabIndex={tabIndex.toString()}
         key={entry.uid}
-        className={css(...cssName)}
-        onClick={((e) => props.handleNavClick(e, entry, depth))}>
-        {tags}
-        {createEntryComponent(entry)}
+        className={css(...cssName)}        
+        >          
+          <Link to={linkTo}>          
+          {tags}
+          {createEntryComponent(entry)}
+          </Link>
       </ListGroupItem>
     );
   });
