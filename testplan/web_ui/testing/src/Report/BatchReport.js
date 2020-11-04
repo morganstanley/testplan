@@ -64,7 +64,7 @@ class BatchReport extends React.Component {
   setReport(report) {
     const processedReport = PropagateIndices(report);
     const filteredReport = filterReport(
-      processedReport, 
+      processedReport,
       this.state.filteredReport.filter);
 
     const selectedUIDs = this.autoSelect(filteredReport.report);
@@ -93,7 +93,7 @@ class BatchReport extends React.Component {
     const uid = this.props.match.params.uid;
     if (uid === "_dev") {
       setTimeout(
-        () => this.setReport(taggedReport),
+        () => this.setReport(fakeReportAssertions),
         1500);
     } else {
       axios.get(`/api/v1/reports/${uid}`)
@@ -154,17 +154,17 @@ class BatchReport extends React.Component {
    */
   handleNavFilter(filter) { // eslint-disable-line no-unused-vars
     const filteredReport = filterReport(this.state.report, filter);
-    
-    let selectedUIDs = 
-      isValidSelection(this.state.lastManualSelectedUIDs.slice(1), 
+
+    let selectedUIDs =
+      isValidSelection(this.state.lastManualSelectedUIDs.slice(1),
                        filteredReport.report) ?
       this.state.lastManualSelectedUIDs :
       this.autoSelect(filteredReport.report);
-      
-    this.setState({ 
+
+    this.setState({
       filteredReport,
       selectedUIDs,
-    }); 
+    });
   }
 
   /**
@@ -222,7 +222,16 @@ class BatchReport extends React.Component {
     this.setState((state, props) => UpdateSelectedState(state, entry, depth));
   }
 
+
+  getSelectedUIDsFromPath() {
+    const {uid, selection} = this.props.match.params;
+    return [uid, ...(selection ? selection.split('/') : [])];
+  }
+
   render() {
+
+    console.log("frompath: ", this.getSelectedUIDsFromPath());
+
     const {reportStatus, reportFetchMessage} = GetReportState(this.state);
 
     if (this.state.report && this.state.report.name) {
@@ -230,7 +239,7 @@ class BatchReport extends React.Component {
     }
 
     const selectedEntries = GetSelectedEntries(
-      this.state.selectedUIDs, this.state.filteredReport.report
+      this.getSelectedUIDsFromPath(), this.state.filteredReport.report
     );
     const centerPane = GetCenterPane(
       this.state,
@@ -263,8 +272,8 @@ class BatchReport extends React.Component {
           displayEmpty={this.state.displayEmpty}
           displayTags={this.state.displayTags}
           displayTime={this.state.displayTime}
-          handleNavClick={this.handleNavClick}
           handleColumnResizing={this.handleColumnResizing}
+          url={this.props.match.path}
         />
         {centerPane}
       </div>
