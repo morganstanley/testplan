@@ -5,6 +5,8 @@ import NavBreadcrumbs from "./NavBreadcrumbs";
 import NavList from "./NavList";
 import {GetSelectedUid, GetNavEntries, GetNavBreadcrumbs} from "./navUtils";
 
+import _ from 'lodash';
+
 /**
  * Nav component:
  *   * render breadcrumbs menu.
@@ -20,19 +22,22 @@ const Nav = (props) => {
     <>
       <NavBreadcrumbs
         entries={breadCrumbEntries}
-        handleNavClick={props.handleNavClick}
+        url={props.url}
       />
       <NavList
         width={props.navListWidth}
         entries={navEntries}
         breadcrumbLength={breadCrumbEntries.length}
-        handleNavClick={props.handleNavClick}
         handleColumnResizing={props.handleColumnResizing}
         filter={props.filter}
         displayEmpty={props.displayEmpty}
         displayTags={props.displayTags}
         displayTime={props.displayTime}
         selectedUid={GetSelectedUid(props.selected)}
+        selection={_(props.selected)          
+          .filter( entry => entry.category !== "testcase")
+          .map("uid").value()}
+        url={props.url}
       />
     </>
   );
@@ -53,8 +58,8 @@ Nav.propTypes = {
   displayTime: PropTypes.bool,
   /** Flag to display empty testcase on navbar */
   displayEmpty: PropTypes.bool,
-  /** Callback when a navigation entry is clicked. */
-  handleNavClick: PropTypes.func,
+
+  url: PropTypes.string
 };
 
 export default Nav;

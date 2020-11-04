@@ -20,7 +20,7 @@ const AppRouter = () => (
   <Router>
     <Switch>
       <Route path="/testplan/beta/1004/:uid" component={BatchReportBeta} />
-      <Route path="/testplan/:uid" component={BatchReport} />
+      <Route path="/testplan/:uid/:selection*" component={BatchReport} />
       <Route path="/interactive/_dev">
         <InteractiveReport dev={true} />
       </Route>

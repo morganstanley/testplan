@@ -29,7 +29,8 @@ const NavList = (props) => {
         />
       );
     },
-    props.selectedUid
+    props.selection,
+    props.url
   );
 
   return GetNavColumn(props, navButtons);
@@ -49,8 +50,6 @@ NavList.propTypes = {
   })),
   /** Number of entries in the breadcrumb menu */
   breadcrumbLength: PropTypes.number,
-  /** Function to handle Nav entries being clicked (selected) */
-  handleNavClick: PropTypes.func,
   /** Function to handle Nav list resizing */
   handleColumnResizing: PropTypes.func,
   /** Entity filter */
@@ -63,6 +62,8 @@ NavList.propTypes = {
   displayTime: PropTypes.bool,
   /** Entry uid to be focused */
   selectedUid: PropTypes.string,
+
+  url: PropTypes.string
 };
 
 export default NavList;
