@@ -1,7 +1,10 @@
 import functools
 import json
+from collections import OrderedDict
+
 import six
 import pytest
+from boltons.iterutils import get_path
 
 if six.PY2:
     import mock
@@ -349,6 +352,17 @@ def dummy_test_plan_report_with_binary_asserts():
     res.equal(b"\xF2", b"\xf2", "IGNORE THIS")
     res.equal(b"\x00\xb1\xC1", b"\x00\xB2\xc2", "IGNORE THIS")
 
+    # dict match nicely produce tupples, list, maps within the serialized schema
+    a_dict = OrderedDict(
+        [
+            (b"binarykey\xB1", "string value"),
+            ("string_key", b"binary value\xB1"),
+            ("key3", [b"binary\xB1", "in", "list"]),
+            ("key4", (b"binary\xB1", "in", "tuple")),
+        ]
+    )
+    res.dict.match(a_dict, a_dict, "IGNORE THIS")
+
     btc_1 = TestCaseReport(
         name="binary_test_case_1",
         description="binary test case 1 description",
@@ -404,15 +418,44 @@ def test_report_json_binary_serialization(
     bkey = EntriesField._BYTES_KEY
 
     # passing assertion
-    hx_1_1 = j["entries"][1]["entries"][0]["entries"][1]["first"][bkey]
-    hx_1_2 = j["entries"][1]["entries"][0]["entries"][1]["second"][bkey]
+    hx_1_1 = get_path(j, "entries.1.entries.0.entries.1.first")[bkey]
+    hx_1_2 = get_path(j, "entries.1.entries.0.entries.1.second")[bkey]
     assert ["0xF2"] == hx_1_1 == hx_1_2
 
     # failing assertion
-    hx_2_1 = j["entries"][1]["entries"][0]["entries"][2]["first"][bkey]
-    hx_2_2 = j["entries"][1]["entries"][0]["entries"][2]["second"][bkey]
+    hx_2_1 = get_path(j, "entries.1.entries.0.entries.2.first")[bkey]
+    hx_2_2 = get_path(j, "entries.1.entries.0.entries.2.second")[bkey]
     assert ["0x00", "0xB1", "0xC1"] == hx_2_1
     assert ["0x00", "0xB2", "0xC2"] == hx_2_2
+
+    # dict.match the schema for that producing list of tuples
+
+    KEY_INDEX = 1
+    FIRST_INDEX = 3
+    SECOND_INDEX = 4
+
+    comps = get_path(j, "entries.1.entries.0.entries.3.comparison")
+    assert comps[0][KEY_INDEX][bkey] == EntriesField._binary_to_hex_list(
+        b"binarykey\xB1"
+    )
+    assert comps[1][FIRST_INDEX][1][bkey] == EntriesField._binary_to_hex_list(
+        b"binary value\xB1"
+    )
+    assert comps[1][SECOND_INDEX][1][bkey] == EntriesField._binary_to_hex_list(
+        b"binary value\xB1"
+    )
+    assert comps[3][FIRST_INDEX][1][bkey] == EntriesField._binary_to_hex_list(
+        b"binary\xB1"
+    )
+    assert comps[3][SECOND_INDEX][1][bkey] == EntriesField._binary_to_hex_list(
+        b"binary\xB1"
+    )
+    assert comps[7][FIRST_INDEX][1][bkey] == EntriesField._binary_to_hex_list(
+        b"binary\xB1"
+    )
+    assert comps[7][SECOND_INDEX][1][bkey] == EntriesField._binary_to_hex_list(
+        b"binary\xB1"
+    )
 
     deserialized_report = test_plan_schema.loads(data).data
     check_report(
