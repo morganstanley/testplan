@@ -2,9 +2,11 @@
 
 import functools
 import json
-from copy import deepcopy
+
+from typing import Mapping
+
 import six
-from six.moves import range
+from boltons.iterutils import remap, is_scalar
 
 # pylint: disable=no-name-in-module,import-error
 if six.PY2:
@@ -94,92 +96,29 @@ class EntriesField(fields.Field):
     def _hex_list_to_binary(hex_list):
         return bytes(bytearray([int(x, 16) for x in hex_list]))
 
-    def _render_unencodable_bytes_by_callable(
-        self, data, binary_serializer, recurse_lvl=0
-    ):
-        """
-        Find the lowest level at which encoding fails - if at all - and
-        serialize the byte-representation of that with the
-        ``binary_serializer`` function.
-
-        :param data: Any data that's meant to be serialized
-        :type data: Any
-        :param binary_serializer: A callable that takes a binary object and
-                                  returns its serialized representation
-        :type binary_serializer: Callable[[bytes], Any]
-
-        :returns: Serialized representation of ``data``
-        :rtype: Any
-        """
-        if recurse_lvl == 0:
-            datacp = deepcopy(data)
-        else:
-            datacp = data
-        try:
-            json.dumps(datacp, ensure_ascii=True)
-            return datacp
-        except (UnicodeDecodeError, TypeError):
-            if isinstance(datacp, MutableMapping):
-                for key in six.iterkeys(datacp):
-                    datacp[key] = self._render_unencodable_bytes_by_callable(
-                        data=datacp[key],
-                        binary_serializer=binary_serializer,
-                        recurse_lvl=(recurse_lvl + 1),
-                    )
-                return datacp
-            if isinstance(datacp, MutableSequence):
-                for i in range(len(datacp)):
-                    datacp[i] = self._render_unencodable_bytes_by_callable(
-                        data=datacp[i],
-                        binary_serializer=binary_serializer,
-                        recurse_lvl=(recurse_lvl + 1),
-                    )
-                return datacp
-            return {self._BYTES_KEY: binary_serializer(datacp)}
-
     def _serialize(self, value, attr, obj):
-        super_serialize = lambda v: (
-            super(EntriesField, self)._serialize(v, attr, obj)
-        )
-        try:
-            json.dumps(value, ensure_ascii=True)
-            return super_serialize(value)
-        except (UnicodeDecodeError, TypeError):
-            value_new = self._render_unencodable_bytes_by_callable(
-                data=value, binary_serializer=self._binary_to_hex_list
-            )
-            return super_serialize(value_new)
+        def visit(parent, key, _value):
+            def json_serializable(v):
+                try:
+                    json.dumps(_value, ensure_ascii=True)
+                except (UnicodeDecodeError, TypeError):
+                    return False
+                else:
+                    return True
+
+            if is_scalar(_value) and not json_serializable(_value):
+                return key, {self._BYTES_KEY: self._binary_to_hex_list(_value)}
+            return True
+
+        return remap(value, visit=visit)
 
     def _deserialize(self, value, attr, obj, recurse_lvl=0):
-        """
-        Check deeply to see if there is a {'bytes': [...]} dict and if so
-        convert it to a bytes object
-        """
-        if recurse_lvl == 0:
-            valued = super(EntriesField, self)._deserialize(value, attr, obj)
-        else:
-            valued = value
-        if isinstance(valued, MutableMapping):
-            for key in six.iterkeys(valued):
-                if key == self._BYTES_KEY:
-                    return self._hex_list_to_binary(valued[key])
-                valued[key] = self._deserialize(
-                    value=valued[key],
-                    attr=attr,
-                    obj=obj,
-                    recurse_lvl=(recurse_lvl + 1),
-                )
-            return valued
-        if isinstance(valued, MutableSequence):
-            for i in range(len(valued)):
-                valued[i] = self._deserialize(
-                    value=valued[i],
-                    attr=attr,
-                    obj=obj,
-                    recurse_lvl=(recurse_lvl + 1),
-                )
-            return valued
-        return valued
+        def visit(parent, key, _value):
+            if isinstance(_value, Mapping) and self._BYTES_KEY in _value:
+                return key, self._hex_list_to_binary(_value[self._BYTES_KEY])
+            return True
+
+        return remap(value, visit=visit)
 
 
 class TestCaseReportSchema(ReportSchema):
