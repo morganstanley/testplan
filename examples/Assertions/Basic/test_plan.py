@@ -5,20 +5,20 @@ This example shows usage of assertions,
 assertion groups and assertion namespaces.
 """
 import os
-import random
 import re
 import sys
-
-import matplotlib
-
-matplotlib.use("agg")
-import matplotlib.pyplot as plot
+import random
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import test_plan
 from testplan.common.utils import comparison
 from testplan.report.testing.styles import Style, StyleEnum
+
+import matplotlib
+
+matplotlib.use("agg")
+import matplotlib.pyplot as plot
 
 
 @testsuite
