@@ -11,6 +11,7 @@ import warnings
 import six
 
 from testplan import defaults
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils import callable as callable_utils
 from testplan.common.utils import interface
 from testplan.common.utils import strings
@@ -499,9 +500,9 @@ def _validate_testcase(func):
         elif not func.name:
             raise ValueError("Testcase name cannot be an empty string")
 
-    except Exception as ex:
+    except Exception as exc:
         _reset_globals()
-        raise ex
+        raise exc
 
     func.name = six.ensure_str(func.name)
 
@@ -805,16 +806,25 @@ def _gen_testcase_with_pre(testcase_method, preludes):
     return testcase_with_pre
 
 
-def run_epilogues(epilogues, name, *args, **kwargs):
+def _run_epilogues(epilogues, name, *args, **kwargs):
     """
-    Run epilogue and print related exception
+    Run all of epilogues and return the exceptions collected
     """
+    exceptions = []
+
     for epilogue in epilogues:
         try:
             epilogue(name, *args, **kwargs)
-        except Exception:
-            print("Exception when running epilogue for {}".format(name))
-            traceback.print_exc()
+        except Exception as exc:
+            exceptions.append(exc)
+            TESTPLAN_LOGGER.error(
+                'Exception raised when running epilogue "{}" for "{}"'.format(
+                    epilogue.__name__, name
+                )
+            )
+            TESTPLAN_LOGGER.exception(exc)
+
+    return exceptions
 
 
 def _gen_testcase_with_post(testcase_method, epilogues):
@@ -832,18 +842,30 @@ def _gen_testcase_with_post(testcase_method, epilogues):
         """
         Testcase with epilogue
         """
-        epilogue_kwargs = _get_kwargs(kwargs, testcase_method)
         try:
             testcase_method(*args, **kwargs)
-        except Exception:
-            run_epilogues(
-                epilogues, testcase_method.__name__, *args, **epilogue_kwargs
+        except Exception as exc:
+            # even testcase method raises an exception, post-testcase methods
+            # still need to be executed, if any of them raises, the exception
+            # should be caught and will not overwrite the original one.
+            _run_epilogues(
+                epilogues,
+                testcase_method.__name__,
+                *args,
+                **_get_kwargs(kwargs, testcase_method)
             )
-            raise
+            raise exc
         else:
-            run_epilogues(
-                epilogues, testcase_method.__name__, *args, **epilogue_kwargs
+            # during running each epilogue there might be exception caught, for
+            # simplicity, only the first one is raised and logged into report.
+            exceptions = _run_epilogues(
+                epilogues,
+                testcase_method.__name__,
+                *args,
+                **_get_kwargs(kwargs, testcase_method)
             )
+            if len(exceptions) > 0:
+                raise exceptions[0]
 
     return testcase_with_post
 

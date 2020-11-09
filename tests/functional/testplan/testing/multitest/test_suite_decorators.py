@@ -14,6 +14,7 @@ from testplan.report import (
     TestGroupReport,
     TestCaseReport,
     ReportCategories,
+    Status,
 )
 from testplan.testing.multitest.suite import (
     testcase,
@@ -26,22 +27,24 @@ from testplan.testing.multitest.suite import (
 
 def pre1(name, self, env, result):
     result.equal(2, 2)
-    result.contain("testcase", name)
+    result.contain("case", name)
 
 
 def post1(name, self, env, result):
     result.equal(2, 2)
-    result.contain("testcase", name)
+    result.contain("case", name)
 
 
 def pre2(name, self, env, result, a=None, b=None):
     result.equal(2, 2)
-    result.contain("testcase", name)
+    result.contain("case", name)
 
 
 def post2(name, self, env, result, a=None, b=None):
     result.equal(2, 2)
-    result.contain("testcase", name)
+    result.contain("case", name)
+    if name == "case5":
+        raise RuntimeError("raise for no reason")
 
 
 @pre_testcase(pre1)
@@ -130,6 +133,9 @@ def test_basic_multitest(mockplan):
                 assert len(tc_entry.entries) == 2  # 2 generated testcases
             else:
                 assert isinstance(tc_entry, TestCaseReport)
+                if tc_entry.name == "case5":
+                    assert tc_entry.status == Status.ERROR
+                    assert "raise for no reason" in tc_entry.logs[0]["message"]
 
 
 @pytest.mark.parametrize(
