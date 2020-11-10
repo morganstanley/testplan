@@ -3,17 +3,7 @@
 import functools
 import json
 
-from typing import Mapping
-
-import six
 from boltons.iterutils import remap, is_scalar
-
-# pylint: disable=no-name-in-module,import-error
-if six.PY2:
-    from collections import MutableMapping, MutableSequence
-else:
-    from collections.abc import MutableMapping, MutableSequence
-# pylint: enable=no-name-in-module,import-error
 
 from marshmallow import Schema, fields, post_load
 
@@ -114,7 +104,7 @@ class EntriesField(fields.Field):
 
     def _deserialize(self, value, attr, obj, recurse_lvl=0):
         def visit(parent, key, _value):
-            if isinstance(_value, Mapping) and self._BYTES_KEY in _value:
+            if isinstance(_value, dict) and self._BYTES_KEY in _value:
                 return key, self._hex_list_to_binary(_value[self._BYTES_KEY])
             return True
 
