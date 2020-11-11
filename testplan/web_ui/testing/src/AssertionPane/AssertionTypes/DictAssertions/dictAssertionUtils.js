@@ -1,21 +1,32 @@
 import _ from 'lodash';
-import React from 'react';
 import {any, sorted, domToString} from './../../../Common/utils';
 
 /** @module dictAssertionUtils */
 
 
-const cellStyle = {
-  fontSize: 'small',
-  border: '1px solid',
-  borderColor: '#d9dcde',
-  padding: '6px 11px 6px 11px'
-};
+/**
+ * Function to add styling to cells with conditions based on their values.
+ *
+ * @param {Object} params
+ * @returns {object} css style object
+ * @private
+ */
+export function dictCellStyle(params) {
+  const isValue = params.colDef.field !== 'key';
+  const isFailed = params.data.descriptor.status === 'Failed';
+  let cellStyle = {};
 
-const headerStyle = {
-  border: '1px solid',
-  borderColor: '#d9dcde',
-};
+  if (isFailed) {
+    cellStyle.color = 'red';
+    cellStyle.fontWeight = 'bold';
+  }
+
+  if (isValue) {
+    cellStyle.backgroundColor = '#BDC3C750';
+  }
+
+  return cellStyle;
+}
 
 /**
  * Helper function used to sort the data of DictMatch and FixMatch assertions.
@@ -155,47 +166,39 @@ export function sortFlattenedJSON(
  * @returns {{headerName: string, field: string, hide: boolean}}
  * @private
  */
-export function prepareDictColumn(Renender, hasExpected) {
-  const columns = [{
-    title: 'Key',
+export function prepareDictColumnDefs(cellStyle, cellRenderer, hasExpected) {
+  const columnDefs = [{
+    headerName: 'Descriptor',
+    field: 'descriptor',
+    hide: true,
+  }, {
+    headerName: 'Key',
     field: 'key',
-    render: keyData => {
-      return (<Renender field='key' data={keyData} />);
-    },
+    pinned: 'left',
+    resizable: true,
+    suppressSizeToFit: true,
     cellStyle: cellStyle,
-    headerStyle: headerStyle
+    cellRendererFramework: cellRenderer,
   }];
 
   if (hasExpected) {
-    columns.push({
-      title: 'Expected',
+    columnDefs.push({
+      headerName: 'Expected',
       field: 'expected',
-      render: expectedData => {
-        return (<Renender field='expected' data={expectedData} />);
-      },
-      cellStyle: {
-        backgroundColor: '#BDC3C750',
-        ...cellStyle
-      },
-      headerStyle: headerStyle
+      cellStyle: cellStyle,
+      cellRendererFramework: cellRenderer,
     });
   }
 
-  columns.push({
-    title: 'Value',
+  columnDefs.push({
+    headerName: 'Value',
     field: 'value',
-    render: valueData => {
-      return (<Renender field='value' data={valueData} />);
-    },
-    cellStyle: {
-      backgroundColor: '#BDC3C750',
-      ...cellStyle
-    },
-    headerStyle: headerStyle
+    cellStyle: cellStyle,
+    cellRendererFramework: cellRenderer,
   });
-  return columns;
-}
 
+  return columnDefs;
+}
 
 /**
  * Prepare the rows for Dict/FixMatch assertions.

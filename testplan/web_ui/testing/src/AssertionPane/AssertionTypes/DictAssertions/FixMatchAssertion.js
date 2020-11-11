@@ -4,9 +4,10 @@ import DictButtonGroup from './DictButtonGroup';
 import FixCellRenderer from './FixCellRenderer';
 import DictBaseAssertion from './DictBaseAssertion';
 import {
-  prepareDictColumn,
+  prepareDictColumnDefs,
   prepareDictRowData,
   sortFlattenedJSON,
+  dictCellStyle
 } from './dictAssertionUtils';
 import {SORT_TYPES} from './../../../Common/defaults';
 
@@ -45,7 +46,7 @@ export default function FixMatchAssertion(props) {
   const flattenedDict = sortFlattenedJSON(
     props.assertion.comparison, 0, false, true
   );
-  const columns = prepareDictColumn(FixCellRenderer, true);
+  const columns = prepareDictColumnDefs(dictCellStyle, FixCellRenderer, true);
 
   const [rowData, setRowData] = useState(flattenedDict);
 

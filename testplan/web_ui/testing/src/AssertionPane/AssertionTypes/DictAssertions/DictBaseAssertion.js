@@ -1,8 +1,17 @@
-import React from 'react';
+import React, { useState, useLayoutEffect} from 'react';
 import PropTypes from 'prop-types';
 import {css, StyleSheet} from 'aphrodite';
-import MaterialTable from 'material-table';
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-balham.css';
+import {AgGridReact} from 'ag-grid-react';
+import 'ag-grid-enterprise';
+import {LicenseManager} from "ag-grid-enterprise";
 
+
+const REACT_APP_AG_GRID_LICENSE = process.env.REACT_APP_AG_GRID_LICENSE;
+if (REACT_APP_AG_GRID_LICENSE) {
+  LicenseManager.setLicenseKey(REACT_APP_AG_GRID_LICENSE);
+}
 
 /**
  * Base assertion that are used to render dict-like data.
@@ -13,33 +22,55 @@ import MaterialTable from 'material-table';
  *
  */
 export default function DictBaseAssertion(props) {
+
+  const [gridApi, setGridApi] = useState(null);
+  const [, setGridColumnApi] = useState(null);
+  
+  const sizeToFit = (api) => {
+    if (api) api.sizeColumnsToFit();
+  };
+
+  const onGridReady = (params) => {
+    setGridApi(params.api);
+    setGridColumnApi(params.columnApi);
+    sizeToFit(params.api);
+  };
+
+  useLayoutEffect(() => {
+    sizeToFit(gridApi?.api);
+  });
+
+  // table header + margin + column height * columns
+  let height = 35 + 16 + (
+    props.rows.length > 10 ? 280 : props.rows.length * 28
+  );
+
   return (
     <>
       {props.buttons}
-      <MaterialTable
-        title={""}
-        className={css(styles.table)}
-        columns={props.columns}
-        data={props.rows}
-        options={{
-          exportButton: false,
-          search: false,
-          toolbar: false,
-          paging: false,
-          sorting: false,
-          maxBodyHeight: '500px',
-          overflowY: 'hidden',
-          fixedColumns: {
-            left: 1,
-            right: 0
-          },
-          headerStyle: {
-            fontSize: 'small',
-            backgroundColor: '#f5f7f7',
-            padding: '6px 11px 6px 11px',
+      <div 
+        className={`ag-theme-balham ${css(styles.grid)}`}
+        style={{height: `${height}px`, width: "100%"}}
+      >
+        <AgGridReact
+          onGridReady={onGridReady}
+          suppressColumnVirtualisation={true}
+          columnDefs={props.columns}
+          rowData={props.rows}
+          defaultColDef={{
+            sortable: false,
+            filter: true,
+            resizable: true,
+            enableRowGroup: true,
+            enablePivot: true,
+          }}
+          groupMultiAutoColumn={true}
+          enableRangeSelection={true}
+          getRowHeight={
+            (params) => params.data.descriptor.isEmptyLine ? 5 : 28
           }
-        }}
-      />
+        />
+      </div>
     </>
   );
 };
@@ -55,9 +86,10 @@ DictBaseAssertion.propTypes = {
 
 
 const styles = StyleSheet.create({
-  table: {
-    border: '1px solid',
-    borderColor: '#d9dcde',
-    borderCollapse: 'collapse',
-  }
+  grid: {
+    overflow: 'hidden',
+    resize: 'vertical',
+    paddingBottom: '1rem',
+    minHeight: '163px'
+  },
 });

@@ -5,54 +5,44 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
   columns={
     Array [
       Object {
-        "cellStyle": Object {
-          "border": "1px solid",
-          "borderColor": "#d9dcde",
-          "fontSize": "small",
-          "padding": "6px 11px 6px 11px",
-          "width": "72px",
-        },
+        "cellStyle": [Function],
         "field": "id",
-        "headerStyle": Object {
-          "border": "1px solid",
-          "borderColor": "#d9dcde",
-          "width": "72px",
+        "filterParams": Object {
+          "excelMode": "windows",
         },
-        "title": "ID",
+        "headerName": "ID",
+        "pinned": "left",
+        "resizable": true,
+        "suppressSizeToFit": true,
+        "width": 75,
       },
       Object {
-        "cellStyle": Object {
-          "border": "1px solid",
-          "borderColor": "#d9dcde",
-          "fontSize": "small",
-          "padding": "6px 11px 6px 11px",
-          "width": "121px",
-        },
+        "cellStyle": [Function],
         "field": "ev",
-        "headerStyle": Object {
-          "border": "1px solid",
-          "borderColor": "#d9dcde",
-          "width": "121px",
+        "filterParams": Object {
+          "excelMode": "windows",
         },
-        "title": "Expected/Value",
+        "headerName": "Expected/Value",
+        "pinned": "left",
+        "resizable": true,
+        "suppressSizeToFit": true,
+        "width": 125,
       },
       Object {
         "cellStyle": [Function],
         "field": "name",
-        "headerStyle": Object {
-          "border": "1px solid",
-          "borderColor": "#d9dcde",
+        "filterParams": Object {
+          "excelMode": "windows",
         },
-        "title": "name",
+        "headerName": "name",
       },
       Object {
         "cellStyle": [Function],
         "field": "age",
-        "headerStyle": Object {
-          "border": "1px solid",
-          "borderColor": "#d9dcde",
+        "filterParams": Object {
+          "excelMode": "windows",
         },
-        "title": "age",
+        "headerName": "age",
       },
     ]
   }

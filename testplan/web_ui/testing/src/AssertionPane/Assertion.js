@@ -197,7 +197,7 @@ class Assertion extends Component {
               )
             }
           >
-            {assertionType}
+            {this.state.isOpen ? assertionType : null}
           </CardBody>
         </Collapse>
       </Card>

@@ -1,9 +1,9 @@
-import React, {Fragment} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import TableBaseAssertion from './TableBaseAssertion';
 
 import {
-  prepareTableColumnContainColumn,
+  prepareTableColumnContainColumnDefs,
   prepareTableColumnContainRowData,
   prepareTableColumnContainPreText
 } from './tableAssertionUtils';
@@ -12,9 +12,8 @@ import {
 /**
  * Component that are used to render ColumnContain assertion.
  */
-
 export default function ColumnContainAssertion (props) {
-  let columns = prepareTableColumnContainColumn(
+  let columns = prepareTableColumnContainColumnDefs(
     props.assertion.column
   );
   let rows = prepareTableColumnContainRowData(
@@ -23,11 +22,11 @@ export default function ColumnContainAssertion (props) {
   );
 
   let preText = (
-    <Fragment>
+    <>
       Values: [{
         prepareTableColumnContainPreText(props.assertion.values)
       }]
-    </Fragment>
+    </>
   );
 
   return (
