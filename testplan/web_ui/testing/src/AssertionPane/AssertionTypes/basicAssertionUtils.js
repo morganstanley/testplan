@@ -523,26 +523,30 @@ function prepareDictCheckContent(assertion, defaultContent) {
   const preContent = (
     <span>
       Existence check:
-      [{assertion.has_keys.map((key, index) =>
-        <span
-          style={{
-            color: assertion.has_keys_diff.indexOf(key) >= 0 ? 'red' : 'black'
-          }}
-          key={`check_${key}_${index}`}>
-          {JSON.stringify(key)}
-        </span>).reduce((prev, curr) => [prev, ', ', curr])}]
+      [{_.isEmpty(assertion.has_keys) ? ""
+        : assertion.has_keys.map((key, index) =>
+          <span
+            style={{
+              color: assertion.has_keys_diff.indexOf(key) >= 0
+              ? 'red' : 'black'
+            }}
+            key={`check_${key}_${index}`}>
+            {JSON.stringify(key)}
+          </span>).reduce((prev, curr) => [prev, ', ', curr])
+      }]
       <br />
       Absence check:
-      [{assertion.absent_keys.map((key, index) =>
-        <span
-          style={{
-            color: assertion.absent_keys_diff.indexOf(key) >= 0
-            ? 'red'
-            : 'black'
-          }}
-          key={`check_${key}_${index}`}>
-          {JSON.stringify(key)}
-        </span>).reduce((prev, curr) => [prev, ', ', curr])}]
+      [{_.isEmpty(assertion.absent_keys) ? ""
+        : assertion.absent_keys.map((key, index) =>
+          <span
+            style={{
+              color: assertion.absent_keys_diff.indexOf(key) >= 0
+              ? 'red' : 'black'
+            }}
+            key={`check_${key}_${index}`}>
+            {JSON.stringify(key)}
+          </span>).reduce((prev, curr) => [prev, ', ', curr])
+      }]
     </span>
   );
 
