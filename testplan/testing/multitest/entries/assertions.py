@@ -130,6 +130,17 @@ class FuncAssertion(Assertion):
     def __init__(self, first, second, description=None, category=None):
         self.first = first
         self.second = second
+        if not description:
+            description = "{} {} {}".format(
+                (str(self.first)[0:30] + "...")
+                if len(str(self.first)) > 30
+                else self.first,
+                self.label,
+                (str(self.second)[0:30] + "...")
+                if len(str(self.second)) > 30
+                else self.second,
+            )
+
         super(FuncAssertion, self).__init__(
             description=description, category=category
         )
@@ -199,6 +210,10 @@ class IsClose(Assertion):
         self.rel_tol = rel_tol
         self.abs_tol = abs_tol
 
+        if not description:
+            description = "{} {} {}".format(
+                self.first, self.label, self.second
+            )
         super(IsClose, self).__init__(
             description=description, category=category
         )

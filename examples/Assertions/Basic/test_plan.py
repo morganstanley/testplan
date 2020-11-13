@@ -9,9 +9,9 @@ import re
 import sys
 import random
 
+from testplan import test_plan
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan import test_plan
 from testplan.common.utils import comparison
 from testplan.report.testing.styles import Style, StyleEnum
 
@@ -48,7 +48,10 @@ class SampleSuite(object):
         result.gt(3, 2)
         result.le(10, 15)
         result.ge(15, 10)
-
+        result.eq(
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        )
         # We can test if 2 numbers are close to each other within
         # the relative tolerance or a minimum absolute tolerance level
         result.isclose(100, 95, 0.1, 0.0)
@@ -59,6 +62,13 @@ class SampleSuite(object):
         result.log(
             "This is a log message, it will be displayed"
             " along with other assertion details."
+        )
+
+        result.log(
+            """
+Multi-line log - will use the first non-empty line as its description and truncate after the 80 char.
+The second line shall not occur in description.
+            """
         )
 
         # Boolean checks

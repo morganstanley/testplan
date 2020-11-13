@@ -114,7 +114,7 @@ def test_xml_exporter(tmpdir):
                             ),
                             XC(
                                 tag="failure",
-                                message="Equal",
+                                message="5 == 10",
                                 type="assertion",
                             ),
                         ],
