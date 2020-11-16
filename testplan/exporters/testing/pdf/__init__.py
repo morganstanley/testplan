@@ -192,7 +192,6 @@ class PDFExporter(Exporter):
                 row_data = renderer.get_row_data(
                     source=obj, depth=depth, row_idx=row_idx
                 )
-
                 row_idx = row_data.end
 
                 reportlab_data.extend(row_data.content)

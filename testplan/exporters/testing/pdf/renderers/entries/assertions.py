@@ -26,10 +26,23 @@ from .. import constants as const
 from ..base import RowData
 
 
-def _format_text(text, colour, bold=False):
-    text = "<font color={colour}>{text}</font>".format(
-        text=text, colour=colour
-    )
+MAX_LENGTH = 1000
+
+
+def _format_text(text, colour=None, bold=False, truncate_reverse=False):
+    if len(text) > MAX_LENGTH:
+        try:
+            text = repr(text)
+        except Exception:
+            text = object.__repr__(text)
+        if truncate_reverse:
+            text = "...[truncated]" + text[-MAX_LENGTH:]
+        else:
+            text = text[:MAX_LENGTH] + "[truncated]..."
+    if colour:
+        text = "<font color={colour}>{text}</font>".format(
+            text=text, colour=colour
+        )
     if bold:
         return "<b>{text}</b>".format(text=text)
     return text
@@ -186,21 +199,23 @@ class RegexMatchRenderer(AssertionRenderer):
 
             for begin, end in source["match_indexes"]:
                 if begin > curr_idx:
-                    s = string[curr_idx:begin].replace("\n", "<br />\n")
+                    s = _format_text(
+                        string[curr_idx:begin], truncate_reverse=True
+                    ).replace("\n", "<br />\n")
                     parts.append(s)
-                s = string[begin:end].replace("\n", "<br />\n")
+                s = _format_text(string[begin:end]).replace("\n", "<br />\n")
                 parts.append(_format_text(s, self.highlight_color, self.bold))
                 curr_idx = end
 
             if curr_idx < len(string):
-                s = string[curr_idx:].replace("\n", "<br />\n")
+                s = _format_text(string[curr_idx:]).replace("\n", "<br />\n")
                 parts.append(s)
             text_paragraph = Paragraph(
                 text="".join(parts), style=const.PARAGRAPH_STYLE
             )
         else:
             text_paragraph = Paragraph(
-                text=string, style=const.PARAGRAPH_STYLE
+                text=_format_text(string), style=const.PARAGRAPH_STYLE
             )
 
         return pattern + RowData(
@@ -298,13 +313,13 @@ class RegexMatchLineRenderer(AssertionRenderer):
                 if idx in match_map:
                     begin, end = match_map[idx]
                     formatted = "{start}{middle}{end}".format(
-                        start=escape(line[:begin]),
+                        start=escape(_format_text(line[:begin])),
                         middle=_format_text(
                             text=escape(line[begin:end]),
                             colour="green",
                             bold=False,
                         ),
-                        end=escape(line[end:]),
+                        end=escape(_format_text(line[end:])),
                     )
                     parts.append(formatted)
                 else:
@@ -313,7 +328,9 @@ class RegexMatchLineRenderer(AssertionRenderer):
                 text="<br />\n".join(parts), style=const.PARAGRAPH_STYLE
             )
         else:
-            formatted = escape(source["string"]).replace("\n", "<br />\n")
+            formatted = escape(_format_text(source["string"])).replace(
+                "\n", "<br />\n"
+            )
             text = Paragraph(text=formatted, style=const.PARAGRAPH_STYLE)
 
         return pattern + RowData(
