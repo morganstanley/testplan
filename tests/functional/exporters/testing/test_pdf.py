@@ -41,6 +41,12 @@ def test_create_pdf(tmpdir):
         ),
     ]
 
+    # Test large assertion
+    for _ in range(10):
+        assertion_entries.append(
+            assertions.RegexMatch("Test.*", "Testplan\n" * 500)
+        )
+
     report = TestReport(
         name="my testplan",
         entries=[
