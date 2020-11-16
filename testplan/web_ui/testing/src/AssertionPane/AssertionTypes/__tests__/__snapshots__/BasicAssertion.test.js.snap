@@ -361,6 +361,184 @@ exports[`BasicAssertion shallow renders the DictCheck assertion 1`] = `
 </Fragment>
 `;
 
+exports[`BasicAssertion shallow renders the DictCheck assertion which has no absent key 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        Existence check: [
+        <span
+          key="check_foo_0"
+          style={
+            Object {
+              "color": "black",
+            }
+          }
+        >
+          "foo"
+        </span>
+        , 
+        <span
+          key="check_alpha_1"
+          style={
+            Object {
+              "color": "red",
+            }
+          }
+        >
+          "alpha"
+        </span>
+        ]
+        <br />
+        Absence check: [
+        ]
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
 exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
 <Fragment>
   <Row

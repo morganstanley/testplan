@@ -498,6 +498,25 @@ function propsDictCheck() {
   }
 }
 
+function propsDictCheckWithoutCheckingAbsent() {
+  return {
+    assertion: {
+      "category": "DEFAULT",
+      "machine_time": "2019-02-12T17:41:43.311722+00:00",
+      "description": null,
+      "has_keys": ["foo", "alpha"],
+      "line_no": 570,
+      "meta_type": "assertion",
+      "absent_keys_diff": [],
+      "passed": false,
+      "has_keys_diff": ["alpha"],
+      "type": "DictCheck",
+      "absent_keys": [],
+      "utc_time": "2019-02-12T17:41:43.312097+00:00"
+    }
+  }
+}
+
 function propsFixCheck() {
   return {
     assertion: {
@@ -680,6 +699,12 @@ describe('BasicAssertion', () => {
 
   it('shallow renders the DictCheck assertion', () => {
     props = propsDictCheck();
+    shallowComponent = shallow(<BasicAssertion {...props} />);
+    expect(shallowComponent).toMatchSnapshot();
+  });
+
+  it('shallow renders the DictCheck assertion which has no absent key', () => {
+    props = propsDictCheckWithoutCheckingAbsent();
     shallowComponent = shallow(<BasicAssertion {...props} />);
     expect(shallowComponent).toMatchSnapshot();
   });
