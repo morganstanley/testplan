@@ -4,9 +4,14 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
+import threading
 from builtins import super
 from builtins import str
 from future import standard_library
+
+from testplan.common.entity import ResourceConfig, Resource
+
+MULTITEST_RUNTIME_INFO_HOLDER_KEY = "multitest"
 
 standard_library.install_aliases()
 
@@ -14,14 +19,12 @@ import os
 import collections
 import functools
 import itertools
-import warnings
 
 import concurrent
 
 from schema import Or, And, Use
 
 import testplan.report
-from testplan import defaults
 from testplan.common import config
 from testplan.common import entity
 from testplan.common.utils import interface
@@ -62,6 +65,36 @@ def iterable_suites(obj):
         mtest_suite.set_testsuite_testcases(suite)
 
     return suites
+
+
+class TestcaseInfoLocalStore(threading.local):
+    name = None
+
+
+class MultiTestRuntimeInfo(object):
+    """
+    This class provide information about the state of the actual test run
+    that is accessible from the testcases through the environment as:
+    ``env.multitest.runtime_info``
+
+    Currently only the actual testcase name is accessible as:
+    ``env.multitest.runtime_info.testcase.name`` more info to come.
+    """
+
+    def __init__(self):
+        self.testcase = TestcaseInfoLocalStore()
+
+
+class MultiTestRuntimeInfoHolder(Resource):
+    def __init__(self, **options):
+        super(MultiTestRuntimeInfoHolder, self).__init__(**options)
+        self.runtime_info = MultiTestRuntimeInfo()
+
+    def starting(self):
+        pass
+
+    def stopping(self):
+        pass
 
 
 class MultiTestConfig(testing_base.TestConfig):
@@ -219,6 +252,13 @@ class MultiTest(testing_base.Test):
     def suites(self):
         """Input list of suites."""
         return self.cfg.suites
+
+    @property
+    def runtime_info(self):
+        if MULTITEST_RUNTIME_INFO_HOLDER_KEY in self.resources:
+            return self.resources[
+                MULTITEST_RUNTIME_INFO_HOLDER_KEY
+            ].runtime_info
 
     def get_test_context(self, test_filter=None):
         """
@@ -405,6 +445,7 @@ class MultiTest(testing_base.Test):
                     label="before_start", func=self.cfg.before_start
                 )
             )
+        self._add_step(self._inject_runtime_info)
 
     def main_batch_steps(self):
         """Runnable steps to be executed while environment is running."""
@@ -844,6 +885,9 @@ class MultiTest(testing_base.Test):
 
         with testcase_report.timer.record("run"):
             with testcase_report.logged_exceptions():
+
+                self.runtime_info.testcase.name = testcase.name
+
                 if pre_testcase and callable(pre_testcase):
                     self._run_case_related(pre_testcase, testcase, case_result)
 
@@ -999,6 +1043,11 @@ class MultiTest(testing_base.Test):
                 parent_uids = [self.name, testsuite_uid]
 
             yield testcase_report, parent_uids
+
+    def _inject_runtime_info(self):
+        self.resources.add(
+            MultiTestRuntimeInfoHolder(), MULTITEST_RUNTIME_INFO_HOLDER_KEY
+        )
 
 
 def _need_threadpool(testsuites):
