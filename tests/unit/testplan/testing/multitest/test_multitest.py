@@ -6,6 +6,7 @@ import os
 from testplan.common import entity
 from testplan.common.utils import path
 from testplan.common.utils import testing
+from testplan.common.utils.thread import Barrier
 from testplan.testing import multitest
 from testplan.testing import filtering
 from testplan.testing import ordering
@@ -84,36 +85,67 @@ class Suite(object):
     def case(self, env, result):
         """Basic testcase."""
         result.true(True)
+        assert (
+            env.multitest.runtime_info.testcase.name == "case"
+        )  # using pytest assert to check multitest runtime info
 
     @multitest.testcase(parameters=[1, 2, 3])
     def parametrized(self, env, result, val):
         """Parametrized testcase."""
         result.gt(val, 0)
+        assert (
+            env.multitest.runtime_info.testcase.name
+            == "parametrized <val={}>".format(val)
+        )
 
 
 @multitest.testsuite
 class ParallelSuite(object):
-    """Suite with parallelisable testcases."""
+    """
+    Suite with parallelisable testcases.
+
+    - using Barrier to make sure they overlap
+    - using pytest assertion to do checks while the plan is running, we do not need it in the report
+
+    """
+
+    def __init__(self):
+        self._barrier = Barrier(3)
 
     @multitest.testcase(execution_group="A")
     def case1(self, env, result):
         """Testcase 1"""
+        self._barrier.wait()
         result.eq(0, 0)
+        assert env.multitest.runtime_info.testcase.name == "case1"
+        self._barrier.wait()
 
     @multitest.testcase(execution_group="A")
     def case2(self, env, result):
         """Testcase 2"""
+        self._barrier.wait()
         result.eq(1, 1)
+        assert env.multitest.runtime_info.testcase.name == "case2"
+        self._barrier.wait()
 
     @multitest.testcase(execution_group="A")
     def case3(self, env, result):
         """Testcase 3"""
+        self._barrier.wait()
         result.eq(2, 2)
+        assert env.multitest.runtime_info.testcase.name == "case3"
+        self._barrier.wait()
 
     @multitest.testcase(execution_group="B", parameters=[1, 2, 3])
     def parametrized(self, env, result, val):
         """Parametrized testcase"""
+        self._barrier.wait()
         result.gt(val, 0)
+        assert (
+            env.multitest.runtime_info.testcase.name
+            == "parametrized <val={}>".format(val)
+        )
+        self._barrier.wait()
 
 
 EXPECTED_REPORT_SKELETON = report.TestGroupReport(
@@ -191,6 +223,7 @@ def test_run_all_tests():
     mtest = multitest.MultiTest(
         name="MTest", suites=[Suite()], **MTEST_DEFAULT_PARAMS
     )
+    mtest._inject_runtime_info()
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
     assert mtest_report.name == "MTest"
@@ -226,6 +259,7 @@ def test_run_tests_parallel():
         thread_pool_size=3,
         **MTEST_DEFAULT_PARAMS
     )
+    mtest._inject_runtime_info()
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
     assert mtest_report.name == "MTest"
@@ -253,6 +287,7 @@ def test_run_testcases_iter():
         thread_pool_size=3,
         **MTEST_DEFAULT_PARAMS
     )
+    mtest._inject_runtime_info()
 
     results = list(mtest.run_testcases_iter())
     assert len(results) == 4

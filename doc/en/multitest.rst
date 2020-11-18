@@ -94,6 +94,10 @@ A MultiTest instance can be constructed from the following parameters:
   would typically be defined, as well as drivers for the interfaces that are
   required for interacting with it, such as network connections.
 
+* **Runtime Information**: The environment is always contains a member called
+  ``multitest.runtime_info`` which contains information about the current state of
+  the run. See: :py:class:`MultiTestRuntimeInfo <testplan.testing.multitest.base.MultiTestRuntimeInfo>`
+
 * **Initial Context**: The initial context is an optional way to pass
   information to be used by drivers and from within testcases. When drivers are
   added, they are provided with access to the driver environment that also

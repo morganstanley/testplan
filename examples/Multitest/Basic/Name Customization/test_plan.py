@@ -26,9 +26,11 @@ def case_name_func(func_name, kwargs):
 
 @testsuite(name="A Simple Suite")
 class SimpleSuite(object):
-    @testcase(name="An empty testcase")
+    @testcase(name="A simple testcase")
     def test_example(self, env, result):
-        pass
+        result.equal(
+            env.multitest.runtime_info.testcase.name, "A simple testcase"
+        )
 
     @testcase(
         name="Parametrized testcases",
@@ -37,6 +39,13 @@ class SimpleSuite(object):
     )
     def test_equal(self, env, result, a, b, expected):
         result.equal(a + b, expected, description="Equality test")
+        result.equal(
+            env.multitest.runtime_info.testcase.name,
+            case_name_func(
+                "Parametrized testcases",
+                {"a": a, "b": b, "expected": expected},
+            ),
+        )
 
 
 # In @testsuite decorator, ``name`` can be a normal string or a callable
