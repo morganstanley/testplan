@@ -1,15 +1,15 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
+import DictBaseAssertion from './DictBaseAssertion';
 import DictButtonGroup from './DictButtonGroup';
 import FixCellRenderer from './FixCellRenderer';
-import DictBaseAssertion from './DictBaseAssertion';
 import {
   prepareDictColumnDefs,
   prepareDictRowData,
   sortFlattenedJSON,
   dictCellStyle
 } from './dictAssertionUtils';
-import {SORT_TYPES} from './../../../Common/defaults';
+import {SORT_TYPES, FILTER_OPTIONS} from './../../../Common/defaults';
 
 
 /**
@@ -53,14 +53,18 @@ export default function FixMatchAssertion(props) {
   const buttonGroup = (
     <DictButtonGroup
       sortTypeList={[
-        SORT_TYPES.ALPHABETICAL, 
+        SORT_TYPES.ALPHABETICAL,
         SORT_TYPES.REVERSE_ALPHABETICAL,
-        SORT_TYPES.BY_STATUS,
-        SORT_TYPES.ONLY_FAILURES
+        SORT_TYPES.BY_STATUS
+      ]}
+      filterOptionList={[
+        FILTER_OPTIONS.FAILURES_ONLY,
+        FILTER_OPTIONS.EXCLUDE_IGNORABLE
       ]}
       flattenedDict={flattenedDict}
       setRowData={setRowData}
       defaultSortType={SORT_TYPES.BY_STATUS}
+      defaultFilterOptions={[]}
     />
   );
   

@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import DictBaseAssertion from './DictBaseAssertion';
-import FixCellRenderer from './FixCellRenderer';
 import DictButtonGroup from './DictButtonGroup';
+import FixCellRenderer from './FixCellRenderer';
 import {
   prepareDictColumnDefs,
   prepareDictRowData,
@@ -48,10 +48,12 @@ export default function FixLogAssertion(props) {
     <DictButtonGroup
       sortTypeList={[
         SORT_TYPES.ALPHABETICAL, 
-        SORT_TYPES.REVERSE_ALPHABETICAL
+        SORT_TYPES.REVERSE_ALPHABETICAL,
+        SORT_TYPES.NONE
       ]}
       flattenedDict={flattenedDict}
       setRowData={setRowData}
+      defaultSortType={SORT_TYPES.NONE}
     />
   );
 

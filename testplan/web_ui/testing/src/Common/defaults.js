@@ -150,13 +150,19 @@ const BASIC_ASSERTION_TYPES = [
   'RawAssertion',
 ];
 
-const SORT_TYPES = {
-  NONE: 0,
-  ALPHABETICAL: 1,
-  REVERSE_ALPHABETICAL: 2,
-  BY_STATUS: 3,
-  ONLY_FAILURES: 4,
-};
+// identifier of radio button
+const SORT_TYPES = Object.freeze({
+  NONE: Symbol('NONE'),
+  ALPHABETICAL: Symbol('ALPHABETICAL'),
+  REVERSE_ALPHABETICAL: Symbol('REVERSE_ALPHABETICAL'),
+  BY_STATUS: Symbol('BY_STATUS'),
+});
+
+// identifier of checkbox
+const FILTER_OPTIONS = Object.freeze({
+  FAILURES_ONLY:  Symbol('FAILURES_ONLY'),
+  EXCLUDE_IGNORABLE: Symbol('EXCLUDE_IGNORABLE')
+});
 
 const DICT_GRID_STYLE = {
   MAX_VISIBLE_ROW: 20,
@@ -200,6 +206,7 @@ export {
   NAV_ENTRY_DISPLAY_DATA,
   BASIC_ASSERTION_TYPES,
   SORT_TYPES,
+  FILTER_OPTIONS,
   DICT_GRID_STYLE,
   POLL_MS,
 };

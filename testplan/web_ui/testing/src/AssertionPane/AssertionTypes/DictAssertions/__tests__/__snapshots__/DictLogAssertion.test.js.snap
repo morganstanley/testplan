@@ -4,6 +4,7 @@ exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
 <DictBaseAssertion
   buttons={
     <DictButtonGroup
+      defaultSortType={Symbol(NONE)}
       flattenedDict={
         Array [
           Array [
@@ -61,8 +62,9 @@ exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
       setRowData={[Function]}
       sortTypeList={
         Array [
-          1,
-          2,
+          Symbol(ALPHABETICAL),
+          Symbol(REVERSE_ALPHABETICAL),
+          Symbol(NONE),
         ]
       }
     />

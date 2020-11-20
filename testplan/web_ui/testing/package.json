@@ -51,10 +51,10 @@
     "npm-force-resolutions": "0.0.3"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-scripts --max_old_space_size=4096 start",
+    "build": "react-scripts --max_old_space_size=4096 build",
     "prebuild": "pegjs --format es src/Parser/SearchFieldParser.pegjs",
-    "test": "react-scripts test",
+    "test": "react-scripts --max_old_space_size=4096 test",
     "lint": "eslint --ext .js --ext .jsx src",
     "lint:fix": "eslint --ext .js --ext .jsx src --fix",
     "eject": "react-scripts eject"

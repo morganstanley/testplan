@@ -48,9 +48,12 @@ export default function DictLogAssertion(props) {
     <DictButtonGroup
       sortTypeList={[
         SORT_TYPES.ALPHABETICAL,
-        SORT_TYPES.REVERSE_ALPHABETICAL]}
+        SORT_TYPES.REVERSE_ALPHABETICAL,
+        SORT_TYPES.NONE
+      ]}
       flattenedDict={flattenedDict}
       setRowData={setRowData}
+      defaultSortType={SORT_TYPES.NONE}
     />
   );
 
