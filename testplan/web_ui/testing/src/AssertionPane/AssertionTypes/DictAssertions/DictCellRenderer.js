@@ -15,36 +15,23 @@ import { INDENT_MULTIPLIER } from './../../../Common/defaults';
  *  - subText is the type of the value in subscript and
  */
 export default function DictCellRenderer(props) {
-  let mainText = null;
-  let subText = null;
-  let indentStyle = {};
-  if (props.field === 'key') {
-    if (props.data.key) {
-      mainText = props.data.key.value;
-    } else {
-      return null;
-    }
+  if (!props.value) {
+    return null;
+  }
 
-    if (mainText && props.data.descriptor.isListKey) {
+  let mainText = props.value.value;
+  let subText;
+  let indentStyle = {};
+  if (props.colDef.field === 'key') {
+    if (props.data.descriptor.isListKey && mainText) {
       subText = 'list';
     }
-
     if (props.data.descriptor.indent) {
       const indent = props.data.descriptor.indent * INDENT_MULTIPLIER;
       indentStyle.marginLeft = `${indent}rem`;
     }
-
-  } else {  // Cell is value/expect column.
-    if (props.data[props.field]) {
-      mainText = props.data[props.field].value;
-      subText = props.data[props.field].type;
-    } else {
-      return null;
-    }
-  }
-
-  if (props.data.descriptor.status === 'Failed') {
-    indentStyle.color = 'red';
+  } else {
+    subText = props.value.type;
   }
 
   return (
@@ -75,5 +62,5 @@ DictCellRenderer.propTypes = {
   /** Function to call when mouse leaves cell. */
   onMouseLeave: PropTypes.func,
   /** Column field */
-  field: PropTypes.string,
+  colDef: PropTypes.object,
 };

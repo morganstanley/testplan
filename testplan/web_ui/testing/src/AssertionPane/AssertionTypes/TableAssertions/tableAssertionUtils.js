@@ -2,6 +2,31 @@
 
 import {domToString} from './../../../Common/utils';
 
+
+/**
+ * Function to add styling to table cells with conditions based on their values.
+ *
+ * @param {Array} params
+ * @returns {object}
+ * @private
+ */
+function tableCellStyle(params) {
+  const isValueRow = params.data.ev === 'Value';
+  const isCellFailed = params.data.passed[params.colDef.field] === false;
+  let cellStyle = {};
+
+  if (isValueRow) {
+    cellStyle['borderBottomColor'] = '#827878';
+  }
+
+  if (isCellFailed) {
+    cellStyle['color'] = 'red';
+    cellStyle['fontWeight'] = 'bold';
+  }
+
+  return cellStyle;
+}
+
 /**
  * Function to prepare the column definitions for TableLog assertions.
  *
@@ -16,42 +41,28 @@ import {domToString} from './../../../Common/utils';
  * @private
  */
 
-const cellStyle = {
-  fontSize: 'small',
-  border: '1px solid',
-  borderColor: '#d9dcde',
-  padding: '6px 11px 6px 11px'
-};
-
-const headerStyle = {
-  border: '1px solid',
-  borderColor: '#d9dcde',
-};
-
-export function prepareTableColumn(columns) {
+export function prepareTableLogColumnDefs(columns) {
   let columnDefs = [{
-    title: 'ID',
+    headerName: 'ID',
     field: 'id',
-    cellStyle: {
-      width: '72px',
-      ...cellStyle
-    },
-    headerStyle: {
-      width: '72px',
-      ...headerStyle
-    }
+    pinned: 'left',
+    resizable: true,
+    suppressSizeToFit: true,
+    width: 75,
+    filterParams: {excelMode: 'windows'}
   }];
 
   columns.forEach(column => {
     columnDefs.push({
-      title: column,
+      headerName: column,
       field: column,
-      cellStyle: cellStyle,
-      headerStyle: headerStyle
+      filterParams: {excelMode: 'windows'}
     });
   });
+  
   return columnDefs;
 }
+
 
 /**
  * Prepare the row data of TableLog assertions.
@@ -87,50 +98,35 @@ export function prepareTableLogRowData(indexes, table, columns) {
  * @returns {Array}
  * @private
  */
-export function prepareTableMatchColumn(columns) {
+export function prepareTableMatchColumnDefs(columns) {
   let columnDefs = [{
-    title: 'ID',
+    headerName: 'ID',
     field: 'id',
-    cellStyle: {
-      width: '72px',
-      ...cellStyle
-    },
-    headerStyle: {
-      width: '72px',
-      ...headerStyle
-    }
+    pinned: 'left',
+    resizable: true,
+    suppressSizeToFit: true,
+    width: 75,
+    filterParams: {excelMode: 'windows'},
+    cellStyle: tableCellStyle,
   }, {
-    title: 'Expected/Value',
+    headerName: 'Expected/Value',
     field: 'ev',
-    cellStyle: {
-      width: '121px',
-      ...cellStyle
-    },
-    headerStyle: {
-      width: '121px',
-      ...headerStyle
-    }
+    pinned: 'left',
+    resizable: true,
+    suppressSizeToFit: true,
+    width: 125,
+    filterParams: {excelMode: 'windows'},
+    cellStyle: tableCellStyle,
   }];
 
   columns.forEach(column => {
     columnDefs.push({
-      title: column,
+      headerName: column,
       field: column,
-      cellStyle: (value, rowData) => {
-        if (rowData.passed[column]) {
-          return cellStyle;
-        } else {
-          return {
-            color: 'red',
-            fontWidth: 'bold',
-            ...cellStyle
-          };
-        }
-      },
-      headerStyle: headerStyle
+      filterParams: {excelMode: 'windows'},
+      cellStyle: tableCellStyle,
     });
   });
-
   return columnDefs;
 }
 
@@ -204,45 +200,27 @@ export function prepareTableRowData(data, columns) {
  * @returns {Array}
  * @private
  */
-export function prepareTableColumnContainColumn(column) {
-  return [
-    {
-      title: 'ID',
-      field: 'id',
-      cellStyle: (value, rowData) => {
-        let style = {width: '72px', ...cellStyle};
-        if (rowData.passed) {
-          return style;
-        } else {
-          return {
-            color: 'red',
-            fontWidth: 'bold',
-            ...style
-          };
-        }
-      },
-      headerStyle: {
-        width: '72px',
-        ...headerStyle,
-      }
-    },
-    {
-      title: column,
-      field: 'value',
-      cellStyle: (value, rowData) => {
-        if (rowData.passed) {
-          return cellStyle;
-        } else {
-          return {
-            color: 'red',
-            fontWidth: 'bold',
-            ...cellStyle
-          };
-        }
-      },
-      headerStyle: headerStyle
-    },
-  ];
+export function prepareTableColumnContainColumnDefs(column) {
+  const cellStyleFn = (params) => {
+    return !params.data.passed ? {color: 'red', fontWeight: 'bold'} : null;
+  };
+  return [{
+    headerName: 'ID',
+    field: 'id',
+    pinned: 'left',
+    resizable: true,
+    suppressSizeToFit: true,
+    width: 75,
+    filterParams: {excelMode: 'windows'},
+    cellStyle: cellStyleFn
+  }, {
+    headerName: column,
+    field: 'value',
+    resizable: true,
+    suppressSizeToFit: true,
+    filterParams: {excelMode: 'windows'},
+    cellStyle: cellStyleFn,
+  }];
 }
 
 /**

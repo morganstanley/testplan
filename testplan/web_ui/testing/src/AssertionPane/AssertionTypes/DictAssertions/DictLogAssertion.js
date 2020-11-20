@@ -4,8 +4,9 @@ import DictBaseAssertion from './DictBaseAssertion';
 import DictButtonGroup from './DictButtonGroup';
 import DictCellRenderer from './DictCellRenderer';
 import {
-  prepareDictColumn,
+  prepareDictColumnDefs,
   prepareDictRowData,
+  dictCellStyle,
 } from './dictAssertionUtils';
 import {SORT_TYPES} from './../../../Common/defaults';
 
@@ -39,7 +40,7 @@ import {SORT_TYPES} from './../../../Common/defaults';
  */
 export default function DictLogAssertion(props) {
   const flattenedDict = props.assertion.flattened_dict;
-  const columns = prepareDictColumn(DictCellRenderer);
+  const columns = prepareDictColumnDefs(dictCellStyle, DictCellRenderer);
 
   const [rowData, setRowData] = useState(flattenedDict);
 

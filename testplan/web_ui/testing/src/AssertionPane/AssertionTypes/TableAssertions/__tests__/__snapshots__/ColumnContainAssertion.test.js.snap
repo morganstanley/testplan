@@ -7,21 +7,24 @@ exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
       Object {
         "cellStyle": [Function],
         "field": "id",
-        "headerStyle": Object {
-          "border": "1px solid",
-          "borderColor": "#d9dcde",
-          "width": "72px",
+        "filterParams": Object {
+          "excelMode": "windows",
         },
-        "title": "ID",
+        "headerName": "ID",
+        "pinned": "left",
+        "resizable": true,
+        "suppressSizeToFit": true,
+        "width": 75,
       },
       Object {
         "cellStyle": [Function],
         "field": "value",
-        "headerStyle": Object {
-          "border": "1px solid",
-          "borderColor": "#d9dcde",
+        "filterParams": Object {
+          "excelMode": "windows",
         },
-        "title": "symbol",
+        "headerName": "symbol",
+        "resizable": true,
+        "suppressSizeToFit": true,
       },
     ]
   }

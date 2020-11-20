@@ -3,6 +3,12 @@
 exports[`DictLogAssertion shallow renders the dict value 1`] = `
 <Fragment>
   <DictCellRenderer
+    colDef={
+      Object {
+        "field": "expected",
+        "headerName": "Expected",
+      }
+    }
     data={
       Object {
         "descriptor": Object {
@@ -26,9 +32,13 @@ exports[`DictLogAssertion shallow renders the dict value 1`] = `
         },
       }
     }
-    id="id_667_undefined_undefined"
-    onMouseEnter={[Function]}
-    onMouseLeave={[Function]}
+    id="id_667_undefined_expected"
+    value={
+      Object {
+        "type": "B",
+        "value": "B",
+      }
+    }
   />
 </Fragment>
 `;
