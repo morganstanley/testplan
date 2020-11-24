@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import TableBaseAssertion from './TableBaseAssertion';
 
 import {
-  prepareTableMatchColumn,
+  prepareTableMatchColumnDefs,
   prepareTableRowData,
 } from './tableAssertionUtils';
 
@@ -12,7 +12,7 @@ import {
  * Component that are used to render TableMatch assertion.
  */
 export default function TableMatchAssertion (props) {
-  let columns = prepareTableMatchColumn(props.assertion.columns);
+  let columns = prepareTableMatchColumnDefs(props.assertion.columns);
   let rows = prepareTableRowData(
     props.assertion.data, 
     props.assertion.columns

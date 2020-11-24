@@ -70,35 +70,24 @@ exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
   columns={
     Array [
       Object {
-        "cellStyle": Object {
-          "border": "1px solid",
-          "borderColor": "#d9dcde",
-          "fontSize": "small",
-          "padding": "6px 11px 6px 11px",
-        },
-        "field": "key",
-        "headerStyle": Object {
-          "border": "1px solid",
-          "borderColor": "#d9dcde",
-        },
-        "render": [Function],
-        "title": "Key",
+        "field": "descriptor",
+        "headerName": "Descriptor",
+        "hide": true,
       },
       Object {
-        "cellStyle": Object {
-          "backgroundColor": "#BDC3C750",
-          "border": "1px solid",
-          "borderColor": "#d9dcde",
-          "fontSize": "small",
-          "padding": "6px 11px 6px 11px",
-        },
+        "cellRendererFramework": [Function],
+        "cellStyle": [Function],
+        "field": "key",
+        "headerName": "Key",
+        "pinned": "left",
+        "resizable": true,
+        "suppressSizeToFit": true,
+      },
+      Object {
+        "cellRendererFramework": [Function],
+        "cellStyle": [Function],
         "field": "value",
-        "headerStyle": Object {
-          "border": "1px solid",
-          "borderColor": "#d9dcde",
-        },
-        "render": [Function],
-        "title": "Value",
+        "headerName": "Value",
       },
     ]
   }

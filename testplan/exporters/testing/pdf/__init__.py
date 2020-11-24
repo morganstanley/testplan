@@ -105,78 +105,6 @@ def generate_path_for_tags(config, tag_dict, filter_type):
     return add_count_suffix(config.report_dir, path)
 
 
-def create_pdf(source, config):
-    """Entry point for PDF generation."""
-    if stored_exc is not None:
-        # We cannot generate a PDF if there was an exception importing the
-        # dependencies, so raise and abort here.
-        #
-        # Need to explicitly disable the raising-bad-type check here since
-        # pylint isn't smart enough to know that we explicitly checked that
-        # the stored_exc is not None above.
-        raise stored_exc  # pylint: disable=raising-bad-type
-
-    # Depth values will be used for indentation on PDF, however
-    # we want first level children to have depth = 0 (otherwise we'll have to
-    # do `depth + 1` everywhere in the renderers.
-    # The renderer for root will discard the negative depth.
-    data = [(depth - 1, rep) for depth, rep in source.flatten(depths=True)]
-
-    reportlab_data = []
-    reportlab_styles = []
-    row_idx = 0
-
-    for depth, obj in data:
-
-        registry = (
-            report_registry
-            if isinstance(obj, Report)
-            else serialized_entry_registry
-        )
-
-        renderer = registry[obj](style=config.pdf_style)
-        if renderer.should_display(source=obj):
-            row_data = renderer.get_row_data(
-                source=obj, depth=depth, row_idx=row_idx
-            )
-
-            row_idx = row_data.end
-
-            reportlab_data.extend(row_data.content)
-            reportlab_styles.extend(row_data.style)
-
-    pdf_path = config.pdf_path
-    try:
-        if config.interactive_port is None:
-            override = True
-        else:
-            override = False
-    except AttributeError:
-        override = True
-    if not override and os.path.exists(pdf_path):
-        file_name, ext = os.path.splitext(pdf_path)
-        pdf_path = "{}_{}{}".format(file_name, int(time.time()), ext)
-
-    template = SimpleDocTemplate(
-        filename=pdf_path,
-        pageSize=const.PAGE_SIZE,
-        topMargin=const.PAGE_MARGIN,
-        bottomMargin=const.PAGE_MARGIN,
-        leftMargin=const.PAGE_MARGIN,
-        rightMargin=const.PAGE_MARGIN,
-        title="Testplan report - {}".format(source.name),
-    )
-
-    tables = create_base_tables(
-        data=reportlab_data,
-        style=const.TABLE_STYLE + reportlab_styles,
-        col_widths=[width * template.width for width in const.COL_WIDTHS],
-    )
-
-    template.build(tables)
-    return pdf_path
-
-
 class BasePDFExporterConfig(ExporterConfig):
     """Config for PDF exporter"""
 
@@ -230,17 +158,85 @@ class PDFExporter(Exporter):
     def __init__(self, name="PDF exporter", **options):
         super(PDFExporter, self).__init__(name=name, **options)
 
+    def create_pdf(self, source):
+        """Entry point for PDF generation."""
+        if stored_exc is not None:
+            # We cannot generate a PDF if there was an exception importing the
+            # dependencies, so raise and abort here.
+            #
+            # Need to explicitly disable the raising-bad-type check here since
+            # pylint isn't smart enough to know that we explicitly checked that
+            # the stored_exc is not None above.
+            raise stored_exc  # pylint: disable=raising-bad-type
+
+        # Depth values will be used for indentation on PDF, however
+        # we want first level children to have depth = 0 (otherwise we'll have to
+        # do `depth + 1` everywhere in the renderers.
+        # The renderer for root will discard the negative depth.
+        data = [(depth - 1, rep) for depth, rep in source.flatten(depths=True)]
+
+        reportlab_data = []
+        reportlab_styles = []
+        row_idx = 0
+
+        for depth, obj in data:
+
+            registry = (
+                report_registry
+                if isinstance(obj, Report)
+                else serialized_entry_registry
+            )
+
+            renderer = registry[obj](style=self.cfg.pdf_style)
+            if renderer.should_display(source=obj):
+                row_data = renderer.get_row_data(
+                    source=obj, depth=depth, row_idx=row_idx
+                )
+
+                row_idx = row_data.end
+
+                reportlab_data.extend(row_data.content)
+                reportlab_styles.extend(row_data.style)
+
+        pdf_path = self.cfg.pdf_path
+        try:
+            if self.cfg.interactive_port is None:
+                override = True
+            else:
+                override = False
+        except AttributeError:
+            override = True
+        if not override and os.path.exists(pdf_path):
+            file_name, ext = os.path.splitext(pdf_path)
+            pdf_path = "{}_{}{}".format(file_name, int(time.time()), ext)
+            self.logger.exporter_info(
+                "File %s exists!", self.cfg.pdf_path,
+            )
+
+        template = SimpleDocTemplate(
+            filename=pdf_path,
+            pageSize=const.PAGE_SIZE,
+            topMargin=const.PAGE_MARGIN,
+            bottomMargin=const.PAGE_MARGIN,
+            leftMargin=const.PAGE_MARGIN,
+            rightMargin=const.PAGE_MARGIN,
+            title="Testplan report - {}".format(source.name),
+        )
+
+        tables = create_base_tables(
+            data=reportlab_data,
+            style=const.TABLE_STYLE + reportlab_styles,
+            col_widths=[width * template.width for width in const.COL_WIDTHS],
+        )
+
+        template.build(tables)
+        return pdf_path
+
     def export(self, source):
         if len(source):
-            pdf_path = os.path.abspath(create_pdf(source, self.cfg))
-            if pdf_path == self.cfg.pdf_path:
-                self.logger.exporter_info("PDF generated at %s", pdf_path)
-            else:
-                self.logger.exporter_info(
-                    "File %s exists! PDF generated at %s",
-                    self.cfg.pdf_path,
-                    pdf_path,
-                )
+            pdf_path = os.path.abspath(self.create_pdf(source))
+            self.logger.exporter_info("PDF generated at %s", pdf_path)
+
             self.url = "file:{}".format(pathname2url(pdf_path))
             return pdf_path
         else:

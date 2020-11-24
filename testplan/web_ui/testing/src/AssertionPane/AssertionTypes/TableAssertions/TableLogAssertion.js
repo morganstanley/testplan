@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import TableBaseAssertion from './TableBaseAssertion';
 
 import {
-  prepareTableColumn,
+  prepareTableLogColumnDefs,
   prepareTableLogRowData,
 } from './tableAssertionUtils';
 
@@ -12,16 +12,21 @@ import {
  * Component that are used to render TableLog assertion.
  */
 export default function TableLogAssertion (props) {
-  let columns = prepareTableColumn(props.assertion.columns);
-  let rows = prepareTableLogRowData(
+  let columnDefs = prepareTableLogColumnDefs(props.assertion.columns);
+  let rowData = prepareTableLogRowData(
     props.assertion.indices, 
     props.assertion.table,
     props.assertion.columns
   );
+
   return (
-    <TableBaseAssertion columns={columns} rows={rows}/>
+    <TableBaseAssertion
+      columns={columnDefs}
+      rows={rowData}
+    />
   );
 };
+
 
 TableLogAssertion.propTypes = {
   /** Assertion being rendered */

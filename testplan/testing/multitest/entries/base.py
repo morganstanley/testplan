@@ -228,6 +228,11 @@ class Log(BaseEntry):
         else:
             self.message = pprint.pformat(message)
 
+        if not description:
+            description = next((l for l in self.message.split("\n") if l), "")
+            if len(description) > 80:
+                description = description[0:80] + "..."
+
         super(Log, self).__init__(description=description, flag=flag)
 
 

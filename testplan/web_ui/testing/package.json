@@ -11,9 +11,10 @@
     "@fortawesome/fontawesome-svg-core": "1.2.2",
     "@fortawesome/free-solid-svg-icons": "5.2.0",
     "@fortawesome/react-fontawesome": "0.1.3",
-    "@material-ui/core": "^4.10.0",
-    "@material-ui/icons": "^4.9.1",
     "@reduxjs/toolkit": "~1.3.4",
+    "ag-grid-community": "^24.1.0",
+    "ag-grid-enterprise": "^24.1.0",
+    "ag-grid-react": "^24.1.0",
     "aphrodite": "2.2.3",
     "axios": "0.19.0",
     "bootstrap": "4.4.1",
@@ -22,7 +23,6 @@
     "history": "~4.10.1",
     "immer": "^6.0.0",
     "lodash": "~4.17.15",
-    "material-table": "^1.37.0",
     "react": "16.13.1",
     "react-copy-html-to-clipboard": "6.0.4",
     "react-custom-scrollbars": "4.2.1",
@@ -39,7 +39,8 @@
     "react-test-renderer": "16.6.0",
     "react-vis": "^1.11.7",
     "reactstrap": "8.0.0",
-    "redux": "^4.0.5"
+    "redux": "^4.0.5",
+    "pegjs": "^0.11.0-master.b7b87ea"
   },
   "devDependencies": {
     "enzyme": "3.7.0",
@@ -47,8 +48,7 @@
     "enzyme-to-json": "^3.3.5",
     "jest-canvas-mock": "^2.1.0",
     "moxios": "0.4.0",
-    "npm-force-resolutions": "0.0.3",
-    "pegjs": "^0.11.0-master.b7b87ea"
+    "npm-force-resolutions": "0.0.3"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -138,17 +138,14 @@ class JSONExporter(Exporter):
             """Remove assertions from report and place them in a dictionary."""
             for entry in entries:
                 if entry.get("category") == ReportCategories.TESTCASE:
-                    assertions[entry["name"]] = entry["entries"]
+                    assertions[entry["uid"]] = entry["entries"]
                     entry["entries"] = []
                 elif "entries" in entry:
-                    assertions.setdefault(entry["name"], {})
-                    split_assertions(
-                        entry["entries"], assertions[entry["name"]]
-                    )
+                    split_assertions(entry["entries"], assertions)
 
-        meta, structure, assertions = data, data["entries"], {data["name"]: {}}
+        meta, structure, assertions = data, data["entries"], {}
         meta["entries"] = []
-        split_assertions(structure, assertions[meta["name"]])
+        split_assertions(structure, assertions)
         return meta, structure, assertions
 
     @staticmethod
@@ -159,16 +156,14 @@ class JSONExporter(Exporter):
             """Fill assertions into report by the unique id."""
             for entry in entries:
                 if entry.get("category") == ReportCategories.TESTCASE:
-                    try:
-                        dictionary = assertions
-                        for key in entry["parent_uids"]:
-                            dictionary = dictionary[key]
-                        entry["entries"] = dictionary[entry["name"]]
-                    except KeyError as err:
-                        if strict:
-                            raise RuntimeError(
-                                "Assertion key not found: {}".format(str(err))
+                    if entry["uid"] in assertions:
+                        entry["entries"] = assertions[entry["uid"]]
+                    elif strict:
+                        raise RuntimeError(
+                            "Testcase report uid missing: {}".format(
+                                entry["uid"]
                             )
+                        )
                 elif "entries" in entry:
                     merge_assertions(entry["entries"], assertions, strict)
 

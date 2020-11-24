@@ -1,15 +1,183 @@
 """Test the JSON exporter."""
-import json
 import os
+import json
+import copy
 import hashlib
 import tempfile
 
-from testplan.testing import multitest
+import pytest
+import six
 
 from testplan import TestplanMock
+from testplan.testing import multitest
 from testplan.common.utils.testing import argv_overridden
 from testplan.exporters.testing import JSONExporter
 from testplan.exporters.testing.json import gen_attached_report_names
+
+
+full_report = {
+    "python_version": "3.7.1",
+    "category": "testplan",
+    "runtime_status": "finished",
+    "status": "failed",
+    "entries": [
+        {
+            "category": "multitest",
+            "parent_uids": ["Multiply"],
+            "name": "MultiplyTest",
+            "uid": "MultiplyTest",
+            "entries": [
+                {
+                    "category": "testsuite",
+                    "parent_uids": ["Multiply", "MultiplyTest"],
+                    "name": "BasicSuite",
+                    "uid": "BasicSuite",
+                    "entries": [
+                        {
+                            "category": "parametrization",
+                            "parent_uids": [
+                                "Multiply",
+                                "MultiplyTest",
+                                "BasicSuite",
+                            ],
+                            "name": "Basic Multiply",
+                            "uid": "basic_multiply",
+                            "entries": [
+                                {
+                                    "entries": [
+                                        {
+                                            "name": "test assertion1",
+                                            "uid": "test_assertion1",
+                                        },
+                                    ],
+                                    "type": "TestCaseReport",
+                                    "category": "testcase",
+                                    "parent_uids": [
+                                        "Multiply",
+                                        "MultiplyTest",
+                                        "BasicSuite",
+                                        "basic_multiply",
+                                    ],
+                                    "name": "basic multiply <p1='aaa', p2=111>",
+                                    "uid": "basic_multiply__p1_aaa__p2_111",
+                                },
+                                {
+                                    "entries": [
+                                        {
+                                            "name": "test assertion2",
+                                            "uid": "test_assertion2",
+                                        }
+                                    ],
+                                    "type": "TestCaseReport",
+                                    "category": "testcase",
+                                    "parent_uids": [
+                                        "Multiply",
+                                        "MultiplyTest",
+                                        "BasicSuite",
+                                        "basic_multiply",
+                                    ],
+                                    "name": "basic multiply <p1='bbb', p2=222>",
+                                    "uid": "basic_multiply__p1_bbb__p2_222",
+                                },
+                            ],
+                            "type": "TestGroupReport",
+                        }
+                    ],
+                    "type": "TestGroupReport",
+                }
+            ],
+            "type": "TestGroupReport",
+        }
+    ],
+    "name": "Multiply",
+    "uid": "Multiply",
+    "project": "testplan",
+    "timeout": 14400,
+}
+
+
+meta_part = {
+    "python_version": "3.7.1",
+    "category": "testplan",
+    "runtime_status": "finished",
+    "status": "failed",
+    "entries": [],
+    "name": "Multiply",
+    "uid": "Multiply",
+    "project": "testplan",
+    "timeout": 14400,
+}
+
+
+structure_part = [
+    {
+        "category": "multitest",
+        "parent_uids": ["Multiply"],
+        "name": "MultiplyTest",
+        "uid": "MultiplyTest",
+        "entries": [
+            {
+                "category": "testsuite",
+                "parent_uids": ["Multiply", "MultiplyTest"],
+                "name": "BasicSuite",
+                "uid": "BasicSuite",
+                "entries": [
+                    {
+                        "category": "parametrization",
+                        "parent_uids": [
+                            "Multiply",
+                            "MultiplyTest",
+                            "BasicSuite",
+                        ],
+                        "name": "Basic Multiply",
+                        "uid": "basic_multiply",
+                        "entries": [
+                            {
+                                "entries": [],
+                                "type": "TestCaseReport",
+                                "category": "testcase",
+                                "parent_uids": [
+                                    "Multiply",
+                                    "MultiplyTest",
+                                    "BasicSuite",
+                                    "basic_multiply",
+                                ],
+                                "name": "basic multiply <p1='aaa', p2=111>",
+                                "uid": "basic_multiply__p1_aaa__p2_111",
+                            },
+                            {
+                                "entries": [],
+                                "type": "TestCaseReport",
+                                "category": "testcase",
+                                "parent_uids": [
+                                    "Multiply",
+                                    "MultiplyTest",
+                                    "BasicSuite",
+                                    "basic_multiply",
+                                ],
+                                "name": "basic multiply <p1='bbb', p2=222>",
+                                "uid": "basic_multiply__p1_bbb__p2_222",
+                            },
+                        ],
+                        "type": "TestGroupReport",
+                    }
+                ],
+                "type": "TestGroupReport",
+            }
+        ],
+        "type": "TestGroupReport",
+    }
+]
+
+
+assertions_part = {
+    "basic_multiply__p1_aaa__p2_111": [
+        {"name": "test assertion1", "uid": "test_assertion1"},
+    ],
+    "basic_multiply__p1_bbb__p2_222": [
+        {"name": "test assertion2", "uid": "test_assertion2"},
+    ],
+}
 
 
 @multitest.testsuite
@@ -41,6 +209,23 @@ class Beta(object):
     @multitest.testcase
     def test_error(self, env, result):
         raise Exception("foo")
+
+
+@pytest.mark.skipif(six.PY2, reason="dict comparison not reliable on Python2.")
+def test_split_and_merge():
+    """
+    Test static methods used for splitting and merging JSON report.
+    """
+    meta, structure, assertions = JSONExporter.split_json_report(
+        copy.deepcopy(full_report)
+    )
+    assert meta == meta_part
+    assert structure == structure_part
+    assert assertions == assertions_part
+    assert (
+        JSONExporter.merge_json_report(meta, structure, assertions)
+        == full_report
+    )
 
 
 def test_json_exporter(runpath):
@@ -79,7 +264,7 @@ def test_json_exporter(runpath):
     assert attachment_file_contents == "testplan\n" * 100
 
 
-def test_json_exporter_split_report(runpath):
+def test_json_exporter_generating_split_report(runpath):
     """
     JSON Exporter should generate a json report at the given `json_path`.
     """
@@ -139,36 +324,16 @@ def test_json_exporter_split_report(runpath):
     assert structure[1]["entries"][0]["name"] == "Beta"  # 1st suite name
     assert len(structure[1]["entries"][0]["entries"]) == 2  # 2 testcases
 
-    assert len(assertions["plan"]) == 2
-    assert len(assertions["plan"]["Primary"]) == 1
-    assert len(assertions["plan"]["Primary"]["Alpha"]) == 3
-    assert len(assertions["plan"]["Secondary"]) == 1
-    assert len(assertions["plan"]["Secondary"]["Beta"]) == 2
-
+    assert len(assertions) == 5  # 5 assertions in total
     # only one assertion in each testcase in suite `Alpha`
-    assert (
-        assertions["plan"]["Primary"]["Alpha"]["test_comparison"][0]["type"]
-        == "Equal"
-    )
-    assert (
-        assertions["plan"]["Primary"]["Alpha"]["test_membership"][0]["type"]
-        == "Contain"
-    )
-    assert (
-        assertions["plan"]["Primary"]["Alpha"]["test_attach"][0]["type"]
-        == "Attachment"
-    )
+    assert assertions["test_comparison"][0]["type"] == "Equal"
+    assert assertions["test_membership"][0]["type"] == "Contain"
+    assert assertions["test_attach"][0]["type"] == "Attachment"
     # 2 assertions in testcase `test_failure`
-    assert (
-        assertions["plan"]["Secondary"]["Beta"]["test_failure"][0]["type"]
-        == "Equal"
-    )
-    assert (
-        assertions["plan"]["Secondary"]["Beta"]["test_failure"][1]["type"]
-        == "NotEqual"
-    )
+    assert assertions["test_failure"][0]["type"] == "Equal"
+    assert assertions["test_failure"][1]["type"] == "NotEqual"
     # no assertion in testcase `test_error`
-    assert len(assertions["plan"]["Secondary"]["Beta"]["test_error"]) == 0
+    assert len(assertions["test_error"]) == 0
 
 
 def test_implicit_exporter_initialization(runpath):

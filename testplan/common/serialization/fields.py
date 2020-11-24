@@ -38,8 +38,6 @@ COMPATIBLE_TYPES = (bool, float, type(None), str, bytes, int)
 if six.PY2:
     COMPATIBLE_TYPES += (unicode, long)  # pylint: disable=undefined-variable
 
-MAX_LENGTH = 1000  # this will be configurable
-
 
 def _repr_obj(obj):
     # copypasta from unittest code
@@ -64,10 +62,6 @@ def native_or_pformat(value):
         result = value
     else:
         result = pprint.pformat(value)
-
-    obj_repr = _repr_obj(result)
-    if len(obj_repr) > MAX_LENGTH:
-        result = obj_repr[:MAX_LENGTH] + "[truncated]..."
 
     return result
 

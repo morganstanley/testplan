@@ -28,7 +28,7 @@ expected_report = TestReport(
                                 {
                                     "type": "Log",
                                     "message": "hello world",
-                                    "description": None,
+                                    "description": "hello world",
                                 },
                                 {
                                     "type": "Log",

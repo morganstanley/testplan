@@ -130,55 +130,54 @@ describe('Report/reportUtils', () => {
       "status": "failed",
       "entries": [],
       "name": "Multiply",
+      "uid": "Multiply",
       "project": "testplan",
       "timeout": 14400
     };
 
     const assertions = {
-      "Multiply": {
-        "MultiplyTest": {
-          "BasicSuite": {
-            "basic_multiply": {
-              "basic_multiply__p1_aaaa__p2_11111": [
-                {"name": "test assertion1"},
-              ], 
-              "basic_multiply__p1_bbbb__p2_2222": [
-                {"name": "test assertion2"},
-              ]
-            }
-          }
-        }
-      }
+      "basic_multiply__p1_aaaa__p2_11111": [
+        {"name": "test assertion1", "uid": "test_assertion1"},
+      ],
+      "basic_multiply__p1_bbbb__p2_22222": [
+        {"name": "test assertion2", "uid": "test_assertion2"},
+      ]
     };
+
     const structure = [
       {
         "category": "multitest",
         "parent_uids": ["Multiply"],
         "name": "MultiplyTest",
+        "uid": "MultiplyTest",
         "entries": [
           {
             "category": "testsuite",
             "parent_uids": ["Multiply", "MultiplyTest"],
             "name": "BasicSuite",
+            "uid": "BasicSuite",
             "entries": [
               {
                 "category": "parametrization",
                 "parent_uids": ["Multiply", "MultiplyTest", "BasicSuite"],
-                "name": "basic_multiply",
+                "name": "Basic Multiply",
+                "uid": "basic_multiply",
                 "entries": [
                   {
                     "entries": [],
                     "type": "TestCaseReport",
                     "category": "testcase",
                     "parent_uids": ["Multiply", "MultiplyTest", "BasicSuite", "basic_multiply"],
-                    "name": "basic_multiply__p1_aaaa__p2_11111",
+                    "name": "basic multiply <p1='aaaa', p2=11111>",
+                    "uid": "basic_multiply__p1_aaaa__p2_11111",
                   },
                   {
                     "entries": [],
                     "type": "TestCaseReport",
                     "category": "testcase",
                     "parent_uids": ["Multiply", "MultiplyTest", "BasicSuite", "basic_multiply"],
-                    "name": "basic_multiply__p1_bbbb__p2_2222",
+                    "name": "basic multiply <p1='bbbb', p2=22222>",
+                    "uid": "basic_multiply__p1_bbbb__p2_22222",
                   }
                 ],
                 "type": "TestGroupReport"
@@ -202,34 +201,39 @@ describe('Report/reportUtils', () => {
           "category": "multitest",
           "parent_uids": ["Multiply"],
           "name": "MultiplyTest",
+          "uid": "MultiplyTest",
           "entries": [
             {
               "category": "testsuite",
               "parent_uids": ["Multiply", "MultiplyTest"],
               "name": "BasicSuite",
+              "uid": "BasicSuite",
               "entries": [
                 {
                   "category": "parametrization",
                   "parent_uids": ["Multiply", "MultiplyTest", "BasicSuite"],
-                  "name": "basic_multiply",
+                  "name": "Basic Multiply",
+                  "uid": "basic_multiply",
                   "entries": [
                     {
                       "entries": [
-                        {"name": "test assertion1"},
+                        {"name": "test assertion1", "uid": "test_assertion1"},
                       ],
                       "type": "TestCaseReport",
                       "category": "testcase",
                       "parent_uids": ["Multiply", "MultiplyTest", "BasicSuite", "basic_multiply"],
-                      "name": "basic_multiply__p1_aaaa__p2_11111",
+                      "name": "basic multiply <p1='aaaa', p2=11111>",
+                      "uid": "basic_multiply__p1_aaaa__p2_11111",
                     },
                     {
                       "entries": [
-                        {"name": "test assertion2"}
+                        {"name": "test assertion2", "uid": "test_assertion2"}
                       ],
                       "type": "TestCaseReport",
                       "category": "testcase",
                       "parent_uids": ["Multiply", "MultiplyTest", "BasicSuite", "basic_multiply"],
-                      "name": "basic_multiply__p1_bbbb__p2_2222",
+                      "name": "basic multiply <p1='bbbb', p2=22222>",
+                      "uid": "basic_multiply__p1_bbbb__p2_22222",
                     }
                   ],
                   "type": "TestGroupReport"
@@ -242,6 +246,7 @@ describe('Report/reportUtils', () => {
         }
       ],
       "name": "Multiply",
+      "uid": "Multiply",
       "project": "testplan",
       "timeout": 14400
     };

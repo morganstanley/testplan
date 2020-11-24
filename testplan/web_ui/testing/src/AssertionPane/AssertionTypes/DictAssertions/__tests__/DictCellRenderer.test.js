@@ -10,7 +10,7 @@ function defaultProps() {
 
 function valueProps() {
   return {
-    "value": { "value": "B", "type": "B" },
+    "value": { "value": "BB", "type": "aa" },
     "data": {
       "descriptor": {
         "lineNo": 667,
@@ -32,7 +32,9 @@ function valueProps() {
         "type": "aa"
       }
     },
-    "field": "expected"
+    "colDef": {
+      "field": "expected"
+    }
   };
 }
 
@@ -57,7 +59,9 @@ function keyProps() {
       },
       "expected": { "value": "B", "type": "B" }
     },
-    "field": "key"
+    "colDef": {
+      "field": "key"
+    }
   };
 }
 
