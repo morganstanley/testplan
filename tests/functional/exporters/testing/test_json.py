@@ -16,7 +16,7 @@ from testplan.exporters.testing.json import gen_attached_report_names
 
 
 full_report = {
-    "python_version": "3.7.1",
+    "python_version": "3.7.5",
     "category": "testplan",
     "runtime_status": "finished",
     "status": "failed",
@@ -97,7 +97,7 @@ full_report = {
 
 
 meta_part = {
-    "python_version": "3.7.1",
+    "python_version": "3.7.5",
     "category": "testplan",
     "runtime_status": "finished",
     "status": "failed",
