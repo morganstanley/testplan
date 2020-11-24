@@ -16,7 +16,7 @@ import {
   isValidSelection,
 } from "./reportUtils";
 import {COLUMN_WIDTH} from "../Common/defaults";
-import {taggedReport} from "../Common/fakeReport";
+import {fakeReportAssertions as taggedReport} from "../Common/fakeReport";
 
 /**
  * BatchReport component:

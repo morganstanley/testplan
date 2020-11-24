@@ -4,8 +4,7 @@ import {shallow} from 'enzyme';
 import {StyleSheetTestUtils} from "aphrodite";
 
 import {
-  AttachmentAssertion,
-  MatplotAssertion
+  AttachmentAssertion,  
 } from '../AttachmentAssertions.js';
 
 const defaultAssertionProps = {
@@ -101,30 +100,4 @@ describe('AttachmentAssertion', () => {
     expect(shallowComponent).toMatchSnapshot();
   });
 
-});
-
-describe('MatplotAssertion', () => {
-  beforeEach(() => {
-    // Stop Aphrodite from injecting styles, this crashes the tests.
-    StyleSheetTestUtils.suppressStyleInjection();
-  });
-
-  it('renders an image', () => {
-    const assertionProps = {
-      ...defaultAssertionProps,
-      type: "Matplot",
-      dst_path: 'tmpthpcdtwo-ad4f4c6e94971896a71b4a1d47785a90b19f6565-860.png',
-      filesize: 860,
-      hash: 'ad4f4c6e94971896a71b4a1d47785a90b19f6565',
-      orig_filename: 'tmpthpcdtwo.png',
-      source_path: '/tmp/tmpthpcdtwo.png',
-    }
-    const shallowComponent = shallow(
-      <AttachmentAssertion
-        assertion={assertionProps}
-        reportUid={defaultReportUid}
-      />
-    );
-    expect(shallowComponent).toMatchSnapshot();
-  });
 });

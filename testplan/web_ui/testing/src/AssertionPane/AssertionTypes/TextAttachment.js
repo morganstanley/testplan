@@ -1,256 +1,145 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
-import {StyleSheet, css} from 'aphrodite';
-import axios from 'axios';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { FadeLoader } from 'react-spinners';
+import React, { useState, useEffect } from "react";
+import { StyleSheet, css } from "aphrodite";
+import axios from "axios";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import _ from "lodash";
+import {
+  Card,  
+  CardContent,
+  Button,  
+} from "@material-ui/core";
+import { ExpandLess, ExpandMore} from "@material-ui/icons";
+import AttachmentAssertionCardHeader from "./AttachmentAssertionCardHeader";
 
-//Max number of lines displayed in the preview window
+//Max number of lines displayed in the preview when collapsed
 const DISPLAY_NUM = 20;
-//Line requirement for a scroll bar to be rendered when expanded
-const SCROLLBAR_MIN_LIMIT = 60;
+//Max number of lines displayed in the preview when expanded
+const MAX_DISPLAY_LINE = 20000;
+const MAX_DISPLAY_FILE_SIZE = 5 * 1024 * 1024; // 5 meg
 
-/**
-* TextAttachment component:
-*   * Gets text file using Axios
-*   * Returns JSX depending on how long the text file is
-*/
-
-class TextAttachment extends Component {
-  constructor(props) {
-    super(props);
-      this.state = {
-      loading: false,
-      error: null,
-      textContent: "",
-      originalText: null,
-      numberOfLines: null,
-      expandButtonPushed: false,
-      scrollbar: null,
-    };
-  }
-
-  /**
-  * Fetch the text attachment once the component has mounted.
-  * @public
-  */
-  componentDidMount() {
-    this.setState({loading: true});
-    this.getTextAttachment();
-  }
-
-  /*
-  * Prepare the contents of the collapsed .txt content, by displaying the
-  * last DISPLAY_NUM lines of the text file (or the entire text file if
-  * it has less lines than DISPLAY_NUM - short files).
-  *
-  * @param {array} text_array (each element of array is one line of text)
-  * @return {jsx} Content for the .txt file content when collapsed
-  * @private
-  */
-  getCollapsedText(text_array){
-    let last_lines;
-    let i;
-    let starting_line;
-    let num_of_lines = text_array.length;
-
-    if(num_of_lines < DISPLAY_NUM){
-      i = 0;
-      starting_line = 1;
-      last_lines = "";
-    } else {
-      i = num_of_lines - DISPLAY_NUM;
-      starting_line = num_of_lines - DISPLAY_NUM;
-      last_lines = "...\n";
-    }
-
-    for(i; i < num_of_lines; i++){
-      last_lines = last_lines + text_array[i] + '\n';
-    }
-
-    let return_jsx = (
-      <SyntaxHighlighter showLineNumbers
-          startingLineNumber={starting_line}>
-        {last_lines}
-      </SyntaxHighlighter>
-    );
-    return return_jsx;
-  }
-
-  /*
-  * Convert a string into an array where each element is one line of the text
-  * and explicitly declare a <newline> at end of the text
-  *
-  * @param {string} text
-  * @return {Array} line-by-line version of text
-  * @private
-  */
-  displayTextToArray(text){
-    let lines = text.split('\n');
-    let length = lines.length;
-
-    if(lines.pop() === ""){
-      lines[length-1] = "<newline>";
-    }
-    return lines;
-  }
-
-  /*
-  * Sets the state based on text content received to be displayed.
-  *
-  * @param {string} text
-  * @private
-  */
-  handleText(text){
-    let lines =  this.displayTextToArray(text);
-    let display = this.getCollapsedText(lines);
-
-    if(lines[lines.length-1] === "<newline>"){
-     text += "<newline>";
-    }
-
-    this.setState({
-      textContent: display,
-      numberOfLines: lines.length,
-      originalText: text,
-      loading: false
-     });
-  }
-
-  /**
-  * Fetch the text attachment.
-  *   * Handle UID errors.
-  *   * Make a GET request for the .txt attachment file.
-  *   * Prepare the display content
-  * @public
-  */
-  getTextAttachment() {
-    // Check if dev mode and display test_string instead of getting the real
-    // source file from the backend.
-    if (this.props.devMode) {
-      const TEST_TEXT = "test1\ntest2\ntest3\ntest4\ntest5\ntest6\ntest7\n";
-      let text = TEST_TEXT;
-      this.handleText(text);
-    } else {
-      axios.get(this.props.src)
-      .then(response => {
-          let text = response.data;
-          this.handleText(text);
+function loadTextFile(url, devMode, handle, handleError) {
+  if (devMode) {
+    const TEST_TEXT = (
+      "test1\ntest2\ntest3\ntest4\ntest5\n" + "test6".repeat(55)
+    ).repeat(55);
+    let text = TEST_TEXT;
+    handle(text);
+  } else {
+    axios
+      .get(url)
+      .then((response) => {
+        let text = response.data;
+        handle(text);
       })
-      .catch(error => this.setState({
-                        error: true,
-                        loading: false
-                      })
-      );
-    }
-  }
-
-  /*
-  * Change the displayed .txt content, when the Expand/Collapse button gets
-  * pressed - will only render a scroll bar if there are more
-  * than SCROLLBAR_MIN_LIMIT lines in file.
-  *
-  * (This method is bound to onClick for the Expand/Collapse button)
-  */
-  updateTextContent = () => {
-    let text = this.state.originalText;
-    let scrollbar_content;
-    let display;
-
-    if(this.state.expandButtonPushed){
-      let lines =  this.displayTextToArray(text);
-      display = this.getCollapsedText(lines);
-      scrollbar_content = null;
-    } else {
-      if(SCROLLBAR_MIN_LIMIT > this.state.numberOfLines){
-        scrollbar_content = null;
-      } else {
-        scrollbar_content = css(styles.content);
-      }
-
-      display = (
-        <SyntaxHighlighter showLineNumbers>
-          {text}
-        </SyntaxHighlighter>
-      );
-    }
-
-  this.setState( state =>({
-      textContent: display,
-      expandButtonPushed: !state.expandButtonPushed,
-      scrollbar: scrollbar_content
-    }));
-  }
-
-  render() {
-    let button_jsx;
-    let content;
-
-    let spinner = (
-      <div className={css(styles.spinner)}>
-        <FadeLoader
-          color={'#123abc'}
-          loading={true}
-          height={10}
-          width={3}
-          radius={4}
-        />
-      </div>
-    );
-
-    //Show expand/collapse button only if less than DISPLAY_NUM lines
-    if(this.state.numberOfLines < DISPLAY_NUM){
-      button_jsx = null;
-    } else {
-      button_jsx = (
-        <button onClick={this.updateTextContent}>
-          {this.state.expandButtonPushed? 'Collapse': 'Expand'}
-        </button>
-       );
-    }
-
-    content = (
-      <div>
-        <div>
-          <a href={this.props.src}>
-            {this.props.file_name? this.props.file_name: "Test.txt"}
-          </a>
-        </div>
-        <br/>
-        <div className={this.state.scrollbar}>
-          {this.state.textContent}
-        </div>
-        <br/>
-        <div>
-          {button_jsx}
-       </div>
-      </div>
-    );
-
-    return (
-      <div>
-        {this.state.error? "Error fetching attachment" : null}
-        {this.state.loading? spinner: content}
-      </div>
-    );
+      .catch((error) => handleError(error));
   }
 }
 
-const styles = StyleSheet.create({
-  spinner: {
-  'margin-left': '100%',
-  },
-  content: {
-  'overflow-y': 'scroll',
-  'height': '55vh',
+function getLineEnds(text) {
+  let sp = -1;
+  const line_ends = [];
+  while (true) {
+    sp = text.indexOf("\n", sp + 1);
+    if (sp < 0) break;
+    line_ends.push(sp);
   }
-});
+  return line_ends;
+}
 
-TextAttachment.propTypes = {
-  /** Assertion being rendered */
-  src: PropTypes.string,
-  file_name: PropTypes.string,
-  devMode: PropTypes.bool,
-};
+function TextAttachment(props) {
+  const [lines, setLines] = useState(null);
+  const [stripPoint, setStripPoint] = useState([1, 0]);
+  const [expanded, setExpanded] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fromPosition = expanded ? [1, 0] : stripPoint;
+  const tooLongToExpand = stripPoint[0] > MAX_DISPLAY_LINE - DISPLAY_NUM;
+  const showAll = stripPoint[0] === 1;
+
+  const { prepend, lineoffset } =
+    fromPosition[0] === 1 // we use all the lines
+      ? { prepend: "", lineoffset: 0 }
+      : { prepend: "...\n", lineoffset: -1 };
+
+  const handler = (text) => {
+    if (_.endsWith(text, "\n")) {
+      text = text.concat("<newline>");
+    }
+
+    const line_ends = getLineEnds(text);
+
+    if (line_ends.length > DISPLAY_NUM)
+      setStripPoint([
+        line_ends.length - DISPLAY_NUM + 2,
+        _.nth(line_ends, -DISPLAY_NUM) + 1,
+      ]);
+
+    setLines(text);
+    setError(null);
+  };
+
+  const errorHandler = (error) => {
+    
+    setError(error.response ? error.response.data : error.message);
+    setLines(null);
+  };
+
+  useEffect(() => {
+    if (props.file_size > MAX_DISPLAY_FILE_SIZE) {
+      setError("File too big to display preview.");
+    } else if (!lines) {
+      loadTextFile(props.src, props.devMode, handler, errorHandler);
+    }
+  }, [props.src, props.file_size, props.devMode, lines]);
+
+  const styles = StyleSheet.create({
+    scrollable: {
+      "overflow-y": "scroll",
+      height: "55vh",
+    },
+    cardContent: {
+      paddingTop: "0px",
+      paddingBottom: "0px",
+    },
+  });
+
+  const cardHeader = (
+    <AttachmentAssertionCardHeader
+      file_name={props.file_name}
+      file_size={props.file_size}
+      extra_action_items={
+        lines && !tooLongToExpand && !showAll ? (
+          <Button
+            size="large"
+            onClick={() => setExpanded(!expanded)}
+            endIcon={expanded ? <ExpandLess /> : <ExpandMore />}
+            style={{ width: "8em" }}
+          >
+            {expanded ? "Collapse" : "Expand"}
+          </Button>
+        ) : null
+      }
+    />
+  );
+
+  return (
+    <Card>
+      {cardHeader}
+      {lines ? (
+        <CardContent className={css(styles.cardContent)}>
+          <SyntaxHighlighter
+            showLineNumbers
+            startingLineNumber={fromPosition[0] + lineoffset}
+            language="text"
+            className={expanded ? css(styles.scrollable) : null}
+          >
+            {prepend + lines.slice(fromPosition[1])}
+          </SyntaxHighlighter>
+        </CardContent>
+      ) : null}
+      {error ? <CardContent>{error}</CardContent> : null}
+    </Card>
+  );
+}
 
 export default TextAttachment;
