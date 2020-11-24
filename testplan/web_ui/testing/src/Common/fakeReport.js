@@ -359,6 +359,50 @@ var fakeReportAssertions = {
                     "category": "testsuite",
                     "entries": [
                         {
+                            "name": "test_attach",
+                            "parent_uids": [
+                                "Assertions Example",
+                                "Assertions Test",
+                                "SampleSuite"
+                            ],
+                            "hash": -1306193642276598367,
+                            "timer": {
+                              "run": {
+                                "end": "2020-11-20T11:06:50.854727+00:00",
+                                "start": "2020-11-20T11:06:50.699540+00:00"
+                              }
+                            },
+                            "tags": {},
+                            "logs": [],
+                            "status_override": null,
+                            "runtime_status": "finished",
+                            "uid": "897ee608-ac20-4c14-bc44-b22969929716",
+                            "entries": [
+                              {
+                                "hash": "ead907197415758fb6a15295336bd51da891a88a",
+                                "line_no": 44,
+                                "category": "DEFAULT",
+                                "meta_type": "entry",
+                                "source_path": "SOURCE_PATH/tmpc355typr.txt",
+                                "utc_time": "2020-11-20T11:06:50.712451+00:00",
+                                "type": "Attachment",
+                                "dst_path": "tmpc355typr-ead907197415758fb6a15295336bd51da891a88a-3700000.txt",
+                                "orig_filename": "tmpc355typr.txt",
+                                "machine_time": "2020-11-20T12:06:50.712451+00:00",
+                                "filesize": 3700000,
+                                "description": "Attaching a text file",
+                                "flag": "DEFAULT"
+                              }
+                            ],
+                            "status": "passed",
+                            "type": "TestCaseReport",
+                            "suite_related": false,
+                            "category": "testcase",
+                            "counter": { "passed": 1, "failed": 0, "total": 1 },
+                            "status_reason": null,
+                            "description": "Attaches a file to the report."
+                        },
+                        {
                             "category": "testcase",
                             "logs": [],
                             "description": "Description test\nSecond description",

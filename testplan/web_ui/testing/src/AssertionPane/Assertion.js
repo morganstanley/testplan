@@ -27,10 +27,7 @@ import XYGraphAssertion
 import DiscreteChartAssertion
   from './AssertionTypes/GraphAssertions/DiscreteChartAssertion';
 import SummaryBaseAssertion from './AssertionSummary';
-import {
-  AttachmentAssertion,
-  MatplotAssertion
-} from './AssertionTypes/AttachmentAssertions.js';
+import AttachmentAssertion from './AssertionTypes/AttachmentAssertions.js';
 
 /**
  * Component to render one assertion.
@@ -123,7 +120,7 @@ class Assertion extends Component {
       FixMatch: FixMatchAssertion,
       Graph: graphAssertion,
       Attachment: AttachmentAssertion,
-      MatPlot: MatplotAssertion,
+      MatPlot: AttachmentAssertion,
       Markdown: MarkdownAssertion,
       CodeLog: CodeLogAssertion,
     };

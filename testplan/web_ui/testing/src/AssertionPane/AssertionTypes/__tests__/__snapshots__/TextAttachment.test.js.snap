@@ -1,97 +1,67 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`TextAttachment displays error message if API request fails 1`] = `
-<div>
-  Error fetching attachment
-  <div>
-    <div>
-      <a
-        href="/var/tmp/attachment.txt"
-      >
-        attachment.txt
-      </a>
-    </div>
-    <br />
-    <div
-      className={null}
-    />
-    <br />
-    <div />
-  </div>
-</div>
-`;
-
-exports[`TextAttachment displays loading spinner when mounted 1`] = `
-<div>
-  <div
-    className="spinner_1hfbsw5"
-  >
-    <Loader
-      color="#123abc"
-      css={Object {}}
-      height={10}
-      heightUnit="px"
-      loading={true}
-      margin="2px"
-      radius={4}
-      radiusUnit="px"
-      width={3}
-      widthUnit="px"
-    />
-  </div>
-</div>
+<WithStyles(ForwardRef(Card))>
+  <AttachmentAssertionCardHeader
+    extra_action_items={null}
+    file_name="attachment.txt"
+  />
+  <WithStyles(ForwardRef(CardContent))>
+    Service Unavailable
+  </WithStyles(ForwardRef(CardContent))>
+</WithStyles(ForwardRef(Card))>
 `;
 
 exports[`TextAttachment renders text returned from the backend 1`] = `
-<div>
-  <div>
-    <div>
-      <a
-        href="/var/tmp/attachment.txt"
-      >
-        attachment.txt
-      </a>
-    </div>
-    <br />
-    <div
-      className={null}
-    >
-      <SyntaxHighlighter
-        showLineNumbers={true}
-        startingLineNumber={81}
-      >
-        ...
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-testplan
-&lt;newline&gt;
-
-      </SyntaxHighlighter>
-    </div>
-    <br />
-    <div>
-      <button
+<WithStyles(ForwardRef(Card))>
+  <AttachmentAssertionCardHeader
+    extra_action_items={
+      <ForwardRef(WithStyles)
+        endIcon={<UNDEFINED />}
         onClick={[Function]}
+        size="large"
+        style={
+          Object {
+            "width": "8em",
+          }
+        }
       >
         Expand
-      </button>
-    </div>
-  </div>
-</div>
+      </ForwardRef(WithStyles)>
+    }
+    file_name="attachment.txt"
+  />
+  <WithStyles(ForwardRef(CardContent))
+    className="cardContent_faxwgb"
+  >
+    <SyntaxHighlighter
+      className={null}
+      language="text"
+      showLineNumbers={true}
+      startingLineNumber={34}
+    >
+      ...
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+&lt;newline&gt;
+    </SyntaxHighlighter>
+  </WithStyles(ForwardRef(CardContent))>
+</WithStyles(ForwardRef(Card))>
 `;
