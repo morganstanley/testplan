@@ -29,6 +29,23 @@ export function dictCellStyle(params) {
 }
 
 /**
+ * Sort the result of DictMatch and FixMatch assertions by status of comparison
+ * items. "Failed" items are placed at the top while "Ignored" items at bottom.
+ */
+const statusIndex = (status) => {
+  switch (status.toLowerCase()) {
+    case 'failed':
+      return 0;
+    case 'passed':
+      return 1;
+    case 'ignored':
+      return 2;
+    default:
+      return 99;
+  }
+};
+
+/**
  * Helper function used to sort the data of DictMatch and FixMatch assertions.
  * The output of these assertions is a flattened JSON where the rows are in the
  * following format:
@@ -69,7 +86,7 @@ export function sortFlattenedJSON(
     sortedFlattenedJSONList.push(origFlattenedJSON.shift());
 
     // if only 1 item remains after removing the key, 
-    // add it do the sorted list and return it
+    // add it to the sorted list and return it
     if (origFlattenedJSON.length === 1) {
       sortedFlattenedJSONList.push(...origFlattenedJSON);
       return sortedFlattenedJSONList;
@@ -85,11 +102,10 @@ export function sortFlattenedJSON(
     sortedFlattenedJSONList.push(
       ...sorted(
         origFlattenedJSON, 
-        (item) => orderByStatus ? item[2] : item[1],
-        reverse
+        (item) => orderByStatus ? statusIndex(item[2]) : item[1],
+        reverse && !orderByStatus
       )
     );
-
     return sortedFlattenedJSONList;
   } else {
     // create a new object that contains the indexes of the rows
@@ -139,7 +155,8 @@ export function sortFlattenedJSON(
     // sort the list
     startingAndEndingIndexes = sorted(
       startingAndEndingIndexes, 
-      item => orderByStatus ? item.data[2] : item.data[1], reverse
+      item => orderByStatus ? statusIndex(item.data[2]) : item.data[1],
+      reverse && !orderByStatus
     );
 
     // start recursion on the sorted slices of the list

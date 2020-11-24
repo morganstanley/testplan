@@ -13,7 +13,18 @@ exports[`DictLogAssertion shallow renders DictButtonGroup component 1`] = `
   <Button
     active={false}
     color="secondary"
-    key="sort-test-uid1"
+    key="sort-test-uid-Symbol(NONE)"
+    onClick={[Function]}
+    outline={true}
+    size="sm"
+    tag="button"
+  >
+    Original order
+  </Button>
+  <Button
+    active={false}
+    color="secondary"
+    key="sort-test-uid-Symbol(ALPHABETICAL)"
     onClick={[Function]}
     outline={true}
     size="sm"
@@ -42,7 +53,7 @@ exports[`DictLogAssertion shallow renders DictButtonGroup component 1`] = `
   <Button
     active={false}
     color="secondary"
-    key="sort-test-uid2"
+    key="sort-test-uid-Symbol(REVERSE_ALPHABETICAL)"
     onClick={[Function]}
     outline={true}
     size="sm"
@@ -71,7 +82,7 @@ exports[`DictLogAssertion shallow renders DictButtonGroup component 1`] = `
   <Button
     active={true}
     color="secondary"
-    key="sort-test-uid3"
+    key="sort-test-uid-Symbol(BY_STATUS)"
     onClick={[Function]}
     outline={true}
     size="sm"
@@ -82,13 +93,24 @@ exports[`DictLogAssertion shallow renders DictButtonGroup component 1`] = `
   <Button
     active={false}
     color="secondary"
-    key="sort-test-uid4"
+    key="sort-test-uid-Symbol(FAILURES_ONLY)"
     onClick={[Function]}
     outline={true}
     size="sm"
     tag="button"
   >
     Failures only
+  </Button>
+  <Button
+    active={false}
+    color="secondary"
+    key="sort-test-uid-Symbol(EXCLUDE_IGNORABLE)"
+    onClick={[Function]}
+    outline={true}
+    size="sm"
+    tag="button"
+  >
+    Hide ignored items
   </Button>
   <CopyButton
     value="<table><tr><th>Key</th><th>Expected</th><th>Value</th></tr><tr><td></td><td><small></small></td><td><small></small></td></tr><tr style=\\"color: red;\\"><td></td><td><small></small></td><td><small></small></td></tr><tr style=\\"color: red;\\"><td></td><td><small></small></td><td><small></small></td></tr></table>"

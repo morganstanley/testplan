@@ -875,7 +875,7 @@ class DictNamespace(AssertionNamespace):
         :param include_keys: Keys to exclusively consider in the comparison.
         :type include_keys: ``list`` of ``object`` (items must be hashable)
         :param exclude_keys: Keys to ignore in the comparison.
-        :type include_keys: ``list`` of ``object`` (items must be hashable)
+        :type exclude_keys: ``list`` of ``object`` (items must be hashable)
         :param report_mode: Specify which comparisons should be kept and
                             reported. Default option is to report all
                             comparisons but this can be restricted if desired.

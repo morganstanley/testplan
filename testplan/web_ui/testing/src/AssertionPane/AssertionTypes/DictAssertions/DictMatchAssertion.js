@@ -9,7 +9,7 @@ import {
   sortFlattenedJSON,
   dictCellStyle
 } from './dictAssertionUtils';
-import {SORT_TYPES} from '../../../Common/defaults';
+import {SORT_TYPES, FILTER_OPTIONS} from './../../../Common/defaults';
 
 
 /**
@@ -38,7 +38,7 @@ import {SORT_TYPES} from '../../../Common/defaults';
  * The grid consists of three columns: Key, Expected and Value.
  *  - Key: a key of the dictionary. Nested objects are displayed with indented
  *    keys.
- *  - Expected: expected value for the given key. 
+ *  - Expected: expected value for the given key.
  *  - Value: Actual value for the given key.
  *
  */
@@ -56,12 +56,16 @@ export default function DictMatchAssertion(props) {
       sortTypeList={[
         SORT_TYPES.ALPHABETICAL,
         SORT_TYPES.REVERSE_ALPHABETICAL,
-        SORT_TYPES.BY_STATUS,
-        SORT_TYPES.ONLY_FAILURES
+        SORT_TYPES.BY_STATUS
+      ]}
+      filterOptionList={[
+        FILTER_OPTIONS.FAILURES_ONLY,
+        FILTER_OPTIONS.EXCLUDE_IGNORABLE
       ]}
       flattenedDict={flattenedDict}
       setRowData={setRowData}
       defaultSortType={SORT_TYPES.BY_STATUS}
+      defaultFilterOptions={[]}
     />
   );
 

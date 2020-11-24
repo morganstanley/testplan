@@ -59,7 +59,7 @@ export function prepareTableLogColumnDefs(columns) {
       filterParams: {excelMode: 'windows'}
     });
   });
-  
+
   return columnDefs;
 }
 

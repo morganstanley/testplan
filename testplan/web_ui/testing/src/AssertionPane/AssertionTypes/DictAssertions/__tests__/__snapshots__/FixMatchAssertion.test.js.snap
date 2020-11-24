@@ -4,7 +4,14 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
 <DictBaseAssertion
   buttons={
     <DictButtonGroup
-      defaultSortType={3}
+      defaultFilterOptions={Array []}
+      defaultSortType={Symbol(BY_STATUS)}
+      filterOptionList={
+        Array [
+          Symbol(FAILURES_ONLY),
+          Symbol(EXCLUDE_IGNORABLE),
+        ]
+      }
       flattenedDict={
         Array [
           Array [
@@ -283,10 +290,9 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
       setRowData={[Function]}
       sortTypeList={
         Array [
-          1,
-          2,
-          3,
-          4,
+          Symbol(ALPHABETICAL),
+          Symbol(REVERSE_ALPHABETICAL),
+          Symbol(BY_STATUS),
         ]
       }
     />

@@ -47,7 +47,7 @@ export default function TableBaseAssertion(props) {
       </div>
       <div
         className={`ag-theme-balham ${css(styles.grid)}`}
-        style={{height: `${height}px`, width: "100%"}}
+        style={{height: `${height}px`, width: "99.9%"}}
       >
         <AgGridReact
           onGridReady={onGridReady}
