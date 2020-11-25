@@ -81,8 +81,7 @@ export function prepareTableLogRowData(indexes, table, columns) {
   indexes.forEach(index => {
     let row = columns.reduce((accumulator, column) => {
       const cellVal = table[index][column];
-      accumulator[column] = cellVal === _TP_BLANK_CELL ? '' : cellVal;
-      return accumulator;
+      accumulator[column] = cellVal === _TP_BLANK_CELL ? null : cellVal;
     }, {});
 
     row['id'] = index;

@@ -34,19 +34,19 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
   rows={
     Array [
       Object {
-        "age": 32,
+        "age": undefined,
         "id": 0,
-        "name": "Bob",
+        "name": undefined,
       },
       Object {
-        "age": 24,
+        "age": undefined,
         "id": 1,
-        "name": "Susan",
+        "name": undefined,
       },
       Object {
-        "age": 67,
+        "age": undefined,
         "id": 2,
-        "name": "Rick",
+        "name": undefined,
       },
     ]
   }
