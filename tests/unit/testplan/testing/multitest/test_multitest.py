@@ -86,7 +86,7 @@ class Suite(object):
         """Basic testcase."""
         result.true(True)
         assert (
-            env.multitest.runtime_info.testcase.name == "case"
+            env.multitest_runtime_info.testcase.name == "case"
         )  # using pytest assert to check multitest runtime info
 
     @multitest.testcase(parameters=[1, 2, 3])
@@ -94,7 +94,7 @@ class Suite(object):
         """Parametrized testcase."""
         result.gt(val, 0)
         assert (
-            env.multitest.runtime_info.testcase.name
+            env.multitest_runtime_info.testcase.name
             == "parametrized <val={}>".format(val)
         )
 
@@ -117,7 +117,7 @@ class ParallelSuite(object):
         """Testcase 1"""
         self._barrier.wait()
         result.eq(0, 0)
-        assert env.multitest.runtime_info.testcase.name == "case1"
+        assert env.multitest_runtime_info.testcase.name == "case1"
         self._barrier.wait()
 
     @multitest.testcase(execution_group="A")
@@ -125,7 +125,7 @@ class ParallelSuite(object):
         """Testcase 2"""
         self._barrier.wait()
         result.eq(1, 1)
-        assert env.multitest.runtime_info.testcase.name == "case2"
+        assert env.multitest_runtime_info.testcase.name == "case2"
         self._barrier.wait()
 
     @multitest.testcase(execution_group="A")
@@ -133,7 +133,7 @@ class ParallelSuite(object):
         """Testcase 3"""
         self._barrier.wait()
         result.eq(2, 2)
-        assert env.multitest.runtime_info.testcase.name == "case3"
+        assert env.multitest_runtime_info.testcase.name == "case3"
         self._barrier.wait()
 
     @multitest.testcase(execution_group="B", parameters=[1, 2, 3])
@@ -142,7 +142,7 @@ class ParallelSuite(object):
         self._barrier.wait()
         result.gt(val, 0)
         assert (
-            env.multitest.runtime_info.testcase.name
+            env.multitest_runtime_info.testcase.name
             == "parametrized <val={}>".format(val)
         )
         self._barrier.wait()
@@ -223,7 +223,6 @@ def test_run_all_tests():
     mtest = multitest.MultiTest(
         name="MTest", suites=[Suite()], **MTEST_DEFAULT_PARAMS
     )
-    mtest._inject_runtime_info()
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
     assert mtest_report.name == "MTest"
@@ -259,7 +258,6 @@ def test_run_tests_parallel():
         thread_pool_size=3,
         **MTEST_DEFAULT_PARAMS
     )
-    mtest._inject_runtime_info()
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
     assert mtest_report.name == "MTest"
@@ -287,7 +285,6 @@ def test_run_testcases_iter():
         thread_pool_size=3,
         **MTEST_DEFAULT_PARAMS
     )
-    mtest._inject_runtime_info()
 
     results = list(mtest.run_testcases_iter())
     assert len(results) == 4

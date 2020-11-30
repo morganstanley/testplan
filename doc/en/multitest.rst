@@ -95,7 +95,7 @@ A MultiTest instance can be constructed from the following parameters:
   required for interacting with it, such as network connections.
 
 * **Runtime Information**: The environment is always contains a member called
-  ``multitest.runtime_info`` which contains information about the current state of
+  ``multitest_runtime_info`` which contains information about the current state of
   the run. See: :py:class:`MultiTestRuntimeInfo <testplan.testing.multitest.base.MultiTestRuntimeInfo>`
 
 * **Initial Context**: The initial context is an optional way to pass

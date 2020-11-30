@@ -4,14 +4,9 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
-import threading
 from builtins import super
 from builtins import str
 from future import standard_library
-
-from testplan.common.entity import ResourceConfig, Resource
-
-MULTITEST_RUNTIME_INFO_HOLDER_KEY = "multitest"
 
 standard_library.install_aliases()
 
@@ -67,34 +62,30 @@ def iterable_suites(obj):
     return suites
 
 
-class TestcaseInfoLocalStore(threading.local):
-    name = None
-
-
 class MultiTestRuntimeInfo(object):
     """
     This class provide information about the state of the actual test run
     that is accessible from the testcases through the environment as:
-    ``env.multitest.runtime_info``
+    ``env.multitest_runtime_info``
 
     Currently only the actual testcase name is accessible as:
-    ``env.multitest.runtime_info.testcase.name`` more info to come.
+    ``env.multitest_runtime_info.testcase.name`` more info to come.
     """
 
+    class TestcaseInfo(object):
+        name = None
+
     def __init__(self):
-        self.testcase = TestcaseInfoLocalStore()
+        self.testcase = self.TestcaseInfo()
 
 
-class MultiTestRuntimeInfoHolder(Resource):
-    def __init__(self, **options):
-        super(MultiTestRuntimeInfoHolder, self).__init__(**options)
-        self.runtime_info = MultiTestRuntimeInfo()
+class MultiTestRuntimeInfoEnvWrapper(object):
+    def __init__(self, environment, runtime_info):
+        self.__environment = environment
+        self.multitest_runtime_info = runtime_info
 
-    def starting(self):
-        pass
-
-    def stopping(self):
-        pass
+    def __getattr__(self, attr):
+        return getattr(self.__environment, attr)
 
 
 class MultiTestConfig(testing_base.TestConfig):
@@ -252,13 +243,6 @@ class MultiTest(testing_base.Test):
     def suites(self):
         """Input list of suites."""
         return self.cfg.suites
-
-    @property
-    def runtime_info(self):
-        if MULTITEST_RUNTIME_INFO_HOLDER_KEY in self.resources:
-            return self.resources[
-                MULTITEST_RUNTIME_INFO_HOLDER_KEY
-            ].runtime_info
 
     def get_test_context(self, test_filter=None):
         """
@@ -445,7 +429,6 @@ class MultiTest(testing_base.Test):
                     label="before_start", func=self.cfg.before_start
                 )
             )
-        self._add_step(self._inject_runtime_info)
 
     def main_batch_steps(self):
         """Runnable steps to be executed while environment is running."""
@@ -867,9 +850,9 @@ class MultiTest(testing_base.Test):
 
         return method_report
 
-    def _run_case_related(self, method, testcase, case_result):
+    def _run_case_related(self, method, testcase, resources, case_result):
         interface.check_signature(method, ["self", "name", "env", "result"])
-        method(testcase.name, self.resources, case_result)
+        method(testcase.name, resources, case_result)
 
     def _run_testcase(
         self, testcase, pre_testcase, post_testcase, testcase_report=None
@@ -883,31 +866,41 @@ class MultiTest(testing_base.Test):
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
 
+        # as the runtime info currently has only testcase name we create it here
+        # later can be moved out to multitest level, and cloned here as
+        # testcases may run parallel
+
+        runtime_info = MultiTestRuntimeInfo()
+        runtime_info.testcase.name = testcase.name
+
+        resources = MultiTestRuntimeInfoEnvWrapper(
+            self.resources, runtime_info
+        )
+
         with testcase_report.timer.record("run"):
             with testcase_report.logged_exceptions():
-
-                self.runtime_info.testcase.name = testcase.name
-
                 if pre_testcase and callable(pre_testcase):
-                    self._run_case_related(pre_testcase, testcase, case_result)
+                    self._run_case_related(
+                        pre_testcase, testcase, resources, case_result
+                    )
 
                 time_restriction = getattr(testcase, "timeout", None)
                 if time_restriction:
                     # pylint: disable=unbalanced-tuple-unpacking
                     executed, execution_result = timing.timeout(
                         time_restriction, "Testcase timeout after {} second(s)"
-                    )(testcase)(self.resources, case_result)
+                    )(testcase)(resources, case_result)
                     if not executed:
                         testcase_report.logger.error(execution_result)
                         testcase_report.status_override = (
                             testplan.report.Status.ERROR
                         )
                 else:
-                    testcase(self.resources, case_result)
+                    testcase(resources, case_result)
 
                 if post_testcase and callable(post_testcase):
                     self._run_case_related(
-                        post_testcase, testcase, case_result
+                        post_testcase, testcase, resources, case_result
                     )
 
         # Apply testcase level summarization
@@ -1043,11 +1036,6 @@ class MultiTest(testing_base.Test):
                 parent_uids = [self.name, testsuite_uid]
 
             yield testcase_report, parent_uids
-
-    def _inject_runtime_info(self):
-        self.resources.add(
-            MultiTestRuntimeInfoHolder(), MULTITEST_RUNTIME_INFO_HOLDER_KEY
-        )
 
 
 def _need_threadpool(testsuites):

@@ -29,7 +29,7 @@ class SimpleSuite(object):
     @testcase(name="A simple testcase")
     def test_example(self, env, result):
         result.equal(
-            env.multitest.runtime_info.testcase.name, "A simple testcase"
+            env.multitest_runtime_info.testcase.name, "A simple testcase"
         )
 
     @testcase(
@@ -40,7 +40,7 @@ class SimpleSuite(object):
     def test_equal(self, env, result, a, b, expected):
         result.equal(a + b, expected, description="Equality test")
         result.equal(
-            env.multitest.runtime_info.testcase.name,
+            env.multitest_runtime_info.testcase.name,
             case_name_func(
                 "Parametrized testcases",
                 {"a": a, "b": b, "expected": expected},
