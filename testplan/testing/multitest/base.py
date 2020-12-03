@@ -79,7 +79,7 @@ class MultiTestRuntimeInfo(object):
         self.testcase = self.TestcaseInfo()
 
 
-class MultiTestRuntimeInfoEnvWrapper(object):
+class EnvWithRuntimeInfo(object):
     def __init__(self, environment, runtime_info):
         self.__environment = environment
         self.multitest_runtime_info = runtime_info
@@ -873,9 +873,7 @@ class MultiTest(testing_base.Test):
         runtime_info = MultiTestRuntimeInfo()
         runtime_info.testcase.name = testcase.name
 
-        resources = MultiTestRuntimeInfoEnvWrapper(
-            self.resources, runtime_info
-        )
+        resources = EnvWithRuntimeInfo(self.resources, runtime_info)
 
         with testcase_report.timer.record("run"):
             with testcase_report.logged_exceptions():
