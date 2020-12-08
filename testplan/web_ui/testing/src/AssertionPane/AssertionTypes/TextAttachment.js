@@ -107,6 +107,7 @@ function TextAttachment(props) {
     <AttachmentAssertionCardHeader
       file_name={props.file_name}
       file_size={props.file_size}
+      src={props.src}
       extra_action_items={
         lines && !tooLongToExpand && !showAll ? (
           <Button
