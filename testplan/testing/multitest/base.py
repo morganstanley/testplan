@@ -81,11 +81,20 @@ class MultiTestRuntimeInfo(object):
 
 class EnvWithRuntimeInfo(object):
     def __init__(self, environment, runtime_info):
-        self.__environment = environment
+        self._environment = environment
         self.multitest_runtime_info = runtime_info
 
     def __getattr__(self, attr):
-        return getattr(self.__environment, attr)
+        return getattr(self._environment, attr)
+
+    def __getitem__(self, item):
+        return self._environment[item]
+
+    def __contains__(self, item):
+        return item in self._environment
+
+    def __iter__(self):
+        return iter(self._environment)
 
 
 class MultiTestConfig(testing_base.TestConfig):
