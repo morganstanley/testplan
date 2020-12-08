@@ -5,6 +5,7 @@ exports[`TextAttachment displays error message if API request fails 1`] = `
   <AttachmentAssertionCardHeader
     extra_action_items={null}
     file_name="attachment.txt"
+    src="/var/tmp/attachment.txt"
   />
   <WithStyles(ForwardRef(CardContent))>
     Service Unavailable
@@ -30,6 +31,7 @@ exports[`TextAttachment renders text returned from the backend 1`] = `
       </ForwardRef(WithStyles)>
     }
     file_name="attachment.txt"
+    src="/var/tmp/attachment.txt"
   />
   <WithStyles(ForwardRef(CardContent))
     className="cardContent_faxwgb"

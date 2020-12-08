@@ -6,7 +6,8 @@ import moxios from 'moxios';
 import {CardContent} from "@material-ui/core"
 import SyntaxHighlighter from "react-syntax-highlighter"
 
-import TextAttachment from '../TextAttachment.js';
+import TextAttachment from '../TextAttachment';
+import AttachmentAssertionCardHeader from '../AttachmentAssertionCardHeader';
 
 describe('TextAttachment', () => {
   beforeEach(() => {
@@ -23,9 +24,10 @@ describe('TextAttachment', () => {
 
   it('renders text returned from the backend', done => {
     const text = "testplan\n".repeat(100);
+    const src = "/var/tmp/attachment.txt";
     const renderedText = shallow(
       <TextAttachment
-        src="/var/tmp/attachment.txt"
+        src={src}
         file_name="attachment.txt"
       />
     );
@@ -40,6 +42,7 @@ describe('TextAttachment', () => {
         renderedText.update();
         const highlighter = renderedText.find(SyntaxHighlighter)
         expect(highlighter.first().props().children).toEqual("...\n" + line.repeat(19) + "<newline>")
+        expect(renderedText.find(AttachmentAssertionCardHeader).first().props().src).toBe(src)
         expect(renderedText).toMatchSnapshot();
         done();
       });
