@@ -2,10 +2,9 @@
 
 import os
 import re
-import getpass
-import tempfile
 
 from testplan.testing.filtering import Filter
+from testplan.testing.multitest.base import EnvWithRuntimeInfo
 from testplan.testing.ordering import NoopSorter
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -26,7 +25,7 @@ from testplan.common.utils.strings import slugify
 class MySuite(object):
     @testcase
     def test_drivers(self, env, result):
-        assert isinstance(env, Environment)
+        assert isinstance(env, EnvWithRuntimeInfo)
         assert isinstance(env.server, TCPServer)
         assert env.server.cfg.name == "server"
         assert os.path.exists(env.server.runpath)
@@ -69,10 +68,19 @@ class MySuite(object):
         """
         Test context access from env and drivers.
         """
-        assert isinstance(env, Environment)
+        assert isinstance(env, EnvWithRuntimeInfo)
         assert env.test_key == env["test_key"] == "test_value"
-        assert env is env.server.context
-        assert env is env.client.context
+        assert env._environment is env.server.context
+        assert env._environment is env.client.context
+
+    @testcase
+    def test_env_iterable(self, env, result):
+        assert [driver.name for driver in env] == ["server", "client"]
+
+    @testcase
+    def test_env_is_container_like(self, env, result):
+        for driver in ["server", "client"]:
+            assert driver in env
 
 
 def test_multitest_drivers(runpath):
@@ -96,12 +104,13 @@ def test_multitest_drivers(runpath):
             test_filter=Filter(),
             test_sorter=NoopSorter(),
         )
+
         mtest = MultiTest(**opts)
         assert server.status.tag == ResourceStatus.NONE
         assert client.status.tag == ResourceStatus.NONE
-        mtest.run()
-        res = mtest.result
+        res = mtest.run()
         assert res.run is True
+        assert res.report.passed
         if idx == 0:
             assert mtest.runpath == runpath
         else:
@@ -140,6 +149,7 @@ def test_multitest_drivers_in_testplan(runpath):
 
         res = plan.result
         assert res.run is True
+        assert res.report.passed
         if idx == 0:
             assert plan.runpath == runpath
         assert mtest.runpath == os.path.join(
