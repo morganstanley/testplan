@@ -21,10 +21,11 @@ from testplan.common.entity import (
     RunnableResult,
     RunnableConfig,
 )
+from testplan.common.utils import strings
 from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
 from testplan.common.utils.process import enforce_timeout, kill_process
-from testplan.common.utils.strings import slugify
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from testplan.report import (
     test_styles,
@@ -33,7 +34,6 @@ from testplan.report import (
     ReportCategories,
     RuntimeStatus,
 )
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Log
 
@@ -90,7 +90,7 @@ class Test(Runnable):
     can inherit from this class and override certain methods to
     customize functionality.
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name, often used as uid of test entity.
     :type name: ``str``
     :param description: Description of test instance.
     :type description: ``str``
@@ -147,10 +147,21 @@ class Test(Runnable):
     def __str__(self):
         return "{}[{}]".format(self.__class__.__name__, self.name)
 
+    def _create_test_group_report(self, name, uid=None, **kwargs):
+        if uid is None:
+            auto_report_uid = getattr(self.cfg, "auto_report_uid", False)
+            uid = strings.uuid4() if auto_report_uid else name
+        return TestGroupReport(name=name, uid=uid, **kwargs)
+
+    def _create_testcase_report(self, name, uid=None, **kwargs):
+        if uid is None:
+            auto_report_uid = getattr(self.cfg, "auto_report_uid", False)
+            uid = strings.uuid4() if auto_report_uid else name
+        return TestCaseReport(name=name, uid=uid, **kwargs)
+
     def _new_test_report(self):
-        return TestGroupReport(
+        return self._create_test_group_report(
             name=self.cfg.name,
-            uid=self.cfg.name,
             description=self.cfg.description,
             category=self.__class__.__name__.lower(),
             tags=self.cfg.tags,
@@ -363,14 +374,12 @@ class Test(Runnable):
         self.result.report = self._new_test_report()
 
         for testsuite, testcases in suites_to_run:
-            testsuite_report = TestGroupReport(
-                name=testsuite,
-                category=ReportCategories.TESTSUITE,
-                uid=testsuite,
+            testsuite_report = self._create_test_group_report(
+                name=testsuite, category=ReportCategories.TESTSUITE,
             )
 
             for testcase in testcases:
-                testcase_report = TestCaseReport(name=testcase, uid=testcase,)
+                testcase_report = self._create_testcase_report(name=testcase)
                 testsuite_report.append(testcase_report)
 
             self.result.report.append(testsuite_report)
@@ -406,12 +415,10 @@ class ProcessRunnerTest(Test):
     Test report will be populated by parsing the generated report output file
     (report.xml file by default.)
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name.
     :type name: ``str``
     :param binary: Path the to application binary or script.
     :type binary: ``str``
-    :param description: Description of test instance.
-    :type description: ``str``
     :param proc_env: Environment overrides for ``subprocess.Popen``.
     :type proc_env: ``dict``
     :param proc_cwd: Directory override for ``subprocess.Popen``.
@@ -576,8 +583,8 @@ class ProcessRunnerTest(Test):
                     continue
                 env[
                     "DRIVER_{}_ATTR_{}".format(
-                        slugify(driver_name).replace("-", "_"),
-                        slugify(attr).replace("-", "_"),
+                        strings.slugify(driver_name).replace("-", "_"),
+                        strings.slugify(attr).replace("-", "_"),
                     ).upper()
                 ] = str(value)
 
@@ -684,9 +691,8 @@ class ProcessRunnerTest(Test):
 
         passed = retcode == 0 or retcode in self.cfg.ignore_exit_codes
 
-        testcase_report = TestCaseReport(
+        testcase_report = self._create_testcase_report(
             name="ExitCodeCheck",
-            uid="ExitCodeCheck",
             suite_related=True,
             entries=[
                 RawAssertion(
@@ -702,10 +708,9 @@ class ProcessRunnerTest(Test):
                 ).serialize(),
             ],
         )
-
         testcase_report.runtime_status = RuntimeStatus.FINISHED
 
-        suite_report = TestGroupReport(
+        suite_report = self._create_test_group_report(
             name="ProcessChecks",
             category=ReportCategories.TESTSUITE,
             entries=[testcase_report],
@@ -781,16 +786,14 @@ class ProcessRunnerTest(Test):
         result = super(ProcessRunnerTest, self).dry_run()
         report = result.report
 
-        testsuite_report = TestGroupReport(
+        testcase_report = self._create_testcase_report(
+            name="ExitCodeCheck", suite_related=True,
+        )
+        testsuite_report = self._create_test_group_report(
             name="ProcessChecks",
             category=ReportCategories.TESTSUITE,
-            uid="ProcessChecks",
+            entries=[testcase_report],
         )
-
-        testcase_report = TestCaseReport(
-            name="ExitCodeCheck", uid="ExitCodeCheck", suite_related=True,
-        )
-        testsuite_report.append(testcase_report)
         report.append(testsuite_report)
 
         return result

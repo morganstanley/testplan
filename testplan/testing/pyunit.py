@@ -1,10 +1,10 @@
 """PyUnit test runner."""
 
 from testplan.testing import base as testing
-from testplan.report import testing as report_testing
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries import schemas
 from testplan.testing.multitest.entries import base as base_entries
+from testplan.report import ReportCategories
 
 import unittest
 
@@ -24,10 +24,8 @@ class PyUnit(testing.Test):
     """
     Test runner for PyUnit unit tests.
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name.
     :type name: ``str``
-    :param description: Description of test instance.
-    :type description: ``str``
     :param testcases: PyUnit testcases
     :type testcases: :py:class:`~unittest.TestCase`
 
@@ -68,14 +66,11 @@ class PyUnit(testing.Test):
         test_report = self._new_test_report()
 
         for pyunit_testcase in self.cfg.testcases:
-            testsuite_report = report_testing.TestGroupReport(
+            testsuite_report = self._create_test_group_report(
                 name=pyunit_testcase.__name__,
-                uid=pyunit_testcase.__name__,
-                category=report_testing.ReportCategories.TESTSUITE,
+                category=ReportCategories.TESTSUITE,
                 entries=[
-                    report_testing.TestCaseReport(
-                        name=self._TESTCASE_NAME, uid=self._TESTCASE_NAME,
-                    )
+                    self._create_testcase_report(name=self._TESTCASE_NAME)
                 ],
             )
             test_report.append(testsuite_report)
@@ -118,8 +113,8 @@ class PyUnit(testing.Test):
         # suite, we put all results into a single "testcase" report. This
         # will only list failures and errors and not give detail on individual
         # assertions like with MultiTest.
-        testcase_report = report_testing.TestCaseReport(
-            name=self._TESTCASE_NAME, uid=self._TESTCASE_NAME
+        testcase_report = self._create_testcase_report(
+            name=self._TESTCASE_NAME
         )
 
         for call, error in suite_result.errors:
@@ -147,9 +142,8 @@ class PyUnit(testing.Test):
             testcase_report.append(schemas.base.registry.serialize(log_entry))
 
         # We have to wrap the testcase report in a testsuite report.
-        return report_testing.TestGroupReport(
+        return self._create_test_group_report(
             name=pyunit_testcase.__name__,
-            uid=pyunit_testcase.__name__,
-            category=report_testing.ReportCategories.TESTSUITE,
+            category=ReportCategories.TESTSUITE,
             entries=[testcase_report],
         )

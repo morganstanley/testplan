@@ -157,7 +157,7 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 "interactive_handler", default=TestRunnerIHandler
             ): object,
-            ConfigOption("reset_report_uid", default=True): bool,
+            ConfigOption("auto_report_uid", default=True): bool,
             ConfigOption("extra_deps", default=[]): list,
         }
 
@@ -273,6 +273,12 @@ class TestRunner(Runnable):
     :param interactive_handler: Handler for interactive mode execution.
     :type interactive_handler: Subclass of :py:class:
         `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
+    :param auto_report_uid: Automatically generate unique string (uuid4 format)
+        as report uid instead of test entity's name or function name. Note that
+        this option is usually disabled when running unit/functional test, then
+        user should avoid assigning duplicate name for testsuite or testcase if
+        they have the same parent.
+    :type auto_report_uid: ``bool``
     :param extra_deps: Extra module dependencies for interactive reload.
     :type extra_deps: ``list`` of ``module``
 
@@ -287,11 +293,11 @@ class TestRunner(Runnable):
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
         self._tests = OrderedDict()  # uid to resource
-        self._part_instance_names = set()  # name of multitest part
+        self._part_instance_names = set()  # name of Multitest part
         self._result.test_report = TestReport(
             name=self.cfg.name,
             description=self.cfg.description,
-            uid=self.cfg.name,
+            uid=strings.uuid4() if self.cfg.auto_report_uid else self.cfg.name,
             timeout=self.cfg.timeout,
         )
         self._exporters = None
@@ -627,7 +633,6 @@ class TestRunner(Runnable):
 
             if report.part:
                 if self.cfg.merge_scheduled_parts:
-                    report.uid = report.name
                     # Save the report temporarily and later will merge it
                     test_rep_lookup.setdefault(report.uid, []).append(
                         (test_results[uid].run, report)
@@ -643,6 +648,7 @@ class TestRunner(Runnable):
                             runnable.parent = self
                             runnable.cfg.parent = self.cfg
                             runnable.cfg._options["part"] = None
+                            runnable.cfg._options["auto_report_uid"] = False
                             runnable._test_context = None
                             report = runnable.dry_run().report
                         else:
@@ -655,19 +661,18 @@ class TestRunner(Runnable):
                         continue  # Wait all sibling reports collected
                 else:
                     # If do not want to merge sibling reports, then display
-                    # them with different names. (e.g. `MTest - part(1/3)`)
-                    report.name = report.uid
+                    # them with different names. (e.g. `MTest - part(0/3)`)
+                    report.name = report.uid = "{} - part({}/{})".format(
+                        report.name, report.part[0], report.part[1]
+                    )
+
+            if self.cfg.auto_report_uid:
+                report.uid = strings.uuid4()
 
             test_report.append(report)
             step_result = step_result and run is True  # boolean or exception
 
-        step_result = self._merge_reports(test_rep_lookup) and step_result
-
-        # Set UIDs of a test report and all of its children standard UUID form
-        if self.cfg.reset_report_uid:
-            test_report.reset_uid()
-
-        return step_result
+        return self._merge_reports(test_rep_lookup) and step_result
 
     def _merge_reports(self, test_report_lookup):
         """
@@ -734,16 +739,18 @@ class TestRunner(Runnable):
             # If fail to merge sibling reports, clear the placeholder report
             # but keep error logs, sibling reports will be appended at the end.
             if not merged:
+                placeholder_report.uid = strings.uuid4()
                 placeholder_report.entries = []
                 placeholder_report._index = {}
                 placeholder_report.status_override = Status.ERROR
                 for _, report in result:
-                    report.uid = report.name = "{} - part({}/{})".format(
+                    report.name = "{} - part({}/{})".format(
                         report.name, report.part[0], report.part[1]
                     )
-                    if report.uid in self._result.test_report.entry_uids:
-                        report.uid = strings.uuid4()  # solve uid conflict
+                    report.uid = strings.uuid4()
                     self._result.test_report.append(report)
+            elif self.cfg.auto_report_uid:
+                placeholder_report.uid = strings.uuid4()
 
             merge_result = (
                 merge_result and placeholder_report.status != Status.ERROR

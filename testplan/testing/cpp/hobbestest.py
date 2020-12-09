@@ -2,7 +2,7 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 
-from testplan.report import TestGroupReport, TestCaseReport, RuntimeStatus
+from testplan.report import ReportCategories, RuntimeStatus
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 
@@ -31,12 +31,10 @@ class HobbesTest(ProcessRunnerTest):
     Subprocess test runner for Hobbes Test:
     https://github.com/Morgan-Stanley/hobbes
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name.
     :type name: ``str``
     :param binary: Path the to application binary or script.
     :type binary: ``str``
-    :param description: Description of test instance.
-    :type description: ``str``
     :param tests: Run one or more specified test(s).
     :type tests: ``list``
     :param json: Generate test report in JSON with the specified name. The
@@ -102,8 +100,8 @@ class HobbesTest(ProcessRunnerTest):
 
         result = []
         for suite in test_data:
-            suite_report = TestGroupReport(
-                name=suite["name"], uid=suite["name"], category="testsuite"
+            suite_report = self._create_test_group_report(
+                name=suite["name"], category=ReportCategories.TESTSUITE,
             )
             suite_has_run = False
 
@@ -111,10 +109,8 @@ class HobbesTest(ProcessRunnerTest):
                 if testcase["status"] != "skipped":
                     suite_has_run = True
 
-                    testcase_report = TestCaseReport(
-                        name=testcase["name"],
-                        uid=testcase["name"],
-                        suite_related=True,
+                    testcase_report = self._create_testcase_report(
+                        name=testcase["name"], suite_related=True,
                     )
                     assertion_obj = RawAssertion(
                         passed=testcase["status"] == "pass",

@@ -10,11 +10,7 @@ from lxml.builder import E  # pylint: disable=no-name-in-module
 from testplan.common.config import ConfigOption
 from testplan.common.utils.strings import slugify
 
-from testplan.report import (
-    TestGroupReport,
-    TestCaseReport,
-    RuntimeStatus,
-)
+from testplan.report import ReportCategories, RuntimeStatus
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 
@@ -137,12 +133,10 @@ class Cppunit(ProcessRunnerTest):
 
         ./cppunit_bin -y /path/to/test/result
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name.
     :type name: ``str``
     :param binary: Path the to application binary or script.
     :type binary: ``str``
-    :param description: Description of test instance.
-    :type description: ``str``
     :param file_output_flag: Customized command line flag for specifying path
         of output file.
     :type file_output_flag: ``NoneType`` or ``str``
@@ -239,8 +233,8 @@ class Cppunit(ProcessRunnerTest):
         result = []
         for suite in test_data.getchildren():
             suite_name = suite.attrib["name"]
-            suite_report = TestGroupReport(
-                name=suite_name, uid=suite_name, category="testsuite"
+            suite_report = self._create_test_group_report(
+                name=suite_name, category=ReportCategories.TESTSUITE,
             )
 
             for testcase in suite.getchildren():
@@ -249,11 +243,11 @@ class Cppunit(ProcessRunnerTest):
 
                 testcase_classname = testcase.attrib["classname"]
                 testcase_name = testcase.attrib["name"]
-                testcase_report = TestCaseReport(
-                    name=testcase_name,
-                    uid="{}::{}".format(
-                        testcase_classname.replace(".", "::"), testcase_name
-                    ),
+                testcase_prefix = testcase_classname.split(".")[-1]
+                testcase_report = self._create_testcase_report(
+                    name="{}::{}".format(testcase_prefix, testcase_name)
+                    if testcase_prefix
+                    else testcase_name
                 )
 
                 if not testcase.getchildren():

@@ -21,8 +21,14 @@ from testplan.testing.multitest.entries.schemas.base import (
 from testplan.testing.multitest.entries.stdout.base import (
     registry as stdout_registry,
 )
-from testplan.report import TestGroupReport, TestCaseReport, Status
+from testplan.report import (
+    TestGroupReport,
+    TestCaseReport,
+    Status,
+    ReportCategories,
+)
 from testplan.common.utils import validation
+from testplan.common.utils import strings
 
 
 # Regex for parsing suite and case name and case parameters
@@ -56,12 +62,10 @@ class PyTest(testing.Test):
     PyTest plugin for Testplan. Allows tests written for PyTest to be run from
     Testplan, with the test results logged and included in the Testplan report.
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name.
     :type name: ``str``
     :param target: Target of PyTest configuration.
     :type target: ``str`` or ``list`` of ``str``
-    :param description: Description of test instance.
-    :type description: ``str``
     :param select: Selection of PyTest configuration.
     :type select: ``str``
     :param extra_args: Extra arguments passed to pytest.
@@ -92,7 +96,12 @@ class PyTest(testing.Test):
         # namespace clashes with the PyTest object, since PyTest will scan for
         # methods that look like hooks in the plugin.
         quiet = not self._debug_logging_enabled
-        self._pytest_plugin = _ReportPlugin(self, self.report, quiet)
+        self._pytest_plugin = _ReportPlugin(
+            self,
+            self.report,
+            quiet,
+            getattr(self.cfg, "auto_report_uid", False),
+        )
         self._collect_plugin = _CollectPlugin(quiet)
         self._pytest_args = self._build_pytest_args()
 
@@ -175,7 +184,12 @@ class PyTest(testing.Test):
         }
 
         for item in collected:
-            _add_empty_testcase_report(item, test_report, self._nodeids)
+            _add_empty_testcase_report(
+                item,
+                test_report,
+                self._nodeids,
+                getattr(self.cfg, "auto_report_uid", False),
+            )
 
         result = TestResult()
         result.report = test_report
@@ -200,7 +214,12 @@ class PyTest(testing.Test):
 
         test_report = self._new_test_report()
         quiet = not self._debug_logging_enabled
-        pytest_plugin = _ReportPlugin(self, test_report, quiet)
+        pytest_plugin = _ReportPlugin(
+            self,
+            test_report,
+            quiet,
+            getattr(self.cfg, "auto_report_uid", False),
+        )
         pytest_plugin.setup()
 
         pytest_args = self._build_iter_pytest_args(
@@ -219,7 +238,10 @@ class PyTest(testing.Test):
                         [test_report.uid, suite_report.uid],
                     )
                 elif isinstance(child_report, TestGroupReport):
-                    if child_report.category != "parametrization":
+                    if (
+                        child_report.category
+                        != ReportCategories.PARAMETRIZATION
+                    ):
                         raise RuntimeError(
                             "Unexpected report category: {}".format(
                                 child_report.category
@@ -237,9 +259,7 @@ class PyTest(testing.Test):
                         )
                 else:
                     raise TypeError(
-                        "Unexpected report type: {}".format(
-                            type(testcase_report)
-                        )
+                        "Unexpected report type: {}".format(type(child_report))
                     )
 
     def _build_iter_pytest_args(self, testsuite_pattern, testcase_pattern):
@@ -292,10 +312,11 @@ class _ReportPlugin(object):
     report with the status of testcases.
     """
 
-    def __init__(self, parent, report, quiet):
+    def __init__(self, parent, report, quiet, auto_report_uid=True):
         self._parent = parent
         self._report = report
         self._quiet = quiet
+        self._auto_report_uid = auto_report_uid
 
         # Collection of suite reports - will be intialised by the setup()
         # method.
@@ -362,7 +383,10 @@ class _ReportPlugin(object):
         if case_params is None:
             report = self._suite_reports[suite_name].get(case_name)
             if report is None:
-                report = TestCaseReport(case_name, uid=case_name)
+                report = TestCaseReport(
+                    name=case_name,
+                    uid=_report_uid(case_name, self._auto_report_uid),
+                )
                 self._suite_reports[suite_name][case_name] = report
             return report
         else:
@@ -370,7 +394,9 @@ class _ReportPlugin(object):
             if group_report is None:
                 # create group report for parametrized testcases
                 group_report = TestGroupReport(
-                    name=case_name, uid=case_name, category="parametrization"
+                    name=case_name,
+                    uid=_report_uid(case_name, self._auto_report_uid),
+                    category=ReportCategories.PARAMETRIZATION,
                 )
                 self._suite_reports[suite_name][case_name] = group_report
 
@@ -379,7 +405,10 @@ class _ReportPlugin(object):
                 report = group_report.get_by_uid(case_name)
             except:
                 # create report of parametrized testcase
-                report = TestCaseReport(case_name, uid=case_name)
+                report = TestCaseReport(
+                    name=case_name,
+                    uid=_report_uid(case_name, self._auto_report_uid),
+                )
                 group_report.append(report)
             return report
 
@@ -578,7 +607,9 @@ class _ReportPlugin(object):
         # Collate suite reports
         for suite_name, cases in self._suite_reports.items():
             suite_report = TestGroupReport(
-                name=suite_name, uid=suite_name, category="testsuite"
+                name=suite_name,
+                uid=_report_uid(suite_name, self._auto_report_uid),
+                category=ReportCategories.TESTSUITE,
             )
 
             for case in cases.values():
@@ -659,7 +690,12 @@ def _short_suite_name(suite_name):
     return os.path.basename(suite_name)
 
 
-def _add_empty_testcase_report(item, test_report, nodeids):
+def _report_uid(name, auto_report_uid):
+    """Generate uid for report instance."""
+    return strings.uuid4() if auto_report_uid else name
+
+
+def _add_empty_testcase_report(item, test_report, nodeids, auto_report_uid):
     """Add an empty testcase report to the test report."""
     full_suite_name, case_name, case_params = _split_nodeid(item.nodeid)
     suite_name = _short_suite_name(full_suite_name)
@@ -668,7 +704,9 @@ def _add_empty_testcase_report(item, test_report, nodeids):
         suite_report = test_report[suite_name]
     except KeyError:
         suite_report = TestGroupReport(
-            name=suite_name, uid=suite_name, category="testsuite"
+            name=suite_name,
+            uid=_report_uid(suite_name, auto_report_uid),
+            category=ReportCategories.TESTSUITE,
         )
         test_report.append(suite_report)
         nodeids["testsuites"][suite_name] = full_suite_name
@@ -678,7 +716,9 @@ def _add_empty_testcase_report(item, test_report, nodeids):
             param_report = suite_report[case_name]
         except KeyError:
             param_report = TestGroupReport(
-                name=case_name, uid=case_name, category="parametrization",
+                name=case_name,
+                uid=_report_uid(case_name, auto_report_uid),
+                category=ReportCategories.PARAMETRIZATION,
             )
             suite_report.append(param_report)
             nodeids["testcases"][suite_name][case_name] = "::".join(
@@ -687,9 +727,16 @@ def _add_empty_testcase_report(item, test_report, nodeids):
 
         param_case_name = "{}[{}]".format(case_name, case_params)
         param_report.append(
-            TestCaseReport(name=param_case_name, uid=param_case_name)
+            TestCaseReport(
+                name=param_case_name,
+                uid=_report_uid(param_case_name, auto_report_uid),
+            )
         )
         nodeids["testcases"][suite_name][param_case_name] = item.nodeid
     else:
-        suite_report.append(TestCaseReport(name=case_name, uid=case_name))
+        suite_report.append(
+            TestCaseReport(
+                name=case_name, uid=_report_uid(case_name, auto_report_uid),
+            )
+        )
         nodeids["testcases"][suite_name][case_name] = item.nodeid

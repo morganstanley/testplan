@@ -364,6 +364,9 @@ that match ALL of the given tags.
         if args["list"] and not args["test_lister"]:
             args["test_lister"] = listing.NameLister()
 
+        if args["interactive_port"] is not None:
+            args["auto_report_uid"] = False
+
         return args
 
 

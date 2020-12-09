@@ -12,39 +12,39 @@ expected_report = TestReport(
                     category="testsuite",
                     entries=[
                         TestCaseReport(
-                            name="testEqual",
+                            name="Comparison::testEqual",
                             entries=[
                                 {"type": "RawAssertion", "passed": False}
                             ],
                         ),
                         TestCaseReport(
-                            name="testAnd",
+                            name="LogicalOp::testAnd",
                             entries=[
                                 {"type": "RawAssertion", "passed": False}
                             ],
                         ),
                         TestCaseReport(
-                            name="testGreater",
+                            name="Comparison::testGreater",
                             entries=[{"type": "RawAssertion", "passed": True}],
                         ),
                         TestCaseReport(
-                            name="testLess",
+                            name="Comparison::testLess",
                             entries=[{"type": "RawAssertion", "passed": True}],
                         ),
                         TestCaseReport(
-                            name="testMisc",
+                            name="Comparison::testMisc",
                             entries=[{"type": "RawAssertion", "passed": True}],
                         ),
                         TestCaseReport(
-                            name="testOr",
+                            name="LogicalOp::testOr",
                             entries=[{"type": "RawAssertion", "passed": True}],
                         ),
                         TestCaseReport(
-                            name="testNot",
+                            name="LogicalOp::testNot",
                             entries=[{"type": "RawAssertion", "passed": True}],
                         ),
                         TestCaseReport(
-                            name="testXor",
+                            name="LogicalOp::testXor",
                             entries=[{"type": "RawAssertion", "passed": True}],
                         ),
                     ],

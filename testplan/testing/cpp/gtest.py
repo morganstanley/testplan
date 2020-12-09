@@ -2,11 +2,7 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 
-from testplan.report import (
-    TestGroupReport,
-    TestCaseReport,
-    RuntimeStatus,
-)
+from testplan.report import ReportCategories, RuntimeStatus
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 
@@ -60,12 +56,10 @@ class GTest(ProcessRunnerTest):
     Most of the configuratin options of GTest are
     just simple wrappers for native arguments.
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name.
     :type name: ``str``
     :param binary: Path the to application binary or script.
     :type binary: ``str``
-    :param description: Description of test instance.
-    :type description: ``str``
     :param gtest_filter: Native test filter pattern that will be
                         used by GTest internally.
     :type gtest_filter: ``str``
@@ -159,16 +153,16 @@ class GTest(ProcessRunnerTest):
         result = []
         for suite in test_data.getchildren():
             suite_name = suite.attrib["name"]
-            suite_report = TestGroupReport(
-                name=suite_name, uid=suite_name, category="testsuite"
+            suite_report = self._create_test_group_report(
+                name=suite_name, category=ReportCategories.TESTSUITE,
             )
             suite_has_run = False
 
             for testcase in suite.getchildren():
 
                 testcase_name = testcase.attrib["name"]
-                testcase_report = TestCaseReport(
-                    name=testcase_name, uid=testcase_name
+                testcase_report = self._create_testcase_report(
+                    name=testcase_name
                 )
 
                 if not testcase.getchildren():
