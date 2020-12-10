@@ -26,6 +26,15 @@ class Suite2(object):
         result.false(val, description="Check if value is false")
 
 
+@testsuite
+class Suite3(object):
+    """A test suite with parameterized testcases."""
+
+    @testcase(parameters=(1, -1))
+    def test_not_equal(self, env, result, val):
+        result.not_equal(0, val, description="Check if values are not equal")
+
+
 def get_mtest(part_tuple=None):
     test = MultiTest(
         name="MTest", suites=[Suite1(), Suite2()], part=part_tuple
@@ -89,8 +98,8 @@ def test_multi_parts_merged():
 
 def test_multi_parts_invalid_parameter_1():
     """
-    Execute MultiTest parts with invalid parameters that a part of
-    MultiTest has been scheduled twice.
+    Execute MultiTest parts with invalid parameters that a part
+    of MultiTest has been scheduled twice.
     """
     plan = TestplanMock(name="plan", merge_scheduled_parts=True)
     pool = ThreadPool(name="MyThreadPool", size=2)
@@ -104,19 +113,16 @@ def test_multi_parts_invalid_parameter_1():
     )
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
-        result = plan.run()
-        assert result.run is False
-        # assert plan.run().run is False
+        assert plan.run().run is False
 
     assert len(plan.report.entries) == 1
     assert len(plan.report.entries[0].entries) == 2
     assert plan.report.status == Status.ERROR  # Testplan result
-
     assert plan.report.entries[0].status == Status.ERROR  # Multitest
-    assert plan.report.entries[0].entries[0].status == Status.FAILED  # Suite1
-    assert plan.report.entries[0].entries[1].status == Status.FAILED  # Suite2
+    assert plan.report.entries[0].entries[0].status == Status.UNKNOWN  # Suite1
+    assert plan.report.entries[0].entries[1].status == Status.UNKNOWN  # Suite2
     assert (
-        "invalid parameter of part provided"
+        "duplicate MultiTest parts had been scheduled"
         in plan.report.entries[0].logs[0]["message"]
     )
 
@@ -124,7 +130,7 @@ def test_multi_parts_invalid_parameter_1():
 def test_multi_parts_invalid_parameter_2():
     """
     Execute MultiTest parts with invalid parameters that a MultiTest
-    has been scheduled twice.
+    has been scheduled twice and each time split into different parts.
     """
     plan = TestplanMock(name="plan", merge_scheduled_parts=True)
     pool = ThreadPool(name="MyThreadPool", size=2)
@@ -144,8 +150,8 @@ def test_multi_parts_invalid_parameter_2():
     assert len(plan.report.entries[0].entries) == 2
     assert plan.report.status == Status.ERROR  # Testplan result
     assert plan.report.entries[0].status == Status.ERROR  # Multitest
-    assert plan.report.entries[0].entries[0].status == Status.FAILED  # Suite1
-    assert plan.report.entries[0].entries[1].status == Status.FAILED  # Suite2
+    assert plan.report.entries[0].entries[0].status == Status.UNKNOWN  # Suite1
+    assert plan.report.entries[0].entries[1].status == Status.UNKNOWN  # Suite2
     assert (
         "invalid parameter of part provided"
         in plan.report.entries[0].logs[0]["message"]
@@ -154,8 +160,8 @@ def test_multi_parts_invalid_parameter_2():
 
 def test_multi_parts_missing_parts():
     """
-    Execute MultiTest parts with invalid parameters that not all
-    parts of a MultiTest has been scheduled.
+    Execute MultiTest parts with invalid parameters that
+    not all parts of a MultiTest are scheduled.
     """
     plan = TestplanMock(name="plan", merge_scheduled_parts=True)
     pool = ThreadPool(name="MyThreadPool", size=2)
@@ -172,9 +178,38 @@ def test_multi_parts_missing_parts():
     assert len(plan.report.entries[0].entries) == 2
     assert plan.report.status == Status.ERROR  # Testplan result
     assert plan.report.entries[0].status == Status.ERROR  # Multitest
-    assert plan.report.entries[0].entries[0].status == Status.PASSED  # Suite1
-    assert plan.report.entries[0].entries[1].status == Status.FAILED  # Suite2
+    assert plan.report.entries[0].entries[0].status == Status.UNKNOWN  # Suite1
+    assert plan.report.entries[0].entries[1].status == Status.UNKNOWN  # Suite2
     assert (
         "not all MultiTest parts had been scheduled"
         in plan.report.entries[0].logs[0]["message"]
     )
+
+
+def test_multi_parts_duplicate_names():
+    """
+    The name of schedule MultiTest part objects is duplicate as another one
+    thus an exception will be raised.
+    """
+    plan = TestplanMock(name="plan", merge_scheduled_parts=True)
+    plan.add(MultiTest(name="MTest", suites=[Suite3()]))
+
+    pool = ThreadPool(name="MyThreadPool", size=2)
+    plan.add_resource(pool)
+
+    for idx in range(1, 3):
+        task = Task(target=get_mtest(part_tuple=(idx, 3)))
+        plan.schedule(task, resource="MyThreadPool")
+
+    with log_propagation_disabled(TESTPLAN_LOGGER):
+        assert plan.run().run is False
+
+    assert len(plan.report.entries) == 1
+    assert len(plan.report.entries[0].entries) == 1
+    assert plan.report.status == Status.PASSED  # Testplan result
+    assert plan.report.entries[0].status == Status.PASSED  # Multitest
+    assert plan.report.entries[0].entries[0].status == Status.PASSED  # Suite3
+
+    exc = plan.result.step_results["_create_result"]
+    assert isinstance(exc, ValueError)
+    assert "MTest already exists" in str(exc)

@@ -115,9 +115,9 @@ class MultiTestConfig(testing_base.TestConfig):
                 None,
                 And(
                     (int,),
-                    lambda tp: len(tp) == 2
-                    and 0 <= tp[0] < tp[1]
-                    and tp[1] > 1,
+                    lambda tup: len(tup) == 2
+                    and 0 <= tup[0] < tup[1]
+                    and tup[1] > 1,
                 ),
             ),
             config.ConfigOption(

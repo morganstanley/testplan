@@ -1,10 +1,10 @@
 """String manipulation utilities."""
 
 import sys
-
-import re
 import os
+import re
 import inspect
+import uuid
 import unicodedata
 import textwrap
 import six
@@ -71,6 +71,16 @@ def slugify(value):
         )
         value = six.text_type(re.sub(r"[^\w\s-]", "", value).strip().lower())
         return str(re.sub(r"[-\s]+", "-", value))
+
+
+def uuid4():
+    """
+    Generate a globally unique id.
+
+    :return: A string complied with `uuid.uuid4` format
+    :rtype: ``str``
+    """
+    return str(uuid.uuid4())
 
 
 class Color(object):

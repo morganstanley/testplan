@@ -7,11 +7,11 @@ runners for a testplan, each of which would generate a partial report.
 Later on these reports would be merged together to
 build the final report as the testplan result.
 """
-import uuid
 import copy
 import collections
 import itertools
 
+from testplan.common.utils import strings
 from .log import create_logging_adapter
 
 
@@ -53,7 +53,7 @@ class Report(object):
         self.name = name
         self.description = description
 
-        self.uid = uid or uuid.uuid4()
+        self.uid = uid or strings.uuid4()
         self.entries = entries or []
 
         self.logs = []
@@ -192,7 +192,7 @@ class Report(object):
         Reset uid of the report, it can be useful when need to generate
         a standard UUID instead of the current one.
         """
-        self.uid = uuid.uuid4() if uid is None else uid
+        self.uid = uid or strings.uuid4()
 
     def flattened_entries(self, depth):
         """
@@ -335,8 +335,8 @@ class ReportGroup(Report):
 
         if item.uid in self._index:
             raise ValueError(
-                "Child report with `uid`: {uid}"
-                " already exists in {self}".format(uid=item.uid, self=self)
+                "Child report with `uid`: {uid} already exists"
+                " in {self}".format(uid=item.uid, self=self)
             )
 
         super(ReportGroup, self).append(item)
@@ -382,7 +382,7 @@ class ReportGroup(Report):
         Reset uid of the report and all of its children, it can be useful
         when need to generate standard UUIDs instead of the current ones.
         """
-        self.uid = uuid.uuid4() if uid is None else uid
+        self.uid = uid or strings.uuid4()
         for entry in self:
             if isinstance(entry, (Report, ReportGroup)):
                 entry.reset_uid()

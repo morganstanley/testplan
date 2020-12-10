@@ -9,11 +9,11 @@ after testcases have finished running.
 import inspect
 import os
 import re
-import uuid
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
 from testplan.common.utils import comparison
+from testplan.common.utils import strings
 
 from .entries import assertions, base
 from .entries.schemas.base import registry as schema_registry
@@ -2182,7 +2182,7 @@ class Result(object):
                  fail.
         :rtype: ``bool``
         """
-        filename = "{0}.png".format(uuid.uuid4())
+        filename = "{0}.png".format(strings.uuid4())
         image_file_path = os.path.join(self._scratch, filename)
         matplot = base.MatPlot(
             pyplot=pyplot,

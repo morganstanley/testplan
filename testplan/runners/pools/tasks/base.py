@@ -2,7 +2,6 @@
 
 import sys
 import six
-import uuid
 import inspect
 import warnings
 import importlib
@@ -10,6 +9,8 @@ from collections import OrderedDict
 
 from six.moves import cPickle
 import copy
+
+from testplan.common.utils import strings
 
 
 class TaskMaterializationError(Exception):
@@ -84,7 +85,7 @@ class Task(object):
         self._path = path
         self._args = args or tuple()
         self._kwargs = kwargs or dict()
-        self._uid = uid or str(uuid.uuid4())
+        self._uid = uid or strings.uuid4()
         self._max_rerun_limit = (
             self.MAX_RERUN_LIMIT
             if rerun > self.MAX_RERUN_LIMIT
@@ -265,7 +266,7 @@ class TaskResult(object):
         self._status = status
         self._reason = reason
         self._follow = follow
-        self._uid = str(uuid.uuid4())
+        self._uid = strings.uuid4()
 
     def uid(self):
         """Task result uid"""
