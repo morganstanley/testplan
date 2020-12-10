@@ -16,8 +16,9 @@ import {
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faBackspace, 
-  faSave
+  faFastBackward,
+  faSave,
+  faSync,
 } from '@fortawesome/free-solid-svg-icons';
 import { format as dateFormat } from 'date-fns';
 import { css } from 'aphrodite';
@@ -42,7 +43,7 @@ export const ResetButton = (props) => {
           <FontAwesomeIcon
             key='toolbar-reset'
             className={css(styles.toolbarButton, styles.toolbarInactive)}
-            icon={faBackspace}
+            icon={faFastBackward}
             title='Resetting...'
           />
         </div>
@@ -55,9 +56,41 @@ export const ResetButton = (props) => {
           <FontAwesomeIcon
             key='toolbar-reset'
             className={css(styles.toolbarButton)}
-            icon={faBackspace}
+            icon={faFastBackward}
             title='Reset state'
             onClick={props.resetStateCbk}
+          />
+        </div>
+      </NavItem>
+    );
+  }
+};
+
+export const ReloadButton = (props) => {
+  if (props.reloading) {
+    return (
+      <NavItem key="reload-button">
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key='toolbar-reload'
+            className={css(styles.toolbarButton, styles.toolbarInactive)}
+            icon={faSync}
+            title='Reloading...'
+            spin
+            />
+        </div>
+      </NavItem>
+    );
+  } else {
+    return (
+      <NavItem key="reload-button">
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key='toolbar-reload'
+            className={css(styles.toolbarButton)}
+            icon={faSync}
+            title='Reload code'
+            onClick={props.reloadCbk}
           />
         </div>
       </NavItem>

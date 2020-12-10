@@ -285,7 +285,7 @@ class MultiTest(testing_base.Test):
         A testing process that creates a full structured report without
         any assertion entry. Initial status of each entry can be set.
         """
-        suites_to_run = self.test_context
+        suites_to_run = self.get_test_context()
         self.result.report = self._new_test_report()
 
         for testsuite, testcases in suites_to_run:

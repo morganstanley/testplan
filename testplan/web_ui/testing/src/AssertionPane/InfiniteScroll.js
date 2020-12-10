@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Scrollbars} from 'react-custom-scrollbars';
+import _ from 'lodash';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
   faCaretSquareUp,
@@ -62,6 +63,25 @@ class InfiniteScroll extends Component {
 
     if (InfiniteScroll.isContainerScrolledToTheBottom(this.scrollbars.current))
       this.loadItems(this.props.sliceSize);
+  }
+
+  /**
+   * Handler function for the container's re-render event, if the props change.
+   * If re-run a testcase, the assertions(props.items) will be changed, but
+   * the component will not be re-created. The function will reset the state.
+   * It's only happend in interactive mode.
+   *
+   * TODO: This is not a perfect solution. We will refactory the component.
+   */
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!_.isEqual(prevProps.items, this.props.items)) {
+      this.setState({
+        currentIndex: 0,
+        items: []
+      }, ()=>{
+        this.loadItems(this.props.initSliceSize);
+      });
+    }
   }
 
   /**

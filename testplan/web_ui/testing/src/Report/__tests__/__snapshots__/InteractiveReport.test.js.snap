@@ -7,11 +7,15 @@ exports[`InteractiveReport Handles environment being started 1`] = `
   <Toolbar
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
-        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -310,11 +314,15 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
   <Toolbar
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
-        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -605,11 +613,15 @@ exports[`InteractiveReport Updates testcase state 1`] = `
   <Toolbar
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
-        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -874,11 +886,15 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
   <Toolbar
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
-        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -1177,11 +1193,15 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
   <Toolbar
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
-        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -1478,11 +1498,15 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
   <Toolbar
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
-        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -1779,11 +1803,15 @@ exports[`InteractiveReport handles navigation entries being clicked 1`] = `
   <Toolbar
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
-        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -2181,11 +2209,15 @@ exports[`InteractiveReport handles tests being run 1`] = `
   <Toolbar
     extraButtons={
       Array [
+        <ReloadButton
+          reloadCbk={[Function]}
+          reloading={false}
+        />,
+        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
-        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
