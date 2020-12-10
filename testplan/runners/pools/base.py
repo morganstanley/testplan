@@ -4,7 +4,6 @@ import numbers
 import threading
 import time
 import datetime
-import uuid
 import pprint
 import traceback
 
@@ -14,6 +13,7 @@ from testplan.common.config import ConfigOption, validate_func
 from testplan.common import entity
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
+from testplan.common.utils import strings
 from testplan.runners.base import Executor, ExecutorConfig
 from testplan.report import ReportCategories
 
@@ -764,7 +764,7 @@ class Pool(Executor):
         test_report.uid = "{}{}".format(test_report.uid, postfix)
         test_report.category = ReportCategories.TASK_RERUN
         test_report.status_override = "xfail"
-        new_uuid = str(uuid.uuid4())
+        new_uuid = strings.uuid4()
         self._results[new_uuid] = task_result
         self.parent._tests[new_uuid] = self.cfg.name
 

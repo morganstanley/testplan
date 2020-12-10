@@ -13,7 +13,6 @@ from future import standard_library
 standard_library.install_aliases()
 import os
 import time
-import uuid
 import traceback
 
 import flask
@@ -26,6 +25,7 @@ import marshmallow.exceptions
 
 import testplan
 from testplan.common.config import ConfigOption
+from testplan.common.utils import strings
 from testplan.common import entity
 from testplan import defaults
 from testplan import report
@@ -471,7 +471,7 @@ def generate_interactive_api(ihandler):
                         export_result = {
                             "time": time.time(),
                             "name": exporter.name,
-                            "uid": str(uuid.uuid4()),
+                            "uid": strings.uuid4(),
                         }
                         try:
                             export_path = exporter.export(ihandler.report)

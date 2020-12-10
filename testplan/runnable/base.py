@@ -4,7 +4,6 @@ import os
 import random
 import time
 import datetime
-import uuid
 import webbrowser
 from collections import OrderedDict
 
@@ -24,6 +23,7 @@ from testplan.common.entity import (
 from testplan.common.exporters import BaseExporter, ExporterResult
 from testplan.common.report import MergeError
 from testplan.common.utils.path import default_runpath
+from testplan.common.utils import strings
 from testplan.exporters import testing as test_exporters
 from testplan.report import (
     TestReport,
@@ -380,7 +380,7 @@ class TestRunner(Runnable):
         resource.cfg.parent = self.cfg
         resource.parent = self
         return self.resources.add(
-            resource, uid=uid or getattr(resource, "uid", uuid.uuid4)()
+            resource, uid=uid or getattr(resource, "uid", strings.uuid4)()
         )
 
     def schedule(self, task=None, resource=None, uid=None, **options):
@@ -420,7 +420,7 @@ class TestRunner(Runnable):
         :return: Assigned uid for test.
         :rtype: ``str``
         """
-        uid = uid or getattr(runnable, "uid", uuid.uuid4)()
+        uid = uid or getattr(runnable, "uid", strings.uuid4)()
         if uid in self._tests:
             self.logger.error(
                 "Skip adding {} with uid {}.. already added.".format(
@@ -578,6 +578,7 @@ class TestRunner(Runnable):
             time.sleep(self.cfg.active_loop_sleep)
 
     def _create_result(self):
+        """Fetch task result from executors and create a full test result."""
         step_result = True
         test_results = self._result.test_results
         test_report = self._result.test_report
@@ -601,50 +602,56 @@ class TestRunner(Runnable):
             else:
                 test_results[uid] = resource_result
 
-            report = test_results[uid].report
+            run, report = test_results[uid].run, test_results[uid].report
+
             if report.part and self.cfg.merge_scheduled_parts:
-                # Save the report temporarily and later will merge it
-                test_rep_lookup.setdefault(report.uid, []).append(
-                    (test_results[uid].run, report)
-                )
-                try:
-                    test_report.get_by_uid(report.uid)
-                    continue
-                except KeyError:
-                    # A report will be created and then append as a placeholder
+                if report.uid in test_report.entry_uids:
+                    if report.uid in test_rep_lookup:
+                        # Save the report temporarily and later will merge it
+                        test_rep_lookup[report.uid].append((run, report))
+                        continue
+                    else:
+                        # There is a already report object (MultiTest) having
+                        # the same name as current one, but it is not a sibling
+                        self._merge_reports(test_rep_lookup)
+                        raise ValueError(
+                            "Child report with `uid`: {uid} already exists"
+                            " in {rep}".format(uid=report.uid, rep=test_report)
+                        )
+                else:
+                    # Save the report temporarily and later will merge it
+                    test_rep_lookup[report.uid] = [(run, report)]
+                    # Create a report and then append it as a placeholder
                     if isinstance(resource_result, TaskResult):
                         # 'target' should be an instance of MultiTest since the
                         # corresponding report has 'part' defined. We can get
-                        # a full structured report by dry_run(), thus the order
-                        # of testcases can be retained in test report.
+                        # a full structured report by `dry_run`, thus the order
+                        # of testsuites/testcases can be retained in report.
                         target = resource_result.task.materialize()
                         target.parent = self
                         target.cfg.parent = self.cfg
-                        # TODO: Any idea to avoid accessing private members?
                         target.cfg._options["part"] = None
                         target._test_context = None
-                        report = target.dry_run(status=Status.SKIPPED).report
+                        report = target.dry_run(status=Status.UNKNOWN).report
                     else:
                         report = report.__class__(
                             report.name,
                             category=report.category,
                             uid=report.uid,
                         )
+
             elif report.part:
                 report.name = "{} - part({}/{})".format(
                     report.name, report.part[0] + 1, report.part[1]
                 )
-                # Change report uid to avoid conflict during appending
-                report.uid = uuid.uuid4()
+                report.uid = strings.uuid4()  # Change uid to avoid conflict
 
             test_report.append(report)
-            step_result = step_result and test_results[uid].run
+            step_result = step_result and run
 
-        if test_rep_lookup:
-            step_result = self._merge_reports(test_rep_lookup) and step_result
+        step_result = self._merge_reports(test_rep_lookup) and step_result
 
-        # The uids of a test report and all of its children can be made
-        # complied with standard UUID form
+        # Set UIDs of a test report and all of its children standard UUID form
         if self.cfg.reset_report_uid:
             test_report.reset_uid()
 
@@ -669,11 +676,36 @@ class TestRunner(Runnable):
         merge_result = True
 
         for uid, reports in test_report_lookup.items():
-            count = reports[0][1].part[1]  # How many parts scheduled
             placeholder_report = self._result.test_report.get_by_uid(uid)
-            reports.sort(key=lambda tup: tup[1].part[0])
+            count = max(report.part[1] for _, report in reports)
+            invalid_param, duplicate_index = False, False
+            part_indexes = set()
+
+            for _, report in reports:
+                if (
+                    report.part[0] < 0
+                    or report.part[0] >= report.part[1]
+                    or report.part[1] != count
+                ):
+                    invalid_param = True
+                    break
+                if report.part[0] in part_indexes:
+                    duplicate_index = True
+                part_indexes.add(report.part[0])
 
             with placeholder_report.logged_exceptions():
+                if invalid_param:
+                    raise ValueError(
+                        "Cannot merge parts for child report with "
+                        "`uid`: {uid}, invalid parameter of part "
+                        "provided.".format(uid=uid)
+                    )
+                if duplicate_index:
+                    raise MergeError(
+                        "Cannot merge parts for child report with "
+                        "`uid`: {uid}, duplicate MultiTest parts "
+                        "had been scheduled.".format(uid=uid)
+                    )
                 if len(reports) < count:
                     raise MergeError(
                         "Cannot merge parts for child report with "
@@ -681,18 +713,6 @@ class TestRunner(Runnable):
                         "had been scheduled.".format(uid=uid)
                     )
 
-                if any(
-                    sibling_report.part[0] != idx
-                    or sibling_report.part[1] != count
-                    for idx, (run, sibling_report) in enumerate(reports)
-                ):
-                    raise ValueError(
-                        "Cannot merge parts for child report with "
-                        "`uid`: {uid}, invalid parameter of part "
-                        "provided.".format(uid=uid)
-                    )
-
-            with placeholder_report.logged_exceptions():
                 for run, sibling_report in reports:
                     if run and not isinstance(run, Exception):
                         placeholder_report.merge(sibling_report, strict=False)

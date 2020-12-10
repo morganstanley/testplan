@@ -9,10 +9,10 @@ to the report object's `logs` list.
 import logging
 import datetime
 import weakref
-import uuid
 
 from dateutil.tz import tzutc
 
+from testplan.common.utils import strings
 
 LOGGER = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class ReportLogHandler(logging.Handler):
                         "created": created,
                         "funcName": record.funcName,
                         "lineno": record.lineno,
-                        "uid": uuid.uuid4(),
+                        "uid": strings.uuid4(),
                     }
                 )
 

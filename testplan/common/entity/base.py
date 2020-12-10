@@ -7,7 +7,6 @@ import os
 import sys
 import signal
 import time
-import uuid
 import threading
 import psutil
 import functools
@@ -20,8 +19,8 @@ from testplan.common.config import Config, ConfigOption
 from testplan.common.utils.thread import execute_as_thread
 from testplan.common.utils.timing import wait
 from testplan.common.utils.path import makeemptydirs, makedirs, default_runpath
+from testplan.common.utils.strings import slugify, uuid4
 from testplan.common.utils import logger
-from testplan.common.utils.strings import slugify
 
 
 class Environment(object):
@@ -503,7 +502,7 @@ class Entity(logger.Loggable):
     def uid(self):
         """Unique identifier of self."""
         if not self._uid:
-            self._uid = uuid.uuid4()
+            self._uid = uuid4()
         return self._uid
 
     def generate_runpath(self):

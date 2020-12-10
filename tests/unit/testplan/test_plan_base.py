@@ -1,7 +1,6 @@
 """TODO."""
 
 import os
-import uuid
 
 from testplan import Testplan, TestplanMock, TestplanResult
 from testplan.common.entity import (
@@ -103,7 +102,8 @@ def test_testplan():
     assert isinstance(plan._runnable.status, TestRunnerStatus)
 
     assert "local_runner" in plan.resources
-    assert isinstance(plan.add(DummyTest()), uuid.UUID)
+    task_uid = plan.add(DummyTest())
+    assert isinstance(task_uid, str) and len(task_uid) == 36  # uuid.uuid4()
 
     assert plan.add(DummyTest(name="alice"), uid=123) == 123
     assert plan.add(DummyTest(name="bob")) == "bob"
@@ -115,8 +115,8 @@ def test_testplan():
     def task():
         return DummyTest(name="tom")
 
-    assert isinstance(plan.add(task, resource="pool"), uuid.UUID)
-    assert isinstance(plan.add(task, resource="pool"), uuid.UUID)
+    assert isinstance(plan.add(task, resource="pool"), str)
+    assert isinstance(plan.add(task, resource="pool"), str)
 
     assert len(plan.resources["local_runner"]._input) == 3
     for key in (123, "bob"):
