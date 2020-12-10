@@ -8,7 +8,11 @@ import { StyleSheet, css } from 'aphrodite';
 import axios from 'axios';
 
 import Toolbar from '../Toolbar/Toolbar.js';
-import { ResetButton, SaveButton } from '../Toolbar/InteractiveButtons';
+import { 
+  ResetButton,
+  ReloadButton,
+  SaveButton
+} from '../Toolbar/InteractiveButtons';
 import InteractiveNav from '../Nav/InteractiveNav.js';
 import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
 import { FakeInteractiveReport } from '../Common/sampleReports.js';
@@ -19,6 +23,8 @@ import {
   GetCenterPane,
   GetSelectedEntries,
 } from './reportUtils.js';
+
+const api_prefix = "/api/v1/interactive";
 
 /**
  * Interactive report viewer. As opposed to a batch report, an interactive
@@ -37,12 +43,14 @@ class InteractiveReport extends React.Component {
       loading: false,
       error: null,
       resetting: false,
+      reloading: false,
     };
     this.handleNavClick = this.handleNavClick.bind(this);
     this.handlePlayClick = this.handlePlayClick.bind(this);
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.getReport = this.getReport.bind(this);
     this.resetReport = this.resetReport.bind(this);
+    this.reloadCode = this.reloadCode.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
   }
 
@@ -230,7 +238,6 @@ class InteractiveReport extends React.Component {
    * Get the API URL for requesting to update the state of a report entry.
    */
   getApiUrl(updatedReportEntry) {
-    const api_prefix = "/api/v1/interactive";
 
     switch (updatedReportEntry.parent_uids.length) {
       case 0:
@@ -444,6 +451,24 @@ class InteractiveReport extends React.Component {
     );
   }
 
+  reloadCode() {
+    let currentTime = new Date();
+    this.setState({reloading: true});
+    return axios.get(
+      `${api_prefix}/reload`
+    ).then(response => {
+      let duration = new Date() - currentTime;
+      if (duration < 1000) {
+        setTimeout(()=> {
+          this.setState({reloading: false});
+        }, 1000);
+      } else {
+        this.setState({reloading: false});
+      }
+      return;
+    });
+  }
+
   /**
    * Recursievly dig down into the report tree and reset the state of any
    * testcase entries. Other entries derive their state from the testcases
@@ -507,12 +532,16 @@ class InteractiveReport extends React.Component {
           updateEmptyDisplayFunc={noop}
           updateTagsDisplayFunc={noop}
           extraButtons={[
-            <ResetButton
-              key="time-button"
-              resetStateCbk={this.resetReport}
-              resetting={false}
+            <ReloadButton
+              reloading={this.state.reloading}
+              reloadCbk={this.reloadCode}
             />,
-            <SaveButton key="save-button"/>
+            <SaveButton key="save-button"/>,
+            <ResetButton
+            key="time-button"
+            resetStateCbk={this.resetReport}
+            resetting={false}
+          />
           ]}
         />
         <InteractiveNav

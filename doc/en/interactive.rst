@@ -40,6 +40,27 @@ interrupt processes started as part of the test environment.
     we work through these, and feel free to raise an issue for any bugs
     you find.
 
+How code reloading works
+------------------------
+The interactive mode only reloads modules under the directory of the test_plan script being run.
+The reload happens on reload API and only applies to modules that have either
+been modified or have had its dependencies reloaded.
+
+Please note the ``__main__`` module (i.e. test_plan.py) cannot be reloaded.
+Because of this, it is recommended that test suites are defined in seperate modules that can be reloaded.
+
+The steps of the reload process are described below:
+
+* When starting up the interactive mode, testplan builds a graph of dependencies used by the ``__main__`` module. Only dependencies that are within the same directory as the testplan script are included.
+  Dependencies are resolved using `modulefinder.ModuleFinder <https://docs.python.org/3/library/modulefinder.html#modulefinder.ModuleFinder>`_
+* Dependencies are checked and reloaded on reload API. When reloading modules testplan will:
+
+  * Walk the graph of dependencies starting from ``__main__``.
+  * For each module, if any of its dependencies were reloaded or the file has been modified since last reloaded, then reload this module and update __class__ of all suites it defines.
+
+* The interactive report is updated with any changed test cases.
+
+
 Web UI
 ======
 

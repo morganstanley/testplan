@@ -97,8 +97,7 @@ class ModuleReloader(logger.Loggable):
                 "is a file."
             )
 
-        reload_dir = os.path.realpath(os.path.dirname(main_module_file))
-        reload_dirs = {path_utils.fix_home_prefix(reload_dir)}
+        reload_dirs = {os.path.realpath(os.path.dirname(main_module_file))}
 
         # Add extra reload source directories if required.
         if extra_deps:

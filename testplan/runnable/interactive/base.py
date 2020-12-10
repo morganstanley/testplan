@@ -638,6 +638,29 @@ class TestRunnerIHandler(entity.Entity):
         tests = (self.test(test) for test in self.all_tests())
         self._reloader.reload(tests, rebuild_dependencies)
 
+    def reload_report(self):
+        """Update report with added/removed testcases"""
+        new_report = self._initial_report()
+        for mt in self.report.entries:  # multitest level
+            for st_index in range(len(mt.entries)):  # testsuite level
+                st = mt.entries[st_index]
+                new_st = new_report[mt.uid][st.uid]
+                for new_case_index in range(
+                    len(new_report[mt.uid][st.uid].entries)
+                ):  # testcase level
+                    try:
+                        # Update new report testcase state
+                        new_report[mt.uid][st.uid].entries[
+                            new_case_index
+                        ] = st[
+                            new_report[mt.uid][st.uid]
+                            .entries[new_case_index]
+                            .uid
+                        ]
+                    except KeyError:  # new testcase
+                        pass
+                mt.entries[st_index] = new_st
+
     def _setup_http_handler(self):
         """
         Initialises the interactive HTTP handler.

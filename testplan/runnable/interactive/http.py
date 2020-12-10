@@ -29,6 +29,7 @@ from testplan.common.utils import strings
 from testplan.common import entity
 from testplan import defaults
 from testplan import report
+from .reloader import ModuleReloader
 
 
 def generate_interactive_api(ihandler):
@@ -523,6 +524,20 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.NotFound
 
             return flask.send_file(filepath)
+
+    @api.route("/reload")
+    class ReloadCode(flask_restplus.Resource):
+        """
+        Reload source code.
+        """
+
+        def get(self):
+            try:
+                ihandler.reload(rebuild_dependencies=True)
+                ihandler.reload_report()
+            except Exception as ex:
+                ihandler.logger.error("Reload failed! %s ", str(ex))
+            return True
 
     return app, api
 

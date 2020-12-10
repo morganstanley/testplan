@@ -186,7 +186,7 @@ def set_testsuite_testcases(suite):
     testcases = []
     testcase_names = set()
 
-    for testcase in suite.__testcases__:
+    for testcase in suite.__class__.__testcases__:
         if not hasattr(suite, testcase):
             raise AttributeError(
                 "{} does not have a testcase method named: {}".format(
