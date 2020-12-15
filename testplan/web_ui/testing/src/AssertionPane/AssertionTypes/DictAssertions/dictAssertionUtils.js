@@ -417,7 +417,7 @@ export function flattenedDictToDOM(flattenedDict) {
       let [level, key, status, actualValue, expectedValue] = el;
       // If key and value are string and length is 0, the current row is empty.
       // Empty row will be ignored.
-      actualValue = actualValue || [];
+      actualValue = actualValue || "";
       if (key.length === 0 && actualValue.length === 0) {
         return;
       }
@@ -442,7 +442,7 @@ export function flattenedDictToDOM(flattenedDict) {
         valueType.innerText = expectedValue[0];
         expectedTd.appendChild(valueType);
       } else {
-        expectedTd.innerText = expectedValue;
+        expectedTd.innerText = expectedValue || "";
       }
 
       tr.appendChild(keyTd);

@@ -13,6 +13,14 @@ if (REACT_APP_AG_GRID_LICENSE) {
   LicenseManager.setLicenseKey(REACT_APP_AG_GRID_LICENSE);
 }
 
+
+const exportCallback = (cell) => {
+  if (cell.value) {
+    return cell.value.value;
+  }
+  return '';
+};
+
 /**
  * Base assertion that are used to render dict-like data.
  * It renders the cells with the following content:
@@ -55,6 +63,7 @@ export default function DictBaseAssertion(props) {
         <AgGridReact
           onGridReady={onGridReady}
           suppressColumnVirtualisation={true}
+          suppressExcelExport={false}
           columnDefs={props.columns}
           rowData={props.rows}
           defaultColDef={{
@@ -69,6 +78,20 @@ export default function DictBaseAssertion(props) {
           getRowHeight={
             (params) => params.data.descriptor.isEmptyLine ? 5 : 28
           }
+          processCellForClipboard={exportCallback}
+          getContextMenuItems={(params) => {
+            return [
+              'copy',
+              'copyWithHeaders',
+              {
+              name: "CSV Export",
+              action: () => {
+                params.api.exportDataAsCsv({
+                  processCellCallback: exportCallback
+                });
+              }
+            }];
+          }}
         />
       </div>
     </>
