@@ -27,20 +27,24 @@ class LocalRunner(Executor):
         # First retrieve the input from its UID.
         target = self._input[uid]
 
-        # Inspect the input type. Tasks must be materialized before they can be
-        # run.
-        if isinstance(target, tasks.Task):
-            runnable = target.materialize()
-            if not runnable.parent:
-                runnable.parent = self
-            if not runnable.cfg.parent:
-                runnable.cfg.parent = self.cfg
-        elif isinstance(target, entity.Runnable):
+        # Inspect the input type. Tasks must be materialized before
+        # they can be run.
+        if isinstance(target, entity.Runnable):
             runnable = target
+        elif isinstance(target, tasks.Task):
+            runnable = target.materialize()
+        elif callable(target):
+            runnable = target()
         else:
             raise TypeError(
                 "Cannot execute target of type {}".format(type(target))
             )
+
+        if isinstance(runnable, entity.Runnable):
+            if not runnable.parent:
+                runnable.parent = self
+            if not runnable.cfg.parent:
+                runnable.cfg.parent = self.cfg
 
         result = runnable.run()
         self._results[uid] = result

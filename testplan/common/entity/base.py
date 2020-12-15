@@ -462,7 +462,7 @@ class Entity(logger.Loggable):
         timeout = wait_timeout or self.cfg.abort_wait_timeout
         try:
             self.logger.debug("Aborting {}".format(entity))
-            entity.abort()
+            entity.abort()  # Here entity can be a function and will raise
             self.logger.debug("Aborted {}".format(entity))
         except Exception as exc:
             self.logger.error(traceback.format_exc())
@@ -617,6 +617,7 @@ class RunnableResult(object):
 
     def __init__(self):
         self.step_results = OrderedDict()
+        self.run = False
 
     def __repr__(self):
         return "{}[{}]".format(self.__class__.__name__, self.__dict__)

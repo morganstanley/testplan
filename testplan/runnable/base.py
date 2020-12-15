@@ -4,6 +4,7 @@ import os
 import random
 import time
 import datetime
+import warnings
 import webbrowser
 from collections import OrderedDict
 
@@ -11,7 +12,6 @@ import pytz
 from schema import Or, And, Use
 
 from testplan import defaults
-from testplan.common.utils import logger
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (
     Entity,
@@ -22,8 +22,9 @@ from testplan.common.entity import (
 )
 from testplan.common.exporters import BaseExporter, ExporterResult
 from testplan.common.report import MergeError
-from testplan.common.utils.path import default_runpath
+from testplan.common.utils import logger
 from testplan.common.utils import strings
+from testplan.common.utils.path import default_runpath
 from testplan.exporters import testing as test_exporters
 from testplan.report import (
     TestReport,
@@ -286,6 +287,7 @@ class TestRunner(Runnable):
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
         self._tests = OrderedDict()  # uid to resource
+        self._part_instance_names = set()  # name of multitest part
         self._result.test_report = TestReport(
             name=self.cfg.name,
             description=self.cfg.description,
@@ -383,7 +385,7 @@ class TestRunner(Runnable):
             resource, uid=uid or getattr(resource, "uid", strings.uuid4)()
         )
 
-    def schedule(self, task=None, resource=None, uid=None, **options):
+    def schedule(self, task=None, resource=None, **options):
         """
         Schedules a serializable
         :py:class:`~testplan.runners.pools.tasks.base.Task` in a task runner
@@ -393,106 +395,125 @@ class TestRunner(Runnable):
         :param task: :py:class:`~testplan.runners.pools.tasks.base.Task`
         :param resource: Target pool resource.
         :param resource: :py:class:`~testplan.runners.pools.base.Pool`
-        :param uid: Optional uid for task.
-        :param uid: ``str``
         :param options: Task input options.
         :param options: ``dict``
         :return uid: Assigned uid for task.
         :rtype: ``str``
         """
-        return self.add(
-            task or Task(uid=uid, **options), resource=resource, uid=uid
-        )
+        return self.add(task or Task(**options), resource=resource)
 
-    def add(self, runnable, resource=None, uid=None):
+    def add(self, target, resource=None):
         """
-        Adds a
-        :py:class:`runnable <testplan.common.entity.base.Runnable>`
-        tests entity to a :py:class:`~testplan.runners.base.Executor`
-        resource.
+        Adds a :py:class:`runnable <testplan.common.entity.base.Runnable>`
+        test entity, or a :py:class:`~testplan.runners.pools.tasks.base.Task`,
+        or a callable that returns a test entity to a
+        :py:class:`~testplan.runners.base.Executor` resource.
 
-        :param runnable: Test runner entity.
-        :type runnable: :py:class:`~testplan.common.entity.base.Runnable`
+        :param target: Test target.
+        :type target: :py:class:`~testplan.common.entity.base.Runnable` or
+            :py:class:`~testplan.runners.pools.tasks.base.Task` or ``callable``
         :param resource: Test executor resource.
         :type resource: :py:class:`~testplan.runners.base.Executor`
-        :param uid: Optional test uid.
-        :type uid: ``str``
         :return: Assigned uid for test.
-        :rtype: ``str``
+        :rtype: ``str`` or ```NoneType``
         """
-        uid = uid or getattr(runnable, "uid", strings.uuid4)()
-        if uid in self._tests:
-            self.logger.error(
-                "Skip adding {} with uid {}.. already added.".format(
-                    runnable, uid
-                )
-            )
-            return uid
-
-        if isinstance(runnable, Entity):
-            runnable.cfg.parent = self.cfg
-            runnable.parent = self
-        elif isinstance(runnable, Task):
-            pass
-        elif callable(runnable):
-            runnable.parent_cfg = self.cfg
-            runnable.parent = self
-
-        # Check if test should not be added only when a filter is used.
-        if (
-            type(self.cfg.test_filter) is not filtering.Filter
-            or self.cfg.test_lister is not None
-        ):
-            if not self.should_be_added(runnable):
-                return None
-
         local_runner = self.resources.first()
-        if resource is None:
-            resource = local_runner
+        resource = resource or local_runner
 
         if resource not in self.resources:
             raise RuntimeError(
                 'Resource "{}" does not exist.'.format(resource)
             )
 
-        # When running interactively, add all tasks to the local runner even
-        # if they were scheduled into a pool. It greatly simplifies the
-        # interactive runner if it only has to deal with the local runner.
-        if self.cfg.interactive_port is not None:
-            if isinstance(runnable, Task):
-                runnable = runnable.materialize()
-                runnable.cfg.parent = self.cfg
-                runnable.parent = self
-            self.resources[local_runner].add(runnable, runnable.uid() or uid)
-        else:
-            self.resources[resource].add(runnable, uid)
+        # Get the real test entity and verify if it should be added
+        runnable = self._verify_test_target(target)
+        if not runnable:
+            return None
 
+        uid = runnable.uid()
+        part = getattr(getattr(runnable, "cfg", {"part": None}), "part", None)
+
+        # Uid of test entity MUST be unique, generally the uid of a test entity
+        # is the same as its name. When a test entity is split into multi-parts
+        # the uid will change (e.g. with a postfix), however its name should be
+        # different from uids of all non-part entities, and its uid cannot be
+        # the same as the name of any test entity.
+        if uid in self._tests:
+            raise ValueError(
+                '{} with uid "{}" already added.'.format(self._tests[uid], uid)
+            )
+        if uid in self._part_instance_names:
+            raise ValueError(
+                'Multitest part named "{}" already added.'.format(uid)
+            )
+        if part:
+            if runnable.name in self._tests:
+                raise ValueError(
+                    '{} with uid "{}" already added.'.format(
+                        self._tests[runnable.name], runnable.name
+                    )
+                )
+            self._part_instance_names.add(runnable.name)
+
+        # When running interactively, add all real test entities into the local
+        # runner even if they were scheduled into a pool. It greatly simplifies
+        # the interactive runner if it only has to deal with the local runner.
+        if self.cfg.interactive_port is not None:
+            self._tests[uid] = local_runner
+            self.resources[local_runner].add(runnable, uid)
+            return uid
+
+        # Reset the task uid which will be used for test result transport in
+        # a pool executor, it makes logging or debugging easier.
+        if isinstance(target, Task):
+            target._uid = uid
+
+        # In batch mode the original target is added into executors, it can be:
+        # 1> A runnable object (generally a test entity or customized by user)
+        # 2> A callable that returns a runnable object
+        # 3> A task that wrapped a runnable object
         self._tests[uid] = resource
+        self.resources[resource].add(target, uid)
         return uid
 
-    def should_be_added(self, runnable):
-        """Determines if a test runnable should be added for execution."""
-        if isinstance(runnable, Task):
-            target = runnable.materialize()
-            target.cfg.parent = self.cfg
-            target.parent = self
-
-        elif callable(runnable):
-            target = runnable()
-            target.cfg.parent = runnable.parent_cfg
-            target.parent = runnable.parent
+    def _verify_test_target(self, target):
+        """
+        Determines if a test target should be added for execution.
+        Returns the real test entity if it should run, otherwise None.
+        """
+        # The target added into TestRunner can be: 1> a real test entity
+        # 2> a task wraps a test entity 3> a callable returns a test entity
+        if isinstance(target, Runnable):
+            runnable = target
+        elif isinstance(target, Task):
+            runnable = target.materialize()
+        elif callable(target):
+            runnable = target()
         else:
-            target = runnable
+            raise TypeError(
+                "Unrecognized test target of type {}".format(type(target))
+            )
 
-        should_run = target.should_run()
-        self.logger.debug("should_run %s? %s", target.name, bool(should_run))
+        if isinstance(runnable, Runnable):
+            runnable.parent = self
+            runnable.cfg.parent = self.cfg
 
-        # --list always returns False
-        if should_run and self.cfg.test_lister is not None:
-            self.cfg.test_lister.log_test_info(target)
-            return False
+        if type(self.cfg.test_filter) is not filtering.Filter:
+            should_run = runnable.should_run()
+            self.logger.debug(
+                "Should run %s? %s",
+                runnable.name,
+                "Yes" if should_run else "No",
+            )
+            if not should_run:
+                return None
 
-        return should_run
+        # "--list" option means always not executing tests
+        if self.cfg.test_lister is not None:
+            self.cfg.test_lister.log_test_info(runnable)
+            return None
+
+        return runnable
 
     def _add_step(self, step, *args, **kwargs):
         if self.cfg.test_lister is None:
@@ -604,50 +625,41 @@ class TestRunner(Runnable):
 
             run, report = test_results[uid].run, test_results[uid].report
 
-            if report.part and self.cfg.merge_scheduled_parts:
-                if report.uid in test_report.entry_uids:
-                    if report.uid in test_rep_lookup:
-                        # Save the report temporarily and later will merge it
-                        test_rep_lookup[report.uid].append((run, report))
-                        continue
-                    else:
-                        # There is a already report object (MultiTest) having
-                        # the same name as current one, but it is not a sibling
-                        self._merge_reports(test_rep_lookup)
-                        raise ValueError(
-                            "Child report with `uid`: {uid} already exists"
-                            " in {rep}".format(uid=report.uid, rep=test_report)
-                        )
-                else:
+            if report.part:
+                if self.cfg.merge_scheduled_parts:
+                    report.uid = report.name
                     # Save the report temporarily and later will merge it
-                    test_rep_lookup[report.uid] = [(run, report)]
-                    # Create a report and then append it as a placeholder
-                    if isinstance(resource_result, TaskResult):
-                        # 'target' should be an instance of MultiTest since the
-                        # corresponding report has 'part' defined. We can get
-                        # a full structured report by `dry_run`, thus the order
-                        # of testsuites/testcases can be retained in report.
-                        target = resource_result.task.materialize()
-                        target.parent = self
-                        target.cfg.parent = self.cfg
-                        target.cfg._options["part"] = None
-                        target._test_context = None
-                        report = target.dry_run(status=Status.UNKNOWN).report
+                    test_rep_lookup.setdefault(report.uid, []).append(
+                        (test_results[uid].run, report)
+                    )
+                    if report.uid not in test_report.entry_uids:
+                        # Create a placeholder for merging sibling reports
+                        if isinstance(resource_result, TaskResult):
+                            # `runnable` must be an instance of MultiTest since
+                            # the corresponding report has `part` defined. Can
+                            # get a full structured report by `dry_run` and the
+                            # order of testsuites/testcases can be retained.
+                            runnable = resource_result.task.materialize()
+                            runnable.parent = self
+                            runnable.cfg.parent = self.cfg
+                            runnable.cfg._options["part"] = None
+                            runnable._test_context = None
+                            report = runnable.dry_run().report
+                        else:
+                            report = report.__class__(
+                                report.name,
+                                category=report.category,
+                                uid=report.uid,
+                            )
                     else:
-                        report = report.__class__(
-                            report.name,
-                            category=report.category,
-                            uid=report.uid,
-                        )
-
-            elif report.part:
-                report.name = "{} - part({}/{})".format(
-                    report.name, report.part[0] + 1, report.part[1]
-                )
-                report.uid = strings.uuid4()  # Change uid to avoid conflict
+                        continue  # Wait all sibling reports collected
+                else:
+                    # If do not want to merge sibling reports, then display
+                    # them with different names. (e.g. `MTest - part(1/3)`)
+                    report.name = report.uid
 
             test_report.append(report)
-            step_result = step_result and run
+            step_result = step_result and run is True  # boolean or exception
 
         step_result = self._merge_reports(test_rep_lookup) and step_result
 
@@ -675,49 +687,63 @@ class TestRunner(Runnable):
         """
         merge_result = True
 
-        for uid, reports in test_report_lookup.items():
+        for uid, result in test_report_lookup.items():
             placeholder_report = self._result.test_report.get_by_uid(uid)
-            count = max(report.part[1] for _, report in reports)
-            invalid_param, duplicate_index = False, False
+            num_of_parts = 0
             part_indexes = set()
-
-            for _, report in reports:
-                if (
-                    report.part[0] < 0
-                    or report.part[0] >= report.part[1]
-                    or report.part[1] != count
-                ):
-                    invalid_param = True
-                    break
-                if report.part[0] in part_indexes:
-                    duplicate_index = True
-                part_indexes.add(report.part[0])
+            merged = False
 
             with placeholder_report.logged_exceptions():
-                if invalid_param:
-                    raise ValueError(
-                        "Cannot merge parts for child report with "
-                        "`uid`: {uid}, invalid parameter of part "
-                        "provided.".format(uid=uid)
-                    )
-                if duplicate_index:
-                    raise MergeError(
-                        "Cannot merge parts for child report with "
-                        "`uid`: {uid}, duplicate MultiTest parts "
-                        "had been scheduled.".format(uid=uid)
-                    )
-                if len(reports) < count:
-                    raise MergeError(
-                        "Cannot merge parts for child report with "
-                        "`uid`: {uid}, not all MultiTest parts "
-                        "had been scheduled.".format(uid=uid)
-                    )
-
-                for run, sibling_report in reports:
-                    if run and not isinstance(run, Exception):
-                        placeholder_report.merge(sibling_report, strict=False)
+                for run, report in result:
+                    if num_of_parts and num_of_parts != report.part[1]:
+                        raise ValueError(
+                            "Cannot merge parts for child report with"
+                            " `uid`: {uid}, invalid parameter of part"
+                            " provided.".format(uid=uid)
+                        )
+                    elif report.part[0] in part_indexes:
+                        raise ValueError(
+                            "Cannot merge parts for child report with"
+                            " `uid`: {uid}, duplicate MultiTest parts"
+                            " had been scheduled.".format(uid=uid)
+                        )
                     else:
-                        placeholder_report.status_override = Status.ERROR
+                        part_indexes.add(report.part[0])
+                        num_of_parts = report.part[1]
+
+                    if run:
+                        if isinstance(run, Exception):
+                            raise run
+                        else:
+                            placeholder_report.merge(report, strict=False)
+                    else:
+                        raise MergeError(
+                            "Cannot merge parts for child report with"
+                            " `uid`: {uid}, at least one part (index:{part})"
+                            " didn't run.".format(uid=uid, part=report.part[0])
+                        )
+                else:
+                    if len(part_indexes) < num_of_parts:
+                        raise MergeError(
+                            "Cannot merge parts for child report with"
+                            " `uid`: {uid}, not all MultiTest parts"
+                            " had been scheduled.".format(uid=uid)
+                        )
+                merged = True
+
+            # If fail to merge sibling reports, clear the placeholder report
+            # but keep error logs, sibling reports will be appended at the end.
+            if not merged:
+                placeholder_report.entries = []
+                placeholder_report._index = {}
+                placeholder_report.status_override = Status.ERROR
+                for _, report in result:
+                    report.uid = report.name = "{} - part({}/{})".format(
+                        report.name, report.part[0], report.part[1]
+                    )
+                    if report.uid in self._result.test_report.entry_uids:
+                        report.uid = strings.uuid4()  # solve uid conflict
+                    self._result.test_report.append(report)
 
             merge_result = (
                 merge_result and placeholder_report.status != Status.ERROR

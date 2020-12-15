@@ -64,7 +64,8 @@ class Executor(Resource):
             self._input[uid] = item
             # `NoRunpathPool` adds item after calling `_prepopulate_runnables`
             # so the following step is still needed
-            self.ongoing.append(uid)
+            if uid not in self.ongoing:
+                self.ongoing.append(uid)
 
     def get(self, uid):
         """Get item result by uid."""

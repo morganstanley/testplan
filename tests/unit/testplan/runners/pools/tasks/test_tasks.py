@@ -4,8 +4,9 @@ import os
 from testplan.runners.pools.tasks import (
     Task,
     RunnableTaskAdaptor,
-    TaskDeserializationError,
+    TaskMaterializationError,
     TaskSerializationError,
+    TaskDeserializationError,
 )
 
 
@@ -30,6 +31,10 @@ class RunnableThatRaises(object):
         """Run method."""
         raise RuntimeError("While running.")
 
+    def uid(self):
+        """uid method."""
+        return "RunnableThatRaises"
+
 
 class Runnable(object):
     """Runnable."""
@@ -39,6 +44,10 @@ class Runnable(object):
         import sys
 
         return sys.maxsize
+
+    def uid(self):
+        """uid method."""
+        return "Runnable"
 
 
 class RunnableWithArg(object):
@@ -53,6 +62,10 @@ class RunnableWithArg(object):
         import sys
 
         return self._number or sys.maxsize
+
+    def uid(self):
+        """uid method."""
+        return "RunnableWithArg"
 
 
 def callable_to_runnable():
@@ -74,6 +87,11 @@ def callable_to_non_runnable():
         return sys.maxsize
 
     return function
+
+
+def callable_to_none():
+    """Task target that returns ``None``."""
+    return None
 
 
 def callable_to_adapted_runnable():
@@ -102,7 +120,7 @@ def materialized_task_result(task, expected, serialize=False):
 class TestTaskInitAndMaterialization(object):
     """TODO."""
 
-    def test_non_runnable_tgt(self):  # pylint: disable=R0201
+    def test_non_runnable_tgt(self):
         """TODO."""
         for task in (
             NonRunnableObject,
@@ -113,9 +131,9 @@ class TestTaskInitAndMaterialization(object):
             try:
                 Task(task).materialize()
             except RuntimeError as exc:
-                assert "must have a .run() method" in str(exc)
+                assert "must have both `run` and `uid` methods" in str(exc)
 
-    def test_runnable_tgt(self):  # pylint: disable=R0201
+    def test_runnable_tgt(self):
         """TODO."""
         import sys
         from .data.sample_tasks import Multiplier
@@ -170,7 +188,7 @@ class TestTaskInitAndMaterialization(object):
         )
         materialized_task_result(task, 12)
 
-    def test_callable_to_non_runnable_tgt(self):  # pylint: disable=R0201
+    def test_callable_to_non_runnable_tgt(self):
         """TODO."""
         from .data.relative import sample_tasks
 
@@ -187,9 +205,27 @@ class TestTaskInitAndMaterialization(object):
                 task.materialize()
                 raise Exception("Should raise.")
             except RuntimeError as exc:
-                assert "must have a .run() method" in str(exc)
+                assert "must have both `run` and `uid` methods" in str(exc)
 
-    def test_callable_to_runnable_tgt(self):  # pylint: disable=R0201
+    def test_callable_to_none(self):
+        """TODO."""
+        from .data.relative import sample_tasks
+
+        for task in (
+            Task(callable_to_none),
+            Task(sample_tasks.callable_to_none),
+            Task(
+                "tests.unit.testplan.runners.pools.tasks.data"
+                ".relative.sample_tasks.callable_to_none"
+            ),
+        ):
+            try:
+                task.materialize()
+                raise Exception("Should raise.")
+            except TaskMaterializationError as exc:
+                assert "Cannot get a valid test object from target" in str(exc)
+
+    def test_callable_to_runnable_tgt(self):
         """TODO."""
         import sys
 
@@ -207,7 +243,7 @@ class TestTaskInitAndMaterialization(object):
         task = Task(sample_tasks.callable_to_adapted_runnable, args=(2,))
         materialized_task_result(task, 4)
 
-    def test_string_callable_to_runnable_tgt(self):  # pylint: disable=R0201
+    def test_string_callable_to_runnable_tgt(self):
         """TODO."""
         import sys
 

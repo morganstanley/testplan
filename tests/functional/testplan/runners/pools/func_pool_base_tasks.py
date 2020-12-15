@@ -52,17 +52,26 @@ class SuiteKillingWorker(object):
         assert env.runpath.endswith(slugify(env.cfg.name))
 
 
-def multitest_kill_one_worker(name, parent_pid, size):
+def multitest_kill_one_worker(parent_pid, size):
     """Test that kills one worker."""
     return MultiTest(
-        name="MTest{}".format(name),
-        suites=[SuiteKillingWorker(parent_pid, size)],
+        name="MTestKiller", suites=[SuiteKillingWorker(parent_pid, size)],
     )
 
 
-def multitest_kills_worker():
+@testsuite
+class SimpleSuite(object):
+    @testcase
+    def test_simple(self, env, result):
+        pass
+
+
+def multitest_kills_worker(parent_pid):
     """To kill all child workers."""
-    os.kill(os.getpid(), 9)
+    if os.getpid() != parent_pid:  # Main process should not be killed
+        os.kill(os.getpid(), 9)
+    else:
+        return MultiTest(name="MTestKiller", suites=[SimpleSuite()])
 
 
 def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):

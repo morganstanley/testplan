@@ -26,6 +26,8 @@ class PyUnit(testing.Test):
 
     :param name: Test instance name. Also used as uid.
     :type name: ``str``
+    :param description: Description of test instance.
+    :type description: ``str``
     :param testcases: PyUnit testcases
     :type testcases: :py:class:`~unittest.TestCase`
 

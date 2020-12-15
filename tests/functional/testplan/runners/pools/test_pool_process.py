@@ -43,7 +43,7 @@ def test_kill_one_worker(mockplan):
         target="multitest_kill_one_worker",
         module="func_pool_base_tasks",
         path=dirname,
-        args=("killer", os.getpid(), pool_size),  # kills 4th worker
+        args=(os.getpid(), pool_size),  # kills 4th worker
         resource=pool_name,
     )
 
@@ -106,6 +106,7 @@ def test_kill_all_workers(mockplan):
         target="multitest_kills_worker",
         module="func_pool_base_tasks",
         path=dirname,
+        args=(os.getpid(),),
         resource=pool_name,
     )
 
@@ -121,7 +122,7 @@ def test_kill_all_workers(mockplan):
                 if worker._aborted is True
             ]
         )
-        == pool_size  # == retries_limit + 1
+        == pool_size
     )
 
     assert res.success is False
@@ -133,7 +134,6 @@ def test_kill_all_workers(mockplan):
 def test_reassign_times_limit(mockplan):
     """Kill workers and reassign task up to limit times."""
     pool_name = ProcessPool.__name__
-
     pool_size = 4
     retries_limit = int(pool_size / 2)
     pool = ProcessPool(
@@ -153,6 +153,7 @@ def test_reassign_times_limit(mockplan):
         target="multitest_kills_worker",
         module="func_pool_base_tasks",
         path=dirname,
+        args=(os.getpid(),),
         resource=pool_name,
     )
 
@@ -231,6 +232,7 @@ def test_custom_rerun_condition(mockplan):
     assert pool.added_item(uid).reassign_cnt == rerun_limit
 
 
+@pytest.mark.skip("Target is materialized before scheduling")
 def test_schedule_from_main(mockplan):
     """
     Test scheduling Tasks from __main__ - it should not be allowed for
@@ -317,6 +319,7 @@ def test_restart_worker(mockplan):
         target="multitest_kills_worker",
         module="func_pool_base_tasks",
         path=dirname,
+        args=(os.getpid(),),
         resource=pool_name,
     )
 
