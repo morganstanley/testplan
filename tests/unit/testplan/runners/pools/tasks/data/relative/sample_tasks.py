@@ -16,6 +16,10 @@ class Runnable(object):
         """TODO."""
         return self._number * self._multiplier
 
+    def uid(self):
+        """TODO."""
+        return "{} * {}".format(self._number, self._multiplier)
+
 
 def callable_to_runnable(number):
     """TODO."""
@@ -72,6 +76,15 @@ class Multiplier(Runnable):
 def callable_to_non_runnable(number):
     """TODO."""
     return NonRunnable(number)
+
+
+def callable_to_none():
+    """TODO."""
+
+    def _inner():
+        return None
+
+    return _inner
 
 
 def multiply(number, multiplier=2):

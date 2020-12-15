@@ -120,6 +120,9 @@ class MultiTestConfig(testing_base.TestConfig):
                     and tup[1] > 1,
                 ),
             ),
+            config.ConfigOption("multi_part_uid", default=None): Or(
+                None, lambda x: callable(x)
+            ),
             config.ConfigOption(
                 "result", default=result.Result
             ): validation.is_subclass(result.Result),
@@ -157,19 +160,9 @@ class MultiTest(testing_base.Test):
     :param part: Execute only a part of the total testcases. MultiTest needs to
         know which part of the total it is. Only works with Multitest.
     :type part: ``tuple`` of (``int``, ``int``)
-    :param before_start: Callable to execute before starting the environment.
-    :type before_start: ``callable`` taking an environment argument.
-    :param after_start: Callable to execute after starting the environment.
-    :type after_start: ``callable`` taking an environment argument.
-    :param before_stop: Callable to execute before stopping the environment.
-    :type before_stop: ``callable`` taking environment and a result arguments.
-    :param after_stop: Callable to execute after stopping the environment.
-    :type after_stop: ``callable`` taking environment and a result arguments.
-    :param stdout_style: Console output style.
-    :type stdout_style: :py:class:`~testplan.report.testing.styles.Style`
-    :param tags: User defined tag value.
-    :type tags: ``string``, ``iterable`` of ``string``, or a ``dict`` with
-        ``string`` keys and ``string`` or ``iterable`` of ``string`` as values.
+    :param multi_part_uid: Custom function to overwrite the uid of test entity
+       if `part` attribute is defined, otherwise use default implementation.
+    :type multi_part_uid: ``callable``
     :param result: Result class definition for result object made available
         from within the testcases.
     :type result: :py:class:`~testplan.testing.multitest.result.result.Result`
@@ -199,6 +192,7 @@ class MultiTest(testing_base.Test):
         max_thread_pool_size=10,
         stop_on_error=True,
         part=None,
+        multi_part_uid=None,
         before_start=None,
         after_start=None,
         before_stop=None,
@@ -252,6 +246,22 @@ class MultiTest(testing_base.Test):
     def suites(self):
         """Input list of suites."""
         return self.cfg.suites
+
+    def uid(self):
+        """
+        Instance name uid.
+        A Multitest part isntance should not have the same uid as its name.
+        """
+        if self.cfg.part:
+            return (
+                self.cfg.multi_part_uid(self.cfg.name)
+                if self.cfg.multi_part_uid
+                else "{} - part({}/{})".format(
+                    self.cfg.name, self.cfg.part[0], self.cfg.part[1]
+                )
+            )
+        else:
+            return self.cfg.name
 
     def get_test_context(self, test_filter=None):
         """

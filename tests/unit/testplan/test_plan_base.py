@@ -2,6 +2,8 @@
 
 import os
 
+import pytest
+
 from testplan import Testplan, TestplanMock, TestplanResult
 from testplan.common.entity import (
     Resource,
@@ -75,8 +77,8 @@ class MyPool(LocalRunner):  # Start is async
     def _execute(self, uid):
         func = self._input[uid]
         test = func()
-        test.cfg.parent = func.parent_cfg
-        test.parent = func.parent
+        test.parent = self
+        test.cfg.parent = self.cfg
         test.run()
         self._results[uid] = test.result
         assert isinstance(self._results[uid], DummyTestResult)
@@ -105,7 +107,7 @@ def test_testplan():
     task_uid = plan.add(DummyTest())
     assert isinstance(task_uid, str) and len(task_uid) == 36  # uuid.uuid4()
 
-    assert plan.add(DummyTest(name="alice"), uid=123) == 123
+    assert plan.add(DummyTest(name="alice")) == "alice"
     assert plan.add(DummyTest(name="bob")) == "bob"
 
     assert "pool" not in plan.resources
@@ -116,12 +118,13 @@ def test_testplan():
         return DummyTest(name="tom")
 
     assert isinstance(plan.add(task, resource="pool"), str)
-    assert isinstance(plan.add(task, resource="pool"), str)
+    with pytest.raises(ValueError):
+        assert plan.add(task, resource="pool")  # duplicate target uid
 
     assert len(plan.resources["local_runner"]._input) == 3
-    for key in (123, "bob"):
+    for key in ("alice", "bob"):
         assert key in plan.resources["local_runner"]._input
-    assert len(plan.resources["pool"]._input) == 2
+    assert len(plan.resources["pool"]._input) == 1
 
     res = plan.run()
     assert res.run is True
@@ -131,7 +134,7 @@ def test_testplan():
         == "DummyTestResult[bob]"
     )
     assert (
-        plan.resources["local_runner"].get(123).custom
+        plan.resources["local_runner"].get("alice").custom
         == "DummyTestResult[alice]"
     )
     for key in plan.resources["pool"]._input.keys():
@@ -141,7 +144,6 @@ def test_testplan():
     expected = [
         "DummyTestResult[None]",
         "DummyTestResult[alice]",
-        "DummyTestResult[tom]",
         "DummyTestResult[tom]",
         "DummyTestResult[bob]",
     ]

@@ -159,17 +159,13 @@ class Worker(entity.Resource):
         :rtype: :py:class:`~testplan.runners.pools.tasks.base.TaskResult`
         """
         try:
-            target = task.materialize()
-            if isinstance(target, entity.Runnable):
-                if not target.parent:
-                    target.parent = self
-                if not target.cfg.parent:
-                    target.cfg.parent = self.cfg
-                result = target.run()
-            elif callable(target):
-                result = target()
-            else:
-                result = target.run()
+            runnable = task.materialize()
+            if isinstance(runnable, entity.Runnable):
+                if not runnable.parent:
+                    runnable.parent = self
+                if not runnable.cfg.parent:
+                    runnable.cfg.parent = self.cfg
+            result = runnable.run()
         except BaseException:
             task_result = TaskResult(
                 task=task,

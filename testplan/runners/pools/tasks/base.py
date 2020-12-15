@@ -86,6 +86,7 @@ class Task(object):
         self._args = args or tuple()
         self._kwargs = kwargs or dict()
         self._uid = uid or strings.uuid4()
+        self._aborted = False
         self._max_rerun_limit = (
             self.MAX_RERUN_LIMIT
             if rerun > self.MAX_RERUN_LIMIT
@@ -172,53 +173,76 @@ class Task(object):
         """Executors to which the task had been assigned."""
         return self._executors
 
+    @property
+    def aborted(self):
+        """Returns if task was aborted."""
+        return self._aborted
+
+    def abort(self):
+        """For compatibility reason when task is added into an executor."""
+        self._aborted = True
+
     def materialize(self, target=None):
         """
         Create the actual task target executable/runnable/callable object.
         """
+        errmsg = "Cannot get a valid test object from target {}"
         target = target or copy.deepcopy(self._target)
+
         if not isinstance(target, six.string_types):
             try:
                 run_method = getattr(target, "run")
                 if not inspect.ismethod(run_method):
                     raise AttributeError
+                uid_method = getattr(target, "uid")
+                if not inspect.ismethod(uid_method):
+                    raise AttributeError
             except AttributeError:
                 if callable(target):
-                    return self.materialize(
-                        target(*self._args, **self._kwargs)
-                    )
+                    inner_target = target(*self._args, **self._kwargs)
+                    if inner_target:
+                        return self.materialize(inner_target)
+                    else:
+                        raise TaskMaterializationError(
+                            errmsg.format(target.__name__)
+                        )
                 try:
                     name = target.__class__.__name__
                 except:
                     name = target
                 raise RuntimeError(
-                    ("Task {} must have a " ".run() method.").format(name)
+                    "Target {} must have both `run` and `uid` methods.".format(
+                        name
+                    )
                 )
             else:
                 return target
         else:
-            target = self._string_to_target()
-            return self.materialize(target(*self._args, **self._kwargs))
+            target = self._string_to_target()(*self._args, **self._kwargs)
+            if target:
+                return self.materialize(target)
+            else:
+                raise TaskMaterializationError(errmsg.format(self._target))
 
     def _string_to_target(self):
+        """Dynamically load an object from a module by target name."""
         path_inserted = False
         if isinstance(self._path, six.string_types):
             sys.path.insert(0, self._path)
             path_inserted = True
 
-        elements = self._target.split(".")
-        target_src = elements.pop(-1)
         try:
+            elements = self._target.split(".")
+            target_src = elements.pop(-1)
             if len(elements):
                 mod = importlib.import_module(".".join(elements))
                 target = getattr(mod, target_src)
             else:
                 if self._module is None:
-                    msg = (
-                        "Task parameters are not sufficient "
-                        "for target {} materialization".format(self._target)
+                    raise TaskMaterializationError(
+                        "Task parameters are not sufficient for"
+                        " target {} materialization".format(self._target)
                     )
-                    raise TaskMaterializationError(msg)
                 mod = importlib.import_module(self._module)
                 target = getattr(mod, self._target)
         finally:
@@ -341,3 +365,7 @@ class RunnableTaskAdaptor(object):
     def run(self):
         """Provide mandatory .run() task method."""
         return self._target(*self._args, **self._kwargs)
+
+    def uid(self):
+        """Provide mandatory .uid() task method."""
+        return strings.uuid4()

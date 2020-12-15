@@ -82,7 +82,6 @@ class TestResult(RunnableResult):
     def __init__(self):
         super(TestResult, self).__init__()
         self.report = None
-        self.run = False
 
 
 class Test(Runnable):
@@ -407,8 +406,12 @@ class ProcessRunnerTest(Test):
     Test report will be populated by parsing the generated report output file
     (report.xml file by default.)
 
-    :param binary: Path to the application binary or script.
+    :param name: Test instance name. Also used as uid.
+    :type name: ``str``
+    :param binary: Path the to application binary or script.
     :type binary: ``str``
+    :param description: Description of test instance.
+    :type description: ``str``
     :param proc_env: Environment overrides for ``subprocess.Popen``.
     :type proc_env: ``dict``
     :param proc_cwd: Directory override for ``subprocess.Popen``.

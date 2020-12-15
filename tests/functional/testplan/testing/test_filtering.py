@@ -209,7 +209,7 @@ def test_programmatic_filtering(filter_obj, report_ctx):
             ("--patterns", "XXX:*:test_two"),
             [("XXX", [("Alpha", ["test_two"]), ("Beta", ["test_two"])])],
         ),
-        # Case 2, pattern filtering (multiple params)
+        # Case 3, pattern filtering (multiple params)
         (
             ("--patterns", "XXX:*:test_two", "--patterns", "YYY:*:test_three"),
             [
@@ -217,7 +217,7 @@ def test_programmatic_filtering(filter_obj, report_ctx):
                 ("YYY", (("Gamma", ["test_three"]),)),
             ],
         ),
-        # Case 3, tag filtering
+        # Case 4, tag filtering
         (
             ("--tags", "bar color=red"),
             [
@@ -231,7 +231,7 @@ def test_programmatic_filtering(filter_obj, report_ctx):
                 ("YYY", (("Gamma", ["test_three"]),)),
             ],
         ),
-        # Case 4, tag filtering (multiple params)
+        # Case 5, tag filtering (multiple params)
         (
             # Run tests that match ANY of these rules
             # as they belong to the same category (tags)
@@ -252,7 +252,7 @@ def test_programmatic_filtering(filter_obj, report_ctx):
                 ("YYY", (("Gamma", ["test_two", "test_three"]),)),
             ],
         ),
-        # Case 5, pattern & tag composite filtering
+        # Case 6, pattern & tag composite filtering
         # Tag filters will be wrapped by Any
         # Pattern and tag filters will be wrapped by All
         (
