@@ -9,6 +9,8 @@ after testcases have finished running.
 import inspect
 import os
 import re
+import uuid
+import shutil
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
@@ -2161,7 +2163,15 @@ class Result(object):
 
     def attach(self, filepath, description=None):
         """Attaches a file to the report."""
-        attachment = base.Attachment(filepath, description)
+        filename = os.path.basename(filepath)
+        try:
+            # will best effort make a copy of the file
+            copy_of_file = os.path.join(self._scratch, filename)
+            shutil.copyfile(filepath, copy_of_file)
+        except Exception:
+            copy_of_file = filepath
+
+        attachment = base.Attachment(copy_of_file, description)
         self.attachments.append(attachment)
         _bind_entry(attachment, self)
         return attachment

@@ -841,7 +841,9 @@ class MultiTest(testing_base.Test):
         method_report = testplan.report.TestCaseReport(
             method, uid=method, suite_related=True
         )
-        case_result = self.cfg.result(stdout_style=self.stdout_style)
+        case_result = self.cfg.result(
+            stdout_style=self.stdout_style, _scratch=self._scratch
+        )
 
         try:
             interface.check_signature(attr, ["self", "env", "result"])

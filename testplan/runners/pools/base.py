@@ -50,7 +50,7 @@ class Worker(entity.Resource):
     :type index: ``int`` or ``str``
     :param transport: Transport class for pool/worker communication.
     :type transport: :py:class:`~testplan.runners.pools.connection.Client`
-    :param restart_count: How many times the worker had restarted.
+    :param restart_count: How many times a worker in pool can be restarted.
     :type restart_count: ``int``
 
     Also inherits all :py:class:`~testplan.common.entity.base.Resource`

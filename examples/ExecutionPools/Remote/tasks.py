@@ -28,14 +28,6 @@ class TCPTestsuite(object):
     def setup(self, env, result):
         result.log("LOCAL_USER: {}".format(os.environ["LOCAL_USER"]))
 
-        # Check if the local workspace soft link could be created.
-        local_workspace = os.environ["LOCAL_WORKSPACE"]
-        result.log(
-            "Local workspace {} exists: {} ".format(
-                local_workspace, os.path.exists(local_workspace)
-            )
-        )
-
         for _file in self._files:
             with open(_file) as fobj:
                 result.log("Source file contents: {}".format(fobj.read()))
