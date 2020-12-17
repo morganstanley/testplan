@@ -148,13 +148,19 @@ class RemoteWorker(ProcessWorker):
 
     def _define_remote_dirs(self):
         """Define mandatory directories in remote host."""
-        testplan_path_dirs = ["", "var", "tmp", getpass.getuser(), "testplan"]
+
+        runpath = os.path.join(self.parent.runpath)
+        runpath_parts = runpath.split(os.sep)
+
+        # We are not using os.path.join directly in case we are running
+        # remote pool from Windows -> Linux hosts
         self._remote_testplan_path = "/".join(
-            testplan_path_dirs
-            + ["remote_worker_area", slugify(self.cfg.parent.parent.name)]
+            runpath_parts
+            + ["remote_testplan_lib", slugify(self.cfg.parent.parent.name)]
         )
         self._remote_testplan_runpath = "/".join(
-            [self._remote_testplan_path, "runpath", str(self.cfg.remote_host)]
+            runpath_parts
+            + ["remote_testplan_runpath", str(self.cfg.remote_host)]
         )
 
     def _create_remote_dirs(self):
@@ -379,7 +385,9 @@ class RemoteWorker(ProcessWorker):
     def _copy_workspace(self):
         """Make the local workspace available on remote host."""
 
-        self._workspace_paths.local = fix_home_prefix(self.cfg.workspace)
+        self._workspace_paths.local = fix_home_prefix(
+            os.path.abspath(self.cfg.workspace)
+        )
         self._workspace_paths.remote = "{}/{}".format(
             self._remote_testplan_path,
             self._workspace_paths.local.split(os.sep)[-1],
@@ -550,7 +558,7 @@ class RemoteWorker(ProcessWorker):
             self._transfer_data(
                 source=self._remote_testplan_runpath,
                 remote_source=True,
-                target=self.parent.runpath,
+                target=os.path.dirname(self._remote_testplan_runpath),
             )
             if self.cfg.pull:
                 self._pull_files()

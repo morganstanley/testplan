@@ -380,7 +380,7 @@ class TestResultBaseNamespace(object):
         with open(tmpfile, "w") as f:
             f.write("testplan\n" * 1000)
 
-        result = result_mod.Result()
+        result = result_mod.Result(_scratch=str(tmpdir))
         assert result.attach(tmpfile, description="Attach a text file")
 
         assert len(result.entries) == 1
@@ -406,7 +406,7 @@ class TestResultBaseNamespace(object):
 
         description = "Attach a text file at level: {}"
 
-        result = result_mod.Result()
+        result = result_mod.Result(_scratch=str(tmpdir))
         assert result.attach(tmpfile, description=description.format(0))
 
         assert len(result.entries) == 1

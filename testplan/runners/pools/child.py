@@ -143,7 +143,6 @@ class ChildLoop(object):
         for idx, cfg in enumerate(response.data):
             try:
                 cfg.parent = response.data[idx + 1]
-                print(cfg.parent)
             except IndexError:
                 break
         self._pool_cfg = pool_cfg
@@ -278,12 +277,7 @@ class RemoteChildLoop(ChildLoop):
         if self._setup_metadata.env:
             for key, value in self._setup_metadata.env.items():
                 os.environ[key] = value
-        os.environ[
-            "TESTPLAN_LOCAL_WORKSPACE"
-        ] = self._setup_metadata.workspace_paths.local
-        os.environ[
-            "TESTPLAN_REMOTE_WORKSPACE"
-        ] = self._setup_metadata.workspace_paths.remote
+
         if self._setup_metadata.push_dir:
             os.environ["TESTPLAN_PUSH_DIR"] = self._setup_metadata.push_dir
 
@@ -320,9 +314,13 @@ class RemoteChildLoop(ChildLoop):
 def child_logic(args):
     """Able to be imported child logic."""
     if args.log_level:
-        from testplan.common.utils.logger import TESTPLAN_LOGGER
+        from testplan.common.utils.logger import (
+            TESTPLAN_LOGGER,
+            STDOUT_HANDLER,
+        )
 
         TESTPLAN_LOGGER.setLevel(args.log_level)
+        TESTPLAN_LOGGER.removeHandler(STDOUT_HANDLER)
 
     import psutil
 
@@ -444,3 +442,5 @@ if __name__ == "__main__":
         os.environ[testplan.TESTPLAN_DEPENDENCIES_PATH] = ARGS.testplan_deps
 
     child_logic(ARGS)
+    print("child.py exiting")
+    os._exit(0)

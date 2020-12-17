@@ -63,11 +63,8 @@ def main(plan):
     :return: Testplan result object.
     :rtype:  ``testplan.base.TestplanResult``
     """
-    import testplan
 
-    workspace = os.path.abspath(
-        os.path.join(os.path.dirname(module_abspath(testplan)), "..", "..")
-    )
+    workspace = os.path.dirname(__file__)
 
     # Create two temporary files locally. For demonstration, just write the
     # filename as the content of each.

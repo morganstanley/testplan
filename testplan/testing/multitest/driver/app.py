@@ -73,7 +73,7 @@ class App(Driver):
     :type working_dir: ``str``
 
     Also inherits all
-    :py:class:`~testplan.testing.multitest.driver.base.DriverConfig` options.
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = AppConfig
@@ -295,18 +295,22 @@ class App(Driver):
     def _install_target(self):
         return self.etcpath
 
-    def restart(self):
+    def restart(self, clean=True):
         """
         Stop the driver, archive the app_dir or rename std/log, and then restart
         the driver.
+
+        :param clean: set to False to not archive app_dir or rotate std/log.
+        :type clean: ``bool``
+
         """
         self.stop()
         self.wait(self.status.STOPPED)
-
-        if self.cfg.app_dir_name:
-            self._move_app_path()
-        else:
-            self._rename_std_and_log()
+        if clean:
+            if self.cfg.app_dir_name:
+                self._move_app_path()
+            else:
+                self._rename_std_and_log()
 
         # we don't want to cleanup runpath during restart
         path_cleanup = self.cfg.path_cleanup
