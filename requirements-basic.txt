@@ -24,6 +24,7 @@ flask
 flask_restplus
 cheroot
 validators==0.14.0
+Pillow
 
 # Documentation
 # ---------------

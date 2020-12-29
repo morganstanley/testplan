@@ -13,7 +13,6 @@ except ImportError:
 if six.PY3:
     buffer = memoryview
 
-
 NATIVE_TYPES = (
     six.string_types
     + six.integer_types

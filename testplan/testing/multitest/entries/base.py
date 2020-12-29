@@ -366,14 +366,18 @@ class MatPlot(Attachment):
     """Display a MatPlotLib graph in the report."""
 
     def __init__(
-        self, pyplot, image_file_path, width=2, height=2, description=None
+        self, pyplot, image_file_path, width, height, description=None
     ):
-        self.width = float(width)
-        self.height = float(height)
-        dpi = 96
+
+        if width:
+            pyplot.gcf().set_figwidth(float(width))
+        if height:
+            pyplot.gcf().set_figheight(float(height))
+
         pyplot.savefig(
-            image_file_path, dpi=dpi, pad_inches=0, transparent=True
+            image_file_path, dpi=96, pad_inches=0, transparent=False
         )
+
         pyplot.close()
         super(MatPlot, self).__init__(
             filepath=image_file_path, description=description

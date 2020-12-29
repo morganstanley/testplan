@@ -1,3 +1,5 @@
+from __future__ import division
+
 import six
 import pprint
 
@@ -5,6 +7,8 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.platypus import Image
 from reportlab.platypus import Paragraph
+
+from PIL import Image as pil_image
 
 from testplan.common.exporters.pdf import RowStyle, create_table
 from testplan.common.exporters.pdf import format_table_style
@@ -178,9 +182,14 @@ class MatPlotRenderer(SerializedEntryRenderer):
             )
         ]
 
-        img = Image(source["source_path"])
-        img.drawWidth = source["width"] * inch
-        img.drawHeight = source["height"] * inch
+        p_img = pil_image.open(source["source_path"])
+        dpi_w, dpi_h = p_img.info["dpi"]
+
+        img = Image(
+            source["source_path"],
+            p_img.width / dpi_w * inch,
+            p_img.height / dpi_h * inch,
+        )
 
         return header + RowData(
             content=[img, "", "", ""], start=header.end, style=styles

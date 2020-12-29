@@ -444,7 +444,7 @@ class TestResultBaseNamespace(object):
         y = range(0, 10)
         plot.plot(x, y)
 
-        result.matplot(plot, description="Matplot")
+        result.matplot(plot, width=4, height=4, description="Matplot")
 
         assert len(result.entries) == 1
         assert len(result.attachments) == 1
@@ -454,7 +454,7 @@ class TestResultBaseNamespace(object):
             y = range(0, 10)
             plot.plot(x, y)
 
-            subgroup.matplot(plot, description="Matplot")
+            subgroup.matplot(plot, width=3, height=3, description="Matplot")
 
         assert len(result.entries) == 2
         assert len(result.attachments) == 2
@@ -464,6 +464,7 @@ class TestResultBaseNamespace(object):
             result.attachments[0].source_path
             != result.attachments[1].source_path
         )
-        assert result.attachments[0].hash == result.attachments[1].hash
+        assert result.attachments[0].hash != result.attachments[1].hash
+        assert result.attachments[0].filesize > result.attachments[1].filesize
         assert result.attachments[0].source_path.startswith(result_dir)
         assert result.attachments[1].source_path.startswith(result_dir)

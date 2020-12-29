@@ -26,8 +26,6 @@ expected_report = TestReport(
                             entries=[
                                 {
                                     "source_path": re.compile(r"^.+\.png$"),
-                                    "width": 2.0,
-                                    "height": 2.0,
                                     "type": "MatPlot",
                                     "description": "My matplot",
                                 }
