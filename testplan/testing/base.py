@@ -21,10 +21,11 @@ from testplan.common.entity import (
     RunnableResult,
     RunnableConfig,
 )
+from testplan.common.utils import strings
 from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.timing import parse_duration, format_duration
 from testplan.common.utils.process import enforce_timeout, kill_process
-from testplan.common.utils.strings import slugify
+from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from testplan.report import (
     test_styles,
@@ -33,7 +34,6 @@ from testplan.report import (
     ReportCategories,
     RuntimeStatus,
 )
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Log
 
@@ -90,7 +90,7 @@ class Test(Runnable):
     can inherit from this class and override certain methods to
     customize functionality.
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name, often used as uid of test entity.
     :type name: ``str``
     :param description: Description of test instance.
     :type description: ``str``
@@ -150,8 +150,8 @@ class Test(Runnable):
     def _new_test_report(self):
         return TestGroupReport(
             name=self.cfg.name,
-            uid=self.cfg.name,
             description=self.cfg.description,
+            uid=self.uid(),
             category=self.__class__.__name__.lower(),
             tags=self.cfg.tags,
         )
@@ -406,7 +406,7 @@ class ProcessRunnerTest(Test):
     Test report will be populated by parsing the generated report output file
     (report.xml file by default.)
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name, often used as uid of test entity.
     :type name: ``str``
     :param binary: Path the to application binary or script.
     :type binary: ``str``
@@ -576,8 +576,8 @@ class ProcessRunnerTest(Test):
                     continue
                 env[
                     "DRIVER_{}_ATTR_{}".format(
-                        slugify(driver_name).replace("-", "_"),
-                        slugify(attr).replace("-", "_"),
+                        strings.slugify(driver_name).replace("-", "_"),
+                        strings.slugify(attr).replace("-", "_"),
                     ).upper()
                 ] = str(value)
 
@@ -702,7 +702,6 @@ class ProcessRunnerTest(Test):
                 ).serialize(),
             ],
         )
-
         testcase_report.runtime_status = RuntimeStatus.FINISHED
 
         suite_report = TestGroupReport(
@@ -781,16 +780,15 @@ class ProcessRunnerTest(Test):
         result = super(ProcessRunnerTest, self).dry_run()
         report = result.report
 
+        testcase_report = TestCaseReport(
+            name="ExitCodeCheck", uid="ExitCodeCheck", suite_related=True,
+        )
         testsuite_report = TestGroupReport(
             name="ProcessChecks",
             category=ReportCategories.TESTSUITE,
             uid="ProcessChecks",
+            entries=[testcase_report],
         )
-
-        testcase_report = TestCaseReport(
-            name="ExitCodeCheck", uid="ExitCodeCheck", suite_related=True,
-        )
-        testsuite_report.append(testcase_report)
         report.append(testsuite_report)
 
         return result

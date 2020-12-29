@@ -9,8 +9,9 @@ import pytest
 import six
 from schema import Or
 
-from testplan.testing import base as testing
+from testplan.common.utils import validation
 from testplan.common.config import ConfigOption
+from testplan.testing import base as testing
 from testplan.testing.base import TestResult
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries.base import Log as LogAssertion
@@ -21,9 +22,12 @@ from testplan.testing.multitest.entries.schemas.base import (
 from testplan.testing.multitest.entries.stdout.base import (
     registry as stdout_registry,
 )
-from testplan.report import TestGroupReport, TestCaseReport, Status
-from testplan.common.utils import validation
-
+from testplan.report import (
+    TestGroupReport,
+    TestCaseReport,
+    Status,
+    ReportCategories,
+)
 
 # Regex for parsing suite and case name and case parameters
 _CASE_REGEX = re.compile(
@@ -56,7 +60,7 @@ class PyTest(testing.Test):
     PyTest plugin for Testplan. Allows tests written for PyTest to be run from
     Testplan, with the test results logged and included in the Testplan report.
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name, often used as uid of test entity.
     :type name: ``str``
     :param target: Target of PyTest configuration.
     :type target: ``str`` or ``list`` of ``str``
@@ -219,7 +223,10 @@ class PyTest(testing.Test):
                         [test_report.uid, suite_report.uid],
                     )
                 elif isinstance(child_report, TestGroupReport):
-                    if child_report.category != "parametrization":
+                    if (
+                        child_report.category
+                        != ReportCategories.PARAMETRIZATION
+                    ):
                         raise RuntimeError(
                             "Unexpected report category: {}".format(
                                 child_report.category
@@ -237,9 +244,7 @@ class PyTest(testing.Test):
                         )
                 else:
                     raise TypeError(
-                        "Unexpected report type: {}".format(
-                            type(testcase_report)
-                        )
+                        "Unexpected report type: {}".format(type(child_report))
                     )
 
     def _build_iter_pytest_args(self, testsuite_pattern, testcase_pattern):
@@ -370,7 +375,9 @@ class _ReportPlugin(object):
             if group_report is None:
                 # create group report for parametrized testcases
                 group_report = TestGroupReport(
-                    name=case_name, uid=case_name, category="parametrization"
+                    name=case_name,
+                    category=ReportCategories.PARAMETRIZATION,
+                    uid=case_name,
                 )
                 self._suite_reports[suite_name][case_name] = group_report
 
@@ -578,7 +585,9 @@ class _ReportPlugin(object):
         # Collate suite reports
         for suite_name, cases in self._suite_reports.items():
             suite_report = TestGroupReport(
-                name=suite_name, uid=suite_name, category="testsuite"
+                name=suite_name,
+                category=ReportCategories.TESTSUITE,
+                uid=suite_name,
             )
 
             for case in cases.values():
@@ -668,7 +677,9 @@ def _add_empty_testcase_report(item, test_report, nodeids):
         suite_report = test_report[suite_name]
     except KeyError:
         suite_report = TestGroupReport(
-            name=suite_name, uid=suite_name, category="testsuite"
+            name=suite_name,
+            category=ReportCategories.TESTSUITE,
+            uid=suite_name,
         )
         test_report.append(suite_report)
         nodeids["testsuites"][suite_name] = full_suite_name
@@ -678,7 +689,9 @@ def _add_empty_testcase_report(item, test_report, nodeids):
             param_report = suite_report[case_name]
         except KeyError:
             param_report = TestGroupReport(
-                name=case_name, uid=case_name, category="parametrization",
+                name=case_name,
+                category=ReportCategories.PARAMETRIZATION,
+                uid=case_name,
             )
             suite_report.append(param_report)
             nodeids["testcases"][suite_name][case_name] = "::".join(

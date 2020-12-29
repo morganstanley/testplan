@@ -19,7 +19,6 @@ import concurrent
 
 from schema import Or, And, Use
 
-import testplan.report
 from testplan.common import config
 from testplan.common import entity
 from testplan.common.utils import interface
@@ -27,12 +26,21 @@ from testplan.common.utils import validation
 from testplan.common.utils import timing
 from testplan.common.utils import callable as callable_utils
 from testplan.common.utils import strings
+
 from testplan.testing import tagging
 from testplan.testing import filtering
 from testplan.testing import base as testing_base
 from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
+
+from testplan.report import (
+    TestGroupReport,
+    TestCaseReport,
+    Status,
+    RuntimeStatus,
+    ReportCategories,
+)
 
 
 def iterable_suites(obj):
@@ -139,7 +147,7 @@ class MultiTest(testing_base.Test):
     executes :py:func:`testsuites <testplan.testing.multitest.suite.testsuite>`
     against it.
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name, often used as uid of test entity.
     :type name: ``str``
     :param suites: List of
         :py:func:`@testsuite <testplan.testing.multitest.suite.testsuite>`
@@ -235,9 +243,9 @@ class MultiTest(testing_base.Test):
     @property
     def pre_post_step_report(self):
         if self._pre_post_step_report is None:
-            self._pre_post_step_report = testplan.report.TestGroupReport(
+            self._pre_post_step_report = TestGroupReport(
                 name="Pre/Post Step Checks",
-                category=testplan.report.ReportCategories.TESTSUITE,
+                category=ReportCategories.TESTSUITE,
                 uid="Pre/Post Step Checks",
             )
         return self._pre_post_step_report
@@ -331,7 +339,7 @@ class MultiTest(testing_base.Test):
         """Run all tests as a batch and return the results."""
         testsuites = self.test_context
         report = self.report
-        report.runtime_status = testplan.report.RuntimeStatus.RUNNING
+        report.runtime_status = RuntimeStatus.RUNNING
 
         with report.timer.record("run"):
             if _need_threadpool(testsuites):
@@ -342,13 +350,9 @@ class MultiTest(testing_base.Test):
             for testsuite, testcases in testsuites:
                 if not self.active:
                     report.logger.error("Not all of the suites are done.")
-                    st = testplan.report.Status.precedent(
-                        [report.status, testplan.report.Status.INCOMPLETE]
-                    )
+                    st = Status.precedent([report.status, Status.INCOMPLETE])
                     if st != report.status:
-                        report.status_override = (
-                            testplan.report.Status.INCOMPLETE
-                        )
+                        report.status_override = Status.INCOMPLETE
                     break
 
                 testsuite_report = self._run_suite(testsuite, testcases)
@@ -366,7 +370,7 @@ class MultiTest(testing_base.Test):
                 self._thread_pool.shutdown()
                 self._thread_pool = None
 
-        report.runtime_status = testplan.report.RuntimeStatus.FINISHED
+        report.runtime_status = RuntimeStatus.FINISHED
 
         return report
 
@@ -428,7 +432,7 @@ class MultiTest(testing_base.Test):
         if exceptions:
             for msg in exceptions.values():
                 self.result.report.logger.error(msg)
-            self.result.report.status_override = testplan.report.Status.ERROR
+            self.result.report.status_override = Status.ERROR
 
         if step == self.resources.stop:
             drivers = set(self.resources.start_exceptions.keys())
@@ -544,8 +548,8 @@ class MultiTest(testing_base.Test):
         Return a report for a testsuite-related action, such as setup or
         teardown.
         """
-        testcase_report = testplan.report.TestCaseReport(
-            name, uid=name, suite_related=True
+        testcase_report = TestCaseReport(
+            name=name, uid=name, suite_related=True
         )
         if status:
             testcase_report.status_override = status
@@ -586,10 +590,10 @@ class MultiTest(testing_base.Test):
         """
         :return: A new and empty test report object for this MultiTest.
         """
-        return testplan.report.TestGroupReport(
+        return TestGroupReport(
             name=self.cfg.name,
             description=self.cfg.description,
-            category=testplan.report.ReportCategories.MULTITEST,
+            category=ReportCategories.MULTITEST,
             uid=self.uid(),
             tags=self.cfg.tags,
             part=self.cfg.part,
@@ -601,10 +605,10 @@ class MultiTest(testing_base.Test):
         """
         :return: A new and empty report for a testsuite.
         """
-        return testplan.report.TestGroupReport(
+        return TestGroupReport(
             name=testsuite.name,
             description=strings.get_docstring(testsuite.__class__),
-            category=testplan.report.ReportCategories.TESTSUITE,
+            category=ReportCategories.TESTSUITE,
             uid=testsuite.name,
             tags=testsuite.__tags__,
         )
@@ -613,7 +617,7 @@ class MultiTest(testing_base.Test):
         """
         :return: A new and empty report for a testcase.
         """
-        return testplan.report.TestCaseReport(
+        return TestCaseReport(
             name=testcase.name,
             description=strings.get_docstring(testcase),
             uid=testcase.__name__,
@@ -626,10 +630,10 @@ class MultiTest(testing_base.Test):
         """
         # Don't include the template method's docstring in the report to
         # avoid duplication with the generated testcases.
-        return testplan.report.TestGroupReport(
+        return TestGroupReport(
             name=param_method.name,
             description=strings.get_docstring(param_method),
-            category=testplan.report.ReportCategories.PARAMETRIZATION,
+            category=ReportCategories.PARAMETRIZATION,
             uid=param_template,
             tags=param_method.__tags__,
         )
@@ -653,7 +657,7 @@ class MultiTest(testing_base.Test):
         """Runs a testsuite object and returns its report."""
         _check_testcases(testcases)
         testsuite_report = self._new_testsuite_report(testsuite)
-        testsuite_report.runtime_status = testplan.report.RuntimeStatus.RUNNING
+        testsuite_report.runtime_status = RuntimeStatus.RUNNING
 
         with testsuite_report.timer.record("run"):
             setup_report = self._setup_testsuite(testsuite)
@@ -674,7 +678,7 @@ class MultiTest(testing_base.Test):
             # not continue to run the parallel testcases if configured to
             # stop on errrors.
             should_stop = (
-                testsuite_report.status == testplan.report.Status.ERROR
+                testsuite_report.status == Status.ERROR
                 and self.cfg.stop_on_error
             )
 
@@ -692,9 +696,7 @@ class MultiTest(testing_base.Test):
         if hasattr(testsuite, "__xfail__"):
             testsuite_report.xfail(testsuite.__xfail__["strict"])
 
-        testsuite_report.runtime_status = (
-            testplan.report.RuntimeStatus.FINISHED
-        )
+        testsuite_report.runtime_status = RuntimeStatus.FINISHED
 
         return testsuite_report
 
@@ -728,7 +730,7 @@ class MultiTest(testing_base.Test):
             else:
                 testcase_reports.append(testcase_report)
 
-            if testcase_report.status == testplan.report.Status.ERROR:
+            if testcase_report.status == Status.ERROR:
                 if self.cfg.stop_on_error:
                     self.logger.debug(
                         'Stopping exeucution of testsuite "%s" due to error',
@@ -782,7 +784,7 @@ class MultiTest(testing_base.Test):
                 # errors, we still wait for the rest of the current execution
                 # group to finish before stopping.
                 if (
-                    testcase_report.status == testplan.report.Status.ERROR
+                    testcase_report.status == Status.ERROR
                     and self.cfg.stop_on_error
                 ):
                     should_stop = True
@@ -848,8 +850,8 @@ class MultiTest(testing_base.Test):
         elif not callable(attr):
             raise TypeError("{} expected to be callable.".format(method))
 
-        method_report = testplan.report.TestCaseReport(
-            method, uid=method, suite_related=True
+        method_report = TestCaseReport(
+            name=method, uid=method, suite_related=True
         )
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self._scratch
@@ -882,7 +884,7 @@ class MultiTest(testing_base.Test):
         testcase_report = testcase_report or self._new_testcase_report(
             testcase
         )
-        testcase_report.runtime_status = testplan.report.RuntimeStatus.RUNNING
+        testcase_report.runtime_status = RuntimeStatus.RUNNING
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
@@ -911,9 +913,7 @@ class MultiTest(testing_base.Test):
                     )(testcase)(resources, case_result)
                     if not executed:
                         testcase_report.logger.error(execution_result)
-                        testcase_report.status_override = (
-                            testplan.report.Status.ERROR
-                        )
+                        testcase_report.status_override = Status.ERROR
                 else:
                     testcase(resources, case_result)
 
@@ -942,7 +942,7 @@ class MultiTest(testing_base.Test):
             testcase_report.xfail(testcase.__xfail__["strict"])
 
         testcase_report.pass_if_empty()
-        testcase_report.runtime_status = testplan.report.RuntimeStatus.FINISHED
+        testcase_report.runtime_status = RuntimeStatus.FINISHED
 
         if self.get_stdout_style(testcase_report.passed).display_testcase:
             self.log_testcase_status(testcase_report)
@@ -969,7 +969,7 @@ class MultiTest(testing_base.Test):
                 stdout_style=self.stdout_style, _scratch=self.scratch
             )
 
-            testcase_report = testplan.report.TestCaseReport(
+            testcase_report = TestCaseReport(
                 name="{} - {}".format(label, func.__name__),
                 description=strings.get_docstring(func),
             )
