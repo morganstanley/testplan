@@ -2168,7 +2168,7 @@ class Result(object):
             # will best effort make a copy of the file
             copy_of_file = os.path.join(self._scratch, filename)
             shutil.copyfile(filepath, copy_of_file)
-        except Exception:
+        except Exception as exc:
             copy_of_file = filepath
 
         attachment = base.Attachment(copy_of_file, description)
@@ -2176,15 +2176,15 @@ class Result(object):
         _bind_entry(attachment, self)
         return attachment
 
-    def matplot(self, pyplot, width=2, height=2, description=None):
+    def matplot(self, pyplot, width=None, height=None, description=None):
         """
         Displays a Matplotlib plot in the report.
 
         :param pyplot: Matplotlib pyplot object to be displayed.
         :type pyplot: ``matplotlib.pyplot``
-        :param width: Width of the plot in inches.
+        :param width: Figure width in inches, use pyplot defaul if not specified
         :type width: ``int``
-        :param height: Height of the plot in inches.
+        :param height: Figure height in inches, use pyplot default if not specified
         :type height: ``int``
         :param description: Text description for the assertion.
         :type description: ``str``

@@ -27,8 +27,6 @@ matplotlib.use("agg")
 import matplotlib.pyplot as plot
 import numpy as np
 
-PLOT_SIZE = 1.8
-
 
 def create_scatter_plot(title, x, y, x_label, y_label, c=None):
     plot.scatter(x, y, c=c)
@@ -90,7 +88,7 @@ class ModelExamplesSuite(object):
             "black",
         )
         plot.plot(X_test, diabetes_y_pred, color="blue", linewidth=3)
-        result.matplot(plot, PLOT_SIZE, PLOT_SIZE)
+        result.matplot(plot)
 
     @testcase
     def basic_classifier(self, env, result):
@@ -128,7 +126,7 @@ class ModelExamplesSuite(object):
                 predicted[sample], y_test[sample]
             )
             create_image_plot(t, X_test[sample].reshape((8, 8)), 1, 3, i + 1)
-        result.matplot(plot, PLOT_SIZE, PLOT_SIZE)
+        result.matplot(plot, 4, 3)
 
     @testcase
     def basic_k_means_cluster(self, env, result):
@@ -156,7 +154,7 @@ class ModelExamplesSuite(object):
             "Feature 2",
             c=y_pred,
         )
-        result.matplot(plot, PLOT_SIZE, PLOT_SIZE)
+        result.matplot(plot)
 
 
 # Hard-coding `pdf_path` and 'pdf_style' so that the downloadable example gives
