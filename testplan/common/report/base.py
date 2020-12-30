@@ -190,7 +190,7 @@ class Report(object):
     def reset_uid(self, uid=None):
         """
         Reset uid of the report, it can be useful when need to generate
-        a standard UUID instead of the current one.
+        a global unique id instead of the current one.
         """
         self.uid = uid or strings.uuid4()
 
@@ -379,8 +379,9 @@ class ReportGroup(Report):
 
     def reset_uid(self, uid=None):
         """
-        Reset uid of the report and all of its children, it can be useful
-        when need to generate standard UUIDs instead of the current ones.
+        Reset uid of test report and all of its children, it can be useful
+        when need to generate global unique id for each report entry before
+        saving, by default strings in standard UUID format will be applied.
         """
         self.uid = uid or strings.uuid4()
         for entry in self:

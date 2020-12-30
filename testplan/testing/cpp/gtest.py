@@ -5,6 +5,7 @@ from testplan.common.config import ConfigOption
 from testplan.report import (
     TestGroupReport,
     TestCaseReport,
+    ReportCategories,
     RuntimeStatus,
 )
 from testplan.testing.multitest.entries.assertions import RawAssertion
@@ -60,7 +61,7 @@ class GTest(ProcessRunnerTest):
     Most of the configuratin options of GTest are
     just simple wrappers for native arguments.
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name, often used as uid of test entity.
     :type name: ``str``
     :param binary: Path the to application binary or script.
     :type binary: ``str``
@@ -160,7 +161,9 @@ class GTest(ProcessRunnerTest):
         for suite in test_data.getchildren():
             suite_name = suite.attrib["name"]
             suite_report = TestGroupReport(
-                name=suite_name, uid=suite_name, category="testsuite"
+                name=suite_name,
+                category=ReportCategories.TESTSUITE,
+                uid=suite_name,
             )
             suite_has_run = False
 

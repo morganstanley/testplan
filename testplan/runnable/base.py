@@ -157,7 +157,6 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 "interactive_handler", default=TestRunnerIHandler
             ): object,
-            ConfigOption("reset_report_uid", default=True): bool,
             ConfigOption("extra_deps", default=[]): list,
         }
 
@@ -287,7 +286,7 @@ class TestRunner(Runnable):
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
         self._tests = OrderedDict()  # uid to resource
-        self._part_instance_names = set()  # name of multitest part
+        self._part_instance_names = set()  # name of Multitest part
         self._result.test_report = TestReport(
             name=self.cfg.name,
             description=self.cfg.description,
@@ -298,6 +297,10 @@ class TestRunner(Runnable):
         self._web_server_thread = None
         self._file_log_handler = None
         self._configure_stdout_logger()
+        # Before saving test report, recursively generate unique strings in
+        # uuid4 format as report uid instead of original one. Skip this step
+        # when executing unit/functional tests or running in interactive mode.
+        self._reset_report_uid = self.cfg.interactive_port is None
 
     @property
     def report(self):
@@ -655,7 +658,7 @@ class TestRunner(Runnable):
                         continue  # Wait all sibling reports collected
                 else:
                     # If do not want to merge sibling reports, then display
-                    # them with different names. (e.g. `MTest - part(1/3)`)
+                    # them with different names. (e.g. `MTest - part(0/3)`)
                     report.name = report.uid
 
             test_report.append(report)
@@ -663,8 +666,8 @@ class TestRunner(Runnable):
 
         step_result = self._merge_reports(test_rep_lookup) and step_result
 
-        # Set UIDs of a test report and all of its children standard UUID form
-        if self.cfg.reset_report_uid:
+        # Reset UIDs of the test report and all of its children in UUID4 format
+        if self._reset_report_uid:
             test_report.reset_uid()
 
         return step_result
@@ -738,11 +741,10 @@ class TestRunner(Runnable):
                 placeholder_report._index = {}
                 placeholder_report.status_override = Status.ERROR
                 for _, report in result:
-                    report.uid = report.name = "{} - part({}/{})".format(
+                    report.name = "{} - part({}/{})".format(
                         report.name, report.part[0], report.part[1]
                     )
-                    if report.uid in self._result.test_report.entry_uids:
-                        report.uid = strings.uuid4()  # solve uid conflict
+                    report.uid = strings.uuid4()  # considered as error report
                     self._result.test_report.append(report)
 
             merge_result = (

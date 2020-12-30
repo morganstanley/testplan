@@ -443,9 +443,9 @@ def default_runpath_mock(entity):
 
 class TestplanMock(Testplan):
     """
-    A mock Testplan class for testing purpose. It is recommended to use mockplan
-    fixture defined in conftest.py if you can. Only use this when necessary, e.g
-    you need to override default parameters.
+    A mock Testplan class for testing purpose. It is recommended to use
+    mockplan fixture defined in conftest.py if you can. Only use this when
+    necessary, e.g. you need to override default parameters.
     """
 
     def __init__(self, *args, **kwargs):
@@ -453,6 +453,6 @@ class TestplanMock(Testplan):
         kwargs.setdefault("abort_signals", [])
         kwargs.setdefault("runpath", default_runpath_mock)
         kwargs.setdefault("parse_cmdline", False)
-        kwargs.setdefault("reset_report_uid", False)
 
         super(TestplanMock, self).__init__(*args, **kwargs)
+        self._runnable._reset_report_uid = False

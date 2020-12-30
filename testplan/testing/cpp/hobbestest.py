@@ -2,7 +2,12 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 
-from testplan.report import TestGroupReport, TestCaseReport, RuntimeStatus
+from testplan.report import (
+    TestGroupReport,
+    TestCaseReport,
+    ReportCategories,
+    RuntimeStatus,
+)
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 
@@ -31,7 +36,7 @@ class HobbesTest(ProcessRunnerTest):
     Subprocess test runner for Hobbes Test:
     https://github.com/Morgan-Stanley/hobbes
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name, often used as uid of test entity.
     :type name: ``str``
     :param binary: Path the to application binary or script.
     :type binary: ``str``
@@ -103,7 +108,9 @@ class HobbesTest(ProcessRunnerTest):
         result = []
         for suite in test_data:
             suite_report = TestGroupReport(
-                name=suite["name"], uid=suite["name"], category="testsuite"
+                name=suite["name"],
+                category=ReportCategories.TESTSUITE,
+                uid=suite["name"],
             )
             suite_has_run = False
 

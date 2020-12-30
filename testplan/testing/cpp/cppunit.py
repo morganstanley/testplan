@@ -13,6 +13,7 @@ from testplan.common.utils.strings import slugify
 from testplan.report import (
     TestGroupReport,
     TestCaseReport,
+    ReportCategories,
     RuntimeStatus,
 )
 from testplan.testing.multitest.entries.assertions import RawAssertion
@@ -137,7 +138,7 @@ class Cppunit(ProcessRunnerTest):
 
         ./cppunit_bin -y /path/to/test/result
 
-    :param name: Test instance name. Also used as uid.
+    :param name: Test instance name, often used as uid of test entity.
     :type name: ``str``
     :param binary: Path the to application binary or script.
     :type binary: ``str``
@@ -240,7 +241,9 @@ class Cppunit(ProcessRunnerTest):
         for suite in test_data.getchildren():
             suite_name = suite.attrib["name"]
             suite_report = TestGroupReport(
-                name=suite_name, uid=suite_name, category="testsuite"
+                name=suite_name,
+                category=ReportCategories.TESTSUITE,
+                uid=suite_name,
             )
 
             for testcase in suite.getchildren():
@@ -249,8 +252,9 @@ class Cppunit(ProcessRunnerTest):
 
                 testcase_classname = testcase.attrib["classname"]
                 testcase_name = testcase.attrib["name"]
+                testcase_prefix = testcase_classname.split(".")[-1]
                 testcase_report = TestCaseReport(
-                    name=testcase_name,
+                    name="{}::{}".format(testcase_prefix, testcase_name),
                     uid="{}::{}".format(
                         testcase_classname.replace(".", "::"), testcase_name
                     ),
