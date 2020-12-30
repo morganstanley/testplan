@@ -6,6 +6,7 @@ import sys
 import json
 import platform
 import tempfile
+import pytest
 
 from testplan.common.utils.timing import wait
 from testplan.common.utils import path
@@ -152,7 +153,8 @@ def test_extract_from_logfile_with_appdir(runpath):
         assert app.extracts["b"] == b
 
 
-def test_binary_copy(runpath):
+@pytest.mark.parametrize("strategy", ["copy", "link", "noop"])
+def test_binary_strategy(runpath, strategy):
     """Test copying the binary under the runpath."""
     binary = os.path.join(
         os.path.abspath(os.path.dirname(__file__)), "example_binary.py"
@@ -167,18 +169,22 @@ def test_binary_copy(runpath):
         "binary": binary,
         "log_regexps": log_regexps,
         "pre_args": [sys.executable],
-        "binary_copy": True,
+        "binary_strategy": strategy,
         "runpath": runpath,
     }
 
     app = CustomApp(path_cleanup=True, **params)
     with app:
-        # Will terminate the binary.
         assert app.extracts["value"] == "started"
 
-    app = CustomApp(path_cleanup=False, **params)
-    with app:
-        assert app.extracts["value"] == "started"
+        if strategy == "noop":
+            assert app.binary == binary
+        else:
+            assert app.binary == os.path.join(
+                app.runpath, "bin", "example_binary.py"
+            )
+            if strategy == "copy":
+                assert not os.path.islink(app.binary)
 
 
 def test_install_files(runpath):
@@ -206,6 +212,7 @@ def test_install_files(runpath):
             config,
             bfile,
             (config, os.path.join(dst, "config.yaml")),
+            (config, os.path.join("rel_path", "config.yaml")),
         ],
         log_regexps=log_regexps,
         shell=True,
@@ -216,7 +223,11 @@ def test_install_files(runpath):
         assert bool(json.loads(app.extracts["command"]))
         assert os.path.exists(app.extracts["app_path"])
         assert os.path.exists(os.path.join(app.app_path, "etc", "binary_file"))
+        assert os.path.exists(os.path.join(app.app_path, "etc", "config.yaml"))
         assert os.path.exists(os.path.join(dst, "config.yaml"))
+        assert os.path.exists(
+            os.path.join(app.app_path, "etc", "rel_path", "config.yaml")
+        )
 
 
 def test_echo_hello(runpath):
