@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import Assertion from './Assertion';
@@ -7,30 +7,28 @@ import Assertion from './Assertion';
  * A component that wraps the rendered assertions. It is also the point where
  * recursion begins for grouped assertions.
  */
-class AssertionGroup extends Component {
-  render() {
-    return this.props.entries.filter((assertion) => {
-      if (this.props.filter === 'pass') {
-        // Log assertion will be displayed
-        if (assertion.passed === false) return false;
-      } else if (this.props.filter === 'fail') {
-        // Log assertion will be displayed
-        if (assertion.passed === true) return false;
-      }
-      return true;
-    }).map((assertion, index) =>
-      <Assertion
-        key={'assertion_' + index}
-        assertion={assertion}
-        globalIsOpen={this.props.globalIsOpen}
-        resetGlobalIsOpen={this.props.resetGlobalIsOpen}
-        index={index}
-        filter={this.props.filter}
-        reportUid={this.props.reportUid}
-      />
-    );
-  }
-}
+const AssertionGroup = (props) => {
+  return props.entries.filter((assertion) => {
+    if (props.filter === 'pass') {
+      // Log assertion will be displayed
+      if (assertion.passed === false) return false;
+    } else if (props.filter === 'fail') {
+      // Log assertion will be displayed
+      if (assertion.passed === true) return false;
+    }
+    return true;
+  }).map((assertion, index) =>
+    <Assertion
+      key={'assertion_' + index}
+      assertion={assertion}
+      globalIsOpen={props.globalIsOpen}
+      resetGlobalIsOpen={props.resetGlobalIsOpen}
+      index={index}
+      filter={props.filter}
+      reportUid={props.reportUid}
+    />
+  );
+};
 
 AssertionGroup.propTypes = {
   /** Array of assertions to be rendered */

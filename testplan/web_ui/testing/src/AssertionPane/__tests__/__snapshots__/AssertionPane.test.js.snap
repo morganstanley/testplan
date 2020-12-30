@@ -16,77 +16,98 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
   <div
     className="infiniteScrollDiv_gt1n5"
   >
-    <InfiniteScroll
-      items={
-        Array [
-          Object {
-            "category": "DEFAULT",
-            "description": null,
-            "first": "foo",
-            "label": "==",
-            "line_no": 25,
-            "machine_time": "2019-02-12T17:41:42.795536+00:00",
-            "meta_type": "assertion",
-            "passed": true,
-            "second": "foo",
-            "type": "Equal",
-            "utc_time": "2019-02-12T17:41:42.795530+00:00",
-          },
-        ]
-      }
-      key="22758cc5-8a89-472b-bf67-b64dbc2c0b40"
+    <Scrollbars
+      autoHeight={false}
+      autoHeightMax={200}
+      autoHeightMin={0}
+      autoHide={true}
+      autoHideDuration={200}
+      autoHideTimeout={1000}
+      hideTracksWhenNotNeeded={false}
+      renderThumbHorizontal={[Function]}
+      renderThumbVertical={[Function]}
+      renderTrackHorizontal={[Function]}
+      renderTrackVertical={[Function]}
+      renderView={[Function]}
+      tagName="div"
+      thumbMinSize={30}
+      universal={false}
     >
-      <DescriptionPane />
       <div
-        className="buttonsDiv_16w4ads"
+        style={
+          Object {
+            "paddingRight": "4rem",
+          }
+        }
       >
-        <FontAwesomeIcon
-          border={false}
-          className="icon_1rr1rr0"
-          fixedWidth={false}
-          flip={null}
-          icon="plus-circle"
-          inverse={false}
-          key="faPlusCircle"
-          listItem={false}
-          mask={null}
-          onClick={[Function]}
-          pull={null}
-          pulse={false}
-          rotation={null}
-          size="1x"
-          spin={false}
-          symbol={false}
-          title="Expand all"
-          transform={null}
+        <DescriptionPane />
+        <div
+          className="buttonsDiv_16w4ads"
+        >
+          <FontAwesomeIcon
+            border={false}
+            className="icon_1rr1rr0"
+            fixedWidth={false}
+            flip={null}
+            icon="plus-circle"
+            inverse={false}
+            key="faPlusCircle"
+            listItem={false}
+            mask={null}
+            onClick={[Function]}
+            pull={null}
+            pulse={false}
+            rotation={null}
+            size="1x"
+            spin={false}
+            symbol={false}
+            title="Expand all"
+            transform={null}
+          />
+          <FontAwesomeIcon
+            border={false}
+            className="icon_1rr1rr0"
+            fixedWidth={false}
+            flip={null}
+            icon="minus-circle"
+            inverse={false}
+            key="faMinusCircle"
+            listItem={false}
+            mask={null}
+            onClick={[Function]}
+            pull={null}
+            pulse={false}
+            rotation={null}
+            size="1x"
+            spin={false}
+            symbol={false}
+            title="Collapse all"
+            transform={null}
+          />
+        </div>
+        <AssertionGroup
+          entries={
+            Array [
+              Object {
+                "category": "DEFAULT",
+                "description": null,
+                "first": "foo",
+                "label": "==",
+                "line_no": 25,
+                "machine_time": "2019-02-12T17:41:42.795536+00:00",
+                "meta_type": "assertion",
+                "passed": true,
+                "second": "foo",
+                "type": "Equal",
+                "utc_time": "2019-02-12T17:41:42.795530+00:00",
+              },
+            ]
+          }
+          resetGlobalIsOpen={[Function]}
         />
-        <FontAwesomeIcon
-          border={false}
-          className="icon_1rr1rr0"
-          fixedWidth={false}
-          flip={null}
-          icon="minus-circle"
-          inverse={false}
-          key="faMinusCircle"
-          listItem={false}
-          mask={null}
-          onClick={[Function]}
-          pull={null}
-          pulse={false}
-          rotation={null}
-          size="1x"
-          spin={false}
-          symbol={false}
-          title="Collapse all"
-          transform={null}
-        />
+        <LogGroup />
       </div>
-      <AssertionGroup
-        entries={Array []}
-        resetGlobalIsOpen={[Function]}
-      />
-      <LogGroup />
-    </InfiniteScroll>
+    </Scrollbars>
   </div>
 </div>
 `;

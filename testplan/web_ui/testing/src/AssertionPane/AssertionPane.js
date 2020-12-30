@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {css, StyleSheet} from 'aphrodite';
+import {Scrollbars} from 'react-custom-scrollbars';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
@@ -9,7 +10,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import DescriptionPane from './DescriptionPane';
-import InfiniteScroll from './InfiniteScroll';
 import AssertionGroup from "./AssertionGroup";
 import LogGroup from './LogGroup';
 
@@ -101,42 +101,41 @@ class AssertionPane extends Component {
             InfiniteScroll component a key tells react to update it. Unsure if
             it updates it or creates a new instance, need to check.
             */}
-            <InfiniteScroll
-              key={this.props.testcaseUid}
-              items={this.props.assertions}
-            >
-              <DescriptionPane
-                descriptionEntries={this.props.descriptionEntries}
-              />
-           <div className={css(styles.buttonsDiv)}>
-            <FontAwesomeIcon
-              size='1x'
-              key='faPlusCircle'
-              icon='plus-circle'
-              title='Expand all'
-              onClick={this.expandAllAssertions}
-              className={css(styles.icon)}
-            />
-            <FontAwesomeIcon
-              size='1x'
-              key='faMinusCircle'
-              icon='minus-circle'
-              title='Collapse all'
-              onClick={this.collapseAllAssertions}
-              className={css(styles.icon)}
-            />
-          </div>
-              <AssertionGroup
-                entries={[]}
-                globalIsOpen={this.state.globalIsOpen}
-                resetGlobalIsOpen={this.resetGlobalIsOpen}
-                filter={this.props.filter}
-                reportUid={this.props.reportUid}
-              />
-              <LogGroup 
-                logs={this.props.logs}
-              />
-            </InfiniteScroll>
+             <Scrollbars autoHide>
+             <div style={{paddingRight: '4rem'}}>
+                <DescriptionPane
+                  descriptionEntries={this.props.descriptionEntries}
+                />
+                <div className={css(styles.buttonsDiv)}>
+                  <FontAwesomeIcon
+                    size='1x'
+                    key='faPlusCircle'
+                    icon='plus-circle'
+                    title='Expand all'
+                    onClick={this.expandAllAssertions}
+                    className={css(styles.icon)}
+                  />
+                  <FontAwesomeIcon
+                    size='1x'
+                    key='faMinusCircle'
+                    icon='minus-circle'
+                    title='Collapse all'
+                    onClick={this.collapseAllAssertions}
+                    className={css(styles.icon)}
+                  />
+                </div>
+                <AssertionGroup
+                  entries={this.props.assertions}
+                  globalIsOpen={this.state.globalIsOpen}
+                  resetGlobalIsOpen={this.resetGlobalIsOpen}
+                  filter={this.props.filter}
+                  reportUid={this.props.reportUid}
+                />
+                <LogGroup
+                  logs={this.props.logs}
+                />
+              </div>
+            </Scrollbars>
           </div>
         </div>);
     } else {
