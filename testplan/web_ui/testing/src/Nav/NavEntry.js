@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Badge} from 'reactstrap';
-import {StyleSheet, css} from "aphrodite";
+import {StyleSheet, css} from 'aphrodite';
+import _ from 'lodash';
 
 import {
   RED,
@@ -23,7 +24,7 @@ import {
 const NavEntry = (props) => {
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
   const executionTime = (
-    props.displayTime && props.executionTime ? (
+    props.displayTime && _.isNumber(props.executionTime)? (
       <i className={css(styles.entryIcon)} title='Execution time'>
         <span className={css(styles[STATUS_CATEGORY[props.status]])}>
           {props.executionTime}s

@@ -661,10 +661,8 @@ class MultiTest(testing_base.Test):
 
         with testsuite_report.timer.record("run"):
             setup_report = self._setup_testsuite(testsuite)
-
             if setup_report is not None:
                 testsuite_report.append(setup_report)
-
                 if setup_report.failed:
                     return testsuite_report
 
@@ -844,10 +842,10 @@ class MultiTest(testing_base.Test):
 
     def _run_suite_related(self, testsuite, method):
         """Runs testsuite related special methods setup/teardown/etc."""
-        attr = getattr(testsuite, method, None)
-        if attr is None:
+        testsuite_method = getattr(testsuite, method, None)
+        if testsuite_method is None:
             return None
-        elif not callable(attr):
+        elif not callable(testsuite_method):
             raise TypeError("{} expected to be callable.".format(method))
 
         method_report = TestCaseReport(
@@ -858,17 +856,20 @@ class MultiTest(testing_base.Test):
         )
 
         try:
-            interface.check_signature(attr, ["self", "env", "result"])
+            interface.check_signature(
+                testsuite_method, ["self", "env", "result"]
+            )
             method_args = (self.resources, case_result)
         except interface.MethodSignatureMismatch:
-            interface.check_signature(attr, ["self", "env"])
+            interface.check_signature(testsuite_method, ["self", "env"])
             method_args = (self.resources,)
 
-        with method_report.logged_exceptions():
-            attr(*method_args)
+        with method_report.timer.record("run"):
+            with method_report.logged_exceptions():
+                testsuite_method(*method_args)
+
         method_report.extend(case_result.serialized_entries)
         method_report.attachments.extend(case_result.attachments)
-
         method_report.pass_if_empty()
 
         return method_report
