@@ -316,6 +316,8 @@ class Driver(Resource):
                         "destination) pair; got {}".format(install_file)
                     )
                 src, dst = install_file
+                if not os.path.isabs(dst):
+                    dst = os.path.join(self._install_target(), dst)
                 instantiate(
                     src, self.context_input(), dst,
                 )

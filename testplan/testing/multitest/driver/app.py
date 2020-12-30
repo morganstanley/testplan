@@ -39,7 +39,8 @@ class AppConfig(DriverConfig):
             ConfigOption("args", default=None): Or(None, list),
             ConfigOption("shell", default=False): bool,
             ConfigOption("env", default=None): Or(None, dict),
-            ConfigOption("binary_copy", default=False): bool,
+            ConfigOption("binary_strategy", default="link"): lambda s: s
+            in ("copy", "link", "noop"),
             ConfigOption("app_dir_name", default=None): Or(None, basestring),
             ConfigOption("working_dir", default=None): Or(None, basestring),
         }
@@ -65,8 +66,8 @@ class App(Driver):
     :type shell: ``bool``
     :param env: Environmental variables to be made available to child process.
     :type env: ``dict``
-    :param binary_copy: Copy binary to a local binary path.
-    :type binary_copy: ``bool``
+    :param binary_strategy: Whether to copy / link binary to runpath.
+    :type binary_strategy: one of ("copy", "link", "noop")
     :param app_dir_name: Application directory name.
     :type app_dir_name: ``str``
     :param working_dir: Application working directory. Default: runpath
@@ -86,7 +87,7 @@ class App(Driver):
         args=None,
         shell=False,
         env=None,
-        binary_copy=False,
+        binary_strategy="link",
         app_dir_name=None,
         working_dir=None,
         **options
@@ -215,12 +216,13 @@ class App(Driver):
         self.binary = self._prepare_binary(self.cfg.binary)
         if os.path.isfile(self.binary):
             target = os.path.join(self._binpath, name)
-            if self.cfg.binary_copy:
+            if self.cfg.binary_strategy == "copy":
                 shutil.copyfile(self.binary, target)
                 self.binary = target
-            elif not IS_WIN:
+            elif self.cfg.binary_strategy == "link" and not IS_WIN:
                 os.symlink(os.path.abspath(self.binary), target)
                 self.binary = target
+            # else binary_strategy is noop then we don't do anything
 
         makedirs(self.app_path)
         self.std = StdFiles(self.app_path)
