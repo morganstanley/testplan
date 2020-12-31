@@ -177,14 +177,20 @@ def test_binary_strategy(runpath, strategy):
     with app:
         assert app.extracts["value"] == "started"
 
-        if strategy == "noop":
-            assert app.binary == binary
-        else:
+        if strategy == "copy":
             assert app.binary == os.path.join(
                 app.runpath, "bin", "example_binary.py"
             )
-            if strategy == "copy":
-                assert not os.path.islink(app.binary)
+            assert not os.path.islink(app.binary)
+
+        elif strategy == "link" and platform.system() != "Windows":
+            assert app.binary == os.path.join(
+                app.runpath, "bin", "example_binary.py"
+            )
+            assert os.path.islink(app.binary)
+
+        else:
+            assert app.binary == binary
 
 
 def test_install_files(runpath):
