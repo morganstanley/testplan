@@ -58,12 +58,11 @@ const CreateNavButtons = (
       <ListGroupItem
         tabIndex={tabIndex.toString()}
         key={entry.uid}
-        className={css(...cssName)}        
+        className={css(...cssName)}
+        tag={Link} to={linkTo} action
         >          
-          <Link to={linkTo}>          
           {tags}
-          {createEntryComponent(entry)}
-          </Link>
+          {createEntryComponent(entry)}          
       </ListGroupItem>
     );
   });
