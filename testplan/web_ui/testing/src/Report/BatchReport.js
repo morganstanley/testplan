@@ -16,7 +16,7 @@ import {
   isValidSelection,
 } from "./reportUtils";
 import {COLUMN_WIDTH} from "../Common/defaults";
-import {fakeReportAssertions as taggedReport} from "../Common/fakeReport";
+import {taggedReport as fakeReportAssertions} from "../Common/fakeReport";
 
 /**
  * BatchReport component:
@@ -92,8 +92,9 @@ class BatchReport extends React.Component {
     // we will display a fake report for development purposes.
     const uid = this.props.match.params.uid;
     if (uid === "_dev") {
+      var fakeReport = {...fakeReportAssertions, uid: "_dev"};
       setTimeout(
-        () => this.setReport(fakeReportAssertions),
+        () => this.setReport(fakeReport),
         1500);
     } else {
       axios.get(`/api/v1/reports/${uid}`)
