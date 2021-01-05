@@ -18,7 +18,7 @@
     "ag-grid-enterprise": "^24.1.0",
     "ag-grid-react": "^24.1.0",
     "aphrodite": "2.2.3",
-    "axios": "0.19.0",
+    "axios": "^0.21.1",
     "bootstrap": "4.4.1",
     "date-fns": "^2.14.0",
     "eslint-plugin-react": "^7.14.3",
