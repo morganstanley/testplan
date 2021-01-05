@@ -169,7 +169,10 @@ class ModuleReloader(logger.Loggable):
         return [
             path
             for path in sys.path
-            if any(path.startswith(d) for d in reload_dirs)
+            if any(
+                os.path.abspath(path).startswith(os.path.abspath(d))
+                for d in reload_dirs
+            )
         ]
 
     @property
@@ -361,7 +364,6 @@ class _GraphModuleFinder(modulefinder.ModuleFinder, logger.Loggable):
         :rtype: ``modulefinder.Module``
         """
         caller = self._curr_caller
-        self._curr_caller = None
         mod = modulefinder.ModuleFinder.import_module(self, *args, **kwargs)
 
         if (
@@ -461,7 +463,7 @@ class _ModuleNode(object):
             )
         self.dependencies = dependencies
         self.filepath = _module_filepath(mod)
-        self._native_mod = sys.modules[mod.__name__]
+        self._native_mod = None
 
     def __repr__(self):
         return "ModuleNode[{}]".format(self.name)
@@ -494,7 +496,13 @@ class _ModuleNode(object):
 
     def reload(self):
         """Reload this module from file."""
-        self._native_mod = reload_module(self._native_mod)
+        try:
+            if not self._native_mod:
+                self._native_mod = sys.modules[self.mod.__name__]
+            self._native_mod = reload_module(self._native_mod)
+        except KeyError:
+            # ignore dynamic import module
+            pass
 
     def update_suites(self, suite_instances):
         """
