@@ -73,7 +73,7 @@ const MergeSplittedReport = (mainReport, assertions, structure) => {
  *   * tags - its & its ancestors tags.
  *   * tags_index - its, its ancestors & its descendents tags.
  *   * name_type_index - its, its ancestors & its descendents names & types.
- *   * counter - number of passing & failing descendent testcases.
+ *   * uids - the entity uids from root to this entity
  *
  * @param {Array} entries - Array of Testplan report entries.
  * @param {Object|undefined} parentIndices - An entry's parent's tags_index &
@@ -87,15 +87,12 @@ const propagateIndicesRecur = (entries, parentIndices) => {
     parentIndices = {
       tags_index: {},
       name_type_index: [],
+      uids: [],
     };
   }
   let indices = {
     tags_index: {},
     name_type_index: [],
-    counter: {
-      passed: 0,
-      failed: 0,
-    },
   };
 
   for (let entry of entries) {
@@ -114,11 +111,12 @@ const propagateIndicesRecur = (entries, parentIndices) => {
       tags = entry.tags;
     }
 
+    const uids = [...parentIndices.uids, entry.uid];
     if (entryType !== 'testcase') {
       // Propagate indices to children.
       let descendantsIndices = propagateIndicesRecur(
         entry.entries,
-        { tags_index: tags, name_type_index: nameTypeIndex }
+        { tags_index: tags, name_type_index: nameTypeIndex, uids}
       );
       tagsIndex = _mergeTags(tagsIndex, descendantsIndices.tags_index);
       nameTypeIndex = _.uniq([
@@ -131,6 +129,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
     tagsIndex = _mergeTags(tagsIndex, tags);
     entry.tags_index = tagsIndex;
     entry.name_type_index = nameTypeIndex;
+    entry.uids = uids;
 
     // Update Array of entries indices.
     indices.tags_index = _mergeTags(indices.tags_index, tagsIndex);
@@ -148,7 +147,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
  *   * tags - its & its ancestors tags.
  *   * tags_index - its, its ancestors & its descendents tags.
  *   * name_type_index - its, its ancestors & its descendents names & types.
- *   * counter - number of passing & failing descendent testcases.
+ *   * uids - the entity uids from root to this entity 
  *
  * @param {Array} entries - A single Testplan report in an Array.
  * @returns {Array} - The Testplan report with indices, in an Array.

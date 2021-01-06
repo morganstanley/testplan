@@ -9,8 +9,8 @@ import TagList from './TagList';
 import Column from './Column';
 import {LIGHT_GREY, DARK_GREY} from "../Common/defaults";
 import CommonStyles from "../Common/Styles.js";
-import { Link } from 'react-router-dom';
-import pathToRegexp from "path-to-regexp";
+import { NavLink } from 'react-router-dom';
+import { generatePath } from 'react-router';
 
 import _ from 'lodash';
 
@@ -22,11 +22,8 @@ import _ from 'lodash';
  */
 const CreateNavButtons = (
   props,
-  createEntryComponent,
-  selection,
-  url
+  createEntryComponent,  
   ) => {
-  const depth = props.breadcrumbLength;
 
   // Apply all filters to the entries.
   const filteredEntries = applyAllFilters(props);
@@ -40,26 +37,22 @@ const CreateNavButtons = (
     );
 
     const tabIndex = entryIndex + 1;
-    const cssName = [
+    const cssClass = [
       styles.navButton, styles.navButtonInteract, CommonStyles.unselectable
     ];
-    if (_.last(selection) === entry.uid) {
-      cssName.push(styles.navButtonInteractFocus);
-    }
+    const cssActiveClass = [ ...cssClass, styles.navButtonInteractFocus ];
 
-    let [reportuid, ...selectionuids] = selection;    
-    selectionuids.push(entry.uid);
-
-    const toPath = pathToRegexp.compile(props.url);
-
-    const linkTo = toPath({uid: reportuid, selection:selectionuids});
+    let [reportuid, ...selectionuids] = entry.uids;    
+    const linkTo = generatePath(props.url, 
+                                {uid: reportuid, selection:selectionuids});
 
     return (
       <ListGroupItem
         tabIndex={tabIndex.toString()}
         key={entry.uid}
-        className={css(...cssName)}
-        tag={Link} to={linkTo} action
+        className={css(cssClass)}
+        activeClassName={css(cssActiveClass)}
+        tag={NavLink} to={linkTo} action
         >          
           {tags}
           {createEntryComponent(entry)}          
