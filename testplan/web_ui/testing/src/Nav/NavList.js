@@ -29,8 +29,6 @@ const NavList = (props) => {
         />
       );
     },
-    props.selection,
-    props.url
   );
 
   return GetNavColumn(props, navButtons);

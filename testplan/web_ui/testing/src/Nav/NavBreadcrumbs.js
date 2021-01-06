@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { StyleSheet, css } from "aphrodite";
 import { Link } from "react-router-dom";
-import pathToRegexp from "path-to-regexp";
+import { generatePath } from "react-router";
 
 import NavEntry from "./NavEntry";
 import {
@@ -32,18 +32,15 @@ const NavBreadcrumbs = (props) => {
  * @returns {Array} - Array of breadcrumb entries
  */
 const createNavButtons = (props) => {
-  const toPath = pathToRegexp.compile(props.url);
 
-  return props.entries.reduce(
-    (result, entry, depth) => {
-      result.uids.push(entry.uid);
-      result.entries.push(
+  return props.entries.map(
+    (entry, depth) => (
         <li key={entry.uid}>
           <Link
             className={css(styles.breadcrumbEntry, CommonStyles.unselectable)}
-            to={toPath({
-              uid: result.uids[0],
-              selection: result.uids.slice(1),
+            to={generatePath(props.url, {
+              uid: entry.uids[0],
+              selection: entry.uids.slice(1),
             })}
           >
             <NavEntry
@@ -58,12 +55,7 @@ const createNavButtons = (props) => {
             />
           </Link>
         </li>
-      );
-      console.log(result);
-      return result;
-    },
-    { uids: [], entries: [] }
-  ).entries;
+      ));
 };
 
 NavBreadcrumbs.propTypes = {
