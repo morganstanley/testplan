@@ -5,8 +5,6 @@ import NavBreadcrumbs from "./NavBreadcrumbs";
 import NavList from "./NavList";
 import {GetSelectedUid, GetNavEntries, GetNavBreadcrumbs} from "./navUtils";
 
-import _ from 'lodash';
-
 /**
  * Nav component:
  *   * render breadcrumbs menu.
@@ -34,9 +32,6 @@ const Nav = (props) => {
         displayTags={props.displayTags}
         displayTime={props.displayTime}
         selectedUid={GetSelectedUid(props.selected)}
-        selection={_(props.selected)          
-          .filter( entry => entry.category !== "testcase")
-          .map("uid").value()}
         url={props.url}
       />
     </>

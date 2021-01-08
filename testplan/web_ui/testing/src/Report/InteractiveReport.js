@@ -6,6 +6,8 @@
 import React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import axios from 'axios';
+import { Redirect } from "react-router-dom";
+import { generatePath } from "react-router";
 
 import Toolbar from '../Toolbar/Toolbar.js';
 import { 
@@ -22,8 +24,11 @@ import {
   GetReportState,
   GetCenterPane,
   GetSelectedEntries,
+  getSelectedUIDsFromPath,
 } from './reportUtils.js';
 import {encodeURIComponent2} from '../Common/utils';
+
+import {POLL_MS} from '../Common/defaults.js';
 
 const api_prefix = "/api/v1/interactive";
 
@@ -63,19 +68,27 @@ class InteractiveReport extends React.Component {
     this.setState({ loading: true }, this.getReport);
   }
 
+  setReport(report) {
+    const processedReport = PropagateIndices(report);
+    this.setState(
+      (state, props) => ({
+        report: processedReport,
+        selectedUIDs: state.selectedUIDs.length > 0 ?
+          state.selectedUIDs : this.autoSelect(processedReport),
+        loading: false,
+      })
+    );
+  }
+
   /**
    * Fetch the Testplan interactive report and start polling for updates.
    *
    * If running in dev mode we just display a fake report.
    */
   getReport() {
-    if (this.props.dev) {
+    if (this.props.match.params.uid === '_dev') {
       setTimeout(
-        () => this.setState({
-          report: FakeInteractiveReport,
-          selectedUIDs: this.autoSelect(FakeInteractiveReport),
-          loading: false,
-        }),
+        () => this.setReport(FakeInteractiveReport),
         1500,
       );
     } else {
@@ -85,15 +98,7 @@ class InteractiveReport extends React.Component {
             this.state.report.hash !== response.data.hash) {
             this.getTests().then(tests => {
               const rawReport = { ...response.data, entries: tests };
-              const processedReport = PropagateIndices(rawReport);
-              this.setState(
-                (state, props) => ({
-                  report: processedReport,
-                  selectedUIDs: state.selectedUIDs.length > 0 ?
-                    state.selectedUIDs : this.autoSelect(processedReport),
-                  loading: false,
-                })
-              );
+              this.setReport(rawReport);
             });
           }
         })
@@ -103,9 +108,7 @@ class InteractiveReport extends React.Component {
         });
 
       // We poll for updates to the report every second.
-      if (this.props.poll_ms) {
-        setTimeout(this.getReport, this.props.poll_ms);
-      }
+      setTimeout(this.getReport, POLL_MS);      
     }
   }
 
@@ -358,6 +361,7 @@ class InteractiveReport extends React.Component {
       tags: currReportEntry.tags,
       tags_index: currReportEntry.tags_index,
       name_type_index: currReportEntry.name_type_index,
+      uids: currReportEntry.uids,
       counter: currReportEntry.counter,
     };
     delete newEntry.entry_uids;
@@ -382,6 +386,7 @@ class InteractiveReport extends React.Component {
 
   /* Handle the play button being clicked on a Nav entry. */
   handlePlayClick(e, reportEntry) {
+    e.preventDefault();
     e.stopPropagation();
     const updatedReportEntry = {
       ...this.shallowReportEntry(reportEntry), runtime_status: "running"
@@ -399,6 +404,7 @@ class InteractiveReport extends React.Component {
    *                          to be one of "start" or "stop".
    */
   envCtrlCallback(e, reportEntry, action) {
+    e.preventDefault();
     e.stopPropagation();
     const updatedReportEntry = {
       ...this.shallowReportEntry(reportEntry),
@@ -523,10 +529,16 @@ class InteractiveReport extends React.Component {
    * Render the InteractiveReport component based on its current state.
    */
   render() {
+
+    if ( this.props.match.params.uid === undefined && this.state.report) {
+      return <Redirect to={generatePath(this.props.match.path,
+        {uid: this.state.report.uid, selection:undefined})}/>;
+    }
+
     const noop = () => undefined;
     const { reportStatus, reportFetchMessage } = GetReportState(this.state);
     const selectedEntries = GetSelectedEntries(
-      this.state.selectedUIDs, this.state.report
+      getSelectedUIDsFromPath(this.props.match.params), this.state.report
     );
     const centerPane = GetCenterPane(
       this.state,
@@ -564,11 +576,11 @@ class InteractiveReport extends React.Component {
           filter={null}
           displayEmpty={true}
           displayTags={false}
-          displayTime={false}
-          handleNavClick={this.handleNavClick}
+          displayTime={false}          
           handlePlayClick={this.handlePlayClick}
           envCtrlCallback={this.envCtrlCallback}
           handleColumnResizing={this.handleColumnResizing}
+          url={this.props.match.path}
         />
         {centerPane}
       </div>

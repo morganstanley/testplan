@@ -353,16 +353,16 @@ const GetSelectedEntries = (selectedUIDs, report) => {
 };
 
 
-const filterReport = (report, filters) => {
+const filterReport = (report, filter) => {
 
-  if (filters === null) {
-    return { filters, report };
+  if (filter.filters === null) {
+    return { filter, report };
   }
 
   return {
-    filters, report: {
+    filter, report: {
       ...report,
-      entries: filterEntries(report.entries, filters)
+      entries: filterEntries(report.entries, filter.filters)
     }
   };
 };
@@ -377,6 +377,11 @@ const isValidSelection = (selection, entry) => {
          false;
 };
 
+const getSelectedUIDsFromPath = ({uid, selection}) =>    
+  [uid, ...(selection ? selection.split('/') : [])];
+
+
+
 export {
   PropagateIndices,
   UpdateSelectedState,
@@ -386,5 +391,6 @@ export {
   MergeSplittedReport,
   filterReport,
   isValidSelection,
+  getSelectedUIDsFromPath,
 };
 

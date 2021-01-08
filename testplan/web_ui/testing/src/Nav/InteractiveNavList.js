@@ -29,7 +29,6 @@ const InteractiveNavList = (props) => {
         suiteRelated={entry.suite_related}
       />
     ),
-    props.selectedUid,
   );
 
   // Make the column a little wider for the interactive mode, to account for
