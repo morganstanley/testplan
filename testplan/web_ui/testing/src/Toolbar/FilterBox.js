@@ -85,6 +85,7 @@ class FilterBox extends Component {
           <DebounceInput
             className={css(styles.searchBoxInput, this.errorHighlight())}
             placeholder="Search for tests, or tags..."
+            value={this.props.filterText}
             minLength={2}
             debounceTimeout={300}
             onChange={(event) => this.onFilterChange(event)}
@@ -99,12 +100,12 @@ class FilterBox extends Component {
     try {
       filters = SearchFieldParser.parse(e.target.value);
       this.setState({ parserError: null });
-      this.props.handleNavFilter(filters);
+      this.props.handleNavFilter({text: e.target.value, filters});
     } catch (error) {
       this.setState({ parserError: error });
       console.log("Could not parse seach string: " + error);
       console.log(e.target.value);
-      this.props.handleNavFilter([]);
+      this.props.handleNavFilter({text: e.target.values, filters: []});
     }
   }
 
@@ -231,6 +232,7 @@ class FilterBox extends Component {
 FilterBox.propTypes = {
   /** Function to handle expressions entered into the Filter box */
   handleNavFilter: PropTypes.func,
+  filterText: PropTypes.string,
 };
 
 const styles = StyleSheet.create({

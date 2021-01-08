@@ -28,14 +28,13 @@ const InteractiveNav = (props) => {
   return (
     <>
       <NavBreadcrumbs
-        entries={breadCrumbEntries}
-        handleNavClick={props.handleNavClick}
+        entries={breadCrumbEntries}        
+        url={props.url}
       />
       <InteractiveNavList
         width={props.navListWidth}
         entries={navEntries}
-        breadcrumbLength={breadCrumbEntries.length}
-        handleNavClick={props.handleNavClick}
+        breadcrumbLength={breadCrumbEntries.length}        
         handleColumnResizing={props.handleColumnResizing}
         autoSelect={() => undefined}
         filter={null}
@@ -45,6 +44,7 @@ const InteractiveNav = (props) => {
         selectedUid={GetSelectedUid(props.selected)}
         handlePlayClick={props.handlePlayClick}
         envCtrlCallback={props.envCtrlCallback}
+        url={props.url}
       />
     </>
   );

@@ -12,8 +12,6 @@ import CommonStyles from "../Common/Styles.js";
 import { NavLink } from 'react-router-dom';
 import { generatePath } from 'react-router';
 
-import _ from 'lodash';
-
 /**
  * Create the list entry buttons or a single button stating nothing can be
  * displayed.

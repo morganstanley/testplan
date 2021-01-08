@@ -381,6 +381,7 @@ const FakeInteractiveReport = {
       description: "Interactive Suite Desc",
       entries: [{
         counter: {passed: 0, failed: 0},
+        category: "testcase",
         description: "Interactive Testcase Desc",
         entries: [],
         logs: [],
@@ -394,6 +395,7 @@ const FakeInteractiveReport = {
         tags_index: {},
         timer: {},
         type: "TestCaseReport",
+        parent_uids: ["bbb", "ccc"],
         uid: "ddd",
       }],
       logs: [],
@@ -407,6 +409,7 @@ const FakeInteractiveReport = {
       tags_index: {},
       timer: {},
       type: "TestGroupReport",
+      parent_uids: ["bbb"],
       uid: "ccc",
     }],
     logs: [],
@@ -420,6 +423,7 @@ const FakeInteractiveReport = {
     tags_index: {},
     timer: {},
     type: "TestGroupReport",
+    parent_uids: [],
     uid: "bbb",
   }],
   meta: {},
@@ -430,7 +434,7 @@ const FakeInteractiveReport = {
   status_override: null,
   tags_index: {},
   timer: null,
-  uid: "aaa",
+  uid: "_dev",
 };
 
 export {
