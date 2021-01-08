@@ -100,9 +100,7 @@ class TestRunnerConfig(RunnableConfig):
             "name": str,
             ConfigOption("description", default=None): Or(str, None),
             ConfigOption("logger_level", default=logger.TEST_INFO): int,
-            ConfigOption("file_log_level", default=logger.DEBUG): Or(
-                int, None
-            ),
+            ConfigOption("file_log_level", default=logger.DEBUG): int,
             ConfigOption("runpath", default=default_runpath): Or(
                 None, str, lambda x: callable(x)
             ),
