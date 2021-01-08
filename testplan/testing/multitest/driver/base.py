@@ -337,7 +337,11 @@ class Driver(Resource):
         formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
         handler = logging.FileHandler(path)
         handler.setFormatter(formatter)
-        logger = logging.getLogger("FileLogger_{}".format(self.cfg.name))
+        logger = logging.getLogger(
+            "FileLogger_{}.{}".format(self.parent.name, self.name)
+            if getattr(self, "parent", None)
+            else "FileLogger_{}".format(self.name)
+        )
         logger.addHandler(handler)
         logger.setLevel(self.logger.getEffectiveLevel())
         self.file_logger = logger
