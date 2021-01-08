@@ -57,7 +57,8 @@ def generate_interactive_api(ihandler):
     export_history = []
 
     @app.route("/interactive/")
-    def interactive():
+    @app.route("/interactive/<path:subpath>")
+    def interactive(subpath=None):
         """
         Main entry point for the interactive mode UI page. Serves the static
         index.html from the UI app's build directory. We serve the app at

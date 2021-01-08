@@ -6,7 +6,7 @@ import os
 import argparse
 from threading import Thread
 
-from flask import Flask, send_from_directory, abort
+from flask import Flask, send_from_directory, redirect
 from flask_restplus import Resource, Api
 from werkzeug import exceptions
 from cheroot.wsgi import Server as WSGIServer, PathInfoDispatcher
@@ -32,9 +32,14 @@ def parse_cli_args():
     return parser.parse_args()
 
 
-@_api.route("/testplan/<string:report_uid>")
+@app.route("/")
+@app.route("/testplan/")
+def redirect_to_landing():
+    return redirect("/testplan/local", code=301)
+
+@_api.route("/testplan/<path:selection>")
 class Testplan(Resource):
-    def get(self, report_uid):
+    def get(self, selection=None):
         """Get a Testplan report (HTML) given it's uid."""
         directory = os.path.abspath(
             os.path.join(app.config["STATIC_PATH"], "testing", "build")

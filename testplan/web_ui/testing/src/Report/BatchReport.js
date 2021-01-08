@@ -1,22 +1,25 @@
 import React from 'react';
 import {StyleSheet, css} from 'aphrodite';
 import axios from 'axios';
+import { Redirect } from 'react-router-dom';
 
 import Toolbar from '../Toolbar/Toolbar';
 import {TimeButton} from '../Toolbar/Buttons';
 import Nav from '../Nav/Nav';
 import {
-  PropagateIndices,
-  UpdateSelectedState,
+  PropagateIndices,  
   GetReportState,
   GetCenterPane,
   GetSelectedEntries,
   MergeSplittedReport,
   filterReport,
   isValidSelection,
+  getSelectedUIDsFromPath,
 } from "./reportUtils";
+import { generateSelectionPath } from './path';
+
 import {COLUMN_WIDTH} from "../Common/defaults";
-import {taggedReport as fakeReportAssertions} from "../Common/fakeReport";
+import {fakeReportAssertions} from "../Common/fakeReport";
 
 /**
  * BatchReport component:
@@ -34,13 +37,12 @@ class BatchReport extends React.Component {
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
     this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
     this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
-    this.handleNavClick = this.handleNavClick.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
 
     this.state = {
       navWidth: `${COLUMN_WIDTH}em`,
       report: null,
-      filteredReport: {filter:null, report: null},
+      filteredReport: {filter: {text: null, filters: null}, report: null},
       testcaseUid: null,
       loading: false,
       logs: [],
@@ -215,23 +217,22 @@ class BatchReport extends React.Component {
     this.setState({navWidth: navWidth});
   }
 
-  /**
-   * Handle a navigation entry being clicked.
-   */
-  handleNavClick(e, entry, depth) {
-    e.stopPropagation();
-    this.setState((state, props) => UpdateSelectedState(state, entry, depth));
-  }
-
-
   getSelectedUIDsFromPath() {
     const {uid, selection} = this.props.match.params;
     return [uid, ...(selection ? selection.split('/') : [])];
   }
 
-  render() {
+  selectionMatchPath(entries_selection) {
+    let [uid, ...selection] = 
+      entries_selection[entries_selection.length - 1].uids;    
 
-    console.log("frompath: ", this.getSelectedUIDsFromPath());
+    selection = selection.length ? selection.join("/") : undefined;
+
+    return uid === this.props.match.params.uid && 
+           selection=== this.props.match.params.selection;
+  }
+
+  render() {
 
     const {reportStatus, reportFetchMessage} = GetReportState(this.state);
 
@@ -240,8 +241,16 @@ class BatchReport extends React.Component {
     }
 
     const selectedEntries = GetSelectedEntries(
-      this.getSelectedUIDsFromPath(), this.state.filteredReport.report
+      getSelectedUIDsFromPath(this.props.match.params), this.state.filteredReport.report
     );
+
+    if (selectedEntries.length && ! this.selectionMatchPath(selectedEntries)) {
+      return <Redirect 
+        to={generateSelectionPath(this.props.match.path, 
+                         selectedEntries[selectedEntries.length - 1].uids)}
+      />;
+    }
+
     const centerPane = GetCenterPane(
       this.state,
       reportFetchMessage,
@@ -253,6 +262,7 @@ class BatchReport extends React.Component {
       <div className={css(styles.batchReport)}>
         <Toolbar
           filterBoxWidth={this.state.navWidth}
+          filterText = {this.state.filteredReport.filter.text}
           status={reportStatus}
           report={this.state.report}
           handleNavFilter={this.handleNavFilter}

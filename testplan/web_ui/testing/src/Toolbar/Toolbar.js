@@ -251,6 +251,7 @@ class Toolbar extends Component {
       {this.props.handleNavFilter ? 
       <FilterBox
       handleNavFilter={this.props.handleNavFilter}
+      filterText={this.props.filterText}
       /> : 
       <FilterBoxPlaceholder/>
       }
