@@ -108,7 +108,7 @@ class InteractiveReport extends React.Component {
         });
 
       // We poll for updates to the report every second.
-      setTimeout(this.getReport, POLL_MS);      
+      setTimeout(this.getReport, this.props.poll_intervall || POLL_MS);      
     }
   }
 

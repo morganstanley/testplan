@@ -14,6 +14,7 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
       ]
     }
     filterBoxWidth="22em"
+    filterText={null}
     handleNavFilter={[Function]}
     report={
       Object {
@@ -79,6 +80,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     },
                     "type": "TestCaseReport",
                     "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "736706ef-ba65-475d-96c5-f2855f431028",
+                    ],
                   },
                   Object {
                     "category": "testcase",
@@ -126,6 +133,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     },
                     "type": "TestCaseReport",
                     "uid": "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -160,6 +173,11 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                 },
                 "type": "TestGroupReport",
                 "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                ],
               },
               Object {
                 "category": "testsuite",
@@ -213,6 +231,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     },
                     "type": "TestCaseReport",
                     "uid": "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                      "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -245,6 +269,11 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                 },
                 "type": "TestGroupReport",
                 "uid": "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                ],
               },
             ],
             "logs": Array [],
@@ -281,6 +310,10 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            ],
           },
           Object {
             "category": "multitest",
@@ -328,6 +361,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     },
                     "type": "TestCaseReport",
                     "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                      "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                      "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -350,6 +389,11 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                 },
                 "type": "TestGroupReport",
                 "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                  "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                ],
               },
             ],
             "logs": Array [],
@@ -372,6 +416,10 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            ],
           },
         ],
         "meta": Object {},
@@ -404,6 +452,9 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
           },
         },
         "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+        "uids": Array [
+          "520a92e4-325e-4077-93e6-55d7091a3f83",
+        ],
       }
     }
     status="failed"
@@ -417,7 +468,6 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
-    handleNavClick={[Function]}
     navListWidth="22em"
     report={
       Object {
@@ -483,6 +533,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     },
                     "type": "TestCaseReport",
                     "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "736706ef-ba65-475d-96c5-f2855f431028",
+                    ],
                   },
                   Object {
                     "category": "testcase",
@@ -530,6 +586,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     },
                     "type": "TestCaseReport",
                     "uid": "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -564,6 +626,11 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                 },
                 "type": "TestGroupReport",
                 "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                ],
               },
               Object {
                 "category": "testsuite",
@@ -617,6 +684,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     },
                     "type": "TestCaseReport",
                     "uid": "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                      "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -649,6 +722,11 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                 },
                 "type": "TestGroupReport",
                 "uid": "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                ],
               },
             ],
             "logs": Array [],
@@ -685,6 +763,10 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            ],
           },
           Object {
             "category": "multitest",
@@ -732,6 +814,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                     },
                     "type": "TestCaseReport",
                     "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                      "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                      "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -754,6 +842,11 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                 },
                 "type": "TestGroupReport",
                 "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                  "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                ],
               },
             ],
             "logs": Array [],
@@ -776,6 +869,10 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            ],
           },
         ],
         "meta": Object {},
@@ -808,6 +905,9 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
           },
         },
         "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+        "uids": Array [
+          "520a92e4-325e-4077-93e6-55d7091a3f83",
+        ],
       }
     }
     selected={
@@ -875,6 +975,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                       },
                       "type": "TestCaseReport",
                       "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                        "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                        "736706ef-ba65-475d-96c5-f2855f431028",
+                      ],
                     },
                     Object {
                       "category": "testcase",
@@ -922,6 +1028,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                       },
                       "type": "TestCaseReport",
                       "uid": "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                        "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                        "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                      ],
                     },
                   ],
                   "logs": Array [],
@@ -956,6 +1068,11 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                   },
                   "type": "TestGroupReport",
                   "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                  "uids": Array [
+                    "520a92e4-325e-4077-93e6-55d7091a3f83",
+                    "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                    "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                  ],
                 },
                 Object {
                   "category": "testsuite",
@@ -1009,6 +1126,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                       },
                       "type": "TestCaseReport",
                       "uid": "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                        "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                        "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                      ],
                     },
                   ],
                   "logs": Array [],
@@ -1041,6 +1164,11 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                   },
                   "type": "TestGroupReport",
                   "uid": "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                  "uids": Array [
+                    "520a92e4-325e-4077-93e6-55d7091a3f83",
+                    "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                    "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                  ],
                 },
               ],
               "logs": Array [],
@@ -1077,6 +1205,10 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+              "uids": Array [
+                "520a92e4-325e-4077-93e6-55d7091a3f83",
+                "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+              ],
             },
             Object {
               "category": "multitest",
@@ -1124,6 +1256,12 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                       },
                       "type": "TestCaseReport",
                       "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                        "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                        "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                      ],
                     },
                   ],
                   "logs": Array [],
@@ -1146,6 +1284,11 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
                   },
                   "type": "TestGroupReport",
                   "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                  "uids": Array [
+                    "520a92e4-325e-4077-93e6-55d7091a3f83",
+                    "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                    "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                  ],
                 },
               ],
               "logs": Array [],
@@ -1168,6 +1311,10 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+              "uids": Array [
+                "520a92e4-325e-4077-93e6-55d7091a3f83",
+                "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+              ],
             },
           ],
           "meta": Object {},
@@ -1200,9 +1347,13 @@ exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
             },
           },
           "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+          "uids": Array [
+            "520a92e4-325e-4077-93e6-55d7091a3f83",
+          ],
         },
       ]
     }
+    url="/testplan/:uid/:selection*"
   />
   <Message
     left="22em"
@@ -1225,6 +1376,7 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
       ]
     }
     filterBoxWidth="22em"
+    filterText={null}
     handleNavFilter={[Function]}
     report={
       Object {
@@ -1290,6 +1442,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                     },
                     "type": "TestCaseReport",
                     "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "736706ef-ba65-475d-96c5-f2855f431028",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -1323,6 +1481,11 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                 },
                 "type": "TestGroupReport",
                 "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                ],
               },
             ],
             "logs": Array [],
@@ -1356,6 +1519,10 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            ],
           },
         ],
         "meta": Object {},
@@ -1383,6 +1550,9 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
           },
         },
         "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+        "uids": Array [
+          "520a92e4-325e-4077-93e6-55d7091a3f83",
+        ],
       }
     }
     status="failed"
@@ -1396,7 +1566,6 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
-    handleNavClick={[Function]}
     navListWidth="22em"
     report={
       Object {
@@ -1462,6 +1631,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                     },
                     "type": "TestCaseReport",
                     "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "736706ef-ba65-475d-96c5-f2855f431028",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -1495,6 +1670,11 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                 },
                 "type": "TestGroupReport",
                 "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                ],
               },
             ],
             "logs": Array [],
@@ -1528,6 +1708,10 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            ],
           },
         ],
         "meta": Object {},
@@ -1555,6 +1739,9 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
           },
         },
         "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+        "uids": Array [
+          "520a92e4-325e-4077-93e6-55d7091a3f83",
+        ],
       }
     }
     selected={
@@ -1622,6 +1809,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                       },
                       "type": "TestCaseReport",
                       "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                        "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                        "736706ef-ba65-475d-96c5-f2855f431028",
+                      ],
                     },
                   ],
                   "logs": Array [],
@@ -1655,6 +1848,11 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                   },
                   "type": "TestGroupReport",
                   "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                  "uids": Array [
+                    "520a92e4-325e-4077-93e6-55d7091a3f83",
+                    "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                    "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                  ],
                 },
               ],
               "logs": Array [],
@@ -1688,6 +1886,10 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+              "uids": Array [
+                "520a92e4-325e-4077-93e6-55d7091a3f83",
+                "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+              ],
             },
           ],
           "meta": Object {},
@@ -1715,6 +1917,9 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
             },
           },
           "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+          "uids": Array [
+            "520a92e4-325e-4077-93e6-55d7091a3f83",
+          ],
         },
         Object {
           "category": "multitest",
@@ -1776,6 +1981,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
                   },
                   "type": "TestCaseReport",
                   "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                  "uids": Array [
+                    "520a92e4-325e-4077-93e6-55d7091a3f83",
+                    "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                    "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                    "736706ef-ba65-475d-96c5-f2855f431028",
+                  ],
                 },
               ],
               "logs": Array [],
@@ -1809,6 +2020,11 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
               },
               "type": "TestGroupReport",
               "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+              "uids": Array [
+                "520a92e4-325e-4077-93e6-55d7091a3f83",
+                "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+              ],
             },
           ],
           "logs": Array [],
@@ -1842,6 +2058,10 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
           },
           "type": "TestGroupReport",
           "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+          "uids": Array [
+            "520a92e4-325e-4077-93e6-55d7091a3f83",
+            "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+          ],
         },
         Object {
           "category": "testsuite",
@@ -1899,6 +2119,12 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
               },
               "type": "TestCaseReport",
               "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+              "uids": Array [
+                "520a92e4-325e-4077-93e6-55d7091a3f83",
+                "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                "736706ef-ba65-475d-96c5-f2855f431028",
+              ],
             },
           ],
           "logs": Array [],
@@ -1932,9 +2158,15 @@ exports[`BatchReport loads a simple report and autoselects entries 1`] = `
           },
           "type": "TestGroupReport",
           "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+          "uids": Array [
+            "520a92e4-325e-4077-93e6-55d7091a3f83",
+            "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+          ],
         },
       ]
     }
+    url="/testplan/:uid/:selection*"
   />
   <Message
     left="22em"
@@ -1957,6 +2189,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
       ]
     }
     filterBoxWidth="22em"
+    filterText={null}
     handleNavFilter={[Function]}
     report={
       Object {
@@ -2022,6 +2255,12 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     },
                     "type": "TestCaseReport",
                     "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "736706ef-ba65-475d-96c5-f2855f431028",
+                    ],
                   },
                   Object {
                     "category": "testcase",
@@ -2069,6 +2308,12 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     },
                     "type": "TestCaseReport",
                     "uid": "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -2103,6 +2348,11 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 },
                 "type": "TestGroupReport",
                 "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                ],
               },
               Object {
                 "category": "testsuite",
@@ -2156,6 +2406,12 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     },
                     "type": "TestCaseReport",
                     "uid": "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                      "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -2188,6 +2444,11 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 },
                 "type": "TestGroupReport",
                 "uid": "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                ],
               },
             ],
             "logs": Array [],
@@ -2224,6 +2485,10 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            ],
           },
           Object {
             "category": "multitest",
@@ -2271,6 +2536,12 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     },
                     "type": "TestCaseReport",
                     "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                      "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                      "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -2293,6 +2564,11 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 },
                 "type": "TestGroupReport",
                 "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                  "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                ],
               },
             ],
             "logs": Array [],
@@ -2315,6 +2591,10 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            ],
           },
         ],
         "meta": Object {},
@@ -2347,6 +2627,9 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
           },
         },
         "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+        "uids": Array [
+          "520a92e4-325e-4077-93e6-55d7091a3f83",
+        ],
       }
     }
     status="failed"
@@ -2360,7 +2643,6 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     displayTime={false}
     filter={null}
     handleColumnResizing={[Function]}
-    handleNavClick={[Function]}
     navListWidth="22em"
     report={
       Object {
@@ -2426,6 +2708,12 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     },
                     "type": "TestCaseReport",
                     "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "736706ef-ba65-475d-96c5-f2855f431028",
+                    ],
                   },
                   Object {
                     "category": "testcase",
@@ -2473,6 +2761,12 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     },
                     "type": "TestCaseReport",
                     "uid": "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                      "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -2507,6 +2801,11 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 },
                 "type": "TestGroupReport",
                 "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                ],
               },
               Object {
                 "category": "testsuite",
@@ -2560,6 +2859,12 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     },
                     "type": "TestCaseReport",
                     "uid": "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                      "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                      "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -2592,6 +2897,11 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 },
                 "type": "TestGroupReport",
                 "uid": "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                  "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                ],
               },
             ],
             "logs": Array [],
@@ -2628,6 +2938,10 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             },
             "type": "TestGroupReport",
             "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+            ],
           },
           Object {
             "category": "multitest",
@@ -2675,6 +2989,12 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                     },
                     "type": "TestCaseReport",
                     "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    "uids": Array [
+                      "520a92e4-325e-4077-93e6-55d7091a3f83",
+                      "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                      "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                      "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                    ],
                   },
                 ],
                 "logs": Array [],
@@ -2697,6 +3017,11 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                 },
                 "type": "TestGroupReport",
                 "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                "uids": Array [
+                  "520a92e4-325e-4077-93e6-55d7091a3f83",
+                  "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                  "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                ],
               },
             ],
             "logs": Array [],
@@ -2719,6 +3044,10 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             },
             "type": "TestGroupReport",
             "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            "uids": Array [
+              "520a92e4-325e-4077-93e6-55d7091a3f83",
+              "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+            ],
           },
         ],
         "meta": Object {},
@@ -2751,6 +3080,9 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
           },
         },
         "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+        "uids": Array [
+          "520a92e4-325e-4077-93e6-55d7091a3f83",
+        ],
       }
     }
     selected={
@@ -2818,6 +3150,12 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                       },
                       "type": "TestCaseReport",
                       "uid": "736706ef-ba65-475d-96c5-f2855f431028",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                        "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                        "736706ef-ba65-475d-96c5-f2855f431028",
+                      ],
                     },
                     Object {
                       "category": "testcase",
@@ -2865,6 +3203,12 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                       },
                       "type": "TestCaseReport",
                       "uid": "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                        "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                        "78686a4d-7b94-4ae6-ab50-d9960a7fb714",
+                      ],
                     },
                   ],
                   "logs": Array [],
@@ -2899,6 +3243,11 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                   },
                   "type": "TestGroupReport",
                   "uid": "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                  "uids": Array [
+                    "520a92e4-325e-4077-93e6-55d7091a3f83",
+                    "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                    "cb144b10-bdb0-44d3-9170-d8016dd19ee7",
+                  ],
                 },
                 Object {
                   "category": "testsuite",
@@ -2952,6 +3301,12 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                       },
                       "type": "TestCaseReport",
                       "uid": "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                        "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                        "8865a23d-1823-4c8d-ab37-58d24fc8ac05",
+                      ],
                     },
                   ],
                   "logs": Array [],
@@ -2984,6 +3339,11 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                   },
                   "type": "TestGroupReport",
                   "uid": "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                  "uids": Array [
+                    "520a92e4-325e-4077-93e6-55d7091a3f83",
+                    "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+                    "6fc5c008-4d1a-454e-80b6-74bdc9bca49e",
+                  ],
                 },
               ],
               "logs": Array [],
@@ -3020,6 +3380,10 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
               },
               "type": "TestGroupReport",
               "uid": "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+              "uids": Array [
+                "520a92e4-325e-4077-93e6-55d7091a3f83",
+                "21739167-b30f-4c13-a315-ef6ae52fd1f7",
+              ],
             },
             Object {
               "category": "multitest",
@@ -3067,6 +3431,12 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                       },
                       "type": "TestCaseReport",
                       "uid": "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                      "uids": Array [
+                        "520a92e4-325e-4077-93e6-55d7091a3f83",
+                        "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                        "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                        "f73bd6ea-d378-437b-a5db-00d9e427f36a",
+                      ],
                     },
                   ],
                   "logs": Array [],
@@ -3089,6 +3459,11 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
                   },
                   "type": "TestGroupReport",
                   "uid": "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                  "uids": Array [
+                    "520a92e4-325e-4077-93e6-55d7091a3f83",
+                    "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+                    "08d4c671-d55d-49d4-96ba-dc654d12be26",
+                  ],
                 },
               ],
               "logs": Array [],
@@ -3111,6 +3486,10 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
               },
               "type": "TestGroupReport",
               "uid": "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+              "uids": Array [
+                "520a92e4-325e-4077-93e6-55d7091a3f83",
+                "8c3c7e6b-48e8-40cd-86db-8c8aed2592c8",
+              ],
             },
           ],
           "meta": Object {},
@@ -3143,9 +3522,13 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
             },
           },
           "uid": "520a92e4-325e-4077-93e6-55d7091a3f83",
+          "uids": Array [
+            "520a92e4-325e-4077-93e6-55d7091a3f83",
+          ],
         },
       ]
     }
+    url="/testplan/:uid/:selection*"
   />
   <Message
     left="22em"
@@ -3159,8 +3542,10 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
   match={
     Object {
       "params": Object {
+        "selection": undefined,
         "uid": "123",
       },
+      "path": "/testplan/:uid/:selection*",
     }
   }
 >
@@ -3177,6 +3562,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
         ]
       }
       filterBoxWidth="22em"
+      filterText={null}
       handleNavFilter={[Function]}
       report={
         Object {
@@ -3240,6 +3626,7 @@ ZeroDivisionError: integer division or modulo by zero
               }
             >
               <FilterBox
+                filterText={null}
                 handleNavFilter={[Function]}
               >
                 <div
@@ -3460,6 +3847,7 @@ ZeroDivisionError: integer division or modulo by zero
                       onChange={[Function]}
                       placeholder="Search for tests, or tags..."
                       type="text"
+                      value={null}
                     >
                       <input
                         className="searchBoxInput_1oulel0"
@@ -4171,14 +4559,14 @@ ZeroDivisionError: integer division or modulo by zero
       displayTime={false}
       filter={null}
       handleColumnResizing={[Function]}
-      handleNavClick={[Function]}
       navListWidth="22em"
       report={null}
       selected={Array []}
+      url="/testplan/:uid/:selection*"
     >
       <NavBreadcrumbs
         entries={Array []}
-        handleNavClick={[Function]}
+        url="/testplan/:uid/:selection*"
       >
         <div
           className="navBreadcrumbs_koaten"
@@ -4196,8 +4584,8 @@ ZeroDivisionError: integer division or modulo by zero
         entries={Array []}
         filter={null}
         handleColumnResizing={[Function]}
-        handleNavClick={[Function]}
         selectedUid={null}
+        url="/testplan/:uid/:selection*"
         width="22em"
       >
         <Column

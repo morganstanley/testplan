@@ -5,6 +5,7 @@ import {StyleSheetTestUtils} from "aphrodite";
 
 import InteractiveNavList from '../InteractiveNavList.js';
 import {FakeInteractiveReport} from '../../Common/sampleReports.js';
+import { PropagateIndices } from '../../Report/reportUtils.js';
 
 describe('InteractiveNavList', () => {
   beforeEach(() => {
@@ -18,9 +19,10 @@ describe('InteractiveNavList', () => {
   });
 
   it('shallow renders and matches snapshot', () => {
+    const entries = PropagateIndices(FakeInteractiveReport).entries
     const renderedNavList = shallow(
       <InteractiveNavList
-        entries={FakeInteractiveReport.entries}
+        entries={entries}
         breadcrumbLength={1}
         width={'28em'}
         handleNavClick={() => undefined}

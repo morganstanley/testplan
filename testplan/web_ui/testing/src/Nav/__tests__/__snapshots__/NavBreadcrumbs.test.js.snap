@@ -9,10 +9,10 @@ exports[`NavBreadcrumbs shallow renders the correct HTML structure 1`] = `
   >
     <li
       key="123"
-      onClick={[Function]}
     >
-      <div
+      <Link
         className="breadcrumbEntry_qbjkug-o_O-unselectable_16maxrd"
+        to="/testplan/123"
       >
         <NavEntry
           caseCountFailed={0}
@@ -24,7 +24,7 @@ exports[`NavBreadcrumbs shallow renders the correct HTML structure 1`] = `
           status="passed"
           type="testplan"
         />
-      </div>
+      </Link>
     </li>
   </ul>
 </div>

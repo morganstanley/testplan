@@ -28,6 +28,7 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
                   "description": "Interactive Suite Desc",
                   "entries": Array [
                     Object {
+                      "category": "testcase",
                       "counter": Object {
                         "failed": 0,
                         "passed": 0,
@@ -37,6 +38,10 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
                       "logs": Array [],
                       "name": "test_interactive",
                       "name_type_index": Array [],
+                      "parent_uids": Array [
+                        "bbb",
+                        "ccc",
+                      ],
                       "runtime_status": "ready",
                       "status": "unknown",
                       "status_override": null,
@@ -51,6 +56,9 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
                   "logs": Array [],
                   "name": "Interactive Suite",
                   "name_type_index": Array [],
+                  "parent_uids": Array [
+                    "bbb",
+                  ],
                   "part": null,
                   "runtime_status": "ready",
                   "status": "unknown",
@@ -65,6 +73,7 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
               "logs": Array [],
               "name": "Interactive MTest",
               "name_type_index": Array [],
+              "parent_uids": Array [],
               "part": null,
               "runtime_status": "ready",
               "status": "unknown",
@@ -84,11 +93,10 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
           "status_override": null,
           "tags_index": Object {},
           "timer": null,
-          "uid": "aaa",
+          "uid": "_dev",
         },
       ]
     }
-    handleNavClick={[MockFunction]}
   />
   <InteractiveNavList
     autoSelect={[Function]}
@@ -115,6 +123,7 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
               "description": "Interactive Suite Desc",
               "entries": Array [
                 Object {
+                  "category": "testcase",
                   "counter": Object {
                     "failed": 0,
                     "passed": 0,
@@ -124,6 +133,10 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
                   "logs": Array [],
                   "name": "test_interactive",
                   "name_type_index": Array [],
+                  "parent_uids": Array [
+                    "bbb",
+                    "ccc",
+                  ],
                   "runtime_status": "ready",
                   "status": "unknown",
                   "status_override": null,
@@ -138,6 +151,9 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
               "logs": Array [],
               "name": "Interactive Suite",
               "name_type_index": Array [],
+              "parent_uids": Array [
+                "bbb",
+              ],
               "part": null,
               "runtime_status": "ready",
               "status": "unknown",
@@ -152,6 +168,7 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
           "logs": Array [],
           "name": "Interactive MTest",
           "name_type_index": Array [],
+          "parent_uids": Array [],
           "part": null,
           "runtime_status": "ready",
           "status": "unknown",
@@ -166,9 +183,8 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
     }
     envCtrlCallback={[MockFunction]}
     filter={null}
-    handleNavClick={[MockFunction]}
     handlePlayClick={[MockFunction]}
-    selectedUid="aaa"
+    selectedUid="_dev"
   />
 </Fragment>
 `;
