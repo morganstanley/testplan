@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, css} from 'aphrodite';
 import axios from 'axios';
-import { Redirect } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 import Toolbar from '../Toolbar/Toolbar';
 import {TimeButton} from '../Toolbar/Buttons';
@@ -12,8 +12,7 @@ import {
   GetCenterPane,
   GetSelectedEntries,
   MergeSplittedReport,
-  filterReport,
-  isValidSelection,
+  filterReport,  
   getSelectedUIDsFromPath,
 } from "./reportUtils";
 import { generateSelectionPath } from './path';
@@ -52,7 +51,6 @@ class BatchReport extends React.Component {
       displayTime: false,
       displayEmpty: true,
       selectedUIDs: [],
-      lastManualSelectedUIDs: [],
     };
   }
 
@@ -75,9 +73,12 @@ class BatchReport extends React.Component {
       report: processedReport,
       filteredReport,
       selectedUIDs,
-      lastManualSelectedUIDs: selectedUIDs,
       loading: false,
       logs: report.logs,
+    }, () => {
+      this.props.history.replace(
+        generateSelectionPath(this.props.match.path, selectedUIDs)
+        );
     });
   }
 
@@ -158,15 +159,8 @@ class BatchReport extends React.Component {
   handleNavFilter(filter) { // eslint-disable-line no-unused-vars
     const filteredReport = filterReport(this.state.report, filter);
 
-    let selectedUIDs =
-      isValidSelection(this.state.lastManualSelectedUIDs.slice(1),
-                       filteredReport.report) ?
-      this.state.lastManualSelectedUIDs :
-      this.autoSelect(filteredReport.report);
-
     this.setState({
       filteredReport,
-      selectedUIDs,
     });
   }
 
@@ -241,15 +235,9 @@ class BatchReport extends React.Component {
     }
 
     const selectedEntries = GetSelectedEntries(
-      getSelectedUIDsFromPath(this.props.match.params), this.state.filteredReport.report
+      getSelectedUIDsFromPath(this.props.match.params), 
+      this.state.filteredReport.report
     );
-
-    if (selectedEntries.length && ! this.selectionMatchPath(selectedEntries)) {
-      return <Redirect 
-        to={generateSelectionPath(this.props.match.path, 
-                         selectedEntries[selectedEntries.length - 1].uids)}
-      />;
-    }
 
     const centerPane = GetCenterPane(
       this.state,
@@ -291,6 +279,10 @@ class BatchReport extends React.Component {
     );
   }
 }
+
+BatchReport.propTypes = {
+  match: PropTypes.object,
+};
 
 const styles = StyleSheet.create({
   batchReport: {

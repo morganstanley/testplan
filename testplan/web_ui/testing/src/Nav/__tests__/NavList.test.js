@@ -15,7 +15,8 @@ function defaultProps() {
     counter: {
       passed: 1,
       failed: 0,
-    }
+    },
+    uids: ['123']
 
   };
   return {
@@ -26,7 +27,7 @@ function defaultProps() {
     displayEmpty: true,
     displayTags: true,
     displayTime: false,
-    handleNavClick: jest.fn(),
+    url: "/testplan/:uid/:selection*"    
   };
 }
 
@@ -41,7 +42,6 @@ describe('NavList', () => {
   afterEach(() => {
     // Resume style injection once test is finished.
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
-    props.handleNavClick.mockClear();
   });
 
   it('shallow renders and matches snapshot', () => {
@@ -50,14 +50,4 @@ describe('NavList', () => {
     );
     expect(nav_list).toMatchSnapshot();
   });
-
-  it('calls handleNavClick when nav entry has been clicked', () => {
-    const handle_nav_click = props.handleNavClick;
-    const nav_list = shallow(
-      <NavList {...props} />
-    );
-
-    nav_list.find(ListGroupItem).simulate('click');
-    expect(handle_nav_click.mock.calls.length).toEqual(1);
-  })
 });

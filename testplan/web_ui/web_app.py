@@ -37,6 +37,7 @@ def parse_cli_args():
 def redirect_to_landing():
     return redirect("/testplan/local", code=301)
 
+
 @_api.route("/testplan/<path:selection>")
 class Testplan(Resource):
     def get(self, selection=None):

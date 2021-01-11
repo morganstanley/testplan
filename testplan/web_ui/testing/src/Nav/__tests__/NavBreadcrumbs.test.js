@@ -15,10 +15,11 @@ function defaultProps() {
       passed: 0,
       failed: 0,
     },
+    uids: ['123']
   };
   return {
     entries: [entry],
-    handleNavClick: jest.fn(),
+    url: '/testplan/:uid/:selection*',
   };
 }
 
@@ -33,7 +34,6 @@ describe('NavBreadcrumbs', () => {
   afterEach(() => {
     // Resume style injection once test is finished.
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
-    props.handleNavClick.mockClear();
   });
 
   it('shallow renders the correct HTML structure', () => {
@@ -43,13 +43,4 @@ describe('NavBreadcrumbs', () => {
     expect(navBreadcrumbs).toMatchSnapshot();
   });
 
-  it('calls handleNavClick when nav entry has been clicked', () => {
-    const handleNavClick = props.handleNavClick;
-    const navBreadcrumbs = shallow(
-      <NavBreadcrumbs {...props} />
-    );
-
-    navBreadcrumbs.find('li').simulate('click');
-    expect(handleNavClick.mock.calls.length).toEqual(1);
-  });
 });
