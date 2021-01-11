@@ -129,8 +129,8 @@ class TestStaticEndpoints(object):
         # This endpoint should return the index.html page no matter what UID is
         # sent
         response = self.client.get("/testplan/static/123")
-        assert response.status_code == 404
-        assert expected_contents not in str(response.data)
+        assert response.status_code == 200
+        assert expected_contents in str(response.data)
 
 
 class TestDataEndpoints(object):
