@@ -3,6 +3,7 @@ import {StyleSheetTestUtils} from "aphrodite";
 
 import {CreateNavButtons, GetSelectedUid} from '../navUtils';
 import {TESTPLAN_REPORT} from '../../Common/sampleReports';
+import { PropagateIndices } from '../../Report/reportUtils';
 
 describe('navUtils', () => {
 
@@ -18,6 +19,8 @@ describe('navUtils', () => {
       StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
     });
 
+    const entries = PropagateIndices(TESTPLAN_REPORT).entries
+
     it('returns an array of nav buttons', () => {
       const props = {
         breadcrumbLength: 1,
@@ -25,8 +28,9 @@ describe('navUtils', () => {
         displayTime: false,
         displayEmpty: true,
         handleNavClick: jest.fn(),
-        entries: TESTPLAN_REPORT.entries,
+        entries: entries,
         filter: null,
+        url: "/testplan/:uid/:selection*"
       }
       const createEntryComponent = jest.fn();
       const selectedUid = TESTPLAN_REPORT.uid;

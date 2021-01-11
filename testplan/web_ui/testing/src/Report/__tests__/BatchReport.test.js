@@ -2,25 +2,32 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 import { StyleSheetTestUtils } from "aphrodite";
 import moxios from 'moxios';
+import ReactRouterEnzymeContext from "react-router-enzyme-context";
 
 import BatchReport from '../BatchReport';
 import Message from '../../Common/Message';
 import { TESTPLAN_REPORT, SIMPLE_REPORT, ERROR_REPORT } from "../../Common/sampleReports";
 
+
+
 describe('BatchReport', () => {
+
   const renderBatchReport = (uid = "123") => {
     // Mock the match object that would be passed down from react-router.
     // BatchReport uses this object to get the report UID.
-    const mockMatch = { params: { uid: uid } };
-    return shallow(
-      <BatchReport match={mockMatch} />
-    );
+    const routerContext = new ReactRouterEnzymeContext();
+    const mockMatch = { params: { uid: uid, selection: undefined }, path: "/testplan/:uid/:selection*"};
+    return  shallow(
+      <BatchReport match={mockMatch} history={routerContext.props().history}/>, {
+        ...routerContext.get()
+    });  
   };
+
 
   const renderBatchReportFull = (uid = "123") => {
     // Mock the match object that would be passed down from react-router.
     // BatchReport uses this object to get the report UID.
-    const mockMatch = { params: { uid: uid } };
+    const mockMatch = { params: { uid: uid, selection: undefined }, path: "/testplan/:uid/:selection*"};
     return mount(
       <BatchReport match={mockMatch} />
     );
@@ -43,7 +50,7 @@ describe('BatchReport', () => {
   });
 
   it('shallow renders the correct HTML structure when report loaded', () => {
-    const batchReport = renderBatchReport();
+    const batchReport = renderBatchReport("520a92e4-325e-4077-93e6-55d7091a3f83");
     batchReport.instance().setReport(TESTPLAN_REPORT);
     batchReport.update();
     expect(batchReport).toMatchSnapshot();
@@ -68,15 +75,29 @@ describe('BatchReport', () => {
   });
 
   it('loads a simple report and autoselects entries', done => {
-    const batchReport = renderBatchReport();
+    const batchReport = renderBatchReport("520a92e4-325e-4077-93e6-55d7091a3f83");
     moxios.wait(() => {
       const request = moxios.requests.mostRecent();
-      expect(request.url).toBe("/api/v1/reports/123");
+      expect(request.url).toBe("/api/v1/reports/520a92e4-325e-4077-93e6-55d7091a3f83");
       request.respondWith({
         status: 200,
         response: SIMPLE_REPORT,
       }).then(() => {
         batchReport.update();
+        const props = batchReport.instance().props
+        expect(props.history.location.pathname).toBe("/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/21739167-b30f-4c13-a315-ef6ae52fd1f7/cb144b10-bdb0-44d3-9170-d8016dd19ee7")
+        batchReport.setProps(
+          {
+            ...props, 
+            match: {
+              ...props.match, 
+              params: {
+                  ...props.match.params,
+                  selection: "21739167-b30f-4c13-a315-ef6ae52fd1f7/cb144b10-bdb0-44d3-9170-d8016dd19ee7"
+                }
+              }
+            }
+            );        
         const selection = batchReport.state("selectedUIDs");
         expect(selection.length).toBe(3);
         expect(selection).toEqual([
@@ -91,15 +112,17 @@ describe('BatchReport', () => {
   });
 
   it('loads a more complex report and autoselects entries', done => {
-    const batchReport = renderBatchReport();
+    const batchReport = renderBatchReport("520a92e4-325e-4077-93e6-55d7091a3f83");
     moxios.wait(() => {
       const request = moxios.requests.mostRecent();
-      expect(request.url).toBe("/api/v1/reports/123");
+      expect(request.url).toBe("/api/v1/reports/520a92e4-325e-4077-93e6-55d7091a3f83");
       request.respondWith({
         status: 200,
         response: TESTPLAN_REPORT,
       }).then(() => {
         batchReport.update();
+        const props = batchReport.instance().props
+        expect(props.history.location.pathname).toBe("/testplan/520a92e4-325e-4077-93e6-55d7091a3f83")
         const selection = batchReport.state("selectedUIDs");
         expect(selection.length).toBe(1);
         expect(selection).toEqual(["520a92e4-325e-4077-93e6-55d7091a3f83"]);

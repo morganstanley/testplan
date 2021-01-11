@@ -3,9 +3,10 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { StyleSheetTestUtils } from "aphrodite";
 import moxios from 'moxios';
+import ReactRouterEnzymeContext from "react-router-enzyme-context";
 
 import InteractiveReport from '../InteractiveReport.js';
-import { FakeInteractiveReport } from '../../Common/sampleReports.js';
+import { PropagateIndices } from '../reportUtils.js';
 
 const initialReport = () => ({
   "category": "testplan",
@@ -121,6 +122,22 @@ const initialReport = () => ({
   }],
 });
 
+const renderInteractiveReport = () => {
+  // Mock the match object that would be passed down from react-router.
+  // InteractiveReport uses this object to get the report UID.
+  const routerContext = new ReactRouterEnzymeContext();
+  const mockMatch = { params: { uid: "TestplanUID", selection: undefined }, path: "/interactive/:uid/:selection*"};
+  return  shallow(
+    <InteractiveReport 
+      match={mockMatch} 
+      history={routerContext.props().history}
+      poll_intervall="1000000"/>, //give time to call getReport as the testcase wants
+    {
+      ...routerContext.get()
+    }
+  );  
+};
+
 
 describe('InteractiveReport', () => {
   beforeEach(() => {
@@ -136,7 +153,7 @@ describe('InteractiveReport', () => {
   });
 
   it("Loads report skeleton when mounted", done => {
-    const interactiveReport = shallow(<InteractiveReport />);
+    const interactiveReport = renderInteractiveReport();
     moxios.wait(() => {
       const request = moxios.requests.mostRecent();
       expect(request.url).toBe("/api/v1/interactive/report");
@@ -305,37 +322,9 @@ describe('InteractiveReport', () => {
     });
   });
 
-  it("handles navigation entries being clicked", () => {
-    const interactiveReport = shallow(<InteractiveReport />);
-    const report = initialReport();
-
-    interactiveReport.setState({
-      report: report,
-      selectedUIDs: interactiveReport.instance().autoSelect(report),
-    });
-    interactiveReport.update();
-    expect(interactiveReport.state("selectedUIDs")).toStrictEqual([
-      report.uid,
-    ]);
-
-    const mockEvent = { stopPropagation: jest.fn() };
-    interactiveReport.instance().handleNavClick(
-      mockEvent,
-      report.entries[0],
-      1,
-    );
-    interactiveReport.update();
-
-    expect(interactiveReport.state("selectedUIDs")).toStrictEqual([
-      report.uid,
-      report.entries[0].uid,
-    ]);
-    expect(interactiveReport).toMatchSnapshot();
-  });
-
   const testRunEntry = (done, clickedEntry, expectedURL) => {
-    const interactiveReport = shallow(<InteractiveReport />);
-    const report = initialReport()
+    const interactiveReport = renderInteractiveReport();
+    const report = PropagateIndices(initialReport());
 
     interactiveReport.setState({
       report: report,
@@ -343,7 +332,10 @@ describe('InteractiveReport', () => {
     });
     interactiveReport.update();
 
-    const mockEvent = { stopPropagation: jest.fn() };
+    const mockEvent = { 
+      stopPropagation: jest.fn(), 
+      preventDefault: jest.fn(),
+    };
     interactiveReport.instance().handlePlayClick(mockEvent, clickedEntry);
 
     moxios.wait(() => {
@@ -392,7 +384,7 @@ describe('InteractiveReport', () => {
   ));
 
   it("Parially refreshes the report on update.", done => {
-    const interactiveReport = shallow(<InteractiveReport />);
+    const interactiveReport = renderInteractiveReport();
     const report = initialReport();
 
     interactiveReport.setState({
@@ -439,7 +431,7 @@ describe('InteractiveReport', () => {
 
 
   it("Updates testcase state", done => {
-    const interactiveReport = shallow(<InteractiveReport />);
+    const interactiveReport = renderInteractiveReport();
     const report = initialReport();
 
     interactiveReport.setState({
@@ -567,8 +559,8 @@ describe('InteractiveReport', () => {
   });
 
   it('Handles environment being started', done => {
-    const interactiveReport = shallow(<InteractiveReport />);
-    const report = initialReport();
+    const interactiveReport = renderInteractiveReport();
+    const report = PropagateIndices(initialReport());
 
     interactiveReport.setState({
       report: report,
@@ -577,7 +569,10 @@ describe('InteractiveReport', () => {
     interactiveReport.update();
 
     const clickedEntry = report.entries[0];
-    const mockEvent = { stopPropagation: jest.fn() };
+    const mockEvent = { 
+      stopPropagation: jest.fn(), 
+      preventDefault: jest.fn()
+    };
     interactiveReport.instance().envCtrlCallback(
       mockEvent, clickedEntry, "start",
     );
@@ -603,7 +598,7 @@ describe('InteractiveReport', () => {
   });
 
   it('Resets testcase state', done => {
-    const interactiveReport = shallow(<InteractiveReport />);
+    const interactiveReport = renderInteractiveReport();
 
     const report = initialReport();
     const multitest = report.entries[0];

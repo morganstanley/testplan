@@ -3,16 +3,66 @@
 exports[`navUtils CreateNavButtons returns an array of nav buttons 1`] = `
 Array [
   <ListGroupItem
+    action={true}
+    activeClassName="navButton_1x055n9-o_O-navButtonInteract_1ofjo98-o_O-unselectable_16maxrd-o_O-navButtonInteractFocus_7u3vsg"
     className="navButton_1x055n9-o_O-navButtonInteract_1ofjo98-o_O-unselectable_16maxrd"
-    onClick={[Function]}
     tabIndex="1"
-    tag="li"
+    tag={
+      Object {
+        "$$typeof": Symbol(react.forward_ref),
+        "displayName": "NavLink",
+        "propTypes": Object {
+          "activeClassName": [Function],
+          "activeStyle": [Function],
+          "aria-current": [Function],
+          "className": [Function],
+          "exact": [Function],
+          "innerRef": [Function],
+          "isActive": [Function],
+          "location": [Function],
+          "onClick": [Function],
+          "replace": [Function],
+          "sensitive": [Function],
+          "strict": [Function],
+          "style": [Function],
+          "target": [Function],
+          "to": [Function],
+        },
+        "render": [Function],
+      }
+    }
+    to="/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/21739167-b30f-4c13-a315-ef6ae52fd1f7"
   />,
   <ListGroupItem
+    action={true}
+    activeClassName="navButton_1x055n9-o_O-navButtonInteract_1ofjo98-o_O-unselectable_16maxrd-o_O-navButtonInteractFocus_7u3vsg"
     className="navButton_1x055n9-o_O-navButtonInteract_1ofjo98-o_O-unselectable_16maxrd"
-    onClick={[Function]}
     tabIndex="2"
-    tag="li"
+    tag={
+      Object {
+        "$$typeof": Symbol(react.forward_ref),
+        "displayName": "NavLink",
+        "propTypes": Object {
+          "activeClassName": [Function],
+          "activeStyle": [Function],
+          "aria-current": [Function],
+          "className": [Function],
+          "exact": [Function],
+          "innerRef": [Function],
+          "isActive": [Function],
+          "location": [Function],
+          "onClick": [Function],
+          "replace": [Function],
+          "sensitive": [Function],
+          "strict": [Function],
+          "style": [Function],
+          "target": [Function],
+          "to": [Function],
+        },
+        "render": [Function],
+      }
+    }
+    to="/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/8c3c7e6b-48e8-40cd-86db-8c8aed2592c8"
   />,
 ]
 `;
