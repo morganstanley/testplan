@@ -291,7 +291,7 @@ except AttributeError:
 
 
 def hash_file(filepath):
-    """"
+    """ "
     Hashes the contents of a file. SHA1 algorithm is used.
 
     :param filepath: Path to file to hash.

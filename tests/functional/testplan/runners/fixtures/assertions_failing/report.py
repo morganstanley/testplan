@@ -15,11 +15,11 @@ from testplan.common.utils.testing import check_iterable
 
 def check_row_comparison_data(expected_data):
     """
-        Utility function that can be used for advanced row comparison matching.
+    Utility function that can be used for advanced row comparison matching.
 
-        Runs against serialized RowComparison objects.
+    Runs against serialized RowComparison objects.
 
-        Useful for matching traceback patterns etc as well.
+    Useful for matching traceback patterns etc as well.
     """
 
     def checker(actual_data):
@@ -45,8 +45,8 @@ def check_row_comparison_data(expected_data):
 
 def check_xml_tag_comparison_data(expected_data):
     """
-        Similar to check_row_comparison_data,
-        runs against XMLTagComparison objects.
+    Similar to check_row_comparison_data,
+    runs against XMLTagComparison objects.
     """
 
     def check(actual, expected):

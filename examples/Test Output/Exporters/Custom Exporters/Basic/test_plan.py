@@ -92,8 +92,8 @@ class ReprExporter(TextFileExporter):
 
 class IndentedTextExporter(TextFileExporter):
     """
-        Iterates over flattened test data and prints out an item in each line,
-        indenting by their depth on the test report tree.
+    Iterates over flattened test data and prints out an item in each line,
+    indenting by their depth on the test report tree.
     """
 
     def get_text_content(self, source):

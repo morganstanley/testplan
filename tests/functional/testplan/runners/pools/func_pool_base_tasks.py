@@ -55,7 +55,8 @@ class SuiteKillingWorker(object):
 def multitest_kill_one_worker(parent_pid, size):
     """Test that kills one worker."""
     return MultiTest(
-        name="MTestKiller", suites=[SuiteKillingWorker(parent_pid, size)],
+        name="MTestKiller",
+        suites=[SuiteKillingWorker(parent_pid, size)],
     )
 
 

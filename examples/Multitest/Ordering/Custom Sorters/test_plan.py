@@ -57,7 +57,7 @@ class Epsilon(object):
 # optional sorting per group (testcases, testsuites etc)
 class ReverseNameLengthSorter(TypedSorter):
     """
-        This sorter sorts tests from longest name length to shortest.
+    This sorter sorts tests from longest name length to shortest.
     """
 
     def reverse_sort_by_name(self, items, name_getter):

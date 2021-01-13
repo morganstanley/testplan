@@ -14,10 +14,12 @@ EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
             category="testsuite",
             entries=[
                 testplan.report.TestCaseReport(
-                    name="test_success", uid="test_success",
+                    name="test_success",
+                    uid="test_success",
                 ),
                 testplan.report.TestCaseReport(
-                    name="test_failure", uid="test_failure",
+                    name="test_failure",
+                    uid="test_failure",
                 ),
                 testplan.report.TestGroupReport(
                     name="test_parametrization",
@@ -46,7 +48,8 @@ EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
             category="testsuite",
             entries=[
                 testplan.report.TestCaseReport(
-                    name="test_drivers", uid="test_drivers",
+                    name="test_drivers",
+                    uid="test_drivers",
                 )
             ],
         ),
@@ -56,22 +59,28 @@ EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
             category="testsuite",
             entries=[
                 testplan.report.TestCaseReport(
-                    name="test_skipped", uid="test_skipped",
+                    name="test_skipped",
+                    uid="test_skipped",
                 ),
                 testplan.report.TestCaseReport(
-                    name="test_skipif", uid="test_skipif",
+                    name="test_skipif",
+                    uid="test_skipif",
                 ),
                 testplan.report.TestCaseReport(
-                    name="test_xfail", uid="test_xfail",
+                    name="test_xfail",
+                    uid="test_xfail",
                 ),
                 testplan.report.TestCaseReport(
-                    name="test_unexpected_error", uid="test_unexpected_error",
+                    name="test_unexpected_error",
+                    uid="test_unexpected_error",
                 ),
                 testplan.report.TestCaseReport(
-                    name="test_xpass", uid="test_xpass",
+                    name="test_xpass",
+                    uid="test_xpass",
                 ),
                 testplan.report.TestCaseReport(
-                    name="test_xpass_strict", uid="test_xpass_strict",
+                    name="test_xpass_strict",
+                    uid="test_xpass_strict",
                 ),
             ],
         ),

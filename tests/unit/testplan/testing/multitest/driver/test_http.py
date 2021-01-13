@@ -15,7 +15,10 @@ from testplan.common.utils import path
 def http_server(runpath_module):
     """Start and yield an HTTP server driver."""
     server = http.HTTPServer(
-        name="http_server", host="localhost", port=0, runpath=runpath_module,
+        name="http_server",
+        host="localhost",
+        port=0,
+        runpath=runpath_module,
     )
 
     with server:

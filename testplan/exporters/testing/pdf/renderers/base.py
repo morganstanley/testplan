@@ -32,17 +32,17 @@ class BaseRowRenderer(object):
 
     def get_row_data(self, source, depth, row_idx):
         """
-          Return `RowData` to be rendered on the pdf.
+        Return `RowData` to be rendered on the pdf.
 
-          :param source: Source object for the renderer.
-          :type source: ``report.base.Report`` or ``dict`` (for assertion data).
-          :param depth: Depth of the source object on report tree.
-                        Used for indentation.
-          :type depth: ``int``
-          :param row_idx: Index of the current table row to be rendered.
-          :type row_idx: ``int``
-          :return: ``RowData`` object.
-          :rtype: ``exporters.utils.pdf.RowData``
+        :param source: Source object for the renderer.
+        :type source: ``report.base.Report`` or ``dict`` (for assertion data).
+        :param depth: Depth of the source object on report tree.
+                      Used for indentation.
+        :type depth: ``int``
+        :param row_idx: Index of the current table row to be rendered.
+        :type row_idx: ``int``
+        :return: ``RowData`` object.
+        :rtype: ``exporters.utils.pdf.RowData``
         """
         raise NotImplementedError
 

@@ -78,7 +78,8 @@ class PyUnit(testing.Test):
                 category=ReportCategories.TESTSUITE,
                 entries=[
                     TestCaseReport(
-                        name=self._TESTCASE_NAME, uid=self._TESTCASE_NAME,
+                        name=self._TESTCASE_NAME,
+                        uid=self._TESTCASE_NAME,
                     )
                 ],
             )

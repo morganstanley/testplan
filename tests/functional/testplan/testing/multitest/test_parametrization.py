@@ -391,7 +391,10 @@ def test_custom_name(mockplan):
             lambda func_name, kwargs: "XXX_{a}_{b}_YYY".format(**kwargs),
             ("XXX_foo_bar_YYY", "XXX_alpha_beta_YYY"),
         ),
-        (None, ("Sample Test 0", "Sample Test 1"),),
+        (
+            None,
+            ("Sample Test 0", "Sample Test 1"),
+        ),
     ),
 )
 def test_custom_name_func(mockplan, name_func, testcase_names):
@@ -570,7 +573,8 @@ def test_docstring_func(docstring_func, expected_docstring):
     @testsuite
     class MySuite(object):
         @testcase(
-            parameters=(("foo", "bar"),), docstring_func=docstring_func,
+            parameters=(("foo", "bar"),),
+            docstring_func=docstring_func,
         )
         def adder_test(self, env, result, first, second):
             """Original docstring"""
@@ -603,13 +607,16 @@ def test_parametrization_tagging(mockplan):
         tags={"simple": {"alpha"}},
         entries=[
             TestCaseReport(
-                name="dummy_test <color='red'>", tags={"color": {"red"}},
+                name="dummy_test <color='red'>",
+                tags={"color": {"red"}},
             ),
             TestCaseReport(
-                name="dummy_test <color='blue'>", tags={"color": {"blue"}},
+                name="dummy_test <color='blue'>",
+                tags={"color": {"blue"}},
             ),
             TestCaseReport(
-                name="dummy_test <color='green'>", tags={"color": {"green"}},
+                name="dummy_test <color='green'>",
+                tags={"color": {"green"}},
             ),
         ],
     )

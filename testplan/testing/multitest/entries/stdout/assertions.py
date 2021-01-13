@@ -467,11 +467,11 @@ class EqualSlicesRenderer(AssertionRenderer):
 
         Equal Slices - Pass
           slice(2, 4, None)
-            Actual:	[3, 4]
-            Expected:	[3, 4]
+            Actual:    [3, 4]
+            Expected:  [3, 4]
           slice(5, 7, None)
-            Actual:	['d', 'e']
-            Expected:	[6, 7]
+            Actual:    ['d', 'e']
+            Expected:  [6, 7]
     """
 
     def get_assertion_details(self, entry):

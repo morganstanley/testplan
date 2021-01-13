@@ -1555,7 +1555,9 @@ class Result(object):
         if condition:
             if log_description:
                 return self.log(
-                    log_message, description=log_description, flag=flag,
+                    log_message,
+                    description=log_description,
+                    flag=flag,
                 )
         else:
             return self.fail(fail_description, flag=flag)

@@ -265,7 +265,8 @@ class GTest(ProcessRunnerTest):
         if testsuite_pattern != "*" or testcase_pattern != "*":
             cmd.append(
                 "--gtest_filter={}.{}".format(
-                    testsuite_pattern, testcase_pattern,
+                    testsuite_pattern,
+                    testcase_pattern,
                 )
             )
         return cmd

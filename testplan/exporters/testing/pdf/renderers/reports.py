@@ -63,7 +63,7 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
 
     def get_metadata_context(self, source):
         """
-          Enriched meta context with test counts, run times etc.
+        Enriched meta context with test counts, run times etc.
         """
         ctx = super(TestReportRenderer, self).get_metadata_context(source)
 

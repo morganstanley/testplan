@@ -65,7 +65,10 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
         Task(target=get_mtest_imported, kwargs=dict(name=6)),
         resource=pool_name,
     )
-    uid7 = plan.schedule(Task(target=get_mtest(name=7)), resource=pool_name,)
+    uid7 = plan.schedule(
+        Task(target=get_mtest(name=7)),
+        resource=pool_name,
+    )
 
     # with log_propagation_disabled(TESTPLAN_LOGGER):
     assert plan.run().run is True

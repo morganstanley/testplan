@@ -88,9 +88,9 @@ def test_create_pdf(tmpdir):
 
 def test_tag_filtered_pdf(tmpdir):
     """
-        Tag filtered PDF exporter should generate
-        multiple PDF files for matching report sub-trees
-        and skip empty reports.
+    Tag filtered PDF exporter should generate
+    multiple PDF files for matching report sub-trees
+    and skip empty reports.
     """
     pdf_dir = tmpdir.mkdir("reports").strpath
 
@@ -158,12 +158,12 @@ def test_tag_filtered_pdf(tmpdir):
 
 def test_implicit_exporter_initialization(tmpdir):
     """
-        An implicit PDFExporter should be generated if `pdf_path` is available
-        via cmdline args but no exporters were declared.
+    An implicit PDFExporter should be generated if `pdf_path` is available
+    via cmdline args but no exporters were declared.
 
-        Multiple implicit TagFilteredPDFExporters should be initialized
-        if `report_tags` or `report_tags_all` arguments are passed
-        via cmdline, but no exporters were declared.
+    Multiple implicit TagFilteredPDFExporters should be initialized
+    if `report_tags` or `report_tags_all` arguments are passed
+    via cmdline, but no exporters were declared.
     """
     pdf_dir = tmpdir.mkdir("reports")
     pdf_path = pdf_dir.join("my_report.pdf").strpath

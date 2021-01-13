@@ -3,29 +3,29 @@ import argparse
 
 class ReportTagsAction(argparse.Action):
     """
-        Argparse action for parsing multiple report tag
-        arguments, builds up a list of dictionary of sets.
+    Argparse action for parsing multiple report tag
+    arguments, builds up a list of dictionary of sets.
 
-        In:
+    In:
 
-        .. code-block:: bash
+    .. code-block:: bash
 
-            --report-tags foo bar hello=world --report-tags one two color=red
+        --report-tags foo bar hello=world --report-tags one two color=red
 
-        Out:
+    Out:
 
-        .. code-block:: python
+    .. code-block:: python
 
-            [
-                {
-                    'simple': {'foo', 'bar'},
-                    'hello': {'world'}
-                },
-                {
-                    'simple': {'one', 'two'},
-                    'color': {'red'},
-                }
-            ]
+        [
+            {
+                'simple': {'foo', 'bar'},
+                'hello': {'world'}
+            },
+            {
+                'simple': {'one', 'two'},
+                'color': {'red'},
+            }
+        ]
     """
 
     def __call__(self, parser, namespace, values, option_string=None):

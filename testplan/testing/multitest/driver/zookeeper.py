@@ -19,7 +19,7 @@ ZK_SERVER = "/usr/share/zookeeper/bin/zkServer.sh"
 
 
 class ZookeeperStandaloneConfig(DriverConfig):
-    """"
+    """ "
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.zookeeper.ZookeeperStandalone` resource.
     """

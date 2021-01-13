@@ -151,7 +151,7 @@ class Leaf(Config):
 
 def test_getattr_propagation():
     """
-        local set -> non-ABSENT default -> container(parent)
+    local set -> non-ABSENT default -> container(parent)
     """
     root = Root()
     assert (root.foo, root.bar, root.xyz) == (5, 3, 1)

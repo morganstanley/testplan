@@ -74,7 +74,8 @@ def plan(tmpdir):
 
     logfile = tmpdir / "attached_log.txt"
     logfile.write_text(
-        "This text will be written into the attached file.", encoding="utf8",
+        "This text will be written into the attached file.",
+        encoding="utf8",
     )
 
     plan.add(
@@ -721,8 +722,10 @@ def test_run_testcase(plan):
 def test_export_report(plan):
     host, port = plan.interactive.http_handler_info
     assert host == "0.0.0.0"
-    export_url = "http://localhost:{port}/api/v1/interactive/report/export".format(
-        port=port
+    export_url = (
+        "http://localhost:{port}/api/v1/interactive/report/export".format(
+            port=port
+        )
     )
     rsp = requests.get(export_url)
     assert rsp.status_code == 200
@@ -779,8 +782,10 @@ def _test_attachments(port):
     Test retrieving an attached file. The test_attach testcase needs to have
     been run first.
     """
-    all_attachments_url = "http://localhost:{port}/api/v1/interactive/attachments".format(
-        port=port
+    all_attachments_url = (
+        "http://localhost:{port}/api/v1/interactive/attachments".format(
+            port=port
+        )
     )
 
     rsp = requests.get(all_attachments_url)

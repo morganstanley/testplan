@@ -534,7 +534,10 @@ class Pool(Executor):
                     self.logger.test_info(
                         "Will rerun %(task)s due to `should_rerun` "
                         "config option of %(pool)s",
-                        {"task": task_result.task, "pool": self,},
+                        {
+                            "task": task_result.task,
+                            "pool": self,
+                        },
                     )
                     self.unassigned.append(uid)
                     self._task_retries_cnt[uid] = 0
