@@ -175,8 +175,8 @@ class DocStringTest(object):
     )
     def addition_two(self, env, result, first, second, expected):
         """
-          Testing addition with: {first} + {second}
-          Expected value: {expected}
+        Testing addition with: {first} + {second}
+        Expected value: {expected}
         """
         return result.equal(first + second, expected)
 

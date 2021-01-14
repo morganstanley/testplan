@@ -318,7 +318,7 @@ class EntityStatus(object):
         self._metadata = OrderedDict()
 
     def transitions(self):
-        """"
+        """ "
         Returns all legal transitions of the status of the
         :py:class:`Entity <testplan.common.entity.base.Entity>`.
         """
@@ -571,7 +571,7 @@ class RunnableStatus(EntityStatus):
     PAUSED = "PAUSED"
 
     def transitions(self):
-        """"
+        """ "
         Defines the status transitions of a
         :py:class:`Runnable <testplan.common.entity.base.Runnable>` entity.
         """
@@ -937,7 +937,7 @@ class ResourceStatus(EntityStatus):
     STOPPED = "STOPPED"
 
     def transitions(self):
-        """"
+        """ "
         Defines the status transitions of a
         :py:class:`Resource <testplan.common.entity.base.Resource>` entity.
         """

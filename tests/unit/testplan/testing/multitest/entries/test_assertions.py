@@ -13,9 +13,9 @@ from testplan.testing.multitest.entries import assertions
 
 def multiline(*strings, **kwargs):
     """
-        Regex module just takes newline character `\n` into account, but not
-        carriage return. So we don't use `os.linesep` here as
-        default for basic regex matching.
+    Regex module just takes newline character `\n` into account, but not
+    carriage return. So we don't use `os.linesep` here as
+    default for basic regex matching.
     """
     line_sep = kwargs.pop("line_sep", "\n")
     return line_sep.join(strings)
@@ -1434,8 +1434,8 @@ class TestTableMatch(object):
 
     def test_compare_rows_invalid_columns(self):
         """
-            Row comparison should raise an error if
-            `comparison_columns` is not a subset of `display_columns`
+        Row comparison should raise an error if
+        `comparison_columns` is not a subset of `display_columns`
         """
         with pytest.raises(ValueError):
             assertions.compare_rows(
@@ -1447,8 +1447,8 @@ class TestTableMatch(object):
 
     def test_compare_rows_error(self):
         """
-            Getting exact traceback is not very
-            trivial so we have this test separate.
+        Getting exact traceback is not very
+        trivial so we have this test separate.
         """
         error_ctx = {}
 

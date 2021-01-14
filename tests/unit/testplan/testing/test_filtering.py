@@ -22,7 +22,8 @@ class Alpha(object):
 
 
 @testsuite(
-    tags="bar", name=lambda cls_name, suite: cls_name + " -- Custom",
+    tags="bar",
+    name=lambda cls_name, suite: cls_name + " -- Custom",
 )
 class Beta(object):
     @testcase

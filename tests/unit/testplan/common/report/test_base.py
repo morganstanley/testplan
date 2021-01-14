@@ -39,8 +39,8 @@ def test_exception_logger_suppression():
 @disable_log_propagation(LOGGER)
 def test_exception_logger_reraise():
     """
-      ExceptionLogger should raise the exception without logging
-      if it doesn't match `exception_classes`.
+    ExceptionLogger should raise the exception without logging
+    if it doesn't match `exception_classes`.
     """
     rep = DummyReport()
 
@@ -274,8 +274,8 @@ class TestReportGroup(object):
 
     def test_append_value_error(self):
         """
-          `ReportGroup.append` should raise `ValueError` if `self._index`
-          has already a matching key to `report.uid`.
+        `ReportGroup.append` should raise `ValueError` if `self._index`
+        has already a matching key to `report.uid`.
         """
 
         child = DummyReport()

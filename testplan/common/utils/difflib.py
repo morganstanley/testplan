@@ -651,7 +651,7 @@ class SequenceMatcher(object):
         return answer
 
     def get_grouped_opcodes(self, n=3):
-        """ Isolate change clusters by eliminating ranges with no changes.
+        """Isolate change clusters by eliminating ranges with no changes.
 
         Return a generator of groups with up to n lines of context.
         Each group is in the same format as returned by get_opcodes().
@@ -1059,7 +1059,7 @@ class Differ(object):
             yield (tag, alo, ahi, blo, bhi)
 
     def get_grouped_opcodes(self, a, b, n=3):
-        """ Isolate change clusters by eliminating ranges with no changes.
+        """Isolate change clusters by eliminating ranges with no changes.
 
         Return a generator of groups with up to n lines of context.
         Each group is in the same format as returned by get_opcodes().
@@ -1093,7 +1093,7 @@ class Differ(object):
 
         def _check_adjacent_blank_block(codes, i):
             """Make change to the nearest opcode of blank lines if there are
-               no more than `n` lines between them."""
+            no more than `n` lines between them."""
             if i >= 0 and i < len(codes) and _is_blank_block(codes[i]):
                 # code[i-1][0] or code[i+1][0] MUST BE 'equal' if it exists
                 if (
@@ -1569,8 +1569,8 @@ def unified_diff(
     >>> difference = unified_diff('one\ntwo\nthree\n'.splitlines(True),
                                   'ore\nthree\nemu\n'.splitlines(True))
     >>> print(''.join(difference))
-    --- a.text	2018-08-28 11:36:46 UTC
-    +++ b.text	2018-08-28 11:36:46 UTC
+    --- a.text  2018-08-28 11:36:46 UTC
+    +++ b.text  2018-08-28 11:36:46 UTC
     @@ -1,3 +1,3 @@
     -one
     -two
@@ -1667,8 +1667,8 @@ def context_diff(
     >>> difference = context_diff('one\ntwo\nthree\n'.splitlines(True),
                                   'ore\nthree\nemu\n'.splitlines(True))
     >>> print(''.join(difference))
-    --- a.text	2018-08-28 11:40:17 UTC
-    +++ b.text	2018-08-28 11:40:17 UTC
+    --- a.text  2018-08-28 11:40:17 UTC
+    +++ b.text  2018-08-28 11:40:17 UTC
     ***************
     *** 1,3 ****
     ! one

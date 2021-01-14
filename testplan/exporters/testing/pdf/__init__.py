@@ -60,21 +60,21 @@ MAX_FILENAME_LENGTH = 100
 
 def generate_path_for_tags(config, tag_dict, filter_type):
     """
-      Generate the PDF filename using the given filter and tag context.
-      Will trim the filename and append a uuid suffix if it ends up
-      being longer than `MAX_FILENAME_LENGTH`.
+    Generate the PDF filename using the given filter and tag context.
+    Will trim the filename and append a uuid suffix if it ends up
+    being longer than `MAX_FILENAME_LENGTH`.
 
-      TOOD: support custom filename generation & move logic to the exporter.
+    TOOD: support custom filename generation & move logic to the exporter.
 
-      >>> generate_pdf_path(
-      ...   filter_type='all',
-      ...   tag_arg_dict={
-      ...     'simple': {'foo', 'bar'},
-      ...     'hello': {'world', 'mars'}
-      ...   }
-      ... )
+    >>> generate_pdf_path(
+    ...   filter_type='all',
+    ...   tag_arg_dict={
+    ...     'simple': {'foo', 'bar'},
+    ...     'hello': {'world', 'mars'}
+    ...   }
+    ... )
 
-      <directory>/report-tags-all-foo__bar__hello-world-mars.pdf
+    <directory>/report-tags-all-foo__bar__hello-world-mars.pdf
     """
 
     def add_count_suffix(directory, path, count=0):
@@ -209,7 +209,8 @@ class PDFExporter(Exporter):
             file_name, ext = os.path.splitext(pdf_path)
             pdf_path = "{}_{}{}".format(file_name, int(time.time()), ext)
             self.logger.exporter_info(
-                "File %s exists!", self.cfg.pdf_path,
+                "File %s exists!",
+                self.cfg.pdf_path,
             )
 
         template = SimpleDocTemplate(

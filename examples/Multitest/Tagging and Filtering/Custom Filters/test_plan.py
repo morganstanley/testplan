@@ -117,9 +117,10 @@ class SubclassFilter(Filter):
     """
 
     def __init__(self, base_kls):
-        assert isinstance(base_kls, type), (
-            "`base_kls` must be of type"
-            " `type`, it was: {}".format(type(base_kls))
+        assert isinstance(
+            base_kls, type
+        ), "`base_kls` must be of type" " `type`, it was: {}".format(
+            type(base_kls)
         )
 
         self.base_kls = base_kls

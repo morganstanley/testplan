@@ -274,9 +274,9 @@ class PyTest(testing.Test):
 
     def _build_pytest_args(self):
         """
-         :return: a list of the args to be passed to PyTest
-         :rtype: List[str]
-         """
+        :return: a list of the args to be passed to PyTest
+        :rtype: List[str]
+        """
         if isinstance(self.cfg.target, six.string_types):
             pytest_args = [self.cfg.target]
         else:

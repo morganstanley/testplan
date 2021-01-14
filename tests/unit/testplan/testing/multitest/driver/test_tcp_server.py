@@ -16,7 +16,10 @@ def tcp_server(runpath_module):
     """Start and yield a TCP server driver."""
     env = Environment()
     server = TCPServer(
-        name="server", host="localhost", port=0, runpath=runpath_module,
+        name="server",
+        host="localhost",
+        port=0,
+        runpath=runpath_module,
     )
     env.add(server)
 

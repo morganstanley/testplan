@@ -483,11 +483,11 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
 
     def should_ignore_key(key):
         """
-            Decide if a key should be ignored.
+        Decide if a key should be ignored.
 
-            Decision is based on ``ignore`` and ``only``.
-            If ``only`` is ``True`` then keys that are
-             not in ``lhs`` will be ignored.
+        Decision is based on ``ignore`` and ``only``.
+        If ``only`` is ``True`` then keys that are
+         not in ``lhs`` will be ignored.
         """
         if key in ignore:
             should_ignore = True
@@ -852,8 +852,8 @@ def _best_permutation(grid):
 
     def bp_loop(outstanding, level, grid, grid_len, cache):
         """
-            Recursively finds a solution by
-            progressively excluding poor permutations "paths"
+        Recursively finds a solution by
+        progressively excluding poor permutations "paths"
         """
         if not outstanding:
             return 0, []
@@ -1137,8 +1137,8 @@ def unordered_compare(
 
 def tuplefy_item(item, list_entry=False):
     """
-        Convert a dictionary report item in order to
-        consume less space in json representation.
+    Convert a dictionary report item in order to
+    consume less space in json representation.
     """
 
     # TODO: Replace magical numbers with constants

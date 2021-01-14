@@ -56,8 +56,8 @@ def test_report_status_precedent():
 @disable_log_propagation(report.log.LOGGER)
 def test_report_exception_logger():
     """
-      `TestReportExceptionLogger` should set `status_override` to
-      `TestReportStatus.FAILED` if `fail` argument is True.
+    `TestReportExceptionLogger` should set `status_override` to
+    `TestReportStatus.FAILED` if `fail` argument is True.
     """
     rep = TestCaseReport(name="foo")
     assert rep.status_override is None
@@ -151,8 +151,8 @@ class TestBaseReportGroup(object):
 
     def test_merge_children_not_strict(self):
         """
-          Not strict merge should append child entries and update
-          the index if they do not exist in the parent.
+        Not strict merge should append child entries and update
+        the index if they do not exist in the parent.
         """
         child_clone_1 = DummyReport(uid=10)
         child_clone_2 = DummyReport(uid=20)
@@ -230,8 +230,8 @@ class TestTestCaseReport(object):
     )
     def test_status(self, entries, expected_status):
         """
-          TestCaseReport status should be `Status.FAILED` if it has a
-          `dict` entry with the key `passed` = `False`.
+        TestCaseReport status should be `Status.FAILED` if it has a
+        `dict` entry with the key `passed` = `False`.
         """
         rep = TestCaseReport(name="foo", entries=entries)
         assert rep.status == expected_status
@@ -256,8 +256,8 @@ class TestTestCaseReport(object):
 
     def test_merge(self):
         """
-          `TestCaseReport.merge` should assign basic attributes
-          (`status_override`, `logs`, `entries`) in place.
+        `TestCaseReport.merge` should assign basic attributes
+        (`status_override`, `logs`, `entries`) in place.
         """
         rep = TestCaseReport(uid=1, name="foo", entries=[1, 2, 3])
         rep.logs = [4, 5, 6]

@@ -67,12 +67,12 @@ class Gamma(object):
 
 class HelloWorldLister(BaseLister):
     """
-        Displays 'Hello World" for each MultiTest
+    Displays 'Hello World" for each MultiTest
 
-        e.g.
+    e.g.
 
-            Hello World: Primary
-            Hello World: Secondary
+        Hello World: Primary
+        Hello World: Secondary
     """
 
     NAME = "HELLO_WORLD"

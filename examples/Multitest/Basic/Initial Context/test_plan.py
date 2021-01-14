@@ -22,14 +22,14 @@ class SimpleSuite(object):
     @testcase
     def test_initial_context_access(self, env, result):
         """
-            env in the testcase has the content of the initial context plus the drivers
+        env in the testcase has the content of the initial context plus the drivers
         """
         result.equal(env.test_value, TEST_CONTEXT_VALUE)
 
     @testcase
     def test_driver_captured_data(self, env, result):
         """
-            Just to validate the driver captured the data from context during it's startup
+        Just to validate the driver captured the data from context during it's startup
         """
         result.equal(env.context_user.value_from_context, TEST_CONTEXT_VALUE)
 

@@ -64,13 +64,13 @@ class Gamma(object):
 
 class ExampleLister(BaseLister):
     """
-        Displays test instances and their suites (if available)
-        along with number of testcases per suite in a single line.
+    Displays test instances and their suites (if available)
+    along with number of testcases per suite in a single line.
 
-        e.g.
+    e.g.
 
-            Multitest A: Foo (3 testcases), Bar (2 testcases)
-            Multitest B: Baz (3 testcases)
+        Multitest A: Foo (3 testcases), Bar (2 testcases)
+        Multitest B: Baz (3 testcases)
     """
 
     def get_output(self, instance):

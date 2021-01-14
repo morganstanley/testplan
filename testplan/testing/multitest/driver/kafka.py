@@ -17,7 +17,7 @@ KAFKA_START = "/opt/kafka/bin/kafka-server-start.sh"
 
 
 class KafkaStandaloneConfig(app.AppConfig):
-    """"
+    """ "
     Configuration object for
     :py:class:`~testplan.testing.multitest.driver.kafka.KafkaStandalone` resource.
     """

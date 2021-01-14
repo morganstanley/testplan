@@ -41,13 +41,14 @@ class Beta(object):
 
 def test_xml_exporter(tmpdir):
     """
-        XMLExporter should create a JUnit compatible xml file for each
-        multitest in the plan.
+    XMLExporter should create a JUnit compatible xml file for each
+    multitest in the plan.
     """
     xml_dir = tmpdir.mkdir("xml")
 
     plan = TestplanMock(
-        name="plan", exporters=XMLExporter(xml_dir=xml_dir.strpath),
+        name="plan",
+        exporters=XMLExporter(xml_dir=xml_dir.strpath),
     )
     multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
     multitest_2 = multitest.MultiTest(name="Secondary", suites=[Beta()])
@@ -168,7 +169,7 @@ sample_report = TestReport(
 
 def test_xml_exporter_cleanup(tmpdir):
     """
-        XMLExporter should purge & recreate XML dir
+    XMLExporter should purge & recreate XML dir
     """
 
     xml_dir = tmpdir.mkdir("xml")
@@ -184,8 +185,8 @@ def test_xml_exporter_cleanup(tmpdir):
 
 def test_implicit_exporter_initialization(tmpdir):
     """
-        An implicit XMLExporter should be generated if `xml_dir` is available
-        via cmdline args but no exporters were declared programmatically.
+    An implicit XMLExporter should be generated if `xml_dir` is available
+    via cmdline args but no exporters were declared programmatically.
     """
     xml_dir = tmpdir.mkdir("xml")
 
