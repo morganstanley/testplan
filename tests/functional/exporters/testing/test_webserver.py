@@ -9,10 +9,9 @@ from six.moves import queue
 import pytest
 import requests
 
-pytestmark = pytest.mark.skipif(
-    os.name != "posix",
-    reason="Subprocess based approach is problematic on windows.",
-)
+from pytest_test_filters import skip_on_windows
+
+pytestmark = skip_on_windows(reason="Subprocess based approach is problematic on windows.")
 
 from testplan.common.utils.process import kill_process
 

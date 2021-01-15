@@ -1,11 +1,11 @@
 """Run tests for the UI code."""
 import subprocess
-import platform
 import os
 
 import pytest
 
 from testplan import web_ui
+from pytest_test_filters import skip_on_windows
 
 TESTPLAN_UI_DIR = os.path.abspath(
     os.path.join(os.path.dirname(web_ui.__file__), "testing")
@@ -42,11 +42,10 @@ def test_testplan_ui():
         "yarn test", shell=True, cwd=TESTPLAN_UI_DIR, env=env
     )
 
-
+@skip_on_windows(reason="We run this on linux only")
 @pytest.mark.skipif(
-    platform.system() == "Windows"
-    or (not (yarn_installed() and tp_ui_installed())),
-    reason="requires yarn & testplan UI on Linux to have been installed.",
+    not (yarn_installed() and tp_ui_installed()),
+    reason="requires yarn & testplan UI have been installed.",
 )
 def test_eslint():
     """Run eslint over the UI source code."""

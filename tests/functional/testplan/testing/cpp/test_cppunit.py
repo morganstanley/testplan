@@ -1,9 +1,6 @@
 import os
-import platform
-
 import pytest
 
-from testplan import TestplanMock
 from testplan.common.utils.testing import (
     log_propagation_disabled,
     check_report,
@@ -13,6 +10,8 @@ from testplan.testing.cpp import Cppunit
 from testplan.report import Status
 
 from tests.functional.testplan.testing.fixtures.cpp import cppunit
+
+from pytest_test_filters import skip_on_windows
 
 fixture_root = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "fixtures", "cpp", "cppunit"
@@ -24,9 +23,7 @@ You need to compile the files at "{binary_dir}" to be able to run this test.
 """
 
 
-@pytest.mark.skipif(
-    platform.system() == "Windows", reason="Cppunit is skipped on Windows."
-)
+@skip_on_windows(reason="Cppunit is skipped on Windows.")
 @pytest.mark.parametrize(
     "binary_dir, expected_report, report_status",
     (

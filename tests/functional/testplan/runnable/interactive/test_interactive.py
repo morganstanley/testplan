@@ -11,7 +11,6 @@ standard_library.install_aliases()
 import os
 import re
 
-import pytest
 import six
 import requests
 import pytest
@@ -28,8 +27,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.environment import LocalEnvironment
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
-from testplan.common.utils.testing import log_propagation_disabled
-from testplan.common.utils.logger import TESTPLAN_LOGGER
+from pytest_test_filters import skip_on_windows
 
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -273,9 +271,8 @@ def post_request(url, data):
     return requests.post(url, headers=headers, json=data)
 
 
-@pytest.mark.skipif(
-    os.name != "posix", reason="Failing on windows, disable for now"
-)
+
+@skip_on_windows(reason="Failing on windows, disable for now")
 def test_http_operate_tests_sync():
     with InteractivePlan(
         name="InteractivePlan",
@@ -400,9 +397,7 @@ def test_http_operate_tests_sync():
         assert compare(response, expected_response)[0] is True
 
 
-@pytest.mark.skipif(
-    os.name != "posix", reason="Failing on windows, disable for now"
-)
+@skip_on_windows(reason="Failing on windows, disable for now")
 def test_http_operate_tests_async():
     with InteractivePlan(
         name="InteractivePlan",
@@ -466,9 +461,7 @@ def test_http_operate_tests_async():
         assert compare(response, expected_response)[0] is True
 
 
-@pytest.mark.skipif(
-    os.name != "posix", reason="Failing on windows, disable for now"
-)
+@skip_on_windows(reason="Failing on windows, disable for now")
 def test_http_dynamic_environments():
     def add_second_client_after_environment_started():
         # ADD A DRIVER IN EXISTING RUNNING ENVIRONMENT

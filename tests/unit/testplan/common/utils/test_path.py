@@ -40,6 +40,7 @@ def test_hashfile(tmpdir):
         )
         ref_sha = re.match(r"\\?([0-9a-f]+)\s+.*", sha_output).group(1)
     except OSError:
+        # TODO: rewrite this with hardcoded hash
         pytest.skip("Cannot call sha1sum to generate reference SHA.")
         return
 

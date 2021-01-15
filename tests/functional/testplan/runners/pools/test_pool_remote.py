@@ -2,7 +2,6 @@
 
 import os
 import pytest
-import platform
 import shutil
 import tempfile
 import subprocess
@@ -12,7 +11,7 @@ from testplan.runners.pools import RemotePool
 from testplan.common.utils.remote import copy_cmd
 from .func_pool_base_tasks import schedule_tests_to_pool
 
-IS_WIN = platform.system() == "Windows"
+from pytest_test_filters import skip_on_windows
 
 
 def mock_ssh(host, command):
@@ -81,7 +80,7 @@ def setup_workspace():
     return workspace, schedule_path
 
 
-@pytest.mark.skipif(IS_WIN, reason="Remote pool is skipped on Windows.")
+@skip_on_windows(reason="Remote pool is skipped on Windows.")
 @pytest.mark.parametrize("remote_pool_type", ("thread", "process"))
 def test_pool_basic(mockplan, remote_pool_type):
     """Basic test scheduling."""
