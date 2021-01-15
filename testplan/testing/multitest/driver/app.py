@@ -41,6 +41,7 @@ class AppConfig(DriverConfig):
             ConfigOption("env", default=None): Or(None, dict),
             ConfigOption("binary_strategy", default="link"): lambda s: s
             in ("copy", "link", "noop"),
+            ConfigOption("logname", default=None): Or(None, basestring),
             ConfigOption("app_dir_name", default=None): Or(None, basestring),
             ConfigOption("working_dir", default=None): Or(None, basestring),
         }
@@ -68,10 +69,14 @@ class App(Driver):
     :type env: ``dict``
     :param binary_strategy: Whether to copy / link binary to runpath.
     :type binary_strategy: one of ("copy", "link", "noop")
+    :param logname: Base name of driver logfile under `app_path`, in which
+        Testplan will look for `log_regexps` as driver start-up condition.
+        Default to "stdout" (to match the output stream of binary).
+    :type logname: ``str``
     :param app_dir_name: Application directory name.
-    :type app_dir_name: ``str``
+    :type app_dir_name: ``str`` or ``NoneType``
     :param working_dir: Application working directory. Default: runpath
-    :type working_dir: ``str``
+    :type working_dir: ``str`` or ``NoneType``
 
     Also inherits all
     :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
@@ -152,11 +157,18 @@ class App(Driver):
             return self.cfg.env
 
     @property
+    def logname(self):
+        """Configured logname."""
+        return self.cfg.logname
+
+    @property
     def logpath(self):
         """Path for log regex matching."""
-        if self.cfg.logname:
-            return os.path.join(self.app_path, self.cfg.logname)
-        return self.outpath
+        return (
+            os.path.join(self.app_path, self.logname)
+            if self.logname
+            else self.outpath
+        )
 
     @property
     def outpath(self):

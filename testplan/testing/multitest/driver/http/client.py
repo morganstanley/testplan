@@ -70,6 +70,7 @@ class HTTPClient(Driver):
         **options
     ):
         options.update(self.filter_locals(locals()))
+        options.setdefault("file_logger", "{}.log".format(slugify(name)))
         super(HTTPClient, self).__init__(**options)
         self._host = None
         self._port = None
@@ -78,12 +79,6 @@ class HTTPClient(Driver):
         self.interval = None
         self.responses = None
         self.request_threads = []
-        self._logname = "{0}.log".format(slugify(self.cfg.name))
-
-    @property
-    def logpath(self):
-        """HTTPClient logfile in runpath."""
-        return os.path.join(self.runpath, self._logname)
 
     @property
     def host(self):
@@ -100,7 +95,6 @@ class HTTPClient(Driver):
         Start the HTTPClient.
         """
         super(HTTPClient, self).starting()
-        self._setup_file_logger(self.logpath)
         self._host = expand(self.cfg.host, self.context)
         context_port = expand(self.cfg.port, self.context, int)
         self._port = context_port if context_port else ""
@@ -108,7 +102,7 @@ class HTTPClient(Driver):
         self.timeout = self.cfg.timeout
         self.interval = self.cfg.interval
         self.responses = queue.Queue()
-        self.file_logger.debug(
+        self.logger.debug(
             "Started HTTPClient sending requests to {}://{}{}".format(
                 self.protocol,
                 self.host,
@@ -121,12 +115,12 @@ class HTTPClient(Driver):
         Stop the HTTPClient.
         """
         super(HTTPClient, self).stopping()
-        self.file_logger.debug("Stopped HTTPClient.")
-        self._close_file_logger()
+        self.logger.debug("Stopped HTTPClient.")
 
     def aborting(self):
         """Abort logic that stops the client."""
-        self.file_logger.debug("Aborting HTTPClient.")
+        super(HTTPClient, self).aborting()
+        self.logger.debug("Aborted HTTPClient.")
 
     def _send_request(self, method, api, drop_response, timeout, **kwargs):
         """
@@ -154,7 +148,7 @@ class HTTPClient(Driver):
             api=api,
         )
         timeout = kwargs.pop("timeout", timeout)
-        self.file_logger.debug(
+        self.logger.debug(
             "Sending {} request: {}".format(http_method.__name__.upper(), url)
         )
         response = http_method(url=url, timeout=timeout, **kwargs)
@@ -295,11 +289,11 @@ class HTTPClient(Driver):
             try:
                 response = self.responses.get(False)
             except queue.Empty:
-                self.file_logger.debug("Waiting for response...")
+                self.logger.debug("Waiting for response...")
                 response = None
             else:
                 self.responses.task_done()
-                self.file_logger.debug("Received response.")
+                self.logger.debug("Received response.")
                 break
             time.sleep(self.interval)
 
@@ -312,13 +306,13 @@ class HTTPClient(Driver):
         """
         for _, drop_message in self.request_threads:
             drop_message.set()
-            self.file_logger.debug("Request thread set to drop response.")
+            self.logger.debug("Request thread set to drop response.")
 
         timeout = time.time() + (5 * self.timeout)
         while not self.responses.empty() and time.time() < timeout:
             try:
                 self.responses.get(block=False)
             except queue.Empty:
-                self.file_logger.debug("Responses queue flushed.")
+                self.logger.debug("Responses queue flushed.")
             else:
                 self.responses.task_done()

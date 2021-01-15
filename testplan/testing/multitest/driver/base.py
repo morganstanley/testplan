@@ -53,10 +53,10 @@ class DriverConfig(ResourceConfig):
             "name": str,
             ConfigOption("install_files", default=None): Or(None, list),
             ConfigOption("timeout", default=60): int,
-            ConfigOption("logname", default=None): Or(None, str),
             ConfigOption("log_regexps", default=None): Or(None, list),
             ConfigOption("stdout_regexps", default=None): Or(None, list),
             ConfigOption("stderr_regexps", default=None): Or(None, list),
+            ConfigOption("file_logger", default=None): Or(None, str),
             ConfigOption("async_start", default=False): bool,
             ConfigOption("report_errors_from_logs", default=False): bool,
             ConfigOption("error_logs_max_lines", default=10): int,
@@ -90,8 +90,6 @@ class Driver(Resource):
     :type install_files: ``List[Union[str, tuple]]``
     :param timeout: Timeout duration for status condition check.
     :type timeout: ``int``
-    :param logname: Driver logfile name.
-    :type logname: ``str``
     :param log_regexps: A list of regular expressions, any named groups matched
         in the logfile will be made available through ``extracts`` attribute.
         These will be start-up conditions.
@@ -100,6 +98,10 @@ class Driver(Resource):
     :type stdout_regexps: ``list`` of ``_sre.SRE_Pattern``
     :param stderr_regexps: Same with log_regexps but matching stderr file.
     :type stderr_regexps: ``list`` of ``_sre.SRE_Pattern``
+    :param file_logger: Send driver's log to a user specified file under its
+        runpath. By default, logs go to console and top level "testplan.log".
+        It is helpful when driver records too much details.
+    :type file_logger: ``str`` or ``NoneType``
     :param async_start: Enable driver asynchronous start within an environment.
     :type async_start: ``bool``
     :param report_errors_from_logs: On startup/stop exception, report log
@@ -128,7 +130,7 @@ class Driver(Resource):
     def __init__(self, **options):
         super(Driver, self).__init__(**options)
         self.extracts = {}
-        self.file_logger = None
+        self._file_log_handler = None
 
     @property
     def name(self):
@@ -182,9 +184,11 @@ class Driver(Resource):
 
     def starting(self):
         """Trigger driver start."""
+        self._setup_file_logger()
 
     def stopping(self):
         """Trigger driver stop."""
+        self._close_file_logger()
 
     def _wait_started(self, timeout=None):
         self.started_check(timeout=timeout)
@@ -200,22 +204,18 @@ class Driver(Resource):
             self.cfg.post_stop(self)
         self.post_stop()
 
+    def aborting(self):
+        """Trigger driver abort."""
+        self._close_file_logger()
+
     def context_input(self):
         """Driver context information."""
         return {attr: getattr(self, attr) for attr in dir(self)}
 
     @property
-    def logname(self):
-        """
-        :return: Configured logname
-        :rtype: ``str``
-        """
-        return self.cfg.logname
-
-    @property
     def logpath(self):
         """Path for log regex matching."""
-        return None
+        return self.outpath
 
     @property
     def outpath(self):
@@ -320,9 +320,10 @@ class Driver(Resource):
                     dst = os.path.join(self._install_target(), dst)
                 instantiate(src, self.context_input(), dst)
 
-    def _setup_file_logger(self, path):
+    def _setup_file_logger(self):
         """
-        Set up a logger to write to a given path at self.file_logger.
+        Set up a logger to write to a given path at self.cfg.file_logger under
+        driver's runpath.
 
         Logging to separate files should be used sparingly, for drivers that
         generate very large amounts of logs that are not suitable for including
@@ -331,38 +332,34 @@ class Driver(Resource):
         When a file logger is finished with, _close_file_logger() should be
         called to close the opened file object and release the file handle.
         """
-        if self.file_logger is not None:
-            raise RuntimeError("File logger already exists")
+        if self._file_log_handler is not None:
+            raise RuntimeError("{}: File logger already exists".format(self))
 
-        formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
-        handler = logging.FileHandler(path)
-        handler.setFormatter(formatter)
-        logger = logging.getLogger(
-            "FileLogger_{}.{}".format(self.parent.name, self.name)
-            if getattr(self, "parent", None)
-            else "FileLogger_{}".format(self.name)
-        )
-        logger.addHandler(handler)
-        logger.setLevel(self.logger.getEffectiveLevel())
-        self.file_logger = logger
-        self.file_logger.propagate = False  # No console logs
+        # Note that in unit test driver's runpath might not be set
+        if self.cfg.file_logger and self.runpath is not None:
+            formatter = logging.Formatter(
+                "%(asctime)s %(levelname)s %(message)s"
+            )
+            self._file_log_handler = logging.FileHandler(
+                os.path.join(self.runpath, self.cfg.file_logger)
+            )
+            self._file_log_handler.setFormatter(formatter)
+            self.logger.addHandler(self._file_log_handler)
+            self.logger.propagate = False  # No console logs
 
     def _close_file_logger(self):
         """
-        Closes a logfile previously opened by _setup_file_logger() and removes
-        the logger from self.file_logger. This should be called when the file
+        Closes a handler previously opened by _setup_file_logger() and removes
+        the file handler from self.logger. This should be called when the file
         logger is done with to avoid leaking file handles - typically this
         should be called from stopping().
         """
-        if self.file_logger is None:
-            raise RuntimeError("No file logger exists")
-
-        handlers = self.file_logger.handlers[:]
-        for handler in handlers:
-            handler.flush()
-            handler.close()
-            self.file_logger.removeHandler(handler)
-        self.file_logger = None
+        if self._file_log_handler is not None:
+            self._file_log_handler.flush()
+            self._file_log_handler.close()
+            self.logger.removeHandler(self._file_log_handler)
+            self._file_log_handler = None
+            self.logger.propagate = True
 
     def fetch_error_log(self):
         """
@@ -395,7 +392,13 @@ class Driver(Resource):
                     lines.pop()
                 return lines[-max_count:] if max_count > 0 else lines
 
-        for path in (self.errpath, self.outpath, self.logpath):
+        logging_paths = {self.errpath, self.outpath, self.logpath}
+        if self.cfg.file_logger:
+            file_log_path = os.path.join(self.runpath, self.cfg.file_logger)
+            if file_log_path not in logging_paths:
+                logging_paths.add(file_log_path)
+
+        for path in logging_paths:
             lines = (
                 get_lines_at_tail(path, self.cfg.error_logs_max_lines)
                 if path

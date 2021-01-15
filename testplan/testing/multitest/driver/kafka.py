@@ -49,7 +49,7 @@ class KafkaStandalone(app.App):
     def __init__(
         self, name, cfg_template, binary=KAFKA_START, port=0, **options
     ):
-        log_regexps = [
+        stdout_regexps = [
             re.compile(
                 r".*Awaiting socket connections on\s*(?P<host>[^:]+):(?P<port>[0-9]+).*"
             ),
@@ -60,7 +60,7 @@ class KafkaStandalone(app.App):
             cfg_template=cfg_template,
             binary=binary,
             port=port,
-            log_regexps=log_regexps,
+            stdout_regexps=stdout_regexps,
             **options
         )
 

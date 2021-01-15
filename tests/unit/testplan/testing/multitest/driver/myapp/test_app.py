@@ -159,7 +159,7 @@ def test_binary_strategy(runpath, strategy):
     binary = os.path.join(
         os.path.abspath(os.path.dirname(__file__)), "example_binary.py"
     )
-    log_regexps = [
+    stdout_regexps = [
         re.compile(r".*Binary started.*"),
         re.compile(r".*Binary=(?P<value>[a-zA-Z0-9]*).*"),
     ]
@@ -167,7 +167,7 @@ def test_binary_strategy(runpath, strategy):
     params = {
         "name": "App",
         "binary": binary,
-        "log_regexps": log_regexps,
+        "stdout_regexps": stdout_regexps,
         "pre_args": [sys.executable],
         "binary_strategy": strategy,
         "runpath": runpath,
@@ -204,7 +204,7 @@ def test_install_files(runpath):
     bfile = os.path.join(
         os.path.abspath(os.path.dirname(__file__)), "binary_file"
     )
-    log_regexps = [
+    stdout_regexps = [
         re.compile(r".*binary=(?P<binary>.*)"),
         re.compile(r".*command=(?P<command>.*)"),
         re.compile(r".*app_path=(?P<app_path>.*)"),
@@ -220,7 +220,7 @@ def test_install_files(runpath):
             (config, os.path.join(dst, "config.yaml")),
             (config, os.path.join("rel_path", "config.yaml")),
         ],
-        log_regexps=log_regexps,
+        stdout_regexps=stdout_regexps,
         shell=True,
         runpath=runpath,
     )

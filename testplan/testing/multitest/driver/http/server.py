@@ -206,6 +206,7 @@ class HTTPServer(Driver):
         **options
     ):
         options.update(self.filter_locals(locals()))
+        options.setdefault("file_logger", "{}.log".format(slugify(name)))
         super(HTTPServer, self).__init__(**options)
         self._host = None
         self._port = None
@@ -216,12 +217,6 @@ class HTTPServer(Driver):
         self.requests = None
         self.responses = None
         self._server_thread = None
-        self._logname = "{0}.log".format(slugify(self.cfg.name))
-
-    @property
-    def logpath(self):
-        """HTTPServer logfile in runpath."""
-        return os.path.join(self.runpath, self._logname)
 
     @property
     def host(self):
@@ -243,7 +238,7 @@ class HTTPServer(Driver):
         if not isinstance(response, HTTPResponse):
             raise TypeError("Response must be of type HTTPResponse")
         self.responses.put(response)
-        self.file_logger.debug("Added response to HTTPServer response queue.")
+        self.logger.debug("Added response to HTTPServer response queue.")
 
     def respond(self, response):
         """
@@ -270,7 +265,6 @@ class HTTPServer(Driver):
     def starting(self):
         """Start the HTTPServer."""
         super(HTTPServer, self).starting()
-        self._setup_file_logger(self.logpath)
         self.request_handler = self.cfg.request_handler
         self.handler_attributes = self.cfg.handler_attributes
         self.timeout = self.cfg.timeout
@@ -286,7 +280,7 @@ class HTTPServer(Driver):
             handler_attributes=self.handler_attributes,
             request_handler=self.request_handler,
             timeout=self.timeout,
-            logger=self.file_logger,
+            logger=self.logger,
         )
         self._server_thread.setName(self.name)
         self._server_thread.start()
@@ -294,7 +288,7 @@ class HTTPServer(Driver):
         while not hasattr(self._server_thread.server, "server_port"):
             time.sleep(0.1)
         self._host, self._port = self._server_thread.server.server_address
-        self.file_logger.debug(
+        self.logger.debug(
             "Started HTTPServer listening on http://{host}:{port}".format(
                 host=self.host, port=self.port
             )
@@ -309,13 +303,13 @@ class HTTPServer(Driver):
         """Stop the HTTPServer."""
         super(HTTPServer, self).stopping()
         self._stop()
-        self.file_logger.debug("Stopped HTTPServer.")
-        self._close_file_logger()
+        self.logger.debug("Stopped HTTPServer.")
 
     def aborting(self):
         """Abort logic that stops the server."""
+        super(HTTPServer, self).aborting()
         self._stop()
-        self.file_logger.debug("Aborted HTTPServer.")
+        self.logger.debug("Aborted HTTPServer.")
 
 
 class HTTPResponse(object):
