@@ -74,9 +74,12 @@ class AutoLoggingSuite(AutoLogCaptureMixin):
         self.logger.info(SIMPLE_LOG)
 
 
+logging_suite, auto_logging_suite = LoggingSuite(), AutoLoggingSuite()
+
+
 @pytest.fixture
 def suites():
-    return [LoggingSuite(), AutoLoggingSuite()]
+    return [logging_suite, auto_logging_suite]
 
 
 @pytest.fixture
@@ -93,9 +96,9 @@ def get_filtered_plan(suites):
 
 
 class LoggerSpy(object):
-    def __init__(self, name):
+    def __init__(self, name=None, logger_obj=None):
+        logger = logger_obj or logging.getLogger(name)
         self.patcher = {}
-        logger = logging.getLogger(name)
         for method in ["info", "debug", "warning"]:
             self.patcher[method] = mock.patch.object(
                 logger, method, wraps=logger.__getattribute__(method)
@@ -114,22 +117,22 @@ class LoggerSpy(object):
 
 @pytest.fixture
 def suite_logger_spy():
-    return LoggerSpy("testplan.LoggingSuite")
+    return LoggerSpy(logger_obj=logging_suite.logger)
 
 
 @pytest.fixture
 def auto_suite_logger_spy():
-    return LoggerSpy("testplan.AutoLoggingSuite")
+    return LoggerSpy(logger_obj=auto_logging_suite.logger)
 
 
 @pytest.fixture
 def testplan_logger_spy():
-    return LoggerSpy("testplan")
+    return LoggerSpy(name="testplan")
 
 
 @pytest.fixture
 def root_logger_spy():
-    return LoggerSpy("")
+    return LoggerSpy(name="")
 
 
 def get_case_result(plan_result):
@@ -224,10 +227,10 @@ def test_plan_level(
         assert case_result.entries[0]["type"] == "Log"
         message = case_result.entries[0]["message"]
         assert message.count(SIMPLE_LOG) == 2
-        assert re.findall(LOGGER_LEVEL_PATTERN, message, re.M) == [
-            ("testplan.LoggingSuite", "INFO"),
-            ("testplan", "DEBUG"),
-        ]
+        result = re.findall(LOGGER_LEVEL_PATTERN, message, re.M)
+        assert result[0][0].startswith("testplan.LoggingSuite")
+        assert result[0][1] == "INFO"
+        assert result[1:] == [("testplan", "DEBUG")]
 
 
 def test_root_level(
@@ -251,11 +254,10 @@ def test_root_level(
         assert case_result.entries[0]["type"] == "Log"
         message = case_result.entries[0]["message"]
         assert message.count(SIMPLE_LOG) == 3
-        assert re.findall(LOGGER_LEVEL_PATTERN, message, re.M) == [
-            ("testplan.LoggingSuite", "INFO"),
-            ("testplan", "DEBUG"),
-            ("root", "WARNING"),
-        ]
+        result = re.findall(LOGGER_LEVEL_PATTERN, message, re.M)
+        assert result[0][0].startswith("testplan.LoggingSuite")
+        assert result[0][1] == "INFO"
+        assert result[1:] == [("testplan", "DEBUG"), ("root", "WARNING")]
 
 
 def test_attach_log(get_filtered_plan, suite_logger_spy):

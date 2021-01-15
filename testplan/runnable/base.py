@@ -4,7 +4,6 @@ import os
 import random
 import time
 import datetime
-import warnings
 import webbrowser
 from collections import OrderedDict
 
@@ -14,7 +13,6 @@ from schema import Or, And, Use
 from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (
-    Entity,
     RunnableConfig,
     RunnableStatus,
     RunnableResult,

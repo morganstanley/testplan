@@ -82,6 +82,7 @@ class FixServer(Driver):
         **options
     ):
         options.update(self.filter_locals(locals()))
+        options.setdefault("file_logger", "{}.log".format(slugify(name)))
 
         if not hasattr(select, "poll"):
             raise RuntimeError(
@@ -93,12 +94,6 @@ class FixServer(Driver):
         self._host = None
         self._port = None
         self._server = None
-        self._logname = "{0}.log".format(slugify(self.cfg.name))
-
-    @property
-    def logpath(self):
-        """Fix server logfile in runpath."""
-        return os.path.join(self.runpath, self._logname)
 
     @property
     def host(self):
@@ -113,14 +108,13 @@ class FixServer(Driver):
     def starting(self):
         """Starts the TCP server."""
         super(FixServer, self).starting()
-        self._setup_file_logger(self.logpath)
         self._server = Server(
             msgclass=self.cfg.msgclass,
             codec=self.cfg.codec,
             host=self.cfg.host,
             port=self.cfg.port,
             version=self.cfg.version,
-            logger=self.file_logger,
+            logger=self.logger,
         )
         self._server.start()
         self._host = self.cfg.host
@@ -193,7 +187,7 @@ class FixServer(Driver):
                     )
                 )
 
-        self.file_logger.debug(
+        self.logger.debug(
             "Received from connection {} msg {}".format(conn_name, received)
         )
         return received
@@ -207,13 +201,15 @@ class FixServer(Driver):
     def _stop_logic(self):
         if self._server:
             self._server.stop()
-        self._close_file_logger()
 
     def stopping(self):
         """Stops the FIX server."""
         super(FixServer, self).stopping()
         self._stop_logic()
+        self.logger.debug("Stopped FixServer.")
 
     def aborting(self):
         """Abort logic that stops the FIX server."""
+        super(FixServer, self).aborting()
         self._stop_logic()
+        self.logger.debug("Aborted FixServer.")

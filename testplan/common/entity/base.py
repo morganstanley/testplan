@@ -532,7 +532,7 @@ class Entity(logger.Loggable):
             )
         self.logger.debug(
             "{} has {} runpath and pid {}".format(
-                self.__class__.__name__, self.runpath, os.getpid()
+                self, self.runpath, os.getpid()
             )
         )
 

@@ -172,12 +172,6 @@ class BaseDriver(Driver):
     """Base class of vulnerable driver which can raise exception."""
 
     @property
-    def logpath(self):
-        if self.cfg.logname:
-            return os.path.join(self.runpath, self.cfg.logname)
-        return self.outpath
-
-    @property
     def outpath(self):
         return self.std.out_path
 
@@ -210,13 +204,13 @@ class VulnerableDriver2(BaseDriver):
     def stopping(self):
         """Trigger driver stop."""
         super(VulnerableDriver2, self).stopping()
-        with open(self.logpath, "w") as log_handle:
+        with open(self.logpath, "a") as log_handle:
             for idx in range(1000):
                 log_handle.write("This is line {}\n".format(idx))
         raise Exception("Shutdown error")
 
 
-def test_multitest_driver_failure(mockplan):
+def test_multitest_driver_startup_failure(mockplan):
     """If driver fails to start or stop, the error log could be fetched."""
     mockplan.add(
         MultiTest(
@@ -242,8 +236,11 @@ def test_multitest_driver_failure(mockplan):
     assert re.match(r".*Error found.*", text[1])
 
 
-def test_multitest_driver_failure2(mockplan):
-    """If driver fails to start or stop, the error log could be fetched."""
+def test_multitest_driver_fetch_error_log(mockplan):
+    """
+    If driver fails to start or stop, the specified tailing lines in error log
+    could be fetched.
+    """
 
     mockplan.add(
         MultiTest(
@@ -252,7 +249,6 @@ def test_multitest_driver_failure2(mockplan):
             environment=[
                 VulnerableDriver2(
                     name="vulnerable_driver_2",
-                    logname="logfile",
                     report_errors_from_logs=True,
                     error_logs_max_lines=10,
                 )
@@ -269,6 +265,6 @@ def test_multitest_driver_failure2(mockplan):
     assert "Exception: Shutdown error" in report.entries[0].logs[0]["message"]
 
     text = report.entries[0].logs[1]["message"].split(os.linesep)
-    assert re.match(r".*Information from log file:.+logfile.*", text[0])
+    assert re.match(r".*Information from log file:.+stdout.*", text[0])
     for idx, line in enumerate(text[1:]):
         assert re.match(r".*This is line 99{}.*".format(idx), line)

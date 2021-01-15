@@ -14,7 +14,7 @@ import os
 import sys
 import logging
 
-from testplan.common.utils.strings import Color
+from testplan.common.utils.strings import Color, uuid4
 from testplan.report import Status
 
 # Define our log-level constants. We add some extra levels between INFO and
@@ -222,7 +222,9 @@ class Loggable(object):
         if self._logger:
             return self._logger
 
-        logger_name = ".".join(("testplan", self.__class__.__name__))
+        logger_name = ".".join(
+            ["testplan", self.__class__.__name__, uuid4()[-8:]]
+        )
         self._logger = logging.getLogger(logger_name)
         return self._logger
 
