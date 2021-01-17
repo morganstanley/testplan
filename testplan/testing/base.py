@@ -370,10 +370,7 @@ class Test(Runnable):
             )
 
             for testcase in testcases:
-                testcase_report = TestCaseReport(
-                    name=testcase,
-                    uid=testcase,
-                )
+                testcase_report = TestCaseReport(name=testcase, uid=testcase)
                 testsuite_report.append(testcase_report)
 
             self.result.report.append(testsuite_report)
@@ -698,12 +695,10 @@ class ProcessRunnerTest(Test):
                     passed=passed,
                 ).serialize(),
                 Log(
-                    message=stdout.read(),
-                    description="Process stdout",
+                    message=stdout.read(), description="Process stdout"
                 ).serialize(),
                 Log(
-                    message=stderr.read(),
-                    description="Process stderr",
+                    message=stderr.read(), description="Process stderr"
                 ).serialize(),
             ],
         )
@@ -726,9 +721,7 @@ class ProcessRunnerTest(Test):
             with open(self.stdout) as stdout, open(self.stderr) as stderr:
                 self.result.report.append(
                     self.get_process_check_report(
-                        self._test_process_retcode,
-                        stdout,
-                        stderr,
+                        self._test_process_retcode, stdout, stderr
                     )
                 )
             return
@@ -790,9 +783,7 @@ class ProcessRunnerTest(Test):
         report = result.report
 
         testcase_report = TestCaseReport(
-            name="ExitCodeCheck",
-            uid="ExitCodeCheck",
-            suite_related=True,
+            name="ExitCodeCheck", uid="ExitCodeCheck", suite_related=True
         )
         testsuite_report = TestGroupReport(
             name="ProcessChecks",

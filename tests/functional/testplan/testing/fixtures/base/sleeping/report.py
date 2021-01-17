@@ -16,14 +16,8 @@ testcase_report = TestCaseReport(
             "description": "Process exit code check",
             "passed": False,
         },
-        {
-            "type": "Log",
-            "description": "Process stdout",
-        },
-        {
-            "type": "Log",
-            "description": "Process stderr",
-        },
+        {"type": "Log", "description": "Process stdout"},
+        {"type": "Log", "description": "Process stderr"},
     ],
 )
 

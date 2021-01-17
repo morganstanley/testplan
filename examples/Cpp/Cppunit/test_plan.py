@@ -32,9 +32,7 @@ def main(plan):
     else:
         plan.add(
             Cppunit(
-                name="My Cppunit",
-                binary=BINARY_PATH,
-                file_output_flag="-y",
+                name="My Cppunit", binary=BINARY_PATH, file_output_flag="-y"
             )
         )
         # You can apply Cppunit specific filtering via `filtering_flag` arg

@@ -16,8 +16,12 @@ MAX_TESTCASES = 25
 
 
 class BaseLister(object):
-    """Base of all listers, implement the :py:meth:`get_output` give it a name in :py:attr:`NAME` and a description in :py:attr:`DESCRIPTION` or
-    alternatively override :py:meth:`name` and/or :py:meth:`description` and it is good to be added to :py:data:`listing_registry`"""
+    """
+    Base of all listers, implement the :py:meth:`get_output` give it a name in
+    :py:attr:`NAME` and a description in :py:attr:`DESCRIPTION` or alternatively
+    override :py:meth:`name` and/or :py:meth:`description` and it is good to be
+    added to :py:data:`listing_registry`.
+    """
 
     NAME = None
     DESCRIPTION = None
@@ -145,11 +149,7 @@ class ExpandedPatternLister(ExpandedNameLister):
         if not isinstance(instance, MultiTest):
             return "{}::{}::{}".format(instance.name, suite, testcase)
 
-        pattern = "{}::{}::{}".format(
-            instance.name,
-            suite.name,
-            testcase.name,
-        )
+        pattern = "{}::{}::{}".format(instance.name, suite.name, testcase.name)
         return self.apply_tag_label(pattern, testcase)
 
 
@@ -236,8 +236,10 @@ class ListingArgMixin(ArgMixin):
 
 
 class ListingRegistry(object):
-    """A registry to store listers, add listers to the :py:data:`listing_registry` instance which is used to create the
-    commandline parser"""
+    """
+    A registry to store listers, add listers to the :py:data:`listing_registry`
+    instance which is used to create the commandline parser.
+    """
 
     def __init__(self):
         self.listers = []

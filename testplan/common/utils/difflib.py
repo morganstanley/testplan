@@ -1569,8 +1569,8 @@ def unified_diff(
     >>> difference = unified_diff('one\ntwo\nthree\n'.splitlines(True),
                                   'ore\nthree\nemu\n'.splitlines(True))
     >>> print(''.join(difference))
-    --- a.text  2018-08-28 11:36:46 UTC
-    +++ b.text  2018-08-28 11:36:46 UTC
+    --- a.text    2018-08-28 11:36:46 UTC
+    +++ b.text    2018-08-28 11:36:46 UTC
     @@ -1,3 +1,3 @@
     -one
     -two
@@ -1667,8 +1667,8 @@ def context_diff(
     >>> difference = context_diff('one\ntwo\nthree\n'.splitlines(True),
                                   'ore\nthree\nemu\n'.splitlines(True))
     >>> print(''.join(difference))
-    --- a.text  2018-08-28 11:40:17 UTC
-    +++ b.text  2018-08-28 11:40:17 UTC
+    --- a.text    2018-08-28 11:40:17 UTC
+    +++ b.text    2018-08-28 11:40:17 UTC
     ***************
     *** 1,3 ****
     ! one

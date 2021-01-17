@@ -89,8 +89,7 @@ class RegexMatchRenderer(AssertionRenderer):
 
     def get_assertion_details(self, entry):
         """
-        Return highlighted patterns within the
-        string, if there is a match.
+        Return highlighted patterns within the string, if there is a match.
         """
 
         string = entry.string

@@ -167,8 +167,7 @@ class RegexMatchRenderer(AssertionRenderer):
 
     def get_detail(self, source, depth, row_idx):
         """
-        Return highlighted patterns within the
-        string, if there is a match.
+        Return highlighted patterns within the string, if there is a match.
         """
         pattern_style = [
             RowStyle(

@@ -69,9 +69,7 @@ class Assertion(BaseEntry):
 
     def __init__(self, description=None, category=None, flag=None):
         super(Assertion, self).__init__(
-            description=description,
-            category=category,
-            flag=flag,
+            description=description, category=category, flag=flag
         )
         self.passed = bool(self.evaluate())
 

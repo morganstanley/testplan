@@ -209,11 +209,7 @@ class TestRunnerIHandler(entity.Entity):
             when ready.
         """
         if not await_results:
-            return self._run_async(
-                self.run_test_suite,
-                test_uid,
-                suite_uid,
-            )
+            return self._run_async(self.run_test_suite, test_uid, suite_uid)
 
         test = self.test(test_uid)
 
@@ -231,13 +227,7 @@ class TestRunnerIHandler(entity.Entity):
             test.run_testcases_iter(testsuite_pattern=suite_uid)
         )
 
-    def run_test_case(
-        self,
-        test_uid,
-        suite_uid,
-        case_uid,
-        await_results=True,
-    ):
+    def run_test_case(self, test_uid, suite_uid, case_uid, await_results=True):
         """
         Run a single testcase.
 
@@ -346,10 +336,7 @@ class TestRunnerIHandler(entity.Entity):
             result objects.
         """
         if not await_results:
-            return self._run_async(
-                self.start_test_resources,
-                test_uid,
-            )
+            return self._run_async(self.start_test_resources, test_uid)
 
         self.logger.debug("Starting test resources for %s", test_uid)
 
@@ -374,10 +361,7 @@ class TestRunnerIHandler(entity.Entity):
             result objects.
         """
         if not await_results:
-            return self._run_async(
-                self.stop_test_resources,
-                test_uid,
-            )
+            return self._run_async(self.stop_test_resources, test_uid)
 
         self.logger.debug("Stopping test resources for %s", test_uid)
 
@@ -403,12 +387,7 @@ class TestRunnerIHandler(entity.Entity):
         test = self.test(test_uid)
         return test.resources[resource_uid]
 
-    def test_report(
-        self,
-        test_uid,
-        serialized=True,
-        exclude_assertions=False,
-    ):
+    def test_report(self, test_uid, serialized=True, exclude_assertions=False):
         """Get a test report."""
         test = self.test(test_uid)
         report = test.result.report
@@ -477,18 +456,12 @@ class TestRunnerIHandler(entity.Entity):
 
     def test_resource_start(self, test_uid, resource_uid):
         """Start a resource of a Test instance."""
-        resource = self.test_resource(
-            test_uid,
-            resource_uid,
-        )
+        resource = self.test_resource(test_uid, resource_uid)
         self.start_resource(resource)
 
     def test_resource_stop(self, test_uid, resource_uid):
         """Stop a resource of a Test instance."""
-        resource = self.test_resource(
-            test_uid,
-            resource_uid,
-        )
+        resource = self.test_resource(test_uid, resource_uid)
         self.stop_resource(resource)
 
     def get_environment_context(
@@ -587,10 +560,7 @@ class TestRunnerIHandler(entity.Entity):
                 "Operation {} for test: {}".format(operation, test_uid)
             )
             if operation == "run":
-                self.run_test(
-                    test_uid,
-                    await_results=await_results,
-                )
+                self.run_test(test_uid, await_results=await_results)
             elif operation == "start":
                 self.start_test_resources(test_uid)
             elif operation == "stop":

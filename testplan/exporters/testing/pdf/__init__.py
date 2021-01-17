@@ -208,10 +208,7 @@ class PDFExporter(Exporter):
         if not override and os.path.exists(pdf_path):
             file_name, ext = os.path.splitext(pdf_path)
             pdf_path = "{}_{}{}".format(file_name, int(time.time()), ext)
-            self.logger.exporter_info(
-                "File %s exists!",
-                self.cfg.pdf_path,
-            )
+            self.logger.exporter_info("File %s exists!", self.cfg.pdf_path)
 
         template = SimpleDocTemplate(
             filename=pdf_path,
