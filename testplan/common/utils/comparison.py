@@ -485,9 +485,8 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
         """
         Decide if a key should be ignored.
 
-        Decision is based on ``ignore`` and ``only``.
-        If ``only`` is ``True`` then keys that are
-         not in ``lhs`` will be ignored.
+        Decision is based on ``ignore`` and ``only``. If ``only`` is ``True``
+        then keys that are not in ``lhs`` will be ignored.
         """
         if key in ignore:
             should_ignore = True

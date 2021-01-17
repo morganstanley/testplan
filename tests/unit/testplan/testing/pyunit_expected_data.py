@@ -15,8 +15,7 @@ EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
             category=testplan.report.ReportCategories.TESTSUITE,
             entries=[
                 testplan.report.TestCaseReport(
-                    name="PyUnit test results",
-                    uid="PyUnit test results",
+                    name="PyUnit test results", uid="PyUnit test results"
                 )
             ],
         ),
@@ -26,8 +25,7 @@ EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
             category=testplan.report.ReportCategories.TESTSUITE,
             entries=[
                 testplan.report.TestCaseReport(
-                    name="PyUnit test results",
-                    uid="PyUnit test results",
+                    name="PyUnit test results", uid="PyUnit test results"
                 )
             ],
         ),

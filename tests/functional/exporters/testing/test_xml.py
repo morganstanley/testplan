@@ -47,8 +47,7 @@ def test_xml_exporter(tmpdir):
     xml_dir = tmpdir.mkdir("xml")
 
     plan = TestplanMock(
-        name="plan",
-        exporters=XMLExporter(xml_dir=xml_dir.strpath),
+        name="plan", exporters=XMLExporter(xml_dir=xml_dir.strpath)
     )
     multitest_1 = multitest.MultiTest(name="Primary", suites=[Alpha()])
     multitest_2 = multitest.MultiTest(name="Secondary", suites=[Beta()])
@@ -169,7 +168,7 @@ sample_report = TestReport(
 
 def test_xml_exporter_cleanup(tmpdir):
     """
-    XMLExporter should purge & recreate XML dir
+    XMLExporter should purge & recreate XML dir.
     """
 
     xml_dir = tmpdir.mkdir("xml")

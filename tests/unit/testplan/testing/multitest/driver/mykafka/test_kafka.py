@@ -38,10 +38,7 @@ def zookeeper_server():
 
 @pytest.fixture(scope="module")
 def kafka_server(zookeeper_server):
-    server = kafka.KafkaStandalone(
-        "kafka",
-        cfg_template=kafka_cfg_template,
-    )
+    server = kafka.KafkaStandalone("kafka", cfg_template=kafka_cfg_template)
 
     testplan = TestplanMock("KafkaTest", parse_cmdline=False)
     env = entity.Environment(parent=testplan)

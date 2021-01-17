@@ -307,9 +307,7 @@ class Driver(Resource):
                 if not os.path.isfile(install_file):
                     raise ValueError("{} is not a file".format(install_file))
                 instantiate(
-                    install_file,
-                    self.context_input(),
-                    self._install_target(),
+                    install_file, self.context_input(), self._install_target()
                 )
             elif isinstance(install_file, tuple):
                 if len(install_file) != 2:
@@ -320,11 +318,7 @@ class Driver(Resource):
                 src, dst = install_file
                 if not os.path.isabs(dst):
                     dst = os.path.join(self._install_target(), dst)
-                instantiate(
-                    src,
-                    self.context_input(),
-                    dst,
-                )
+                instantiate(src, self.context_input(), dst)
 
     def _setup_file_logger(self, path):
         """

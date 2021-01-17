@@ -74,8 +74,7 @@ def plan(tmpdir):
 
     logfile = tmpdir / "attached_log.txt"
     logfile.write_text(
-        "This text will be written into the attached file.",
-        encoding="utf8",
+        "This text will be written into the attached file.", encoding="utf8"
     )
 
     plan.add(
