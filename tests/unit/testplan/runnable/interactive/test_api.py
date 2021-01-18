@@ -21,9 +21,6 @@ from testplan.runnable.interactive import base
 from testplan import report
 from testplan.common import entity
 
-# TODO: skipping interacive test for now, cannot figure out why it fails
-pytestmark = pytest.mark.skip(reason="test failing for unknown reason")
-
 
 @pytest.fixture
 def example_report():
@@ -114,27 +111,30 @@ def api_env(example_report):
     mock_target = mock.MagicMock()
     mock_target.cfg.name = "Interactive API Test"
 
-    ihandler = base.TestRunnerIHandler(target=mock_target)
-    ihandler.report = example_report
-    ihandler.run_all_tests = mock.MagicMock()
-    ihandler.run_test = mock.MagicMock()
-    ihandler.run_test_suite = mock.MagicMock()
-    ihandler.run_test_case = mock.MagicMock()
-    ihandler.run_test_case_param = mock.MagicMock()
-    ihandler.start_test_resources = mock.MagicMock()
-    ihandler.stop_test_resources = mock.MagicMock()
+    with mock.patch('testplan.runnable.interactive.reloader.ModuleReloader') as MockReloader:
+        MockReloader.return_value = None
 
-    # Add a couple of fake attachments.
-    ihandler.report.attachments = {
-        "attached_log.txt": "/path/to/attached_log.txt",
-        "attached_image.png": "/path/to/attached_image.png",
-    }
+        ihandler = base.TestRunnerIHandler(target=mock_target)
+        ihandler.report = example_report
+        ihandler.run_all_tests = mock.MagicMock()
+        ihandler.run_test = mock.MagicMock()
+        ihandler.run_test_suite = mock.MagicMock()
+        ihandler.run_test_case = mock.MagicMock()
+        ihandler.run_test_case_param = mock.MagicMock()
+        ihandler.start_test_resources = mock.MagicMock()
+        ihandler.stop_test_resources = mock.MagicMock()
 
-    app, _ = http.generate_interactive_api(ihandler)
-    app.config["TESTING"] = True
+        # Add a couple of fake attachments.
+        ihandler.report.attachments = {
+            "attached_log.txt": "/path/to/attached_log.txt",
+            "attached_image.png": "/path/to/attached_image.png",
+        }
 
-    with app.test_client() as client:
-        yield client, ihandler
+        app, _ = http.generate_interactive_api(ihandler)
+        app.config["TESTING"] = True
+
+        with app.test_client() as client:
+            yield client, ihandler
 
 
 class TestReport(object):
