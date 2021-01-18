@@ -42,6 +42,7 @@ def test_testplan_ui():
         "yarn test", shell=True, cwd=TESTPLAN_UI_DIR, env=env
     )
 
+
 @skip_on_windows(reason="We run this on linux only")
 @pytest.mark.skipif(
     not (yarn_installed() and tp_ui_installed()),

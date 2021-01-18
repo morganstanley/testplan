@@ -43,7 +43,11 @@ def test_startup():
     target = runnable.TestRunner(name="TestRunner")
     mock_server = mock.MagicMock()
 
-    with mock.patch("cheroot.wsgi.Server", return_value=mock_server), mock.patch('testplan.runnable.interactive.reloader.ModuleReloader') as MockReloader:
+    with mock.patch(
+        "cheroot.wsgi.Server", return_value=mock_server
+    ), mock.patch(
+        "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
         MockReloader.return_value = None
 
         irunner = base.TestRunnerIHandler(target)
@@ -85,7 +89,9 @@ def irunner():
 
     target.resources.add(local_runner)
 
-    with mock.patch("cheroot.wsgi.Server"), mock.patch('testplan.runnable.interactive.reloader.ModuleReloader') as MockReloader:
+    with mock.patch("cheroot.wsgi.Server"), mock.patch(
+        "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
         MockReloader.return_value = None
 
         irunner = base.TestRunnerIHandler(target)

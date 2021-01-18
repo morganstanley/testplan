@@ -271,7 +271,6 @@ def post_request(url, data):
     return requests.post(url, headers=headers, json=data)
 
 
-
 @skip_on_windows(reason="Failing on windows, disable for now")
 def test_http_operate_tests_sync():
     with InteractivePlan(

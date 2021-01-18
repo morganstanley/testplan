@@ -18,6 +18,7 @@ from .fixtures import base
 
 from pytest_test_filters import skip_on_windows
 
+
 class MyDriverConfig(DriverConfig):
     @classmethod
     def get_options(cls):

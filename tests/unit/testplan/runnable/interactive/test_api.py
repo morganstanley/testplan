@@ -111,7 +111,9 @@ def api_env(example_report):
     mock_target = mock.MagicMock()
     mock_target.cfg.name = "Interactive API Test"
 
-    with mock.patch('testplan.runnable.interactive.reloader.ModuleReloader') as MockReloader:
+    with mock.patch(
+        "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
         MockReloader.return_value = None
 
         ihandler = base.TestRunnerIHandler(target=mock_target)

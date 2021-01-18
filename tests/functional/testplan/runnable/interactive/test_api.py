@@ -23,6 +23,7 @@ from testplan.exporters.testing import XMLExporter
 
 from tests.unit.testplan.runnable.interactive import test_api
 
+
 @multitest.testsuite
 class ExampleSuite(object):
     """Example test suite."""
@@ -62,7 +63,9 @@ class ExampleSuite(object):
 def plan(tmpdir):
     """Yield an interactive testplan."""
 
-    with patch('testplan.runnable.interactive.reloader.ModuleReloader') as MockReloader:
+    with patch(
+        "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
         MockReloader.return_value = None
 
         plan = testplan.TestplanMock(
@@ -74,7 +77,8 @@ def plan(tmpdir):
 
         logfile = tmpdir / "attached_log.txt"
         logfile.write_text(
-            "This text will be written into the attached file.", encoding="utf8"
+            "This text will be written into the attached file.",
+            encoding="utf8",
         )
 
         plan.add(
