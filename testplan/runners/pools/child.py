@@ -113,6 +113,10 @@ class ChildLoop(object):
 
         sys.stderr = open(stderr_file, mode)
         fhandler = logging.FileHandler(log_file)
+        from testplan.common.utils.logger import LOGFILE_FORMAT
+
+        formatter = logging.Formatter(LOGFILE_FORMAT)
+        fhandler.setFormatter(formatter)
         fhandler.setLevel(self.logger.level)
         self.logger.addHandler(fhandler)
 
@@ -230,7 +234,9 @@ class ChildLoop(object):
                     )
 
                     if received is None or received.cmd == Message.Stop:
-                        self.logger.critical("Child exits.")
+                        self.logger.critical(
+                            "Pool seems dead or stopping, child exits."
+                        )
                         self.exit_loop()
                         break
                     elif received.cmd == Message.TaskSending:
