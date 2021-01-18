@@ -7,7 +7,7 @@ from six import StringIO
 from logging import StreamHandler
 from tempfile import NamedTemporaryFile
 
-from testplan.common.utils.logger import _LOGFILE_FORMAT, Loggable
+from testplan.common.utils.logger import LOGFILE_FORMAT, Loggable
 
 CAPTURED_LOG_DESCRIPTION = "Auto Captured Log"
 
@@ -47,7 +47,7 @@ class LogCaptureConfig(object):
     def __init__(self):
         self.capture_level = CaptureLevel.TESTSUITE
         self.attach_log = False
-        self.format = _LOGFILE_FORMAT
+        self.format = LOGFILE_FORMAT
 
 
 class LogCaptureMixin(Loggable):

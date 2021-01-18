@@ -29,7 +29,7 @@ INFO = logging.INFO  # 20
 DEBUG = logging.DEBUG  # 10
 
 LOGFILE_NAME = "testplan.log"
-_LOGFILE_FORMAT = (
+LOGFILE_FORMAT = (
     "%(asctime)-24s %(processName)-12s %(threadName)-12s "
     "%(name)-30s %(levelname)-15s %(message)s"
 )
@@ -179,7 +179,7 @@ def configure_file_logger(level, runpath):
         return None
     else:
         file_handler.setLevel(level)
-        formatter = logging.Formatter(_LOGFILE_FORMAT)
+        formatter = logging.Formatter(LOGFILE_FORMAT)
         file_handler.setFormatter(formatter)
         TESTPLAN_LOGGER.addHandler(file_handler)
 
