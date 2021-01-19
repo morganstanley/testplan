@@ -382,8 +382,8 @@ class TestRunner(Runnable):
         :return: Resource uid assigned.
         :rtype:  ``str``
         """
-        resource.cfg.parent = self.cfg
         resource.parent = self
+        resource.cfg.parent = self.cfg
         return self.resources.add(
             resource, uid=uid or getattr(resource, "uid", strings.uuid4)()
         )

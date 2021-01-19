@@ -82,6 +82,11 @@ class LocalRunner(Executor):
                 return
             time.sleep(self.cfg.active_loop_sleep)
 
+    def starting(self):
+        """Starting the local runner."""
+        self._runpath = self.parent.runpath
+        super(LocalRunner, self).starting()  # start the loop
+
     def aborting(self):
         """Aborting logic."""
         self.logger.critical("Discard pending tasks of {}.".format(self))
