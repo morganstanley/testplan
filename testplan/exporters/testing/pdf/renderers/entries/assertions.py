@@ -26,19 +26,16 @@ from .. import constants as const
 from ..base import RowData
 
 
-MAX_LENGTH = 1000
-
-
 def _format_text(text, colour=None, bold=False, truncate_reverse=False):
-    if len(text) > MAX_LENGTH:
+    if len(text) > const.MAX_LENGTH:
         try:
             text = repr(text)
         except Exception:
             text = object.__repr__(text)
         if truncate_reverse:
-            text = "...[truncated]" + text[-MAX_LENGTH:]
+            text = "...[truncated]" + text[-const.MAX_LENGTH :]
         else:
-            text = text[:MAX_LENGTH] + "[truncated]..."
+            text = text[: const.MAX_LENGTH] + "[truncated]..."
     if colour:
         text = "<font color={colour}>{text}</font>".format(
             text=text, colour=colour

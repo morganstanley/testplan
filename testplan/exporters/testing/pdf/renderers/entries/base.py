@@ -6,7 +6,7 @@ import pprint
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.platypus import Image
-from reportlab.platypus import Paragraph
+from reportlab.platypus import Paragraph, Preformatted
 
 from PIL import Image as pil_image
 
@@ -19,6 +19,23 @@ from testplan.testing.multitest.entries import base
 from .. import constants
 from ..base import BaseRowRenderer, RowData
 from .baseUtils import get_matlib_plot, export_plot_to_image, format_image
+
+
+def format_code(code):
+    _code = code
+    overflow = False
+    if len(code) > constants.MAX_LENGTH:
+        overflow = True
+        _code = _code[: constants.MAX_LENGTH]
+
+    _code_lines = _code.split("\n")
+    if len(_code_lines) > constants.MAX_LINES:
+        overflow = True
+        _code = "\n".join(_code_lines[: constants.MAX_LINES])
+
+    if overflow:
+        return _code + "[truncated]..."
+    return _code
 
 
 class SerializedEntryRegistry(Registry):
@@ -136,23 +153,93 @@ class LogRenderer(SerializedEntryRenderer):
         ):
             return header
 
-        """
-        Create a header and a detailed log message, only create a head if
-        should display a string message without the description.
-        """
-        header = self.get_header(source, depth, row_idx)
-        if not source["description"] and isinstance(
-            source["message"], six.string_types
-        ):
-            return header
-
         log_msg = (
             str(source["message"])
             if isinstance(source["message"], six.string_types)
             else pprint.pformat(source["message"], depth=6)
         )
-        log_para = Paragraph(
-            text="<br />\n".join(log_msg.split("\n")),
+        log_para = Preformatted(
+            text=log_msg,
+            style=constants.PARAGRAPH_STYLE,
+        )
+        text_style = [
+            RowStyle(left_padding=constants.INDENT * (depth + 1), span=tuple())
+        ]
+
+        return header + RowData(
+            content=[log_para, "", "", ""], style=text_style, start=header.end
+        )
+
+
+@registry.bind(base.CodeLog)
+class CodeLogRenderer(SerializedEntryRenderer):
+    """Render a CodeLog assertion from a serialized entry."""
+
+    def get_header(self, source, depth, row_idx):
+        """
+        Display the description or the log message (if no description) as
+        the header.
+        """
+        styles = [
+            RowStyle(
+                font=(constants.FONT, constants.FONT_SIZE_SMALL),
+                left_padding=constants.INDENT * depth,
+            )
+        ]
+        header = source["description"] or "CodeLog Language: {}".format(
+            source["language"]
+        )
+        return RowData(
+            content=[header, "", "", ""], style=styles, start=row_idx
+        )
+
+    def get_row_data(self, source, depth, row_idx):
+        """
+        Create a header and a detailed log message, only create a head if
+        should display a string message without the description.
+        """
+        header = self.get_header(source, depth, row_idx)
+        log_para = Preformatted(
+            text=format_code(source["code"]),
+            style=constants.PARAGRAPH_STYLE,
+        )
+        text_style = [
+            RowStyle(left_padding=constants.INDENT * (depth + 1), span=tuple())
+        ]
+
+        return header + RowData(
+            content=[log_para, "", "", ""], style=text_style, start=header.end
+        )
+
+
+@registry.bind(base.Markdown)
+class MarkdkwonRenderer(SerializedEntryRenderer):
+    """Render a Markdown assertion from a serialized entry."""
+
+    def get_header(self, source, depth, row_idx):
+        """
+        Display the description or the log message (if no description) as
+        the header.
+        """
+        styles = [
+            RowStyle(
+                font=(constants.FONT, constants.FONT_SIZE_SMALL),
+                left_padding=constants.INDENT * depth,
+            )
+        ]
+        header = source["description"] or "Markdown"
+        return RowData(
+            content=[header, "", "", ""], style=styles, start=row_idx
+        )
+
+    def get_row_data(self, source, depth, row_idx):
+        """
+        Create a header and a detailed log message, only create a head if
+        should display a string message without the description.
+        """
+        header = self.get_header(source, depth, row_idx)
+        log_para = Preformatted(
+            text=format_code(source["message"]),
             style=constants.PARAGRAPH_STYLE,
         )
         text_style = [

@@ -99,6 +99,20 @@ class LogRenderer(BaseRenderer):
             return pprint.pformat(entry.message)
 
 
+@registry.bind(base.CodeLog)
+class CodeLogRenderer(BaseRenderer):
+    def get_header(self, entry):
+        return entry.description or "CodeLog Language: {}".format(
+            entry.language
+        )
+
+
+@registry.bind(base.Markdown)
+class MarkdownRenderer(BaseRenderer):
+    def get_header(self, entry):
+        return entry.description or "Markdown"
+
+
 @registry.bind(base.MatPlot)
 class MatPlotRenderer(BaseRenderer):
     def get_details(self, entry):

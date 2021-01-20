@@ -111,3 +111,9 @@ WRAP_LIMITS = {
     FONT_SIZE_SMALLEST: 200,
     FONT_SIZE_LARGE: 80,
 }
+
+# Max lines of PDF renderer
+MAX_LINES = 50
+
+# Max string length of PDF renderer
+MAX_LENGTH = 1000
