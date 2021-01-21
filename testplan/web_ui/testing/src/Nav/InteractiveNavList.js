@@ -14,7 +14,7 @@ const InteractiveNavList = (props) => {
     props,
     (entry) => (
       <InteractiveNavEntry
-        name={entry.name}
+        name={entry.uid}  // generally `uid` == `name` except for Multitest part
         description={entry.description}
         status={entry.status}
         runtime_status={entry.runtime_status}

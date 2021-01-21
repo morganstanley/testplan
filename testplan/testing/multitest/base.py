@@ -827,16 +827,14 @@ class MultiTest(testing_base.Test):
     def _setup_testsuite(self, testsuite):
         """
         Run the setup for a testsuite, logging any exceptions.
-
-        :return: Testcase report for setup, or None if no setup is required.
+        Return Testcase report for setup, or None if no setup is required.
         """
         return self._run_suite_related(testsuite, "setup")
 
     def _teardown_testsuite(self, testsuite):
         """
-        Run the teardown for a testsuite.
-
-        :return: Testcase report for teardown, or None if no setup is required.
+        Run the teardown for a testsuite, logging any exceptions.
+        Return Testcase report for teardown, or None if no setup is required.
         """
         return self._run_suite_related(testsuite, "teardown")
 
@@ -871,6 +869,7 @@ class MultiTest(testing_base.Test):
         method_report.extend(case_result.serialized_entries)
         method_report.attachments.extend(case_result.attachments)
         method_report.pass_if_empty()
+        method_report.runtime_status = RuntimeStatus.FINISHED
 
         return method_report
 
@@ -1007,10 +1006,10 @@ class MultiTest(testing_base.Test):
         """Runs a testsuite object and returns its report."""
         _check_testcases(testcases)
         setup_report = self._setup_testsuite(testsuite)
-        testsuite_uid = testsuite.name
 
+        # Suite name is unique in a Multitest instance and it is used as UID
         if setup_report is not None:
-            yield setup_report, [self.name, testsuite_uid]
+            yield setup_report, [self.uid(), testsuite.name]
 
             if setup_report.failed:
                 return
@@ -1022,7 +1021,7 @@ class MultiTest(testing_base.Test):
 
         teardown_report = self._teardown_testsuite(testsuite)
         if teardown_report is not None:
-            yield teardown_report, [self.name, testsuite_uid]
+            yield teardown_report, [self.uid(), testsuite.name]
 
     def _run_testcases_iter(self, testsuite, testcases):
         """
@@ -1033,7 +1032,6 @@ class MultiTest(testing_base.Test):
         """
         pre_testcase = getattr(testsuite, "pre_testcase", None)
         post_testcase = getattr(testsuite, "post_testcase", None)
-        testsuite_uid = testsuite.name
 
         for testcase in testcases:
             if not self.active:
@@ -1042,18 +1040,19 @@ class MultiTest(testing_base.Test):
             testcase_report = self._run_testcase(
                 testcase, pre_testcase, post_testcase
             )
-
             param_template = getattr(
                 testcase, "_parametrization_template", None
             )
+
+            # Suite name is unique in a Multitest instance and it is used as UID
             if param_template:
                 parent_uids = [
-                    self.name,
-                    testsuite_uid,
+                    self.uid(),
+                    testsuite.name,
                     testcase._parametrization_template,
                 ]
             else:
-                parent_uids = [self.name, testsuite_uid]
+                parent_uids = [self.uid(), testsuite.name]
 
             yield testcase_report, parent_uids
 
