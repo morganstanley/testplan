@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from "lodash";
 
 import InteractiveNavEntry from './InteractiveNavEntry';
 import {CreateNavButtons, GetNavColumn} from './navUtils.js';
@@ -14,7 +15,7 @@ const InteractiveNavList = (props) => {
     props,
     (entry) => (
       <InteractiveNavEntry
-        name={entry.name}
+        name={_.isEmpty(entry.part) ? entry.name : entry.uid}
         description={entry.description}
         status={entry.status}
         runtime_status={entry.runtime_status}

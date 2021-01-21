@@ -90,6 +90,15 @@ function domToString(dom) {
   return tmp.innerHTML;
 }
 
+/**
+ * Get encoded URI Component from an an encoded URI Component
+ * @param {string} uid - string to be encoded
+ * @returns {string}
+ */
+function encodeURIComponent2 (str) {
+  return encodeURIComponent(encodeURIComponent(str));
+}
+
 export {
   getNavEntryDisplayData,
   any,
@@ -97,6 +106,7 @@ export {
   uniqueId,
   hashCode,
   domToString,
+  encodeURIComponent2,
 };
 
 /**

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {StyleSheet, css} from 'aphrodite';
+import _ from "lodash";
 
 import NavEntry from './NavEntry';
 import {
@@ -33,7 +34,7 @@ return (
     onClick={((e) => props.handleNavClick(e, entry, depth))}>
     <div className={css(styles.breadcrumbEntry, CommonStyles.unselectable)}>
       <NavEntry
-        name={entry.name}
+        name={_.isEmpty(entry.part) ? entry.name : entry.uid}
         description={entry.description}
         status={entry.status}
         type={entry.category}

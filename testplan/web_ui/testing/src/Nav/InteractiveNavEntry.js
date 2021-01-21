@@ -13,6 +13,8 @@ import {
 import {
   RED,
   GREEN,
+  ORANGE,
+  BLACK,
   LIGHT_GREY,
   MEDIUM_GREY,
   CATEGORY_ICONS,
@@ -236,19 +238,38 @@ const styles = StyleSheet.create({
     padding: '0.7em 0em 0.7em 0em',
     transition: 'all 0.3s ease-out 0s',
   },
+  badge: {
+    opacity: 0.5,
+  },
   passedBadge: {
     backgroundColor: GREEN,
-    opacity: 0.5,
   },
   failedBadge: {
     backgroundColor: RED,
-    opacity: 0.5,
+  },
+  errorBadge: {
+    backgroundColor: RED,
+  },
+  unstableBadge: {
+    backgroundColor: ORANGE,
+  },
+  unknownBadge: {
+    backgroundColor: BLACK,
   },
   passed: {
     color: GREEN,
   },
   failed: {
     color: RED,
+  },
+  error: {
+    color: RED,
+  },
+  unstable: {
+    color: ORANGE,
+  },
+  unknown: {
+    color: BLACK,
   },
 });
 

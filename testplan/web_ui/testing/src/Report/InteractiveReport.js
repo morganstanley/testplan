@@ -23,6 +23,7 @@ import {
   GetCenterPane,
   GetSelectedEntries,
 } from './reportUtils.js';
+import {encodeURIComponent2} from '../Common/utils';
 
 const api_prefix = "/api/v1/interactive";
 
@@ -141,8 +142,9 @@ class InteractiveReport extends React.Component {
    * Get the suites owned by a particular test from the backend.
    */
   getSuites(newTest, existingTest) {
+    const encoded_test_uid = encodeURIComponent2(newTest.uid);
     return axios.get(
-      `/api/v1/interactive/report/tests/${newTest.uid}/suites`
+      `/api/v1/interactive/report/tests/${encoded_test_uid}/suites`
     ).then(response => {
       return Promise.all(response.data.map(
         newSuite => {
@@ -167,9 +169,11 @@ class InteractiveReport extends React.Component {
    * Get the testcases owned by a particular test suite from the backend.
    */
   getTestCases(test, newSuite, existingSuite) {
+    const encoded_test_uid = encodeURIComponent2(test.uid);
+    const encoded_suite_uid = encodeURIComponent2(newSuite.uid);
     return axios.get(
-      `/api/v1/interactive/report/tests/${test.uid}/suites/${newSuite.uid}/` +
-      `testcases`
+      `/api/v1/interactive/report/tests/${encoded_test_uid}/suites/` +
+      `${encoded_suite_uid}/testcases`
     ).then(response => {
       return Promise.all(response.data.map((newTestCase) => {
         switch (newTestCase.category) {
@@ -209,9 +213,12 @@ class InteractiveReport extends React.Component {
    * Get the parametrizations owned by a particular testcase from the backend.
    */
   getParametrizations(test, suite, testcase) {
+    const encoded_test_uid = encodeURIComponent2(test.uid);
+    const encoded_suite_uid = encodeURIComponent2(suite.uid);
+    const encoded_testcase_uid = encodeURIComponent2(testcase.uid);
     return axios.get(
-      `/api/v1/interactive/report/tests/${test.uid}/suites/${suite.uid}/` +
-      `testcases/${testcase.uid}/parametrizations`
+      `/api/v1/interactive/report/tests/${encoded_test_uid}/suites/` +
+      `${encoded_suite_uid}/testcases/${encoded_testcase_uid}/parametrizations`
     ).then(response => response.data);
   }
 
@@ -244,21 +251,23 @@ class InteractiveReport extends React.Component {
         return api_prefix + "/report";
 
       case 1: {
-        const test_uid = updatedReportEntry.uid;
+        const test_uid = encodeURIComponent2(updatedReportEntry.uid);
         return api_prefix + `/report/tests/${test_uid}`;
       }
 
       case 2: {
-        const test_uid = updatedReportEntry.parent_uids[1];
-        const suite_uid = updatedReportEntry.uid;
+        const test_uid = encodeURIComponent2(updatedReportEntry.parent_uids[1]);
+        const suite_uid = encodeURIComponent2(updatedReportEntry.uid);
 
         return api_prefix + `/report/tests/${test_uid}/suites/${suite_uid}`;
       }
 
       case 3: {
-        const test_uid = updatedReportEntry.parent_uids[1];
-        const suite_uid = updatedReportEntry.parent_uids[2];
-        const testcase_uid = updatedReportEntry.uid;
+        const test_uid = encodeURIComponent2(updatedReportEntry.parent_uids[1]);
+        const suite_uid = encodeURIComponent2(
+          updatedReportEntry.parent_uids[2]
+        );
+        const testcase_uid = encodeURIComponent2(updatedReportEntry.uid);
 
         return api_prefix + (
           `/report/tests/${test_uid}`
@@ -268,10 +277,14 @@ class InteractiveReport extends React.Component {
       }
 
       case 4: {
-        const test_uid = updatedReportEntry.parent_uids[1];
-        const suite_uid = updatedReportEntry.parent_uids[2];
-        const testcase_uid = updatedReportEntry.parent_uids[3];
-        const param_uid = updatedReportEntry.uid;
+        const test_uid = encodeURIComponent2(updatedReportEntry.parent_uids[1]);
+        const suite_uid = encodeURIComponent2(
+          updatedReportEntry.parent_uids[2]
+        );
+        const testcase_uid = encodeURIComponent2(
+          updatedReportEntry.parent_uids[3]
+        );
+        const param_uid = encodeURIComponent2(updatedReportEntry.uid);
 
         return api_prefix + (
           `/report/tests/${test_uid}`
