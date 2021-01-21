@@ -93,6 +93,7 @@ class App(Driver):
         shell=False,
         env=None,
         binary_strategy="link",
+        logname=None,
         app_dir_name=None,
         working_dir=None,
         **options

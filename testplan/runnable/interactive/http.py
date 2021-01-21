@@ -13,6 +13,7 @@ from future import standard_library
 standard_library.install_aliases()
 import os
 import time
+import functools
 import traceback
 
 import flask
@@ -22,6 +23,7 @@ from flask import request
 from cheroot import wsgi
 import werkzeug.exceptions
 import marshmallow.exceptions
+from six.moves.urllib.parse import unquote_plus
 
 import testplan
 from testplan.common.config import ConfigOption
@@ -30,6 +32,17 @@ from testplan.common import entity
 from testplan import defaults
 from testplan import report
 from .reloader import ModuleReloader
+
+
+def decode_uri_component(func):
+    """Decode URI component before arguments passed to url route handler."""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        new_kwargs = {key: unquote_plus(val) for key, val in kwargs.items()}
+        return func(*args, **new_kwargs)
+
+    return wrapper
 
 
 def generate_interactive_api(ihandler):
@@ -148,6 +161,7 @@ def generate_interactive_api(ihandler):
             ),
         }
 
+        @decode_uri_component
         def get(self, test_uid):
             """Get the state of a specific test from the testplan."""
             with ihandler.report_mutex:
@@ -156,6 +170,7 @@ def generate_interactive_api(ihandler):
                 except KeyError:
                     raise werkzeug.exceptions.NotFound
 
+        @decode_uri_component
         def put(self, test_uid):
             """Update the state of a specific test."""
             if flask.request.json is None:
@@ -230,6 +245,7 @@ def generate_interactive_api(ihandler):
         Suites endpoint. Represents all test suites within a Test object.
         """
 
+        @decode_uri_component
         def get(self, test_uid):
             """Get the UIDs of all test suites owned by a specific test."""
             try:
@@ -247,6 +263,7 @@ def generate_interactive_api(ihandler):
         with the matching test and suite UIDs.
         """
 
+        @decode_uri_component
         def get(self, test_uid, suite_uid):
             """Get the state of a specific test suite."""
             with ihandler.report_mutex:
@@ -257,6 +274,7 @@ def generate_interactive_api(ihandler):
                 except KeyError:
                     raise werkzeug.exceptions.NotFound
 
+        @decode_uri_component
         def put(self, test_uid, suite_uid):
             """Update the state of a specific test suite."""
             if flask.request.json is None:
@@ -297,6 +315,7 @@ def generate_interactive_api(ihandler):
         within a Test object, with the matching test and suite UIDs.
         """
 
+        @decode_uri_component
         def get(self, test_uid, suite_uid):
             """Get the UIDs of all testcases defined on a suite."""
             with ihandler.report_mutex:
@@ -319,6 +338,7 @@ def generate_interactive_api(ihandler):
         testcase UIDs.
         """
 
+        @decode_uri_component
         def get(self, test_uid, suite_uid, testcase_uid):
             """Get the state of a specific testcase."""
             with ihandler.report_mutex:
@@ -331,6 +351,7 @@ def generate_interactive_api(ihandler):
 
                 return _serialize_testcase(report_entry)
 
+        @decode_uri_component
         def put(self, test_uid, suite_uid, testcase_uid):
             """Update the state of a specific testcase."""
             if flask.request.json is None:
@@ -373,6 +394,7 @@ def generate_interactive_api(ihandler):
         testcase.
         """
 
+        @decode_uri_component
         def get(self, test_uid, suite_uid, testcase_uid):
             """Get the state of all parametrizations of a testcase."""
             with ihandler.report_mutex:
@@ -396,6 +418,7 @@ def generate_interactive_api(ihandler):
         a paramatrization group, with a unique combination of parameters.
         """
 
+        @decode_uri_component
         def get(self, test_uid, suite_uid, testcase_uid, param_uid):
             """Get the state of a specific paramatrized testcase."""
             with ihandler.report_mutex:
@@ -408,6 +431,7 @@ def generate_interactive_api(ihandler):
 
                 return report_entry.serialize()
 
+        @decode_uri_component
         def put(self, test_uid, suite_uid, testcase_uid, param_uid):
             """Update the state of a specific parametrized testcase."""
             if flask.request.json is None:
