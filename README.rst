@@ -189,5 +189,5 @@ License information `here <https://github.com/Morgan-Stanley/testplan/blob/maste
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/testplan/badge/?version=latest
 .. _ReadTheDocs: http://testplan.readthedocs.io/en/latest/
-.. |TravisCI| image:: https://travis-ci.org/Morgan-Stanley/testplan.svg?branch=master
-.. _TravisCI: https://travis-ci.org/Morgan-Stanley/testplan
+.. |TravisCI| image:: https://api.travis-ci.com/MorganStanley/testplan.svg?branch=master
+.. _TravisCI: https://travis-ci.com/morganstanley/testplan
