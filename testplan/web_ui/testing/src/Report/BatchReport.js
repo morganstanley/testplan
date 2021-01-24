@@ -95,7 +95,7 @@ class BatchReport extends React.Component {
     // we will display a fake report for development purposes.
     const uid = this.props.match.params.uid;
     if (uid === "_dev") {
-      var fakeReport = {...fakeReportAssertions, uid: "_dev"};
+      var fakeReport = this.updateReportUID(fakeReportAssertions, uid);
       setTimeout(
         () => this.setReport(fakeReport),
         1500);
@@ -115,13 +115,17 @@ class BatchReport extends React.Component {
                 const mergedReport = MergeSplittedReport(
                   rawReport, assertionsRes.data, structureRes.data
                 );
-                this.setReport(mergedReport);
+                this.setReport(this.updateReportUID(mergedReport, uid));
             })).catch(this.setError);
           } else {
-            this.setReport(rawReport);
+            this.setReport(this.updateReportUID(rawReport, uid));
           }
         }).catch(this.setError);
     }
+  }
+
+  updateReportUID( report, uid) {
+    return { ...report, uid };
   }
 
   /**
