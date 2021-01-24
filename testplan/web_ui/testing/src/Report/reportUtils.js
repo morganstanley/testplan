@@ -158,34 +158,6 @@ const PropagateIndices = (report) => {
 };
 
 /**
- * Return the updated state after a new entry is selected from the Nav
- * component.
- *
- * @param {Object} entry - Nav entry metadata.
- * @param {number} depth - depth of Nav entry in Testplan report.
- * @public
- */
-const UpdateSelectedState = (state, entry, depth) => {
-  const selectedUIDs = state.selectedUIDs.slice(0, depth);
-  selectedUIDs.push(entry.uid);
-  if (entry.category === 'testcase') {
-    return {
-      selectedUIDs: selectedUIDs,
-      lastManualSelectedUIDs: selectedUIDs,
-      testcaseUid: entry.uid,
-      logs: entry.logs,
-    };
-  } else {
-    return {
-      selectedUIDs: selectedUIDs,
-      lastManualSelectedUIDs: selectedUIDs,
-      testcaseUid: null,
-      logs: entry.logs,
-    };
-  }
-};
-
-/**
  * Get the current report data, status and fetch message as required.
  */
 const GetReportState = (state) => {
@@ -214,7 +186,8 @@ const GetCenterPane = (
   reportUid,
   selectedEntries
 ) => {
-  const logs = state.logs || [];
+  const selectiedEntry = _.last(selectedEntries);
+  const logs = selectiedEntry?.logs || [];
   const selectedDescription = selectedEntries.slice(-1).map((element) => {
     return element.description;
   }).filter((element) => {
@@ -384,7 +357,6 @@ const getSelectedUIDsFromPath = ({uid, selection}) =>
 
 export {
   PropagateIndices,
-  UpdateSelectedState,
   GetReportState,
   GetCenterPane,
   GetSelectedEntries,

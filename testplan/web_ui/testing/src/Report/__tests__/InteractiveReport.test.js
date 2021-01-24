@@ -328,7 +328,6 @@ describe('InteractiveReport', () => {
 
     interactiveReport.setState({
       report: report,
-      selectedUIDs: interactiveReport.instance().autoSelect(report),
     });
     interactiveReport.update();
 
@@ -389,7 +388,6 @@ describe('InteractiveReport', () => {
 
     interactiveReport.setState({
       report: report,
-      selectedUIDs: interactiveReport.instance().autoSelect(report),
     });
     interactiveReport.update();
 
@@ -436,7 +434,6 @@ describe('InteractiveReport', () => {
 
     interactiveReport.setState({
       report: report,
-      selectedUIDs: interactiveReport.instance().autoSelect(report),
     });
     interactiveReport.update();
 
@@ -564,7 +561,6 @@ describe('InteractiveReport', () => {
 
     interactiveReport.setState({
       report: report,
-      selectedUIDs: interactiveReport.instance().autoSelect(report),
     });
     interactiveReport.update();
 
@@ -625,7 +621,6 @@ describe('InteractiveReport', () => {
 
     interactiveReport.setState({
       report: report,
-      selectedUIDs: interactiveReport.instance().autoSelect(report),
     });
     interactiveReport.update();
     interactiveReport.instance().resetReport();

@@ -19,8 +19,7 @@ import InteractiveNav from '../Nav/InteractiveNav.js';
 import { INTERACTIVE_COL_WIDTH } from "../Common/defaults";
 import { FakeInteractiveReport } from '../Common/sampleReports.js';
 import {
-  PropagateIndices,
-  UpdateSelectedState,
+  PropagateIndices,  
   GetReportState,
   GetCenterPane,
   GetSelectedEntries,
@@ -43,14 +42,12 @@ class InteractiveReport extends React.Component {
     super(props);
     this.state = {
       navWidth: `${INTERACTIVE_COL_WIDTH}em`,
-      report: null,
-      selectedUIDs: [],
+      report: null,      
       loading: false,
       error: null,
       resetting: false,
       reloading: false,
     };
-    this.handleNavClick = this.handleNavClick.bind(this);
     this.handlePlayClick = this.handlePlayClick.bind(this);
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.getReport = this.getReport.bind(this);
@@ -72,8 +69,6 @@ class InteractiveReport extends React.Component {
     this.setState(
       (state, props) => ({
         report: processedReport,
-        selectedUIDs: state.selectedUIDs.length > 0 ?
-          state.selectedUIDs : this.autoSelect(processedReport),
         loading: false,
       })
     );
@@ -361,14 +356,6 @@ class InteractiveReport extends React.Component {
    */
   handleColumnResizing(navWidth) {
     this.setState({navWidth: navWidth});
-  }
-  /**
-   * Handle a navigation entry being clicked. Update the current selection
-   * state and displayed assertions.
-   */
-  handleNavClick(e, entry, depth) {
-    e.stopPropagation();
-    this.setState((state, props) => UpdateSelectedState(state, entry, depth));
   }
 
   /* Handle the play button being clicked on a Nav entry. */

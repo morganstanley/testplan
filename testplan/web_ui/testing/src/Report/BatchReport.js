@@ -44,13 +44,11 @@ class BatchReport extends React.Component {
       filteredReport: {filter: {text: null, filters: null}, report: null},
       testcaseUid: null,
       loading: false,
-      logs: [],
       error: null,
       filter: null,
       displayTags: false,
       displayTime: false,
       displayEmpty: true,
-      selectedUIDs: [],
     };
   }
 
@@ -72,9 +70,7 @@ class BatchReport extends React.Component {
     this.setState({
       report: processedReport,
       filteredReport,
-      selectedUIDs,
-      loading: false,
-      logs: report.logs,
+      loading: false,      
     }, () => {
       this.props.history.replace(
         generateSelectionPath(this.props.match.path, selectedUIDs)
