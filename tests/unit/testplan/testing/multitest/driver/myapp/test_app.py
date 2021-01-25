@@ -65,6 +65,23 @@ def test_app_env(runpath):
         assert fobj.read().startswith("VALUE")
 
 
+def test_app_os_environ(runpath):
+    """Test that os.environ is passed down."""
+
+    os.environ["KEY"] = "VALUE"
+    app = App(
+        name="App",
+        binary="echo",
+        args=["%KEY%" if platform.system() == "Windows" else "$KEY"],
+        shell=True,
+        runpath=runpath,
+    )
+    with app:
+        app.proc.wait()
+    with open(app.std.out_path, "r") as fobj:
+        assert fobj.read().startswith("VALUE")
+
+
 def test_app_cwd(runpath):
     """Test working_dir usage."""
     tempdir = tempfile.gettempdir()
