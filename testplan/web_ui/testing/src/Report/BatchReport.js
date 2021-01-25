@@ -64,18 +64,24 @@ class BatchReport extends React.Component {
     const filteredReport = filterReport(
       processedReport,
       this.state.filteredReport.filter);
-
-    const selectedUIDs = this.autoSelect(filteredReport.report);
-
+  
+      const redirectPath = this.props.match.params.selection ? 
+        null :
+        generateSelectionPath(
+          this.props.match.path, 
+          this.autoSelect(filteredReport.report)
+        );
+    
     this.setState({
       report: processedReport,
       filteredReport,
       loading: false,      
     }, () => {
-      this.props.history.replace(
-        generateSelectionPath(this.props.match.path, selectedUIDs)
-        );
-    });
+        if (redirectPath) {
+          this.props.history.replace(redirectPath);
+        }
+      }
+    );
   }
 
   /**
