@@ -15,6 +15,8 @@ from testplan.testing.cpp import HobbesTest
 
 from tests.functional.testplan.testing.fixtures.cpp import hobbestest
 
+from pytest_test_filters import skip_on_windows
+
 fixture_root = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "fixtures", "cpp", "hobbestest"
 )
@@ -25,9 +27,7 @@ You can either use the mock test binary or replace it with a link to the actual 
 """
 
 
-@pytest.mark.skipif(
-    platform.system() == "Windows", reason="HobbesTest is skipped on Windows."
-)
+@skip_on_windows(reason="HobbesTest is skipped on Windows.")
 @pytest.mark.parametrize(
     "binary_dir, expected_report",
     (
@@ -65,9 +65,7 @@ def test_hobbestest(mockplan, binary_dir, expected_report):
     check_report(expected=expected_report, actual=mockplan.report)
 
 
-@pytest.mark.skipif(
-    platform.system() == "Windows", reason="HobbesTest is skipped on Windows."
-)
+@skip_on_windows(reason="HobbesTest is skipped on Windows.")
 @pytest.mark.parametrize(
     "binary_dir, expected_output",
     (

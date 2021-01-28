@@ -5,11 +5,11 @@ from __future__ import division
 from __future__ import absolute_import
 
 from future import standard_library
+from mock import patch
 
 standard_library.install_aliases()
 import functools
 
-import os
 import pytest
 import requests
 import six
@@ -22,9 +22,6 @@ from testplan.common import entity
 from testplan.exporters.testing import XMLExporter
 
 from tests.unit.testplan.runnable.interactive import test_api
-
-# TODO: skipping interacive test for now, cannot figure out why it fails
-pytestmark = pytest.mark.skip(reason="test failing for unknown reason")
 
 
 @multitest.testsuite
@@ -65,32 +62,39 @@ class ExampleSuite(object):
 @pytest.fixture
 def plan(tmpdir):
     """Yield an interactive testplan."""
-    plan = testplan.TestplanMock(
-        name=six.ensure_str("InteractiveAPITest"),
-        interactive_port=0,
-        interactive_block=False,
-        exporters=[XMLExporter(xml_dir=tmpdir / "xml_exporter")],
-    )
 
-    logfile = tmpdir / "attached_log.txt"
-    logfile.write_text(
-        "This text will be written into the attached file.", encoding="utf8"
-    )
+    with patch(
+        "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
+        MockReloader.return_value = None
 
-    plan.add(
-        multitest.MultiTest(
-            name=six.ensure_str("ExampleMTest"),
-            suites=[ExampleSuite(str(logfile))],
+        plan = testplan.TestplanMock(
+            name=six.ensure_str("InteractiveAPITest"),
+            interactive_port=0,
+            interactive_block=False,
+            exporters=[XMLExporter(xml_dir=str(tmpdir / "xml_exporter"))],
         )
-    )
-    plan.run()
-    timing.wait(
-        lambda: plan.interactive.http_handler_info is not None,
-        300,
-        raise_on_timeout=True,
-    )
-    yield plan
-    plan.abort()
+
+        logfile = tmpdir / "attached_log.txt"
+        logfile.write_text(
+            "This text will be written into the attached file.",
+            encoding="utf8",
+        )
+
+        plan.add(
+            multitest.MultiTest(
+                name=six.ensure_str("ExampleMTest"),
+                suites=[ExampleSuite(str(logfile))],
+            )
+        )
+        plan.run()
+        timing.wait(
+            lambda: plan.interactive.http_handler_info is not None,
+            300,
+            raise_on_timeout=True,
+        )
+        yield plan
+        plan.abort()
 
 
 # Expected JSON to be returned from each API resource at start of day, before
@@ -729,13 +733,13 @@ def test_export_report(plan):
     rsp = requests.get(export_url)
     assert rsp.status_code == 200
     result = rsp.json()
-    assert result["history"].length == 0
-    assert "XMLExporter" in result["available"]
+    assert len(result["history"]) == 0
+    assert "XML exporter" in result["available"]
 
-    rsp = requests.post(export_url, json={"exporters": ["XMLExporter"]})
+    rsp = requests.post(export_url, json={"exporters": ["XML exporter"]})
     assert rsp.status_code == 200
     result = rsp.json()
-    assert result["history"].length == 1
+    assert len(result["history"]) == 1
 
 
 def test_run_param_testcase(plan):

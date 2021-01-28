@@ -13,6 +13,8 @@ from testplan.report import Status
 
 from tests.functional.testplan.testing.fixtures.cpp import gtest
 
+from pytest_test_filters import skip_on_windows
+
 fixture_root = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "fixtures", "cpp", "gtest"
 )
@@ -23,9 +25,7 @@ You need to compile the files at "{binary_dir}" to be able to run this test.
 """
 
 
-@pytest.mark.skipif(
-    platform.system() == "Windows", reason="GTest is skipped on Windows."
-)
+@skip_on_windows(reason="GTest is skipped on Windows.")
 @pytest.mark.parametrize(
     "binary_dir, expected_report, report_status",
     (

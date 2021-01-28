@@ -16,6 +16,8 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 from .fixtures import base
 
+from pytest_test_filters import skip_on_windows
+
 
 class MyDriverConfig(DriverConfig):
     @classmethod
@@ -49,9 +51,7 @@ class DummyTest(ProcessRunnerTest):
 fixture_root = os.path.join(os.path.dirname(__file__), "fixtures", "base")
 
 
-@pytest.mark.skipif(
-    platform.system() == "Windows", reason="Bash files skipped on Windows."
-)
+@skip_on_windows(reason="Bash files skipped on Windows.")
 @pytest.mark.parametrize(
     "binary_path, expected_report, test_kwargs",
     (

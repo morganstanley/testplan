@@ -20,9 +20,6 @@ from testplan.runnable.interactive import base
 from testplan.testing.multitest import driver
 from testplan.common.utils.path import default_runpath
 
-# TODO: skipping interacive test for now, cannot figure out why it fails
-pytestmark = pytest.mark.skip(reason="test failing for unknown reason")
-
 
 @multitest.testsuite
 class Suite(object):
@@ -46,7 +43,13 @@ def test_startup():
     target = runnable.TestRunner(name="TestRunner")
     mock_server = mock.MagicMock()
 
-    with mock.patch("cheroot.wsgi.Server", return_value=mock_server):
+    with mock.patch(
+        "cheroot.wsgi.Server", return_value=mock_server
+    ), mock.patch(
+        "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
+        MockReloader.return_value = None
+
         irunner = base.TestRunnerIHandler(target)
 
         irunner.setup()
@@ -86,7 +89,11 @@ def irunner():
 
     target.resources.add(local_runner)
 
-    with mock.patch("cheroot.wsgi.Server"):
+    with mock.patch("cheroot.wsgi.Server"), mock.patch(
+        "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
+        MockReloader.return_value = None
+
         irunner = base.TestRunnerIHandler(target)
         irunner.setup()
 
