@@ -84,7 +84,8 @@ class LocalRunner(Executor):
 
     def starting(self):
         """Starting the local runner."""
-        self._runpath = self.parent.runpath
+        if self.parent:
+            self._runpath = self.parent.runpath
         super(LocalRunner, self).starting()  # start the loop
 
     def aborting(self):

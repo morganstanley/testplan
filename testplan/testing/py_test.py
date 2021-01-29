@@ -14,7 +14,7 @@ from testplan.common.config import ConfigOption
 from testplan.testing import base as testing
 from testplan.testing.base import TestResult
 from testplan.testing.multitest.entries import assertions
-from testplan.testing.multitest.entries.base import Log as LogAssertion
+from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest.result import Result as MultiTestResult
 from testplan.testing.multitest.entries.schemas.base import (
     registry as schema_registry,
@@ -25,8 +25,9 @@ from testplan.testing.multitest.entries.stdout.base import (
 from testplan.report import (
     TestGroupReport,
     TestCaseReport,
-    Status,
     ReportCategories,
+    Status,
+    RuntimeStatus,
 )
 
 # Regex for parsing suite and case name and case parameters
@@ -73,8 +74,7 @@ class PyTest(testing.Test):
     :param result: Result that contains assertion entries.
     :type result: :py:class:`~testplan.testing.multitest.result.Result`
 
-    Also inherits all
-    :py:class:`~testplan.testing.base.Test` options.
+    Also inherits all :py:class:`~testplan.testing.base.Test` options.
     """
 
     CONFIG = PyTestConfig
@@ -376,8 +376,8 @@ class _ReportPlugin(object):
                 # create group report for parametrized testcases
                 group_report = TestGroupReport(
                     name=case_name,
-                    category=ReportCategories.PARAMETRIZATION,
                     uid=case_name,
+                    category=ReportCategories.PARAMETRIZATION,
                 )
                 self._suite_reports[suite_name][case_name] = group_report
 
@@ -386,7 +386,7 @@ class _ReportPlugin(object):
                 report = group_report.get_by_uid(case_name)
             except:
                 # create report of parametrized testcase
-                report = TestCaseReport(case_name, uid=case_name)
+                report = TestCaseReport(name=case_name, uid=case_name)
                 group_report.append(report)
             return report
 
@@ -477,6 +477,8 @@ class _ReportPlugin(object):
             else:
                 self._current_case_report.pass_if_empty()
 
+            self._current_case_report.runtime_status = RuntimeStatus.FINISHED
+
     def pytest_exception_interact(self, node, call, report):
         """
         Hook called when an exception raised and it can be handled. This hook
@@ -548,7 +550,7 @@ class _ReportPlugin(object):
             ):
                 message = getattr(report, capture)
                 if message:
-                    assertion_obj = LogAssertion(
+                    assertion_obj = entries_base.Log(
                         message, description=description
                     )
                     serialized_obj = schema_registry.serialize(assertion_obj)
@@ -586,8 +588,8 @@ class _ReportPlugin(object):
         for suite_name, cases in self._suite_reports.items():
             suite_report = TestGroupReport(
                 name=suite_name,
-                category=ReportCategories.TESTSUITE,
                 uid=suite_name,
+                category=ReportCategories.TESTSUITE,
             )
 
             for case in cases.values():
@@ -678,8 +680,8 @@ def _add_empty_testcase_report(item, test_report, nodeids):
     except KeyError:
         suite_report = TestGroupReport(
             name=suite_name,
-            category=ReportCategories.TESTSUITE,
             uid=suite_name,
+            category=ReportCategories.TESTSUITE,
         )
         test_report.append(suite_report)
         nodeids["testsuites"][suite_name] = full_suite_name
@@ -690,8 +692,8 @@ def _add_empty_testcase_report(item, test_report, nodeids):
         except KeyError:
             param_report = TestGroupReport(
                 name=case_name,
-                category=ReportCategories.PARAMETRIZATION,
                 uid=case_name,
+                category=ReportCategories.PARAMETRIZATION,
             )
             suite_report.append(param_report)
             nodeids["testcases"][suite_name][case_name] = "::".join(

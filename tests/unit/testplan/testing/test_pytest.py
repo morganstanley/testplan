@@ -1,13 +1,12 @@
 """Unit tests for PyTest runner."""
-import collections
-import json
 import os
+import collections
 
 import pytest
 
 from testplan.testing import py_test as pytest_runner
-import testplan.report
 from testplan import defaults
+import testplan.report
 
 from tests.unit.testplan.testing import pytest_expected_data
 
@@ -27,7 +26,8 @@ def pytest_test_inst(repo_root_path, root_directory):
     # from the parent object but that doesn't work when testing PyTest in
     # isolation.
     return pytest_runner.PyTest(
-        name="pytest example",
+        name="My PyTest",
+        description="PyTest example test",
         target=example_path,
         stdout_style=defaults.STDOUT_STYLE,
         extra_args=["--rootdir", rootdir],
@@ -98,7 +98,7 @@ def test_run_testcases_iter_testcase(pytest_test_inst):
 
     assert report.status == testplan.report.Status.PASSED
     assert parent_uids == [
-        "pytest example",
+        "My PyTest",
         "pytest_tests.py::TestPytestBasics",
     ]
 
@@ -116,7 +116,7 @@ def test_run_testcases_iter_param(pytest_test_inst):
     counter = collections.Counter()
     for report, parent_uids in all_results:
         assert parent_uids == [
-            "pytest example",
+            "My PyTest",
             "pytest_tests.py::TestPytestBasics",
             "test_parametrization",
         ]

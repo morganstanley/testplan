@@ -56,7 +56,7 @@ def test_gtest(mockplan, binary_dir, expected_report, report_status):
         )
         pytest.skip(msg)
 
-    mockplan.add(GTest(name="MyGTest", binary=binary_path))
+    mockplan.add(GTest(name="My GTest", binary=binary_path))
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         assert mockplan.run().run is True

@@ -53,7 +53,7 @@ def test_hobbestest(mockplan, binary_dir, expected_report):
 
     mockplan.add(
         HobbesTest(
-            name="MyHobbesTest",
+            name="My HobbesTest",
             binary=binary_path,
             tests=["Hog", "Net", "Recursives"],
         )
@@ -87,7 +87,7 @@ def test_hobbestest_listing(binary_dir, expected_output):
             with captured_logging(TESTPLAN_LOGGER) as log_capture:
                 plan.add(
                     HobbesTest(
-                        name="MyHobbesTest",
+                        name="My HobbesTest",
                         binary=binary_path,
                         tests=["Hog", "Net", "Recursives"],
                     )

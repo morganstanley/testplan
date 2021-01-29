@@ -23,7 +23,7 @@ def main(plan):
     else:
         plan.add(
             HobbesTest(
-                name="MyHobbesTest",
+                name="My HobbesTest",
                 binary=BINARY_PATH,
                 # You can run one or more specified test(s)
                 # tests=['Arrays', 'Compiler', 'Hog'],

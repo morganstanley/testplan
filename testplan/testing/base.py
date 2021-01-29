@@ -365,8 +365,8 @@ class Test(Runnable):
         for testsuite, testcases in suites_to_run:
             testsuite_report = TestGroupReport(
                 name=testsuite,
-                category=ReportCategories.TESTSUITE,
                 uid=testsuite,
+                category=ReportCategories.TESTSUITE,
             )
 
             for testcase in testcases:
@@ -441,6 +441,8 @@ class ProcessRunnerTest(Test):
     # no list_command is specified we will store all testcase results in a
     # single suite, with a default name.
     _DEFAULT_SUITE_NAME = "All Tests"
+    _VERIFICATION_SUITE_NAME = "ProcessChecks"
+    _VERIFICATION_TESTCASE_NAME = "ExitCodeCheck"
 
     def __init__(self, **options):
         super(ProcessRunnerTest, self).__init__(**options)
@@ -685,8 +687,8 @@ class ProcessRunnerTest(Test):
         passed = retcode == 0 or retcode in self.cfg.ignore_exit_codes
 
         testcase_report = TestCaseReport(
-            name="ExitCodeCheck",
-            uid="ExitCodeCheck",
+            name=self._VERIFICATION_TESTCASE_NAME,
+            uid=self._VERIFICATION_TESTCASE_NAME,
             suite_related=True,
             entries=[
                 RawAssertion(
@@ -705,7 +707,8 @@ class ProcessRunnerTest(Test):
         testcase_report.runtime_status = RuntimeStatus.FINISHED
 
         suite_report = TestGroupReport(
-            name="ProcessChecks",
+            name=self._VERIFICATION_SUITE_NAME,
+            uid=self._VERIFICATION_SUITE_NAME,
             category=ReportCategories.TESTSUITE,
             entries=[testcase_report],
         )
@@ -732,8 +735,8 @@ class ProcessRunnerTest(Test):
                 "it already has children: {}".format(self.result.report)
             )
 
-        self.result.report.entries = self.process_test_data(
-            test_data=self.read_test_data()
+        self.result.report.entries.extend(
+            self.process_test_data(test_data=self.read_test_data())
         )
 
         # Check process exit code as last step, as we don't want to create
@@ -742,9 +745,7 @@ class ProcessRunnerTest(Test):
         with open(self.stdout) as stdout, open(self.stderr) as stderr:
             self.result.report.append(
                 self.get_process_check_report(
-                    self._test_process_retcode,
-                    stdout,
-                    stderr,
+                    self._test_process_retcode, stdout, stderr
                 )
             )
 
@@ -776,19 +777,21 @@ class ProcessRunnerTest(Test):
 
     def dry_run(self):
         """
-        Return an empty report skeleton for this Test including all
+        Return an empty report skeleton for this test including all
         testsuites, testcases etc. hierarchy. Does not run any tests.
         """
         result = super(ProcessRunnerTest, self).dry_run()
         report = result.report
 
         testcase_report = TestCaseReport(
-            name="ExitCodeCheck", uid="ExitCodeCheck", suite_related=True
+            name=self._VERIFICATION_TESTCASE_NAME,
+            uid=self._VERIFICATION_TESTCASE_NAME,
+            suite_related=True,
         )
         testsuite_report = TestGroupReport(
-            name="ProcessChecks",
+            name=self._VERIFICATION_SUITE_NAME,
+            uid=self._VERIFICATION_SUITE_NAME,
             category=ReportCategories.TESTSUITE,
-            uid="ProcessChecks",
             entries=[testcase_report],
         )
         report.append(testsuite_report)
@@ -799,9 +802,9 @@ class ProcessRunnerTest(Test):
         """
         Runs testcases as defined by the given filter patterns and yields
         testcase reports. A single testcase report is made for general checks
-        of the test process, including checking the exit code and loggin stdout
-        and stderr of the process. Then, testcase reports are generated from
-        the output of the test process.
+        of the test process, including checking the exit code and logging
+        stdout and stderr of the process. Then, testcase reports are generated
+        from the output of the test process.
 
         For efficiency, we run all testcases in a single subprocess rather than
         running each testcase in a seperate process. This reduces the total
@@ -823,9 +826,9 @@ class ProcessRunnerTest(Test):
         )
         self.logger.debug("test_cmd = %s", test_cmd)
 
-        with tempfile.TemporaryFile(
-            mode="w+"
-        ) as stdout, tempfile.TemporaryFile(mode="w+") as stderr:
+        with open(self.stdout, mode="w+") as stdout, open(
+            self.stderr, mode="w+"
+        ) as stderr:
             exit_code = subprocess.call(
                 test_cmd,
                 stderr=stderr,
@@ -840,11 +843,14 @@ class ProcessRunnerTest(Test):
                 exit_code, stdout, stderr
             )
 
-        yield check_report["ExitCodeCheck"], [self.name, check_report.name]
+        yield (
+            check_report[self._VERIFICATION_TESTCASE_NAME],
+            [self.uid(), check_report.uid],
+        )
 
         for suite_report in self.process_test_data(self.read_test_data()):
             for testcase_report in suite_report:
-                yield testcase_report, [self.name, suite_report.name]
+                yield testcase_report, [self.uid(), suite_report.uid]
 
     def test_command_filter(self, testsuite_pattern, testcase_pattern):
         """

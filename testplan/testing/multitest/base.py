@@ -245,8 +245,8 @@ class MultiTest(testing_base.Test):
         if self._pre_post_step_report is None:
             self._pre_post_step_report = TestGroupReport(
                 name="Pre/Post Step Checks",
-                category=ReportCategories.TESTSUITE,
                 uid="Pre/Post Step Checks",
+                category=ReportCategories.TESTSUITE,
             )
         return self._pre_post_step_report
 
@@ -262,7 +262,7 @@ class MultiTest(testing_base.Test):
         """
         if self.cfg.part:
             return (
-                self.cfg.multi_part_uid(self.cfg.name)
+                self.cfg.multi_part_uid(self.cfg.name, self.cfg.part)
                 if self.cfg.multi_part_uid
                 else "{} - part({}/{})".format(
                     self.cfg.name, self.cfg.part[0], self.cfg.part[1]
@@ -593,8 +593,8 @@ class MultiTest(testing_base.Test):
         return TestGroupReport(
             name=self.cfg.name,
             description=self.cfg.description,
-            category=ReportCategories.MULTITEST,
             uid=self.uid(),
+            category=ReportCategories.MULTITEST,
             tags=self.cfg.tags,
             part=self.cfg.part,
             fix_spec_path=self.cfg.fix_spec_path,
@@ -608,8 +608,8 @@ class MultiTest(testing_base.Test):
         return TestGroupReport(
             name=testsuite.name,
             description=strings.get_docstring(testsuite.__class__),
-            category=ReportCategories.TESTSUITE,
             uid=testsuite.name,
+            category=ReportCategories.TESTSUITE,
             tags=testsuite.__tags__,
         )
 
