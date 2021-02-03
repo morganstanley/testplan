@@ -53,7 +53,7 @@ class App(Driver):
 
     :param name: Driver name. Also uid.
     :type name: ``str``
-    :param binary: Path the to application binary.
+    :param binary: Path to the application binary.
     :type binary: ``str``
     :param pre_args: Arguments to be prepended to binary command. An argument
         can be a :py:class:`~testplan.common.utils.context.ContextValue`

@@ -2162,13 +2162,23 @@ class Result(object):
         return entry
 
     def attach(self, filepath, description=None):
-        """Attaches a file to the report."""
+        """
+        Attaches a file to the report.
+
+        :param filepath: Path to the file be to attached.
+        :type filepath: ``str``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :return: Always returns True, this is not an assertion so it cannot
+                 fail.
+        :rtype: ``bool``
+        """
         filename = os.path.basename(filepath)
         try:
             # will best effort make a copy of the file
             copy_of_file = os.path.join(self._scratch, filename)
             shutil.copyfile(filepath, copy_of_file)
-        except Exception as exc:
+        except Exception:
             copy_of_file = filepath
 
         attachment = base.Attachment(copy_of_file, description)
