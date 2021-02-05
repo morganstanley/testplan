@@ -5,11 +5,12 @@ import unittest
 from testplan.testing import base as testing
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries import schemas
-from testplan.testing.multitest.entries import base as base_entries
+from testplan.testing.multitest.entries import base as entries_base
 from testplan.report import (
     TestGroupReport,
     TestCaseReport,
     ReportCategories,
+    RuntimeStatus,
 )
 
 
@@ -30,20 +31,21 @@ class PyUnit(testing.Test):
 
     :param name: Test instance name, often used as uid of test entity.
     :type name: ``str``
+    :param testcases: PyUnit testcases.
+    :type testcases: :py:class:`~unittest.TestCase`
     :param description: Description of test instance.
     :type description: ``str``
-    :param testcases: PyUnit testcases
-    :type testcases: :py:class:`~unittest.TestCase`
 
-    Also inherits all
-    :py:class:`~testplan.testing.base.Test` options.
+    Also inherits all :py:class:`~testplan.testing.base.Test` options.
     """
 
     CONFIG = PyUnitConfig
     _TESTCASE_NAME = "PyUnit test results"
 
-    def __init__(self, name, testcases, **kwargs):
-        super(PyUnit, self).__init__(name=name, testcases=testcases, **kwargs)
+    def __init__(self, name, testcases, description=None, **kwargs):
+        super(PyUnit, self).__init__(
+            name=name, testcases=testcases, description=description, **kwargs
+        )
         self._pyunit_testcases = {
             testcase.__name__: testcase for testcase in self.cfg.testcases
         }
@@ -94,7 +96,7 @@ class PyUnit(testing.Test):
         if testsuite_pattern == "*":
             for testsuite_report in self._run_tests():
                 yield testsuite_report[self._TESTCASE_NAME], [
-                    self.cfg.name,
+                    self.uid(),
                     testsuite_report.uid,
                 ]
         else:
@@ -102,7 +104,7 @@ class PyUnit(testing.Test):
                 self._pyunit_testcases[testsuite_pattern]
             )
             yield testsuite_report[self._TESTCASE_NAME], [
-                self.cfg.name,
+                self.uid(),
                 testsuite_report.uid,
             ]
 
@@ -145,10 +147,12 @@ class PyUnit(testing.Test):
         # In case of no failures or errors we need to explicitly mark the
         # testsuite as passed.
         if not testcase_report.entries:
-            log_entry = base_entries.Log(
+            log_entry = entries_base.Log(
                 "All PyUnit testcases passed", description="PyUnit success"
             )
             testcase_report.append(schemas.base.registry.serialize(log_entry))
+
+        testcase_report.runtime_status = RuntimeStatus.FINISHED
 
         # We have to wrap the testcase report in a testsuite report.
         return TestGroupReport(

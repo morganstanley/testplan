@@ -4,7 +4,7 @@ expected_report = TestReport(
     name="plan",
     entries=[
         TestGroupReport(
-            name="MyHobbesTest",
+            name="My HobbesTest",
             category="hobbestest",
             entries=[
                 TestGroupReport(
@@ -152,7 +152,7 @@ expected_report = TestReport(
     ],
 )
 
-expected_output = """MyHobbesTest
+expected_output = """My HobbesTest
   Arrays
   Compiler
   Definitions

@@ -4,11 +4,11 @@ expected_report = TestReport(
     name="plan",
     entries=[
         TestGroupReport(
-            name="MyCppunit",
+            name="My Cppunit",
             category="cppunit",
             entries=[
                 TestGroupReport(
-                    name="mycppunit",
+                    name="All Tests",
                     category="testsuite",
                     entries=[
                         TestCaseReport(

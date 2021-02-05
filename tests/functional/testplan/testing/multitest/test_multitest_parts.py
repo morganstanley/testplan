@@ -60,7 +60,9 @@ def get_mtest_with_custom_uid(part_tuple=None):
         name="MTest",
         suites=[Suite1(), Suite2()],
         part=part_tuple,
-        multi_part_uid=lambda name: "{} - {}".format(name, next(uid_gen)),
+        multi_part_uid=lambda name, part: "{} - {}".format(
+            name, next(uid_gen)
+        ),
     )
 
 

@@ -5,14 +5,14 @@ import testplan.report
 
 EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
     name="My PyUnit",
-    uid="My PyUnit",
     description="PyUnit example test",
+    uid="My PyUnit",
     category="pyunit",
     entries=[
         testplan.report.TestGroupReport(
             name="Passing",
             uid="Passing",
-            category=testplan.report.ReportCategories.TESTSUITE,
+            category="testsuite",
             entries=[
                 testplan.report.TestCaseReport(
                     name="PyUnit test results", uid="PyUnit test results"
@@ -22,7 +22,7 @@ EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
         testplan.report.TestGroupReport(
             name="Failing",
             uid="Failing",
-            category=testplan.report.ReportCategories.TESTSUITE,
+            category="testsuite",
             entries=[
                 testplan.report.TestCaseReport(
                     name="PyUnit test results", uid="PyUnit test results"

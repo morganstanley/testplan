@@ -37,7 +37,7 @@ class TestBeta(unittest.TestCase):
         raise RuntimeError("Testcase raises")
 
 
-@test_plan(name="PyUnit", description="UnitTest example")
+@test_plan(name="PyUnit Example", description="Python unittest example")
 def main(plan):
     # Now we are inside a function that will be passed a plan object, we
     # can add tests to this plan. Here we will add a unittest suite, made up

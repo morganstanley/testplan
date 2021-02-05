@@ -647,8 +647,8 @@ class TestRunner(Runnable):
                         else:
                             report = report.__class__(
                                 report.name,
-                                category=report.category,
                                 uid=report.uid,
+                                category=report.category,
                             )
                     else:
                         continue  # Wait all sibling reports collected

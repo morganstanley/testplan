@@ -4,7 +4,7 @@ expected_report = TestReport(
     name="plan",
     entries=[
         TestGroupReport(
-            name="MyHobbesTest",
+            name="My HobbesTest",
             category="hobbestest",
             entries=[
                 TestGroupReport(

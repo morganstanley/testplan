@@ -8,7 +8,6 @@ from lxml import etree, objectify
 from lxml.builder import E  # pylint: disable=no-name-in-module
 
 from testplan.common.config import ConfigOption
-from testplan.common.utils.strings import slugify
 
 from testplan.report import (
     TestGroupReport,
@@ -221,14 +220,14 @@ class Cppunit(ProcessRunnerTest):
             ) as report_file:
                 return objectify.fromstring(
                     self.cppunit_to_junit(
-                        report_file.read(), slugify(self.cfg.name)
+                        report_file.read(), self._DEFAULT_SUITE_NAME
                     )
                 )
         else:
             with open(self.stdout) as stdout:
                 return objectify.fromstring(
                     self.cppunit_to_junit(
-                        stdout.read(), slugify(self.cfg.name)
+                        stdout.read(), self._DEFAULT_SUITE_NAME
                     )
                 )
 
@@ -238,12 +237,13 @@ class Cppunit(ProcessRunnerTest):
         as well, which are not included in the report.
         """
         result = []
+
         for suite in test_data.getchildren():
             suite_name = suite.attrib["name"]
             suite_report = TestGroupReport(
                 name=suite_name,
-                category=ReportCategories.TESTSUITE,
                 uid=suite_name,
+                category=ReportCategories.TESTSUITE,
             )
 
             for testcase in suite.getchildren():
@@ -342,10 +342,18 @@ class Cppunit(ProcessRunnerTest):
         Return the base test command with additional filtering to run a
         specific set of testcases.
         """
-        if testsuite_pattern != "*":
-            raise RuntimeError("Cannot run individual test suites")
-        if testcase_pattern != "*":
-            raise RuntimeError("Cannot run individual testcases")
+        if testsuite_pattern not in (
+            "*",
+            self._DEFAULT_SUITE_NAME,
+            self._VERIFICATION_SUITE_NAME,
+        ):
+            raise RuntimeError("Cannot run individual test suite")
+        if testcase_pattern not in ("*", self._VERIFICATION_TESTCASE_NAME):
+            self.logger.debug(
+                'Should run testcases in pattern "%s", but cannot run'
+                " individual testcase thus will run the whole test suite",
+                testcase_pattern,
+            )
         return self.test_command()
 
     @staticmethod

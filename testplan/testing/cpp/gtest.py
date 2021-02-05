@@ -158,12 +158,13 @@ class GTest(ProcessRunnerTest):
         as well, which are not included in the report.
         """
         result = []
+
         for suite in test_data.getchildren():
             suite_name = suite.attrib["name"]
             suite_report = TestGroupReport(
                 name=suite_name,
-                category=ReportCategories.TESTSUITE,
                 uid=suite_name,
+                category=ReportCategories.TESTSUITE,
             )
             suite_has_run = False
 
@@ -200,6 +201,7 @@ class GTest(ProcessRunnerTest):
 
             if suite_has_run:
                 result.append(suite_report)
+
         return result
 
     def parse_test_context(self, test_list_output):

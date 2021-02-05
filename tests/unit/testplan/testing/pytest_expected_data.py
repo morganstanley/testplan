@@ -4,8 +4,9 @@ import testplan.report
 
 
 EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
-    name="pytest example",
-    uid="pytest example",
+    name="My PyTest",
+    description="PyTest example test",
+    uid="My PyTest",
     category="pytest",
     entries=[
         testplan.report.TestGroupReport(

@@ -12,7 +12,7 @@ from testplan.common.utils.context import context
 
 
 # Specify the name and description of the testplan via the decorator.
-@test_plan(name="PyTestExample", description="PyTest basic example")
+@test_plan(name="PyTest Example", description="PyTest basic example")
 def main(plan):
     # Since this function is decorated with `@test_plan`, the first
     # argument will be a `Testplan` instance, to which we attach out test
@@ -20,7 +20,7 @@ def main(plan):
     # in pytest_basics.py.
     plan.add(
         py_test.PyTest(
-            name="PyTest",
+            name="My PyTest",
             description="PyTest example - pytest basics",
             target=[
                 os.path.join(os.path.dirname(__file__), "pytest_tests.py")

@@ -5,7 +5,6 @@ import collections
 import functools
 import itertools
 import inspect
-import traceback
 import warnings
 
 import six
@@ -15,7 +14,6 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils import callable as callable_utils
 from testplan.common.utils import interface
 from testplan.common.utils import strings
-from testplan.common.utils import validation
 from testplan.testing import tagging
 
 from . import parametrization

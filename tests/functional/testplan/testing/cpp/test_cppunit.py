@@ -54,7 +54,7 @@ def test_cppunit(mockplan, binary_dir, expected_report, report_status):
         )
         pytest.skip(msg)
 
-    mockplan.add(Cppunit(name="MyCppunit", binary=binary_path))
+    mockplan.add(Cppunit(name="My Cppunit", binary=binary_path))
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
         assert mockplan.run().run is True

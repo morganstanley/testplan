@@ -4,7 +4,7 @@ expected_report = TestReport(
     name="plan",
     entries=[
         TestGroupReport(
-            name="MyGTest",
+            name="My GTest",
             category="gtest",
             entries=[
                 TestGroupReport(
