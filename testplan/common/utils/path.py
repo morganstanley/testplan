@@ -315,7 +315,7 @@ def archive(path, timestamp):
     """
     Append a timestamp to an existing file's name.
 
-    :param path: path to a file that should be archived
+    :param path: Path to a file that should be archived
     :type path: ``str``
     :param timestamp: timestamp
     :type timestamp: ``str``
@@ -327,3 +327,40 @@ def archive(path, timestamp):
     if os.path.isfile(path):
         os.rename(path, new_path)
     return new_path
+
+
+def traverse_dir(directory, topdown=True, include_subdir=True):
+    """
+    Recursively traverse all files in a directory and get a list of relative
+    file paths.
+
+    :param directory: Path to a directory that will be traversed
+    :type directory: ``str``
+    :param topdown: Browse the directory in a top-down approach.
+    :type topdown: ``bool``
+    :param include_subdir: Include all sub directories and files if True, or
+        exclude directories in the result.
+    :type include_subdir: ``bool``
+    :return: A list of relative file paths
+    :rtype: ``list`` of ``str``
+    """
+    result = []
+
+    for dirpath, dirnames, filenames in os.walk(directory, topdown=topdown):
+
+        if include_subdir:
+            for dname in dirnames:
+                dpath = os.path.join(dirpath, dname)
+                _, _, relpath = dpath.partition(directory)
+                while relpath.startswith(os.sep):
+                    relpath = relpath[len(os.sep) :]
+                result.append(relpath)
+
+        for fname in filenames:
+            fpath = os.path.join(dirpath, fname)
+            _, _, relpath = fpath.partition(directory)
+            while relpath.startswith(os.sep):
+                relpath = relpath[len(os.sep) :]
+            result.append(relpath)
+
+    return result

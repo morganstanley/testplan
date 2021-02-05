@@ -408,7 +408,7 @@ class ProcessRunnerTest(Test):
 
     :param name: Test instance name, often used as uid of test entity.
     :type name: ``str``
-    :param binary: Path the to application binary or script.
+    :param binary: Path to the application binary or script.
     :type binary: ``str``
     :param description: Description of test instance.
     :type description: ``str``
