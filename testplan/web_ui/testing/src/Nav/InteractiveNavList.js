@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import base64url from 'base64url';
 
 import InteractiveNavEntry from './InteractiveNavEntry';
 import {CreateNavButtons, GetNavColumn} from './navUtils.js';
@@ -30,6 +31,7 @@ const InteractiveNavList = (props) => {
         suiteRelated={entry.suite_related}
       />
     ),
+    base64url
   );
 
   // Make the column a little wider for the interactive mode, to account for

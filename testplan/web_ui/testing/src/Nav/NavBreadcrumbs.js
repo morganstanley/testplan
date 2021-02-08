@@ -39,8 +39,8 @@ const createNavButtons = (props) => {
           <Link
             className={css(styles.breadcrumbEntry, CommonStyles.unselectable)}
             to={generatePath(props.url, {
-              uid: entry.uids[0],
-              selection: entry.uids.slice(1),
+              uid: props.uidEncoder ? props.uidEncoder(entry.uids[0]) : entry.uids[0],
+              selection: props.uidEncoder ? entry.uids.slice(1).map(props.uidEncoder) : entry.uids.slice(1),
             })}
           >
             <NavEntry

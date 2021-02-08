@@ -20,7 +20,8 @@ import { generatePath } from 'react-router';
  */
 const CreateNavButtons = (
   props,
-  createEntryComponent,  
+  createEntryComponent,
+  uidEncoder,
   ) => {
 
   // Apply all filters to the entries.
@@ -40,9 +41,11 @@ const CreateNavButtons = (
     ];
     const cssActiveClass = [ ...cssClass, styles.navButtonInteractFocus ];
 
-    let [reportuid, ...selectionuids] = entry.uids;    
+    let [reportuid, ...selectionuids] = uidEncoder ? entry.uids.map(uidEncoder) : entry.uids;
     const linkTo = generatePath(props.url, 
-                                {uid: reportuid, selection:selectionuids});
+                                {uid: reportuid, 
+                                  selection:selectionuids});
+    console.log(linkTo);
 
     return (
       <ListGroupItem
