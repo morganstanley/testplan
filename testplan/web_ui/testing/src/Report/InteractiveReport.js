@@ -526,7 +526,8 @@ class InteractiveReport extends React.Component {
     const noop = () => undefined;
     const { reportStatus, reportFetchMessage } = GetReportState(this.state);
     const selectedEntries = GetSelectedEntries(
-      getSelectedUIDsFromPath(this.props.match.params, base64url.decode), this.state.report
+      getSelectedUIDsFromPath(this.props.match.params, base64url.decode), 
+      this.state.report
     );
     const centerPane = GetCenterPane(
       this.state,

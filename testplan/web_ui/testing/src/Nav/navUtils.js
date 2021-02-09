@@ -41,7 +41,9 @@ const CreateNavButtons = (
     ];
     const cssActiveClass = [ ...cssClass, styles.navButtonInteractFocus ];
 
-    let [reportuid, ...selectionuids] = uidEncoder ? entry.uids.map(uidEncoder) : entry.uids;
+    let [reportuid, ...selectionuids] = uidEncoder ? 
+                                        entry.uids.map(uidEncoder) : 
+                                        entry.uids;
     const linkTo = generatePath(props.url, 
                                 {uid: reportuid, 
                                   selection:selectionuids});
