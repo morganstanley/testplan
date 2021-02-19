@@ -18,16 +18,17 @@ class TCPClientConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.tcp.client.TCPClient` driver.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {'host': Or(str,
-                                lambda x: is_context(x)),
-                     'port': Or(Use(int), lambda x: is_context(x)),
-                     ConfigOption('interface', default=None): tuple,
-                     ConfigOption('connect_at_start', default=True): bool}
-        return self.inherit_schema(overrides, super(TCPClientConfig, self))
+        return {
+            "host": Or(str, lambda x: is_context(x)),
+            "port": Or(Use(int), lambda x: is_context(x)),
+            ConfigOption("interface", default=None): Or(None, tuple),
+            ConfigOption("connect_at_start", default=True): bool,
+        }
 
 
 class TCPClient(Driver):
@@ -38,6 +39,8 @@ class TCPClient(Driver):
     :py:class:`testplan.common.utils.sockets.client.Client` class, which
     provides equivalent functionality and may be used outside of MultiTest.
 
+    :param name: Name of TCPClient.
+    :type name: ``str``
     :param host: Target host name. This can be a
         :py:class:`~testplan.common.utils.context.ContextValue`
         and will be expanded on runtime.
@@ -47,17 +50,26 @@ class TCPClient(Driver):
         and will be expanded on runtime.
     :type port: ``int``
     :param interface: Interface to bind to.
-    :type interface: ``tuple``(``str, ``int``)
+    :type interface: ``NoneType`` or ``tuple``(``str, ``int``)
     :param connect_at_start: Connect to server on start. Default: True
     :type connect_at_start: ``bool``
 
     Also inherits all
-    :py:class:`~testplan.testing.multitest.driver.base.Driver`` options.
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = TCPClientConfig
 
-    def __init__(self, **options):
+    def __init__(
+        self,
+        name,
+        host,
+        port,
+        interface=None,
+        connect_at_start=(True),
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(TCPClient, self).__init__(**options)
         self._host = None
         self._port = None
@@ -80,10 +92,11 @@ class TCPClient(Driver):
         self._client.connect()
         self._host, self._port = self._client.address
 
-    def send_text(self, msg, standard='utf-8'):
+    def send_text(self, msg, standard="utf-8"):
         """
         Encodes to bytes and calls
-        :py:meth:`TCPClient.send <testplan.testing.multitest.driver.tcp.client.TCPClient.send>`.
+        :py:meth:`TCPClient.send
+        <testplan.testing.multitest.driver.tcp.client.TCPClient.send>`.
         """
         return self.send(bytes(msg.encode(standard)))
 
@@ -112,10 +125,11 @@ class TCPClient(Driver):
         """
         return self._client.send(msg)
 
-    def receive_text(self, standard='utf-8', **kwargs):
+    def receive_text(self, standard="utf-8", **kwargs):
         """
         Calls
-        :py:meth:`TCPClient.receive <testplan.testing.multitest.driver.tcp.server.TCPClient.receive>`
+        :py:meth:`TCPClient.receive
+        <testplan.testing.multitest.driver.tcp.server.TCPClient.receive>`
         and decodes received bytes.
         """
         return self.receive(**kwargs).decode(standard)
@@ -129,8 +143,10 @@ class TCPClient(Driver):
         except socket.timeout:
             if timeout is not None:
                 raise TimeoutException(
-                    'Timed out waiting for message on {0}. {1}'.format(
-                        self.cfg.name, timeout_info.msg()))
+                    "Timed out waiting for message on {0}. {1}".format(
+                        self.cfg.name, timeout_info.msg()
+                    )
+                )
         return received
 
     def reconnect(self):

@@ -15,7 +15,7 @@ testplan.report.testing.base module
 
 
 testplan.report.testing.parser module
------------------------------------
+-------------------------------------
 
 .. automodule:: testplan.report.testing.parser
     :members:

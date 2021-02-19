@@ -17,6 +17,36 @@ def expand(value, contextobj, constructor=None):
         return value
 
 
+def expand_env(orig, overrides, contextobj):
+    """
+    Copies the `orig` dict of environment variables.
+    Applies specified overrides.
+    Removes keys that have value of None as override.
+    Expands context values as strings.
+    Returns as a copy.
+
+    :param orig: The initial environment variables. Usually `os.environ` is to
+                 be passed in. This will not be modified.
+    :type orig: ``dict`` of ``str`` to ``str``
+    :param overrides: Keys and values to be overriden. Values can be strings or
+                      context objects.
+    :type overrides: ``dict`` of ``str`` to either ``str`` or ``ContextValue``
+    :param contextobj: The context object that can be used to expand context
+                       values.
+    :type contextobj: ``object``
+
+    :return: Copied, overridden and expanded environment variables
+    :rtype: ``dict``
+    """
+    env = orig.copy()
+    env.update(overrides)
+    return {
+        key: expand(val, contextobj, str)
+        for key, val in env.items()
+        if val is not None
+    }
+
+
 class ContextValue(object):
     """
     A context value represents a combination of a driver name
@@ -34,11 +64,14 @@ class ContextValue(object):
         Resolve the template.
         """
         if ctx is None:
-            raise ValueError('Could not retrieve driver {0} value from '
-                             'NoneType context.'.format(self.driver))
+            raise ValueError(
+                "Could not retrieve driver {0} value from "
+                "NoneType context.".format(self.driver)
+            )
         if self.driver not in ctx:
-            raise Exception('Driver {0} is not present in context.'.format(
-                self.driver))
+            raise Exception(
+                "Driver {0} is not present in context.".format(self.driver)
+            )
         return self.value.substitute(ctx[self.driver].context_input())
 
 

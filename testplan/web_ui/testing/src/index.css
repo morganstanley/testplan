@@ -1,0 +1,8 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+tr.MuiTableRow-root:hover {
+  background-color: aliceblue;
+}

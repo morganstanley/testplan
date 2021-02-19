@@ -1,0 +1,117 @@
+#!/usr/bin/env python
+"""
+Install & Build the Testplan UI code.
+  * "yarn install" - install the necessary dependencies under node_modules
+    directory.
+  * "yarn run build" - build the Testplan UI, place it under build directory.
+"""
+import subprocess
+import argparse
+import logging
+import json
+import sys
+import os
+
+from testplan import web_ui
+
+TESTPLAN_UI_DIR = os.path.join(os.path.dirname(web_ui.__file__), "testing")
+
+logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
+
+
+def parse_cli_args():
+    """Parse cli args."""
+    parser = argparse.ArgumentParser(
+        description="Run this script to install & " "build the Testplan UI."
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        dest="verbose",
+        help="Display verbose logs (stdout from yarn commands).",
+    )
+    parser.add_argument(
+        "-d",
+        "--dev",
+        action="store_true",
+        dest="dev",
+        help="Install dev dependencies, use if developing UI.",
+    )
+    parser.add_argument(
+        "-p",
+        "--path",
+        action="store",
+        dest="path",
+        default=TESTPLAN_UI_DIR,
+        help="The path to the testplan UI directory.",
+    )
+    return parser.parse_args()
+
+
+def yarn_installed():
+    """Check if yarn has been installed."""
+    with open(os.devnull, "w") as FNULL:
+        try:
+            subprocess.check_call("yarn --version", shell=True, stdout=FNULL)
+        except subprocess.CalledProcessError:
+            return False
+        else:
+            return True
+
+
+def install_and_build_ui(path=TESTPLAN_UI_DIR, dev=False, verbose=False):
+    """
+    Install dependencies & build JS code.
+
+    :param path: Where to install dev dependencies.
+    :type path: ``str``
+    :param dev: Whether to install dev dependencies, use if developing UI.
+    :type dev: ``bool``
+    :param verbose: Display verbose logs (stdout and stderr from npm commands).
+    :type verbose: ``bool``
+    """
+
+    if not yarn_installed():
+        logging.warning("=" * 54)
+        logging.warning("YARN NOT INSTALLED.")
+        logging.warning("Testplan UI is built using yarn, please follow these")
+        logging.warning(
+            "instructions to install https://www.yarnpkg.com"
+        )
+        logging.warning("=" * 54)
+        sys.exit(1)
+
+    with open(os.devnull, "w") as FNULL:
+        output = FNULL
+        if verbose:
+            output = None
+
+        production_cmd = " --production"
+        if dev:
+            production_cmd = ""
+
+        logging.info("Installing Testplan UI dependencies...")
+        logging.info("Installing to path: {}".format(os.path.abspath(path)))
+        subprocess.check_call(
+            "yarn install {}".format(production_cmd),
+            shell=True,
+            cwd=path,
+            stdout=output,
+            stderr=subprocess.STDOUT,
+        )
+
+        logging.info("Building Testplan UI...")
+        subprocess.check_call(
+            "yarn run build",
+            shell=True,
+            cwd=path,
+            stdout=output,
+            stderr=subprocess.STDOUT,
+        )
+    logging.info("Testplan UI install & build have completed successfully.")
+
+
+if __name__ == "__main__":
+    args = parse_cli_args()
+    install_and_build_ui(path=args.path, dev=args.dev, verbose=args.verbose)

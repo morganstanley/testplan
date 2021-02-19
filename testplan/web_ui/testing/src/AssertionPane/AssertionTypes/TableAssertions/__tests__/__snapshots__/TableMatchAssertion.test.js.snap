@@ -1,0 +1,114 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
+<TableBaseAssertion
+  columns={
+    Array [
+      Object {
+        "cellStyle": [Function],
+        "field": "id",
+        "filterParams": Object {
+          "excelMode": "windows",
+        },
+        "headerName": "ID",
+        "pinned": "left",
+        "resizable": true,
+        "suppressSizeToFit": true,
+        "width": 75,
+      },
+      Object {
+        "cellStyle": [Function],
+        "field": "ev",
+        "filterParams": Object {
+          "excelMode": "windows",
+        },
+        "headerName": "Expected/Value",
+        "pinned": "left",
+        "resizable": true,
+        "suppressSizeToFit": true,
+        "width": 125,
+      },
+      Object {
+        "cellStyle": [Function],
+        "field": "name",
+        "filterParams": Object {
+          "excelMode": "windows",
+        },
+        "headerName": "name",
+      },
+      Object {
+        "cellStyle": [Function],
+        "field": "age",
+        "filterParams": Object {
+          "excelMode": "windows",
+        },
+        "headerName": "age",
+      },
+    ]
+  }
+  rows={
+    Array [
+      Object {
+        "age": 32,
+        "ev": "Expected",
+        "id": 0,
+        "name": "Bob",
+        "passed": Object {
+          "age": true,
+          "name": true,
+        },
+      },
+      Object {
+        "age": 32,
+        "ev": "Value",
+        "id": 0,
+        "name": "Bob",
+        "passed": Object {
+          "age": true,
+          "name": true,
+        },
+      },
+      Object {
+        "age": 24,
+        "ev": "Expected",
+        "id": 1,
+        "name": "Susan",
+        "passed": Object {
+          "age": true,
+          "name": true,
+        },
+      },
+      Object {
+        "age": 24,
+        "ev": "Value",
+        "id": 1,
+        "name": "Susan",
+        "passed": Object {
+          "age": true,
+          "name": true,
+        },
+      },
+      Object {
+        "age": 67,
+        "ev": "Expected",
+        "id": 2,
+        "name": "Rick",
+        "passed": Object {
+          "age": true,
+          "name": true,
+        },
+      },
+      Object {
+        "age": 67,
+        "ev": "Value",
+        "id": 2,
+        "name": "Rick",
+        "passed": Object {
+          "age": true,
+          "name": true,
+        },
+      },
+    ]
+  }
+/>
+`;

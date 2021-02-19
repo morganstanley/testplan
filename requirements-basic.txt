@@ -13,13 +13,18 @@ marshmallow==3.0.0b2
 mock
 termcolor
 colorama
-enum34
+enum34; python_version < '3.4'
 pyzmq
 terminaltables
 pyparsing
 cycler
-Pillow
 functools32; python_version <= '2.7'
+requests>=2.4.3
+flask
+flask_restplus
+cheroot
+validators==0.14.0
+Pillow
 
 # Documentation
 # ---------------
@@ -33,5 +38,5 @@ functools32; python_version <= '2.7'
 
 # Data science
 # ------------
-# sklearn
+# scikit-learn
 # scipy

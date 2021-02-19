@@ -3,46 +3,52 @@ Module containing configuration objects and utilities.
 """
 
 import copy
+import inspect
 
-from schema import Schema, Optional, And, Or, Use
+from schema import Schema, Optional
 
 from testplan.common.utils.interface import check_signature
+from testplan.common.utils import logger
 
-
+# A sentinel object meaning not defined, it is useful when you need to
+# handle arbitrary objects (including None).
 ABSENT = Optional._MARKER
 
 
-def validate_func(args_list):
+def validate_func(*arg_names):
     """Validate given function signature."""
-    return lambda x: callable(x) and check_signature(x, args_list)
-
-
-class DefaultValueWrapper(object):
-    """
-    Utility class for distinguishing if a value is passed as schema default.
-    """
-
-    def __init__(self, value):
-        self.value = value
-
-    def __repr__(self):
-        return '{}(value={})'.format(self.__class__.__name__, repr(self.value))
+    return lambda x: callable(x) and check_signature(x, list(arg_names))
 
 
 def ConfigOption(key, default=ABSENT):
     """
     Wrapper around Optional, subclassing is not an option
     as Schema library does internal type checks as `type(obj) is Optional`.
+
+    User can specify a default value when defining a config option. If not
+    specified, it takes ABSENT as default value.
+
+    When accessing a config option of an entity, we will first look in the
+    config object of the entity itself (this also includes the options that
+    are inherited from its parent). If a particular option is not defined or
+    defined but only has an ABSENT value, we will recursively look in the
+    entity's container until we find it. Typical containing relationships
+    are like TestRunner contains Pool, TestRunner contains Multitest,
+    Pool contains worker etc.
+
+    Thus a config option takes one of these values in descending precedence:
+        user specified -> a non-ABSENT default -> container's value
+
+    Exception will be throw if we cannot find a valid value for a config
+    option after we exhaust the entity's containers.
     """
 
     optional = Optional(key, default=default)
     optional.is_optional = True
-    if default is not ABSENT:
-        optional.default = DefaultValueWrapper(default)
     return optional
 
 
-class Configurable(object):
+class Configurable(logger.Loggable):
     """
     To be inherited by objects that accept configuration.
     """
@@ -55,48 +61,80 @@ class Configurable(object):
         return cls, config
 
 
+def update_options(target, source):
+    """
+    Given a target and source dictionary, update the target dict in place
+    using the keys in source dict, if the keys do not exist in target.
+    This is not simple dict update as in we can have target and source
+    dicts like this:
+    >>> target = {ConfigOption('foo'): int}
+    >>> source = {'foo': int}
+    For the example above, target will not be updated as the 'names' of the
+    keys are the same, even if they don't have the same hash.
+    """
+
+    def get_key_str(option):
+        """Will be used for getting name from ConfigOption keys."""
+        return option._schema if isinstance(option, Optional) else option
+
+    target_raw_keys = {get_key_str(k) for k in target}
+    source_key_mapping = {get_key_str(k): k for k in source}
+
+    for raw_key, key in source_key_mapping.items():
+        if raw_key not in target_raw_keys:
+            target[key] = source[key]
+
+
 class Config(object):
     """
     Base class for creating a configuration object with a schema
     that can define default values and support inheritance.
     Configurations can have a parent-child relationship so that
     options not defined in the child, can be retrieved from parent.
+    Supports composition of multiple config options via multiple inheritance.
     """
+
+    ignore_extra_keys = False
 
     def __init__(self, **options):
         self._parent = None
         self._cfg_input = options
-        sch = self.configuration_schema()
-        cschema = sch if isinstance(sch, Schema) else Schema(sch)
-        self._options = cschema.validate(options)
+        self._options = self.build_schema().validate(options)
 
     def __getattr__(self, name):
-        options = self.__getattribute__('_options')
-        local_val = options[name] if name in options else ABSENT
-        parent_val = getattr(self.parent, name,
-                             ABSENT) if self.parent else ABSENT
+        options = self.__getattribute__("_options")
 
-        if local_val is ABSENT and parent_val is ABSENT:
-            raise AttributeError('Name: {}'.format(name))
+        # this option is defined in current entity
+        if name in options:
+            # has user specified or valid default value
+            if options[name] is not ABSENT:
+                return options[name]
 
-        if local_val is not ABSENT and not isinstance(local_val,
-                                                      DefaultValueWrapper):
-            return local_val
-        elif parent_val is not ABSENT:
-            return parent_val
-        elif isinstance(local_val, DefaultValueWrapper):
-            return local_val.value
-        raise RuntimeError('Error fetching attribute ({}) from {}'.format(
-            name, self))
+        # else: try to get this option from the entity's container
+        if self.parent:
+            return getattr(self.parent, name)
+        else:
+            raise AttributeError(
+                'Attribute "{}" not found in {}'.format(name, self)
+            )
 
     def __repr__(self):
-        return '{}{}'.format(self.__class__.__name__,
-                             self._cfg_input or self._options)
+        return "{}{}".format(
+            self.__class__.__name__, self._cfg_input or self._options
+        )
 
-    @property
-    def schema(self):
-        """Returns the raw schema."""
-        return self._schema
+    def get_local(self, name, default=None):
+        """Returns a local config setting (not from container)"""
+        options = self.__getattribute__("_options")
+
+        # this option is defined in current entity
+        if name in options:
+            # has user specified or valid default value
+            if options[name] is not ABSENT:
+                return options[name]
+
+        else:
+            return default
 
     @property
     def parent(self):
@@ -107,70 +145,56 @@ class Config(object):
     def parent(self, value):
         """Set the parent configuration relation."""
         if self._parent is not None:
-            raise AttributeError('Cannot overwrite parent: {}'.format(
-                self._parent))
+            raise AttributeError(
+                "Cannot overwrite parent: {}".format(self._parent)
+            )
         self._parent = value
 
-    def copy(self, **options):
+    def denormalize(self):
         """
-        Create a new configuration object and replace its options with
-        the given option values.
+        Create new config object that inherits all explicit attributes from
+        its parents as well.
         """
-        # TODO dicuss problem validating DefaultValueWrapper values
         new_options = {}
         for key in self._options:
-            new_options[copy.deepcopy(key)] = copy.deepcopy(getattr(self, key))
-        new_options.update(options)
+            value = getattr(self, key)
+            if inspect.isclass(value) or inspect.isroutine(value):
+                # Skipping non-serializable classes and routines.
+                logger.TESTPLAN_LOGGER.debug(
+                    "Skip denormalizing option: %s", key
+                )
+                continue
+            try:
+                new_options[copy.deepcopy(key)] = copy.deepcopy(value)
+            except Exception as exc:
+                logger.TESTPLAN_LOGGER.warning(
+                    "Failed to denormalize option: {} - {}".format(key, exc)
+                )
+
         new = self.__class__(**new_options)
-        # parent makes the object non-serializable
-        # new.parent = self.parent
         return new
 
-    # API support
-    replace = copy
-
-    def configuration_schema(self):
-        """
-        To be implemented by the subclasses and return the config schema.
-        """
+    @classmethod
+    def get_options(cls):
+        """Override this classmethod to provide extra config arguments."""
         raise NotImplementedError
 
-    @staticmethod
-    def inherit_schema(target, source):
+    @classmethod
+    def build_schema(cls):
         """
-        Returns a schema after overriding source options with target options.
-
-        :param target: Configuration options overrides.
-        :type target: ``Schema`` or ``dict``
-        :param source: Source object with configuration schema.
-        :type source: subclass of
-                      :py:class:`Config <testplan.common.config.base.Config>`
-        :return: Schema for the configuration validation.
-        :rtype: ``Schema``
+        Build a validation schema using the config options defined in
+        this class and its parent classes.
         """
-        if isinstance(target, Schema):
-            target_schema_dict = getattr(target, '_schema').copy()
-        else:
-            # dictionary expected
-            target_schema_dict = target
+        config_options = cls.get_options().copy()
 
-        parent_schema = source.configuration_schema()
-        if isinstance(parent_schema, Schema):
-            parent_schema_dict = getattr(parent_schema, '_schema').copy()
-        else:
-            parent_schema_dict = parent_schema
+        # All parent classes that are subclasses of Config
+        parents = [
+            p
+            for p in inspect.getmro(cls)[1:]
+            if issubclass(p, Config) and p != Config
+        ]
 
-        for parent_key in parent_schema_dict:
-            real_parent_key = getattr(parent_key, '_schema', parent_key)
-            found = False
-            for target_key in list(target_schema_dict.keys()):
-                real_target_key = getattr(target_key, '_schema', target_key)
-                if real_parent_key == real_target_key:
-                    found = True
-                    break
-            if not found:
-                target_schema_dict[parent_key] = parent_schema_dict[parent_key]
+        for p in parents:
+            update_options(target=config_options, source=p.get_options())
 
-        ignore_extra_keys = getattr(target, '_ignore_extra_keys', False)
-        return Schema(target_schema_dict,
-                      ignore_extra_keys=ignore_extra_keys)
+        return Schema(config_options, ignore_extra_keys=cls.ignore_extra_keys)

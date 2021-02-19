@@ -7,11 +7,11 @@ runners for a testplan, each of which would generate a partial report.
 Later on these reports would be merged together to
 build the final report as the testplan result.
 """
-import uuid
 import copy
 import collections
 import itertools
 
+from testplan.common.utils import strings
 from .log import create_logging_adapter
 
 
@@ -25,7 +25,7 @@ class ExceptionLogger(object):
     """
 
     def __init__(self, *exception_classes, **kwargs):
-        self.report = kwargs['report']
+        self.report = kwargs["report"]
         self.exception_classes = exception_classes or (Exception,)
 
     def __enter__(self):
@@ -47,28 +47,40 @@ class Report(object):
 
     exception_logger = ExceptionLogger
 
-    def __init__(self, name, description=None, uid=None, entries=None):
+    def __init__(
+        self, name, description=None, uid=None, entries=None, parent_uids=None
+    ):
         self.name = name
         self.description = description
 
-        self.uid = uuid.uuid4() if uid is None else uid
+        self.uid = uid or strings.uuid4()
         self.entries = entries or []
 
         self.logs = []
         self.logger = create_logging_adapter(report=self)
 
+        # parent_uids are a list of the UIDs of all parents of this entry in
+        # the report tree. The UIDs are stored with the most distant parent
+        # first and the immediate parent last. For example, an entry with
+        # parent "A" and grand-parent "B" will have parent_uids = ["B", "A"].
+        # This allows any entry to be quickly looked up and updated in the
+        # report tree.
+        if parent_uids is None:
+            self.parent_uids = []
+        else:
+            self.parent_uids = parent_uids
+
     def __str__(self):
         return '{kls}(name="{name}", id="{uid}")'.format(
-            kls=self.__class__.__name__,
-            name=self.name,
-            uid=self.uid)
+            kls=self.__class__.__name__, name=self.name, uid=self.uid
+        )
 
     def __repr__(self):
         return '{kls}(name="{name}", id="{uid}", entries={entries})'.format(
             kls=self.__class__.__name__,
             name=self.name,
             uid=self.uid,
-            entries=repr(self.entries)
+            entries=repr(self.entries),
         )
 
     def __iter__(self):
@@ -82,10 +94,10 @@ class Report(object):
 
     def __getstate__(self):
         # Omitting logger as it is not compatible with deep copy.
-        return {k: v for k, v in self.__dict__.items() if k != 'logger'}
+        return {k: v for k, v in self.__dict__.items() if k != "logger"}
 
     def _get_comparison_attrs(self):  # pylint: disable=no-self-use
-        return ['name', 'description', 'uid', 'entries', 'logs']
+        return ["name", "description", "uid", "entries", "logs"]
 
     def __eq__(self, other):
         for attr in self._get_comparison_attrs():
@@ -94,7 +106,7 @@ class Report(object):
         return True
 
     def __setstate__(self, data):
-        data['logger'] = create_logging_adapter(report=self)
+        data["logger"] = create_logging_adapter(report=self)
         self.__dict__.update(data)
 
     def logged_exceptions(self, *exception_classes, **kwargs):
@@ -108,25 +120,31 @@ class Report(object):
             with report.logged_exceptions(TypeError, ValueError):
                 raise some errors here ...
         """
-        kwargs['report'] = self
+        kwargs["report"] = self
         return self.exception_logger(*exception_classes, **kwargs)
 
     def _check_report(self, report):
         """
         Utility method for checking `report` `type` and `uid`.
         """
-        msg = 'Report check failed for `{}` and `{}`. '.format(self, report)
+        msg = "Report check failed for `{}` and `{}`. ".format(self, report)
 
         if report.uid != self.uid:
             raise AttributeError(
-                msg + '`uid` attributes (`{}`, `{}`) do not match.'.format(
-                    self.uid, report.uid))
+                msg
+                + "`uid` attributes (`{}`, `{}`) do not match.".format(
+                    self.uid, report.uid
+                )
+            )
 
         # We need exact type match, rather than `isinstance` check
         if type(report) != type(self):  # pylint: disable=unidiomatic-typecheck
             raise TypeError(
-                msg + 'Report types (`{}`, `{}`) do not match.'.format(
-                    type(self), type(report)))
+                msg
+                + "Report types (`{}`, `{}`) do not match.".format(
+                    type(self), type(report)
+                )
+            )
 
     def merge(self, report, strict=True):  # pylint: disable=unused-argument
         """
@@ -142,8 +160,8 @@ class Report(object):
         """
         self._check_report(report)
         # Merge logs
-        log_ids = (rec['uid'] for rec in self.logs)
-        self.logs += [rec for rec in report.logs if rec['uid'] not in log_ids]
+        log_ids = [rec["uid"] for rec in self.logs]
+        self.logs += [rec for rec in report.logs if rec["uid"] not in log_ids]
 
     def append(self, item):
         """Append ``item`` to ``self.entries``, no restrictions."""
@@ -160,14 +178,21 @@ class Report(object):
         for a given entry, it will be kept.
         """
         report_obj = self
-        if kwargs.get('__copy', True):
+        if kwargs.get("__copy", True):
             report_obj = copy.deepcopy(self)
 
         report_obj.entries = [
-            e for e in self.entries
-            if any(func(e) for func in functions)]
+            e for e in self.entries if any(func(e) for func in functions)
+        ]
 
         return report_obj
+
+    def reset_uid(self, uid=None):
+        """
+        Reset uid of the report, it can be useful when need to generate
+        a global unique id instead of the current one.
+        """
+        self.uid = uid or strings.uuid4()
 
     def flattened_entries(self, depth):
         """
@@ -178,6 +203,11 @@ class Report(object):
         """
         return [(depth, entry) for entry in self]
 
+    @property
+    def hash(self):
+        """Return a hash of all entries in this report."""
+        return hash((self.uid, tuple(id(entry) for entry in self.entries)))
+
 
 class ReportGroup(Report):
     """
@@ -185,15 +215,21 @@ class ReportGroup(Report):
     Allows O(1) child report lookup via `get_by_uid` method.
     """
 
-    def __init__(self, name, description=None, uid=None, entries=None):
-        super(ReportGroup, self).__init__(
-            name=name, description=description, uid=uid, entries=entries)
+    def __init__(self, name, **kwargs):
+        super(ReportGroup, self).__init__(name=name, **kwargs)
+
+        # Mapping of UID to index in the list of entries.
         self._index = {}
         self.build_index()
 
+        for child in self.entries:
+            self.set_parent_uids(child)
+
     def build_index(self, recursive=False):
         """
-        Build (refresh) indexes for this report and optionally for each child report.
+        Build (refresh) indexes for this report and
+        optionally for each child report.
+
         This should be called explicitly if `self.entries` is changed.
 
         :param recursive: Flag for triggering index build on children.
@@ -201,16 +237,19 @@ class ReportGroup(Report):
         """
         child_ids = [child.uid for child in self]
         dupe_ids = [
-            cid for cid, count in collections.Counter(child_ids).items()
+            cid
+            for cid, count in collections.Counter(child_ids).items()
             if count > 1
         ]
 
         if dupe_ids:
             raise ValueError(
-                'Cannot build index with duplicate uids: `{}`'.format(
-                    list(dupe_ids)))
+                "Cannot build index with duplicate uids: `{}`".format(
+                    list(dupe_ids)
+                )
+            )
 
-        self._index = {child.uid: child for child in self}
+        self._index = {child.uid: i for i, child in enumerate(self)}
 
         if recursive:
             for child in self:
@@ -224,21 +263,60 @@ class ReportGroup(Report):
         :param uid: `uid` for the child report.
         :type uid: ``hashable``
         """
-        return self._index[uid]
+        return self.entries[self._index[uid]]
+
+    def __getitem__(self, uid):
+        """Shortcut to `get_by_uid()` method via [] operator."""
+        return self.get_by_uid(uid)
+
+    def set_by_uid(self, uid, item):
+        """
+        Set child report via `uid` lookup.
+
+        If an entry with a matching UID is already present, that entry is
+        updated. Otherwise a new entry will be added.
+
+        :param uid: `uid` for the child report.
+        :type uid: ``hashable``
+        :param item: entry to update or insert into the report.
+        :type item: ``Report``
+        """
+        if uid != item.uid:
+            raise ValueError(
+                "UIDs don't match: {} != {}".format(uid, item.uid)
+            )
+
+        if uid in self._index:
+            entry_ix = self._index[uid]
+            self.entries[entry_ix] = item
+            self.set_parent_uids(item)
+        else:
+            self.append(item)
+
+    def __setitem__(self, uid, item):
+        """Shortcut to `set_by_uid()` method via [] operator."""
+        self.set_by_uid(uid, item)
+
+    @property
+    def entry_uids(self):
+        """Return the UIDs of all entries in this report group."""
+        return [entry.uid for entry in self]
 
     def merge_children(self, report, strict=True):
         """
-        Merge each children separately, raising
-        `MergeError` if `uid`s do not match.
+        Merge each children separately, raising ``MergeError`` if `uid`
+        does not match.
         """
         for entry in report:
             try:
                 self.get_by_uid(entry.uid).merge(entry, strict=strict)
             except KeyError:
                 raise MergeError(
-                    'Cannot merge {report} onto {self},'
-                    ' child report with `uid`: {uid} not found.'.format(
-                        report=report, self=self, uid=entry.uid))
+                    "Cannot merge {report} onto {self},"
+                    " child report with `uid`: {uid} not found.".format(
+                        report=report, self=self, uid=entry.uid
+                    )
+                )
 
     def merge(self, report, strict=True):
         """Merge child reports first, propagating `strict` flag."""
@@ -249,18 +327,31 @@ class ReportGroup(Report):
         """Add `item` to `self.entries`, checking type & index."""
         if not isinstance(item, Report):
             raise TypeError(
-                'ReportGroup entries must be of '
-                '`Report` type, {item} was of: {type} type.'.format(
-                    item=item,
-                    type=type(item)))
+                "ReportGroup entries must be of "
+                "`Report` type, {item} was of: {type} type.".format(
+                    item=item, type=type(item)
+                )
+            )
 
         if item.uid in self._index:
             raise ValueError(
-                'Child report with `uid` `{uid}`'
-                ' already exists in {self}'.format(uid=item.uid, self=self))
+                "Child report with `uid`: {uid} already exists"
+                " in {self}".format(uid=item.uid, self=self)
+            )
 
-        self._index[item.uid] = item
         super(ReportGroup, self).append(item)
+        self._index[item.uid] = len(self.entries) - 1
+        self.set_parent_uids(item)
+
+    def set_parent_uids(self, item):
+        """
+        Set the parent UIDs recursively of an item and its child entries
+        after it has been added into this report group.
+        """
+        item.parent_uids = self.parent_uids + [self.uid]
+        if isinstance(item, ReportGroup):
+            for child in item.entries:
+                item.set_parent_uids(child)
 
     def extend(self, items):
         """Add `items` to `self.entries`, checking type & index."""
@@ -269,7 +360,8 @@ class ReportGroup(Report):
 
     def filter(self, *functions, **kwargs):
         """Recursively filter report entries and sub-entries."""
-        report_obj = copy.deepcopy(self) if kwargs.get('__copy', True) else self
+        is_root = kwargs.get("__copy", True)
+        report_obj = copy.deepcopy(self) if is_root else self
 
         entries = []
         for entry in report_obj.entries:
@@ -277,11 +369,25 @@ class ReportGroup(Report):
 
                 if isinstance(entry, Report):
                     entry = entry.filter(*functions, __copy=False)
-
                 entries.append(entry)
 
         report_obj.entries = entries
+        if is_root:
+            report_obj.build_index(recursive=True)
+
         return report_obj
+
+    def reset_uid(self, uid=None):
+        """
+        Reset uid of test report and all of its children, it can be useful
+        when need to generate global unique id for each report entry before
+        saving, by default strings in standard UUID format will be applied.
+        """
+        self.uid = uid or strings.uuid4()
+        for entry in self:
+            if isinstance(entry, (Report, ReportGroup)):
+                entry.reset_uid()
+        self.build_index()
 
     def flatten(self, depths=False):
         """
@@ -292,6 +398,7 @@ class ReportGroup(Report):
         :param depths: Flag for enabling/disabling depth data in result.
         :return: List of reports or list of (`depth`, `report`) tuples.
         """
+
         def flat_func(rep_obj, depth):
             result = [(depth, rep_obj)]
 
@@ -313,6 +420,8 @@ class ReportGroup(Report):
     @property
     def flattened_logs(self):
         """Return a flattened list of the logs from each Report."""
-        return list(itertools.chain.from_iterable((rep.logs)
-                                                  for rep in self.flatten()
-                                                  if isinstance(rep, Report)))
+        return list(
+            itertools.chain.from_iterable(
+                (rep.logs) for rep in self.flatten() if isinstance(rep, Report)
+            )
+        )

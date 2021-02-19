@@ -1,0 +1,119 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DictLogAssertion shallow renders DictButtonGroup component 1`] = `
+<ButtonGroup
+  role="group"
+  style={
+    Object {
+      "paddingBottom": ".5rem",
+    }
+  }
+  tag="div"
+>
+  <Button
+    active={false}
+    color="secondary"
+    key="sort-test-uid-Symbol(NONE)"
+    onClick={[Function]}
+    outline={true}
+    size="sm"
+    tag="button"
+  >
+    Original order
+  </Button>
+  <Button
+    active={false}
+    color="secondary"
+    key="sort-test-uid-Symbol(ALPHABETICAL)"
+    onClick={[Function]}
+    outline={true}
+    size="sm"
+    tag="button"
+  >
+    <FontAwesomeIcon
+      border={false}
+      className=""
+      fixedWidth={false}
+      flip={null}
+      icon="sort-amount-down"
+      inverse={false}
+      key="faSortAmountDown"
+      listItem={false}
+      mask={null}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size="sm"
+      spin={false}
+      symbol={false}
+      title=""
+      transform={null}
+    />
+  </Button>
+  <Button
+    active={false}
+    color="secondary"
+    key="sort-test-uid-Symbol(REVERSE_ALPHABETICAL)"
+    onClick={[Function]}
+    outline={true}
+    size="sm"
+    tag="button"
+  >
+    <FontAwesomeIcon
+      border={false}
+      className=""
+      fixedWidth={false}
+      flip={null}
+      icon="sort-amount-up"
+      inverse={false}
+      key="faSortAmountUp"
+      listItem={false}
+      mask={null}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size="sm"
+      spin={false}
+      symbol={false}
+      title=""
+      transform={null}
+    />
+  </Button>
+  <Button
+    active={true}
+    color="secondary"
+    key="sort-test-uid-Symbol(BY_STATUS)"
+    onClick={[Function]}
+    outline={true}
+    size="sm"
+    tag="button"
+  >
+    Status
+  </Button>
+  <Button
+    active={false}
+    color="secondary"
+    key="sort-test-uid-Symbol(FAILURES_ONLY)"
+    onClick={[Function]}
+    outline={true}
+    size="sm"
+    tag="button"
+  >
+    Failures only
+  </Button>
+  <Button
+    active={false}
+    color="secondary"
+    key="sort-test-uid-Symbol(EXCLUDE_IGNORABLE)"
+    onClick={[Function]}
+    outline={true}
+    size="sm"
+    tag="button"
+  >
+    Hide ignored items
+  </Button>
+  <CopyButton
+    value="<table><tr><th>Key</th><th>Expected</th><th>Value</th></tr><tr><td></td><td><small></small></td><td><small></small></td></tr><tr style=\\"color: red;\\"><td></td><td><small></small></td><td><small></small></td></tr><tr style=\\"color: red;\\"><td></td><td><small></small></td><td><small></small></td></tr></table>"
+  />
+</ButtonGroup>
+`;

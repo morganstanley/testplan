@@ -1,5 +1,11 @@
 """Utilities for working with tables."""
+import six
 import collections
+
+
+def all_are(objs, *are_what):
+    # type: (Iterable[Any], Type) -> bool
+    return all(isinstance(obj, are_what) for obj in objs)
 
 
 class TableEntry(object):
@@ -9,29 +15,19 @@ class TableEntry(object):
     """
 
     def __init__(self, table):
-        table = table or []
-        self._check_table(table)
-        self.table = table
+        self.table = self._validate_table(table or [])
 
-    def _check_table(self, table):
-        """Make the original table argument is a valid."""
-        error_msg = '`table` must a list of' \
-                    ' lists or list of dicts: {}'.format(table)
-
-        if not isinstance(table, (list, tuple)):
-            raise ValueError(error_msg)
-
-        is_list_of_list = all(isinstance(obj, (list, tuple)) for obj in table)
-        is_list_of_dict = all(isinstance(obj, dict) for obj in table)
-
-        if not (is_list_of_dict or is_list_of_list) and table:
-            raise ValueError(error_msg)
-
-        if is_list_of_list and table and not all(
-                isinstance(col, str) for col in table[0]):
-            raise ValueError(
-                'For list of lists, first element must'
-                ' be the list column names: {}'.format(table))
+    @staticmethod
+    def _validate_table(table):
+        if isinstance(table, (list, tuple)):
+            if all_are(table, dict) or all_are(table, list, tuple):
+                return table
+        raise TypeError(
+            (
+                "`table` must be a list of"
+                " lists or list of dicts, got:\n{}".format(table)
+            )
+        )
 
     def __len__(self):
         if not self.table:
@@ -54,8 +50,8 @@ class TableEntry(object):
             assert isinstance(self.table[0], list)
             return self.table[0]
 
-    @classmethod
-    def consolidate_columns(list_of_dict, placeholder='ABSENT'):
+    @staticmethod
+    def consolidate_columns(list_of_dict, placeholder="ABSENT"):
         """
         In some cases the raw DB results may return a
         list of dictionaries that have different keys.
@@ -115,7 +111,7 @@ class TableEntry(object):
 
         # if ``list`` of ``list``, then we convert to ``list`` of ``dict``
         # with dict elements indexed by column_names
-        if isinstance(table[0], list):
+        if isinstance(table[0], (list, tuple)):
             column_names = table[0]
             for row in table[1:]:
                 tups = [

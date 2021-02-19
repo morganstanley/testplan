@@ -4,11 +4,13 @@ import errno
 import socket
 import select
 import threading
-from six.moves import queue as Queue
+from six.moves import queue
 
-from testplan.common.utils.timing import (TimeoutException,
-                                          TimeoutExceptionInfo,
-                                          wait)
+from testplan.common.utils.timing import (
+    TimeoutException,
+    TimeoutExceptionInfo,
+    wait,
+)
 from testplan.common.utils.sockets.fix.utils import utc_timestamp
 
 
@@ -17,8 +19,9 @@ class ConnectionDetails(object):
     Contains all information required for each connection to the server
     """
 
-    def __init__(self, connection, name=None, queue=None,
-                 in_seqno=1, out_seqno=1):
+    def __init__(
+        self, connection, name=None, queue=None, in_seqno=1, out_seqno=1
+    ):
         """
         Create a new ConnectionDetails. Only the connection is required
         initially, as the rest of the details are set later.
@@ -51,7 +54,7 @@ def _has_logon_tag(msg):
     :return: ``True`` if it is a logon message
     :rtype: ``bool``
     """
-    return msg.tag_exact(35, b'A')
+    return msg.tag_exact(35, "A")
 
 
 def _is_session_control_msg(msg):
@@ -64,8 +67,7 @@ def _is_session_control_msg(msg):
     :return: ``True`` if it is a message with non-business code
     :rtype: ``bool``
     """
-    return (_has_logout_tag(msg) or
-            _has_heartbeat_tag(msg))
+    return _has_logout_tag(msg) or _has_heartbeat_tag(msg)
 
 
 def _has_logout_tag(msg):
@@ -78,7 +80,7 @@ def _has_logout_tag(msg):
     :return: True if it is a logout message
     :rtype: ``bool``
     """
-    return msg.tag_exact(35, b'5')
+    return msg.tag_exact(35, "5")
 
 
 def _has_heartbeat_tag(msg):
@@ -91,7 +93,7 @@ def _has_heartbeat_tag(msg):
     :return: True if it is a heartbeat message
     :rtype: ``bool``
     """
-    return msg.tag_exact(35, b'0')
+    return msg.tag_exact(35, "0")
 
 
 class Server(object):
@@ -102,8 +104,16 @@ class Server(object):
     The server stamps every outgoing message with the senderCompID and
     targetCompID for the corresponding connection.
     """
-    def __init__(self, msgclass, codec, host='localhost', port=0,
-                 version='FIX.4.2', logger=None):
+
+    def __init__(
+        self,
+        msgclass,
+        codec,
+        host="localhost",
+        port=0,
+        version="FIX.4.2",
+        logger=None,
+    ):
         """
         Create a new FIX server.
 
@@ -172,8 +182,9 @@ class Server(object):
         self._socket.bind((self._input_host, self._input_port))
         self._ip, self._port = self._socket.getsockname()
 
-        self.log_callback('Started server on {}:{}'.format(
-            self.host, self.port))
+        self.log_callback(
+            "Started server on {}:{}".format(self.host, self.port)
+        )
 
         self._recv_thread = threading.Thread(target=self._listen)
         self._recv_thread.daemon = True
@@ -184,10 +195,12 @@ class Server(object):
 
         if not self._listening:
             raise TimeoutException(
-                'Could not start server: timed out on listening. {}'.format(
-                    timeout_info.msg()))
+                "Could not start server: timed out on listening. {}".format(
+                    timeout_info.msg()
+                )
+            )
 
-        self.log_callback('Listening for socket events.')
+        self.log_callback("Listening for socket events.")
 
     def _listen(self):
         """
@@ -197,8 +210,10 @@ class Server(object):
         self._socket.listen(1)
         self._listening = True
 
-        self._pobj.register(self._socket.fileno(),
-                            select.POLLIN | select.POLLNVAL | select.POLLHUP)
+        self._pobj.register(
+            self._socket.fileno(),
+            select.POLLIN | select.POLLNVAL | select.POLLHUP,
+        )
 
         closed = False
         while (not closed) and self._listening:
@@ -215,8 +230,10 @@ class Server(object):
                         self._add_connection()
                     else:
                         raise Exception(
-                            'Unexpected event {0} on fdesc {1}.'.format(
-                                event, fdesc))
+                            "Unexpected event {0} on fdesc {1}.".format(
+                                event, fdesc
+                            )
+                        )
                 else:
                     # Connection event received
                     self._process_connection_event(fdesc, event)
@@ -232,8 +249,10 @@ class Server(object):
         connection, _ = self._socket.accept()
         conn_details = ConnectionDetails(connection)
         self._conndetails_by_fd[connection.fileno()] = conn_details
-        self._pobj.register(connection.fileno(),
-                            select.POLLIN | select.POLLNVAL | select.POLLHUP)
+        self._pobj.register(
+            connection.fileno(),
+            select.POLLIN | select.POLLNVAL | select.POLLHUP,
+        )
 
     def _remove_connection(self, fdesc):
         """
@@ -244,7 +263,9 @@ class Server(object):
         """
         self._pobj.unregister(fdesc)
         try:
-            self._conndetails_by_fd[fdesc].connection.shutdown(socket.SHUT_RDWR)
+            self._conndetails_by_fd[fdesc].connection.shutdown(
+                socket.SHUT_RDWR
+            )
         except socket.error as serr:
             if serr.errno != errno.ENOTCONN:
                 raise
@@ -262,7 +283,9 @@ class Server(object):
         """
         for fdesc in self._conndetails_by_fd:
             self._pobj.unregister(fdesc)
-            self._conndetails_by_fd[fdesc].connection.shutdown(socket.SHUT_RDWR)
+            self._conndetails_by_fd[fdesc].connection.shutdown(
+                socket.SHUT_RDWR
+            )
             self._conndetails_by_fd[fdesc].connection.close()
 
             del self._conndetails_by_name[self._conndetails_by_fd[fdesc].name]
@@ -284,19 +307,23 @@ class Server(object):
                 data = connection.recv(4096)
                 if not data:
                     self.log_callback(
-                        'Closing connection {} since no data available'.format(
-                        self._conndetails_by_fd[fdesc].name))
+                        "Closing connection {} since no data available".format(
+                            self._conndetails_by_fd[fdesc].name
+                        )
+                    )
                     self._remove_connection(fdesc)
                 else:
                     msg = self.msgclass.from_buffer(data, self.codec)
                     self._process_message(fdesc, msg)
         elif event in [select.POLLNVAL, select.POLLHUP]:
             self.log_callback(
-                'Closing connection {} event received'.format(connection.name))
+                "Closing connection {} event received".format(connection.name)
+            )
             self._remove_connection(fdesc)
         else:
             raise Exception(
-                'unexpected event {0} on fdesc {1}'.format(event, fdesc))
+                "unexpected event {0} on fdesc {1}".format(event, fdesc)
+            )
 
     def _process_message(self, fdesc, msg):
         """
@@ -315,10 +342,13 @@ class Server(object):
         elif self._conn_loggedon(conn_name):
             if _is_session_control_msg(msg):
                 self.log_callback(
-                    'Session control msg from {}'.format(conn_name))
+                    "Session control msg from {}".format(conn_name)
+                )
                 self._no_lock_send(msg, conn_name)
             else:
-                self.log_callback('Incoming data msg from {}'.format(conn_name))
+                self.log_callback(
+                    "Incoming data msg from {}".format(conn_name)
+                )
                 self._conndetails_by_name[conn_name].in_seqno += 1
                 self._conndetails_by_name[conn_name].queue.put(msg, True, 1)
         elif _has_logon_tag(msg):
@@ -326,7 +356,8 @@ class Server(object):
             self._no_lock_send(msg, conn_name)
         else:
             raise Exception(
-                'Connection {} sent msg before logon'.format(conn_name))
+                "Connection {} sent msg before logon".format(conn_name)
+            )
 
     def _conn_loggedon(self, conn_name):
         """
@@ -351,13 +382,13 @@ class Server(object):
         """
         conndetails = self._conndetails_by_fd[fdesc]
         conndetails.name = conn_name
-        conndetails.queue = Queue.Queue()
+        conndetails.queue = queue.Queue()
         conndetails.in_seqno = 1
         conndetails.out_seqno = 1
         self._conndetails_by_name[conn_name] = conndetails
         if self._first_sender is None:
             (self._first_sender, self._first_target) = conn_name
-        self.log_callback('Logged on connection {}.'.format(conn_name))
+        self.log_callback("Logged on connection {}.".format(conn_name))
 
     def active_connections(self):
         """
@@ -367,9 +398,12 @@ class Server(object):
           target)
         :rtype: ``list`` of ``tuple`` of ``str`` and ``str``
         """
-        return [detail.name
-                for detail in self._conndetails_by_fd.itervalues()
-                if detail.name is not None]
+
+        return [
+            detail.name
+            for detail in self._conndetails_by_fd.values()
+            if detail.name is not None
+        ]
 
     def is_connection_active(self, conn_name):
         """
@@ -390,7 +424,7 @@ class Server(object):
         self._listening = False
         if self._recv_thread:
             self._recv_thread.join()
-        self.log_callback('Stopped server.')
+        self.log_callback("Stopped server.")
 
     def _validate_connection_name(self, conn_name):
         """
@@ -412,13 +446,18 @@ class Server(object):
         """
         sender, target = conn_name
         if (sender, target) == (None, None):
-            if len(self._conndetails_by_name) != 1:
-                raise Exception('Cannot use default connection '
-                                'since more connections active')
+            active = len(self._conndetails_by_name)
+            if active != 1:
+                raise Exception(
+                    "Cannot use default connection - "
+                    "{} connection(s) active, expect 1".format(active)
+                )
             (sender, target) = (self._first_sender, self._first_target)
 
         if not self.is_connection_active((sender, target)):
-            raise Exception('Connection {} not active'.format((sender, target)))
+            raise Exception(
+                "Connection {} not active".format((sender, target))
+            )
 
         return sender, target
 
@@ -447,7 +486,7 @@ class Server(object):
         conndetails.out_seqno += 1
         msg[49] = sender
         msg[56] = target
-        msg[52] = getattr(self.codec, 'utc_timestamp', utc_timestamp)()
+        msg[52] = getattr(self.codec, "utc_timestamp", utc_timestamp)()
         return msg
 
     def _no_lock_send(self, msg, conn_name, fdesc=None):
@@ -466,14 +505,17 @@ class Server(object):
         """
         sender, target = conn_name
         msg = self._add_msg_tags(msg, (sender, target), fdesc)
-        self.log_callback('Sending on connection {} message {}'.format(
-            (sender, target), msg))
+        self.log_callback(
+            "Sending on connection {} message {}".format((sender, target), msg)
+        )
         if fdesc:
             self._conndetails_by_fd[fdesc].connection.send(
-                msg.to_wire(self.codec))
+                msg.to_wire(self.codec)
+            )
         else:
             self._conndetails_by_name[(sender, target)].connection.send(
-                msg.to_wire(self.codec))
+                msg.to_wire(self.codec)
+            )
 
     def send(self, msg, conn_name=(None, None)):
         """
@@ -494,16 +536,17 @@ class Server(object):
         :return: Fix message sent
         :rtype: ``FixMessage``
         """
-        conn_name = self._validate_connection_name(
-            self._encode_conn_name(conn_name))
+        conn_name = self._validate_connection_name(conn_name)
         with self._lock:
             conn_name = self._validate_connection_name(conn_name)
             msg = self._add_msg_tags(msg, conn_name)
-            self.log_callback('Sending on connection {} message {}'.format(
-                conn_name, msg))
+            self.log_callback(
+                "Sending on connection {} message {}".format(conn_name, msg)
+            )
             conn_name = self._validate_connection_name(conn_name)
             self._conndetails_by_name[conn_name].connection.send(
-                msg.to_wire(self.codec))
+                msg.to_wire(self.codec)
+            )
         return msg
 
     def receive(self, conn_name=(None, None), timeout=30):
@@ -523,13 +566,8 @@ class Server(object):
         :return: Fix message received
         :rtype: ``FixMessage``
         """
-        conn_name = self._validate_connection_name(
-            self._encode_conn_name(conn_name))
+        conn_name = self._validate_connection_name(conn_name)
         return self._conndetails_by_name[conn_name].queue.get(True, timeout)
-
-    def _encode_conn_name(self, conn_name):
-        return (conn_name[0].encode('utf-8') if conn_name[0] else conn_name[0],
-                conn_name[1].encode('utf-8') if conn_name[1] else conn_name[1])
 
     def flush(self):
         """
@@ -538,7 +576,7 @@ class Server(object):
         for conn in self._conndetails_by_name:
             self._flush_queue(self._conndetails_by_name[conn].queue)
         if self.log_callback:
-            self.log_callback('Flushed received message queues')
+            self.log_callback("Flushed received message queues")
 
     def _flush_queue(self, queue):
         """
@@ -550,5 +588,5 @@ class Server(object):
         try:
             while True:
                 queue.get(False)
-        except Queue.Empty:
+        except queue.Empty:
             return

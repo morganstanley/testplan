@@ -1,0 +1,746 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InteractiveNavEntry renders a testcase in "ready" state 1`] = `
+<div
+  className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
+>
+  <div
+    className="entryName_1dd7qci-o_O-unknown_1qg7pkz"
+    title="TestCaseDesc"
+  >
+    FakeTestcase
+  </div>
+  <div
+    className="entryIcons_195essn"
+  >
+    <i
+      className="entryIcon_9gb3m5"
+      title="passed/failed testcases"
+    >
+      <span
+        className="passed_1kh4m98"
+      >
+        0
+      </span>
+      /
+      <span
+        className="failed_11es5k7"
+      >
+        0
+      </span>
+    </i>
+    <Badge
+      className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+      color="secondary"
+      pill={true}
+      tag="span"
+      title="testcase"
+    >
+      C
+    </Badge>
+    <FontAwesomeIcon
+      border={false}
+      className="entryButton_yr2g96"
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            448,
+            512,
+            Array [],
+            "f04b",
+            "M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z",
+          ],
+          "iconName": "play",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      onClick={[Function]}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={false}
+      symbol={false}
+      title="Run tests"
+      transform={null}
+    />
+  </div>
+</div>
+`;
+
+exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
+<div
+  className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
+>
+  <div
+    className="entryName_1dd7qci-o_O-unknown_1qg7pkz"
+    title="TestCaseDesc"
+  >
+    FakeTestcase
+  </div>
+  <div
+    className="entryIcons_195essn"
+  >
+    <i
+      className="entryIcon_9gb3m5"
+      title="passed/failed testcases"
+    >
+      <span
+        className="passed_1kh4m98"
+      >
+        0
+      </span>
+      /
+      <span
+        className="failed_11es5k7"
+      >
+        0
+      </span>
+    </i>
+    <Badge
+      className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+      color="secondary"
+      pill={true}
+      tag="span"
+      title="testcase"
+    >
+      C
+    </Badge>
+    <FontAwesomeIcon
+      border={false}
+      className="entryButton_yr2g96"
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            512,
+            512,
+            Array [],
+            "f01e",
+            "M500.333 0h-47.411c-6.853 0-12.314 5.729-11.986 12.574l3.966 82.759C399.416 41.899 331.672 8 256.001 8 119.34 8 7.899 119.526 8 256.187 8.101 393.068 119.096 504 256 504c63.926 0 122.202-24.187 166.178-63.908 5.113-4.618 5.354-12.561.482-17.433l-33.971-33.971c-4.466-4.466-11.64-4.717-16.38-.543C341.308 415.448 300.606 432 256 432c-97.267 0-176-78.716-176-176 0-97.267 78.716-176 176-176 60.892 0 114.506 30.858 146.099 77.8l-101.525-4.865c-6.845-.328-12.574 5.133-12.574 11.986v47.411c0 6.627 5.373 12 12 12h200.333c6.627 0 12-5.373 12-12V12c0-6.627-5.373-12-12-12z",
+          ],
+          "iconName": "redo",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={true}
+      symbol={false}
+      title="Running..."
+      transform={null}
+    />
+  </div>
+</div>
+`;
+
+exports[`InteractiveNavEntry renders a testcase in "passed" state 1`] = `
+<div
+  className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
+>
+  <div
+    className="entryName_1dd7qci-o_O-passed_1kh4m98"
+    title="TestCaseDesc"
+  >
+    FakeTestcase
+  </div>
+  <div
+    className="entryIcons_195essn"
+  >
+    <i
+      className="entryIcon_9gb3m5"
+      title="passed/failed testcases"
+    >
+      <span
+        className="passed_1kh4m98"
+      >
+        9
+      </span>
+      /
+      <span
+        className="failed_11es5k7"
+      >
+        0
+      </span>
+    </i>
+    <Badge
+      className="entryIcon_9gb3m5-o_O-passedBadge_1isorc2"
+      color="secondary"
+      pill={true}
+      tag="span"
+      title="testcase"
+    >
+      C
+    </Badge>
+    <FontAwesomeIcon
+      border={false}
+      className="entryButton_yr2g96"
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            512,
+            512,
+            Array [],
+            "f01e",
+            "M500.333 0h-47.411c-6.853 0-12.314 5.729-11.986 12.574l3.966 82.759C399.416 41.899 331.672 8 256.001 8 119.34 8 7.899 119.526 8 256.187 8.101 393.068 119.096 504 256 504c63.926 0 122.202-24.187 166.178-63.908 5.113-4.618 5.354-12.561.482-17.433l-33.971-33.971c-4.466-4.466-11.64-4.717-16.38-.543C341.308 415.448 300.606 432 256 432c-97.267 0-176-78.716-176-176 0-97.267 78.716-176 176-176 60.892 0 114.506 30.858 146.099 77.8l-101.525-4.865c-6.845-.328-12.574 5.133-12.574 11.986v47.411c0 6.627 5.373 12 12 12h200.333c6.627 0 12-5.373 12-12V12c0-6.627-5.373-12-12-12z",
+          ],
+          "iconName": "redo",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      onClick={[Function]}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={false}
+      symbol={false}
+      title="Run tests"
+      transform={null}
+    />
+  </div>
+</div>
+`;
+
+exports[`InteractiveNavEntry renders a testcase in "failed" state 1`] = `
+<div
+  className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
+>
+  <div
+    className="entryName_1dd7qci-o_O-failed_11es5k7"
+    title="TestCaseDesc"
+  >
+    FakeTestcase
+  </div>
+  <div
+    className="entryIcons_195essn"
+  >
+    <i
+      className="entryIcon_9gb3m5"
+      title="passed/failed testcases"
+    >
+      <span
+        className="passed_1kh4m98"
+      >
+        8
+      </span>
+      /
+      <span
+        className="failed_11es5k7"
+      >
+        1
+      </span>
+    </i>
+    <Badge
+      className="entryIcon_9gb3m5-o_O-failedBadge_1i8mqax"
+      color="secondary"
+      pill={true}
+      tag="span"
+      title="testcase"
+    >
+      C
+    </Badge>
+    <FontAwesomeIcon
+      border={false}
+      className="entryButton_yr2g96"
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            512,
+            512,
+            Array [],
+            "f01e",
+            "M500.333 0h-47.411c-6.853 0-12.314 5.729-11.986 12.574l3.966 82.759C399.416 41.899 331.672 8 256.001 8 119.34 8 7.899 119.526 8 256.187 8.101 393.068 119.096 504 256 504c63.926 0 122.202-24.187 166.178-63.908 5.113-4.618 5.354-12.561.482-17.433l-33.971-33.971c-4.466-4.466-11.64-4.717-16.38-.543C341.308 415.448 300.606 432 256 432c-97.267 0-176-78.716-176-176 0-97.267 78.716-176 176-176 60.892 0 114.506 30.858 146.099 77.8l-101.525-4.865c-6.845-.328-12.574 5.133-12.574 11.986v47.411c0 6.627 5.373 12 12 12h200.333c6.627 0 12-5.373 12-12V12c0-6.627-5.373-12-12-12z",
+          ],
+          "iconName": "redo",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      onClick={[Function]}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={false}
+      symbol={false}
+      title="Run tests"
+      transform={null}
+    />
+  </div>
+</div>
+`;
+
+exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`] = `
+<div
+  className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
+>
+  <div
+    className="entryName_1dd7qci-o_O-unknown_1qg7pkz"
+    title="TestCaseDesc"
+  >
+    FakeTestcase
+  </div>
+  <div
+    className="entryIcons_195essn"
+  >
+    <i
+      className="entryIcon_9gb3m5"
+      title="passed/failed testcases"
+    >
+      <span
+        className="passed_1kh4m98"
+      >
+        0
+      </span>
+      /
+      <span
+        className="failed_11es5k7"
+      >
+        0
+      </span>
+    </i>
+    <Badge
+      className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+      color="secondary"
+      pill={true}
+      tag="span"
+      title="multitest"
+    >
+      MT
+    </Badge>
+    <FontAwesomeIcon
+      border={false}
+      className="entryButton_yr2g96"
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            576,
+            512,
+            Array [],
+            "f205",
+            "M576 256c0 106.039-85.961 192-192 192H192C85.961 448 0 362.039 0 256S85.961 64 192 64h192c106.039 0 192 85.961 192 192zM384 128c-70.741 0-128 57.249-128 128 0 70.741 57.249 128 128 128 70.741 0 128-57.249 128-128 0-70.741-57.249-128-128-128",
+          ],
+          "iconName": "toggle-on",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      onClick={[Function]}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={false}
+      symbol={false}
+      title="Start environment"
+      transform={null}
+    />
+    <FontAwesomeIcon
+      border={false}
+      className="entryButton_yr2g96"
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            448,
+            512,
+            Array [],
+            "f04b",
+            "M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z",
+          ],
+          "iconName": "play",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      onClick={[Function]}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={false}
+      symbol={false}
+      title="Run tests"
+      transform={null}
+    />
+  </div>
+</div>
+`;
+
+exports[`InteractiveNavEntry renders an entry with environment status STARTING 1`] = `
+<div
+  className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
+>
+  <div
+    className="entryName_1dd7qci-o_O-unknown_1qg7pkz"
+    title="TestCaseDesc"
+  >
+    FakeTestcase
+  </div>
+  <div
+    className="entryIcons_195essn"
+  >
+    <i
+      className="entryIcon_9gb3m5"
+      title="passed/failed testcases"
+    >
+      <span
+        className="passed_1kh4m98"
+      >
+        0
+      </span>
+      /
+      <span
+        className="failed_11es5k7"
+      >
+        0
+      </span>
+    </i>
+    <Badge
+      className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+      color="secondary"
+      pill={true}
+      tag="span"
+      title="multitest"
+    >
+      MT
+    </Badge>
+    <FontAwesomeIcon
+      border={false}
+      className="inactiveEntryButton_bb26hz"
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            576,
+            512,
+            Array [],
+            "f204",
+            "M384 64H192C85.961 64 0 149.961 0 256s85.961 192 192 192h192c106.039 0 192-85.961 192-192S490.039 64 384 64zM64 256c0-70.741 57.249-128 128-128 70.741 0 128 57.249 128 128 0 70.741-57.249 128-128 128-70.741 0-128-57.249-128-128zm320 128h-48.905c65.217-72.858 65.236-183.12 0-256H384c70.741 0 128 57.249 128 128 0 70.74-57.249 128-128 128z",
+          ],
+          "iconName": "toggle-off",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={false}
+      symbol={false}
+      title="Environment starting..."
+      transform={null}
+    />
+    <FontAwesomeIcon
+      border={false}
+      className="entryButton_yr2g96"
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            448,
+            512,
+            Array [],
+            "f04b",
+            "M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z",
+          ],
+          "iconName": "play",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      onClick={[Function]}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={false}
+      symbol={false}
+      title="Run tests"
+      transform={null}
+    />
+  </div>
+</div>
+`;
+
+exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`] = `
+<div
+  className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
+>
+  <div
+    className="entryName_1dd7qci-o_O-unknown_1qg7pkz"
+    title="TestCaseDesc"
+  >
+    FakeTestcase
+  </div>
+  <div
+    className="entryIcons_195essn"
+  >
+    <i
+      className="entryIcon_9gb3m5"
+      title="passed/failed testcases"
+    >
+      <span
+        className="passed_1kh4m98"
+      >
+        0
+      </span>
+      /
+      <span
+        className="failed_11es5k7"
+      >
+        0
+      </span>
+    </i>
+    <Badge
+      className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+      color="secondary"
+      pill={true}
+      tag="span"
+      title="multitest"
+    >
+      MT
+    </Badge>
+    <FontAwesomeIcon
+      border={false}
+      className="entryButton_yr2g96"
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            576,
+            512,
+            Array [],
+            "f204",
+            "M384 64H192C85.961 64 0 149.961 0 256s85.961 192 192 192h192c106.039 0 192-85.961 192-192S490.039 64 384 64zM64 256c0-70.741 57.249-128 128-128 70.741 0 128 57.249 128 128 0 70.741-57.249 128-128 128-70.741 0-128-57.249-128-128zm320 128h-48.905c65.217-72.858 65.236-183.12 0-256H384c70.741 0 128 57.249 128 128 0 70.74-57.249 128-128 128z",
+          ],
+          "iconName": "toggle-off",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      onClick={[Function]}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={false}
+      symbol={false}
+      title="Start environment"
+      transform={null}
+    />
+    <FontAwesomeIcon
+      border={false}
+      className="entryButton_yr2g96"
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            448,
+            512,
+            Array [],
+            "f04b",
+            "M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z",
+          ],
+          "iconName": "play",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      onClick={[Function]}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={false}
+      symbol={false}
+      title="Run tests"
+      transform={null}
+    />
+  </div>
+</div>
+`;
+
+exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1`] = `
+<div
+  className="d-flex justify-content-between align-items-center"
+  style={
+    Object {
+      "height": "1.5em",
+    }
+  }
+>
+  <div
+    className="entryName_1dd7qci-o_O-unknown_1qg7pkz"
+    title="TestCaseDesc"
+  >
+    FakeTestcase
+  </div>
+  <div
+    className="entryIcons_195essn"
+  >
+    <i
+      className="entryIcon_9gb3m5"
+      title="passed/failed testcases"
+    >
+      <span
+        className="passed_1kh4m98"
+      >
+        0
+      </span>
+      /
+      <span
+        className="failed_11es5k7"
+      >
+        0
+      </span>
+    </i>
+    <Badge
+      className="entryIcon_9gb3m5-o_O-unknownBadge_y8uc99"
+      color="secondary"
+      pill={true}
+      tag="span"
+      title="multitest"
+    >
+      MT
+    </Badge>
+    <FontAwesomeIcon
+      border={false}
+      className="inactiveEntryButton_bb26hz"
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            576,
+            512,
+            Array [],
+            "f205",
+            "M576 256c0 106.039-85.961 192-192 192H192C85.961 448 0 362.039 0 256S85.961 64 192 64h192c106.039 0 192 85.961 192 192zM384 128c-70.741 0-128 57.249-128 128 0 70.741 57.249 128 128 128 70.741 0 128-57.249 128-128 0-70.741-57.249-128-128-128",
+          ],
+          "iconName": "toggle-on",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={false}
+      symbol={false}
+      title="Environment stopping..."
+      transform={null}
+    />
+    <FontAwesomeIcon
+      border={false}
+      className="entryButton_yr2g96"
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            448,
+            512,
+            Array [],
+            "f04b",
+            "M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z",
+          ],
+          "iconName": "play",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      onClick={[Function]}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={false}
+      symbol={false}
+      title="Run tests"
+      transform={null}
+    />
+  </div>
+</div>
+`;

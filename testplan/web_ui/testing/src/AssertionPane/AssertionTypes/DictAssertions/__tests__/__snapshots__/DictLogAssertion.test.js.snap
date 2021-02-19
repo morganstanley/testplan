@@ -1,0 +1,220 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
+<DictBaseAssertion
+  buttons={
+    <DictButtonGroup
+      defaultSortType={Symbol(NONE)}
+      flattenedDict={
+        Array [
+          Array [
+            0,
+            "baz",
+            Array [
+              "str",
+              "hello world",
+            ],
+          ],
+          Array [
+            0,
+            "foo",
+            "",
+          ],
+          Array [
+            0,
+            "",
+            Array [
+              "int",
+              "1",
+            ],
+          ],
+          Array [
+            0,
+            "",
+            Array [
+              "int",
+              "2",
+            ],
+          ],
+          Array [
+            0,
+            "",
+            Array [
+              "int",
+              "3",
+            ],
+          ],
+          Array [
+            0,
+            "bar",
+            "",
+          ],
+          Array [
+            1,
+            "color",
+            Array [
+              "str",
+              "blue",
+            ],
+          ],
+        ]
+      }
+      setRowData={[Function]}
+      sortTypeList={
+        Array [
+          Symbol(ALPHABETICAL),
+          Symbol(REVERSE_ALPHABETICAL),
+          Symbol(NONE),
+        ]
+      }
+    />
+  }
+  columns={
+    Array [
+      Object {
+        "field": "descriptor",
+        "headerName": "Descriptor",
+        "hide": true,
+      },
+      Object {
+        "cellRendererFramework": [Function],
+        "cellStyle": [Function],
+        "field": "key",
+        "headerName": "Key",
+        "pinned": "left",
+        "resizable": true,
+        "suppressSizeToFit": true,
+      },
+      Object {
+        "cellRendererFramework": [Function],
+        "cellStyle": [Function],
+        "field": "value",
+        "headerName": "Value",
+      },
+    ]
+  }
+  rows={
+    Array [
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 579,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": "baz",
+        },
+        "value": Object {
+          "type": "str",
+          "value": "hello world",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": true,
+          "lineNo": 579,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": "foo",
+        },
+        "value": Object {
+          "type": undefined,
+          "value": undefined,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": true,
+          "lineNo": 579,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": "",
+        },
+        "value": Object {
+          "type": "int",
+          "value": "1",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": true,
+          "lineNo": 579,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": "",
+        },
+        "value": Object {
+          "type": "int",
+          "value": "2",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 579,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": "",
+        },
+        "value": Object {
+          "type": "int",
+          "value": "3",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 579,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": "bar",
+        },
+        "value": Object {
+          "type": undefined,
+          "value": undefined,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": false,
+          "isListKey": undefined,
+          "lineNo": 579,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": "color",
+        },
+        "value": Object {
+          "type": "str",
+          "value": "blue",
+        },
+      },
+    ]
+  }
+/>
+`;

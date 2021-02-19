@@ -30,7 +30,7 @@ def _partition_data(data, max_rows):
     :rtype: ``generator``
     """
     return (
-        data[row:row + max_rows]
+        data[row : row + max_rows]
         for row in six.moves.range(0, len(data), max_rows)
     )
 
@@ -66,16 +66,22 @@ def _partition_style(style, num_rows, max_rows):
                 continue
 
             partition_start = (
-                0 if command_start < offset else command_start - offset)
+                0 if command_start < offset else command_start - offset
+            )
 
             partition_end = (
-                command_rows if command_end > end_row else command_end - offset)
+                command_rows if command_end > end_row else command_end - offset
+            )
 
             # Replace the old row indices with new ones,
             # but keep the rest of the tuple the same
             partition.append(
-                (command[0], (command[1][0], partition_start),
-                 (command[2][0], partition_end)) + command[3:]
+                (
+                    command[0],
+                    (command[1][0], partition_start),
+                    (command[2][0], partition_end),
+                )
+                + command[3:]
             )
 
         yield partition
@@ -99,7 +105,8 @@ def create_base_tables(data, style, col_widths, max_rows=MAX_TABLE_ROWS):
     """
     zipped = six.moves.zip(
         _partition_data(data, max_rows=max_rows),
-        _partition_style(style, len(data), max_rows=max_rows))
+        _partition_style(style, len(data), max_rows=max_rows),
+    )
 
     return [
         Table(data=_data, colWidths=col_widths, style=_style)
@@ -122,8 +129,8 @@ def format_cell_data(data, limit):
     for i, value in enumerate(data):
         if is_regex(value):
             data[i] = "REGEX('{}')".format(value.pattern)
-        elif 'lambda' in str(value):
-            data[i] = '<lambda>'
+        elif "lambda" in str(value):
+            data[i] = "<lambda>"
 
     return _limit_cell_length(data, limit)
 
@@ -139,8 +146,10 @@ def _limit_cell_length(iterable, limit):
     :return: The list of limited strings.
     :rtype: ``list`` of ``str``
     """
-    return [val if len(str(val)) < limit else '{}...'.format(str(val)[:limit-3])
-            for val in iterable]
+    return [
+        val if len(str(val)) < limit else "{}...".format(str(val)[: limit - 3])
+        for val in iterable
+    ]
 
 
 def _add_row_index(columns, rows, indices):
@@ -155,7 +164,7 @@ def _add_row_index(columns, rows, indices):
     :type indices: ``list`` of ``int``
     :return:
     """
-    indexed_columns = ['row'] + columns
+    indexed_columns = ["row"] + columns
     indexed_rows = []
     for i, row in enumerate(rows):
         indexed_rows.append([indices[i]] + row)
@@ -188,23 +197,34 @@ def _create_cell_styles(colour_matrix, display_index):
     cell_styles = []
     for row_idx in range(len(colour_matrix)):
         for col_idx in range(len(colour_matrix[row_idx])):
-            if colour_matrix[row_idx][col_idx] == 'I':
+            if colour_matrix[row_idx][col_idx] == "I":
                 colour = colors.black
-            elif colour_matrix[row_idx][col_idx] == 'P':
+            elif colour_matrix[row_idx][col_idx] == "P":
                 colour = colors.green
-            elif colour_matrix[row_idx][col_idx] == 'F':
+            elif colour_matrix[row_idx][col_idx] == "F":
                 colour = colors.red
             col = col_idx + int(display_index)
-            cell_styles.append(RowStyle(start_column=col,
-                                        end_column=col,
-                                        start_row=row_idx + 1,
-                                        end_row=row_idx + 1,
-                                        textcolor=colour))
+            cell_styles.append(
+                RowStyle(
+                    start_column=col,
+                    end_column=col,
+                    start_row=row_idx + 1,
+                    end_row=row_idx + 1,
+                    textcolor=colour,
+                )
+            )
     return cell_styles
 
 
-def _create_sub_table(columns, rows, column_start, column_end, style,
-                      row_indices=None, colour_matrix=None):
+def _create_sub_table(
+    columns,
+    rows,
+    column_start,
+    column_end,
+    style,
+    row_indices=None,
+    colour_matrix=None,
+):
     """
     Create ReportLab table from a subsection of the columns and rows data using
     the column_start and column_end indices. Row indices may be added to the
@@ -236,27 +256,36 @@ def _create_sub_table(columns, rows, column_start, column_end, style,
 
     # If needed add row indices.
     if row_indices:
-        sub_columns, sub_rows = _add_row_index(columns=sub_columns,
-                                               rows=sub_rows,
-                                               indices=row_indices)
+        sub_columns, sub_rows = _add_row_index(
+            columns=sub_columns, rows=sub_rows, indices=row_indices
+        )
 
     # Create the table and set it's style.
     table = Table([sub_columns] + sub_rows)
 
     if colour_matrix:
         colour_matrix = [row[column_start:column_end] for row in colour_matrix]
-        cell_styles = _create_cell_styles(colour_matrix=colour_matrix,
-                                          display_index=bool(row_indices))
+        cell_styles = _create_cell_styles(
+            colour_matrix=colour_matrix, display_index=bool(row_indices)
+        )
         style.extend(format_table_style(cell_styles))
     table.setStyle(style)
 
     return table
 
 
-def create_table(table, columns, row_indices, display_index, max_width,
-                 style, colour_matrix=None):
+def create_table(
+    table,
+    columns,
+    row_indices,
+    display_index,
+    max_width,
+    style,
+    colour_matrix=None,
+):
     """
     Create a ReportLab table from a serialized entry. Table features are:
+
       * Cell values (rows and columns) cannot exceed the maximum number of
         characters (constanst.CELL_STRING_LENGTH). Values will stop before this
         maximum and be appended with '...'.
@@ -270,22 +299,22 @@ def create_table(table, columns, row_indices, display_index, max_width,
     :param table: The table containing all the data.
     :type table: ``list`` of ``dict``
     :param columns: List of the column names, maintains the display order.
-    :type columns ``list`` of ``str``
+    :type columns: ``list`` of ``str``
     :param row_indices: List of row indices for each row in the table.
     :type row_indices: ``list`` of ``int``
     :param display_index: If True display the row indices. This will
-                          automatically be set to True if the rows exceed the
-                          maximum allowed to display or the table is too wide
-                          (too many columns) to fit in a single table.
+        automatically be set to True if the rows exceed the maximum
+        allowed to display or the table is too wide (too many columns)
+        to fit in a single table.
     :type display_index: ``bool``
     :param max_width: The maximum allowed width the table can be.
     :type max_width: ``int``
     :param style: The style of the ReportLab table.
     :type style: ``list`` of ``tuple``
     :param colour_matrix: A matrix listing whether each cell has passed (P),
-                          failed (F) or ignored (I) which will result in the
-                          cell text being green, red or black respectively. If
-                          no matrix is passed all cells will be black.
+        failed (F) or ignored (I) which will result in the cell text being
+        green, red or black respectively. If no matrix is passed all cells
+        will be black.
     :type colour_matrix: ``list`` of ``list``
     :return: The formatted ReportLab table.
     :rtype: ``list``
@@ -299,16 +328,22 @@ def create_table(table, columns, row_indices, display_index, max_width,
     if num_rows > constants.NUM_DISPLAYED_ROWS:
         display_index = True
         half_num_displayed_rows = int(constants.NUM_DISPLAYED_ROWS / 2)
-        row_indices = row_indices[:half_num_displayed_rows] + \
-                       ['...'] + \
-                       row_indices[-half_num_displayed_rows:]
-        table = table[:half_num_displayed_rows] + \
-                [{col: '...' for col in columns}] + \
-                table[-half_num_displayed_rows:]
+        row_indices = (
+            row_indices[:half_num_displayed_rows]
+            + ["..."]
+            + row_indices[-half_num_displayed_rows:]
+        )
+        table = (
+            table[:half_num_displayed_rows]
+            + [{col: "..." for col in columns}]
+            + table[-half_num_displayed_rows:]
+        )
         if colour_matrix:
-            colour_matrix = colour_matrix[:half_num_displayed_rows] + \
-                            [['I'] * num_cols] + \
-                            colour_matrix[-half_num_displayed_rows:]
+            colour_matrix = (
+                colour_matrix[:half_num_displayed_rows]
+                + [["I"] * num_cols]
+                + colour_matrix[-half_num_displayed_rows:]
+            )
         num_rows = len(table)
 
     # Limit the values in each row to the constants.CELL_STRING_LENGTH number of
@@ -317,16 +352,20 @@ def create_table(table, columns, row_indices, display_index, max_width,
     rows = [
         _limit_cell_length(
             iterable=[table[i][column] for column in columns],
-            limit=constants.CELL_STRING_LENGTH
+            limit=constants.CELL_STRING_LENGTH,
         )
         for i in range(num_rows)
     ]
 
     # Test if the table is too wide to fit on the page and must be split. If so
     # show the row indices.
-    temp_table = _create_sub_table(columns=display_columns, rows=rows,
-                                   column_start=0, column_end=num_cols,
-                                   style=style)
+    temp_table = _create_sub_table(
+        columns=display_columns,
+        rows=rows,
+        column_start=0,
+        column_end=num_cols,
+        style=style,
+    )
     if temp_table.minWidth() > max_width:
         display_index = True
 
@@ -337,29 +376,41 @@ def create_table(table, columns, row_indices, display_index, max_width,
         # Create a table, incrementally increasing the number of columns. Show
         # the row indices if needed.
         if display_index:
-            table = _create_sub_table(columns=display_columns, rows=rows,
-                                      column_start=column_start,
-                                      column_end=column_end, style=style,
-                                      row_indices=row_indices,
-                                      colour_matrix=colour_matrix)
+            table = _create_sub_table(
+                columns=display_columns,
+                rows=rows,
+                column_start=column_start,
+                column_end=column_end,
+                style=style,
+                row_indices=row_indices,
+                colour_matrix=colour_matrix,
+            )
         else:
-            table = _create_sub_table(columns=display_columns, rows=rows,
-                                      column_start=column_start,
-                                      column_end=column_end, style=style,
-                                      colour_matrix=colour_matrix)
+            table = _create_sub_table(
+                columns=display_columns,
+                rows=rows,
+                column_start=column_start,
+                column_end=column_end,
+                style=style,
+                colour_matrix=colour_matrix,
+            )
         # If the table exceeds the max width of the page, add a table up to the
         # previous column.
         if table.minWidth() > max_width:
-            table = _create_sub_table(columns=display_columns, rows=rows,
-                                      column_start=column_start,
-                                      column_end=column_end - 1, style=style,
-                                      row_indices=row_indices,
-                                      colour_matrix=colour_matrix)
-            tables.append([table, '', '', ''])
+            table = _create_sub_table(
+                columns=display_columns,
+                rows=rows,
+                column_start=column_start,
+                column_end=column_end - 1,
+                style=style,
+                row_indices=row_indices,
+                colour_matrix=colour_matrix,
+            )
+            tables.append([table, "", "", ""])
             column_start = column_end - 1
         # If we have hit the last column in the table add it to be displayed.
         elif column_end == num_cols:
-            tables.append([table, '', '', ''])
+            tables.append([table, "", "", ""])
             column_end += 1
         # Otherwise increment the number of columns to include.
         else:
@@ -386,63 +437,70 @@ def format_table_style(table_styles):
 
 class RowStyle(object):
     """
-      Helper class for managing styles for table rows.
+    Helper class for managing styles for table rows.
 
-      In Reportlab, table rows are styled using commands like:
+    In Reportlab, table rows are styled using commands like:
+
+    .. code-block:: python
 
       [
-        (
-            'BOTTOMPADDING',
-            (<start_column>, <start_row>),
-            (<end_column>, <end_row>),
-            5
-        ),
-        (
-            'FONT',
-            (<start_column>, <start_row>),
-            (<end_column>, <end_row>),
-            'Helvetica',
-            12
-        ),
-        (
-            'LEFTPADDING',
-            (<start_column>, <start_row>),
-            (<end_column>, <end_row>),
-            5
-        )
+          (
+              'BOTTOMPADDING',
+              (<start_column>, <start_row>),
+              (<end_column>, <end_row>),
+              5
+          ),
+          (
+              'FONT',
+              (<start_column>, <start_row>),
+              (<end_column>, <end_row>),
+              'Helvetica',
+              12
+          ),
+          (
+              'LEFTPADDING',
+              (<start_column>, <start_row>),
+              (<end_column>, <end_row>),
+              5
+          )
       ]
 
-      This gets messy as we have to repeat row & column indexes for
-      each command. For the styling example above, the equivalent
-      declaration would be:
+    This gets messy as we have to repeat row & column indexes for
+    each command. For the styling example above, the equivalent
+    declaration would be:
 
-      >>> row_style = RowStyle(
+    >>> row_style = RowStyle(
             bottom_padding=5,
             font=('Helvetica', 12),
             left_padding=5,
             start_column=<start_column>,
             end_column=<end_column>
-          )
+        )
 
-      >>> row_style.start_row = 10  # This is set by row data later
-      >>> row_style.end_row = 15  # This is set by row data later
-      >>> row_style.get_commands()
+    >>> row_style.start_row = 10  # This is set by row data later
+    >>> row_style.end_row = 15  # This is set by row data later
+    >>> row_style.get_commands()
 
-      Normally we'll just provide the column indexes and row
-      indexes will be provided implicitly by the ``RowData`` object
-      that makes use of this style.
+    Normally we'll just provide the column indexes and row
+    indexes will be provided implicitly by the ``RowData`` object
+    that makes use of this style.
 
-      More info: https://www.reportlab.com/docs/reportlab-userguide.pdf
+    More info: https://www.reportlab.com/docs/reportlab-userguide.pdf
     """
 
     def __init__(
-        self, start_column=0, end_column=-1,
-        start_row=None, end_row=None, **style_props
+        self,
+        start_column=0,
+        end_column=-1,
+        start_row=None,
+        end_row=None,
+        **style_props
     ):
 
         if not style_props:
             raise ValueError(
-                'Cannot initialize `RowStyle` without any style properties.')
+                "Cannot initialize `RowStyle` without any style properties."
+            )
 
         self._start_column = start_column
         self._end_column = end_column
@@ -469,23 +527,28 @@ class RowStyle(object):
     @start_row.setter
     def start_row(self, value):
         if self._start_row is not None:
-            raise ValueError(('Cannot override existing value '
-                              'for start row ({})').format(self.start_row))
+            raise ValueError(
+                (
+                    "Cannot override existing value " "for start row ({})"
+                ).format(self.start_row)
+            )
         self._start_row = value
 
     @end_row.setter
     def end_row(self, value):
         if self._end_row is not None:
-            raise ValueError(('Cannot override existing value '
-                              'for end row ({})').format(self.end_row))
+            raise ValueError(
+                ("Cannot override existing value " "for end row ({})").format(
+                    self.end_row
+                )
+            )
         self._end_row = value
-
 
     def __repr__(self):
         tmp = (
-            '{class_name}(start_column={start_column}, '
-            'end_column={end_column}, start_row={start_row}, '
-            'end_row={end_row}, {style_props_str})'
+            "{class_name}(start_column={start_column}, "
+            "end_column={end_column}, start_row={start_row}, "
+            "end_row={end_row}, {style_props_str})"
         )
         return tmp.format(
             class_name=self.__class__.__name__,
@@ -493,35 +556,42 @@ class RowStyle(object):
             end_column=self.end_column,
             start_row=self.start_row,
             end_row=self.end_row,
-            style_props_str=', '.join([
-                '{}={}'.format(key, value)
-                 for key, value in self._style_props.items()
-            ])
+            style_props_str=", ".join(
+                [
+                    "{}={}".format(key, value)
+                    for key, value in self._style_props.items()
+                ]
+            ),
         )
 
     def __eq__(self, other):
         attrs = (
-            'start_column', 'end_column',
-            'start_row', 'end_row', '_style_props'
+            "start_column",
+            "end_column",
+            "start_row",
+            "end_row",
+            "_style_props",
         )
         return all(getattr(self, att) == getattr(other, att) for att in attrs)
 
     def get_commands(self):
         """
-          Return Reportlab compliant styling commands.
+        Return Reportlab compliant styling commands.
 
-          >>> row_style = RowStyle(
-            bottom_padding=5, start_column=1, end_column=3)
-          >>> row_style.start_row, row_style.end_row = 10, 20
-          >>> row_style.get_commands()
-          (('BOTTOMPADDING', (1, 10), (3, 20), 5))
+        >>> row_style = RowStyle(
+          bottom_padding=5, start_column=1, end_column=3)
+        >>> row_style.start_row, row_style.end_row = 10, 20
+        >>> row_style.get_commands()
+        (('BOTTOMPADDING', (1, 10), (3, 20), 5))
         """
         if self.start_row is None or self.end_row is None:
             raise AttributeError(
-                'Cannot generate style commands unless'
-                ' `start_row` ({start_row}) and `end_row`'
-                ' ({end_row}) are set.'.format(
-                    start_row=self.start_row, end_row=self.end_row))
+                "Cannot generate style commands unless"
+                " `start_row` ({start_row}) and `end_row`"
+                " ({end_row}) are set.".format(
+                    start_row=self.start_row, end_row=self.end_row
+                )
+            )
 
         props = (
             (key, self._style_props[key])
@@ -530,20 +600,21 @@ class RowStyle(object):
 
         return tuple(
             (
-                key.upper().replace('_', ''),
+                key.upper().replace("_", ""),
                 (self.start_column, self.start_row),
-                (self.end_column, self.end_row)
-            ) + (val if isinstance(val, tuple) else (val,))
+                (self.end_column, self.end_row),
+            )
+            + (val if isinstance(val, tuple) else (val,))
             for key, val in props
         )
 
 
 class RowData(object):
     """
-      Container object that represents one or more `Table` rows.
+    Container object that represents one or more `Table` rows.
 
-      Manages row index implicitly, supports custom
-      styling via `RowStyle` objects.
+    Manages row index implicitly, supports custom styling
+    via `RowStyle` objects.
     """
 
     def __init__(self, num_columns, start=0, content=None, style=None):
@@ -558,13 +629,13 @@ class RowData(object):
 
     def __repr__(self):
         return (
-            '{class_name}(num_columns={num_columns}, start={start},'
-            ' content={content}, style={style_objs}'.format(
+            "{class_name}(num_columns={num_columns}, start={start},"
+            " content={content}, style={style_objs}".format(
                 class_name=self.__class__.__name__,
                 start=self.start,
                 content=self.content,
                 num_columns=self.num_columns,
-                style_objs=self._style_objs
+                style_objs=self._style_objs,
             )
         )
 
@@ -575,20 +646,24 @@ class RowData(object):
         return len(self.content)
 
     def __eq__(self, other):
-        attrs = ('num_columns', 'content', '_style_objs', 'start', 'end')
+        attrs = ("num_columns", "content", "_style_objs", "start", "end")
         return all(getattr(self, att) == getattr(other, att) for att in attrs)
 
     def __add__(self, other):
         if self.num_columns != other.num_columns:
             raise ValueError(
-                'Column spans do not match ({} != {})'.format(
-                    self.num_columns, other.num_columns))
+                "Column spans do not match ({} != {})".format(
+                    self.num_columns, other.num_columns
+                )
+            )
 
         if other.start != self.end:
             raise ValueError(
-                '`end` index of the first RowData must match `start`'
-                ' index of the second ({} != {}).'.format(
-                    self.end, other.start))
+                "`end` index of the first RowData must match `start`"
+                " index of the second ({} != {}).".format(
+                    self.end, other.start
+                )
+            )
 
         row_data = RowData(start=self.start, num_columns=self.num_columns)
         row_data.content = self.content + other.content
@@ -598,11 +673,12 @@ class RowData(object):
     @property
     def style(self):
         """
-            Return Reportlab compatible styles (commands)
-            from the RowStyle objects.
+        Return Reportlab compatible styles (commands)
+        from the RowStyle objects.
         """
         return itertools.chain.from_iterable(
-            [row_style.get_commands() for row_style in self._style_objs])
+            [row_style.get_commands() for row_style in self._style_objs]
+        )
 
     @property
     def start(self):
@@ -612,33 +688,34 @@ class RowData(object):
     @start.setter
     def start(self, value):
         """
-            Overwrite prevention if we have existing
-            `RowStyles` for this `RowData` object.
+        Overwrite prevention if we have existing
+        `RowStyles` for this `RowData` object.
         """
         if self._style_objs:
             raise ValueError(
-                'Cannot change `start` of {self}, as it would cause'
-                ' inconsistencies when new styles are added.'.format(self=self))
+                "Cannot change `start` of {self}, as it would cause"
+                " inconsistencies when new styles are added.".format(self=self)
+            )
         self._start = value
 
     @property
     def end(self):
         """
-            End index of the current row data, will keep
-            increasing as more content is added.
+        End index of the current row data, will keep
+        increasing as more content is added.
         """
         return self.start + len(self)
 
     def append(self, content, style=None):
         """
-          Append one or more rows to the current row data,
-          with the given styles.
+        Append one or more rows to the current row data,
+        with the given styles.
 
-          >>> # Let's say we have 2 more rows created previously.
-          >>> row_data = RowData(start=2, num_columns=4)
-          >>> # # create new row data with red text.
-          >>> row_data.append('hello', style=RowStyle(text_color=colors.red))
-          >>> row_data.append(
+        >>> # Let's say we have 2 more rows created previously.
+        >>> row_data = RowData(start=2, num_columns=4)
+        >>> # # create new row data with red text.
+        >>> row_data.append('hello', style=RowStyle(text_color=colors.red))
+        >>> row_data.append(
                 content=[
                     [
                         'first column',
@@ -658,17 +735,18 @@ class RowData(object):
                     # Applies to last column only (0, 1, 2, [3])
                     RowStyle(text_color=colors.green, start_column=3)
                 ]
-          )
+            )
 
-          :param content: Row(s) to be added.
-          :type data: ``str`` or ``list`` of ``str``
-                      or ``list`` of ``list`` of ``str``
-          :param style: Style context for the given content.
-          :type style: ``RowStyle`` or ``list`` of ``RowStyle``
-          :return: ``None``
+        :param content: Row(s) to be added.
+        :type data: ``str`` or ``list`` of ``str``
+            or ``list`` of ``list`` of ``str``
+        :param style: Style context for the given content.
+        :type style: ``RowStyle`` or ``list`` of ``RowStyle``
+        :return: ``None``
+        :rtype: ``NoneType``
         """
         if isinstance(content, six.string_types):
-            content = [content] + [''] * (self.num_columns - 1)
+            content = [content] + [""] * (self.num_columns - 1)
 
         if not isinstance(content[0], (list, tuple)):
             content = [content]

@@ -12,7 +12,7 @@ templates based on dynamic resource assignments and provides fixtures
 like setup, teardown, after_start, after_stop etc. to customize the tests.
 
 A typical use case is to start an application, connect it to other services,
-perform some operations via the application and services
+perform some operations via the application and service
 :ref:`drivers <multitest_drivers>` and assert on expected results.
 
 Components
@@ -21,7 +21,7 @@ Components
 The three main components of a Testplan are:
 
   1. **Test** (:py:class:`~testplan.testing.multitest.base.MultiTest`,
-     (:py:class:`~testplan.testing.cpp.gtest.GTest`)
+     :py:class:`~testplan.testing.cpp.gtest.GTest`)
      is defined as a runnable that will be executed
      by :py:class:`~testplan.base.Testplan` and create a
      :py:class:`~testplan.report.testing.base.TestReport`. Multiple tests can be
@@ -56,7 +56,7 @@ The three main components of a Testplan are:
      By default all tests add added to the default
      :py:class:`~testplan.runners.local.LocalRunner` executor that executes
      them sequentially in the order added. For parallel test execution,
-     testplan uses :ref:`pools <Pools>` of workers mechanisms (i.e
+     testplan uses :ref:`pools <Pools>` of workers (i.e
      :py:class:`ThreadPool <testplan.runners.pools.base.Pool>`,
      :py:class:`ProcessPool <testplan.runners.pools.process.ProcessPool>`).
 
@@ -283,24 +283,24 @@ A list of self-explanatory **downloadable examples** can be found
 Configuration
 =============
 
-Most of the objects in testplan are taking ``**options`` as parameters and these
-are validated using a ``schema`` at initialization stage.
+Most of the objects in testplan take ``**options`` as parameters and these are
+validated using a ``schema`` at initialization stage.
 For example, :py:class:`~testplan.base.Testplan` validates all input options
 using a ``schema`` defined in the :py:class:`~testplan.base.TestplanConfig`
 that inherits the schema of a
 :py:class:`~testplan.common.entity.base.RunnableManagerConfig` and
-:py:class:`~testplan.runnable.TestRunnerConfig`. In this case,
+:py:class:`~testplan.runnable.base.TestRunnerConfig`. In this case,
 :py:class:`~testplan.base.Testplan` accepts all arguments of
 :py:class:`~testplan.common.entity.base.RunnableManager` entity and
-:py:class:`~testplan.runnable.TestRunner` entity.
+:py:class:`~testplan.runnable.base.TestRunner` entity.
 
 This is to avoid duplication of configuration options in similar components
 and enable re-usability and extendability of existing classes.
 
 Example Testplan initialization where all input parameters
 (``name``, ``pdf_path``, ``stdout_style``, ``pdf_style``) are part of
-:py:class:`~testplan.runnable.TestRunnerConfig` schema of
-:py:class:`~testplan.runnable.TestRunner` entity.
+:py:class:`~testplan.runnable.base.TestRunnerConfig` schema of
+:py:class:`~testplan.runnable.base.TestRunner` entity.
 
 .. code-block:: python
 
@@ -316,9 +316,9 @@ Command line
 
     Arguments can be provided in a ``test_plan.py`` application:
 
-    optional arguments:
+    Information:
       -h, --help            show this help message and exit
-      --list                Shortcut for `--info name`
+      --list                Shortcut for `--info name`.
       --info                (default: None)
 
                             "pattern-full" - List tests in `--patterns` / `--tags` compatible format.
@@ -327,12 +327,14 @@ Command line
 
                             "count" - Lists top level instances and total number of suites & testcases per instance.
 
-                            "pattern" - List tests in `--patterns` / `--tags` compatible format. Max 25 testcases per suite will be displayed
+                            "pattern" - List tests in `--patterns` / `--tags` compatible format. Max 25 testcases per suite will be displayed.
 
-                            "name" - List tests in readable format. Max 25 testcases per suite will be displayed
+                            "name" - List tests in readable format. Max 25 testcases per suite will be displayed.
+      -i, --interactive     Enable interactive mode. A port may be specified, otherwise the port defaults to 0.
 
     General:
-      --runpath             Path under which all temp files and logs will be created
+      --runpath             Path under which all temp files and logs will be created.
+      --timeout             Expiry timeout on test execution.
 
     Filtering:
       --patterns            Test filter, supports glob notation & multiple arguments.
@@ -347,9 +349,9 @@ Command line
 
                             --pattern <Multitest Name>:<Suite Name>:<Testcase name>
 
-                            --pattern <Multitest Name>:*:<Testcase name>
+                            --pattern <Multitest Name>:\*:<Testcase name>
 
-                            --pattern *:<Suite Name>:<Testcase name>
+                            --pattern \*:<Suite Name>:<Testcase name>
 
       --tags                Test filter, runs tests that match ANY of the given tags.
 
@@ -409,6 +411,9 @@ Command line
                             --report-tags-all <tag_name_1> --report-tags-all <tag_name 2>
 
                             --report-tags-all <tag_name_1> <tag_category_1>=<tag_name_2>
+      --file-log-level      {exporter_info,test_info,driver_info,critical,error,warning,info,debug,none}
+
+                            Specify log level for file logs. Set to None to disable file logging.
 
 Highlighted features
 ====================
@@ -440,61 +445,4 @@ Some features that should be highlighted are:
      :py:class:`~testplan.exporters.testing.base.Exporter` components that can be
      configured programmatically.
 
-
-Getting started
-===============
-
-Few sample steps to run you first plan:
-
-  1. Optionally create a virtual environment, i.e
-     using `virtualenv <https://virtualenv.pypa.io>`_:
-
-    .. code-block:: bash
-
-      $ virtualenv env1
-      $ cd env1
-      $ source bin/activate
-
-  2. Clone the github `repo <https://github.com/Morgan-Stanley/testplan>`_.
-
-    .. code-block:: bash
-
-      $ git clone https://github.com/Morgan-Stanley/testplan.git
-      $ cd testplan
-
-  3. Install the project dependencies. (You can also customize the *setup.py* file).
-
-    .. code-block:: bash
-
-      $ python setup.py install
-
-  4. Execute a ready made example from *testplan/examples* directory, i.e:
-
-    .. code-block:: bash
-
-      $ cd testplan/examples/Assertions/Basic
-      $ python test_plan.py
-
-  5. Execute the project tests.
-
-    .. code-block:: bash
-
-      $ py.test test --verbose
-
-.. note:: You may need to install packages like ``python-tk`` for tests that
-          make use of matplotlib library. You can also disable optional
-          packages mentioned in *setup.py* file that are not required by the
-          core functionality.
-
-These are all the :ref:`downloadable examples <download>` provided right now.
-
-Writing custom drivers
-----------------------
-
-Testplan drivers are designed to be able to be inherited/extended and create
-new ones based on the user specific environment. Here is a section explaining
-how to create drivers for
-:ref:`custom applications and services <multitest_custom_drivers>`.
-You can contribute missing drivers or improvements to the existing ones by
-following the :ref:`contribution <contributing>` process.
 

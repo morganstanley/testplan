@@ -1,16 +1,16 @@
 """FixServer driver classes."""
 
 import os
+import select
+import platform
 
-from six.moves import queue as Queue
-
+from six.moves import queue
 from schema import Use
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.sockets.fix.server import Server
-from testplan.common.utils.timing import (TimeoutException,
-                                          TimeoutExceptionInfo)
+from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 
 from ..base import Driver, DriverConfig
 
@@ -21,16 +21,18 @@ class FixServerConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.fix.server.FixServer` driver.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {'msgclass': type,
-                     'codec': object,
-                     ConfigOption('host', default='localhost'): str,
-                     ConfigOption('port', default=0): Use(int),
-                     ConfigOption('version', default='FIX.4.2'): str}
-        return self.inherit_schema(overrides, super(FixServerConfig, self))
+        return {
+            "msgclass": type,
+            "codec": object,
+            ConfigOption("host", default="localhost"): str,
+            ConfigOption("port", default=0): Use(int),
+            ConfigOption("version", default="FIX.4.2"): str,
+        }
 
 
 class FixServer(Driver):
@@ -45,6 +47,12 @@ class FixServer(Driver):
     :py:class:`testplan.common.utils.sockets.fix.server.Server` class, which
     provides equivalent functionality and may be used outside of MultiTest.
 
+    NOTE: FixServer requires select.poll(), which is not implemented on all
+    operating systems - typically it is available on POSIX systems but not
+    on Windows.
+
+    :param name: Name of FixServer.
+    :type name: ``str``
     :param msgclass: Type used to send and receive FIX messages.
     :type msgclass: ``type``
     :param codec: A Codec to use to encode and decode FIX messages.
@@ -58,22 +66,34 @@ class FixServer(Driver):
     :type version: ``str``
 
     Also inherits all
-    :py:class:`~testplan.testing.multitest.driver.base.Driver`` options.
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = FixServerConfig
 
-    def __init__(self, **options):
+    def __init__(
+        self,
+        name,
+        msgclass,
+        codec,
+        host="localhost",
+        port=0,
+        version="FIX.4.2",
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
+        options.setdefault("file_logger", "{}.log".format(slugify(name)))
+
+        if not hasattr(select, "poll"):
+            raise RuntimeError(
+                "select.poll() is required for FixServer but is not available "
+                "on the current platform ({})".format(platform.system())
+            )
+
         super(FixServer, self).__init__(**options)
         self._host = None
         self._port = None
         self._server = None
-        self._logname = '{0}.log'.format(slugify(self.cfg.name))
-
-    @property
-    def logpath(self):
-        """Fix server logfile in runpath."""
-        return os.path.join(self.runpath, self._logname)
 
     @property
     def host(self):
@@ -88,11 +108,14 @@ class FixServer(Driver):
     def starting(self):
         """Starts the TCP server."""
         super(FixServer, self).starting()
-        self._setup_file_logger(self.logpath)
-        self._server = Server(msgclass=self.cfg.msgclass, codec=self.cfg.codec,
-                              host=self.cfg.host, port=self.cfg.port,
-                              version=self.cfg.version,
-                              logger=self.file_logger)
+        self._server = Server(
+            msgclass=self.cfg.msgclass,
+            codec=self.cfg.codec,
+            host=self.cfg.host,
+            port=self.cfg.port,
+            version=self.cfg.version,
+            logger=self.logger,
+        )
         self._server.start()
         self._host = self.cfg.host
         self._port = self._server.port
@@ -102,6 +125,7 @@ class FixServer(Driver):
         Docstring from Server.active_connections
         """
         return self._server.active_connections()
+
     active_connections.__doc__ = Server.active_connections.__doc__
 
     def is_connection_active(self, conn_name):
@@ -109,6 +133,7 @@ class FixServer(Driver):
         Docstring from Server.is_connection_active
         """
         return self._server.is_connection_active(conn_name)
+
     is_connection_active.__doc__ = Server.is_connection_active.__doc__
 
     def send(self, msg, conn_name=(None, None)):
@@ -116,6 +141,7 @@ class FixServer(Driver):
         Docstring from Server.send
         """
         return self._server.send(msg, conn_name)
+
     send.__doc__ = Server.send.__doc__
 
     def receive(self, conn_name=(None, None), timeout=60):
@@ -139,7 +165,7 @@ class FixServer(Driver):
             If no message is received within the timeframe, a TimeoutException
             is raised.
 
-        :type timeout: ``int``
+        :type timeout: ``int`` or ``NoneType``
 
         :return: received FixMessage object
         :rtype: ``FixMessage``
@@ -148,17 +174,22 @@ class FixServer(Driver):
         timeout_info = TimeoutExceptionInfo()
         try:
             received = self._server.receive(conn_name, timeout=timeout or 0)
-        except Queue.Empty:
+        except queue.Empty:
             self.logger.debug(
-                'Timed out waiting for message for {} seconds'.format(
-                    timeout or 0))
+                "Timed out waiting for message for {} seconds".format(
+                    timeout or 0
+                )
+            )
             if timeout is not None:
                 raise TimeoutException(
-                    'Timed out waiting for message on {0}. {1}'.format(
-                        self.cfg.name, timeout_info.msg()))
+                    "Timed out waiting for message on {0}. {1}".format(
+                        self.cfg.name, timeout_info.msg()
+                    )
+                )
 
-        self.file_logger.debug('Received from connection {} msg {}'.format(
-            conn_name, received))
+        self.logger.debug(
+            "Received from connection {} msg {}".format(conn_name, received)
+        )
         return received
 
     def flush(self):
@@ -175,7 +206,10 @@ class FixServer(Driver):
         """Stops the FIX server."""
         super(FixServer, self).stopping()
         self._stop_logic()
+        self.logger.debug("Stopped FixServer.")
 
     def aborting(self):
         """Abort logic that stops the FIX server."""
+        super(FixServer, self).aborting()
         self._stop_logic()
+        self.logger.debug("Aborted FixServer.")

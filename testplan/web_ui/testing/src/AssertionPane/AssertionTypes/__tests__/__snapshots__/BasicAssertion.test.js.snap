@@ -1,0 +1,5242 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BasicAssertion shallow renders the Contain assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Expected:
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Value:
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          foo
+           &lt;in&gt; value
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          foobar
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the DictCheck assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        Existence check: [
+        <span
+          key="check_foo_0"
+          style={
+            Object {
+              "color": "black",
+            }
+          }
+        >
+          "foo"
+        </span>
+        , 
+        <span
+          key="check_alpha_1"
+          style={
+            Object {
+              "color": "red",
+            }
+          }
+        >
+          "alpha"
+        </span>
+        ]
+        <br />
+        Absence check: [
+        <span
+          key="check_bar_0"
+          style={
+            Object {
+              "color": "red",
+            }
+          }
+        >
+          "bar"
+        </span>
+        , 
+        <span
+          key="check_beta_1"
+          style={
+            Object {
+              "color": "black",
+            }
+          }
+        >
+          "beta"
+        </span>
+        ]
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the DictCheck assertion which has no absent key 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        Existence check: [
+        <span
+          key="check_foo_0"
+          style={
+            Object {
+              "color": "black",
+            }
+          }
+        >
+          "foo"
+        </span>
+        , 
+        <span
+          key="check_alpha_1"
+          style={
+            Object {
+              "color": "red",
+            }
+          }
+        >
+          "alpha"
+        </span>
+        ]
+        <br />
+        Absence check: [
+        ]
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Expected:
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Value:
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          foo
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        foo
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the EqualExcludeSlices assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Slices:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span
+        style={
+          Object {
+            "whiteSpace": "pre",
+          }
+        }
+      >
+        slice(0, 2, None)
+slice(4, 8, None)
+      </span>
+      <hr />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Expected:
+        </span>
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Value:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          [
+          <span
+            key="slice_a,b,3,4,c,d,e,f_0"
+            style={
+              Object {
+                "color": "red",
+              }
+            }
+          >
+            "a"
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,e,f_1"
+            style={
+              Object {
+                "color": "red",
+              }
+            }
+          >
+            "b"
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,e,f_2"
+            style={
+              Object {
+                "color": "green",
+              }
+            }
+          >
+            3
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,e,f_3"
+            style={
+              Object {
+                "color": "green",
+              }
+            }
+          >
+            4
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,e,f_4"
+            style={
+              Object {
+                "color": "red",
+              }
+            }
+          >
+            "c"
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,e,f_5"
+            style={
+              Object {
+                "color": "red",
+              }
+            }
+          >
+            "d"
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,e,f_6"
+            style={
+              Object {
+                "color": "red",
+              }
+            }
+          >
+            "e"
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,e,f_7"
+            style={
+              Object {
+                "color": "red",
+              }
+            }
+          >
+            "f"
+          </span>
+          ]
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          [
+          <span
+            key="slice_1,2,3,4,5,6,7,8_0"
+            style={
+              Object {
+                "color": "red",
+              }
+            }
+          >
+            1
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_1"
+            style={
+              Object {
+                "color": "red",
+              }
+            }
+          >
+            2
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_2"
+            style={
+              Object {
+                "color": "green",
+              }
+            }
+          >
+            3
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_3"
+            style={
+              Object {
+                "color": "green",
+              }
+            }
+          >
+            4
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_4"
+            style={
+              Object {
+                "color": "red",
+              }
+            }
+          >
+            5
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_5"
+            style={
+              Object {
+                "color": "red",
+              }
+            }
+          >
+            6
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_6"
+            style={
+              Object {
+                "color": "red",
+              }
+            }
+          >
+            7
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_7"
+            style={
+              Object {
+                "color": "red",
+              }
+            }
+          >
+            8
+          </span>
+          ]
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the EqualSlices assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Slices:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span
+        style={
+          Object {
+            "whiteSpace": "pre",
+          }
+        }
+      >
+        slice(2, 4, None)
+slice(6, 8, None)
+      </span>
+      <hr />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Expected:
+        </span>
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Value:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          [
+          <span
+            key="slice_a,b,3,4,c,d,7,8_0"
+            style={
+              Object {
+                "color": "black",
+              }
+            }
+          >
+            "a"
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,7,8_1"
+            style={
+              Object {
+                "color": "black",
+              }
+            }
+          >
+            "b"
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,7,8_2"
+            style={
+              Object {
+                "color": "green",
+              }
+            }
+          >
+            3
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,7,8_3"
+            style={
+              Object {
+                "color": "green",
+              }
+            }
+          >
+            4
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,7,8_4"
+            style={
+              Object {
+                "color": "black",
+              }
+            }
+          >
+            "c"
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,7,8_5"
+            style={
+              Object {
+                "color": "black",
+              }
+            }
+          >
+            "d"
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,7,8_6"
+            style={
+              Object {
+                "color": "green",
+              }
+            }
+          >
+            7
+          </span>
+          , 
+          <span
+            key="slice_a,b,3,4,c,d,7,8_7"
+            style={
+              Object {
+                "color": "green",
+              }
+            }
+          >
+            8
+          </span>
+          ]
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          [
+          <span
+            key="slice_1,2,3,4,5,6,7,8_0"
+            style={
+              Object {
+                "color": "black",
+              }
+            }
+          >
+            1
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_1"
+            style={
+              Object {
+                "color": "black",
+              }
+            }
+          >
+            2
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_2"
+            style={
+              Object {
+                "color": "green",
+              }
+            }
+          >
+            3
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_3"
+            style={
+              Object {
+                "color": "green",
+              }
+            }
+          >
+            4
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_4"
+            style={
+              Object {
+                "color": "black",
+              }
+            }
+          >
+            5
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_5"
+            style={
+              Object {
+                "color": "black",
+              }
+            }
+          >
+            6
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_6"
+            style={
+              Object {
+                "color": "green",
+              }
+            }
+          >
+            7
+          </span>
+          , 
+          <span
+            key="slice_1,2,3,4,5,6,7,8_7"
+            style={
+              Object {
+                "color": "green",
+              }
+            }
+          >
+            8
+          </span>
+          ]
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the ExceptionNotRaised assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Expected exceptions:
+        </span>
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Raised exceptions:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          TypeError
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          &lt;type 'exceptions.KeyError'&gt;
+           (value: 
+          'bar'
+          )
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the ExceptionRaised assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Expected exceptions:
+        </span>
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Raised exceptions:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          KeyError
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          &lt;type 'exceptions.KeyError'&gt;
+           (value: 
+          'bar'
+          )
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the Fail assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the FixCheck assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        Existence check: [
+        <span
+          key="check_26_0"
+          style={
+            Object {
+              "color": "red",
+            }
+          }
+        >
+          26
+        </span>
+        , 
+        <span
+          key="check_22_1"
+          style={
+            Object {
+              "color": "black",
+            }
+          }
+        >
+          22
+        </span>
+        , 
+        <span
+          key="check_11_2"
+          style={
+            Object {
+              "color": "red",
+            }
+          }
+        >
+          11
+        </span>
+        ]
+        <br />
+        Absence check: [
+        <span
+          key="check_444_0"
+          style={
+            Object {
+              "color": "black",
+            }
+          }
+        >
+          444
+        </span>
+        , 
+        <span
+          key="check_555_1"
+          style={
+            Object {
+              "color": "red",
+            }
+          }
+        >
+          555
+        </span>
+        ]
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the Greater assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Expected:
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Value:
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          value 
+          &gt;
+           
+          2
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        5
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the GreaterEqual assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Expected:
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Value:
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          value 
+          &gt;=
+           
+          2
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        2
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the IsClose assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Expected:
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Value:
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          value 
+          ~=
+           
+          95
+           within rel_tol=
+          0.1
+           or abs_tol=
+          0
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        100
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the IsFalse assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Expected:
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Value:
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          value is False
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          False
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the IsTrue assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Expected:
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Value:
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          value is True
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          True
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the Less assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Expected:
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Value:
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          value 
+          &lt;
+           
+          20
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        10
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the LessEqual assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Expected:
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Value:
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          value 
+          &lt;=
+           
+          10
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        10
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the LineDiff assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          No differences.
+        </span>
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span />
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the Log assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <pre>
+        This is a log message, it will be displayed along with other assertion details.
+      </pre>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the NotContain assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Expected:
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Value:
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          10
+           &lt;not in&gt; value
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          {'a': 1, 'b': 2}
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the NotEqual assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Expected:
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Value:
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          &lt;not&gt; 
+          bar
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        foo
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the RegexFindIter assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Pattern:
+        </span>
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          String:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <div>
+          <span>
+            foo
+          </span>
+          <span>
+            <div>
+              <br />
+              <strong>
+                Condition:
+              </strong>
+              <br />
+              <span>
+                &lt;lambda&gt;
+              </span>
+            </div>
+          </span>
+        </div>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span
+          style={
+            Object {
+              "whiteSpace": "pre",
+            }
+          }
+        >
+          <span
+            key="-16494850670,30"
+          />
+          <span
+            key="-16494850670,31"
+            style={
+              Object {
+                "backgroundColor": "rgba(0, 123, 255, .5)",
+              }
+            }
+          >
+            foo
+          </span>
+          <span
+            key="-16494850674,70"
+          >
+             
+          </span>
+          <span
+            key="-16494850674,71"
+            style={
+              Object {
+                "backgroundColor": "rgba(0, 123, 255, .5)",
+              }
+            }
+          >
+            foo
+          </span>
+          <span
+            key="-16494850678,110"
+          >
+             
+          </span>
+          <span
+            key="-16494850678,111"
+            style={
+              Object {
+                "backgroundColor": "rgba(0, 123, 255, .5)",
+              }
+            }
+          >
+            foo
+          </span>
+          <span
+            key="-164948506720,230"
+          >
+             bar bar 
+          </span>
+          <span
+            key="-164948506720,231"
+            style={
+              Object {
+                "backgroundColor": "rgba(0, 123, 255, .5)",
+              }
+            }
+          >
+            foo
+          </span>
+          <span
+            key="-164948506723"
+          >
+             bar
+          </span>
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the RegexMatch assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Pattern:
+        </span>
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          String:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <div>
+          <span>
+            foo
+          </span>
+          <span />
+        </div>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span
+          style={
+            Object {
+              "whiteSpace": "pre",
+            }
+          }
+        >
+          <span
+            key="-19797186360,30"
+          />
+          <span
+            key="-19797186360,31"
+            style={
+              Object {
+                "backgroundColor": "rgba(0, 123, 255, .5)",
+              }
+            }
+          >
+            foo
+          </span>
+          <span
+            key="-19797186363"
+          >
+            bar
+          </span>
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the RegexMatchLine assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Pattern:
+        </span>
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          String:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          \\w+ line$
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span
+          style={
+            Object {
+              "whiteSpace": "pre",
+            }
+          }
+        >
+          <span
+            key="18983554700,0,10"
+            style={
+              Object {
+                "backgroundColor": "rgba(0, 123, 255, .5)",
+              }
+            }
+          >
+            first line
+
+          </span>
+          <span
+            key="18983554701,0,11"
+            style={
+              Object {
+                "backgroundColor": "rgba(0, 123, 255, .5)",
+              }
+            }
+          >
+            second line
+
+          </span>
+          <span
+            key="18983554702,0,10"
+            style={
+              Object {
+                "backgroundColor": "rgba(0, 123, 255, .5)",
+              }
+            }
+          >
+            third line
+
+          </span>
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the RegexMatchNotExists assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Pattern:
+        </span>
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          String:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <div>
+          <span>
+            baz
+          </span>
+          <span />
+        </div>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span
+          style={
+            Object {
+              "whiteSpace": "pre",
+            }
+          }
+        >
+          <span
+            key="-13621270830"
+          >
+            foobar
+          </span>
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the RegexSearch assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Pattern:
+        </span>
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          String:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <div>
+          <span>
+            second
+          </span>
+          <span />
+        </div>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span
+          style={
+            Object {
+              "whiteSpace": "pre",
+            }
+          }
+        >
+          <span
+            key="-173699572811,170"
+          >
+            first line
+
+          </span>
+          <span
+            key="-173699572811,171"
+            style={
+              Object {
+                "backgroundColor": "rgba(0, 123, 255, .5)",
+              }
+            }
+          >
+            second
+          </span>
+          <span
+            key="-173699572817"
+          >
+             line
+third line
+          </span>
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the RegexSearchNotExists assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Pattern:
+        </span>
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          String:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <div>
+          <span>
+            foobar
+          </span>
+          <span />
+        </div>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span
+          style={
+            Object {
+              "whiteSpace": "pre",
+            }
+          }
+        >
+          <span
+            key="-2053333250"
+          >
+            first line
+second line
+third line
+          </span>
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the XMLCheck assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          Expected XPath:
+        </span>
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        <span>
+          XML:
+        </span>
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span>
+          /Root/Test
+        </span>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <span
+          style={
+            Object {
+              "whiteSpace": "pre",
+            }
+          }
+        >
+          &lt;Root&gt;
+    &lt;Test&gt;Foo&lt;/Test&gt;
+&lt;/Root&gt;
+
+        </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;

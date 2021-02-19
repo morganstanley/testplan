@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NotImplementedAssertion shallow renders the correct HTML structure 1`] = `
+<Fragment>
+  <FontAwesomeIcon
+    border={false}
+    className="icon_1tijhm4"
+    fixedWidth={false}
+    flip={null}
+    icon="frown"
+    inverse={false}
+    key="faFrown"
+    listItem={false}
+    mask={null}
+    pull={null}
+    pulse={false}
+    rotation={null}
+    size="lg"
+    spin={false}
+    symbol={false}
+    title=""
+    transform={null}
+  />
+  Currently there is no rendering mechanism for this type of assertion. Please contact 
+  <strong>
+    the developers
+  </strong>
+   if you would like to have it implemented.
+</Fragment>
+`;

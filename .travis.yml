@@ -1,14 +1,59 @@
+dist: bionic
 language: python
 
-virtualenv:
-  system_site_packages: true
+env:
+  global:
+    - REACT_APP_API_BASE_URL: "/fake/api/endpoint"
+    - CI: ""  # Avoid yarn build failure due to the warning of dependencies
+  jobs:
+    - BLACK_VERSION: "20.8b1"
 
 python:
   - "2.7"
-  - "3.4"
+  - "3.7"
+
+before_install:
+  - sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
+  - wget https://downloads.apache.org/kafka/2.6.1/kafka_2.12-2.6.1.tgz -O kafka.tgz
+  - sudo mkdir /opt/kafka
+  - sudo chown -R $USER:$USER /opt/kafka
+  - tar zxf kafka.tgz -C /opt/kafka --strip-components 1
 
 install:
-  - python setup.py install
+  - pip install -r requirements.txt -U
+  - python install-testplan-ui --verbose --dev
+  # Travis uses pyenv to manage a virtualenv / venv whose 'bin' dir is placed
+  # at the front of PATH. The version of Python depends on which version in the
+  # 'python' array is currently being tested.
+  #
+  # This command 'pyenv global 3.7' makes Python 3.7 the default Python when
+  # outside of the venv, and its 'bin' dir is placed lower in the PATH
+  # hierarchy.
+  # 
+  # Thus, when we're executing a Python2 build:
+  # `which python`  ==> /home/travis/virtualenv/python2.7.15/bin/python
+  # `which python2` ==> /home/travis/virtualenv/python2.7.15/bin/python2
+  # `which pip`     ==> /home/travis/virtualenv/python2.7.15/bin/pip
+  # `which pip2`    ==> /home/travis/virtualenv/python2.7.15/bin/pip2
+  # `which python3` ==> /opt/pyenv/shims/python3
+  # `which pip3`    ==> /opt/pyenv/shims/pip3
+  #
+  # And when we're in a Python3 build 
+  # `which python`     ==> /home/travis/virtualenv/python3.7.1/bin/python
+  # `which python3`    ==> /home/travis/virtualenv/python3.7.1/bin/python3
+  # `which pip`        ==> /home/travis/virtualenv/python3.7.1/bin/pip
+  # `which pip3`       ==> /home/travis/virtualenv/python3.7.1/bin/pip3
+  # `which -a python3` ==> /home/travis/virtualenv/python3.7.1/bin/python3
+  #                        ...
+  #                        /opt/pyenv/shims/python3
+  # `which -a pip3`    ==> /home/travis/virtualenv/python3.7.1/bin/pip3
+  #                        ...
+  #                        /opt/pyenv/shims/pip3
+  - pyenv global 3.7
+  - pip3 install black==$BLACK_VERSION
 
 script:
-  - py.test test --verbose
+  - python3 -m black --check .  # black configuration lives in pyproject.toml
+  - ./scripts/utils/crlf_check.sh
+  - pylint --rcfile pylintrc testplan
+  - pytest tests --verbose

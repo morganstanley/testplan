@@ -15,15 +15,18 @@ class ZMQServerConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.zmq.server.ZMQServer` driver.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {Optional('host', default='localhost'): str,
-                     Optional('port', default=0): Use(int),
-                     Optional('message_pattern', default=zmq.PAIR):
-                         Or(zmq.PAIR, zmq.REP, zmq.PUB, zmq.PUSH)}
-        return self.inherit_schema(overrides, super(ZMQServerConfig, self))
+        return {
+            Optional("host", default="localhost"): str,
+            Optional("port", default=0): Use(int),
+            Optional("message_pattern", default=zmq.PAIR): Or(
+                zmq.PAIR, zmq.REP, zmq.PUB, zmq.PUSH
+            ),
+        }
 
 
 class ZMQServer(Driver):
@@ -36,6 +39,8 @@ class ZMQServer(Driver):
         * zmq.PUB
         * zmq.PUSH
 
+    :param name: Name of ZMQServer.
+    :type name: ``str``
     :param host: Host name to bind to. Default: 'localhost'
     :type host: ``str``
     :param port: Port number to bind to. Default: 0 (Random port)
@@ -46,7 +51,15 @@ class ZMQServer(Driver):
 
     CONFIG = ZMQServerConfig
 
-    def __init__(self, **options):
+    def __init__(
+        self,
+        name,
+        host="localhost",
+        port=0,
+        message_pattern=zmq.PAIR,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(ZMQServer, self).__init__(**options)
         self._host = None
         self._port = None
@@ -77,10 +90,13 @@ class ZMQServer(Driver):
         :param timeout: Timeout to retry sending the message
         :type timeout: ``int``
         """
-        return retry_until_timeout(exception=zmq.ZMQError,
-                                   item=self._socket.send,
-                                   kwargs={'data': data, 'flags': zmq.NOBLOCK},
-                                   timeout=timeout, raise_on_timeout=True)
+        return retry_until_timeout(
+            exception=zmq.ZMQError,
+            item=self._socket.send,
+            kwargs={"data": data, "flags": zmq.NOBLOCK},
+            timeout=timeout,
+            raise_on_timeout=True,
+        )
 
     def receive(self, timeout=30):
         """
@@ -93,10 +109,13 @@ class ZMQServer(Driver):
         :return: The received message
         :rtype: ``object`` or ``str`` or ``zmq.sugar.frame.Frame``
         """
-        return retry_until_timeout(exception=zmq.ZMQError,
-                                   item=self._socket.recv,
-                                   kwargs={'flags': zmq.NOBLOCK},
-                                   timeout=timeout, raise_on_timeout=True)
+        return retry_until_timeout(
+            exception=zmq.ZMQError,
+            item=self._socket.recv,
+            kwargs={"flags": zmq.NOBLOCK},
+            timeout=timeout,
+            raise_on_timeout=True,
+        )
 
     def starting(self):
         """
@@ -106,11 +125,15 @@ class ZMQServer(Driver):
         self._zmq_context = zmq.Context()
         self._socket = self._zmq_context.socket(self.cfg.message_pattern)
         if self.cfg.port == 0:
-            port = self._socket.bind_to_random_port('tcp://{host}'.format(
-                host=self.cfg.host))
+            port = self._socket.bind_to_random_port(
+                "tcp://{host}".format(host=self.cfg.host)
+            )
         else:
-            self._socket.bind('tcp://{host}:{port}'.format(
-                host=self.cfg.host, port=self.cfg.port))
+            self._socket.bind(
+                "tcp://{host}:{port}".format(
+                    host=self.cfg.host, port=self.cfg.port
+                )
+            )
             port = self.cfg.port
         self._host = self.cfg.host
         self._port = port

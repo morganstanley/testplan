@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DictLogAssertion shallow renders the dict value 1`] = `
+<Fragment>
+  <DictCellRenderer
+    colDef={
+      Object {
+        "field": "expected",
+        "headerName": "Expected",
+      }
+    }
+    data={
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isFailed": true,
+          "isFix": true,
+          "isListKey": false,
+          "lineNo": 667,
+        },
+        "expected": Object {
+          "type": "B",
+          "value": "B",
+        },
+        "key": Object {
+          "type": "key",
+          "value": 601,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "A",
+        },
+      }
+    }
+    id="id_667_undefined_expected"
+    value={
+      Object {
+        "type": "B",
+        "value": "B",
+      }
+    }
+  />
+</Fragment>
+`;

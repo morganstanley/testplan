@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Assertion shallow renders the correct HTML structure 1`] = `
+<Card
+  className="card_10lpuz2"
+  tag="div"
+>
+  <AssertionHeader
+    assertion={
+      Object {
+        "category": "DEFAULT",
+        "description": null,
+        "first": "foo",
+        "label": "==",
+        "line_no": 25,
+        "machine_time": "2019-02-12T17:41:42.795536+00:00",
+        "meta_type": "assertion",
+        "passed": true,
+        "second": "foo",
+        "type": "Equal",
+        "utc_time": "2019-02-12T17:41:42.795530+00:00",
+      }
+    }
+    index={0}
+    onClick={[Function]}
+  />
+  <Collapse
+    appear={false}
+    className="collapseDiv_1cips5t"
+    enter={true}
+    exit={true}
+    in={false}
+    isOpen={true}
+    mountOnEnter={false}
+    onEnter={[Function]}
+    onEntered={[Function]}
+    onEntering={[Function]}
+    onExit={[Function]}
+    onExited={[Function]}
+    onExiting={[Function]}
+    style={
+      Object {
+        "paddingRight": "1.25rem",
+      }
+    }
+    tag="div"
+    timeout={350}
+    unmountOnExit={false}
+  >
+    <CardBody
+      className="assertionCardBody_1t2a0td"
+      tag="div"
+    >
+      <BasicAssertion
+        assertion={
+          Object {
+            "category": "DEFAULT",
+            "description": null,
+            "first": "foo",
+            "label": "==",
+            "line_no": 25,
+            "machine_time": "2019-02-12T17:41:42.795536+00:00",
+            "meta_type": "assertion",
+            "passed": true,
+            "second": "foo",
+            "type": "Equal",
+            "utc_time": "2019-02-12T17:41:42.795530+00:00",
+          }
+        }
+      />
+    </CardBody>
+  </Collapse>
+</Card>
+`;

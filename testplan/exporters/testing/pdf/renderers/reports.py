@@ -1,14 +1,18 @@
 """PDF Renderer classes for test report objects"""
+import os
 import logging
 
 from reportlab.lib import colors
 
 from testplan.common.exporters.pdf import RowStyle
 from testplan.common.utils.registry import Registry
-from testplan.common.utils.strings import format_description, wrap
-from testplan.testing.multitest.base import Categories
-from testplan.report.testing import (
-    Status, TestReport, TestGroupReport, TestCaseReport
+from testplan.common.utils.strings import format_description, wrap, split_text
+from testplan.report import (
+    Status,
+    TestReport,
+    TestGroupReport,
+    TestCaseReport,
+    ReportCategories,
 )
 from testplan.testing import tagging
 from . import constants as const
@@ -16,7 +20,6 @@ from .base import format_duration, RowData, BaseRowRenderer, MetadataMixin
 
 
 class ReportRendererRegistry(Registry):
-
     def __getitem__(self, item):
         """Try to get renderers for TestGroupReports by category first"""
         if isinstance(item, TestGroupReport):
@@ -47,49 +50,53 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
     always_display = True  # Root element always get displayed
 
     # Need to make this configurable for OS version
-    datetime_fmt = '%Y-%m-%d %H:%M:%S %Z'
+    datetime_fmt = "%Y-%m-%d %H:%M:%S %Z"
     metadata_labels = (
-        ('user', 'User'),
-        ('project', 'Project'),
-        ('git_url', 'Git URL'),
-        ('git_commit', 'Git commit'),
+        ("user", "User"),
+        ("project", "Project"),
+        ("git_url", "Git URL"),
+        ("git_commit", "Git commit"),
         # These two will be set via `get_tag_pdf_ctx`
-        ('report_tags_all', 'Report tags (all)'),
-        ('report_tags_any', 'Report tags (any)'),
+        ("report_tags_all", "Report tags (all)"),
+        ("report_tags_any", "Report tags (any)"),
     )
 
     def get_metadata_context(self, source):
         """
-          Enriched meta context with test counts, run times etc.
+        Enriched meta context with test counts, run times etc.
         """
         ctx = super(TestReportRenderer, self).get_metadata_context(source)
 
-        counts = source.counts
+        ctx.update(
+            [
+                (
+                    "Style (Passing / Failing)",
+                    "{} / {}".format(
+                        self.style.passing.label, self.style.failing.label
+                    ),
+                )
+            ]
+        )
 
-        ctx.update([
-            ('Total run', counts.failed + counts.passed + counts.error),
-            ('Passed', counts.passed),
-            ('Failed', counts.failed + counts.error),
-            ('Style (Passing / Failing)', '{} / {}'.format(
-                self.style.passing.label,
-                self.style.failing.label
-            )),
-        ])
-
-        if 'run' in source.timer:
-            run_interval = source.timer['run']
-            ctx.update([
-                ('Start time', run_interval.start.strftime(self.datetime_fmt)),
-                ('End time', run_interval.end.strftime(self.datetime_fmt)),
-                ('Elapsed', format_duration(run_interval.elapsed)),
-            ])
+        if "run" in source.timer:
+            run_interval = source.timer["run"]
+            ctx.update(
+                [
+                    (
+                        "Start time",
+                        run_interval.start.strftime(self.datetime_fmt),
+                    ),
+                    ("End time", run_interval.end.strftime(self.datetime_fmt)),
+                    ("Elapsed", format_duration(run_interval.elapsed)),
+                ]
+            )
         return ctx
 
     def get_row_data(self, source, depth, row_idx):
         """Render Testplan header & metadata"""
         row_data = RowData(
             start=row_idx,
-            content=[source.name, '', '', format_status(source.status)],
+            content=[source.name, "", "", format_status(source.status)],
             style=[
                 RowStyle(
                     bottom_padding=const.TITLE_PADDING,
@@ -99,14 +106,14 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
                 RowStyle(
                     text_color=colors.green if source.passed else colors.red,
                     start_column=3,
-                )
-            ]
+                ),
+            ],
         )
 
         # Metadata
         row_data.append(
             content=[
-                [key, value, '', '']
+                [key, value, "", ""]
                 for key, value in self.get_metadata_context(source).items()
             ],
             style=[
@@ -114,7 +121,7 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
                     bottom_padding=0,
                     left_padding=0,
                     top_padding=0,
-                    valign='TOP',
+                    valign="TOP",
                 ),
                 RowStyle(
                     font=(const.FONT_BOLD, const.FONT_SIZE_SMALL),
@@ -125,11 +132,42 @@ class TestReportRenderer(BaseRowRenderer, MetadataMixin):
                     font=(const.FONT, const.FONT_SIZE_SMALL),
                     start_column=1,
                     end_column=1,
-                )
-            ]
+                ),
+            ],
         )
 
+        # Error logs that are higher than ERROR level
+        log_data = self.get_logs(source, depth=depth + 1, row_idx=row_data.end)
+        if log_data:
+            row_data += log_data
+
         return row_data
+
+    def get_logs(self, source, depth, row_idx, lvl=logging.ERROR):
+        """
+        Get logs created by the `report.logger` object.
+        Only select the logs with severity level equal to or higher than `lvl`.
+        """
+        font_size = const.FONT_SIZE_SMALL
+        width = const.WRAP_LIMITS[font_size]
+        logs = [log for log in source.logs if log["levelno"] >= lvl]
+
+        return (
+            RowData(
+                start=row_idx,
+                content=[
+                    [wrap(log["message"], width=width), "", "", ""]
+                    for log in logs
+                ],
+                style=RowStyle(
+                    font=(const.FONT, font_size),
+                    left_padding=const.INDENT * depth,
+                    text_color=colors.gray,
+                ),
+            )
+            if logs
+            else None
+        )
 
 
 @registry.bind(TestGroupReport)
@@ -146,13 +184,13 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
             row_data += self.get_description(
                 description=source.description,
                 depth=depth,
-                row_idx=row_data.end)
+                row_idx=row_data.end,
+            )
 
-        # Display logs that are higher than ERROR level
-        logs = [log for log in source.logs if log['levelno'] >= logging.ERROR]
-        if logs:
-            row_data += self.get_logs(
-                logs=source.logs, depth=depth + 1, row_idx=row_data.end)
+        # Error logs that are higher than ERROR level
+        log_data = self.get_logs(source, depth=depth + 1, row_idx=row_data.end)
+        if log_data:
+            row_data += log_data
 
         return row_data
 
@@ -172,17 +210,13 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
 
         styles = [
             RowStyle(
-                font=(font, font_size),
-                line_above=self.get_header_linestyle(),
+                font=(font, font_size), line_above=self.get_header_linestyle()
             ),
-            RowStyle(
-                left_padding=const.INDENT * depth,
-                end_column=0,
-            ),
+            RowStyle(left_padding=const.INDENT * depth, end_column=0),
             RowStyle(
                 text_color=colors.green if passed else colors.red,
                 start_column=const.LAST_COLUMN_IDX,
-            )
+            ),
         ]
 
         if not source.passed:
@@ -191,12 +225,19 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         header_text = source.name
 
         if source.tags:
-            header_text += ' (Tags: {})'.format(tagging.tag_label(source.tags))
+            header_text += " (Tags: {})".format(tagging.tag_label(source.tags))
+
+        header_text = split_text(
+            header_text,
+            font,
+            font_size,
+            const.PAGE_WIDTH - (depth * const.INDENT),
+        )
 
         return RowData(
             start=row_idx,
-            content=[header_text, '', '', format_status(source.status)],
-            style=styles
+            content=[header_text, "", "", format_status(source.status)],
+            style=styles,
         )
 
     def get_description(self, description, depth, row_idx):
@@ -206,30 +247,44 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         """
         return RowData(
             start=row_idx,
-            content=format_description(description),
+            content=split_text(
+                format_description(description),
+                const.FONT_ITALIC,
+                const.FONT_SIZE_SMALL,
+                const.PAGE_WIDTH - (depth * const.INDENT),
+                keep_leading_whitespace=True,
+            ),
             style=RowStyle(
                 font=(const.FONT_ITALIC, const.FONT_SIZE_SMALL),
                 left_padding=const.INDENT * depth,
-                text_color=colors.grey
-            )
+                text_color=colors.grey,
+            ),
         )
 
-    def get_logs(self, logs, depth, row_idx):
-        """Logs created by the `report.logger` object."""
+    def get_logs(self, source, depth, row_idx, lvl=logging.ERROR):
+        """
+        Get logs created by the `report.logger` object.
+        Only select the logs with severity level equal to or higher than `lvl`.
+        """
         font_size = const.FONT_SIZE_SMALL
         width = const.WRAP_LIMITS[font_size]
+        logs = [log for log in source.logs if log["levelno"] >= lvl]
 
-        return RowData(
-            start=row_idx,
-            content=[
-                [wrap(log['message'], width=width), '', '', '']
-                for log in logs
-            ],
-            style=RowStyle(
-                font=(const.FONT, font_size),
-                left_padding=const.INDENT * depth,
-                text_color=colors.gray,
+        return (
+            RowData(
+                start=row_idx,
+                content=[
+                    [wrap(log["message"], width=width), "", "", ""]
+                    for log in logs
+                ],
+                style=RowStyle(
+                    font=(const.FONT, font_size),
+                    left_padding=const.INDENT * depth,
+                    text_color=colors.gray,
+                ),
             )
+            if logs
+            else None
         )
 
     def get_style(self, source):
@@ -242,10 +297,10 @@ class TestRowRenderer(BaseRowRenderer, MetadataMixin):
         Filter out passing rows if `failing_tests` is `True`.
         """
         style = self.get_style(source)
-        if source.category == Categories.SUITE:
-            return style.display_suite
-        elif source.category == Categories.PARAMETRIZATION:
-            return style.display_case
+        if source.category == ReportCategories.TESTSUITE:
+            return style.display_testsuite
+        elif source.category == ReportCategories.PARAMETRIZATION:
+            return style.display_testcase
         return style.display_test
 
 
@@ -264,10 +319,10 @@ class TestCaseRowBuilder(TestRowRenderer):
         return 0.5, colors.lightgrey
 
     def should_display(self, source):
-        return self.get_style(source).display_case
+        return self.get_style(source).display_testcase
 
 
-@registry.bind((TestGroupReport, Categories.MULTITEST))
+@registry.bind((TestGroupReport, ReportCategories.MULTITEST))
 class MultiTestRowBuilder(TestRowRenderer):
     """Multitests get special treatment with extra formatting & summary."""
 
@@ -283,36 +338,36 @@ class MultiTestRowBuilder(TestRowRenderer):
         row_data = RowData(
             start=row_idx,
             content=const.EMPTY_ROW,
-            style=RowStyle(line_below=(1, colors.black))
+            style=RowStyle(line_below=(1, colors.black)),
         )
 
-        row_data += super(
-            MultiTestRowBuilder, self).get_header(source, depth, row_data.end)
+        row_data += super(MultiTestRowBuilder, self).get_header(
+            source, depth, row_data.end
+        )
 
-        if source.passed:
-            summary = 'All tests passed'
-        else:
-            summary = '{} tests failed' .format(
-                source.counts.failed + source.counts.error)
+        summary = ", ".join(
+            [
+                "{} {}".format(count, status)
+                for count, status in source.counter.items()
+                if status != "total"
+            ]
+        )
 
-        if 'run' in source.timer:
-            summary += ', total run time: {}.'.format(
-                format_duration(source.timer['run'].elapsed))
+        if "run" in source.timer:
+            summary += ", total run time: {}.".format(
+                format_duration(source.timer["run"].elapsed)
+            )
 
         row_data.append(
-            content=[summary, '', '', ''],
+            content=[summary, "", "", ""],
             style=[
                 RowStyle(
                     font=(const.FONT, const.FONT_SIZE_SMALL),
                     left_padding=const.INDENT * depth,
-                    end_column=0
+                    end_column=0,
                 ),
-                RowStyle(
-                    bottom_padding=0,
-                    top_padding=0,
-                    valign='TOP'
-                )
-            ]
+                RowStyle(bottom_padding=0, top_padding=0, valign="TOP"),
+            ],
         )
 
         return row_data

@@ -1,0 +1,309 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FixLogAssertion shallow renders the correct HTML structure 1`] = `
+<DictBaseAssertion
+  buttonGroup={
+    <DictButtonGroup
+      defaultSortType={Symbol(NONE)}
+      flattenedDict={
+        Array [
+          Array [
+            0,
+            555,
+            "",
+          ],
+          Array [
+            0,
+            "",
+            "",
+          ],
+          Array [
+            1,
+            624,
+            Array [
+              "int",
+              "1",
+            ],
+          ],
+          Array [
+            1,
+            556,
+            Array [
+              "str",
+              "USD",
+            ],
+          ],
+          Array [
+            0,
+            "",
+            "",
+          ],
+          Array [
+            1,
+            624,
+            Array [
+              "int",
+              "2",
+            ],
+          ],
+          Array [
+            1,
+            556,
+            Array [
+              "str",
+              "EUR",
+            ],
+          ],
+          Array [
+            0,
+            36,
+            Array [
+              "int",
+              "6",
+            ],
+          ],
+          Array [
+            0,
+            38,
+            Array [
+              "int",
+              "5",
+            ],
+          ],
+          Array [
+            0,
+            22,
+            Array [
+              "int",
+              "5",
+            ],
+          ],
+          Array [
+            0,
+            55,
+            Array [
+              "int",
+              "2",
+            ],
+          ],
+        ]
+      }
+      setRowData={[Function]}
+      sortTypeList={
+        Array [
+          Symbol(ALPHABETICAL),
+          Symbol(REVERSE_ALPHABETICAL),
+          Symbol(NONE),
+        ]
+      }
+    />
+  }
+  columns={
+    Array [
+      Object {
+        "field": "descriptor",
+        "headerName": "Descriptor",
+        "hide": true,
+      },
+      Object {
+        "cellRendererFramework": [Function],
+        "cellStyle": [Function],
+        "field": "key",
+        "headerName": "Key",
+        "pinned": "left",
+        "resizable": true,
+        "suppressSizeToFit": true,
+      },
+      Object {
+        "cellRendererFramework": [Function],
+        "cellStyle": [Function],
+        "field": "value",
+        "headerName": "Value",
+      },
+    ]
+  }
+  rows={
+    Array [
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": true,
+          "lineNo": 688,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": 555,
+        },
+        "value": Object {
+          "type": undefined,
+          "value": undefined,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": true,
+          "isListKey": false,
+          "lineNo": 688,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": null,
+          "value": null,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 688,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": 624,
+        },
+        "value": Object {
+          "type": "int",
+          "value": "1",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": false,
+          "isListKey": true,
+          "lineNo": 688,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": 556,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "USD",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": true,
+          "isListKey": false,
+          "lineNo": 688,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": null,
+          "value": null,
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 688,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": 624,
+        },
+        "value": Object {
+          "type": "int",
+          "value": "2",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 1,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 688,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": 556,
+        },
+        "value": Object {
+          "type": "str",
+          "value": "EUR",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 688,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": 36,
+        },
+        "value": Object {
+          "type": "int",
+          "value": "6",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 688,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": 38,
+        },
+        "value": Object {
+          "type": "int",
+          "value": "5",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 688,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": 22,
+        },
+        "value": Object {
+          "type": "int",
+          "value": "5",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": undefined,
+          "lineNo": 688,
+          "status": undefined,
+        },
+        "key": Object {
+          "type": "key",
+          "value": 55,
+        },
+        "value": Object {
+          "type": "int",
+          "value": "2",
+        },
+      },
+    ]
+  }
+/>
+`;

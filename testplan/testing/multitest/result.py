@@ -1,12 +1,22 @@
-"""TODO."""
-import functools
+"""
+Defines the Result object and its sub-namepsaces.
+
+The Result object is the interface used by testcases to make assertions and
+log data. Entries contained in the result are copied into the Report object
+after testcases have finished running.
+
+"""
 import inspect
 import os
 import re
 import uuid
+import shutil
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
+from testplan.common.utils import comparison
+from testplan.common.utils import strings
+
 from .entries import assertions, base
 from .entries.schemas.base import registry as schema_registry
 from .entries.stdout.base import registry as stdout_registry
@@ -20,8 +30,14 @@ class ExceptionCapture(object):
     """
 
     def __init__(
-        self, result, assertion_kls, exceptions,
-        pattern=None, func=None, description=None, category=None,
+        self,
+        result,
+        assertion_kls,
+        exceptions,
+        pattern=None,
+        func=None,
+        description=None,
+        category=None,
     ):
         """
         :param result: Result object of the current testcase.
@@ -67,46 +83,30 @@ class ExceptionCapture(object):
         # We cannot use `bind_entry` here as this block will
         # be run when an exception is raised
         stdout_registry.log_entry(
-            entry=exc_assertion,
-            stdout_style=self.result.stdout_style
+            entry=exc_assertion, stdout_style=self.result.stdout_style
         )
         self.result.entries.append(exc_assertion)
         return True
 
 
-def bind_entry(method):
+def _bind_entry(entry, result_obj):
     """
     Appends return value of a assertion / log method to the ``Result`` object's
     ``entries`` list.
     """
-    @functools.wraps(method)
-    def _wrapper(obj, *args, **kwargs):
-        entry = method(obj, *args, **kwargs)
+    # Second element is the caller
+    caller_frame = inspect.stack()[2]
+    entry.file_path = os.path.abspath(caller_frame[1])
+    entry.line_no = caller_frame[2]
 
-        # Second element is the caller
-        caller_frame = inspect.stack()[1]
-        entry.file_path = os.path.abspath(caller_frame[1])
-        entry.line_no = caller_frame[2]
+    result_obj.entries.append(entry)
 
-        if isinstance(obj, AssertionNamespace):
-            result_obj = obj.result
-        elif isinstance(obj, Result):
-            result_obj = obj
-        else:
-            raise TypeError('Invalid assertion container: {}'.format(obj))
+    stdout_registry.log_entry(
+        entry=entry, stdout_style=result_obj.stdout_style
+    )
 
-        result_obj.entries.append(entry)
-
-        stdout_registry.log_entry(
-            entry=entry,
-            stdout_style=result_obj.stdout_style,
-        )
-
-        if not entry and not result_obj.continue_on_failure:
-            raise AssertionError(entry)
-
-        return bool(entry)
-    return _wrapper
+    if not entry and not result_obj.continue_on_failure:
+        raise AssertionError(entry)
 
 
 class AssertionNamespace(object):
@@ -114,6 +114,7 @@ class AssertionNamespace(object):
     Base class for assertion namespaces.
     Users can inherit from this class to implement custom namespaces.
     """
+
     def __init__(self, result):
         self.result = result
 
@@ -121,7 +122,6 @@ class AssertionNamespace(object):
 class RegexNamespace(AssertionNamespace):
     """Contains logic for regular expression assertions."""
 
-    @bind_entry
     def match(self, regexp, value, description=None, category=None, flags=0):
         """
         Checks if the given ``regexp`` matches the ``value``
@@ -145,15 +145,17 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.RegexMatch(
-            regexp=regexp, string=value,
-            flags=flags, description=description, category=category)
+        entry = assertions.RegexMatch(
+            regexp=regexp,
+            string=value,
+            flags=flags,
+            description=description,
+            category=category,
+        )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
-    def multiline_match(
-        self, regexp, value,
-        description=None, category=None
-    ):
+    def multiline_match(self, regexp, value, description=None, category=None):
         """
         Checks if the given ``regexp`` matches the ``value``
         via ``re.match`` operation, uses ``re.MULTILINE`` and ``re.DOTALL``
@@ -181,15 +183,18 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status.
         :rtype: ``bool``
         """
-        return assertions.RegexMatch(
-            regexp=regexp, string=value,
+        entry = assertions.RegexMatch(
+            regexp=regexp,
+            string=value,
             flags=re.MULTILINE | re.DOTALL,
-            description=description, category=category)
+            description=description,
+            category=category,
+        )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def not_match(
-        self, regexp, value,
-        description=None, category=None, flags=0
+        self, regexp, value, description=None, category=None, flags=0
     ):
         """
         Checks if the given ``regexp`` does not match the ``value``
@@ -213,11 +218,16 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status.
         :rtype: ``bool``
         """
-        return assertions.RegexMatchNotExists(
-            regexp=regexp, string=value,
-            flags=flags, description=description, category=category)
+        entry = assertions.RegexMatchNotExists(
+            regexp=regexp,
+            string=value,
+            flags=flags,
+            description=description,
+            category=category,
+        )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def multiline_not_match(
         self, regexp, value, description=None, category=None
     ):
@@ -248,12 +258,16 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.RegexMatchNotExists(
-            regexp=regexp, string=value,
+        entry = assertions.RegexMatchNotExists(
+            regexp=regexp,
+            string=value,
             flags=re.MULTILINE | re.DOTALL,
-            description=description, category=category)
+            description=description,
+            category=category,
+        )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def search(self, regexp, value, description=None, category=None, flags=0):
         """
         Checks if the given ``regexp`` exists in the ``value``
@@ -277,11 +291,16 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.RegexSearch(
-            regexp=regexp, string=value,
-            flags=flags, description=description, category=category)
+        entry = assertions.RegexSearch(
+            regexp=regexp,
+            string=value,
+            flags=flags,
+            description=description,
+            category=category,
+        )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def search_empty(
         self, regexp, value, description=None, category=None, flags=0
     ):
@@ -307,15 +326,24 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.RegexSearchNotExists(
-            regexp=regexp, string=value,
-            flags=flags, description=description, category=category)
+        entry = assertions.RegexSearchNotExists(
+            regexp=regexp,
+            string=value,
+            flags=flags,
+            description=description,
+            category=category,
+        )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def findall(
-        self, regexp, value,
-        description=None, category=None,
-        flags=0, condition=None
+        self,
+        regexp,
+        value,
+        description=None,
+        category=None,
+        flags=0,
+        condition=None,
     ):
         """
         Checks if there are one or more matches of the ``regexp`` exist in
@@ -347,7 +375,7 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.RegexFindIter(
+        entry = assertions.RegexFindIter(
             regexp=regexp,
             string=value,
             description=description,
@@ -355,12 +383,13 @@ class RegexNamespace(AssertionNamespace):
             condition=condition,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def matchline(
         self, regexp, value, description=None, category=None, flags=0
     ):
-        """
+        r"""
         Checks if the given ``regexp`` returns a match
         (``re.match``) for any of the lines in the ``value``.
 
@@ -389,23 +418,29 @@ class RegexNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.RegexMatchLine(
+        entry = assertions.RegexMatchLine(
             regexp=regexp,
             string=value,
             description=description,
             flags=flags,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
 
 class TableNamespace(AssertionNamespace):
     """Contains logic for regular expression assertions."""
 
-    @bind_entry
     def column_contain(
-        self, table, values, column,
-        description=None, category=None,
-        limit=None, report_fails_only=False
+        self,
+        table,
+        values,
+        column,
+        description=None,
+        category=None,
+        limit=None,
+        report_fails_only=False,
     ):
         """
         Checks if all of the values of a table's
@@ -445,20 +480,30 @@ class TableNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.ColumnContain(
-            table=table, values=values, column=column, limit=limit,
-            report_fails_only=report_fails_only, description=description,
+        entry = assertions.ColumnContain(
+            table=table,
+            values=values,
+            column=column,
+            limit=limit,
+            report_fails_only=report_fails_only,
+            description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def match(
-        self, actual, expected,
-        description=None, category=None,
-        include_columns=None, exclude_columns=None,
-        report_all=True, fail_limit=0,
+        self,
+        actual,
+        expected,
+        description=None,
+        category=None,
+        include_columns=None,
+        exclude_columns=None,
+        report_all=True,
+        fail_limit=0,
     ):
-        """
+        r"""
         Compares two tables, uses equality for each table cell for plain
         values and supports regex / custom comparators as well.
 
@@ -513,9 +558,7 @@ class TableNamespace(AssertionNamespace):
         :param fail_limit: Max number of failures before aborting
                            the comparison run. Useful for large
                            tables, when we want to stop after we have N rows
-                           that fail the comparison. The result will contain
-                           only failing comparisons if this argument
-                           is a positive integer.
+                           that fail the comparison.
         :type fail_limit: ``int``
         :param description: Text description for the assertion.
         :type description: ``str``
@@ -524,17 +567,122 @@ class TableNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.TableMatch(
-            table=actual, expected_table=expected,
-            include_columns=include_columns, exclude_columns=exclude_columns,
-            report_all=report_all, fail_limit=fail_limit,
-            description=description, category=category,
+        entry = assertions.TableMatch(
+            table=actual,
+            expected_table=expected,
+            include_columns=include_columns,
+            exclude_columns=exclude_columns,
+            report_all=report_all,
+            fail_limit=fail_limit,
+            description=description,
+            category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
+    def diff(
+        self,
+        actual,
+        expected,
+        description=None,
+        category=None,
+        include_columns=None,
+        exclude_columns=None,
+        report_all=True,
+        fail_limit=0,
+    ):
+        r"""
+        Find differences of two tables, uses equality for each table cell
+        for plain values and supports regex / custom comparators as well.
+        The result will contain only failing comparisons.
+
+        If the columns of the two tables are not the same,
+        either ``include_columns`` or ``exclude_columns`` arguments
+        must be used to have column uniformity.
+
+        .. code-block:: python
+
+            result.table.diff(
+                actual=[
+                    ['name', 'age'],
+                    ['Bob', 32],
+                    ['Susan', 24],
+                ],
+                expected=[
+                    ['name', 'age'],
+                    ['Bob', 33],
+                    ['David', 24],
+                ]
+            )
+
+            result.table.diff(
+                actual=[
+                    ['name', 'age'],
+                    ['Bob', 32],
+                    ['Susan', 24],
+                ],
+                expected=[
+                    ['name', 'age'],
+                    [re.compile(r'^B\w+'), 33],
+                    ['David', lambda age: 20 < age < 50],
+                ]
+            )
+
+        :param actual: Tabular data
+        :type actual: ``list`` of ``list`` or ``list`` of ``dict``.
+        :param expected: Tabular data, which can contain custom comparators.
+        :type expected: ``list`` of ``list`` or ``list`` of ``dict``.
+        :param include_columns: List of columns to include
+                                in the comparison. Cannot be used
+                                with ``exclude_columns``.
+        :type include_columns: ``list`` of ``str``
+        :param exclude_columns: List of columns to exclude
+                                from the comparison. Cannot be used
+                                with ``include_columns``.
+        :type exclude_columns: ``list`` of ``str``
+        :param report_all: Boolean flag for configuring output.
+                           If True then all columns of the original
+                           table will be displayed.
+        :type report_all: ``bool``
+        :param fail_limit: Max number of failures before aborting
+                           the comparison run. Useful for large
+                           tables, when we want to stop after we have N rows
+                           that fail the comparison.
+        :type fail_limit: ``int``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :param category: Custom category that will be used for summarization.
+        :type category: ``str``
+        :return: Assertion pass status
+        :rtype: ``bool``
+        """
+        entry = assertions.TableDiff(
+            table=actual,
+            expected_table=expected,
+            include_columns=include_columns,
+            exclude_columns=exclude_columns,
+            report_all=report_all,
+            fail_limit=fail_limit,
+            report_fail_only=True,
+            description=description,
+            category=category,
+        )
+        _bind_entry(entry, self.result)
+        return entry
+
     def log(self, table, display_index=False, description=None):
         """
         Logs a table to the report.
+
+        .. code-block:: python
+
+            result.table.log(
+                table=[
+                    ['name', 'age', 'gender'],
+                    ['Bob', 32, 'M'],
+                    ['Susan', 24, 'F'],
+                ]
+            )
 
         :param table: Tabular data.
         :type table: ``list`` of ``list`` or ``list`` of ``dict``
@@ -546,18 +694,23 @@ class TableNamespace(AssertionNamespace):
                  fail.
         :rtype: ``bool``
         """
-        return base.TableLog(table=table, display_index=display_index,
-                             description=description)
+        entry = base.TableLog(
+            table=table, display_index=display_index, description=description
+        )
+        _bind_entry(entry, self.result)
 
 
 class XMLNamespace(AssertionNamespace):
     """Contains logic for XML related assertions."""
 
-    @bind_entry
     def check(
-        self, element, xpath,
-        description=None, category=None,
-        tags=None, namespaces=None,
+        self,
+        element,
+        xpath,
+        description=None,
+        category=None,
+        tags=None,
+        namespaces=None,
     ):
         """
         Checks if given xpath and tags exist in the XML body.
@@ -608,20 +761,28 @@ class XMLNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.XMLCheck(
-            element=element, xpath=xpath, tags=tags,
-            namespaces=namespaces, description=description,
+        entry = assertions.XMLCheck(
+            element=element,
+            xpath=xpath,
+            tags=tags,
+            namespaces=namespaces,
+            description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
 
 class DictNamespace(AssertionNamespace):
     """Contains logic for Dictionary related assertions."""
 
-    @bind_entry
     def check(
-        self, dictionary, description=None, category=None,
-        has_keys=None, absent_keys=None
+        self,
+        dictionary,
+        description=None,
+        category=None,
+        has_keys=None,
+        absent_keys=None,
     ):
         """
         Checks for existence / absence of dictionary keys, uses top
@@ -650,19 +811,30 @@ class DictNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.DictCheck(
-            dictionary=dictionary, has_keys=has_keys,
-            absent_keys=absent_keys, description=description,
+        entry = assertions.DictCheck(
+            dictionary=dictionary,
+            has_keys=has_keys,
+            absent_keys=absent_keys,
+            description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def match(
-        self, actual, expected, description=None, category=None,
-        include_keys=None, exclude_keys=None, report_all=True,
-        actual_description=None, expected_description=None,
+        self,
+        actual,
+        expected,
+        description=None,
+        category=None,
+        include_keys=None,
+        exclude_keys=None,
+        report_mode=comparison.ReportOptions.ALL,
+        actual_description=None,
+        expected_description=None,
+        value_cmp_func=comparison.COMPARE_FUNCTIONS["native_equality"],
     ):
-        """
+        r"""
         Matches two dictionaries, supports nested data. Custom
         comparators can be used as values on the ``expected`` dict.
 
@@ -705,10 +877,12 @@ class DictNamespace(AssertionNamespace):
         :param include_keys: Keys to exclusively consider in the comparison.
         :type include_keys: ``list`` of ``object`` (items must be hashable)
         :param exclude_keys: Keys to ignore in the comparison.
-        :type include_keys: ``list`` of ``object`` (items must be hashable)
-        :param report_all: Formatting flag, includes even
-                           ignored keys in report if True.
-        :type report_all: ``bool``
+        :type exclude_keys: ``list`` of ``object`` (items must be hashable)
+        :param report_mode: Specify which comparisons should be kept and
+                            reported. Default option is to report all
+                            comparisons but this can be restricted if desired.
+                            See ReportOptions enum for more detail.
+        :type report_mode: ``testplan.common.utils.comparison.ReportOptions``
         :param actual_description: Column header description for original dict.
         :type actual_description: ``str``
         :param expected_description: Column header
@@ -718,25 +892,36 @@ class DictNamespace(AssertionNamespace):
         :type description: ``str``
         :param category: Custom category that will be used for summarization.
         :type category: ``str``
+        :param value_cmp_func: Function to use to compare values in expected
+                               and actual dicts. Defaults to using
+                               `operator.eq()`.
+        :type value_cmp_func: ``Callable[[Any, Any], bool]``
+
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.DictMatch(
+        entry = assertions.DictMatch(
             value=actual,
             expected=expected,
             description=description,
             include_keys=include_keys,
             exclude_keys=exclude_keys,
-            report_all=report_all,
+            report_mode=report_mode,
             expected_description=expected_description,
             actual_description=actual_description,
             category=category,
+            value_cmp_func=value_cmp_func,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def match_all(
-        self, values, comparisons,
-        description=None, category=None, key_weightings=None
+        self,
+        values,
+        comparisons,
+        description=None,
+        category=None,
+        key_weightings=None,
     ):
         """
         Match multiple unordered dictionaries.
@@ -783,22 +968,53 @@ class DictNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.DictMatchAll(
+        entry = assertions.DictMatchAll(
             values=values,
             comparisons=comparisons,
             key_weightings=key_weightings,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
+
+    def log(self, dictionary, description=None):
+        """
+        Logs a dictionary to the report.
+
+        .. code-block:: python
+
+            result.dict.log(
+                dictionary={
+                    'foo': [1, 2, 3],
+                    'bar': {'color': 'blue'},
+                    'baz': 'hello world',
+                }
+            )
+
+        :param dictionary: Dict object to log.
+        :type dictionary: ``dict``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :return: Always returns True, this is not an assertion so it cannot
+                 fail.
+        :rtype: ``bool``
+        """
+        entry = base.DictLog(dictionary=dictionary, description=description)
+        _bind_entry(entry, self.result)
+        return entry
 
 
 class FixNamespace(AssertionNamespace):
     """Contains assertion logic that operates on fix messages."""
 
-    @bind_entry
     def check(
-        self, msg, description=None, category=None,
-        has_tags=None, absent_tags=None
+        self,
+        msg,
+        description=None,
+        category=None,
+        has_tags=None,
+        absent_tags=None,
     ):
         """
         Checks existence / absence of tags in a Fix message.
@@ -831,17 +1047,27 @@ class FixNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.FixCheck(
-            msg=msg, has_tags=has_tags,
-            absent_tags=absent_tags, description=description,
+        entry = assertions.FixCheck(
+            msg=msg,
+            has_tags=has_tags,
+            absent_tags=absent_tags,
+            description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def match(
-        self, actual, expected, description=None, category=None,
-        include_tags=None, exclude_tags=None, report_all=True,
-        actual_description=None, expected_description=None,
+        self,
+        actual,
+        expected,
+        description=None,
+        category=None,
+        include_tags=None,
+        exclude_tags=None,
+        report_mode=comparison.ReportOptions.ALL,
+        actual_description=None,
+        expected_description=None,
     ):
         """
         Matches two FIX messages, supports repeating groups (nested data).
@@ -876,9 +1102,11 @@ class FixNamespace(AssertionNamespace):
         :type include_tags: ``list`` of ``object`` (items must be hashable)
         :param exclude_tags: Keys to ignore in the comparison.
         :type exclude_tags: ``list`` of ``object`` (items must be hashable)
-        :param report_all: Formatting flag, includes even
-                           ignored tags in report if True.
-        :type report_all: ``bool``
+        :param report_mode: Specify which comparisons should be kept and
+                            reported. Default option is to report all
+                            comparisons but this can be restricted if desired.
+                            See ReportOptions enum for more detail.
+        :type report_mode: ``testplan.common.utils.comparison.ReportOptions``
         :param actual_description: Column header description for original msg.
         :type actual_description: ``str``
         :param expected_description: Column header
@@ -888,26 +1116,31 @@ class FixNamespace(AssertionNamespace):
         :type description: ``str``
         :param category: Custom category that will be used for summarization.
         :type category: ``str``
+
         :return: Assertion pass status
         :rtype: ``bool``
         """
-
-        return assertions.FixMatch(
+        entry = assertions.FixMatch(
             value=actual,
             expected=expected,
             description=description,
             category=category,
             include_tags=include_tags,
             exclude_tags=exclude_tags,
-            report_all=report_all,
+            report_mode=report_mode,
             expected_description=expected_description,
             actual_description=actual_description,
         )
+        _bind_entry(entry, self.result)
+        return entry
 
-    @bind_entry
     def match_all(
-        self, values, comparisons,
-        description=None, category=None, tag_weightings=None
+        self,
+        values,
+        comparisons,
+        description=None,
+        category=None,
+        tag_weightings=None,
     ):
         """
         Match multiple unordered FIX messages.
@@ -957,13 +1190,43 @@ class FixNamespace(AssertionNamespace):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.FixMatchAll(
+        entry = assertions.FixMatchAll(
             values=values,
             comparisons=comparisons,
             tag_weightings=tag_weightings,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self.result)
+        return entry
+
+    def log(self, msg, description=None):
+        """
+        Logs a fix message to the report.
+
+        .. code-block:: python
+
+            result.fix.log(
+                msg={
+                    36: 6,
+                    22: 5,
+                    55: 2,
+                    38: 5,
+                    555: [ .. more nested data here ... ]
+                }
+            )
+
+        :param msg: Fix message.
+        :type msg: ``dict`` or ``pyfixmsg.fixmessage.FixMessage``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :return: Always returns True, this is not an assertion so it cannot
+                 fail.
+        :rtype: ``bool``
+        """
+        entry = base.FixLog(msg=msg, description=description)
+        _bind_entry(entry, self.result)
+        return entry
 
 
 class Result(object):
@@ -974,11 +1237,11 @@ class Result(object):
     """
 
     namespaces = {
-        'regex': RegexNamespace,
-        'table': TableNamespace,
-        'xml': XMLNamespace,
-        'dict': DictNamespace,
-        'fix': FixNamespace,
+        "regex": RegexNamespace,
+        "table": TableNamespace,
+        "xml": XMLNamespace,
+        "dict": DictNamespace,
+        "fix": FixNamespace,
     }
 
     def __init__(
@@ -990,10 +1253,11 @@ class Result(object):
         _summarize=False,
         _num_passing=defaults.SUMMARY_NUM_PASSING,
         _num_failing=defaults.SUMMARY_NUM_FAILING,
-        _scratch = None,
+        _scratch=None,
     ):
 
         self.entries = []
+        self.attachments = []
 
         self.stdout_style = stdout_style or STDOUT_STYLE
         self.continue_on_failure = continue_on_failure
@@ -1001,7 +1265,8 @@ class Result(object):
         for key, value in self.get_namespaces().items():
             if hasattr(self, key):
                 raise AttributeError(
-                    'Name clash, cannot assign namespace: {}'.format(key))
+                    "Name clash, cannot assign namespace: {}".format(key)
+                )
             setattr(self, key, value(result=self))
 
         self._parent = _parent
@@ -1011,11 +1276,33 @@ class Result(object):
         self._num_failing = _num_failing
         self._scratch = _scratch
 
+    def subresult(self):
+        """Subresult object to append/prepend assertions on another."""
+        return self.__class__(
+            stdout_style=self.stdout_style,
+            continue_on_failure=self.continue_on_failure,
+            _group_description=self._group_description,
+            _parent=self._parent,
+            _summarize=self._summarize,
+            _num_passing=self._num_passing,
+            _num_failing=self._num_failing,
+            _scratch=self._scratch,
+        )
+
+    def append(self, result):
+        """Append entries from another result."""
+        self.entries += result.entries
+
+    def prepend(self, result):
+        """Prepend entries from another result."""
+        self.entries = result.entries + self.entries
+
     def __enter__(self):
         if self._parent is None:
             raise RuntimeError(
-                'Cannot use root level result objects as context managers.'
-                ' Use `with result.group(...)` instead.')
+                "Cannot use root level result objects as context managers."
+                " Use `with result.group(...)` instead."
+            )
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -1024,14 +1311,14 @@ class Result(object):
                 entries=self.entries,
                 description=self._group_description,
                 num_passing=self._num_passing,
-                num_failing=self._num_failing
+                num_failing=self._num_failing,
             )
         else:
             entry_group = base.Group(
-                entries=self.entries,
-                description=self._group_description
+                entries=self.entries, description=self._group_description
             )
         self._parent.entries.append(entry_group)
+        self._parent.attachments.extend(self.attachments)
         return exc_type is None  # re-raise errors if there is any
 
     def get_namespaces(self):
@@ -1099,16 +1386,16 @@ class Result(object):
             _parent=self,
             _summarize=summarize,
             _num_passing=num_passing,
-            _num_failing=num_failing
+            _num_failing=num_failing,
+            _scratch=self._scratch,
         )
 
     @property
     def passed(self):
         """Entries stored passed status."""
-        return all(getattr(entry, 'passed', True) for entry in self.entries)
+        return all(getattr(entry, "passed", True) for entry in self.entries)
 
-    @bind_entry
-    def log(self, message):
+    def log(self, message, description=None, flag=None):
         """
         Create a string message entry, can be used for providing additional
         context related to test steps.
@@ -1118,34 +1405,161 @@ class Result(object):
             result.log('Custom log message ...')
 
         :param message: Log message
-        :type message: ``str``
+        :type message: ``str`` or instance
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :param flag: Custom flag for the assertion, set to 'email' to
+            include message in email exporter.
+        :param flag: ``str``
         :return: ``True``
         :rtype: ``bool``
         """
-        # TODO: Generate different entries per obj type (dict, table etc)
-        return base.Log(message=message)
+        entry = base.Log(message=message, description=description, flag=flag)
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
-    def fail(self, description, category=None):
+    def markdown(self, message, description=None, escape=True):
         """
-        Failure assertion, can be used for explicitly failing a testcase.
-        Most common usage is within a conditional block.
+        Create a markdown message entry, can be used for providing additional
+        context related to test steps.
 
         .. code-block:: python
 
-            if not some_condition:
+            result.markdown(
+                'Markdown string ....',
+                description='Test',
+                escape=False
+            )
+
+        :param message: Markdown string
+        :type message: ``str``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :param escape: Escape html.
+        :param escape: ``bool``
+        :return: ``True``
+        :rtype: ``bool``
+        """
+        entry = base.Markdown(
+            message=message, description=description, escape=escape
+        )
+        _bind_entry(entry, self)
+        return entry
+
+    def log_html(self, code, description="Embedded HTML"):
+        """
+        Create a markdown message entry without escape, can be used for
+        providing additional context related to test steps.
+
+        :param code: HTML code string. Tag <script> will not be executed.
+        :type code: ``str``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :return: ``True``
+        :rtype: ``bool``
+        """
+        return self.markdown(code, description=description, escape=False)
+
+    def log_code(self, code, language="python", description=None):
+        """
+        Create a codelog message entry which contains code snippet, can
+        be used for providing additional context related to test steps.
+
+        :param code: The source code string.
+        :type code: ``str``
+        :param language: The language of source code. e.g. js, xml, python,
+            java, c, cpp, bash. Defaults to python.
+        :type language: ``str``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :return: ``True``
+        :rtype: ``bool``
+        """
+        entry = base.CodeLog(
+            code=code, language=language, description=description
+        )
+        _bind_entry(entry, self)
+        return
+
+    def fail(self, description, category=None, flag=None):
+        """
+        Failure assertion, can be used for explicitly failing a testcase.
+        The message will be included by email exporter. Most common usage is
+        within a conditional block.
+
+        .. code-block:: python
+
+            if some_condition:
                 result.fail('Unexpected failure: {}'.format(...))
 
         :param description: Text description of the failure.
         :type description: ``str``
         :param category: Custom category that will be used for summarization.
         :type category: ``str``
-        :return: False
+        :param flag: Custom flag for the assertion, set to 'email' to
+            include message in email exporter.
+        :param flag: ``str``
+        :return: ``False``
         :rtype: ``bool``
         """
-        return assertions.Fail(description, category=category)
+        entry = assertions.Fail(description, category=category, flag=flag)
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
+    def conditional_log(
+        self,
+        condition,
+        log_message,
+        log_description,
+        fail_description,
+        flag=None,
+    ):
+        """
+        A compound assertion that does result.log() or result.fail()
+        depending on the truthiness of condition.
+
+        .. code-block:: python
+
+            result.conditional_log(
+                some_condition,
+                log_message,
+                log_description,
+                fail_description,
+            )
+
+        is a shortcut for writing:
+
+        .. code-block:: python
+
+            if some_condition:
+                result.log(log_message, description=log_description)
+            else:
+                result.fail(fail_description)
+
+        :param condition: Value to be evaluated for truthiness
+        :param condition: ``object``
+        :param log_message: Message to pass to result.log if condition
+            evaluates to True.
+        :type log_message: ``str``
+        :param log_description: Description to pass to result.log if
+            condition evaluates to True.
+        :type log_description: ``str``
+        :param fail_description: Description to pass to result.fail if
+            condition evaluates to False.
+        :type fail_description: ``str``
+        :param flag: Custom flag for the assertion, set to 'email' to
+            include message in email exporter.
+        :return: ``True``
+        :rtype: ``bool``
+        """
+        if condition:
+            if log_description:
+                return self.log(
+                    log_message, description=log_description, flag=flag
+                )
+        else:
+            return self.fail(fail_description, flag=flag)
+
     def true(self, value, description=None, category=None):
         """
         Boolean assertion, checks if ``value`` is truthy.
@@ -1163,10 +1577,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.IsTrue(
-            value, description=description, category=category)
+        entry = assertions.IsTrue(
+            value, description=description, category=category
+        )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def false(self, value, description=None, category=None):
         """
         Boolean assertion, checks if ``value`` is falsy.
@@ -1184,10 +1600,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.IsFalse(
-            value, description=description, category=category)
+        entry = assertions.IsFalse(
+            value, description=description, category=category
+        )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def equal(self, actual, expected, description=None, category=None):
         """
         Equality assertion, checks if ``actual == expected``.
@@ -1208,10 +1626,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.Equal(
-            actual, expected, description=description, category=category)
+        entry = assertions.Equal(
+            actual, expected, description=description, category=category
+        )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def not_equal(self, actual, expected, description=None, category=None):
         """
         Inequality assertion, checks if ``actual != expected``.
@@ -1232,10 +1652,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.NotEqual(
-            actual, expected, description=description, category=category)
+        entry = assertions.NotEqual(
+            actual, expected, description=description, category=category
+        )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def less(self, first, second, description=None, category=None):
         """
         Checks if ``first < second``.
@@ -1256,10 +1678,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.Less(
-            first, second, description=description, category=category)
+        entry = assertions.Less(
+            first, second, description=description, category=category
+        )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def greater(self, first, second, description=None, category=None):
         """
         Checks if ``first > second``.
@@ -1280,10 +1704,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.Greater(
-            first, second, description=description, category=category)
+        entry = assertions.Greater(
+            first, second, description=description, category=category
+        )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def less_equal(self, first, second, description=None, category=None):
         """
         Checks if ``first <= second``.
@@ -1304,13 +1730,13 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.LessEqual(
-            first, second, description=description, category=category)
+        entry = assertions.LessEqual(
+            first, second, description=description, category=category
+        )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
-    def greater_equal(
-        self, first, second, description=None, category=None
-    ):
+    def greater_equal(self, first, second, description=None, category=None):
         """
         Checks if ``first >= second``.
         Can be used via shortcut: ``result.ge``
@@ -1330,8 +1756,11 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.GreaterEqual(
-            first, second, description=description, category=category)
+        entry = assertions.GreaterEqual(
+            first, second, description=description, category=category
+        )
+        _bind_entry(entry, self)
+        return entry
 
     # Shortcut aliases for basic comparators
     eq = equal
@@ -1341,7 +1770,44 @@ class Result(object):
     le = less_equal
     ge = greater_equal
 
-    @bind_entry
+    def isclose(
+        self,
+        first,
+        second,
+        rel_tol=1e-09,
+        abs_tol=0.0,
+        description=None,
+        category=None,
+    ):
+        """
+        Checks if ``first`` and ``second`` are approximately equal.
+
+        .. code-block:: python
+
+            result.isclose(99.99, 100, 0.001, 0.0, 'Custom description')
+
+        :param first: The first item to be compared for approximate equality.
+        :type first: ``numbers.Number``
+        :param second: The second item to be compared for approximate equality.
+        :type second: ``numbers.Number``
+        :param rel_tol: The relative tolerance.
+        :type rel_tol: ``numbers.Real``
+        :param abs_tol: The minimum absolute tolerance level.
+        :type abs_tol: ``numbers.Real``
+        :return: Assertion pass status
+        :rtype: ``bool``
+        """
+        entry = assertions.IsClose(
+            first,
+            second,
+            rel_tol,
+            abs_tol,
+            description=description,
+            category=category,
+        )
+        _bind_entry(entry, self)
+        return entry
+
     def contain(self, member, container, description=None, category=None):
         """
         Checks if ``member in container``.
@@ -1362,13 +1828,13 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.Contain(
-            member, container, description=description, category=category)
+        entry = assertions.Contain(
+            member, container, description=description, category=category
+        )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
-    def not_contain(
-        self, member, container, description=None, category=None
-    ):
+    def not_contain(self, member, container, description=None, category=None):
         """
         Checks if ``member not in container``.
 
@@ -1388,10 +1854,12 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.NotContain(
-            member, container, description=description, category=category)
+        entry = assertions.NotContain(
+            member, container, description=description, category=category
+        )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def equal_slices(
         self, actual, expected, slices, description=None, category=None
     ):
@@ -1421,15 +1889,16 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.EqualSlices(
+        entry = assertions.EqualSlices(
             expected=expected,
             actual=actual,
             slices=slices,
             description=description,
             category=category,
         )
+        _bind_entry(entry, self)
+        return entry
 
-    @bind_entry
     def equal_exclude_slices(
         self, actual, expected, slices, description=None, category=None
     ):
@@ -1460,17 +1929,23 @@ class Result(object):
         :return: Assertion pass status
         :rtype: ``bool``
         """
-        return assertions.EqualExcludeSlices(
+        entry = assertions.EqualExcludeSlices(
             expected=expected,
             actual=actual,
             slices=slices,
             description=description,
-            category=category
+            category=category,
         )
+        _bind_entry(entry, self)
+        return entry
 
     def raises(
-        self, exceptions, description=None,
-        category=None, pattern=None, func=None
+        self,
+        exceptions,
+        description=None,
+        category=None,
+        pattern=None,
+        func=None,
     ):
         """
         Checks if given code block raises certain type(s) of exception(s).
@@ -1519,8 +1994,12 @@ class Result(object):
         )
 
     def not_raises(
-        self, exceptions, description=None,
-        category=None, pattern=None, func=None
+        self,
+        exceptions,
+        description=None,
+        category=None,
+        pattern=None,
+        func=None,
     ):
         """
         Checks if given code block does not raise
@@ -1570,16 +2049,152 @@ class Result(object):
             pattern=pattern,
         )
 
-    @bind_entry
-    def matplot(self, pyplot, width=2, height=2, description=None):
+    def diff(
+        self,
+        first,
+        second,
+        ignore_space_change=False,
+        ignore_whitespaces=False,
+        ignore_blank_lines=False,
+        unified=False,
+        context=False,
+        description=None,
+        category=None,
+    ):
+        r"""
+        Line diff assertion. Fail if at least one difference found.
+
+        .. code-block:: python
+
+            text1 = 'a  b  c\nd\n'
+            text2 = 'a b c\nd\t\n'
+            result.diff(text1, text2, ignore_space_change=True)
+
+        :param first: The first piece of textual content to be compared.
+        :type first: ``str`` or ``list``
+        :param second: The second piece of textual content to be compared.
+        :type second: ``str`` or ``list``
+        :param ignore_space_change: Ignore changes in the amount of whitespace.
+        :type ignore_space_change: ``bool``
+        :param ignore_whitespaces: Ignore all white space.
+        :type ignore_whitespaces: ``bool``
+        :param ignore_blank_lines: Ignore changes whose lines are all blank.
+        :type ignore_blank_lines: ``bool``
+        :param unified: If truth value, output differences in unified context.
+                        Use an integer to specify the number of lines of
+                        leading context before matching lines and trailing
+                        context after matching lines. Defaults to 3.
+        :type unified: ``bool`` or ``int``
+        :param context: If truth value, output differences in copied context.
+                        Use an integer to specify the number of lines of
+                        leading context before matching lines and trailing
+                        context after matching lines. Defaults to 3.
+        :type context: ``bool`` or ``int``
+        :return: Assertion pass status
+        :rtype: ``bool``
+        """
+        entry = assertions.LineDiff(
+            first,
+            second,
+            ignore_space_change=ignore_space_change,
+            ignore_whitespaces=ignore_whitespaces,
+            ignore_blank_lines=ignore_blank_lines,
+            unified=unified,
+            context=context,
+            description=description,
+            category=category,
+        )
+        _bind_entry(entry, self)
+        return entry
+
+    def graph(
+        self,
+        graph_type,
+        graph_data,
+        description,
+        series_options,
+        graph_options,
+    ):
+        """
+        Displays a Graph in the report.
+
+        .. code-block:: python
+
+            result.graph('Line',
+                      {
+                          'graph 1':[{'x': 0, 'y': 8},{'x': 1, 'y': 5}]
+                      },
+                      description='Line Graph',
+                      series_options={'graph 1':{"colour": "red"}},
+                      graph_options=None)
+
+        :param graph_type: Type of graph user wants to create.
+                          Currently implemented:
+                          'Line', 'Scatter', 'Bar', 'Hexbin',
+                          'Pie', 'Whisker', 'Contour'
+        :type graph_type: ``str``
+        :param graph_data: Data to plot on the graph, for each series.
+        :type graph_data: ``dict[str, list]``
+        :param description: Text description for the graph.
+        :type description: ``str``
+        :param series_options: Customisation parameters for each
+                               individual series.
+                               Currently implemented:
+                               1){'Colour': ``str``} - colour of that series
+                               (str can be either basic colour name or RGB)
+        :type series_options: ``dict[str, dict[str, object]]```.
+        :param graph_options: Customisation parameters for overall graph
+                              Currently implemented:
+                               1){'xAxisTitle': ``str``} - x axis graph title
+                               2){'yAxisTitle': ``str``} - y axis graph title
+                               3){'legend': ``bool``} - to display legend
+                               legend (Default: false)
+        :type graph_options: ``dict[str, object]``.
+        """
+        entry = base.Graph(
+            graph_type=graph_type,
+            graph_data=graph_data,
+            description=description,
+            series_options=series_options,
+            graph_options=graph_options,
+        )
+        _bind_entry(entry, self)
+        return entry
+
+    def attach(self, filepath, description=None):
+        """
+        Attaches a file to the report.
+
+        :param filepath: Path to the file be to attached.
+        :type filepath: ``str``
+        :param description: Text description for the assertion.
+        :type description: ``str``
+        :return: Always returns True, this is not an assertion so it cannot
+                 fail.
+        :rtype: ``bool``
+        """
+        filename = os.path.basename(filepath)
+        try:
+            # will best effort make a copy of the file
+            copy_of_file = os.path.join(self._scratch, filename)
+            shutil.copyfile(filepath, copy_of_file)
+        except Exception:
+            copy_of_file = filepath
+
+        attachment = base.Attachment(copy_of_file, description)
+        self.attachments.append(attachment)
+        _bind_entry(attachment, self)
+        return attachment
+
+    def matplot(self, pyplot, width=None, height=None, description=None):
         """
         Displays a Matplotlib plot in the report.
 
         :param pyplot: Matplotlib pyplot object to be displayed.
         :type pyplot: ``matplotlib.pyplot``
-        :param width: Width of the plot in inches.
+        :param width: Figure width in inches, use pyplot defaul if not specified
         :type width: ``int``
-        :param height: Height of the plot in inches.
+        :param height: Figure height in inches, use pyplot default if not specified
         :type height: ``int``
         :param description: Text description for the assertion.
         :type description: ``str``
@@ -1587,15 +2202,18 @@ class Result(object):
                  fail.
         :rtype: ``bool``
         """
-        filename = '{0}.png'.format(uuid.uuid4())
+        filename = "{0}.png".format(strings.uuid4())
         image_file_path = os.path.join(self._scratch, filename)
-        return base.MatPlot(
+        matplot = base.MatPlot(
             pyplot=pyplot,
             image_file_path=image_file_path,
             width=width,
             height=height,
-            description=description
+            description=description,
         )
+        self.attachments.append(matplot)
+        _bind_entry(matplot, self)
+        return matplot
 
     @property
     def serialized_entries(self):

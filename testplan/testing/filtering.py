@@ -1,12 +1,12 @@
 """Filtering logic for Multitest, Suites and testcase methods (of Suites)"""
 import argparse
 import collections
+import operator
 import fnmatch
 
 from enum import Enum, unique
 
 from testplan.testing import tagging
-from testplan.testing.multitest.suite import get_testsuite_name
 
 
 class FilterLevel(Enum):
@@ -16,9 +16,10 @@ class FilterLevel(Enum):
 
     By default only ``test`` (e.g. top) level filtering is used.
     """
-    TEST = 'test'
-    SUITE = 'suite'
-    CASE = 'case'
+
+    TEST = "test"
+    TESTSUITE = "testsuite"
+    TESTCASE = "testcase"
 
 
 class BaseFilter(object):
@@ -51,7 +52,8 @@ class Filter(BaseFilter):
     implicitly checks for test instances ``filter_levels`` declaration
     to apply the filtering logic.
     """
-    category = 'common'
+
+    category = "common"
 
     def filter_test(self, test):
         return True
@@ -69,9 +71,9 @@ class Filter(BaseFilter):
 
         if FilterLevel.TEST in filter_levels:
             results.append(self.filter_test(test))
-        if FilterLevel.SUITE in filter_levels:
+        if FilterLevel.TESTSUITE in filter_levels:
             results.append(self.filter_suite(suite))
-        if FilterLevel.CASE in filter_levels:
+        if FilterLevel.TESTCASE in filter_levels:
             results.append(self.filter_case(case))
 
         return all(results)
@@ -113,18 +115,20 @@ class MetaFilter(BaseFilter):
         self._composed_filter = None
 
     def __repr__(self):
-        return '{}({})'.format(
-            self.__class__.__name__,
-            ', '.join([repr(f) for f in self.filters]))
+        return "{}({})".format(
+            self.__class__.__name__, ", ".join([repr(f) for f in self.filters])
+        )
 
     def __str__(self):
-        delimiter = ' {} '.format(self.operator_str)
-        return '({})'.format(
-            delimiter.join([str(filter_obj) for filter_obj in self.filters]))
+        delimiter = " {} ".format(self.operator_str)
+        return "({})".format(
+            delimiter.join([str(filter_obj) for filter_obj in self.filters])
+        )
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__)\
-               and other.filters == self.filters
+        return (
+            isinstance(other, self.__class__) and other.filters == self.filters
+        )
 
     def compose(self, filters):
         raise NotImplementedError
@@ -136,13 +140,15 @@ class MetaFilter(BaseFilter):
         return self._composed_filter
 
     def filter(self, test, suite, case):
+        # pylint: disable=not-callable
         return self.composed_filter(test, suite, case)
+        # pylint: enable=not-callable
 
 
 class Or(MetaFilter):
     """Meta filter that returns True if ANY of the child filters return True"""
 
-    operator_str = '|'
+    operator_str = "|"
 
     def compose(self, filters):
         def composed_filter(test, suite, case):
@@ -150,13 +156,14 @@ class Or(MetaFilter):
                 if filter_obj.filter(test, suite, case):
                     return True
             return False
+
         return composed_filter
 
 
 class And(MetaFilter):
     """Meta filter that returns True if ALL of the child filters return True"""
 
-    operator_str = '&'
+    operator_str = "&"
 
     def compose(self, filters):
         def composed_filter(test, suite, case):
@@ -164,6 +171,7 @@ class And(MetaFilter):
                 if not filter_obj.filter(test, suite, case):
                     return False
             return True
+
         return composed_filter
 
 
@@ -174,7 +182,7 @@ class Not(BaseFilter):
         self.filter_obj = filter_obj
 
     def __repr__(self):
-        return '{}({})'.format(self.__class__.__name__, self.filter_obj)
+        return "{}({})".format(self.__class__.__name__, self.filter_obj)
 
     def __invert__(self):
         """Double negative returns original filter."""
@@ -190,7 +198,7 @@ class Not(BaseFilter):
 class BaseTagFilter(Filter):
     """Base filter class for tag based filtering."""
 
-    category = 'tag'
+    category = "tag"
 
     def __init__(self, tags):
         self.tags_orig = tags
@@ -204,21 +212,23 @@ class BaseTagFilter(Filter):
 
     def _check_tags(self, obj, tag_getter):
         return self.get_match_func()(
-            tag_arg_dict=self.tags,
-            target_tag_dict=tag_getter(obj)
+            tag_arg_dict=self.tags, target_tag_dict=tag_getter(obj)
         )
 
     def filter_test(self, test):
         return self._check_tags(
-            obj=test, tag_getter=tagging.get_test_tags)
+            obj=test, tag_getter=operator.methodcaller("get_tags_index")
+        )
 
     def filter_suite(self, suite):
         return self._check_tags(
-            obj=suite, tag_getter=tagging.get_suite_tags)
+            obj=suite, tag_getter=operator.attrgetter("__tags_index__")
+        )
 
     def filter_case(self, case):
         return self._check_tags(
-            obj=case, tag_getter=tagging.get_testcase_tags)
+            obj=case, tag_getter=operator.attrgetter("__tags_index__")
+        )
 
 
 class Tags(BaseTagFilter):
@@ -249,13 +259,14 @@ class Pattern(Filter):
     """
 
     MAX_LEVEL = 3
-    DELIMITER = ':'
-    ALL_MATCH = '*'
+    DELIMITER = ":"
+    ALL_MATCH = "*"
 
-    category = 'pattern'
+    category = "pattern"
 
-    def __init__(self, pattern):
+    def __init__(self, pattern, match_definition=False):
         self.pattern = pattern
+        self.match_definition = match_definition
         patterns = self.parse_pattern(pattern)
         self.test_pattern, self.suite_pattern, self.case_pattern = patterns
 
@@ -263,12 +274,15 @@ class Pattern(Filter):
         return '{}(pattern="{}")'.format(self.__class__.__name__, self.pattern)
 
     def parse_pattern(self, pattern):
-        patterns = pattern.split(self.DELIMITER)
+        # ":" or "::" can be used as delimiter
+        patterns = [s for s in pattern.split(self.DELIMITER) if s]
 
         if len(patterns) > self.MAX_LEVEL:
             raise ValueError(
-                'Maximum filtering level ({}) exceeded: {}'.format(
-                    self.MAX_LEVEL, pattern))
+                "Maximum filtering level ({}) exceeded: {}".format(
+                    self.MAX_LEVEL, pattern
+                )
+            )
 
         return patterns + ([self.ALL_MATCH] * (self.MAX_LEVEL - len(patterns)))
 
@@ -277,11 +291,30 @@ class Pattern(Filter):
 
     def filter_suite(self, suite):
         return fnmatch.fnmatch(
-            get_testsuite_name(suite), self.suite_pattern)
+            # Now, Suite has the same name and uid, just like that of Multitest
+            # suite.__class__.__name__ if self.match_definition else suite.name,
+            suite.name,
+            self.suite_pattern,
+        )
 
     def filter_case(self, case):
-        return fnmatch.fnmatch(
-            case.__name__, self.case_pattern)
+        name_match = fnmatch.fnmatch(
+            case.__name__ if self.match_definition else case.name,
+            self.case_pattern,
+        )
+
+        # Check if the testcase is parametrized - if so, we also consider
+        # the filter to match if the parametrization template is matched.
+        parametrization_template = getattr(
+            case, "_parametrization_template", None
+        )
+        if parametrization_template:
+            param_match = fnmatch.fnmatch(
+                parametrization_template, self.case_pattern
+            )
+            return name_match or param_match
+
+        return name_match
 
     @classmethod
     def any(cls, *patterns):
@@ -306,6 +339,7 @@ class PatternAction(argparse.Action):
 
     [Pattern('foo'), Pattern('bar'), Pattern('baz')]
     """
+
     def __call__(self, parser, namespace, values, option_string=None):
         items = getattr(namespace, self.dest) or []
 
@@ -319,18 +353,22 @@ class TagsAction(argparse.Action):
 
     In:
 
+    .. code-block:: bash
+
         --tags foo bar hello=world --tags baz hello=mars
 
     Out:
 
+    .. code-block:: python
+
         [
             Tags({
-                'simple': frozenset({'foo', 'bar'}),
-                'hello': frozenset({'world'}),
+                'simple': {'foo', 'bar'},
+                'hello': {'world'},
             }),
             Tags({
-                'simple': frozenset({'baz'}),
-                'hello': frozenset({'mars'}),
+                'simple': {'baz'},
+                'hello': {'mars'},
             })
         ]
     """
@@ -349,21 +387,26 @@ class TagsAllAction(TagsAction):
 
     In:
 
+    .. code-block:: bash
+
         --tags-all foo bar hello=world --tags-all baz hello=mars
 
     Out:
 
+    .. code-block:: python
+
         [
             TagsAll({
-                'simple': frozenset({'foo', 'bar'}),
-                'hello': frozenset({'world'}),
+                'simple': {'foo', 'bar'},
+                'hello': {'world'},
             }),
             TagsAll({
-                'simple': frozenset({'baz'}),
-                'hello': frozenset({'mars'}),
+                'simple': {'baz'},
+                'hello': {'mars'},
             })
         ]
     """
+
     filter_class = TagsAll
 
 
@@ -378,18 +421,23 @@ def parse_filter_args(parsed_args, arg_names):
 
     In:
 
+    .. code-block:: bash
+
         --pattern my_pattern --tags foo --tags-all bar baz
 
     Out:
 
+    .. code-block:: python
+
         And(
             Pattern('my_pattern'),
             Or(
-                Tags({'simple': frozenset({'foo'})),
-                TagsAll({'simple': frozenset({'bar', 'baz'})),
+                Tags({'simple': {'foo'}}),
+                TagsAll({'simple': {'bar', 'baz'}}),
             )
         )
     """
+
     def get_filter_category(filter_objs):
         if len(filter_objs) == 1:
             return filter_objs[0]
@@ -411,6 +459,5 @@ def parse_filter_args(parsed_args, arg_names):
         return get_filter_category(values[0])
 
     return And(
-        *[get_filter_category(filters)
-          for filters in filter_dict.values()]
+        *[get_filter_category(filters) for filters in filter_dict.values()]
     )

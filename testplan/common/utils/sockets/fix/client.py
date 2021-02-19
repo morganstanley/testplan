@@ -13,9 +13,20 @@ class Client(object):
     A Basic FIX Client
     Connects to a FIX server via the standard Session Protocol.
     """
-    def __init__(self, msgclass, codec, host, port, sender, target,
-                 version='FIX.4.2', sendersub=None, interface=None,
-                 logger=None):
+
+    def __init__(
+        self,
+        msgclass,
+        codec,
+        host,
+        port,
+        sender,
+        target,
+        version="FIX.4.2",
+        sendersub=None,
+        interface=None,
+        logger=None,
+    ):
         """
         Create a new FIX client.
 
@@ -68,7 +79,8 @@ class Client(object):
         self.log_callback = logger.debug if logger else lambda msg: None
         self.codec = codec
         self.connection_name = "{}:{}:{}_{}{}".format(
-            self.sender, self.target, self.sendersub, self.host, self.port)
+            self.sender, self.target, self.sendersub, self.host, self.port
+        )
 
     @property
     def address(self):
@@ -81,19 +93,20 @@ class Client(object):
         """
         Transport connection.
         """
-        self.log_callback('Connecting socket to {}:{}'.format(
-            self.host, self.port))
+        self.log_callback(
+            "Connecting socket to {}:{}".format(self.host, self.port)
+        )
         return self.socket.connect((self.host, self.port))
 
     def sendlogon(self, custom_tags=None):
         """
         Send logon message.
         """
-        req = self.msgclass.from_dict({35: 'A', 98: '0', 108: '600', 141: 'Y'})
+        req = self.msgclass.from_dict({35: "A", 98: "0", 108: "600", 141: "Y"})
         tagsoverride(req, custom_tags or {})
         if 34 in req:
             self.out_seqno = int(req[34])
-        self.log_callback('Sending logon msg {}.'.format(req))
+        self.log_callback("Sending logon msg {}.".format(req))
         return self.send(req)
 
     def _populate_tags(self, msg):
@@ -103,11 +116,11 @@ class Client(object):
         if 50 not in msg and self.sendersub:
             msg[50] = self.sendersub
 
-        msg[52] = getattr(self.codec, 'utc_timestamp', utc_timestamp)()
+        msg[52] = getattr(self.codec, "utc_timestamp", utc_timestamp)()
 
         msg[34] = self.out_seqno
         self.out_seqno += 1
-        if msg[35] == b'4':
+        if msg[35] in (b"4", u"4"):
             self.out_seqno = int(msg[36])
         return msg
 
@@ -127,7 +140,7 @@ class Client(object):
         """
         Raw send (without stamping any session tags).
         """
-        self.log_callback('Sending msg {}.'.format(msg))
+        self.log_callback("Sending msg {}.".format(msg))
 
         msgstr = msg.to_wire(self.codec)
 
@@ -140,16 +153,28 @@ class Client(object):
         Receive a FIX message.
         """
         self.socket.settimeout(float(timeout))
-        data = self.socket.recv(4096)
-        return self.msgclass.from_buffer(data, self.codec)
+
+        buffer = self.socket.recv(8)  # 7 + 1 delimiter + checksum tag
+        while 1:
+            data = self.socket.recv(1)
+            if not data:
+                break
+            buffer += data
+            if buffer.endswith(b"\x01"):
+                if buffer[-8:].startswith(
+                    b"\x0110="
+                ):  # If received checksum tag
+                    break
+        self.in_seqno += 1
+        return self.msgclass.from_buffer(buffer, self.codec)
 
     def sendlogoff(self, custom_tags=None):
         """
         Send logoff message.
         """
-        req = self.msgclass.from_dict({35: '5'})
+        req = self.msgclass.from_dict({35: "5"})
         tagsoverride(req, custom_tags or {})
-        self.log_callback('Sending logoff msg {}.'.format(req))
+        self.log_callback("Sending logoff msg {}.".format(req))
         return self.send(req)
 
     def close(self):
@@ -158,4 +183,4 @@ class Client(object):
         """
         self.socket.close()
         self.socket = None
-        self.log_callback('Closed socket.')
+        self.log_callback("Closed socket.")

@@ -1,12 +1,10 @@
 """TODO."""
-import inspect
+import traceback
 
 from testplan.common.config import Config, Configurable
-from testplan.common.utils.exceptions import format_trace
 
 
 class ExporterResult(object):
-
     def __init__(self, exporter, type):
         self.exporter = exporter
         self.type = type
@@ -22,14 +20,20 @@ class ExporterResult(object):
 
         try:
             exporter.export(source)
-        except Exception as exc:
-            result.traceback = format_trace(inspect.trace(), exc)
+        except Exception:
+            result.traceback = traceback.format_exc()
         return result
 
 
 class ExporterConfig(Config):
-    def configuration_schema(self):
-        return {}
+    """
+    Configuration object for
+    :py:class:`BaseExporter <testplan.common.exporters.BaseExporter>` object.
+    """
+
+    @classmethod
+    def get_options(cls):
+        return {"name": str}
 
 
 class BaseExporter(Configurable):
@@ -37,10 +41,15 @@ class BaseExporter(Configurable):
 
     CONFIG = ExporterConfig
 
-    def __init__(self, **options):
-        """TODO."""
-        self._cfg = self.CONFIG(**options)
-        self.url = None
+    def __init__(self, name=None, **options):
+        if name is None:
+            name = self.__class__.__name__
+        self._cfg = self.CONFIG(name=name, **options)
+        super(BaseExporter, self).__init__()
+
+    @property
+    def name(self):
+        return self.cfg.name
 
     @property
     def cfg(self):
@@ -48,4 +57,4 @@ class BaseExporter(Configurable):
         return self._cfg
 
     def export(self, report):
-        raise NotImplementedError('Exporter must define export().')
+        raise NotImplementedError("Exporter must define export().")

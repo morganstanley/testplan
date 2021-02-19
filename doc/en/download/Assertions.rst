@@ -9,11 +9,11 @@ Basic
 .. _example_assertions_basic:
 
 Required files:
-  - :download:`test_plan.py <../../../testplan/examples/Assertions/Basic/test_plan.py>`
+  - :download:`test_plan.py <../../../examples/Assertions/Basic/test_plan.py>`
 
 test_plan.py
 ++++++++++++
-.. literalinclude:: ../../../testplan/examples/Assertions/Basic/test_plan.py
+.. literalinclude:: ../../../examples/Assertions/Basic/test_plan.py
 
 
 Summarization
@@ -22,8 +22,8 @@ Summarization
 .. _example_assertions_summary:
 
 Required files:
-  - :download:`test_plan.py <../../../testplan/examples/Assertions/Summary/test_plan.py>`
+  - :download:`test_plan.py <../../../examples/Assertions/Summary/test_plan.py>`
 
 test_plan.py
 ++++++++++++
-.. literalinclude:: ../../../testplan/examples/Assertions/Summary/test_plan.py
+.. literalinclude:: ../../../examples/Assertions/Summary/test_plan.py

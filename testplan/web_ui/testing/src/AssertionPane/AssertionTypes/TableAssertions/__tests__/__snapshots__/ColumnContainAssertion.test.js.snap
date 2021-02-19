@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DictLogAssertion shallow renders the correct HTML structure 1`] = `
+<TableBaseAssertion
+  columns={
+    Array [
+      Object {
+        "cellStyle": [Function],
+        "field": "id",
+        "filterParams": Object {
+          "excelMode": "windows",
+        },
+        "headerName": "ID",
+        "pinned": "left",
+        "resizable": true,
+        "suppressSizeToFit": true,
+        "width": 75,
+      },
+      Object {
+        "cellStyle": [Function],
+        "field": "value",
+        "filterParams": Object {
+          "excelMode": "windows",
+        },
+        "headerName": "symbol",
+        "resizable": true,
+        "suppressSizeToFit": true,
+      },
+    ]
+  }
+  preText={
+    <React.Fragment>
+      Values: [
+      "AAPL"
+      , 
+      "AMZN"
+      ]
+    </React.Fragment>
+  }
+  rows={
+    Array [
+      Object {
+        "expected": Array [
+          "AAPL",
+          "AMZN",
+        ],
+        "id": 0,
+        "passed": true,
+        "value": "AAPL",
+      },
+      Object {
+        "expected": Array [
+          "AAPL",
+          "AMZN",
+        ],
+        "id": 1,
+        "passed": false,
+        "value": "GOOG",
+      },
+      Object {
+        "expected": Array [
+          "AAPL",
+          "AMZN",
+        ],
+        "id": 2,
+        "passed": false,
+        "value": "FB",
+      },
+      Object {
+        "expected": Array [
+          "AAPL",
+          "AMZN",
+        ],
+        "id": 3,
+        "passed": true,
+        "value": "AMZN",
+      },
+      Object {
+        "expected": Array [
+          "AAPL",
+          "AMZN",
+        ],
+        "id": 4,
+        "passed": false,
+        "value": "MSFT",
+      },
+    ]
+  }
+/>
+`;

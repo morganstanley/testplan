@@ -8,10 +8,10 @@ Subpackages
 
     testplan.common
     testplan.exporters
-
     testplan.testing
     testplan.report
     testplan.runners
+    testplan.runnable
 
 
 testplan.base module
@@ -31,10 +31,10 @@ testplan.defaults module
     :undoc-members:
     :show-inheritance:
 
-testplan.logger module
-++++++++++++++++++++++
+testplan.environment module
++++++++++++++++++++++++++++
 
-.. automodule:: testplan.logger
+.. automodule:: testplan.environment
     :members:
     :undoc-members:
     :show-inheritance:
@@ -46,15 +46,6 @@ testplan.parser module
     :members:
     :undoc-members:
     :show-inheritance:
-
-testplan.runnable module
-++++++++++++++++++++++++
-
-.. automodule:: testplan.runnable
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
 
 
 Module contents

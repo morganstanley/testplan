@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
+<Column
+  width="28em"
+>
+  <ListGroup
+    className="buttonList_mjw45f"
+    tag="ul"
+  >
+    <ListGroupItem
+      action={true}
+      activeClassName="navButton_1x055n9-o_O-navButtonInteract_1ofjo98-o_O-unselectable_16maxrd-o_O-navButtonInteractFocus_7u3vsg"
+      className="navButton_1x055n9-o_O-navButtonInteract_1ofjo98-o_O-unselectable_16maxrd"
+      key="bbb"
+      tabIndex="1"
+      tag={
+        Object {
+          "$$typeof": Symbol(react.forward_ref),
+          "displayName": "NavLink",
+          "propTypes": Object {
+            "activeClassName": [Function],
+            "activeStyle": [Function],
+            "aria-current": [Function],
+            "className": [Function],
+            "exact": [Function],
+            "innerRef": [Function],
+            "isActive": [Function],
+            "location": [Function],
+            "onClick": [Function],
+            "replace": [Function],
+            "sensitive": [Function],
+            "strict": [Function],
+            "style": [Function],
+            "target": [Function],
+            "to": [Function],
+          },
+          "render": [Function],
+        }
+      }
+      to="/"
+    >
+      <InteractiveNavEntry
+        caseCountFailed={0}
+        caseCountPassed={0}
+        description="Interactive MTest Desc"
+        envCtrlCallback={[Function]}
+        handlePlayClick={[Function]}
+        name="Interactive MTest"
+        runtime_status="ready"
+        status="unknown"
+        type="multitest"
+      />
+    </ListGroupItem>
+  </ListGroup>
+</Column>
+`;

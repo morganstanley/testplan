@@ -13,10 +13,11 @@ def make_tuple(value, convert_none=False):
 
 def sort_and_group(iterable, key):
     """Sort an iterable and group the items by the given key func"""
-    return [
-        (k, list(g)) for k, g in
-        itertools.groupby(sorted(iterable, key=key), key=key)
+    groups = [
+        (k, list(g))
+        for k, g in itertools.groupby(sorted(iterable, key=key), key=key)
     ]
+    return groups
 
 
 def nested_groups(iterable, key_funcs):
@@ -27,12 +28,16 @@ def nested_groups(iterable, key_funcs):
     first function (top level).
 
     The sample below will give us 2 top level groups and 4 sub groups:
+
         * Numbers divisible by 10
-            * Numbers divisible by 10 and divisible by 3
-            * Numbers divisible by 10 and not divisible by 3
+
+            - Numbers divisible by 10 and divisible by 3
+            - Numbers divisible by 10 and not divisible by 3
+
         * Numbers not divisible by 10
-            * Numbers not divisible by 10 and divisible by 3
-            * Numbers not divisible by 10 and not divisible by 3
+
+            - Numbers not divisible by 10 and divisible by 3
+            - Numbers not divisible by 10 and not divisible by 3
 
     >>> nested_groups(
     ...    range(1, 100),
@@ -73,13 +78,13 @@ def make_iterables(values):
 
 def full_status(status):
     """Human readable status label."""
-    if status == 'p':
-        return 'Passed'
-    elif status == 'f':
-        return 'Failed'
-    elif status == 'i':
-        return 'Ignored'
-    return ''
+    if status == "p":
+        return "Passed"
+    elif status == "f":
+        return "Failed"
+    elif status == "i":
+        return "Ignored"
+    return ""
 
 
 def expand_values(rows, level=0, ignore_key=False, key_path=None):
@@ -89,26 +94,27 @@ def expand_values(rows, level=0, ignore_key=False, key_path=None):
     if key_path is None:
         key_path = []
     for row in rows:
-        key = row[0] if ignore_key is False else ''
+        key = row[0] if ignore_key is False else ""
         if key:
             key_path.append(key)
-        match = row[1] if len(row) == 3 else ''
+        match = row[1] if len(row) == 3 else ""
         val = row[2] if len(row) == 3 else row[1]
         if isinstance(val, tuple):
             if val[0] == 0:  # value
                 yield (tuple(key_path), level, key, match, (val[1], val[2]))
             elif val[0] in (1, 2, 3):
-                yield (tuple(key_path), level, key, match, '')
+                yield (tuple(key_path), level, key, match, "")
                 ignore = True if val[0] == 1 else False
-                for new_row in expand_values(val[1], level=level+1,
-                                             ignore_key=ignore,
-                                             key_path=key_path):
+                for new_row in expand_values(
+                    val[1],
+                    level=level + 1,
+                    ignore_key=ignore,
+                    key_path=key_path,
+                ):
                     yield new_row
         elif isinstance(val, list):
-            yield (tuple(key_path), level, key, match, '')
-            for new_row in expand_values(val,
-                                         level=level,
-                                         key_path=key_path):
+            yield (tuple(key_path), level, key, match, "")
+            for new_row in expand_values(val, level=level, key_path=key_path):
                 yield new_row
         if key:
             key_path.pop()
@@ -125,25 +131,92 @@ def extract_values(comparison, position):
     return result
 
 
+def flatten_formatted_object(formatted_obj):
+    """
+    Flatten the formatted object which is the result of function
+    ``testplan.common.utils.reporting.fmt``.
+
+    :param formatted_obj: The formatted object
+
+    :return: List representation of flattened object
+    :rtype: ``list``
+    """
+
+    def flatten(obj, level=0, ignore_key=True):
+        if ignore_key:
+            key = ""
+        else:
+            key, obj = obj[0], obj[1]
+
+        if isinstance(obj, tuple):
+            if obj[0] == 0:
+                yield (level, key, (obj[1], obj[2]))
+            elif obj[0] in (1, 2):
+                yield (level, key, "")
+                for row in obj[1]:
+                    for new_row in flatten(
+                        row, level=level + 1, ignore_key=(obj[0] == 1)
+                    ):
+                        yield new_row
+            else:
+                raise ValueError("Invalid data found in formatted object")
+        else:
+            raise ValueError("Invalid data found in formatted object")
+
+    if formatted_obj[0] == 0:
+        return list(flatten(formatted_obj))
+    else:
+        result_table = []
+        for level, key, val in flatten(formatted_obj, level=-1):
+            result_table.append([level, key, val])
+
+        if formatted_obj[0] == 2:
+            for idx in range(1, len(result_table)):
+                if not result_table[idx][1]:  # no key
+                    result_table[idx][0] -= 1
+
+        while True:
+            level_decreased = False
+            prev_level = 0
+            for idx in range(1, len(result_table)):
+                level = result_table[idx][0]
+                if level > prev_level + 1:
+                    for inner_idx in range(idx, len(result_table)):
+                        if result_table[inner_idx][0] > prev_level:
+                            level_decreased = True
+                            result_table[inner_idx][0] -= 1
+                        else:
+                            break
+                prev_level = level
+            if level_decreased is False:
+                break
+
+        return result_table[1:]
+
+
 def flatten_dict_comparison(comparison):
     """
     Flatten the comparison object from dict/fix match into a list of rows.
+
     Row elements: [level, key, status, left, right]
 
     i.e:
-    [
-        [0, 555, 'Passed', '', ''],
-        [0, '', 'Passed', '', ''],                       # Group result
-        [2, 600, 'Passed', ('str', 'A'), ('str', 'A')],
-        [2, 601, 'Passed', ('str', 'A'), ('str', 'A')],
-        [2, 683, 'Passed', '', ''],
-        [2, '', 'Passed', '', ''],                       # Group result
-        [4, 688, 'Passed', ('str', 'a'), ('str', 'a')],
-        [4, 689, 'Passed', ('str', 'a'), ('str', 'a')],
-        [2, '', 'Passed', '', ''],                       # Group result
-        [4, 688, 'Passed', ('str', 'b'), ('str', 'b')],
-        [4, 689, 'Passed', ('str', 'b'), ('str', 'b')]
-    ]
+
+    .. code-block:: python
+
+      [
+          [0, 555, 'Passed', '', ''],
+          [0, '', 'Passed', '', ''],                       # Group result
+          [2, 600, 'Passed', ('str', 'A'), ('str', 'A')],
+          [2, 601, 'Passed', ('str', 'A'), ('str', 'A')],
+          [2, 683, 'Passed', '', ''],
+          [2, '', 'Passed', '', ''],                       # Group result
+          [4, 688, 'Passed', ('str', 'a'), ('str', 'a')],
+          [4, 689, 'Passed', ('str', 'a'), ('str', 'a')],
+          [2, '', 'Passed', '', ''],                       # Group result
+          [4, 688, 'Passed', ('str', 'b'), ('str', 'b')],
+          [4, 689, 'Passed', ('str', 'b'), ('str', 'b')]
+      ]
     """
     result_table = []  # level, key, left, right, result
 

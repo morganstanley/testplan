@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Message shallow renders the correct HTML structure 1`] = `
+<div
+  style={
+    Object {
+      "paddingLeft": "1.5em",
+      "paddingTop": "4.5em",
+    }
+  }
+>
+  <h1
+    className="message_110xrpz"
+  >
+    test
+  </h1>
+</div>
+`;

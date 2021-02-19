@@ -1,0 +1,102 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DiscreteChartAssertion shallow renders the correct HTML structure 1`] = `
+<div>
+  <RadialChart
+    className=""
+    colorRange={
+      Array [
+        "#12939A",
+        "#79C7E3",
+        "#1A3177",
+        "#FF9833",
+        "#EF5D28",
+      ]
+    }
+    colorType="literal"
+    data={
+      Array [
+        Object {
+          "angle": 1,
+          "color": "#89DAC1",
+          "name": "green",
+        },
+        Object {
+          "angle": 2,
+          "color": "#F6D18A",
+          "name": "yellow",
+        },
+        Object {
+          "angle": 5,
+          "color": "#1E96BE",
+          "name": "cyan",
+        },
+        Object {
+          "angle": 3,
+          "color": "#DA70BF",
+          "name": "magenta",
+        },
+        Object {
+          "angle": 5,
+          "color": "#F6D18A",
+          "name": "yellow again",
+        },
+      ]
+    }
+    getAngle={[Function]}
+    getAngle0={[Function]}
+    getLabel={[Function]}
+    getRadius={[Function]}
+    getRadius0={[Function]}
+    getSubLabel={[Function]}
+    height={300}
+    key="Data Name"
+    onSeriesMouseOut={[Function]}
+    onValueMouseOver={[Function]}
+    padAngle={0}
+    width={400}
+  />
+  <DiscreteColorLegendItem
+    className=""
+    colors={
+      Array [
+        "#12939A",
+        "#79C7E3",
+        "#1A3177",
+        "#FF9833",
+        "#EF5D28",
+      ]
+    }
+    items={
+      Array [
+        Object {
+          "color": "#89DAC1",
+          "title": "green",
+        },
+        Object {
+          "color": "#F6D18A",
+          "title": "yellow",
+        },
+        Object {
+          "color": "#1E96BE",
+          "title": "cyan",
+        },
+        Object {
+          "color": "#DA70BF",
+          "title": "magenta",
+        },
+        Object {
+          "color": "#F6D18A",
+          "title": "yellow again",
+        },
+      ]
+    }
+    orientation="horizontal"
+    width={750}
+  />
+  <br />
+  <p>
+    (Hover over chart to see labels)
+  </p>
+</div>
+`;

@@ -30,16 +30,17 @@ from __future__ import absolute_import, division, print_function
 
 import re
 import sys
+import os
+import tokenize
+
 try:
-    from urllib.parse import quote as url_quote
     from io import StringIO
     from html import escape as html_escape
 except ImportError:
-    from urllib import quote as url_quote
     from cStringIO import StringIO
     from cgi import escape as html_escape
-import os
-import tokenize
+from six.moves.urllib.parse import quote as url_quote
+
 from ._looper import looper
 from .compat3 import (
     PY3, bytes, basestring_, next, is_unicode, coerce_text, iteritems)
@@ -319,7 +320,7 @@ class Template(object):
             if PY3:
                 raise(e)
             else:
-                raise (exc_info[1], e, exc_info[2])
+                raise (exc_info[1], e, exc_info[2])  # pylint: disable=raising-bad-type
 
     def _exec(self, code, ns, pos):
         # __traceback_hide__ = True
@@ -335,7 +336,7 @@ class Template(object):
             if PY3:
                 raise(e)
             else:
-                raise (exc_info[1], e, exc_info[2])
+                raise (exc_info[1], e, exc_info[2])  # pylint: disable=raising-bad-type
 
     def _repr(self, value, pos):
         # __traceback_hide__ = True
@@ -358,7 +359,7 @@ class Template(object):
             if PY3:
                 raise(e)
             else:
-                raise (exc_info[1], e, exc_info[2])
+                raise (exc_info[1], e, exc_info[2])  # pylint: disable=raising-bad-type
         else:
             if self._unicode and isinstance(value, bytes):
                 if not self.default_encoding:
@@ -1171,6 +1172,7 @@ def parse_signature(sig_text, name, pos):
             start_pos = end_pos = None
             parts = []
             while 1:
+                # pylint: disable=unbalanced-tuple-unpacking
                 tok_type, tok_string, s, e = get_token(True)
                 if start_pos is None:
                     start_pos = s

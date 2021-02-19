@@ -8,11 +8,12 @@ Subpackages
 
     testplan.testing.multitest.driver.tcp
     testplan.testing.multitest.driver.zmq
+    testplan.testing.multitest.driver.fix
+    testplan.testing.multitest.driver.http
 
 
 Submodules
 ----------
-
 
 testplan.testing.multitest.driver.app module
 ++++++++++++++++++++++++++++++++++++++++++++
@@ -23,6 +24,14 @@ testplan.testing.multitest.driver.app module
     :show-inheritance:
     :inherited-members:
 
+testplan.testing.multitest.driver.base module
++++++++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.testing.multitest.driver.base
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 testplan.testing.multitest.driver.sqlite module
 +++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -32,10 +41,10 @@ testplan.testing.multitest.driver.sqlite module
     :show-inheritance:
     :inherited-members:
 
-testplan.testing.multitest.driver.base module
-+++++++++++++++++++++++++++++++++++++++++++++
+testplan.testing.multitest.driver.zookeeper module
+++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. automodule:: testplan.testing.multitest.driver.base
+.. automodule:: testplan.testing.multitest.driver.zookeeper
     :members:
     :undoc-members:
     :show-inheritance:

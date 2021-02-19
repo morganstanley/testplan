@@ -13,7 +13,7 @@ the pools instead.
 .. image:: ../gif/worker_pool/worker_pool.gif
 
 Pools are resources that can be added in a plan using
-:py:meth:`~testplan.runnable.TestRunner.add_resource` method of the
+:py:meth:`~testplan.runnable.base.TestRunner.add_resource` method of the
 :py:class:`plan <testplan.base.Testplan>` object.
 
 .. code-block:: python
@@ -76,8 +76,32 @@ and many Test instances can be created from the same target function:
     for idx in range(10):
         task = Task(target='make_multitest',
                     module='tasks',
-                    path=os.path.dirname(os.path.abspath(__file__)),  # same dir
+                    path=os.path.dirname(os.path.abspath(__file__)),
                     args=(idx,))  # or kwargs={'index': idx}
+
+With argument `rerun` testplan can rerun the task up to user specified times
+unless it passes:
+
+.. code-block:: python
+
+    # ./test_plan.py
+
+    task = Task(target='make_multitest',
+                module='tasks',
+                path=os.path.dirname(os.path.abspath(__file__)),
+                rerun=3)  # default value 0 means no rerun
+
+A custom funtion can be used to determine if the task needs to run again, the
+default implementation is to check that task has been executed and the status
+of report is PASS.
+
+.. code-block:: python
+
+    # ./test_plan.py
+
+    pool = ThreadPool(name="MyPool", should_rerun=custom_func)
+    # can also set the custom func later
+    pool.set_rerun_check(custom_func)
 
 TaskResult
 ++++++++++
@@ -89,7 +113,8 @@ or the error that prevented the execution.
 plan.schedule
 -------------
 
-:py:meth:`plan.schedule <testplan.runnable.TestRunner>` is used to schedule a
+:py:meth:`plan.schedule <testplan.runnable.base.TestRunner.schedule>` is used to
+schedule a
 Task to a Pool and once it's scheduled and pool is started, it will be pulled
 and executed by a worker.
 
@@ -114,9 +139,8 @@ These are the current built-in pool types that can be added to a plan:
 
   1. :ref:`Thread pool <ThreadPool>`
   2. :ref:`Process pool <ProcessPool>`
+  3. :ref:`Remote pool <RemotePool>`
 
-Future work includes the addition of a remote pool to execute the tasks in
-multiple remote hosts.
 
 .. _ThreadPool:
 
@@ -143,8 +167,7 @@ back to the main pool.
         # Schedule 10 tasks to the thread pool to execute them 4 in parallel.
         for idx in range(10):
             task = Task(target='make_multitest',
-                        module='tasks',
-                        kwargs={'index': idx}))
+                        module='tasks')
             plan.schedule(task, resource='MyPool')
 
 See a downloadable example of a :ref:`thread pool <example_pool_thread>`.
@@ -176,11 +199,45 @@ arguments need to support that as well.
             # All Task arguments need to be serializable.
             task = Task(target='make_multitest',
                         module='tasks',
-                        path=os.path.dirname(os.path.abspath(__file__)),
-                        kwargs={'index': idx})
+                        path='.')
             plan.schedule(task, resource='MyPool')
 
 See a downloadable example of a :ref:`process pool <example_pool_process>`.
+
+.. _RemotePool:
+
+RemotePool
+++++++++++
+
+Remote pool is using ssh to start remote worker interpreters that are
+communicating with the local pool with the
+:py:class:`ZMQ <testplan.runners.pools.child.ZMQTransport>` transport as well.
+During this process, the local workspace will be transferred to the remote
+workers (if needed) and the workers will start local 'thread' or 'process'
+pools, based on their configuration.
+
+.. code-block:: python
+
+    from testplan.runners.pools import RemotePool
+
+    @test_plan(name='RemotePoolPlan')
+    def main(plan):
+        # A pool with 2 remote workers.
+        # One with 2 local workers and the other with 1.
+        pool = RemotePool(name='MyPool',
+                          hosts={'hostname1': 2,
+                                 'hostname2': 1})
+        plan.add_resource(pool)
+
+        # Schedule 10 tasks to the remote pool to execute them 3 in parallel.
+        for idx in range(10):
+            # All Task arguments need to be serializable.
+            task = Task(target='make_multitest',
+                        module='tasks',
+                        path='.')
+            plan.schedule(task, resource='MyPool')
+
+See a downloadable example of a :ref:`remote pool <example_pool_remote>`.
 
 Fault tolerance
 ---------------
@@ -227,3 +284,45 @@ failures and their behaviour is a part of
 
            # Add the pool to the plan.
            pool_uid = plan.add_resource(pool)
+
+.. _Multitest_parts_scheduling:
+
+MultiTest parts scheduling
+--------------------------
+
+A Task that returns a MultiTest can be scheduled in parts in one or more pools.
+Each MultiTest will have its own environment and will run a subtotal of testcases
+based on which part of the total number of parts it is. So each MultiTest part will
+produce its own report entry, these entries can be merged before exported.
+
+To split a MultiTest task into several parts, we can provide a tuple of 2 elements
+as a parameter, the first element indicates the sequence number of part, and the
+second one is the number of parts in total. For the tuple (M, N), make sure that
+N > 1 and 0 <= M < N, where M and N are both integers.
+
+.. code-block:: python
+
+    from testplan.runners.pools import ThreadPool
+
+    @test_plan(name='ThreadPoolPlan', merge_scheduled_parts=False)
+    def main(plan):
+        # Add a thread pool of 3 workers.
+        # Also you can use process pool or remote pool instead.
+        pool = ThreadPool(name='MyPool', size=3)
+        plan.add_resource(pool)
+
+        # Schedule 10 tasks to the thread pool.
+        # A parameter `part_tuple` is provided to indicate which part it is.
+        for idx in range(10):
+            task = Task(target='make_multitest',
+                        module='tasks',
+                        kwargs={'part_tuple': (i, 10)})
+            plan.schedule(task, resource='MyPool')
+
+If you set merge_scheduled_parts=True, please be sure that all parts of a MultiTest
+will be executed, for example, if a MultiTest is split into 3 parts, then 3 tasks
+containing MultiTest part should be scheduled, with the parameter tuple (0, 3),
+(1, 3) and (2, 3) for each task, also note that a MultiTest can only be schedule
+once, or there will be error during merging reports.
+
+See a downloadable example of :ref:`MultiTest parts scheduling <example_multiTest_parts>`.

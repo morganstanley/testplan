@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TextAttachment displays error message if API request fails 1`] = `
+<WithStyles(ForwardRef(Card))>
+  <AttachmentAssertionCardHeader
+    extra_action_items={null}
+    file_name="attachment.txt"
+    src="/var/tmp/attachment.txt"
+  />
+  <WithStyles(ForwardRef(CardContent))>
+    Service Unavailable
+  </WithStyles(ForwardRef(CardContent))>
+</WithStyles(ForwardRef(Card))>
+`;
+
+exports[`TextAttachment renders text returned from the backend 1`] = `
+<WithStyles(ForwardRef(Card))>
+  <AttachmentAssertionCardHeader
+    extra_action_items={
+      <ForwardRef(WithStyles)
+        endIcon={<UNDEFINED />}
+        onClick={[Function]}
+        size="large"
+        style={
+          Object {
+            "width": "8em",
+          }
+        }
+      >
+        Expand
+      </ForwardRef(WithStyles)>
+    }
+    file_name="attachment.txt"
+    src="/var/tmp/attachment.txt"
+  />
+  <WithStyles(ForwardRef(CardContent))
+    className="cardContent_faxwgb"
+  >
+    <SyntaxHighlighter
+      className={null}
+      language="text"
+      showLineNumbers={true}
+      startingLineNumber={34}
+    >
+      ...
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+Test line
+&lt;newline&gt;
+    </SyntaxHighlighter>
+  </WithStyles(ForwardRef(CardContent))>
+</WithStyles(ForwardRef(Card))>
+`;

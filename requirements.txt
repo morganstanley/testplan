@@ -1,28 +1,6 @@
-pytest
-py
-psutil
-six
-future
-setuptools
-schema
-pytz
-lxml
-python-dateutil
-reportlab
-marshmallow==3.0.0b2
-mock
-termcolor
-colorama
-enum34
-pyzmq
-terminaltables
-pyparsing
-cycler
-Pillow
-sphinx
-sphinx_rtd_theme
-matplotlib
-numpy
-sklearn
-scipy
-functools32; python_version <= '2.7'
+-e .
+pylint
+scikit-learn < 0.21.0
+black==19.10b0; python_version >= '3.0'
+kazoo
+confluent-kafka

@@ -10,8 +10,7 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils.context import is_context, expand
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.sockets.fix.client import Client
-from testplan.common.utils.timing import (TimeoutException,
-                                          TimeoutExceptionInfo)
+from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 
 from ..base import Driver, DriverConfig
 
@@ -22,29 +21,25 @@ class FixClientConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.fix.client.FixClient` driver.
     """
 
-    def configuration_schema(self):
-        """
-        Schema for options validation and assignment of default values.
-        """
-        overrides = {'msgclass': type,
-                     'codec': object,
-                     'host': Or(str,
-                                lambda x: is_context(x)),
-                     'port': Or(Use(int), lambda x: is_context(x)),
-                     'sender': str,
-                     'target': str,
-                     ConfigOption('sendersub', default=None): str,
-                     ConfigOption('interface', default=None): tuple,
-                     ConfigOption('connect_at_start', default=True): bool,
-                     ConfigOption('logon_at_start', default=True): bool,
-                     ConfigOption('custom_logon_tags', default=None): object,
-                     ConfigOption('receive_timeout', default=30):
-                        Or(int, float),
-                     ConfigOption('logon_timeout', default=10):
-                         Or(int, float),
-                     ConfigOption('logoff_timeout', default=3):
-                         Or(int, float)}
-        return self.inherit_schema(overrides, super(FixClientConfig, self))
+    @classmethod
+    def get_options(cls):
+        return {
+            "msgclass": type,
+            "codec": object,
+            "host": Or(str, lambda x: is_context(x)),
+            "port": Or(Use(int), lambda x: is_context(x)),
+            "sender": str,
+            "target": str,
+            ConfigOption("version", default="FIX.4.2"): str,
+            ConfigOption("sendersub", default=None): str,
+            ConfigOption("interface", default=None): tuple,
+            ConfigOption("connect_at_start", default=True): bool,
+            ConfigOption("logon_at_start", default=True): bool,
+            ConfigOption("custom_logon_tags", default=None): object,
+            ConfigOption("receive_timeout", default=30): Or(int, float),
+            ConfigOption("logon_timeout", default=10): Or(int, float),
+            ConfigOption("logoff_timeout", default=3): Or(int, float),
+        }
 
 
 class FixClient(Driver):
@@ -55,6 +50,8 @@ class FixClient(Driver):
     :py:class:`testplan.common.utils.sockets.fix.client.Client` class, which
     provides equivalent functionality and may be used outside of MultiTest.
 
+    :param name: Name of FixClient.
+    :type name: ``str``
     :param msgclass: Type used to construct logon, logoff and received FIX
           messages.
     :type msgclass: ``type``
@@ -72,6 +69,8 @@ class FixClient(Driver):
     :type sender: ``str``
     :param target: FIX TargetCompID.
     :type target: ``str``
+    :param version: FIX version, defaults to "FIX.4.2".
+    :type version: ``str``
     :param sendersub: FIX SenderSubID.
     :type sendersub: ``str``
     :param interface: Interface to bind to.
@@ -91,22 +90,37 @@ class FixClient(Driver):
     :type logoff_timeout: ``int`` or ``float``
 
     Also inherits all
-    :py:class:`~testplan.testing.multitest.driver.base.Driver`` options.
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = FixClientConfig
 
-    def __init__(self, **options):
+    def __init__(
+        self,
+        name,
+        msgclass,
+        codec,
+        host,
+        port,
+        sender,
+        target,
+        version="FIX.4.2",
+        sendersub=None,
+        interface=None,
+        connect_at_start=True,
+        logon_at_start=True,
+        custom_logon_tags=None,
+        receive_timeout=30,
+        logon_timeout=10,
+        logoff_timeout=3,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
+        options.setdefault("file_logger", "{}.log".format(slugify(name)))
         super(FixClient, self).__init__(**options)
         self._host = None
         self._port = None
         self._client = None
-        self._logname = '{0}.log'.format(slugify(self.cfg.name))
-
-    @property
-    def logpath(self):
-        """Fix server logfile in runpath."""
-        return os.path.join(self.runpath, self._logname)
 
     @property
     def host(self):
@@ -136,7 +150,6 @@ class FixClient(Driver):
     def starting(self):
         """Start the FIX client and optionally connect to host/post."""
         super(FixClient, self).starting()
-        self._setup_file_logger(self.logpath)
         self.reconnect()
 
     def connect(self):
@@ -161,12 +174,18 @@ class FixClient(Driver):
         server_host = expand(self.cfg.host, self.context)
         server_port = expand(self.cfg.port, self.context, int)
 
-        self._client = Client(msgclass=self.cfg.msgclass, codec=self.cfg.codec,
-                              host=server_host, port=server_port,
-                              sender=self.cfg.sender, target=self.cfg.target,
-                              sendersub=self.cfg.sendersub,
-                              interface=self.cfg.interface,
-                              logger=self.file_logger)
+        self._client = Client(
+            msgclass=self.cfg.msgclass,
+            codec=self.cfg.codec,
+            host=server_host,
+            port=server_port,
+            sender=self.cfg.sender,
+            target=self.cfg.target,
+            version=self.cfg.version,
+            sendersub=self.cfg.sendersub,
+            interface=self.cfg.interface,
+            logger=self.logger,
+        )
 
         if self.cfg.connect_at_start or self.cfg.logon_at_start:
             self.connect()
@@ -179,10 +198,10 @@ class FixClient(Driver):
         """
         self._client.sendlogon(custom_tags=self.cfg.custom_logon_tags)
         rcv = self._client.receive(timeout=self.cfg.logon_timeout)
-        self.file_logger.debug('Received logon response {}.'.format(rcv))
-        if 35 not in rcv or rcv[35] != b'A':
-            self.file_logger.debug('Unexpected logon response.')
-            raise Exception('Unexpected logon response : {0}.'.format(rcv))
+        self.logger.debug("Received logon response {}.".format(rcv))
+        if 35 not in rcv or rcv[35] != "A":
+            self.logger.debug("Unexpected logon response.")
+            raise Exception("Unexpected logon response : {0}.".format(rcv))
 
     def logoff(self):
         """
@@ -190,13 +209,14 @@ class FixClient(Driver):
         """
         self._client.sendlogoff()
         rcv = self._client.receive(timeout=self.cfg.logoff_timeout)
-        self.file_logger.debug('Received logoff response {}.'.format(rcv))
-        if 35 not in rcv or rcv[35] != b'5':
-            self.file_logger.debug(
-                'Unexpected logoff response {}'.format(rcv))
+        self.logger.debug("Received logoff response {}.".format(rcv))
+        if 35 not in rcv or rcv[35] != "5":
+            self.logger.debug("Unexpected logoff response {}".format(rcv))
             self.logger.error(
-                'Fixclient {}: received unexpected logoff response : {}'.format(
-                    self.cfg.name, rcv))
+                "Fixclient {}: received unexpected logoff response : {}".format(
+                    self.cfg.name, rcv
+                )
+            )
 
     def send(self, msg):
         """
@@ -238,12 +258,14 @@ class FixClient(Driver):
             received = self._client.receive(timeout=timeout)
         except socket.timeout:
             self.logger.error(
-                'Timed out waiting for message for {} seconds.'.format(
-                    timeout))
+                "Timed out waiting for message for {} seconds.".format(timeout)
+            )
             raise TimeoutException(
-                'Timed out waiting for message on {0}. {1}'.format(
-                    self.cfg.name, timeout_info.msg()))
-        self.file_logger.debug('Received msg {}.'.format(received))
+                "Timed out waiting for message on {0}. {1}".format(
+                    self.cfg.name, timeout_info.msg()
+                )
+            )
+        self.logger.debug("Received msg {}.".format(received))
         return received
 
     def flush(self, timeout=0):
@@ -271,13 +293,15 @@ class FixClient(Driver):
                     raise
             self._client.close()
             self._client = None
-            self.file_logger.debug('Stopped client')
 
     def stopping(self):
         """Stops the FIX client."""
         super(FixClient, self).stopping()
         self._stop_logic()
+        self.logger.debug("Stopped FixClient.")
 
     def aborting(self):
         """Abort logic that stops the FIX client."""
+        super(FixClient, self).aborting()
         self._stop_logic()
+        self.logger.debug("Aborted FixClient.")

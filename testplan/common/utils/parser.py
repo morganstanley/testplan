@@ -16,19 +16,20 @@ class ArgMixin(object):
         * Pretty help text rendering for each option.
           (need to be used with `argparse.RawTextHelpFormatter`)
     """
+
     @classmethod
     def str_to_enum(cls, val):
         """
         `my-enum` -> EnumClass.MY_ENUM
         """
         try:
-            return cls[val.upper().replace('-', '_')]
+            return cls[val.upper().replace("-", "_")]
         except KeyError:
-            msg = 'Invalid value: `{}`, available values are: {}'.format(
+            msg = "Invalid value: `{}`, available values are: {}".format(
                 val,
-                ', '.join(
-                    ['`{}`'.format(cls.enum_to_str(enm)) for enm in cls]
-                )
+                ", ".join(
+                    ["`{}`".format(cls.enum_to_str(enm)) for enm in cls]
+                ),
             )
             raise KeyError(msg)
 
@@ -37,7 +38,7 @@ class ArgMixin(object):
         """
         EnumClass.MY_ENUM -> `my-enum`
         """
-        return enm.name.lower().replace('_', '-')
+        return enm.name.lower().replace("_", "-")
 
     @classmethod
     def parse(cls, arg):
@@ -66,15 +67,15 @@ class ArgMixin(object):
         descriptions = cls.get_descriptions()
         help_strings = []
 
-        help_strings.append('(default: {})'.format(default))
+        help_strings.append("(default: {})".format(default))
 
         if descriptions:
             for enm in cls:
                 help_strings.append(
-                    '"{}" - {}'.format(
-                        cls.enum_to_str(enm), descriptions[enm]))
+                    '"{}" - {}'.format(cls.enum_to_str(enm), descriptions[enm])
+                )
 
-        return os.linesep.join(help_strings)
+        return "\n".join(help_strings)
 
     @classmethod
     def get_parser_context(cls, default=None, **kwargs):

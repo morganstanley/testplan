@@ -2,12 +2,12 @@
 
 import datetime
 
-DATEFORMAT = '%Y%m%d-%H:%M:%S.%f'
+DATEFORMAT = "%Y%m%d-%H:%M:%S.%f"
 
 
 def utc_timestamp():
     """
-    @return: a UTCTimestamp (see FIX spec)
-    @rtype: C{str}
+    :return: a UTCTimestamp (see FIX spec)
+    :rtype: ``str``
     """
     return datetime.datetime.utcnow().strftime(DATEFORMAT)

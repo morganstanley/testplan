@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EmptyReport renders a custom error message 1`] = `
+<div
+  className="emptyReport_3hmsj"
+>
+  <Toolbar
+    extraButtons={
+      Array [
+        <TimeButton
+          updateTimeDisplayCbk={[Function]}
+        />,
+      ]
+    }
+    filterBoxWidth="22em"
+    handleNavFilter={[Function]}
+    updateEmptyDisplayFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+  />
+  <Nav
+    displayEmpty={true}
+    displayTags={false}
+    displayTime={false}
+    report={null}
+    saveAssertions={[Function]}
+  />
+  <Message
+    left="22em"
+    message="418 I'm a teapot"
+  />
+</div>
+`;
+
+exports[`EmptyReport shallow renders and matches snapshot 1`] = `
+<div
+  className="emptyReport_3hmsj"
+>
+  <Toolbar
+    extraButtons={
+      Array [
+        <TimeButton
+          updateTimeDisplayCbk={[Function]}
+        />,
+      ]
+    }
+    filterBoxWidth="22em"
+    handleNavFilter={[Function]}
+    updateEmptyDisplayFunc={[Function]}
+    updateFilterFunc={[Function]}
+    updateTagsDisplayFunc={[Function]}
+  />
+  <Nav
+    displayEmpty={true}
+    displayTags={false}
+    displayTime={false}
+    report={null}
+    saveAssertions={[Function]}
+  />
+  <Message
+    left="22em"
+    message="404: Page Not Found"
+  />
+</div>
+`;

@@ -1,0 +1,570 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FilterBox shallow renders the correct HTML structure 1`] = `
+<div
+  className="searchBox_1la7oqf"
+>
+  <span>
+    <span
+      className="searchBoxIcon_ncmdki"
+    >
+      <FontAwesomeIcon
+        border={false}
+        className=""
+        fixedWidth={false}
+        flip={null}
+        icon={
+          Object {
+            "icon": Array [
+              512,
+              512,
+              Array [],
+              "f002",
+              "M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z",
+            ],
+            "iconName": "search",
+            "prefix": "fas",
+          }
+        }
+        inverse={false}
+        key="search"
+        listItem={false}
+        mask={null}
+        pull={null}
+        pulse={false}
+        rotation={null}
+        size={null}
+        spin={false}
+        symbol={false}
+        title="Search"
+        transform={null}
+      />
+    </span>
+    <span
+      className="searchBoxInfoIcon_107ja4p"
+      onClick={[Function]}
+    >
+      <FontAwesomeIcon
+        border={false}
+        className=""
+        fixedWidth={false}
+        flip={null}
+        icon={
+          Object {
+            "icon": Array [
+              512,
+              512,
+              Array [],
+              "f059",
+              "M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z",
+            ],
+            "iconName": "question-circle",
+            "prefix": "fas",
+          }
+        }
+        inverse={false}
+        key="toolbar-info"
+        listItem={false}
+        mask={null}
+        pull={null}
+        pulse={false}
+        rotation={null}
+        size={null}
+        spin={false}
+        symbol={false}
+        title="Click for help"
+        transform={null}
+      />
+    </span>
+    <Popover
+      className="widePopover_16mkpl5"
+      fade={false}
+      isOpen={false}
+      placement="bottom"
+      placementPrefix="bs-popover"
+      target={
+        Object {
+          "current": null,
+        }
+      }
+      toggle={[Function]}
+      trigger="click"
+    >
+      <PopoverHeader
+        tag="h3"
+      >
+        How to search
+      </PopoverHeader>
+      <PopoverBody
+        className="scrollablePopover_1vdkswo"
+        tag="div"
+      >
+        <p>
+          Just start typing in the search bar. The test items are filtered automatically. The current selection if available in the serach are maintained. All the search are 
+          <b>
+            case insensitive
+          </b>
+          .
+        </p>
+        <p>
+          You can search by 
+          <b>
+            free text
+          </b>
+          , then each word will be matched against multitest, testsuite or testcase name as well as tags and tag names. For tag or tag names the match must be exact, for the rest it is enough that the name contains the word. If anything match it will be included.
+        </p>
+        <p>
+          There are also 
+          <b>
+            operators
+          </b>
+           that can be used for more advanced search terms. The test items matching all the specified operators will be filtered. The table below summarize them with examples:
+        </p>
+        <Table
+          bordered={true}
+          responsiveTag="div"
+          striped={true}
+          tag="table"
+        >
+          <thead>
+            <tr>
+              <th>
+                What you can search by
+              </th>
+              <th>
+                Search operator and example
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              key="0"
+            >
+              <td
+                style={
+                  Object {
+                    "maxWidth": "250px",
+                  }
+                }
+              >
+                Specify a multitest
+                <br />
+                <small>
+                  (search for substring)
+                </small>
+              </td>
+              <td>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <code>
+                      multitest:
+                    </code>
+                    <br />
+                  </span>
+                  <span
+                    key="1"
+                  >
+                    <code>
+                      mt:
+                    </code>
+                    <br />
+                  </span>
+                </p>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      multitest:mt1
+                    </code>
+                    <br />
+                  </span>
+                  <span
+                    key="1"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      mt:mt1
+                    </code>
+                    <br />
+                  </span>
+                </p>
+              </td>
+            </tr>
+            <tr
+              key="1"
+            >
+              <td
+                style={
+                  Object {
+                    "maxWidth": "250px",
+                  }
+                }
+              >
+                Specify a testsuite
+                <br />
+                <small>
+                  (search for substring)
+                </small>
+              </td>
+              <td>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <code>
+                      testsuite:
+                    </code>
+                    <br />
+                  </span>
+                  <span
+                    key="1"
+                  >
+                    <code>
+                      s:
+                    </code>
+                    <br />
+                  </span>
+                </p>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      testsuite:suite2
+                    </code>
+                    <br />
+                  </span>
+                  <span
+                    key="1"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      s:suite2
+                    </code>
+                    <br />
+                  </span>
+                </p>
+              </td>
+            </tr>
+            <tr
+              key="2"
+            >
+              <td
+                style={
+                  Object {
+                    "maxWidth": "250px",
+                  }
+                }
+              >
+                Specify a testcase
+                <br />
+                <small>
+                  (search for substring)
+                </small>
+              </td>
+              <td>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <code>
+                      testcase:
+                    </code>
+                    <br />
+                  </span>
+                  <span
+                    key="1"
+                  >
+                    <code>
+                      c:
+                    </code>
+                    <br />
+                  </span>
+                </p>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      testcase:case3
+                    </code>
+                    <br />
+                  </span>
+                  <span
+                    key="1"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      c:case3
+                    </code>
+                    <br />
+                  </span>
+                </p>
+              </td>
+            </tr>
+            <tr
+              key="3"
+            >
+              <td
+                style={
+                  Object {
+                    "maxWidth": "250px",
+                  }
+                }
+              >
+                Specify a tag or a named tag
+                <br />
+                <small>
+                  (search for exact match)
+                </small>
+              </td>
+              <td>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <code>
+                      tag:
+                    </code>
+                    <br />
+                  </span>
+                </p>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      tag:fast
+                    </code>
+                    <br />
+                  </span>
+                  <span
+                    key="1"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      tag:color=blue
+                    </code>
+                    <br />
+                  </span>
+                </p>
+              </td>
+            </tr>
+            <tr
+              key="4"
+            >
+              <td
+                style={
+                  Object {
+                    "maxWidth": "250px",
+                  }
+                }
+              >
+                Searching for something contains spaces or operators
+              </td>
+              <td>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <code>
+                      " "
+                    </code>
+                    <br />
+                  </span>
+                </p>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      mt:"Demo multitest"
+                    </code>
+                    <br />
+                  </span>
+                  <span
+                    key="1"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      suite:"test suite:2"
+                    </code>
+                    <br />
+                  </span>
+                </p>
+              </td>
+            </tr>
+            <tr
+              key="5"
+            >
+              <td
+                style={
+                  Object {
+                    "maxWidth": "250px",
+                  }
+                }
+              >
+                Test items that match multiple terms
+              </td>
+              <td>
+                <p />
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      suite:server c:restart
+                    </code>
+                    <br />
+                  </span>
+                </p>
+              </td>
+            </tr>
+            <tr
+              key="6"
+            >
+              <td
+                style={
+                  Object {
+                    "maxWidth": "250px",
+                  }
+                }
+              >
+                Test items that match any of the terms
+              </td>
+              <td>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <code>
+                      OR
+                    </code>
+                    <br />
+                  </span>
+                  <span
+                    key="1"
+                  >
+                    <code>
+                      {}
+                    </code>
+                    <br />
+                  </span>
+                </p>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      mt:mt1 OR mt:mt2
+                    </code>
+                    <br />
+                  </span>
+                  <span
+                    key="1"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      {mt:mt1 mt:mt2}
+                    </code>
+                    <br />
+                  </span>
+                </p>
+              </td>
+            </tr>
+            <tr
+              key="7"
+            >
+              <td
+                style={
+                  Object {
+                    "maxWidth": "250px",
+                  }
+                }
+              >
+                Group multiple search terms of the same type together. It is the same as if the term would be applied several times, so all should match.
+              </td>
+              <td>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <code>
+                      ( )
+                    </code>
+                    <br />
+                  </span>
+                </p>
+                <p>
+                  <span
+                    key="0"
+                  >
+                    <b>
+                      Example: 
+                    </b>
+                    <code>
+                      tag:(client server)
+                    </code>
+                    <br />
+                  </span>
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </Table>
+      </PopoverBody>
+    </Popover>
+  </span>
+  <div
+    className="searchBoxInner_woxb04"
+  >
+    <DebounceInput
+      className="searchBoxInput_1oulel0"
+      debounceTimeout={300}
+      element="input"
+      forceNotifyByEnter={true}
+      forceNotifyOnBlur={true}
+      minLength={2}
+      onChange={[Function]}
+      placeholder="Search for tests, or tags..."
+      type="text"
+    />
+  </div>
+</div>
+`;

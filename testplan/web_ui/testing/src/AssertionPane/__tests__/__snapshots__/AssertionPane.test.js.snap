@@ -1,0 +1,113 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
+<div
+  style={
+    Object {
+      "height": "calc(100% - 5.5em)",
+      "left": "19.5em",
+      "paddingLeft": "20px",
+      "position": "absolute",
+      "top": "5.5em",
+      "width": "calc(100% - 19.5em)",
+    }
+  }
+>
+  <div
+    className="infiniteScrollDiv_gt1n5"
+  >
+    <Scrollbars
+      autoHeight={false}
+      autoHeightMax={200}
+      autoHeightMin={0}
+      autoHide={true}
+      autoHideDuration={200}
+      autoHideTimeout={1000}
+      hideTracksWhenNotNeeded={false}
+      renderThumbHorizontal={[Function]}
+      renderThumbVertical={[Function]}
+      renderTrackHorizontal={[Function]}
+      renderTrackVertical={[Function]}
+      renderView={[Function]}
+      tagName="div"
+      thumbMinSize={30}
+      universal={false}
+    >
+      <div
+        style={
+          Object {
+            "paddingRight": "4rem",
+          }
+        }
+      >
+        <DescriptionPane />
+        <div
+          className="buttonsDiv_16w4ads"
+        >
+          <FontAwesomeIcon
+            border={false}
+            className="icon_1rr1rr0"
+            fixedWidth={false}
+            flip={null}
+            icon="plus-circle"
+            inverse={false}
+            key="faPlusCircle"
+            listItem={false}
+            mask={null}
+            onClick={[Function]}
+            pull={null}
+            pulse={false}
+            rotation={null}
+            size="1x"
+            spin={false}
+            symbol={false}
+            title="Expand all"
+            transform={null}
+          />
+          <FontAwesomeIcon
+            border={false}
+            className="icon_1rr1rr0"
+            fixedWidth={false}
+            flip={null}
+            icon="minus-circle"
+            inverse={false}
+            key="faMinusCircle"
+            listItem={false}
+            mask={null}
+            onClick={[Function]}
+            pull={null}
+            pulse={false}
+            rotation={null}
+            size="1x"
+            spin={false}
+            symbol={false}
+            title="Collapse all"
+            transform={null}
+          />
+        </div>
+        <AssertionGroup
+          entries={
+            Array [
+              Object {
+                "category": "DEFAULT",
+                "description": null,
+                "first": "foo",
+                "label": "==",
+                "line_no": 25,
+                "machine_time": "2019-02-12T17:41:42.795536+00:00",
+                "meta_type": "assertion",
+                "passed": true,
+                "second": "foo",
+                "type": "Equal",
+                "utc_time": "2019-02-12T17:41:42.795530+00:00",
+              },
+            ]
+          }
+          resetGlobalIsOpen={[Function]}
+        />
+        <LogGroup />
+      </div>
+    </Scrollbars>
+  </div>
+</div>
+`;

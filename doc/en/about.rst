@@ -37,7 +37,6 @@ List of functionality to be added:
     * CPU/Memory monitoring and visualization.
     * Statistics metrics capturing and visualization.
     * DB exporters for TestReport.
-    * UI/HTML report renderer.
     * Interactive execution runtime and UI.
 
 

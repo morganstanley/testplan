@@ -14,8 +14,48 @@ The content below contains testcase snippets, for complete
 examples please see please see :ref:`here <example_assertions>`.
 
 
+Execution Behavior
+==================
+
+In Testplan, the testcase execution does **NOT** stop after a failing assertion.
+This is because in our experience, assertions are used to check for correctness
+of output values rather than determining which execution path was taken.
+Consequently, we find that it is more efficient to execute all assertions within
+a testcase, because it avoids the typical problem of fixing one assertion simply
+to find another one later on.
+
+If some assertions rely on the result of previous ones and does not make sense
+to be executed if the previous failed, their boolean return values can be used
+like this example:
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          item = get_item()
+          passed = result.true(isinstance(item, dict), description='Check if dict')
+          if passed is True:
+              result.contain('key', item.keys(), description='.keys() used')
+
+If the test should be stopped on an assertion failure, an exception can be raised
+or use a *return* statement like this example:
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+           passed = result.true(isinstance(5, float), description='Check if float')
+
+           if passed is False:
+               raise RuntimeError('5 is not a float.')
+               # Or
+               result.log('5 is not a float. Aborting testcase.')
+               return
+
+
 Basic Assertions
 ================
+
 Basic assertions can be used for common test cases, and accessible directly
 from the ``result`` object.
 
@@ -29,7 +69,7 @@ Checks if the ``value`` is `truthy`.
 
       @testcase
       def sample_testcase(self, env, result):
-          result.true((isinstance(5, int), description='Truthiness check')
+          result.true(isinstance(5, int), description='Truthiness check')
 
     Sample output:
 
@@ -210,6 +250,28 @@ Comparison assertion, checks if ``reference`` is greater than or equal the ``val
           ...
           Greater equal comparison example - Pass
             10 >= 5
+          ...
+
+
+:py:meth:`result.isclose <testplan.testing.multitest.result.Result.isclose>`
+----------------------------------------------------------------------------
+
+Checks if ``first`` is close to ``second`` without requiring them to be exactly equal.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.isclose(100, 101, rel_tol=0.01, abs_tol=0.0, description='Approximate equality example')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Approximate equality example - Pass
+            100 ~= 101 (rel_tol: 0.01, abs_tol: 0.0)
           ...
 
 
@@ -442,6 +504,83 @@ of exception has been raised without matching the given ``pattern`` or ``func``.
           ...
 
 
+:py:meth:`result.diff <testplan.testing.multitest.result.Result.diff>`
+----------------------------------------------------------------------
+
+Line diff assertion. Checks if textual content ``first`` and ``second`` have difference with given options.
+If difference found, generates a list of strings showing the delta.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          first, second = '', ''
+          with open('1.txt', 'r') as f1:
+              first = f1.read()
+          with open('2.txt', 'r') as f2:
+              second = f2.read()
+          result.diff(
+              first, second, unified=3,
+              description='Compare 1.txt and 2.txt in unified mode'
+          )
+          result.diff(
+              ['bacon\r\n', 'eggs\r\n', 'ham\r\n', 'guido\r\n'],
+              ['python\n', 'eggy\n', 'h a m\n', 'monty\n', '\tguido\n'],
+              ignore_whitespaces=True,
+              description='Compare 2 lists of text with whitespaces ignored'
+          )
+
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Compare 1.txt and 2.txt in unified mode - Pass
+            a.text:
+              aaa
+              bbb
+              ccc
+              ddd
+              eee
+              [truncated]...
+            b.text:
+              aaa
+              bbb
+              ccc
+              ddd
+              eee
+              [truncated]...
+            a.text == b.text
+          Compare 2 lists of text with whitespaces ignored - Fail
+            File: /d/d1/shared/yitaor/ets.testplan/ets/testplan/testplan/run/test_script.py
+            Line: 49
+            a.text:
+              bacon
+              eggs
+              ham
+              guido
+
+            b.text:
+              python
+              eggy
+              h a m
+              monty
+                  guido
+
+            Differences ( -w ):
+              1,2c1,2
+              < bacon
+              < eggs
+              ---
+              > python
+              > eggy
+              3a4
+              > monty
+          ...
+
+
 :py:meth:`result.log <testplan.testing.multitest.result.Result.log>`
 --------------------------------------------------------------------
 
@@ -450,15 +589,80 @@ more human readable.
 
     .. code-block:: python
 
-        result.log(
-            'Database file "{}" of driver "{}" created at "{}"'.format(
-                env.db.cfg.db_name, env.db.cfg.name, env.db.db_path))
+      @testcase
+      def sample_testcase(self, env, result):
+          result.log(
+              'Start driver "{}"'.format(env.db.cfg.name))
+
+          result.log(
+              'Database file "{}" of driver "{}" created at "{}"'.format(
+                  env.db.cfg.db_name, env.db.cfg.name, env.db.db_path),
+              description='Details of database file'))
+
+          data = {100: 'foo', 200: ['bar', 'baz']}
+          result.log(data, description='Log of raw data')
 
     .. code-block:: bash
 
       $ test_plan.py --verbose
           ...
-          Database file "mydb" of driver "db" created at "path/to/mydb"
+          Start driver "db"
+          Details of database file
+            Database file "mydb" of driver "db" created at "path/to/mydb"
+          Log of raw data
+            {100: 'foo', 200: ['bar', 'baz']}
+          ...
+
+
+:py:meth:`result.markdown <testplan.testing.multitest.result.Result.markdown>`
+------------------------------------------------------------------------------
+Add Markdown into the report. Useful for displaying blocks of formatted text, code, messages, images etc.
+Downloadable examples that use markdown assertion can be found :ref:`here <example_assertions>`.
+
+    .. code-block:: python
+
+        result.markdown("""
+        Testplan is a [Python](http://python.org) package that can start a local live
+        environment, setup mocks, connections to services and run tests against these.
+        """,
+            description="Testplan"
+        )
+
+
+:py:meth:`result.log_html <testplan.testing.multitest.result.Result.log_html>`
+------------------------------------------------------------------------------
+A shortcut of :py:meth:result.markdown <testplan.testing.multitest.result.Result.markdown> but disable escape flag.
+Downloadable examples that use html assertion can be found :ref:`here <example_assertions>`.
+
+    .. code-block:: python
+
+        result.html("""
+        <div style="font-size:80px;font-family:Arial;font-weight:bold;">
+            <i class="fa fa-check-square" style="color:green;padding-right:5px;"></i>
+            Testplan
+        </div>
+        """,
+            description="Testplan"
+        )
+
+.. warning::
+    Embedded HTML does not support <script> tags. HTML5 specifies script tags within innerHTML shall not execute.
+
+
+:py:meth:`result.log_code <testplan.testing.multitest.result.Result.log_code>`
+------------------------------------------------------------------------------
+Add source code into the report. Useful for displaying source code which generated from a code-generation tool.
+Downloadable examples that use codelog assertion can be found
+:ref:`here <example_assertions>`.
+
+    .. code-block:: python
+
+        result.html("""
+        import this
+        """,
+            language="python"
+        )
+
 
 :py:meth:`result.matplot <testplan.testing.multitest.result.Result.matplot>`
 ----------------------------------------------------------------------------
@@ -466,6 +670,7 @@ more human readable.
 Displays a Matplotlib plot in the report. Downloadable examples that use
 matplot assertion and contain output sample images can be found
 :ref:`here <example_basic_models>`.
+
 
 Assertion Groups
 ================
@@ -542,6 +747,46 @@ however this can be overridden by explicitly passing ``category`` argument while
               # Assertions will be summarized under Multiples - Equal
               result.equal(i * 2, i * 2, category='Multiples')
 
+
+This schema highlights the structure of a summarised output
+
+    .. code-block:: none
+
+        Testplan Summary
+        |
+        +---- Category: DEFAULT -> (default category is for assertions not specified by the category argument)
+        |     |
+        |     +---- Assertion Type -> (e.g result.Equal)
+        |     |     ( Description: summarising passing or failing assertions)
+        |     |     |
+        |     |     +---- assertion statement 1
+        |     |     |     ( ... assertion details)
+        |     |     |
+        |     |     +---- assertion statement 2
+        |     |     |     ( ... assertion details)
+        |
+        +---- Category: Multiples -> (specified by category argument)
+        |     |
+        |     +---- Assertion Type -> (e.g result.Equal)
+        |     |     Description: summarising passing or failing assertions)
+        |     |     |
+        |     |     +---- assertion statement 1
+        |     |     |     ( ... assertion details)
+        |     |     |
+        |     |     +---- assertion statement 2
+        |     |     |     ( ... assertion details)
+        |
+        |
+        Testplan Summary
+        | ...
+
+
+``num_passing`` and ``num_failing`` will define how many assertion statements will be displayed in the schema above
+
+``key_combs_limit`` is used for fix/dict summaries and limits the number of failed key combinations reported
+(For example: when applying result.dict.match to many different dictionaries with different keys,
+there will be many 'key combinations' as failures, so only the key combinations with the most differences
+will be reported, limited by ``key_combs_limit``)
 
 
 For further examples on summarization, please see the :ref:`a downloadable example <example_assertions_summary>`.
@@ -865,6 +1110,66 @@ values and supports regex / custom comparators as well.
 
           ...
 
+:py:meth:`result.table.diff <testplan.testing.multitest.result.TableNamespace.diff>`
+------------------------------------------------------------------------------------
+
+Find differences of two tables, uses equality for each table cell for plain
+values and supports regex / custom comparators as well.
+
+    .. code-block:: python
+
+      from testplan.common.utils import comparison
+
+      @testcase
+      def sample_testcase(self, env, result):
+
+          # Table in list of lists format
+          actual_table = [
+              ['name', 'age'],
+              ['Bob', 32],
+              ['Susan', 24],
+              ['Rick', 67]
+          ]
+
+        # Compare table with itself, plain comparison for each cell
+        result.table.diff(actual_table, actual_table)
+
+        # Another table with regexes & custom comparators
+        expected_table = [
+            ['name', 'age'],
+            [
+                re.compile(r'\w{3}'),
+                comparison.Greater(35) & comparison.Less(40)
+            ],
+            ['Susan', 24],
+            [comparison.In(['David', 'Helen']), 67]
+        ]
+
+        result.table.diff(
+            actual_table, expected_table,
+            description='Table diff with custom comparators'
+        )
+
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Table Diff - Pass
+          Table diff with custom comparators - Fail
+            File: .../test_plan.py
+            Line: 95
+            +-----+-----------------------------------+-------------------------------+
+            | row | name                              | age                           |
+            +-----+-----------------------------------+-------------------------------+
+            | 0   | Bob == REGEX('\w{3}')             | 32 != (VAL > 35 and VAL < 40) |
+            | 2   | Rick != VAL in ['David', 'Helen'] | 67 == 67                      |
+            +-----+-----------------------------------+-------------------------------+
+
+          ...
+
 :py:meth:`result.table.log <testplan.testing.multitest.result.TableNamespace.log>`
 ----------------------------------------------------------------------------------
 
@@ -978,7 +1283,6 @@ Checks existence / absence of keys of a dictionary.
           Absence check: ['bar', 'beta']
             Key should be absent: ['bar']
 
-
 :py:meth:`result.dict.match <testplan.testing.multitest.result.DictNamespace.match>`
 ------------------------------------------------------------------------------------
 
@@ -1070,6 +1374,57 @@ Matches two (nested) dictionaries against each other.
             (Passed)      3 <int> == <lambda> <func>
             (Passed)  Key(bar),
             (Passed)      Key(color),    blue <str> == <value> in ['blue', 'red', 'yellow'] <func>
+
+:py:meth:`result.dict.log <testplan.testing.multitest.result.DictNamespace.log>`
+--------------------------------------------------------------------------------
+
+Add a log entry of dictionary in the console output and the report to make
+the output more human readable.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          dictionary = {
+              'abc': ['a', ['b', 'c'], {'d': 'e', 'f': 'g'}],
+              'xyz': (True, False, None),
+              'alpha': ['foobar', {'f': 'foo', 'b': 'bar'}],
+              'beta': 'hello world'
+          }
+
+          result.dict.log({}, description='Log an empty dictionary')
+          result.dict.log(dictionary)
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Log an empty dictionary
+            (empty)
+
+          Dict Log
+            Key(alpha),
+                foobar <str>
+
+                Key(b),    bar <str>
+                Key(f),    foo <str>
+            Key(xyz),
+                True <bool>
+                False <bool>
+                None <None>
+            Key(abc),
+                a <str>
+
+                    b <str>
+                    c <str>
+
+                Key(d),    e <str>
+                Key(f),    g <str>
+            Key(beta),    hello world <str>
+
+          ...
 
 Fix Assertions (``result.fix``)
 ===============================
@@ -1233,6 +1588,75 @@ Similar to ``result.dict.match``, matches 2 (nested) fix messages, ``expected`` 
             (Passed)  Key(22),    5 <int> == 5 <int>
             (Passed)  Key(55),    2 <int> == 2 <int>
 
+:py:meth:`result.fix.log <testplan.testing.multitest.result.FixNamespace.log>`
+------------------------------------------------------------------------------
+
+Add a log entry of fix message in the console output and the report to make
+the output more human readable.
+
+    .. code-block:: python
+
+      from pyfixmsg.fixmessage import FixMessage, FixFragment
+      from pyfixmsg.reference import FixSpec
+      from pyfixmsg.codecs.stringfix import Codec
+
+      spec_filename = '/ms/dist/fsf/PROJ/quickfix/1.14.3.1ms/common/gcc47_64/share/quickfix/FIX42.xml'
+      spec = FixSpec(spec_filename)
+      codec = Codec(spec=spec, fragment_class=FixFragment)
+
+      def fixmsg(*args, **kwargs):
+          returned = FixMessage(*args, **kwargs)
+          returned.codec = codec
+          return returned
+
+      @testcase
+      def sample_testcase(self, env, result):
+          data = (b'8=FIX.4.2|9=196|35=X|49=A|56=B|34=12|52=20100318-03:21:11.364'
+              b'|262=A|268=2|279=0|269=0|278=BID|55=EUR/USD|270=1.37215'
+              b'|15=EUR|271=2500000|346=1|279=0|269=1|278=OFFER|55=EUR/USD'
+              b'|270=1.37224|15=EUR|271=2503200|346=1|10=171|')
+
+          message = fixmsg().load_fix(data, separator='|')
+          result.fix.log(message, description='Log a fix message')
+
+    Sample output:
+
+    .. code-block:: bash
+
+      $ test_plan.py --verbose
+          ...
+          Log a fix message
+            Key(34),    12 <str>
+            Key(35),    X <str>
+            Key(262),    A <str>
+            Key(8),    FIX.4.2 <str>
+            Key(9),    196 <str>
+            Key(10),    171 <str>
+            Key(268),
+
+                Key(279),    0 <str>
+                Key(269),    0 <str>
+                Key(270),    1.37215 <str>
+                Key(15),    EUR <str>
+                Key(278),    BID <str>
+                Key(55),    EUR/USD <str>
+                Key(346),    1 <str>
+                Key(271),    2500000 <str>
+
+                Key(279),    0 <str>
+                Key(269),    1 <str>
+                Key(270),    1.37224 <str>
+                Key(15),    EUR <str>
+                Key(278),    OFFER <str>
+                Key(55),    EUR/USD <str>
+                Key(346),    1 <str>
+                Key(271),    2503200 <str>
+            Key(49),    A <str>
+            Key(52),    20100318-03:21:11.364 <str>
+            Key(56),    B <str>
+
+          ...
+
 XML Assertions (``result.xml``)
 ===============================
 Contains assertion methods that operate on XML strings.
@@ -1312,6 +1736,177 @@ Checks if given tags / paths exist in the XML string, supports namespace lookups
               Hello world! == REGEX('Hello*')
           ...
 
+
+Graph Visualisation
+===================
+This graphing tool will allow you to produce interactive data visualisations
+inside the web UI
+
+This method takes 5 arguments:
+
+            ``result.graph(graph_type, graph_data, description, series_options, graph_options)``
+
+    .. code-block:: python
+
+        result.graph('Line',
+                 {
+                    'graph 1':[
+                                     {'x': 0, 'y': 8},
+                                     {'x': 1, 'y': 5}
+                               ],
+                    'graph 2':[
+                                {'x': 1, 'y': 3},
+                                {'x': 2, 'y': 5}
+                               ]
+                  },
+                 description='Line Graph',
+                 series_options={
+                                'graph 1':{'colour': 'red'},
+                                'graph 2':{'colour': 'blue'},
+                          },
+                 graph_options={'xAxisTitle': 'Time', 'yAxisTitle': 'Volume'}
+         )
+
+
+
+
+
+graph_type - `string`
+----------------------
+
+Specifies the type of graph displayed, there are currently six choices:
+
+``Line``,
+``Scatter``,
+``Bar``,
+``Pie``,
+``Hexbin``,
+``Contour``,
+``Whisker``
+
+graph_data - `dict`
+-------------------
+This contains the data for each series and is required in a specific format:
+
+    { **'series 1'**: `data_for_series_1`,  **'series 2'**: `data_for_series_2`}
+
+This would be used for a graph with two data sets to be displayed on the same axis.
+
+
+For one data set, this format is still required:
+
+    { **'series 1'**: `data_for_series_1` }
+
+
+The data format required for each type is shown below:
+
+    **Line, Scatter, Hexbin and Contour**: `Array[ Dict{ 'x': int, 'y':int } ]`
+
+        .. code-block:: python
+
+            [
+             {'x': 0, 'y': 8},
+             {'x': 1, 'y': 5},
+             {'x': 2, 'y': 4}
+            ]
+
+
+    **Bar**: `Array[ Dict{ 'x': string, 'y':int } ]`
+
+        .. code-block:: python
+
+            [
+              {'x': 'A', 'y': 10},
+              {'x': 'B', 'y': 5},
+              {'x': 'C', 'y': 15}
+            ]
+
+
+    **Pie**: `Array[ Dict{ 'angle': int, 'color': string, 'name': string } ]`
+
+        .. code-block:: python
+
+            [
+             {'angle': 1, 'color': '#89DAC1', 'name': 'car'},
+             {'angle': 2, 'color': 'red', 'name': 'bus'},
+             {'angle': 5, 'color': '#1E96BE', 'name': 'cycle'}
+            ]
+
+    `**N.B.** - angle represents proportion of bar graph e.g car will be 1/8th of the pie chart`
+
+    **Whisker**: `Array[ Dict{ 'x': int, 'y': int, 'xVariance': int, 'yVariance': int } ]`
+
+        .. code-block:: python
+
+            [
+             {'x': 1, 'y': 10, 'xVariance': 0.5, 'yVariance': 2},
+             {'x': 1.7, 'y': 12, 'xVariance': 1, 'yVariance': 1},
+             {'x': 2, 'y': 5, 'xVariance': 0, 'yVariance': 0}
+            ]
+
+description - `string`
+-----------------------
+
+The title of your graph
+
+series_options - `dict`
+------------------------
+
+The individual options for each data set. Again, this supports multiple series so expects the format
+
+        { **'series 1'**: `options_for_series_1`,  **'series 2'**: `options_for_series_2` }
+
+**Note**: the name MUST be identical to that in the ``graph_data`` dict.
+
+Again, for one data set this format is still required:
+
+        { **'series 1'**: `options_for_series_1` }
+
+     .. code-block:: python
+
+        series_options={
+             'Bar 1': {"colour": "green"},
+             'Bar 2': {"colour": "purple"},
+         }
+
+**Currently supported series options:**
+
+    1.  **'colour'** - `str` the colour of that data set on the graph
+
+        (DEFAULT: Random colour - if you do not like your randomly assigned colour,
+        refresh the page for a new one if you're feelin' lucky!)
+
+        Valid inputs for colour include:
+
+        - RGB colours e.g ('#8080ff', '#c6e486')
+        - Basic colour names e.g ('red', 'orange', 'yellow')
+
+        e.g {'colour': 'red'}
+
+graph_options - `dict`
+------------------------
+
+The options for the entire graph
+
+        .. code-block:: python
+
+            graph_options = {'xAxisTitle': 'Time', 'yAxisTitle': 'Volume', 'legend': True}
+
+**Currently supported graph options:**
+
+    1.  **'xAxisTitle'** - `str` the title on the x Axis
+
+        e.g {'xAxisTitle': 'Time'}
+
+    2.  **'yAxisTitle'** - `str` the title on the y Axis
+
+        e.g {'yAxisTitle': 'Volume'}
+
+    3.  **'legend'** - `bool` whether to display the data set name legend
+
+        (DEFAULT: False)
+
+        e.g {'legend': True}
 
 Custom Comparators
 ==================

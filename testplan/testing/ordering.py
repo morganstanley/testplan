@@ -6,42 +6,46 @@
 """
 import operator
 import random
+import six
 from enum import Enum
 
 from testplan.common.utils.convert import make_tuple
-from testplan.testing.multitest.suite import get_testsuite_name
 
 
 class SortType(Enum):
     """Helper enum used by sorter classes."""
 
-    ALL = 'all'
-    INSTANCES = 'instances'
-    SUITES = 'suites'
-    TEST_CASES = 'testcases'
+    ALL = "all"
+    INSTANCES = "instances"
+    SUITES = "suites"
+    TEST_CASES = "testcases"
 
     @classmethod
     def validate(cls, value, allow_tuple=True):
         """
-            Valid examples:
+        Valid examples:
 
-                all
-                instances
-                (suites, instances)
+            all
+            instances
+            (suites, instances)
         """
+
         def validate_single(v):
-            if isinstance(v, str):
+            if isinstance(v, six.string_types):
                 return SortType(v.lower()).value
             if isinstance(v, SortType):
                 return v.value
-            raise ValueError('Invalid shuffle type value: {}'.format(v))
+            raise ValueError("Invalid shuffle type value: {}".format(v))
 
         if isinstance(value, (tuple, list)) and allow_tuple:
             values = [validate_single(v) for v in value]
             if SortType.ALL.value in values and len(values) > 1:
                 raise ValueError(
-                    'Passing extra shuffle types along with'
-                    ' `all` is a redundant operation.'.format(values))
+                    "Passing extra shuffle types along with"
+                    " `all` is a redundant operation. values = {}".format(
+                        values
+                    )
+                )
             return values
         return validate_single(value)
 
@@ -98,13 +102,12 @@ class NoopSorter(BaseSorter):
 
 class TypedSorter(BaseSorter):
     """
-        Base sorter that allows configuration of
-        sort levels via `sort_type` argument.
+    Base sorter that allows configuration of
+    sort levels via `sort_type` argument.
     """
 
     def __init__(self, sort_type=SortType.ALL):
-        self.sort_types = set(
-            make_tuple(SortType.validate(sort_type)))
+        self.sort_types = set(make_tuple(SortType.validate(sort_type)))
         self.sort_all = SortType.ALL.value in self.sort_types
 
     def check_sort_type(self, sort_type):
@@ -122,9 +125,9 @@ class TypedSorter(BaseSorter):
 
 class ShuffleSorter(TypedSorter):
     """
-        Sorter that shuffles the ordering. It is idempotent in a way that,
-        it will return the same ordering for the same seed for the
-        same list.
+    Sorter that shuffles the ordering. It is idempotent in a way that,
+    it will return the same ordering for the same seed for the
+    same list.
     """
 
     def __init__(self, shuffle_type=SortType.ALL, seed=None):
@@ -154,10 +157,10 @@ class AlphanumericSorter(TypedSorter):
     """Sorter that uses basic alphanumeric ordering."""
 
     def sort_instances(self, instances):
-        return sorted(instances, key=operator.attrgetter('name'))
+        return sorted(instances, key=operator.attrgetter("name"))
 
     def sort_testsuites(self, testsuites):
-        return sorted(testsuites, key=get_testsuite_name)
+        return sorted(testsuites, key=operator.attrgetter("name"))
 
     def sort_testcases(self, testcases):
-        return sorted(testcases, key=operator.attrgetter('__name__'))
+        return sorted(testcases, key=operator.attrgetter("name"))

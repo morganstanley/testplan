@@ -2,14 +2,13 @@
 Parametrization support for test cases.
 """
 import collections
-import inspect
 import itertools
 import re
 import warnings
 
-import six
-
-from testplan.common.utils.convert import make_tuple
+from testplan.common.utils import convert
+from testplan.common.utils import interface
+from testplan.common.utils import callable as callable_utils
 from testplan.testing import tagging
 
 # Although any string will be processed as normal, it's a good
@@ -17,11 +16,10 @@ from testplan.testing import tagging
 # valid python variable name.
 
 # Cannot start with digit, can only contain alphanumerical & underscore
-PYTHON_VARIABLE_PATTERN = r'^(?![\d])\w+$'
+PYTHON_VARIABLE_PATTERN = r"^(?![\d])\w+$"
 PYTHON_VARIABLE_REGEX = re.compile(PYTHON_VARIABLE_PATTERN)
 
-# Python attribute names can be of unlimited length.
-# But the UI will not be pleasant when we end up with really long names.
+# Python attribute names can be of unlimited length but we set a limit here
 MAX_METHOD_NAME_LENGTH = 255
 
 
@@ -36,17 +34,18 @@ def _check_dict_keys(dictionary, args, required_args):
     extra = dict_keys - set(args)
 
     if missing:
-        msg = ('The parameter dict keys should at least match the required '
-               'argument names, but there were missing keys for the following '
-               'arguments: "{}"'.format(','.join(missing)))
+        msg = (
+            "The parameter dict keys should at least match the required "
+            "argument names, but there were missing keys for the following "
+            'arguments: "{}"'.format(",".join(missing))
+        )
         raise ParametrizationError(msg)
 
     if extra:
         msg = (
-            'There are extra keys ({extra_keys}) on parameter dict that does '
-            'not match any of the testcase arguments: "{arguments}".'.format(
-                extra_keys=', '.join(extra),
-                arguments=', '.join(args)
+            "There are extra keys ({extra_keys}) on parameter dict that does "
+            'not match any of the testcase arguments: "{arguments}"'.format(
+                extra_keys=", ".join(extra), arguments=", ".join(args)
             )
         )
         raise ParametrizationError(msg)
@@ -81,8 +80,9 @@ def _product_of_param_dict(param_dict, args):
     for val in param_dict.values():
         if not isinstance(val, collections.Iterable) or isinstance(val, dict):
             msg = (
-                'Dictionary values must be tuple or list of items, {value} '
-                'is of type: {type}').format(value=val, type=type(val))
+                "Dictionary values must be tuple or list of items, {value} "
+                "is of type: {type}"
+            ).format(value=val, type=type(val))
             raise ParametrizationError(msg)
 
     keys, values = args, [param_dict[arg] for arg in args]
@@ -104,14 +104,19 @@ def _dict_from_arg_tuple(tup, args, required_args, default_args):
     OrderedDict([('foo', 1), ('bar', 2), ('baz', 20)])
     """
     if len(tup) < len(required_args):
-        msg = ('Tuple "{arg_tuple}" is missing values '
-               'for required arguments: "{required}"')
-        raise ParametrizationError(msg.format(arg_tuple=tup,
-                                    required=required_args[len(tup):]))
+        msg = (
+            'Tuple "{arg_tuple}" is missing values '
+            'for required arguments: "{required}"'
+        )
+        raise ParametrizationError(
+            msg.format(arg_tuple=tup, required=required_args[len(tup) :])
+        )
 
     elif len(tup) > len(args):
-        msg = ('Too many values to unpack: Arg tuple: "{arg_tuple}", '
-               'function arguments: "{arguments}"')
+        msg = (
+            'Too many values to unpack: Arg tuple: "{arg_tuple}", '
+            'function arguments: "{arguments}"'
+        )
         raise ParametrizationError(msg.format(arg_tuple=tup, arguments=args))
 
     ordered_dict = collections.OrderedDict.fromkeys(args)
@@ -142,97 +147,102 @@ def _generate_kwarg_list(parameters, args, required_args, default_args):
             if not isinstance(obj, (tuple, list, dict)):
                 if len(required_args) > 1:
                     raise ParametrizationError(
-                        'You can use shortcut notation if and only if the '
-                        'testcase has 1 required argument, '
-                        'however it has {}.'.format(len(required_args)))
+                        "You can use shortcut notation if and only if the"
+                        " testcase has 1 required argument, however"
+                        " it has {}".format(len(required_args))
+                    )
 
-                obj = make_tuple(obj, convert_none=True)
+                obj = convert.make_tuple(obj, convert_none=True)
 
             if isinstance(obj, (list, tuple)):
-                dicts.append(_dict_from_arg_tuple(obj, args, required_args,
-                                                  default_args))
+                dicts.append(
+                    _dict_from_arg_tuple(
+                        obj, args, required_args, default_args
+                    )
+                )
 
             elif isinstance(obj, dict):
                 ordered_dict = collections.OrderedDict.fromkeys(args)
                 ordered_dict.update(dict(default_args, **obj))
-                dicts.append(_check_dict_keys(ordered_dict, args,
-                                              required_args))
+                dicts.append(
+                    _check_dict_keys(ordered_dict, args, required_args)
+                )
         return dicts
 
     msg = (
         '"parameters" should either be a dictionary of iterables with keys '
-        'matching method arg names or a list of tuples/lists/dicts that have '
-        'corresponding positional/keyword argument values or a list '
-        'of non-tuple, non-dict single arguments (shortcut notation).'
-        ' Invalid type: {} for "{}"')
+        "matching method arg names or a list of tuples/lists/dicts that have "
+        "corresponding positional/keyword argument values or a list "
+        "of non-tuple, non-dict single arguments (shortcut notation)."
+        ' Invalid type: {} for "{}"'
+    )
     raise ParametrizationError(msg.format(type(parameters), parameters))
 
 
-def _ensure_unique_names(functions):
-    """
-    If function generation ends up with functions with duplicate names, this
-    last step will make sure that they are differentiated by number suffixes.
-    """
-    name_counts = collections.Counter([f.__name__ for f in functions])
-    dupe_names = {k for k, v in name_counts.items() if v > 1}
-    dupe_counter = collections.defaultdict(int)
-
-    for func in functions:
-        name = func.__name__
-        if name in dupe_names:
-            count = dupe_counter[name]
-            func.__name__ = '{}__{}'.format(name, count)
-            dupe_counter[name] += 1
-
-
-def _generate_func(function, name_func, tag_func, docstring_func, tags, kwargs):
+def _generate_func(
+    function, name, name_func, tag_func, docstring_func, tag_dict, kwargs
+):
     """
     Generates a new function using the original function, name generation
     function and parametrized kwargs.
 
     Also attaches parametrized and explicit tags and apply custom wrappers.
     """
+
     def _generated(self, env, result):
         return function(self, env, result, **kwargs)
 
-    _generated.__doc__ = docstring_func(function.__doc__, kwargs)\
-        if docstring_func else None
-    _generated.__name__ = _name_func_wrapper(
-        name_func=name_func,
-        func_name=function.__name__,
-        kwargs=kwargs)
+    # If we were given a docstring function, we use it to generate the
+    # docstring for each testcase. Otherwise we just copy the docstring from
+    # the template method.
+    if docstring_func:
+        _generated.__doc__ = docstring_func(function.__doc__, kwargs)
+    else:
+        _generated.__doc__ = function.__doc__
 
-    # Tagging
-    parametrized_tags = tagging.validate_tag_value(tag_func(kwargs))\
-        if tag_func else {}
-    tagging.attach_testcase_tags(
-        _generated, tagging.merge_tag_dicts(tags, parametrized_tags))
+    _generated.__name__ = _parametrization_name_func_wrapper(
+        func_name=function.__name__, kwargs=kwargs
+    )
+    _generated.name = name_func(name, kwargs) if name_func else name
+
+    if hasattr(function, "__xfail__"):
+        _generated.__xfail__ = function.__xfail__
+
+    # Tags generated via `tag_func` will be assigned as native tags
+    _generated.__tags__ = (
+        tagging.validate_tag_value(tag_func(kwargs)) if tag_func else {}
+    )
+
+    # Tags index will be merged tag ctx of tag_dict & generated tags
+    _generated.__tags_index__ = tagging.merge_tag_dicts(
+        _generated.__tags__, tag_dict
+    )
 
     _generated._parametrization_template = function.__name__
+    _generated._parametrization_kwargs = kwargs
 
     return _generated
 
 
 def _check_name_func(name_func):
     """
-    Make sure ``name_func`` is a callable that takes
-    ``func_name``, ``kwargs`` arguments.
+    Make sure ``name_func`` is ``None`` or a callable that
+    takes ``func_name``, ``kwargs`` arguments.
     """
+    if name_func is None:
+        return
+
     if not callable(name_func):
-        raise ParametrizationError('name_func must be a callable.')
+        raise ParametrizationError("name_func must be a callable or `None`")
 
-    argspec = inspect.getargspec(name_func)
-
-    if len(argspec.args) == 2:
-        arg_1, arg_2 = argspec.args
-        if arg_1 == 'func_name' and arg_2 == 'kwargs':
-            return
-
-    raise ParametrizationError(
-        'name_func must be a callable that takes 2 arguments '
-        'named "func_name" and "kwargs".'
-        ' (e.g. def custom_name_func(func_name, kwargs): ...'
-    )
+    try:
+        interface.check_signature(name_func, ["func_name", "kwargs"])
+    except interface.MethodSignatureMismatch:
+        raise ParametrizationError(
+            '"name_func" must be a callable that takes 2 arguments'
+            ' named "func_name" and "kwargs"'
+            " (e.g. def custom_name_func(func_name, kwargs): ..."
+        )
 
 
 def _check_tag_func(tag_func):
@@ -241,71 +251,48 @@ def _check_tag_func(tag_func):
         return
 
     if not callable(tag_func):
-        raise ParametrizationError('tag_func must be a callable.')
+        raise ParametrizationError("tag_func must be a callable or `None`")
 
-    argspec = inspect.getargspec(tag_func)
-
-    if len(argspec.args) == 1:
-        arg_1 = argspec.args[0]
-        if arg_1 == 'kwargs':
-            return
-
-    raise ParametrizationError(
-        'tag_func must be a callable that takes 1 argument named "kwargs".'
-        ' (e.g. def custom_tag_func(kwargs): ...'
-    )
+    try:
+        interface.check_signature(tag_func, ["kwargs"])
+    except interface.MethodSignatureMismatch:
+        raise ParametrizationError(
+            'tag_func must be a callable that takes 1 argument named "kwargs"'
+            " (e.g. def custom_tag_func(kwargs): ..."
+        )
 
 
-def _name_func_wrapper(name_func, func_name, kwargs):
+def _parametrization_name_func_wrapper(func_name, kwargs):
     """
     Make sure that name generation doesn't end up with invalid / unreadable
     attribute names/types etc.
 
     If somehow a 'bad' function name is generated, will just return the
     original ``func_name`` instead (which will later on be suffixed with an
-    integer by :py:func:`_ensure_unique_names`)
+    integer by :py:func:`_ensure_unique_testcase_names`)
     """
-    generated_name = name_func(func_name, kwargs)
-    simple_index_suffix_msg = (
-        ' Simple index suffixes (e.g. "{func_name}_1",'
-        ' "{func_name}_2") will be used.').format(func_name=func_name)
-
-    if not isinstance(generated_name, six.string_types):
-        msg = (
-            'Generated function name ("{generated_name}"") must be'
-            ' a string, it is of type: "{type}"').format(
-            generated_name=generated_name, type=type(generated_name))
-        raise ParametrizationError(msg)
+    generated_name = parametrization_name_func(func_name, kwargs)
 
     if not PYTHON_VARIABLE_REGEX.match(generated_name):
-        if name_func is not default_name_func:
-            msg = (
-                'Generated method name: "{generated_name}"" is not '
-                'a valid Python attribute name.'
-            ).format(generated_name=generated_name)
-            warnings.warn(msg + simple_index_suffix_msg)
+        # Generated method name is not a valid Python attribute name
+        # e.g. "{func_name}_1", "{func_name}_2" will be used.
         return func_name
 
     if len(generated_name) > MAX_METHOD_NAME_LENGTH:
-        msg = ('Generated method name: "{generated_name}" is a bit '
-               'too long ({length} characters).')
-        msg += simple_index_suffix_msg
-        if name_func is not default_name_func:
-            msg += ' Consider using a custom name_func instead.'
-
-        warnings.warn(msg.format(generated_name=generated_name,
-                                 length=len(generated_name)))
+        # Generated method name is a bit too long. Simple index suffixes
+        # e.g. "{func_name}_1", "{func_name}_2" will be used.
         return func_name
+
     return generated_name
 
 
-def default_name_func(func_name, kwargs):
+def parametrization_name_func(func_name, kwargs):
     """
-    Default testcase method name generator.
+    Method name generator for parametrized testcases.
 
     >>> import collections
-    >>> default_name_func('test_method',
-                          collections.OrderedDict(('foo', 5), ('bar', 10)))
+    >>> parametrization_name_func('test_method',
+                               collections.OrderedDict(('foo', 5), ('bar', 10)))
     'test_method__foo_5__bar_10'
 
     :param func_name: Name of the parametrization target function.
@@ -317,21 +304,50 @@ def default_name_func(func_name, kwargs):
     :return: New testcase method name.
     :rtype: ``str``
     """
-    arg_strings = ['{arg}_{{{arg}}}'.format(arg=arg) for arg in kwargs]
-    template = '{func_name}__' + '__'.join(arg_strings)
+    arg_strings = ["{arg}_{{{arg}}}".format(arg=arg) for arg in kwargs]
+    template = "{func_name}__" + "__".join(arg_strings)
     return template.format(func_name=func_name, **kwargs)
+
+
+def default_name_func(func_name, kwargs):
+    """
+    Readable testcase name generator for parametrized testcases.
+
+    >>> import collections
+    >>> default_name_func('Test Method',
+                          collections.OrderedDict(('foo', 5), ('bar', 10)))
+    'Test Method {foo:5, bar:10}'
+
+    :param func_name: Name of the parametrization target function.
+    :type func_name: ``str``
+    :param kwargs: The order of keys will be the same as the order of arguments
+                   in the original function.
+    :type kwargs: ``collections.OrderedDict``
+
+    :return: New readable name testcase method.
+    :rtype: ``str``
+    """
+    arg_strings = ["{arg}={{{arg}}}".format(arg=arg) for arg in kwargs]
+    template = "{func_name} <" + ", ".join(arg_strings) + ">"
+    return template.format(
+        func_name=func_name, **{k: repr(v) for k, v in kwargs.items()}
+    )
 
 
 def generate_functions(
     function,
     parameters,
+    name,
     name_func,
-    tags,
+    tag_dict,
     tag_func,
     docstring_func,
     summarize,
     num_passing,
     num_failing,
+    key_combs_limit,
+    execution_group,
+    timeout,
 ):
     """
     Generate test cases using the given parameter context, use the name_func
@@ -344,13 +360,15 @@ def generate_functions(
     method will be created for each item in the Cartesian product of all
     combinations of values.
 
-    :param function: A testcase method, with extra
-                     arguments for parametrization.
+    :param function: A testcase method, with extra arguments
+                     for parametrization.
     :type function: ``callable``
     :param parameters: Parametrization context for the test case method.
     :type parameters: ``list`` or ``tuple`` of ``dict`` or ``tuple`` / ``list``
                       OR a ``dict`` of ``tuple`` / ``list``.
-    :param name_func: Function that will generate method names,
+    :param name: Customized readable name for testcase.
+    :type name: ``str``
+    :param name_func: Function for generating names of parametrized testcases,
                       should accept ``func_name`` and ``kwargs`` as parameters.
     :type name_func: ``callable``
     :param docstring_func: Function that will generate docstring,
@@ -360,8 +378,8 @@ def generate_functions(
                      parametrization kwargs. Should accept ``kwargs`` as
                      parameter.
     :type tag_func: ``callable``
-    :param tags: Tag annotations to be used for each generated testcase.
-    :type tag_func: ``dict`` of ``frozenset``
+    :param tag_dict: Tag annotations to be used for each generated testcase.
+    :type tag_dict: ``dict`` of ``set``
     :param summarize: Flag for enabling testcase level
                       summarization of all assertions.
     :type summarize: ``bool``
@@ -371,6 +389,14 @@ def generate_functions(
     :param num_failing: Max number of failing assertions
                        for testcase level assertion summary.
     :type num_failing: ``int``
+    :param key_combs_limit: Max number of failed key combinations on fix/dict
+                            summaries that contain assertion details.
+    :type key_combs_limit: ``int``
+    :param execution_group: Name of execution group in which the testcases
+                            can be executed in parallel.
+    :type execution_group: ``str``
+    :param timeout: Timeout in seconds to wait for testcase to be finished.
+    :type timeout: ``int``
     :return: List of functions that is testcase compliant
              (accepts ``self``, ``env``, ``result`` as arguments) and have
              unique names.
@@ -381,33 +407,41 @@ def generate_functions(
 
     _check_name_func(name_func)
 
-    argspec = inspect.getargspec(function)
+    argspec = callable_utils.getargspec(function)
     args = argspec.args[3:]  # get rid of self, env, result
-    defaults = (argspec.defaults or [])
+    defaults = argspec.defaults or []
 
-    required_args = args[:-len(defaults)] if defaults else args
-    default_args = dict(zip(args[len(required_args):], defaults))
+    required_args = args[: -len(defaults)] if defaults else args
+    default_args = dict(zip(args[len(required_args) :], defaults))
 
-    # Need to validate beforehand so we can merge with parametrized_tags
-    tags = tagging.validate_tag_value(tags) if tags else {}
+    kwarg_list = _generate_kwarg_list(
+        parameters, args, required_args, default_args
+    )
 
-    kwarg_list = _generate_kwarg_list(parameters, args, required_args,
-                                      default_args)
+    functions = [
+        _generate_func(
+            function=function,
+            name=name,
+            name_func=name_func,
+            tag_func=tag_func,
+            docstring_func=docstring_func,
+            tag_dict=tag_dict,
+            kwargs=kwargs,
+        )
+        for kwargs in kwarg_list
+    ]
 
-    functions = [_generate_func(
-        function=function,
-        name_func=name_func,
-        tag_func=tag_func,
-        docstring_func=docstring_func,
-        tags=tags,
-        kwargs=kwargs
-    ) for kwargs in kwarg_list]
+    for idx, func in enumerate(functions):
+        # Users request the feature that when `name_func` set to `None`,
+        # then simply append integer suffixes to the names of testcases
+        if name_func is None:
+            func.name = "{} {}".format(func.name, idx)
 
-    for func in functions:
         func.summarize = summarize
         func.summarize_num_passing = num_passing
         func.summarize_num_failing = num_failing
-
-    _ensure_unique_names(functions)
+        func.summarize_key_combs_limit = key_combs_limit
+        func.execution_group = execution_group
+        func.timeout = timeout
 
     return functions

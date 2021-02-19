@@ -2,9 +2,12 @@
 
 import time
 
-from testplan.common.utils.thread import interruptible_join
-
 from .base import Executor
+from testplan.runners.pools import tasks
+from testplan.common import entity
+from testplan.testing.base import TestResult
+from testplan.report import TestGroupReport, Status, ReportCategories
+
 
 class LocalRunner(Executor):
     """
@@ -15,9 +18,35 @@ class LocalRunner(Executor):
     options.
     """
 
+    def __init__(self, **options):
+        super(LocalRunner, self).__init__(**options)
+        self._uid = "local_runner"
+
     def _execute(self, uid):
         """Execute item implementation."""
-        result = self._input[uid].run()
+        # First retrieve the input from its UID.
+        target = self._input[uid]
+
+        # Inspect the input type. Tasks must be materialized before
+        # they can be run.
+        if isinstance(target, entity.Runnable):
+            runnable = target
+        elif isinstance(target, tasks.Task):
+            runnable = target.materialize()
+        elif callable(target):
+            runnable = target()
+        else:
+            raise TypeError(
+                "Cannot execute target of type {}".format(type(target))
+            )
+
+        if isinstance(runnable, entity.Runnable):
+            if not runnable.parent:
+                runnable.parent = self
+            if not runnable.cfg.parent:
+                runnable.cfg.parent = self.cfg
+
+        result = runnable.run()
         self._results[uid] = result
 
     def _loop(self):
@@ -31,17 +60,49 @@ class LocalRunner(Executor):
                 except IndexError:
                     pass
                 else:
-                    self._execute(next_uid)
-                    self.ongoing.pop(0)
+                    try:
+                        self._execute(next_uid)
+                    except Exception as exc:
+                        result = TestResult()
+                        result.report = TestGroupReport(
+                            name=next_uid, category=ReportCategories.ERROR
+                        )
+                        result.report.status_override = Status.ERROR
+                        result.report.logger.exception(
+                            "Exception for {} on {} execution: {}".format(
+                                next_uid, self, exc
+                            )
+                        )
+                        self._results[next_uid] = result
+                    finally:
+                        self.ongoing.pop(0)
 
             elif self.status.tag == self.status.STOPPING:
                 self.status.change(self.status.STOPPED)
                 return
             time.sleep(self.cfg.active_loop_sleep)
 
-    def aborting(self):
-        """Suppressing not implemented debug log from parent class."""
+    def starting(self):
+        """Starting the local runner."""
+        if self.parent:
+            self._runpath = self.parent.runpath
+        super(LocalRunner, self).starting()  # start the loop
 
-    def stopping(self):
-        """Stopping the LocalRunner."""
-        interruptible_join(self._loop_handler)
+    def aborting(self):
+        """Aborting logic."""
+        self.logger.critical("Discard pending tasks of {}.".format(self))
+        # Will announce that all the ongoing tasks fail, but there is a buffer
+        # period and some tasks might be finished, so, copy the uids of ongoing
+        # tasks and set test result, although the report could be overwritten.
+        ongoing = self.ongoing[:]
+        while ongoing:
+            uid = ongoing.pop(0)
+            result = TestResult()
+            result.report = TestGroupReport(
+                name=uid, category=ReportCategories.ERROR
+            )
+            result.report.status_override = Status.ERROR
+            result.report.logger.critical(
+                "Test [{}] discarding due to {} abort.".format(uid, self.uid())
+            )
+            self._results[uid] = result

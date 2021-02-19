@@ -45,6 +45,14 @@ testplan.common.utils.convert module
     :undoc-members:
     :show-inheritance:
 
+testplan.common.utils.difflib module
+++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.common.utils.difflib
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 testplan.common.utils.exceptions module
 +++++++++++++++++++++++++++++++++++++++
 
@@ -61,10 +69,26 @@ testplan.common.utils.interface module
     :undoc-members:
     :show-inheritance:
 
+testplan.common.utils.logger module
++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.common.utils.logger
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 testplan.common.utils.match module
 ++++++++++++++++++++++++++++++++++
 
 .. automodule:: testplan.common.utils.match
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testplan.common.utils.networking module
++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.common.utils.networking
     :members:
     :undoc-members:
     :show-inheritance:
@@ -97,6 +121,14 @@ testplan.common.utils.registry module
 +++++++++++++++++++++++++++++++++++++
 
 .. automodule:: testplan.common.utils.registry
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testplan.common.utils.remote module
++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.common.utils.remote
     :members:
     :undoc-members:
     :show-inheritance:
@@ -149,6 +181,15 @@ testplan.common.utils.timing module
     :undoc-members:
     :show-inheritance:
 
+testplan.common.utils.validation module
++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.common.utils.validation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Module contents
 ---------------
 
@@ -156,3 +197,4 @@ Module contents
     :members:
     :undoc-members:
     :show-inheritance:
+

@@ -5,17 +5,21 @@ import uuid
 import shutil
 import warnings
 import subprocess
+import datetime
+import platform
+import socket
 
 from schema import Or
+from past.builtins import basestring
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.path import StdFiles, makedirs
 from testplan.common.utils.context import is_context, expand
-from testplan.common.utils.process import kill_process
-
-from testplan.logger import TESTPLAN_LOGGER
+from testplan.common.utils.process import subprocess_popen, kill_process
 
 from .base import Driver, DriverConfig
+
+IS_WIN = platform.system() == "Windows"
 
 
 class AppConfig(DriverConfig):
@@ -24,26 +28,32 @@ class AppConfig(DriverConfig):
     :py:class:`~testplan.testing.multitest.driver.app.App` resource.
     """
 
-    def configuration_schema(self):
+    @classmethod
+    def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
-        overrides = {'binary': str,
-                     ConfigOption('pre_args', default=None): Or(None, list),
-                     ConfigOption('args', default=None): Or(None, list),
-                     ConfigOption('shell', default=False): bool,
-                     ConfigOption('env', default=None): Or(None, dict),
-                     ConfigOption('binary_copy', default=False): bool,
-                     ConfigOption('app_dir_name', default=None): Or(None, str),
-                     }
-        return self.inherit_schema(overrides, super(AppConfig, self))
+        return {
+            "binary": basestring,
+            ConfigOption("pre_args", default=None): Or(None, list),
+            ConfigOption("args", default=None): Or(None, list),
+            ConfigOption("shell", default=False): bool,
+            ConfigOption("env", default=None): Or(None, dict),
+            ConfigOption("binary_strategy", default="link"): lambda s: s
+            in ("copy", "link", "noop"),
+            ConfigOption("logname", default=None): Or(None, basestring),
+            ConfigOption("app_dir_name", default=None): Or(None, basestring),
+            ConfigOption("working_dir", default=None): Or(None, basestring),
+        }
 
 
 class App(Driver):
     """
     Binary application driver.
 
-    :param binary: Path the to application binary.
+    :param name: Driver name. Also uid.
+    :type name: ``str``
+    :param binary: Path to the application binary.
     :type binary: ``str``
     :param pre_args: Arguments to be prepended to binary command. An argument
         can be a :py:class:`~testplan.common.utils.context.ContextValue`
@@ -57,18 +67,38 @@ class App(Driver):
     :type shell: ``bool``
     :param env: Environmental variables to be made available to child process.
     :type env: ``dict``
-    :param binary_copy: Copy binary to a local binary path.
-    :type binary_copy: ``bool``
+    :param binary_strategy: Whether to copy / link binary to runpath.
+    :type binary_strategy: one of ("copy", "link", "noop")
+    :param logname: Base name of driver logfile under `app_path`, in which
+        Testplan will look for `log_regexps` as driver start-up condition.
+        Default to "stdout" (to match the output stream of binary).
+    :type logname: ``str``
     :param app_dir_name: Application directory name.
-    :type app_dir_name: ``str``
+    :type app_dir_name: ``str`` or ``NoneType``
+    :param working_dir: Application working directory. Default: runpath
+    :type working_dir: ``str`` or ``NoneType``
 
     Also inherits all
-    :py:class:`~testplan.testing.multitest.driver.base.DriverConfig`` options.
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = AppConfig
 
-    def __init__(self, **options):
+    def __init__(
+        self,
+        name,
+        binary,
+        pre_args=None,
+        args=None,
+        shell=False,
+        env=None,
+        binary_strategy="link",
+        logname=None,
+        app_dir_name=None,
+        working_dir=None,
+        **options
+    ):
+        options.update(self.filter_locals(locals()))
         super(App, self).__init__(**options)
         self.proc = None
         self.std = None
@@ -110,16 +140,39 @@ class App(Driver):
         cmd.extend(pre_args)
         cmd.append(self.binary or self.cfg.binary)
         cmd.extend(args)
-        cmd = [expand(arg, self.context, str) if is_context(arg) else arg
-               for arg in cmd]
+        cmd = [
+            expand(arg, self.context, str) if is_context(arg) else arg
+            for arg in cmd
+        ]
         return cmd
+
+    @property
+    def env(self):
+        """Environment variables."""
+
+        env = os.environ.copy()
+
+        if isinstance(self.cfg.env, dict):
+            env.update(self.cfg.env)
+
+        return {
+            key: expand(val, self.context, str) if is_context(val) else val
+            for key, val in env.items()
+        }
+
+    @property
+    def logname(self):
+        """Configured logname."""
+        return self.cfg.logname
 
     @property
     def logpath(self):
         """Path for log regex matching."""
-        if self.cfg.logfile:
-            return os.path.join(self.app_path, self.cfg.logfile)
-        return self.outpath
+        return (
+            os.path.join(self.app_path, self.logname)
+            if self.logname
+            else self.outpath
+        )
 
     @property
     def outpath(self):
@@ -148,25 +201,44 @@ class App(Driver):
         """'etc' directory under runpath."""
         return self._etcpath
 
-    def starting(self):
-        """
-        Create mandatory directories, install files from given templates
-        using the drivers context and starts the application binary.
-        """
-        super(App, self).starting()
-        self._make_dirs()
-        if self.cfg.binary_copy:
-            if self.cfg.path_cleanup is True:
-                name = os.path.basename(self.cfg.binary)
-            else:
-                name = '{}-{}'.format(os.path.basename(self.cfg.binary),
-                                      uuid.uuid4())
+    def _prepare_binary(self, path):
+        """prepare binary path"""
+        return path
 
-            target = os.path.join(self._binpath, name)
-            shutil.copyfile(self.cfg.binary, target)
-            self.binary = target
+    @property
+    def hostname(self):
+        """
+        :return: hostname where the ETSApp is running
+        :rtype: ``str``
+        """
+        return socket.gethostname()
+
+    def pre_start(self):
+        """
+        Create mandatory directories and install files from given templates
+        using the drivers context before starting the application binary.
+        """
+        super(App, self).pre_start()
+
+        self._make_dirs()
+
+        if self.cfg.path_cleanup is True:
+            name = os.path.basename(self.cfg.binary)
         else:
-            self.binary = self.cfg.binary
+            name = "{}-{}".format(
+                os.path.basename(self.cfg.binary), uuid.uuid4()
+            )
+
+        self.binary = self._prepare_binary(self.cfg.binary)
+        if os.path.isfile(self.binary):
+            target = os.path.join(self._binpath, name)
+            if self.cfg.binary_strategy == "copy":
+                shutil.copyfile(self.binary, target)
+                self.binary = target
+            elif self.cfg.binary_strategy == "link" and not IS_WIN:
+                os.symlink(os.path.abspath(self.binary), target)
+                self.binary = target
+            # else binary_strategy is noop then we don't do anything
 
         makedirs(self.app_path)
         self.std = StdFiles(self.app_path)
@@ -174,21 +246,46 @@ class App(Driver):
         if self.cfg.install_files:
             self._install_files()
 
-        cmd = ' '.join(self.cmd) if self.cfg.shell else self.cmd
+    def starting(self):
+        """Starts the application binary."""
+        super(App, self).starting()
+
+        cmd = " ".join(self.cmd) if self.cfg.shell else self.cmd
+        cwd = self.cfg.working_dir or self.runpath
         try:
-            self.logger.debug('{driver} driver command: {cmd},{linesep}'
-                              '\trunpath: {runpath}{linesep}'
-                              '\tout/err files {out} - {err}'.format(
-                driver=self.uid(),
-                cmd=cmd, runpath=self.runpath, linesep=os.linesep,
-                out=self.std.out_path, err=self.std.err_path))
-            self.proc = subprocess.Popen(cmd, shell=self.cfg.shell,
-                stdout=self.std.out, stderr=self.std.err,
-                cwd=self.runpath, env=self.cfg.env)
+            self.logger.debug(
+                "%(driver)s driver command: %(cmd)s\n"
+                "\tRunpath: %(runpath)s\n"
+                "\tOut file: %(out)s\n"
+                "\tErr file: %(err)s\n",
+                {
+                    "driver": self.uid(),
+                    "cmd": cmd,
+                    "runpath": self.runpath,
+                    "out": self.std.out_path,
+                    "err": self.std.err_path,
+                },
+            )
+            self.proc = subprocess_popen(
+                cmd,
+                shell=self.cfg.shell,
+                stdin=subprocess.PIPE,
+                stdout=self.std.out,
+                stderr=self.std.err,
+                cwd=cwd,
+                env=self.env,
+            )
         except Exception:
-            TESTPLAN_LOGGER.error(
-                'Error while App[%s] driver executed command: %s',
-                self.cfg.name, ' '.join(cmd))
+            self.logger.error(
+                "Error while App[%s] driver executed command: %s",
+                self.cfg.name,
+                cmd if self.cfg.shell else " ".join(cmd),
+            )
+            if self.proc is not None:
+                if self.proc.poll() is None:
+                    kill_process(self.proc)
+                assert self.proc.returncode is not None
+                self._proc = None
             raise
 
     def stopping(self):
@@ -197,16 +294,17 @@ class App(Driver):
         try:
             self._retcode = kill_process(self.proc)
         except Exception as exc:
-            warnings.warn('On killing driver {} process - {}'.format(
-                self.cfg.name, exc))
-            self._retcode = self.proc.poll()
+            warnings.warn(
+                "On killing driver {} process - {}".format(self.cfg.name, exc)
+            )
+            self._retcode = self.proc.poll() if self.proc else 0
         self.proc = None
         if self.std:
             self.std.close()
 
     def _make_dirs(self):
-        bin_dir = os.path.join(self.runpath, 'bin')
-        etc_dir = os.path.join(self.runpath, 'etc')
+        bin_dir = os.path.join(self.runpath, "bin")
+        etc_dir = os.path.join(self.runpath, "etc")
         for directory in (bin_dir, etc_dir):
             makedirs(directory)
         self._binpath = bin_dir
@@ -215,8 +313,55 @@ class App(Driver):
     def _install_target(self):
         return self.etcpath
 
+    def restart(self, clean=True):
+        """
+        Stop the driver, archive the app_dir or rename std/log, and then restart
+        the driver.
+
+        :param clean: set to False to not archive app_dir or rotate std/log.
+        :type clean: ``bool``
+
+        """
+        self.stop()
+        self.wait(self.status.STOPPED)
+        if clean:
+            if self.cfg.app_dir_name:
+                self._move_app_path()
+            else:
+                self._rename_std_and_log()
+
+        # we don't want to cleanup runpath during restart
+        path_cleanup = self.cfg.path_cleanup
+        self.cfg._options["path_cleanup"] = False
+        self.start()
+        self.wait(self.status.STARTED)
+        self.cfg._options["path_cleanup"] = path_cleanup
+
+    def _move_app_path(self):
+        """
+        Move app_path directory to an archive location
+        """
+        snapshot_path = self.app_path + datetime.datetime.now().strftime(
+            "_%Y%m%d_%H%M%S"
+        )
+
+        shutil.move(self.app_path, snapshot_path)
+        os.makedirs(self.app_path)
+
+    def _rename_std_and_log(self):
+        """
+        Rename std and log files
+        """
+        timestamp = datetime.datetime.now().strftime("_%Y%m%d_%H%M%S")
+
+        for file in (self.outpath, self.errpath, self.logpath):
+            if os.path.isfile(file):
+                os.rename(file, file + timestamp)
+
     def aborting(self):
         """Abort logic to force kill the child binary."""
         if self.proc:
-            self.logger.debug('Killing process id {}'.format(self.proc.pid))
+            self.logger.debug("Killing process id {}".format(self.proc.pid))
             kill_process(self.proc)
+        if self.std:
+            self.std.close()

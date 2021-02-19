@@ -1,0 +1,110 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`XYGraphAssertion shallow renders the correct HTML structure 1`] = `
+<div
+  className="centreComponent_1moixrt"
+>
+  <XYPlot
+    animation={true}
+    className=""
+    height={500}
+    width={750}
+    xType="ordinal"
+  >
+    <HorizontalGridLines
+      attr="y"
+      direction="horizontal"
+    />
+    <XAxis
+      attr="x"
+      attrAxis="y"
+      orientation="bottom"
+    />
+    <ChartLabel
+      className="x-axis-label"
+      includeMargin={false}
+      style={
+        Object {
+          "textAnchor": "middle",
+          "transform": "rotate(0)",
+        }
+      }
+      text=""
+      xPercent={0.5}
+      yPercent={1.107}
+    />
+    <YAxis
+      attr="y"
+      attrAxis="x"
+      orientation="left"
+    />
+    <ChartLabel
+      className="y-axis-label"
+      includeMargin={false}
+      style={
+        Object {
+          "textAnchor": "middle",
+          "transform": "rotate(270)",
+        }
+      }
+      text=""
+      xPercent={-0.0455}
+      yPercent={0.5}
+    />
+    <VerticalBarSeries
+      className=""
+      color="red"
+      data={
+        Array [
+          Object {
+            "x": "A",
+            "y": 10,
+          },
+          Object {
+            "x": "B",
+            "y": 5,
+          },
+          Object {
+            "x": "C",
+            "y": 15,
+          },
+        ]
+      }
+      key="Data Name"
+      stack={false}
+      style={Object {}}
+    />
+    <HighlightOverlay
+      className=""
+      color="rgb(77, 182, 172)"
+      enableX={true}
+      enableY={true}
+      onBrushEnd={[Function]}
+      onDrag={[Function]}
+      opacity={0.3}
+    />
+  </XYPlot>
+  <DiscreteColorLegendItem
+    className=""
+    colors={
+      Array [
+        "#12939A",
+        "#79C7E3",
+        "#1A3177",
+        "#FF9833",
+        "#EF5D28",
+      ]
+    }
+    items={
+      Array [
+        Object {
+          "color": "red",
+          "title": "Data Name",
+        },
+      ]
+    }
+    orientation="horizontal"
+    width={750}
+  />
+</div>
+`;

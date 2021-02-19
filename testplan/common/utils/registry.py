@@ -1,6 +1,8 @@
+"""Provides Registry mapping utility."""
+from testplan.common.utils import logger
 
 
-class Registry(object):
+class Registry(logger.Loggable):
     """
     A utility that provides a decorator (`@registry.bind`) for
     mapping objects to another (decorated) class.
@@ -31,6 +33,7 @@ class Registry(object):
         self.data = {}
         self._default = None
         self._category_defaults = {}
+        super(Registry, self).__init__()
 
     @property
     def default(self):
@@ -40,8 +43,10 @@ class Registry(object):
     def default(self, value):
         if self._default is not None:
             raise ValueError(
-                'Cannot re-bind default value. (Existing: {})'.format(
-                    self.default))
+                "Cannot re-bind default value. (Existing: {})".format(
+                    self.default
+                )
+            )
         self._default = value
 
     def get_lookup_key(self, obj):
@@ -64,16 +69,17 @@ class Registry(object):
         the category key from the object instance.
         """
         try:
-            return getattr(obj, 'category', obj['category'])
+            return getattr(obj, "category", obj["category"])
         except KeyError:
             # User has registered defaults for a category
             # however category retrieval from object failed
             # Need to fail explicitly and warn the user
             if self._category_defaults:
                 raise NotImplementedError(
-                    'Could not retrieve category information from: {}.'
-                    'You may need to override `get_category`'
-                    'of the registry.'.format(obj))
+                    "Could not retrieve category information from: {}."
+                    "You may need to override `get_category`"
+                    "of the registry.".format(obj)
+                )
             raise
 
     def _get_default(self, obj):
@@ -82,7 +88,7 @@ class Registry(object):
         except KeyError:
             if self._default:
                 return self._default
-        raise KeyError('No mapping found for: {}'.format(obj))
+        raise KeyError("No mapping found for: {}".format(obj))
 
     def __getitem__(self, item):
         try:
@@ -94,9 +100,11 @@ class Registry(object):
         key = self.get_record_key(key)
         if key in self.data:
             raise ValueError(
-                'Cannot overwrite registry for {key},'
-                ' it already has the value: {value}'.format(
-                    key=key, value=self[key]))
+                "Cannot overwrite registry for {key},"
+                " it already has the value: {value}".format(
+                    key=key, value=self[key]
+                )
+            )
         self.data[key] = value
 
     def bind(self, *classes):
@@ -106,27 +114,33 @@ class Registry(object):
         :param classes: One or more classes that
                         will be bound to the decorated class.
         """
+
         def wrapper(value):
             for kls in classes:
                 self[kls] = value
             return value
+
         return wrapper
 
     def bind_default(self, category=None):
         """
         Decorator for binding a class as category based or absolute default.
+
         :param category: (optional) If provided, the decorated class will
-                        be the default for the given category, otherwise
-                        it will be the absolute default.
+                         be the default for the given category, otherwise
+                         it will be the absolute default.
         """
+
         def wrapper(value):
             if category:
                 if category in self._category_defaults:
                     raise ValueError(
-                        'Cannot overwrite default value '
-                        'for category: {}'.format(category))
+                        "Cannot overwrite default value "
+                        "for category: {}".format(category)
+                    )
                 self._category_defaults[category] = value
             else:
                 self.default = value
             return value
+
         return wrapper

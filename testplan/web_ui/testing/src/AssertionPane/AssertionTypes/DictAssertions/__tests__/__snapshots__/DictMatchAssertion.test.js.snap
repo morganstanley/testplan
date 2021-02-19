@@ -1,0 +1,166 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DictMatchAssertion shallow renders the correct HTML structure 1`] = `
+<DictBaseAssertion
+  buttons={
+    <DictButtonGroup
+      defaultFilterOptions={Array []}
+      defaultSortType={Symbol(BY_STATUS)}
+      filterOptionList={
+        Array [
+          Symbol(FAILURES_ONLY),
+          Symbol(EXCLUDE_IGNORABLE),
+        ]
+      }
+      flattenedDict={
+        Array [
+          Array [
+            0,
+            "bar",
+            "Failed",
+            Array [
+              "int",
+              "2",
+            ],
+            Array [
+              "int",
+              "5",
+            ],
+          ],
+          Array [
+            0,
+            "extra-key",
+            "Failed",
+            Array [
+              null,
+              "ABSENT",
+            ],
+            Array [
+              "int",
+              "10",
+            ],
+          ],
+          Array [
+            0,
+            "foo",
+            "Passed",
+            Array [
+              "int",
+              "1",
+            ],
+            Array [
+              "int",
+              "1",
+            ],
+          ],
+        ]
+      }
+      setRowData={[Function]}
+      sortTypeList={
+        Array [
+          Symbol(ALPHABETICAL),
+          Symbol(REVERSE_ALPHABETICAL),
+          Symbol(BY_STATUS),
+        ]
+      }
+    />
+  }
+  columns={
+    Array [
+      Object {
+        "field": "descriptor",
+        "headerName": "Descriptor",
+        "hide": true,
+      },
+      Object {
+        "cellRendererFramework": [Function],
+        "cellStyle": [Function],
+        "field": "key",
+        "headerName": "Key",
+        "pinned": "left",
+        "resizable": true,
+        "suppressSizeToFit": true,
+      },
+      Object {
+        "cellRendererFramework": [Function],
+        "cellStyle": [Function],
+        "field": "expected",
+        "headerName": "Expected",
+      },
+      Object {
+        "cellRendererFramework": [Function],
+        "cellStyle": [Function],
+        "field": "value",
+        "headerName": "Value",
+      },
+    ]
+  }
+  rows={
+    Array [
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 524,
+          "status": "Failed",
+        },
+        "expected": Object {
+          "type": "int",
+          "value": "5",
+        },
+        "key": Object {
+          "type": "key",
+          "value": "bar",
+        },
+        "value": Object {
+          "type": "int",
+          "value": "2",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": false,
+          "lineNo": 524,
+          "status": "Failed",
+        },
+        "expected": Object {
+          "type": "int",
+          "value": "10",
+        },
+        "key": Object {
+          "type": "key",
+          "value": "extra-key",
+        },
+        "value": Object {
+          "type": null,
+          "value": "ABSENT",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": undefined,
+          "lineNo": 524,
+          "status": "Passed",
+        },
+        "expected": Object {
+          "type": "int",
+          "value": "1",
+        },
+        "key": Object {
+          "type": "key",
+          "value": "foo",
+        },
+        "value": Object {
+          "type": "int",
+          "value": "1",
+        },
+      },
+    ]
+  }
+/>
+`;

@@ -10,11 +10,13 @@ class Client(object):
     Connects to a server via the standard Session Protocol.
 
     To use this type:
+
         1. construct it
         2. connect
         3. send and/or receive
         4. close
     """
+
     def __init__(self, host, port, interface=None):
         """
         Create a new TCP client.
@@ -57,7 +59,6 @@ class Client(object):
 
         :param msg: Message to be sent.
         :type msg: ``bytes``
-
         :return: Timestamp when msg sent (in microseconds from epoch) and
                  number of bytes sent
         :rtype: ``tuple`` of ``long`` and ``int``
@@ -74,7 +75,6 @@ class Client(object):
         :type size: ``int``
         :param timeout: Timeout in seconds.
         :type timeout: ``int``
-
         :return: message received
         :rtype: ``bytes``
         """
@@ -97,7 +97,6 @@ class Client(object):
         :type bufsize: ``int``
         :param flags: Defaults to zero.
         :type flags: ``int``
-
         :return: message received
         :rtype: ``bytes``
         """

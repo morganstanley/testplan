@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     testplan.testing.multitest.driver
+    testplan.testing.multitest.entries
 
 
 Submodules
@@ -17,6 +18,16 @@ testplan.testing.multitest.base module
 ++++++++++++++++++++++++++++++++++++++
 
 .. automodule:: testplan.testing.multitest.base
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
+
+
+testplan.testing.multitest.logging module
++++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.testing.multitest.logging
     :members:
     :undoc-members:
     :show-inheritance:
