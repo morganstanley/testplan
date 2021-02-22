@@ -160,7 +160,7 @@ const getEnvStatusIcon = (envStatus, envCtrlCallback) => {
           <FontAwesomeIcon
             className={css(styles.entryButton)}
             icon={faToggleOn}
-            title='Start environment'
+            title='Stop environment'
             onClick={(e) => envCtrlCallback(e, "stop")}
           />
         );
