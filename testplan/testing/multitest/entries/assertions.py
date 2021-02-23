@@ -155,6 +155,16 @@ class Equal(FuncAssertion):
     label = "=="
     func = operator.eq
 
+    def __init__(self, first, second, description=None, category=None):
+        self.type_actual = type(first).__name__
+        self.type_expected = type(second).__name__
+        super(Equal, self).__init__(
+            first=first,
+            second=second,
+            description=description,
+            category=category,
+        )
+
 
 class NotEqual(FuncAssertion):
     label = "!="

@@ -131,7 +131,12 @@ const fetchReport = createAsyncThunk(
     const { dispatch, rejectWithValue, requestId } = thunkAPI;
     try {
       if(!_.isPlainObject(arg))
-        throw new class extends Error { name = 'FetchReportArgError'; }(
+        throw new class extends Error {
+          constructor(message) {
+            super(message);
+            this.name = 'FetchReportArgError';
+          }
+        }(
           __DEV__ ? '`fetchReport` takes a single plain object argument'
                   : 'Contact support'
         );
