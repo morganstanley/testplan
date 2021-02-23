@@ -635,6 +635,38 @@ class RemoteWorker(ProcessWorker):
         )
         return remote_syspath_filepath
 
+    def _get_syspath(self):
+        """
+        adapt sys path to the remote side, replacing main script dir
+        with proper remote path. If we could not figure out just
+        return sys.path
+
+        :return: list of remote valid sys paths
+        """
+
+        sys_path = sys.path
+        main = sys.modules["__main__"]
+
+        if main:
+            main_path = os.path.dirname(os.path.abspath(main.__file__))
+            if pathutils.is_subdir(main_path, self._workspace_paths.local):
+                try:
+                    rel_path = os.path.relpath(
+                        main_path, self._workspace_paths.local
+                    )
+                    remote_path = os.path.join(
+                        self._workspace_paths.remote, rel_path
+                    )
+                    sys_path.remove(main_path)
+                    sys_path.insert(0, remote_path)
+                except Exception as e:
+                    self.logger.debug(
+                        "could not set the remote path as desired will use sys.path",
+                        exc_info=e,
+                    )
+
+        return sys_path
+
     def starting(self):
         """Start a child remote worker."""
         self._prepare_remote()
