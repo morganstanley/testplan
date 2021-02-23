@@ -606,6 +606,7 @@ class RowStyle(object):
             )
             + (val if isinstance(val, tuple) else (val,))
             for key, val in props
+            if val is not None
         )
 
 

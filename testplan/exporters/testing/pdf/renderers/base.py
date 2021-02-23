@@ -6,8 +6,70 @@ from testplan.common.exporters.pdf import RowData
 
 from . import constants
 
+from reportlab.platypus import Paragraph
+
+try:
+    from html import escape as _orig_escape
+
+    escape = functools.partial(_orig_escape, quote=False)
+except ImportError:
+    from cgi import escape
 
 RowData = functools.partial(RowData, num_columns=constants.NUM_COLUMNS)
+
+
+class SlicedParagraph(object):
+    """
+    Iterator which returns slices of ReportLab Paragraph to make sure each does
+    not exceed max height (which will trigger ReportLab LayoutError).
+
+    :param parts: list of (text, formatter) tuple
+    :type parts: [(``str``, ``str``), ...]
+    :param width: width allowed to layout each paragraph
+    :type width: ``int``
+    :param height: height allowed to layout each paragraph
+    :type height: ``int``
+    :param style: style object for paragraph
+    :type style: ReportLab ParagraphStyle
+
+    """
+
+    def __init__(
+        self,
+        parts,
+        width,
+        height=constants.MAX_CELL_HEIGHT,
+        style=constants.PARAGRAPH_STYLE,
+        **kwargs
+    ):
+        self.width = width
+        self.height = height
+
+        text_parts = []
+        if not isinstance(parts, list):
+            parts = [parts]
+
+        for part, formatter in parts:
+            # reserve indentation - report lab does not wrap at '\n' and removes space
+            part = escape(part).replace("\n", "<br/>").replace(" ", "&nbsp;")
+            text_parts.append(formatter.format(part))
+
+        self.para = Paragraph(text="".join(text_parts), style=style, **kwargs)
+
+    def __next__(self):
+        if self.para:
+            paras = self.para.split(self.width, self.height)
+            self.para = paras[1] if len(paras) == 2 else None
+            return paras[0]
+
+        else:
+            raise StopIteration
+
+    def next(self):  # TODO: for py2 compat, to be removed soon
+        return self.__next__()
+
+    def __iter__(self):
+        return self
 
 
 def format_duration(seconds):
