@@ -90,9 +90,14 @@ class ProcessWorker(Worker):
     def _write_syspath(self):
         """Write out our current sys.path to a file and return the filename."""
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
-            f.write("\n".join(sys.path))
+            sys_path = self._get_syspath()
+            f.write("\n".join(sys_path))
             self.logger.debug("Written sys.path to file: %s", f.name)
             return f.name
+
+    def _get_syspath(self):
+        """provide a way for subclasses to generate modified sys path which is valid on target"""
+        return sys.path
 
     def starting(self):
         """Start a child process worker."""
