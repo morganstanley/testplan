@@ -1,6 +1,3 @@
-import os
-import json
-
 from schema import Or
 
 from testplan.common.config import ConfigOption
@@ -15,6 +12,9 @@ from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.schemas.base import registry
 
 from ..base import ProcessRunnerTest, ProcessRunnerTestConfig
+
+import os
+import json
 
 
 class HobbesTestConfig(ProcessRunnerTestConfig):
@@ -34,11 +34,11 @@ class HobbesTestConfig(ProcessRunnerTestConfig):
 class HobbesTest(ProcessRunnerTest):
     """
     Subprocess test runner for Hobbes Test:
-    https://github.com/Morgan-Stanley/hobbes
+    https://github.com/morganstanley/hobbes
 
     :param name: Test instance name, often used as uid of test entity.
     :type name: ``str``
-    :param binary: Path to the application binary or script.
+    :param binary: Path the to application binary or script.
     :type binary: ``str``
     :param description: Description of test instance.
     :type description: ``str``
@@ -83,10 +83,10 @@ class HobbesTest(ProcessRunnerTest):
         cmd += self.cfg.other_args
         return cmd
 
-    def test_command_filter(self, testsuite_pattern, testcase_pattern):
+    def test_command_filter(self, testsuite_pattern="*", testcase_pattern="*"):
         cmd = self.test_command()
         if testcase_pattern != "*":
-            raise RuntimeError("Cannot run individual testcase")
+            raise RuntimeError("Cannot run individual testcases")
         if testsuite_pattern != "*":
             cmd.extend(["--tests", testsuite_pattern])
         return cmd
@@ -106,12 +106,11 @@ class HobbesTest(ProcessRunnerTest):
         """
 
         result = []
-
         for suite in test_data:
             suite_report = TestGroupReport(
                 name=suite["name"],
-                uid=suite["name"],
                 category=ReportCategories.TESTSUITE,
+                uid=suite["name"],
             )
             suite_has_run = False
 
@@ -135,7 +134,6 @@ class HobbesTest(ProcessRunnerTest):
 
             if suite_has_run:
                 result.append(suite_report)
-
         return result
 
     @property
@@ -152,7 +150,7 @@ class HobbesTest(ProcessRunnerTest):
         """
         # Sample command line output:
         #
-        # My HobbesTest
+        # MyHobbesTest
         #   Arrays
         #   Compiler
         #   Definitions

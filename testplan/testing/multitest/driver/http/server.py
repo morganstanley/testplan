@@ -171,8 +171,8 @@ class HTTPServerConfig(DriverConfig):
 
 class HTTPServer(Driver):
     """
-    Driver for a server that can send and receive messages over the HTTP
-    protocol.
+    Driver for a server that can accept connection and send/receive messages
+    using HTTP protocol.
 
     :param name: Name of HTTPServer.
     :type name: ``str``
@@ -190,6 +190,9 @@ class HTTPServer(Driver):
     :type timeout: ``int``
     :param interval: Time to wait between each attempt to get a response.
     :type interval: ``int``
+
+    Also inherits all
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = HTTPServerConfig
