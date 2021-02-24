@@ -45,11 +45,11 @@ Install from archive:
     .. code-block:: bash
 
       # For python 2.
-      pip install --user https://github.com/Morgan-Stanley/testplan/archive/master.zip
+      pip install --user https://github.com/morganstanley/testplan/archive/main.zip
       install-testplan-ui
 
       # For python 3.
-      python3.7 -m pip install --user https://github.com/Morgan-Stanley/testplan/archive/master.zip
+      python3.7 -m pip install --user https://github.com/morganstanley/testplan/archive/main.zip
       install-testplan-ui
 
 
@@ -79,7 +79,7 @@ Python 2
 
         .. code-block:: bash
 
-          pip install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+          pip install https://github.com/morganstanley/testplan/archive/main.zip
           install-testplan-ui
 
 Python 3
@@ -97,7 +97,7 @@ Python 3
 
         .. code-block:: bash
 
-          pip install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+          pip install https://github.com/morganstanley/testplan/archive/main.zip
           install-testplan-ui
 
 
@@ -134,7 +134,7 @@ Native pip install
 ++++++++++++++++++
 
 .. warning:: This will install testplan package with all the dependencies specified in the
-             `requirements.txt <https://github.com/Morgan-Stanley/testplan/blob/master/requirements.txt>`_
+             `requirements.txt <https://github.com/morganstanley/testplan/blob/main/requirements.txt>`_
              file. For a quick basic installation, also check the :ref:`using_virtualenv_macos` guide.
 
 Install from archive.
@@ -142,11 +142,11 @@ Install from archive.
     .. code-block:: bash
 
       # For python 2.
-      sudo pip install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+      sudo pip install https://github.com/morganstanley/testplan/archive/main.zip
       install-testplan-ui
 
       # For python 3.
-      sudo pip3 install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+      sudo pip3 install https://github.com/morganstanley/testplan/archive/main.zip
       install-testplan-ui
 
 
@@ -174,11 +174,11 @@ Using a virtualenv
           cd testplan-oss
           source bin/activate
 
-    3. Clone testplan `repo <https://github.com/Morgan-Stanley/testplan>`_.
+    3. Clone testplan `repo <https://github.com/morganstanley/testplan>`_.
 
         .. code-block:: bash
 
-          git clone https://github.com/Morgan-Stanley/testplan.git
+          git clone https://github.com/morganstanley/testplan.git
           cd testplan
 
     4. Install dependecies and setup.
@@ -218,7 +218,7 @@ package management system:
 
         .. code-block:: text
 
-          pip install https://github.com/Morgan-Stanley/testplan/archive/master.zip
+          pip install https://github.com/morganstanley/testplan/archive/main.zip
 
 .. warning::
 
@@ -264,11 +264,11 @@ Installation using a `virtualenv <https://virtualenv.pypa.io/en/stable>`_:
           cd testplan-oss
           .\Scripts\activate
 
-    7. Clone testplan `repo <https://github.com/Morgan-Stanley/testplan>`_.
+    7. Clone testplan `repo <https://github.com/morganstanley/testplan>`_.
 
         .. code-block:: text
 
-          git clone https://github.com/Morgan-Stanley/testplan.git
+          git clone https://github.com/morganstanley/testplan.git
           cd testplan
 
     8. Install dependecies and setup.
@@ -385,7 +385,7 @@ Our examples
 
 There are some ready made examples demonstrating testplan
 functonality/features and can be found within the
-`repo <https://github.com/Morgan-Stanley/testplan>`_ under
+`repo <https://github.com/morganstanley/testplan>`_ under
 ``examples`` directory.
 
 On Ubuntu/MacOS/etc:
@@ -464,7 +464,7 @@ repo with ``git`` and make a development install like:
 
     .. code-block:: bash
 
-        git clone https://github.com/Morgan-Stanley/testplan.git
+        git clone https://github.com/morganstanley/testplan.git
         cd testplan
         pip install -r requirements.txt
         install-testplan-ui --dev

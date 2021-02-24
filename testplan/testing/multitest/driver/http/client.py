@@ -40,7 +40,8 @@ class HTTPClientConfig(DriverConfig):
 
 class HTTPClient(Driver):
     """
-    HTTPClient driver.
+    Driver for a client that can connect to a server and send/receive messages
+    using HTTP protocol.
 
     :param name: Name of HTTPClient.
     :type name: ``str``
@@ -55,6 +56,9 @@ class HTTPClient(Driver):
     :param interval: Number of seconds to sleep whilst trying to receive a
       message.
     :type interval: ``int``
+
+    Also inherits all
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = HTTPClientConfig

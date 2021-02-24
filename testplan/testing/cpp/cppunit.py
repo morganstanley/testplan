@@ -101,7 +101,7 @@ class CppunitConfig(ProcessRunnerTestConfig):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption("file_output_flag", default=None): Or(
+            ConfigOption("file_output_flag", default="-y"): Or(
                 None, lambda x: x.startswith("-")
             ),
             ConfigOption("output_path", default=""): str,
@@ -144,7 +144,7 @@ class Cppunit(ProcessRunnerTest):
     :param description: Description of test instance.
     :type description: ``str``
     :param file_output_flag: Customized command line flag for specifying path
-        of output file.
+        of output file, default to -y
     :type file_output_flag: ``NoneType`` or ``str``
     :param output_path: Where to save the test report, should work with
         `file_output_flag`, if not provided a default path can be generated.
@@ -174,7 +174,7 @@ class Cppunit(ProcessRunnerTest):
         name,
         binary,
         description=None,
-        file_output_flag=None,
+        file_output_flag="-y",
         output_path="",
         filtering_flag=None,
         cppunit_filter="",
