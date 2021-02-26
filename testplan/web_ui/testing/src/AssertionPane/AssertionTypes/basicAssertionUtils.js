@@ -1,5 +1,6 @@
 import React, {Fragment} from 'react';
 import {hashCode} from '../../Common/utils';
+import {GREEN, RED} from '../../Common/defaults';
 import _ from 'lodash';
 
 /** @module basicAssertionUtils */
@@ -66,13 +67,55 @@ function prepareLogContent(assertion, defaultContent) {
  * @private
  */
 function prepareEqualContent(assertion, defaultContent) {
-  const leftContent = <span>
-    {_.isNil(assertion.second) ? "" : String(assertion.second)}
-  </span>;
+  let leftContent;
+  let rightContent;
+  if (
+    assertion.type_actual === "str" && 
+    assertion.type_expected === "str" && 
+    !assertion.passed
+  ) {
+    const shortLength = Math.min(
+      assertion.first.length,
+      assertion.second.length
+    );
+    let diffPosition;
+    for (diffPosition=0; diffPosition<shortLength; diffPosition++) {
+      if (
+        assertion.first[diffPosition] !== assertion.second[diffPosition]
+      ) break;
+    }
+    
+    leftContent = [
+      <span
+        key="diffLeftEq"
+        style={{color: GREEN}}
+      >{assertion.second.substring(0, diffPosition)}</span>,
+      <span
+        key="diffLeftNe"
+        style={{color: RED, fontWeight: 'bold', textDecoration: "underline"}}
+      >{
+        assertion.second.substring(diffPosition, assertion.second.length)
+      }</span>
+    ];
+    rightContent = [
+      <span
+        key="diffrightEq"
+        style={{color: GREEN}}
+      >{assertion.first.substring(0, diffPosition)}</span>,
+      <span
+        key="diffrightNe"
+        style={{color: RED, fontWeight: 'bold', textDecoration: "underline"}}
+      >{assertion.first.substring(diffPosition, assertion.first.length)}</span>
+    ];
+  } else {
+    leftContent = _.isNil(assertion.second) ? "": String(assertion.second);
+    rightContent = _.isNil(assertion.first) ? "": String(assertion.first);
+  }
 
   return {
     ...defaultContent,
-    leftContent: leftContent,
+    leftContent: <pre>{leftContent}</pre>,
+    rightContent: <pre>{rightContent}</pre>,
   };
 }
 

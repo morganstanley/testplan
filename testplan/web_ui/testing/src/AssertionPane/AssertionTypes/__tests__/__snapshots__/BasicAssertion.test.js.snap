@@ -634,9 +634,9 @@ exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
       }
     >
       <span>
-        <span>
+        <pre>
           foo
-        </span>
+        </pre>
       </span>
     </Col>
     <Col
@@ -654,7 +654,9 @@ exports[`BasicAssertion shallow renders the Equal assertion 1`] = `
       }
     >
       <span>
-        foo
+        <pre>
+          foo
+        </pre>
       </span>
     </Col>
   </Row>
@@ -5198,6 +5200,209 @@ exports[`BasicAssertion shallow renders the XMLCheck assertion 1`] = `
 &lt;/Root&gt;
 
         </span>
+      </span>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+</Fragment>
+`;
+
+exports[`BasicAssertion shallow renders the highlight Equal assertion 1`] = `
+<Fragment>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong />
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="12"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    />
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Expected:
+      </strong>
+    </Col>
+    <Col
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <strong>
+        Value:
+      </strong>
+    </Col>
+  </Row>
+  <Row
+    tag="div"
+  >
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <pre>
+          <span
+            key="diffLeftEq"
+            style={
+              Object {
+                "color": "#228F1D",
+              }
+            }
+          >
+            This is a 
+          </span>
+          <span
+            key="diffLeftNe"
+            style={
+              Object {
+                "color": "#A2000C",
+                "fontWeight": "bold",
+                "textDecoration": "underline",
+              }
+            }
+          >
+            short thing
+          </span>
+        </pre>
+      </span>
+    </Col>
+    <Col
+      className="contentSpan_11nzg99"
+      lg="6"
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <span>
+        <pre>
+          <span
+            key="diffrightEq"
+            style={
+              Object {
+                "color": "#228F1D",
+              }
+            }
+          >
+            This is a 
+          </span>
+          <span
+            key="diffrightNe"
+            style={
+              Object {
+                "color": "#A2000C",
+                "fontWeight": "bold",
+                "textDecoration": "underline",
+              }
+            }
+          >
+            long thing with some extra at the end
+          </span>
+        </pre>
       </span>
     </Col>
   </Row>

@@ -26,6 +26,29 @@ class FilterBox extends Component {
       parserError: null,
       showHelp: false,
     };
+    this.toggleHelp = this.toggleHelp.bind(this);
+    this.helpText = (
+      <>
+        <p>
+          Just start typing in the search bar. The test items are filtered
+          automatically. The current selection if available in the serach are
+          maintained. All the search are <b>case insensitive</b>.
+        </p>
+        <p>
+          You can search by <b>free text</b>, then each word will be matched
+          against multitest, testsuite or testcase name as well as tags and tag
+          names. For tag or tag names the match must be exact, for the rest it
+          is enough that the name contains the word. If anything match it will
+          be included.
+        </p>
+        <p>
+          There are also <b>operators</b> that can be used for more advanced
+          search terms. The test items matching all the specified operators will
+          be filtered. The table below summarize them with examples:
+        </p>
+        {this.operatorsTable()}
+      </>
+    );
   }
 
   componentDidMount() {
@@ -34,7 +57,7 @@ class FilterBox extends Component {
     }
   }
 
-  toggleHelp = () => {
+  toggleHelp() {
     this.setState({ showHelp: !this.state.showHelp });
   };
 
@@ -108,29 +131,6 @@ class FilterBox extends Component {
       this.props.handleNavFilter({text: e.target.values, filters: []});
     }
   }
-
-  helpText = (
-    <>
-      <p>
-        Just start typing in the search bar. The test items are filtered
-        automatically. The current selection if available in the serach are
-        maintained. All the search are <b>case insensitive</b>.
-      </p>
-      <p>
-        You can search by <b>free text</b>, then each word will be matched
-        against multitest, testsuite or testcase name as well as tags and tag
-        names. For tag or tag names the match must be exact, for the rest it is
-        enough that the name contains the word. If anything match it will be
-        included.
-      </p>
-      <p>
-        There are also <b>operators</b> that can be used for more advanced
-        search terms. The test items matching all the specified operators will
-        be filtered. The table below summarize them with examples:
-      </p>
-      {this.operatorsTable()}
-    </>
-  );
 
   operatorsTable() {
     const descriptions = [
