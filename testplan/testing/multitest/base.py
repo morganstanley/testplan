@@ -276,24 +276,41 @@ class MultiTest(testing_base.Test):
         Return filtered & sorted list of suites & testcases
         via `cfg.test_filter` & `cfg.test_sorter`.
 
+        :param test_filter: Class with test filtering logic, used for filtering
+            testcase in interactive mode while in batch mode it is ``None``.
+        :type test_filter: :py:class:`~testplan.testing.filtering.BaseFilter`
         :return: Test suites and testcases belong to them.
         :rtype: ``list`` of ``tuple``
         """
         ctx = []
-        test_filter = test_filter or self.cfg.test_filter
-        test_sorter = self.cfg.test_sorter
-        sorted_suites = test_sorter.sorted_testsuites(self.cfg.suites)
+        sorted_suites = self.cfg.test_sorter.sorted_testsuites(self.cfg.suites)
 
         for suite in sorted_suites:
-            sorted_testcases = test_sorter.sorted_testcases(
-                suite.get_testcases()
+            testcases = suite.get_testcases()
+
+            # Should not re-order testcases if `strict_order` is specified
+            sorted_testcases = (
+                testcases
+                if getattr(suite, "strict_order", False)
+                else self.cfg.test_sorter.sorted_testcases(testcases)
             )
 
             testcases_to_run = [
                 case
                 for case in sorted_testcases
-                if test_filter.filter(test=self, suite=suite, case=case)
+                if (test_filter or self.cfg.test_filter).filter(
+                    test=self, suite=suite, case=case
+                )
             ]
+
+            # In batch mode no testcase should be removed if `strict_order` is
+            # specified, unless all of the testcases have been filtered out.
+            if (
+                test_filter is None
+                and getattr(suite, "strict_order", False)
+                and 0 < len(testcases_to_run) < len(sorted_testcases)
+            ):
+                testcases_to_run = sorted_testcases
 
             if self.cfg.part and self.cfg.part[1] > 1:
                 testcases_to_run = [
@@ -386,8 +403,8 @@ class MultiTest(testing_base.Test):
             if not self.active:
                 break
 
-            # In python 3 we would use "yield from" but have to explicitly write
-            # out the loop for python 2 support...
+            # In python 3 we would use "yield from" but have to explicitly
+            # write out the loop for python 2 support...
             for testcase_report, parent_uids in self._run_testsuite_iter(
                 testsuite, testcases
             ):
@@ -611,6 +628,7 @@ class MultiTest(testing_base.Test):
             uid=testsuite.name,
             category=ReportCategories.TESTSUITE,
             tags=testsuite.__tags__,
+            strict_order=testsuite.strict_order,
         )
 
     def _new_testcase_report(self, testcase):
@@ -633,9 +651,10 @@ class MultiTest(testing_base.Test):
         return TestGroupReport(
             name=param_method.name,
             description=strings.get_docstring(param_method),
-            category=ReportCategories.PARAMETRIZATION,
             uid=param_template,
+            category=ReportCategories.PARAMETRIZATION,
             tags=param_method.__tags__,
+            strict_order=param_method.strict_order,
         )
 
     def _execute_step(self, step, *args, **kwargs):
@@ -666,7 +685,11 @@ class MultiTest(testing_base.Test):
                 if setup_report.failed:
                     return testsuite_report
 
-            serial_cases, parallel_cases = _split_by_exec_group(testcases)
+            serial_cases, parallel_cases = (
+                (testcases, [])
+                if getattr(testsuite, "strict_order", False)
+                else _split_by_exec_group(testcases)
+            )
             testcase_reports = self._run_serial_testcases(
                 testsuite, serial_cases
             )
@@ -1063,9 +1086,11 @@ def _need_threadpool(testsuites):
         and testcases.
     """
     return any(
-        getattr(testcase, "execution_group", None)
+        not getattr(pair[0], "strict_order", False)
+        and any(
+            getattr(testcase, "execution_group", None) for testcase in pair[1]
+        )
         for pair in testsuites
-        for testcase in pair[1]
     )
 
 

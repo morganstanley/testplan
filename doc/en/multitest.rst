@@ -180,6 +180,23 @@ Example can be found :ref:`here <example_basic_name_customization>`.
 To customize names for parametrized testcases another argument ``name_func`` can be
 used, refer to the document of :ref:`name_func <parametrization_custom_name_func>`.
 
+Strict order
+------------
+
+In a test suite all testcases can be forced to run sequentially, which means, they will
+be executed strictly in the order as they were defined, even some :ref:`paralell feature <testcase_parallelization>`
+like "shuffling" and "execution group" will not take effect. Specify such a test suite
+like this:
+
+    * @testsuite(strict_order=True)
+
+When executed in interactive mode, UI can help user to run testcases one by one,
+that is, in a "strict ordered" test suite, only the first testcase can run, after
+it finishes its execution then the next testcase is able to run, and there is no
+idea to re-run the finished testcases unless the whole test report is reset.
+Similarly, you cannot run a test suite if some testcases in it already finish
+execution or are running, an error message will be displayed.
+
 Listing
 -------
 

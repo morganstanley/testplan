@@ -22,6 +22,7 @@ import {
   STATUS,
   STATUS_CATEGORY,
   RUNTIME_STATUS,
+  NAV_ENTRY_ACTIONS,
 } from "../Common/defaults";
 
 /**
@@ -35,7 +36,10 @@ import {
 const InteractiveNavEntry = (props) => {
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
   const statusIcon = getStatusIcon(
-    props.runtime_status, props.handlePlayClick, props.suiteRelated,
+    props.runtime_status,
+    props.handlePlayClick,
+    props.suiteRelated,
+    props.action,
   );
   const envStatusIcon = getEnvStatusIcon(
     props.envStatus, props.envCtrlCallback
@@ -89,7 +93,7 @@ const InteractiveNavEntry = (props) => {
  *   reports, cannot be directly run and are instead run automatically as
  *   required. So we do not render buttons to control them.
  */
-const getStatusIcon = (entryStatus, handlePlayClick, suiteRelated) => {
+const getStatusIcon = (entryStatus, handlePlayClick, suiteRelated, action) => {
   if (suiteRelated) {
     return null;
   }
@@ -98,30 +102,45 @@ const getStatusIcon = (entryStatus, handlePlayClick, suiteRelated) => {
     case 'ready':
       return (
         <FontAwesomeIcon
-          className={css(styles.entryButton)}
+          className={
+            action === 'prohibit' ? css(styles.inactiveEntryButton)
+            : css(styles.entryButton)
+          }
           icon={faPlay}
           title='Run tests'
-          onClick={handlePlayClick}
+          onClick={
+            action === 'prohibit' ? (e) => {
+              e.preventDefault(); e.stopPropagation();
+            } : handlePlayClick
+          }
         />
       );
 
     case 'running':
       return (
         <FontAwesomeIcon
-          className={css(styles.entryButton)}
+          className={css(styles.inactiveEntryButton)}
           icon={faRedo}
           title='Running...'
           spin
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
         />
       );
 
     case 'finished':
       return (
         <FontAwesomeIcon
-          className={css(styles.entryButton)}
+          className={
+            action === 'prohibit' ? css(styles.inactiveEntryButton)
+            : css(styles.entryButton)
+          }
           icon={faRedo}
           title='Run tests'
-          onClick={handlePlayClick}
+          onClick={
+            action === 'prohibit' ? (e) => {
+              e.preventDefault(); e.stopPropagation();
+            } : handlePlayClick
+          }
         />
       );
 
@@ -152,6 +171,7 @@ const getEnvStatusIcon = (envStatus, envCtrlCallback) => {
             className={css(styles.inactiveEntryButton)}
             icon={faToggleOff}
             title='Environment starting...'
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
           />
         );
 
@@ -171,6 +191,7 @@ const getEnvStatusIcon = (envStatus, envCtrlCallback) => {
             className={css(styles.inactiveEntryButton)}
             icon={faToggleOn}
             title='Environment stopping...'
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
           />
         );
 
@@ -187,6 +208,8 @@ InteractiveNavEntry.propTypes = {
   /** Entry status */
   status: PropTypes.oneOf(STATUS),
   runtime_status: PropTypes.oneOf(RUNTIME_STATUS),
+  /** Entry action */
+  action: PropTypes.oneOf(NAV_ENTRY_ACTIONS),
   /** Entry type */
   type: PropTypes.oneOf(ENTRY_TYPES),
   /** Number of passing testcases entry has */

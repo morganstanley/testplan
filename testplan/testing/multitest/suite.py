@@ -357,8 +357,8 @@ def _testsuite(klass):
 
     assert all(testcase for testcase in klass.__testcases__)
 
-    # Attributes `name` and `__tags__` are added only when class is
-    # decorated by @testsuite(...) which has the following parentheses.
+    # Attributes `name` and `__tags__` and `strict_order` are added only when
+    # class is decorated by @testsuite(...) with following parentheses.
     if not hasattr(klass, "name"):
         klass.name = None
 
@@ -375,6 +375,12 @@ def _testsuite(klass):
     if not hasattr(klass, "__tags__"):
         klass.__tags__ = {}  # used for UI
         klass.__tags_index__ = {}  # used for actual filtering
+
+    if not hasattr(klass, "strict_order"):
+        klass.strict_order = False
+
+    for func_name in __PARAMETRIZATION_TEMPLATE__:
+        getattr(klass, func_name).strict_order = klass.strict_order
 
     klass.get_testcases = get_testcase_methods
     testcase_methods = get_testcase_methods(klass)
@@ -397,7 +403,7 @@ def _testsuite(klass):
     return klass
 
 
-def _testsuite_meta(name=None, tags=None):
+def _testsuite_meta(name=None, tags=None, strict_order=False):
     """
     Wrapper function that allows us to call :py:func:`@testsuite <testsuite>`
     decorator with extra arguments.
@@ -414,6 +420,8 @@ def _testsuite_meta(name=None, tags=None):
         else:
             klass.__tags__ = {}
             klass.__tags_index__ = {}
+
+        klass.strict_order = strict_order
 
         return _testsuite(klass)
 

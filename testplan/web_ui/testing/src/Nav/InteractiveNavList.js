@@ -5,7 +5,7 @@ import base64url from 'base64url';
 
 import InteractiveNavEntry from './InteractiveNavEntry';
 import {CreateNavButtons, GetNavColumn} from './navUtils.js';
-import {STATUS, RUNTIME_STATUS} from "../Common/defaults";
+import {STATUS, RUNTIME_STATUS, NAV_ENTRY_ACTIONS} from "../Common/defaults";
 
 /**
  * Render a vertical list of all the currently selected entries children for
@@ -29,6 +29,7 @@ const InteractiveNavList = (props) => {
           (e, action) => props.envCtrlCallback(e, entry, action)
         }
         suiteRelated={entry.suite_related}
+        action={entry.action}
       />
     ),
     base64url
@@ -47,6 +48,7 @@ InteractiveNavList.propTypes = {
     description: PropTypes.string,
     status: PropTypes.oneOf(STATUS),
     runtime_status: PropTypes.oneOf(RUNTIME_STATUS),
+    action: PropTypes.oneOf(NAV_ENTRY_ACTIONS),
     counter: PropTypes.shape({
       passed: PropTypes.number,
       failed: PropTypes.number,

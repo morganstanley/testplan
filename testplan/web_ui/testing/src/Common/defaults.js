@@ -129,6 +129,11 @@ const RUNTIME_STATUS = [
   'finished',
 ];
 
+const NAV_ENTRY_ACTIONS = [
+  'play',
+  'open',
+  'prohibit',
+];
 
 const NAV_ENTRY_DISPLAY_DATA = [
   'name',
@@ -211,6 +216,7 @@ export {
   STATUS,
   STATUS_CATEGORY,
   RUNTIME_STATUS,
+  NAV_ENTRY_ACTIONS,
   NAV_ENTRY_DISPLAY_DATA,
   BASIC_ASSERTION_TYPES,
   SORT_TYPES,

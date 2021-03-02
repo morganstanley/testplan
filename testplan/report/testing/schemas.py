@@ -120,13 +120,13 @@ class TestCaseReportSchema(ReportSchema):
 
     entries = fields.List(EntriesField())
 
+    category = fields.String(dump_only=True)
     status = fields.String(dump_only=True)
     runtime_status = fields.String(dump_only=True)
     counter = fields.Dict(dump_only=True)
     suite_related = fields.Bool()
     timer = TimerField(required=True)
     tags = TagField()
-    category = fields.String(dump_only=True)
 
     status_reason = fields.String(allow_none=True)
 
@@ -156,14 +156,10 @@ class TestGroupReportSchema(TestCaseReportSchema):
     """
 
     source_class = TestGroupReport
-    # category = fields.String()
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
     env_status = fields.String(allow_none=True)
-
-    # status_reason = fields.String(allow_none=True)
-    # runtime_status = fields.String(dump_only=True)
-    # counter = fields.Dict(dump_only=True)
+    strict_order = fields.Bool()
 
     entries = custom_fields.GenericNested(
         schema_context={
@@ -186,10 +182,11 @@ class TestGroupReportSchema(TestCaseReportSchema):
 class TestReportSchema(Schema):
     """Schema for test report root, ``testing.TestReport``."""
 
-    timer = TimerField(required=True)
     name = fields.String(required=True)
     description = fields.String(allow_none=True)
     uid = fields.String(required=True)
+    category = fields.String(dump_only=True)
+    timer = TimerField(required=True)
     meta = fields.Dict()
 
     status = fields.String(dump_only=True)
@@ -206,7 +203,6 @@ class TestReportSchema(Schema):
     entries = custom_fields.GenericNested(
         schema_context={TestGroupReport: TestGroupReportSchema}, many=True
     )
-    category = fields.String(dump_only=True)
 
     @post_load
     def make_test_report(self, data):  # pylint: disable=no-self-use
@@ -238,9 +234,10 @@ class ShallowTestGroupReportSchema(Schema):
     """Schema for shallow serialization of ``TestGroupReport``."""
 
     name = fields.String(required=True)
-    uid = fields.String(required=True)
-    timer = TimerField(required=True)
     description = fields.String(allow_none=True)
+    uid = fields.String(required=True)
+    category = fields.String()
+    timer = TimerField(required=True)
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
     status_override = fields.String(allow_none=True)
@@ -252,8 +249,8 @@ class ShallowTestGroupReportSchema(Schema):
     entry_uids = fields.List(fields.Str(), dump_only=True)
     parent_uids = fields.List(fields.Str())
     hash = fields.Integer(dump_only=True)
-    category = fields.String()
     env_status = fields.String(allow_none=True)
+    strict_order = fields.Bool()
 
     @post_load
     def make_testgroup_report(self, data):
@@ -272,7 +269,9 @@ class ShallowTestReportSchema(Schema):
     """Schema for shallow serialization of ``TestReport``."""
 
     name = fields.String(required=True)
+    description = fields.String(allow_none=True)
     uid = fields.String(required=True)
+    category = fields.String(dump_only=True)
     timer = TimerField(required=True)
     meta = fields.Dict()
     status = fields.String(dump_only=True)
@@ -284,7 +283,6 @@ class ShallowTestReportSchema(Schema):
     entry_uids = fields.List(fields.Str(), dump_only=True)
     parent_uids = fields.List(fields.Str())
     hash = fields.Integer(dump_only=True)
-    category = fields.String(dump_only=True)
 
     @post_load
     def make_test_report(self, data):

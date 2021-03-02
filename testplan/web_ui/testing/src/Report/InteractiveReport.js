@@ -42,20 +42,23 @@ class InteractiveReport extends React.Component {
 
   constructor(props) {
     super(props);
+    this.setError = this.setError.bind(this);
+    this.setReport = this.setReport.bind(this);
+    this.getReport = this.getReport.bind(this);
+    this.resetReport = this.resetReport.bind(this);
+    this.handlePlayClick = this.handlePlayClick.bind(this);
+    this.envCtrlCallback = this.envCtrlCallback.bind(this);
+    this.reloadCode = this.reloadCode.bind(this);
+    this.handleColumnResizing = this.handleColumnResizing.bind(this);
+
     this.state = {
       navWidth: `${INTERACTIVE_COL_WIDTH}em`,
-      report: null,      
+      report: null,
       loading: false,
       error: null,
       resetting: false,
       reloading: false,
     };
-    this.handlePlayClick = this.handlePlayClick.bind(this);
-    this.envCtrlCallback = this.envCtrlCallback.bind(this);
-    this.getReport = this.getReport.bind(this);
-    this.resetReport = this.resetReport.bind(this);
-    this.reloadCode = this.reloadCode.bind(this);
-    this.handleColumnResizing = this.handleColumnResizing.bind(this);
   }
 
   /**
@@ -64,6 +67,11 @@ class InteractiveReport extends React.Component {
    */
   componentDidMount() {
     this.setState({ loading: true }, this.getReport);
+  }
+
+  setError(error) {
+    console.log(error);
+    this.setState({error: error, loading: false});
   }
 
   setReport(report) {
@@ -97,11 +105,7 @@ class InteractiveReport extends React.Component {
               this.setReport(rawReport);
             });
           }
-        })
-        .catch(error => {
-          console.log(error);
-          this.setState({ error: error, loading: false });
-        });
+        }).catch(this.setError);
 
       // We poll for updates to the report every second.
       setTimeout(this.getReport, this.props.poll_intervall || POLL_MS);      
@@ -234,7 +238,14 @@ class InteractiveReport extends React.Component {
   putUpdatedReportEntry(updatedReportEntry) {
     const apiUrl = this.getApiUrl(updatedReportEntry);
     return axios.put(apiUrl, updatedReportEntry).then(
-      response => this.setShallowReportEntry(response.data)
+      response => {
+        if (response.data.errmsg) {
+          alert(response.data.errmsg);
+          console.error(response.data);
+        } else {
+          this.setShallowReportEntry(response.data);
+        }
+      }
     ).catch(
       error => this.setState({ error: error })
     );

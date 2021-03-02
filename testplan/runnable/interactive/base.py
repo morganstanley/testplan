@@ -18,10 +18,18 @@ from concurrent import futures
 from testplan.common import entity
 from testplan.common import config
 from testplan.common.utils import networking
-import testplan.report
+
 from testplan.runnable.interactive import http
 from testplan.runnable.interactive import reloader
 from testplan.runnable.interactive import resource_loader
+
+from testplan.report import (
+    TestReport,
+    TestGroupReport,
+    Status,
+    RuntimeStatus,
+    ReportCategories,
+)
 
 
 class TestRunnerIHandlerConfig(config.Config):
@@ -189,9 +197,7 @@ class TestRunnerIHandler(entity.Entity):
         except RuntimeError:
             self.logger.exception("Failed to start environment for test.")
             with self.report_mutex:
-                self.report[
-                    test_uid
-                ].runtime_status = testplan.report.RuntimeStatus.FINISHED
+                self.report[test_uid].runtime_status = RuntimeStatus.FINISHED
             return
 
         self._merge_testcase_reports(test.run_testcases_iter())
@@ -220,7 +226,7 @@ class TestRunnerIHandler(entity.Entity):
             with self.report_mutex:
                 self.report[test_uid][
                     suite_uid
-                ].runtime_status = testplan.report.RuntimeStatus.FINISHED
+                ].runtime_status = RuntimeStatus.FINISHED
             return
 
         self._merge_testcase_reports(
@@ -257,7 +263,7 @@ class TestRunnerIHandler(entity.Entity):
             with self.report_mutex:
                 self.report[test_uid][suite_uid][
                     case_uid
-                ].runtime_status = testplan.report.RuntimeStatus.FINISHED
+                ].runtime_status = RuntimeStatus.FINISHED
             return
 
         self._merge_testcase_reports(
@@ -305,7 +311,7 @@ class TestRunnerIHandler(entity.Entity):
             with self.report_mutex:
                 self.report[test_uid][suite_uid][case_uid][
                     param_uid
-                ].runtime_status = testplan.report.RuntimeStatus.FINISHED
+                ].runtime_status = RuntimeStatus.FINISHED
             return
 
         self._merge_testcase_reports(
@@ -345,6 +351,8 @@ class TestRunnerIHandler(entity.Entity):
 
         test = self.test(test_uid)
         test.start_test_resources()
+        # Re-initialize report of Multitest if environment restarted
+        self.report[test_uid] = test.dry_run().report
 
         with self.report_mutex:
             self.report[test_uid].env_status = entity.ResourceStatus.STARTED
@@ -700,7 +708,7 @@ class TestRunnerIHandler(entity.Entity):
 
     def _initial_report(self):
         """Generate the initial report skeleton."""
-        report = testplan.report.TestReport(
+        report = TestReport(
             name=self.cfg.name,
             description=self.cfg.description,
             uid=self.cfg.name,
@@ -724,7 +732,7 @@ class TestRunnerIHandler(entity.Entity):
         """Run a test operation and update our report tree with the results."""
         result = test_operation(*args, **kwargs)
 
-        if isinstance(result, testplan.report.TestGroupReport):
+        if isinstance(result, TestGroupReport):
             self.logger.debug("Merge test result: %s", result)
             with self.report_mutex:
                 self.report[result.uid].merge(result)

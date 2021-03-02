@@ -183,6 +183,85 @@ const GetNavEntries = (selected) => {
 };
 
 /**
+ * Get the interavtive entries to present to a user in the navigation column.
+ * Will check attributes of these entries and make changes to them if necessary.
+ * For example, if several testcase entries belong to a testsuite which sets
+ * attribute "strict_order" enabled, then the testcase entry should be disabled
+ * unless all previous ones get execution results.
+ *
+ * @param {Array[ReportNode]} selected - Current selection hierarchy.
+ */
+const GetInteractiveNavEntries = (selected) => {
+  let selectedEntry = selected[selected.length - 1];
+
+  if (!selectedEntry) {
+    return [];
+  }
+
+  if (
+    selectedEntry.category === 'testcase'
+    || selectedEntry.category === 'parametrization'
+  ) {
+    selectedEntry = selected[selected.length - 2];  // move to testsuite entry
+  }
+
+  // If testsuite has `strict_order` attribute, UI will set enable/disable
+  // status of testcase items to force user to run testcase one by one.
+  if (selectedEntry.category === 'testsuite' && selectedEntry.strict_order) {
+    let testcaseEntries = [];  // contains all testcase entries in testsuite
+    selectedEntry.entries.forEach((childEntry) => {
+      if (childEntry.category === 'testcase' && !childEntry.suite_related) {
+        testcaseEntries.push(childEntry);
+      } else if (childEntry.category === 'parametrization') {
+        childEntry.entries.forEach((entry) => { testcaseEntries.push(entry); });
+      }
+    });
+
+    // To make all testcases run sequentially, in a test suite only the entry
+    // next to the recently finished testcase have "play" button enabled.
+    let idx = 0;
+    while (idx < testcaseEntries.length) {
+      if (testcaseEntries[idx].runtime_status !== 'finished') {
+        break;
+      }
+      ++idx;
+    }
+    if (idx > 0) {
+      // at least one testcase already finished
+      testcaseEntries.slice(0, idx).forEach((entry) => {
+        entry.action = 'prohibit';
+      });
+    }
+    if (idx < testcaseEntries.length) {
+      // at least one testcase is ready to run
+      testcaseEntries[idx].action = (
+        testcaseEntries[idx].runtime_status === 'running' ? 'prohibit': 'play'
+      );
+      testcaseEntries.slice(idx + 1).forEach((entry) => {
+        entry.action = 'prohibit';
+      });
+    }
+
+    // Enable/disable status of "play" button of each parametrization group
+    // entry depends on its child entries (the 1st child must be ready to run).
+    selectedEntry.entries.forEach((childEntry) => {
+      if (childEntry.category === 'parametrization') {
+        if (childEntry.entries.some(
+          (entry) => {return entry.action === 'play';}
+        )) {
+          childEntry.action = 'play';
+        }
+        else {
+          childEntry.action = 'prohibit';
+        }
+      }
+    });
+  }
+
+  return GetNavEntries(selected);
+};
+
+/**
  * Get the entries to display in the navigation breadcrumbs bar. Generally
  * this is just the selection hierarchy. As a special case, when a testcase
  * is selected, we only display up to the suite level in the breadcrumb bar.
@@ -214,6 +293,7 @@ export {
   CreateNavButtons,
   GetSelectedUid,
   GetNavEntries,
+  GetInteractiveNavEntries,
   GetNavBreadcrumbs,
   GetNavColumn,
 };
