@@ -14,13 +14,17 @@ import {
  * correctly (not generalised for other charts).
  */
 class DiscreteChartAssertion extends Component  {
-  components = {
-    Pie: RadialChart
-   }
+  constructor(props) {
+    super(props);
+    this.components = {
+      Pie: RadialChart
+     };
+  
+    this.state = {
+      value: null
+    };
+  }
 
-  state = {
-    value: null
-  };
 
   render(){
     let data = this.props.assertion.graph_data;

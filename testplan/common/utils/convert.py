@@ -1,6 +1,8 @@
 """Conversion utilities."""
 import itertools
 
+from .reporting import Absent
+
 
 def make_tuple(value, convert_none=False):
     """Shortcut utility for converting a value to a tuple."""
@@ -93,22 +95,26 @@ def expand_values(rows, level=0, ignore_key=False, key_path=None):
     """
     if key_path is None:
         key_path = []
+
     for row in rows:
-        key = row[0] if ignore_key is False else ""
-        if key:
+        # While comparing dict value (list type), dict key is ignored, thus
+        # a special object `Absent` is used as key, which means no key here.
+        key = row[0] if ignore_key is False else Absent
+        if key is not Absent:  # `None` or empty string can also be used as key
             key_path.append(key)
+
         match = row[1] if len(row) == 3 else ""
         val = row[2] if len(row) == 3 else row[1]
+
         if isinstance(val, tuple):
             if val[0] == 0:  # value
                 yield (tuple(key_path), level, key, match, (val[1], val[2]))
             elif val[0] in (1, 2, 3):
                 yield (tuple(key_path), level, key, match, "")
-                ignore = True if val[0] == 1 else False
                 for new_row in expand_values(
                     val[1],
                     level=level + 1,
-                    ignore_key=ignore,
+                    ignore_key=True if val[0] == 1 else False,
                     key_path=key_path,
                 ):
                     yield new_row
@@ -116,7 +122,8 @@ def expand_values(rows, level=0, ignore_key=False, key_path=None):
             yield (tuple(key_path), level, key, match, "")
             for new_row in expand_values(val, level=level, key_path=key_path):
                 yield new_row
-        if key:
+
+        if key is not Absent:
             key_path.pop()
 
 
@@ -239,13 +246,16 @@ def flatten_dict_comparison(comparison):
 
         level = lpart[1] if lpart else rpart[1]
         key = lpart[2] if lpart else rpart[2]
-        if not key:
+        if key is Absent:
             level -= 1
             # key = '(group)'
+
         status = full_status(lpart[3] if lpart else rpart[3])
         lval = lpart[4] if lpart else None
         rval = rpart[4] if rpart else None
-        result_table.append([level, key, status, lval, rval])
+        result_table.append(
+            [level, "" if key is Absent else key, status, lval, rval]
+        )
 
     while True:
         level_decreased = False

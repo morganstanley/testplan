@@ -53,7 +53,7 @@ setup(
     description="Testplan testing framework",
     author="",
     author_email="eti-testplan@morganstanley.com",
-    url="https://github.com/Morgan-Stanley/testplan",
+    url="https://github.com/morganstanley/testplan",
     packages=["testplan"] + find_packages(),
     include_package_data=True,
     install_requires=REQUIRED,

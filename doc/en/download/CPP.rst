@@ -1,8 +1,8 @@
 CPP
 ***
 
-Google Test
------------
+GoogleTest
+----------
 
 .. _example_gtest:
 
@@ -33,8 +33,8 @@ CMakeLists.txt
 .. literalinclude:: ../../../examples/Cpp/GTest/test/CMakeLists.txt
 
 
-Cppunit Test
-------------
+CppUnit
+-------
 
 .. _example_cppunit:
 
@@ -70,7 +70,7 @@ Hobbes Test
 
 .. _example_hobbes_test:
 
-`Hobbes <https://github.com/Morgan-Stanley/hobbes>`_ is a language, embedded compiler, and runtime for efficient
+`Hobbes <https://github.com/morganstanley/hobbes>`_ is a language, embedded compiler, and runtime for efficient
 dynamic expression evaluation, data storage and analysis. Note: after downloading this example, replace hobbes-test
 with the actual test binary.
 

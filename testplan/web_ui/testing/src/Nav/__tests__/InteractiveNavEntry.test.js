@@ -132,14 +132,14 @@ describe('InteractiveNavEntry', () => {
     expect(handlePlayClick.mock.calls.length).toEqual(1);
   });
 
-  it('renders an entry with environment status STOPPED', () => {
+  it('renders an entry with environment status STARTED', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
         description={'TestCaseDesc'}
         status={'unknown'}
         runtime_status={'ready'}
-        envStatus={'STOPPED'}
+        envStatus={'STARTED'}
         type={'multitest'}
         caseCountPassed={0}
         caseCountFailed={0}
@@ -168,14 +168,14 @@ describe('InteractiveNavEntry', () => {
     expect(renderedEntry).toMatchSnapshot();
   });
 
-  it('renders an entry with environment status STARTED', () => {
+  it('renders an entry with environment status STOPPED', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
         description={'TestCaseDesc'}
         status={'unknown'}
         runtime_status={'ready'}
-        envStatus={'STARTED'}
+        envStatus={'STOPPED'}
         type={'multitest'}
         caseCountPassed={0}
         caseCountFailed={0}
@@ -258,7 +258,7 @@ describe('InteractiveNavEntry', () => {
     // controller - we do this by matching on the title text.
     const faIcons = renderedEntry.find(FontAwesomeIcon);
     expect(faIcons).toHaveLength(2);
-    faIcons.find({title: 'Start environment'}).simulate('click');
+    faIcons.find({title: 'Stop environment'}).simulate('click');
 
     // The callback should have been called once when the component was
     // clicked, and it should have been called with a single arg of "start"

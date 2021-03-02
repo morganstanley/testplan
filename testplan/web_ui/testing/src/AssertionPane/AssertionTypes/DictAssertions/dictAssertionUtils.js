@@ -238,7 +238,9 @@ export function prepareDictRowData(data, lineNo) {
       [level, key, status, actualValue, expectedValue] = line;
     }
     actualValue = actualValue || [];
-    const isEmptyLine = key.length === 0 && actualValue.length === 0;
+    const isEmptyLine = (
+        key !== null && key.length === 0 && actualValue.length === 0
+    );
     const hasAcutalValue = Array.isArray(actualValue);
     const hasExpectedValue = Array.isArray(expectedValue);
 
@@ -418,7 +420,7 @@ export function flattenedDictToDOM(flattenedDict) {
       // If key and value are string and length is 0, the current row is empty.
       // Empty row will be ignored.
       actualValue = actualValue || "";
-      if (key.length === 0 && actualValue.length === 0) {
+      if (key !== null && key.length === 0 && actualValue.length === 0) {
         return;
       }
       let tr = document.createElement('tr');

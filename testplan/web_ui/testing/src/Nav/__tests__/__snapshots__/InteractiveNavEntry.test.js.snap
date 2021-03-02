@@ -382,7 +382,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       size={null}
       spin={false}
       symbol={false}
-      title="Start environment"
+      title="Stop environment"
       transform={null}
     />
     <FontAwesomeIcon

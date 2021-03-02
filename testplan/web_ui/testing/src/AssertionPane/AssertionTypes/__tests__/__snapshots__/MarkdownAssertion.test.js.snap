@@ -13,7 +13,7 @@ exports[`MarkdownAssertion shallow renders the correct HTML structure 1`] = `
     }
   }
   skipHtml={false}
-  source="Markdown Test [Github](https://github.com/Morgan-Stanley/testplan)
+  source="Markdown Test [Github](https://github.com/morganstanley/testplan)
  Test"
   sourcePos={false}
   transformLinkUri={[Function]}

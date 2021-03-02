@@ -448,6 +448,21 @@ var fakeReportAssertions = {
                                 },
                                 {
                                     "category": "DEFAULT",
+                                    "description": null,
+                                    "meta_type": "assertion",
+                                    "label": "==",
+                                    "type": "Equal",
+                                    "utc_time": "2020-01-10T03:06:58.630121+00:00",
+                                    "second": "This is a short thing",
+                                    "passed": false,
+                                    "type_actual": "str",
+                                    "type_expected": "str",
+                                    "first": "This is a long thing with some extra at the end",
+                                    "machine_time": "2020-01-10T11:06:58.630129+00:00",
+                                    "line_no": 25
+                                },
+                                {
+                                    "category": "DEFAULT",
                                     "description": "Description for failing equality",
                                     "meta_type": "assertion",
                                     "label": "==",

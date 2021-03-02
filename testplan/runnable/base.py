@@ -526,7 +526,7 @@ class TestRunner(Runnable):
 
     def make_runpath_dirs(self):
         super(TestRunner, self).make_runpath_dirs()
-        self.logger.info("{} runpath: {}".format(self, self.runpath))
+        self.logger.test_info("Testplan runpath: {}".format(self.runpath))
 
     def pre_resource_steps(self):
         """Steps to be executed before resources started."""
