@@ -8,6 +8,7 @@ import { StyleSheet, css } from 'aphrodite';
 import axios from 'axios';
 import { Redirect } from "react-router-dom";
 import { generatePath } from "react-router";
+import base64url from 'base64url';
 
 import Toolbar from '../Toolbar/Toolbar.js';
 import { 
@@ -519,13 +520,14 @@ class InteractiveReport extends React.Component {
 
     if ( this.props.match.params.uid === undefined && this.state.report) {
       return <Redirect to={generatePath(this.props.match.path,
-        {uid: this.state.report.uid, selection:undefined})}/>;
+        {uid: base64url(this.state.report.uid), selection:undefined})}/>;
     }
 
     const noop = () => undefined;
     const { reportStatus, reportFetchMessage } = GetReportState(this.state);
     const selectedEntries = GetSelectedEntries(
-      getSelectedUIDsFromPath(this.props.match.params), this.state.report
+      getSelectedUIDsFromPath(this.props.match.params, base64url.decode), 
+      this.state.report
     );
     const centerPane = GetCenterPane(
       this.state,

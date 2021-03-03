@@ -90,6 +90,22 @@ test_plan.py
 ````````````
 .. literalinclude:: ../../../examples/Test Output/Exporters/PDF/Tag Filtered PDF Report/test_plan.py
 
+.. _example_cross_page_assertion_pdf:
+
+Cross Page Assertions
++++++++++++++++++++++
+
+A few of the assertions are enhanced to be able to render large content that doesn't fit into a single page.
+Ths example demonstrates those that are currently available.
+
+Required files:
+  - :download:`test_plan.py <../../../examples/Test Output/Exporters/PDF/Cross Page Assertions/test_plan.py>`
+
+test_plan.py
+````````````
+.. literalinclude:: ../../../examples/Test Output/Exporters/PDF/Cross Page Assertions/test_plan.py
+
+
 .. _example_test_output_exporters_xml:
 
 XML

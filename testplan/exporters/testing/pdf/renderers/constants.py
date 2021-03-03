@@ -1,4 +1,4 @@
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import A3
 from reportlab.lib.units import cm
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
@@ -26,16 +26,16 @@ FONT_ITALIC = "Helvetica-Italic"
 FONT_ITALIC = "Helvetica-Oblique"
 
 # Font size for normal text
-FONT_SIZE = 9
+FONT_SIZE = 11
 
 # Font size for large text
 FONT_SIZE_LARGE = 14
 
 # Font size for small text
-FONT_SIZE_SMALL = 7
+FONT_SIZE_SMALL = 9
 
 # Font size for smallest text
-FONT_SIZE_SMALLEST = 5.5
+FONT_SIZE_SMALLEST = 7
 
 # Indent size in pixels
 INDENT = 10
@@ -50,7 +50,10 @@ INSTANCE_PADDING = 5
 PAGE_MARGIN = 0.5 * cm
 
 # Size of report pages
-PAGE_SIZE = letter
+PAGE_SIZE = A3
+MAX_CELL_HEIGHT = (
+    PAGE_SIZE[1] - PAGE_MARGIN * 2 - 30
+)  # some extra safeguard margin
 
 # Global style commands for table, can be overridden
 TABLE_STYLE = [
@@ -60,7 +63,8 @@ TABLE_STYLE = [
 ]
 
 # Displayed tables constants and style, used for table.log, table.match etc.
-PAGE_WIDTH = constants.PAGE_WIDTH
+# PAGE_WIDTH = constants.PAGE_WIDTH
+PAGE_WIDTH = PAGE_SIZE[0] - PAGE_MARGIN * 2
 
 NUM_DISPLAYED_ROWS = constants.NUM_DISPLAYED_ROWS
 

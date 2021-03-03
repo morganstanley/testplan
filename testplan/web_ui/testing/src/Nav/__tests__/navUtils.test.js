@@ -33,10 +33,9 @@ describe('navUtils', () => {
         url: "/testplan/:uid/:selection*"
       }
       const createEntryComponent = jest.fn();
-      const selectedUid = TESTPLAN_REPORT.uid;
 
       const navButtons = CreateNavButtons(
-        props, createEntryComponent, selectedUid
+        props, createEntryComponent
       );
       expect(navButtons.length).toBe(props.entries.length);
       expect(navButtons).toMatchSnapshot();

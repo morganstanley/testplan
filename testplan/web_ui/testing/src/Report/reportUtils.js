@@ -350,8 +350,11 @@ const isValidSelection = (selection, entry) => {
          false;
 };
 
-const getSelectedUIDsFromPath = ({uid, selection}) =>    
-  [uid, ...(selection ? selection.split('/') : [])];
+const getSelectedUIDsFromPath = ({uid, selection}, uidDecoder) => {
+  const uids = [uid, ...(selection ? selection.split('/') : [])];
+  return uidDecoder ? uids.map(uid => uid ? uidDecoder(uid) : uid) : uids;
+};
+  
 
 
 

@@ -6,7 +6,7 @@ import pprint
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.platypus import Image
-from reportlab.platypus import Paragraph
+from testplan.exporters.testing.pdf.renderers.base import SlicedParagraph
 
 from PIL import Image as pil_image
 
@@ -114,13 +114,12 @@ class LogRenderer(SerializedEntryRenderer):
             RowStyle(
                 font=(constants.FONT, constants.FONT_SIZE_SMALL),
                 left_padding=constants.INDENT * depth,
+                span=(),
             )
         ]
-        header = source["description"] or (
-            str(source["message"])
-            if isinstance(source["message"], six.string_types)
-            else source["type"]
-        )
+        # log assertion is guaranteed to have description field
+        header = source["description"]
+
         return RowData(
             content=[header, "", "", ""], style=styles, start=row_idx
         )
@@ -131,37 +130,25 @@ class LogRenderer(SerializedEntryRenderer):
         should display a string message without the description.
         """
         header = self.get_header(source, depth, row_idx)
-        if not source["description"] and isinstance(
-            source["message"], six.string_types
-        ):
-            return header
-
-        """
-        Create a header and a detailed log message, only create a head if
-        should display a string message without the description.
-        """
-        header = self.get_header(source, depth, row_idx)
-        if not source["description"] and isinstance(
-            source["message"], six.string_types
-        ):
-            return header
 
         log_msg = (
             str(source["message"])
             if isinstance(source["message"], six.string_types)
             else pprint.pformat(source["message"], depth=6)
         )
-        log_para = Paragraph(
-            text="<br />\n".join(log_msg.split("\n")),
-            style=constants.PARAGRAPH_STYLE,
-        )
-        text_style = [
-            RowStyle(left_padding=constants.INDENT * (depth + 1), span=tuple())
-        ]
+        left_padding = constants.INDENT * (depth + 1)
 
-        return header + RowData(
-            content=[log_para, "", "", ""], style=text_style, start=header.end
-        )
+        for para in SlicedParagraph(
+            parts=(log_msg, "{}"),
+            width=constants.PAGE_WIDTH - left_padding - 6,
+        ):
+            header = header + RowData(
+                content=[para, "", "", ""],
+                style=[RowStyle(left_padding=left_padding, span=tuple())],
+                start=header.end,
+            )
+
+        return header
 
 
 @registry.bind(base.MatPlot)
@@ -185,14 +172,14 @@ class MatPlotRenderer(SerializedEntryRenderer):
         p_img = pil_image.open(source["source_path"])
         dpi_w, dpi_h = p_img.info["dpi"]
 
-        img = Image(
-            source["source_path"],
-            p_img.width / dpi_w * inch,
-            p_img.height / dpi_h * inch,
-        )
+        width = p_img.width / dpi_w * inch
+        height = p_img.height / dpi_h * inch
+        img = Image(source["source_path"], width, height)
 
         return header + RowData(
-            content=[img, "", "", ""], start=header.end, style=styles
+            content=[img, "", "", ""],
+            start=header.end,
+            style=styles,
         )
 
 
