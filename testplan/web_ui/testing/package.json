@@ -19,11 +19,11 @@
     "ag-grid-react": "^24.1.0",
     "aphrodite": "2.2.3",
     "axios": "^0.21.1",
+    "base64url": "^3.0.1",
     "bootstrap": "4.4.1",
     "date-fns": "^2.14.0",
     "eslint-plugin-react": "^7.14.3",
     "history": "~4.10.1",
-    "immer": "^8.0.1",
     "lodash": "~4.17.15",
     "pegjs": "^0.11.0-master.b7b87ea",
     "react": "16.13.1",
@@ -33,7 +33,6 @@
     "react-dom": "16.13.1",
     "react-markdown": "^4.3.1",
     "react-portal-tooltip": "2.4.0",
-    "react-redux": "^7.2.0",
     "react-router": "^5.0.0",
     "react-router-dom": "^5.0.0",
     "react-scripts": "^3.4.1",
@@ -41,8 +40,7 @@
     "react-syntax-highlighter": "^11.0.2",
     "react-test-renderer": "16.6.0",
     "react-vis": "^1.11.7",
-    "reactstrap": "8.0.0",
-    "redux": "^4.0.5"
+    "reactstrap": "8.0.0"
   },
   "devDependencies": {
     "enzyme": "3.7.0",

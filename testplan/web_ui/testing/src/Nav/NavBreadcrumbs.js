@@ -32,30 +32,32 @@ const NavBreadcrumbs = (props) => {
  * @returns {Array} - Array of breadcrumb entries
  */
 const createNavButtons = (props) => {
-
-  return props.entries.map(
-    (entry, depth) => (
-        <li key={entry.uid}>
-          <Link
-            className={css(styles.breadcrumbEntry, CommonStyles.unselectable)}
-            to={generatePath(props.url, {
-              uid: entry.uids[0],
-              selection: entry.uids.slice(1),
-            })}
-          >
-            <NavEntry
-              name={entry.name}
-              description={entry.description}
-              status={entry.status}
-              type={entry.category}
-              caseCountPassed={entry.counter.passed}
-              caseCountFailed={entry.counter.failed}
-              executionTime={null}
-              displayTime={false}
-            />
-          </Link>
-        </li>
-      ));
+  return props.entries.map((entry, depth) => (
+    <li key={entry.uid}>
+      <Link
+        className={css(styles.breadcrumbEntry, CommonStyles.unselectable)}
+        to={generatePath(props.url, {
+          uid: props.uidEncoder
+            ? props.uidEncoder(entry.uids[0])
+            : entry.uids[0],
+          selection: props.uidEncoder
+            ? entry.uids.slice(1).map(props.uidEncoder)
+            : entry.uids.slice(1),
+        })}
+      >
+        <NavEntry
+          name={entry.name}
+          description={entry.description}
+          status={entry.status}
+          type={entry.category}
+          caseCountPassed={entry.counter.passed}
+          caseCountFailed={entry.counter.failed}
+          executionTime={null}
+          displayTime={false}
+        />
+      </Link>
+    </li>
+  ));
 };
 
 NavBreadcrumbs.propTypes = {

@@ -1,6 +1,7 @@
 /* Interactive navigation component. */
 import React from 'react';
 import PropTypes from 'prop-types';
+import base64url from 'base64url';
 
 import NavBreadcrumbs from "./NavBreadcrumbs";
 import InteractiveNavList from "./InteractiveNavList";
@@ -30,6 +31,7 @@ const InteractiveNav = (props) => {
       <NavBreadcrumbs
         entries={breadCrumbEntries}        
         url={props.url}
+        uidEncoder = {base64url}
       />
       <InteractiveNavList
         width={props.navListWidth}

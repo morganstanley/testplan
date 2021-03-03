@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import BatchReport from "./Report/BatchReport";
-import BatchReportBeta from "./Report/BatchReportBeta";
 import InteractiveReport from "./Report/InteractiveReport";
 import EmptyReport from "./Report/EmptyReport";
 
@@ -22,7 +21,6 @@ import {
 const AppRouter = () => (
   <Router>
     <Switch>
-      <Route path="/testplan/beta/1004/:uid" component={BatchReportBeta} />
       <Route path="/testplan/:uid/:selection*" component={BatchReport} />
       <Route
         path="/interactive/:uid?/:selection*"
