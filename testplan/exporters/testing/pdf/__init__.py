@@ -212,7 +212,7 @@ class PDFExporter(Exporter):
 
         template = SimpleDocTemplate(
             filename=pdf_path,
-            pageSize=const.PAGE_SIZE,
+            pagesize=const.PAGE_SIZE,
             topMargin=const.PAGE_MARGIN,
             bottomMargin=const.PAGE_MARGIN,
             leftMargin=const.PAGE_MARGIN,
