@@ -389,9 +389,9 @@ def append_comparison_data(data, row, depth, start_idx):
         status_color = colors.grey
         font = const.FONT_ITALIC
 
-    if isinstance(left, tuple):
+    if isinstance(left, (tuple, list)):
         left = "<{}> {}".format(left[0], left[1])
-    if isinstance(right, tuple):
+    if isinstance(right, (tuple, list)):
         right = "<{}> {}".format(right[0], right[1])
 
     data.append(
