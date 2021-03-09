@@ -1,6 +1,5 @@
 import pytest
 
-from testplan.common.utils.testing import py_version_data
 from testplan.testing import ordering
 
 
@@ -48,7 +47,7 @@ def test_shuffle_type_enum_validate_failure(value):
         ordering.SortType.validate(value)
 
 
-expected_shuffled = py_version_data(py2=[1, 2, 5, 3, 4], py3=[1, 2, 4, 3, 5])
+expected_shuffled = [1, 2, 4, 3, 5]
 
 
 class TestShuffleSorter(object):

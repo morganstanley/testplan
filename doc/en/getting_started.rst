@@ -9,13 +9,8 @@ in your local environment!
 Supported Python Versions
 =========================
 
-Testplan can be used with both Python 2 and 3. Specifically, Testplan is tested
-to work with Python 2.7 and 3.7, so we recommend choosing one of those.
-
-.. warning:: The Python 2 interpreter is now very old and will not be
-             maintained by the core team past January 1 2020, so we strongly
-             recommend to use Python 3 where possible. That being said, we have
-             no current plans to drop Python 2 support for users who need it.
+Testplan is tested to work with Python 3.7 and 3.8, so we recommend choosing one of those.
+As of Mar. 2021, we have dropped support for Python 2.
 
 .. _install_testplan:
 
@@ -29,10 +24,6 @@ First install required packages - you will need root privileges.
 
     .. code-block:: bash
 
-      # For python 2.
-      sudo apt-get install python python-pip rsync
-
-      # For python 3.
       sudo apt-get install python3.7 python3-pip rsync
       python3.7 -m pip install pip  # Updates to latest pip version.
 
@@ -44,11 +35,6 @@ Install from archive:
 
     .. code-block:: bash
 
-      # For python 2.
-      pip install --user https://github.com/morganstanley/testplan/archive/main.zip
-      install-testplan-ui
-
-      # For python 3.
       python3.7 -m pip install --user https://github.com/morganstanley/testplan/archive/main.zip
       install-testplan-ui
 
@@ -57,33 +43,6 @@ Install from archive:
 
 Using a virtualenv
 ++++++++++++++++++
-
-Python 2
-````````
-
-    1. Install `virtualenv <https://virtualenv.pypa.io/en/stable>`_.
-
-        .. code-block:: bash
-
-          pip install virtualenv
-
-    2. Create a virtualenv.
-
-        .. code-block:: bash
-
-          virtualenv testplan-oss
-          cd testplan-oss
-          source bin/activate
-
-    3. Install testplan and its dependencies into the virtual env.
-
-        .. code-block:: bash
-
-          pip install https://github.com/morganstanley/testplan/archive/main.zip
-          install-testplan-ui
-
-Python 3
-````````
 
     1. Create a virtualenv.
 
@@ -123,10 +82,6 @@ Install `python <http://docs.python-guide.org/en/latest/starting/install/osx>`__
 
    .. code-block:: bash
 
-      # Python 2.
-      brew install python@2
-
-      # Python 3.
       brew install python
 
 
@@ -141,11 +96,6 @@ Install from archive.
 
     .. code-block:: bash
 
-      # For python 2.
-      sudo pip install https://github.com/morganstanley/testplan/archive/main.zip
-      install-testplan-ui
-
-      # For python 3.
       sudo pip3 install https://github.com/morganstanley/testplan/archive/main.zip
       install-testplan-ui
 
@@ -160,10 +110,6 @@ Using a virtualenv
 
         .. code-block:: bash
 
-          # Python 2.
-          pip install virtualenv
-
-          # Python 3.
           pip3 install virtualenv
 
     2. Create a virtualenv.
@@ -312,17 +258,12 @@ To install docker, you can follow the instructions for your OS from this list:
 Available images
 ----------------
 
-Docker images for testplan are provided for two python versions, ``python2`` and
-``python3``.
+Docker image for testplan is provided ``python3``.
 
 The images can be retrieved with the following commands:
 
     .. code-block:: bash
 
-        # Python 2
-        docker pull chiotis/testplan:2
-
-        # Python 3
         docker pull chiotis/testplan:3
 
 
@@ -334,7 +275,7 @@ To try testplan in an interactive docker session, you can type:
 
     .. code-block:: bash
 
-        docker run -it chiotis/testplan:2 bash
+        docker run -it chiotis/testplan:3 bash
 
 The source code is available to explore in ``/work``.
 
@@ -351,7 +292,7 @@ directory, the docker command will be:
         # Example directory that contains test_plan.py file.
         cd examples/Assertions/Basic
 
-        docker run -v $PWD:/work -it chiotis/testplan:2
+        docker run -v $PWD:/work -it chiotis/testplan:3
 
 
 If your testplan file has a name other than ``test_plan.py``, you can add it as an
@@ -362,7 +303,7 @@ argument in the ``docker run`` command:
         # Example directory that contains test_plan.py file.
         cd examples/Assertions/Basic
 
-        docker run -v $PWD:/work -it chiotis/testplan:2 ./my_test_plan.py
+        docker run -v $PWD:/work -it chiotis/testplan:3 ./my_test_plan.py
 
 
 If you require special arguments for ``test_plan.py``, you can just append them
@@ -371,10 +312,10 @@ after the docker image:
     .. code-block:: bash
 
         # default test_plan.py
-        docker run -v $PWD:/work -it chiotis/testplan:2 --pdf test.pdf
+        docker run -v $PWD:/work -it chiotis/testplan:3 --pdf test.pdf
 
         # custom my_test_plan.py
-        docker run -v $PWD:/work -it chiotis/testplan:2 ./my_test_plan.py --pdf test.pdf
+        docker run -v $PWD:/work -it chiotis/testplan:3 ./my_test_plan.py --pdf test.pdf
 
 
 Run testplan
