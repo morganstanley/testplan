@@ -569,10 +569,8 @@ class RemoteWorker(ProcessWorker):
 
     def _proc_cmd_impl(self):
         if platform.system() == "Windows":
-            if platform.python_version().startswith("3"):
-                python_binary = os.environ["PYTHON3_REMOTE_BINARY"]
-            else:
-                python_binary = os.environ["PYTHON2_REMOTE_BINARY"]
+            python_binary = os.environ["PYTHON3_REMOTE_BINARY"]
+
         else:
             python_binary = sys.executable
 

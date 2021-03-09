@@ -211,7 +211,6 @@ class Beta(object):
         raise Exception("foo")
 
 
-@pytest.mark.skipif(six.PY2, reason="dict comparison not reliable on Python2.")
 def test_split_and_merge():
     """
     Test static methods used for splitting and merging JSON report.

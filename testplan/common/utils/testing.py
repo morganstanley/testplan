@@ -288,18 +288,6 @@ def check_report_context(report, ctx):
                 assert testcase_report.name == testcase_name
 
 
-def py_version_data(py2, py3):
-    """
-    Return the related data for the given python version.
-    This is mostly used for comparing randomly generated
-    values as random produces inconsistent results
-    between python 2 and 3.
-    """
-    if six.PY2:
-        return py2
-    return py3
-
-
 class XMLComparison(object):
     r"""
     Testing utility for generated XML file contents.

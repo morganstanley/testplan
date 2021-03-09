@@ -65,9 +65,6 @@ class SlicedParagraph(object):
         else:
             raise StopIteration
 
-    def next(self):  # TODO: for py2 compat, to be removed soon
-        return self.__next__()
-
     def __iter__(self):
         return self
 
