@@ -644,7 +644,7 @@ class RemoteWorker(ProcessWorker):
         :return: list of remote valid sys paths
         """
 
-        sys_path = sys.path
+        sys_path = list(sys.path)
         main = sys.modules["__main__"]
 
         if main:
