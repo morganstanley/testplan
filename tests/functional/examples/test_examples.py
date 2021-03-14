@@ -1,13 +1,20 @@
 import os
 import re
+import runpy
 import sys
-import subprocess
+from traceback import format_exc
+
 import pytest
 
 from testplan.common.utils.path import change_directory
 
 import platform
 
+SUCCES_EXIT_CODES = (
+    0,
+    False,
+    None,
+)  # these considerd as 0 return value and means success
 
 _FILE_DIR = os.path.dirname(__file__)
 
@@ -43,6 +50,9 @@ SKIP = [
     os.path.join("Data Science", "overfitting", "test_plan.py"),
     # The FXConverter example is currently unstable - re-enable when fixed.
     os.path.join("App", "FXConverter", "test_plan.py"),
+    os.path.join(
+        "Multitest", "Listing", "Custom Listers", "test_plan_command_line.py"
+    ),
 ]
 
 SKIP_ON_WINDOWS = [
@@ -80,27 +90,58 @@ def test_example(root, filename):
     elif any([file_path.endswith(skip_name) for skip_name in SKIP]):
         pytest.skip()
 
-    with change_directory(root), open(filename) as file_obj:
-        file_obj.readline()
-        second_line = file_obj.readline()
-        try:
-            subprocess.check_output(
-                [sys.executable, filename], stderr=subprocess.STDOUT
+    try:
+
+        # set up like an external invocation.
+        # add current dir to fron of sys path
+        # no arguments pass in command line
+
+        sys.path.insert(0, root)
+        argv = sys.argv
+        sys.argv = [sys.argv[0]]
+
+        with change_directory(root), open(filename) as file_obj:
+            file_obj.readline()
+            second_line = file_obj.readline()
+
+            runpy.run_path(os.path.join(root, filename), run_name="__main__")
+
+    except SystemExit as e:
+        if e.code not in SUCCES_EXIT_CODES:
+            assert (
+                "# This plan contains tests that demonstrate failures as well."
+            ) == second_line.strip(), (
+                "Expected '{}' example to pass, it failed".format(file_path)
             )
-        except subprocess.CalledProcessError as e:
-            out = e.output.decode()
-            for exception in KNOWN_EXCEPTIONS:
-                if re.search(exception, out):
-                    pytest.xfail()
-            assert (
-                "Exception in test_plan definition" not in out
-            ), "Exception raised in test_plan definition."
-            assert (
-                "Traceback (most recent call last):" not in out
-            ), "Exception raised during test:\n{}".format(out)
-            assert (
-                "# This plan contains tests that demonstrate failures "
-                "as well."
-            ) == second_line.strip(), "Expected '{}' example to pass, it failed.\n{}".format(
-                file_path, out
-            )
+    except Exception as e:
+        for exception in KNOWN_EXCEPTIONS:
+            if re.search(exception, "{}: {}".format(type(e).__name__, str(e))):
+                pytest.xfail()
+        pytest.fail(format_exc())
+    finally:
+        # clean up after execution
+        # remove the modules imported from the directory of testplan_path
+        # remove the added toot from sys.path
+        # reset the args as it was before execution
+
+        for m in get_local_modules(root):
+            del sys.modules[m]
+
+        sys.path = sys.path[1:]
+        sys.argv = argv
+
+
+def get_local_modules(path_prefix):
+    """
+    return module names loaded from a path with path_prefix
+
+    :param path_prefix:
+    :return:
+    """
+    return set(
+        n
+        for n, m in sys.modules.items()
+        if hasattr(m, "__file__")
+        and m.__file__
+        and m.__file__.startswith(path_prefix)
+    )
