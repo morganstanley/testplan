@@ -691,7 +691,7 @@ class TableNamespace(AssertionNamespace):
         :param description: Text description for the assertion.
         :type description: ``str``
         :return: Always returns True, this is not an assertion so it cannot
-                 fail.
+            fail.
         :rtype: ``bool``
         """
         entry = base.TableLog(
@@ -997,7 +997,7 @@ class DictNamespace(AssertionNamespace):
         :param description: Text description for the assertion.
         :type description: ``str``
         :return: Always returns True, this is not an assertion so it cannot
-                 fail.
+            fail.
         :rtype: ``bool``
         """
         entry = base.DictLog(dictionary=dictionary, description=description)
@@ -1221,7 +1221,7 @@ class FixNamespace(AssertionNamespace):
         :param description: Text description for the assertion.
         :type description: ``str``
         :return: Always returns True, this is not an assertion so it cannot
-                 fail.
+            fail.
         :rtype: ``bool``
         """
         entry = base.FixLog(msg=msg, description=description)
@@ -1408,10 +1408,11 @@ class Result(object):
         :type message: ``str`` or instance
         :param description: Text description for the assertion.
         :type description: ``str``
-        :param flag: Custom flag for the assertion, set to 'email' to
-            include message in email exporter.
-        :param flag: ``str``
-        :return: ``True``
+        :param flag: Custom flag of the assertion which is reserved and can
+            be used for some special purpose.
+        :param flag: ``str`` or ``NoneType``
+        :return: Always returns True, this is not an assertion so it cannot
+            fail.
         :rtype: ``bool``
         """
         entry = base.Log(message=message, description=description, flag=flag)
@@ -1496,9 +1497,9 @@ class Result(object):
         :type description: ``str``
         :param category: Custom category that will be used for summarization.
         :type category: ``str``
-        :param flag: Custom flag for the assertion, set to 'email' to
-            include message in email exporter.
-        :param flag: ``str``
+        :param flag: Custom flag of the assertion which is reserved and can
+            be used for some special purpose.
+        :param flag: ``str`` or ``NoneType``
         :return: ``False``
         :rtype: ``bool``
         """
@@ -1547,8 +1548,8 @@ class Result(object):
         :param fail_description: Description to pass to result.fail if
             condition evaluates to False.
         :type fail_description: ``str``
-        :param flag: Custom flag for the assertion, set to 'email' to
-            include message in email exporter.
+        :param flag: Custom flag of the assertion which is reserved and can
+            be used for some special purpose.
         :return: ``True``
         :rtype: ``bool``
         """
