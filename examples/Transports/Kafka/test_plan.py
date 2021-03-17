@@ -14,7 +14,7 @@ try:
     from confluent_kafka import Producer, Consumer
 except ImportError:
     print("Cannot import confluent_kafka!")
-    exit()
+    sys.exit()
 
 from testplan.testing.multitest.driver.zookeeper import (
     ZookeeperStandalone,

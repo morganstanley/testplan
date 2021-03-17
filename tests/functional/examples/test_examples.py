@@ -1,13 +1,10 @@
 import os
-import re
-import sys
-import subprocess
-import pytest
 
-from testplan.common.utils.path import change_directory
+import pytest
 
 import platform
 
+from example_runner import run_example_in_process
 
 _FILE_DIR = os.path.dirname(__file__)
 
@@ -43,6 +40,9 @@ SKIP = [
     os.path.join("Data Science", "overfitting", "test_plan.py"),
     # The FXConverter example is currently unstable - re-enable when fixed.
     os.path.join("App", "FXConverter", "test_plan.py"),
+    os.path.join(
+        "Multitest", "Listing", "Custom Listers", "test_plan_command_line.py"
+    ),
 ]
 
 SKIP_ON_WINDOWS = [
@@ -80,27 +80,4 @@ def test_example(root, filename):
     elif any([file_path.endswith(skip_name) for skip_name in SKIP]):
         pytest.skip()
 
-    with change_directory(root), open(filename) as file_obj:
-        file_obj.readline()
-        second_line = file_obj.readline()
-        try:
-            subprocess.check_output(
-                [sys.executable, filename], stderr=subprocess.STDOUT
-            )
-        except subprocess.CalledProcessError as e:
-            out = e.output.decode()
-            for exception in KNOWN_EXCEPTIONS:
-                if re.search(exception, out):
-                    pytest.xfail()
-            assert (
-                "Exception in test_plan definition" not in out
-            ), "Exception raised in test_plan definition."
-            assert (
-                "Traceback (most recent call last):" not in out
-            ), "Exception raised during test:\n{}".format(out)
-            assert (
-                "# This plan contains tests that demonstrate failures "
-                "as well."
-            ) == second_line.strip(), "Expected '{}' example to pass, it failed.\n{}".format(
-                file_path, out
-            )
+    run_example_in_process(filename, root, KNOWN_EXCEPTIONS)
