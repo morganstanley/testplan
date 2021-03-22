@@ -66,6 +66,7 @@ def test_gtest(mockplan, binary_dir, expected_report, report_status):
     assert mockplan.report.status == report_status
 
 
+@skip_on_windows(reason="GTest is skipped on Windows.")
 def test_gtest_no_report(mockplan):
 
     binary_path = os.path.join(fixture_root, "error", "runTests.sh")
