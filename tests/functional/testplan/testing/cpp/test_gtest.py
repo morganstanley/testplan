@@ -64,3 +64,16 @@ def test_gtest(mockplan, binary_dir, expected_report, report_status):
     check_report(expected=expected_report, actual=mockplan.report)
 
     assert mockplan.report.status == report_status
+
+
+def test_gtest_no_report(mockplan):
+
+    binary_path = os.path.join(fixture_root, "error", "runTests.sh")
+
+    mockplan.add(GTest(name="My GTest", binary=binary_path))
+
+    with log_propagation_disabled(TESTPLAN_LOGGER):
+        assert mockplan.run().run is True
+
+    assert mockplan.report.status == Status.ERROR
+    assert "FileNotFoundError" in mockplan.report.flattened_logs[-1]["message"]

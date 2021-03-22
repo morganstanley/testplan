@@ -62,3 +62,18 @@ def test_cppunit(mockplan, binary_dir, expected_report, report_status):
     check_report(expected=expected_report, actual=mockplan.report)
 
     assert mockplan.report.status == report_status
+
+
+def test_cppunit_no_report(mockplan):
+
+    binary_path = os.path.join(fixture_root, "error", "runTests.sh")
+
+    mockplan.add(
+        Cppunit(name="My Cppunit", binary=binary_path, file_output_flag="-y")
+    )
+
+    with log_propagation_disabled(TESTPLAN_LOGGER):
+        assert mockplan.run().run is True
+
+    assert mockplan.report.status == Status.ERROR
+    assert "FileNotFoundError" in mockplan.report.flattened_logs[-1]["message"]

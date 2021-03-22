@@ -59,6 +59,8 @@ const getAttachmentContent = (assertion, reportUid) => {
     case "log":
     case "out":
     case "csv":
+    case "stdout":
+    case "stderr":
       return (
         <TextAttachment
           src={getPath}
