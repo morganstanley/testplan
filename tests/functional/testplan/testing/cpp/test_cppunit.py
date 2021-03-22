@@ -64,6 +64,7 @@ def test_cppunit(mockplan, binary_dir, expected_report, report_status):
     assert mockplan.report.status == report_status
 
 
+@skip_on_windows(reason="Cppunit is skipped on Windows.")
 def test_cppunit_no_report(mockplan):
 
     binary_path = os.path.join(fixture_root, "error", "runTests.sh")
