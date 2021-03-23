@@ -268,8 +268,9 @@ def _create_sub_table(
         cell_styles = _create_cell_styles(
             colour_matrix=colour_matrix, display_index=bool(row_indices)
         )
-        style.extend(format_table_style(cell_styles))
-    table.setStyle(style)
+        table.setStyle(style + format_table_style(cell_styles))
+    else:
+        table.setStyle(style)
 
     return table
 
