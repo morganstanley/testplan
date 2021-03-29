@@ -154,6 +154,7 @@ class TestRunnerConfig(RunnableConfig):
                 "interactive_handler", default=TestRunnerIHandler
             ): object,
             ConfigOption("extra_deps", default=[]): list,
+            ConfigOption("label", default=None): Or(None, str),
         }
 
 
@@ -288,6 +289,7 @@ class TestRunner(Runnable):
             description=self.cfg.description,
             uid=self.cfg.name,
             timeout=self.cfg.timeout,
+            label=self.cfg.label,
         )
         self._exporters = None
         self._web_server_thread = None
