@@ -313,6 +313,12 @@ that match ALL of the given tags.
             help="Specify log level for file logs. Set to None to disable "
             "file logging.",
         )
+        report_group.add_argument(
+            "--label",
+            default=None,
+            help="Label the test report with the given name, "
+            'useful to categorize or classify similar reports (aka "run-id").',
+        )
 
         self.add_arguments(parser)
         return parser

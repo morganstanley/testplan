@@ -188,6 +188,7 @@ class TestReportSchema(Schema):
     category = fields.String(dump_only=True)
     timer = TimerField(required=True)
     meta = fields.Dict()
+    label = fields.String(allow_none=True)
 
     status = fields.String(dump_only=True)
     runtime_status = fields.String(dump_only=True)

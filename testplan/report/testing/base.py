@@ -450,10 +450,12 @@ class TestReport(BaseReportGroup):
         attachments=None,
         information=None,
         timeout=None,
+        label=None,
         **kwargs
     ):
         self._tags_index = None
         self.meta = meta or {}
+        self.label = label
         self.information = information or []
         try:
             user = getpass.getuser()
@@ -468,6 +470,8 @@ class TestReport(BaseReportGroup):
                 ("python_version", platform.python_version()),
             ]
         )
+        if self.label:
+            self.information.append(("label", label))
 
         # Report attachments: Dict[dst: str, src: str].
         # Maps from destination path (relative from attachments root dir)
