@@ -71,41 +71,27 @@ class EntriesField(fields.Field):
     Handle encoding problems gracefully
     """
 
-    _BYTES_KEY = "_BYTES_KEY"
-
     @staticmethod
-    def _binary_to_hex_list(binary_obj):
-        # make sure the hex repr is capitalized and leftpad'd with a zero
-        # because '0x0C' is better than '0xc'.
-        return [
-            "0x{}".format(hex(b)[2:].upper().zfill(2))
-            for b in bytearray(binary_obj)
-        ]
-
-    @staticmethod
-    def _hex_list_to_binary(hex_list):
-        return bytes(bytearray([int(x, 16) for x in hex_list]))
-
-    def _serialize(self, value, attr, obj):
-        def visit(parent, key, _value):
-            def json_serializable(v):
-                try:
-                    json.dumps(_value, ensure_ascii=True)
-                except (UnicodeDecodeError, TypeError):
-                    return False
-                else:
-                    return True
-
-            if is_scalar(_value) and not json_serializable(_value):
-                return key, {self._BYTES_KEY: self._binary_to_hex_list(_value)}
+    def _json_serializable(v):
+        try:
+            json.dumps(v, ensure_ascii=True)
+        except (UnicodeDecodeError, TypeError):
+            return False
+        else:
             return True
 
-        return remap(value, visit=visit)
-
-    def _deserialize(self, value, attr, obj, recurse_lvl=0):
+    def _serialize(self, value, attr, obj):
+        # we don't need a _deserialize() here as we don't (and can't)
+        # convert str back to non-json-serializable.
         def visit(parent, key, _value):
-            if isinstance(_value, dict) and self._BYTES_KEY in _value:
-                return key, self._hex_list_to_binary(_value[self._BYTES_KEY])
+            """
+            return
+                True - keep the node unchange
+                False - remove the node
+                tuple - update the node data.
+            """
+            if is_scalar(_value) and not self._json_serializable(_value):
+                return key, str(_value)
             return True
 
         return remap(value, visit=visit)
