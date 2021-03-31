@@ -30,8 +30,18 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils import strings
 from testplan.common import entity
 from testplan import defaults
-from testplan import report
+from testplan.report import (
+    TestReport,
+    TestGroupReport,
+    TestCaseReport,
+    RuntimeStatus,
+)
 from .reloader import ModuleReloader
+
+
+class OutOfOrderError(Exception):
+    def __init__(self, msg):
+        super(OutOfOrderError, self).__init__(msg)
 
 
 def decode_uri_component(func):
@@ -97,6 +107,13 @@ def generate_interactive_api(ihandler):
         response.headers["Cache-Control"] = "no-cache"
         return response
 
+    @api.errorhandler(OutOfOrderError)
+    def execution_out_of_order(err):
+        """Return a custom message and 200 status code."""
+        return {
+            "errmsg": "{} Reset test report if necessary.".format(err)
+        }, 200
+
     @api.route("/report")
     class Report(flask_restplus.Resource):
         """
@@ -118,7 +135,7 @@ def generate_interactive_api(ihandler):
 
             with ihandler.report_mutex:
                 try:
-                    new_report = report.TestReport.shallow_deserialize(
+                    new_report = TestReport.shallow_deserialize(
                         flask.request.json, ihandler.report
                     )
                 except marshmallow.exceptions.ValidationError as e:
@@ -127,7 +144,8 @@ def generate_interactive_api(ihandler):
                 _check_uids_match(ihandler.report.uid, new_report.uid)
 
                 if _should_run(ihandler.report.runtime_status):
-                    new_report.runtime_status = report.RuntimeStatus.RUNNING
+                    _check_execution_order(ihandler.report)
+                    new_report.runtime_status = RuntimeStatus.RUNNING
                     ihandler.run_all_tests(await_results=False)
 
                 ihandler.report = new_report
@@ -186,7 +204,7 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.NotFound
 
                 try:
-                    new_test = report.TestGroupReport.shallow_deserialize(
+                    new_test = TestGroupReport.shallow_deserialize(
                         flask.request.json, current_test
                     )
                 except marshmallow.exceptions.ValidationError as e:
@@ -205,7 +223,8 @@ def generate_interactive_api(ihandler):
                             )
                         )
 
-                    new_test.runtime_status = report.RuntimeStatus.RUNNING
+                    _check_execution_order(ihandler.report, test_uid=test_uid)
+                    new_test.runtime_status = RuntimeStatus.RUNNING
                     ihandler.run_test(test_uid, await_results=False)
                 else:
                     env_action = self._check_env_transition(
@@ -290,7 +309,7 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.NotFound
 
                 try:
-                    new_suite = report.TestGroupReport.shallow_deserialize(
+                    new_suite = TestGroupReport.shallow_deserialize(
                         flask.request.json, current_suite
                     )
                 except marshmallow.exceptions.ValidationError as e:
@@ -299,7 +318,10 @@ def generate_interactive_api(ihandler):
                 _check_uids_match(current_suite.uid, new_suite.uid)
 
                 if _should_run(current_suite.runtime_status):
-                    new_suite.runtime_status = report.RuntimeStatus.RUNNING
+                    _check_execution_order(
+                        ihandler.report, test_uid=test_uid, suite_uid=suite_uid
+                    )
+                    new_suite.runtime_status = RuntimeStatus.RUNNING
                     ihandler.run_test_suite(
                         test_uid, suite_uid, await_results=False
                     )
@@ -377,7 +399,13 @@ def generate_interactive_api(ihandler):
                 _check_uids_match(current_testcase.uid, new_testcase.uid)
 
                 if _should_run(current_testcase.runtime_status):
-                    new_testcase.runtime_status = report.RuntimeStatus.RUNNING
+                    _check_execution_order(
+                        ihandler.report,
+                        test_uid=test_uid,
+                        suite_uid=suite_uid,
+                        testcase_uid=testcase_uid,
+                    )
+                    new_testcase.runtime_status = RuntimeStatus.RUNNING
                     ihandler.run_test_case(
                         test_uid, suite_uid, testcase_uid, await_results=False
                     )
@@ -450,7 +478,7 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.NotFound
 
                 try:
-                    new_testcase = report.TestCaseReport.deserialize(
+                    new_testcase = TestCaseReport.deserialize(
                         flask.request.json
                     )
                 except marshmallow.exceptions.ValidationError as e:
@@ -459,7 +487,14 @@ def generate_interactive_api(ihandler):
                 _check_uids_match(current_testcase.uid, new_testcase.uid)
 
                 if _should_run(current_testcase.runtime_status):
-                    new_testcase.runtime_status = report.RuntimeStatus.RUNNING
+                    _check_execution_order(
+                        ihandler.report,
+                        test_uid=test_uid,
+                        suite_uid=suite_uid,
+                        testcase_uid=testcase_uid,
+                        param_uid=param_uid,
+                    )
+                    new_testcase.runtime_status = RuntimeStatus.RUNNING
                     ihandler.run_test_case_param(
                         test_uid,
                         suite_uid,
@@ -573,9 +608,9 @@ def _serialize_testcase(report_entry):
     testcase may be parametrized, we check for that and return
     the shallow serialization instead.
     """
-    if isinstance(report_entry, report.TestCaseReport):
+    if isinstance(report_entry, TestCaseReport):
         return report_entry.serialize()
-    elif isinstance(report_entry, report.TestGroupReport):
+    elif isinstance(report_entry, TestGroupReport):
         return report_entry.shallow_serialize()
     else:
         raise TypeError(
@@ -594,10 +629,10 @@ def _deserialize_testcase(current_testcase, serialized):
     tree. Non-parametrized testcases are represented
     as a TestCaseReport.
     """
-    if isinstance(current_testcase, report.TestCaseReport):
-        return report.TestCaseReport.deserialize(serialized)
-    elif isinstance(current_testcase, report.TestGroupReport):
-        return report.TestGroupReport.shallow_deserialize(
+    if isinstance(current_testcase, TestCaseReport):
+        return TestCaseReport.deserialize(serialized)
+    elif isinstance(current_testcase, TestGroupReport):
+        return TestGroupReport.shallow_deserialize(
             serialized, current_testcase
         )
     else:
@@ -625,7 +660,7 @@ def _should_run(curr_status):
 
     if new_status == curr_status:
         return False
-    elif new_status == report.RuntimeStatus.RUNNING:
+    elif new_status == RuntimeStatus.RUNNING:
         return True
     else:
         raise werkzeug.exceptions.BadRequest(
@@ -647,6 +682,89 @@ def _check_uids_match(current_uid, new_uid):
                 current_uid, new_uid
             )
         )
+
+
+def _check_execution_order(
+    report, test_uid=None, suite_uid=None, testcase_uid=None, param_uid=None
+):
+    """
+    Check that if `strict_order` is specified for a test entity then all of
+    its children should run sequentially and the finished ones cannot run
+    again unless report been reset. Will raise if violation found. Currently
+    we only need to check execution order of testcases in a test suite.
+    """
+
+    def report_runtime_status(report, status):
+        """
+        Check that if a test entity is in specified status (all of its children
+        should also be in the same status) by test report. "setup" & "teardown"
+        are not included in this check.
+        """
+        if isinstance(report, TestCaseReport):
+            return report.suite_related or report.runtime_status == status
+        elif isinstance(report, TestGroupReport):
+            return all(
+                report_runtime_status(report_entry, status)
+                for report_entry in report
+            )
+
+    ready = lambda rep: report_runtime_status(rep, RuntimeStatus.READY)
+    finished = lambda rep: report_runtime_status(rep, RuntimeStatus.FINISHED)
+    suite_reports = []
+
+    for test_report in [report[test_uid]] if test_uid else report.entries:
+        for suite_report in test_report.entries:
+            if suite_uid:
+                if suite_report.uid == suite_uid and suite_report.strict_order:
+                    suite_reports.append(suite_report)
+            elif suite_report.strict_order:
+                suite_reports.append(suite_report)
+
+    for suite_report in suite_reports:
+        if testcase_uid:
+            idx = suite_report._index[testcase_uid]
+            if param_uid:
+                param_report = suite_report[testcase_uid]
+                sub_idx = param_report._index[param_uid]
+                if not (
+                    all(finished(rep) for rep in suite_report.entries[:idx])
+                    and all(
+                        finished(rep) for rep in param_report.entries[:sub_idx]
+                    )
+                    and all(
+                        ready(rep) for rep in param_report.entries[sub_idx:]
+                    )
+                    and all(
+                        ready(rep) for rep in suite_report.entries[idx + 1 :]
+                    )
+                ):
+                    raise OutOfOrderError(
+                        'Should run testcase "{}" in parametrization group'
+                        ' "{}" in test suite "{}" sequentially.'.format(
+                            testcase_uid, param_uid, suite_report.uid
+                        )
+                    )
+            else:
+                if not (
+                    all(finished(rep) for rep in suite_report.entries[:idx])
+                    and all(ready(rep) for rep in suite_report.entries[idx:])
+                ):
+                    raise OutOfOrderError(
+                        "Should run"
+                        ' {} "{}" in test suite "{}" sequentially.'.format(
+                            "testcase"
+                            if isinstance(suite_report, TestCaseReport)
+                            else "parametrization group",
+                            testcase_uid,
+                            suite_report.uid,
+                        )
+                    )
+        else:
+            if not all(ready(rep) for rep in suite_report):
+                raise OutOfOrderError(
+                    "Should run all testcases in test suite"
+                    ' "{}" sequentially.'.format(suite_report.uid)
+                )
 
 
 class TestRunnerHTTPHandlerConfig(entity.EntityConfig):

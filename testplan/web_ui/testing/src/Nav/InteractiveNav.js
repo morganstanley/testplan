@@ -5,7 +5,11 @@ import base64url from 'base64url';
 
 import NavBreadcrumbs from "./NavBreadcrumbs";
 import InteractiveNavList from "./InteractiveNavList";
-import {GetSelectedUid, GetNavEntries, GetNavBreadcrumbs} from "./navUtils";
+import {
+  GetSelectedUid,
+  GetInteractiveNavEntries,
+  GetNavBreadcrumbs
+} from "./navUtils";
 
 /**
  * Interactive Nav component.
@@ -23,7 +27,7 @@ import {GetSelectedUid, GetNavEntries, GetNavBreadcrumbs} from "./navUtils";
  * with the main Nav component, which will need to be eliminated.
  */
 const InteractiveNav = (props) => {
-  const navEntries = GetNavEntries(props.selected);
+  const navEntries = GetInteractiveNavEntries(props.selected);
   const breadCrumbEntries = GetNavBreadcrumbs(props.selected);
 
   return (

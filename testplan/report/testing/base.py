@@ -591,6 +591,7 @@ class TestGroupReport(BaseReportGroup):
         part=None,
         fix_spec_path=None,
         env_status=None,
+        strict_order=False,
         **kwargs
     ):
         super(TestGroupReport, self).__init__(name=name, **kwargs)
@@ -615,6 +616,9 @@ class TestGroupReport(BaseReportGroup):
 
         # Expected to be one of ResourceStatus, or None.
         self.env_status = env_status
+
+        # Can be True For group report in category "testsuite"
+        self.strict_order = strict_order
 
     def __str__(self):
         return (
@@ -954,6 +958,7 @@ class TestCaseReport(Report):
                 self.status,
                 self.runtime_status,
                 tuple(id(entry) for entry in self.entries),
+                tuple(entry["uid"] for entry in self.logs),
             )
         )
 

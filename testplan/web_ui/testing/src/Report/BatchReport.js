@@ -27,10 +27,12 @@ import {fakeReportAssertions} from "../Common/fakeReport";
  *   * render toolbar, nav & assertion components.
  */
 class BatchReport extends React.Component {
+
   constructor(props) {
     super(props);
     this.setError = this.setError.bind(this);
     this.setReport = this.setReport.bind(this);
+    this.getReport = this.getReport.bind(this);
     this.handleNavFilter = this.handleNavFilter.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
@@ -53,10 +55,8 @@ class BatchReport extends React.Component {
   }
 
   setError(error) {
-    this.setState({
-      error: error,
-      loading: false,
-    });
+    console.log(error);
+    this.setState({error: error, loading: false});
   }
 
   setReport(report) {
@@ -71,7 +71,7 @@ class BatchReport extends React.Component {
           this.props.match.path, 
           this.autoSelect(filteredReport.report)
         );
-    
+
     this.setState({
       report: processedReport,
       filteredReport,
@@ -117,7 +117,7 @@ class BatchReport extends React.Component {
                 if (!assertionsRes.data) {
                   alert(
                     "Failed to parse assertion datails!\n"
-                    +"Please report this issue to the testplan team."
+                    + "Please report this issue to the Testplan team."
                   );
                   console.error(assertionsRes);
                 }
@@ -125,7 +125,8 @@ class BatchReport extends React.Component {
                   rawReport, assertionsRes.data, structureRes.data
                 );
                 this.setReport(this.updateReportUID(mergedReport, uid));
-            })).catch(this.setError);
+              })
+            ).catch(this.setError);
           } else {
             this.setReport(this.updateReportUID(rawReport, uid));
           }

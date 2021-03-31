@@ -97,6 +97,82 @@ def plan(tmpdir):
         plan.abort()
 
 
+@multitest.testsuite(strict_order=True)
+class ExampleSuite2(object):
+    """Example test suite."""
+
+    def __init__(self, tmpfile):
+        self._tmpfile = tmpfile
+
+    @multitest.testcase
+    def test_passes(self, env, result):
+        """Testcase that passes."""
+        result.true(True)
+
+    @multitest.testcase
+    def test_fails(self, env, result):
+        """Testcase that fails."""
+        result.true(False)
+
+    @multitest.testcase
+    def test_logs(self, env, result):
+        """Testcase that makes a log."""
+        result.log("Here I share my deepest thoughts")
+
+    @multitest.testcase
+    def test_attach(self, env, result):
+        """Testcase that attaches a file."""
+        result.attach(self._tmpfile)
+
+    @multitest.testcase(parameters=[1, 2, 3])
+    def test_parametrized(self, env, result, val):
+        """Parametrized testcase."""
+        result.log(val)
+        result.gt(val, 0)
+        result.lt(val, 10)
+
+
+@pytest.fixture
+def plan2(tmpdir):
+    """
+    Yield an interactive testplan. It only has one multitest instance with
+    one test suite whose `strict_order` attribute is enabled.
+    """
+
+    with patch(
+        "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
+        MockReloader.return_value = None
+
+        plan = testplan.TestplanMock(
+            name=six.ensure_str("InteractiveAPITest"),
+            interactive_port=0,
+            interactive_block=False,
+            exporters=[XMLExporter(xml_dir=str(tmpdir / "xml_exporter"))],
+        )
+
+        logfile = tmpdir / "attached_log.txt"
+        logfile.write_text(
+            "This text will be written into the attached file.",
+            encoding="utf8",
+        )
+
+        plan.add(
+            multitest.MultiTest(
+                name=six.ensure_str("ExampleMTest2"),
+                suites=[ExampleSuite2(str(logfile))],
+            )
+        )
+        plan.run()
+        timing.wait(
+            lambda: plan.interactive.http_handler_info is not None,
+            300,
+            raise_on_timeout=True,
+        )
+        yield plan
+        plan.abort()
+
+
 # Expected JSON to be returned from each API resource at start of day, before
 # any tests have been run.
 EXPECTED_INITIAL_GET = [
@@ -497,6 +573,7 @@ EXPECTED_TESTCASE_RESULTS = [
     ("test_passes", "passed"),
     ("test_fails", "failed"),
     ("test_logs", "passed"),
+    ("test_attach", "passed"),
     ("test_parametrized", "passed"),
 ]
 
@@ -554,7 +631,7 @@ def test_run_all_tests(plan):
             _check_test_status, report_url, "failed", updated_json["hash"]
         ),
         interval=0.2,
-        timeout=300,
+        timeout=60,
         raise_on_timeout=True,
     )
 
@@ -567,8 +644,9 @@ def test_run_mtest(plan):
     host, port = plan.interactive.http_handler_info
     assert host == "0.0.0.0"
 
-    mtest_url = "http://localhost:{}/api/v1/interactive/report/tests/ExampleMTest".format(
-        port
+    mtest_url = (
+        "http://localhost:{}/api/v1/interactive/report/tests/"
+        "ExampleMTest".format(port)
     )
     rsp = requests.get(mtest_url)
     assert rsp.status_code == 200
@@ -588,7 +666,7 @@ def test_run_mtest(plan):
             _check_test_status, mtest_url, "failed", updated_json["hash"]
         ),
         interval=0.2,
-        timeout=300,
+        timeout=60,
         raise_on_timeout=True,
     )
 
@@ -598,8 +676,9 @@ def test_environment_control(plan):
     host, port = plan.interactive.http_handler_info
     assert host == "0.0.0.0"
 
-    mtest_url = "http://localhost:{}/api/v1/interactive/report/tests/ExampleMTest".format(
-        port
+    mtest_url = (
+        "http://localhost:{}/api/v1/interactive/report/tests/"
+        "ExampleMTest".format(port)
     )
     rsp = requests.get(mtest_url)
     assert rsp.status_code == 200
@@ -623,7 +702,7 @@ def test_environment_control(plan):
             updated_json["hash"],
         ),
         interval=0.2,
-        timeout=300,
+        timeout=60,
         raise_on_timeout=True,
     )
 
@@ -678,7 +757,7 @@ def test_run_suite(plan):
             _check_test_status, suite_url, "failed", updated_json["hash"]
         ),
         interval=0.2,
-        timeout=300,
+        timeout=60,
         raise_on_timeout=True,
     )
 
@@ -717,7 +796,7 @@ def test_run_testcase(plan):
                 updated_json["hash"],
             ),
             interval=0.2,
-            timeout=300,
+            timeout=60,
             raise_on_timeout=True,
         )
 
@@ -775,9 +854,165 @@ def test_run_param_testcase(plan):
                 updated_json["hash"],
             ),
             interval=0.2,
-            timeout=300,
+            timeout=60,
             raise_on_timeout=True,
         )
+
+
+def test_run_testcases_sequentially(plan2):
+    """Test running a single testcase."""
+    host, port = plan2.interactive.http_handler_info
+    assert host == "0.0.0.0"
+
+    suite_url = (
+        "http://localhost:{}/api/v1/interactive/report/tests/"
+        "ExampleMTest2/suites/ExampleSuite2".format(port)
+    )
+    case_url = (
+        "http://localhost:{port}/api/v1/interactive/report/tests/"
+        "ExampleMTest2/suites/ExampleSuite2/testcases/{testcase}"
+    )
+    param_case_url = (
+        "http://localhost:{port}/api/v1/interactive/report/tests/"
+        "ExampleMTest2/suites/ExampleSuite2/testcases/test_parametrized/"
+        "parametrizations/{param}"
+    )
+
+    # Run the 1st and 2nd testcases
+    for testcase_name, expected_result in EXPECTED_TESTCASE_RESULTS[:2]:
+        testcase_url = case_url.format(port=port, testcase=testcase_name)
+        rsp = requests.get(testcase_url)
+        assert rsp.status_code == 200
+        testcase_json = rsp.json()
+        testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING
+        rsp = requests.put(testcase_url, json=testcase_json)
+        assert rsp.status_code == 200
+        updated_json = rsp.json()
+
+        timing.wait(
+            functools.partial(
+                _check_test_status,
+                testcase_url,
+                expected_result,
+                updated_json["hash"],
+            ),
+            interval=0.2,
+            timeout=60,
+            raise_on_timeout=True,
+        )
+
+    # Skip the 3rd testcase and run the 4th, it is not allowed
+    testcase_name, expected_result = EXPECTED_TESTCASE_RESULTS[3]
+    testcase_url = case_url.format(port=port, testcase=testcase_name)
+    rsp = requests.get(testcase_url)
+    assert rsp.status_code == 200
+    testcase_json = rsp.json()
+    testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING
+    rsp = requests.put(testcase_url, json=testcase_json)
+    assert rsp.status_code == 200
+    testcase_json = rsp.json()
+    assert (
+        "errmsg" in testcase_json
+        and "Reset test report if necessary" in testcase_json["errmsg"]
+    )
+
+    # Run the 3rd and 4th testcases sequentially again and this time it is OK
+    for testcase_name, expected_result in EXPECTED_TESTCASE_RESULTS[2:4]:
+        testcase_url = case_url.format(port=port, testcase=testcase_name)
+        rsp = requests.get(testcase_url)
+        assert rsp.status_code == 200
+        testcase_json = rsp.json()
+        testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING
+        rsp = requests.put(testcase_url, json=testcase_json)
+        assert rsp.status_code == 200
+        updated_json = rsp.json()
+
+        timing.wait(
+            functools.partial(
+                _check_test_status,
+                testcase_url,
+                expected_result,
+                updated_json["hash"],
+            ),
+            interval=0.2,
+            timeout=60,
+            raise_on_timeout=True,
+        )
+
+    # Run the 1st testcase in param group
+    for param_name, expected_result in EXPECTED_PARAM_TESTCASE_RESULTS[:1]:
+        testcase_url = param_case_url.format(port=port, param=param_name)
+        rsp = requests.get(testcase_url)
+        assert rsp.status_code == 200
+        testcase_json = rsp.json()
+        testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING
+        rsp = requests.put(testcase_url, json=testcase_json)
+        assert rsp.status_code == 200
+        updated_json = rsp.json()
+
+        timing.wait(
+            functools.partial(
+                _check_test_status,
+                testcase_url,
+                expected_result,
+                updated_json["hash"],
+            ),
+            interval=0.2,
+            timeout=60,
+            raise_on_timeout=True,
+        )
+
+    # Skip the 2nd testcase in param group and run the 3rd, it is not allowed
+    param_name, expected_result = EXPECTED_PARAM_TESTCASE_RESULTS[2]
+    testcase_url = param_case_url.format(port=port, param=param_name)
+    rsp = requests.get(testcase_url)
+    assert rsp.status_code == 200
+    testcase_json = rsp.json()
+    testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING
+    rsp = requests.put(testcase_url, json=testcase_json)
+    assert rsp.status_code == 200
+    testcase_json = rsp.json()
+    assert (
+        "errmsg" in testcase_json
+        and "Reset test report if necessary" in testcase_json["errmsg"]
+    )
+
+    # Run the 2nd and 3rd testcases sequentially in param group again
+    for param_name, expected_result in EXPECTED_PARAM_TESTCASE_RESULTS[1:]:
+        testcase_url = param_case_url.format(port=port, param=param_name)
+        rsp = requests.get(testcase_url)
+        assert rsp.status_code == 200
+        testcase_json = rsp.json()
+        testcase_json["runtime_status"] = report.RuntimeStatus.RUNNING
+        rsp = requests.put(testcase_url, json=testcase_json)
+        assert rsp.status_code == 200
+        updated_json = rsp.json()
+
+        timing.wait(
+            functools.partial(
+                _check_test_status,
+                testcase_url,
+                expected_result,
+                updated_json["hash"],
+            ),
+            interval=0.2,
+            timeout=60,
+            raise_on_timeout=True,
+        )
+
+    # The testcases in that "strict_order" test suite already run so we
+    # cannot run this suite again.
+    rsp = requests.get(suite_url.format(port))
+    assert rsp.status_code == 200
+    suite_json = rsp.json()
+    suite_json["runtime_status"] = report.RuntimeStatus.RUNNING
+    rsp = requests.put(suite_url, json=suite_json)
+    assert rsp.status_code == 200
+    suite_json = rsp.json()
+    assert (
+        "errmsg" in suite_json
+        and "Reset test report if necessary" in suite_json["errmsg"]
+    )
 
 
 def _test_attachments(port):
@@ -815,7 +1050,12 @@ def _check_test_status(test_url, expected_status, last_hash):
     assert rsp.status_code == 200
     report_json = rsp.json()
 
-    if report_json["runtime_status"] == report.RuntimeStatus.RUNNING:
+    if (
+        report_json["runtime_status"] == report.RuntimeStatus.RUNNING
+        or report_json["runtime_status"] == report.RuntimeStatus.READY
+    ):
+        # when running a test entity, the whole test report can be reset by
+        # `dry_run` and `runtime_status` is changed to "ready".
         return False
     else:
         assert report_json["runtime_status"] == report.RuntimeStatus.FINISHED

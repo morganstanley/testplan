@@ -123,7 +123,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
     </Badge>
     <FontAwesomeIcon
       border={false}
-      className="entryButton_yr2g96"
+      className="inactiveEntryButton_bb26hz"
       fixedWidth={false}
       flip={null}
       icon={
@@ -142,6 +142,7 @@ exports[`InteractiveNavEntry renders a testcase in "running" state 1`] = `
       inverse={false}
       listItem={false}
       mask={null}
+      onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
@@ -484,6 +485,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTING 1
       inverse={false}
       listItem={false}
       mask={null}
+      onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
@@ -701,6 +703,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPING 1
       inverse={false}
       listItem={false}
       mask={null}
+      onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}

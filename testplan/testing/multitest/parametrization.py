@@ -394,7 +394,7 @@ def generate_functions(
     :type key_combs_limit: ``int``
     :param execution_group: Name of execution group in which the testcases
                             can be executed in parallel.
-    :type execution_group: ``str``
+    :type execution_group: ``str`` or ``NoneType``
     :param timeout: Timeout in seconds to wait for testcase to be finished.
     :type timeout: ``int``
     :return: List of functions that is testcase compliant

@@ -14,6 +14,7 @@ from testplan.testing import filtering, ordering, tagging
 
 from testplan.common.entity import (
     Resource,
+    ResourceStatus,
     Runnable,
     RunnableResult,
     RunnableConfig,
@@ -151,6 +152,7 @@ class Test(Runnable):
             uid=self.uid(),
             category=self.__class__.__name__.lower(),
             tags=self.cfg.tags,
+            env_status=ResourceStatus.STOPPED,
         )
 
     def _init_test_report(self):
@@ -353,7 +355,7 @@ class Test(Runnable):
 
     def dry_run(self):
         """
-        Return an empty report skeleton for this Test including all
+        Return an empty report skeleton for this test including all
         testsuites, testcases etc. hierarchy. Does not run any tests.
         """
         suites_to_run = self.test_context
