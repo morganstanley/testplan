@@ -23,7 +23,7 @@ const InteractiveNavList = (props) => {
         envStatus={entry.env_status}
         type={entry.category}
         caseCountPassed={entry.counter.passed}
-        caseCountFailed={entry.counter.failed}
+        caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
         handlePlayClick={(e) => props.handlePlayClick(e, entry)}
         envCtrlCallback={
           (e, action) => props.envCtrlCallback(e, entry, action)

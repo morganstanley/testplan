@@ -51,7 +51,7 @@ const createNavButtons = (props) => {
           status={entry.status}
           type={entry.category}
           caseCountPassed={entry.counter.passed}
-          caseCountFailed={entry.counter.failed}
+          caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
           executionTime={null}
           displayTime={false}
         />

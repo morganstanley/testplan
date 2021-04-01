@@ -913,7 +913,7 @@ def test_run_testcases_sequentially(plan2):
     testcase_json = rsp.json()
     assert (
         "errmsg" in testcase_json
-        and "Reset test report if necessary" in testcase_json["errmsg"]
+        and "reset test report if necessary" in testcase_json["errmsg"]
     )
 
     # Run the 3rd and 4th testcases sequentially again and this time it is OK
@@ -974,7 +974,7 @@ def test_run_testcases_sequentially(plan2):
     testcase_json = rsp.json()
     assert (
         "errmsg" in testcase_json
-        and "Reset test report if necessary" in testcase_json["errmsg"]
+        and "reset test report if necessary" in testcase_json["errmsg"]
     )
 
     # Run the 2nd and 3rd testcases sequentially in param group again
@@ -1011,7 +1011,7 @@ def test_run_testcases_sequentially(plan2):
     suite_json = rsp.json()
     assert (
         "errmsg" in suite_json
-        and "Reset test report if necessary" in suite_json["errmsg"]
+        and "reset test report if necessary" in suite_json["errmsg"]
     )
 
 
