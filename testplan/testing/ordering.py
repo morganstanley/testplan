@@ -68,7 +68,7 @@ class BaseSorter(object):
     def sort_testsuites(self, testsuites):
         raise NotImplementedError
 
-    def sort_testcases(self, testcases):
+    def sort_testcases(self, testcases, param_groups=None):
         raise NotImplementedError
 
     def sorted_instances(self, instances):
@@ -81,9 +81,35 @@ class BaseSorter(object):
             return self.sort_testsuites(testsuites)
         return testsuites
 
-    def sorted_testcases(self, testcases):
+    def sorted_testcases(self, testsuite, testcases):
         if self.should_sort_testcases():
-            return self.sort_testcases(testcases)
+            test_methods, param_groups = [], {}
+            for testcase in testcases:
+                param_template = getattr(
+                    testcase, "_parametrization_template", None
+                )
+                if param_template:
+                    if param_template not in param_groups:
+                        test_methods.append(getattr(testsuite, param_template))
+                    param_groups.setdefault(param_template, []).append(
+                        testcase
+                    )
+                else:
+                    test_methods.append(testcase)
+
+            result = self.sort_testcases(test_methods, param_groups)
+            if isinstance(result, (tuple, list)):
+                sorted_test_methods, soted_param_groups = result
+            else:
+                sorted_test_methods, soted_param_groups = result, {}
+
+            testcases = []
+            for test_method in sorted_test_methods:
+                if getattr(test_method, "__parametrization_template__", False):
+                    testcases.extend(soted_param_groups[test_method.__name__])
+                else:
+                    testcases.append(test_method)
+
         return testcases
 
 
@@ -149,8 +175,12 @@ class ShuffleSorter(TypedSorter):
     def sort_testsuites(self, testsuites):
         return self.shuffle(testsuites)
 
-    def sort_testcases(self, testcases):
-        return self.shuffle(testcases)
+    def sort_testcases(self, testcases, param_groups=None):
+        param_groups = param_groups or {}
+        return self.shuffle(testcases), {
+            param_template: self.shuffle(testcases)
+            for param_template, testcases in param_groups.items()
+        }
 
 
 class AlphanumericSorter(TypedSorter):
@@ -162,5 +192,9 @@ class AlphanumericSorter(TypedSorter):
     def sort_testsuites(self, testsuites):
         return sorted(testsuites, key=operator.attrgetter("name"))
 
-    def sort_testcases(self, testcases):
-        return sorted(testcases, key=operator.attrgetter("name"))
+    def sort_testcases(self, testcases, param_groups=None):
+        param_groups = param_groups or {}
+        return sorted(testcases, key=operator.attrgetter("name")), {
+            param_template: sorted(testcases, key=operator.attrgetter("name"))
+            for param_template, testcases in param_groups.items()
+        }

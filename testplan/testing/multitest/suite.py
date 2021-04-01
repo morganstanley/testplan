@@ -452,6 +452,9 @@ def testsuite(*args, **kwargs):
         tags, or named tags, or multi-named tags.
     :type tags: ``str`` or ``tuple(str)`` or ``dict( str: str)`` or
         ``dict( str: tuple(str))`` or ``NoneType``
+    :param strict_order: Force testcases to run sequentially as they were
+        defined in test suite.
+    :type strict_order: ``bool``
     """
     return _selective_call(
         decorator_func=_testsuite,
