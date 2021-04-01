@@ -121,7 +121,7 @@ class TestCaseReportSchema(ReportSchema):
     entries = fields.List(EntriesField())
 
     category = fields.String(dump_only=True)
-    status = fields.String(dump_only=True)
+    status = fields.String()
     runtime_status = fields.String(dump_only=True)
     counter = fields.Dict(dump_only=True)
     suite_related = fields.Bool()
@@ -138,6 +138,7 @@ class TestCaseReportSchema(ReportSchema):
         """
         status_override = data.pop("status_override", None)
         timer = data.pop("timer")
+        status = data.pop("status")
 
         # We can discard the type field since we know what kind of report we
         # are making.
@@ -147,6 +148,7 @@ class TestCaseReportSchema(ReportSchema):
         rep = super(TestCaseReportSchema, self).make_report(data)
         rep.status_override = status_override
         rep.timer = timer
+        rep.status = status
         return rep
 
 
@@ -189,7 +191,7 @@ class TestReportSchema(Schema):
     timer = TimerField(required=True)
     meta = fields.Dict()
 
-    status = fields.String(dump_only=True)
+    status = fields.String()
     runtime_status = fields.String(dump_only=True)
     tags_index = TagField(dump_only=True)
     status_override = fields.String(allow_none=True)
@@ -214,6 +216,7 @@ class TestReportSchema(Schema):
         )
 
         entry_data = data.pop("entries")
+        status = data.pop("status")
         status_override = data.pop("status_override")
         timer = data.pop("timer")
         timeout = data.pop("timeout", None)
@@ -223,6 +226,7 @@ class TestReportSchema(Schema):
         test_plan_report.entries = [load_tree(c_data) for c_data in entry_data]
         test_plan_report.propagate_tag_indices()
 
+        test_plan_report.status = status
         test_plan_report.status_override = status_override
         test_plan_report.timer = timer
         test_plan_report.timeout = timeout
