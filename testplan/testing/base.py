@@ -166,7 +166,7 @@ class Test(Runnable):
         However subclasses may build larger tag indices
         by collecting tags from their children for example.
         """
-        return self.cfg.tags
+        return self.cfg.tags or {}
 
     def get_filter_levels(self):
         if not self.filter_levels:

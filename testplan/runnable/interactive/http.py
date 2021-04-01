@@ -111,7 +111,8 @@ def generate_interactive_api(ihandler):
     def execution_out_of_order(err):
         """Return a custom message and 200 status code."""
         return {
-            "errmsg": "{} Reset test report if necessary.".format(err)
+            "errmsg": "{} Restart runtime environment"
+            " to reset test report if necessary.".format(err)
         }, 200
 
     @api.route("/report")
