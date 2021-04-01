@@ -280,12 +280,17 @@ def check_report_context(report, ctx):
 
         for suite_report, (suite_name, testcases) in zip(mt_report, suite_ctx):
             assert suite_report.name == suite_name
-            assert len(suite_report) == len(testcases), "{}, {}".format(
-                suite_report.entries, testcases
-            )
+            assert len(suite_report) == len(testcases)
 
-            for testcase_report, testcase_name in zip(suite_report, testcases):
-                assert testcase_report.name == testcase_name
+            for testcase_report, testcase_info in zip(suite_report, testcases):
+                if isinstance(testcase_info, tuple):
+                    param_group_name, param_testcases = testcase_info
+                    assert testcase_report.name == param_group_name
+                    assert [
+                        entry.name for entry in testcase_report.entries
+                    ] == param_testcases
+                else:
+                    assert testcase_report.name == testcase_info
 
 
 class XMLComparison(object):

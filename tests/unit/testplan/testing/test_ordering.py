@@ -9,7 +9,7 @@ def test_noop_sorter():
     arr = [1, 2, 3, 4]
     assert arr == sorter.sorted_instances(arr)
     assert arr == sorter.sorted_testsuites(arr)
-    assert arr == sorter.sorted_testcases(arr)
+    assert arr == sorter.sorted_testcases(None, arr)
 
 
 @pytest.mark.parametrize(
@@ -61,7 +61,7 @@ class TestShuffleSorter(object):
         assert shuffled != arr
         assert sorter.sorted_instances(arr) == shuffled
         assert sorter.sorted_testsuites(arr) == shuffled
-        assert sorter.sorted_testcases(arr) == shuffled
+        assert sorter.sorted_testcases(None, arr) == shuffled
 
     @pytest.mark.parametrize(
         "shuffle_types, expected",
@@ -106,4 +106,4 @@ class TestShuffleSorter(object):
     def test_sorted_testcases(self, shuffle_types, expected):
         sorter = ordering.ShuffleSorter(seed=5, shuffle_type=shuffle_types)
         arr = [1, 2, 3, 4, 5]
-        assert expected == sorter.sorted_testcases(arr)
+        assert expected == sorter.sorted_testcases(None, arr)
