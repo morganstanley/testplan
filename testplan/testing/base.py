@@ -445,6 +445,10 @@ class ProcessRunnerTest(Test):
     _MAX_RETAINED_LOG_SIZE = 4096
 
     def __init__(self, **options):
+        proc_env = os.environ.copy()
+        if options.get("proc_env"):
+            proc_env.update(options["proc_env"])
+        options["proc_env"] = proc_env
         super(ProcessRunnerTest, self).__init__(**options)
 
         self._test_context = None
