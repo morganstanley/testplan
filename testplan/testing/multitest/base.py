@@ -292,7 +292,7 @@ class MultiTest(testing_base.Test):
             sorted_testcases = (
                 testcases
                 if getattr(suite, "strict_order", False)
-                else self.cfg.test_sorter.sorted_testcases(testcases)
+                else self.cfg.test_sorter.sorted_testcases(suite, testcases)
             )
 
             testcases_to_run = [
