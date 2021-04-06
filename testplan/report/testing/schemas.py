@@ -71,41 +71,27 @@ class EntriesField(fields.Field):
     Handle encoding problems gracefully
     """
 
-    _BYTES_KEY = "_BYTES_KEY"
-
     @staticmethod
-    def _binary_to_hex_list(binary_obj):
-        # make sure the hex repr is capitalized and leftpad'd with a zero
-        # because '0x0C' is better than '0xc'.
-        return [
-            "0x{}".format(hex(b)[2:].upper().zfill(2))
-            for b in bytearray(binary_obj)
-        ]
-
-    @staticmethod
-    def _hex_list_to_binary(hex_list):
-        return bytes(bytearray([int(x, 16) for x in hex_list]))
-
-    def _serialize(self, value, attr, obj):
-        def visit(parent, key, _value):
-            def json_serializable(v):
-                try:
-                    json.dumps(_value, ensure_ascii=True)
-                except (UnicodeDecodeError, TypeError):
-                    return False
-                else:
-                    return True
-
-            if is_scalar(_value) and not json_serializable(_value):
-                return key, {self._BYTES_KEY: self._binary_to_hex_list(_value)}
+    def _json_serializable(v):
+        try:
+            json.dumps(v, ensure_ascii=True)
+        except (UnicodeDecodeError, TypeError):
+            return False
+        else:
             return True
 
-        return remap(value, visit=visit)
-
-    def _deserialize(self, value, attr, obj, recurse_lvl=0):
+    def _serialize(self, value, attr, obj):
+        # we don't need a _deserialize() here as we don't (and can't)
+        # convert str back to non-json-serializable.
         def visit(parent, key, _value):
-            if isinstance(_value, dict) and self._BYTES_KEY in _value:
-                return key, self._hex_list_to_binary(_value[self._BYTES_KEY])
+            """
+            return
+                True - keep the node unchange
+                False - remove the node
+                tuple - update the node data.
+            """
+            if is_scalar(_value) and not self._json_serializable(_value):
+                return key, str(_value)
             return True
 
         return remap(value, visit=visit)
@@ -121,7 +107,7 @@ class TestCaseReportSchema(ReportSchema):
     entries = fields.List(EntriesField())
 
     category = fields.String(dump_only=True)
-    status = fields.String(dump_only=True)
+    status = fields.String()
     runtime_status = fields.String(dump_only=True)
     counter = fields.Dict(dump_only=True)
     suite_related = fields.Bool()
@@ -138,6 +124,7 @@ class TestCaseReportSchema(ReportSchema):
         """
         status_override = data.pop("status_override", None)
         timer = data.pop("timer")
+        status = data.pop("status")
 
         # We can discard the type field since we know what kind of report we
         # are making.
@@ -147,6 +134,7 @@ class TestCaseReportSchema(ReportSchema):
         rep = super(TestCaseReportSchema, self).make_report(data)
         rep.status_override = status_override
         rep.timer = timer
+        rep.status = status
         return rep
 
 
@@ -190,7 +178,7 @@ class TestReportSchema(Schema):
     meta = fields.Dict()
     label = fields.String(allow_none=True)
 
-    status = fields.String(dump_only=True)
+    status = fields.String()
     runtime_status = fields.String(dump_only=True)
     tags_index = TagField(dump_only=True)
     status_override = fields.String(allow_none=True)
@@ -215,6 +203,7 @@ class TestReportSchema(Schema):
         )
 
         entry_data = data.pop("entries")
+        status = data.pop("status")
         status_override = data.pop("status_override")
         timer = data.pop("timer")
         timeout = data.pop("timeout", None)
@@ -224,6 +213,7 @@ class TestReportSchema(Schema):
         test_plan_report.entries = [load_tree(c_data) for c_data in entry_data]
         test_plan_report.propagate_tag_indices()
 
+        test_plan_report.status = status
         test_plan_report.status_override = status_override
         test_plan_report.timer = timer
         test_plan_report.timeout = timeout
