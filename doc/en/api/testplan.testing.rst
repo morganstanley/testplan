@@ -70,6 +70,14 @@ testplan.testing.pyunit module
     :undoc-members:
     :show-inheritance:
 
+testplan.testing.junit module
++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.testing.junit
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Module contents
 ---------------
 
