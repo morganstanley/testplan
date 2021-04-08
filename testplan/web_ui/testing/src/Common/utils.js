@@ -2,6 +2,7 @@
  * Common utility functions.
  */
 import {NAV_ENTRY_DISPLAY_DATA} from "./defaults";
+import JSON5 from "json5";
 import _ from 'lodash';
 
 /**
@@ -173,4 +174,18 @@ export const toPlainObjectIn = (obj, enumerableOnly = false) => {
 
 export const joinURLComponent = (base, component) => {
   return `${base.replace(/\/+$/, '').trim()}/${component}`;
+};
+
+/**
+ * Parse JSON string to object by JSON5 https://json5.org/
+ * @param {string} data - The json string
+ * @returns {object}
+ */
+export const parseToJson = (data) => {
+  let result = data;
+  if (typeof data === 'string' && data.length) {
+    result = JSON5.parse(result);
+  }
+
+  return result;
 };

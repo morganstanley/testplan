@@ -3,6 +3,7 @@ import {StyleSheet, css} from 'aphrodite';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 
+import { parseToJson } from "../Common/utils";
 import Toolbar from '../Toolbar/Toolbar';
 import {TimeButton} from '../Toolbar/Buttons';
 import Nav from '../Nav/Nav';
@@ -107,10 +108,12 @@ class BatchReport extends React.Component {
           const rawReport = response.data;
           if (rawReport.version === 2) {
             const assertionsReq = axios.get(
-              `/api/v1/reports/${uid}/attachments/${rawReport.assertions_file}`
+              `/api/v1/reports/${uid}/attachments/${rawReport.assertions_file}`,
+              {transformResponse: parseToJson}
             );
             const structureReq = axios.get(
-              `/api/v1/reports/${uid}/attachments/${rawReport.structure_file}`
+              `/api/v1/reports/${uid}/attachments/${rawReport.structure_file}`,
+              {transformResponse: parseToJson}
             );
             axios.all([assertionsReq, structureReq]).then(
               axios.spread((assertionsRes, structureRes) => {
