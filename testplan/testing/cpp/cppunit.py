@@ -287,16 +287,16 @@ class Cppunit(ProcessRunnerTest):
         """
         # Sample command line output:
         #
-        #     Comparison
-        #       testNotEqual
-        #       testGreater
-        #       testLess
-        #       testMisc
-        #     LogicalOp
-        #       testOr
-        #       testAnd
-        #       testNot
-        #       testXor
+        # Comparison.
+        #   testNotEqual
+        #   testGreater
+        #   testLess
+        #   testMisc
+        # LogicalOp.
+        #   testOr
+        #   testAnd
+        #   testNot
+        #   testXor
         #
         #
         # Sample Result:
@@ -309,12 +309,15 @@ class Cppunit(ProcessRunnerTest):
         if self.cfg.parse_test_context:
             return self.cfg.parse_test_context(test_list_output)
 
+        # Default implementation: suppose that the output of
+        # listing testcases is the same like that of GTest.
         result = []
         for line in test_list_output.splitlines():
-            if line.endswith("."):
-                result.append([line[:-1], []])
-            else:
-                result[-1][1].append(line.strip())
+            line = line.rstrip()
+            if line.endswith(".") and len(line.lstrip()) > 1:
+                result.append([line.lstrip()[:-1], []])
+            elif result and (line.startswith(" ") or line.startswith("\t")):
+                result[-1][1].append(line.lstrip())
         return result
 
     def update_test_report(self):

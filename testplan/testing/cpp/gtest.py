@@ -238,12 +238,12 @@ class GTest(ProcessRunnerTest):
         #
         # Sample command line output:
         #
-        #     SquareRootTest.
-        #       PositiveNos
-        #       NegativeNos
-        #     SquareRootTestNonFatal.
-        #       PositiveNos
-        #       NegativeNos
+        # SquareRootTest.
+        #   PositiveNos
+        #   NegativeNos
+        # SquareRootTestNonFatal.
+        #   PositiveNos
+        #   NegativeNos
         #
         #
         # Sample Result:
@@ -254,10 +254,11 @@ class GTest(ProcessRunnerTest):
         # ]
         result = []
         for line in test_list_output.splitlines():
-            if line.endswith("."):
-                result.append([line[:-1], []])
-            else:
-                result[-1][1].append(line.strip())
+            line = line.rstrip()
+            if line.endswith(".") and len(line.lstrip()) > 1:
+                result.append([line.lstrip()[:-1], []])
+            elif result and (line.startswith(" ") or line.startswith("\t")):
+                result[-1][1].append(line.lstrip())
         return result
 
     def update_test_report(self):
