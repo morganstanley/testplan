@@ -94,7 +94,7 @@ def install_and_build_ui(path=TESTPLAN_UI_DIR, dev=False, verbose=False):
         logging.info("Installing Testplan UI dependencies...")
         logging.info("Installing to path: {}".format(os.path.abspath(path)))
         subprocess.check_call(
-            "yarn install {}".format(production_cmd),
+            "yarn install {} --network-timeout 600000".format(production_cmd),
             shell=True,
             cwd=path,
             stdout=output,
