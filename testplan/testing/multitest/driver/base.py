@@ -52,7 +52,7 @@ class DriverConfig(ResourceConfig):
         return {
             "name": str,
             ConfigOption("install_files", default=None): Or(None, list),
-            ConfigOption("timeout", default=60): int,
+            ConfigOption("timeout", default=300): int,
             ConfigOption("log_regexps", default=None): Or(None, list),
             ConfigOption("stdout_regexps", default=None): Or(None, list),
             ConfigOption("stderr_regexps", default=None): Or(None, list),
@@ -127,7 +127,28 @@ class Driver(Resource):
 
     CONFIG = DriverConfig
 
-    def __init__(self, **options):
+    def __init__(
+        self,
+        name,
+        install_files=None,
+        timeout=300,
+        log_regexps=None,
+        stdout_regexps=None,
+        stderr_regexps=None,
+        file_logger=None,
+        async_start=False,
+        report_errors_from_logs=False,
+        error_logs_max_lines=10,
+        pre_start=None,
+        post_start=None,
+        pre_stop=None,
+        post_stop=None,
+        **options
+    ):
+
+        options.update(self.filter_locals(locals()))
+        if timeout:
+            options.setdefault("status_wait_timeout", timeout)
         super(Driver, self).__init__(**options)
         self.extracts = {}
         self._file_log_handler = None

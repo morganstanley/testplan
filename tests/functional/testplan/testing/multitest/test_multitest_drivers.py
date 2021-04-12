@@ -2,6 +2,9 @@
 
 import os
 import re
+import time
+import pytest
+
 
 from testplan.testing.filtering import Filter
 from testplan.testing.multitest.base import EnvWithRuntimeInfo
@@ -14,6 +17,7 @@ from testplan.common.entity.base import Environment, ResourceStatus
 from testplan.common.utils.context import context
 from testplan.common.utils.path import StdFiles, default_runpath
 from testplan.common.utils.testing import log_propagation_disabled
+from testplan.common.utils.timing import TimeoutException
 from testplan.testing.multitest.driver.base import Driver
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
@@ -210,6 +214,16 @@ class VulnerableDriver2(BaseDriver):
         raise Exception("Shutdown error")
 
 
+class GoodDriver(BaseDriver):
+    """This driver timeout during start."""
+
+    def starting(self):
+        super(GoodDriver, self).starting()
+        time.sleep(2)
+        self.std.out.write("GoodDriver started")
+        self.std.out.flush()
+
+
 def test_multitest_driver_startup_failure(mockplan):
     """If driver fails to start or stop, the error log could be fetched."""
     mockplan.add(
@@ -268,3 +282,30 @@ def test_multitest_driver_fetch_error_log(mockplan):
     assert re.match(r".*Information from log file:.+stdout.*", text[0])
     for idx, line in enumerate(text[1:]):
         assert re.match(r".*This is line 99{}.*".format(idx), line)
+
+
+def test_multitest_driver_start_timeout():
+
+    driver1 = BaseDriver(
+        name="timeout_driver",
+        timeout=1,
+        stdout_regexps=[re.compile(r"Expression that won't match")],
+    )
+    assert driver1.cfg.status_wait_timeout == 1
+    assert driver1.cfg.timeout == 1
+
+    try:
+        with driver1:
+            # we will not reach here
+            assert False
+    except TimeoutException as exc:
+        assert "Timeout after 1 seconds" in str(exc)
+
+    driver2 = GoodDriver(
+        name="good_driver",
+        timeout=1,  # Note: this timeout does not include time spent in starting
+        stdout_regexps=[re.compile("GoodDriver started")],
+    )
+
+    with driver2:
+        assert True
