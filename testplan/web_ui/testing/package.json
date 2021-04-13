@@ -24,6 +24,7 @@
     "date-fns": "^2.14.0",
     "eslint-plugin-react": "^7.14.3",
     "history": "~4.10.1",
+    "json5": "^2.2.0",
     "lodash": "~4.17.15",
     "pegjs": "^0.11.0-master.b7b87ea",
     "react": "16.13.1",
