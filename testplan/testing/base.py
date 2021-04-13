@@ -473,12 +473,6 @@ class ProcessRunnerTest(Test):
     def report_path(self):
         return os.path.join(self._runpath, "report.xml")
 
-    @property
-    def test_context(self):
-        if self._test_context is None:
-            self._test_context = self.get_test_context()
-        return self._test_context
-
     def test_command(self):
         """
         Override this to add extra options to the test command.
