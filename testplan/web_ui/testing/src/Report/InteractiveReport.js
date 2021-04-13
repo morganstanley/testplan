@@ -26,7 +26,10 @@ import {
   GetSelectedEntries,
   getSelectedUIDsFromPath,
 } from './reportUtils.js';
-import {encodeURIComponent2} from '../Common/utils';
+import {
+  encodeURIComponent2,
+  parseToJson
+} from '../Common/utils';
 
 import {POLL_MS} from '../Common/defaults.js';
 
@@ -96,8 +99,9 @@ class InteractiveReport extends React.Component {
         1500,
       );
     } else {
-      axios.get('/api/v1/interactive/report')
-        .then(response => {
+      axios.get('/api/v1/interactive/report',
+      {transformResponse: parseToJson}
+      ).then(response => {
           if (!this.state.report ||
             this.state.report.hash !== response.data.hash) {
             this.getTests().then(tests => {
@@ -118,7 +122,8 @@ class InteractiveReport extends React.Component {
    */
   getTests() {
     return axios.get(
-      "/api/v1/interactive/report/tests"
+      "/api/v1/interactive/report/tests",
+      {transformResponse: parseToJson}
     ).then(response => {
       return Promise.all(response.data.map(
         newTest => {
@@ -147,7 +152,8 @@ class InteractiveReport extends React.Component {
   getSuites(newTest, existingTest) {
     const encoded_test_uid = encodeURIComponent2(newTest.uid);
     return axios.get(
-      `/api/v1/interactive/report/tests/${encoded_test_uid}/suites`
+      `/api/v1/interactive/report/tests/${encoded_test_uid}/suites`,
+      {transformResponse: parseToJson}
     ).then(response => {
       return Promise.all(response.data.map(
         newSuite => {
@@ -176,7 +182,8 @@ class InteractiveReport extends React.Component {
     const encoded_suite_uid = encodeURIComponent2(newSuite.uid);
     return axios.get(
       `/api/v1/interactive/report/tests/${encoded_test_uid}/suites/` +
-      `${encoded_suite_uid}/testcases`
+      `${encoded_suite_uid}/testcases`,
+      {transformResponse: parseToJson}
     ).then(response => {
       return Promise.all(response.data.map((newTestCase) => {
         switch (newTestCase.category) {
@@ -221,7 +228,8 @@ class InteractiveReport extends React.Component {
     const encoded_testcase_uid = encodeURIComponent2(testcase.uid);
     return axios.get(
       `/api/v1/interactive/report/tests/${encoded_test_uid}/suites/` +
-      `${encoded_suite_uid}/testcases/${encoded_testcase_uid}/parametrizations`
+      `${encoded_suite_uid}/testcases/${encoded_testcase_uid}/parametrizations`,
+      {transformResponse: parseToJson}
     ).then(response => response.data);
   }
 
