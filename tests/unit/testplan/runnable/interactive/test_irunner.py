@@ -16,8 +16,8 @@ from testplan.common import entity
 from testplan.testing import filtering
 from testplan.testing import multitest
 from testplan.testing import ordering
-from testplan.runnable.interactive import base
 from testplan.testing.multitest import driver
+from testplan.runnable.interactive import base
 from testplan.common.utils.path import default_runpath
 
 
@@ -32,6 +32,28 @@ class Suite(object):
         result.true(True)
 
     @multitest.testcase(parameters=[1, 2, 3])
+    def parametrized(self, env, result, val):
+        """Parametrized testcase."""
+        del env  # unused
+        result.gt(val, 0)
+
+
+@multitest.testsuite(tags="foo")
+class TaggedSuite(object):
+    """Test suite."""
+
+    @multitest.testcase(tags="bar")
+    def case(self, env, result):
+        """Testcase."""
+        del env  # unused
+        result.true(True)
+
+    @multitest.testcase
+    def ignored(self, env, result):
+        """Testcase which will be filtered out."""
+        pass
+
+    @multitest.testcase(tags="baz", parameters=[1, 2, 3])
     def parametrized(self, env, result, val):
         """Parametrized testcase."""
         del env  # unused
@@ -204,6 +226,52 @@ def test_environment_control(irunner, sync):
         test.resources.mock_driver.status.tag == entity.ResourceStatus.STOPPED
     )
     assert irunner.report["test_1"].env_status == entity.ResourceStatus.STOPPED
+
+
+@pytest.mark.parametrize(
+    "tags,num_of_suite_entries", ((("foo",), 3), (("bar", "baz"), 2))
+)
+def test_run_all_tagged_tests(tags, num_of_suite_entries):
+    """Test running all tests whose testcases are selected by tags."""
+    target = runnable.TestRunner(name="TestRunner")
+
+    local_runner = runners.LocalRunner()
+    test_uids = ["test_1", "test_2", "test_3"]
+    test_objs = [
+        multitest.MultiTest(
+            name=uid,
+            suites=[TaggedSuite()],
+            test_filter=filtering.Tags({"simple": set(tags)}),
+            test_sorter=ordering.NoopSorter(),
+            stdout_style=defaults.STDOUT_STYLE,
+            environment=[driver.Driver(name="mock_driver")],
+        )
+        for uid in test_uids
+    ]
+
+    for test in test_objs:
+        local_runner.add(test, test.uid())
+
+    target.resources.add(local_runner)
+
+    with mock.patch("cheroot.wsgi.Server"), mock.patch(
+        "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
+        MockReloader.return_value = None
+
+        irunner = base.TestRunnerIHandler(target)
+        irunner.setup()
+
+        irunner.run_all_tests(await_results=True)
+        assert irunner.report.passed
+        assert len(irunner.report.entries) == 3
+        for test_report in irunner.report:
+            assert test_report.passed
+            assert len(test_report.entries) == 1
+            assert len(test_report.entries[0].entries) == num_of_suite_entries
+            assert len(test_report.entries[0].entries[-1].entries) == 3
+
+        irunner.teardown()
 
 
 def _check_initial_report(initial_report):
