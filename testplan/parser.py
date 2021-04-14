@@ -4,8 +4,6 @@ This module encodes the argument and option names, types and behaviours.
 """
 import argparse
 import copy
-import os
-import random
 import sys
 
 from testplan.common.utils import logger
