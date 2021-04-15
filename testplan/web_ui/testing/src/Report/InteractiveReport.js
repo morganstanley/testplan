@@ -50,6 +50,7 @@ class InteractiveReport extends React.Component {
     this.getReport = this.getReport.bind(this);
     this.resetReport = this.resetReport.bind(this);
     this.handlePlayClick = this.handlePlayClick.bind(this);
+    this.handleResetClick = this.handleResetClick.bind(this);
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.reloadCode = this.reloadCode.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
@@ -99,20 +100,22 @@ class InteractiveReport extends React.Component {
         1500,
       );
     } else {
-      axios.get('/api/v1/interactive/report',
-      {transformResponse: parseToJson}
+      axios.get(
+      '/api/v1/interactive/report', {transformResponse: parseToJson}
       ).then(response => {
-          if (!this.state.report ||
-            this.state.report.hash !== response.data.hash) {
-            this.getTests().then(tests => {
-              const rawReport = { ...response.data, entries: tests };
-              this.setReport(rawReport);
-            });
-          }
-        }).catch(this.setError);
-
-      // We poll for updates to the report every second.
-      setTimeout(this.getReport, this.props.poll_intervall || POLL_MS);      
+        if (
+          !this.state.report ||
+          this.state.report.hash !== response.data.hash
+        ) {
+          this.getTests().then(tests => {
+            const rawReport = { ...response.data, entries: tests };
+            this.setReport(rawReport);
+          });
+        }
+      }).catch(this.setError).finally(() => {
+        // We poll for updates to the report every second.
+        setTimeout(this.getReport, this.props.poll_intervall || POLL_MS);
+      });
     }
   }
 
@@ -245,7 +248,8 @@ class InteractiveReport extends React.Component {
           console.error(response.data);
         } else {
           // Do not update report hash here.
-          this.setShallowReportEntry(updatedReportEntry);
+          response.data.hash = updatedReportEntry.hash;
+          this.setShallowReportEntry(response.data);
         }
       }
     ).catch(
@@ -385,12 +389,26 @@ class InteractiveReport extends React.Component {
     this.setState({navWidth: navWidth});
   }
 
-  /* Handle the play button being clicked on a Nav entry. */
+  /**
+   * Handle the play button being clicked on a Nav entry.
+   */
   handlePlayClick(e, reportEntry) {
     e.preventDefault();
     e.stopPropagation();
     const updatedReportEntry = {
       ...this.shallowReportEntry(reportEntry), runtime_status: "running"
+    };
+    this.putUpdatedReportEntry(updatedReportEntry);
+  }
+
+  /**
+   * Reset the report of a test instance to its initial state
+   */
+  handleResetClick(e, reportEntry) {
+    e.preventDefault();
+    e.stopPropagation();
+    const updatedReportEntry = {
+      ...this.shallowReportEntry(reportEntry), runtime_status: "resetting"
     };
     this.putUpdatedReportEntry(updatedReportEntry);
   }
@@ -580,6 +598,7 @@ class InteractiveReport extends React.Component {
           displayTags={false}
           displayTime={false}          
           handlePlayClick={this.handlePlayClick}
+          handleResetClick={this.handleResetClick}
           envCtrlCallback={this.envCtrlCallback}
           handleColumnResizing={this.handleColumnResizing}
           url={this.props.match.path}

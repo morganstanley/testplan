@@ -39,6 +39,13 @@ const NavEntry = (props) => {
       className='d-flex justify-content-between align-items-center'
       style={{ height: "1.5em" }}
     >
+      <Badge
+        className={css(styles.entryIcon, styles[badgeStyle], styles.badge)}
+        title={props.type}
+        pill
+      >
+        {CATEGORY_ICONS[props.type]}
+      </Badge>
       <div
         className={css(styles.entryName, styles[STATUS_CATEGORY[props.status]])}
         title={props.description || props.name}
@@ -52,12 +59,6 @@ const NavEntry = (props) => {
           /
           <span className={css(styles.failed)}>{props.caseCountFailed}</span>
         </i>
-        <Badge
-          className={css(styles.entryIcon, styles[badgeStyle], styles.badge)}
-          title={props.type}
-          pill>
-          {CATEGORY_ICONS[props.type]}
-        </Badge>
       </div>
     </div>
   );

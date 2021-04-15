@@ -235,7 +235,10 @@ const GetInteractiveNavEntries = (selected) => {
     if (idx < testcaseEntries.length) {
       // at least one testcase is ready to run
       testcaseEntries[idx].action = (
-        testcaseEntries[idx].runtime_status === 'running' ? 'prohibit': 'play'
+        testcaseEntries[idx].runtime_status === 'running' ||
+        testcaseEntries[idx].runtime_status === 'resetting' ||
+        testcaseEntries[idx].runtime_status === 'waiting'
+          ? 'prohibit': 'play'
       );
       testcaseEntries.slice(idx + 1).forEach((entry) => {
         entry.action = 'prohibit';

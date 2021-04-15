@@ -144,6 +144,9 @@ def get_testsuite_name(suite):
             "Test suite object contains colon in name: {}".format(suite.name)
         )
 
+    import types
+
+    suite.uid = types.MethodType(lambda self: self.name, suite)
     return suite.name
 
 
@@ -372,7 +375,6 @@ def _testsuite(klass):
         getattr(klass, func_name).strict_order = klass.strict_order
 
     klass.get_testcases = get_testcase_methods
-    testcase_methods = get_testcase_methods(klass)
 
     # propagate suite's native tags onto itself, which
     # will propagate them further to the suite's testcases
@@ -382,7 +384,7 @@ def _testsuite(klass):
     update_tag_index(
         obj=klass,
         tag_dict=tagging.merge_tag_dicts(
-            *[tc.__tags_index__ for tc in testcase_methods]
+            *[tc.__tags_index__ for tc in get_testcase_methods(klass)]
         ),
     )
 
@@ -454,7 +456,14 @@ def testsuite(*args, **kwargs):
 
 def _validate_function_name(func):
     """Validate the function name is valid for a testcase."""
-    reserved_words = ("name", "get_testcases", "pre_testcase", "post_testcase")
+    reserved_words = (
+        "name",
+        "get_testcases",
+        "setup",
+        "teardown",
+        "pre_testcase",
+        "post_testcase",
+    )
     errmsg = None
 
     if (

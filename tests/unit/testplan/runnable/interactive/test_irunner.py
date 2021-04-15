@@ -219,7 +219,7 @@ def test_environment_control(irunner, sync):
     start_results = irunner.start_test_resources("test_1", await_results=sync)
 
     # If the environment was started asynchronously, wait for all of the
-    # operations to copmlete before continuing.
+    # operations to complete before continuing.
     if not sync:
         start_results.result()
 

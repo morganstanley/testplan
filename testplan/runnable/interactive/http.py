@@ -116,7 +116,7 @@ def generate_interactive_api(ihandler):
         def get(self):
             """Get the state of the root interactive report."""
             with ihandler.report_mutex:
-                return ihandler.report.shallow_serialize()
+                return _serialize_report_entry(ihandler.report)
 
         def put(self):
             """Update the state of the root interactive report."""
@@ -127,21 +127,31 @@ def generate_interactive_api(ihandler):
 
             with ihandler.report_mutex:
                 try:
-                    new_report = TestReport.shallow_deserialize(
+                    new_report = _deserialize_report_entry(
                         flask.request.json, ihandler.report
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(ihandler.report.uid, new_report.uid)
+                new_runtime_status = flask.request.json.get("runtime_status")
 
-                if _should_run(ihandler.report.runtime_status):
+                if _should_reset(
+                    ihandler.report.uid,
+                    ihandler.report.runtime_status,
+                    new_runtime_status,
+                ):
+                    ihandler.reset_all_tests(await_results=False)
+                elif _should_run(
+                    ihandler.report.uid,
+                    ihandler.report.runtime_status,
+                    new_runtime_status,
+                ):
                     _check_execution_order(ihandler.report)
-                    new_report.runtime_status = RuntimeStatus.RUNNING
                     ihandler.run_all_tests(await_results=False)
 
-                ihandler.report = new_report
-                return ihandler.report.shallow_serialize()
+                ihandler.report.runtime_status = RuntimeStatus.WAITING
+                return _serialize_report_entry(ihandler.report)
 
     @api.route("/report/tests")
     class AllTests(flask_restplus.Resource):
@@ -152,7 +162,10 @@ def generate_interactive_api(ihandler):
         def get(self):
             """Get the UIDs of all tests defined in the testplan."""
             with ihandler.report_mutex:
-                return [test.shallow_serialize() for test in ihandler.report]
+                return [
+                    _serialize_report_entry(test_report)
+                    for test_report in ihandler.report
+                ]
 
     @api.route("/report/tests/<string:test_uid>")
     class SingleTest(flask_restplus.Resource):
@@ -177,7 +190,7 @@ def generate_interactive_api(ihandler):
             """Get the state of a specific test from the testplan."""
             with ihandler.report_mutex:
                 try:
-                    return ihandler.report[test_uid].shallow_serialize()
+                    return _serialize_report_entry(ihandler.report[test_uid])
                 except KeyError:
                     raise werkzeug.exceptions.NotFound
 
@@ -196,37 +209,53 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.NotFound
 
                 try:
-                    new_test = TestGroupReport.shallow_deserialize(
+                    new_test = _deserialize_report_entry(
                         flask.request.json, current_test
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_test.uid, new_test.uid)
+                new_runtime_status = flask.request.json.get("runtime_status")
 
                 # Trigger a side-effect if either the report or environment
                 # statuses have been updated.
-                if _should_run(current_test.runtime_status):
-                    if current_test.env_status != new_test.env_status:
-                        raise werkzeug.exceptions.BadRequest(
-                            "env_status cannot change when test status is "
-                            "changing. Current env status is {}".format(
-                                current_test.env_status
-                            )
-                        )
-
+                if _should_reset(
+                    current_test.uid,
+                    current_test.runtime_status,
+                    new_runtime_status,
+                ):
+                    ihandler.reset_test(test_uid, await_results=False)
+                elif _should_run(
+                    current_test.uid,
+                    current_test.runtime_status,
+                    new_runtime_status,
+                ):
+                    _check_env_status_match(
+                        current_test.env_status, new_test.env_status
+                    )
                     _check_execution_order(ihandler.report, test_uid=test_uid)
-                    new_test.runtime_status = RuntimeStatus.RUNNING
                     ihandler.run_test(test_uid, await_results=False)
                 else:
-                    env_action = self._check_env_transition(
+                    next_env_status, env_action = self._check_env_transition(
                         current_test.env_status, new_test.env_status
                     )
                     if env_action is not None:
+                        if current_test.runtime_status in (
+                            RuntimeStatus.RUNNING,
+                            RuntimeStatus.RESETTING,
+                            RuntimeStatus.WAITING,
+                        ):
+                            raise werkzeug.exceptions.BadRequest(
+                                "Env status cannot change when test is running"
+                            )
                         env_action(test_uid, await_results=False)
 
-                ihandler.report[test_uid] = new_test
-                return ihandler.report[test_uid].shallow_serialize()
+                    current_test.env_status = next_env_status
+                    return _serialize_report_entry(current_test)
+
+                current_test.runtime_status = RuntimeStatus.WAITING
+                return _serialize_report_entry(current_test)
 
         def _check_env_transition(self, current_state, new_state):
             """
@@ -237,7 +266,7 @@ def generate_interactive_api(ihandler):
             Returns an action if one is required, or else None.
             """
             if current_state == new_state:
-                return None
+                return None, None
 
             allowed_transition, action = self._ENV_TRANSITIONS.get(
                 current_state, (None, None)
@@ -249,7 +278,7 @@ def generate_interactive_api(ihandler):
                     )
                 )
 
-            return action
+            return allowed_transition, action
 
     @api.route("/report/tests/<string:test_uid>/suites")
     class AllSuites(flask_restplus.Resource):
@@ -262,7 +291,7 @@ def generate_interactive_api(ihandler):
             """Get the UIDs of all test suites owned by a specific test."""
             try:
                 return [
-                    entry.shallow_serialize()
+                    _serialize_report_entry(entry)
                     for entry in ihandler.report[test_uid]
                 ]
             except KeyError:
@@ -280,9 +309,9 @@ def generate_interactive_api(ihandler):
             """Get the state of a specific test suite."""
             with ihandler.report_mutex:
                 try:
-                    return ihandler.report[test_uid][
-                        suite_uid
-                    ].shallow_serialize()
+                    return _serialize_report_entry(
+                        ihandler.report[test_uid][suite_uid]
+                    )
                 except KeyError:
                     raise werkzeug.exceptions.NotFound
 
@@ -296,30 +325,35 @@ def generate_interactive_api(ihandler):
 
             with ihandler.report_mutex:
                 try:
-                    current_suite = ihandler.report[test_uid][suite_uid]
+                    test = ihandler.report[test_uid]
+                    current_suite = test[suite_uid]
                 except KeyError:
                     raise werkzeug.exceptions.NotFound
 
                 try:
-                    new_suite = TestGroupReport.shallow_deserialize(
+                    new_suite = _deserialize_report_entry(
                         flask.request.json, current_suite
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
                 _check_uids_match(current_suite.uid, new_suite.uid)
+                new_runtime_status = flask.request.json.get("runtime_status")
 
-                if _should_run(current_suite.runtime_status):
+                if _should_run(
+                    current_suite.uid,
+                    current_suite.runtime_status,
+                    new_runtime_status,
+                ):
                     _check_execution_order(
                         ihandler.report, test_uid=test_uid, suite_uid=suite_uid
                     )
-                    new_suite.runtime_status = RuntimeStatus.RUNNING
                     ihandler.run_test_suite(
                         test_uid, suite_uid, await_results=False
                     )
 
-                ihandler.report[test_uid][suite_uid] = new_suite
-                return ihandler.report[test_uid][suite_uid].shallow_serialize()
+                current_suite.runtime_status = RuntimeStatus.WAITING
+                return _serialize_report_entry(current_suite)
 
     @api.route(
         "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
@@ -336,7 +370,7 @@ def generate_interactive_api(ihandler):
             with ihandler.report_mutex:
                 try:
                     return [
-                        _serialize_testcase(entry)
+                        _serialize_report_entry(entry)
                         for entry in ihandler.report[test_uid][suite_uid]
                     ]
                 except KeyError:
@@ -344,7 +378,7 @@ def generate_interactive_api(ihandler):
 
     @api.route(
         "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
-        "/<string:testcase_uid>"
+        "/<string:case_uid>"
     )
     class SingleTestcase(flask_restplus.Resource):
         """
@@ -354,20 +388,20 @@ def generate_interactive_api(ihandler):
         """
 
         @decode_uri_component
-        def get(self, test_uid, suite_uid, testcase_uid):
+        def get(self, test_uid, suite_uid, case_uid):
             """Get the state of a specific testcase."""
             with ihandler.report_mutex:
                 try:
                     report_entry = ihandler.report[test_uid][suite_uid][
-                        testcase_uid
+                        case_uid
                     ]
                 except KeyError:
                     raise werkzeug.exceptions.NotFound
 
-                return _serialize_testcase(report_entry)
+                return _serialize_report_entry(report_entry)
 
         @decode_uri_component
-        def put(self, test_uid, suite_uid, testcase_uid):
+        def put(self, test_uid, suite_uid, case_uid):
             """Update the state of a specific testcase."""
             if flask.request.json is None:
                 raise werkzeug.exceptions.BadRequest(
@@ -377,37 +411,41 @@ def generate_interactive_api(ihandler):
             with ihandler.report_mutex:
                 suite = ihandler.report[test_uid][suite_uid]
                 try:
-                    current_testcase = suite[testcase_uid]
+                    current_case = suite[case_uid]
                 except KeyError:
                     raise werkzeug.exceptions.NotFound
 
                 try:
-                    new_testcase = _deserialize_testcase(
-                        current_testcase, flask.request.json
+                    new_testcase = _deserialize_report_entry(
+                        flask.request.json, current_case
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
-                _check_uids_match(current_testcase.uid, new_testcase.uid)
+                _check_uids_match(current_case.uid, new_testcase.uid)
+                new_runtime_status = flask.request.json.get("runtime_status")
 
-                if _should_run(current_testcase.runtime_status):
+                if _should_run(
+                    current_case.uid,
+                    current_case.runtime_status,
+                    new_runtime_status,
+                ):
                     _check_execution_order(
                         ihandler.report,
                         test_uid=test_uid,
                         suite_uid=suite_uid,
-                        testcase_uid=testcase_uid,
+                        case_uid=case_uid,
                     )
-                    new_testcase.runtime_status = RuntimeStatus.RUNNING
                     ihandler.run_test_case(
-                        test_uid, suite_uid, testcase_uid, await_results=False
+                        test_uid, suite_uid, case_uid, await_results=False
                     )
 
-                suite[testcase_uid] = new_testcase
-                return _serialize_testcase(suite[testcase_uid])
+                current_case.runtime_status = RuntimeStatus.WAITING
+                return _serialize_report_entry(current_case)
 
     @api.route(
         "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
-        "/<string:testcase_uid>/parametrizations"
+        "/<string:case_uid>/parametrizations"
     )
     class AllParametrizations(flask_restplus.Resource):
         """
@@ -416,14 +454,14 @@ def generate_interactive_api(ihandler):
         """
 
         @decode_uri_component
-        def get(self, test_uid, suite_uid, testcase_uid):
+        def get(self, test_uid, suite_uid, case_uid):
             """Get the state of all parametrizations of a testcase."""
             with ihandler.report_mutex:
                 try:
                     return [
-                        entry.serialize()
+                        _serialize_report_entry(entry)
                         for entry in ihandler.report[test_uid][suite_uid][
-                            testcase_uid
+                            case_uid
                         ]
                     ]
                 except KeyError:
@@ -431,7 +469,7 @@ def generate_interactive_api(ihandler):
 
     @api.route(
         "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
-        "/<string:testcase_uid>/parametrizations/<string:param_uid>"
+        "/<string:case_uid>/parametrizations/<string:param_uid>"
     )
     class ParamatrizedTestCase(flask_restplus.Resource):
         """
@@ -440,20 +478,20 @@ def generate_interactive_api(ihandler):
         """
 
         @decode_uri_component
-        def get(self, test_uid, suite_uid, testcase_uid, param_uid):
+        def get(self, test_uid, suite_uid, case_uid, param_uid):
             """Get the state of a specific paramatrized testcase."""
             with ihandler.report_mutex:
                 try:
                     report_entry = ihandler.report[test_uid][suite_uid][
-                        testcase_uid
+                        case_uid
                     ][param_uid]
                 except KeyError:
                     raise werkzeug.exceptions.NotFound
 
-                return report_entry.serialize()
+                return _serialize_report_entry(report_entry)
 
         @decode_uri_component
-        def put(self, test_uid, suite_uid, testcase_uid, param_uid):
+        def put(self, test_uid, suite_uid, case_uid, param_uid):
             """Update the state of a specific parametrized testcase."""
             if flask.request.json is None:
                 raise werkzeug.exceptions.BadRequest(
@@ -463,40 +501,44 @@ def generate_interactive_api(ihandler):
             with ihandler.report_mutex:
                 try:
                     param_group = ihandler.report[test_uid][suite_uid][
-                        testcase_uid
+                        case_uid
                     ]
-                    current_testcase = param_group[param_uid]
+                    current_case = param_group[param_uid]
                 except KeyError:
                     raise werkzeug.exceptions.NotFound
 
                 try:
-                    new_testcase = TestCaseReport.deserialize(
-                        flask.request.json
+                    new_testcase = _deserialize_report_entry(
+                        flask.request.json, current_case
                     )
                 except marshmallow.exceptions.ValidationError as e:
                     raise werkzeug.exceptions.BadRequest(str(e))
 
-                _check_uids_match(current_testcase.uid, new_testcase.uid)
+                _check_uids_match(current_case.uid, new_testcase.uid)
+                new_runtime_status = flask.request.json.get("runtime_status")
 
-                if _should_run(current_testcase.runtime_status):
+                if _should_run(
+                    current_case.uid,
+                    current_case.runtime_status,
+                    new_runtime_status,
+                ):
                     _check_execution_order(
                         ihandler.report,
                         test_uid=test_uid,
                         suite_uid=suite_uid,
-                        testcase_uid=testcase_uid,
+                        case_uid=case_uid,
                         param_uid=param_uid,
                     )
-                    new_testcase.runtime_status = RuntimeStatus.RUNNING
                     ihandler.run_test_case_param(
                         test_uid,
                         suite_uid,
-                        testcase_uid,
+                        case_uid,
                         param_uid,
                         await_results=False,
                     )
 
-                param_group[param_uid] = new_testcase
-                return param_group[param_uid].serialize()
+                current_case.runtime_status = RuntimeStatus.WAITING
+                return _serialize_report_entry(current_case)
 
     @api.route("/report/export")
     class ExportReport(flask_restplus.Resource):
@@ -594,15 +636,14 @@ def generate_interactive_api(ihandler):
     return app, api
 
 
-def _serialize_testcase(report_entry):
+def _serialize_report_entry(report_entry):
     """
-    Serialize a report entry representing a testcase. Since the
-    testcase may be parametrized, we check for that and return
-    the shallow serialization instead.
+    Serialize a report entry representing a testcase or a test group.
+    For a test group shallow serialization is used instead.
     """
     if isinstance(report_entry, TestCaseReport):
         return report_entry.serialize()
-    elif isinstance(report_entry, TestGroupReport):
+    elif isinstance(report_entry, (TestGroupReport, TestReport)):
         return report_entry.shallow_serialize()
     else:
         raise TypeError(
@@ -610,56 +651,20 @@ def _serialize_testcase(report_entry):
         )
 
 
-def _deserialize_testcase(current_testcase, serialized):
+def _deserialize_report_entry(serialized, curr_report_entry):
     """
-    Deserialize an updated testcase entry.
-
-    We need to inspect the type of the current testcase
+    Deserialize an updated report entry which represents a testcase or
+    a test group. We need to inspect the type of the current testcase
     object in order to decide how to deserialize the update.
-    If a testcase is parametrized, it will be represented
-    as a TestGroupReport type at this level of the report
-    tree. Non-parametrized testcases are represented
-    as a TestCaseReport.
     """
-    if isinstance(current_testcase, TestCaseReport):
+    if isinstance(curr_report_entry, TestCaseReport):
         return TestCaseReport.deserialize(serialized)
-    elif isinstance(current_testcase, TestGroupReport):
+    elif isinstance(curr_report_entry, (TestGroupReport, TestReport)):
         return TestGroupReport.shallow_deserialize(
-            serialized, current_testcase
+            serialized, curr_report_entry
         )
     else:
-        raise TypeError("Unexpected report type %s", type(current_testcase))
-
-
-def _should_run(curr_status):
-    """
-    Check if any test(s) should be triggered to run from a state
-    update.
-
-    The only allowed state transition on update is to set the status
-    to RUNNING to trigger test(s) to run. Any other state update (e.g.
-    setting the state of a running test to PASSED) is not allowed - only
-    the server may make those transitions. A BadRequest exception will be
-    raised if the requested status is not valid.
-
-    TODO: from api design perspective, _should_run should take a curr_status
-    and a new_status, rather than looking at request directly
-    """
-    try:
-        new_status = flask.request.json["runtime_status"]
-    except KeyError:
-        raise werkzeug.exceptions.BadRequest("runtime_status is required")
-
-    if new_status == curr_status:
-        return False
-    elif new_status == RuntimeStatus.RUNNING:
-        return True
-    else:
-        raise werkzeug.exceptions.BadRequest(
-            "Cannot update runtime status from {} to {}".format(
-                curr_status, new_status
-            )
-        )
+        raise TypeError("Unexpected report type %s", type(curr_report_entry))
 
 
 def _check_uids_match(current_uid, new_uid):
@@ -670,14 +675,71 @@ def _check_uids_match(current_uid, new_uid):
     """
     if new_uid != current_uid:
         raise werkzeug.exceptions.BadRequest(
-            "Cannot update UID of entry from {} to {}".format(
+            'Cannot update UID of entry from "{}" to "{}"'.format(
                 current_uid, new_uid
             )
         )
 
 
+def _check_env_status_match(current_status, new_status):
+    """
+    Check that the environment status from the updated entry matches the
+    current one, raise a BadRequest error if they do not match.
+    """
+    if current_status != new_status:
+        raise werkzeug.exceptions.BadRequest(
+            "env status cannot change from {} to {} when test status"
+            " is changing.".format(current_status, new_status)
+        )
+
+
+def _should_reset(uid, curr_status, new_status):
+    """
+    Check if any test(s) should be triggered to reset from a state update.
+
+    The only allowed state transition on update is to set the status
+    to RESETTING to trigger test(s) to reset. Any other state update
+    (e.g. setting the state of a running/resetting test to PASSED) is
+    not allowed - only the server can make those transitions.
+    A BadRequest exception will be raised if the requested status is invalid.
+    """
+    if new_status == curr_status:
+        return False
+    elif new_status == RuntimeStatus.RESETTING and curr_status not in (
+        RuntimeStatus.RUNNING,
+        RuntimeStatus.WAITING,
+    ):
+        return True
+    return False  # `_should_run` is called after `_should_reset`
+
+
+def _should_run(uid, curr_status, new_status):
+    """
+    Check if any test(s) should be triggered to run from a state update.
+
+    The only allowed state transition on update is to set the status
+    to RUNNING to trigger test(s) to run. Any other state update
+    (e.g. setting the state of a running/resetting test to PASSED) is
+    not allowed - only the server can make those transitions.
+    A BadRequest exception will be raised if the requested status is invalid.
+    """
+    if new_status == curr_status:
+        return False
+    elif new_status == RuntimeStatus.RUNNING and curr_status not in (
+        RuntimeStatus.RESETTING,
+        RuntimeStatus.WAITING,
+    ):
+        return True
+    else:
+        raise werkzeug.exceptions.BadRequest(
+            'Cannot update runtime status of entry "{}" from {} to {}'.format(
+                uid, curr_status, new_status
+            )
+        )
+
+
 def _check_execution_order(
-    report, test_uid=None, suite_uid=None, testcase_uid=None, param_uid=None
+    report, test_uid=None, suite_uid=None, case_uid=None, param_uid=None
 ):
     """
     Check that if `strict_order` is specified for a test entity then all of
@@ -713,10 +775,10 @@ def _check_execution_order(
                 suite_reports.append(suite_report)
 
     for suite_report in suite_reports:
-        if testcase_uid:
-            idx = suite_report._index[testcase_uid]
+        if case_uid:
+            idx = suite_report._index[case_uid]
             if param_uid:
-                param_report = suite_report[testcase_uid]
+                param_report = suite_report[case_uid]
                 sub_idx = param_report._index[param_uid]
                 if not (
                     all(finished(rep) for rep in suite_report.entries[:idx])
@@ -733,7 +795,7 @@ def _check_execution_order(
                     raise OutOfOrderError(
                         'Should run testcase "{}" in parametrization group'
                         ' "{}" in test suite "{}" sequentially.'.format(
-                            testcase_uid, param_uid, suite_report.uid
+                            case_uid, param_uid, suite_report.uid
                         )
                     )
             else:
@@ -747,7 +809,7 @@ def _check_execution_order(
                             "testcase"
                             if isinstance(suite_report, TestCaseReport)
                             else "parametrization group",
-                            testcase_uid,
+                            case_uid,
                             suite_report.uid,
                         )
                     )
