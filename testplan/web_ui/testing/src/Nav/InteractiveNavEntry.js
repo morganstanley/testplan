@@ -42,7 +42,7 @@ const InteractiveNavEntry = (props) => {
     props.action,
   );
   const envStatusIcon = getEnvStatusIcon(
-    props.envStatus, props.envCtrlCallback
+    props.runtime_status, props.envStatus, props.envCtrlCallback
   );
 
   return (
@@ -153,15 +153,22 @@ const getStatusIcon = (entryStatus, handlePlayClick, suiteRelated, action) => {
  * Returns the environment control component for entries that own an
  * environment. Returns null for entries that do not have an environment.
  */
-const getEnvStatusIcon = (envStatus, envCtrlCallback) => {
+const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
   switch (envStatus) {
       case 'STOPPED':
         return (
           <FontAwesomeIcon
-            className={css(styles.entryButton)}
+            className={
+              entryStatus === 'running'
+                ? css(styles.inactiveEntryButton) : css(styles.entryButton)
+            }
             icon={faToggleOff}
             title='Start environment'
-            onClick={(e) => envCtrlCallback(e, "start")}
+            onClick={
+              entryStatus === 'running' ? (e) => {
+                e.preventDefault(); e.stopPropagation();
+              } : (e) => envCtrlCallback(e, "start")
+            }
           />
         );
 
@@ -178,10 +185,17 @@ const getEnvStatusIcon = (envStatus, envCtrlCallback) => {
       case 'STARTED':
         return (
           <FontAwesomeIcon
-            className={css(styles.entryButton)}
+            className={
+              entryStatus === 'running'
+                ? css(styles.inactiveEntryButton):css(styles.entryButton)
+            }
             icon={faToggleOn}
             title='Stop environment'
-            onClick={(e) => envCtrlCallback(e, "stop")}
+            onClick={
+              entryStatus === 'running' ? (e) => {
+                e.preventDefault(); e.stopPropagation();
+              } : (e) => envCtrlCallback(e, "stop")
+            }
           />
         );
 
