@@ -342,7 +342,6 @@ class MultiTest(testing_base.Test):
         """Run all tests as a batch and return the results."""
         testsuites = self.test_context
         report = self.report
-        report.runtime_status = RuntimeStatus.RUNNING
 
         with report.timer.record("run"):
             if _need_threadpool(testsuites):
@@ -398,12 +397,8 @@ class MultiTest(testing_base.Test):
                 )
             ]
 
-            # In python 3 we would use "yield from" but have to explicitly
-            # write out the loop for python 2 support...
-            for testcase_report, parent_uids in self._run_testsuite_iter(
-                testsuite, testcases
-            ):
-                yield testcase_report, parent_uids
+            if testcases:
+                yield from self._run_testsuite_iter(testsuite, testcases)
 
     def append_pre_post_step_report(self):
         """
@@ -620,7 +615,7 @@ class MultiTest(testing_base.Test):
         return TestGroupReport(
             name=testsuite.name,
             description=strings.get_docstring(testsuite.__class__),
-            uid=testsuite.name,
+            uid=testsuite.uid(),
             category=ReportCategories.TESTSUITE,
             tags=testsuite.__tags__,
             strict_order=testsuite.strict_order,
@@ -671,7 +666,6 @@ class MultiTest(testing_base.Test):
         """Runs a testsuite object and returns its report."""
         _check_testcases(testcases)
         testsuite_report = self._new_testsuite_report(testsuite)
-        testsuite_report.runtime_status = RuntimeStatus.RUNNING
 
         with testsuite_report.timer.record("run"):
             setup_report = self._setup_testsuite(testsuite)
@@ -918,7 +912,6 @@ class MultiTest(testing_base.Test):
         testcase_report = testcase_report or self._new_testcase_report(
             testcase
         )
-        testcase_report.runtime_status = RuntimeStatus.RUNNING
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
@@ -1042,14 +1035,13 @@ class MultiTest(testing_base.Test):
         _check_testcases(testcases)
         setup_report = self._setup_testsuite(testsuite)
 
-        # Suite name is unique in a Multitest instance and it is used as UID
         if setup_report is not None:
-            yield setup_report, [self.uid(), testsuite.name]
+            yield setup_report, [self.uid(), testsuite.uid()]
 
             if setup_report.failed:
                 teardown_report = self._teardown_testsuite(testsuite)
                 if teardown_report is not None:
-                    yield teardown_report, [self.uid(), testsuite.name]
+                    yield teardown_report, [self.uid(), testsuite.uid()]
                 return
 
         for testcase_report, parent_uids in self._run_testcases_iter(
@@ -1059,7 +1051,7 @@ class MultiTest(testing_base.Test):
 
         teardown_report = self._teardown_testsuite(testsuite)
         if teardown_report is not None:
-            yield teardown_report, [self.uid(), testsuite.name]
+            yield teardown_report, [self.uid(), testsuite.uid()]
 
     def _run_testcases_iter(self, testsuite, testcases):
         """
@@ -1075,23 +1067,29 @@ class MultiTest(testing_base.Test):
             if not self.active:
                 break
 
-            testcase_report = self._run_testcase(
-                testcase, pre_testcase, post_testcase
-            )
             param_template = getattr(
                 testcase, "_parametrization_template", None
             )
-
-            # Suite name is unique in a Multitest instance and it is used as UID
             if param_template:
                 parent_uids = [
                     self.uid(),
-                    testsuite.name,
+                    testsuite.uid(),
                     testcase._parametrization_template,
                 ]
             else:
-                parent_uids = [self.uid(), testsuite.name]
+                parent_uids = [self.uid(), testsuite.uid()]
 
+            # set the runtime status of testcase report to RUNNING so that
+            # client UI can get the change and show testcase is running
+            testcase_report = self.report.get_by_uids(
+                parent_uids[1:] + [testcase.__name__]
+            )
+            testcase_report.runtime_status = RuntimeStatus.RUNNING
+            yield testcase_report, parent_uids
+
+            testcase_report = self._run_testcase(
+                testcase, pre_testcase, post_testcase
+            )
             yield testcase_report, parent_uids
 
 

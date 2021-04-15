@@ -125,8 +125,11 @@ const STATUS_CATEGORY = {
 
 const RUNTIME_STATUS = [
   'ready',
+  'waiting',
   'running',
+  'resetting',
   'finished',
+  'not_run',
 ];
 
 const NAV_ENTRY_ACTIONS = [

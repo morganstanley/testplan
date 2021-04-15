@@ -26,6 +26,7 @@ const InteractiveNavList = (props) => {
         caseCountPassed={entry.counter.passed}
         caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
         handlePlayClick={(e) => props.handlePlayClick(e, entry)}
+        handleResetClick={(e) => props.handleResetClick(e, entry)}
         envCtrlCallback={
           (e, action) => props.envCtrlCallback(e, entry, action)
         }

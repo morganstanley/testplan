@@ -256,6 +256,18 @@ class ReportGroup(Report):
                 if isinstance(child, ReportGroup):
                     child.build_index(recursive=recursive)
 
+    def get_by_uids(self, uids):
+        """
+        Get child report via a series of `uid` lookup.
+
+        :param uids: A `uid` for the child report.
+        :type uids: ``list`` of ``hashable``
+        """
+        report = self
+        for uid in uids:
+            report = report.get_by_uid(uid)
+        return report
+
     def get_by_uid(self, uid):
         """
         Get child report via `uid` lookup.

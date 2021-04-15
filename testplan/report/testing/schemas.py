@@ -108,7 +108,7 @@ class TestCaseReportSchema(ReportSchema):
 
     category = fields.String(dump_only=True)
     status = fields.String()
-    runtime_status = fields.String(dump_only=True)
+    runtime_status = fields.String()
     counter = fields.Dict(dump_only=True)
     suite_related = fields.Bool()
     timer = TimerField(required=True)
@@ -125,6 +125,7 @@ class TestCaseReportSchema(ReportSchema):
         status_override = data.pop("status_override", None)
         timer = data.pop("timer")
         status = data.pop("status")
+        runtime_status = data.pop("runtime_status")
 
         # We can discard the type field since we know what kind of report we
         # are making.
@@ -135,6 +136,7 @@ class TestCaseReportSchema(ReportSchema):
         rep.status_override = status_override
         rep.timer = timer
         rep.status = status
+        rep.runtime_status = runtime_status
         return rep
 
 
@@ -178,10 +180,10 @@ class TestReportSchema(Schema):
     meta = fields.Dict()
     label = fields.String(allow_none=True)
 
-    status = fields.String()
-    runtime_status = fields.String(dump_only=True)
-    tags_index = TagField(dump_only=True)
     status_override = fields.String(allow_none=True)
+    status = fields.String()
+    runtime_status = fields.String()
+    tags_index = TagField(dump_only=True)
     information = fields.List(fields.List(fields.String()))
     counter = fields.Dict(dump_only=True)
 
@@ -203,8 +205,9 @@ class TestReportSchema(Schema):
         )
 
         entry_data = data.pop("entries")
-        status = data.pop("status")
         status_override = data.pop("status_override")
+        status = data.pop("status")
+        runtime_status = data.pop("runtime_status")
         timer = data.pop("timer")
         timeout = data.pop("timeout", None)
         logs = data.pop("logs", [])
@@ -213,8 +216,9 @@ class TestReportSchema(Schema):
         test_plan_report.entries = [load_tree(c_data) for c_data in entry_data]
         test_plan_report.propagate_tag_indices()
 
-        test_plan_report.status = status
         test_plan_report.status_override = status_override
+        test_plan_report.status = status
+        test_plan_report.runtime_status = runtime_status
         test_plan_report.timer = timer
         test_plan_report.timeout = timeout
         test_plan_report.logs = logs
@@ -231,14 +235,17 @@ class ShallowTestGroupReportSchema(Schema):
     timer = TimerField(required=True)
     part = fields.List(fields.Integer, allow_none=True)
     fix_spec_path = fields.String(allow_none=True)
+
     status_override = fields.String(allow_none=True)
     status = fields.String(dump_only=True)
     runtime_status = fields.String(dump_only=True)
     counter = fields.Dict(dump_only=True)
     suite_related = fields.Bool()
     tags = TagField()
+
     entry_uids = fields.List(fields.Str(), dump_only=True)
     parent_uids = fields.List(fields.Str())
+    logs = fields.Nested(ReportLogSchema, many=True)
     hash = fields.Integer(dump_only=True)
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool()
@@ -247,11 +254,14 @@ class ShallowTestGroupReportSchema(Schema):
     def make_testgroup_report(self, data):
         status_override = data.pop("status_override", None)
         timer = data.pop("timer")
+        logs = data.pop("logs", [])
 
         group_report = TestGroupReport(**data)
+        group_report.propagate_tag_indices()
+
         group_report.status_override = status_override
         group_report.timer = timer
-        group_report.propagate_tag_indices()
+        group_report.logs = logs
 
         return group_report
 
@@ -273,16 +283,20 @@ class ShallowTestReportSchema(Schema):
     attachments = fields.Dict()
     entry_uids = fields.List(fields.Str(), dump_only=True)
     parent_uids = fields.List(fields.Str())
+    logs = fields.Nested(ReportLogSchema, many=True)
     hash = fields.Integer(dump_only=True)
 
     @post_load
     def make_test_report(self, data):
         status_override = data.pop("status_override", None)
         timer = data.pop("timer")
+        logs = data.pop("logs", [])
 
         test_plan_report = TestReport(**data)
         test_plan_report.propagate_tag_indices()
 
         test_plan_report.status_override = status_override
         test_plan_report.timer = timer
+        test_plan_report.logs = logs
+
         return test_plan_report

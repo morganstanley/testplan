@@ -285,17 +285,31 @@ def test_run_testcases_iter():
         thread_pool_size=3,
         **MTEST_DEFAULT_PARAMS
     )
+    mtest.dry_run()
 
     results = list(mtest.run_testcases_iter())
-    assert len(results) == 4
+    assert len(results) == 8
 
     testcase_report, parent_uids = results[0]
     assert parent_uids == ["MTest", "Suite"]
+    assert testcase_report.unknown
+    assert testcase_report.runtime_status == report.RuntimeStatus.RUNNING
+    assert len(testcase_report.entries) == 0
+
+    testcase_report, parent_uids = results[1]
+    assert parent_uids == ["MTest", "Suite"]
     _check_testcase_report(testcase_report)
 
-    for i, (testcase_report, parent_uids) in enumerate(results[1:]):
+    for i, (testcase_report, parent_uids) in enumerate(results[2:]):
         assert parent_uids == ["MTest", "Suite", "parametrized"]
-        _check_param_testcase_report(testcase_report, i)
+        if i % 2 == 0:
+            assert testcase_report.unknown
+            assert (
+                testcase_report.runtime_status == report.RuntimeStatus.RUNNING
+            )
+            assert len(testcase_report.entries) == 0
+        else:
+            _check_param_testcase_report(testcase_report, int(i / 2))
 
 
 def _check_parallel_testcase(testcase_report, i):
