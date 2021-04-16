@@ -282,7 +282,8 @@ class TestRunner(Runnable):
 
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
-        self._tests = OrderedDict()  # uid to resource
+        self._tests = OrderedDict()  # uid to resource, in definition order
+
         self._part_instance_names = set()  # name of Multitest part
         self._result.test_report = TestReport(
             name=self.cfg.name,
