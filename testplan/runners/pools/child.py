@@ -70,7 +70,7 @@ class ChildLoop(object):
             worker_type=self._worker_type,
             size=self._pool_size,
             runpath=self.runpath,
-            should_rerun=lambda pool, task_result: False,  # always return False
+            allow_task_rerun=False,  # always return False
         )
         self._pool.parent = self
         self._pool.cfg.parent = self._pool_cfg
@@ -126,7 +126,7 @@ class ChildLoop(object):
                 message.make(send), expect=expect
             )
         except AttributeError:
-            self.logger.critical("Pool seems dead, child exits.")
+            self.logger.critical("Pool seems dead, child exits2.")
             raise
 
     def _pre_loop_setup(self, message):
@@ -186,6 +186,7 @@ class ChildLoop(object):
             next_heartbeat = time.time()
             request_delay = self._pool_cfg.active_loop_sleep
             while True:
+                # TODO: SHALL CHECK CHILD POOL ALIVE HERE
                 now = time.time()
 
                 if self._pool_cfg.worker_heartbeat and now > next_heartbeat:
@@ -193,7 +194,7 @@ class ChildLoop(object):
                         message.make(message.Heartbeat, data=time.time())
                     )
                     if hb_resp is None:
-                        self.logger.critical("Pool seems dead, child exits.")
+                        self.logger.critical("Pool seems dead, child exits1.")
                         self.exit_loop()
                         break
                     else:
@@ -224,8 +225,9 @@ class ChildLoop(object):
                     )
 
                 # Request new tasks
-                demand = self._pool.workers_requests() - len(
-                    self._pool.unassigned
+                demand = (
+                    self._pool.workers_requests()
+                    - self._pool.unassigned.qsize()
                 )
 
                 if demand > 0 and time.time() > next_possible_request:

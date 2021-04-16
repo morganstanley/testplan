@@ -80,7 +80,7 @@ and many Test instances can be created from the same target function:
                     args=(idx,))  # or kwargs={'index': idx}
 
 With argument `rerun` testplan can rerun the task up to user specified times
-unless it passes:
+until it passes:
 
 .. code-block:: python
 
@@ -91,17 +91,27 @@ unless it passes:
                 path=os.path.dirname(os.path.abspath(__file__)),
                 rerun=3)  # default value 0 means no rerun
 
-A custom funtion can be used to determine if the task needs to run again, the
-default implementation is to check that task has been executed and the status
-of report is PASS.
+Task rerun can be disabled at pool level with ``allow_task_rerun`` parameter.
 
 .. code-block:: python
 
     # ./test_plan.py
 
-    pool = ThreadPool(name="MyPool", should_rerun=custom_func)
-    # can also set the custom func later
-    pool.set_rerun_check(custom_func)
+    pool = ThreadPool(name="MyPool", allow_task_rerun=False)
+
+Task can associate with a `weight` value, and it affects task scheduling - the
+larger the weight, the sooner task will be assigned to a worker. Default weight
+is 0, and tasks with the same weight will be scheduled in the order they are added.
+
+.. code-block:: python
+
+    # ./test_plan.py
+
+    task = Task(target='make_multitest',
+                module='tasks',
+                path=os.path.dirname(os.path.abspath(__file__)),
+                weight=100)
+
 
 TaskResult
 ++++++++++
@@ -128,8 +138,8 @@ and executed by a worker.
         task = Task(target='make_multitest', ...)
         plan.schedule(task, resource='PoolName')
 
-Pool types
-----------
+Basic pool types
+----------------
 
 The base pool object accepts some
 :py:class:`configuration <testplan.runners.pools.base.PoolConfig>` options that
@@ -251,39 +261,9 @@ failures and their behaviour is a part of
        ``worker_heartbeat`` option.
        If worker fails to send a number of heartbeats (``heartbeats_miss_limit``
        option), all tasks assigned to the worker will be reassigned to the pool.
-    2. **Task reassign limit**: The maximum number of generally how many times a
-       task can be scheduled to a worker can be configured using
-       ``task_retries_limit`` option.
-    3. **Task reschedule**: A user has the ability to set a custom callable to
-       evaluate whether a task should be rescheduled (i.e failed due to a very
-       rare system failure). In order to determine that, the callable accepts
-       the ``pool`` object and the ``task_result`` which will contain the
-       result report. The report may contain an error entry like *out of memory*
-       or generally information that upon that the user may decide that the task
-       should be rescheduled instead of its result to be used in the final plan
-       report.
-
-       .. code-block:: python
-
-           def custom_reschedule(pool, task_result):
-               # task_result.result -> TestResult instance
-               # task_result.result.report -> TestReportInstance
-               ...
-               if ..should_reschedule..:
-                 return True
-               return False
-
-           # Instantiate a pool with custom configuration options.
-           pool = ProcessPool(name=pool_name,
-                              size=pool_size,
-                              worker_heartbeat=2,
-                              heartbeats_miss_limit=2)
-
-           # Set custom reschedule callable logic.
-           pool.set_reschedule_check(custom_reschedule)
-
-           # Add the pool to the plan.
-           pool_uid = plan.add_resource(pool)
+    2. **Task retry**: If a worker dies while running a task, testplan will
+       restart the worker and retry the task (for 2 times max). Note that this
+       retry behavior doesn't have to do with the Task's rerun setting.
 
 .. _Multitest_parts_scheduling:
 
