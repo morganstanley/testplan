@@ -2,29 +2,75 @@
 
 exports[`NavBreadcrumbs shallow renders the correct HTML structure 1`] = `
 <div
-  className="navBreadcrumbs_koaten"
+  className="makeStyles-navBreadcrumbs-1"
 >
   <ul
-    className="breadcrumbContainer_1qdzaym"
+    className="makeStyles-breadcrumbContainer-2"
   >
     <li
-      key="123"
+      key="breadcrumbMenuHome"
     >
       <Link
-        className="breadcrumbEntry_qbjkug-o_O-unselectable_16maxrd"
+        className="makeStyles-link-7"
         to="/testplan/123"
       >
-        <NavEntry
-          caseCountFailed={0}
-          caseCountPassed={0}
-          description="desc"
-          displayTime={false}
-          executionTime={null}
-          name="test"
-          status="passed"
-          type="testplan"
-        />
+        <WithStyles(ForwardRef(Button))
+          className="makeStyles-breadcrumbMenu-4 makeStyles-breadcrumbMenuButton-5"
+          disableRipple={true}
+          style={
+            Object {
+              "paddingLeft": "10px",
+            }
+          }
+        >
+          <FontAwesomeIcon
+            border={false}
+            className="makeStyles-homeIcon-3"
+            fixedWidth={false}
+            flip={null}
+            icon="home"
+            inverse={false}
+            key="breadcrumbMenuHomeIcon"
+            listItem={false}
+            mask={null}
+            pull={null}
+            pulse={false}
+            rotation={null}
+            size={null}
+            spin={false}
+            symbol={false}
+            title="Home"
+            transform={null}
+          />
+        </WithStyles(ForwardRef(Button))>
       </Link>
+    </li>
+    <li
+      key="breadcrumbMenutestplan"
+    >
+      <BreadcrumbMenu
+        current={
+          Object {
+            "category": "testplan",
+            "counter": Object {
+              "failed": 0,
+              "passed": 0,
+            },
+            "description": "desc",
+            "name": "test",
+            "status": "passed",
+            "uid": "123",
+            "uids": Array [
+              "123",
+            ],
+          }
+        }
+        handleNextOpenItem={[Function]}
+        isOpen={false}
+        key="123"
+        nextSelectedUid={null}
+        url="/testplan/:uid/:selection*"
+      />
     </li>
   </ul>
 </div>
