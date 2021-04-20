@@ -217,29 +217,6 @@ export function prepareDictColumnDefs(cellStyle, cellRenderer, hasExpected) {
   return columnDefs;
 }
 
-
-/**
- * Convert _BYTES_KEY type object to string
- * We will remove this backward-compat code in future.
- *
- * @param {object} value - Result of the object as a built-in type or _BYTES_KEY
- * @returns {String}
- * @private
- */
-function formatBytesKeyValue(value) {
-  if (typeof value === 'object') {
-    if (value['_BYTES_KEY']) {
-      return String(value['_BYTES_KEY']);
-    } else {
-      console.log("Cannot format unknown type!");
-      console.log(value);
-      return String(value);
-    }
-  }
-  return value;
-}
-
-
 /**
  * Prepare the rows for Dict/FixMatch assertions.
  *
@@ -286,13 +263,13 @@ export function prepareDictRowData(data, lineNo) {
       lineObject.key = { value: key, type: 'key' };
       if (hasAcutalValue) {
         lineObject.value = {
-          value: formatBytesKeyValue(actualValue[1]),
+          value: actualValue[1],
           type: actualValue[0]
         };
       }
       if (hasExpectedValue) {
         lineObject.expected = {
-          value: formatBytesKeyValue(expectedValue[1]),
+          value: expectedValue[1],
           type: expectedValue[0]
         };
       }
