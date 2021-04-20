@@ -271,14 +271,11 @@ class MultiTest(testing_base.Test):
         else:
             return self.cfg.name
 
-    def get_test_context(self, test_filter=None):
+    def get_test_context(self):
         """
         Return filtered & sorted list of suites & testcases
         via `cfg.test_filter` & `cfg.test_sorter`.
 
-        :param test_filter: Class with test filtering logic, used for filtering
-            testcase in interactive mode while in batch mode it is ``None``.
-        :type test_filter: :py:class:`~testplan.testing.filtering.BaseFilter`
         :return: Test suites and testcases belong to them.
         :rtype: ``list`` of ``tuple``
         """
@@ -287,8 +284,6 @@ class MultiTest(testing_base.Test):
 
         for suite in sorted_suites:
             testcases = suite.get_testcases()
-
-            # Should not re-order testcases if `strict_order` is specified
             sorted_testcases = (
                 testcases
                 if getattr(suite, "strict_order", False)
@@ -298,18 +293,16 @@ class MultiTest(testing_base.Test):
             testcases_to_run = [
                 case
                 for case in sorted_testcases
-                if (test_filter or self.cfg.test_filter).filter(
+                if self.cfg.test_filter.filter(
                     test=self, suite=suite, case=case
                 )
             ]
 
-            # In batch mode no testcase should be removed if `strict_order` is
-            # specified, unless all of the testcases have been filtered out.
-            if (
-                test_filter is None
-                and getattr(suite, "strict_order", False)
-                and 0 < len(testcases_to_run) < len(sorted_testcases)
-            ):
+            # In batch mode if `strict_order` is specified, then either
+            # all of the testcases are filtered out, or left unchanged.
+            if getattr(suite, "strict_order", False) and 0 < len(
+                testcases_to_run
+            ) < len(sorted_testcases):
                 testcases_to_run = sorted_testcases
 
             if self.cfg.part and self.cfg.part[1] > 1:
@@ -329,7 +322,7 @@ class MultiTest(testing_base.Test):
         A testing process that creates a full structured report without
         any assertion entry. Initial status of each entry can be set.
         """
-        suites_to_run = self.get_test_context()
+        suites_to_run = self.test_context
         self.result.report = self._new_test_report()
 
         for testsuite, testcases in suites_to_run:
@@ -393,15 +386,24 @@ class MultiTest(testing_base.Test):
 
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
         """Run all testcases and yield testcase reports."""
-        pattern = filtering.Pattern(
+        test_filter = filtering.Pattern(
             pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),
             match_definition=True,
         )
-        testsuites = self.get_test_context(test_filter=pattern)
 
-        for testsuite, testcases in testsuites:
+        for testsuite, testcases in self.test_context:
             if not self.active:
                 break
+
+            # In interactive mode testcases are selected to run, thus
+            # an extra ``filtering.Pattern`` instance will be applied.
+            testcases = [
+                testcase
+                for testcase in testcases
+                if test_filter.filter(
+                    test=self, suite=testsuite, case=testcase
+                )
+            ]
 
             # In python 3 we would use "yield from" but have to explicitly
             # write out the loop for python 2 support...
