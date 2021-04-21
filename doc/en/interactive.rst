@@ -47,7 +47,9 @@ The reload happens on reload API and only applies to modules that have either
 been modified or have had its dependencies reloaded.
 
 Please note the ``__main__`` module (i.e. test_plan.py) cannot be reloaded.
-Because of this, it is recommended that test suites are defined in seperate modules that can be reloaded.
+Because of this, it is recommended that test suites are defined in seperate modules.
+Another known limitation is that we are not able to reload module that is under
+namespace package, and the workaround is to add dummy __init__.py file.
 
 The steps of the reload process are described below:
 
