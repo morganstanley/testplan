@@ -78,6 +78,9 @@ class Executor(Resource):
         raise NotImplementedError()
 
     def _prepopulate_runnables(self):
+        # If we are to apply test_sorter, it would be here
+        # but it's not easy to implement a reasonable behavior
+        # as _input could be a mixture of runnable/task/callable
         self.ongoing = list(self._input.keys())
 
     def starting(self):

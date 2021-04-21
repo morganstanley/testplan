@@ -62,10 +62,14 @@ class Task(object):
     :type kwargs: ``kwargs``
     :param uid: Task uid.
     :type uid: ``str``
-    :param rerun: Rerun the task up to user specified times unless it passes,
-        by default 0 (no rerun). To enable task rerun feature, this value can
-        be at most 3.
+    :param rerun: Rerun the task up to user specified times until it passes,
+        by default 0 (no rerun). To enable task rerun feature, set to positive
+        value no greater than 3.
     :type rerun: ``int``
+    :param weight: Affects task scheduling - the larger the weight, the sooner
+        task will be assigned to a worker. Default weight is 0, tasks with the
+        same weight will be scheduled in the order they are added.
+    :type weight: ``int``
     """
 
     MAX_RERUN_LIMIT = 3
@@ -79,6 +83,7 @@ class Task(object):
         kwargs=None,
         uid=None,
         rerun=0,
+        weight=0,
     ):
         self._target = target
         self._module = module
@@ -94,6 +99,7 @@ class Task(object):
         )
         self._assign_for_rerun = 0
         self._executors = OrderedDict()
+        self.priority = -weight
 
         if self._max_rerun_limit < 0:
             raise ValueError("Value of `rerun` cannot be negative.")
