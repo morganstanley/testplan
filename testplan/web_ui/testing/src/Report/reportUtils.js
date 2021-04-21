@@ -208,6 +208,7 @@ const GetCenterPane = (
     ) {
     return (
       <AssertionPane
+        key={selectiedEntry? selectiedEntry.hash || selectiedEntry.uid : null}
         assertions={assertions}
         logs={logs}
         descriptionEntries={selectedDescription}
@@ -356,8 +357,6 @@ const getSelectedUIDsFromPath = ({uid, selection}, uidDecoder) => {
 };
   
 
-
-
 export {
   PropagateIndices,
   GetReportState,
@@ -368,4 +367,3 @@ export {
   isValidSelection,
   getSelectedUIDsFromPath,
 };
-
