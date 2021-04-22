@@ -178,16 +178,10 @@ def test_reassign_times_limit(mockplan):
     assert mockplan.report.counter["error"] == 1
 
 
-def test_custom_rerun_condition(mockplan):
-    """Force reschedule task X times to test logic."""
+def test_disable_rerun_in_pool(mockplan):
     pool_name = ProcessPool.__name__
     uid = "custom_task_uid"
     rerun_limit = 2
-
-    def custom_rerun(pool, task_result):
-        if task_result.task.reassign_cnt > task_result.task.rerun:
-            return False
-        return True
 
     pool_size = 4
     pool = ProcessPool(
@@ -197,8 +191,8 @@ def test_custom_rerun_condition(mockplan):
         heartbeats_miss_limit=2,
         max_active_loop_sleep=1,
         restart_count=0,
+        allow_task_rerun=False,
     )
-    pool.set_rerun_check(custom_rerun)
     pool_uid = mockplan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -229,7 +223,7 @@ def test_custom_rerun_condition(mockplan):
 
     assert res.success is True
     assert mockplan.report.status == Status.PASSED
-    assert pool.added_item(uid).reassign_cnt == rerun_limit
+    assert pool.added_item(uid).reassign_cnt == 0
 
 
 @pytest.mark.skip("Target is materialized before scheduling")

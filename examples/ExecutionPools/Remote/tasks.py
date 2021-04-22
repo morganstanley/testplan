@@ -76,7 +76,6 @@ def make_multitest(index=0, files=None):
     Creates a new MultiTest that runs TCP connection tests.
     This will be created inside a remote worker.
     """
-    print("Creating a MultiTest on process id {}.".format(os.getpid()))
     test = MultiTest(
         name="TCPMultiTest_{}".format(index),
         suites=[TCPTestsuite(files)],
