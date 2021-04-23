@@ -1,0 +1,2 @@
+echo testplan
+read UNUSED

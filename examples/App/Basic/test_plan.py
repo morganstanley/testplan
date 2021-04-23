@@ -23,6 +23,7 @@ class MyTestsuite(object):
         matcher = LogMatcher(log_path=env.echo.outpath)
         matched = matcher.match(re.compile(r"testplan"))
         result.true(matched, description="testplan in stdout")
+        env.echo.proc.stdin.write(b"finish\n")
 
 
 def after_stop_fn(env, result):
@@ -32,7 +33,8 @@ def after_stop_fn(env, result):
 @test_plan(name="App driver example")
 def main(plan):
     """
-    A simple example that demonstrate App driver usage.
+    A simple example that demonstrate App driver usage. App prints 'testplan' to
+    standard output on startup and then waits for a user input simulating a long running app.
     """
     plan.add(
         MultiTest(
@@ -41,8 +43,8 @@ def main(plan):
             environment=[
                 App(
                     "echo",
-                    binary="/bin/echo",
-                    args=["testplan"],
+                    binary="echo.sh",
+                    shell=True,
                     stdout_regexps=[
                         re.compile(r"testplan")
                     ],  # argument inherited from Driver class
