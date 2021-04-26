@@ -1071,11 +1071,7 @@ class MultiTest(testing_base.Test):
 
             # Suite name is unique in a Multitest instance and it is used as UID
             if param_template:
-                parent_uids = [
-                    self.uid(),
-                    testsuite.name,
-                    testcase._parametrization_template,
-                ]
+                parent_uids = [self.uid(), testsuite.name, param_template]
             else:
                 parent_uids = [self.uid(), testsuite.name]
 

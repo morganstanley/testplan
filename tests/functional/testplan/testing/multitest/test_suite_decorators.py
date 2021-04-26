@@ -26,25 +26,32 @@ from testplan.testing.multitest.suite import (
 
 
 def pre1(name, self, env, result):
-    result.equal(2, 2)
     result.contain("case", name)
 
 
 def post1(name, self, env, result):
-    result.equal(2, 2)
     result.contain("case", name)
 
 
 def pre2(name, self, env, result, a=None, b=None):
-    result.equal(2, 2)
     result.contain("case", name)
 
 
 def post2(name, self, env, result, a=None, b=None):
-    result.equal(2, 2)
     result.contain("case", name)
     if name == "case5":
-        raise RuntimeError("raise for no reason")
+        raise RuntimeError("post2 raises")
+
+
+def pre3(name, self, env, result):
+    result.contain("case", name)
+    if name == "case4":
+        raise RuntimeError("pre3 raises")
+
+
+def post3(name, self, env, result):
+    result.contain("case", name)
+    raise RuntimeError("post3 raises")
 
 
 @pre_testcase(pre1)
@@ -98,6 +105,28 @@ class Suite2(object):
         result.equal(1, 2)
 
 
+@pre_testcase(pre3)
+@post_testcase(post2, post3)
+@testsuite(name="Test Suite")
+class Suite3(object):
+    @testcase
+    def case4(self, env, result):
+        result.equal(2, 2)
+
+    @testcase
+    def case5(self, env, result):
+        result.equal(1, 2)
+
+    @testcase
+    def case6(self, env, result):
+        result.equal(1, 2)
+
+    @testcase
+    def case7(self, env, result):
+        result.equal(1, 1)
+        raise RuntimeError("case7 raises")
+
+
 def test_basic_multitest(mockplan):
     """Basic test for suite decorator."""
     mtest = MultiTest(name="MTest", suites=[Suite1(), Suite2(0), Suite2(1)])
@@ -135,7 +164,7 @@ def test_basic_multitest(mockplan):
                 assert isinstance(tc_entry, TestCaseReport)
                 if tc_entry.name == "case5":
                     assert tc_entry.status == Status.ERROR
-                    assert "raise for no reason" in tc_entry.logs[0]["message"]
+                    assert "post2 raises" in tc_entry.logs[0]["message"]
 
 
 @pytest.mark.parametrize(
@@ -235,3 +264,29 @@ def test_unexpected_name_attribute_in_suite_object(mockplan):
             mockplan.run()
 
         pytest.fail("Attribute `name` of test suite object is invalid.")
+
+
+def test_post_testcase_methods_executed_on_exception(mockplan):
+    """
+    Pre-testcase methods or testcase itself may raise exception but
+    post-testcases methods must be executed if they have been defined.
+    The first exception caught will be recorded in logs of test report.
+    """
+    mtest = MultiTest(name="MTest", suites=[Suite3()], stop_on_error=False)
+    mockplan.add(mtest)
+
+    with log_propagation_disabled(TESTPLAN_LOGGER):
+        res = mockplan.run()
+
+    assert res.run is True
+    st_entry = mockplan.report.entries[0].entries[0]
+    assert len(st_entry) == 4  # 4 testcases
+
+    assert len(st_entry.entries[0]) == 3  # pre3 raised, testcase did not run
+    assert "pre3 raises" in st_entry.entries[0].logs[0]["message"]
+    assert len(st_entry.entries[1]) == 4  # post2 raised, post3 still run
+    assert "post2 raises" in st_entry.entries[1].logs[0]["message"]
+    assert len(st_entry.entries[2]) == 4  # post2 went well, post3 raised
+    assert "post3 raises" in st_entry.entries[2].logs[0]["message"]
+    assert len(st_entry.entries[3]) == 4  # case7 raised, then post3 raises
+    assert "case7 raises" in st_entry.entries[3].logs[0]["message"]

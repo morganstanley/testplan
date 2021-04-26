@@ -804,14 +804,34 @@ def _gen_testcase_with_pre(testcase_method, preludes):
         """
         Testcase with prelude
         """
-        for prelude in preludes:
-            prelude(
-                testcase_method.__name__,
-                *args,
-                **_get_kwargs(kwargs, testcase_method)
-            )
-        return testcase_method(*args, **kwargs)
+        try:
+            for prelude in preludes:
+                prelude(
+                    testcase_method.__name__,
+                    *args,
+                    **_get_kwargs(kwargs, testcase_method)
+                )
+        except Exception as exc:
+            epilogues = getattr(testcase_method, "_post_testcase_methods", [])
+            if epilogues:
+                # even if a pre-testcase method raises an exception,
+                # post-testcase methods still need to be executed, and the
+                # original exception will be thrown to the outside but ignoring
+                # the new exceptions raised from post-testcase methods.
+                _run_epilogues(
+                    epilogues,
+                    testcase_method.__name__,
+                    *args,
+                    **_get_kwargs(kwargs, testcase_method)
+                )
+            raise exc
+        else:
+            return testcase_method(*args, **kwargs)
 
+    testcase_with_pre._pre_testcase_methods = preludes
+    testcase_with_pre._post_testcase_methods = getattr(
+        testcase_method, "_post_testcase_methods", []
+    )
     return testcase_with_pre
 
 
@@ -852,11 +872,12 @@ def _gen_testcase_with_post(testcase_method, epilogues):
         Testcase with epilogue
         """
         try:
-            testcase_method(*args, **kwargs)
+            result = testcase_method(*args, **kwargs)
         except Exception as exc:
-            # even testcase method raises an exception, post-testcase methods
-            # still need to be executed, if any of them raises, the exception
-            # should be caught and will not overwrite the original one.
+            # even if testcase method raises an exception, post-testcase
+            # methods still need to be executed, and the original exception
+            # will be thrown to the outside but ignoring the new exceptions
+            # raised from post-testcase methods.
             _run_epilogues(
                 epilogues,
                 testcase_method.__name__,
@@ -875,7 +896,13 @@ def _gen_testcase_with_post(testcase_method, epilogues):
             )
             if len(exceptions) > 0:
                 raise exceptions[0]
+            else:
+                return result
 
+    testcase_with_post._pre_testcase_methods = getattr(
+        testcase_method, "_pre_testcase_methods", []
+    )
+    testcase_with_post._post_testcase_methods = epilogues
     return testcase_with_post
 
 
