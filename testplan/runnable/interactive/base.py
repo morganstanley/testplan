@@ -26,9 +26,7 @@ from testplan.runnable.interactive import resource_loader
 from testplan.report import (
     TestReport,
     TestGroupReport,
-    Status,
     RuntimeStatus,
-    ReportCategories,
 )
 
 
@@ -351,8 +349,11 @@ class TestRunnerIHandler(entity.Entity):
 
         test = self.test(test_uid)
         test.start_test_resources()
+
         # Re-initialize report of Multitest if environment restarted
-        self.report[test_uid] = test.dry_run().report
+        with self.report_mutex:
+            if self.report[test_uid].runtime_status != RuntimeStatus.RUNNING:
+                self.report[test_uid] = test.dry_run().report
 
         with self.report_mutex:
             self.report[test_uid].env_status = entity.ResourceStatus.STARTED
