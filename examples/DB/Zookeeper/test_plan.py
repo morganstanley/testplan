@@ -11,6 +11,7 @@ try:
 except ImportError:
     print("Cannot import kazoo!")
     exit()
+
 from testplan import test_plan
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.driver.zookeeper import (

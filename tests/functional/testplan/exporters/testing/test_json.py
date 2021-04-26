@@ -2,11 +2,7 @@
 import os
 import json
 import copy
-import hashlib
 import tempfile
-
-import pytest
-import six
 
 from testplan import TestplanMock
 from testplan.testing import multitest

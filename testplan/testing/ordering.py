@@ -1,12 +1,11 @@
 """
-    Classes for sorting test context before a test run.
+Classes for sorting test context before a test run.
 
-    Warning: `sort_instances` functionality is not supported yet, but the
-    API is available for future compatibility.
+Warning: `sort_instances` functionality is not supported yet, but the
+API is available for future compatibility.
 """
 import operator
 import random
-import six
 from enum import Enum
 
 from testplan.common.utils.convert import make_tuple
@@ -31,7 +30,7 @@ class SortType(Enum):
         """
 
         def validate_single(v):
-            if isinstance(v, six.string_types):
+            if isinstance(v, str):
                 return SortType(v.lower()).value
             if isinstance(v, SortType):
                 return v.value

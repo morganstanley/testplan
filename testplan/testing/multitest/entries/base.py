@@ -7,8 +7,6 @@ import pprint
 import re
 import os
 
-from past.builtins import basestring
-
 from testplan.common.utils.convert import nested_groups
 from testplan.common.utils.timing import utcnow
 from testplan.common.utils.table import TableEntry
@@ -78,8 +76,6 @@ class BaseEntry(object):
         """MyClass -> My Class"""
         return readable_name(self.__class__.__name__)
 
-    __nonzero__ = __bool__
-
     def serialize(self):
         """Shortcut method for serialization via schemas"""
         from .schemas.base import registry
@@ -98,8 +94,6 @@ class Group(object):
 
     def __bool__(self):
         return self.passed
-
-    __nonzero__ = __bool__
 
     def __repr__(self):
         return "{}(entries={}, description='{}')".format(
@@ -223,8 +217,10 @@ class Log(BaseEntry):
     """Log a str to the report."""
 
     def __init__(self, message, description=None, flag=None):
-        if isinstance(message, basestring):
+        if isinstance(message, str):
             self.message = message
+        elif isinstance(message, bytes):
+            self.message = message.decode()
         else:
             self.message = pprint.pformat(message)
 
@@ -393,10 +389,12 @@ class CodeLog(BaseEntry):
     """Save source code to the report."""
 
     def __init__(self, code, language="python", description=None):
-        if isinstance(code, basestring):
+        if isinstance(code, str):
             self.code = code
+        elif isinstance(code, bytes):
+            self.code = code.decode()
         else:
-            raise ValueError("Code must be a string")
+            raise TypeError("Code must be a string")
         self.language = language
         super(CodeLog, self).__init__(description=description)
 
@@ -405,8 +403,10 @@ class Markdown(BaseEntry):
     """Save markdown to the report."""
 
     def __init__(self, message, description=None, escape=True):
-        if isinstance(message, basestring):
+        if isinstance(message, str):
             self.message = message
+        elif isinstance(message, bytes):
+            self.message = message.decode()
         else:
             raise ValueError("Message must be a string")
         self.escape = escape

@@ -1,9 +1,9 @@
 """Filtering logic for Multitest, Suites and testcase methods (of Suites)"""
+
 import argparse
 import collections
 import operator
 import fnmatch
-
 from enum import Enum, unique
 
 from testplan.testing import tagging

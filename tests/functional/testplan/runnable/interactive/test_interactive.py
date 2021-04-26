@@ -1,17 +1,8 @@
 """Interactive mode tests."""
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 
-from builtins import range
-from builtins import next
-from future import standard_library
-
-standard_library.install_aliases()
 import os
 import re
 
-import six
 import requests
 import pytest
 
@@ -236,7 +227,7 @@ def test_top_level_environment():
                     env_uid, resource_uid=resource
                 )
                 assert env_context[resource] == res_context
-                assert isinstance(res_context["host"], six.string_types)
+                assert isinstance(res_context["host"], str)
                 assert isinstance(res_context["port"], int)
                 assert res_context["port"] > 0
 

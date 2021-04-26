@@ -1,13 +1,11 @@
 """HTTPServer Driver."""
 
-import os
 import time
+import queue
+import http.server as http_server
 from threading import Thread
 
 from schema import Use
-
-import six.moves.BaseHTTPServer as http_server
-from six.moves import queue
 
 from testplan.common.config import ConfigOption as Optional
 from testplan.common.utils.strings import slugify

@@ -1,10 +1,8 @@
 """Utilities related to python callables (functions, methods, classes etc.)"""
 
-from collections import namedtuple
 import inspect
 import functools
-
-import six
+from collections import namedtuple
 
 
 WRAPPER_ASSIGNMENTS = functools.WRAPPER_ASSIGNMENTS + (
@@ -56,26 +54,23 @@ def getargspec(callable_):
     # 3.8, due to the addition of keyword-only args and type annotations
     # (see PEPs 3102 and 484 for more information). To retain backwards
     # compatibility we convert from a FullArgSpec to a python2 ArgSpec.
-    if six.PY3:
-        full_argspec = inspect.getfullargspec(func)
+    full_argspec = inspect.getfullargspec(func)
 
-        # Raise a ValueError if the function has any keyword-only args defined,
-        # since we can't easily handle them in a way that is also python 2
-        # compatible. On the other hand, we can just discard any information on
-        # type annotations.
-        if full_argspec.kwonlyargs:
-            raise ValueError(
-                "Cannot get argspec for function with keyword-only args "
-                "defined: {}".format(func)
-            )
-        return ArgSpec(
-            args=full_argspec.args,
-            varargs=full_argspec.varargs,
-            keywords=full_argspec.varkw,
-            defaults=full_argspec.defaults,
+    # Raise a ValueError if the function has any keyword-only args defined,
+    # since we can't easily handle them in a way that is also python 2
+    # compatible. On the other hand, we can just discard any information on
+    # type annotations.
+    if full_argspec.kwonlyargs:
+        raise ValueError(
+            "Cannot get argspec for function with keyword-only args "
+            "defined: {}".format(func)
         )
-    else:
-        return inspect.getargspec(func)
+    return ArgSpec(
+        args=full_argspec.args,
+        varargs=full_argspec.varargs,
+        keywords=full_argspec.varkw,
+        defaults=full_argspec.defaults,
+    )
 
 
 # backport from python 3.6, 2.7 version does not catch AttributeError

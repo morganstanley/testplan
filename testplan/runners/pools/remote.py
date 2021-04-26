@@ -6,7 +6,6 @@ import signal
 import socket
 import getpass
 import platform
-import six
 import itertools
 from multiprocessing.pool import ThreadPool
 
@@ -270,7 +269,7 @@ class RemoteWorker(ProcessWorker):
         # is specified also:
         # [('/local/path/to/file1', '/remote/path/to/file1'),
         #  ('/local/path/to/file2', '/remote/path/to/file2')]
-        if all(isinstance(cfg, six.string_types) for cfg in self.cfg.push):
+        if all(isinstance(cfg, str) for cfg in self.cfg.push):
             push_sources = self.cfg.push
             push_dsts = self._build_push_dests(push_sources)
             push_locations = zip(push_sources, push_dsts)

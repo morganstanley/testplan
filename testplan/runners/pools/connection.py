@@ -2,18 +2,17 @@
 
 import pickle
 import warnings
-import six
-import abc
-import zmq
 import time
-from six.moves import queue
+import queue
+import abc
+
+import zmq
 
 from testplan.common import entity
 from testplan.common.utils import logger
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Client(logger.Loggable):
+class Client(logger.Loggable, metaclass=abc.ABCMeta):
     """
     Workers are Client in Pool/Worker communication.
     Abstract base class for workers to communicate with its pool."""
@@ -268,8 +267,7 @@ class ZMQClientProxy(object):
             raise RuntimeError("Responding to inactive worker")
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Server(entity.Resource):
+class Server(entity.Resource, metaclass=abc.ABCMeta):
     """
     Abstract base class for pools to communicate to its workers.
     """

@@ -1,16 +1,7 @@
 """
 Http handler for interactive mode.
 """
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 
-from builtins import super
-from builtins import str
-from future import standard_library
-
-standard_library.install_aliases()
 import os
 import time
 import functools
@@ -23,7 +14,7 @@ from flask import request
 from cheroot import wsgi
 import werkzeug.exceptions
 import marshmallow.exceptions
-from six.moves.urllib.parse import unquote_plus
+from urllib.parse import unquote_plus
 
 import testplan
 from testplan.common.config import ConfigOption
