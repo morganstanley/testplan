@@ -175,7 +175,7 @@ def test_task_rerun_in_thread_pool(mockplan):
         tempfile.gettempdir(), getpass.getuser(), "{}.tmp".format(uuid.uuid4())
     )
     task = Task(
-        target=make_multitest_1, path=directory, args=(tmp_file,), rerun=2
+        target=make_multitest_1, path=directory, args=(tmp_file,), rerun=3
     )
     uid = mockplan.schedule(task=task, resource=pool_name)
 

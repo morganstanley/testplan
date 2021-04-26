@@ -473,6 +473,37 @@ class Pool(Executor):
 
     def _handle_taskresults(self, worker, request, response):
         """Handle a TaskResults message from a worker."""
+
+        def task_should_rerun():
+            if not self.cfg.allow_task_rerun:
+                return False
+            if not task_result.task:
+                return False
+            if task_result.task.rerun == 0:
+                return False
+
+            result = task_result.result
+            if (
+                task_result.status
+                and result
+                and result.run
+                and result.report.passed
+            ):
+                return False
+
+            if task_result.task.reassign_cnt >= task_result.task.rerun:
+                self.logger.test_info(
+                    "Will not rerun %(input)s again as it already "
+                    "reached max rerun limit %(reruns)d",
+                    {
+                        "input": self._input[uid],
+                        "reruns": task_result.task.rerun,
+                    },
+                )
+                return False
+
+            return True
+
         worker.respond(response.make(Message.Ack))
         for task_result in request.data:
             uid = task_result.task.uid()
@@ -482,31 +513,21 @@ class Pool(Executor):
                 "De-assign {} from {}".format(task_result.task, worker)
             )
 
-            if self.cfg.allow_task_rerun:
-                if task_result.task.reassign_cnt >= task_result.task.rerun:
-                    self.logger.test_info(
-                        "Will not rerun %(input)s again as it already "
-                        "reached max rerun limit %(reruns)d",
-                        {
-                            "input": self._input[uid],
-                            "reruns": task_result.task.rerun,
-                        },
-                    )
-                else:
-                    self.logger.test_info(
-                        "Will rerun %(task)s for max %(rerun)d more times",
-                        {
-                            "task": task_result.task,
-                            "rerun": task_result.task.rerun
-                            - task_result.task.reassign_cnt,
-                        },
-                    )
-                    self.unassigned.put((task_result.task.priority, uid))
-                    self._task_retries_cnt[uid] = 0
-                    self._input[uid].reassign_cnt += 1
-                    # Will rerun task, but still need to retain the result
-                    self._append_temporary_task_result(task_result)
-                    continue
+            if task_should_rerun():
+                self.logger.test_info(
+                    "Will rerun %(task)s for max %(rerun)d more times",
+                    {
+                        "task": task_result.task,
+                        "rerun": task_result.task.rerun
+                        - task_result.task.reassign_cnt,
+                    },
+                )
+                self.unassigned.put((task_result.task.priority, uid))
+                self._task_retries_cnt[uid] = 0
+                self._input[uid].reassign_cnt += 1
+                # Will rerun task, but still need to retain the result
+                self._append_temporary_task_result(task_result)
+                continue
 
             self._print_test_result(task_result)
             self._results[uid] = task_result
