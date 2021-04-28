@@ -14,6 +14,7 @@ import {
   STATUS,
   STATUS_CATEGORY,
 } from "../Common/defaults";
+import { statusStyles } from "../Common/Styles";
 
 /**
  * Display NavEntry information:
@@ -114,21 +115,7 @@ const styles = StyleSheet.create({
   unknownBadge: {
     backgroundColor: BLACK,
   },
-  passed: {
-    color: GREEN,
-  },
-  failed: {
-    color: RED,
-  },
-  error: {
-    color: RED,
-  },
-  unstable: {
-    color: ORANGE,
-  },
-  unknown: {
-    color: BLACK,
-  },
+  ...statusStyles
 });
 
 export default NavEntry;
