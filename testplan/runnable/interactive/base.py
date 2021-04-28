@@ -23,13 +23,7 @@ from testplan.runnable.interactive import http
 from testplan.runnable.interactive import reloader
 from testplan.runnable.interactive import resource_loader
 
-from testplan.report import (
-    TestReport,
-    TestGroupReport,
-    Status,
-    RuntimeStatus,
-    ReportCategories,
-)
+from testplan.report import TestReport, TestGroupReport, RuntimeStatus
 
 
 class TestRunnerIHandlerConfig(config.Config):
