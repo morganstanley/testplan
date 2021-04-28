@@ -196,6 +196,13 @@ class Test(Runnable):
 
     @property
     def test_context(self):
+        if (
+            getattr(self, "parent", None)
+            and hasattr(self.parent, "cfg")
+            and self.parent.cfg.interactive_port is not None
+        ):
+            return self.get_test_context()
+
         if self._test_context is None:
             self._test_context = self.get_test_context()
         return self._test_context
