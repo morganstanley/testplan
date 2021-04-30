@@ -3,7 +3,6 @@
 """
 
 import itertools
-import six
 
 from reportlab.platypus import Table
 from reportlab.lib import colors
@@ -30,8 +29,7 @@ def _partition_data(data, max_rows):
     :rtype: ``generator``
     """
     return (
-        data[row : row + max_rows]
-        for row in six.moves.range(0, len(data), max_rows)
+        data[row : row + max_rows] for row in range(0, len(data), max_rows)
     )
 
 
@@ -49,7 +47,7 @@ def _partition_style(style, num_rows, max_rows):
             applicable for each new partition
     :rtype: ``generator``
     """
-    for offset in six.moves.range(0, num_rows, max_rows):
+    for offset in range(0, num_rows, max_rows):
         end_row = min(offset + max_rows, num_rows) - 1
         partition = []
 
@@ -103,7 +101,7 @@ def create_base_tables(data, style, col_widths, max_rows=MAX_TABLE_ROWS):
     :return: a list of new tables
     :rtype: ``list`` of ``Table``
     """
-    zipped = six.moves.zip(
+    zipped = zip(
         _partition_data(data, max_rows=max_rows),
         _partition_style(style, len(data), max_rows=max_rows),
     )
@@ -747,7 +745,7 @@ class RowData(object):
         :return: ``None``
         :rtype: ``NoneType``
         """
-        if isinstance(content, six.string_types):
+        if isinstance(content, str):
             content = [content] + [""] * (self.num_columns - 1)
 
         if not isinstance(content[0], (list, tuple)):

@@ -1,15 +1,9 @@
 import logging
 import functools
 import re
-import six
+from unittest import mock
 
 import pytest
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
-
 
 from testplan.common import report
 from testplan.common.report.log import LOGGER

@@ -1,13 +1,12 @@
 """Tasks and task results base module."""
 
 import sys
-import six
 import inspect
 import warnings
 import importlib
 from collections import OrderedDict
 
-from six.moves import cPickle
+import pickle
 import copy
 
 from testplan.common.utils import strings
@@ -125,7 +124,7 @@ class Task(object):
     @property
     def name(self):
         """Task name."""
-        if not isinstance(self._target, six.string_types):
+        if not isinstance(self._target, str):
             try:
                 name = self._target.__class__.__name__
             except AttributeError:
@@ -195,7 +194,7 @@ class Task(object):
         errmsg = "Cannot get a valid test object from target {}"
         target = target or copy.deepcopy(self._target)
 
-        if not isinstance(target, six.string_types):
+        if not isinstance(target, str):
             try:
                 run_method = getattr(target, "run")
                 if not inspect.ismethod(run_method):
@@ -233,7 +232,7 @@ class Task(object):
     def _string_to_target(self):
         """Dynamically load an object from a module by target name."""
         path_inserted = False
-        if isinstance(self._path, six.string_types):
+        if isinstance(self._path, str):
             sys.path.insert(0, self._path)
             path_inserted = True
 
@@ -262,9 +261,9 @@ class Task(object):
         for attr in self.all_attrs:
             data[attr] = getattr(self, attr)
         try:
-            serialized = cPickle.dumps(data)
+            serialized = pickle.dumps(data)
             if check_loadable is True:
-                cPickle.loads(serialized)
+                pickle.loads(serialized)
             return serialized
         except Exception as exc:
             raise TaskSerializationError(str(exc))
@@ -272,7 +271,7 @@ class Task(object):
     def loads(self, obj):
         """De-serialize a dumped task."""
         try:
-            data = cPickle.loads(obj)
+            data = pickle.loads(obj)
         except Exception as exc:
             raise TaskDeserializationError(str(exc))
         for attr, value in data.items():
@@ -337,9 +336,9 @@ class TaskResult(object):
         for attr in self.all_attrs:
             data[attr] = getattr(self, attr)
         try:
-            serialized = cPickle.dumps(data)
+            serialized = pickle.dumps(data)
             if check_loadable is True:
-                cPickle.loads(serialized)
+                pickle.loads(serialized)
             return serialized
         except Exception as exc:
             raise TaskSerializationError(str(exc))
@@ -347,7 +346,7 @@ class TaskResult(object):
     def loads(self, obj):
         """De-serialize a dumped task result."""
         try:
-            data = cPickle.loads(obj)
+            data = pickle.loads(obj)
         except Exception as exc:
             raise TaskDeserializationError(str(exc))
         for attr, value in data.items():

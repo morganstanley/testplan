@@ -1,17 +1,10 @@
 """Unit tests for the testplan.testing.multitest.result module."""
 
 import collections
-import six
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
-
 import os
+from unittest import mock
 
 import pytest
-
 import matplotlib
 
 matplotlib.use("agg")

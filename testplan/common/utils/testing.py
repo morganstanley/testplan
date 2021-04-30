@@ -5,9 +5,9 @@ import functools
 import logging
 import pprint
 import os
+import io
 import warnings
 
-import six
 from lxml import objectify
 
 from contextlib import contextmanager
@@ -91,7 +91,7 @@ def captured_logging(logger, level=logging.INFO):
 
     class LogWrapper(object):
         def __init__(self):
-            self.buffer = six.StringIO()
+            self.buffer = io.StringIO()
             self.stream_handler = logging.StreamHandler(self.buffer)
             self._output = None
 

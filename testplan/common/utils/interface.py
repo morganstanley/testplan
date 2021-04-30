@@ -1,6 +1,6 @@
 """Validates methods signature."""
 
-from six.moves import zip_longest
+from itertools import zip_longest
 
 from .callable import getargspec
 

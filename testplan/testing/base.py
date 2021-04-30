@@ -4,7 +4,6 @@ import sys
 import subprocess
 import warnings
 
-import six
 from schema import Or, Use, And
 
 from testplan.defaults import MAX_TEST_NAME_LENGTH
@@ -521,7 +520,7 @@ class ProcessRunnerTest(Test):
         test_list_output = proc.communicate()[0]
 
         # with python3, stdout is bytes so need to decode.
-        if not isinstance(test_list_output, six.string_types):
+        if not isinstance(test_list_output, str):
             test_list_output = test_list_output.decode(sys.stdout.encoding)
 
         return self.parse_test_context(test_list_output)

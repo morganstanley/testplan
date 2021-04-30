@@ -2,7 +2,6 @@
 
 import os
 import logging
-from past.builtins import basestring
 
 from schema import Or
 
@@ -276,7 +275,7 @@ class Driver(Resource):
             unmatched.extend(file_unmatched)
             for k, v in file_extracts.items():
                 if isinstance(v, bytes):
-                    self.extracts[k] = v.decode("utf_8")
+                    self.extracts[k] = v.decode("utf-8")
                 else:
                     self.extracts[k] = v
             result = result and file_result
@@ -324,7 +323,7 @@ class Driver(Resource):
     def _install_files(self):
 
         for install_file in self.cfg.install_files:
-            if isinstance(install_file, basestring):
+            if isinstance(install_file, str):
                 if not os.path.isfile(install_file):
                     raise ValueError("{} is not a file".format(install_file))
                 instantiate(

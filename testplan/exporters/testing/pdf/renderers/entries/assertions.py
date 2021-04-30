@@ -1,12 +1,8 @@
 import re
 import functools
+from html import escape
 
-try:
-    from html import escape as _orig_escape
-
-    escape = functools.partial(_orig_escape, quote=False)
-except ImportError:
-    from cgi import escape
+html_escape = functools.partial(escape, quote=False)
 
 from reportlab.lib import colors
 from reportlab.platypus import Paragraph
@@ -262,7 +258,7 @@ class RegexFindIterRenderer(RegexMatchRenderer):
             colour = "green" if source["condition_match"] else "red"
             formatted = "Condition: {}".format(
                 _format_text(
-                    text=escape(source["condition"]),
+                    text=html_escape(source["condition"]),
                     colour=colour,
                     bold=not source["condition_match"],
                 )
@@ -562,18 +558,18 @@ class XMLCheckRenderer(AssertionRenderer):
         """
         msg = []
 
-        msg.append("xpath: {}".format(escape(source["xpath"])))
+        msg.append("xpath: {}".format(html_escape(source["xpath"])))
 
         if source["namespaces"]:
             msg.append(
-                "Namespaces: {}".format(escape(str(source["namespaces"])))
+                "Namespaces: {}".format(html_escape(str(source["namespaces"])))
             )
 
         if source["message"]:
             msg.append(
                 _format_text(
                     colour="black" if source["passed"] else "red",
-                    text=escape(source["message"]),
+                    text=html_escape(source["message"]),
                     bold=not source["passed"],
                 )
             )
@@ -604,11 +600,15 @@ class XMLCheckRenderer(AssertionRenderer):
             )
 
             if tag_comp.passed:
-                tags.append(escape(template.format(operator="==", **common)))
+                tags.append(
+                    html_escape(template.format(operator="==", **common))
+                )
             else:
                 tags.append(
                     _format_text(
-                        text=escape(template.format(operator="!=", **common)),
+                        text=html_escape(
+                            template.format(operator="!=", **common)
+                        ),
                         colour="red",
                         bold=True,
                     )
@@ -837,7 +837,7 @@ class ExceptionRaisedRenderer(AssertionRenderer):
             msg = "Function: {}".format(
                 _format_text(
                     colour="black" if source["passed"] else "red",
-                    text=escape(source["func"]),
+                    text=html_escape(source["func"]),
                     bold=not source["passed"],
                 )
             )
@@ -857,7 +857,7 @@ class ExceptionRaisedRenderer(AssertionRenderer):
             msg = "Pattern: {}".format(
                 _format_text(
                     colour="black" if source["passed"] else "red",
-                    text=escape(source["pattern"]),
+                    text=html_escape(source["pattern"]),
                     bold=not source["passed"],
                 )
             )

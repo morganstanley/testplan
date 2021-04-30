@@ -1,11 +1,4 @@
-import functools
-
-try:
-    from html import escape as _orig_escape
-
-    escape = functools.partial(_orig_escape, quote=False)
-except ImportError:
-    from cgi import escape
+from html import escape
 
 from reportlab.platypus import Paragraph
 from testplan.exporters.testing.pdf.renderers import constants
@@ -21,7 +14,9 @@ def test_sliced_para():
     )
 
     para = Paragraph(
-        text=escape(msg).replace("\n", "<br/>").replace(" ", "&nbsp;"),
+        text=escape(msg, quote=False)
+        .replace("\n", "<br/>")
+        .replace(" ", "&nbsp;"),
         style=constants.PARAGRAPH_STYLE,
     )
     width, height = para.wrap(constants.PAGE_WIDTH, constants.MAX_CELL_HEIGHT)

@@ -4,10 +4,9 @@ import copy
 import collections
 import functools
 import itertools
+import operator
 import inspect
 import warnings
-
-import six
 
 from testplan import defaults
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -124,25 +123,20 @@ def get_testsuite_name(suite):
     if "name" not in suite.__dict__:
         if suite.__class__.name is None:
             suite.name = suite.__class__.__name__
-        elif isinstance(suite.__class__.name, six.string_types):
+        elif isinstance(suite.__class__.name, str):
             suite.name = suite.__class__.name
         elif callable(suite.__class__.name):
-            # In Python2 unbound method cannot be called by class directly
-            suite.name = six.get_method_function(suite.name)(
-                suite.__class__.__name__, suite
-            )
+            suite.name = suite.name.__func__(suite.__class__.__name__, suite)
         else:  # Should not go here, argument already verified in `_testsuite`
             raise RuntimeError('Invalid argument "name" in "{}"'.format(suite))
 
-    if not isinstance(suite.name, six.string_types):
+    if not isinstance(suite.name, str):
         raise ValueError(
             'Test suite name "{name}" must be a string, it is of type:'
             " {type}".format(name=suite.name, type=type(suite.name))
         )
     elif not suite.name:
         raise ValueError("Test suite name cannot be an empty string")
-
-    suite.name = six.ensure_str(suite.name)
 
     if len(suite.name) > defaults.MAX_TEST_NAME_LENGTH:
         warnings.warn(
@@ -368,7 +362,7 @@ def _testsuite(klass):
         except interface.MethodSignatureMismatch as err:
             _reset_globals()
             raise err
-    elif not (klass.name is None or isinstance(klass.name, six.string_types)):
+    elif not (klass.name is None or isinstance(klass.name, str)):
         _reset_globals()
         raise TypeError('"name" should be a string or a callable or `None`')
 
@@ -501,7 +495,7 @@ def _validate_testcase(func):
     try:
         interface.check_signature(func, ["self", "env", "result"])
 
-        if not isinstance(func.name, six.string_types):
+        if not isinstance(func.name, str):
             raise ValueError(
                 'Testcase name "{name}" must be a string, it is of type:'
                 " {type}".format(name=func.name, type=type(func.name))
@@ -512,8 +506,6 @@ def _validate_testcase(func):
     except Exception as exc:
         _reset_globals()
         raise exc
-
-    func.name = six.ensure_str(func.name)
 
     if len(func.name) > defaults.MAX_TEST_NAME_LENGTH:
         warnings.warn(

@@ -1,18 +1,11 @@
 """Functional tests for interactive HTTP API."""
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 
-from future import standard_library
 from mock import patch
 
-standard_library.install_aliases()
 import functools
 
 import pytest
 import requests
-import six
 
 import testplan
 from testplan import report
@@ -69,7 +62,7 @@ def plan(tmpdir):
         MockReloader.return_value = None
 
         plan = testplan.TestplanMock(
-            name=six.ensure_str("InteractiveAPITest"),
+            name="InteractiveAPITest",
             interactive_port=0,
             interactive_block=False,
             exporters=[XMLExporter(xml_dir=str(tmpdir / "xml_exporter"))],
@@ -78,12 +71,12 @@ def plan(tmpdir):
         logfile = tmpdir / "attached_log.txt"
         logfile.write_text(
             "This text will be written into the attached file.",
-            encoding="utf8",
+            encoding="utf-8",
         )
 
         plan.add(
             multitest.MultiTest(
-                name=six.ensure_str("ExampleMTest"),
+                name="ExampleMTest",
                 suites=[ExampleSuite(str(logfile))],
             )
         )
@@ -145,7 +138,7 @@ def plan2(tmpdir):
         MockReloader.return_value = None
 
         plan = testplan.TestplanMock(
-            name=six.ensure_str("InteractiveAPITest"),
+            name="InteractiveAPITest",
             interactive_port=0,
             interactive_block=False,
             exporters=[XMLExporter(xml_dir=str(tmpdir / "xml_exporter"))],
@@ -154,12 +147,12 @@ def plan2(tmpdir):
         logfile = tmpdir / "attached_log.txt"
         logfile.write_text(
             "This text will be written into the attached file.",
-            encoding="utf8",
+            encoding="utf-8",
         )
 
         plan.add(
             multitest.MultiTest(
-                name=six.ensure_str("ExampleMTest2"),
+                name="ExampleMTest2",
                 suites=[ExampleSuite2(str(logfile))],
             )
         )

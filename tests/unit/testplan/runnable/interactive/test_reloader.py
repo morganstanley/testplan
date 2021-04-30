@@ -1,22 +1,10 @@
 """Unit tests for the reloader module."""
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import range
-from future import standard_library
-
-standard_library.install_aliases()
-import six
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
 
 import modulefinder
 import os
 import time
 import sys
+from unittest import mock
 
 import pytest
 
@@ -184,7 +172,7 @@ def mock_reload_env():
 
     mock_stat.modified_files = set()
 
-    reloader_patch = "testplan.runnable.interactive.reloader.reload_module"
+    reloader_patch = "testplan.runnable.interactive.reloader.reload"
     with mock.patch("modulefinder.ModuleFinder", new=MockModuleFinder), (
         mock.patch(reloader_patch, side_effect=lambda module: module)
     ) as mock_reload, (mock.patch("os.stat", new=mock_stat)), (

@@ -1,16 +1,8 @@
 """
 Interactive handler for TestRunner runnable class.
 """
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import super
-from future import standard_library
 
-standard_library.install_aliases()
 import re
-import six
 import numbers
 import threading
 from concurrent import futures
@@ -491,7 +483,7 @@ class TestRunnerIHandler(entity.Entity):
                     continue
                 if exclude_callables and callable(value):
                     continue
-                if isinstance(value, (six.string_types, numbers.Number)):
+                if isinstance(value, (str, numbers.Number)):
                     result[item.uid()][key] = value
         if not result:
             if resource_uid is None:

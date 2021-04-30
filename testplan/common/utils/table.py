@@ -1,5 +1,5 @@
 """Utilities for working with tables."""
-import six
+
 import collections
 
 

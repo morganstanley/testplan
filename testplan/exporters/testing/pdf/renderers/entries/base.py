@@ -1,6 +1,3 @@
-from __future__ import division
-
-import six
 import pprint
 
 from reportlab.lib import colors
@@ -133,7 +130,7 @@ class LogRenderer(SerializedEntryRenderer):
 
         log_msg = (
             str(source["message"])
-            if isinstance(source["message"], six.string_types)
+            if isinstance(source["message"], str)
             else pprint.pformat(source["message"], depth=6)
         )
         left_padding = constants.INDENT * (depth + 1)

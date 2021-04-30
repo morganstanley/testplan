@@ -1,7 +1,6 @@
 """Generic Tagging logic."""
 
 import re
-import six
 import argparse
 import functools
 import collections
@@ -48,7 +47,7 @@ TAG_NAME_UNMATCH_MSG = TAG_UNMATCH_TEMPLATE.format(attr_name="name")
 
 
 def _validate_string(value, regex, error_msg):
-    if not isinstance(value, six.string_types):
+    if not isinstance(value, str):
         raise ValueError(
             "Value {} should be of string type, but it is of type {}".format(
                 value, type(value)
@@ -91,7 +90,7 @@ def validate_tag_value(tag_value):
 
     def validate_value(value):
         """Make sure tag value is either a string or an iterable of strings."""
-        if isinstance(value, six.string_types):
+        if isinstance(value, str):
             return {_validate_tag_value_string(value)}
         elif isinstance(value, collections.Iterable):
             return {_validate_tag_value_string(tag) for tag in value}

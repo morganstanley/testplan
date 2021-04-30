@@ -1,8 +1,8 @@
 import json
 import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 import pytest
-from six.moves.BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 
 from testplan.testing import multitest
 from testplan import TestplanMock

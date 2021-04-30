@@ -10,7 +10,6 @@ import platform
 import socket
 
 from schema import Or
-from past.builtins import basestring
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.path import StdFiles, makedirs
@@ -34,16 +33,16 @@ class AppConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            "binary": basestring,
+            "binary": str,
             ConfigOption("pre_args", default=None): Or(None, list),
             ConfigOption("args", default=None): Or(None, list),
             ConfigOption("shell", default=False): bool,
             ConfigOption("env", default=None): Or(None, dict),
             ConfigOption("binary_strategy", default="link"): lambda s: s
             in ("copy", "link", "noop"),
-            ConfigOption("logname", default=None): Or(None, basestring),
-            ConfigOption("app_dir_name", default=None): Or(None, basestring),
-            ConfigOption("working_dir", default=None): Or(None, basestring),
+            ConfigOption("logname", default=None): Or(None, str),
+            ConfigOption("app_dir_name", default=None): Or(None, str),
+            ConfigOption("working_dir", default=None): Or(None, str),
         }
 
 

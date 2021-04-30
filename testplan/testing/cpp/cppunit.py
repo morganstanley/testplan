@@ -2,7 +2,6 @@ import os
 import datetime
 import socket
 
-import six
 from schema import Or
 from lxml import etree, objectify
 from lxml.builder import E  # pylint: disable=no-name-in-module
@@ -367,8 +366,11 @@ class Cppunit(ProcessRunnerTest):
             element recursively.
         :type name: ``str``
         """
+        if isinstance(report, str):
+            report = report.encode("utf-8")
+
         transform = etree.XSLT(etree.XML(CPPUNIT_TO_JUNIT_XSL))
-        cppunit_report = etree.XML(six.ensure_binary(report))
+        cppunit_report = etree.XML(report)
         junit_report = transform(cppunit_report)
         _set_node_classname(name, junit_report.getroot().getchildren()[0])
 
