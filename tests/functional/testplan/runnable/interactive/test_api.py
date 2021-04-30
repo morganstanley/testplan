@@ -1,8 +1,8 @@
 """Functional tests for interactive HTTP API."""
 
-from mock import patch
 
 import functools
+from unittest import mock
 
 import pytest
 import requests
@@ -56,7 +56,7 @@ class ExampleSuite(object):
 def plan(tmpdir):
     """Yield an interactive testplan."""
 
-    with patch(
+    with mock.patch(
         "testplan.runnable.interactive.reloader.ModuleReloader"
     ) as MockReloader:
         MockReloader.return_value = None
@@ -132,7 +132,7 @@ def plan2(tmpdir):
     one test suite whose `strict_order` attribute is enabled.
     """
 
-    with patch(
+    with mock.patch(
         "testplan.runnable.interactive.reloader.ModuleReloader"
     ) as MockReloader:
         MockReloader.return_value = None

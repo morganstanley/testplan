@@ -1,8 +1,6 @@
 pytest
 py
 psutil
-six
-future
 setuptools
 schema
 pytz
@@ -10,15 +8,12 @@ lxml
 python-dateutil
 reportlab
 marshmallow==3.0.0b2
-mock
 termcolor
 colorama
-enum34; python_version < '3.4'
 pyzmq
 terminaltables
 pyparsing
 cycler
-functools32; python_version <= '2.7'
 requests>=2.4.3
 flask
 flask_restplus
