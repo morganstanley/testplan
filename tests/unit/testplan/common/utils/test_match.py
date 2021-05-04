@@ -152,6 +152,52 @@ class TestLogMatcher(object):
         assert matches[0].group(0) == "fourth"
         assert matches[1].group(0) == "fifth"
 
+    def test_match_between(self, basic_logfile):
+        """
+        Does the LogMatcher match between the given marks.
+        """
+        matcher = LogMatcher(log_path=basic_logfile)
+        matcher.match(regex=re.compile(r"second"), timeout=0.5)
+        matcher.mark("start")
+        matcher.match(regex=re.compile(r"fourth"), timeout=0.5)
+        matcher.mark("end")
+
+        match = matcher.match_between(r"third", "start", "end")
+        assert match.group(0) == "third"
+        match = matcher.match_between(r"fourth", "start", "end")
+        assert match.group(0) == "fourth"
+        assert matcher.match_between(r"second", "start", "end") is None
+        assert matcher.match_between(r"fifth", "start", "end") is None
+
+    def test_not_match_between(self, basic_logfile):
+        """
+        Does the LogMatcher return True when match is found
+        between the given marks.
+        """
+        matcher = LogMatcher(log_path=basic_logfile)
+        matcher.match(regex=re.compile(r"second"), timeout=0.5)
+        matcher.mark("start")
+        matcher.match(regex=re.compile(r"fourth"), timeout=0.5)
+        matcher.mark("end")
+        assert matcher.not_match_between(r"fifth", "start", "end")
+        assert not matcher.not_match_between(r"third", "start", "end")
+
+    def test_get_between(self, basic_logfile):
+        """Does the LogMatcher return the required content between marks."""
+        matcher = LogMatcher(log_path=basic_logfile)
+        matcher.match(regex=re.compile(r"second"), timeout=0.5)
+        matcher.mark("start")
+        matcher.match(regex=re.compile(r"fourth"), timeout=0.5)
+        matcher.mark("end")
+        content = matcher.get_between()
+        assert content == "first\nsecond\nthird\nfourth\nfifth\n"
+        content = matcher.get_between(None, "end")
+        assert content == "first\nsecond\nthird\nfourth\n"
+        content = matcher.get_between("start", None)
+        assert content == "third\nfourth\nfifth\n"
+        content = matcher.get_between("start", "end")
+        assert content == "third\nfourth\n"
+
     def test_match_large_file(self, large_logfile):
         """
         Test matching the last entry in a large logfile, as a more realistic
