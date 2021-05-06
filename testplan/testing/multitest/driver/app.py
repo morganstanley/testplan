@@ -15,6 +15,7 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils.path import StdFiles, makedirs
 from testplan.common.utils.context import is_context, expand
 from testplan.common.utils.process import subprocess_popen, kill_process
+from testplan.common.utils.timing import wait
 
 from .base import Driver, DriverConfig
 
@@ -95,7 +96,7 @@ class App(Driver):
         logname=None,
         app_dir_name=None,
         working_dir=None,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(App, self).__init__(**options)
@@ -286,6 +287,21 @@ class App(Driver):
                 assert self.proc.returncode is not None
                 self._proc = None
             raise
+
+    def started_check(self, timeout=None):
+        def ensure_app_running_while_extracting_values():
+            proc_result = self.proc.poll()
+            if proc_result is not None:
+                raise RuntimeError(
+                    f"App {self.name} has unexpectedly stopped with: {proc_result}"
+                )
+            return self.extract_values()
+
+        wait(
+            ensure_app_running_while_extracting_values,
+            timeout or self.cfg.timeout,
+            raise_on_timeout=True,
+        )
 
     def stopping(self):
         """Stops the application binary process."""
