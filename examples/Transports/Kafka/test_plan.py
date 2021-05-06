@@ -55,6 +55,7 @@ class KafkaTest(object):
         topic = "testplan"
         message = str(uuid.uuid4()).encode("utf-8")
         producer.produce(topic=topic, value=message)
+        producer.flush(10)
         consumer.subscribe([topic])
         msg = consumer.poll(10)
         result.equal(message, msg.value(), "Test producer and consumer")
