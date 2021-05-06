@@ -1,4 +1,5 @@
-recursive-include testplan/web_ui *.js
-recursive-include testplan/web_ui *.css
-recursive-include testplan/web_ui *.html
-recursive-include testplan/web_ui *.json
+graft testplan/web_ui/testing
+prune **/node_modules
+prune testplan/web_ui/testing/build
+prune tests
+
