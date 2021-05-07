@@ -138,6 +138,8 @@ class Environment(object):
         """
         # Trigger start all resources
         for resource in self._resources.values():
+            if not resource.cfg.auto_start:
+                continue
             try:
                 resource.start()
                 if not resource.cfg.async_start:
@@ -920,7 +922,10 @@ class ResourceConfig(EntityConfig):
     @classmethod
     def get_options(cls):
         """Resource specific config options."""
-        return {ConfigOption("async_start", default=True): bool}
+        return {
+            ConfigOption("async_start", default=True): bool,
+            ConfigOption("auto_start", default=True): bool,
+        }
 
 
 class ResourceStatus(EntityStatus):
@@ -966,6 +971,8 @@ class Resource(Entity):
 
     :param async_start: Resource can start asynchronously.
     :type async_start: ``bool``
+    :param auto_start: Enables the Environment to start the Resource automatically.
+    :type auto_start: ``bool``
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.
