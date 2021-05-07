@@ -1,2 +1,0 @@
-echo testplan
-read UNUSED

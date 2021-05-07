@@ -291,11 +291,12 @@ class App(Driver):
     def started_check(self, timeout=None):
         def ensure_app_running_while_extracting_values():
             proc_result = self.proc.poll()
-            if proc_result is not None:
+            extract_values_result = self.extract_values()
+            if proc_result is not None and not extract_values_result:
                 raise RuntimeError(
                     f"App {self.name} has unexpectedly stopped with: {proc_result}"
                 )
-            return self.extract_values()
+            return extract_values_result
 
         wait(
             ensure_app_running_while_extracting_values,
