@@ -4,7 +4,7 @@ import sys
 import os
 import re
 import threading
-from six.moves import queue
+import queue
 
 import pytest
 import requests

@@ -10,12 +10,12 @@ import platform
 import socket
 
 from schema import Or
-from past.builtins import basestring
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.path import StdFiles, makedirs
 from testplan.common.utils.context import is_context, expand
 from testplan.common.utils.process import subprocess_popen, kill_process
+from testplan.common.utils.timing import wait
 
 from .base import Driver, DriverConfig
 
@@ -34,16 +34,16 @@ class AppConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            "binary": basestring,
+            "binary": str,
             ConfigOption("pre_args", default=None): Or(None, list),
             ConfigOption("args", default=None): Or(None, list),
             ConfigOption("shell", default=False): bool,
             ConfigOption("env", default=None): Or(None, dict),
             ConfigOption("binary_strategy", default="link"): lambda s: s
             in ("copy", "link", "noop"),
-            ConfigOption("logname", default=None): Or(None, basestring),
-            ConfigOption("app_dir_name", default=None): Or(None, basestring),
-            ConfigOption("working_dir", default=None): Or(None, basestring),
+            ConfigOption("logname", default=None): Or(None, str),
+            ConfigOption("app_dir_name", default=None): Or(None, str),
+            ConfigOption("working_dir", default=None): Or(None, str),
         }
 
 
@@ -96,7 +96,7 @@ class App(Driver):
         logname=None,
         app_dir_name=None,
         working_dir=None,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(App, self).__init__(**options)
@@ -287,6 +287,22 @@ class App(Driver):
                 assert self.proc.returncode is not None
                 self._proc = None
             raise
+
+    def started_check(self, timeout=None):
+        def ensure_app_running_while_extracting_values():
+            proc_result = self.proc.poll()
+            extract_values_result = self.extract_values()
+            if proc_result is not None and not extract_values_result:
+                raise RuntimeError(
+                    f"App {self.name} has unexpectedly stopped with: {proc_result}"
+                )
+            return extract_values_result
+
+        wait(
+            ensure_app_running_while_extracting_values,
+            timeout or self.cfg.timeout,
+            raise_on_timeout=True,
+        )
 
     def stopping(self):
         """Stops the application binary process."""

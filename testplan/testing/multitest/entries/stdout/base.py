@@ -7,7 +7,6 @@ of their serialized (dict) versions.
 
 import os
 import re
-import six
 import pprint
 
 from terminaltables import AsciiTable
@@ -84,13 +83,13 @@ class LogRenderer(BaseRenderer):
     def get_header(self, entry):
         if entry.description:
             return entry.description
-        elif isinstance(entry.message, six.string_types):
+        elif isinstance(entry.message, str):
             return str(entry.message)
         else:
             return self.get_default_header(entry)
 
     def get_details(self, entry):
-        if isinstance(entry.message, six.string_types):
+        if isinstance(entry.message, str):
             if entry.description:
                 return str(entry.message)
             else:

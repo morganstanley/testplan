@@ -1,12 +1,8 @@
 import re
-import six
 import logging
-import pytest
+from unittest import mock
 
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
+import pytest
 
 import testplan
 from testplan.testing import multitest
@@ -105,12 +101,12 @@ class LoggerSpy(object):
             )
 
     def __enter__(self):
-        for method, patcher in six.iteritems(self.patcher):
+        for method, patcher in self.patcher.items():
             self.__setattr__(method, patcher.__enter__())
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        for method, patcher in six.iteritems(self.patcher):
+        for method, patcher in self.patcher.items():
             patcher.__exit__(exc_type, exc_val, exc_tb)
             self.__delattr__(method)
 

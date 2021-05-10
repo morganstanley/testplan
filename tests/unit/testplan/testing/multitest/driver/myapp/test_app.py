@@ -82,6 +82,23 @@ def test_app_os_environ(runpath):
         assert fobj.read().startswith("VALUE")
 
 
+def test_app_fail_fast_with_log_regex(runpath):
+    """Test that app fail fast instead of waiting for logs when app shutdown."""
+    app = App(
+        name="myapp",
+        binary="echo",
+        args=["yes"],
+        stderr_regexps=[re.compile(r".*no*")],
+        status_wait_timeout=2,
+        runpath=runpath,
+    )
+    with pytest.raises(
+        RuntimeError, match=r"App myapp has unexpectedly stopped with: 0"
+    ):
+        app.start()
+        app.wait(app.STATUS.STARTED)
+
+
 def test_app_cwd(runpath):
     """Test working_dir usage."""
     tempdir = tempfile.gettempdir()

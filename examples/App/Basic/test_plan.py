@@ -32,7 +32,8 @@ def after_stop_fn(env, result):
 @test_plan(name="App driver example")
 def main(plan):
     """
-    A simple example that demonstrate App driver usage.
+    A simple example that demonstrate App driver usage. App prints 'testplan' to
+    standard output on startup and then waits for a user input simulating a long running app.
     """
     plan.add(
         MultiTest(

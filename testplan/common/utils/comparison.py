@@ -1,14 +1,9 @@
 import operator
 import decimal
-
-try:
-    from collections.abc import Mapping, Iterable
-except ImportError:
-    from collections import Mapping, Iterable
-import traceback
-
 import enum
-import six
+import traceback
+from collections.abc import Mapping, Iterable
+from itertools import zip_longest
 
 from .reporting import Absent, fmt, NATIVE_TYPES, callable_name
 
@@ -27,7 +22,7 @@ def basic_compare(first, second, strict=False):
     """
     try:
         if is_regex(second):
-            if not isinstance(first, six.string_types) and not strict:
+            if not isinstance(first, str) and not strict:
                 first = str(first)
             result = bool(second.match(first))
         elif callable(second):
@@ -636,7 +631,7 @@ def _rec_compare(
     if lhs_cat == rhs_cat == Category.ITERABLE:
         results = []
         match = Match.IGNORED
-        for lhs_item, rhs_item in six.moves.zip_longest(lhs, rhs):
+        for lhs_item, rhs_item in zip_longest(lhs, rhs):
             # iterate all elems in both iterable non-mapping objects
             result = _rec_compare(
                 lhs_item,
@@ -1294,13 +1289,6 @@ class DictmatchAllResult(object):
         self.index_match_levels = index_match_levels
 
     def __bool__(self):  # python 3 bool()
-        """
-        :return: True if assertion passed, False otherwise
-        :rtype: ``bool``
-        """
-        return self.passed
-
-    def __nonzero__(self):  # python 2 bool()
         """
         :return: True if assertion passed, False otherwise
         :rtype: ``bool``

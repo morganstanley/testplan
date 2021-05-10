@@ -1,16 +1,10 @@
 import functools
 import json
 from collections import OrderedDict
+from unittest import mock
 
-import six
 import pytest
 from boltons.iterutils import get_path
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
-
 
 from testplan.common.utils.testing import disable_log_propagation
 

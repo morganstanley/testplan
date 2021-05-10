@@ -1,12 +1,11 @@
 """HTTPClient Driver."""
 
 import time
-import os
+import queue
 from threading import Thread, Event
 
 import requests
 from schema import Use, Or
-from six.moves import queue
 
 from testplan.common.config import ConfigOption as Optional
 from testplan.common.utils.context import expand, is_context

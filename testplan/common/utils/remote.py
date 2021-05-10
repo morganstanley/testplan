@@ -56,7 +56,7 @@ def copy_cmd(source, target, exclude=None, port=None, deref_links=False):
         if os.name != "nt":
             binary = bytes(
                 subprocess.check_output("which scp", shell=True).strip()
-            ).decode("UTF-8")
+            ).decode("utf-8")
         else:
             raise Exception("SCP binary not provided.")
     cmd = [binary, "-r"]

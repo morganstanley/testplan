@@ -4,7 +4,6 @@ Module of utility types and functions that perform matching.
 import os
 import time
 import re
-import six
 
 from . import timing
 from . import logger
@@ -38,14 +37,12 @@ def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
 
     # If log_extracts contain bytes regex, will convert all log_extracts to
     # bytes regex.
-    if not six.PY2 and not all(
-        [isinstance(x.pattern, six.text_type) for x in log_extracts]
-    ):
+    if not all([isinstance(x.pattern, str) for x in log_extracts]):
         read_mode = "rb"
         _log_extracts = []
         for regex in log_extracts:
-            if not six.PY2 and not isinstance(regex.pattern, six.binary_type):
-                _log_extracts.append(re.compile(regex.pattern.encode("utf_8")))
+            if not isinstance(regex.pattern, bytes):
+                _log_extracts.append(re.compile(regex.pattern.encode("utf-8")))
             else:
                 _log_extracts.append(regex)
     else:
