@@ -88,6 +88,7 @@ def test_app_fail_fast_with_log_regex(runpath):
         name="myapp",
         binary="echo",
         args=["yes"],
+        shell=True,
         stderr_regexps=[re.compile(r".*no*")],
         status_wait_timeout=2,
         runpath=runpath,
