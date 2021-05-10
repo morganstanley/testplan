@@ -99,6 +99,8 @@ def test_app_fail_fast_with_log_regex(runpath):
         app.start()
         app.wait(app.STATUS.STARTED)
 
+    app.stop()
+
 
 def test_app_cwd(runpath):
     """Test working_dir usage."""
