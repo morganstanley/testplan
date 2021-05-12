@@ -26,6 +26,13 @@ def case_name_func(func_name, kwargs):
 
 @testsuite(name="A Simple Suite")
 class SimpleSuite(object):
+    def pre_testcase(self, name, env, result, kwargs):
+        result.log('Before testcase "{}" run'.format(name))
+        result.log("Extra arguments: {}".format(kwargs))
+
+    def post_testcase(self, name, env, result, kwargs):
+        result.log('After testcase "{}" run'.format(name))
+
     @testcase(name="A simple testcase")
     def test_example(self, env, result):
         result.equal(
@@ -59,6 +66,12 @@ class SimpleSuite(object):
 class ComplicatedSuite(object):
     def __init__(self, val):
         self.val = val
+
+    def pre_testcase(self, name, env, result):
+        pass
+
+    def post_testcase(self, name, env, result):
+        pass
 
     @testcase(name="A testcase with one assertion")
     def test_less_than(self, env, result):

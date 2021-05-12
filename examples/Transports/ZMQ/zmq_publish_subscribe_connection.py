@@ -10,7 +10,6 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.zmq import ZMQServer, ZMQClient
 
 from testplan.common.utils.context import context
-from testplan.testing.multitest.suite import post_testcase
 
 
 def after_start(env):
@@ -25,21 +24,19 @@ def after_start(env):
     time.sleep(1)
 
 
-def flush_clients(name, self, env, result):
-    env.client1.flush()
-    env.client2.flush()
-    # As above the sleep is to verify the clients have reconnected.
-    time.sleep(1)
-
-
-# The clients must be flushed after each test to remove any extra messages.
-# This would occur when running many_publish_one_subscribe before
-# one_publish_many_subscribe on client 2.
-@post_testcase(flush_clients)
 @testsuite
 class ZMQTestsuite(object):
     def setup(self, env):
         self.timeout = 5
+
+    # The clients must be flushed after each test to remove any extra messages.
+    # This would occur when running many_publish_one_subscribe before
+    # one_publish_many_subscribe on client 2.
+    def post_testcase(self, name, env, result):
+        env.client1.flush()
+        env.client2.flush()
+        # As above the sleep is to verify the clients have reconnected.
+        time.sleep(1)
 
     @testcase
     def many_publish_one_subscribe(self, env, result):
