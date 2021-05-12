@@ -1,13 +1,5 @@
 """Interactive code reloader module."""
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 
-from builtins import super
-from future import standard_library
-
-standard_library.install_aliases()
 import os
 import sys
 import time
@@ -15,8 +7,7 @@ import inspect
 import modulefinder
 import collections
 import functools
-
-from six.moves import reload_module
+from imp import reload
 
 from testplan.common.utils import path as path_utils
 from testplan.testing.multitest import suite
@@ -499,7 +490,7 @@ class _ModuleNode(object):
         try:
             if not self._native_mod:
                 self._native_mod = sys.modules[self.mod.__name__]
-            self._native_mod = reload_module(self._native_mod)
+            self._native_mod = reload(self._native_mod)
         except KeyError:
             # ignore dynamic import module
             pass

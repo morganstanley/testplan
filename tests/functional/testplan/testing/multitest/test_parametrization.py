@@ -1,10 +1,10 @@
 import sys
 import logging
 from contextlib import contextmanager
+from unittest import mock
+from imp import reload
 
 import pytest
-import mock
-from six.moves import reload_module
 
 from testplan.defaults import MAX_TEST_NAME_LENGTH
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -38,7 +38,7 @@ def module_reloaded(mod):
     """
     yield
     if mod in sys.modules:
-        reload_module(sys.modules[mod])
+        reload(sys.modules[mod])
 
 
 def gen_testcase_report(group_report):

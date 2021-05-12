@@ -1,19 +1,13 @@
 """Base classes for rendering """
 import collections
 import functools
-
-from testplan.common.exporters.pdf import RowData
-
-from . import constants
+from html import escape
 
 from reportlab.platypus import Paragraph
 
-try:
-    from html import escape as _orig_escape
+from testplan.common.exporters.pdf import RowData
+from . import constants
 
-    escape = functools.partial(_orig_escape, quote=False)
-except ImportError:
-    from cgi import escape
 
 RowData = functools.partial(RowData, num_columns=constants.NUM_COLUMNS)
 
@@ -51,7 +45,11 @@ class SlicedParagraph(object):
 
         for part, formatter in parts:
             # reserve indentation - report lab does not wrap at '\n' and removes space
-            part = escape(part).replace("\n", "<br/>").replace(" ", "&nbsp;")
+            part = (
+                escape(part, quote=False)
+                .replace("\n", "<br/>")
+                .replace(" ", "&nbsp;")
+            )
             text_parts.append(formatter.format(part))
 
         self.para = Paragraph(text="".join(text_parts), style=style, **kwargs)

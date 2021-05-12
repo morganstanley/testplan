@@ -4,7 +4,7 @@ import errno
 import socket
 import select
 import threading
-from six.moves import queue
+import queue
 
 from testplan.common.utils.timing import (
     TimeoutException,

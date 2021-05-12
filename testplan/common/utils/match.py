@@ -4,7 +4,6 @@ Module of utility types and functions that perform matching.
 import os
 import time
 import re
-import six
 
 from . import timing
 from . import logger
@@ -38,14 +37,12 @@ def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
 
     # If log_extracts contain bytes regex, will convert all log_extracts to
     # bytes regex.
-    if not six.PY2 and not all(
-        [isinstance(x.pattern, six.text_type) for x in log_extracts]
-    ):
+    if not all([isinstance(x.pattern, str) for x in log_extracts]):
         read_mode = "rb"
         _log_extracts = []
         for regex in log_extracts:
-            if not six.PY2 and not isinstance(regex.pattern, six.binary_type):
-                _log_extracts.append(re.compile(regex.pattern.encode("utf_8")))
+            if not isinstance(regex.pattern, bytes):
+                _log_extracts.append(re.compile(regex.pattern.encode("utf-8")))
             else:
                 _log_extracts.append(regex)
     else:
@@ -233,3 +230,97 @@ class LogMatcher(logger.Loggable):
                 raise
 
         return matches
+
+    def match_between(self, regex, mark1, mark2):
+        """
+        Matches file against passed in regex. Matching is performed from
+        file position denoted by mark1 and ends before file position denoted
+        by mark2. If a match is not found then None is returned.
+
+        :param regex: regex string or compiled regular expression
+            (``re.compile``)
+        :type regex: ``Union[str, re.Pattern, bytes]``
+        :param mark1: mark name of start position (None for beginning of file)
+        :type mark1: ``str``
+        :param mark2: mark name of end position
+        :type mark2: ``str``
+        """
+        match = None
+        read_mode = "rb"
+
+        # As a convenience, we create the compiled regex if a string was
+        # passed.
+        if not hasattr(regex, "match"):
+            regex = re.compile(regex)
+        if isinstance(regex.pattern, str):
+            read_mode = "r"
+
+        with open(self.log_path, read_mode) as log:
+            log.seek(self.marks[mark1] if mark1 is not None else 0)
+            endpos = self.marks[mark2]
+            while endpos > log.tell():
+                line = log.readline()
+                if not line:
+                    break
+                match = regex.match(line)
+                if match:
+                    break
+
+        return match
+
+    def not_match_between(self, regex, mark1, mark2):
+        """
+        Opposite of :py:meth:`~testplan.common.utils.match.LogMatcher.match_between`
+        which returns None if a match is not found. Matching is performed
+        from file position denoted by mark1 and ends before file position
+        denoted by mark2. If a match is found then False is returned otherwise True.
+
+        :param regex: regex string or compiled regular expression
+            (``re.compile``)
+        :type regex: ``Union[str, re.Pattern, bytes]``
+        :param mark1: mark name of start position (None for beginning of file)
+        :type mark1: ``str``
+        :param mark2: mark name of end position
+        :type mark2: ``str``
+        """
+
+        return not self.match_between(regex, mark1, mark2)
+
+    def get_between(self, mark1=None, mark2=None):
+        """
+        Returns the content of the file from the start marker to the end marker.
+        It is possible to omit either marker to receive everything from start
+        to end of file.
+
+        .. note::
+
+            Since markers point to the byte position immediately after match,
+            this function will not return what was matched for mark1, but will
+            return the contents of what was matched for mark2.
+
+        :param mark1: mark name of start position (None for beginning of file)
+        :type mark1: ``str``
+        :param mark2: mark name of end position (None for end of file)
+        :type mark2: ``str``
+        :return: The content between mark1 and mark2.
+        :rtype: ``str``
+        """
+        if mark1 is not None and mark2 is not None:
+            if self.marks[mark1] >= self.marks[mark2]:
+                raise ValueError(
+                    'Mark "{}" must be present before mark "{}"'.format(
+                        mark1, mark2
+                    )
+                )
+
+        with open(self.log_path, "r") as log:
+            start_pos = self.marks[mark1] if mark1 is not None else 0
+            end_pos = self.marks[mark2] if mark2 is not None else None
+            log.seek(start_pos)
+            if not end_pos:
+                return log.read()
+            lines_between = []
+            while end_pos > log.tell():
+                line = log.readline()
+                lines_between.append(line)
+            return "".join(lines_between)

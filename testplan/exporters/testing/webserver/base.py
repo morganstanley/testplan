@@ -1,8 +1,7 @@
 """
-    Web server exporter for test reports, it opens a local http web server
-    which can display the test result.
+Web server exporter for test reports, it opens a local http web server
+which can display the test result.
 """
-from __future__ import absolute_import
 
 import os
 import json

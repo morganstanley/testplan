@@ -13,7 +13,7 @@ import sys
 import socket
 import logging
 
-from six.moves.configparser import ConfigParser
+from configparser import ConfigParser
 
 
 logging.basicConfig(stream=sys.stdout, format="%(message)s")

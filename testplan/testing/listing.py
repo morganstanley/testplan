@@ -3,7 +3,6 @@
 """
 import os
 from enum import Enum
-import six
 
 from testplan.common.utils.parser import ArgMixin
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -64,16 +63,10 @@ class ExpandedNameLister(BaseLister):
         return instance.name
 
     def format_suite(self, instance, suite):
-        if isinstance(suite, six.string_types):
-            return suite
-        else:
-            return suite.name
+        return suite if isinstance(suite, str) else suite.name
 
     def format_testcase(self, instance, suite, testcase):
-        if isinstance(testcase, six.string_types):
-            return testcase
-        else:
-            return testcase.name
+        return testcase if isinstance(testcase, str) else testcase.name
 
     def get_testcase_outputs(self, instance, suite, testcases):
         result = ""

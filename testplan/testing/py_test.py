@@ -6,7 +6,6 @@ import re
 import traceback
 
 import pytest
-import six
 from schema import Or
 
 from testplan.common.utils import validation
@@ -256,7 +255,7 @@ class PyTest(testing.Test):
             raise RuntimeError("Need to call dry_run() first")
 
         if testsuite_pattern == "*" and testcase_pattern == "*":
-            if isinstance(self.cfg.target, six.string_types):
+            if isinstance(self.cfg.target, str):
                 pytest_args = [self.cfg.target]
             else:
                 pytest_args = self.cfg.target[:]
@@ -277,7 +276,7 @@ class PyTest(testing.Test):
         :return: a list of the args to be passed to PyTest
         :rtype: List[str]
         """
-        if isinstance(self.cfg.target, six.string_types):
+        if isinstance(self.cfg.target, str):
             pytest_args = [self.cfg.target]
         else:
             pytest_args = self.cfg.target[:]

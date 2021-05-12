@@ -3,21 +3,9 @@ This module contains utilities that are mostly used
 to make assertion comparison data report friendly.
 """
 
-import six
+from collections.abc import Mapping, Iterable
 
-try:
-    from collections.abc import Mapping, Iterable
-except ImportError:
-    from collections import Mapping, Iterable
-
-if six.PY3:
-    buffer = memoryview
-
-NATIVE_TYPES = (
-    six.string_types
-    + six.integer_types
-    + (float, bool, buffer, bytes, bytearray)
-)
+NATIVE_TYPES = (str, int, float, bool, memoryview, bytes, bytearray)
 
 
 class AbsentType(object):

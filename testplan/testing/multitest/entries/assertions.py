@@ -13,9 +13,8 @@ import collections
 import numbers
 import decimal
 import cmath
-import six
+
 import lxml
-import copy
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
 from testplan.common.utils import comparison, difflib
@@ -78,8 +77,6 @@ class Assertion(BaseEntry):
 
     def __bool__(self):
         return self.passed
-
-    __nonzero__ = __bool__
 
 
 class RawAssertion(Assertion):
@@ -262,7 +259,7 @@ class RegexAssertion(Assertion):
     def __init__(
         self, regexp, string, flags=0, description=None, category=None
     ):
-        if isinstance(regexp, six.string_types):
+        if isinstance(regexp, str):
             self.pattern = regexp
             self.regexp = re.compile(regexp, flags=flags)
         else:
@@ -379,7 +376,7 @@ class ExceptionRaised(Assertion):
             assert callable(func), "`func` must be a callable."
         if pattern:
             assert isinstance(
-                pattern, six.string_types
+                pattern, str
             ), "`pattern` must be of string type, it was: {}".format(
                 type(pattern)
             )
@@ -485,7 +482,7 @@ class EqualSlices(Assertion):
             i for idx, i in enumerate(iterable) if idx in comparison_indices
         ]
 
-        if isinstance(iterable, six.string_types):
+        if isinstance(iterable, str):
             return "".join(items)
         return type(iterable)(items)
 
@@ -597,8 +594,8 @@ class LineDiff(Assertion):
         description=None,
         category=None,
     ):
-        if (not isinstance(first, (six.string_types, list))) or (
-            not isinstance(second, (six.string_types, list))
+        if (not isinstance(first, (str, list))) or (
+            not isinstance(second, (str, list))
         ):
             raise ValueError("`first` and `second` must be string or list.")
         if isinstance(unified, int) and unified < 0:
@@ -607,14 +604,10 @@ class LineDiff(Assertion):
             raise ValueError("`context` cannot be negative integer.")
 
         self.first = (
-            first.splitlines(True)
-            if isinstance(first, six.string_types)
-            else first
+            first.splitlines(True) if isinstance(first, str) else first
         )
         self.second = (
-            second.splitlines(True)
-            if isinstance(second, six.string_types)
-            else second
+            second.splitlines(True) if isinstance(second, str) else second
         )
         self.ignore_space_change = ignore_space_change
         self.ignore_whitespaces = ignore_whitespaces
@@ -1053,7 +1046,7 @@ class XMLCheck(Assertion):
         self.xpath = xpath
         self.tags = tags
 
-        if isinstance(element, six.string_types):
+        if isinstance(element, str):
             element = lxml.etree.fromstring(element)
 
         # pylint: disable=protected-access
@@ -1106,7 +1099,7 @@ class XMLCheck(Assertion):
                         " although the path exists.",
                         extra=None,
                     )
-                elif isinstance(tag, six.string_types) and re.match(tag, text):
+                elif isinstance(tag, str) and re.match(tag, text):
                     extra = tag if tag != text else None
                     xml_comp = XMLTagComparison(
                         tag=text, diff=None, error=None, extra=extra

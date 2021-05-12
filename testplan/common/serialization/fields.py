@@ -2,7 +2,6 @@
 Custom marshmallow fields.
 """
 import pprint
-import six
 import warnings
 
 try:
@@ -32,11 +31,6 @@ from testplan.common.utils import comparison
 # pickle. All other types will be converted to strings before pickling.
 # types.NoneType is gone in python3 so we inspect the type of None directly.
 COMPATIBLE_TYPES = (bool, float, type(None), str, bytes, int)
-
-# For Python 2 only, also consider unicode and long types to be pickle-safe.
-# These types are removed from Python 3.
-if six.PY2:
-    COMPATIBLE_TYPES += (unicode, long)  # pylint: disable=undefined-variable
 
 
 def _repr_obj(obj):
@@ -139,7 +133,7 @@ class NativeOrPrettyDict(fields.Field):
             )
 
         for k in value:
-            if not isinstance(k, six.string_types):
+            if not isinstance(k, str):
                 raise TypeError(
                     "`key` ({key}) should be of"
                     " `str` type, it was: {type}".format(key=k, type=type(k))
@@ -168,11 +162,7 @@ class SliceComparisonField(fields.Field):
 
     def _serialize(self, value, attr, obj):
         def str_or_iterable(val):
-            return (
-                val
-                if isinstance(val, six.string_types)
-                else native_or_pformat_list(val)
-            )
+            return val if isinstance(val, str) else native_or_pformat_list(val)
 
         slice_obj, comp_indices, mismatch_indices, actual, expected = value
 
@@ -253,7 +243,7 @@ class GenericNested(fields.Field):
         ):
             return schema_value(many=self.many, context=parent_ctx)
 
-        elif isinstance(schema_value, six.string_types):
+        elif isinstance(schema_value, str):
 
             if schema_value == _RECURSIVE_NESTED:
                 return self.parent.__class__(
@@ -274,7 +264,7 @@ class GenericNested(fields.Field):
         """Return schema mapping in `<CLASS_NAME>: <SCHEMA_OBJECT>` format."""
         result = {}
         for object_type, schema_value in self.schema_context.items():
-            if isinstance(object_type, six.string_types):
+            if isinstance(object_type, str):
                 key = object_type
             elif isinstance(object_type, type):
                 key = object_type.__name__

@@ -6,7 +6,6 @@ import re
 import traceback
 
 import pytest
-import six
 
 from testplan.testing.multitest.entries import assertions
 
@@ -292,9 +291,7 @@ class BaseRegexTest(object):
         assertion = self.assertion_class(  # pylint: disable=not-callable
             regexp=regexp, string=string, flags=flags, *args, **kwargs
         )
-        pattern = (
-            regexp if isinstance(regexp, six.string_types) else regexp.pattern
-        )
+        pattern = regexp if isinstance(regexp, str) else regexp.pattern
 
         assert assertion.string is string
         assert assertion.pattern is pattern

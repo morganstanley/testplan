@@ -1,10 +1,9 @@
 """FixServer driver classes."""
 
-import os
 import select
 import platform
+import queue
 
-from six.moves import queue
 from schema import Use
 
 from testplan.common.config import ConfigOption

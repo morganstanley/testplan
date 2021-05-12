@@ -1,10 +1,8 @@
-from __future__ import absolute_import
-
+import io
 import logging
+from logging import StreamHandler
 from collections import namedtuple
 from contextlib import contextmanager
-from six import StringIO
-from logging import StreamHandler
 from tempfile import NamedTemporaryFile
 
 from testplan.common.utils.logger import LOGFILE_FORMAT, Loggable
@@ -94,7 +92,7 @@ class LogCaptureMixin(Loggable):
                 "w+t", dir=result._scratch, suffix=".log", delete=False
             )
         else:
-            stream = StringIO()
+            stream = io.StringIO()
 
         handler = StreamHandler(stream)
         handler.setFormatter(logging.Formatter(format_string))

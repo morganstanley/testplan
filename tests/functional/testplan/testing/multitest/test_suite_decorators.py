@@ -1,7 +1,8 @@
 """TODO."""
 
+from unittest import mock
+
 import pytest
-import mock
 from schema import SchemaError
 
 from testplan.defaults import MAX_TEST_NAME_LENGTH

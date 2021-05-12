@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import NavBreadcrumbs from "./NavBreadcrumbs";
 import NavList from "./NavList";
-import {GetSelectedUid, GetNavEntries, GetNavBreadcrumbs} from "./navUtils";
+import {GetSelectedUid, GetNavEntries} from "./navUtils";
 
 /**
  * Nav component:
@@ -14,7 +14,7 @@ import {GetSelectedUid, GetNavEntries, GetNavBreadcrumbs} from "./navUtils";
  */
 const Nav = (props) => {
   const navEntries = GetNavEntries(props.selected);
-  const breadCrumbEntries = GetNavBreadcrumbs(props.selected);
+  const breadCrumbEntries = props.selected;
 
   return (
     <>

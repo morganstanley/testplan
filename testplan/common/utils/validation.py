@@ -2,9 +2,7 @@
 This module contains helper validation functions
 to be used with configuration schemas.
 """
-import warnings
 
-import six
 import validators
 
 

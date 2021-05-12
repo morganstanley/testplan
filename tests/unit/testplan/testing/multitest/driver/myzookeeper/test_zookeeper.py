@@ -30,7 +30,7 @@ def zookeeper_server():
 
 
 def test_zookeeper(zookeeper_server):
-    test_value = str(uuid.uuid4()).encode()
+    test_value = str(uuid.uuid4()).encode("utf-8")
 
     zk_client1 = KazooClient(
         hosts="127.0.0.1:{}".format(zookeeper_server.port)
@@ -53,7 +53,7 @@ def test_zookeeper(zookeeper_server):
     data, _ = zk_client2.get("/my/testplan")
     assert data == test_value
 
-    zk_client2.set("/my/testplan", str(uuid.uuid4()).encode())
+    zk_client2.set("/my/testplan", str(uuid.uuid4()).encode("utf-8"))
     data, _ = zk_client1.get("/my/testplan")
     assert data != test_value
     data, _ = zk_client2.get("/my/testplan")

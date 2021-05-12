@@ -1,6 +1,7 @@
 """
-    XML Export logic for test reports.
+XML Export logic for test reports.
 """
+
 import os
 import socket
 import shutil
@@ -276,7 +277,7 @@ class XMLExporter(Exporter):
                     file_path,
                     pretty_print=True,
                     xml_declaration=True,
-                    encoding="UTF-8",
+                    encoding="utf-8",
                 )
 
         xml_dir = os.path.abspath(xml_dir)

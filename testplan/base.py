@@ -62,8 +62,6 @@ class TestplanResult(TestRunnerResult):
         """
         return True if self.exit_code == 0 else False
 
-    __nonzero__ = __bool__
-
 
 class Testplan(entity.RunnableManager):
     """
