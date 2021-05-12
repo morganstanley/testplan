@@ -60,7 +60,7 @@ class MethodSignature(object):
         :type rhs: :py:class:`MethodSignature`
 
         :return: True if self and rhs are equivalent, False otherwise
-        :rtype: C{bool}
+        :rtype: ``bool``
         """
         return (
             (self.name == rhs.name)

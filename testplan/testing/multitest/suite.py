@@ -4,7 +4,6 @@ import copy
 import collections
 import functools
 import itertools
-import operator
 import inspect
 import warnings
 
@@ -459,6 +458,7 @@ def testsuite(*args, **kwargs):
 
 def _validate_function_name(func):
     """Validate the function name is valid for a testcase."""
+    reserved_words = ("name", "get_testcases", "pre_testcase", "post_testcase")
     errmsg = None
 
     if (
@@ -474,11 +474,11 @@ def _validate_function_name(func):
             func.__name__
         )
 
-    elif func.__name__ in ("name", "get_testcases"):
+    elif func.__name__ in reserved_words:
         errmsg = (
-            'Testcase cannot be defined as "name" or "get_testcases"'
-            " because they are reserved by Testplan"
-        )
+            "Testcase cannot be defined as any of the following"
+            " because they are reserved by Testplan: {}."
+        ).format(", ".join('"{}"'.format(word) for word in reserved_words))
 
     if errmsg is not None:
         _reset_globals()
@@ -774,103 +774,6 @@ def skip_if(*predicates):
     return skipper
 
 
-def _get_kwargs(kwargs, testcase_method):
-    """Compatibility with parametrization"""
-    return dict(
-        kwargs, **getattr(testcase_method, "_parametrization_kwargs", {})
-    )
-
-
-def _gen_testcase_with_pre(testcase_method, preludes):
-    """
-    Attach prelude(s) to a testcase method
-
-    :param testcase_method: a testcase method
-    :param prelude: a callable with a compatible signature
-
-    :return: testcase with prelude attached
-    """
-
-    @callable_utils.wraps(testcase_method)
-    def testcase_with_pre(*args, **kwargs):
-        """
-        Testcase with prelude
-        """
-        for prelude in preludes:
-            prelude(
-                testcase_method.__name__,
-                *args,
-                **_get_kwargs(kwargs, testcase_method)
-            )
-        return testcase_method(*args, **kwargs)
-
-    return testcase_with_pre
-
-
-def _run_epilogues(epilogues, name, *args, **kwargs):
-    """
-    Run all of epilogues and return the exceptions collected
-    """
-    exceptions = []
-
-    for epilogue in epilogues:
-        try:
-            epilogue(name, *args, **kwargs)
-        except Exception as exc:
-            exceptions.append(exc)
-            TESTPLAN_LOGGER.error(
-                'Exception raised when running epilogue "{}" for "{}"'.format(
-                    epilogue.__name__, name
-                )
-            )
-            TESTPLAN_LOGGER.exception(exc)
-
-    return exceptions
-
-
-def _gen_testcase_with_post(testcase_method, epilogues):
-    """
-    Attach an epilogue to a testcase method
-
-    :param testcase_method: a testcase method
-    :param epilogue: a callable with a compatible signature
-
-    :return: testcase with epilogue attached
-    """
-
-    @callable_utils.wraps(testcase_method)
-    def testcase_with_post(*args, **kwargs):
-        """
-        Testcase with epilogue
-        """
-        try:
-            testcase_method(*args, **kwargs)
-        except Exception as exc:
-            # even testcase method raises an exception, post-testcase methods
-            # still need to be executed, if any of them raises, the exception
-            # should be caught and will not overwrite the original one.
-            _run_epilogues(
-                epilogues,
-                testcase_method.__name__,
-                *args,
-                **_get_kwargs(kwargs, testcase_method)
-            )
-            raise exc
-        else:
-            # during running each epilogue there might be exception caught, for
-            # simplicity, only the first one is raised and logged into report.
-            exceptions = _run_epilogues(
-                epilogues,
-                testcase_method.__name__,
-                *args,
-                **_get_kwargs(kwargs, testcase_method)
-            )
-            if len(exceptions) > 0:
-                raise exceptions[0]
-
-    return testcase_with_post
-
-
 def skip_if_testcase(*predicates):
     """
     Annotate a suite with skip predicate(s). The skip predicates will be
@@ -891,48 +794,6 @@ def skip_if_testcase(*predicates):
         return klass
 
     return _skip_if_testcase_inner
-
-
-def pre_testcase(*functions):
-    """
-    Prepend callable(s) to trigger before every testcase in a testsuite
-
-    :param func: a callable to be executed immediately before each testcase
-
-    :return: testsuite with pre_testcase behaviour installed
-    """
-
-    def pre_testcase_inner(klass):
-        """
-        Inner part of class decorator
-        """
-        for testcase_method in get_testcase_methods(klass):
-            twp = _gen_testcase_with_pre(testcase_method, functions)
-            setattr(klass, testcase_method.__name__, twp)
-        return klass
-
-    return pre_testcase_inner
-
-
-def post_testcase(*functions):
-    """
-    Append callable(s) to trigger after every testcase in a testsuite
-
-    :param func: a callable to be executed immediately after each testcase
-
-    :return: testsuite with post_testcase behaviour installed
-    """
-
-    def post_testcase_inner(klass):
-        """
-        Inner part of class decorator
-        """
-        for testcase_method in get_testcase_methods(klass):
-            twp = _gen_testcase_with_post(testcase_method, functions)
-            setattr(klass, testcase_method.__name__, twp)
-        return klass
-
-    return post_testcase_inner
 
 
 def xfail(reason, strict=False):

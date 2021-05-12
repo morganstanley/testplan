@@ -48,44 +48,57 @@ A MultiTest instance can be constructed from the following parameters:
       def a_testcase_method(self, env, result):
         ...
 
-   In addition suites can have setup() and teardown() methods. The setup method
-   will be executed on suite entry, prior to any testcase if present. The
-   teardown method will be executed on suite exit, after setup and all
-   ``@testcase``-decorated testcases have executed.
+  In addition suites can have ``setup`` and ``teardown`` methods. The ``setup``
+  method will be executed on suite entry, prior to any testcase if present.
+  The ``teardown`` method will be executed on suite exit, after setup and all
+  ``@testcase``-decorated testcases have executed.
 
-   Again, the signature of those methods is checked at import time, and must be
-   as follows:
+  Again, the signature of those methods is checked at import time, and must be
+  as follows:
 
-   .. code-block:: python
+  .. code-block:: python
 
-     def setup(self, env):
-         ...
+    def setup(self, env):
+        ...
 
-     def teardown(self, env):
-         ...
+    def teardown(self, env):
+        ...
 
-   The result object can be optionally used to perform logging and basic
-   assertions:
+  The result object can be optionally used to perform logging and basic
+  assertions:
 
-   .. code-block:: python
+  .. code-block:: python
 
-     def setup(self, env, result):
-         ...
+    def setup(self, env, result):
+        ...
 
-     def teardown(self, env, result):
-         ...
+    def teardown(self, env, result):
+        ...
 
-   To signal that either setup or teardown hasn't completed correctly, you must
-   raise an exception. Raising an exception in ``setup()`` will abort the
-   execution of the testsuite, raising one in ``teardown()`` will be logged in
-   the report but will not prevent the execution of the next testsuite.
+  To signal that either ``setup`` or ``teardown`` hasn't completed correctly,
+  you must raise an exception. Raising an exception in ``setup`` will abort
+  the execution of the testsuite, raising one in ``teardown`` will be logged
+  in the report but will not prevent the execution of the next testsuite.
 
-   The :py:func:`@testcase <testplan.testing.multitest.suite.testcase>` decorated
-   methods will execute in the order in which they are defined. If more than
-   one suite is passed, the suites will be executed in the order in which they
-   are placed in the list that is used to pass them to the constructor. To
-   change testsuite and testcase execution order, click
-   :ref:`here <ordering_tests>` .
+  Similarly suites can have ``pre_testcase`` and ``post_testcase`` methods.
+  The ``pre_testcase`` method is executed before each testcase runs, and the
+  ``post_testcase`` method is executed after each testcase finishes. Exceptions
+  raised in these methods will be logged in the report. Note that argument
+  ``name`` is populated with name of testcase.
+
+  .. code-block:: python
+
+    def pre_testcase(self, name, env, result):
+        pass
+
+    def post_testcase(self, name, env, result):
+        pass
+
+  The :py:func:`@testcase <testplan.testing.multitest.suite.testcase>` decorated
+  methods will execute in the order in which they are defined. If more than
+  one suite is passed, the suites will be executed in the order in which they
+  are placed in the list that is used to pass them to the constructor. To
+  change testsuite and testcase execution order, click :ref:`here <ordering_tests>`.
 
 * **Environment**: The environment is a list of
   :py:class:`drivers <testplan.testing.multitest.driver.base.Driver>`. Drivers are
@@ -997,15 +1010,23 @@ This is equivalent to declaring each method call explicitly:
 See the :ref:`addition_associativity <example_multitest_parametrization>` test
 in the downloadable example.
 
-If a :py:func:`pre_testcase <testplan.testing.multitest.suite.pre_testcase>`/
-:py:func:`post_testcase <testplan.testing.multitest.suite.post_testcase>` function is
-used along with parameterized testcases, then its arguments should contain
-``kwargs`` to access the parameters of the associated testcase.
+If a ``pre_testcase`` or ``post_testcase`` method is defined in test suite and
+used along with parameterized testcases, then it can have an extra argument
+named ``kwargs`` to access the parameters of the associated testcase, for non
+parameterized testcases an empty dictionary is passed for ``kwargs``.
 
 .. code-block:: python
 
-    # To be used in pre_testcase/post_testcase
-    def function(name, self, env, result, **kwargs):
+    @testcase(parameters=(("foo", "bar"), ("baz", "quz")))
+    def sample_test(self, env, result, x, y):
+        pass
+
+    def pre_testcase(name, self, env, result, kwargs):
+        result.log("Param 1 is {}".format(kwargs.get("x")))
+        result.log("Param 2 is {}".format(kwargs.get("y")))
+        ...
+
+    def post_testcase(name, self, env, result, kwargs):
         ...
 
 .. _parametrization_default_values:
