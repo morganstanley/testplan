@@ -1,7 +1,7 @@
 /**
  * Common utility functions.
  */
-import {NAV_ENTRY_DISPLAY_DATA} from "./defaults";
+import { NAV_ENTRY_DISPLAY_DATA } from "./defaults";
 import JSON5 from "json5";
 import _ from 'lodash';
 
@@ -43,7 +43,7 @@ function any(iterable) {
  * @param {boolean} reverse - if true, the sorted list is reversed
  * @returns {Array}
  */
-function sorted(iterable, key=(item) => (item), reverse=false) {
+function sorted(iterable, key = (item) => (item), reverse = false) {
   return iterable.sort((firstMember, secondMember) => {
     let reverser = reverse ? 1 : -1;
 
@@ -96,8 +96,47 @@ function domToString(dom) {
  * @param {string} uid - string to be encoded
  * @returns {string}
  */
-function encodeURIComponent2 (str) {
+function encodeURIComponent2(str) {
   return encodeURIComponent(encodeURIComponent(str));
+}
+
+/**
+ * Same as {@link formatMilliseconds} but the input is in seconds
+ * @param {number} durationInSeconds 
+ * @returns {string}
+ */
+function formatSeconds(durationInSeconds) {
+  var durationInMilliseconds = durationInSeconds * 1000;
+  return formatMilliseconds(durationInMilliseconds);
+}
+
+/**
+ * Formats the input number representing milliseconds into a string
+ * with format H:m:s:ms. Each value is display only if it is greater
+ * than 0 or the previous value has been displayed.
+ * @param {number} durationInMilliseconds 
+ * @returns {string}
+ */
+function formatMilliseconds(durationInMilliseconds) {
+  var milliseconds = durationInMilliseconds % 1000;
+  durationInMilliseconds = (durationInMilliseconds - milliseconds) / 1000;
+  var seconds = durationInMilliseconds % 60;
+  durationInMilliseconds = (durationInMilliseconds - seconds) / 60;
+  var minutes = durationInMilliseconds % 60;
+  var hours = (durationInMilliseconds - minutes) / 60;
+
+  const isDisplayedHours = hours > 0;
+  const isDisplayedMinutes = (minutes > 0) | isDisplayedHours;
+  const isDisplayedSeconds = (seconds > 0) | isDisplayedMinutes;
+
+  var hoursDisplay = isDisplayedHours ? hours + 'h' : '';
+  var minutesDisplay = isDisplayedMinutes ? minutes + 'm' : '';
+  var secondsDisplay = isDisplayedSeconds ? seconds + 's' : '';
+  var millisecondsDisplay = milliseconds + 'ms';
+
+  return [hoursDisplay, minutesDisplay, secondsDisplay, millisecondsDisplay]
+    .filter(Boolean)
+    .join(' ');
 }
 
 export {
@@ -108,6 +147,8 @@ export {
   hashCode,
   domToString,
   encodeURIComponent2,
+  formatSeconds,
+  formatMilliseconds
 };
 
 /**
@@ -117,7 +158,7 @@ export {
  * @returns {Map<U, T>}
  */
 export const reverseMap = aMap => new Map(
-  Array.from(aMap).map(([newVal, newKey]) => [ newKey, newVal ])
+  Array.from(aMap).map(([newVal, newKey]) => [newKey, newVal])
 );
 
 export const isNonemptyArray = x => Array.isArray(x) && x.length;
@@ -130,7 +171,7 @@ export const unindent = (strArr, ...tagsArr) => strArr.slice(1).reduce(
 ).trimLeft();
 
 export const flattened = (strArr, ...tagsArr) => {
-  return _.spread(unindent)([ strArr, ...tagsArr ])
+  return _.spread(unindent)([strArr, ...tagsArr])
     .replace(/[ \t]*\n/g, ' ')
     .trimRight();
 };
