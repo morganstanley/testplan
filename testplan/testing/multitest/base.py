@@ -675,6 +675,9 @@ class MultiTest(testing_base.Test):
             if setup_report is not None:
                 testsuite_report.append(setup_report)
                 if setup_report.failed:
+                    teardown_report = self._teardown_testsuite(testsuite)
+                    if teardown_report is not None:
+                        testsuite_report.append(teardown_report)
                     return testsuite_report
 
             serial_cases, parallel_cases = (
@@ -889,8 +892,21 @@ class MultiTest(testing_base.Test):
         return method_report
 
     def _run_case_related(self, method, testcase, resources, case_result):
-        interface.check_signature(method, ["self", "name", "env", "result"])
-        method(testcase.name, resources, case_result)
+        try:
+            interface.check_signature(
+                method, ["self", "name", "env", "result"]
+            )
+            method(testcase.name, resources, case_result)
+        except interface.MethodSignatureMismatch:
+            interface.check_signature(
+                method, ["self", "name", "env", "result", "kwargs"]
+            )
+            method(
+                testcase.name,
+                resources,
+                case_result,
+                getattr(testcase, "_parametrization_kwargs", {}),
+            )
 
     def _run_testcase(
         self, testcase, pre_testcase, post_testcase, testcase_report=None
@@ -932,6 +948,7 @@ class MultiTest(testing_base.Test):
                 else:
                     testcase(resources, case_result)
 
+            with testcase_report.logged_exceptions():
                 if post_testcase and callable(post_testcase):
                     self._run_case_related(
                         post_testcase, testcase, resources, case_result
@@ -1027,6 +1044,9 @@ class MultiTest(testing_base.Test):
             yield setup_report, [self.uid(), testsuite.name]
 
             if setup_report.failed:
+                teardown_report = self._teardown_testsuite(testsuite)
+                if teardown_report is not None:
+                    yield teardown_report, [self.uid(), testsuite.name]
                 return
 
         for testcase_report, parent_uids in self._run_testcases_iter(

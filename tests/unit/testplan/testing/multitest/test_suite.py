@@ -11,14 +11,14 @@ from testplan.testing.multitest import suite
 from testplan.testing import tagging
 
 
-def ptestcase(name, self, env, result, **kwargs):
-    pass
-
-
-@suite.pre_testcase(ptestcase)
-@suite.post_testcase(ptestcase)
 @suite.testsuite
 class MySuite1(object):
+    def pre_testcase(self, name, env, result):
+        pass
+
+    def post_testcase(self, name, env, result):
+        pass
+
     @suite.testcase
     def case1(self, env, result):
         pass
@@ -85,6 +85,8 @@ def test_basic_suites():
     cases = ("case1", "case2", "case3")
     assert tuple(mysuite.__testcases__) == cases
     assert tuple(mysuite.__skip__) == ("case2",)
+    assert "pre_testcase" not in mysuite.__testcases__
+    assert "post_testcase" not in mysuite.__testcases__
 
     for method in suite.get_testcase_methods(MySuite1):
         assert method.__name__ in cases

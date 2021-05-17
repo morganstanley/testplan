@@ -1,7 +1,6 @@
 import pytest
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.testing.multitest import parametrization
 
 from testplan.testing import filtering
 

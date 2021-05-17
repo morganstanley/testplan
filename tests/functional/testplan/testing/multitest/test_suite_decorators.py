@@ -7,6 +7,7 @@ from schema import SchemaError
 
 from testplan.defaults import MAX_TEST_NAME_LENGTH
 from testplan.testing.multitest import MultiTest
+from testplan.testing.multitest.suite import testcase, testsuite, skip_if
 
 from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -17,43 +18,23 @@ from testplan.report import (
     ReportCategories,
     Status,
 )
-from testplan.testing.multitest.suite import (
-    testcase,
-    testsuite,
-    skip_if,
-    post_testcase,
-    pre_testcase,
-)
 
 
-def pre1(name, self, env, result):
-    result.equal(2, 2)
-    result.contain("case", name)
-
-
-def post1(name, self, env, result):
-    result.equal(2, 2)
-    result.contain("case", name)
-
-
-def pre2(name, self, env, result, a=None, b=None):
-    result.equal(2, 2)
-    result.contain("case", name)
-
-
-def post2(name, self, env, result, a=None, b=None):
-    result.equal(2, 2)
-    result.contain("case", name)
-    if name == "case5":
-        raise RuntimeError("raise for no reason")
-
-
-@pre_testcase(pre1)
-@post_testcase(post1)
 @testsuite(name="Test Suite")
 class Suite1(object):
     def setup(self, env, result):
         result.equal(2, 2)
+
+    def teardown(self, env):
+        pass
+
+    def pre_testcase(self, name, env, result):
+        result.equal(2, 2)
+        result.contain("case", name)
+
+    def post_testcase(self, name, env, result):
+        result.equal(2, 2)
+        result.contain("case", name)
 
     @testcase
     def case1(self, env, result):
@@ -68,12 +49,7 @@ class Suite1(object):
     def case3(self, env, result):
         result.equal(1, 1)
 
-    def teardown(self, env):
-        pass
 
-
-@pre_testcase(pre2)
-@post_testcase(post2)
 @testsuite(name=lambda cls_name, suite: "{}__{}".format(cls_name, suite.val))
 class Suite2(object):
     def __init__(self, val):
@@ -81,6 +57,23 @@ class Suite2(object):
 
     def setup(self, env):
         pass
+
+    def teardown(self, env, result):
+        result.equal(1, 2)
+
+    def pre_testcase(self, name, env, result, kwargs):
+        if kwargs.get("a"):
+            result.log("Param a: {}".format(kwargs["a"]))
+        if kwargs.get("b"):
+            result.log("Param b: {}".format(kwargs["b"]))
+        result.equal(2, 2)
+        result.contain("case", name)
+
+    def post_testcase(self, name, env, result):
+        result.equal(2, 2)
+        result.contain("case", name)
+        if name == "case5":
+            raise RuntimeError("raise for no reason")
 
     @testcase(parameters=(("aa", "bb"), ("aaa", "bbb")))
     def case4(self, env, result, a, b):
@@ -94,9 +87,6 @@ class Suite2(object):
     @testcase
     def case6(self, env, result):
         result.equal(1, 1)
-
-    def teardown(self, env, result):
-        result.equal(1, 2)
 
 
 def test_basic_multitest(mockplan):
@@ -236,3 +226,42 @@ def test_unexpected_name_attribute_in_suite_object(mockplan):
             mockplan.run()
 
         pytest.fail("Attribute `name` of test suite object is invalid.")
+
+
+def test_testcase_related_with_inivalid_arguments_in_suite_object(mockplan):
+    """
+    ``pre_testcase`` and ``post_testcase`` methods should have argument
+    like [self, name, env, result] or [self, name, env, result, kwargs].
+    """
+
+    @testsuite
+    class MySuite(object):
+        def pre_testcase(self, name, env, result, kwargs):  # valid
+            result.dict.log(kwargs)
+
+        def post_testcase(self, name, env, result, my_arg):  # invalid
+            pass
+
+        @testcase
+        def sample_test(self, env, result):
+            pass
+
+        @testcase(parameters=(("foo", "bar"),))
+        def param_test(self, env, result, x, y):
+            pass
+
+    mockplan.add(
+        MultiTest(name="MyMultitest", suites=[MySuite()], stop_on_error=False)
+    )
+    with log_propagation_disabled(TESTPLAN_LOGGER):
+        mockplan.run()
+
+    multitest_report = mockplan.result.report["MyMultitest"]
+    case_report = multitest_report["MySuite"]["sample_test"]
+    param_case_report = multitest_report["MySuite"]["param_test"].entries[0]
+
+    assert multitest_report.status == Status.ERROR
+    assert "MethodSignatureMismatch" in case_report.logs[0]["message"]
+    assert len(case_report.entries[0]["flattened_dict"]) == 0
+    assert "MethodSignatureMismatch" in param_case_report.logs[0]["message"]
+    assert len(param_case_report.entries[0]["flattened_dict"]) == 2
