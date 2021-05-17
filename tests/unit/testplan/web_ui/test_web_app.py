@@ -157,10 +157,7 @@ def test_testplan_assertions(webapp_test_client):
 
 
 def test_testplan_attachment(webapp_test_client):
-    """
-    Does sending anything to /api/v1/reports/<uid>/attachments/<uid> respond with
-    501.
-    """
+
     path = "/api/v1/reports/123/attachments/attached.file"
     response = webapp_test_client.get(path)
     expected_contents = str(DATA_REPORTS["testplan"]["contents"])
