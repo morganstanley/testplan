@@ -31,7 +31,7 @@ REQUIRED = [
     "numpy",
     "scipy",
     "requests>=2.4.3",
-    "flask",
+    "flask<2.0.0",
     "flask_restplus",
     "cheroot",
     "validators==0.14.0",
