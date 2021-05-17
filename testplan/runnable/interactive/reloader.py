@@ -10,9 +10,9 @@ import functools
 from imp import reload
 
 from testplan.common.utils import path as path_utils
-from testplan.testing.multitest import suite
 from testplan.common.utils import logger
 from testplan.common.utils import strings
+from testplan.testing.multitest import suite, MultiTest
 
 
 class ModuleReloader(logger.Loggable):
@@ -196,13 +196,11 @@ class ModuleReloader(logger.Loggable):
             functools.partial(collections.defaultdict, list)
         )
         for test in tests:
-            try:
+            if isinstance(test, MultiTest):
                 for suite in test.cfg.suites:
                     suite_dict[suite.__module__][
                         suite.__class__.__name__
                     ].append(suite)
-            except AttributeError:
-                self.logger.exception("Test %r has no suites", test)
         return suite_dict
 
     def _reload_modified_modules(self, modified_modules, suite_instances):
