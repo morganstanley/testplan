@@ -87,7 +87,7 @@ describe('BatchReport', () => {
     expect(message.props().message).toEqual(expectedMessage);
   });
 
-  it('loads a simple report and does not autoselect entries', done => {
+  it('loads a simple report', done => {
     const batchReport = renderBatchReport("520a92e4-325e-4077-93e6-55d7091a3f83");
     moxios.wait(() => {
       const request = moxios.requests.mostRecent();
@@ -106,7 +106,7 @@ describe('BatchReport', () => {
     });
   });
 
-  it('loads a more complex report and does not autoselect entries', done => {
+  it('loads a more complex report', done => {
     const batchReport = renderBatchReport("520a92e4-325e-4077-93e6-55d7091a3f83");
     moxios.wait(() => {
       const request = moxios.requests.mostRecent();
