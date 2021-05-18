@@ -223,28 +223,23 @@ const BreadcrumbMenu = (props) => {
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
   };
+
   const handleClose = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
     }
     setOpen(false);
   };
+
   const handleOnClickMenu = (url) => {
-    let count = 0;
     return () => {
-      count += 1;
-      setTimeout(() => {
-        if (count === 1) {
-          // handle click
-          handleToggle();
-        } else if (count === 2) {
-          // handle double click
-          history.push(url);
-        }
-        count = 0;
-      }, 200);
+      if (open) {
+        history.push(url);
+      }
+      handleToggle();
     };
   };
+
   const handleOnClickItem = (url, uid) => {
     return () => {
       history.push(url);
@@ -252,12 +247,14 @@ const BreadcrumbMenu = (props) => {
       handleToggle();
     };
   };
+
   useEffect(() => {
     if (prevOpen.current === true && open === false) {
       anchorRef.current.focus();
     }
     prevOpen.current = open;
   }, [open]);
+
   useEffect(() => {
     if (props.isOpen) {
       handleToggle();
