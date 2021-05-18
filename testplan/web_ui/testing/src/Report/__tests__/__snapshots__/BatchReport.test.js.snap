@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`BatchReport loads a more complex report and autoselects entries 1`] = `
+exports[`BatchReport loads a more complex report and does not autoselect entries 1`] = `
 <div
   className="batchReport_3hmsj"
 >

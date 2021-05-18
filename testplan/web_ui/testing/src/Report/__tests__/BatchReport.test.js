@@ -106,7 +106,7 @@ describe('BatchReport', () => {
     });
   });
 
-  it('loads a more complex report and autoselects entries', done => {
+  it('loads a more complex report and does not autoselect entries', done => {
     const batchReport = renderBatchReport("520a92e4-325e-4077-93e6-55d7091a3f83");
     moxios.wait(() => {
       const request = moxios.requests.mostRecent();

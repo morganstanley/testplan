@@ -70,7 +70,7 @@ class BatchReport extends React.Component {
       null :
       generateSelectionPath(
         this.props.match.path,
-        this.autoSelect(filteredReport.report)
+        [filteredReport.report.uid]
       );
 
     this.setState({
@@ -139,15 +139,6 @@ class BatchReport extends React.Component {
 
   updateReportUID(report, uid) {
     return { ...report, uid };
-  }
-
-  /**
-   * Auto-select an entry in the report when it is first loaded.
-   * @param {reportNode} reportEntry - the current report entry to select from.
-   * @return {Array[string]} List of UIDs of the currently selected entries.
-   */
-  autoSelect(reportEntry) {
-    return [reportEntry.uid];
   }
 
   /**
