@@ -3,6 +3,7 @@ XML Export logic for test reports.
 """
 
 import os
+import pathlib
 import socket
 import shutil
 from collections import Counter
@@ -245,12 +246,12 @@ class XMLExporter(Exporter):
         Create multiple XML files in the given directory for each top
         level test group report.
         """
-        xml_dir = self.cfg.xml_dir
+        xml_dir = pathlib.Path(self.cfg.xml_dir).resolve()
 
-        if os.path.exists(xml_dir):
+        if xml_dir.exists():
             shutil.rmtree(xml_dir)
 
-        os.makedirs(xml_dir)
+        xml_dir.mkdir(parents=True, exist_ok=True)
 
         files = set(os.listdir(xml_dir))
 
@@ -258,7 +259,7 @@ class XMLExporter(Exporter):
             filename = "{}.xml".format(slugify(child_report.name))
             filename = unique_name(filename, files)
             files.add(filename)
-            file_path = os.path.join(xml_dir, filename)
+            file_path = xml_dir / filename
 
             # If a report has XML string attribute it was mostly
             # generated via parsing a JUnit compatible XML file
@@ -274,14 +275,13 @@ class XMLExporter(Exporter):
                 )()
                 element = etree.ElementTree(renderer.render(child_report))
                 element.write(
-                    file_path,
+                    str(file_path),
                     pretty_print=True,
                     xml_declaration=True,
                     encoding="utf-8",
                 )
 
-        xml_dir = os.path.abspath(xml_dir)
         self.logger.exporter_info(
             "%s XML files created at %s", len(source), xml_dir
         )
-        return xml_dir
+        return str(xml_dir)
