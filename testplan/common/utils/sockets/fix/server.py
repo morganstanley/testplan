@@ -578,15 +578,15 @@ class Server(object):
         if self.log_callback:
             self.log_callback("Flushed received message queues")
 
-    def _flush_queue(self, queue):
+    def _flush_queue(self, msg_queue):
         """
         Flush the given receive queue.
 
-        :param queue: Queue to flush.
-        :type queue: ``queue``
+        :param msg_queue: Queue to flush.
+        :type msg_queue: ``queue``
         """
         try:
             while True:
-                queue.get(False)
+                msg_queue.get(False)
         except queue.Empty:
             return
