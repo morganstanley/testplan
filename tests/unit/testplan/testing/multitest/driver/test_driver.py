@@ -121,3 +121,25 @@ class TestPrePostCallables(object):
 
         assert driver.pre_stop_fn_called
         assert driver.post_stop_fn_called
+
+    def test_driver_stop_after_shutdown(self, runpath):
+        """Test manually stopping a Driver after it has stopped."""
+
+        driver = self.MyDriver(
+            name="MyDriver",
+            runpath=runpath,
+            pre_start=pre_start_fn,
+            post_start=post_start_fn,
+            pre_stop=pre_stop_fn,
+            post_stop=post_stop_fn,
+        )
+
+        driver.start()
+        driver.wait(driver.STATUS.STARTED)
+        assert driver.status.tag == driver.status.STARTED
+
+        driver.stop()
+        driver.wait(driver.STATUS.STOPPED)
+        assert driver.status.tag == driver.status.STOPPED
+
+        driver.stop()
