@@ -7,9 +7,13 @@ from schema import SchemaError
 
 from testplan.defaults import MAX_TEST_NAME_LENGTH
 from testplan.testing.multitest import MultiTest
-from testplan.testing.multitest.suite import testcase, testsuite, skip_if
+from testplan.testing.multitest.suite import (
+    testcase,
+    testsuite,
+    skip_if,
+    skip_if_testcase,
+)
 from testplan.common.utils.callable import pre, post
-
 from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report import (
@@ -90,9 +94,24 @@ class Suite2(object):
         result.equal(1, 1)
 
 
+@skip_if_testcase(lambda testsuite: True)
+@testsuite(name="Skipped Suite")  # No testcase runs in this suite
+class Suite3(object):
+    @testcase
+    def case1(self, env, result):
+        result.equal(1, 2)
+
+    @skip_if(lambda testsuite: False)
+    @testcase
+    def case2(self, env, result):
+        result.equal(1, 1)
+
+
 def test_basic_multitest(mockplan):
     """Basic test for suite decorator."""
-    mtest = MultiTest(name="MTest", suites=[Suite1(), Suite2(0), Suite2(1)])
+    mtest = MultiTest(
+        name="MTest", suites=[Suite1(), Suite2(0), Suite2(1), Suite3()]
+    )
     mockplan.add(mtest)
 
     with log_propagation_disabled(TESTPLAN_LOGGER):
