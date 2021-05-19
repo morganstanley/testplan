@@ -307,6 +307,8 @@ class App(Driver):
     def stopping(self):
         """Stops the application binary process."""
         super(App, self).stopping()
+        if self.proc is None:
+            return
         try:
             self._retcode = kill_process(self.proc)
         except Exception as exc:

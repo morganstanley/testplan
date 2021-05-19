@@ -171,6 +171,8 @@ class Driver(Resource):
 
     def stop(self):
         """Stop the driver."""
+        if self.status.tag is self.STATUS.STOPPED:
+            return
         self.status.change(self.STATUS.STOPPING)
         if self.active:
             self.pre_stop()
