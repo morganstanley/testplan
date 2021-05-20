@@ -234,13 +234,6 @@ class InteractiveReport extends React.Component {
   }
 
   /**
-   * Auto-select an entry in the report when it is first loaded.
-   */
-  autoSelect(reportEntry) {
-    return [reportEntry.uid];
-  }
-
-  /**
    * Request to update an entry in the report via PUT.
    */
   putUpdatedReportEntry(updatedReportEntry) {
