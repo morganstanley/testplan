@@ -106,7 +106,7 @@ function encodeURIComponent2(str) {
  * @returns {string}
  */
 function formatSeconds(durationInSeconds) {
-  var durationInMilliseconds = durationInSeconds * 1000;
+  let durationInMilliseconds = durationInSeconds * 1000;
   return formatMilliseconds(durationInMilliseconds);
 }
 
@@ -118,21 +118,21 @@ function formatSeconds(durationInSeconds) {
  * @returns {string}
  */
 function formatMilliseconds(durationInMilliseconds) {
-  var milliseconds = durationInMilliseconds % 1000;
+  let milliseconds = durationInMilliseconds % 1000;
   durationInMilliseconds = (durationInMilliseconds - milliseconds) / 1000;
-  var seconds = durationInMilliseconds % 60;
+  let seconds = durationInMilliseconds % 60;
   durationInMilliseconds = (durationInMilliseconds - seconds) / 60;
-  var minutes = durationInMilliseconds % 60;
-  var hours = (durationInMilliseconds - minutes) / 60;
+  let minutes = durationInMilliseconds % 60;
+  let hours = (durationInMilliseconds - minutes) / 60;
 
   const isDisplayedHours = hours > 0;
   const isDisplayedMinutes = (minutes > 0) | isDisplayedHours;
   const isDisplayedSeconds = (seconds > 0) | isDisplayedMinutes;
 
-  var hoursDisplay = isDisplayedHours ? hours + 'h' : '';
-  var minutesDisplay = isDisplayedMinutes ? minutes + 'm' : '';
-  var secondsDisplay = isDisplayedSeconds ? seconds + 's' : '';
-  var millisecondsDisplay = milliseconds + 'ms';
+  let hoursDisplay = isDisplayedHours ? hours + 'h' : '';
+  let minutesDisplay = isDisplayedMinutes ? minutes + 'm' : '';
+  let secondsDisplay = isDisplayedSeconds ? seconds + 's' : '';
+  let millisecondsDisplay = milliseconds + 'ms';
 
   return [hoursDisplay, minutesDisplay, secondsDisplay, millisecondsDisplay]
     .filter(Boolean)
