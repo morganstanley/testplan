@@ -1,6 +1,4 @@
 """Functional tests for interactive HTTP API."""
-
-
 import functools
 from unittest import mock
 
