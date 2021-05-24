@@ -60,8 +60,6 @@ InteractiveNavList.propTypes = {
   handleNavClick: PropTypes.func,
   /** Function to handle Nav list resizing */
   handleColumnResizing: PropTypes.func,
-  /** Function to automatically select Nav entries */
-  autoSelect: PropTypes.func,
   /** Entity filter */
   filter: PropTypes.string,
   /** Flag to display empty testcase on navbar */

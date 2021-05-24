@@ -17,8 +17,6 @@ import {
  * Performs similar function as the batch report Nav component, but for
  * interactive mode. Key differences:
  *
- *   * Does not auto-select testcases. Only the root Testplan report is
- *     first selected.
  *   * Adds extra buttons for running testcases interactively and controlling
  *     environments.
  *
@@ -42,7 +40,6 @@ const InteractiveNav = (props) => {
         entries={navEntries}
         breadcrumbLength={breadCrumbEntries.length}        
         handleColumnResizing={props.handleColumnResizing}
-        autoSelect={() => undefined}
         filter={null}
         displayEmpty={true}
         displayTags={false}

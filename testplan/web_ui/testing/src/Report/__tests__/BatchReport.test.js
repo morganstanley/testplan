@@ -87,7 +87,7 @@ describe('BatchReport', () => {
     expect(message.props().message).toEqual(expectedMessage);
   });
 
-  it('loads a simple report and autoselects entries', done => {
+  it('loads a simple report', done => {
     const batchReport = renderBatchReport("520a92e4-325e-4077-93e6-55d7091a3f83");
     moxios.wait(() => {
       const request = moxios.requests.mostRecent();
@@ -98,7 +98,7 @@ describe('BatchReport', () => {
       }).then(() => {
         batchReport.update();
         const props = batchReport.instance().props;
-        expect(props.history.location.pathname).toBe("/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/21739167-b30f-4c13-a315-ef6ae52fd1f7/cb144b10-bdb0-44d3-9170-d8016dd19ee7")
+        expect(props.history.location.pathname).toBe("/testplan/520a92e4-325e-4077-93e6-55d7091a3f83")
         handleRedirect(batchReport);
         expect(batchReport).toMatchSnapshot();
         done();
@@ -106,7 +106,7 @@ describe('BatchReport', () => {
     });
   });
 
-  it('loads a more complex report and autoselects entries', done => {
+  it('loads a more complex report', done => {
     const batchReport = renderBatchReport("520a92e4-325e-4077-93e6-55d7091a3f83");
     moxios.wait(() => {
       const request = moxios.requests.mostRecent();
