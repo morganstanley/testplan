@@ -4,7 +4,6 @@ import inspect
 import functools
 from collections import namedtuple
 
-
 WRAPPER_ASSIGNMENTS = functools.WRAPPER_ASSIGNMENTS + (
     "__tags__",
     "__tags_index__",
@@ -140,3 +139,68 @@ def wraps(
         return wrapper
 
     return _inner
+
+
+def pre(*prefunctions):
+    """
+    Attaches function(s) to another function for systematic execution before
+    said function, with the same arguments
+
+    :param prefunction: function to execute before
+    :type prefunction: ``callable``
+
+    :return: function decorator
+    :rtype: ``callable``
+    """
+
+    def outer(function):
+        """
+        Function decorator adding the execution of a prefunction
+        """
+
+        @wraps(function)
+        def inner(*args, **kwargs):
+            """
+            Inner decorator body, executing the prefunctions and the
+            function itself
+            """
+            for prefunction in prefunctions:
+                prefunction(*args, **kwargs)
+            return function(*args, **kwargs)
+
+        return inner
+
+    return outer
+
+
+def post(*postfunctions):
+    """
+    Attaches function(s) to another function for systematic execution after
+    said function, with the same arguments
+
+    :param postfunction: function to execute after
+    :type postfunction: ``callable``
+
+    :return: function decorator
+    :rtype: ``callable``
+    """
+
+    def outer(function):
+        """
+        Function decorator adding the excution of a postfunction
+        """
+
+        @wraps(function)
+        def inner(*args, **kwargs):
+            """
+            Inner decorator body, executing the postfunctions and the
+            function itself
+            """
+            result = function(*args, **kwargs)
+            for postfunction in postfunctions:
+                postfunction(*args, **kwargs)
+            return result
+
+        return inner
+
+    return outer
