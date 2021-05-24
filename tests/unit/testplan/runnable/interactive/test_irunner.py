@@ -176,8 +176,28 @@ def test_run_testcase(irunner, sync):
 @pytest.mark.parametrize("sync", [True, False])
 def test_run_parametrization(irunner, sync):
     """Test running a single parametrization of a testcase."""
+    ret = irunner.run_test_case_param(
+        "test_1",
+        "Suite",
+        "parametrized",
+        "parametrized__val_1",
+        await_results=sync,
+    )
+
+    if not sync:
+        assert ret.result() is None
+
+    # The test report should have been updated as a side effect.
+    assert irunner.report["test_1"]["Suite"]["parametrized"][
+        "parametrized__val_1"
+    ].passed
+
+
+@pytest.mark.parametrize("sync", [True, False])
+def test_run_parametrization_all(irunner, sync):
+    """Test running all the parametrization of a parametrization group."""
     ret = irunner.run_test_case(
-        "test_1", "Suite", "parametrized__val_1", await_results=sync
+        "test_1", "Suite", "parametrized", await_results=sync
     )
 
     if not sync:

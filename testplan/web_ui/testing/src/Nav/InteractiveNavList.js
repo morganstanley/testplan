@@ -16,6 +16,7 @@ const InteractiveNavList = (props) => {
     props,
     (entry) => (
       <InteractiveNavEntry
+        key={entry.hash || entry.uid}
         name={_.isEmpty(entry.part) ? entry.name : entry.uid}
         description={entry.description}
         status={entry.status}
