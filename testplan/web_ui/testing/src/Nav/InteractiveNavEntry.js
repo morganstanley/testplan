@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     cursor: 'pointer',
     color: MEDIUM_GREY,
     padding: '0.7em 0em 0.7em 0em',
-    transition: 'all 0.3s ease-out 0s',
+    transition: 'all 0.3s ease-out 0s !important',
   },
   badge: {
     opacity: 0.5,

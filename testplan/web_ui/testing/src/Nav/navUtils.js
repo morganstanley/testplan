@@ -52,7 +52,7 @@ const CreateNavButtons = (
     return (
       <ListGroupItem
         tabIndex={tabIndex.toString()}
-        key={entry.uid}
+        key={entry.hash || entry.uid}
         className={css(cssClass)}
         activeClassName={css(cssActiveClass)}
         tag={NavLink} to={linkTo} action

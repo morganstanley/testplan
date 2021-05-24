@@ -9,7 +9,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import MenuList from "@material-ui/core/MenuList";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { makeStyles } from "@material-ui/core/styles";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { generatePath } from "react-router";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -133,34 +133,34 @@ const useStyles = makeStyles({
 const NavBreadcrumbs = (props) => {
   const classes = useStyles();
   const [nextOpenItem, setNextOpenItem] = useState(null);
+  const history = useHistory();
 
   let breadcrumbMenus;
   if (props.entries.length > 0) {
     breadcrumbMenus = [
       <li key="breadcrumbMenuHome">
-        <Link
-          to={generatePath(props.url, {
-            uid: props.uidEncoder
-              ? props.uidEncoder(props.entries[0].uids[0])
-              : props.entries[0].uids[0],
-          })}
-          className={classes.link}
+        <Button
+          className={
+            `${classes.breadcrumbMenu} ${classes.breadcrumbMenuButton}`
+          }
+          disableRipple={true}
+          style={{ paddingLeft: "10px" }}
+          onClick={()=>{
+            history.push(generatePath(props.url, {
+              uid: props.uidEncoder
+                ? props.uidEncoder(props.entries[0].uids[0])
+                : props.entries[0].uids[0],
+            }));
+            setNextOpenItem(null);
+          }}
         >
-          <Button
-            className={
-              `${classes.breadcrumbMenu} ${classes.breadcrumbMenuButton}`
-            }
-            disableRipple={true}
-            style={{ paddingLeft: "10px" }}
-          >
-            <FontAwesomeIcon
-              key="breadcrumbMenuHomeIcon"
-              icon="home"
-              title="Home"
-              className={classes.homeIcon}
-            />
-          </Button>
-        </Link>
+          <FontAwesomeIcon
+            key="breadcrumbMenuHomeIcon"
+            icon="home"
+            title="Home"
+            className={classes.homeIcon}
+          />
+        </Button>
       </li>,
     ];
     props.entries.forEach((entry, index, selected) => {
@@ -228,6 +228,7 @@ const BreadcrumbMenu = (props) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
     }
+    props.handleNextOpenItem(null);
     setOpen(false);
   };
 
