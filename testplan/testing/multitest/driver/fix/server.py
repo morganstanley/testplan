@@ -119,6 +119,16 @@ class FixServer(Driver):
         self._host = self.cfg.host
         self._port = self._server.port
 
+        # use parent.logger here so that this goes to stdout
+        # self.logger is writing to file_logger
+        self.parent.logger.debug(
+            "%s[%s] listening on %s:%s",
+            type(self).__name__,
+            self.name,
+            self._host,
+            self._port,
+        )
+
     def active_connections(self):
         """
         Docstring from Server.active_connections
