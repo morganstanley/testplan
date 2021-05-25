@@ -126,13 +126,14 @@ function formatMilliseconds(durationInMilliseconds) {
   let hours = (durationInMilliseconds - minutes) / 60;
 
   const isDisplayedHours = hours > 0;
-  const isDisplayedMinutes = (minutes > 0) | isDisplayedHours;
-  const isDisplayedSeconds = (seconds > 0) | isDisplayedMinutes;
+  const isDisplayedMinutes = minutes > 0;
+  const isDisplayedSeconds = seconds > 0 && !isDisplayedHours;
+  const isDisplayedMilliseconds = milliseconds > 0 && !isDisplayedMinutes && !isDisplayedHours;
 
   let hoursDisplay = isDisplayedHours ? hours + 'h' : '';
   let minutesDisplay = isDisplayedMinutes ? minutes + 'm' : '';
   let secondsDisplay = isDisplayedSeconds ? seconds + 's' : '';
-  let millisecondsDisplay = milliseconds + 'ms';
+  let millisecondsDisplay = isDisplayedMilliseconds ? milliseconds + 'ms' : '';
 
   return [hoursDisplay, minutesDisplay, secondsDisplay, millisecondsDisplay]
     .filter(Boolean)
