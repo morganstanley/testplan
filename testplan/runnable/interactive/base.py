@@ -180,6 +180,8 @@ class TestRunnerIHandler(entity.Entity):
 
         try:
             self._auto_start_environment(test_uid)
+            with self.report_mutex:
+                self.report[test_uid].runtime_status = RuntimeStatus.RUNNING
         except RuntimeError:
             self.logger.exception("Failed to start environment for test.")
             with self.report_mutex:
@@ -207,6 +209,10 @@ class TestRunnerIHandler(entity.Entity):
 
         try:
             self._auto_start_environment(test_uid)
+            with self.report_mutex:
+                self.report[test_uid][
+                    suite_uid
+                ].runtime_status = RuntimeStatus.RUNNING
         except RuntimeError:
             self.logger.exception("Failed to start environment for testsuite.")
             with self.report_mutex:
@@ -244,6 +250,10 @@ class TestRunnerIHandler(entity.Entity):
 
         try:
             self._auto_start_environment(test_uid)
+            with self.report_mutex:
+                self.report[test_uid][suite_uid][
+                    case_uid
+                ].runtime_status = RuntimeStatus.RUNNING
         except RuntimeError:
             self.logger.exception("Failed to start environment for testcase.")
             with self.report_mutex:
@@ -292,6 +302,10 @@ class TestRunnerIHandler(entity.Entity):
 
         try:
             self._auto_start_environment(test_uid)
+            with self.report_mutex:
+                self.report[test_uid][suite_uid][case_uid][
+                    param_uid
+                ].runtime_status = RuntimeStatus.RUNNING
         except RuntimeError:
             self.logger.exception("Failed to start environment for testcase.")
             with self.report_mutex:

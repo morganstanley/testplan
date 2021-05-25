@@ -244,7 +244,8 @@ class InteractiveReport extends React.Component {
           alert(response.data.errmsg);
           console.error(response.data);
         } else {
-          this.setShallowReportEntry(response.data);
+          // Do not update report hash here.
+          this.setShallowReportEntry(updatedReportEntry);
         }
       }
     ).catch(

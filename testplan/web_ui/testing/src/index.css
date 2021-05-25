@@ -3,7 +3,9 @@ body {
   padding: 0;
 }
 
-*, *::before, *::after {
+.MuiPaper-root, .MuiButton-root,
+.MuiButton-root::before, .MuiPaper-root::before,
+.MuiButton-root::after, .MuiPaper-root::after {
   transition: none !important;
   animation: none !important;
 }

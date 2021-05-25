@@ -10,40 +10,36 @@ exports[`NavBreadcrumbs shallow renders the correct HTML structure 1`] = `
     <li
       key="breadcrumbMenuHome"
     >
-      <Link
-        className="makeStyles-link-7"
-        to="/testplan/123"
-      >
-        <WithStyles(ForwardRef(Button))
-          className="makeStyles-breadcrumbMenu-4 makeStyles-breadcrumbMenuButton-5"
-          disableRipple={true}
-          style={
-            Object {
-              "paddingLeft": "10px",
-            }
+      <WithStyles(ForwardRef(Button))
+        className="makeStyles-breadcrumbMenu-4 makeStyles-breadcrumbMenuButton-5"
+        disableRipple={true}
+        onClick={[Function]}
+        style={
+          Object {
+            "paddingLeft": "10px",
           }
-        >
-          <FontAwesomeIcon
-            border={false}
-            className="makeStyles-homeIcon-3"
-            fixedWidth={false}
-            flip={null}
-            icon="home"
-            inverse={false}
-            key="breadcrumbMenuHomeIcon"
-            listItem={false}
-            mask={null}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            size={null}
-            spin={false}
-            symbol={false}
-            title="Home"
-            transform={null}
-          />
-        </WithStyles(ForwardRef(Button))>
-      </Link>
+        }
+      >
+        <FontAwesomeIcon
+          border={false}
+          className="makeStyles-homeIcon-3"
+          fixedWidth={false}
+          flip={null}
+          icon="home"
+          inverse={false}
+          key="breadcrumbMenuHomeIcon"
+          listItem={false}
+          mask={null}
+          pull={null}
+          pulse={false}
+          rotation={null}
+          size={null}
+          spin={false}
+          symbol={false}
+          title="Home"
+          transform={null}
+        />
+      </WithStyles(ForwardRef(Button))>
     </li>
     <li
       key="breadcrumbMenutestplan"
