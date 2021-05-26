@@ -128,7 +128,8 @@ function formatMilliseconds(durationInMilliseconds) {
   const isDisplayedHours = hours > 0;
   const isDisplayedMinutes = minutes > 0;
   const isDisplayedSeconds = seconds > 0 && !isDisplayedHours;
-  const isDisplayedMilliseconds = milliseconds > 0 && !isDisplayedMinutes && !isDisplayedHours;
+  const isDisplayedMilliseconds =
+    milliseconds > 0 && !isDisplayedMinutes && !isDisplayedHours;
 
   let hoursDisplay = isDisplayedHours ? hours + 'h' : '';
   let minutesDisplay = isDisplayedMinutes ? minutes + 'm' : '';
