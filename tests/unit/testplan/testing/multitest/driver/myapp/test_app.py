@@ -325,24 +325,3 @@ def run_app(cwd, runpath):
     with app:
         app.proc.wait()
     return app
-
-
-def test_app_stop_after_shutdown(runpath):
-    """Test manually stopping an App after it has stopped."""
-    app = App(
-        name="App",
-        binary="echo",
-        args=["hello"],
-        shell=True,
-        runpath=runpath,
-    )
-    app.start()
-    app.wait(app.STATUS.STARTED)
-    assert app.status.tag == app.status.STARTED
-
-    app.stop()
-    app.wait(app.STATUS.STOPPED)
-    assert app.proc is None
-    assert app.status.tag == app.status.STOPPED
-
-    app.stop()
