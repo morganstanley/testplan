@@ -268,7 +268,7 @@ const getAssertions = (selectedEntries, displayTime) => {
           ) + " UTC" : "");
       }
       for (let i = 0; i < links.length - 1; ++i) {
-        var duration = "Unknown";
+        let duration = "Unknown";
         if (links[i].utc_time && links[i + 1].utc_time) {
           const nextEntryTime = (new Date(links[i + 1].utc_time)).getTime();
           const currentEntryTime = (new Date(links[i].utc_time)).getTime();
@@ -279,7 +279,7 @@ const getAssertions = (selectedEntries, displayTime) => {
         links[i].timeInfoArray.push(duration);
       }
       if (links.length > 0) {
-        var duration = "Unknown";
+        let duration = "Unknown";
         if (selectedEntry.timer && selectedEntry.timer.run.end &&
           links[links.length - 1].utc_time) {
           const nextEntryTime =
