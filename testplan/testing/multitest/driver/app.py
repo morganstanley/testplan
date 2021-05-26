@@ -307,7 +307,7 @@ class App(Driver):
     def stopping(self):
         """Stops the application binary process."""
         super(App, self).stopping()
-        # 
+        #
         if self.proc is None:
             return
         try:
