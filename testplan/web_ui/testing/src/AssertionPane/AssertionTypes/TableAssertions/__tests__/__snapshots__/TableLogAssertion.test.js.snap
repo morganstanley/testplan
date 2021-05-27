@@ -5,6 +5,7 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
   columns={
     Array [
       Object {
+        "cellRendererFramework": [Function],
         "field": "age",
         "filterParams": Object {
           "excelMode": "windows",
@@ -12,6 +13,7 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "headerName": "age",
       },
       Object {
+        "cellRendererFramework": [Function],
         "field": "name",
         "filterParams": Object {
           "excelMode": "windows",

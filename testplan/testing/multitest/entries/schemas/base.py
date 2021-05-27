@@ -93,3 +93,8 @@ class AttachmentSchema(BaseSchema):
     orig_filename = fields.String()
     filesize = fields.Integer()
     dst_path = fields.String()
+
+
+@registry.bind(base.Plotly)
+class PlotlySchema(AttachmentSchema):
+    style = fields.Dict(allow_none=True)
