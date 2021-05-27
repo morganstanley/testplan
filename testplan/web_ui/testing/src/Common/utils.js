@@ -232,3 +232,17 @@ export const parseToJson = (data) => {
 
   return result;
 };
+
+/**
+ * Get the URL to retrieve the attachment from. Depending on whether we are
+ * running in batch or interactive mode, the API for accessing attachments
+ * is slightly different. We know we are running in interactive mode if there
+ * is no report UID.
+ */
+export const getAttachmentUrl = (filePath, reportUid) => {
+  if (reportUid) {
+    return `/api/v1/reports/${reportUid}/attachments/${filePath}`;
+  } else {
+    return `/api/v1/interactive/attachments/${filePath}`;
+  }
+};

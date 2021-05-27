@@ -672,6 +672,14 @@ matplot assertion and contain output sample images can be found
 :ref:`here <example_basic_models>`.
 
 
+:py:meth:`result.plotly <testplan.testing.multitest.result.Result.plotly>`
+----------------------------------------------------------------------------
+
+Displays a Plotly figure in the report. Downloadable examples that use
+plotly assertion can be found
+:ref:`here <example_assertions_plotly>`.
+
+
 Assertion Groups
 ================
 While writing assertions, it's possible to group them together for formatting purposes.

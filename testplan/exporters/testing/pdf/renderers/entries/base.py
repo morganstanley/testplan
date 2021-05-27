@@ -180,6 +180,45 @@ class MatPlotRenderer(SerializedEntryRenderer):
         )
 
 
+@registry.bind(base.Plotly)
+class PlotlyRenderer(SerializedEntryRenderer):
+    """Render a Plotly assertion from a serialized entry."""
+
+    def get_row_data(self, source, depth, row_idx):
+        # TODO Add PDF render
+        # https://plotly.com/python/static-image-export/
+        # require kaleido which not support rhel6
+        return super(PlotlyRenderer, self).get_row_data(source, depth, row_idx)
+
+        #
+        # header = self.get_header(source, depth, row_idx)
+        # styles = [
+        #     RowStyle(
+        #         font=(constants.FONT, constants.FONT_SIZE_SMALL),
+        #         left_padding=constants.INDENT * (depth + 1),
+        #         text_color=colors.black,
+        #     )
+        # ]
+        #
+        # fig = plotly.io.read_json(source["source_path"])
+        #
+        # img_file = str(pathlib.Path(source["source_path"]).with_suffix(".jpg"))
+        # plotly.io.write_image(fig, img_file)
+        # p_img = pil_image.open(img_file)
+        # dpi_w, dpi_h = p_img.info["dpi"]
+        #
+        # width = p_img.width / dpi_w * inch
+        # height = p_img.height / dpi_h * inch
+        #
+        # img = Image(img_file, width, height)
+        #
+        # return header + RowData(
+        #     content=[img, "", "", ""],
+        #     start=header.end,
+        #     style=styles,
+        # )
+
+
 @registry.bind(base.TableLog)
 class TableLogRenderer(SerializedEntryRenderer):
     """Render a Table from a serialized entry."""

@@ -18,21 +18,27 @@ if (REACT_APP_AG_GRID_LICENSE) {
  */
 export default function TableBaseAssertion(props) {
 
-  const [gridApi, setGridApi] = useState(null);
-  const [, setGridColumnApi] = useState(null);
+  const [, setGridApi] = useState(null);
+  const [gridColumnApi, setGridColumnApi] = useState(null);
 
-  const sizeToFit = (api) => {
-    if (api) api.sizeColumnsToFit();
+  const autoSizeColumns = () => {
+    if (gridColumnApi) {
+      let allColumnIds = [];
+      gridColumnApi.getAllColumns().forEach(column => {
+        allColumnIds.push(column.colId);
+      });
+      gridColumnApi.autoSizeColumns(allColumnIds);
+    }
   };
 
   const onGridReady = (params) => {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
-    sizeToFit(params.api);
+    autoSizeColumns();
   };
 
   useLayoutEffect(() => {
-    sizeToFit(gridApi?.api);
+    autoSizeColumns();
   });
 
   // table header + margin + column height * columns

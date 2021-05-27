@@ -7,6 +7,8 @@ import pprint
 import re
 import os
 import shutil
+import pathlib
+import plotly.io
 
 from testplan.common.utils.convert import nested_groups
 from testplan.common.utils.timing import utcnow
@@ -377,6 +379,21 @@ class MatPlot(Attachment):
         super(MatPlot, self).__init__(
             filepath=image_file_path, description=description
         )
+
+
+class Plotly(Attachment):
+    def __init__(self, fig, data_file_path, style=None, description=None):
+        fig_json = plotly.io.to_json(fig)
+        pathlib.Path(data_file_path).resolve().parent.mkdir(
+            parents=True, exist_ok=True
+        )
+        with open(data_file_path, "w") as f:
+            f.write(fig_json)
+
+        super(Plotly, self).__init__(
+            filepath=data_file_path, description=description
+        )
+        self.style = style
 
 
 class CodeLog(BaseEntry):

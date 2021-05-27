@@ -1,6 +1,7 @@
 """
 Custom marshmallow fields.
 """
+import abc
 import pprint
 import warnings
 
@@ -31,6 +32,39 @@ from testplan.common.utils import comparison
 # pickle. All other types will be converted to strings before pickling.
 # types.NoneType is gone in python3 so we inspect the type of None directly.
 COMPATIBLE_TYPES = (bool, float, type(None), str, bytes, int)
+
+
+class Serializable(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def serialize(self):
+        pass
+
+
+class LogLink(Serializable):
+    """
+    Save an HTML link in WebUI
+    """
+
+    def __init__(self, link, title=None, new_window=True):
+        """
+        :param link: The URL of the page the link goes to.
+        :type link: ``str``
+        :param title: The name of the link.
+        :type title: ``str``
+        :param new_window: Open the link on new window or not. Default is True.
+        :type new_window: ``bool``
+        """
+        self.link = link
+        self.title = title or link
+        self.new_window = new_window
+
+    def serialize(self):
+        return {
+            "link": self.link,
+            "title": self.title,
+            "new_window": self.new_window,
+            "type": "link",
+        }
 
 
 def _repr_obj(obj):
@@ -113,7 +147,10 @@ class NativeOrPretty(fields.Field):
     """
 
     def _serialize(self, value, attr, obj):
-        return native_or_pformat(value)
+        if isinstance(value, Serializable):
+            return value.serialize()
+        else:
+            return native_or_pformat(value)
 
 
 class NativeOrPrettyDict(fields.Field):

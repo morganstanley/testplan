@@ -9,6 +9,7 @@ after testcases have finished running.
 import inspect
 import os
 import re
+import json
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
@@ -2207,6 +2208,19 @@ class Result(object):
         self.attachments.append(matplot)
         _bind_entry(matplot, self)
         return matplot
+
+    def plotly(self, fig, description=None, style=None):
+        filename = "{0}.json".format(strings.uuid4())
+        data_file_path = os.path.join(self._scratch, filename)
+        chart = base.Plotly(
+            fig,
+            data_file_path=data_file_path,
+            style=style,
+            description=description,
+        )
+        self.attachments.append(chart)
+        _bind_entry(chart, self)
+        return chart
 
     @property
     def serialized_entries(self):

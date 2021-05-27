@@ -27,3 +27,16 @@ Required files:
 test_plan.py
 ++++++++++++
 .. literalinclude:: ../../../examples/Assertions/Summary/test_plan.py
+
+
+Plotly
+------
+
+.. _example_assertions_plotly:
+
+Required files:
+  - :download:`test_plan.py <../../../examples/Assertions/Plotly/test_plan.py>`
+
+test_plan.py
+++++++++++++
+.. literalinclude:: ../../../examples/Assertions/Plotly/test_plan.py

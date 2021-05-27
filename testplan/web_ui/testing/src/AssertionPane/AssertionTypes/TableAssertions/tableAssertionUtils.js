@@ -1,5 +1,6 @@
 /** @module tableAssertionUtils */
 
+import React from "react";
 import {domToString} from './../../../Common/utils';
 
 
@@ -26,6 +27,23 @@ function tableCellStyle(params) {
 
   return cellStyle;
 }
+
+function tableLogCellRender(cell) {
+  if (typeof cell.value === "object") {
+    if (cell.value.type === "link") {
+      return (
+        <a
+          href={cell.value.link}
+          target={cell.value.new_window ? "_blank" : "_self"}
+        >
+          {cell.value.title || cell.value.link}
+        </a>
+      );
+    }
+  }
+  return cell.value;
+}
+
 
 /**
  * Function to prepare the column definitions for TableLog assertions.
@@ -56,7 +74,8 @@ export function prepareTableLogColumnDefs(columns, display_index) {
     columnDefs.push({
       headerName: column,
       field: column,
-      filterParams: {excelMode: 'windows'}
+      filterParams: {excelMode: 'windows'},
+      cellRendererFramework: tableLogCellRender
     });
   });
 

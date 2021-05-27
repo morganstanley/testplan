@@ -27,7 +27,8 @@ import XYGraphAssertion
 import DiscreteChartAssertion
   from './AssertionTypes/GraphAssertions/DiscreteChartAssertion';
 import SummaryBaseAssertion from './AssertionSummary';
-import AttachmentAssertion from './AssertionTypes/AttachmentAssertions.js';
+import AttachmentAssertion from './AssertionTypes/AttachmentAssertions';
+import PlotlyAssertion from './AssertionTypes/PlotlyAssertion';
 
 /**
  * Component to render one assertion.
@@ -123,6 +124,7 @@ class Assertion extends Component {
       MatPlot: AttachmentAssertion,
       Markdown: MarkdownAssertion,
       CodeLog: CodeLogAssertion,
+      Plotly: PlotlyAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];
