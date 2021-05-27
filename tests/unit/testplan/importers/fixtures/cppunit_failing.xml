@@ -1,0 +1,52 @@
+<TestRun>
+  <FailedTests>
+    <FailedTest id="1">
+      <Name>Comparison::testEqual</Name>
+      <FailureType>Assertion</FailureType>
+      <Location>
+        <File>/tests/functional/testplan/testing/fixtures/cpp/cppunit/failing/tests.cpp</File>
+        <Line>68</Line>
+      </Location>
+      <Message>assertion failed
+- Expression: m_value1 == m_value2
+</Message>
+    </FailedTest>
+    <FailedTest id="6">
+      <Name>LogicalOp::testAnd</Name>
+      <FailureType>Assertion</FailureType>
+      <Location>
+        <File>/tests/functional/testplan/testing/fixtures/cpp/cppunit/failing/tests.cpp</File>
+        <Line>130</Line>
+      </Location>
+      <Message>assertion failed
+- Expression: m_valueT &amp; m_valueF
+</Message>
+    </FailedTest>
+  </FailedTests>
+  <SuccessfulTests>
+    <Test id="2">
+      <Name>Comparison::testGreater</Name>
+    </Test>
+    <Test id="3">
+      <Name>Comparison::testLess</Name>
+    </Test>
+    <Test id="4">
+      <Name>Comparison::testMisc</Name>
+    </Test>
+    <Test id="5">
+      <Name>LogicalOp::testOr</Name>
+    </Test>
+    <Test id="7">
+      <Name>LogicalOp::testNot</Name>
+    </Test>
+    <Test id="8">
+      <Name>LogicalOp::testXor</Name>
+    </Test>
+  </SuccessfulTests>
+  <Statistics>
+    <Tests>8</Tests>
+    <FailuresTotal>2</FailuresTotal>
+    <Errors>0</Errors>
+    <Failures>2</Failures>
+  </Statistics>
+</TestRun>

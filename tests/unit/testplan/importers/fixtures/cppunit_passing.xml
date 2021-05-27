@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding='ISO-8859-1' standalone='yes' ?>
+<TestRun>
+  <FailedTests></FailedTests>
+  <SuccessfulTests>
+    <Test id="1">
+      <Name>Comparison::testNotEqual</Name>
+    </Test>
+    <Test id="2">
+      <Name>Comparison::testGreater</Name>
+    </Test>
+    <Test id="3">
+      <Name>Comparison::testLess</Name>
+    </Test>
+    <Test id="4">
+      <Name>Comparison::testMisc</Name>
+    </Test>
+    <Test id="5">
+      <Name>LogicalOp::testOr</Name>
+    </Test>
+    <Test id="6">
+      <Name>LogicalOp::testAnd</Name>
+    </Test>
+    <Test id="7">
+      <Name>LogicalOp::testNot</Name>
+    </Test>
+    <Test id="8">
+      <Name>LogicalOp::testXor</Name>
+    </Test>
+  </SuccessfulTests>
+  <Statistics>
+    <Tests>8</Tests>
+    <FailuresTotal>0</FailuresTotal>
+    <Errors>0</Errors>
+    <Failures>0</Failures>
+  </Statistics>
+</TestRun>
+
