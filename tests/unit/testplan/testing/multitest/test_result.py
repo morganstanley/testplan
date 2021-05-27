@@ -379,7 +379,9 @@ class TestResultBaseNamespace(object):
         assert len(result.entries) == 1
         attachment_entry = result.entries[0]
 
-        assert attachment_entry.source_path == tmpfile
+        assert attachment_entry.source_path == os.path.join(
+            os.path.dirname(tmpfile), attachment_entry.dst_path
+        )
         assert attachment_entry.hash == path_utils.hash_file(tmpfile)
         assert attachment_entry.orig_filename == "attach_me.txt"
         assert attachment_entry.filesize == os.path.getsize(tmpfile)
@@ -423,7 +425,9 @@ class TestResultBaseNamespace(object):
         size = os.path.getsize(tmpfile)
 
         for idx, attachment in enumerate(result.attachments):
-            assert attachment.source_path == tmpfile
+            assert attachment.source_path == os.path.join(
+                os.path.dirname(tmpfile), attachment.dst_path
+            )
             assert attachment.hash == file_hash
             assert attachment.orig_filename == "attach_me.txt"
             assert attachment.filesize == size

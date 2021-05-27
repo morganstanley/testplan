@@ -6,6 +6,7 @@ import operator
 import pprint
 import re
 import os
+import shutil
 
 from testplan.common.utils.convert import nested_groups
 from testplan.common.utils.timing import utcnow
@@ -345,21 +346,31 @@ class Graph(BaseEntry):
 class Attachment(BaseEntry):
     """Entry representing a file attached to the report."""
 
-    def __init__(self, filepath, description, dst_path=None):
+    def __init__(
+        self, filepath, description, dst_path=None, scratch_path=None
+    ):
+
         self.source_path = filepath
         self.orig_filename = os.path.basename(filepath)
         self.hash = hash_file(filepath)
         self.filesize = os.path.getsize(filepath)
-        if dst_path:
-            self.dst_path = dst_path
-        else:
-            basename, ext = os.path.splitext(self.orig_filename)
-            self.dst_path = "{basename}-{hash}-{filesize}{ext}".format(
-                basename=basename,
-                hash=self.hash,
-                filesize=self.filesize,
-                ext=ext,
-            )
+        basename, ext = os.path.splitext(self.orig_filename)
+
+        # logic to avoid file name collision
+        self.dst_path = (
+            dst_path or f"{basename}-{self.hash}-{self.filesize}{ext}"
+        )
+
+        if scratch_path:
+            # will best effort make a copy of the file
+            try:
+                copy_of_file = os.path.join(scratch_path, self.dst_path)
+                shutil.copyfile(filepath, copy_of_file)
+            except Exception:
+                pass
+            else:
+                self.source_path = copy_of_file
+
         super(Attachment, self).__init__(description=description)
 
 

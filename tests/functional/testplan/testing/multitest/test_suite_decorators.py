@@ -8,6 +8,7 @@ from schema import SchemaError
 from testplan.defaults import MAX_TEST_NAME_LENGTH
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.suite import testcase, testsuite, skip_if
+from testplan.common.utils.callable import pre, post
 
 from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -265,3 +266,60 @@ def test_testcase_related_with_inivalid_arguments_in_suite_object(mockplan):
     assert len(case_report.entries[0]["flattened_dict"]) == 0
     assert "MethodSignatureMismatch" in param_case_report.logs[0]["message"]
     assert len(param_case_report.entries[0]["flattened_dict"]) == 2
+
+
+def test_pre_post_on_testcase(mockplan):
+    def pre_fn(self, env, result):
+        result.log("pre_fn")
+
+    def post_fn(self, env, result):
+        result.log("post_fn")
+
+    @testsuite
+    class SimpleTest(object):
+        def setup(self, env, result):
+            result.log("setup")
+
+        def teardown(self, env, result):
+            result.log("tear down")
+
+        def pre_testcase(self, name, env, result, kwargs):
+            result.log(f"name = {name}", description="pre_testcase")
+            if kwargs:
+                result.dict.log(kwargs, description="kwargs")
+
+        def post_testcase(self, name, env, result, kwargs):
+            result.log(f"name = {name}", description="post_testcase")
+            if kwargs:
+                result.dict.log(kwargs, description="kwargs")
+
+        @pre(pre_fn)
+        @post(post_fn)
+        @testcase
+        def add_simple(self, env, result):
+            result.equal(10 + 5, 15)
+
+        @testcase(
+            parameters=((3, 3, 6), (7, 8, 15)),
+            custom_wrappers=[pre(pre_fn), post(post_fn)],
+        )
+        def add_param(self, env, result, a, b, expect):
+            result.equal(a + b, expect)
+
+    mockplan.add(MultiTest(name="MyMultitest", suites=[SimpleTest()]))
+    with log_propagation_disabled(TESTPLAN_LOGGER):
+        mockplan.run()
+
+    multitest_report = mockplan.result.report["MyMultitest"]
+    case_report = multitest_report["SimpleTest"]["add_simple"]
+    param_case_report = multitest_report["SimpleTest"]["add_param"].entries[0]
+
+    assert multitest_report.status == Status.PASSED
+    assert case_report.entries[0]["message"] == "name = add_simple"
+    assert case_report.entries[1]["message"] == "pre_fn"
+
+    assert (
+        param_case_report.entries[0]["message"]
+        == "name = add_param <a=3, b=3, expect=6>"
+    )
+    assert param_case_report.entries[2]["message"] == "pre_fn"
