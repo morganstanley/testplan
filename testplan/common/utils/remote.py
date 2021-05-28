@@ -21,6 +21,7 @@ def ssh_cmd(ssh_cfg, command):
             raise Exception("SSH binary not provided.")
 
     cmd = [binary]
+    cmd.extend(["-o", "ConnectTimeout=10"])
 
     if ssh_cfg.get("port"):
         cmd.extend(["-p", ssh_cfg["port"]])
