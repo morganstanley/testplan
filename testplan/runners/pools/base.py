@@ -24,6 +24,28 @@ from .tasks import Task, TaskResult
 from testplan.common.entity import ResourceStatus
 
 
+class TaskQueue:
+    """
+    A priority queue that returns items in the order of priority small -> large.
+    items with the same priority will be returned in the order they are added.
+    """
+
+    def __init__(self):
+        self.q = queue.PriorityQueue()
+        self.count = 0
+
+    def put(self, priority, item):
+        self.q.put((priority, self.count, item))
+        self.count += 1
+
+    def get(self):
+        entry = self.q.get_nowait()
+        return entry[0], entry[2]
+
+    def __getattr__(self, name):
+        return self.q.__getattribute__(name)
+
+
 class WorkerConfig(entity.ResourceConfig):
     """
     Configuration object for
@@ -257,7 +279,7 @@ class Pool(Executor):
     ):
         options.update(self.filter_locals(locals()))
         super(Pool, self).__init__(**options)
-        self.unassigned = queue.PriorityQueue()  # unassigned tasks
+        self.unassigned = TaskQueue()  # unassigned tasks
         self._executed_tests = []
         self._task_retries_cnt = {}  # uid: times_reassigned_without_result
         self._task_retries_limit = 2
@@ -299,7 +321,7 @@ class Pool(Executor):
                 "Task was expected, got {} instead.".format(type(task))
             )
         super(Pool, self).add(task, uid)
-        self.unassigned.put((task.priority, uid))
+        self.unassigned.put(task.priority, uid)
         self._task_retries_cnt[uid] = 0
 
     def _can_assign_task(self, task):
@@ -417,7 +439,7 @@ class Pool(Executor):
         if self.status.tag == self.status.STARTED:
             for _ in range(request.data):
                 try:
-                    priority, uid = self.unassigned.get_nowait()
+                    priority, uid = self.unassigned.get()
                 except queue.Empty:
                     break
 
@@ -452,7 +474,7 @@ class Pool(Executor):
                             self.logger.test_info(
                                 "Cannot schedule {} to {}".format(task, worker)
                             )
-                            self.unassigned.put((task.priority, uid))
+                            self.unassigned.put(task.priority, uid)
                             self._task_retries_cnt[uid] += 1
                 else:
                     # Later may create a default local pool as failover option
@@ -522,7 +544,7 @@ class Pool(Executor):
                         - task_result.task.reassign_cnt,
                     },
                 )
-                self.unassigned.put((task_result.task.priority, uid))
+                self.unassigned.put(task_result.task.priority, uid)
                 self._task_retries_cnt[uid] = 0
                 self._input[uid].reassign_cnt += 1
                 # Will rerun task, but still need to retain the result
@@ -566,7 +588,7 @@ class Pool(Executor):
             self.logger.test_info(
                 "Re-collect {} from {} to {}.".format(task, worker, self)
             )
-            self.unassigned.put((task.priority, uid))
+            self.unassigned.put(task.priority, uid)
             self._task_retries_cnt[uid] += 1
 
     def _workers_monitoring(self):

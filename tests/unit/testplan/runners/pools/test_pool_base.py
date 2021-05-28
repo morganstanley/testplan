@@ -1,13 +1,33 @@
 """TODO."""
 
 import os
+import random
 
 from testplan.common.utils.path import default_runpath
 from testplan.runners.pools import base as pools_base
 from testplan.runners.pools import communication
 from testplan import Task
+from testplan.runners.pools.base import TaskQueue
 
 from tests.unit.testplan.runners.pools.tasks.data.sample_tasks import Runnable
+
+
+def test_task_queue():
+    task_queue = TaskQueue()
+    uids = [
+        "abc",
+        "def",
+        "xyz",
+    ]
+    random.shuffle(uids)
+
+    for uid in uids:
+        for priority in [3, 2, 1]:
+            task_queue.put(priority, uid)
+
+    for priority in [1, 2, 3]:
+        for uid in uids:
+            assert task_queue.get() == (priority, uid)
 
 
 def test_pool_basic():
