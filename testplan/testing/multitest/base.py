@@ -248,7 +248,7 @@ class MultiTest(testing_base.Test):
     def uid(self):
         """
         Instance name uid.
-        A Multitest part isntance should not have the same uid as its name.
+        A Multitest part instance should not have the same uid as its name.
         """
         if self.cfg.part:
             return (
