@@ -463,6 +463,11 @@ class ProcessRunnerTest(Test):
         self._test_process_killed = False
         self._test_has_run = False
 
+        # Need to use the binary's absolute path if `proc_cwd` is specified,
+        # otherwise won't be able to find the binary.
+        if self.cfg.proc_cwd:
+            self.cfg._options["binary"] = os.path.abspath(self.cfg.binary)
+
     @property
     def stderr(self):
         return os.path.join(self._runpath, "stderr")
@@ -516,7 +521,6 @@ class ProcessRunnerTest(Test):
             env=self.cfg.proc_env,
             stdout=subprocess.PIPE,
         )
-
         test_list_output = proc.communicate()[0]
 
         # with python3, stdout is bytes so need to decode.
@@ -606,11 +610,6 @@ class ProcessRunnerTest(Test):
                         self.cfg.binary, self
                     )
                 )
-
-            # Need to use the binary's absolute path if proc_cwd is specified,
-            # otherwise won't be able to find the binary.
-            if self.cfg.proc_cwd:
-                self.cfg._options["binary"] = os.path.abspath(self.cfg.binary)
 
             test_cmd = self.test_command()
 
