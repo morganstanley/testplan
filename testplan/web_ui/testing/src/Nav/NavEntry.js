@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Badge} from 'reactstrap';
-import {StyleSheet, css} from 'aphrodite';
+import { Badge } from 'reactstrap';
+import { StyleSheet, css } from 'aphrodite';
+import { formatSeconds } from './../Common/utils';
 import _ from 'lodash';
 
 import {
@@ -25,10 +26,10 @@ import { statusStyles } from "../Common/Styles";
 const NavEntry = (props) => {
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
   const executionTime = (
-    props.displayTime && _.isNumber(props.executionTime)? (
+    props.displayTime && _.isNumber(props.executionTime) ? (
       <i className={css(styles.entryIcon)} title='Execution time'>
         <span className={css(styles[STATUS_CATEGORY[props.status]])}>
-          {props.executionTime}s
+          {formatSeconds(props.executionTime)}
         </span>
       </i>
     ) : null
@@ -36,7 +37,7 @@ const NavEntry = (props) => {
   return (
     <div
       className='d-flex justify-content-between align-items-center'
-      style={{height: "1.5em"}}
+      style={{ height: "1.5em" }}
     >
       <div
         className={css(styles.entryName, styles[STATUS_CATEGORY[props.status]])}
