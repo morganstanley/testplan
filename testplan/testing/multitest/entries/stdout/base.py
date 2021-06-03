@@ -107,8 +107,7 @@ class MatPlotRenderer(BaseRenderer):
 @registry.bind(base.TableLog)
 class TableLogRenderer(BaseRenderer):
     def get_details(self, entry):
-        rows = [[x for _, x in row.items()] for row in entry.table]
-        return AsciiTable([entry.columns] + rows).table
+        return AsciiTable([entry.columns] + entry.table).table
 
 
 @registry.bind(base.DictLog, base.FixLog)

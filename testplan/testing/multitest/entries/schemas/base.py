@@ -65,7 +65,7 @@ class MarkdownSchema(BaseSchema):
 
 @registry.bind(base.TableLog)
 class TableLogSchema(BaseSchema):
-    table = fields.List(custom_fields.NativeOrPrettyDict())
+    table = fields.List(fields.List(custom_fields.NativeOrPretty()))
     indices = fields.List(fields.Integer(), allow_none=True)
     display_index = fields.Boolean()
     columns = fields.List(fields.String(), allow_none=False)

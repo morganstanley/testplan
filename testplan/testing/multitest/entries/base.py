@@ -32,24 +32,6 @@ def readable_name(class_name):
     return ENTRY_NAME_PATTERN.sub(" \\1", class_name).strip()
 
 
-def get_table(source, keep_column_order=True):
-    """
-    Return table formatted as a TableEntry.
-
-    :param source: Tabular data.
-    :type source: ``list`` of ``list`` or ``list`` of ``dict``
-    :param keep_column_order: Flag whether column order should be maintained.
-    :type keep_column_order: ``bool``
-    :return: Formatted table.
-    :rtype: ``list`` of ``dict``
-    """
-    if not source:
-        return []
-
-    table = source if isinstance(source, TableEntry) else TableEntry(source)
-    return table.as_list_of_dict(keep_column_order=keep_column_order)
-
-
 class BaseEntry(object):
     """Base class for all entries, stores common context like time etc."""
 
@@ -237,10 +219,11 @@ class TableLog(BaseEntry):
     """Log a table to the report."""
 
     def __init__(self, table, display_index=False, description=None):
-        self.table = get_table(table)
+
+        as_list = TableEntry(table).as_list_of_list()
+        self.columns, self.table = as_list[0], as_list[1:]
         self.indices = range(len(self.table))
         self.display_index = display_index
-        self.columns = self.table[0].keys()
 
         super(TableLog, self).__init__(description=description)
 
