@@ -678,7 +678,7 @@ class TableMatchRenderer(AssertionRenderer):
         :rtype: ``list`` of ``dict`` and
                 ``list`` of ``testplan.common.exporters.pdf.RowStyle``
         """
-        result = {}
+        result = []
         colour_row = []
 
         for idx, column in enumerate(columns):
@@ -700,13 +700,13 @@ class TableMatchRenderer(AssertionRenderer):
             exclude_columns = exclude_columns or []
 
             if (column not in include_columns) or (column in exclude_columns):
-                result[column] = "{} .. {}".format(actual, other)
+                result.append("{} .. {}".format(actual, other))
                 colour_row.append("I")
             elif matched:
-                result[column] = "{} == {}".format(actual, other)
+                result.append("{} == {}".format(actual, other))
                 colour_row.append("P")
             else:
-                result[column] = "{} != {}".format(actual, other)
+                result.append("{} != {}".format(actual, other))
                 colour_row.append("F")
 
         return result, colour_row
@@ -786,10 +786,7 @@ class ColumnContainRenderer(AssertionRenderer):
         row_indices = []
         colour_matrix = []
         for comp_obj in source["data"]:
-            row = {
-                source["column"]: comp_obj[1],
-                "Passed": "Pass" if comp_obj[2] else "Fail",
-            }
+            row = [comp_obj[1], "Pass" if comp_obj[2] else "Fail"]
             raw_table.append(row)
             row_indices.append(comp_obj[0])
             colour_matrix.append(["I", "P" if comp_obj[2] else "F"])

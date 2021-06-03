@@ -41,8 +41,8 @@ function tableCellStyle(params) {
  * @private
  */
 
-export function prepareTableLogColumnDefs(columns) {
-  let columnDefs = [{
+export function prepareTableLogColumnDefs(columns, display_index) {
+  let columnDefs = display_index? [{
     headerName: 'ID',
     field: 'id',
     pinned: 'left',
@@ -50,7 +50,7 @@ export function prepareTableLogColumnDefs(columns) {
     suppressSizeToFit: true,
     width: 75,
     filterParams: {excelMode: 'windows'}
-  }];
+  }] : [];
 
   columns.forEach(column => {
     columnDefs.push({
@@ -74,16 +74,21 @@ export function prepareTableLogColumnDefs(columns) {
  * @returns {Array}
  * @private
  */
-export function prepareTableLogRowData(indexes, table, columns) {
+export function prepareTableLogRowData(indexes, table, columns, display_index) {
   let rowData = [];
 
   indexes.forEach(index => {
-    let row = columns.reduce((accumulator, column) => {
-      accumulator[column] = table[index][column];
+    let row = columns.reduce((accumulator, column, idx) => {
+
+      if(Array.isArray(table[index]))
+        accumulator[column] = table[index][idx];
+      // TODO: remove this branch after 3 months 2021.06.01
+      else
+        accumulator[column] = table[index][column];
       return accumulator;
     }, {});
-
-    row['id'] = index;
+    if(display_index)
+      row['id'] = index;
 
     rowData.push(row);
   });

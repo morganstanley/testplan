@@ -12,11 +12,15 @@ import {
  * Component that are used to render TableLog assertion.
  */
 export default function TableLogAssertion (props) {
-  let columnDefs = prepareTableLogColumnDefs(props.assertion.columns);
+  let columnDefs = prepareTableLogColumnDefs(
+    props.assertion.columns,
+    props.assertion.display_index
+  );
   let rowData = prepareTableLogRowData(
     props.assertion.indices, 
     props.assertion.table,
-    props.assertion.columns
+    props.assertion.columns,
+    props.assertion.display_index
   );
 
   return (
