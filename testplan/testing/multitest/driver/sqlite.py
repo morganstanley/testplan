@@ -24,6 +24,7 @@ class Sqlite3Config(DriverConfig):
         """
         return {
             "db_name": str,
+            ConfigOption("db_path", default=None): str,
             ConfigOption("connect_at_start", default=True): bool,
         }
 
@@ -68,7 +69,8 @@ class Sqlite3(Driver):
     @property
     def db_path(self):
         """Database file path."""
-        return os.path.join(self.runpath, self.cfg.db_name)
+        default_db_path = os.path.join(self.runpath, self.cfg.db_name)
+        return self.cfg.db_path or default_db_path
 
     def connect(self):
         """Connect to the database and set the internal db cursor."""

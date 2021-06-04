@@ -4,6 +4,8 @@ Demostrates Sqlite3 driver usage from within the testcases.
 """
 
 import sys
+import os
+import tempfile
 
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.driver.sqlite import Sqlite3
@@ -110,11 +112,12 @@ def main(plan):
     :return: Testplan result object.
     :rtype:  ``testplan.base.TestplanResult``
     """
+    my_db_path = os.path.join(tempfile.gettempdir(), "new_db_name")
     plan.add(
         MultiTest(
             name="Sqlite3Test",
             suites=[DBQueries()],
-            environment=[Sqlite3(name="db", db_name="mydb")],
+            environment=[Sqlite3(name="db", db_name="mydb", db_path=my_db_path)],
         )
     )
 
