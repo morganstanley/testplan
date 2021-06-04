@@ -117,7 +117,9 @@ def main(plan):
         MultiTest(
             name="Sqlite3Test",
             suites=[DBQueries()],
-            environment=[Sqlite3(name="db", db_name="mydb", db_path=my_db_path)],
+            environment=[
+                Sqlite3(name="db", db_name="mydb", db_path=my_db_path)
+            ],
         )
     )
 
