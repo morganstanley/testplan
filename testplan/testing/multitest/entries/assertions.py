@@ -18,8 +18,9 @@ import lxml
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
 from testplan.common.utils import comparison, difflib
+from testplan.common.utils.table import TableEntry
 
-from .base import BaseEntry, get_table
+from .base import BaseEntry
 
 
 __all__ = [
@@ -656,7 +657,7 @@ class ColumnContain(Assertion):
         description=None,
         category=None,
     ):
-        self.table = get_table(table)
+        self.table = TableEntry(table).as_list_of_dict()
         self.values = values
         self.column = column
         self.limit = limit
@@ -934,8 +935,8 @@ class TableMatch(Assertion):
         description=None,
         category=None,
     ):
-        self.table = get_table(table)
-        self.expected_table = get_table(expected_table)
+        self.table = TableEntry(table).as_list_of_dict()
+        self.expected_table = TableEntry(expected_table).as_list_of_dict()
         self.include_columns = include_columns
         self.exclude_columns = exclude_columns
         self.strict = strict

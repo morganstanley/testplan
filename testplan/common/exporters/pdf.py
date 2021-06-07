@@ -350,7 +350,7 @@ def create_table(
     # exceeded.
     rows = [
         _limit_cell_length(
-            iterable=[table[i][column] for column in columns],
+            iterable=table[i],
             limit=constants.CELL_STRING_LENGTH,
         )
         for i in range(num_rows)

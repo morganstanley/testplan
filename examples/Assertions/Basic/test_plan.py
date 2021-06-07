@@ -345,10 +345,10 @@ print(os.uname())
     @testcase
     def test_table_namespace(self, env, result):
         # We can use `result.table` namespace to apply table specific checks.
-        # 1- A table is represented either as a
-        # list of dictionaries with uniform keys (columns)
-        # 2- Or a list of lists that have columns as the first item and the
-        # row values as the rest
+        # A table is represented either as a
+        # list of dictionaries, or a list of lists
+        # that have columns as the first item and the
+        # rows as the rest
 
         list_of_dicts = [
             {"name": "Bob", "age": 32},
@@ -362,6 +362,67 @@ print(os.uname())
             ["Susan", 24],
             ["Rick", 67],
         ]
+
+        sample_table = [
+            ["symbol", "amount"],
+            ["AAPL", 12],
+            ["GOOG", 21],
+            ["FB", 32],
+            ["AMZN", 5],
+            ["MSFT", 42],
+        ]
+
+        large_table = [sample_table[0]] + sample_table[1:] * 100
+
+        # We can log the table using result.table.log, either a list of dicts
+        # or a list of lists
+
+        result.table.log(list_of_dicts, description="Table Log: list of dicts")
+        result.table.log(
+            list_of_lists,
+            display_index=True,
+            description="Table Log: list of lists",
+        )
+        result.table.log(list_of_lists[:1], description="Empty table")
+        result.table.log(
+            [{"name": "Bob", "age": 32}, {"name": "Susan"}],
+            description="Empty cell",
+        )
+        result.table.log(
+            [[1, 2, 3], ["abc", "def", "xyz"]], description="Non-string header"
+        )
+
+        # When tables with over 10 rows are logged:
+        #   * In the PDF report, only the first and last 5 rows are shown. The
+        #     row indices are then also shown by default.
+        #   * In console out the entire table will be shown, without indices.
+        result.table.log(large_table[:21], description="Table Log: many rows")
+
+        # When tables are too wide:
+        #   * In the PDF report, the columns are split into tables over multiple
+        #     rows. The row indices are then also shown by default.
+        #   * In console out the table will be shown as is, if the formatting
+        #     looks odd the output can be piped into a file.
+        columns = [["col_{}".format(i) for i in range(20)]]
+        rows = [
+            ["row {} col {}".format(i, j) for j in range(20)]
+            for i in range(10)
+        ]
+        result.table.log(columns + rows, description="Table Log: many columns")
+
+        # When the cell values exceed the character limit:
+        #   * In the PDF report they will be truncated and appended with '...'.
+        #   * In console out, should they also be truncated?
+        long_cell_table = [
+            ["Name", "Age", "Address"],
+            ["Bob Stevens", "33", "89 Trinsdale Avenue, LONDON, E8 0XW"],
+            ["Susan Evans", "21", "100 Loop Road, SWANSEA, U8 12JK"],
+            ["Trevor Dune", "88", "28 Kings Lane, MANCHESTER, MT16 2YT"],
+            ["Belinda Baggins", "38", "31 Prospect Hill, DOYNTON, BS30 9DN"],
+            ["Cosimo Hornblower", "89", "65 Prospect Hill, SURREY, PH33 4TY"],
+            ["Sabine Wurfel", "31", "88 Clasper Way, HEXWORTHY, PL20 4BG"],
+        ]
+        result.table.log(long_cell_table, description="Table Log: long cells")
 
         result.table.match(
             list_of_lists,
@@ -530,23 +591,12 @@ print(os.uname())
 
         # result.table.column_contain can be used for checking if all of the
         # cells on a table's column exists in a given list of values
-        sample_table = [
-            ["symbol", "amount"],
-            ["AAPL", 12],
-            ["GOOG", 21],
-            ["FB", 32],
-            ["AMZN", 5],
-            ["MSFT", 42],
-        ]
-
         result.table.column_contain(
             values=["AAPL", "AMZN"], table=sample_table, column="symbol"
         )
 
         # We can use `limit` and `report_fails_only` arguments for producing
         # less output for large tables
-
-        large_table = [sample_table[0]] + sample_table[1:] * 100
 
         result.table.column_contain(
             values=["AAPL", "AMZN"],
@@ -555,43 +605,6 @@ print(os.uname())
             limit=20,  # Process 50 items at most
             report_fails_only=True,  # Only include failures in the result
         )
-
-        # We can log the table using result.table.log, either a list of dicts
-        # or a list of lists
-        result.table.log(list_of_dicts, description="Table Log: list of dicts")
-        result.table.log(list_of_lists, description="Table Log: list of lists")
-
-        # When tables with over 10 rows are logged:
-        #   * In the PDF report, only the first and last 5 rows are shown. The
-        #     row indices are then also shown by default.
-        #   * In console out the entire table will be shown, without indices.
-        result.table.log(large_table[:21], description="Table Log: many rows")
-
-        # When tables are too wide:
-        #   * In the PDF report, the columns are split into tables over multiple
-        #     rows. The row indices are then also shown by default.
-        #   * In console out the table will be shown as is, if the formatting
-        #     looks odd the output can be piped into a file.
-        columns = [["col_{}".format(i) for i in range(20)]]
-        rows = [
-            ["row {} col {}".format(i, j) for j in range(20)]
-            for i in range(10)
-        ]
-        result.table.log(columns + rows, description="Table Log: many columns")
-
-        # When the cell values exceed the character limit:
-        #   * In the PDF report they will be truncated and appended with '...'.
-        #   * In console out, should they also be truncated?
-        long_cell_table = [
-            ["Name", "Age", "Address"],
-            ["Bob Stevens", "33", "89 Trinsdale Avenue, LONDON, E8 0XW"],
-            ["Susan Evans", "21", "100 Loop Road, SWANSEA, U8 12JK"],
-            ["Trevor Dune", "88", "28 Kings Lane, MANCHESTER, MT16 2YT"],
-            ["Belinda Baggins", "38", "31 Prospect Hill, DOYNTON, BS30 9DN"],
-            ["Cosimo Hornblower", "89", "65 Prospect Hill, SURREY, PH33 4TY"],
-            ["Sabine Wurfel", "31", "88 Clasper Way, HEXWORTHY, PL20 4BG"],
-        ]
-        result.table.log(long_cell_table, description="Table Log: long cells")
 
     @testcase
     def test_dict_namespace(self, env, result):
