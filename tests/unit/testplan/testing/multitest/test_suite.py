@@ -79,12 +79,28 @@ class MySuite4(object):
         pass
 
 
+def skip_func(testsuite):  # pylint: disable=unused-argument
+    return True
+
+
+@suite.skip_if_testcase(skip_func)
+@suite.testsuite(name="Skipped Suite")
+class MySuite5(object):
+    @suite.testcase
+    def case1(self, env, result):
+        result.equal(1, 2)
+
+    @suite.skip_if(skip_func, lambda testsuite: False)
+    @suite.testcase
+    def case2(self, env, result):
+        result.equal(1, 1)
+
+
 def test_basic_suites():
     mysuite = MySuite1()
 
     cases = ("case1", "case2", "case3")
     assert tuple(mysuite.__testcases__) == cases
-    assert tuple(mysuite.__skip__) == ("case2",)
     assert "pre_testcase" not in mysuite.__testcases__
     assert "post_testcase" not in mysuite.__testcases__
 
@@ -133,6 +149,24 @@ def test_basic_execution_group():
             assert method.execution_group == "group_parallel"
         else:
             assert method.execution_group == "group_{}".format(i % 2)
+
+
+def test_skip_if_predicates():
+    mysuite = MySuite1()
+    assert len(getattr(mysuite, "case2").__skip__) == 1
+    assert getattr(mysuite, "case2").__skip__[0](mysuite)
+
+    mysuite = MySuite5()
+    assert len(getattr(mysuite, "case1").__skip__) == 1
+    assert len(getattr(mysuite, "case2").__skip__) == 3
+    # ``skip_func`` is added to ``MySuite5.__skip__`` twice
+    assert (
+        getattr(mysuite, "case2").__skip__[0]
+        == getattr(mysuite, "case2").__skip__[2]
+    )
+    assert getattr(mysuite, "case1").__skip__[0](mysuite)
+    assert getattr(mysuite, "case2").__skip__[0](mysuite)
+    assert not getattr(mysuite, "case2").__skip__[1](mysuite)
 
 
 def incorrect_case_signature1():

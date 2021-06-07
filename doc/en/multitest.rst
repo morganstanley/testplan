@@ -94,6 +94,27 @@ A MultiTest instance can be constructed from the following parameters:
     def post_testcase(self, name, env, result):
         pass
 
+  :py:func:`@skip_if <testplan.testing.multitest.suite.skip_if>` decorator can
+  be used to annotate a testcase. It take one or more predicates, and if any of
+  them evaluated to True, then the testcase will be skipped by MultiTest instead
+  of being normally executed. The predicate's signature must name the argument
+  ``testsuite`` or a ``MethodSignatureMismatch`` exception will be raised.
+
+  .. code-block:: python
+
+    def skip_func(testsuite):
+        # It must accept an argument named "testsuite"
+        return True
+
+    @testsuite
+    class MySuite(object):
+
+        @skip_if(skip_func, lambda testsuite: False)
+        @suite.testcase
+        def case(self, env, result):
+            pass
+
+
   The :py:func:`@testcase <testplan.testing.multitest.suite.testcase>` decorated
   methods will execute in the order in which they are defined. If more than
   one suite is passed, the suites will be executed in the order in which they

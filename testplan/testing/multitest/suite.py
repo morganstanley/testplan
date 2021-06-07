@@ -8,8 +8,6 @@ import inspect
 import warnings
 
 from testplan import defaults
-from testplan.common.utils.logger import TESTPLAN_LOGGER
-from testplan.common.utils import callable as callable_utils
 from testplan.common.utils import interface
 from testplan.common.utils import strings
 from testplan.testing import tagging
@@ -20,7 +18,6 @@ from . import parametrization
 __TESTCASES__ = []
 __PARAMETRIZATION_TEMPLATE__ = []
 __GENERATED_TESTCASES__ = []
-__SKIP__ = collections.defaultdict(tuple)
 
 
 def _reset_globals():
@@ -28,12 +25,10 @@ def _reset_globals():
     global __TESTCASES__
     global __PARAMETRIZATION_TEMPLATE__
     global __GENERATED_TESTCASES__
-    global __SKIP__
 
     __TESTCASES__ = []
     __PARAMETRIZATION_TEMPLATE__ = []
     __GENERATED_TESTCASES__ = []
-    __SKIP__ = collections.defaultdict(tuple)
 
 
 def update_tag_index(obj, tag_dict):
@@ -185,18 +180,17 @@ def set_testsuite_testcases(suite):
                 )
             )
 
-        name = getattr(suite, testcase).name
-        if name in testcase_names:
+        testcase_method = getattr(suite, testcase)
+        if testcase_method.name in testcase_names:
             raise ValueError(
                 "Duplicate testcase name {} found, please check."
-                ' Or use "name_func" argument to generate names'
-                " for parametrized testcases.".format(name)
+                ' Or use "name_func" argument to generate names for'
+                " parametrized testcases.".format(testcase_method.name)
             )
 
-        skip_funcs = suite.__skip__[testcase]
-        if not any(skip_func(suite) for skip_func in skip_funcs):
+        if not any(skip_func(suite) for skip_func in testcase_method.__skip__):
             testcases.append(testcase)
-            testcase_names.add(name)
+            testcase_names.add(testcase_method.name)
 
     setattr(suite, "__testcases__", testcases)
 
@@ -309,7 +303,10 @@ def _ensure_unique_generated_testcase_names(names, functions):
             while True:
                 func.__name__ = "{}__{}".format(name, count)
                 dupe_counter[name] += 1
-                if func.__name__ not in valid_names:
+                if (
+                    func.__name__ not in dupe_names
+                    and func.__name__ not in valid_names
+                ):
                     valid_names.add(func.__name__)
                     break
         else:
@@ -337,7 +334,6 @@ def _testsuite(klass):
     )
 
     klass.__testcases__ = [None] * _number_of_testcases()
-    klass.__skip__ = __SKIP__
 
     for testcase_name in __TESTCASES__:
         klass.__testcases__[
@@ -537,6 +533,8 @@ def _testcase(function):
     _mark_function_as_testcase(function)
 
     function.__seq_number__ = _number_of_testcases()
+    function.__skip__ = []
+
     __TESTCASES__.append(function.__name__)
 
     return function
@@ -606,8 +604,11 @@ def _testcase_meta(
             for func in functions:
                 _validate_testcase(func)
                 # this has to be called before wrappers otherwise wrappers can
-                # fail if they rely on __testcase__
+                # fail if they rely on ``__testcase__``
                 _mark_function_as_testcase(func)
+
+                func.__seq_number__ = _number_of_testcases()
+                func.__skip__ = []
 
                 wrappers = custom_wrappers or []
                 if not isinstance(wrappers, (list, tuple)):
@@ -619,7 +620,6 @@ def _testcase_meta(
                 # so that CodeDetails gets the correct line number
                 func.wrapper_of = function
 
-                func.__seq_number__ = _number_of_testcases()
                 __GENERATED_TESTCASES__.append(func)
 
             return function
@@ -736,8 +736,8 @@ def testcase(*args, **kwargs):
 
 def _validate_skip_if_predicates(predicates):
     """
-    Check for method signature, set / extend ``skip_funcs`` attribute of
-    the testcase method.
+    Check for signature of functions, which  are used to set / extend
+    ``skip_funcs`` attribute of the testcase method.
     """
     for predicate in predicates:
         try:
@@ -745,8 +745,6 @@ def _validate_skip_if_predicates(predicates):
         except interface.MethodSignatureMismatch as err:
             _reset_globals()
             raise err
-
-    return predicates
 
 
 def skip_if(*predicates):
@@ -766,9 +764,8 @@ def skip_if(*predicates):
         """
         Inner implementation of skip
         """
-        global __SKIP__
-        result = _validate_skip_if_predicates(predicates)
-        __SKIP__[testcase_method.__name__] += result
+        _validate_skip_if_predicates(predicates)
+        testcase_method.__skip__ += predicates
         return testcase_method
 
     return skipper
@@ -790,7 +787,7 @@ def skip_if_testcase(*predicates):
     def _skip_if_testcase_inner(klass):
         _validate_skip_if_predicates(predicates)
         for testcase_method in get_testcase_methods(klass):
-            klass.__skip__[testcase_method.__name__] += predicates
+            testcase_method.__skip__ += predicates
         return klass
 
     return _skip_if_testcase_inner
