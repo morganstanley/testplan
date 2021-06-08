@@ -169,7 +169,7 @@ def configure_file_logger(level, runpath):
     # user's code. We specify a formatter to add additional information
     # useful for debugging.
     try:
-        file_handler = logging.FileHandler(logfile_path)
+        file_handler = logging.FileHandler(logfile_path, encoding="utf-8")
     except IOError as err:
         # If we cannot open the logfile for any reason just continue
         # regardless, but log the error (it will go to stdout).
