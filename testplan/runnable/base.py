@@ -628,7 +628,10 @@ class TestRunner(Runnable):
             run, report = test_results[uid].run, test_results[uid].report
 
             if report.part:
-                if self.cfg.merge_scheduled_parts:
+                if (
+                    report.category != "task_rerun"
+                    and self.cfg.merge_scheduled_parts
+                ):
                     report.uid = report.name
                     # Save the report temporarily and later will merge it
                     test_rep_lookup.setdefault(report.uid, []).append(
@@ -647,6 +650,7 @@ class TestRunner(Runnable):
                             runnable.cfg._options["part"] = None
                             runnable._test_context = None
                             report = runnable.dry_run().report
+
                         else:
                             report = report.__class__(
                                 report.name,
