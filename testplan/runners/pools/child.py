@@ -112,7 +112,7 @@ class ChildLoop(object):
         mode = "w" if platform.python_version().startswith("3") else "wb"
 
         sys.stderr = open(stderr_file, mode)
-        fhandler = logging.FileHandler(log_file)
+        fhandler = logging.FileHandler(log_file, encoding="utf-8")
         from testplan.common.utils.logger import LOGFILE_FORMAT
 
         formatter = logging.Formatter(LOGFILE_FORMAT)
