@@ -54,6 +54,42 @@ describe('InteractiveNavEntry', () => {
     expect(renderedEntry).toMatchSnapshot();
   });
 
+  it('renders a testcase in "resetting" state', () => {
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={'FakeTestcase'}
+        description={'TestCaseDesc'}
+        status={'unknown'}
+        runtime_status={'resetting'}
+        envStatus={null}
+        type={'testcase'}
+        caseCountPassed={0}
+        caseCountFailed={0}
+        handlePlayClick={() => undefined}
+        envCtrlCallback={null}
+      />
+    );
+    expect(renderedEntry).toMatchSnapshot();
+  });
+
+  it('renders a testcase in "waiting" state', () => {
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={'FakeTestcase'}
+        description={'TestCaseDesc'}
+        status={'unknown'}
+        runtime_status={'waiting'}
+        envStatus={null}
+        type={'testcase'}
+        caseCountPassed={0}
+        caseCountFailed={0}
+        handlePlayClick={() => undefined}
+        envCtrlCallback={null}
+      />
+    );
+    expect(renderedEntry).toMatchSnapshot();
+  });
+
   it('renders a testcase in "passed" state', () => {
     const renderedEntry = shallow(
       <InteractiveNavEntry
@@ -83,6 +119,24 @@ describe('InteractiveNavEntry', () => {
         type={'testcase'}
         caseCountPassed={8}
         caseCountFailed={1}
+        handlePlayClick={() => undefined}
+        envCtrlCallback={null}
+      />
+    );
+    expect(renderedEntry).toMatchSnapshot();
+  });
+
+  it('renders a testcase in "not_run" state', () => {
+    const renderedEntry = shallow(
+      <InteractiveNavEntry
+        name={'FakeTestcase'}
+        description={'TestCaseDesc'}
+        status={'unknown'}
+        runtime_status={'not_run'}
+        envStatus={null}
+        type={'testcase'}
+        caseCountPassed={0}
+        caseCountFailed={0}
         handlePlayClick={() => undefined}
         envCtrlCallback={null}
       />
@@ -225,7 +279,7 @@ describe('InteractiveNavEntry', () => {
     // we need to additionally filter for the one which is the environment
     // controller - we do this by matching on the title text.
     const faIcons = renderedEntry.find(FontAwesomeIcon);
-    expect(faIcons).toHaveLength(2);
+    expect(faIcons).toHaveLength(3);
     faIcons.find({title: 'Start environment'}).simulate('click');
 
     // The callback should have been called once when the component was
@@ -257,7 +311,7 @@ describe('InteractiveNavEntry', () => {
     // we need to additionally filter for the one which is the environment
     // controller - we do this by matching on the title text.
     const faIcons = renderedEntry.find(FontAwesomeIcon);
-    expect(faIcons).toHaveLength(2);
+    expect(faIcons).toHaveLength(3);
     faIcons.find({title: 'Stop environment'}).simulate('click');
 
     // The callback should have been called once when the component was

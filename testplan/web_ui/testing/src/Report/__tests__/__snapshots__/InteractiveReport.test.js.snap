@@ -33,6 +33,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     filter={null}
     handleColumnResizing={[Function]}
     handlePlayClick={[Function]}
+    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -496,6 +497,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     filter={null}
     handleColumnResizing={[Function]}
     handlePlayClick={[Function]}
+    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -795,6 +797,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     filter={null}
     handleColumnResizing={[Function]}
     handlePlayClick={[Function]}
+    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -1104,6 +1107,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     filter={null}
     handleColumnResizing={[Function]}
     handlePlayClick={[Function]}
+    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -1162,6 +1166,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
                         "counter": undefined,
                         "description": null,
                         "entries": Array [],
+                        "hash": undefined,
                         "logs": Array [],
                         "name": "ParametrizationName__val_1",
                         "name_type_index": Array [
@@ -1372,6 +1377,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
                           "counter": undefined,
                           "description": null,
                           "entries": Array [],
+                          "hash": undefined,
                           "logs": Array [],
                           "name": "ParametrizationName__val_1",
                           "name_type_index": Array [
@@ -1567,6 +1573,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     filter={null}
     handleColumnResizing={[Function]}
     handlePlayClick={[Function]}
+    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -2028,6 +2035,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     filter={null}
     handleColumnResizing={[Function]}
     handlePlayClick={[Function]}
+    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -2489,6 +2497,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
     filter={null}
     handleColumnResizing={[Function]}
     handlePlayClick={[Function]}
+    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {

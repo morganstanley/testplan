@@ -69,16 +69,32 @@ class RuntimeStatus(object):
     """
 
     READY = "ready"
+    WAITING = "waiting"
     RUNNING = "running"
+    RESETTING = "resetting"
     FINISHED = "finished"
+    NOT_RUN = "not_run"
 
-    STATUS_PRECEDENCE = (READY, RUNNING, FINISHED, None)
+    STATUS_PRECEDENCE = (
+        RUNNING,
+        RESETTING,
+        WAITING,
+        READY,
+        NOT_RUN,
+        FINISHED,
+        None,
+    )
 
     @classmethod
     def precedent(cls, stats, rule=STATUS_PRECEDENCE):
         """
         Return the precedent status from a list of statuses, using the
         ordering of statuses in `rule`.
+
+        Note that the client can send RESETTING signal to reset the test report
+        to its initial status, but client will not receive a temporary report
+        containing RESETTING status, instead WAITING status is used and after
+        reset, the report goes to READY status.
 
         :param stats: List of statuses of which we want to get the precedent.
         :type stats: ``sequence``
@@ -211,9 +227,11 @@ class BaseReportGroup(ReportGroup):
 
     def __init__(self, name, **kwargs):
         self.meta = kwargs.pop("meta", {})
+        self.status_override = kwargs.pop("status_override", None)
         self.status_reason = kwargs.pop("status_reason", None)
+
         super(BaseReportGroup, self).__init__(name=name, **kwargs)
-        self.status_override = None
+
         self.timer = timing.Timer()
 
         # Normally, a report group inherits its statuses from its child
@@ -281,17 +299,11 @@ class BaseReportGroup(ReportGroup):
         self._status = new_status
 
     @property
-    def running(self):
-        """
-        Shortcut for checking if report status is `Status.RUNNING`.
-        """
-        return self.runtime_status == RuntimeStatus.RUNNING
-
-    @property
     def runtime_status(self):
         """
-        The runtime status is used for interactive running, and reports whether
-        a particular entry is READY, RUNNING or FINISHED.
+        The runtime status is used for interactive running, and reports
+        whether a particular entry is READY, WAITING, RUNNING, RESETTING,
+        FINISHED or NOT_RUN.
 
         A test group inherits its runtime status from its child entries.
         """
@@ -767,6 +779,7 @@ class TestGroupReport(BaseReportGroup):
                 self.runtime_status,
                 self.env_status,
                 tuple(entry.hash for entry in self.entries),
+                tuple(entry["uid"] for entry in self.logs),
             )
         )
 
@@ -858,13 +871,6 @@ class TestCaseReport(Report):
         self._status = new_status
 
     @property
-    def running(self):
-        """
-        Shortcut for checking if report status is `Status.RUNNING`.
-        """
-        return self.runtime_status == RuntimeStatus.RUNNING
-
-    @property
     def runtime_status(self):
         """
         Used for interactive mode, the runtime status of a testcase may be one
@@ -879,15 +885,18 @@ class TestCaseReport(Report):
         we clear out the assertion entries from any previous run.
         """
         self._runtime_status = new_status
-        if new_status == RuntimeStatus.RUNNING and self.entries:
+        if self.entries and new_status in (
+            RuntimeStatus.RUNNING,
+            RuntimeStatus.RESETTING,
+        ):
             self.entries = []
             self._status = Status.UNKNOWN
-        if new_status == "finished":
-            self._status = Status.PASSED
+        if new_status == RuntimeStatus.FINISHED:
+            self._status = Status.PASSED  # passed if case report has no entry
 
     def _assertions_status(self):
         for entry in self:
-            if entry.get("passed") is False:
+            if entry.get(Status.PASSED) is False:
                 return Status.FAILED
         return Status.PASSED
 
@@ -982,14 +991,10 @@ class TestCaseReport(Report):
     @property
     def counter(self):
         """
-        Return counts for each status, will recursively get aggregates from
-        children and so on.
+        Return counts for current status.
         """
-
         counter = Counter({Status.PASSED: 0, Status.FAILED: 0, "total": 0})
-
         counter.update({self.status: 1, "total": 1})
-
         return counter
 
     def pass_if_empty(self):

@@ -6,8 +6,10 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
   faPlay,
   faRedo,
+  faHourglass,
   faToggleOff,
-  faToggleOn
+  faToggleOn,
+  faFastBackward,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -37,12 +39,19 @@ const InteractiveNavEntry = (props) => {
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
   const statusIcon = getStatusIcon(
     props.runtime_status,
+    props.envStatus,
     props.handlePlayClick,
     props.suiteRelated,
     props.action,
   );
   const envStatusIcon = getEnvStatusIcon(
-    props.envStatus, props.envCtrlCallback
+    props.runtime_status, props.envStatus, props.envCtrlCallback
+  );
+  const resetReportIcon = getResetReportIcon(
+    props.runtime_status,
+    props.envStatus,
+    props.handleResetClick,
+    props.type,
   );
 
   return (
@@ -50,6 +59,13 @@ const InteractiveNavEntry = (props) => {
       className='d-flex justify-content-between align-items-center'
       style={{height: "1.5em"}}
     >
+      <Badge
+        className={css(styles.entryIcon, styles[badgeStyle])}
+        title={props.type}
+        pill
+      >
+        {CATEGORY_ICONS[props.type]}
+      </Badge>
       <div
         className={
           css(styles.entryName, styles[STATUS_CATEGORY[props.status]])
@@ -64,13 +80,7 @@ const InteractiveNavEntry = (props) => {
           /
           <span className={css(styles.failed)}>{props.caseCountFailed}</span>
         </i>
-        <Badge
-          className={css(styles.entryIcon, styles[badgeStyle])}
-          title={props.type}
-          pill
-        >
-          {CATEGORY_ICONS[props.type]}
-        </Badge>
+        {resetReportIcon}
         {envStatusIcon}
         {statusIcon}
       </div>
@@ -93,7 +103,9 @@ const InteractiveNavEntry = (props) => {
  *   reports, cannot be directly run and are instead run automatically as
  *   required. So we do not render buttons to control them.
  */
-const getStatusIcon = (entryStatus, handlePlayClick, suiteRelated, action) => {
+const getStatusIcon = (
+  entryStatus, envStatus, handlePlayClick, suiteRelated, action
+) => {
   if (suiteRelated) {
     return null;
   }
@@ -103,16 +115,28 @@ const getStatusIcon = (entryStatus, handlePlayClick, suiteRelated, action) => {
       return (
         <FontAwesomeIcon
           className={
-            action === 'prohibit' ? css(styles.inactiveEntryButton)
-            : css(styles.entryButton)
+            envStatusChanging(envStatus) || action === 'prohibit'
+              ? css(styles.inactiveEntryButton)
+              : css(styles.entryButton)
           }
           icon={faPlay}
           title='Run tests'
           onClick={
-            action === 'prohibit' ? (e) => {
-              e.preventDefault(); e.stopPropagation();
-            } : handlePlayClick
+            envStatusChanging(envStatus) || action === 'prohibit'
+              ? ignoreClickEvent
+              : handlePlayClick
           }
+        />
+      );
+
+    case 'waiting':
+      return (
+        <FontAwesomeIcon
+          className={css(styles.inactiveEntryButton)}
+          icon={faHourglass}
+          title='Waiting...'
+          spin
+          onClick={ignoreClickEvent}
         />
       );
 
@@ -123,7 +147,18 @@ const getStatusIcon = (entryStatus, handlePlayClick, suiteRelated, action) => {
           icon={faRedo}
           title='Running...'
           spin
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onClick={ignoreClickEvent}
+        />
+      );
+
+    case 'resetting':
+      return (
+        <FontAwesomeIcon
+          className={css(styles.inactiveEntryButton)}
+          icon={faRedo}
+          title='Resetting...'
+          spin
+          onClick={ignoreClickEvent}
         />
       );
 
@@ -131,15 +166,34 @@ const getStatusIcon = (entryStatus, handlePlayClick, suiteRelated, action) => {
       return (
         <FontAwesomeIcon
           className={
-            action === 'prohibit' ? css(styles.inactiveEntryButton)
-            : css(styles.entryButton)
+            envStatusChanging(envStatus) || action === 'prohibit'
+              ? css(styles.inactiveEntryButton)
+              : css(styles.entryButton)
           }
           icon={faRedo}
           title='Run tests'
           onClick={
-            action === 'prohibit' ? (e) => {
-              e.preventDefault(); e.stopPropagation();
-            } : handlePlayClick
+            envStatusChanging(envStatus) || action === 'prohibit'
+              ? ignoreClickEvent
+              : handlePlayClick
+          }
+        />
+      );
+
+    case 'not_run':
+      return (
+        <FontAwesomeIcon
+          className={
+            envStatusChanging(envStatus) || action === 'prohibit'
+              ? css(styles.inactiveEntryButton)
+              : css(styles.entryButton)
+          }
+          icon={faRedo}
+          title='Run tests'
+          onClick={
+            envStatusChanging(envStatus) || action === 'prohibit'
+              ? ignoreClickEvent
+              : handlePlayClick
           }
         />
       );
@@ -153,35 +207,23 @@ const getStatusIcon = (entryStatus, handlePlayClick, suiteRelated, action) => {
  * Returns the environment control component for entries that own an
  * environment. Returns null for entries that do not have an environment.
  */
-const getEnvStatusIcon = (envStatus, envCtrlCallback) => {
+const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
   switch (envStatus) {
       case 'STOPPED':
         return (
           <FontAwesomeIcon
-            className={css(styles.entryButton)}
+            className={
+              testInProgress(entryStatus)
+                ? css(styles.inactiveEntryButton)
+                : css(styles.entryButton)
+            }
             icon={faToggleOff}
             title='Start environment'
-            onClick={(e) => envCtrlCallback(e, "start")}
-          />
-        );
-
-      case 'STARTING':
-        return (
-          <FontAwesomeIcon
-            className={css(styles.inactiveEntryButton)}
-            icon={faToggleOff}
-            title='Environment starting...'
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-          />
-        );
-
-      case 'STARTED':
-        return (
-          <FontAwesomeIcon
-            className={css(styles.entryButton)}
-            icon={faToggleOn}
-            title='Stop environment'
-            onClick={(e) => envCtrlCallback(e, "stop")}
+            onClick={
+              testInProgress(entryStatus)
+                ? ignoreClickEvent
+                : (e) => envCtrlCallback(e, "start")
+            }
           />
         );
 
@@ -191,13 +233,101 @@ const getEnvStatusIcon = (envStatus, envCtrlCallback) => {
             className={css(styles.inactiveEntryButton)}
             icon={faToggleOn}
             title='Environment stopping...'
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onClick={ignoreClickEvent}
+          />
+        );
+
+      case 'STARTED':
+        return (
+          <FontAwesomeIcon
+            className={
+              testInProgress(entryStatus)
+                ? css(styles.inactiveEntryButton)
+                : css(styles.entryButton)
+            }
+            icon={faToggleOn}
+            title='Stop environment'
+            onClick={
+              testInProgress(entryStatus)
+                ? ignoreClickEvent
+                : (e) => envCtrlCallback(e, "stop")
+            }
+          />
+        );
+
+      case 'STARTING':
+        return (
+          <FontAwesomeIcon
+            className={css(styles.inactiveEntryButton)}
+            icon={faToggleOff}
+            title='Environment starting...'
+            onClick={ignoreClickEvent}
           />
         );
 
       default:
           return null;
   }
+};
+
+/*
+ * Returns the report reset component for entries that represent test
+ * instance. Returns null for suite entries and case entries.
+ */
+const getResetReportIcon = (
+  entryStatus, envStatus, handleResetClick, entryType) =>
+{
+  if (
+    entryType === 'multitest' ||
+    entryType === "gtest" || entryType === "cppunit" ||
+    entryType === "boost-test" || entryType === "hobbestest" ||
+    entryType === "pytest" || entryType === "pyunit" ||
+    entryType === "unittest" || entryType === "qunit"
+  ) {
+    return (
+      <FontAwesomeIcon
+        className={
+          envStatusChanging(envStatus) || testInProgress(entryStatus)
+            ? css(styles.inactiveEntryButton)
+            : css(styles.entryButton)
+        }
+        icon={faFastBackward}
+        title='Reset report'
+        onClick={
+          envStatusChanging(envStatus) || testInProgress(entryStatus)
+            ? ignoreClickEvent
+            : handleResetClick
+        }
+      />
+    );
+  } else {
+    return null;
+  }
+};
+
+/**
+ * Is environment in the process of starting or stopping.
+ */
+const envStatusChanging = (envStatus) => {
+  return envStatus === 'STARTING' || envStatus === 'STOPPING';
+};
+
+/**
+ * Is test already working and the client needs to wait for the result.
+ */
+const testInProgress = (entryStatus) => {
+  return (
+    entryStatus === 'running' || entryStatus === 'resetting' ||
+    entryStatus === 'waiting'
+  );
+};
+
+/**
+ * Button on interactive Nav entry is disabled and no response to clicking.
+ */
+const ignoreClickEvent = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
 };
 
 InteractiveNavEntry.propTypes = {
@@ -225,6 +355,8 @@ const styles = StyleSheet.create({
     "white-space": "nowrap",
     fontSize: "small",
     fontWeight: 500,
+    marginLeft: '3px',
+    flex: "auto",
   },
   entryIcons: {
     paddingLeft: '1em',

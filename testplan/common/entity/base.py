@@ -9,7 +9,6 @@ import signal
 import time
 import threading
 import psutil
-import functools
 from collections import deque, OrderedDict
 import traceback
 
@@ -1183,7 +1182,8 @@ class RunnableManager(Entity):
                 signal.signal(sig, self._handle_abort)
         except ValueError:
             self.logger.warning(
-                "Not able to install signal handler - signal only works in main thread"
+                "Not able to install signal handler -"
+                " signal only works in main thread"
             )
 
         execute_as_thread(
