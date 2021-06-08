@@ -11,7 +11,8 @@ import tempfile
 import getpass
 import uuid
 
-from testplan import Task
+from testplan import Task, TestplanMock
+from testplan.common.utils import path
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.base import Driver, DriverConfig
 from testplan.runners.pools import ThreadPool, ProcessPool
@@ -126,6 +127,21 @@ class UnstableSuite3(UnstableSuiteBase):
             result.fail("Testcase fails in this iteration")
 
 
+@testsuite
+class SuiteForParts:
+    @testcase
+    def case_0(self, env, result):
+        result.fail("this case fails")
+
+    @testcase
+    def case_1(self, env, result):
+        result.log("this case passes")
+
+    @testcase
+    def case_2(self, env, result):
+        result.log("this case passes")
+
+
 def make_multitest_1(tmp_file):
     return MultiTest(
         name="Unstable MTest1",
@@ -150,6 +166,14 @@ def make_multitest_3(tmp_file):
         description="MultiTest that passes until iteration 4",
         suites=[UnstableSuite3(tmp_file=tmp_file, max_retries=4)],
         environment=[],
+    )
+
+
+def make_multitest_parts(part_tuple):
+    return MultiTest(
+        name="MultiTestParts",
+        suites=[SuiteForParts()],
+        part=part_tuple,
     )
 
 
@@ -302,3 +326,41 @@ def test_task_rerun_with_more_times_2(mockplan):
 
     assert task.reassign_cnt == 3
     _remove_existing_tmp_file(tmp_file)
+
+
+def test_task_rerun_with_parts():
+
+    with path.TemporaryDirectory() as runpath:
+        mockplan = TestplanMock(
+            "plan", runpath=runpath, merge_scheduled_parts=True
+        )
+
+        pool_name = ThreadPool.__name__
+        pool = ThreadPool(name=pool_name, size=1)
+        mockplan.add_resource(pool)
+
+        directory = os.path.dirname(os.path.abspath(__file__))
+
+        uids = []
+        for idx in range(3):
+            task = Task(
+                target=make_multitest_parts,
+                path=directory,
+                kwargs={"part_tuple": (idx, 3)},
+                rerun=1,
+            )
+            uids.append(mockplan.schedule(task=task, resource=pool_name))
+
+        assert mockplan.run().run is True
+        assert mockplan.report.passed is False
+        assert mockplan.report.counter == {
+            "passed": 2,
+            "total": 3,
+            "failed": 1,
+        }
+
+        assert mockplan.report.entries[0].name == "MultiTestParts"
+        assert (
+            mockplan.report.entries[1].name
+            == "MultiTestParts - part(0/3) => Run 1"
+        )
