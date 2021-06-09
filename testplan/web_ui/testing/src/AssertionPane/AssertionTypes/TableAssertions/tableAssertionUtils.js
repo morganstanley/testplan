@@ -33,6 +33,7 @@ function tableLogCellRender(cell) {
     if (cell.value.type === "link") {
       return (
         <a
+          rel="noreferrer"
           href={cell.value.link}
           target={cell.value.new_window ? "_blank" : "_self"}
         >
