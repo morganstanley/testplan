@@ -359,7 +359,10 @@ def test_task_rerun_with_parts():
             "failed": 1,
         }
 
+        # Run2 of part0 are merged with part1 and part2
         assert mockplan.report.entries[0].name == "MultiTestParts"
+
+        # Run1 of part0 (task_rerun) are left unmerged
         assert (
             mockplan.report.entries[1].name
             == "MultiTestParts - part(0/3) => Run 1"
