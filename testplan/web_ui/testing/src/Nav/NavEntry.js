@@ -90,6 +90,8 @@ const styles = StyleSheet.create({
     "white-space": "nowrap",
     fontSize: 'small',
     fontWeight: 500,
+    marginLeft: '3px',
+    flex: "auto",
   },
   entryIcons: {
     paddingLeft: '1em',
