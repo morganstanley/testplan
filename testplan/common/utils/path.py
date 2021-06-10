@@ -78,7 +78,7 @@ def change_directory(directory):
     :param directory: Directory to change into.
     :type directory: ``str``
     """
-    old_directory = os.environ["PWD"]
+    old_directory = os.getcwd()
     directory = fix_home_prefix(directory)
     os.chdir(directory)
     if "PWD" in os.environ:
