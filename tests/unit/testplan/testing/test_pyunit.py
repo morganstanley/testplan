@@ -87,6 +87,7 @@ def test_dry_run(pyunit_runner_inst):
 
 def test_run_testcases_iter_all(pyunit_runner_inst):
     """Test running all testcases iteratively."""
+    pyunit_runner_inst.dry_run()
     results = list(pyunit_runner_inst.run_testcases_iter())
     assert len(results) == 2
 
@@ -101,6 +102,7 @@ def test_run_testcases_iter_all(pyunit_runner_inst):
 
 def test_run_testcases_iter_single(pyunit_runner_inst):
     """Test running a single testcase iteratively."""
+    pyunit_runner_inst.dry_run()
     results = list(
         pyunit_runner_inst.run_testcases_iter(testsuite_pattern="Passing")
     )

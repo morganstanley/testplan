@@ -1,12 +1,10 @@
 """Unit tests for the JUnit test runner."""
 import os
 
-import pytest
-
 import testplan.report
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing import junit
-from testplan.report import TestReport, TestGroupReport, TestCaseReport
+from testplan.report import TestGroupReport, TestCaseReport
 from testplan.common.utils.testing import (
     log_propagation_disabled,
     check_report,

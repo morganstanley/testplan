@@ -344,14 +344,25 @@ class Cppunit(ProcessRunnerTest):
             self._DEFAULT_SUITE_NAME,
             self._VERIFICATION_SUITE_NAME,
         ):
-            raise RuntimeError("Cannot run individual test suite")
+            raise RuntimeError(
+                "Cannot run individual test suite {}".format(testsuite_pattern)
+            )
+
         if testcase_pattern not in ("*", self._VERIFICATION_TESTCASE_NAME):
             self.logger.debug(
                 'Should run testcases in pattern "%s", but cannot run'
-                " individual testcase thus will run the whole test suite",
+                " individual testcases thus will run the whole test suite",
                 testcase_pattern,
             )
+
         return self.test_command()
+
+    def list_command_filter(self, testsuite_pattern, testcase_pattern):
+        """
+        Return the base list command with additional filtering to list a
+        specific set of testcases.
+        """
+        return None  # Cppunit does not support listing by filter
 
     @staticmethod
     def cppunit_to_junit(report, name):

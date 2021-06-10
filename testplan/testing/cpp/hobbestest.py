@@ -83,14 +83,6 @@ class HobbesTest(ProcessRunnerTest):
         cmd += self.cfg.other_args
         return cmd
 
-    def test_command_filter(self, testsuite_pattern="*", testcase_pattern="*"):
-        cmd = self.test_command()
-        if testcase_pattern != "*":
-            raise RuntimeError("Cannot run individual testcases")
-        if testsuite_pattern != "*":
-            cmd.extend(["--tests", testsuite_pattern])
-        return cmd
-
     def list_command(self):
         cmd = [self.cfg.binary, "--list"]
         return cmd
@@ -172,3 +164,35 @@ class HobbesTest(ProcessRunnerTest):
         # ]
         result = [[line.strip(), []] for line in test_list_output.splitlines()]
         return result
+
+    def test_command_filter(self, testsuite_pattern="*", testcase_pattern="*"):
+        """
+        Return the base test command with additional filtering to run a
+        specific set of testcases.
+        """
+        cmd = self.test_command()
+
+        # TODO: although Hobbes-test can select tests to run by "--tests"
+        # command line option, but can not select them during listing.
+        # May need to implement this feature if needed, now we just run
+        # the test as a whole, even only one suite is requested run.
+
+        # if testsuite_pattern not in ("*", self._VERIFICATION_SUITE_NAME):
+        #     cmd.extend(["--tests", testsuite_pattern])
+
+        # At the beginning no testcase exists in test suite
+        if testcase_pattern not in ("*", self._VERIFICATION_TESTCASE_NAME):
+            self.logger.debug(
+                'Should run testcases in pattern "%s", but cannot run'
+                " individual testcases thus will run the whole test suite",
+                testcase_pattern,
+            )
+
+        return cmd
+
+    def list_command_filter(self, testsuite_pattern, testcase_pattern):
+        """
+        Return the base list command with additional filtering to list a
+        specific set of testcases.
+        """
+        return None  # Hobbes-test does not support listing by filter

@@ -71,7 +71,7 @@ class PyUnit(testing.Test):
 
     def dry_run(self):
         """Return an empty report tree."""
-        test_report = self._new_test_report()
+        self.result.report = self._new_test_report()
 
         for pyunit_testcase in self.cfg.testcases:
             testsuite_report = TestGroupReport(
@@ -84,22 +84,23 @@ class PyUnit(testing.Test):
                     )
                 ],
             )
-            test_report.append(testsuite_report)
+            self.result.report.append(testsuite_report)
 
-        result = testing.TestResult()
-        result.report = test_report
-
-        return result
+        return self.result
 
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
         """Run testcases and yield testcase report and parent UIDs."""
         if testsuite_pattern == "*":
+            self.report.runtime_status = RuntimeStatus.RUNNING
             for testsuite_report in self._run_tests():
                 yield testsuite_report[self._TESTCASE_NAME], [
                     self.uid(),
                     testsuite_report.uid,
                 ]
         else:
+            self.report[
+                testsuite_pattern
+            ].runtime_status = RuntimeStatus.RUNNING
             testsuite_report = self._run_testsuite(
                 self._pyunit_testcases[testsuite_pattern]
             )

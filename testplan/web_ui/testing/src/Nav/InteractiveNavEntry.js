@@ -278,11 +278,11 @@ const getResetReportIcon = (
   entryStatus, envStatus, handleResetClick, entryType) =>
 {
   if (
-    entryType === 'multitest' ||
+    entryType === 'multitest' || entryType === "unittest" ||
     entryType === "gtest" || entryType === "cppunit" ||
     entryType === "boost-test" || entryType === "hobbestest" ||
     entryType === "pytest" || entryType === "pyunit" ||
-    entryType === "unittest" || entryType === "qunit"
+    entryType === "qunit" || entryType === "junit"
   ) {
     return (
       <FontAwesomeIcon

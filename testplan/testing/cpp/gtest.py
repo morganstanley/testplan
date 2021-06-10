@@ -280,6 +280,30 @@ class GTest(ProcessRunnerTest):
         specific set of testcases.
         """
         cmd = self.test_command()
+
+        if testsuite_pattern == self._VERIFICATION_SUITE_NAME:
+            testsuite_pattern = "*"
+            if testcase_pattern == self._VERIFICATION_TESTCASE_NAME:
+                testcase_pattern = "*"
+        if testsuite_pattern != "*" or testcase_pattern != "*":
+            cmd.append(
+                "--gtest_filter={}.{}".format(
+                    testsuite_pattern, testcase_pattern
+                )
+            )
+
+        return cmd
+
+    def list_command_filter(self, testsuite_pattern, testcase_pattern):
+        """
+        Return the base list command with additional filtering to list a
+        specific set of testcases.
+        """
+        cmd = self.list_command()
+        if testsuite_pattern == self._VERIFICATION_SUITE_NAME:
+            testsuite_pattern = "*"
+            if testcase_pattern == self._VERIFICATION_TESTCASE_NAME:
+                testcase_pattern = "*"
         if testsuite_pattern != "*" or testcase_pattern != "*":
             cmd.append(
                 "--gtest_filter={}.{}".format(
