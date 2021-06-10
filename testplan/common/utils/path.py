@@ -22,7 +22,6 @@ def fix_home_prefix(path):
     directory.
     """
 
-    path = path.replace(" ", r"\ ")
     userhome = os.path.expanduser("~")
     realhome = os.path.realpath(userhome)
     if path.startswith(realhome):
@@ -79,7 +78,8 @@ def change_directory(directory):
     :param directory: Directory to change into.
     :type directory: ``str``
     """
-    old_directory = os.getcwd()
+    old_directory = os.environ["PWD"]
+    directory = fix_home_prefix(directory)
     os.chdir(directory)
     if "PWD" in os.environ:
         os.environ["PWD"] = directory
