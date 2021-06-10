@@ -1,0 +1,48 @@
+name: PR Tests
+
+on: [pull_request]
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    env:
+      REACT_APP_API_BASE_URL: "/fake/api/endpoint"
+      BLACK_VERSION: "20.8b1"
+      CI: ""
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+      - name: Set up Zookeeper for tests
+        run: |
+          sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
+      - name: Set up Kafka for tests
+        run: |
+          wget https://downloads.apache.org/kafka/2.6.2/kafka_2.12-2.6.2.tgz -O kafka.tgz
+          sudo mkdir /opt/kafka
+          sudo chown -R $USER:$USER /opt/kafka
+          tar zxf kafka.tgz -C /opt/kafka --strip-components 1
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt -U
+          pip install black==$BLACK_VERSION
+          python install-testplan-ui --verbose --dev
+      - name: Lint
+        run: |
+          python3 -m black --check .
+          ./scripts/utils/crlf_check.sh
+          pylint --rcfile pylintrc testplan
+      - name: Test
+        run: |
+          pytest tests --verbose
