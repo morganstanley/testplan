@@ -170,19 +170,16 @@ class PyTest(testing.Test):
         Collect tests and build a report tree skeleton, but do not run any
         tests.
         """
-        collected = self._collect_tests()
-        test_report = self._new_test_report()
+        self.result.report = self._new_test_report()
         self._nodeids = {
             "testsuites": {},
             "testcases": collections.defaultdict(dict),
         }
 
-        for item in collected:
-            _add_empty_testcase_report(item, test_report, self._nodeids)
+        for item in self._collect_tests():
+            _add_empty_testcase_report(item, self.result.report, self._nodeids)
 
-        result = TestResult()
-        result.report = test_report
-        return result
+        return self.result
 
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
         """
@@ -301,7 +298,7 @@ class _ReportPlugin(object):
         self._report = report
         self._quiet = quiet
 
-        # Collection of suite reports - will be intialised by the setup()
+        # Collection of suite reports - will be initialised by the setup()
         # method.
         self._suite_reports = None
 
@@ -369,6 +366,7 @@ class _ReportPlugin(object):
                 report = TestCaseReport(case_name, uid=case_name)
                 self._suite_reports[suite_name][case_name] = report
             return report
+
         else:
             group_report = self._suite_reports[suite_name].get(case_name)
             if group_report is None:

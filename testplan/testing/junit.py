@@ -53,7 +53,7 @@ class JUnit(ProcessRunnerTest):
     :type junit_args: ``NoneType`` or ``list``
     :param results_dir: Where saved the test xml report.
     :type results_dir: ``str``
-    :param junit_filter: Customized command line arguments for filtering testcases,
+    :param junit_filter: Customized command line arguments for filtering testcases.
     :type junit_filter: ``NoneType`` or ``list``
 
     Also inherits all
@@ -76,20 +76,15 @@ class JUnit(ProcessRunnerTest):
         self._results_dir = None
 
     def test_command(self):
-        return [self.cfg.binary] + (self.cfg.junit_args or [])
+        return (
+            [self.cfg.binary]
+            + (self.cfg.junit_args or [])
+            + (self.cfg.junit_filter or [])
+        )
 
-    def test_command_filter(self, testsuite_pattern, testcase_pattern):
-        """
-        Return the base test command with additional filtering to run a
-        specific set of testcases.
-        """
-        cmd = self.test_command()
-        if testsuite_pattern != "*" or testcase_pattern != "*":
-            if self.cfg.junit_filter:
-                cmd += self.cfg.junit_filter
-            else:
-                raise RuntimeError("Cannot run individual test suites")
-        return cmd
+    def list_command(self):
+        """JUnit test does not support filtering."""
+        return None
 
     def read_test_data(self):
         """
@@ -184,3 +179,35 @@ class JUnit(ProcessRunnerTest):
                 suite_report.append(testcase_report)
             result.append(suite_report)
         return result
+
+    def test_command_filter(self, testsuite_pattern, testcase_pattern):
+        """
+        Return the base test command with additional filtering to run a
+        specific set of testcases.
+        """
+        cmd = self.test_command()
+
+        if testsuite_pattern not in (
+            "*",
+            self._DEFAULT_SUITE_NAME,
+            self._VERIFICATION_SUITE_NAME,
+        ):
+            raise RuntimeError(
+                "Cannot run individual test suite {}".format(testsuite_pattern)
+            )
+
+        if testcase_pattern not in ("*", self._VERIFICATION_TESTCASE_NAME):
+            self.logger.debug(
+                'Should run testcases in pattern "%s", but cannot run'
+                " individual testcases thus will run the whole test suite",
+                testcase_pattern,
+            )
+
+        return cmd + self.cfg.junit_filter if self.cfg.junit_filter else cmd
+
+    def list_command_filter(self, testsuite_pattern, testcase_pattern):
+        """
+        Return the base list command with additional filtering to list a
+        specific set of testcases.
+        """
+        return None  # JUnit does not support listing by filter
