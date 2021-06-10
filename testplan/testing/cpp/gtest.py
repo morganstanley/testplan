@@ -155,8 +155,8 @@ class GTest(ProcessRunnerTest):
         return self.base_command() + ["--gtest_list_tests"]
 
     def read_test_data(self):
-        importer = GTestResultImporter()
-        return importer.import_result(self.report_path)
+        importer = GTestResultImporter(self.report_path)
+        return importer.import_result()
 
     def process_test_data(self, test_data):
         return test_data.results()

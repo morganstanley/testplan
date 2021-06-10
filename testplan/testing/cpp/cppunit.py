@@ -123,10 +123,8 @@ class Cppunit(ProcessRunnerTest):
 
     def read_test_data(self):
 
-        importer = CPPUnitResultImporter()
-        return importer.import_result(
-            self.report_path if self.cfg.file_output_flag else self.stdout
-        )
+        importer = CPPUnitResultImporter(self.report_path if self.cfg.file_output_flag else self.stdout)
+        return importer.import_result()
 
     def process_test_data(self, test_data: CPPUnitImportedResult):
         """
