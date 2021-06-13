@@ -288,14 +288,27 @@ def test_run_testcases_iter():
     mtest.dry_run()
 
     results = list(mtest.run_testcases_iter())
-    assert len(results) == 4
+    assert len(results) == 8
 
-    testcase_report, parent_uids = results[0]
+    attributes, parent_uids = results[0]
+    assert parent_uids == ["MTest", "Suite", "case"]
+    assert attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+
+    testcase_report, parent_uids = results[1]
     assert parent_uids == ["MTest", "Suite"]
     assert testcase_report.runtime_status == report.RuntimeStatus.FINISHED
     _check_testcase_report(testcase_report)
 
-    for i, (testcase_report, parent_uids) in enumerate(results[1:]):
+    for i, (attributes, parent_uids) in enumerate(results[2::2]):
+        assert parent_uids == [
+            "MTest",
+            "Suite",
+            "parametrized",
+            "parametrized__val_{}".format(i + 1),
+        ]
+        assert attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+
+    for i, (testcase_report, parent_uids) in enumerate(results[3::2]):
         assert parent_uids == ["MTest", "Suite", "parametrized"]
         assert testcase_report.runtime_status == report.RuntimeStatus.FINISHED
         _check_param_testcase_report(testcase_report, i)

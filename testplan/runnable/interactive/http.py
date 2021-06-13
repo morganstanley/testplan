@@ -106,6 +106,12 @@ def generate_interactive_api(ihandler):
             " to reset test report if necessary.".format(err)
         }, 200
 
+    @api.errorhandler(werkzeug.exceptions.HTTPException)
+    def log_error(err):
+        """Log exceptions that will lead to 4XX status code."""
+        ihandler.target.logger.exception(err)
+        return {"message": str(err)}, err.code
+
     @api.route("/report")
     class Report(flask_restplus.Resource):
         """
@@ -141,6 +147,7 @@ def generate_interactive_api(ihandler):
                     ihandler.report.runtime_status,
                     new_runtime_status,
                 ):
+                    ihandler.report.runtime_status = RuntimeStatus.WAITING
                     ihandler.reset_all_tests(await_results=False)
                 elif _should_run(
                     ihandler.report.uid,
@@ -148,9 +155,9 @@ def generate_interactive_api(ihandler):
                     new_runtime_status,
                 ):
                     _check_execution_order(ihandler.report)
+                    ihandler.report.runtime_status = RuntimeStatus.WAITING
                     ihandler.run_all_tests(await_results=False)
 
-                ihandler.report.runtime_status = RuntimeStatus.WAITING
                 return _serialize_report_entry(ihandler.report)
 
     @api.route("/report/tests")
@@ -225,6 +232,7 @@ def generate_interactive_api(ihandler):
                     current_test.runtime_status,
                     new_runtime_status,
                 ):
+                    current_test.runtime_status = RuntimeStatus.WAITING
                     ihandler.reset_test(test_uid, await_results=False)
                 elif _should_run(
                     current_test.uid,
@@ -235,6 +243,7 @@ def generate_interactive_api(ihandler):
                         current_test.env_status, new_test.env_status
                     )
                     _check_execution_order(ihandler.report, test_uid=test_uid)
+                    current_test.runtime_status = RuntimeStatus.WAITING
                     ihandler.run_test(test_uid, await_results=False)
                 else:
                     next_env_status, env_action = self._check_env_transition(
@@ -254,7 +263,6 @@ def generate_interactive_api(ihandler):
                     current_test.env_status = next_env_status
                     return _serialize_report_entry(current_test)
 
-                current_test.runtime_status = RuntimeStatus.WAITING
                 return _serialize_report_entry(current_test)
 
         def _check_env_transition(self, current_state, new_state):
@@ -289,13 +297,14 @@ def generate_interactive_api(ihandler):
         @decode_uri_component
         def get(self, test_uid):
             """Get the UIDs of all test suites owned by a specific test."""
-            try:
-                return [
-                    _serialize_report_entry(entry)
-                    for entry in ihandler.report[test_uid]
-                ]
-            except KeyError:
-                raise werkzeug.exceptions.NotFound
+            with ihandler.report_mutex:
+                try:
+                    return [
+                        _serialize_report_entry(entry)
+                        for entry in ihandler.report[test_uid]
+                    ]
+                except KeyError:
+                    raise werkzeug.exceptions.NotFound
 
     @api.route("/report/tests/<string:test_uid>/suites/<string:suite_uid>")
     class SingleSuite(flask_restplus.Resource):
@@ -348,11 +357,11 @@ def generate_interactive_api(ihandler):
                     _check_execution_order(
                         ihandler.report, test_uid=test_uid, suite_uid=suite_uid
                     )
+                    current_suite.runtime_status = RuntimeStatus.WAITING
                     ihandler.run_test_suite(
                         test_uid, suite_uid, await_results=False
                     )
 
-                current_suite.runtime_status = RuntimeStatus.WAITING
                 return _serialize_report_entry(current_suite)
 
     @api.route(
@@ -436,11 +445,11 @@ def generate_interactive_api(ihandler):
                         suite_uid=suite_uid,
                         case_uid=case_uid,
                     )
+                    current_case.runtime_status = RuntimeStatus.WAITING
                     ihandler.run_test_case(
                         test_uid, suite_uid, case_uid, await_results=False
                     )
 
-                current_case.runtime_status = RuntimeStatus.WAITING
                 return _serialize_report_entry(current_case)
 
     @api.route(
@@ -529,6 +538,7 @@ def generate_interactive_api(ihandler):
                         case_uid=case_uid,
                         param_uid=param_uid,
                     )
+                    current_case.runtime_status = RuntimeStatus.WAITING
                     ihandler.run_test_case_param(
                         test_uid,
                         suite_uid,
@@ -537,7 +547,6 @@ def generate_interactive_api(ihandler):
                         await_results=False,
                     )
 
-                current_case.runtime_status = RuntimeStatus.WAITING
                 return _serialize_report_entry(current_case)
 
     @api.route("/report/export")
@@ -705,11 +714,14 @@ def _should_reset(uid, curr_status, new_status):
     """
     if new_status == curr_status:
         return False
-    elif new_status == RuntimeStatus.RESETTING and curr_status not in (
-        RuntimeStatus.RUNNING,
-        RuntimeStatus.WAITING,
-    ):
-        return True
+    elif new_status == RuntimeStatus.RESETTING:
+        if curr_status not in (RuntimeStatus.RUNNING, RuntimeStatus.WAITING):
+            return True
+        else:
+            raise werkzeug.exceptions.BadRequest(
+                "Cannot update runtime status of entry"
+                ' "{}" from {} to {}'.format(uid, curr_status, new_status)
+            )
     return False  # `_should_run` is called after `_should_reset`
 
 

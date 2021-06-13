@@ -7,7 +7,7 @@ from testplan.testing import pyunit
 from testplan.testing import filtering
 from testplan.testing import ordering
 from testplan import defaults
-import testplan.report
+from testplan import report
 
 from tests.unit.testplan.testing import pyunit_expected_data
 
@@ -57,20 +57,19 @@ def pyunit_runner_inst():
 def test_run_tests(pyunit_runner_inst):
     """Test running all PyUnit Testcases as a batch."""
     result = pyunit_runner_inst.run()
-    report = result.report
-    assert report.status == testplan.report.Status.FAILED
-    assert len(report.entries) == 2
+    assert result.report.status == report.Status.FAILED
+    assert len(result.report.entries) == 2
 
-    passing_testsuite_report = report["Passing"]
-    assert passing_testsuite_report.status == testplan.report.Status.PASSED
+    passing_testsuite_report = result.report["Passing"]
+    assert passing_testsuite_report.status == report.Status.PASSED
     assert passing_testsuite_report.name == "Passing"
     assert len(passing_testsuite_report.entries) == 1
 
     passing_testcase_report = passing_testsuite_report.entries[0]
     _check_passing_testcase_report(passing_testcase_report)
 
-    failing_testsuite_report = report["Failing"]
-    assert failing_testsuite_report.status == testplan.report.Status.FAILED
+    failing_testsuite_report = result.report["Failing"]
+    assert failing_testsuite_report.status == report.Status.FAILED
     assert failing_testsuite_report.name == "Failing"
     assert len(failing_testsuite_report.entries) == 1
 
@@ -87,30 +86,55 @@ def test_dry_run(pyunit_runner_inst):
 
 def test_run_testcases_iter_all(pyunit_runner_inst):
     """Test running all testcases iteratively."""
-    pyunit_runner_inst.dry_run()
     results = list(pyunit_runner_inst.run_testcases_iter())
-    assert len(results) == 2
+    assert len(results) == 3
 
-    passing_testcase_report, passing_parent_uids = results[0]
+    report_attributes, current_uids = results[0]
+    assert current_uids == ["My PyUnit"]
+    assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+
+    passing_testcase_report, passing_parent_uids = results[1]
     assert passing_parent_uids == ["My PyUnit", "Passing"]
     _check_passing_testcase_report(passing_testcase_report)
 
-    failing_testcase_report, failing_parent_uids = results[1]
+    failing_testcase_report, failing_parent_uids = results[2]
     assert failing_parent_uids == ["My PyUnit", "Failing"]
     _check_failing_testcase_report(failing_testcase_report)
 
 
-def test_run_testcases_iter_single(pyunit_runner_inst):
+def test_run_testcases_iter_single_testsuite(pyunit_runner_inst):
     """Test running a single testcase iteratively."""
-    pyunit_runner_inst.dry_run()
     results = list(
         pyunit_runner_inst.run_testcases_iter(testsuite_pattern="Passing")
     )
-    assert len(results) == 1
+    assert len(results) == 2
 
-    passing_testcase_report, passing_parent_uids = results[0]
-    assert passing_parent_uids == ["My PyUnit", "Passing"]
-    _check_passing_testcase_report(passing_testcase_report)
+    report_attributes, current_uids = results[0]
+    assert current_uids == ["My PyUnit", "Passing"]
+    assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+
+    testcase_report, parent_uids = results[1]
+    assert parent_uids == ["My PyUnit", "Passing"]
+    _check_passing_testcase_report(testcase_report)
+
+
+def test_run_testcases_iter_single_testcase(pyunit_runner_inst):
+    """Test running a single testcase iteratively."""
+    results = list(
+        pyunit_runner_inst.run_testcases_iter(
+            testsuite_pattern="Failing",
+            testcase_pattern=pyunit.PyUnit._TESTCASE_NAME,
+        )
+    )
+    assert len(results) == 2
+
+    report_attributes, current_uids = results[0]
+    assert current_uids == ["My PyUnit", "Failing"]
+    assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+
+    testcase_report, parent_uids = results[1]
+    assert parent_uids == ["My PyUnit", "Failing"]
+    _check_failing_testcase_report(testcase_report)
 
 
 def _check_passing_testcase_report(testcase_report):
