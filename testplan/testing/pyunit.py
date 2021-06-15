@@ -91,16 +91,17 @@ class PyUnit(testing.Test):
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
         """Run testcases and yield testcase report and parent UIDs."""
         if testsuite_pattern == "*":
-            self.report.runtime_status = RuntimeStatus.RUNNING
+            yield {"runtime_status": RuntimeStatus.RUNNING}, [self.uid()]
             for testsuite_report in self._run_tests():
                 yield testsuite_report[self._TESTCASE_NAME], [
                     self.uid(),
                     testsuite_report.uid,
                 ]
         else:
-            self.report[
-                testsuite_pattern
-            ].runtime_status = RuntimeStatus.RUNNING
+            yield {"runtime_status": RuntimeStatus.RUNNING}, [
+                self.uid(),
+                testsuite_pattern,
+            ]
             testsuite_report = self._run_testsuite(
                 self._pyunit_testcases[testsuite_pattern]
             )

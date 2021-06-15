@@ -626,12 +626,9 @@ describe('InteractiveReport', () => {
     interactiveReport.instance().resetReport();
     moxios.wait(() => {
       const request = moxios.requests.mostRecent();
-      expect(request.url).toBe(
-        "/api/v1/interactive/report/tests/MultiTestUID"
-      );
+      expect(request.url).toBe("/api/v1/interactive/report");
       expect(request.config.method).toBe("put");
       const putData = JSON.parse(request.config.data);
-      expect(putData.env_status).toBe("STOPPING");
 
       request.respondWith({
         status: 200,
@@ -639,13 +636,10 @@ describe('InteractiveReport', () => {
       }).then(() => {
         moxios.wait(() => {
           const request = moxios.requests.mostRecent();
-          expect(request.url).toBe(
-            "/api/v1/interactive/report/tests/MultiTestUID" +
-            "/suites/SuiteUID/testcases/testcaseUID"
-          );
+          expect(request.url).toBe("/api/v1/interactive/report");
           expect(request.config.method).toBe("put");
           const putData = JSON.parse(request.config.data);
-          expect(putData.entries.length).toBe(0);
+          expect(putData.runtime_status).toBe("resetting");
           done();
         });
       });

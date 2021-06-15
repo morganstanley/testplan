@@ -1081,9 +1081,9 @@ class MultiTest(testing_base.Test):
 
             # set the runtime status of testcase report to RUNNING so that
             # client UI can get the change and show testcase is running
-            self.report.get_by_uids(
-                parent_uids[1:] + [testcase.__name__]
-            ).runtime_status = RuntimeStatus.RUNNING
+            yield {"runtime_status": RuntimeStatus.RUNNING}, parent_uids + [
+                testcase.__name__
+            ]
 
             testcase_report = self._run_testcase(
                 testcase, pre_testcase, post_testcase
