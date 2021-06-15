@@ -11,6 +11,7 @@ from schema import Or, And, Use
 
 from testplan.common import config
 from testplan.common import entity
+from testplan.common.entity import Environment
 from testplan.common.utils import interface
 from testplan.common.utils import validation
 from testplan.common.utils import timing
@@ -77,8 +78,20 @@ class MultiTestRuntimeInfo(object):
         self.testcase = self.TestcaseInfo()
 
 
-class EnvWithRuntimeInfo(object):
-    def __init__(self, environment, runtime_info):
+class RuntimeEnvironment(object):
+    """
+    A collection of drivers accessible through either items or named attributes,
+    representing the environment of a Multitest environment instance with runtime
+    information about the currently executing testcase
+
+    This class is a tiny wrapper around the multitest's :class:`Environment`,
+    delegate all calls to it but multitest_runtime_info which serves the runtime information
+    of the current thread of execution.
+    """
+
+    def __init__(
+        self, environment: Environment, runtime_info: MultiTestRuntimeInfo
+    ):
         self.__dict__["_environment"] = environment
         self.__dict__["multitest_runtime_info"] = runtime_info
 
@@ -923,7 +936,7 @@ class MultiTest(testing_base.Test):
         runtime_info = MultiTestRuntimeInfo()
         runtime_info.testcase.name = testcase.name
 
-        resources = EnvWithRuntimeInfo(self.resources, runtime_info)
+        resources = RuntimeEnvironment(self.resources, runtime_info)
 
         with testcase_report.timer.record("run"):
             with testcase_report.logged_exceptions():

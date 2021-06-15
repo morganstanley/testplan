@@ -7,7 +7,7 @@ import pytest
 
 
 from testplan.testing.filtering import Filter
-from testplan.testing.multitest.base import EnvWithRuntimeInfo
+from testplan.testing.multitest.base import RuntimeEnvironment
 from testplan.testing.ordering import NoopSorter
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -29,7 +29,7 @@ from testplan.common.utils.strings import slugify
 class MySuite(object):
     @testcase
     def test_drivers(self, env, result):
-        assert isinstance(env, EnvWithRuntimeInfo)
+        assert isinstance(env, RuntimeEnvironment)
         assert isinstance(env.server, TCPServer)
         assert env.server.cfg.name == "server"
         assert os.path.exists(env.server.runpath)
@@ -72,7 +72,7 @@ class MySuite(object):
         """
         Test context access from env and drivers.
         """
-        assert isinstance(env, EnvWithRuntimeInfo)
+        assert isinstance(env, RuntimeEnvironment)
         assert env.test_key == env["test_key"] == "test_value"
         assert env._environment is env.server.context
         assert env._environment is env.client.context
