@@ -70,7 +70,17 @@ class Sqlite3(Driver):
     def db_path(self):
         """Database file path."""
         default_db_path = os.path.join(self.runpath, self.cfg.db_name)
-        return self.cfg.db_path or default_db_path
+        custom_db_path = self._get_custom_db_path()
+        return custom_db_path or default_db_path
+
+    def _get_custom_db_path(self):
+        if self.cfg.db_path is None:
+            return None
+        is_db_path_absolute = os.path.isabs(self.cfg.db_path)
+        absolute_db_path = os.path.join(self.runpath, self.cfg.db_path)
+        custom_db_path = self.cfg.db_path if is_db_path_absolute else absolute_db_path
+        return custom_db_path
+
 
     def connect(self):
         """Connect to the database and set the internal db cursor."""
