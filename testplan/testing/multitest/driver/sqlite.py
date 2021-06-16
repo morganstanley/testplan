@@ -21,9 +21,10 @@ class Sqlite3Config(DriverConfig):
     def get_options(cls):
         """
         Schema for options validation and assignment of default values.
+
         """
         return {
-            "db_name": str,
+            ConfigOption("db_name", default=""): str,
             ConfigOption("db_path", default=None): str,
             ConfigOption("connect_at_start", default=True): bool,
         }
@@ -53,6 +54,12 @@ class Sqlite3(Driver):
 
     :param db_name: Database name to connect to.
     :type db_name: ``str``
+    :param db_path: Path to the database to connect to. If an absolute
+        path is provided it will use that to connect to the database.
+        In case a relative path is provided the runpath will be considered 
+        it's parent path. When no value is provided it will look for a file
+        inside the runpath that has the same name as the value of 'db_name'
+    :type db_path: ``str``
     :param connect_at_start: Connect to the database when driver starts.
       Default: True
     :type connect_at_start: ``bool``
@@ -60,7 +67,7 @@ class Sqlite3(Driver):
 
     CONFIG = Sqlite3Config
 
-    def __init__(self, name, db_name, connect_at_start=True, **options):
+    def __init__(self, name, connect_at_start=True, **options):
         options.update(self.filter_locals(locals()))
         super(Sqlite3, self).__init__(**options)
         self.db = None
