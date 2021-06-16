@@ -56,7 +56,7 @@ class Sqlite3(Driver):
     :type db_name: ``str``
     :param db_path: Path to the database to connect to. If an absolute
         path is provided it will use that to connect to the database.
-        In case a relative path is provided the runpath will be considered 
+        In case a relative path is provided the runpath will be considered
         it's parent path. When no value is provided it will look for a file
         inside the runpath that has the same name as the value of 'db_name'
     :type db_path: ``str``
@@ -85,9 +85,10 @@ class Sqlite3(Driver):
             return None
         is_db_path_absolute = os.path.isabs(self.cfg.db_path)
         absolute_db_path = os.path.join(self.runpath, self.cfg.db_path)
-        custom_db_path = self.cfg.db_path if is_db_path_absolute else absolute_db_path
+        custom_db_path = (
+            self.cfg.db_path if is_db_path_absolute else absolute_db_path
+        )
         return custom_db_path
-
 
     def connect(self):
         """Connect to the database and set the internal db cursor."""
