@@ -112,7 +112,7 @@ def main(plan):
     :return: Testplan result object.
     :rtype:  ``testplan.base.TestplanResult``
     """
-    my_db_path = os.path.join(tempfile.gettempdir(), "new_db_name")
+    my_db_path = tempfile.gettempdir()
     plan.add(
         MultiTest(
             name="Sqlite3Test",
