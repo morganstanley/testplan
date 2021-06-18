@@ -104,6 +104,13 @@ class InteractiveReport extends React.Component {
       '/api/v1/interactive/report', {transformResponse: parseToJson}
       ).then(response => {
         if (
+          response.data.runtime_status === "ready" ||
+          response.data.runtime_status === "finished" ||
+          response.data.runtime_status === "not_run"
+        ) {
+          this.setState({ resetting: false });
+        }
+        if (
           !this.state.report ||
           this.state.report.hash !== response.data.hash
         ) {
@@ -465,28 +472,16 @@ class InteractiveReport extends React.Component {
    * Reset the report state, by updating all testcases to have no entries.
    */
   resetReport() {
-    let needReset = false;
-    this.setState((state) => {
-      if (state.resetting) {
-        return null;
-      }
-
-      needReset = true;
-      return { resetting: true };
-    },
-      () => {
-        if (needReset) {
-          this.resetEnvironment().then(() => {
-            this.resetTestcasesRecur(this.state.report).then(
-              () => this.setState({ resetting: false })
-            );
-          }).catch(error => {
-            console.log(error);
-            this.setState({ resetting: false, error: error });
-          });
-        }
-      }
-    );
+    if (this.state.resetting) {
+      return;
+    } else {
+      const updatedReportEntry = {
+        ...this.shallowReportEntry(this.state.report),
+        runtime_status: "resetting"
+      };
+      this.putUpdatedReportEntry(updatedReportEntry);
+      this.setState({ resetting: true });
+    }
   }
 
   reloadCode() {
@@ -583,10 +578,10 @@ class InteractiveReport extends React.Component {
             />,
             <SaveButton key="save-button"/>,
             <ResetButton
-            key="time-button"
-            resetStateCbk={this.resetReport}
-            resetting={false}
-          />
+              key="reset-button"
+              resetting={this.state.resetting}
+              resetStateCbk={this.resetReport}
+            />
           ]}
         />
         <InteractiveNav

@@ -203,13 +203,16 @@ class PyTest(testing.Test):
         pytest_plugin = _ReportPlugin(self, test_report, quiet)
         pytest_plugin.setup()
 
-        pytest_args = self._build_iter_pytest_args(
+        pytest_args, current_uids = self._build_iter_pytest_args(
             testsuite_pattern, testcase_pattern
         )
+        # Will call `pytest.main` to run all testcases as a whole, accordingly,
+        # runtime status of all these testcases will be set at the same time.
+        yield {"runtime_status": RuntimeStatus.RUNNING}, current_uids
 
         self.logger.debug("Running PyTest with args: %r", pytest_args)
         return_code = pytest.main(pytest_args, plugins=[pytest_plugin])
-        self.logger.debug("Pytest exit code: %d", return_code)
+        self.logger.debug("PyTest exit code: %d", return_code)
 
         for suite_report in test_report:
             for child_report in suite_report:
@@ -256,17 +259,29 @@ class PyTest(testing.Test):
                 pytest_args = [self.cfg.target]
             else:
                 pytest_args = self.cfg.target[:]
+            current_uids = [self.uid()]
         elif testcase_pattern == "*":
             pytest_args = [self._nodeids["testsuites"][testsuite_pattern]]
+            current_uids = [self.uid(), testsuite_pattern]
         else:
             pytest_args = [
                 self._nodeids["testcases"][testsuite_pattern][testcase_pattern]
             ]
+            suite_name, case_name, case_params = _case_parse(pytest_args[0])
+            if case_params:
+                current_uids = [
+                    self.uid(),
+                    suite_name,
+                    case_name,
+                    "{}[{}]".format(case_name, case_params),
+                ]
+            else:
+                current_uids = [self.uid(), suite_name, case_name]
 
         if self.cfg.extra_args:
             pytest_args.extend(self.cfg.extra_args)
 
-        return pytest_args
+        return pytest_args, current_uids
 
     def _build_pytest_args(self):
         """
@@ -473,8 +488,10 @@ class _ReportPlugin(object):
                 self._current_case_report.status_override = Status.FAILED
             else:
                 self._current_case_report.pass_if_empty()
-
             self._current_case_report.runtime_status = RuntimeStatus.FINISHED
+
+        elif report.when == "teardown":
+            pass
 
     def pytest_exception_interact(self, node, call, report):
         """

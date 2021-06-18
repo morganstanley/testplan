@@ -11,6 +11,7 @@ from concurrent import futures
 from testplan.common import entity
 from testplan.common import config
 from testplan.common.utils import networking
+from testplan.common.report import Report
 
 from testplan.runnable.interactive import http
 from testplan.runnable.interactive import reloader
@@ -96,6 +97,7 @@ class TestRunnerIHandler(entity.Entity):
         self._http_handler = self._setup_http_handler()
         self._pool = futures.ThreadPoolExecutor(max_workers=1)
         self.target.make_runpath_dirs()
+        self.target._configure_file_logger()
 
     def run(self):
         """
@@ -118,6 +120,7 @@ class TestRunnerIHandler(entity.Entity):
 
         self._pool = None
         self._http_handler = None
+        self.target._close_file_logger()
 
     @property
     def http_handler_info(self):
@@ -167,9 +170,9 @@ class TestRunnerIHandler(entity.Entity):
         if not await_results:
             return self._run_async(self.reset_all_tests)
 
-        all_tests = self.all_tests()
+        self.logger.debug("Interactive mode: Reset all tests")
 
-        for test_uid in all_tests:
+        for test_uid in self.all_tests():
             self.reset_test(test_uid)
 
     def reset_test(self, test_uid, await_results=True):
@@ -190,15 +193,16 @@ class TestRunnerIHandler(entity.Entity):
             self._auto_stop_environment(test_uid)
         except RuntimeError as err:
             self.logger.exception(
-                "Failed to stop environment for %s: %s", test_uid, str(err)
+                'Failed to stop environment for "%s": %s', test_uid, str(err)
             )
-            # Will display error messages which were logged during step
-            # `stop_test_resources` so the report will not be regenerated
-            with self.report_mutex:
-                self.report[test_uid].runtime_status = RuntimeStatus.NOT_RUN
+            # Should display error messages from the exception raised during
+            # step `stop_test_resources` so will not regenerate test report
+            self._update_reports(
+                [({"runtime_status": RuntimeStatus.NOT_RUN}, [test_uid])]
+            )
         else:
-            with self.report_mutex:
-                self.report[test_uid] = self.test(test_uid).dry_run().report
+            self.logger.debug('Reset test ["%s"]', test_uid)
+            self._update_reports([(self.test(test_uid).dry_run().report, [])])
 
     def run_all_tests(self, await_results=True):
         """
@@ -212,6 +216,8 @@ class TestRunnerIHandler(entity.Entity):
         """
         if not await_results:
             return self._run_async(self.run_all_tests)
+
+        self.logger.debug("Interactive mode: Run all tests")
 
         for test_uid in self.all_tests():
             self.run_test(test_uid)
@@ -234,14 +240,14 @@ class TestRunnerIHandler(entity.Entity):
             self._auto_start_environment(test_uid)
         except RuntimeError as err:
             self.logger.exception(
-                "Failed to start environment for %s: %s", test_uid, str(err)
+                'Failed to start environment for "%s": %s', test_uid, str(err)
             )
-            with self.report_mutex:
-                self.report[test_uid].runtime_status = RuntimeStatus.NOT_RUN
+            self._update_reports(
+                [({"runtime_status": RuntimeStatus.NOT_RUN}, [test_uid])]
+            )
         else:
-            self._merge_testcase_reports(
-                self.test(test_uid).run_testcases_iter()
-            )
+            self.logger.debug('Run test ["%s"]', test_uid)
+            self._update_reports(self.test(test_uid).run_testcases_iter())
 
     def run_test_suite(self, test_uid, suite_uid, await_results=True):
         """
@@ -262,14 +268,19 @@ class TestRunnerIHandler(entity.Entity):
             self._auto_start_environment(test_uid)
         except RuntimeError as err:
             self.logger.exception(
-                "Failed to start environment for %s: %s", test_uid, str(err)
+                'Failed to start environment for "%s": %s', test_uid, str(err)
             )
-            with self.report_mutex:
-                self.report[test_uid][
-                    suite_uid
-                ].runtime_status = RuntimeStatus.NOT_RUN
+            self._update_reports(
+                [
+                    (
+                        {"runtime_status": RuntimeStatus.NOT_RUN},
+                        [test_uid, suite_uid],
+                    )
+                ]
+            )
         else:
-            self._merge_testcase_reports(
+            self.logger.debug('Run suite ["%s" / "%s"]', test_uid, suite_uid)
+            self._update_reports(
                 self.test(test_uid).run_testcases_iter(
                     testsuite_pattern=suite_uid
                 )
@@ -300,14 +311,24 @@ class TestRunnerIHandler(entity.Entity):
             self._auto_start_environment(test_uid)
         except RuntimeError as err:
             self.logger.exception(
-                "Failed to start environment for %s: %s", test_uid, str(err)
+                'Failed to start environment for "%s": %s', test_uid, str(err)
             )
-            with self.report_mutex:
-                self.report[test_uid][suite_uid][
-                    case_uid
-                ].runtime_status = RuntimeStatus.NOT_RUN
+            self._update_reports(
+                [
+                    (
+                        {"runtime_status": RuntimeStatus.NOT_RUN},
+                        [test_uid, suite_uid, test_uid],
+                    )
+                ]
+            )
         else:
-            self._merge_testcase_reports(
+            self.logger.debug(
+                'Run testcase or parametrization group ["%s" / "%s" / "%s"]',
+                test_uid,
+                suite_uid,
+                case_uid,
+            )
+            self._update_reports(
                 self.test(test_uid).run_testcases_iter(
                     testsuite_pattern=suite_uid, testcase_pattern=case_uid
                 )
@@ -347,14 +368,25 @@ class TestRunnerIHandler(entity.Entity):
             self._auto_start_environment(test_uid)
         except RuntimeError as err:
             self.logger.exception(
-                "Failed to start environment for %s: %s", test_uid, str(err)
+                'Failed to start environment for "%s": %s', test_uid, str(err)
             )
-            with self.report_mutex:
-                self.report[test_uid][suite_uid][case_uid][
-                    param_uid
-                ].runtime_status = RuntimeStatus.NOT_RUN
+            self._update_reports(
+                [
+                    (
+                        {"runtime_status": RuntimeStatus.NOT_RUN},
+                        [test_uid, suite_uid, test_uid, param_uid],
+                    )
+                ]
+            )
         else:
-            self._merge_testcase_reports(
+            self.logger.debug(
+                'Run testcase ["%s" / "%s" / "%s" / "%s"]',
+                test_uid,
+                suite_uid,
+                case_uid,
+                param_uid,
+            )
+            self._update_reports(
                 self.test(test_uid).run_testcases_iter(
                     testsuite_pattern=suite_uid, testcase_pattern=param_uid
                 )
@@ -375,7 +407,8 @@ class TestRunnerIHandler(entity.Entity):
             return self._run_async(self.start_test_resources, test_uid)
 
         self._set_env_status(test_uid, entity.ResourceStatus.STARTING)
-        self._clear_env_errors(test_uid)
+        if self.report[test_uid].status_override == Status.ERROR:
+            self._clear_env_errors(test_uid)
         self.test(test_uid).start_test_resources()
 
         exceptions = self.test(test_uid).resources.start_exceptions
@@ -408,7 +441,8 @@ class TestRunnerIHandler(entity.Entity):
             return self._run_async(self.stop_test_resources, test_uid)
 
         self._set_env_status(test_uid, entity.ResourceStatus.STOPPING)
-        self._clear_env_errors(test_uid)
+        if self.report[test_uid].status_override == Status.ERROR:
+            self._clear_env_errors(test_uid)
         self.test(test_uid).stop_test_resources()
 
         exceptions = self.test(test_uid).resources.stop_exceptions
@@ -792,10 +826,11 @@ class TestRunnerIHandler(entity.Entity):
         if env_status is None:
             return
         elif env_status == entity.ResourceStatus.STOPPED:
+            self.logger.debug('Auto start environment for "%s"', test_uid)
             self.start_test_resources(test_uid)
         elif env_status != entity.ResourceStatus.STARTED:
             raise RuntimeError(
-                "Cannot auto-start environment in state {}".format(env_status)
+                "Cannot auto start environment in state {}".format(env_status)
             )
 
     def _auto_stop_environment(self, test_uid):
@@ -805,10 +840,11 @@ class TestRunnerIHandler(entity.Entity):
         if env_status is None:
             return
         elif env_status == entity.ResourceStatus.STARTED:
+            self.logger.debug('Auto stop environment for "%s"', test_uid)
             self.stop_test_resources(test_uid)
         elif env_status != entity.ResourceStatus.STOPPED:
             raise RuntimeError(
-                "Cannot auto-stop environment in state {}".format(env_status)
+                "Cannot auto stop environment in state {}".format(env_status)
             )
 
     def _set_env_status(self, test_uid, new_status):
@@ -821,19 +857,19 @@ class TestRunnerIHandler(entity.Entity):
 
     def _log_env_errors(self, test_uid, error_messages):
         """Log errors during environment start/stop for a given test."""
+        test_report = self.report[test_uid]
         with self.report_mutex:
-            test_report = self.report[test_uid]
             for errmsg in error_messages:
                 test_report.logger.error(errmsg)
             test_report.status_override = Status.ERROR
 
     def _clear_env_errors(self, test_uid):
         """Remove error logs about environment start/stop for a given test."""
+        test = self.test(test_uid)
+        test_report = self.report[test_uid]
         with self.report_mutex:
-            test = self.test(test_uid)
             test.resources.start_exceptions.clear()
             test.resources.stop_exceptions.clear()
-            test_report = self.report[test_uid]
             test_report.logs.clear()
             test_report.status_override = None
 
@@ -854,23 +890,49 @@ class TestRunnerIHandler(entity.Entity):
         except Exception:
             self.logger.exception("Exception caught in async function")
 
-    def _merge_testcase_reports(self, testcase_reports):
-        """Merge all test reports from a test run into our report."""
-        for report, parent_uids in testcase_reports:
+    def _merge_report(self, report, parent_uids):
+        """Merge test report from a test run."""
+        with self.report_mutex:
+            parent_entry = self.report
+            for uid in parent_uids:
+                parent_entry = parent_entry[uid]
+
             self.logger.debug(
-                "Merging testcase report %s with parent UIDs %s",
+                "Merging report %s with parent UIDs %s",
                 report,
                 parent_uids,
             )
+            for attachment in report.attachments:
+                self.report.attachments[
+                    attachment.dst_path
+                ] = attachment.source_path
+            parent_entry[report.uid] = report
 
-            with self.report_mutex:
-                parent_entry = self.report
-                for uid in parent_uids:
-                    parent_entry = parent_entry[uid]
+    def _merge_attributes(self, attribs, parent_uids):
+        """Merge attributes of test report from a test run."""
+        with self.report_mutex:
+            parent_entry = self.report
+            for uid in parent_uids:
+                parent_entry = parent_entry[uid]
 
-                for attachment in report.attachments:
-                    self.report.attachments[
-                        attachment.dst_path
-                    ] = attachment.source_path
+            self.logger.debug(
+                "Merging attribute %s of report %s with parent UIDs %s",
+                list(attribs.keys()),
+                parent_entry,
+                parent_uids[:-1],
+            )
+            for key, value in attribs.items():
+                if hasattr(parent_entry, key):
+                    setattr(parent_entry, key, value)
 
-                parent_entry[report.uid] = report
+    def _update_reports(self, items):
+        """"Merge test report or attributes of test reports from a test run."""
+        for item, parent_uids in items:
+            if isinstance(item, Report):
+                self._merge_report(item, parent_uids)
+            elif isinstance(item, dict):
+                self._merge_attributes(item, parent_uids)
+            else:
+                raise RuntimeError(
+                    "Invalid item found for updating report: {}".format(item)
+                )

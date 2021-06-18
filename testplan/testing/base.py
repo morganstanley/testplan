@@ -844,18 +844,26 @@ class ProcessRunnerTest(Test):
             if testcases:
                 for testcase in testcases:
                     testcase_report = self.report[testsuite][testcase]
-                    testcase_report.runtime_status = RuntimeStatus.RUNNING
+                    yield {"runtime_status": RuntimeStatus.RUNNING}, [
+                        self.uid(),
+                        testsuite,
+                        testcase,
+                    ]
             else:
                 # Unlike `MultiTest`, `ProcessRunnerTest` may have some suites
                 # without any testcase after initializing test report, but will
                 # get result of testcases after run. So we should not filter
                 # them out, e.g. Hobbes-test can run in unit of test suite.
-                self.report[testsuite].runtime_status = RuntimeStatus.RUNNING
+                yield {"runtime_status": RuntimeStatus.RUNNING}, [
+                    self.uid(),
+                    testsuite,
+                ]
 
-        process_report = self.report[self._VERIFICATION_SUITE_NAME]
-        exit_code_report = process_report[self._VERIFICATION_TESTCASE_NAME]
-        exit_code_report.runtime_status = RuntimeStatus.RUNNING
-        yield exit_code_report, [self.uid(), process_report.uid]
+        yield {"runtime_status": RuntimeStatus.RUNNING}, [
+            self.uid(),
+            self._VERIFICATION_SUITE_NAME,
+            self._VERIFICATION_TESTCASE_NAME,
+        ]
 
         test_cmd = self.test_command_filter(
             testsuite_pattern, testcase_pattern

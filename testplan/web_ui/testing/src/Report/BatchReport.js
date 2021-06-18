@@ -21,6 +21,8 @@ import { generateSelectionPath } from './path';
 import { COLUMN_WIDTH } from "../Common/defaults";
 import { fakeReportAssertions } from "../Common/fakeReport";
 
+import _ from 'lodash';
+
 /**
  * BatchReport component:
  *   * fetch Testplan report.
@@ -227,16 +229,19 @@ class BatchReport extends React.Component {
 
   render() {
 
-    const { reportStatus, reportFetchMessage } = GetReportState(this.state);
-
-    if (this.state.report && this.state.report.name) {
-      window.document.title = this.state.report.name;
-    }
+    const { reportStatus, reportFetchMessage } = GetReportState(this.state);    
 
     const selectedEntries = GetSelectedEntries(
       getSelectedUIDsFromPath(this.props.match.params),
       this.state.filteredReport.report
     );
+
+    if (selectedEntries.length) {
+      window.document.title = `${_.last(selectedEntries).name} | \
+                               ${selectedEntries.slice(0, -1)
+                                                .map(entry => entry.name)
+                                                .join(" > ")}`;
+    }
 
     const centerPane = GetCenterPane(
       this.state,
