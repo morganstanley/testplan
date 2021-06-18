@@ -24,8 +24,7 @@ class Sqlite3Config(DriverConfig):
 
         """
         return {
-            ConfigOption("db_name", default=""): str,
-            ConfigOption("db_path", default=None): str,
+            "db_path": str,
             ConfigOption("connect_at_start", default=True): bool,
         }
 
@@ -52,15 +51,8 @@ class Sqlite3(Driver):
     Basic sqlite3 driver to add to a MultiTest environment, connect to
     a database and perform sql queries etc.
 
-    :param db_name: Database file name to connect to.
-    :type db_name: ``str``
-    :param db_path: Path to the database to connect to. If an absolute
-        path is provided it will use that with the `db_name` to connect
-        to the database file.
-        In case a relative path is provided it will be appended to the runpath
-        and look for a file named `db_name` in that path to connect to.
-        When no value is provided it will look for a file inside the runpath
-        that has the same name as the value of `db_name`
+    :param db_path: Path to the database file to connect to. In case a relative
+        path is provided it will be appended to the runpath.
     :type db_path: ``str``
     :param connect_at_start: Connect to the database when driver starts.
       Default: True
@@ -69,7 +61,7 @@ class Sqlite3(Driver):
 
     CONFIG = Sqlite3Config
 
-    def __init__(self, name, db_name, connect_at_start=True, **options):
+    def __init__(self, name, db_path, connect_at_start=True, **options):
         options.update(self.filter_locals(locals()))
         super(Sqlite3, self).__init__(**options)
         self.db = None
@@ -78,19 +70,8 @@ class Sqlite3(Driver):
     @property
     def db_path(self):
         """Database file path."""
-        default_db_path = os.path.join(self.runpath, self.cfg.db_name)
-        custom_db_path = self._get_custom_db_path()
-        return custom_db_path or default_db_path
-
-    def _get_custom_db_path(self):
-        if self.cfg.db_path is None:
-            return None
-        is_db_path_absolute = os.path.isabs(self.cfg.db_path)
-        absolute_db_path = os.path.join(self.runpath, self.cfg.db_path)
-        custom_db_path = (
-            self.cfg.db_path if is_db_path_absolute else absolute_db_path
-        )
-        return os.path.join(custom_db_path, self.cfg.db_name)
+        # if self.cfg.db_path is an absolute path it will return self.cfg.db_path
+        return os.path.join(self.runpath, self.cfg.db_path)
 
     def connect(self):
         """Connect to the database and set the internal db cursor."""
