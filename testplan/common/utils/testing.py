@@ -82,6 +82,17 @@ def disable_log_propagation(logger):
 
 
 @contextmanager
+def log_level_changed(logger, level):
+    """
+    Change log level for the given logger.
+    """
+    old_level = logger.level
+    logger.setLevel(level)
+    yield
+    logger.setLevel(old_level)
+
+
+@contextmanager
 def captured_logging(logger, level=logging.INFO):
     """
     Utility for capturing a logger object's output at a specific level, with a

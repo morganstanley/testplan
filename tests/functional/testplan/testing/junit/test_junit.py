@@ -2,13 +2,9 @@
 import os
 
 import testplan.report
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing import junit
 from testplan.report import TestGroupReport, TestCaseReport
-from testplan.common.utils.testing import (
-    log_propagation_disabled,
-    check_report,
-)
+from testplan.common.utils.testing import check_report
 from pytest_test_filters import skip_on_windows
 
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -127,11 +123,11 @@ def test_run_test(mockplan):
         )
     )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert mockplan.run().run is True
+    assert mockplan.run().run is True
 
     report = mockplan.report
     assert report.status == testplan.report.Status.FAILED
+
     mt_report = report.entries[0]
     assert len(mt_report.entries) == 3
 

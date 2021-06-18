@@ -21,9 +21,12 @@ class CaptureLevel(object):
         Whatever is logged from the testcases
     """
 
-    ROOT = staticmethod(lambda suite: logging.getLogger())
-    TESTPLAN = staticmethod(lambda suite: suite.logger.parent)
+    # Testplan has its own top-level logger instance (named 'testplan')
+    # and will not propagate log record to system root logger.
     TESTSUITE = staticmethod(lambda suite: suite.logger)
+    TESTPLAN = staticmethod(lambda suite: suite.logger.parent)
+    OTHER = staticmethod(lambda suite: logging.getLogger())
+    ROOT = (TESTPLAN, OTHER)
 
 
 class LogCaptureConfig(object):
@@ -97,20 +100,20 @@ class LogCaptureMixin(Loggable):
         handler = StreamHandler(stream)
         handler.setFormatter(logging.Formatter(format_string))
 
-        logger = self.select_logger(capture_level)
-
-        logger.addHandler(handler)
+        for logger in self.select_loggers(capture_level):
+            logger.addHandler(handler)
 
         return self._LogCaptureInfo(
             result, handler, save_to_file, capture_level
         )
 
     def _detach_handler(self, log_capture_info):
-        self.select_logger(log_capture_info.capture_level).removeHandler(
-            log_capture_info.handler
-        )
+        for logger in self.select_loggers(log_capture_info.capture_level):
+            logger.removeHandler(log_capture_info.handler)
+
         log_capture_info.handler.flush()
         log_capture_info.handler.close()
+
         if log_capture_info.attach_file:
             log_capture_info.result.attach(
                 log_capture_info.handler.stream.name, CAPTURED_LOG_DESCRIPTION
@@ -146,8 +149,14 @@ class LogCaptureMixin(Loggable):
         finally:
             self._detach_handler(info)
 
-    def select_logger(self, capture_level):
-        return capture_level(self)
+    def select_loggers(self, capture_level):
+        if isinstance(capture_level, (tuple, list)):
+            return [
+                level.__get__(None, CaptureLevel)(self)
+                for level in capture_level
+            ]
+        else:
+            return [capture_level(self)]
 
 
 class AutoLogCaptureMixin(LogCaptureMixin):

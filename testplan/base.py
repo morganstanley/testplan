@@ -451,6 +451,7 @@ class TestplanMock(Testplan):
         kwargs.setdefault("abort_signals", [])
         kwargs.setdefault("runpath", default_runpath_mock)
         kwargs.setdefault("parse_cmdline", False)
+        kwargs.setdefault("logger_level", logger.DEBUG)
 
         super(TestplanMock, self).__init__(*args, **kwargs)
         self._runnable._reset_report_uid = False
