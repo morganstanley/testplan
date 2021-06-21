@@ -2,6 +2,7 @@
 *.pdf
 *.json
 *.xml
+!/tests/**/fixtures/*.xml
 
 .idea/
 build/

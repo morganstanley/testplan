@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="4" failures="2" disabled="0" errors="0" time="0" timestamp="2021-06-03T14:09:16" name="AllTests">
+    <testsuite name="SquareRootTest" tests="2" failures="1" disabled="0" errors="0" time="0"
+               timestamp="2021-06-03T14:09:16">
+        <testcase name="PositiveNos" status="run" result="completed" time="0" timestamp="2021-06-03T14:09:16"
+                  classname="SquareRootTest">
+            <failure
+                    message="/testplan/tests/functional/testplan/testing/fixtures/cpp/gtest/failing/tests.cpp:6&#x0A;Expected equality of these values:&#x0A;  4&#x0A;  squareRoot(36.0)&#x0A;    Which is: 6"
+                    type=""><![CDATA[/testplan/tests/functional/testplan/testing/fixtures/cpp/gtest/failing/tests.cpp:6
+Expected equality of these values:
+  4
+  squareRoot(36.0)
+    Which is: 6]]></failure>
+        </testcase>
+        <testcase name="NegativeNos" status="run" result="completed" time="0" timestamp="2021-06-03T14:09:16"
+                  classname="SquareRootTest"/>
+    </testsuite>
+    <testsuite name="SquareRootTestNonFatal" tests="2" failures="1" disabled="0" errors="0" time="0"
+               timestamp="2021-06-03T14:09:16">
+        <testcase name="PositiveNos" status="run" result="completed" time="0" timestamp="2021-06-03T14:09:16"
+                  classname="SquareRootTestNonFatal">
+            <failure
+                    message="/testplan/tests/functional/testplan/testing/fixtures/cpp/gtest/failing/tests.cpp:21&#x0A;Expected equality of these values:&#x0A;  4&#x0A;  squareRoot(36.0)&#x0A;    Which is: 6"
+                    type=""><![CDATA[/testplan/tests/functional/testplan/testing/fixtures/cpp/gtest/failing/tests.cpp:21
+Expected equality of these values:
+  4
+  squareRoot(36.0)
+    Which is: 6]]></failure>
+            <failure
+                    message="/testplan/tests/functional/testplan/testing/fixtures/cpp/gtest/failing/tests.cpp:22&#x0A;Expected equality of these values:&#x0A;  2&#x0A;  squareRoot(10.0)&#x0A;    Which is: 3.16228"
+                    type=""><![CDATA[/testplan/tests/functional/testplan/testing/fixtures/cpp/gtest/failing/tests.cpp:22
+Expected equality of these values:
+  2
+  squareRoot(10.0)
+    Which is: 3.16228]]></failure>
+        </testcase>
+        <testcase name="NegativeNos" status="run" result="completed" time="0" timestamp="2021-06-03T14:09:16"
+                  classname="SquareRootTestNonFatal"/>
+    </testsuite>
+</testsuites>

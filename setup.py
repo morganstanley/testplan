@@ -64,4 +64,5 @@ setup(
     package_data={"testplan.web_ui": ui_files},
     install_requires=REQUIRED,
     python_requires=">=3.7",
+    entry_points={"console_scripts": ["tpsreport=testplan.cli.tpsreport:cli"]},
 )
