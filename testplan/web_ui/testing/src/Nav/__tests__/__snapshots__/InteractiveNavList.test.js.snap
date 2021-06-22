@@ -38,7 +38,7 @@ exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
           "render": [Function],
         }
       }
-      to="/"
+      to="/?"
     >
       <InteractiveNavEntry
         caseCountFailed={0}

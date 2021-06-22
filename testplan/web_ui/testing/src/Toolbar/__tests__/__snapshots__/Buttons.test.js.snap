@@ -9,7 +9,7 @@ exports[`TimeButton Renders a clickable button 1`] = `
   >
     <FontAwesomeIcon
       border={false}
-      className="toolbarButton_1d6e8oq"
+      className="toolbarButton_1ueb7gu"
       fixedWidth={false}
       flip={null}
       icon={

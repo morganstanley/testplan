@@ -22,7 +22,6 @@ exports[`Assertion shallow renders the correct HTML structure 1`] = `
       }
     }
     index={0}
-    onClick={[Function]}
   />
   <Collapse
     appear={false}
@@ -30,7 +29,7 @@ exports[`Assertion shallow renders the correct HTML structure 1`] = `
     enter={true}
     exit={true}
     in={false}
-    isOpen={true}
+    isOpen={false}
     mountOnEnter={false}
     onEnter={[Function]}
     onEntered={[Function]}
@@ -50,25 +49,7 @@ exports[`Assertion shallow renders the correct HTML structure 1`] = `
     <CardBody
       className="assertionCardBody_1t2a0td"
       tag="div"
-    >
-      <BasicAssertion
-        assertion={
-          Object {
-            "category": "DEFAULT",
-            "description": null,
-            "first": "foo",
-            "label": "==",
-            "line_no": 25,
-            "machine_time": "2019-02-12T17:41:42.795536+00:00",
-            "meta_type": "assertion",
-            "passed": true,
-            "second": "foo",
-            "type": "Equal",
-            "utc_time": "2019-02-12T17:41:42.795530+00:00",
-          }
-        }
-      />
-    </CardBody>
+    />
   </Collapse>
 </Card>
 `;

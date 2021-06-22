@@ -46,6 +46,64 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
         vertical={false}
       >
         <NavItem
+          key="expand-icon-item"
+          tag="li"
+        >
+          <div
+            className="buttonsBar_6zsntc"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_1ueb7gu"
+              fixedWidth={false}
+              flip={null}
+              icon="angle-double-down"
+              inverse={false}
+              key="expand-icon"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Expand all assertions"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <NavItem
+          key="collapse-icon-item"
+          tag="li"
+        >
+          <div
+            className="buttonsBar_6zsntc"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_1ueb7gu"
+              fixedWidth={false}
+              flip={null}
+              icon="angle-double-up"
+              inverse={false}
+              key="collapse-icon"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Collapse all assertions"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <NavItem
           key="reset-button"
           tag="li"
         >
@@ -54,7 +112,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon={
@@ -93,7 +151,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon="info"
@@ -128,7 +186,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             >
               <FontAwesomeIcon
                 border={false}
-                className="toolbarButton_1d6e8oq"
+                className="toolbarButton_1ueb7gu"
                 fixedWidth={false}
                 flip={null}
                 icon="filter"
@@ -286,7 +344,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon="print"
@@ -314,7 +372,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon="tags"
@@ -345,7 +403,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon="book"
@@ -471,6 +529,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
         vertical={false}
       >
         <NavItem
+          key="expand-icon-item"
           tag="li"
         >
           <div
@@ -478,7 +537,64 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
+              fixedWidth={false}
+              flip={null}
+              icon="angle-double-down"
+              inverse={false}
+              key="expand-icon"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Expand all assertions"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <NavItem
+          key="collapse-icon-item"
+          tag="li"
+        >
+          <div
+            className="buttonsBar_6zsntc"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_1ueb7gu"
+              fixedWidth={false}
+              flip={null}
+              icon="angle-double-up"
+              inverse={false}
+              key="collapse-icon"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Collapse all assertions"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <NavItem
+          tag="li"
+        >
+          <div
+            className="buttonsBar_6zsntc"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon="info"
@@ -513,7 +629,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
             >
               <FontAwesomeIcon
                 border={false}
-                className="toolbarButton_1d6e8oq"
+                className="toolbarButton_1ueb7gu"
                 fixedWidth={false}
                 flip={null}
                 icon="filter"
@@ -671,7 +787,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon="print"
@@ -699,7 +815,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon="tags"
@@ -730,7 +846,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon="book"
@@ -856,6 +972,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
         vertical={false}
       >
         <NavItem
+          key="expand-icon-item"
           tag="li"
         >
           <div
@@ -863,7 +980,64 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
+              fixedWidth={false}
+              flip={null}
+              icon="angle-double-down"
+              inverse={false}
+              key="expand-icon"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Expand all assertions"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <NavItem
+          key="collapse-icon-item"
+          tag="li"
+        >
+          <div
+            className="buttonsBar_6zsntc"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_1ueb7gu"
+              fixedWidth={false}
+              flip={null}
+              icon="angle-double-up"
+              inverse={false}
+              key="collapse-icon"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Collapse all assertions"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <NavItem
+          tag="li"
+        >
+          <div
+            className="buttonsBar_6zsntc"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon="info"
@@ -898,7 +1072,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
             >
               <FontAwesomeIcon
                 border={false}
-                className="toolbarButton_1d6e8oq"
+                className="toolbarButton_1ueb7gu"
                 fixedWidth={false}
                 flip={null}
                 icon="filter"
@@ -1056,7 +1230,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon="print"
@@ -1084,7 +1258,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon="tags"
@@ -1115,7 +1289,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
           >
             <FontAwesomeIcon
               border={false}
-              className="toolbarButton_1d6e8oq"
+              className="toolbarButton_1ueb7gu"
               fixedWidth={false}
               flip={null}
               icon="book"

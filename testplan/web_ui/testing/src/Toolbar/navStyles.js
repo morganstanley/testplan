@@ -44,7 +44,6 @@ const styles = StyleSheet.create({
     cursor: 'pointer',
     color: 'white',
     padding: '0.75em 0em 0.75em 0em',
-    transition: 'all 0.3s ease-out 0s',
     ':hover': {
         color: DARK_GREY,
     },
