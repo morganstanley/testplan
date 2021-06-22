@@ -119,7 +119,7 @@ class TestSuite(object):
             draw.rectangle([x1, y1, x2, y2], outline=(0, 0, 0, 255))
 
         # Save image
-        img_path = os.path.join(env.runpath, "image.png")
+        img_path = os.path.join(env.parent.runpath, "image.png")
         im.save(img_path)
 
         # Attach to report.

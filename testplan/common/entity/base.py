@@ -9,8 +9,8 @@ import signal
 import time
 import threading
 import psutil
-from collections import deque, OrderedDict
 import traceback
+from collections import deque, OrderedDict
 
 from schema import Or, And, Use
 
@@ -31,30 +31,11 @@ class Environment(object):
     """
 
     def __init__(self, parent=None):
-        self._resources = OrderedDict()
-        self.parent = parent
-        self.start_exceptions = OrderedDict()
-        self.stop_exceptions = OrderedDict()
-        self._logger = None
-
-    @property
-    def cfg(self):
-        """Configuration obejct of parent object."""
-        return self.parent.cfg if self.parent else None
-
-    @property
-    def runpath(self):
-        """Runpath of parent object."""
-        return self.parent.runpath if self.parent else None
-
-    @property
-    def logger(self):
-        if self._logger is None:
-            if self.parent is not None:
-                self._logger = self.parent.logger
-            else:
-                self._logger = Entity.logger
-        return self._logger
+        self.__dict__["parent"] = parent
+        self.__dict__["_initial_context"] = {}
+        self.__dict__["_resources"] = OrderedDict()
+        self.__dict__["start_exceptions"] = OrderedDict()
+        self.__dict__["stop_exceptions"] = OrderedDict()
 
     def add(self, item, uid=None):
         """
@@ -71,9 +52,14 @@ class Environment(object):
         """
         if uid is None:
             uid = item.uid()
-        item.context = self
+        if uid in dir(self):
+            raise ValueError(
+                f'Identifier "{uid}" is reserved and cannot be used as UID.'
+            )
         if uid in self._resources:
-            raise RuntimeError("Uid {} already in context.".format(uid))
+            raise RuntimeError(f'Uid "{uid}" already in environment.')
+
+        item.context = self
         self._resources[uid] = item
         return uid
 
@@ -86,38 +72,63 @@ class Environment(object):
     def first(self):
         return next(uid for uid in self._resources.keys())
 
-    def __getattr__(self, item):
-        context = self.__getattribute__("_resources")
+    def get(self, key, default=None):
+        # For compatibility reason, acts like a dictionary which has
+        # a `get` method that returns `None` if no attribute found.
+        try:
+            return self.__getitem__(key)
+        except AttributeError:
+            return default
 
-        if item in context:
-            return context[item]
+    def __getattr__(self, name):
+        resources = self.__getattribute__("_resources")
+        initial_context = self.__getattribute__("_initial_context")
 
-        if self.parent and self.parent.cfg.initial_context:
-            if item in self.parent.cfg.initial_context:
-                return self.parent.cfg.initial_context[item]
+        if name in resources:
+            return resources[name]
 
-        return self.__getattribute__(item)
+        if name in initial_context:
+            return initial_context[name]
+
+        raise AttributeError(
+            "'{}' object has no attribute '{}'".format(
+                self.__class__.__name__, name
+            )
+        )
+
+    def __setattr__(self, name, value):
+        if name in self.__dict__:
+            self.__dict__[name] = value
+        elif name in self.__getattribute__("_resources"):
+            raise RuntimeError(
+                'Cannot modify resource "{}" in environment.'.format(name)
+            )
+        elif name in self.__getattribute__("_initial_context"):
+            raise RuntimeError(
+                'Cannot modify attribute "{}" in initial context.'.format(name)
+            )
+        else:
+            super(Environment, self).__setattr__(name, value)
 
     def __getitem__(self, item):
-        return getattr(self, item)
+        return self.__getattr__(item)
 
     def __contains__(self, item):
-        return item in self._resources
+        if item in self.__getattribute__(
+            "_resources"
+        ) or item in self.__getattribute__("_initial_context"):
+            return True
+        else:
+            return False
 
     def __iter__(self):
         return iter(self._resources.values())
 
     def __repr__(self):
-        if self.parent and self.parent.cfg.initial_context:
-            ctx = self.parent.cfg.initial_context
-            initial = {key: val for key, val in ctx.items()}
-            res = {key: val for key, val in self._resources.items()}
-            initial.update(res)
-            return "{}[{}]".format(self.__class__.__name__, initial)
-        else:
-            return "{}[{}]".format(
-                self.__class__.__name__, list(self._resources.items())
-            )
+        initial = {key: val for key, val in self._initial_context.items()}
+        res = {key: val for key, val in self._resources.items()}
+        initial.update(res)
+        return "{}[{}]".format(self.__class__.__name__, initial)
 
     def __len__(self):
         return len(self._resources)
@@ -147,7 +158,8 @@ class Environment(object):
                 msg = "While starting resource [{}]\n{}".format(
                     resource.cfg.name, traceback.format_exc()
                 )
-                self.logger.error(msg)
+                if self.parent and hasattr(self.parent, "logger"):
+                    self.parent.logger.error(msg)
                 self.start_exceptions[resource] = msg
                 # Environment start failure. Won't start the rest.
                 break
@@ -169,7 +181,8 @@ class Environment(object):
                 msg = "While executing {} of resource [{}]\n{}".format(
                     func.__name__, resource.cfg.name, traceback.format_exc()
                 )
-                self.logger.error(msg)
+                if self.parent and hasattr(self.parent, "logger"):
+                    self.parent.logger.error(msg)
                 self.start_exceptions[resource] = msg
 
         return wrapper

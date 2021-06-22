@@ -133,6 +133,7 @@ class Test(Runnable):
                 )
             )
 
+        self.resources._initial_context = self.cfg.initial_context
         for resource in self.cfg.environment:
             resource.parent = self
             resource.cfg.parent = self.cfg

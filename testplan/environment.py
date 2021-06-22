@@ -96,13 +96,13 @@ class Environments(Resource):
 
     def starting(self):
         """Start all added environments."""
-        for env in self._envs:
-            env.start()
+        for uid in self._envs:
+            self._envs[uid].start()
 
     def stopping(self):
         """Stop all added environments."""
-        for env in self._envs:
-            env.stop()
+        for uid in self._envs:
+            self._envs[uid].stop()
 
     def abort_dependencies(self):
         """Abort all resources on all environments."""
