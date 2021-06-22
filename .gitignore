@@ -5,6 +5,7 @@
 !/tests/**/fixtures/*.xml
 
 .idea/
+.vscode/
 build/
 dist/
 *.egg-info/
