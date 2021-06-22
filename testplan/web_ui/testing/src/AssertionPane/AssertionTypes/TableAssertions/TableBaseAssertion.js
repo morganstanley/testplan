@@ -23,10 +23,7 @@ export default function TableBaseAssertion(props) {
 
   const autoSizeColumns = () => {
     if (gridColumnApi) {
-      let allColumnIds = [];
-      gridColumnApi.getAllColumns().forEach(column => {
-        allColumnIds.push(column.colId);
-      });
+      let allColumnIds = gridColumnApi.getAllColumns().map(c => c.colId);
       gridColumnApi.autoSizeColumns(allColumnIds);
     }
   };
@@ -34,7 +31,6 @@ export default function TableBaseAssertion(props) {
   const onGridReady = (params) => {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
-    autoSizeColumns();
   };
 
   useLayoutEffect(() => {
@@ -60,6 +56,7 @@ export default function TableBaseAssertion(props) {
           suppressColumnVirtualisation={true}
           columnDefs={props.columns}
           rowData={props.rows}
+          onFirstDataRendered={autoSizeColumns}
           defaultColDef={{
             sortable: true,
             filter: true,

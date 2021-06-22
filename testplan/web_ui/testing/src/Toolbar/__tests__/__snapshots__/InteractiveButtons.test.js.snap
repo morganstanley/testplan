@@ -10,7 +10,7 @@ exports[`ResetButton Renders a clickable button 1`] = `
   >
     <FontAwesomeIcon
       border={false}
-      className="toolbarButton_1d6e8oq"
+      className="toolbarButton_1ueb7gu"
       fixedWidth={false}
       flip={null}
       icon={
@@ -54,7 +54,7 @@ exports[`ResetButton Renders a spinning icon when reset is in-progress 1`] = `
   >
     <FontAwesomeIcon
       border={false}
-      className="toolbarButton_1d6e8oq-o_O-toolbarInactive_51g7gx"
+      className="toolbarButton_1ueb7gu-o_O-toolbarInactive_51g7gx"
       fixedWidth={false}
       flip={null}
       icon={

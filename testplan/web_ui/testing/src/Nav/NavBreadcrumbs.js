@@ -23,6 +23,7 @@ import {
   CATEGORY_ICONS,
 } from "../Common/defaults";
 import { statusStyles } from "../Common/Styles";
+import { generateURLWithParameters } from "../Common/utils";
 
 library.add(faHome);
 
@@ -145,12 +146,17 @@ const NavBreadcrumbs = (props) => {
           }
           disableRipple={true}
           style={{ paddingLeft: "10px" }}
-          onClick={()=>{
-            history.push(generatePath(props.url, {
-              uid: props.uidEncoder
-                ? props.uidEncoder(props.entries[0].uids[0])
-                : props.entries[0].uids[0],
-            }));
+          onClick={() => {
+            history.push(
+              generateURLWithParameters(
+                window.location,
+                generatePath(props.url, {
+                  uid: props.uidEncoder
+                    ? props.uidEncoder(props.entries[0].uids[0])
+                    : props.entries[0].uids[0],
+                })
+              )
+            );
             setNextOpenItem(null);
           }}
         >
@@ -270,14 +276,17 @@ const BreadcrumbMenu = (props) => {
       aria-controls={open ? menuId : undefined}
       aria-haspopup="true"
       onClick={handleOnClickMenu(
-        generatePath(props.url, {
-          uid: props.uidEncoder
-            ? props.uidEncoder(props.current.uids[0])
-            : props.current.uids[0],
-          selection: props.uidEncoder
-            ? props.current.uids.slice(1).map(props.uidEncoder)
-            : props.current.uids.slice(1),
-        })
+        generateURLWithParameters(
+          window.location,
+          generatePath(props.url, {
+            uid: props.uidEncoder
+              ? props.uidEncoder(props.current.uids[0])
+              : props.current.uids[0],
+            selection: props.uidEncoder
+              ? props.current.uids.slice(1).map(props.uidEncoder)
+              : props.current.uids.slice(1),
+          })
+        )
       )}
       disableRipple={true}
       className={`${classes.breadcrumbMenu} ${classes.breadcrumbMenuButton} ${
@@ -314,14 +323,17 @@ const BreadcrumbMenu = (props) => {
                   id={menuId}
                 >
                   {props.current.entries.map((option) => {
-                    const toLink = generatePath(props.url, {
-                      uid: props.uidEncoder
-                        ? props.uidEncoder(option.uids[0])
-                        : option.uids[0],
-                      selection: props.uidEncoder
-                        ? option.uids.slice(1).map(props.uidEncoder)
-                        : option.uids.slice(1),
-                    });
+                    const toLink = generateURLWithParameters(
+                      window.location,
+                      generatePath(props.url, {
+                        uid: props.uidEncoder
+                          ? props.uidEncoder(option.uids[0])
+                          : option.uids[0],
+                        selection: props.uidEncoder
+                          ? option.uids.slice(1).map(props.uidEncoder)
+                          : option.uids.slice(1),
+                      })
+                    );
                     return (
                       <MenuItem
                         key={option.hash | option.uid}

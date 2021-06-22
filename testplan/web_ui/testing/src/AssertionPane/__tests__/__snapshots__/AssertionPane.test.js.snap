@@ -41,51 +41,8 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
         }
       >
         <DescriptionPane />
-        <div
-          className="buttonsDiv_16w4ads"
-        >
-          <FontAwesomeIcon
-            border={false}
-            className="icon_1rr1rr0"
-            fixedWidth={false}
-            flip={null}
-            icon="plus-circle"
-            inverse={false}
-            key="faPlusCircle"
-            listItem={false}
-            mask={null}
-            onClick={[Function]}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            size="1x"
-            spin={false}
-            symbol={false}
-            title="Expand all"
-            transform={null}
-          />
-          <FontAwesomeIcon
-            border={false}
-            className="icon_1rr1rr0"
-            fixedWidth={false}
-            flip={null}
-            icon="minus-circle"
-            inverse={false}
-            key="faMinusCircle"
-            listItem={false}
-            mask={null}
-            onClick={[Function]}
-            pull={null}
-            pulse={false}
-            rotation={null}
-            size="1x"
-            spin={false}
-            symbol={false}
-            title="Collapse all"
-            transform={null}
-          />
-        </div>
         <AssertionGroup
+          assertionGroupUid="22758cc5-8a89-472b-bf67-b64dbc2c0b40"
           entries={
             Array [
               Object {
@@ -103,7 +60,6 @@ exports[`AssertionPane shallow renders the correct HTML structure 1`] = `
               },
             ]
           }
-          resetGlobalIsOpen={[Function]}
         />
         <LogGroup />
       </div>
