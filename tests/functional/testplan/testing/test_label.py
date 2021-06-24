@@ -1,9 +1,5 @@
-from testplan.common.utils.testing import (
-    log_propagation_disabled,
-)
 from testplan import TestplanMock
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 @testsuite
@@ -21,8 +17,6 @@ def test_label():
         suites=[AlphaSuite()],
     )
     mockplan.add(multitest)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     assert mockplan.report.label == "my_label"

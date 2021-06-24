@@ -2,11 +2,7 @@ import os
 
 import pytest
 
-from testplan.common.utils.testing import (
-    log_propagation_disabled,
-    check_report,
-)
-from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils.testing import check_report
 from testplan.testing.cpp import Cppunit
 from testplan.report import Status
 
@@ -57,8 +53,7 @@ def test_cppunit(mockplan, binary_dir, expected_report, report_status):
 
     mockplan.add(Cppunit(name="My Cppunit", binary=binary_path))
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert mockplan.run().run is True
+    assert mockplan.run().run is True
 
     check_report(expected=expected_report, actual=mockplan.report)
 
@@ -74,8 +69,6 @@ def test_cppunit_no_report(mockplan):
         Cppunit(name="My Cppunit", binary=binary_path, file_output_flag="-y")
     )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert mockplan.run().run is True
-
+    assert mockplan.run().run is True
     assert mockplan.report.status == Status.ERROR
     assert "FileNotFoundError" in mockplan.report.flattened_logs[-1]["message"]

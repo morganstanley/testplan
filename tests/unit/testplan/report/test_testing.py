@@ -16,7 +16,7 @@ from testplan.report.testing.base import (
     TestReport,
     ReportCategories,
 )
-from testplan.report.testing.schemas import TestReportSchema, EntriesField
+from testplan.report.testing.schemas import TestReportSchema
 from testplan.common import report, entity
 from testplan.common.utils.testing import check_report
 from testplan.testing.multitest.result import Result

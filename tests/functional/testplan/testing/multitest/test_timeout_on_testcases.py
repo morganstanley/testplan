@@ -5,10 +5,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.runners.pools import ThreadPool
 from testplan.runners.pools.tasks import Task
 
-from testplan.common.utils.testing import (
-    check_report,
-    log_propagation_disabled,
-)
+from testplan.common.utils.testing import check_report
 from testplan.report import (
     Status,
     TestReport,
@@ -16,7 +13,6 @@ from testplan.report import (
     TestCaseReport,
     ReportCategories,
 )
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 @testsuite
@@ -71,8 +67,7 @@ def test_timeout_on_testcases(mockplan):
     task = Task(target=get_mtest())
     mockplan.schedule(task, resource="MyPool")
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     expected_report = TestReport(
         name="plan",
