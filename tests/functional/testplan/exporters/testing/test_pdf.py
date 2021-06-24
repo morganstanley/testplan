@@ -6,12 +6,8 @@ from testplan.testing.multitest.entries import base
 from testplan.testing.multitest.entries.schemas.base import registry
 
 from testplan import TestplanMock, defaults
-from testplan.common.utils.testing import (
-    log_propagation_disabled,
-    argv_overridden,
-)
+from testplan.common.utils.testing import argv_overridden
 from testplan.exporters.testing.pdf import PDFExporter, TagFilteredPDFExporter
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report import (
     TestReport,
     TestCaseReport,
@@ -78,9 +74,7 @@ def test_create_pdf(tmpdir):
             passing="assertion-detail", failing="assertion-detail"
         ),
     )
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        exporter.export(report)
+    exporter.export(report)
 
     assert os.path.exists(pdf_path)
     assert os.stat(pdf_path).st_size > 0
@@ -128,9 +122,7 @@ def test_tag_filtered_pdf(tmpdir):
             {"simple": ("foo", "bar"), "color": "green"},
         ],
     )
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        exporter.export(report)
+    exporter.export(report)
 
     should_exist = [
         "report-tags-all-bar__foo.pdf",
@@ -177,20 +169,18 @@ def test_implicit_exporter_initialization(tmpdir):
         def test_membership(self, env, result):
             result.contain(1, [1, 2, 3])
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        with argv_overridden(
-            "--pdf",
-            pdf_path,
-            "--report-tags",
-            "foo",
-            "--report-dir",
-            pdf_dir.strpath,
-        ):
-            multitest = MultiTest(name="MyMultitest", suites=[MySuite()])
-
-            plan = TestplanMock(name="plan", parse_cmdline=True)
-            plan.add(multitest)
-            plan.run()
+    with argv_overridden(
+        "--pdf",
+        pdf_path,
+        "--report-tags",
+        "foo",
+        "--report-dir",
+        pdf_dir.strpath,
+    ):
+        multitest = MultiTest(name="MyMultitest", suites=[MySuite()])
+        plan = TestplanMock(name="plan", parse_cmdline=True)
+        plan.add(multitest)
+        plan.run()
 
     tag_pdf_path = pdf_dir.join("report-tags-any-foo.pdf").strpath
     assert os.path.exists(pdf_path)

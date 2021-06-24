@@ -4,10 +4,8 @@ import os
 
 import pytest
 
-from testplan.common.utils.testing import log_propagation_disabled
 from testplan.report import Status
 from testplan.runners.pools import ProcessPool
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing import multitest
 
 from tests.functional.testplan.runners.pools.func_pool_base_tasks import (
@@ -59,8 +57,7 @@ def test_kill_one_worker(mockplan):
             )
         )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = mockplan.run()
+    res = mockplan.run()
 
     # Check that the worker killed by test was aborted
     assert (
@@ -110,8 +107,7 @@ def test_kill_all_workers(mockplan):
         resource=pool_name,
     )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = mockplan.run()
+    res = mockplan.run()
 
     # Check that the worker killed by test was aborted
     assert (
@@ -157,8 +153,7 @@ def test_reassign_times_limit(mockplan):
         resource=pool_name,
     )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = mockplan.run()
+    res = mockplan.run()
 
     # Check that the worker killed by test was aborted
     assert (
@@ -207,8 +202,7 @@ def test_disable_rerun_in_pool(mockplan):
         rerun=rerun_limit,
     )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = mockplan.run()
+    res = mockplan.run()
 
     assert (
         len(
@@ -326,8 +320,7 @@ def test_restart_worker(mockplan):
             resource=pool_name,
         )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = mockplan.run()
+    res = mockplan.run()
 
     # Check that all workers are restarted
     assert (

@@ -134,6 +134,7 @@ def _initial_setup():
     stdout_handler.setFormatter(stdout_formatter)
     stdout_handler.setLevel(TEST_INFO)
     root_logger.addHandler(stdout_handler)
+    root_logger.propagate = False
 
     return root_logger, stdout_handler
 

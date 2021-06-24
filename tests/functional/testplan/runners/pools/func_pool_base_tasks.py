@@ -3,9 +3,7 @@
 import os
 import psutil
 
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report import Status
-from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.path import fix_home_prefix
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.base import MultiTestConfig
@@ -76,11 +74,6 @@ def multitest_kills_worker(parent_pid):
 
 def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):
     pool_name = pool.__name__
-
-    # Enable debug:
-    # from testplan.common.utils.logger import DEBUG
-    # TESTPLAN_LOGGER.setLevel(DEBUG)
-
     pool = pool(name=pool_name, **pool_cfg)
     plan.add_resource(pool)
 
@@ -101,8 +94,7 @@ def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):
             )
         )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = plan.run()
+    res = plan.run()
 
     assert res.run is True
     assert res.success is True

@@ -12,6 +12,7 @@ from testplan.testing.multitest.logging import (
     CaptureLevel,
     AutoLogCaptureMixin,
 )
+from testplan.common.utils.testing import log_propagation_disabled
 
 SIMPLE_LOG = "Simple log"
 LOGGER_LEVEL_PATTERN = r"([^ ]*) *([^ ]*) *{}$".format(SIMPLE_LOG)
@@ -93,11 +94,11 @@ def get_filtered_plan(suites):
 
 class LoggerSpy(object):
     def __init__(self, name=None, logger_obj=None):
-        logger = logger_obj or logging.getLogger(name)
+        self.logger = logger_obj or logging.getLogger(name)
         self.patcher = {}
         for method in ["info", "debug", "warning"]:
             self.patcher[method] = mock.patch.object(
-                logger, method, wraps=logger.__getattribute__(method)
+                self.logger, method, wraps=self.logger.__getattribute__(method)
             )
 
     def __enter__(self):
@@ -291,3 +292,26 @@ def test_auto_log_capture(get_filtered_plan, auto_suite_logger_spy):
         assert len(case_result.entries) == 1
         assert case_result.entries[0]["type"] == "Log"
         assert SIMPLE_LOG in case_result.entries[0]["message"]
+
+
+def test_log_propagation_disabled(
+    get_filtered_plan, suite_logger_spy, testplan_logger_spy
+):
+    # Given
+    plan = get_filtered_plan("*:*:testplan_level")
+    with suite_logger_spy as suite_spy, testplan_logger_spy as testplan_spy:
+        # When
+        with log_propagation_disabled(suite_spy.logger):
+            plan_result = plan.run()
+
+        # The the suite logger will not propagate to testplan logger
+        suite_spy.info.assert_called_once_with(SIMPLE_LOG)
+        testplan_spy.debug.assert_any_call(SIMPLE_LOG)
+
+        case_result = get_case_result(plan_result)
+
+        assert len(case_result.entries) == 1
+        assert case_result.entries[0]["type"] == "Log"
+        message = case_result.entries[0]["message"]
+        result = re.findall(LOGGER_LEVEL_PATTERN, message, re.M)
+        assert result[0] == ("testplan", "DEBUG")

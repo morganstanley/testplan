@@ -18,12 +18,7 @@ from testplan.report import (
     TestCaseReport,
     ReportCategories,
 )
-from testplan.common.utils.testing import (
-    check_report,
-    warnings_suppressed,
-    log_propagation_disabled,
-)
-from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils.testing import check_report, warnings_suppressed
 
 LOGGER = logging.getLogger()
 
@@ -56,9 +51,7 @@ def check_parametrization(
     tag_dict = tag_dict or {}
     multitest = MultiTest(name="MyMultitest", suites=[suite_kls()])
     mockplan.add(multitest)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     if testcase_uids:
         suite_report = mockplan.report.entries[0].entries[0]
@@ -487,9 +480,7 @@ def test_unwanted_testcase_name(mockplan):
 
         multitest = MultiTest(name="MyMultitest", suites=[MySuite()])
         mockplan.add(multitest)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            mockplan.run()
+        mockplan.run()
 
     mock_warn.assert_called_once()
 
