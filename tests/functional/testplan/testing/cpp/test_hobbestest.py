@@ -4,7 +4,6 @@ import pytest
 
 from testplan import TestplanMock
 from testplan.common.utils.testing import (
-    log_propagation_disabled,
     check_report,
     captured_logging,
     argv_overridden,
@@ -58,8 +57,7 @@ def test_hobbestest(mockplan, binary_dir, expected_report):
         )
     )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert mockplan.run().run is True
+    assert mockplan.run().run is True
 
     check_report(expected=expected_report, actual=mockplan.report)
 
@@ -82,16 +80,15 @@ def test_hobbestest_listing(binary_dir, expected_output):
     with argv_overridden(*cmdline_args):
         plan = TestplanMock(name="plan", parse_cmdline=True)
 
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            with captured_logging(TESTPLAN_LOGGER) as log_capture:
-                plan.add(
-                    HobbesTest(
-                        name="My HobbesTest",
-                        binary=binary_path,
-                        tests=["Hog", "Net", "Recursives"],
-                    )
+        with captured_logging(TESTPLAN_LOGGER) as log_capture:
+            plan.add(
+                HobbesTest(
+                    name="My HobbesTest",
+                    binary=binary_path,
+                    tests=["Hog", "Net", "Recursives"],
                 )
-                result = plan.run()
-                print(log_capture.output)
-                assert log_capture.output == expected_output
-                assert len(result.test_report) == 0, "No tests should be run."
+            )
+            result = plan.run()
+            print(log_capture.output)
+            assert log_capture.output == expected_output
+            assert len(result.test_report) == 0, "No tests should be run."

@@ -214,7 +214,7 @@ const GetCenterPane = (
         logs={logs}
         descriptionEntries={selectedDescription}
         left={state.navWidth}
-        testcaseUid={state.testcaseUid}
+        testcaseUid={selectiedEntry.uid}
         filter={state.filter}
         reportUid={reportUid}
       />

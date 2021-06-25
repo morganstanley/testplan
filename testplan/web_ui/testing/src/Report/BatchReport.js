@@ -1,12 +1,13 @@
-import React from 'react';
-import { StyleSheet, css } from 'aphrodite';
-import axios from 'axios';
-import PropTypes from 'prop-types';
+import React from "react";
+import { StyleSheet, css } from "aphrodite";
+import axios from "axios";
+import PropTypes from "prop-types";
+import _ from 'lodash';
 
 import { parseToJson } from "../Common/utils";
-import Toolbar from '../Toolbar/Toolbar';
-import { TimeButton } from '../Toolbar/Buttons';
-import Nav from '../Nav/Nav';
+import Toolbar from "../Toolbar/Toolbar";
+import { TimeButton } from "../Toolbar/Buttons";
+import Nav from "../Nav/Nav";
 import {
   PropagateIndices,
   GetReportState,
@@ -16,13 +17,12 @@ import {
   filterReport,
   getSelectedUIDsFromPath,
 } from "./reportUtils";
-import { generateSelectionPath } from './path';
+import { generateSelectionPath } from "./path";
 
 import { COLUMN_WIDTH } from "../Common/defaults";
 import { fakeReportAssertions } from "../Common/fakeReport";
-
-import _ from 'lodash';
-
+import { AssertionContext, defaultAssertionStatus } from "../Common/context";
+import { generateURLWithParameters } from "../Common/utils";
 /**
  * BatchReport component:
  *   * fetch Testplan report.
@@ -30,7 +30,6 @@ import _ from 'lodash';
  *   * render toolbar, nav & assertion components.
  */
 class BatchReport extends React.Component {
-
   constructor(props) {
     super(props);
     this.setError = this.setError.bind(this);
@@ -42,6 +41,11 @@ class BatchReport extends React.Component {
     this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
     this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
+    this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
+    this.updateAssertionStatus = this.updateAssertionStatus.bind(this);
+
+    defaultAssertionStatus.updateGlobalExpand = this.updateGlobalExpand;
+    defaultAssertionStatus.updateAssertionStatus = this.updateAssertionStatus;
 
     this.state = {
       navWidth: `${COLUMN_WIDTH}em`,
@@ -54,6 +58,7 @@ class BatchReport extends React.Component {
       displayTags: false,
       displayTime: false,
       displayEmpty: true,
+      assertionStatus: defaultAssertionStatus,
     };
   }
 
@@ -66,24 +71,26 @@ class BatchReport extends React.Component {
     const processedReport = PropagateIndices(report);
     const filteredReport = filterReport(
       processedReport,
-      this.state.filteredReport.filter);
+      this.state.filteredReport.filter
+    );
 
-    const redirectPath = this.props.match.params.selection ?
-      null :
-      generateSelectionPath(
-        this.props.match.path,
-        [filteredReport.report.uid]
-      );
+    const redirectPath = this.props.match.params.selection
+      ? null
+      : generateSelectionPath(this.props.match.path, [
+          filteredReport.report.uid,
+        ]);
 
-    this.setState({
-      report: processedReport,
-      filteredReport,
-      loading: false,
-    }, () => {
-      if (redirectPath) {
-        this.props.history.replace(redirectPath);
+    this.setState(
+      {
+        report: processedReport,
+        filteredReport,
+        loading: false,
+      },
+      () => {
+        if (redirectPath) {
+          this.props.history.replace(redirectPath);
+        }
       }
-    }
     );
   }
 
@@ -101,12 +108,11 @@ class BatchReport extends React.Component {
     const uid = this.props.match.params.uid;
     if (uid === "_dev") {
       var fakeReport = this.updateReportUID(fakeReportAssertions, uid);
-      setTimeout(
-        () => this.setReport(fakeReport),
-        1500);
+      setTimeout(() => this.setReport(fakeReport), 1500);
     } else {
-      axios.get(`/api/v1/reports/${uid}`)
-        .then(response => {
+      axios
+        .get(`/api/v1/reports/${uid}`)
+        .then((response) => {
           const rawReport = response.data;
           if (rawReport.version === 2) {
             const assertionsReq = axios.get(
@@ -117,25 +123,31 @@ class BatchReport extends React.Component {
               `/api/v1/reports/${uid}/attachments/${rawReport.structure_file}`,
               { transformResponse: parseToJson }
             );
-            axios.all([assertionsReq, structureReq]).then(
-              axios.spread((assertionsRes, structureRes) => {
-                if (!assertionsRes.data) {
-                  alert(
-                    "Failed to parse assertion datails!\n"
-                    + "Please report this issue to the Testplan team."
+            axios
+              .all([assertionsReq, structureReq])
+              .then(
+                axios.spread((assertionsRes, structureRes) => {
+                  if (!assertionsRes.data) {
+                    alert(
+                      "Failed to parse assertion datails!\n" +
+                        "Please report this issue to the Testplan team."
+                    );
+                    console.error(assertionsRes);
+                  }
+                  const mergedReport = MergeSplittedReport(
+                    rawReport,
+                    assertionsRes.data,
+                    structureRes.data
                   );
-                  console.error(assertionsRes);
-                }
-                const mergedReport = MergeSplittedReport(
-                  rawReport, assertionsRes.data, structureRes.data
-                );
-                this.setReport(this.updateReportUID(mergedReport, uid));
-              })
-            ).catch(this.setError);
+                  this.setReport(this.updateReportUID(mergedReport, uid));
+                })
+              )
+              .catch(this.setError);
           } else {
             this.setReport(this.updateReportUID(rawReport, uid));
           }
-        }).catch(this.setError);
+        })
+        .catch(this.setError);
     }
   }
 
@@ -157,11 +169,57 @@ class BatchReport extends React.Component {
    * @param {Object} filter - the paresed filter expression
    * @public
    */
-  handleNavFilter(filter) { // eslint-disable-line no-unused-vars
+  handleNavFilter(filter) {
+    // eslint-disable-line no-unused-vars
     const filteredReport = filterReport(this.state.report, filter);
 
     this.setState({
       filteredReport,
+    });
+  }
+
+  /**
+   * Update the global expand status
+   *
+   * @param {String} status - the new global expand status
+   * @public
+   */
+  updateGlobalExpand(status) {
+    this.setState((prev) => {
+      const assertionStatus = prev.assertionStatus;
+      assertionStatus.globalExpand = {
+        status: status,
+        time: new Date().getTime(),
+      };
+      return { ...prev, assertionStatus };
+    });
+    const newUrl = generateURLWithParameters(
+      window.location,
+      window.location.pathname,
+      { expand: status }
+    );
+    this.props.history.push(newUrl);
+  }
+
+  /**
+   * Update the expand status of assertions
+   *
+   * @param {Array} uids - the array of assertion unique id
+   * @param {String} status - the new expand status of assertions
+   * @public
+   */
+  updateAssertionStatus(uids, status) {
+    this.setState((prev) => {
+      const assertionStatus = prev.assertionStatus;
+      uids.forEach((uid) => {
+        assertionStatus.assertions[uid] = {
+          status: status,
+          time: new Date().getTime(),
+        };
+      });
+      console.log(prev);
+      console.log({ ...prev, assertionStatus });
+      return { ...prev, assertionStatus };
     });
   }
 
@@ -214,7 +272,7 @@ class BatchReport extends React.Component {
 
   getSelectedUIDsFromPath() {
     const { uid, selection } = this.props.match.params;
-    return [uid, ...(selection ? selection.split('/') : [])];
+    return [uid, ...(selection ? selection.split("/") : [])];
   }
 
   selectionMatchPath(entries_selection) {
@@ -223,13 +281,18 @@ class BatchReport extends React.Component {
 
     selection = selection.length ? selection.join("/") : undefined;
 
-    return uid === this.props.match.params.uid &&
-      selection === this.props.match.params.selection;
+    return (
+      uid === this.props.match.params.uid &&
+      selection === this.props.match.params.selection
+    );
   }
 
   render() {
+    const { reportStatus, reportFetchMessage } = GetReportState(this.state);
 
-    const { reportStatus, reportFetchMessage } = GetReportState(this.state);    
+    if (this.state.report && this.state.report.name) {
+      window.document.title = this.state.report.name;
+    }
 
     const selectedEntries = GetSelectedEntries(
       getSelectedUIDsFromPath(this.props.match.params),
@@ -247,7 +310,7 @@ class BatchReport extends React.Component {
       this.state,
       reportFetchMessage,
       this.props.match.params.uid,
-      selectedEntries,
+      selectedEntries
     );
 
     return (
@@ -257,15 +320,19 @@ class BatchReport extends React.Component {
           filterText={this.state.filteredReport.filter.text}
           status={reportStatus}
           report={this.state.report}
+          expandStatus={this.state.assertionStatus.globalExpand.status}
+          updateExpandStatusFunc={this.updateGlobalExpand}
           handleNavFilter={this.handleNavFilter}
           updateFilterFunc={this.updateFilter}
           updateEmptyDisplayFunc={this.updateDisplayEmpty}
           updateTagsDisplayFunc={this.updateTagsDisplay}
-          extraButtons={[<TimeButton
-            key="time-button"
-            status={reportStatus}
-            updateTimeDisplayCbk={this.updateTimeDisplay}
-          />]}
+          extraButtons={[
+            <TimeButton
+              key="time-button"
+              status={reportStatus}
+              updateTimeDisplayCbk={this.updateTimeDisplay}
+            />,
+          ]}
         />
         <Nav
           navListWidth={this.state.navWidth}
@@ -278,7 +345,9 @@ class BatchReport extends React.Component {
           handleColumnResizing={this.handleColumnResizing}
           url={this.props.match.path}
         />
-        {centerPane}
+        <AssertionContext.Provider value={this.state.assertionStatus}>
+          {centerPane}
+        </AssertionContext.Provider>
       </div>
     );
   }
@@ -292,7 +361,7 @@ const styles = StyleSheet.create({
   batchReport: {
     /** overflow will hide dropdown div */
     // overflow: 'hidden'
-  }
+  },
 });
 
 export default BatchReport;

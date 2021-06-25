@@ -11,6 +11,7 @@ import {LIGHT_GREY, DARK_GREY} from "../Common/defaults";
 import CommonStyles from "../Common/Styles.js";
 import { NavLink } from 'react-router-dom';
 import { generatePath } from 'react-router';
+import { generateURLWithParameters } from "../Common/utils";
 
 /**
  * Create the list entry buttons or a single button stating nothing can be
@@ -44,10 +45,16 @@ const CreateNavButtons = (
     let [reportuid, ...selectionuids] = uidEncoder ? 
                                         entry.uids.map(uidEncoder) : 
                                         entry.uids;
-    const linkTo = generatePath(props.url, 
-                                {uid: reportuid, 
-                                  selection:selectionuids});
-    console.log(linkTo);
+    const linkTo = generateURLWithParameters(
+      window.location,
+      generatePath(
+        props.url,
+        {
+          uid: reportuid,
+          selection:selectionuids
+        }
+      )
+    );
 
     return (
       <ListGroupItem

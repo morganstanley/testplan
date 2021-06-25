@@ -16,13 +16,10 @@ from testplan import TestplanMock, defaults
 from testplan.common.entity.base import Environment, ResourceStatus
 from testplan.common.utils.context import context
 from testplan.common.utils.path import StdFiles, default_runpath
-from testplan.common.utils.testing import log_propagation_disabled
+from testplan.common.utils.strings import slugify
 from testplan.common.utils.timing import TimeoutException
 from testplan.testing.multitest.driver.base import Driver
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
-
-from testplan.common.utils.logger import TESTPLAN_LOGGER
-from testplan.common.utils.strings import slugify
 
 
 @testsuite
@@ -148,10 +145,9 @@ def test_multitest_drivers_in_testplan(runpath):
         assert server.status.tag == ResourceStatus.NONE
         assert client.status.tag == ResourceStatus.NONE
 
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            plan.run()
-
+        plan.run()
         res = plan.result
+
         assert res.run is True
         assert res.report.passed
         if idx == 0:
@@ -237,8 +233,7 @@ def test_multitest_driver_startup_failure(mockplan):
             ],
         )
     )
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     res = mockplan.result
     assert res.run is True
@@ -269,8 +264,7 @@ def test_multitest_driver_fetch_error_log(mockplan):
             ],
         )
     )
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     res = mockplan.result
     assert res.run is True

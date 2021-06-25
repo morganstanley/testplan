@@ -4,11 +4,9 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import TestplanMock
 from testplan.common.utils.testing import (
-    log_propagation_disabled,
     argv_overridden,
     check_report_context,
 )
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing import filtering
 
 
@@ -179,9 +177,7 @@ def test_programmatic_filtering(filter_obj, report_ctx):
     plan = TestplanMock(name="plan", test_filter=filter_obj)
     plan.add(multitest_x)
     plan.add(multitest_y)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        plan.run()
+    plan.run()
 
     test_report = plan.report
     check_report_context(test_report, report_ctx)
@@ -281,9 +277,7 @@ def test_command_line_filtering(cmdline_args, report_ctx):
         plan = TestplanMock(name="plan", parse_cmdline=True)
         plan.add(multitest_x)
         plan.add(multitest_y)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            plan.run()
+        plan.run()
 
     test_report = plan.report
     check_report_context(test_report, report_ctx)

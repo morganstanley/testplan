@@ -13,11 +13,7 @@ from testplan.common.entity import (
 )
 from testplan.common.utils.exceptions import should_raise
 from testplan.common.utils.path import default_runpath
-from testplan.common.utils.testing import (
-    argv_overridden,
-    log_propagation_disabled,
-)
-from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils.testing import argv_overridden
 from testplan.report import TestGroupReport, ReportCategories
 from testplan.runnable import TestRunnerStatus, TestRunner
 from testplan.runners.local import LocalRunner
@@ -171,23 +167,22 @@ def test_testplan_decorator():
 
     pdf_path = "mypdf.pdf"
     with argv_overridden("--pdf", pdf_path):
-        with log_propagation_disabled(TESTPLAN_LOGGER):
 
-            @test_plan(name="MyPlan", port=800)
-            def main2(plan, parser):
-                args = parser.parse_args()
+        @test_plan(name="MyPlan", port=800)
+        def main2(plan, parser):
+            args = parser.parse_args()
 
-                assert args.verbose is False
-                assert args.pdf_path == pdf_path
-                assert plan.cfg.pdf_path == pdf_path
-                plan.add(DummyTest(name="bob"))
+            assert args.verbose is False
+            assert args.pdf_path == pdf_path
+            assert plan.cfg.pdf_path == pdf_path
+            plan.add(DummyTest(name="bob"))
 
-            res = (
-                main2()
-            )  # pylint:disable=assignment-from-no-return,no-value-for-parameter
-            assert isinstance(res, TestplanResult)
-            assert res.decorated_value is None
-            assert res.run is True
+        res = (
+            main2()
+        )  # pylint:disable=assignment-from-no-return,no-value-for-parameter
+        assert isinstance(res, TestplanResult)
+        assert res.decorated_value is None
+        assert res.run is True
 
 
 def test_testplan_runpath():

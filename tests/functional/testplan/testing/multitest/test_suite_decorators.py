@@ -14,8 +14,6 @@ from testplan.testing.multitest.suite import (
     skip_if_testcase,
 )
 from testplan.common.utils.callable import pre, post
-from testplan.common.utils.testing import log_propagation_disabled
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.report import (
     TestReport,
     TestGroupReport,
@@ -113,9 +111,7 @@ def test_basic_multitest(mockplan):
         name="MTest", suites=[Suite1(), Suite2(0), Suite2(1), Suite3()]
     )
     mockplan.add(mtest)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = mockplan.run()
+    res = mockplan.run()
 
     assert res.run is True
     assert isinstance(res.test_results["MTest"].report, TestGroupReport)
@@ -168,9 +164,7 @@ def test_unwanted_testsuite_name(mockplan, suite_name):
 
         multitest = MultiTest(name="MTest", suites=[MySuite()])
         mockplan.add(multitest)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            mockplan.run()
+        mockplan.run()
 
     mock_warn.assert_called_once()
 
@@ -190,9 +184,7 @@ def test_duplicate_testsuite_names(mockplan):
 
         multitest = MultiTest(name="MTest", suites=[MySuite(0), MySuite(1)])
         mockplan.add(multitest)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            mockplan.run()
+        mockplan.run()
 
         pytest.fail("Duplicate test suite name found in a Multitest.")
 
@@ -217,9 +209,7 @@ def test_invalid_name_attribute_in_suite_class(mockplan, deco, attr_name):
         MySuite = deco(MySuite)
         multitest = MultiTest(name="MyMultitest", suites=[MySuite()])
         mockplan.add(multitest)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            mockplan.run()
+        mockplan.run()
 
         pytest.fail("Attribute `name` defined in test suite class is invalid.")
 
@@ -241,9 +231,7 @@ def test_unexpected_name_attribute_in_suite_object(mockplan):
         suite.name = lambda cls_name, suite: cls_name
         multitest = MultiTest(name="MyMultitest", suites=[suite])
         mockplan.add(multitest)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            mockplan.run()
+        mockplan.run()
 
         pytest.fail("Attribute `name` of test suite object is invalid.")
 
@@ -273,8 +261,7 @@ def test_testcase_related_with_inivalid_arguments_in_suite_object(mockplan):
     mockplan.add(
         MultiTest(name="MyMultitest", suites=[MySuite()], stop_on_error=False)
     )
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     multitest_report = mockplan.result.report["MyMultitest"]
     case_report = multitest_report["MySuite"]["sample_test"]
@@ -326,8 +313,7 @@ def test_pre_post_on_testcase(mockplan):
             result.equal(a + b, expect)
 
     mockplan.add(MultiTest(name="MyMultitest", suites=[SimpleTest()]))
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     multitest_report = mockplan.result.report["MyMultitest"]
     case_report = multitest_report["SimpleTest"]["add_simple"]

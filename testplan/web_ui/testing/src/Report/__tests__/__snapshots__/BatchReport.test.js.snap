@@ -5,6 +5,7 @@ exports[`BatchReport loads a more complex report 1`] = `
   className="batchReport_3hmsj"
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <TimeButton
@@ -459,6 +460,7 @@ exports[`BatchReport loads a more complex report 1`] = `
     }
     status="failed"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
   />
@@ -1355,10 +1357,24 @@ exports[`BatchReport loads a more complex report 1`] = `
     }
     url="/testplan/:uid/:selection*"
   />
-  <Message
-    left="22em"
-    message="Please select an entry."
-  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <Message
+      left="22em"
+      message="Please select an entry."
+    />
+  </ContextProvider>
 </div>
 `;
 
@@ -1367,6 +1383,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
   className="batchReport_3hmsj"
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <TimeButton
@@ -1821,6 +1838,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
     }
     status="failed"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
   />
@@ -3012,10 +3030,24 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
     }
     url="/testplan/:uid/:selection*"
   />
-  <Message
-    left="22em"
-    message="Please select an entry."
-  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <Message
+      left="22em"
+      message="Please select an entry."
+    />
+  </ContextProvider>
 </div>
 `;
 
@@ -3024,6 +3056,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
   className="batchReport_3hmsj"
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <TimeButton
@@ -3479,6 +3512,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
     }
     status="failed"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
   />
@@ -4607,33 +4641,47 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
     }
     url="/testplan/:uid/:selection*"
   />
-  <AssertionPane
-    assertions={
-      Array [
-        Object {
-          "category": "DEFAULT",
-          "description": "passing equality",
-          "first": 1,
-          "label": "==",
-          "line_no": 24,
-          "machine_time": "2018-10-15T15:30:12.010098+00:00",
-          "meta_type": "assertion",
-          "passed": true,
-          "second": 1,
-          "timeInfoArray": Array [],
-          "type": "Equal",
-          "utc_time": "2018-10-15T14:30:12.010094+00:00",
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
         },
-      ]
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
     }
-    descriptionEntries={Array []}
-    filter={null}
-    key="f73bd6ea-d378-437b-a5db-00d9e427f36a"
-    left="22em"
-    logs={Array []}
-    reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
-    testcaseUid={null}
-  />
+  >
+    <AssertionPane
+      assertions={
+        Array [
+          Object {
+            "category": "DEFAULT",
+            "description": "passing equality",
+            "first": 1,
+            "label": "==",
+            "line_no": 24,
+            "machine_time": "2018-10-15T15:30:12.010098+00:00",
+            "meta_type": "assertion",
+            "passed": true,
+            "second": 1,
+            "timeInfoArray": Array [],
+            "type": "Equal",
+            "utc_time": "2018-10-15T14:30:12.010094+00:00",
+          },
+        ]
+      }
+      descriptionEntries={Array []}
+      filter={null}
+      key="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+      left="22em"
+      logs={Array []}
+      reportUid="520a92e4-325e-4077-93e6-55d7091a3f83"
+      testcaseUid="f73bd6ea-d378-437b-a5db-00d9e427f36a"
+    />
+  </ContextProvider>
 </div>
 `;
 
@@ -4642,6 +4690,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
   className="batchReport_3hmsj"
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <TimeButton
@@ -5096,6 +5145,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
     }
     status="failed"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
   />
@@ -6442,10 +6492,24 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
     }
     url="/testplan/:uid/:selection*"
   />
-  <Message
-    left="22em"
-    message="Please select an entry."
-  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <Message
+      left="22em"
+      message="Please select an entry."
+    />
+  </ContextProvider>
 </div>
 `;
 
@@ -6454,6 +6518,7 @@ exports[`BatchReport loads a simple report 1`] = `
   className="batchReport_3hmsj"
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <TimeButton
@@ -6644,6 +6709,7 @@ exports[`BatchReport loads a simple report 1`] = `
     }
     status="failed"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
   />
@@ -7012,10 +7078,24 @@ exports[`BatchReport loads a simple report 1`] = `
     }
     url="/testplan/:uid/:selection*"
   />
-  <Message
-    left="22em"
-    message="Please select an entry."
-  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <Message
+      left="22em"
+      message="Please select an entry."
+    />
+  </ContextProvider>
 </div>
 `;
 
@@ -7024,6 +7104,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
   className="batchReport_3hmsj"
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <TimeButton
@@ -7478,6 +7559,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     }
     status="failed"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
   />
@@ -8374,10 +8456,24 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     }
     url="/testplan/:uid/:selection*"
   />
-  <Message
-    left="22em"
-    message="Please select an entry."
-  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <Message
+      left="22em"
+      message="Please select an entry."
+    />
+  </ContextProvider>
 </div>
 `;
 
@@ -8397,6 +8493,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
     className="batchReport_3hmsj"
   >
     <Toolbar
+      expandStatus="default"
       extraButtons={
         Array [
           <TimeButton
@@ -8448,6 +8545,7 @@ ZeroDivisionError: integer division or modulo by zero
       }
       status="error"
       updateEmptyDisplayFunc={[Function]}
+      updateExpandStatusFunc={[Function]}
       updateFilterFunc={[Function]}
       updateTagsDisplayFunc={[Function]}
     >
@@ -8512,7 +8610,7 @@ ZeroDivisionError: integer division or modulo by zero
                         transform={null}
                       >
                         <svg
-                          aria-labelledby="svg-inline--fa-title-17"
+                          aria-labelledby="svg-inline--fa-title-21"
                           className="svg-inline--fa fa-search fa-w-16 "
                           data-icon="search"
                           data-prefix="fas"
@@ -8522,7 +8620,7 @@ ZeroDivisionError: integer division or modulo by zero
                           xmlns="http://www.w3.org/2000/svg"
                         >
                           <title
-                            id="svg-inline--fa-title-17"
+                            id="svg-inline--fa-title-21"
                             style={Object {}}
                           >
                             Search
@@ -8571,7 +8669,7 @@ ZeroDivisionError: integer division or modulo by zero
                         transform={null}
                       >
                         <svg
-                          aria-labelledby="svg-inline--fa-title-18"
+                          aria-labelledby="svg-inline--fa-title-22"
                           className="svg-inline--fa fa-question-circle fa-w-16 "
                           data-icon="question-circle"
                           data-prefix="fas"
@@ -8581,7 +8679,7 @@ ZeroDivisionError: integer division or modulo by zero
                           xmlns="http://www.w3.org/2000/svg"
                         >
                           <title
-                            id="svg-inline--fa-title-18"
+                            id="svg-inline--fa-title-22"
                             style={Object {}}
                           >
                             Click for help
@@ -8606,7 +8704,7 @@ ZeroDivisionError: integer division or modulo by zero
                             class="searchBoxInfoIcon_107ja4p"
                           >
                             <svg
-                              aria-labelledby="svg-inline--fa-title-18"
+                              aria-labelledby="svg-inline--fa-title-22"
                               class="svg-inline--fa fa-question-circle fa-w-16 "
                               data-icon="question-circle"
                               data-prefix="fas"
@@ -8615,7 +8713,7 @@ ZeroDivisionError: integer division or modulo by zero
                               xmlns="http://www.w3.org/2000/svg"
                             >
                               <title
-                                id="svg-inline--fa-title-18"
+                                id="svg-inline--fa-title-22"
                               >
                                 Click for help
                               </title>
@@ -8652,7 +8750,7 @@ ZeroDivisionError: integer division or modulo by zero
                               class="searchBoxInfoIcon_107ja4p"
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-18"
+                                aria-labelledby="svg-inline--fa-title-22"
                                 class="svg-inline--fa fa-question-circle fa-w-16 "
                                 data-icon="question-circle"
                                 data-prefix="fas"
@@ -8661,7 +8759,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-18"
+                                  id="svg-inline--fa-title-22"
                                 >
                                   Click for help
                                 </title>
@@ -8754,6 +8852,120 @@ ZeroDivisionError: integer division or modulo by zero
                     <ul
                       className="ml-auto navbar-nav"
                     >
+                      <NavItem
+                        key="expand-icon-item"
+                        tag="li"
+                      >
+                        <li
+                          className="nav-item"
+                        >
+                          <div
+                            className="buttonsBar_6zsntc"
+                          >
+                            <FontAwesomeIcon
+                              border={false}
+                              className="toolbarButton_1ueb7gu"
+                              fixedWidth={false}
+                              flip={null}
+                              icon="angle-double-down"
+                              inverse={false}
+                              key="expand-icon"
+                              listItem={false}
+                              mask={null}
+                              onClick={[Function]}
+                              pull={null}
+                              pulse={false}
+                              rotation={null}
+                              size={null}
+                              spin={false}
+                              symbol={false}
+                              title="Expand all assertions"
+                              transform={null}
+                            >
+                              <svg
+                                aria-labelledby="svg-inline--fa-title-23"
+                                className="svg-inline--fa fa-angle-double-down fa-w-10 toolbarButton_1ueb7gu"
+                                data-icon="angle-double-down"
+                                data-prefix="fas"
+                                onClick={[Function]}
+                                role="img"
+                                style={Object {}}
+                                viewBox="0 0 320 512"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <title
+                                  id="svg-inline--fa-title-23"
+                                  style={Object {}}
+                                >
+                                  Expand all assertions
+                                </title>
+                                <path
+                                  d="M143 256.3L7 120.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0L313 86.3c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.4 9.5-24.6 9.5-34 .1zm34 192l136-136c9.4-9.4 9.4-24.6 0-33.9l-22.6-22.6c-9.4-9.4-24.6-9.4-33.9 0L160 352.1l-96.4-96.4c-9.4-9.4-24.6-9.4-33.9 0L7 278.3c-9.4 9.4-9.4 24.6 0 33.9l136 136c9.4 9.5 24.6 9.5 34 .1z"
+                                  fill="currentColor"
+                                  style={Object {}}
+                                />
+                              </svg>
+                            </FontAwesomeIcon>
+                          </div>
+                        </li>
+                      </NavItem>
+                      <NavItem
+                        key="collapse-icon-item"
+                        tag="li"
+                      >
+                        <li
+                          className="nav-item"
+                        >
+                          <div
+                            className="buttonsBar_6zsntc"
+                          >
+                            <FontAwesomeIcon
+                              border={false}
+                              className="toolbarButton_1ueb7gu"
+                              fixedWidth={false}
+                              flip={null}
+                              icon="angle-double-up"
+                              inverse={false}
+                              key="collapse-icon"
+                              listItem={false}
+                              mask={null}
+                              onClick={[Function]}
+                              pull={null}
+                              pulse={false}
+                              rotation={null}
+                              size={null}
+                              spin={false}
+                              symbol={false}
+                              title="Collapse all assertions"
+                              transform={null}
+                            >
+                              <svg
+                                aria-labelledby="svg-inline--fa-title-24"
+                                className="svg-inline--fa fa-angle-double-up fa-w-10 toolbarButton_1ueb7gu"
+                                data-icon="angle-double-up"
+                                data-prefix="fas"
+                                onClick={[Function]}
+                                role="img"
+                                style={Object {}}
+                                viewBox="0 0 320 512"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <title
+                                  id="svg-inline--fa-title-24"
+                                  style={Object {}}
+                                >
+                                  Collapse all assertions
+                                </title>
+                                <path
+                                  d="M177 255.7l136 136c9.4 9.4 9.4 24.6 0 33.9l-22.6 22.6c-9.4 9.4-24.6 9.4-33.9 0L160 351.9l-96.4 96.4c-9.4 9.4-24.6 9.4-33.9 0L7 425.7c-9.4-9.4-9.4-24.6 0-33.9l136-136c9.4-9.5 24.6-9.5 34-.1zm-34-192L7 199.7c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l96.4-96.4 96.4 96.4c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9l-136-136c-9.2-9.4-24.4-9.4-33.8 0z"
+                                  fill="currentColor"
+                                  style={Object {}}
+                                />
+                              </svg>
+                            </FontAwesomeIcon>
+                          </div>
+                        </li>
+                      </NavItem>
                       <TimeButton
                         key="time-button"
                         status="error"
@@ -8770,7 +8982,7 @@ ZeroDivisionError: integer division or modulo by zero
                             >
                               <FontAwesomeIcon
                                 border={false}
-                                className="toolbarButton_1d6e8oq"
+                                className="toolbarButton_1ueb7gu"
                                 fixedWidth={false}
                                 flip={null}
                                 icon={
@@ -8801,8 +9013,8 @@ ZeroDivisionError: integer division or modulo by zero
                                 transform={null}
                               >
                                 <svg
-                                  aria-labelledby="svg-inline--fa-title-19"
-                                  className="svg-inline--fa fa-clock fa-w-16 toolbarButton_1d6e8oq"
+                                  aria-labelledby="svg-inline--fa-title-25"
+                                  className="svg-inline--fa fa-clock fa-w-16 toolbarButton_1ueb7gu"
                                   data-icon="clock"
                                   data-prefix="fas"
                                   onClick={[Function]}
@@ -8812,7 +9024,7 @@ ZeroDivisionError: integer division or modulo by zero
                                   xmlns="http://www.w3.org/2000/svg"
                                 >
                                   <title
-                                    id="svg-inline--fa-title-19"
+                                    id="svg-inline--fa-title-25"
                                     style={Object {}}
                                   >
                                     Display time information
@@ -8839,7 +9051,7 @@ ZeroDivisionError: integer division or modulo by zero
                           >
                             <FontAwesomeIcon
                               border={false}
-                              className="toolbarButton_1d6e8oq"
+                              className="toolbarButton_1ueb7gu"
                               fixedWidth={false}
                               flip={null}
                               icon="info"
@@ -8858,8 +9070,8 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-20"
-                                className="svg-inline--fa fa-info fa-w-6 toolbarButton_1d6e8oq"
+                                aria-labelledby="svg-inline--fa-title-26"
+                                className="svg-inline--fa fa-info fa-w-6 toolbarButton_1ueb7gu"
                                 data-icon="info"
                                 data-prefix="fas"
                                 onClick={[Function]}
@@ -8869,7 +9081,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-20"
+                                  id="svg-inline--fa-title-26"
                                   style={Object {}}
                                 >
                                   Info
@@ -8921,7 +9133,7 @@ ZeroDivisionError: integer division or modulo by zero
                                   >
                                     <FontAwesomeIcon
                                       border={false}
-                                      className="toolbarButton_1d6e8oq"
+                                      className="toolbarButton_1ueb7gu"
                                       fixedWidth={false}
                                       flip={null}
                                       icon="filter"
@@ -8939,8 +9151,8 @@ ZeroDivisionError: integer division or modulo by zero
                                       transform={null}
                                     >
                                       <svg
-                                        aria-labelledby="svg-inline--fa-title-21"
-                                        className="svg-inline--fa fa-filter fa-w-16 toolbarButton_1d6e8oq"
+                                        aria-labelledby="svg-inline--fa-title-27"
+                                        className="svg-inline--fa fa-filter fa-w-16 toolbarButton_1ueb7gu"
                                         data-icon="filter"
                                         data-prefix="fas"
                                         role="img"
@@ -8949,7 +9161,7 @@ ZeroDivisionError: integer division or modulo by zero
                                         xmlns="http://www.w3.org/2000/svg"
                                       >
                                         <title
-                                          id="svg-inline--fa-title-21"
+                                          id="svg-inline--fa-title-27"
                                           style={Object {}}
                                         >
                                           Choose filter
@@ -9201,7 +9413,7 @@ ZeroDivisionError: integer division or modulo by zero
                           >
                             <FontAwesomeIcon
                               border={false}
-                              className="toolbarButton_1d6e8oq"
+                              className="toolbarButton_1ueb7gu"
                               fixedWidth={false}
                               flip={null}
                               icon="print"
@@ -9220,8 +9432,8 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-22"
-                                className="svg-inline--fa fa-print fa-w-16 toolbarButton_1d6e8oq"
+                                aria-labelledby="svg-inline--fa-title-28"
+                                className="svg-inline--fa fa-print fa-w-16 toolbarButton_1ueb7gu"
                                 data-icon="print"
                                 data-prefix="fas"
                                 onClick={[Function]}
@@ -9231,7 +9443,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-22"
+                                  id="svg-inline--fa-title-28"
                                   style={Object {}}
                                 >
                                   Print page
@@ -9257,7 +9469,7 @@ ZeroDivisionError: integer division or modulo by zero
                           >
                             <FontAwesomeIcon
                               border={false}
-                              className="toolbarButton_1d6e8oq"
+                              className="toolbarButton_1ueb7gu"
                               fixedWidth={false}
                               flip={null}
                               icon="tags"
@@ -9276,8 +9488,8 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-23"
-                                className="svg-inline--fa fa-tags fa-w-20 toolbarButton_1d6e8oq"
+                                aria-labelledby="svg-inline--fa-title-29"
+                                className="svg-inline--fa fa-tags fa-w-20 toolbarButton_1ueb7gu"
                                 data-icon="tags"
                                 data-prefix="fas"
                                 onClick={[Function]}
@@ -9287,7 +9499,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-23"
+                                  id="svg-inline--fa-title-29"
                                   style={Object {}}
                                 >
                                   Display tags
@@ -9316,7 +9528,7 @@ ZeroDivisionError: integer division or modulo by zero
                           >
                             <FontAwesomeIcon
                               border={false}
-                              className="toolbarButton_1d6e8oq"
+                              className="toolbarButton_1ueb7gu"
                               fixedWidth={false}
                               flip={null}
                               icon="book"
@@ -9334,8 +9546,8 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-24"
-                                className="svg-inline--fa fa-book fa-w-14 toolbarButton_1d6e8oq"
+                                aria-labelledby="svg-inline--fa-title-30"
+                                className="svg-inline--fa fa-book fa-w-14 toolbarButton_1ueb7gu"
                                 data-icon="book"
                                 data-prefix="fas"
                                 role="img"
@@ -9344,7 +9556,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-24"
+                                  id="svg-inline--fa-title-30"
                                   style={Object {}}
                                 >
                                   Documentation

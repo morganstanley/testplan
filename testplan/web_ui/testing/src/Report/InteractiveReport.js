@@ -31,7 +31,9 @@ import {
   parseToJson
 } from '../Common/utils';
 
-import {POLL_MS} from '../Common/defaults.js';
+import { POLL_MS } from '../Common/defaults.js';
+import { AssertionContext, defaultAssertionStatus } from "../Common/context";
+import { generateURLWithParameters } from "../Common/utils";
 
 const api_prefix = "/api/v1/interactive";
 
@@ -54,6 +56,12 @@ class InteractiveReport extends React.Component {
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.reloadCode = this.reloadCode.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
+    this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
+    this.updateAssertionStatus = this.updateAssertionStatus.bind(this);
+    this.resetAssertionStatus = this.resetAssertionStatus.bind(this);
+
+    defaultAssertionStatus.updateGlobalExpand = this.updateGlobalExpand;
+    defaultAssertionStatus.updateAssertionStatus = this.updateAssertionStatus;
 
     this.state = {
       navWidth: `${INTERACTIVE_COL_WIDTH}em`,
@@ -62,6 +70,7 @@ class InteractiveReport extends React.Component {
       error: null,
       resetting: false,
       reloading: false,
+      assertionStatus: defaultAssertionStatus,
     };
   }
 
@@ -86,6 +95,58 @@ class InteractiveReport extends React.Component {
         loading: false,
       })
     );
+  }
+
+  /**
+   * Update the global expand status
+   *
+   * @param {String} status - the new global expand status
+   */
+  updateGlobalExpand(status) {
+    this.setState((prev) => {
+      const assertionStatus = prev.assertionStatus;
+      assertionStatus.globalExpand = {
+        status: status,
+        time: new Date().getTime(),
+      };
+      return { ...prev, assertionStatus };
+    });
+    const newUrl = generateURLWithParameters(
+      window.location,
+      window.location.pathname,
+      { expand: status }
+    );
+    this.props.history.push(newUrl);
+  }
+
+  /**
+   * Update the expand status of assertions
+   *
+   * @param {Array} uids - the array of assertion unique id
+   * @param {String} status - the new expand status of assertions
+   */
+  updateAssertionStatus(uids, status) {
+    this.setState((prev) => {
+      const assertionStatus = prev.assertionStatus;
+      uids.forEach((uid) => {
+        assertionStatus.assertions[uid] = {
+          status: status,
+          time: new Date().getTime(),
+        };
+      });
+      return { ...prev, assertionStatus };
+    });
+  }
+
+  /**
+   * reset the expand status of assertions
+   */
+  resetAssertionStatus() {
+    this.setState((prev) => {
+      const assertionStatus = prev.assertionStatus;
+      assertionStatus.assertions = {};
+      return { ...prev, assertionStatus };
+    });
   }
 
   /**
@@ -487,6 +548,7 @@ class InteractiveReport extends React.Component {
   reloadCode() {
     let currentTime = new Date();
     this.setState({reloading: true});
+    this.resetAssertionStatus();
     return axios.get(
       `${api_prefix}/reload`
     ).then(response => {
@@ -567,6 +629,8 @@ class InteractiveReport extends React.Component {
         <Toolbar
           filterBoxWidth={this.state.navWidth}
           status={reportStatus}
+          expandStatus={this.state.assertionStatus.globalExpand.status}
+          updateExpandStatusFunc={this.updateGlobalExpand}
           handleNavFilter={null}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
@@ -598,7 +662,9 @@ class InteractiveReport extends React.Component {
           handleColumnResizing={this.handleColumnResizing}
           url={this.props.match.path}
         />
-        {centerPane}
+        <AssertionContext.Provider value={this.state.assertionStatus}>
+          {centerPane}
+        </AssertionContext.Provider>
       </div>
     );
   }
