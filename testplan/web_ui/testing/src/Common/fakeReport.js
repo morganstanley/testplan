@@ -3103,6 +3103,19 @@ var fakeReportAssertions = {
                                                 "int",
                                                 "10"
                                             ]
+                                        ],
+                                        [
+                                            0,
+                                            "ignored-key",
+                                            "Ignored",
+                                            [
+                                                "int",
+                                                "5"
+                                            ],
+                                            [
+                                                "int",
+                                                "6"
+                                            ]
                                         ]
                                     ],
                                     "passed": false,
