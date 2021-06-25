@@ -14,6 +14,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan.common.utils import comparison
 from testplan.report.testing.styles import Style, StyleEnum
+from testplan.common.serialization.fields import LogLink, FormattedValue
 
 import matplotlib
 
@@ -423,6 +424,45 @@ print(os.uname())
             ["Sabine Wurfel", "31", "88 Clasper Way, HEXWORTHY, PL20 4BG"],
         ]
         result.table.log(long_cell_table, description="Table Log: long cells")
+
+        # Add external/internal link in the table log
+        result.table.log(
+            [
+                ["Description", "Data"],
+                [
+                    "External Link",
+                    LogLink(link="https://www.google.com", title="Google"),
+                ],
+                # Require plan.runnable.disable_reset_report_uid() in main function
+                # to avoid generating uuid4 as the report uid so that we can use
+                # the test name as the link in the report.
+                [
+                    "Internal Link",
+                    LogLink(
+                        link="/Assertions%20Test/SampleSuite/test_basic_assertions",
+                        title="test_basic_assertions",
+                        inner=True,
+                    ),
+                ],
+            ],
+            description="Link to external/internal",
+        )
+
+        # Customize formatted value in the table log
+        result.table.log(
+            [
+                ["Description", "Data"],
+                [
+                    "Formatted Value - 0.6",
+                    FormattedValue(display="60%", value=0.6),
+                ],
+                [
+                    "Formatted Value - 0.08",
+                    FormattedValue(display="8%", value=0.08),
+                ],
+            ],
+            description="Formatted value",
+        )
 
         result.table.match(
             list_of_lists,
@@ -843,6 +883,10 @@ print(os.uname())
     ),
 )
 def main(plan):
+    # For saving the internal link in the report, use test
+    # name instead of uuid4 as report uid.
+    plan.runnable.disable_reset_report_uid()
+
     plan.add(MultiTest(name="Assertions Test", suites=[SampleSuite()]))
 
 

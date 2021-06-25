@@ -322,6 +322,10 @@ class TestRunner(Runnable):
                 exporter.parent = self
         return self._exporters
 
+    def disable_reset_report_uid(self):
+        """Do not generate unique strings in uuid4 format as report uid"""
+        self._reset_report_uid = False
+
     def get_default_exporters(self):
         """
         Instantiate certain exporters if related cmdline argument (e.g. --pdf)
