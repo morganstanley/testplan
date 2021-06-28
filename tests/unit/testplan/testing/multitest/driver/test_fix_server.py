@@ -3,6 +3,12 @@
 import os
 import pytest
 
+from tests.helpers.pytest_test_filters import skip_on_windows
+
+pytestmark = skip_on_windows(
+    reason='TCP cannot be used on platform "{}"'.format(os.name)
+)
+
 pytest.importorskip("pyfixmsg")
 
 from pyfixmsg.fixmessage import FixMessage
