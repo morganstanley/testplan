@@ -10,7 +10,7 @@ from testplan.common.utils.timing import wait
 
 class Server(object):
     """
-    A server that can send and receive messages over the session protocol.
+    A server that can send and receive messages based on socket interface.
     Supports multiple connections.
 
     :param host: The host address the server is bound to.
@@ -167,9 +167,9 @@ class Server(object):
         connection.settimeout(timeout)
 
         if wait_full_size is False:
-            connection.settimeout(timeout)
-            msg = connection.recv(size)
             connection.settimeout(0)
+            msg = connection.recv(size)
+            connection.settimeout(timeout)
         else:
             with self._lock:
                 msg = b""

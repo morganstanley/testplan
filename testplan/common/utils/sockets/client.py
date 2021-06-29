@@ -6,8 +6,7 @@ import socket
 
 class Client(object):
     """
-    A Basic TCP Client
-    Connects to a server via the standard Session Protocol.
+    A Basic TCP Client that connects to a server via socket interface.
 
     To use this type:
 

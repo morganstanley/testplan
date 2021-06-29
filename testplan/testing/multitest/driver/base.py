@@ -142,7 +142,7 @@ class Driver(Resource):
         post_start=None,
         pre_stop=None,
         post_stop=None,
-        **options
+        **options,
     ):
 
         options.update(self.filter_locals(locals()))
@@ -433,3 +433,8 @@ class Driver(Resource):
                 content.extend(["  {}".format(line) for line in lines])
 
         return content
+
+    def __repr__(self):
+        """String representation."""
+
+        return f"{self.__class__.__name__} driver [{self.name}]"
