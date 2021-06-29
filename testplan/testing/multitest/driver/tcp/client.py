@@ -151,7 +151,7 @@ class TCPClient(Driver):
 
     def reconnect(self):
         """Client reconnect."""
-        self._client.close()
+        self.close()
         self.connect()
 
     def starting(self):
@@ -166,10 +166,15 @@ class TCPClient(Driver):
     def stopping(self):
         """Close the client connection."""
         super(TCPClient, self).stopping()
+        self.close()
+
+    def close(self):
+        """
+        Close connection.
+        """
         if self._client:
             self._client.close()
 
     def aborting(self):
         """Abort logic that stops the client."""
-        if self._client:
-            self._client.close()
+        self.close()

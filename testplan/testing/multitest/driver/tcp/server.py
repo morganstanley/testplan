@@ -82,6 +82,14 @@ class TCPServer(Driver):
 
     accept_connection.__doc__ = Server.accept_connection.__doc__
 
+    def close_connection(self, conn_idx):
+        """
+        Docstring from Server.close_connection
+        """
+        self._server.close_connection(conn_idx)
+
+    close_connection.__doc__ = Server.close_connection.__doc__
+
     def send_text(self, msg, standard="utf-8", **kwargs):
         """
         Encodes to bytes and calls
