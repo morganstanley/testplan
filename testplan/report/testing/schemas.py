@@ -150,6 +150,7 @@ class TestGroupReportSchema(TestCaseReportSchema):
     fix_spec_path = fields.String(allow_none=True)
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool()
+    category = fields.String()
 
     entries = custom_fields.GenericNested(
         schema_context={
