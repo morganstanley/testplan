@@ -15,10 +15,10 @@ class MySuite(object):
     @testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, "equality description")
-        result.log(env.runpath)
-        assert isinstance(env.cfg, MultiTestConfig)
-        assert os.path.exists(env.runpath) is True
-        assert env.runpath.endswith(slugify(env.cfg.name))
+        result.log(env.parent.runpath)
+        assert isinstance(env.parent.cfg, MultiTestConfig)
+        assert os.path.exists(env.parent.runpath) is True
+        assert env.parent.runpath.endswith(slugify(env.parent.cfg.name))
 
 
 def get_mtest(name):
@@ -44,10 +44,10 @@ class SuiteKillingWorker(object):
             print("Killing worker {}".format(os.getpid()))
             os.kill(os.getpid(), 9)
         result.equal(1, 1, "equality description")
-        result.log(env.runpath)
-        assert isinstance(env.cfg, MultiTestConfig)
-        assert os.path.exists(env.runpath) is True
-        assert env.runpath.endswith(slugify(env.cfg.name))
+        result.log(env.parent.runpath)
+        assert isinstance(env.parent.cfg, MultiTestConfig)
+        assert os.path.exists(env.parent.runpath) is True
+        assert env.parent.runpath.endswith(slugify(env.parent.cfg.name))
 
 
 def multitest_kill_one_worker(parent_pid, size):

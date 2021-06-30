@@ -3,7 +3,6 @@
 import os
 import re
 import time
-import pytest
 
 
 from testplan.testing.filtering import Filter

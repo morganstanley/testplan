@@ -11,7 +11,6 @@ from schema import Or, And, Use
 
 from testplan.common import config
 from testplan.common import entity
-from testplan.common.entity import Environment
 from testplan.common.utils import interface
 from testplan.common.utils import validation
 from testplan.common.utils import timing
@@ -63,12 +62,12 @@ def iterable_suites(obj):
 
 class MultiTestRuntimeInfo(object):
     """
-    This class provide information about the state of the actual test run
-    that is accessible from the testcases through the environment as:
-    ``env.multitest_runtime_info``
+    This class provides information about the state of the actual test run
+    that is accessible from the testcase through the environment as:
+    ``env.runtime_info``
 
     Currently only the actual testcase name is accessible as:
-    ``env.multitest_runtime_info.testcase.name`` more info to come.
+    ``env.runtime_info.testcase.name``, more info to come.
     """
 
     class TestcaseInfo(object):
@@ -80,20 +79,23 @@ class MultiTestRuntimeInfo(object):
 
 class RuntimeEnvironment(object):
     """
-    A collection of drivers accessible through either items or named attributes,
-    representing the environment of a Multitest environment instance with runtime
-    information about the currently executing testcase
+    A collection of resources accessible through either items or named
+    attributes, representing a test environment instance with runtime
+    information about the currently executing testcase.
 
-    This class is a tiny wrapper around the multitest's :class:`Environment`,
-    delegate all calls to it but multitest_runtime_info which serves the runtime information
-    of the current thread of execution.
+    This class is a tiny wrapper around the :py:class:`Environment` of
+    :py:class:`~testplan.testing.base.Test`, delegates all calls to it
+    but with a `runtime_info` which serves the runtime information of
+    the current thread of execution.
     """
 
     def __init__(
-        self, environment: Environment, runtime_info: MultiTestRuntimeInfo
+        self,
+        environment: entity.Environment,
+        runtime_info: MultiTestRuntimeInfo,
     ):
         self.__dict__["_environment"] = environment
-        self.__dict__["multitest_runtime_info"] = runtime_info
+        self.__dict__["runtime_info"] = runtime_info
 
     def __getattr__(self, attr):
         return getattr(self._environment, attr)
@@ -935,7 +937,6 @@ class MultiTest(testing_base.Test):
 
         runtime_info = MultiTestRuntimeInfo()
         runtime_info.testcase.name = testcase.name
-
         resources = RuntimeEnvironment(self.resources, runtime_info)
 
         with testcase_report.timer.record("run"):

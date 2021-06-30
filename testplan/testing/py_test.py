@@ -11,7 +11,6 @@ from schema import Or
 from testplan.common.utils import validation
 from testplan.common.config import ConfigOption
 from testplan.testing import base as testing
-from testplan.testing.base import TestResult
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest.result import Result as MultiTestResult

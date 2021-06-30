@@ -65,12 +65,12 @@ class ContextValue(object):
         """
         if ctx is None:
             raise ValueError(
-                "Could not retrieve driver {0} value from "
-                "NoneType context.".format(self.driver)
+                f'Could not retrieve driver "{self.driver}" value'
+                " from NoneType context."
             )
         if self.driver not in ctx:
-            raise Exception(
-                "Driver {0} is not present in context.".format(self.driver)
+            raise RuntimeError(
+                f'Driver "{self.driver}" is not present in context.'
             )
         return self.value.substitute(ctx[self.driver].context_input())
 
