@@ -4,6 +4,7 @@
 *.xml
 !/tests/**/fixtures/*.xml
 
+.vscode/
 .idea/
 .vscode/
 build/

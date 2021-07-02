@@ -36,6 +36,7 @@ const EmptyReport = (props) => {
         handleNavFilter={noop}
         updateFilterFunc={noop}
         updateEmptyDisplayFunc={noop}
+        updateTreeViewFunc={noop}
         updateTagsDisplayFunc={noop}
         extraButtons={[<TimeButton
             key="time-button"
@@ -47,6 +48,7 @@ const EmptyReport = (props) => {
         report={null}
         saveAssertions={noop}
         filter={undefined}
+        treeView={false}
         displayEmpty={true}
         displayTags={false}
         displayTime={false}

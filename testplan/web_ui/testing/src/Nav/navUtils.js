@@ -2,16 +2,15 @@
  * Navigation utility functions.
  */
 import React from 'react';
-import {ListGroup, ListGroupItem} from 'reactstrap';
-import {StyleSheet, css} from 'aphrodite';
+import { ListGroup, ListGroupItem } from 'reactstrap';
+import { StyleSheet, css } from 'aphrodite';
 
 import TagList from './TagList';
 import Column from './Column';
-import {LIGHT_GREY, DARK_GREY} from "../Common/defaults";
+import { LIGHT_GREY, DARK_GREY } from "../Common/defaults";
 import CommonStyles from "../Common/Styles.js";
 import { NavLink } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { generateURLWithParameters } from "../Common/utils";
 
 /**
  * Create the list entry buttons or a single button stating nothing can be
@@ -23,7 +22,7 @@ const CreateNavButtons = (
   props,
   createEntryComponent,
   uidEncoder,
-  ) => {
+) => {
 
   // Apply all filters to the entries.
   const filteredEntries = applyAllFilters(props);
@@ -32,29 +31,25 @@ const CreateNavButtons = (
   const navButtons = filteredEntries.map((entry, entryIndex) => {
     const tags = (
       (props.displayTags && entry.tags)
-      ? <TagList entryName={entry.name} tags={entry.tags}/>
-      : null
+        ? <TagList entryName={entry.name} tags={entry.tags} />
+        : null
     );
 
     const tabIndex = entryIndex + 1;
     const cssClass = [
       styles.navButton, styles.navButtonInteract, CommonStyles.unselectable
     ];
-    const cssActiveClass = [ ...cssClass, styles.navButtonInteractFocus ];
+    const cssActiveClass = [...cssClass, styles.navButtonInteractFocus];
 
-    let [reportuid, ...selectionuids] = uidEncoder ? 
-                                        entry.uids.map(uidEncoder) : 
-                                        entry.uids;
-    const linkTo = generateURLWithParameters(
-      window.location,
-      generatePath(
-        props.url,
-        {
-          uid: reportuid,
-          selection:selectionuids
-        }
-      )
-    );
+    let [reportuid, ...selectionuids] = uidEncoder ?
+      entry.uids.map(uidEncoder) :
+      entry.uids;
+    const linkTo = generatePath(props.url,
+      {
+        uid: reportuid,
+        selection: selectionuids
+      });
+    console.log(linkTo);
 
     return (
       <ListGroupItem
@@ -63,9 +58,9 @@ const CreateNavButtons = (
         className={css(cssClass)}
         activeClassName={css(cssActiveClass)}
         tag={NavLink} to={linkTo} action
-        >          
-          {tags}
-          {createEntryComponent(entry)}          
+      >
+        {tags}
+        {createEntryComponent(entry)}
       </ListGroupItem>
     );
   });
@@ -108,12 +103,12 @@ const applyNamedFilter = (entries, filter) => {
   switch (filter) {
     case 'pass':
       return entries.filter(
-        (entry) => (entry.counter.passed|0) > 0
+        (entry) => (entry.counter.passed | 0) > 0
       );
 
     case 'fail':
       return entries.filter(
-        (entry) => (entry.counter.failed|0) + (entry.counter.error|0) > 0
+        (entry) => (entry.counter.failed | 0) + (entry.counter.error | 0) > 0
       );
 
     default:
@@ -243,9 +238,9 @@ const GetInteractiveNavEntries = (selected) => {
       // at least one testcase is ready to run
       testcaseEntries[idx].action = (
         testcaseEntries[idx].runtime_status === 'running' ||
-        testcaseEntries[idx].runtime_status === 'resetting' ||
-        testcaseEntries[idx].runtime_status === 'waiting'
-          ? 'prohibit': 'play'
+          testcaseEntries[idx].runtime_status === 'resetting' ||
+          testcaseEntries[idx].runtime_status === 'waiting'
+          ? 'prohibit' : 'play'
       );
       testcaseEntries.slice(idx + 1).forEach((entry) => {
         entry.action = 'prohibit';
@@ -257,7 +252,7 @@ const GetInteractiveNavEntries = (selected) => {
     selectedEntry.entries.forEach((childEntry) => {
       if (childEntry.category === 'parametrization') {
         if (childEntry.entries.some(
-          (entry) => {return entry.action === 'play';}
+          (entry) => { return entry.action === 'play'; }
         )) {
           childEntry.action = 'play';
         }
@@ -306,4 +301,5 @@ export {
   GetInteractiveNavEntries,
   GetNavBreadcrumbs,
   GetNavColumn,
+  applyAllFilters
 };

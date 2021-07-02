@@ -26,6 +26,7 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -506,6 +507,7 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -822,6 +824,7 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -1148,6 +1151,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -1630,6 +1634,7 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -2108,6 +2113,7 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -2586,6 +2592,7 @@ exports[`InteractiveReport handles tests being run 1`] = `
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}

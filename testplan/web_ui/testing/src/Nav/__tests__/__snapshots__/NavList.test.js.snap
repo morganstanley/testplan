@@ -38,7 +38,7 @@ exports[`NavList shallow renders and matches snapshot 1`] = `
           "render": [Function],
         }
       }
-      to="/testplan/123?"
+      to="/testplan/123"
     >
       <NavEntry
         caseCountFailed={0}

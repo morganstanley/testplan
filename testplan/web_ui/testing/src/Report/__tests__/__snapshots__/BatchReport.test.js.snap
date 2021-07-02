@@ -463,6 +463,7 @@ exports[`BatchReport loads a more complex report 1`] = `
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <Nav
     displayEmpty={true}
@@ -1355,6 +1356,7 @@ exports[`BatchReport loads a more complex report 1`] = `
         },
       ]
     }
+    treeView={false}
     url="/testplan/:uid/:selection*"
   />
   <ContextProvider
@@ -1841,6 +1843,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <Nav
     displayEmpty={true}
@@ -3028,6 +3031,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
         },
       ]
     }
+    treeView={false}
     url="/testplan/:uid/:selection*"
   />
   <ContextProvider
@@ -3515,6 +3519,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <Nav
     displayEmpty={true}
@@ -4639,6 +4644,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
         },
       ]
     }
+    treeView={false}
     url="/testplan/:uid/:selection*"
   />
   <ContextProvider
@@ -5148,6 +5154,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <Nav
     displayEmpty={true}
@@ -6490,6 +6497,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
         },
       ]
     }
+    treeView={false}
     url="/testplan/:uid/:selection*"
   />
   <ContextProvider
@@ -6712,6 +6720,7 @@ exports[`BatchReport loads a simple report 1`] = `
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <Nav
     displayEmpty={true}
@@ -7076,6 +7085,7 @@ exports[`BatchReport loads a simple report 1`] = `
         },
       ]
     }
+    treeView={false}
     url="/testplan/:uid/:selection*"
   />
   <ContextProvider
@@ -7562,6 +7572,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <Nav
     displayEmpty={true}
@@ -8454,6 +8465,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
         },
       ]
     }
+    treeView={false}
     url="/testplan/:uid/:selection*"
   />
   <ContextProvider
@@ -8548,6 +8560,7 @@ ZeroDivisionError: integer division or modulo by zero
       updateExpandStatusFunc={[Function]}
       updateFilterFunc={[Function]}
       updateTagsDisplayFunc={[Function]}
+      updateTreeViewFunc={[Function]}
     >
       <div>
         <Navbar
@@ -8610,7 +8623,7 @@ ZeroDivisionError: integer division or modulo by zero
                         transform={null}
                       >
                         <svg
-                          aria-labelledby="svg-inline--fa-title-21"
+                          aria-labelledby="svg-inline--fa-title-23"
                           className="svg-inline--fa fa-search fa-w-16 "
                           data-icon="search"
                           data-prefix="fas"
@@ -8620,7 +8633,7 @@ ZeroDivisionError: integer division or modulo by zero
                           xmlns="http://www.w3.org/2000/svg"
                         >
                           <title
-                            id="svg-inline--fa-title-21"
+                            id="svg-inline--fa-title-23"
                             style={Object {}}
                           >
                             Search
@@ -8669,7 +8682,7 @@ ZeroDivisionError: integer division or modulo by zero
                         transform={null}
                       >
                         <svg
-                          aria-labelledby="svg-inline--fa-title-22"
+                          aria-labelledby="svg-inline--fa-title-24"
                           className="svg-inline--fa fa-question-circle fa-w-16 "
                           data-icon="question-circle"
                           data-prefix="fas"
@@ -8679,7 +8692,7 @@ ZeroDivisionError: integer division or modulo by zero
                           xmlns="http://www.w3.org/2000/svg"
                         >
                           <title
-                            id="svg-inline--fa-title-22"
+                            id="svg-inline--fa-title-24"
                             style={Object {}}
                           >
                             Click for help
@@ -8704,7 +8717,7 @@ ZeroDivisionError: integer division or modulo by zero
                             class="searchBoxInfoIcon_107ja4p"
                           >
                             <svg
-                              aria-labelledby="svg-inline--fa-title-22"
+                              aria-labelledby="svg-inline--fa-title-24"
                               class="svg-inline--fa fa-question-circle fa-w-16 "
                               data-icon="question-circle"
                               data-prefix="fas"
@@ -8713,7 +8726,7 @@ ZeroDivisionError: integer division or modulo by zero
                               xmlns="http://www.w3.org/2000/svg"
                             >
                               <title
-                                id="svg-inline--fa-title-22"
+                                id="svg-inline--fa-title-24"
                               >
                                 Click for help
                               </title>
@@ -8750,7 +8763,7 @@ ZeroDivisionError: integer division or modulo by zero
                               class="searchBoxInfoIcon_107ja4p"
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-22"
+                                aria-labelledby="svg-inline--fa-title-24"
                                 class="svg-inline--fa fa-question-circle fa-w-16 "
                                 data-icon="question-circle"
                                 data-prefix="fas"
@@ -8759,7 +8772,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-22"
+                                  id="svg-inline--fa-title-24"
                                 >
                                   Click for help
                                 </title>
@@ -8853,6 +8866,62 @@ ZeroDivisionError: integer division or modulo by zero
                       className="ml-auto navbar-nav"
                     >
                       <NavItem
+                        tag="li"
+                      >
+                        <li
+                          className="nav-item"
+                        >
+                          <div
+                            className="buttonsBar_6zsntc"
+                          >
+                            <FontAwesomeIcon
+                              border={false}
+                              className="toolbarButton_1ueb7gu"
+                              fixedWidth={false}
+                              flip={null}
+                              icon="bars"
+                              inverse={false}
+                              key="navigation-view"
+                              listItem={false}
+                              mask={null}
+                              onClick={[Function]}
+                              pull={null}
+                              pulse={false}
+                              rotation={null}
+                              size={null}
+                              spin={false}
+                              symbol={false}
+                              title="Navigation"
+                              transform={null}
+                            >
+                              <svg
+                                aria-labelledby="svg-inline--fa-title-25"
+                                className="svg-inline--fa fa-bars fa-w-14 toolbarButton_1ueb7gu"
+                                data-icon="bars"
+                                data-prefix="fas"
+                                onClick={[Function]}
+                                role="img"
+                                style={Object {}}
+                                viewBox="0 0 448 512"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <title
+                                  id="svg-inline--fa-title-25"
+                                  style={Object {}}
+                                >
+                                  Navigation
+                                </title>
+                                <path
+                                  d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"
+                                  fill="currentColor"
+                                  style={Object {}}
+                                />
+                              </svg>
+                            </FontAwesomeIcon>
+                          </div>
+                        </li>
+                      </NavItem>
+                      <NavItem
                         key="expand-icon-item"
                         tag="li"
                       >
@@ -8883,7 +8952,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-23"
+                                aria-labelledby="svg-inline--fa-title-26"
                                 className="svg-inline--fa fa-angle-double-down fa-w-10 toolbarButton_1ueb7gu"
                                 data-icon="angle-double-down"
                                 data-prefix="fas"
@@ -8894,7 +8963,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-23"
+                                  id="svg-inline--fa-title-26"
                                   style={Object {}}
                                 >
                                   Expand all assertions
@@ -8940,7 +9009,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-24"
+                                aria-labelledby="svg-inline--fa-title-27"
                                 className="svg-inline--fa fa-angle-double-up fa-w-10 toolbarButton_1ueb7gu"
                                 data-icon="angle-double-up"
                                 data-prefix="fas"
@@ -8951,7 +9020,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-24"
+                                  id="svg-inline--fa-title-27"
                                   style={Object {}}
                                 >
                                   Collapse all assertions
@@ -9013,7 +9082,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 transform={null}
                               >
                                 <svg
-                                  aria-labelledby="svg-inline--fa-title-25"
+                                  aria-labelledby="svg-inline--fa-title-28"
                                   className="svg-inline--fa fa-clock fa-w-16 toolbarButton_1ueb7gu"
                                   data-icon="clock"
                                   data-prefix="fas"
@@ -9024,7 +9093,7 @@ ZeroDivisionError: integer division or modulo by zero
                                   xmlns="http://www.w3.org/2000/svg"
                                 >
                                   <title
-                                    id="svg-inline--fa-title-25"
+                                    id="svg-inline--fa-title-28"
                                     style={Object {}}
                                   >
                                     Display time information
@@ -9070,7 +9139,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-26"
+                                aria-labelledby="svg-inline--fa-title-29"
                                 className="svg-inline--fa fa-info fa-w-6 toolbarButton_1ueb7gu"
                                 data-icon="info"
                                 data-prefix="fas"
@@ -9081,7 +9150,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-26"
+                                  id="svg-inline--fa-title-29"
                                   style={Object {}}
                                 >
                                   Info
@@ -9151,7 +9220,7 @@ ZeroDivisionError: integer division or modulo by zero
                                       transform={null}
                                     >
                                       <svg
-                                        aria-labelledby="svg-inline--fa-title-27"
+                                        aria-labelledby="svg-inline--fa-title-30"
                                         className="svg-inline--fa fa-filter fa-w-16 toolbarButton_1ueb7gu"
                                         data-icon="filter"
                                         data-prefix="fas"
@@ -9161,7 +9230,7 @@ ZeroDivisionError: integer division or modulo by zero
                                         xmlns="http://www.w3.org/2000/svg"
                                       >
                                         <title
-                                          id="svg-inline--fa-title-27"
+                                          id="svg-inline--fa-title-30"
                                           style={Object {}}
                                         >
                                           Choose filter
@@ -9432,7 +9501,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-28"
+                                aria-labelledby="svg-inline--fa-title-31"
                                 className="svg-inline--fa fa-print fa-w-16 toolbarButton_1ueb7gu"
                                 data-icon="print"
                                 data-prefix="fas"
@@ -9443,7 +9512,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-28"
+                                  id="svg-inline--fa-title-31"
                                   style={Object {}}
                                 >
                                   Print page
@@ -9488,7 +9557,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-29"
+                                aria-labelledby="svg-inline--fa-title-32"
                                 className="svg-inline--fa fa-tags fa-w-20 toolbarButton_1ueb7gu"
                                 data-icon="tags"
                                 data-prefix="fas"
@@ -9499,7 +9568,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-29"
+                                  id="svg-inline--fa-title-32"
                                   style={Object {}}
                                 >
                                   Display tags
@@ -9546,7 +9615,7 @@ ZeroDivisionError: integer division or modulo by zero
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-30"
+                                aria-labelledby="svg-inline--fa-title-33"
                                 className="svg-inline--fa fa-book fa-w-14 toolbarButton_1ueb7gu"
                                 data-icon="book"
                                 data-prefix="fas"
@@ -9556,7 +9625,7 @@ ZeroDivisionError: integer division or modulo by zero
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-30"
+                                  id="svg-inline--fa-title-33"
                                   style={Object {}}
                                 >
                                   Documentation
@@ -9618,6 +9687,7 @@ ZeroDivisionError: integer division or modulo by zero
       navListWidth="22em"
       report={null}
       selected={Array []}
+      treeView={false}
       url="/testplan/:uid/:selection*"
     >
       <NavBreadcrumbs
