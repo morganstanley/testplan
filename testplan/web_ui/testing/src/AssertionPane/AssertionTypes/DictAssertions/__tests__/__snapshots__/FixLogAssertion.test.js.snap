@@ -175,7 +175,7 @@ exports[`FixLogAssertion shallow renders the correct HTML structure 1`] = `
         "descriptor": Object {
           "indent": 1,
           "isEmptyLine": false,
-          "isListKey": true,
+          "isListKey": false,
           "lineNo": 688,
           "status": undefined,
         },

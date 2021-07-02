@@ -11,7 +11,6 @@ import {
 } from './dictAssertionUtils';
 import {SORT_TYPES, FILTER_OPTIONS} from './../../../Common/defaults';
 
-
 /**
  * Component that renders FixMatch assertion.
  *
