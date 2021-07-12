@@ -1209,6 +1209,58 @@ Logs a table to console output and the report.
           | MSFT   | 42     |
           +--------+--------+
 
+You can also log a link in the table cell.
+
+    .. code-block:: python
+
+        from testplan.common.serialization.fields import LogLink
+
+        result.table.log(
+            [
+                ["Description", "Data"],
+                [
+                    "External Link",
+                    LogLink(link="https://www.google.com", title="Google"),
+                ],
+            ]
+        )
+
+        # Require plan.runnable.disable_reset_report_uid() in main function
+        # to avoid generating uuid4 as the report uid so that we can use
+        # the test name as the link in the report.
+        result.table.log(
+            [
+                ["Description", "Data"],
+                [
+                    "Internal Link",
+                    # Add an internal link
+                    LogLink(link="/multitest1", title="multitest1", inner=True),
+                ],
+            ]
+        )
+
+Or a custom format value.
+
+    .. code-block:: python
+
+        import time
+        from testplan.common.serialization.fields import FormattedValue
+
+        current_timestamp = time.time()
+        result.table.log(
+            [
+                ["Description", "Data"],
+                [
+                    "Formatted Value - date",
+                    FormattedValue(
+                        display=time.strftime("%H:%M:%S", time.gmtime(current_timestamp)),
+                        value=current_timestamp,
+                    ),
+                ],
+            ]
+        )
+
+
 :py:meth:`result.table.column_contain <testplan.testing.multitest.result.TableNamespace.column_contain>`
 --------------------------------------------------------------------------------------------------------
 
