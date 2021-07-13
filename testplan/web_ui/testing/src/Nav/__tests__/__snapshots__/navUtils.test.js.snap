@@ -31,7 +31,7 @@ Array [
         "render": [Function],
       }
     }
-    to="/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/21739167-b30f-4c13-a315-ef6ae52fd1f7"
+    to="/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/21739167-b30f-4c13-a315-ef6ae52fd1f7?"
   />,
   <ListGroupItem
     action={true}
@@ -62,7 +62,7 @@ Array [
         "render": [Function],
       }
     }
-    to="/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/8c3c7e6b-48e8-40cd-86db-8c8aed2592c8"
+    to="/testplan/520a92e4-325e-4077-93e6-55d7091a3f83/8c3c7e6b-48e8-40cd-86db-8c8aed2592c8?"
   />,
 ]
 `;
