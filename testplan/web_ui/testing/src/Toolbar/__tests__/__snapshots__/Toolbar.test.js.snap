@@ -46,6 +46,34 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
         vertical={false}
       >
         <NavItem
+          tag="li"
+        >
+          <div
+            className="buttonsBar_6zsntc"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_1ueb7gu"
+              fixedWidth={false}
+              flip={null}
+              icon="bars"
+              inverse={false}
+              key="navigation-view"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Navigation"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <NavItem
           key="expand-icon-item"
           tag="li"
         >
@@ -529,6 +557,34 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
         vertical={false}
       >
         <NavItem
+          tag="li"
+        >
+          <div
+            className="buttonsBar_6zsntc"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_1ueb7gu"
+              fixedWidth={false}
+              flip={null}
+              icon="bars"
+              inverse={false}
+              key="navigation-view"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Navigation"
+              transform={null}
+            />
+          </div>
+        </NavItem>
+        <NavItem
           key="expand-icon-item"
           tag="li"
         >
@@ -971,6 +1027,34 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
         tag="ul"
         vertical={false}
       >
+        <NavItem
+          tag="li"
+        >
+          <div
+            className="buttonsBar_6zsntc"
+          >
+            <FontAwesomeIcon
+              border={false}
+              className="toolbarButton_1ueb7gu"
+              fixedWidth={false}
+              flip={null}
+              icon="bars"
+              inverse={false}
+              key="navigation-view"
+              listItem={false}
+              mask={null}
+              onClick={[Function]}
+              pull={null}
+              pulse={false}
+              rotation={null}
+              size={null}
+              spin={false}
+              symbol={false}
+              title="Navigation"
+              transform={null}
+            />
+          </div>
+        </NavItem>
         <NavItem
           key="expand-icon-item"
           tag="li"

@@ -634,6 +634,7 @@ class InteractiveReport extends React.Component {
           handleNavFilter={null}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
+          updateTreeViewFunc={noop}
           updateTagsDisplayFunc={noop}
           extraButtons={[
             <ReloadButton

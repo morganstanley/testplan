@@ -33,6 +33,7 @@ import {
   faPrint,
   faFilter,
   faTags,
+  faBars,
   faQuestionCircle,
   faAngleDoubleDown,
   faAngleDoubleUp,
@@ -47,6 +48,7 @@ library.add(
   faPrint,
   faFilter,
   faTags,
+  faBars,
   faQuestionCircle,
   faAngleDoubleDown,
   faAngleDoubleUp,
@@ -60,6 +62,7 @@ class Toolbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      treeView: false,
       filterOpen: false,
       infoModal: false,
       filter: "all",
@@ -70,11 +73,19 @@ class Toolbar extends Component {
 
     this.filterOnClick = this.filterOnClick.bind(this);
     this.toggleInfoOnClick = this.toggleInfoOnClick.bind(this);
+    this.toggleTreeView = this.toggleTreeView.bind(this);
     this.toggleEmptyDisplay = this.toggleEmptyDisplay.bind(this);
     this.toggleTagsDisplay = this.toggleTagsDisplay.bind(this);
     this.toggleFilterOnClick = this.toggleFilterOnClick.bind(this);
     this.toggleExpand = this.toggleExpand.bind(this);
     this.toggleCollapse = this.toggleCollapse.bind(this);
+  }
+
+  toggleTreeView() {
+    this.props.updateTreeViewFunc(!this.state.treeView);
+    this.setState(prevState => ({
+      treeView: !prevState.treeView
+    }));
   }
 
   toggleInfoOnClick() {
@@ -159,6 +170,25 @@ class Toolbar extends Component {
           </div>
         </NavItem>
       </>
+    );
+  }
+
+  /**
+   * Return the tree view toggle button.
+   */
+  treeViewButton() {
+    return (
+      <NavItem>
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key='navigation-view'
+            className={css(styles.toolbarButton)}
+            icon='bars'
+            title='Navigation'
+            onClick={this.toggleTreeView}
+          />
+        </div>
+      </NavItem>
     );
   }
 
@@ -348,6 +378,7 @@ class Toolbar extends Component {
         {this.filterBox()}
         <Collapse isOpen={this.state.isOpen} navbar className={toolbarStyle}>
           <Nav navbar className="ml-auto">
+            {this.treeViewButton()}
             {this.expandButton()}
             {this.props.extraButtons}
             {this.infoButton()}
@@ -481,6 +512,8 @@ Toolbar.propTypes = {
   updateFilterFunc: PropTypes.func,
   /** Function to handle toggle of displaying empty entries in the navbar */
   updateEmptyDisplayFunc: PropTypes.func,
+  /** Function to handle toggle of displaying tree view navigation or the default one */
+  updateTreeViewFunc: PropTypes.func,
   /** Function to handle toggle of displaying tags in the navbar */
   updateTagsDisplayFunc: PropTypes.func,
   /** Function to handle expressions entered into the Filter box */
