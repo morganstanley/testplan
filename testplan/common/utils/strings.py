@@ -19,6 +19,17 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 _DESCRIPTION_CUTOFF_REGEX = re.compile(r"^(\s|\t)+")
 
 
+def map_to_str(value):
+    """
+    Convert bytes to str byte-by-byte
+    """
+
+    if isinstance(value, bytes):
+        return "".join(map(chr, value))
+    else:
+        return value
+
+
 def to_str(value, encoding="utf-8", errors="strict"):
     """
     Coerce a string to ``str`` type.

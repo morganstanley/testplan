@@ -3,8 +3,8 @@
 """
 This example shows usage of regex assertion namespaces.
 """
-import re
 import os
+import re
 import sys
 from testplan import test_plan
 from testplan.common.utils import comparison
@@ -28,7 +28,15 @@ class RegexSuite:
 
         # We can also pass compiled SRE objects as well:
         result.regex.match(
-            regexp=re.compile("foo"), value="foobar", description="SRE match"
+            regexp=re.compile("foo"),
+            value="foobar",
+            description="re.Pattern match",
+        )
+
+        result.regex.match(
+            regexp=b"\x01\w+ line",
+            value=b"\x01first line \x01 \a\b\c",
+            description="bytes match",
         )
 
         # `regex.multiline_match` implicitly passes `re.MULTILINE`
@@ -38,7 +46,16 @@ class RegexSuite:
             ["first line", "second line", "third line"]
         )
 
-        result.regex.multiline_match("first line.*second", multiline_text)
+        result.regex.multiline_match(
+            "first line.*second", multiline_text, description="multiline match"
+        )
+
+        # supports matching bytes data as well
+        result.regex.multiline_match(
+            b"first line.*second",
+            multiline_text.encode(),
+            description="multiline bytes match",
+        )
 
         # `regex.not_match` returns True if the
         # given pattern does not match the value
@@ -84,7 +101,16 @@ class RegexSuite:
         # `regex.matchline` can be used for checking if a given pattern
         # matches one or more lines in the given text
         result.regex.matchline(
-            regexp=re.compile(r"\w+ line$"), value=multiline_text
+            regexp=re.compile(r"\w+ line$"),
+            value=multiline_text,
+            description="match line",
+        )
+
+        # supports matching bytes data as well
+        result.regex.matchline(
+            regexp=re.compile(b"\w+ line$"),
+            value=multiline_text.encode(),
+            description="match line bytes",
         )
 
 
