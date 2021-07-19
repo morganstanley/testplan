@@ -12,7 +12,6 @@ import getpass
 import uuid
 
 from testplan import Task, TestplanMock
-from testplan.common.utils import path
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.base import Driver, DriverConfig
 from testplan.runners.pools import ThreadPool, ProcessPool
@@ -330,7 +329,7 @@ def test_task_rerun_with_more_times_2(mockplan):
 
 def test_task_rerun_with_parts():
 
-    with path.TemporaryDirectory() as runpath:
+    with tempfile.TemporaryDirectory() as runpath:
         mockplan = TestplanMock(
             "plan", runpath=runpath, merge_scheduled_parts=True
         )

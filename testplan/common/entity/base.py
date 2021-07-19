@@ -545,9 +545,7 @@ class Entity(logger.Loggable):
                 "{} runpath cannot be None".format(self.__class__.__name__)
             )
         self.logger.debug(
-            "{} has {} runpath and pid {}".format(
-                self, self.runpath, os.getpid()
-            )
+            "%s has %s runpath and pid %d", self, self.runpath, os.getpid()
         )
 
         if self.cfg.path_cleanup is False:
@@ -811,10 +809,12 @@ class Runnable(Entity):
         try:
             res = step(*args, **kwargs)
         except Exception as exc:
-            print(
-                "Exception on {}[{}], step {} - {}".format(
-                    self.__class__.__name__, self.uid(), step.__name__, exc
-                )
+            self.logger.error(
+                "Exception on %s[%s], step %s - %s",
+                self.__class__.__name__,
+                self.uid(),
+                step.__name__,
+                str(exc),
             )
             self.logger.error(traceback.format_exc())
             res = exc
@@ -1220,9 +1220,9 @@ class RunnableManager(Entity):
         for sig in self._cfg.abort_signals:
             signal.signal(sig, signal.SIG_IGN)
         self.logger.debug(
-            "Signal handler called for signal {} from {}".format(
-                signum, threading.current_thread()
-            )
+            "Signal handler called for signal %d from %s",
+            signum,
+            threading.current_thread(),
         )
         self.abort()
 
