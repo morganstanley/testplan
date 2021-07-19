@@ -14,8 +14,9 @@ import uuid
 from testplan import Task, TestplanMock
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.base import Driver, DriverConfig
-from testplan.runners.pools import ThreadPool, ProcessPool
 from testplan.common.config import ConfigOption
+from testplan.runners.pools.base import Pool as ThreadPool
+from testplan.runners.pools.process import ProcessPool
 from testplan.common.utils.path import makedirs
 from testplan.report import ReportCategories
 

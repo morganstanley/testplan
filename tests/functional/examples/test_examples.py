@@ -32,10 +32,8 @@ KNOWN_EXCEPTIONS = [
 ]
 
 SKIP = [
-    os.path.join("ExecutionPools", "Remote", "test_plan.py"),
     os.path.join("Interactive", "Basic", "test_plan.py"),
     os.path.join("Interactive", "Environments", "test_plan.py"),
-    os.path.join("ExecutionPools", "Treadmill", "test_plan.py"),
     os.path.join("Data Science", "basic_models", "test_plan.py"),
     os.path.join("Data Science", "overfitting", "test_plan.py"),
     # The FXConverter example is currently unstable - re-enable when fixed.
@@ -45,6 +43,15 @@ SKIP = [
     ),
 ]
 
+REMOTE_HOST = os.environ.get("TESTPLAN_REMOTE_HOST")
+if not REMOTE_HOST:
+    SKIP.extend(
+        (
+            os.path.join("ExecutionPools", "Remote", "test_plan.py"),
+            os.path.join("RemoteDriver", "Basic", "test_plan.py"),
+        )
+    )
+
 SKIP_ON_WINDOWS = [
     os.path.join("Cpp", "GTest", "test_plan.py"),
     os.path.join("Cpp", "Cppunit", "test_plan.py"),
@@ -53,6 +60,8 @@ SKIP_ON_WINDOWS = [
     os.path.join("App", "Basic", "test_plan.py"),
     os.path.join("App", "Autostart", "test_plan.py"),
     os.path.join("JUnit", "test_plan.py"),
+    os.path.join("ExecutionPools", "Remote", "test_plan.py"),
+    os.path.join("RemoteDriver", "Basic", "test_plan.py"),
 ]
 
 

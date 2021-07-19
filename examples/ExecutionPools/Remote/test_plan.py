@@ -6,16 +6,24 @@ Parallel test execution in a remote pool.
 
 import os
 import sys
-import socket
 import getpass
 import shutil
 import tempfile
 
+# Check if the remote host has been specified in the environment. Remote
+# hosts can only be Linux systems.
+REMOTE_HOST = os.environ.get("TESTPLAN_REMOTE_HOST")
+if not REMOTE_HOST:
+    raise RuntimeError(
+        "You must specify a remote Linux host via the TESTPLAN_REMOTE_HOST "
+        "environment var to run this example."
+    )
+
 from testplan import test_plan
 from testplan import Task
-from testplan.runners.pools import RemotePool
+from testplan.runners.pools.remote import RemotePool
 
-from testplan.common.utils.path import module_abspath, pwd
+from testplan.common.utils.path import pwd
 
 from testplan.parser import TestplanParser
 from testplan.report.testing.styles import Style, StyleEnum
@@ -79,26 +87,11 @@ def main(plan):
         (os.path.join(TEMP_DIR, "file2"), "/tmp/remote_example/file2"),
     ]
 
-    # Check if the remote host has been specified in the environment. Remote
-    # hosts can only be Linux systems. If none is specified when running on a
-    # Linux system we can default to using the localhost as our "remote"
-    # worker. Whichever remote host is used must be configured to accept SSH
-    # connections from the localhost.
-    remote_host = os.environ.get("TESTPLAN_REMOTE_HOST")
-    if not remote_host:
-        if os.name == "posix":
-            remote_host = socket.gethostname()
-        else:
-            raise RuntimeError(
-                "You must specify a remote host via the TESTPLAN_REMOTE_HOST "
-                "environment var on non-Linux systems."
-            )
-
     # Add a remote pool test execution resource to the plan of given size.
     pool = RemotePool(
         name="MyPool",
         # Create 3 workers on the same remote host.
-        hosts={remote_host: 3},
+        hosts={REMOTE_HOST: 3},
         # Allow the remote port to be overridden by the
         # environment. Default to 0, which will make testplan use
         # the default SSH port for connections.

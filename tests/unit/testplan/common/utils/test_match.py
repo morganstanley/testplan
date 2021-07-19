@@ -48,7 +48,7 @@ class TestMatchRegexpsInFile(object):
             re.compile(r"(?P<second>second)"),
         ]
 
-        status, values = match_regexps_in_file(basic_logfile, log_extracts)
+        status, values, _ = match_regexps_in_file(basic_logfile, log_extracts)
         assert status is True
         assert isinstance(values["first"], str)
         assert isinstance(values["second"], str)
@@ -59,7 +59,7 @@ class TestMatchRegexpsInFile(object):
             re.compile(br"(?P<second>second)"),
         ]
 
-        status, values = match_regexps_in_file(basic_logfile, log_extracts)
+        status, values, _ = match_regexps_in_file(basic_logfile, log_extracts)
         assert status is True
         assert isinstance(values["first"], bytes)
         assert isinstance(values["second"], bytes)
@@ -70,7 +70,7 @@ class TestMatchRegexpsInFile(object):
             re.compile(br"(?P<second>second)"),
         ]
 
-        status, values = match_regexps_in_file(basic_logfile, log_extracts)
+        status, values, _ = match_regexps_in_file(basic_logfile, log_extracts)
         assert status is True
         assert isinstance(values["first"], bytes)
         assert isinstance(values["second"], bytes)

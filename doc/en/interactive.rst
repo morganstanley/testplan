@@ -42,9 +42,11 @@ interrupt processes started as part of the test environment.
 
 How code reloading works
 ------------------------
-The interactive mode only reloads modules under the directory of the test_plan script being run.
-The reload happens on reload API and only applies to modules that have either
-been modified or have had its dependencies reloaded.
+By default interactive mode only reloads modules under the directory of the
+main testplan script being run. To be able to reload from other directory, use
+the ``extra_deps`` parameter of ``@test_plan`` decorator. The reload happens on
+reload API and only applies to modules that have either been modified or have
+had its dependencies reloaded.
 
 Please note the ``__main__`` module (i.e. test_plan.py) cannot be reloaded.
 Because of this, it is recommended that test suites are defined in seperate modules.

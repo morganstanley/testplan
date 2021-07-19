@@ -145,6 +145,14 @@ class TCPServer(Driver):
         self._host = self.cfg.host
         self._port = self._server.port
 
+        self.logger.info(
+            "%s(%s) listening on %s:%s",
+            type(self).__name__,
+            self.name,
+            self.host,
+            self.port,
+        )
+
     def _stop_logic(self):
         if self._server:
             self._server.close()

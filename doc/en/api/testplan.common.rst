@@ -12,6 +12,7 @@ Subpackages
     testplan.common.report
     testplan.common.serialization
     testplan.common.utils
+    testplan.common.remote
 
 
 Module contents

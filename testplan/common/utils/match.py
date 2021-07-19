@@ -11,7 +11,7 @@ from . import logger
 LOG_MATCHER_INTERVAL = 0.25
 
 
-def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
+def match_regexps_in_file(logpath, log_extracts):
     """
     Return a boolean, dict pair indicating whether all log extracts matches,
     as well as any named groups they might have matched.
@@ -20,8 +20,6 @@ def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
     :type logpath: ``str``
     :param log_extracts:  Regex list.
     :type log_extracts: ``Union[bytes, str]``
-    :param return_unmatched: Flag for return unmatched regex. Default: False
-    :type return_unmatched: ``bool```
     :return: Match result.
     :rtype: ``tuple``
 
@@ -29,9 +27,7 @@ def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
     extracted_values = {}
 
     if not os.path.exists(logpath):
-        if return_unmatched:
-            return False, extracted_values, log_extracts
-        return False, extracted_values
+        return False, extracted_values, log_extracts
 
     extracts_status = [False for _ in log_extracts]
 
@@ -57,14 +53,10 @@ def match_regexps_in_file(logpath, log_extracts, return_unmatched=False):
                     extracted_values.update(match.groupdict())
                     extracts_status[pos] = True
 
-    if return_unmatched:
-        unmatched = [
-            exc
-            for idx, exc in enumerate(log_extracts)
-            if not extracts_status[idx]
-        ]
-        return all(extracts_status), extracted_values, unmatched
-    return all(extracts_status), extracted_values
+    unmatched = [
+        exc for idx, exc in enumerate(log_extracts) if not extracts_status[idx]
+    ]
+    return all(extracts_status), extracted_values, unmatched
 
 
 class LogMatcher(logger.Loggable):

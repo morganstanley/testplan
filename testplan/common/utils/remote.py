@@ -1,77 +1,136 @@
 """Remote execution utilities."""
 
 import os
+import platform
+import socket
 import sys
 import getpass
 import subprocess
 
+IS_WIN = platform.system() == "Windows"
+USER = getpass.getuser()
+DEFAULT_SSH_OPT = "-p {port} {user}@{host}"
 
-def ssh_cmd(ssh_cfg, command):
-    """Returns ssh command."""
+
+def worker_is_remote(remote_host):
+    """
+    Check remote_host is not the same as current.
+    """
+    try:
+        socket.inet_aton(remote_host)
+    except socket.error:
+        remote_ip = socket.gethostbyname(remote_host)
+    else:
+        remote_ip = remote_host
+
+    local_ip = socket.gethostbyname(socket.gethostname())
+
+    return local_ip != remote_ip
+
+
+def ssh_bin():
     try:
         binary = os.environ["SSH_BINARY"]
     except KeyError:
-        if os.name != "nt":
+        if IS_WIN:
+            raise Exception("SSH binary not provided.")
+        else:
             binary = (
                 subprocess.check_output("which ssh", shell=True)
                 .decode(sys.stdout.encoding)
                 .strip()
             )
-        else:
-            raise Exception("SSH binary not provided.")
+    return binary
 
-    cmd = [binary]
-    cmd.extend(["-o", "ConnectTimeout=10"])
 
-    if ssh_cfg.get("port"):
-        cmd.extend(["-p", ssh_cfg["port"]])
+def ssh_cmd(ssh_cfg, command):
+    """
+    Prefix command with ssh binary and option.
 
-    cmd.append("{}@{}".format(getpass.getuser(), ssh_cfg["host"]))
-    cmd.append(command)
+    :param ssh_cfg: dict with "host" and "port" (optional) keys
+    :param command: command to execute on remote host
+    :return: full cmd list
+    """
+    full_cmd = [ssh_bin()]
 
-    return cmd
+    ssh_opt = os.environ.get("SSH_OPT") or DEFAULT_SSH_OPT
+
+    full_cmd.extend(
+        ssh_opt.format(
+            port=ssh_cfg.get("port", 22),
+            user=USER,
+            host=ssh_cfg["host"],
+        ).split(" ")
+    )
+    full_cmd.append(command)
+    return full_cmd
 
 
 def copy_cmd(source, target, exclude=None, port=None, deref_links=False):
     """Returns remote copy command."""
-    if os.environ.get("RSYNC_BINARY"):
-        cmd = [os.environ["RSYNC_BINARY"], "-r"]
-        cmd.append("-L" if deref_links else "-l")
 
+    try:
+        binary = os.environ["RSYNC_BINARY"]
+    except KeyError:
+        if IS_WIN:
+            binary = None
+        else:
+            binary = (
+                subprocess.check_output("which rsync", shell=True)
+                .decode(sys.stdout.encoding)
+                .strip()
+            )
+
+    if binary:
+        full_cmd = [binary, "-r"]
         if exclude is not None:
             for item in exclude:
-                cmd.extend(["--exclude", item])
+                full_cmd.extend(["--exclude", item])
 
         if port is not None:
             # Add '-e "ssh -p "' option to rsync command
-            ssh = "{} -p {}".format(os.environ["SSH_BINARY"], port)
-            cmd.extend(["-e", ssh])
+            ssh = "{} -p {}".format(ssh_bin(), port)
+            full_cmd.extend(["-e", ssh])
 
-        cmd.extend([source, target])
-        return cmd
+        full_cmd.extend([source, target])
+        return full_cmd
 
-    # Proceed with SCP.
-    try:
-        binary = os.environ["SCP_BINARY"]
-    except:
-        if os.name != "nt":
-            binary = bytes(
-                subprocess.check_output("which scp", shell=True).strip()
-            ).decode("utf-8")
-        else:
-            raise Exception("SCP binary not provided.")
-    cmd = [binary, "-r"]
-    if port is not None:
-        cmd.extend(["-P", port])
-    cmd.extend([source, target])
-    return cmd
+    else:
+        # Proceed with SCP
+        try:
+            binary = os.environ["SCP_BINARY"]
+        except KeyError:
+            if not IS_WIN:
+                binary = (
+                    subprocess.check_output("which scp", shell=True)
+                    .decode(sys.stdout.encoding)
+                    .strip()
+                )
+            else:
+                raise Exception("SCP binary not provided.")
+
+        full_cmd = [binary, "-r"]
+        if port is not None:
+            full_cmd.extend(["-P", port])
+        full_cmd.extend([source, target])
+        return full_cmd
 
 
 def link_cmd(path, link):
     """Returns link creation command."""
-    return ["ln", "-sfn", path, link]
+    return " ".join(["ln", "-sfn", path, link])
 
 
-def remote_filepath_exists(ssh_cmd, ssh_cfg, path):
+def mkdir_cmd(path):
+    """Return mkdir command"""
+    return " ".join(["/bin/mkdir", "-p", path])
+
+
+def rm_cmd(path):
+    """Return rm command"""
+    return " ".join(["/bin/rm", "-rf", path])
+
+
+def filepath_exist_cmd(path):
     """Checks if filepath exists."""
-    return ssh_cmd(ssh_cfg, "test -e {}".format(path))
+    return " ".join(["test", "-e", path])

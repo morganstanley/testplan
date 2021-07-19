@@ -7,7 +7,7 @@ import os
 import pytest
 
 from testplan import TestplanMock, Task
-from testplan.runners.pools import ProcessPool
+from testplan.runners.pools.process import ProcessPool
 
 from testplan.common.utils.testing import check_report
 

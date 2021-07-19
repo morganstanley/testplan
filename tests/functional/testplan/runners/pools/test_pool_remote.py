@@ -5,13 +5,17 @@ import pytest
 import shutil
 import tempfile
 
-from testplan.runners.pools import RemotePool
+from testplan.runners.pools.remote import RemotePool
 
 from .func_pool_base_tasks import schedule_tests_to_pool
 
+REMOTE_HOST = os.environ.get("TESTPLAN_REMOTE_HOST")
+pytestmark = pytest.mark.skipif(
+    not REMOTE_HOST,
+    reason="Remote host not specified, skip remote pool test",
+)
 # tests/helpers are on the pythonpath
 from pytest_test_filters import skip_on_windows
-from remote_utils import mock_ssh, strip_host, copytree
 
 
 def setup_workspace():
@@ -35,9 +39,7 @@ def setup_workspace():
             os.path.join(orig_tests_dir, os.pardir)
         )
 
-    tmp_tests_dir = os.path.join(workspace, "tests")
-
-    copytree("{}{}".format(orig_tests_dir, os.path.sep), tmp_tests_dir)
+    shutil.copytree(orig_tests_dir, os.path.join(workspace, "tests"))
 
     # We need to schedule tests from the directory of this script but within
     # the workspace.
@@ -63,11 +65,8 @@ def test_pool_basic(mockplan, remote_pool_type):
         schedule_tests_to_pool(
             mockplan,
             RemotePool,
-            hosts={"localhost": 2},
-            ssh_cmd=mock_ssh,
-            copy_cmd=strip_host,
+            hosts={REMOTE_HOST: 2},
             workspace=workspace,
-            copy_workspace_check=None,
             pool_type=remote_pool_type,
             schedule_path=schedule_path,
         )

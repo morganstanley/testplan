@@ -186,6 +186,7 @@ License information `here <https://github.com/morganstanley/testplan/blob/main/L
    output
    interactive
    pools
+   remote
    api
    download/index
    design

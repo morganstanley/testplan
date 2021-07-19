@@ -5,7 +5,7 @@ import os
 import pytest
 
 from testplan.report import Status
-from testplan.runners.pools import ProcessPool
+from testplan.runners.pools.process import ProcessPool
 from testplan.testing import multitest
 
 from tests.functional.testplan.runners.pools.func_pool_base_tasks import (

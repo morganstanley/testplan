@@ -23,6 +23,7 @@ def test_graph():
             [sys.executable, testplan_script, "--json", output_json],
             stdout=subprocess.PIPE,
             universal_newlines=True,
+            env={"PYTHONPATH": ":".join(sys.path)},
         )
 
         stdout, _ = proc.communicate()

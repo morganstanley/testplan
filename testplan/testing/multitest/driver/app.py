@@ -12,6 +12,7 @@ import socket
 from schema import Or
 
 from testplan.common.config import ConfigOption
+from testplan.common.utils.match import LogMatcher
 from testplan.common.utils.path import StdFiles, makedirs
 from testplan.common.utils.context import is_context, expand
 from testplan.common.utils.process import subprocess_popen, kill_process
@@ -106,6 +107,7 @@ class App(Driver):
         self._binpath = None
         self._etcpath = None
         self._retcode = None
+        self._log_matcher = None
 
     @property
     def pid(self):
@@ -200,6 +202,23 @@ class App(Driver):
     def etcpath(self):
         """'etc' directory under runpath."""
         return self._etcpath
+
+    @property
+    def log_matcher(self, path=None):
+        """
+        Create if not exist and return the LogMatcher object that reads user
+        specified file path or the log / stdout of the driver.
+
+        :param path: path to the log file
+        :param path: ``str``
+        :return: LogMatcher instance
+        :rtype: ``LogMatcher``
+        """
+        path = path or self.logpath
+
+        if not self._log_matcher:
+            self._log_matcher = LogMatcher(path)
+        return self._log_matcher
 
     def _prepare_binary(self, path):
         """prepare binary path"""
@@ -320,6 +339,7 @@ class App(Driver):
         self.proc = None
         if self.std:
             self.std.close()
+        self._log_matcher = None
 
     def _make_dirs(self):
         bin_dir = os.path.join(self.runpath, "bin")

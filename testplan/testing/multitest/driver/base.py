@@ -184,9 +184,6 @@ class Driver(Resource):
         """Steps to be executed right before driver starts."""
         self.make_runpath_dirs()
 
-    def post_start(self):
-        """Steps to be executed right after driver is started."""
-
     def started_check(self, timeout=None):
         """Driver started status condition check."""
         wait(
@@ -194,12 +191,6 @@ class Driver(Resource):
             timeout or self.cfg.timeout,
             raise_on_timeout=True,
         )
-
-    def pre_stop(self):
-        """Steps to be executed right before driver stops."""
-
-    def post_stop(self):
-        """Steps to be executed right after driver is stopped"""
 
     def stopped_check(self, timeout=None):
         """Driver stopped status condition check."""
@@ -272,7 +263,7 @@ class Driver(Resource):
 
         for outfile, regexps, unmatched in regex_sources:
             file_result, file_extracts, file_unmatched = match_regexps_in_file(
-                logpath=outfile, log_extracts=regexps, return_unmatched=True
+                logpath=outfile, log_extracts=regexps
             )
             unmatched.extend(file_unmatched)
             for k, v in file_extracts.items():

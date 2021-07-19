@@ -1,6 +1,6 @@
 """TODO."""
 
-from testplan.runners import RunnableTaskAdaptor
+from testplan.runners.pools.tasks import RunnableTaskAdaptor
 
 
 class Runnable(object):

@@ -41,6 +41,7 @@ REQUIRED = [
     "boltons",
     "Pillow",
     "plotly",
+    "rpyc",
 ]
 
 WEB_UI_PACKAGE_DIR = "testplan/web_ui/"

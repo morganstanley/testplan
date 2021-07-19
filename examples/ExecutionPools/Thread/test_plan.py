@@ -8,7 +8,7 @@ import sys
 from testplan import test_plan
 from testplan import Task
 from testplan.parser import TestplanParser
-from testplan.runners.pools import ThreadPool
+from testplan.runners.pools.base import Pool as ThreadPool
 from testplan.report.testing.styles import Style, StyleEnum
 
 
