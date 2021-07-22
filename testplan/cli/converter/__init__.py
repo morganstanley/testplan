@@ -11,9 +11,14 @@ def convert():
 
 @convert.resultcallback()
 def run_actions(actions):
-    result = None
-    for action in actions:
-        result = action(result)
+
+    parse, *processors = actions
+    # TODO: validate the action chain should be a single parser and processors
+
+    result = parse()
+
+    for process in processors:
+        result = process(result)
 
 
 reader_commands.register_to(convert)

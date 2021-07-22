@@ -1,9 +1,11 @@
 import click
 
+from testplan.cli.utils.actions import ParseSingleAction
 from testplan.cli.utils.command_list import CommandList
 from testplan.importers.cppunit import CPPUnitResultImporter
 from testplan.importers.gtest import GTestResultImporter
 from testplan.importers.testplan import TestplanResultImporter
+from testplan.report import TestReport
 
 reader_commands = CommandList()
 
@@ -37,33 +39,29 @@ def with_plan_options(fn):
     return fn
 
 
+class ReaderAction(ParseSingleAction):
+    def __init__(self, importer, *args, **kwargs):
+        self.importer = importer(*args, **kwargs)
+
+    def __call__(self) -> TestReport:
+        return self.importer.import_result().as_test_report()
+
+
 @reader_commands.command(name="fromcppunit")
 @with_input
 @with_plan_options
 def from_cppunit(source, name, description):
-    def parse(result):
-        importer = CPPUnitResultImporter(source, name, description)
-        return importer.import_result().as_test_report()
-
-    return parse
+    return ReaderAction(CPPUnitResultImporter, source, name, description)
 
 
 @reader_commands.command(name="fromgtest")
 @with_input
 @with_plan_options
 def from_gtest(source, name, description):
-    def parse(result):
-        importer = GTestResultImporter(source, name, description)
-        return importer.import_result().as_test_report()
-
-    return parse
+    return ReaderAction(GTestResultImporter, source, name, description)
 
 
 @reader_commands.command(name="fromjson")
 @with_input
 def from_json(source):
-    def parse(result):
-        importer = TestplanResultImporter(source)
-        return importer.import_result().as_test_report()
-
-    return parse
+    return ReaderAction(TestplanResultImporter, source)
