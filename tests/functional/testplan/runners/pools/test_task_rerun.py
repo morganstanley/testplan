@@ -15,7 +15,7 @@ from testplan import Task, TestplanMock
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.base import Driver, DriverConfig
 from testplan.runners.pools import ThreadPool, ProcessPool
-from testplan.common.config import ConfigOption as Optional
+from testplan.common.config import ConfigOption
 from testplan.common.utils.path import makedirs
 from testplan.report import ReportCategories
 
@@ -24,8 +24,8 @@ class MockDriverConfig(DriverConfig):
     @classmethod
     def get_options(cls):
         return {
-            Optional("start_raises", default=False): bool,
-            Optional("stop_raises", default=False): bool,
+            ConfigOption("start_raises", default=False): bool,
+            ConfigOption("stop_raises", default=False): bool,
         }
 
 
