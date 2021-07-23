@@ -40,6 +40,7 @@ REQUIRED = [
     "Werkzeug<1.0.0",
     "boltons",
     "Pillow",
+    "plotly",
 ]
 
 WEB_UI_PACKAGE_DIR = "testplan/web_ui/"
