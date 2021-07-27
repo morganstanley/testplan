@@ -5,6 +5,7 @@ from typing import Union, List
 import click
 
 from testplan.cli.converter import writer_commands, reader_commands
+from testplan.cli.merger.mergers import SimpleCombiner
 from testplan.cli.utils.actions import (
     ParseSingleAction,
     ParseMultipleAction,
@@ -40,7 +41,7 @@ def run_actions(actions):
         run_parse_action(action, results)
 
     # phase2 merged
-    merged_result = None
+    merged_result = SimpleCombiner().merge(results)
     # phase3 outputs/postprocessing
     for process in dropwhile(is_parse_action, actions):
         merged_result = process(merged_result)
