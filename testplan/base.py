@@ -1,41 +1,41 @@
 """Testplan base module."""
 import os
 import random
+import argparse
 import tempfile
 
-from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
+from schema import And
+
+from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common import entity
-from testplan.common.utils.callable import arity
-from testplan.common.utils.validation import is_subclass, has_method
-from testplan.parser import TestplanParser
-from testplan.runners import LocalRunner
-from testplan.runnable.interactive import TestRunnerIHandler
-from testplan.environment import Environments
 from testplan.common.utils import logger
 from testplan.common.utils import path
-from testplan import defaults
+from testplan.common.utils.callable import arity
+from testplan.common.utils.validation import is_subclass, has_method
 from testplan.testing import filtering
 from testplan.testing import ordering
-from testplan.common.utils.path import slugify
+from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
+from testplan.runnable.interactive import TestRunnerIHandler
+from testplan.parser import TestplanParser
+from testplan.runners import LocalRunner
+from testplan.environment import Environments
 
 
 class TestplanConfig(entity.RunnableManagerConfig, TestRunnerConfig):
     """
-    Configuration object for
-    :py:class:`~testplan.base.Testplan` entity.
+    Configuration object for :py:class:`~testplan.base.Testplan` entity.
     """
 
     @classmethod
     def get_options(cls):
-        """Additional config options for Testplan class"""
+        """Additional and updated config options for Testplan class."""
         return {
-            ConfigOption("runnable", default=TestRunner): is_subclass(
-                TestRunner
+            ConfigOption("parser", default=TestplanParser): And(
+                has_method("parse_args"), has_method("process_args")
             ),
-            ConfigOption("resources", default=[]): [entity.Resource],
-            ConfigOption("parser", default=TestplanParser): has_method(
-                "parse_args"
+            ConfigOption("runnable", default=TestRunner): is_subclass(
+                entity.Runnable
             ),
         }
 
@@ -69,9 +69,9 @@ class Testplan(entity.RunnableManager):
     selectively execute a subset or a shuffled set of those tests.
 
     It manages a
-    :py:class:`~testplan.runnable.TestRunner` to execute the tests
-    and also accepts all :py:class:`~testplan.runnable.TestRunnerConfig`
-    options.
+    :py:class:`~testplan.runnable.TestRunner` to execute the tests and also
+    accepts all :py:class:`~testplan.common.entity.base.RunnableManagerConfig`
+    and :py:class:`~testplan.runnable.TestRunnerConfig` options.
 
     Since it's a manager of a TestRunner object, it **exposes all**
     :py:class:`~testplan.runnable.TestRunner`,
@@ -86,6 +86,8 @@ class Testplan(entity.RunnableManager):
     :type description: ``str``
     :param parse_cmdline: Parse command line arguments.
     :type parse_cmdline: ``bool``
+    :param parser: Command line parser.
+    :type parser: :py:class:`~testplan.parser.TestplanParser`
     :param interactive_port: Enable interactive execution mode on a port.
     :type interactive_port: ``int`` or ``NoneType``
     :param abort_signals: Signals to catch and trigger abort. By default,
@@ -155,8 +157,12 @@ class Testplan(entity.RunnableManager):
     :param interactive_handler: Handler for interactive mode execution.
     :type interactive_handler: Subclass of :py:class:
         `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
-    :param extra_deps: Extra module dependencies for interactive reload.
-    :type extra_deps: ``list`` of ``module``
+    :param extra_deps: Extra module dependencies for interactive reload, or
+        paths of these modules.
+    :type extra_deps: ``list`` of ``module`` or ``str``
+    :param label: Label the test report with the given name, useful to
+        categorize or classify similar reports .
+    :type label: ``str`` or ``NoneType``
     """
 
     CONFIG = TestplanConfig
@@ -169,6 +175,7 @@ class Testplan(entity.RunnableManager):
         name,
         description=None,
         parse_cmdline=True,
+        parser=TestplanParser,
         interactive_port=None,
         abort_signals=None,
         logger_level=logger.TEST_INFO,
@@ -200,6 +207,7 @@ class Testplan(entity.RunnableManager):
         timeout=defaults.TESTPLAN_TIMEOUT,
         interactive_handler=TestRunnerIHandler,
         extra_deps=None,
+        label=None,
         **options
     ):
 
@@ -215,10 +223,16 @@ class Testplan(entity.RunnableManager):
         if report_tags_all is None:
             report_tags_all = []
 
+        # Define instance attributes
+        self._parsed_args = argparse.Namespace()
+        self._processed_args = {}
+        self._default_options = {}
+
         super(Testplan, self).__init__(
             name=name,
             description=description,
             parse_cmdline=parse_cmdline,
+            parser=parser,
             interactive_port=interactive_port,
             abort_signals=abort_signals,
             logger_level=logger_level,
@@ -250,12 +264,11 @@ class Testplan(entity.RunnableManager):
             timeout=timeout,
             interactive_handler=interactive_handler,
             extra_deps=extra_deps,
+            label=label,
             **options
         )
-        for resource in self._cfg.resources:
-            self._runnable.add_resource(resource)
 
-        # Stores local tests.
+        # By default, a LocalRunner is added to store and execute the tests.
         self._runnable.add_resource(LocalRunner(), uid="local_runner")
 
         # Stores independent environments.
@@ -269,11 +282,6 @@ class Testplan(entity.RunnableManager):
         )
 
     @property
-    def runnable(self):
-        """Runnable instance."""
-        return self._runnable
-
-    @property
     def args(self):
         """Parsed arguments."""
         return self._parsed_args
@@ -283,14 +291,12 @@ class Testplan(entity.RunnableManager):
         """Processed parsed arguments."""
         return self._processed_args
 
-    def _enrich_options(self, options):
+    def enrich_options(self, options):
         """
         Enrich the options using parsed command line arguments.
-
         The command line arguments will override any explicit programmatic
         declaration for a given keyword.
         """
-        self._default_options = options
         parser = self.parser
         self._parsed_args = parser.parse_args()
         self._processed_args = parser.process_args(self._parsed_args)
@@ -300,7 +306,6 @@ class Testplan(entity.RunnableManager):
 
     def run(self):
         """
-        TODO
         Runs the tests added and returns the result object.
 
         :return: Result containing tests and execution steps results.
@@ -324,6 +329,7 @@ class Testplan(entity.RunnableManager):
         name,
         description=None,
         parse_cmdline=True,
+        parser=TestplanParser,
         interactive_port=None,
         abort_signals=None,
         logger_level=logger.TEST_INFO,
@@ -355,6 +361,7 @@ class Testplan(entity.RunnableManager):
         timeout=defaults.TESTPLAN_TIMEOUT,
         interactive_handler=TestRunnerIHandler,
         extra_deps=None,
+        label=None,
         **options
     ):
         """
@@ -378,6 +385,7 @@ class Testplan(entity.RunnableManager):
                     name=name,
                     description=description,
                     parse_cmdline=parse_cmdline,
+                    parser=parser,
                     interactive_port=interactive_port,
                     abort_signals=abort_signals,
                     logger_level=logger_level,
@@ -409,6 +417,7 @@ class Testplan(entity.RunnableManager):
                     timeout=timeout,
                     interactive_handler=interactive_handler,
                     extra_deps=extra_deps,
+                    label=label,
                     **options
                 )
                 try:
@@ -435,7 +444,7 @@ test_plan = Testplan.main_wrapper
 
 def default_runpath_mock(entity):
     """To avoid runpath collision in testing"""
-    prefix = "{}_".format(slugify(entity.uid()))
+    prefix = "{}_".format(path.slugify(entity.uid()))
     if os.environ.get("TEST_ROOT_RUNPATH"):
         return tempfile.mkdtemp(
             prefix=prefix, dir=os.environ["TEST_ROOT_RUNPATH"]

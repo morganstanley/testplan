@@ -73,6 +73,12 @@ class Multiplier(Runnable):
     pass
 
 
+class Wrapper(object):
+    """TODO."""
+
+    InnerMultiplier = Multiplier
+
+
 def callable_to_non_runnable(number):
     """TODO."""
     return NonRunnable(number)

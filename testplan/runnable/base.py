@@ -269,8 +269,12 @@ class TestRunner(Runnable):
     :param interactive_handler: Handler for interactive mode execution.
     :type interactive_handler: Subclass of :py:class:
         `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
-    :param extra_deps: Extra module dependencies for interactive reload.
-    :type extra_deps: ``list`` of ``module``
+    :param extra_deps: Extra module dependencies for interactive reload, or
+        paths of these modules.
+    :type extra_deps: ``list`` of ``module`` or ``str``
+    :param label: Label the test report with the given name, useful to
+        categorize or classify similar reports .
+    :type label: ``str`` or ``NoneType``
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Runnable` options.
@@ -374,14 +378,13 @@ class TestRunner(Runnable):
 
     def add_resource(self, resource, uid=None):
         """
-        Adds a test
-        :py:class:`executor <testplan.runners.base.Executor>`
+        Adds a test :py:class:`executor <testplan.runners.base.Executor>`
         resource in the test runner environment.
 
         :param resource: Test executor to be added.
         :type resource: Subclass of :py:class:`~testplan.runners.base.Executor`
         :param uid: Optional input resource uid.
-        :type uid: ``str``
+        :type uid: ``str`` or ``NoneType``
         :return: Resource uid assigned.
         :rtype:  ``str``
         """
