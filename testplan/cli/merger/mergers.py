@@ -4,6 +4,10 @@ from testplan.report import TestReport
 
 
 class SimpleCombiner:
+    '''
+    Simple Combiner that just put each toplevel tests from
+    testplans next to each other into a testplan
+    '''
     RESULT_DESCRIPTION_HEADER = "Merged report"
 
     @staticmethod

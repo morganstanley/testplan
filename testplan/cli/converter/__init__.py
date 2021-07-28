@@ -1,7 +1,7 @@
 import click
 
-from testplan.cli.converter.readers import reader_commands
-from testplan.cli.converter.writers import writer_commands
+from testplan.cli.commands import single_reader_commands
+from testplan.cli.commands import writer_commands
 
 
 @click.group(name="convert", chain=True)
@@ -21,5 +21,5 @@ def run_actions(actions):
         result = process(result)
 
 
-reader_commands.register_to(convert)
+single_reader_commands.register_to(convert)
 writer_commands.register_to(convert)

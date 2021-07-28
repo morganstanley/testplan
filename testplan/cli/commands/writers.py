@@ -1,5 +1,3 @@
-from email.policy import default
-
 import click
 
 from testplan.cli.utils.command_list import CommandList

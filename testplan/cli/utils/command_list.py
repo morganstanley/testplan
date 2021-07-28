@@ -2,8 +2,8 @@ import click
 
 
 class CommandList:
-    def __init__(self):
-        self.commands = []
+    def __init__(self, commands=None):
+        self.commands = commands or []
 
     def command(self, *args, **kwargs):
         def inner(func):
