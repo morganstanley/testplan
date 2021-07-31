@@ -19,7 +19,7 @@ from testplan.common.utils.thread import execute_as_thread
 from testplan.common.utils.timing import wait
 from testplan.common.utils.path import makeemptydirs, makedirs, default_runpath
 from testplan.common.utils.strings import slugify, uuid4
-from testplan.common.utils.validation import is_subclass, has_method
+from testplan.common.utils.validation import is_subclass
 from testplan.common.utils import logger
 
 
@@ -69,9 +69,6 @@ class Environment(object):
         Remove resource with the given uid from the environment.
         """
         del self._resources[uid]
-
-    def first(self):
-        return next(uid for uid in self._resources.keys())
 
     def get(self, key, default=None):
         # For compatibility reason, acts like a dictionary which has
@@ -614,6 +611,9 @@ class RunnableConfig(EntityConfig):
         return {
             # IHandlers explicitly enable interactive mode of runnables.
             ConfigOption("interactive_port", default=None): Or(None, int),
+            ConfigOption("interactive_handler", default=None): Or(
+                None, is_subclass(Entity)
+            ),
             ConfigOption(
                 "interactive_block",
                 default=hasattr(sys.modules["__main__"], "__file__"),
@@ -711,7 +711,7 @@ class Runnable(Entity):
         """
         resource.parent = self
         resource.cfg.parent = self.cfg
-        return self.resources.add(resource, uid=uid or uuid4())
+        return self.resources.add(resource, uid=uid)
 
     def _add_step(self, step, *args, **kwargs):
         self._steps.append((step, args, kwargs))
@@ -890,6 +890,9 @@ class Runnable(Entity):
                             self, self._ihandler
                         )
                     )
+                if self.cfg.interactive_handler is None:
+                    raise NotImplementedError()
+
                 self.logger.test_info("Starting %s in interactive mode", self)
                 self._ihandler = self.cfg.interactive_handler(
                     target=self, http_port=self.cfg.interactive_port
@@ -897,6 +900,7 @@ class Runnable(Entity):
                 self._ihandler.parent = self
                 thread = threading.Thread(target=self._ihandler)
                 thread.start()
+
                 # Check if we are on interactive session.
                 if self.cfg.interactive_block:
                     while self._ihandler.active:

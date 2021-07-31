@@ -66,6 +66,7 @@ class Environments(Resource):
 
     def __init__(self, **options):
         super(Environments, self).__init__(**options)
+        self._uid = "environments"
         self._envs = {}
 
     @property

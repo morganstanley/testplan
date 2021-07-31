@@ -13,16 +13,18 @@ from schema import Or, And, Use
 from testplan import defaults
 from testplan.common.config import ConfigOption
 from testplan.common.entity import (
+    Entity,
+    Runnable,
     RunnableConfig,
     RunnableStatus,
     RunnableResult,
-    Runnable,
 )
 from testplan.common.exporters import BaseExporter, ExporterResult
 from testplan.common.report import MergeError
 from testplan.common.utils import logger
 from testplan.common.utils import strings
 from testplan.common.utils.path import default_runpath
+from testplan.common.utils.validation import is_subclass
 from testplan.exporters import testing as test_exporters
 from testplan.report import (
     TestReport,
@@ -152,7 +154,7 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("abort_wait_timeout", default=60): int,
             ConfigOption(
                 "interactive_handler", default=TestRunnerIHandler
-            ): object,
+            ): is_subclass(Entity),
             ConfigOption("extra_deps", default=[]): list,
             ConfigOption("label", default=None): Or(None, str),
         }
@@ -297,6 +299,7 @@ class TestRunner(Runnable):
             label=self.cfg.label,
         )
         self._exporters = None
+        self._default_runner = None
         self._web_server_thread = None
         self._file_log_handler = None
         self._configure_stdout_logger()
@@ -309,6 +312,10 @@ class TestRunner(Runnable):
     def report(self):
         """Tests report."""
         return self._result.test_report
+
+    @property
+    def default_runner(self):
+        return self._default_runner
 
     @property
     def exporters(self):
@@ -376,7 +383,7 @@ class TestRunner(Runnable):
         resource.add(target, env_uid)
         return env_uid
 
-    def add_resource(self, resource, uid=None):
+    def add_resource(self, resource, uid=None, default=False):
         """
         Adds a test :py:class:`executor <testplan.runners.base.Executor>`
         resource in the test runner environment.
@@ -385,14 +392,15 @@ class TestRunner(Runnable):
         :type resource: Subclass of :py:class:`~testplan.runners.base.Executor`
         :param uid: Optional input resource uid.
         :type uid: ``str`` or ``NoneType``
+        :param default: Make executor the default one for running tests.
+        :type default: ``bool``
         :return: Resource uid assigned.
         :rtype:  ``str``
         """
-        resource.parent = self
-        resource.cfg.parent = self.cfg
-        return self.resources.add(
-            resource, uid=uid or getattr(resource, "uid", strings.uuid4)()
-        )
+        uid = super(TestRunner, self).add_resource(resource, uid=uid)
+        if default is True or len(self.resources) == 1:
+            self._default_runner = resource
+        return uid
 
     def schedule(self, task=None, resource=None, **options):
         """
@@ -426,13 +434,15 @@ class TestRunner(Runnable):
         :return: Assigned uid for test.
         :rtype: ``str`` or ```NoneType``
         """
-        local_runner = self.resources.first()
-        resource = resource or local_runner
-
-        if resource not in self.resources:
-            raise RuntimeError(
-                'Resource "{}" does not exist.'.format(resource)
-            )
+        if resource and self.cfg.interactive_port is None:
+            if resource not in self.resources:
+                raise RuntimeError(
+                    'Resource "{}" does not exist'.format(resource)
+                )
+        else:
+            if self.default_runner is None:
+                raise RuntimeError("Cannot find an available test executor")
+            resource = self.default_runner.uid()
 
         # Get the real test entity and verify if it should be added
         runnable = self._verify_test_target(target)
@@ -464,12 +474,12 @@ class TestRunner(Runnable):
                 )
             self._part_instance_names.add(runnable.name)
 
-        # When running interactively, add all real test entities into the local
-        # runner even if they were scheduled into a pool. It greatly simplifies
-        # the interactive runner if it only has to deal with the local runner.
         if self.cfg.interactive_port is not None:
-            self._tests[uid] = local_runner
-            self.resources[local_runner].add(runnable, uid)
+            # When running interactively, add all real test entities into
+            # default executor (local runner) even if they were scheduled
+            #  into a pool. It greatly simplifies the interactive runner.
+            self._tests[uid] = resource
+            self.resources[resource].add(runnable, uid)
             return uid
 
         # Reset the task uid which will be used for test result transport in

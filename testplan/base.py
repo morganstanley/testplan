@@ -18,7 +18,7 @@ from testplan.testing import ordering
 from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.parser import TestplanParser
-from testplan.runners import LocalRunner
+from testplan.runners import Executor, LocalRunner
 from testplan.environment import Environments
 
 
@@ -37,6 +37,7 @@ class TestplanConfig(entity.RunnableManagerConfig, TestRunnerConfig):
             ConfigOption("runnable", default=TestRunner): is_subclass(
                 entity.Runnable
             ),
+            ConfigOption("resources", default=[]): [Executor],
         }
 
 
@@ -226,7 +227,6 @@ class Testplan(entity.RunnableManager):
         # Define instance attributes
         self._parsed_args = argparse.Namespace()
         self._processed_args = {}
-        self._default_options = {}
 
         super(Testplan, self).__init__(
             name=name,
@@ -268,11 +268,11 @@ class Testplan(entity.RunnableManager):
             **options
         )
 
-        # By default, a LocalRunner is added to store and execute the tests.
-        self._runnable.add_resource(LocalRunner(), uid="local_runner")
+        # Stores local tests (default runner in interactive mode).
+        self._runnable.add_resource(LocalRunner(), default=True)
 
         # Stores independent environments.
-        self._runnable.add_resource(Environments(), uid="environments")
+        self._runnable.add_resource(Environments())
 
     @property
     def parser(self):

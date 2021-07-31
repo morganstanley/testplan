@@ -104,7 +104,7 @@ def irunner():
     for test in test_objs:
         local_runner.add(test, test.uid())
 
-    target.resources.add(local_runner)
+    target.add_resource(local_runner)
 
     with mock.patch("cheroot.wsgi.Server"), mock.patch(
         "testplan.runnable.interactive.reloader.ModuleReloader"
@@ -267,7 +267,7 @@ def test_run_all_tagged_tests(tags, num_of_suite_entries):
     for test in test_objs:
         local_runner.add(test, test.uid())
 
-    target.resources.add(local_runner)
+    target.add_resource(local_runner)
 
     with mock.patch("cheroot.wsgi.Server"), mock.patch(
         "testplan.runnable.interactive.reloader.ModuleReloader"

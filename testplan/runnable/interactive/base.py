@@ -157,7 +157,9 @@ class TestRunnerIHandler(entity.Entity):
 
         :param test_uid: UID of test to find.
         """
-        runner = self.target.resources[self.target.resources.first()]
+        runner = getattr(self.target, "default_runner", None)
+        if runner is None:
+            raise RuntimeError("Cannot find an available test executor")
         return runner.added_item(test_uid)
 
     def reset_all_tests(self, await_results=True):
@@ -622,9 +624,8 @@ class TestRunnerIHandler(entity.Entity):
 
     def all_tests(self):
         """Get all added tests."""
-        try:
-            runner = self.target.resources[self.target.resources.first()]
-        except StopIteration:
+        runner = getattr(self.target, "default_runner", None)
+        if runner is None:
             return
         for test_uid in runner.added_items:
             yield test_uid
