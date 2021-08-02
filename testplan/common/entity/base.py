@@ -5,13 +5,13 @@ configuration, start/stop/run/abort, create results and have some state.
 
 import os
 import sys
-import signal
 import time
+import signal
 import threading
-import psutil
 import traceback
 from collections import deque, OrderedDict
 
+import psutil
 from schema import Or, And, Use
 
 from testplan.common.config import Config, ConfigOption
@@ -19,6 +19,7 @@ from testplan.common.utils.thread import execute_as_thread
 from testplan.common.utils.timing import wait
 from testplan.common.utils.path import makeemptydirs, makedirs, default_runpath
 from testplan.common.utils.strings import slugify, uuid4
+from testplan.common.utils.validation import is_subclass, has_method
 from testplan.common.utils import logger
 
 
@@ -611,7 +612,6 @@ class RunnableConfig(EntityConfig):
     def get_options(cls):
         """Runnable specific config options."""
         return {
-            # Interactive needs to have blocked propagation.
             # IHandlers explicitly enable interactive mode of runnables.
             ConfigOption("interactive_port", default=None): Or(None, int),
             ConfigOption(
@@ -695,6 +695,23 @@ class Runnable(Entity):
 
     # Shortcut for interactive handler
     i = interactive
+
+    def add_resource(self, resource, uid=None):
+        """
+        Adds a :py:class:`resource <testplan.common.entity.base.Resource>`
+        in the runnable environment.
+
+        :param resource: Resource to be added.
+        :type resource: Subclass of
+            :py:class:`~testplan.common.entity.base.Resource`
+        :param uid: Optional input resource uid.
+        :type uid: ``str`` or ``NoneType``
+        :return: Resource uid assigned.
+        :rtype:  ``str``
+        """
+        resource.parent = self
+        resource.cfg.parent = self.cfg
+        return self.resources.add(resource, uid=uid or uuid4())
 
     def _add_step(self, step, *args, **kwargs):
         self._steps.append((step, args, kwargs))
@@ -983,7 +1000,8 @@ class Resource(Entity):
 
     :param async_start: Resource can start asynchronously.
     :type async_start: ``bool``
-    :param auto_start: Enables the Environment to start the Resource automatically.
+    :param auto_start: Enables the Environment to start the Resource
+        automatically.
     :type auto_start: ``bool``
 
     Also inherits all
@@ -1108,9 +1126,8 @@ class RunnableManagerConfig(EntityConfig):
         """RunnableManager specific config options."""
         return {
             ConfigOption("parse_cmdline", default=True): bool,
-            ConfigOption("port", default=None): Or(
-                None, And(Use(int), lambda n: n > 0)
-            ),
+            ConfigOption("runnable", default=Runnable): is_subclass(Runnable),
+            ConfigOption("resources", default=[]): [Resource],
             ConfigOption(
                 "abort_signals", default=DEFAULT_RUNNABLE_ABORT_SIGNALS
             ): [int],
@@ -1123,21 +1140,15 @@ class RunnableManager(Entity):
     :py:class:`Runnable <testplan.common.entity.base.Runnable>` entity
     in a separate thread and handles the abort signals.
 
-    :param parse_cmdline: Parse command lne arguments.
+    :param parse_cmdline: Parse command line arguments.
     :type parse_cmdline: ``bool``
-    :param port: TODO port for interactive mode.
-    :type port: ``bool``
-    :param abort_signals: Signals to catch and trigger abort.
-    :type abort_signals: ``list`` of signals
-
     :param runnable: Test runner.
     :type runnable: :py:class:`~testplan.runnable.TestRunner`
-    :param resources: Initial resources. By default, one LocalRunner is added to
-      execute the Tests.
+    :param resources: Initial resources.
     :type resources:
-      ``list`` of :py:class:`resources <testplan.common.entity.base.Resource>`
-    :param parser: Command line parser.
-    :type parser: :py:class:`~testplan.parser.TestplanParser`
+        ``list`` of :py:class:`Resources <testplan.common.entity.base.Resource>`
+    :param abort_signals: Signals to catch and trigger abort.
+    :type abort_signals: ``list`` of signals
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.
@@ -1147,12 +1158,27 @@ class RunnableManager(Entity):
 
     def __init__(self, **options):
         super(RunnableManager, self).__init__(**options)
-        if self._cfg.parse_cmdline is True:
-            options = self._enrich_options(options)
-        self._runnable = self._initialize_runnable(**options)
 
-    def _enrich_options(self, options):
+        self._default_options = options
+        if self._cfg.parse_cmdline is True:
+            options = self.enrich_options(self._default_options)
+
+        self._runnable = self._initialize_runnable(**options)
+        for resource in self._cfg.resources:
+            self._runnable.add_resource(resource)
+
+    def enrich_options(self, options):
+        """
+        Enrich the options using parsed command line arguments.
+        Override this method to add extra argument processing logic.
+        The result dictionary is used to initialize the configuration.
+        """
         return options
+
+    def _initialize_runnable(self, **options):
+        runnable_class = self._cfg.runnable
+        runnable_config = dict(**options)
+        return runnable_class(**runnable_config)
 
     def __getattr__(self, item):
         try:
@@ -1161,6 +1187,11 @@ class RunnableManager(Entity):
             if "_runnable" in self.__dict__:
                 return getattr(self._runnable, item)
             raise
+
+    @property
+    def runnable(self):
+        """Runnable instance."""
+        return self._runnable
 
     @property
     def runpath(self):
@@ -1210,11 +1241,6 @@ class RunnableManager(Entity):
         if isinstance(self._runnable.result, Exception):
             raise self._runnable.result
         return self._runnable.result
-
-    def _initialize_runnable(self, **options):
-        runnable_class = self._cfg.runnable
-        runnable_config = dict(**options)
-        return runnable_class(**runnable_config)
 
     def _handle_abort(self, signum, frame):
         for sig in self._cfg.abort_signals:

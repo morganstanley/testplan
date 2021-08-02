@@ -237,23 +237,37 @@ class Task(object):
             path_inserted = True
 
         try:
-            elements = self._target.split(".")
-            target_src = elements.pop(-1)
-            if len(elements):
-                mod = importlib.import_module(".".join(elements))
-                target = getattr(mod, target_src)
-            else:
-                if self._module is None:
-                    raise TaskMaterializationError(
-                        "Task parameters are not sufficient for"
-                        " target {} materialization".format(self._target)
+            if self._module is None:
+                ###################################################
+                # For backward compatibility, will be removed later
+                elements = self._target.split(".")
+                target_src = elements.pop(-1)
+                if len(elements):
+                    mod = importlib.import_module(".".join(elements))
+                    warnings.warn(
+                        "DEPRECATED: "
+                        "If a test target is scheduled in string format, the "
+                        "module from where it is imported should be specified"
                     )
-                mod = importlib.import_module(self._module)
-                target = getattr(mod, self._target)
+                    return getattr(mod, target_src)
+                ####################################################
+                raise TaskMaterializationError(
+                    "Task parameters are not sufficient for"
+                    " target {} materialization".format(self._target)
+                )
+            parent_target, target = importlib.import_module(self._module), None
+            for element in self._target.split("."):
+                target = getattr(parent_target, element, None)
+                if target is None:
+                    raise TaskMaterializationError(
+                        'During materializing target "{}": {} has no attribute'
+                        ' "{}"'.format(self._target, parent_target, element)
+                    )
+                parent_target = target
+            return target
         finally:
             if path_inserted is True:
                 sys.path.remove(self._path)
-        return target
 
     def dumps(self, check_loadable=False):
         """Serialize a task."""

@@ -10,6 +10,22 @@ from testplan.runnable.interactive import base
 from testplan.common import entity
 
 
+class TestRunnerIHandlerConfig(base.TestRunnerIHandlerConfig):
+    """Only for testing."""
+
+    @classmethod
+    def get_options(cls):
+        return {
+            "target": object,
+        }
+
+
+class TestRunnerIHandler(base.TestRunnerIHandler):
+    """Only for testing."""
+
+    CONFIG = TestRunnerIHandlerConfig
+
+
 @pytest.fixture
 def example_report():
     """Create a new report skeleton."""
@@ -104,7 +120,7 @@ def api_env(example_report):
     ) as MockReloader:
         MockReloader.return_value = None
 
-        ihandler = base.TestRunnerIHandler(target=mock_target)
+        ihandler = TestRunnerIHandler(target=mock_target)
         ihandler.report = example_report
         ihandler.reset_all_tests = mock.MagicMock()
         ihandler.reset_test = mock.MagicMock()

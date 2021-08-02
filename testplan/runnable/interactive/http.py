@@ -27,7 +27,6 @@ from testplan.report import (
     TestCaseReport,
     RuntimeStatus,
 )
-from .reloader import ModuleReloader
 
 
 class OutOfOrderError(Exception):

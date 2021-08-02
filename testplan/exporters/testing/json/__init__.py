@@ -13,7 +13,6 @@ from testplan import defaults
 
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import ExporterConfig
-from testplan.common.utils.path import makedirs
 
 from testplan.report import ReportCategories
 from testplan.report.testing.schemas import TestReportSchema

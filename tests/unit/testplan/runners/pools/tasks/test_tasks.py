@@ -166,27 +166,34 @@ class TestTaskInitAndMaterialization(object):
     def test_string_runnable_tgt_other_module(self):
         """TODO."""
         task = Task(
-            "tests.unit.testplan.runners.pools.tasks.data"
-            ".sample_tasks.Multiplier",
+            "Multiplier",
+            module="tests.unit.testplan.runners.pools.tasks.data.sample_tasks",
             args=(4,),
         )
         materialized_task_result(task, 8)
 
         task = Task(
-            "Multiplier",
-            module="tests.unit.testplan.runners.pools.tasks.data"
-            ".sample_tasks",
+            "Wrapper.InnerMultiplier",
+            module="tests.unit.testplan.runners.pools.tasks.data.sample_tasks",
             args=(5,),
         )
         materialized_task_result(task, 10)
 
         task = Task(
-            "tests.unit.testplan.runners.pools.tasks.data"
-            ".sample_tasks.Multiplier",
+            "sample_tasks.Multiplier",
+            module="tests.unit.testplan.runners.pools.tasks.data.relative",
             args=(4,),
             kwargs={"multiplier": 3},
         )
         materialized_task_result(task, 12)
+
+        task = Task(
+            "sample_tasks.Wrapper.InnerMultiplier",
+            module="tests.unit.testplan.runners.pools.tasks.data.relative",
+            args=(5,),
+            kwargs={"multiplier": 3},
+        )
+        materialized_task_result(task, 15)
 
     def test_callable_to_non_runnable_tgt(self):
         """TODO."""
@@ -196,8 +203,15 @@ class TestTaskInitAndMaterialization(object):
             Task(callable_to_non_runnable),
             Task(sample_tasks.callable_to_non_runnable, args=(2,)),
             Task(
-                "tests.unit.testplan.runners.pools.tasks.data"
-                ".relative.sample_tasks.multiply",
+                "multiply",
+                module=(
+                    "tests.unit.testplan.runners.pools.tasks.data.sample_tasks"
+                ),
+                args=(2,),
+            ),
+            Task(
+                "sample_tasks.multiply",
+                module="tests.unit.testplan.runners.pools.tasks.data.relative",
                 args=(2,),
             ),
         ):
@@ -215,8 +229,14 @@ class TestTaskInitAndMaterialization(object):
             Task(callable_to_none),
             Task(sample_tasks.callable_to_none),
             Task(
-                "tests.unit.testplan.runners.pools.tasks.data"
-                ".relative.sample_tasks.callable_to_none"
+                "callable_to_none",
+                module=(
+                    "tests.unit.testplan.runners.pools.tasks.data.sample_tasks"
+                ),
+            ),
+            Task(
+                "sample_tasks.callable_to_none",
+                module="tests.unit.testplan.runners.pools.tasks.data.relative",
             ),
         ):
             try:
@@ -256,15 +276,15 @@ class TestTaskInitAndMaterialization(object):
         materialized_task_result(task, 2)
 
         task = Task(
-            "tests.unit.testplan.runners.pools.tasks.data.sample_tasks"
-            ".callable_to_runnable",
+            "callable_to_runnable",
+            module="tests.unit.testplan.runners.pools.tasks.data.sample_tasks",
             args=(2,),
         )
         materialized_task_result(task, 4)
 
         task = Task(
-            "tests.unit.testplan.runners.pools.tasks.data"
-            ".sample_tasks.callable_to_adapted_runnable",
+            "sample_tasks.callable_to_adapted_runnable",
+            module="tests.unit.testplan.runners.pools.tasks.data.relative",
             args=(2,),
         )
         materialized_task_result(task, 4)
@@ -272,19 +292,28 @@ class TestTaskInitAndMaterialization(object):
     def test_path_usage(self):  # pylint: disable=R0201
         """TODO."""
         dirname = os.path.dirname(os.path.abspath(__file__))
-        path = os.path.join(dirname, "data", "relative")
+        path = os.path.join(dirname, "data")
 
-        task = Task("sample_tasks.Multiplier", args=(4,), path=path)
+        task = Task(
+            "Multiplier", module="relative.sample_tasks", args=(4,), path=path
+        )
         materialized_task_result(task, 8)
+
+        task = Task(
+            "callable_to_runnable",
+            module="relative.sample_tasks",
+            args=(2,),
+            path=path,
+        )
+        materialized_task_result(task, 4)
+
+        path = os.path.join(path, "relative")
 
         task = Task("Multiplier", module="sample_tasks", args=(4,), path=path)
         materialized_task_result(task, 8)
 
-        task = Task("sample_tasks.callable_to_runnable", args=(2,), path=path)
-        materialized_task_result(task, 4)
-
         task = Task(
-            "callable_to_runnable", args=(2,), module="sample_tasks", path=path
+            "callable_to_runnable", module="sample_tasks", args=(2,), path=path
         )
         materialized_task_result(task, 4)
 
