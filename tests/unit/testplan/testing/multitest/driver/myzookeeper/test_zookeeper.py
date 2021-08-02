@@ -21,9 +21,9 @@ cfg_template = os.path.join(
 
 
 @pytest.fixture(scope="module")
-def zookeeper_server():
+def zookeeper_server(runpath_module):
     server = zookeeper.ZookeeperStandalone(
-        "zookeeper", cfg_template=cfg_template
+        "zookeeper", cfg_template=cfg_template, runpath=runpath_module
     )
     with server:
         yield server

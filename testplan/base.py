@@ -1,5 +1,5 @@
 """Testplan base module."""
-
+import os
 import random
 import tempfile
 
@@ -435,8 +435,13 @@ test_plan = Testplan.main_wrapper
 
 def default_runpath_mock(entity):
     """To avoid runpath collision in testing"""
-    runpath = tempfile.mkdtemp(prefix="{}_".format(slugify(entity.uid())))
-    return runpath
+    prefix = "{}_".format(slugify(entity.uid()))
+    if os.environ.get("TEST_ROOT_RUNPATH"):
+        return tempfile.mkdtemp(
+            prefix=prefix, dir=os.environ["TEST_ROOT_RUNPATH"]
+        )
+    else:
+        return tempfile.mkdtemp(prefix=prefix)
 
 
 class TestplanMock(Testplan):
@@ -449,9 +454,9 @@ class TestplanMock(Testplan):
     def __init__(self, *args, **kwargs):
         # mock testplan could run in threads
         kwargs.setdefault("abort_signals", [])
-        kwargs.setdefault("runpath", default_runpath_mock)
         kwargs.setdefault("parse_cmdline", False)
         kwargs.setdefault("logger_level", logger.DEBUG)
+        kwargs.setdefault("runpath", default_runpath_mock)
 
         super(TestplanMock, self).__init__(*args, **kwargs)
-        self._runnable._reset_report_uid = False
+        self.runnable.disable_reset_report_uid()
