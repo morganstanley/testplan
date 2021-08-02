@@ -1,11 +1,22 @@
 import click
 
+
 from testplan.cli.commands import single_reader_commands
 from testplan.cli.commands import writer_commands
+from testplan.cli.utils.actions import ProcessResultAction, ParseSingleAction
 
 
 @click.group(name="convert", chain=True)
 def convert():
+    """
+    Convert a single input file to testplan format.
+
+    Once converted, then can dump to a target destination or display it through a local webui.
+    The parameters forms a pipeline which starts with a source command (from*) then any write (to*)
+    or a display command.
+
+    use convert COMMAND --help to get more details of the subcommands.
+    """
     pass
 
 
@@ -13,7 +24,14 @@ def convert():
 def run_actions(actions):
 
     parse, *processors = actions
-    # TODO: validate the action chain should be a single parser and processors
+
+    if not (
+        isinstance(parse, ParseSingleAction)
+        and all((isinstance(p, ProcessResultAction) for p in processors))
+    ):
+        raise click.UsageError(
+            "convert need a single parser like from* and can have many processor or targets like to* or display"
+        )
 
     result = parse()
 

@@ -56,6 +56,9 @@ class ReaderAction(ParseSingleAction):
 @with_input
 @with_plan_options
 def from_cppunit(source, name, description):
+    """
+    read a cppunit xml result.
+    """
     return ReaderAction(CPPUnitResultImporter, source, name, description)
 
 
@@ -63,12 +66,18 @@ def from_cppunit(source, name, description):
 @with_input
 @with_plan_options
 def from_gtest(source, name, description):
+    """
+    read a gtest xml result.
+    """
     return ReaderAction(GTestResultImporter, source, name, description)
 
 
 @single_reader_commands.command(name="fromjson")
 @with_input
 def from_json(source):
+    """
+    read a Testplan json result.
+    """
     return ReaderAction(TestplanResultImporter, source)
 
 
@@ -103,6 +112,14 @@ multi_reader_commands = CommandList()
 @multi_reader_commands.command(name="from")
 @click.argument("uri_list")
 def from_list(uri_list: str) -> ParseMultipleAction:
+    """
+    read many input files in one go.
+
+    It take a list of coma separated uris. The uri scheme should be a known format similar to from* commands.
+    fromjson /tmp/a.json translate to json:/tmp/a.json, similar to other formats. Globs can be used in the uris like
+    json:/tmp/report_*.json,cppunit:/tmp/result_*.xml
+
+    """
     uris = [urlparse(uri) for uri in uri_list.split(",")]
     actions = flatten([get_actions_for_uri(uri) for uri in uris])
 
