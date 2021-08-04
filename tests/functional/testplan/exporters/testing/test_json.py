@@ -278,10 +278,6 @@ def test_json_exporter_generating_split_report(runpath):
     plan.add(multitest_2)
     plan.run()
 
-    assert str(json_path) == str(pathlib.Path(json_path).resolve())
-    assert os.path.realpath(json_path) == os.path.realpath(
-        pathlib.Path(json_path).resolve()
-    )
     assert os.path.exists(json_path)
     assert os.stat(json_path).st_size > 0
 
