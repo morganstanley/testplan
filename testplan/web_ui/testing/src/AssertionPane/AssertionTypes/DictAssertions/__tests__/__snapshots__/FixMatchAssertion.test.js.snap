@@ -456,7 +456,7 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "descriptor": Object {
           "indent": 2,
           "isEmptyLine": false,
-          "isListKey": true,
+          "isListKey": false,
           "lineNo": 667,
           "status": "Passed",
         },
@@ -511,7 +511,7 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "descriptor": Object {
           "indent": 2,
           "isEmptyLine": false,
-          "isListKey": true,
+          "isListKey": false,
           "lineNo": 667,
           "status": "Passed",
         },
@@ -638,7 +638,7 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "descriptor": Object {
           "indent": 2,
           "isEmptyLine": false,
-          "isListKey": true,
+          "isListKey": false,
           "lineNo": 667,
           "status": "Passed",
         },

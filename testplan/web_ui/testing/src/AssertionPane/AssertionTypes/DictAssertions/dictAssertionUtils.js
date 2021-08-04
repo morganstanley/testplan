@@ -249,7 +249,9 @@ export function prepareDictRowData(data, lineNo) {
         lineNo: lineNo,
         indent: level,
         isListKey:
-          originalArray[index + 1] && originalArray[index + 1][1] === '',
+          originalArray[index + 1] &&
+          originalArray[index + 1][1] === '' &&
+          originalArray[index + 1][0] === originalArray[index][0],
         isEmptyLine: isEmptyLine,
         status: status
       }
@@ -278,44 +280,6 @@ export function prepareDictRowData(data, lineNo) {
     return lineObject;
   });
 }
-
-
-/**
- * Return the description of the FIX tag in the cell.
- *
- * @param {JSON} fixTagInfo - JSON object where keys are FIX tags and the values
- * are description
- * @param {string} cellValue - Value of the cell.
- * @param {string} keyValue - Value of the cell under the key column for the row
- * the cell is in.
- * @param {string} colField - The column the current cell is in.
- * @returns {{name: null, descr: null, value: null}}
- */
-export function getFixInformation(fixTagInfo, cellValue, keyValue, colField) {
-  let fixInfo = {name: null, descr: null, value: null};
-
-  // If keyValue is null the current row is empty. Empty rows are used to
-  // display breaks between list entries more clearly.
-  const validKey = (colField === 'key') && (keyValue !== null);
-  const validExpected = colField === 'expected';
-  const validValue = colField === 'value';
-
-  if (validKey) {
-    fixInfo.descr = fixTagInfo[keyValue] !== undefined
-      ? fixTagInfo[keyValue].descr
-      : 'Missing information';
-    fixInfo.name = fixTagInfo[keyValue] !== undefined
-      ? fixTagInfo[keyValue].names[0]
-      : null;
-  } else if (validExpected || validValue) {
-    fixInfo.value = fixTagInfo[keyValue] !== undefined
-      ? fixTagInfo[keyValue].values[cellValue]
-      : null;
-  }
-
-  return fixInfo;
-}
-
 
 /**
  * Convert flattened dict assertion data to HTML table string

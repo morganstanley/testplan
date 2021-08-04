@@ -6567,6 +6567,97 @@ exports[`BatchReport loads a simple report 1`] = `
                         "type": "Equal",
                         "utc_time": "2018-10-15T14:30:11.010094+00:00",
                       },
+                      Object {
+                        "category": "DEFAULT",
+                        "description": "log a fix message",
+                        "flag": "DEFAULT",
+                        "flattened_dict": Array [
+                          Array [
+                            0,
+                            36,
+                            Array [
+                              "int",
+                              "6",
+                            ],
+                          ],
+                          Array [
+                            0,
+                            22,
+                            Array [
+                              "int",
+                              "5",
+                            ],
+                          ],
+                          Array [
+                            0,
+                            55,
+                            Array [
+                              "int",
+                              "2",
+                            ],
+                          ],
+                          Array [
+                            0,
+                            38,
+                            Array [
+                              "int",
+                              "5",
+                            ],
+                          ],
+                          Array [
+                            0,
+                            555,
+                            "",
+                          ],
+                          Array [
+                            0,
+                            "",
+                            "",
+                          ],
+                          Array [
+                            1,
+                            556,
+                            Array [
+                              "str",
+                              "USD",
+                            ],
+                          ],
+                          Array [
+                            1,
+                            624,
+                            Array [
+                              "int",
+                              "1",
+                            ],
+                          ],
+                          Array [
+                            0,
+                            "",
+                            "",
+                          ],
+                          Array [
+                            1,
+                            556,
+                            Array [
+                              "str",
+                              "EUR",
+                            ],
+                          ],
+                          Array [
+                            1,
+                            624,
+                            Array [
+                              "int",
+                              "2",
+                            ],
+                          ],
+                        ],
+                        "line_no": 28,
+                        "machine_time": "2018-10-15T15:30:11.020128+00:00",
+                        "meta_type": "entry",
+                        "type": "FixLog",
+                        "utc_time": "2018-10-15T14:30:11.020124+00:00",
+                      },
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
@@ -6758,6 +6849,97 @@ exports[`BatchReport loads a simple report 1`] = `
                         "type": "Equal",
                         "utc_time": "2018-10-15T14:30:11.010094+00:00",
                       },
+                      Object {
+                        "category": "DEFAULT",
+                        "description": "log a fix message",
+                        "flag": "DEFAULT",
+                        "flattened_dict": Array [
+                          Array [
+                            0,
+                            36,
+                            Array [
+                              "int",
+                              "6",
+                            ],
+                          ],
+                          Array [
+                            0,
+                            22,
+                            Array [
+                              "int",
+                              "5",
+                            ],
+                          ],
+                          Array [
+                            0,
+                            55,
+                            Array [
+                              "int",
+                              "2",
+                            ],
+                          ],
+                          Array [
+                            0,
+                            38,
+                            Array [
+                              "int",
+                              "5",
+                            ],
+                          ],
+                          Array [
+                            0,
+                            555,
+                            "",
+                          ],
+                          Array [
+                            0,
+                            "",
+                            "",
+                          ],
+                          Array [
+                            1,
+                            556,
+                            Array [
+                              "str",
+                              "USD",
+                            ],
+                          ],
+                          Array [
+                            1,
+                            624,
+                            Array [
+                              "int",
+                              "1",
+                            ],
+                          ],
+                          Array [
+                            0,
+                            "",
+                            "",
+                          ],
+                          Array [
+                            1,
+                            556,
+                            Array [
+                              "str",
+                              "EUR",
+                            ],
+                          ],
+                          Array [
+                            1,
+                            624,
+                            Array [
+                              "int",
+                              "2",
+                            ],
+                          ],
+                        ],
+                        "line_no": 28,
+                        "machine_time": "2018-10-15T15:30:11.020128+00:00",
+                        "meta_type": "entry",
+                        "type": "FixLog",
+                        "utc_time": "2018-10-15T14:30:11.020124+00:00",
+                      },
                     ],
                     "logs": Array [],
                     "name": "test_equality_passing",
@@ -6935,6 +7117,97 @@ exports[`BatchReport loads a simple report 1`] = `
                           "second": 1,
                           "type": "Equal",
                           "utc_time": "2018-10-15T14:30:11.010094+00:00",
+                        },
+                        Object {
+                          "category": "DEFAULT",
+                          "description": "log a fix message",
+                          "flag": "DEFAULT",
+                          "flattened_dict": Array [
+                            Array [
+                              0,
+                              36,
+                              Array [
+                                "int",
+                                "6",
+                              ],
+                            ],
+                            Array [
+                              0,
+                              22,
+                              Array [
+                                "int",
+                                "5",
+                              ],
+                            ],
+                            Array [
+                              0,
+                              55,
+                              Array [
+                                "int",
+                                "2",
+                              ],
+                            ],
+                            Array [
+                              0,
+                              38,
+                              Array [
+                                "int",
+                                "5",
+                              ],
+                            ],
+                            Array [
+                              0,
+                              555,
+                              "",
+                            ],
+                            Array [
+                              0,
+                              "",
+                              "",
+                            ],
+                            Array [
+                              1,
+                              556,
+                              Array [
+                                "str",
+                                "USD",
+                              ],
+                            ],
+                            Array [
+                              1,
+                              624,
+                              Array [
+                                "int",
+                                "1",
+                              ],
+                            ],
+                            Array [
+                              0,
+                              "",
+                              "",
+                            ],
+                            Array [
+                              1,
+                              556,
+                              Array [
+                                "str",
+                                "EUR",
+                              ],
+                            ],
+                            Array [
+                              1,
+                              624,
+                              Array [
+                                "int",
+                                "2",
+                              ],
+                            ],
+                          ],
+                          "line_no": 28,
+                          "machine_time": "2018-10-15T15:30:11.020128+00:00",
+                          "meta_type": "entry",
+                          "type": "FixLog",
+                          "utc_time": "2018-10-15T14:30:11.020124+00:00",
                         },
                       ],
                       "logs": Array [],

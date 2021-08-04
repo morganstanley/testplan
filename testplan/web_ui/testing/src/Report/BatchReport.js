@@ -19,10 +19,11 @@ import {
 } from "./reportUtils";
 import { generateSelectionPath } from "./path";
 
-import { COLUMN_WIDTH } from "../Common/defaults";
+import { COLUMN_WIDTH, defaultFixSpec } from "../Common/defaults";
 import { fakeReportAssertions } from "../Common/fakeReport";
-import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 import { generateURLWithParameters } from "../Common/utils";
+import { AssertionContext, defaultAssertionStatus } from "../Common/context";
+
 /**
  * BatchReport component:
  *   * fetch Testplan report.
@@ -125,10 +126,11 @@ class BatchReport extends React.Component {
               `/api/v1/reports/${uid}/attachments/${rawReport.structure_file}`,
               { transformResponse: parseToJson }
             );
+            const metadataReq = axios.get('/api/v1/metadata/fix-spec/tags');
             axios
-              .all([assertionsReq, structureReq])
+              .all([assertionsReq, structureReq, metadataReq])
               .then(
-                axios.spread((assertionsRes, structureRes) => {
+                axios.spread((assertionsRes, structureRes, metadataRes) => {
                   if (!assertionsRes.data) {
                     alert(
                       "Failed to parse assertion datails!\n" +
@@ -141,12 +143,18 @@ class BatchReport extends React.Component {
                     assertionsRes.data,
                     structureRes.data
                   );
+                  defaultFixSpec.tags = metadataRes.data || {};
                   this.setReport(this.updateReportUID(mergedReport, uid));
                 })
-              )
-              .catch(this.setError);
+              ).catch(this.setError);
           } else {
-            this.setReport(this.updateReportUID(rawReport, uid));
+            axios
+              .get('/api/v1/metadata/fix-spec/tags')
+              .then((response) => {
+                defaultFixSpec.tags = response.data || {};
+                this.setReport(this.updateReportUID(rawReport, uid));
+              })
+              .catch(this.setError);
           }
         })
         .catch(this.setError);

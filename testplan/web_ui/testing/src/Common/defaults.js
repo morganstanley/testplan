@@ -219,6 +219,9 @@ const EXPAND_STATUS = Object.freeze({
 // us when updates are available.
 const POLL_MS = 1000;
 
+// Fix specification
+let defaultFixSpec = {tags: {}};
+
 export {
   GREEN,
   DARK_GREEN,
@@ -250,4 +253,5 @@ export {
   DICT_GRID_STYLE,
   EXPAND_STATUS,
   POLL_MS,
+  defaultFixSpec,
 };

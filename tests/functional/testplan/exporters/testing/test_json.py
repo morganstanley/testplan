@@ -3,6 +3,7 @@ import os
 import json
 import copy
 import tempfile
+import pathlib
 
 from testplan import TestplanMock
 from testplan.testing import multitest
@@ -225,7 +226,7 @@ def test_split_and_merge():
 
 def test_json_exporter(runpath):
     """
-    JSON Exporter should generate a json report at the given `json_path`.
+    JSON Exporter should generate a full json report at the given `json_path`.
     """
     json_path = os.path.join(runpath, "report.json")
 
@@ -261,7 +262,7 @@ def test_json_exporter(runpath):
 
 def test_json_exporter_generating_split_report(runpath):
     """
-    JSON Exporter should generate a json report at the given `json_path`.
+    JSON Exporter should generate a main json report at the given `json_path`.
     """
     json_path = os.path.join(runpath, "report.json")
 
@@ -277,6 +278,10 @@ def test_json_exporter_generating_split_report(runpath):
     plan.add(multitest_2)
     plan.run()
 
+    assert str(json_path) == str(pathlib.Path(json_path).resolve())
+    assert os.path.realpath(json_path) == os.path.realpath(
+        pathlib.Path(json_path).resolve()
+    )
     assert os.path.exists(json_path)
     assert os.stat(json_path).st_size > 0
 
