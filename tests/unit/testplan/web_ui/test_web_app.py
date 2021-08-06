@@ -163,3 +163,35 @@ def test_testplan_attachment(webapp_test_client):
     expected_contents = str(DATA_REPORTS["testplan"]["contents"])
     assert response.status_code == 200
     assert expected_contents in str(response.data)
+
+
+def test_testplan_fix_spec(webapp_test_client):
+    """Does /api/v1/metadata/fix-spec/tags return the correct dictionary."""
+    # Expect information of all tags
+    path = "/api/v1/metadata/fix-spec/tags"
+    response = webapp_test_client.get(path)
+    assert response.status_code == 200
+    tags_info = response.json
+    assert isinstance(tags_info, dict)
+    assert tags_info["8"]["names"][0] == "BeginString"
+    assert tags_info["9"]["names"][0] == "BodyLength"
+    assert tags_info["10"]["names"][0] == "CheckSum"
+
+    # Use valid tag number and get the enumeration information
+    tag = 40
+    path = f"/api/v1/metadata/fix-spec/tags/{tag}/enum-vals"
+    response = webapp_test_client.get(path)
+    assert response.status_code == 200
+    enum_info = response.json
+    assert isinstance(enum_info, list)
+    assert len(enum_info) > 0
+    assert set(enum_info[0].keys()) == {"value", "descr"}
+
+    # Use invalid tag number still 200 response but no data.
+    tag = 10
+    path = f"/api/v1/metadata/fix-spec/tags/{tag}/enum-vals"
+    response = webapp_test_client.get(path)
+    assert response.status_code == 200
+    enum_info = response.json
+    assert isinstance(enum_info, list)
+    assert len(enum_info) == 0

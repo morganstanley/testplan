@@ -50,8 +50,8 @@ class WebServerExporter(Exporter):
 
     CONFIG = WebServerExporterConfig
 
-    def __init__(self, **options):
-        super(WebServerExporter, self).__init__(**options)
+    def __init__(self, name="Web Server exporter", **options):
+        super(WebServerExporter, self).__init__(name=name, **options)
         self._report_url = None
 
     @property

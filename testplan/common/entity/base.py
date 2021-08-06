@@ -5,13 +5,13 @@ configuration, start/stop/run/abort, create results and have some state.
 
 import os
 import sys
-import signal
 import time
+import signal
 import threading
-import psutil
-from collections import deque, OrderedDict
 import traceback
+from collections import deque, OrderedDict
 
+import psutil
 from schema import Or, And, Use
 
 from testplan.common.config import Config, ConfigOption
@@ -19,6 +19,7 @@ from testplan.common.utils.thread import execute_as_thread
 from testplan.common.utils.timing import wait
 from testplan.common.utils.path import makeemptydirs, makedirs, default_runpath
 from testplan.common.utils.strings import slugify, uuid4
+from testplan.common.utils.validation import is_subclass, has_method
 from testplan.common.utils import logger
 
 
@@ -31,30 +32,11 @@ class Environment(object):
     """
 
     def __init__(self, parent=None):
-        self._resources = OrderedDict()
-        self.parent = parent
-        self.start_exceptions = OrderedDict()
-        self.stop_exceptions = OrderedDict()
-        self._logger = None
-
-    @property
-    def cfg(self):
-        """Configuration obejct of parent object."""
-        return self.parent.cfg if self.parent else None
-
-    @property
-    def runpath(self):
-        """Runpath of parent object."""
-        return self.parent.runpath if self.parent else None
-
-    @property
-    def logger(self):
-        if self._logger is None:
-            if self.parent is not None:
-                self._logger = self.parent.logger
-            else:
-                self._logger = Entity.logger
-        return self._logger
+        self.__dict__["parent"] = parent
+        self.__dict__["_initial_context"] = {}
+        self.__dict__["_resources"] = OrderedDict()
+        self.__dict__["start_exceptions"] = OrderedDict()
+        self.__dict__["stop_exceptions"] = OrderedDict()
 
     def add(self, item, uid=None):
         """
@@ -71,9 +53,14 @@ class Environment(object):
         """
         if uid is None:
             uid = item.uid()
-        item.context = self
+        if uid in dir(self):
+            raise ValueError(
+                f'Identifier "{uid}" is reserved and cannot be used as UID.'
+            )
         if uid in self._resources:
-            raise RuntimeError("Uid {} already in context.".format(uid))
+            raise RuntimeError(f'Uid "{uid}" already in environment.')
+
+        item.context = self
         self._resources[uid] = item
         return uid
 
@@ -86,38 +73,63 @@ class Environment(object):
     def first(self):
         return next(uid for uid in self._resources.keys())
 
-    def __getattr__(self, item):
-        context = self.__getattribute__("_resources")
+    def get(self, key, default=None):
+        # For compatibility reason, acts like a dictionary which has
+        # a `get` method that returns `None` if no attribute found.
+        try:
+            return self.__getitem__(key)
+        except AttributeError:
+            return default
 
-        if item in context:
-            return context[item]
+    def __getattr__(self, name):
+        resources = self.__getattribute__("_resources")
+        initial_context = self.__getattribute__("_initial_context")
 
-        if self.parent and self.parent.cfg.initial_context:
-            if item in self.parent.cfg.initial_context:
-                return self.parent.cfg.initial_context[item]
+        if name in resources:
+            return resources[name]
 
-        return self.__getattribute__(item)
+        if name in initial_context:
+            return initial_context[name]
+
+        raise AttributeError(
+            "'{}' object has no attribute '{}'".format(
+                self.__class__.__name__, name
+            )
+        )
+
+    def __setattr__(self, name, value):
+        if name in self.__dict__:
+            self.__dict__[name] = value
+        elif name in self.__getattribute__("_resources"):
+            raise RuntimeError(
+                'Cannot modify resource "{}" in environment.'.format(name)
+            )
+        elif name in self.__getattribute__("_initial_context"):
+            raise RuntimeError(
+                'Cannot modify attribute "{}" in initial context.'.format(name)
+            )
+        else:
+            super(Environment, self).__setattr__(name, value)
 
     def __getitem__(self, item):
-        return getattr(self, item)
+        return self.__getattr__(item)
 
     def __contains__(self, item):
-        return item in self._resources
+        if item in self.__getattribute__(
+            "_resources"
+        ) or item in self.__getattribute__("_initial_context"):
+            return True
+        else:
+            return False
 
     def __iter__(self):
         return iter(self._resources.values())
 
     def __repr__(self):
-        if self.parent and self.parent.cfg.initial_context:
-            ctx = self.parent.cfg.initial_context
-            initial = {key: val for key, val in ctx.items()}
-            res = {key: val for key, val in self._resources.items()}
-            initial.update(res)
-            return "{}[{}]".format(self.__class__.__name__, initial)
-        else:
-            return "{}[{}]".format(
-                self.__class__.__name__, list(self._resources.items())
-            )
+        initial = {key: val for key, val in self._initial_context.items()}
+        res = {key: val for key, val in self._resources.items()}
+        initial.update(res)
+        return "{}[{}]".format(self.__class__.__name__, initial)
 
     def __len__(self):
         return len(self._resources)
@@ -147,7 +159,8 @@ class Environment(object):
                 msg = "While starting resource [{}]\n{}".format(
                     resource.cfg.name, traceback.format_exc()
                 )
-                self.logger.error(msg)
+                if self.parent and hasattr(self.parent, "logger"):
+                    self.parent.logger.error(msg)
                 self.start_exceptions[resource] = msg
                 # Environment start failure. Won't start the rest.
                 break
@@ -169,7 +182,8 @@ class Environment(object):
                 msg = "While executing {} of resource [{}]\n{}".format(
                     func.__name__, resource.cfg.name, traceback.format_exc()
                 )
-                self.logger.error(msg)
+                if self.parent and hasattr(self.parent, "logger"):
+                    self.parent.logger.error(msg)
                 self.start_exceptions[resource] = msg
 
         return wrapper
@@ -532,9 +546,7 @@ class Entity(logger.Loggable):
                 "{} runpath cannot be None".format(self.__class__.__name__)
             )
         self.logger.debug(
-            "{} has {} runpath and pid {}".format(
-                self, self.runpath, os.getpid()
-            )
+            "%s has %s runpath and pid %d", self, self.runpath, os.getpid()
         )
 
         if self.cfg.path_cleanup is False:
@@ -600,7 +612,6 @@ class RunnableConfig(EntityConfig):
     def get_options(cls):
         """Runnable specific config options."""
         return {
-            # Interactive needs to have blocked propagation.
             # IHandlers explicitly enable interactive mode of runnables.
             ConfigOption("interactive_port", default=None): Or(None, int),
             ConfigOption(
@@ -684,6 +695,23 @@ class Runnable(Entity):
 
     # Shortcut for interactive handler
     i = interactive
+
+    def add_resource(self, resource, uid=None):
+        """
+        Adds a :py:class:`resource <testplan.common.entity.base.Resource>`
+        in the runnable environment.
+
+        :param resource: Resource to be added.
+        :type resource: Subclass of
+            :py:class:`~testplan.common.entity.base.Resource`
+        :param uid: Optional input resource uid.
+        :type uid: ``str`` or ``NoneType``
+        :return: Resource uid assigned.
+        :rtype:  ``str``
+        """
+        resource.parent = self
+        resource.cfg.parent = self.cfg
+        return self.resources.add(resource, uid=uid or uuid4())
 
     def _add_step(self, step, *args, **kwargs):
         self._steps.append((step, args, kwargs))
@@ -798,10 +826,12 @@ class Runnable(Entity):
         try:
             res = step(*args, **kwargs)
         except Exception as exc:
-            print(
-                "Exception on {}[{}], step {} - {}".format(
-                    self.__class__.__name__, self.uid(), step.__name__, exc
-                )
+            self.logger.error(
+                "Exception on %s[%s], step %s - %s",
+                self.__class__.__name__,
+                self.uid(),
+                step.__name__,
+                str(exc),
             )
             self.logger.error(traceback.format_exc())
             res = exc
@@ -970,7 +1000,8 @@ class Resource(Entity):
 
     :param async_start: Resource can start asynchronously.
     :type async_start: ``bool``
-    :param auto_start: Enables the Environment to start the Resource automatically.
+    :param auto_start: Enables the Environment to start the Resource
+        automatically.
     :type auto_start: ``bool``
 
     Also inherits all
@@ -1095,9 +1126,8 @@ class RunnableManagerConfig(EntityConfig):
         """RunnableManager specific config options."""
         return {
             ConfigOption("parse_cmdline", default=True): bool,
-            ConfigOption("port", default=None): Or(
-                None, And(Use(int), lambda n: n > 0)
-            ),
+            ConfigOption("runnable", default=Runnable): is_subclass(Runnable),
+            ConfigOption("resources", default=[]): [Resource],
             ConfigOption(
                 "abort_signals", default=DEFAULT_RUNNABLE_ABORT_SIGNALS
             ): [int],
@@ -1110,21 +1140,15 @@ class RunnableManager(Entity):
     :py:class:`Runnable <testplan.common.entity.base.Runnable>` entity
     in a separate thread and handles the abort signals.
 
-    :param parse_cmdline: Parse command lne arguments.
+    :param parse_cmdline: Parse command line arguments.
     :type parse_cmdline: ``bool``
-    :param port: TODO port for interactive mode.
-    :type port: ``bool``
-    :param abort_signals: Signals to catch and trigger abort.
-    :type abort_signals: ``list`` of signals
-
     :param runnable: Test runner.
     :type runnable: :py:class:`~testplan.runnable.TestRunner`
-    :param resources: Initial resources. By default, one LocalRunner is added to
-      execute the Tests.
+    :param resources: Initial resources.
     :type resources:
-      ``list`` of :py:class:`resources <testplan.common.entity.base.Resource>`
-    :param parser: Command line parser.
-    :type parser: :py:class:`~testplan.parser.TestplanParser`
+        ``list`` of :py:class:`Resources <testplan.common.entity.base.Resource>`
+    :param abort_signals: Signals to catch and trigger abort.
+    :type abort_signals: ``list`` of signals
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Entity` options.
@@ -1134,12 +1158,27 @@ class RunnableManager(Entity):
 
     def __init__(self, **options):
         super(RunnableManager, self).__init__(**options)
-        if self._cfg.parse_cmdline is True:
-            options = self._enrich_options(options)
-        self._runnable = self._initialize_runnable(**options)
 
-    def _enrich_options(self, options):
+        self._default_options = options
+        if self._cfg.parse_cmdline is True:
+            options = self.enrich_options(self._default_options)
+
+        self._runnable = self._initialize_runnable(**options)
+        for resource in self._cfg.resources:
+            self._runnable.add_resource(resource)
+
+    def enrich_options(self, options):
+        """
+        Enrich the options using parsed command line arguments.
+        Override this method to add extra argument processing logic.
+        The result dictionary is used to initialize the configuration.
+        """
         return options
+
+    def _initialize_runnable(self, **options):
+        runnable_class = self._cfg.runnable
+        runnable_config = dict(**options)
+        return runnable_class(**runnable_config)
 
     def __getattr__(self, item):
         try:
@@ -1148,6 +1187,11 @@ class RunnableManager(Entity):
             if "_runnable" in self.__dict__:
                 return getattr(self._runnable, item)
             raise
+
+    @property
+    def runnable(self):
+        """Runnable instance."""
+        return self._runnable
 
     @property
     def runpath(self):
@@ -1198,18 +1242,13 @@ class RunnableManager(Entity):
             raise self._runnable.result
         return self._runnable.result
 
-    def _initialize_runnable(self, **options):
-        runnable_class = self._cfg.runnable
-        runnable_config = dict(**options)
-        return runnable_class(**runnable_config)
-
     def _handle_abort(self, signum, frame):
         for sig in self._cfg.abort_signals:
             signal.signal(sig, signal.SIG_IGN)
         self.logger.debug(
-            "Signal handler called for signal {} from {}".format(
-                signum, threading.current_thread()
-            )
+            "Signal handler called for signal %d from %s",
+            signum,
+            threading.current_thread(),
         )
         self.abort()
 

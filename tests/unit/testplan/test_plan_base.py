@@ -87,9 +87,8 @@ def test_testplan():
     """TODO."""
     from testplan.base import TestplanParser as MyParser
 
-    plan = TestplanMock(name="MyPlan", port=800, parser=MyParser)
+    plan = TestplanMock(name="MyPlan", parser=MyParser)
     assert plan._cfg.name == "MyPlan"
-    assert plan._cfg.port == 800
     assert plan._cfg.runnable == TestRunner
     assert plan.cfg.name == "MyPlan"
     assert plan._runnable.cfg.name == "MyPlan"

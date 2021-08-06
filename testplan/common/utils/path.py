@@ -56,17 +56,16 @@ def default_runpath(entity):
     Returns default runpath for an
     :py:class:`Entity <testplan.common.entity.base.Entity>` object.
     """
-    # On POSIX systems, use /var/tmp in preference to /tmp for the runpath if it
-    # exists.
+    # On POSIX systems, use /var/tmp in preference to /tmp for the runpath if
+    # it exists.
     if os.name == "posix" and os.path.exists(VAR_TMP):
         runpath_prefix = VAR_TMP
     else:
         runpath_prefix = tempfile.gettempdir()
 
-    runpath = os.path.join(
+    return os.path.join(
         runpath_prefix, getpass.getuser(), "testplan", slugify(entity.uid())
     )
-    return runpath
 
 
 @contextlib.contextmanager
@@ -248,46 +247,6 @@ def is_subdir(child, parent):
     :rtype: ``bool``
     """
     return child.startswith(parent)
-
-
-class _TemporaryDirectory(object):
-    """
-    Context manager to create a temporary directory.
-    tempfile.TemporaryDirectory is only available on Python 3.2+, this is
-    a stripped-down backport of the basic functionality.
-
-    Parameters are passed through to ``tempfile.mkdtemp()``.
-    """
-
-    def __init__(self, suffix="", prefix="tmp", dir=None):
-        self.name = None
-        self._suffix = suffix
-        self._prefix = prefix
-        self._dir = dir
-
-    def __enter__(self):
-        """Create temporary dir, return its path."""
-        if self.name is not None:
-            raise RuntimeError(
-                "name already set to {} on enter".format(self.name)
-            )
-        self.name = tempfile.mkdtemp(self._suffix, self._prefix, self._dir)
-        return self.name
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Remove the temporary dir and all contents."""
-        if self.name is None:
-            raise RuntimeError("name was not set on exit")
-        shutil.rmtree(self.name, ignore_errors=True)
-        self.name = None
-
-
-# Use the standard library tempfile.TemporaryDirectory if it is available,
-# otherwise fall back to our backport.
-try:
-    TemporaryDirectory = tempfile.TemporaryDirectory
-except AttributeError:
-    TemporaryDirectory = _TemporaryDirectory
 
 
 def hash_file(filepath):

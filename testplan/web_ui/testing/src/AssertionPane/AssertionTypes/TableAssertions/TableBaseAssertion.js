@@ -6,6 +6,7 @@ import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import {AgGridReact} from 'ag-grid-react';
 import 'ag-grid-enterprise';
 import {LicenseManager} from "ag-grid-enterprise";
+import {processCellForClipboard} from "./tableAssertionUtils";
 
 
 const REACT_APP_AG_GRID_LICENSE = process.env.REACT_APP_AG_GRID_LICENSE;
@@ -66,6 +67,7 @@ export default function TableBaseAssertion(props) {
           }}
           groupMultiAutoColumn={true}
           enableRangeSelection={true}
+          processCellForClipboard={processCellForClipboard}
         />
       </div>
     </>

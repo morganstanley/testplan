@@ -13,7 +13,6 @@ from testplan import defaults
 
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import ExporterConfig
-from testplan.common.utils.path import makedirs
 
 from testplan.report import ReportCategories
 from testplan.report.testing.schemas import TestReportSchema
@@ -27,7 +26,7 @@ def gen_attached_report_names(json_path):
     """
     basename, _ = os.path.splitext(os.path.basename(json_path))
     digest = hashlib.md5(
-        os.path.realpath(json_path).encode("utf-8")
+        os.path.normcase(os.path.realpath(json_path)).encode("utf-8")
     ).hexdigest()
 
     return (
@@ -70,7 +69,7 @@ class JSONExporter(Exporter):
     CONFIG = JSONExporterConfig
 
     def __init__(self, name="JSON exporter", **options):
-        super(JSONExporter, self).__init__(**options)
+        super(JSONExporter, self).__init__(name=name, **options)
 
     def export(self, source):
 

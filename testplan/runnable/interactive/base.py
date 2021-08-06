@@ -3,7 +3,6 @@ Interactive handler for TestRunner runnable class.
 """
 
 import re
-import time
 import numbers
 import threading
 from concurrent import futures
@@ -20,6 +19,13 @@ from testplan.runnable.interactive import resource_loader
 from testplan.report import TestReport, TestGroupReport, Status, RuntimeStatus
 
 
+def _exclude_assertions_filter(obj):
+    try:
+        return obj["meta_type"] not in ("entry", "assertion")
+    except Exception:
+        return True
+
+
 class TestRunnerIHandlerConfig(config.Config):
     """
     Configuration object for
@@ -29,14 +35,11 @@ class TestRunnerIHandlerConfig(config.Config):
 
     @classmethod
     def get_options(cls):
-        return {"target": object, "startup_timeout": int, "http_port": int}
-
-
-def _exclude_assertions_filter(obj):
-    try:
-        return obj["meta_type"] not in ("entry", "assertion")
-    except Exception:
-        return True
+        return {
+            "target": lambda obj: isinstance(obj, entity.Runnable),
+            config.ConfigOption("startup_timeout", default=10): int,
+            config.ConfigOption("http_port", default=0): int,
+        }
 
 
 class TestRunnerIHandler(entity.Entity):

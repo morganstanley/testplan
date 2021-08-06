@@ -30,20 +30,25 @@ kafka_cfg_template = os.path.join(
 
 
 @pytest.fixture(scope="module")
-def zookeeper_server():
-    server = zookeeper.ZookeeperStandalone("zk", cfg_template=zk_cfg_template)
+def zookeeper_server(runpath_module):
+    server = zookeeper.ZookeeperStandalone(
+        "zk", cfg_template=zk_cfg_template, runpath=runpath_module
+    )
     with server:
         yield server
 
 
 @pytest.fixture(scope="module")
-def kafka_server(zookeeper_server):
-    server = kafka.KafkaStandalone("kafka", cfg_template=kafka_cfg_template)
+def kafka_server(zookeeper_server, runpath_module):
+    server = kafka.KafkaStandalone(
+        "kafka", cfg_template=kafka_cfg_template, runpath=runpath_module
+    )
 
     testplan = TestplanMock("KafkaTest", parse_cmdline=False)
     env = entity.Environment(parent=testplan)
     env.add(zookeeper_server)
     env.add(server)
+
     with server:
         yield server
 

@@ -20,20 +20,20 @@ class ModuleReloader(logger.Loggable):
     Reloads modules and their dependencies if there was any file modification.
 
     :param extra_deps: Modules to register as extra dependencies to reload,
-            despite not being directly imported by __main__.
-    :type extra_deps: ``Iterable[ModuleType]``
+        despite not being directly imported by __main__, or paths of these
+        modules.
+    :type extra_deps: ``Iterable[ModuleType]`` or ``Iterable[str]``
     """
 
     def __init__(self, extra_deps=None):
         super(ModuleReloader, self).__init__()
 
-        self._extra_deps = extra_deps
-        reload_dirs, dep_graph, watched_modules = self._build_dependencies(
-            extra_deps
-        )
-        self._reload_dirs = reload_dirs
-        self._dep_graph = dep_graph
-        self._watched_modules = watched_modules
+        self._extra_deps = extra_deps or []
+        (
+            self._reload_dirs,
+            self._dep_graph,
+            self._watched_modules,
+        ) = self._build_dependencies(self._extra_deps)
 
         # Last recorded reload time for watched modules.
         self._last_reload_time = {}  # type: Dict[_ModuleNode, float]
@@ -52,12 +52,11 @@ class ModuleReloader(logger.Loggable):
         suite_instances = self._suites_by_class(tests)
 
         if rebuild_dependencies:
-            reload_dirs, dep_graph, watched_modules = self._build_dependencies(
-                self._extra_deps
-            )
-            self._reload_dirs = reload_dirs
-            self._dep_graph = dep_graph
-            self._watched_modules = watched_modules
+            (
+                self._reload_dirs,
+                self._dep_graph,
+                self._watched_modules,
+            ) = self._build_dependencies(self._extra_deps)
 
         modified_modules = self._modified_modules
         if modified_modules:
@@ -78,8 +77,9 @@ class ModuleReloader(logger.Loggable):
         dependencies.
 
         :param extra_deps: Modules to register as extra dependencies to reload,
-            despite not being directly imported by __main__.
-        :type extra_deps: ``Iterable[ModuleType]``
+            despite not being directly imported by __main__, or paths of these
+            modules.
+        :type extra_deps: ``Iterable[ModuleType]`` or ``Iterable[str]``
         """
         main_module_file = sys.modules["__main__"].__file__
         if not main_module_file:
@@ -88,13 +88,10 @@ class ModuleReloader(logger.Loggable):
                 "is a file."
             )
 
-        reload_dirs = {os.path.realpath(os.path.dirname(main_module_file))}
+        reload_dirs = {os.path.abspath(os.path.dirname(main_module_file))}
 
         # Add extra reload source directories if required.
-        if extra_deps:
-            reload_dirs = reload_dirs.union(
-                self._extra_reload_dirs(extra_deps)
-            )
+        reload_dirs = reload_dirs.union(self._extra_reload_dirs(extra_deps))
 
         dep_graph, watched_modules = self._build_dep_graph(
             main_module_file, reload_dirs
@@ -118,16 +115,33 @@ class ModuleReloader(logger.Loggable):
 
         reload_dirs = set()
 
-        for mod in deps:
-            filepath = _module_filepath(mod)
-            dir_path = os.path.dirname(filepath)
+        for dep in deps:
+            if isinstance(dep, str):
+                dirpath = path_utils.fix_home_prefix(os.path.abspath(dep))
+                # Add it to `sys.path` for reloading
+                if dirpath not in sys.path:
+                    sys.path.append(dirpath)
+                reload_dirs.add(dirpath)
+            else:
+                filepath = _module_filepath(dep)
+                dirpath = os.path.dirname(filepath) if filepath else None
 
-            # Even though we have already imported this module, its directory
-            # may have been removed from sys.path. In that case we need to
-            # add it back into sys.path so the module can be reloaded.
-            if dir_path not in sys.path:
-                sys.path.append(dir_path)
-            reload_dirs.add(dir_path)
+                # Find the path where module or package can be imported
+                if _has_package(dep):
+                    package = sys.modules.get(dep.__package__.split(".")[0])
+                    if package is not None:
+                        filepath = _module_filepath(package)
+                        if filepath:
+                            dirpath = os.path.dirname(
+                                os.path.dirname(filepath)
+                            )
+                if dirpath:
+                    # Even though this module has been imported, its directory
+                    # may have been removed from `sys.path`. In that case it
+                    # needs to be added back so the module can be reloaded.
+                    if dirpath not in sys.path:
+                        sys.path.append(dirpath)
+                    reload_dirs.add(dirpath)
 
         return reload_dirs
 
@@ -142,6 +156,7 @@ class ModuleReloader(logger.Loggable):
         :type reload_dirs: ``Iterable[str]``
         """
         finder = _GraphModuleFinder(path=self._filtered_syspath(reload_dirs))
+
         try:
             finder.run_script(main_module_file)
         except OSError:
@@ -150,6 +165,7 @@ class ModuleReloader(logger.Loggable):
                     main_module_file
                 )
             )
+
         return finder.build_dep_graph()
 
     def _filtered_syspath(self, reload_dirs):
@@ -157,14 +173,16 @@ class ModuleReloader(logger.Loggable):
         :return: sys.path filtered by paths that are in a reload dir.
         :rtype: ``List[str]``
         """
-        return [
-            path
-            for path in sys.path
-            if any(
-                os.path.abspath(path).startswith(os.path.abspath(d))
-                for d in reload_dirs
-            )
-        ]
+        return list(
+            {
+                path
+                for path in sys.path
+                if any(
+                    os.path.abspath(path).startswith(os.path.abspath(d))
+                    for d in reload_dirs
+                )
+            }
+        )
 
     @property
     def _modified_modules(self):
@@ -489,7 +507,7 @@ class _ModuleNode(object):
             if not self._native_mod:
                 self._native_mod = sys.modules[self.mod.__name__]
             self._native_mod = reload(self._native_mod)
-        except KeyError:
+        except (KeyError, ModuleNotFoundError):
             # ignore dynamic import module
             pass
 
@@ -546,20 +564,33 @@ def _has_file(mod):
     return hasattr(mod, "__file__") and mod.__file__ is not None
 
 
-def _module_filepath(module):
+def _has_package(mod):
     """
-    :param module: Module object - either a module itself of its modulefinder
+    :param mod: Module object. Can be any of the multiple types used to
+        represent a module, we just check for a __package__ attribute.
+    :type mod: ``Any``
+    :return: If given module has a valid __package__ attribute.
+    :rtype: ``bool``
+    """
+    return hasattr(mod, "__package__") and mod.__package__ != ""
+
+
+def _module_filepath(mod):
+    """
+    :param mod: Module object - either a module itself of its modulefinder
         proxy.
-    :type module: ``Union[module, modulefinder.module]``
+    :type mod: ``Union[module, modulefinder.module]``
     :return: the normalised filepath to a module, or None if it has no __file__
         attribute.
     :rtype: ``Optional[str]``
     """
-    if not _has_file(module):
+    if not _has_file(mod):
         return None
-    ret_path = path_utils.fix_home_prefix(os.path.abspath(module.__file__))
+
+    ret_path = path_utils.fix_home_prefix(os.path.abspath(mod.__file__))
     if ret_path.endswith("c"):
         return ret_path[:-1]
+
     return ret_path
 
 

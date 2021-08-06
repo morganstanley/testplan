@@ -17,6 +17,7 @@ exports[`EmptyReport renders a custom error message 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <Nav
     displayEmpty={true}
@@ -24,6 +25,7 @@ exports[`EmptyReport renders a custom error message 1`] = `
     displayTime={false}
     report={null}
     saveAssertions={[Function]}
+    treeView={false}
   />
   <Message
     left="22em"
@@ -49,6 +51,7 @@ exports[`EmptyReport shallow renders and matches snapshot 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <Nav
     displayEmpty={true}
@@ -56,6 +59,7 @@ exports[`EmptyReport shallow renders and matches snapshot 1`] = `
     displayTime={false}
     report={null}
     saveAssertions={[Function]}
+    treeView={false}
   />
   <Message
     left="22em"

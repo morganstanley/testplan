@@ -57,7 +57,6 @@ export default function FixLogAssertion(props) {
     />
   );
 
-  
   return (
     <DictBaseAssertion
       buttonGroup={buttonGroup}

@@ -72,7 +72,7 @@ def _param_formatter(param):
     ],
     ids=_param_formatter,
 )
-def test_example(root, filename):
+def test_example(root, filename, runpath):
     file_path = os.path.join(root, filename)
 
     if ON_WINDOWS and any(
@@ -82,4 +82,6 @@ def test_example(root, filename):
     elif any([file_path.endswith(skip_name) for skip_name in SKIP]):
         pytest.skip()
 
-    run_example_in_process(filename, root, KNOWN_EXCEPTIONS)
+    run_example_in_process(
+        filename, root, KNOWN_EXCEPTIONS, ["--runpath", runpath]
+    )

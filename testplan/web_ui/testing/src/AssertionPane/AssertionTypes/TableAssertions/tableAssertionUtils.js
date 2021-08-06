@@ -1,8 +1,119 @@
 /** @module tableAssertionUtils */
 
 import React from "react";
-import {domToString} from './../../../Common/utils';
+import { useParams, Link } from "react-router-dom";
+import _ from "lodash";
+import {
+  domToString,
+  generateURLWithParameters
+} from './../../../Common/utils';
 
+// Small component for rendering TableLogLinkCell.
+function LinkRender(props) {
+  const { uid } = useParams();
+  if (props.inner) {
+    const link = generateURLWithParameters(
+      window.location,
+      props.link.startsWith("/")
+        ? `/testplan/${uid}${props.link}`
+        : `/testplan/${uid}/${props.link}`
+    );
+    return <Link to={link}>{props.title || props.link}</Link>;
+  } else {
+    return (
+      <a
+        rel="noreferrer"
+        href={props.link}
+        target={props.new_window ? "_blank" : "_self"}
+      >
+        {props.title || props.link}
+      </a>
+    );
+  }
+}
+
+
+// The cell of link.
+class TableLogLinkCell {
+  constructor(cell) {
+    this.cell = cell;
+    this.value = cell.title || cell.link;
+  }
+
+  render() {
+    return <LinkRender {...this.cell}/>;
+  }
+
+  compare(linkB) {
+    if (linkB instanceof TableLogLinkCell) {
+      return this.value >= linkB.value ? 1 : -1;
+    } else {
+      return this.value >= String(linkB) ? 1 : -1;
+    }
+  }
+  getValue() {
+    return this.value;
+  }
+}
+
+// The cell of formattedValue.
+class FormattedValueCell {
+  constructor(cell) {
+    this.cell = cell;
+  }
+
+  render() {
+    return <>{this.cell.display}</>;
+  }
+  compare(valueB) {
+    if (valueB instanceof FormattedValueCell) {
+      return this.cell.value >= valueB.cell.value ? 1 : -1;
+    } else {
+      return this.cell.value >= String(valueB) ? 1 : -1;
+    }
+  }
+  getValue() {
+    return this.cell.display;
+  }
+}
+
+// The cell of default data type
+class DefaultCell {
+  constructor(cell) {
+    this.cell = cell;
+  }
+
+  render() {
+    return <>{this.cell}</>;
+  }
+  compare(cellB) {
+    return this.cell >= cellB.cell ? 1 : -1;
+  }
+  getValue() {
+    return this.cell;
+  }
+}
+
+/**
+ * Factory to create TableLog cell based on the values in ag-grid.
+ *
+ * @param {object} cellValue
+ * @returns {object}
+ * @private
+ */
+function tableLogCellType(cellValue) {
+  if (!_.isNil(cellValue) && typeof cellValue === "object") {
+    switch (cellValue.type) {
+      case "link":
+        return new TableLogLinkCell(cellValue);
+      case "formattedValue":
+        return new FormattedValueCell(cellValue);
+      default:
+        break;
+    }
+  }
+  return new DefaultCell(cellValue);
+}
 
 /**
  * Function to add styling to table cells with conditions based on their values.
@@ -29,22 +140,21 @@ function tableCellStyle(params) {
 }
 
 function tableLogCellRender(cell) {
-  if (typeof cell.value === "object") {
-    if (cell.value.type === "link") {
-      return (
-        <a
-          rel="noreferrer"
-          href={cell.value.link}
-          target={cell.value.new_window ? "_blank" : "_self"}
-        >
-          {cell.value.title || cell.value.link}
-        </a>
-      );
-    }
-  }
-  return cell.value;
+  const tableCell = tableLogCellType(cell.value);
+  return tableCell.render();
 }
 
+function tableLogComparator(valueA, valueB, nodeA, nodeB, isInverted) {
+  const a = tableLogCellType(valueA);
+  const b = tableLogCellType(valueB);
+  return a.compare(b);
+}
+
+
+export function processCellForClipboard(param) {
+  const tableCell = tableLogCellType(param.value);
+  return tableCell.getValue();
+}
 
 /**
  * Function to prepare the column definitions for TableLog assertions.
@@ -76,7 +186,8 @@ export function prepareTableLogColumnDefs(columns, display_index) {
       headerName: column,
       field: column,
       filterParams: {excelMode: 'windows'},
-      cellRendererFramework: tableLogCellRender
+      cellRendererFramework: tableLogCellRender,
+      comparator: tableLogComparator,
     });
   });
 

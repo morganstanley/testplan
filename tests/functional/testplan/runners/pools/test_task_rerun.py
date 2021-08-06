@@ -12,7 +12,6 @@ import getpass
 import uuid
 
 from testplan import Task, TestplanMock
-from testplan.common.utils import path
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.base import Driver, DriverConfig
 from testplan.runners.pools import ThreadPool, ProcessPool
@@ -194,13 +193,10 @@ def test_task_rerun_in_thread_pool(mockplan):
     pool = ThreadPool(name=pool_name, size=2)
     mockplan.add_resource(pool)
 
-    directory = os.path.dirname(os.path.abspath(__file__))
     tmp_file = os.path.join(
         tempfile.gettempdir(), getpass.getuser(), "{}.tmp".format(uuid.uuid4())
     )
-    task = Task(
-        target=make_multitest_1, path=directory, args=(tmp_file,), rerun=3
-    )
+    task = Task(target=make_multitest_1, args=(tmp_file,), rerun=3)
     uid = mockplan.schedule(task=task, resource=pool_name)
 
     assert mockplan.run().run is True
@@ -232,19 +228,14 @@ def test_task_rerun_in_process_pool(mockplan):
     pool = ProcessPool(name=pool_name, size=2)
     mockplan.add_resource(pool)
 
-    directory = os.path.dirname(os.path.abspath(__file__))
     tmp_file_1 = os.path.join(
         tempfile.gettempdir(), getpass.getuser(), "{}.tmp".format(uuid.uuid4())
     )
     tmp_file_2 = os.path.join(
         tempfile.gettempdir(), getpass.getuser(), "{}.tmp".format(uuid.uuid4())
     )
-    task1 = Task(
-        target=make_multitest_1, path=directory, args=(tmp_file_1,), rerun=2
-    )
-    task2 = Task(
-        target=make_multitest_2, path=directory, args=(tmp_file_2,), rerun=0
-    )
+    task1 = Task(target=make_multitest_1, args=(tmp_file_1,), rerun=2)
+    task2 = Task(target=make_multitest_2, args=(tmp_file_2,), rerun=0)
     uid1 = mockplan.schedule(task=task1, resource=pool_name)
     uid2 = mockplan.schedule(task=task2, resource=pool_name)
 
@@ -278,13 +269,10 @@ def test_task_rerun_with_more_times(mockplan):
     pool = ThreadPool(name=pool_name, size=1)
     mockplan.add_resource(pool)
 
-    directory = os.path.dirname(os.path.abspath(__file__))
     tmp_file = os.path.join(
         tempfile.gettempdir(), getpass.getuser(), "{}.tmp".format(uuid.uuid4())
     )
-    task = Task(
-        target=make_multitest_3, path=directory, args=(tmp_file,), rerun=2
-    )
+    task = Task(target=make_multitest_3, args=(tmp_file,), rerun=2)
     uid = mockplan.schedule(task=task, resource=pool_name)
 
     assert mockplan.run().run is True
@@ -310,13 +298,10 @@ def test_task_rerun_with_more_times_2(mockplan):
     pool = ThreadPool(name=pool_name, size=1)
     mockplan.add_resource(pool)
 
-    directory = os.path.dirname(os.path.abspath(__file__))
     tmp_file = os.path.join(
         tempfile.gettempdir(), getpass.getuser(), "{}.tmp".format(uuid.uuid4())
     )
-    task = Task(
-        target=make_multitest_3, path=directory, args=(tmp_file,), rerun=3
-    )
+    task = Task(target=make_multitest_3, args=(tmp_file,), rerun=3)
     uid = mockplan.schedule(task=task, resource=pool_name)
 
     assert mockplan.run().run is True
@@ -330,7 +315,7 @@ def test_task_rerun_with_more_times_2(mockplan):
 
 def test_task_rerun_with_parts():
 
-    with path.TemporaryDirectory() as runpath:
+    with tempfile.TemporaryDirectory() as runpath:
         mockplan = TestplanMock(
             "plan", runpath=runpath, merge_scheduled_parts=True
         )
@@ -339,13 +324,10 @@ def test_task_rerun_with_parts():
         pool = ThreadPool(name=pool_name, size=1)
         mockplan.add_resource(pool)
 
-        directory = os.path.dirname(os.path.abspath(__file__))
-
         uids = []
         for idx in range(3):
             task = Task(
                 target=make_multitest_parts,
-                path=directory,
                 kwargs={"part_tuple": (idx, 3)},
                 rerun=1,
             )

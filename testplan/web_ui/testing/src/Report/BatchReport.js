@@ -19,10 +19,11 @@ import {
 } from "./reportUtils";
 import { generateSelectionPath } from "./path";
 
-import { COLUMN_WIDTH } from "../Common/defaults";
+import { COLUMN_WIDTH, defaultFixSpec } from "../Common/defaults";
 import { fakeReportAssertions } from "../Common/fakeReport";
-import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 import { generateURLWithParameters } from "../Common/utils";
+import { AssertionContext, defaultAssertionStatus } from "../Common/context";
+
 /**
  * BatchReport component:
  *   * fetch Testplan report.
@@ -37,6 +38,7 @@ class BatchReport extends React.Component {
     this.getReport = this.getReport.bind(this);
     this.handleNavFilter = this.handleNavFilter.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
+    this.updateTreeView = this.updateTreeView.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
     this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
     this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
@@ -55,6 +57,7 @@ class BatchReport extends React.Component {
       loading: false,
       error: null,
       filter: null,
+      treeView: false,
       displayTags: false,
       displayTime: false,
       displayEmpty: true,
@@ -123,10 +126,11 @@ class BatchReport extends React.Component {
               `/api/v1/reports/${uid}/attachments/${rawReport.structure_file}`,
               { transformResponse: parseToJson }
             );
+            const metadataReq = axios.get('/api/v1/metadata/fix-spec/tags');
             axios
-              .all([assertionsReq, structureReq])
+              .all([assertionsReq, structureReq, metadataReq])
               .then(
-                axios.spread((assertionsRes, structureRes) => {
+                axios.spread((assertionsRes, structureRes, metadataRes) => {
                   if (!assertionsRes.data) {
                     alert(
                       "Failed to parse assertion datails!\n" +
@@ -139,12 +143,18 @@ class BatchReport extends React.Component {
                     assertionsRes.data,
                     structureRes.data
                   );
+                  defaultFixSpec.tags = metadataRes.data || {};
                   this.setReport(this.updateReportUID(mergedReport, uid));
                 })
-              )
-              .catch(this.setError);
+              ).catch(this.setError);
           } else {
-            this.setReport(this.updateReportUID(rawReport, uid));
+            axios
+              .get('/api/v1/metadata/fix-spec/tags')
+              .then((response) => {
+                defaultFixSpec.tags = response.data || {};
+                this.setReport(this.updateReportUID(rawReport, uid));
+              })
+              .catch(this.setError);
           }
         })
         .catch(this.setError);
@@ -231,6 +241,16 @@ class BatchReport extends React.Component {
    */
   updateFilter(filter) {
     this.setState({ filter: filter });
+  }
+
+  /**
+   * Update the flag for whether to use tree view navigation or the default one.
+   *
+   * @param {boolean} treeView.
+   * @public
+   */
+   updateTreeView(treeView) {
+    this.setState({ treeView: treeView });
   }
 
   /**
@@ -325,6 +345,7 @@ class BatchReport extends React.Component {
           handleNavFilter={this.handleNavFilter}
           updateFilterFunc={this.updateFilter}
           updateEmptyDisplayFunc={this.updateDisplayEmpty}
+          updateTreeViewFunc={this.updateTreeView}
           updateTagsDisplayFunc={this.updateTagsDisplay}
           extraButtons={[
             <TimeButton
@@ -339,6 +360,7 @@ class BatchReport extends React.Component {
           report={this.state.filteredReport.report}
           selected={selectedEntries}
           filter={this.state.filter}
+          treeView={this.state.treeView}
           displayEmpty={this.state.displayEmpty}
           displayTags={this.state.displayTags}
           displayTime={this.state.displayTime}

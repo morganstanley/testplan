@@ -45,7 +45,7 @@ class LogLink(Serializable):
     Save an HTML link in WebUI
     """
 
-    def __init__(self, link, title=None, new_window=True):
+    def __init__(self, link, title=None, new_window=True, inner=False):
         """
         :param link: The URL of the page the link goes to.
         :type link: ``str``
@@ -53,17 +53,44 @@ class LogLink(Serializable):
         :type title: ``str``
         :param new_window: Open the link on new window or not. Default is True.
         :type new_window: ``bool``
+        :param inner: Link to internal page (report uid as the prefix). Default is False.
+        :type new_window: ``bool``
         """
         self.link = link
         self.title = title or link
         self.new_window = new_window
+        self.inner = inner
 
     def serialize(self):
         return {
             "link": self.link,
             "title": self.title,
             "new_window": self.new_window,
+            "inner": self.inner,
             "type": "link",
+        }
+
+
+class FormattedValue(Serializable):
+    """
+    Save a formatted value in WebUI
+    """
+
+    def __init__(self, value, display):
+        """
+        :param value: The value of the data for sorting in the report.
+        :type value: ``Union[str, numbers.Real]``
+        :param display: Formatted value for display in the report.
+        :type display: ``str``
+        """
+        self.value = value
+        self.display = display
+
+    def serialize(self):
+        return {
+            "value": self.value,
+            "display": self.display,
+            "type": "formattedValue",
         }
 
 

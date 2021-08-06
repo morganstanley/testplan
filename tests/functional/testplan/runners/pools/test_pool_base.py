@@ -14,9 +14,9 @@ class MySuite(object):
     @testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, "equality description")
-        assert isinstance(env.cfg, MultiTestConfig)
-        assert os.path.exists(env.runpath)
-        assert env.runpath.endswith(slugify(env.cfg.name))
+        assert isinstance(env.parent.cfg, MultiTestConfig)
+        assert os.path.exists(env.parent.runpath)
+        assert env.parent.runpath.endswith(slugify(env.parent.cfg.name))
 
 
 def get_mtest(name):
