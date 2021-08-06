@@ -174,20 +174,46 @@ License
 License information `here <https://github.com/morganstanley/testplan/blob/main/LICENSE.md>`_.
 
 .. toctree::
+   :caption: Introduction
    :maxdepth: 2
    :hidden:
 
    introduction
    getting_started
+
+.. toctree::
+   :caption: Core
+   :maxdepth: 2
+   :hidden:
+
    unittests
    multitest
    drivers
    assertions
    output
+   download/index
+   api
+
+.. toctree::
+   :caption: Advanced
+   :maxdepth: 2
+   :hidden:
+
    interactive
    pools
-   api
-   download/index
+
+.. toctree::
+   :caption: Tools
+   :maxdepth: 2
+   :hidden:
+
+   tpsreport
+
+.. toctree::
+   :caption: More Info
+   :maxdepth: 2
+   :hidden:
+
    design
    about
 

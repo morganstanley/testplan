@@ -7,3 +7,4 @@ confluent-kafka
 plotly
 pandas
 numpy
+sphinx-click

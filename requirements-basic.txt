@@ -26,6 +26,7 @@ plotly
 # ---------------
 # sphinx
 # sphinx_rtd_theme
+# sphinx-click
 
 # matplot assertion
 # -----------------
