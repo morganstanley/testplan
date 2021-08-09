@@ -1,7 +1,9 @@
 """TODO."""
 
+import os
 import re
-from schema import Schema, And, Or, Use, SchemaError
+
+from schema import Schema, Optional, And, Or, Use, SchemaError
 
 from testplan.common.entity import Entity
 from testplan.common.config import Config, ConfigOption
@@ -257,3 +259,78 @@ def test_filter_locals():
     assert bottom2.options["bar"] == "barbar"
 
     assert bottom2.cfg.boo == [1, 2, 3]
+
+
+class BaseConfig(Config):
+    class SimpleClass(object):
+        def __init__(self, val):
+            self.val = val
+
+    @classmethod
+    def get_options(cls):
+        return {
+            "name": str,
+            ConfigOption("foo", default=int): Or(None, lambda x: callable(x)),
+            ConfigOption(
+                "bar", default=lambda arg: os.getenv("ENV_VAR_MUST_NOT_EXIST")
+            ): Or(None, lambda x: callable(x)),
+            ConfigOption("baz", default=cls.SimpleClass): Or(
+                None, lambda x: callable(x)
+            ),
+        }
+
+
+class Base(Entity):
+
+    CONFIG = BaseConfig
+
+    def __init__(self, name, **options):
+        super(Base, self).__init__(name=name, **options)
+
+
+class DerivedConfig(BaseConfig):
+    @classmethod
+    def get_options(cls):
+        return {"name": str}
+
+
+class Derived(Base):
+
+    CONFIG = DerivedConfig
+
+    def __init__(self, name, **options):
+        super(Derived, self).__init__(name=name, **options)
+
+
+def test_config_option_attributes():
+    """Test that `ConfigOption` has an attribute for storing default value."""
+    for opt in BaseConfig.get_options().keys():
+        if isinstance(opt, Optional):
+            assert hasattr(opt, "custom_default")
+            assert callable(opt.custom_default)
+            # We've set argument `default` to be ABSENT so that attributes
+            # `key` and `default` should be missing in `Optional` instance.
+            # This logic should not change or we have to update our code.
+            # Refer to the source of schema library:
+            # https://github.com/keleshev/schema/blob/v0.7.0/schema.py#L500
+            assert not hasattr(opt, "key")
+            assert not hasattr(opt, "default")
+
+
+def test_callable_as_default_value():
+    """Test that `ConfigOption` can accept callable as default value."""
+    base = Base("Base")
+    assert callable(base.cfg.foo)
+    assert callable(base.cfg.bar)
+    assert callable(base.cfg.baz)
+    assert base.cfg.foo() == 0
+    assert base.cfg.bar("any") is None
+    assert base.cfg.baz(123).val == 123
+
+    derived = Derived("Derived")
+    assert callable(derived.cfg.foo)
+    assert callable(derived.cfg.bar)
+    assert callable(derived.cfg.baz)
+    assert derived.cfg.foo() == 0
+    assert derived.cfg.bar("any") is None
+    assert derived.cfg.baz(999).val == 999

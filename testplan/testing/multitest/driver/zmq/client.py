@@ -3,7 +3,7 @@
 from schema import Use, Or
 import zmq
 
-from testplan.common.config import ConfigOption as Optional
+from testplan.common.config import ConfigOption
 from testplan.common.utils.context import ContextValue, expand
 from testplan.common.utils.convert import make_iterables
 from testplan.common.utils.timing import retry_until_timeout
@@ -25,10 +25,10 @@ class ZMQClientConfig(DriverConfig):
         return {
             "hosts": Or(*make_iterables([str, ContextValue])),
             "ports": Or(*make_iterables([int, ContextValue])),
-            Optional("message_pattern", default=zmq.PAIR): Or(
+            ConfigOption("message_pattern", default=zmq.PAIR): Or(
                 zmq.PAIR, zmq.REQ, zmq.SUB, zmq.PULL
             ),
-            Optional("connect_at_start", default=True): bool,
+            ConfigOption("connect_at_start", default=True): bool,
         }
 
 

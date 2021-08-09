@@ -7,7 +7,7 @@ from threading import Thread, Event
 import requests
 from schema import Use, Or
 
-from testplan.common.config import ConfigOption as Optional
+from testplan.common.config import ConfigOption
 from testplan.common.utils.context import expand, is_context
 from testplan.common.utils.strings import slugify
 
@@ -28,12 +28,12 @@ class HTTPClientConfig(DriverConfig):
         """
         return {
             "host": Or(str, lambda x: is_context(x)),
-            Optional("port", default=None): Or(
+            ConfigOption("port", default=None): Or(
                 None, Use(int), lambda x: is_context(x)
             ),
-            Optional("protocol", default="http"): str,
-            Optional("timeout", default=5): Use(int),
-            Optional("interval", default=0.01): Use(float),
+            ConfigOption("protocol", default="http"): str,
+            ConfigOption("timeout", default=5): Use(int),
+            ConfigOption("interval", default=0.01): Use(float),
         }
 
 
