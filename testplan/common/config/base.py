@@ -12,7 +12,7 @@ from testplan.common.utils import logger
 
 # A sentinel object meaning not defined, it is useful when you need to
 # handle arbitrary objects (including None).
-ABSENT = Optional._MARKER
+ABSENT = Optional._MARKER  # pylint: disable=protected-access
 
 
 def validate_func(*arg_names):
@@ -20,7 +20,7 @@ def validate_func(*arg_names):
     return lambda x: callable(x) and check_signature(x, list(arg_names))
 
 
-def ConfigOption(key, default=ABSENT):
+def ConfigOption(key: str, default=ABSENT) -> Optional:
     """
     Wrapper around Optional, subclassing is not an option
     as Schema library does internal type checks as `type(obj) is Optional`.
@@ -43,8 +43,27 @@ def ConfigOption(key, default=ABSENT):
     option after we exhaust the entity's containers.
     """
 
-    optional = Optional(key, default=default)
-    optional.is_optional = True
+    optional = Optional(key, default=ABSENT)
+
+    # Testplan has been working with the schema library v0.6.6 for a long time,
+    # however since this library updated an incompatible change is introduced:
+    # if a callable object (function or class) is specified as default value
+    # for an `Optional` instance, schema will try to instantiate that callable
+    # rather than just setting the callable itself as the default. In several
+    # places Testplan relies on callables being passed as default values. So,
+    # we have to store that default value separately and handle it later.
+    #
+    # Note: When validating data, default-having optionals that haven't been
+    # used will be applied finally, refer to source code of `schema` library:
+    # https://github.com/keleshev/schema/blob/v0.7.0/schema.py#L379
+    # If argument `default` is not ABSENT it means `optional` has a default
+    # value, then `optional.key` and `optional.default` are set. Intentionally
+    # we makes it ABSENT, thus, during validating nothing will be done if no
+    # input on its key. The default value is stored separately in a variable
+    # named `custom_default` to avoid confusion, at last we can deal with them.
+    # Refer to :py:meth:`~testplan.common.config.Config.__init__`.
+    if default is not ABSENT:
+        optional.custom_default = default
     return optional
 
 
@@ -99,7 +118,21 @@ class Config(object):
     def __init__(self, **options):
         self._parent = None
         self._cfg_input = options
-        self._options = self.build_schema().validate(options)
+
+        # Validate input and apply default values of config options
+        schema_from_config_options = self.build_schema()
+        self._options = schema_from_config_options.validate(options)
+        # pylint: disable=protected-access
+        if isinstance(schema_from_config_options._schema, dict):
+            self._options.update(
+                {
+                    k._schema: k.custom_default
+                    for k in schema_from_config_options._schema
+                    if type(k) is Optional
+                    and k._schema not in self._options
+                    and hasattr(k, "custom_default")
+                }
+            )
 
     def __getattr__(self, name):
         options = self.__getattribute__("_options")
