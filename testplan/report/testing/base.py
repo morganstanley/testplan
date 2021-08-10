@@ -560,7 +560,7 @@ class TestReport(BaseReportGroup):
         """
         from .schemas import TestReportSchema
 
-        return TestReportSchema(strict=True).dump(self).data
+        return TestReportSchema().dump(self)
 
     @classmethod
     def deserialize(cls, data):
@@ -570,13 +570,13 @@ class TestReport(BaseReportGroup):
         """
         from .schemas import TestReportSchema
 
-        return TestReportSchema(strict=True).load(data).data
+        return TestReportSchema().load(data)
 
     def shallow_serialize(self):
         """Shortcut for shallow-serializing test report data."""
         from .schemas import ShallowTestReportSchema
 
-        return ShallowTestReportSchema(strict=True).dump(self).data
+        return ShallowTestReportSchema().dump(self)
 
     @classmethod
     def shallow_deserialize(cls, data, old_report):
@@ -586,7 +586,7 @@ class TestReport(BaseReportGroup):
         """
         from .schemas import ShallowTestReportSchema
 
-        deserialized = ShallowTestReportSchema(strict=True).load(data).data
+        deserialized = ShallowTestReportSchema().load(data)
         deserialized.entries = old_report.entries
         deserialized._index = old_report._index
 
@@ -674,14 +674,14 @@ class TestGroupReport(BaseReportGroup):
         if self.tags_index or item.tags_index:
             self.propagate_tag_indices()
 
-    def serialize(self, strict=True):
+    def serialize(self):
         """
         Shortcut for serializing TestGroupReport data to nested python
         dictionaries.
         """
         from .schemas import TestGroupReportSchema
 
-        return TestGroupReportSchema(strict=strict).dump(self).data
+        return TestGroupReportSchema().dump(self)
 
     @classmethod
     def deserialize(cls, data):
@@ -691,13 +691,13 @@ class TestGroupReport(BaseReportGroup):
         """
         from .schemas import TestGroupReportSchema
 
-        return TestGroupReportSchema(strict=True).load(data).data
+        return TestGroupReportSchema().load(data)
 
     def shallow_serialize(self):
         """Shortcut for shallow-serializing test report data."""
         from .schemas import ShallowTestGroupReportSchema
 
-        return ShallowTestGroupReportSchema(strict=True).dump(self).data
+        return ShallowTestGroupReportSchema().dump(self)
 
     @classmethod
     def shallow_deserialize(cls, data, old_report):
@@ -707,9 +707,7 @@ class TestGroupReport(BaseReportGroup):
         """
         from .schemas import ShallowTestGroupReportSchema
 
-        deserialized = (
-            ShallowTestGroupReportSchema(strict=True).load(data).data
-        )
+        deserialized = ShallowTestGroupReportSchema().load(data)
         deserialized.entries = old_report.entries
         deserialized._index = old_report._index
         return deserialized
@@ -940,7 +938,7 @@ class TestCaseReport(Report):
         """
         from .schemas import TestCaseReportSchema
 
-        return TestCaseReportSchema(strict=True).dump(self).data
+        return TestCaseReportSchema().dump(self)
 
     @classmethod
     def deserialize(cls, data):
@@ -950,7 +948,7 @@ class TestCaseReport(Report):
         """
         from .schemas import TestCaseReportSchema
 
-        return TestCaseReportSchema(strict=True).load(data).data
+        return TestCaseReportSchema().load(data)
 
     @property
     def hash(self):

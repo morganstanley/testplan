@@ -74,8 +74,8 @@ class WebServerExporter(Exporter):
             )
             return
 
-        test_plan_schema = TestReportSchema(strict=True)
-        data = test_plan_schema.dump(source).data
+        test_plan_schema = TestReportSchema()
+        data = test_plan_schema.dump(source)
 
         # Save the Testplan report as a JSON.
         with open(defaults.JSON_PATH, "w") as json_file:

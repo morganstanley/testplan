@@ -18,14 +18,14 @@ registry = AssertionSchemaRegistry()
 
 
 class GenericEntryList(fields.Field):
-    def _serialize(self, value, attr, obj):
+    def _serialize(self, value, attr, obj, **kwargs):
         return [registry.serialize(entry) for entry in value]
 
 
 @registry.bind_default()
 class BaseSchema(Schema):
-    utc_time = fields.LocalDateTime()
-    machine_time = custom_fields.UTCDateTime()
+    utc_time = custom_fields.UTCDateTime()
+    machine_time = custom_fields.LocalDateTime()
     type = custom_fields.ClassName()
     meta_type = fields.String()
     description = custom_fields.Unicode()
@@ -79,8 +79,12 @@ class DictLogSchema(BaseSchema):
 @registry.bind(base.Graph)
 class GraphSchema(BaseSchema):
     graph_type = fields.String()
-    graph_data = fields.Dict(fields.List(fields.Dict()))
-    series_options = fields.Dict(fields.Dict(), allow_none=True)
+    graph_data = fields.Dict(
+        keys=fields.String(), values=fields.List(fields.Dict())
+    )
+    series_options = fields.Dict(
+        keys=fields.String(), values=fields.Dict(), allow_none=True
+    )
     type = fields.String()
     graph_options = fields.Dict(allow_none=True)
     discrete_chart = fields.Bool()

@@ -21,7 +21,7 @@ REQUIRED = [
     "lxml",
     "python-dateutil",
     "reportlab",
-    "marshmallow==3.0.0b2",
+    "marshmallow==3.11.1",
     "termcolor",
     "colorama",
     "pyzmq",
