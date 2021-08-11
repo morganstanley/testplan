@@ -10,6 +10,7 @@ import inspect
 import os
 import re
 import json
+from pathlib import Path
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
@@ -94,7 +95,13 @@ def _bind_entry(entry, result_obj):
     ``entries`` list.
     """
     # Second element is the caller
-    caller_frame = inspect.stack()[2]
+    frame1, frame2, caller_frame, *_ = inspect.stack()
+
+    # Test that frame1.filename and frame2.filename == result.py. Also that caller_frame.filename != result.py
+    if not(Path(frame1.filename).name == Path(__file__).name and Path(frame2.filename).name == Path(__file__).name and
+           Path(caller_frame.filename).name != Path(__file__).name):
+        raise AssertionError('Location of _bind_entry function call breaks established pattern')
+
     entry.file_path = os.path.abspath(caller_frame[1])
     entry.line_no = caller_frame[2]
 

@@ -3,6 +3,9 @@
 import os
 import sys
 import tempfile
+from pathlib import Path
+import inspect
+from unittest.mock import patch
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))
 
@@ -10,6 +13,8 @@ import pytest
 
 from testplan import TestplanMock
 from testplan.common.utils.path import VAR_TMP
+
+import testplan.testing.multitest.result as result_py
 
 
 # Testplan and various drivers have a `runpath` attribute in their config
@@ -81,7 +86,7 @@ def repo_root_path():
     for building paths to specific files/directories in the repo without
     relying on the current working directory or building a relative path from
     a different known filepath.
-    """
+    """   
     # This file is at tests/conftest.py. It should not be moved, since it
     # defines global pytest fixtures for all tests.
     return os.path.join(os.path.dirname(__file__), os.pardir)
@@ -93,3 +98,29 @@ def root_directory(pytestconfig):
     Return the root directory of pyTest config as a string.
     """
     return str(pytestconfig.rootdir)
+
+
+def get_hook():
+    reference = result_py._bind_entry
+
+    def track_and_call(entry, result_obj):
+        va = inspect.stack()
+        frame1, frame2, caller_frame, *_ = inspect.stack()
+
+        # Test that frame1.filename and frame2.filename == result.py. Also that caller_frame.filename != result.py
+        if not (Path(frame1.filename).name == Path(__file__).name and Path(frame2.filename).name == Path(
+                __file__).name and
+                Path(caller_frame.filename).name != Path(__file__).name):
+            raise AssertionError('Location of _bind_entry function call breaks established pattern')
+        assert False
+        return reference(entry, result_obj)
+    return track_and_call
+
+
+def patch_bind_entry():
+    replacement_hook = get_hook()
+    patcher = patch.object(result_py, '_bind_entry', replacement_hook)
+    patcher.start()
+
+
+patch_bind_entry()
