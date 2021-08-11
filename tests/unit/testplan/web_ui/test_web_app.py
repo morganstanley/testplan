@@ -9,14 +9,14 @@ from testplan import defaults
 from testplan.web_ui.web_app import app as tp_web_app
 
 STATIC_REPORTS = {
-    "testing": {"uid": str(uuid.uuid4()), "contents": str(uuid.uuid4())}
+    "testing": {"uid": "static-uid", "contents": "Static content"}
 }
 
 DATA_REPORTS = {
     "testplan": {
         "report_name": "report.json",
-        "uid": str(uuid.uuid4()),
-        "contents": str(uuid.uuid4()),
+        "uid": "test-report-uid",
+        "contents": "This is a JSON report",
     }
 }
 
@@ -36,7 +36,7 @@ def _create_tmp_file(tmp_file, contents):
         os.makedirs(base_dir)
 
     with open(tmp_file, "w") as tmp_file:
-        tmp_file.write(str(contents))
+        tmp_file.write(contents)
 
 
 def _create_tmp_static_files(base_dir):

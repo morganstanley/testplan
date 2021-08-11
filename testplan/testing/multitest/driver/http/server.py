@@ -7,7 +7,7 @@ from threading import Thread
 
 from schema import Use
 
-from testplan.common.config import ConfigOption as Optional
+from testplan.common.config import ConfigOption
 from testplan.common.utils.strings import slugify
 
 from ..base import Driver, DriverConfig
@@ -156,14 +156,14 @@ class HTTPServerConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            Optional("host", default="localhost"): str,
-            Optional("port", default=0): Use(int),
-            Optional(
+            ConfigOption("host", default="localhost"): str,
+            ConfigOption("port", default=0): Use(int),
+            ConfigOption(
                 "request_handler", default=HTTPRequestHandler
             ): lambda v: issubclass(v, http_server.BaseHTTPRequestHandler),
-            Optional("handler_attributes", default={}): dict,
-            Optional("timeout", default=5): Use(int),
-            Optional("interval", default=0.01): Use(float),
+            ConfigOption("handler_attributes", default={}): dict,
+            ConfigOption("timeout", default=5): Use(int),
+            ConfigOption("interval", default=0.01): Use(float),
         }
 
 

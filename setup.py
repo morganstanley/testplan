@@ -16,7 +16,7 @@ REQUIRED = [
     "pytest",
     "py",
     "psutil",
-    "schema<0.7.0",
+    "schema",
     "pytz",
     "lxml",
     "python-dateutil",
