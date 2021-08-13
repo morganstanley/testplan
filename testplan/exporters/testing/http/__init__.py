@@ -89,8 +89,8 @@ class HTTPExporter(Exporter):
     def export(self, source):
 
         http_url = self.cfg.http_url
-        test_plan_schema = TestReportSchema(strict=True)
-        data = test_plan_schema.dump(source).data
+        test_plan_schema = TestReportSchema()
+        data = test_plan_schema.dump(source)
         _, errmsg = self._upload_report(http_url, data)
 
         if errmsg:

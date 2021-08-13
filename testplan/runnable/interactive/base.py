@@ -484,7 +484,7 @@ class TestRunnerIHandler(entity.Entity):
         if exclude_assertions is True:
             report = report.filter(_exclude_assertions_filter)
         if serialized:
-            return report.serialize(strict=False)
+            return report.serialize()
         return report
 
     def test_case_report(self, test_uid, suite_uid, case_uid, serialized=True):
@@ -510,7 +510,7 @@ class TestRunnerIHandler(entity.Entity):
 
         report = report.filter(case_filter, is_assertion)
         if serialized:
-            return report.serialize(strict=False)
+            return report.serialize()
         return report
 
     def start_environment(self, env_uid):

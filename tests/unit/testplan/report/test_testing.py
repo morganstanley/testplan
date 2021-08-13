@@ -393,9 +393,9 @@ def test_report_serialization(dummy_test_plan_report):
 
 def test_report_json_serialization(dummy_test_plan_report):
     """JSON Serialized & deserialized reports should be equal."""
-    test_plan_schema = TestReportSchema(strict=True)
-    data = test_plan_schema.dumps(dummy_test_plan_report).data
-    deserialized_report = test_plan_schema.loads(data).data
+    test_plan_schema = TestReportSchema()
+    data = test_plan_schema.dumps(dummy_test_plan_report)
+    deserialized_report = test_plan_schema.loads(data)
     check_report(actual=deserialized_report, expected=dummy_test_plan_report)
 
 
@@ -403,10 +403,8 @@ def test_report_json_binary_serialization(
     dummy_test_plan_report_with_binary_asserts,
 ):
     """JSON Serialized & deserialized reports should be equal."""
-    test_plan_schema = TestReportSchema(strict=True)
-    data = test_plan_schema.dumps(
-        dummy_test_plan_report_with_binary_asserts
-    ).data
+    test_plan_schema = TestReportSchema()
+    data = test_plan_schema.dumps(dummy_test_plan_report_with_binary_asserts)
 
     j = json.loads(data)
 

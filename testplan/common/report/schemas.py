@@ -2,6 +2,7 @@
   Base schemas for report serialization.
 """
 from marshmallow import Schema, fields, post_load
+from marshmallow.utils import EXCLUDE
 
 from testplan.common.serialization import schemas, fields as custom_fields
 
@@ -9,6 +10,8 @@ from .base import Report, ReportGroup
 
 
 __all__ = ["ReportLogSchema", "ReportSchema", "ReportGroupSchema"]
+
+# pylint: disable=unused-argument, no-self-use
 
 
 class ReportLogSchema(Schema):
@@ -26,6 +29,9 @@ class ReportLogSchema(Schema):
 class ReportSchema(schemas.TreeNodeSchema):
     """Schema for ``base.Report``."""
 
+    class Meta:
+        unknown = EXCLUDE
+
     source_class = Report
 
     name = fields.String()
@@ -38,7 +44,7 @@ class ReportSchema(schemas.TreeNodeSchema):
     hash = fields.Integer(dump_only=True)
 
     @post_load
-    def make_report(self, data):
+    def make_report(self, data, **kwargs):
         """Create report object, attach log list."""
         logs = data.pop("logs", [])
         rep = self.get_source_class()(**data)
@@ -52,6 +58,9 @@ class ReportGroupSchema(ReportSchema):
     source_class = ReportGroup
 
     entries = custom_fields.GenericNested(
-        schema_context={"Report": ReportSchema, "ReportGroup": "self"},
+        schema_context={
+            "Report": ReportSchema,
+            "ReportGroup": lambda: ReportGroupSchema(),
+        },
         many=True,
     )
