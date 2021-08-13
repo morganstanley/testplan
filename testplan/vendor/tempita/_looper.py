@@ -15,8 +15,8 @@ looper you can get a better sense of the context.  Use like::
     3 c
 """
 
-import sys
 from .compat3 import basestring_
+
 
 __all__ = ['looper']
 

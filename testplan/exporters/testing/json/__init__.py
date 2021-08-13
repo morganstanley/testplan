@@ -78,8 +78,8 @@ class JSONExporter(Exporter):
         if len(source):
             json_path.parent.mkdir(parents=True, exist_ok=True)
 
-            test_plan_schema = TestReportSchema(strict=True)
-            data = test_plan_schema.dump(source).data
+            test_plan_schema = TestReportSchema()
+            data = test_plan_schema.dump(source)
             attachments_dir = json_path.parent / defaults.ATTACHMENTS
 
             # Save the Testplan report.
