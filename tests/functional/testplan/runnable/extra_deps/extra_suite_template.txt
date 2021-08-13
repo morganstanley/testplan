@@ -1,8 +1,8 @@
 from testplan.testing.multitest import testsuite, testcase
 
 @testsuite
-class BasicSuite(object):
+class ExtraSuite(object):
 
     @testcase
     def basic_case(self, env, result):
-        result.equal(1, {VALUE}, description="Equal Assertion")
+        result.{VALUE}("Write a message into report")

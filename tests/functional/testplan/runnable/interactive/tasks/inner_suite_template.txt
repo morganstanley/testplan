@@ -1,8 +1,10 @@
 from testplan.testing.multitest import testsuite, testcase
 
 @testsuite
-class BasicSuite(object):
+class InnerSuite(object):
 
     @testcase
     def basic_case(self, env, result):
-        result.equal(1, {VALUE}, description="Equal Assertion")
+        result.true(True, description="Truth Assertion")
+
+{VALUE}
