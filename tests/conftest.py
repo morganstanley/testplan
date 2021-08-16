@@ -103,23 +103,24 @@ def root_directory(pytestconfig):
 def get_hook():
     reference = result_py._bind_entry
 
-    def track_and_call(entry, result_obj):
-        va = inspect.stack()
+    def validation_wrapper(entry, result_obj):
         frame1, frame2, caller_frame, *_ = inspect.stack()
-
-        # Test that frame1.filename and frame2.filename == result.py. Also that caller_frame.filename != result.py
-        if not (Path(frame1.filename).name == Path(__file__).name and Path(frame2.filename).name == Path(
-                __file__).name and
-                Path(caller_frame.filename).name != Path(__file__).name):
+        '''
+            Usage of _bind_entry function should follow an established pattern where the first 3 entries in the
+            stack trace are result.py, result.py and some_calling_test_file.py( generic test file name). 
+            The code below aims to validate this established pattern. Here The first 3 entries in the stack trace will
+            be a little different though. Expected entries are conftest.py, result.py and some_calling_test_file.py
+        '''
+        if not (Path(frame1.filename).name == Path(__file__).name and
+                Path(frame2.filename).name == Path(result_py.__file__).name and
+                Path(caller_frame.filename).name[:5] == 'test_'):
             raise AssertionError('Location of _bind_entry function call breaks established pattern')
-        assert False
         return reference(entry, result_obj)
-    return track_and_call
+    return validation_wrapper
 
 
 def patch_bind_entry():
-    replacement_hook = get_hook()
-    patcher = patch.object(result_py, '_bind_entry', replacement_hook)
+    patcher = patch.object(result_py, '_bind_entry', get_hook())
     patcher.start()
 
 
