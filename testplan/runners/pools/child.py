@@ -19,8 +19,6 @@ def parse_cmdline():
     parser = argparse.ArgumentParser(description="Remote runner parser")
     parser.add_argument("--address", action="store")
     parser.add_argument("--index", action="store")
-    parser.add_argument("--testplan", action="store")
-    parser.add_argument("--testplan-deps", action="store", default=None)
     parser.add_argument("--wd", action="store")
     parser.add_argument("--runpath", action="store", default=None)
     parser.add_argument("--type", action="store")
@@ -286,9 +284,6 @@ class RemoteChildLoop(ChildLoop):
             for key, value in self._setup_metadata.env.items():
                 os.environ[key] = value
 
-        if self._setup_metadata.push_dir:
-            os.environ["TESTPLAN_PUSH_DIR"] = self._setup_metadata.push_dir
-
         if self._setup_metadata.setup_script:
             if subprocess.call(
                 self._setup_metadata.setup_script,
@@ -305,17 +300,7 @@ class RemoteChildLoop(ChildLoop):
             for item in self._setup_metadata.push_files:
                 self.logger.test_info("Removing file: {}".format(item))
                 os.remove(item)
-            # Only delete the source workspace if it was transferred.
-            if self._setup_metadata.workspace_pushed is True:
-                self.logger.test_info(
-                    "Removing workspace: {}".format(
-                        self._setup_metadata.workspace_paths.remote
-                    )
-                )
-                shutil.rmtree(
-                    self._setup_metadata.workspace_paths.remote,
-                    ignore_errors=True,
-                )
+
         super(RemoteChildLoop, self).exit_loop()
 
 
@@ -412,12 +397,10 @@ def child_logic(args):
 def parse_syspath_file(filename):
     """
     Read and parse the syspath file, which should contain each sys.path entry
-    on a separate line. Remove the file once we have read it.
+    on a separate line.
     """
     with open(filename) as f:
         new_syspath = f.read().split("\n")
-
-    os.remove(filename)
 
     return new_syspath
 
@@ -432,22 +415,6 @@ if __name__ == "__main__":
 
     if ARGS.sys_path_file:
         sys.path = parse_syspath_file(ARGS.sys_path_file)
-
-    if ARGS.testplan:
-        sys.path.append(ARGS.testplan)
-    if ARGS.testplan_deps:
-        sys.path.append(ARGS.testplan_deps)
-    try:
-        import dependencies
-
-        # This will also import dependencies from $TESTPLAN_DEPENDENCIES_PATH
-    except ImportError:
-        pass
-
-    import testplan
-
-    if ARGS.testplan_deps:
-        os.environ[testplan.TESTPLAN_DEPENDENCIES_PATH] = ARGS.testplan_deps
 
     child_logic(ARGS)
     print("child.py exiting")

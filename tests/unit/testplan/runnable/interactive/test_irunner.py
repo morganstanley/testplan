@@ -5,7 +5,6 @@ import pytest
 
 from testplan import defaults
 from testplan import report
-from testplan import runners
 from testplan import runnable
 from testplan.common import entity
 from testplan.testing import filtering
@@ -14,6 +13,7 @@ from testplan.testing import ordering
 from testplan.testing.multitest import driver
 from testplan.runnable.interactive import base
 from testplan.common.utils.path import default_runpath
+from testplan.runners.local import LocalRunner
 
 
 @multitest.testsuite
@@ -87,7 +87,7 @@ def irunner():
     """Set up an irunner instance for testing."""
     target = runnable.TestRunner(name="TestRunner")
 
-    local_runner = runners.LocalRunner()
+    local_runner = LocalRunner()
     test_uids = ["test_1", "test_2", "test_3"]
     test_objs = [
         multitest.MultiTest(
@@ -250,7 +250,7 @@ def test_run_all_tagged_tests(tags, num_of_suite_entries):
     """Test running all tests whose testcases are selected by tags."""
     target = runnable.TestRunner(name="TestRunner")
 
-    local_runner = runners.LocalRunner()
+    local_runner = LocalRunner()
     test_uids = ["test_1", "test_2", "test_3"]
     test_objs = [
         multitest.MultiTest(

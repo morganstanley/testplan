@@ -191,17 +191,11 @@ def test_testplan_runpath():
         return "{sep}tmp{sep}custom".format(sep=os.sep)
 
     plan = Testplan(name="MyPlan", port=800, parse_cmdline=False)
-    assert plan.runpath is None
-    plan.run()
     assert plan.runpath == default_runpath(plan._runnable)
 
     path = "/var/tmp/user"
     plan = TestplanMock(name="MyPlan", port=800, runpath=path)
-    assert plan.runpath is None
-    plan.run()
     assert plan.runpath == path
 
     plan = TestplanMock(name="MyPlan", port=800, runpath=runpath_maker)
-    assert plan.runpath is None
-    plan.run()
     assert plan.runpath == runpath_maker(plan._runnable)

@@ -1,6 +1,9 @@
 Drivers
 *******
 
+Configuration
+=============
+
 MultiTest provides a dynamic driver configuration system, around the two
 following properties:
 
@@ -38,9 +41,6 @@ pairs of double curly brackets in configuration files (MultiTest is using the
                port=context('app', '{{port}}'))
     ]
 
-
-Configuration
-=============
 
 Context
 =======

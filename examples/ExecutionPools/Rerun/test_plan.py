@@ -11,7 +11,7 @@ import tempfile
 
 from testplan import test_plan
 from testplan import Task
-from testplan.runners.pools import ThreadPool
+from testplan.runners.pools.base import Pool as ThreadPool
 
 from testplan.parser import TestplanParser
 from testplan.report.testing.styles import Style, StyleEnum

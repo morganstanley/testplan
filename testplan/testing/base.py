@@ -6,6 +6,7 @@ import warnings
 
 from schema import Or, Use, And
 
+from testplan.common.remote.remote_driver import RemoteDriver
 from testplan.defaults import MAX_TEST_NAME_LENGTH
 from testplan.common.config import ConfigOption, validate_func
 
@@ -53,7 +54,9 @@ class TestConfig(RunnableConfig):
         return {
             "name": And(str, lambda s: len(s) <= MAX_TEST_NAME_LENGTH),
             ConfigOption("description", default=None): Or(str, None),
-            ConfigOption("environment", default=[]): [Resource],
+            ConfigOption("environment", default=[]): [
+                Or(Resource, RemoteDriver)
+            ],
             ConfigOption("before_start", default=None): start_stop_signature,
             ConfigOption("after_start", default=None): start_stop_signature,
             ConfigOption("before_stop", default=None): start_stop_signature,

@@ -9,8 +9,6 @@ from testplan.runners.pools import process
 from testplan.runners.pools import tasks
 from testplan.common.utils import logger
 
-from tests.unit.testplan.runners.pools.tasks.data.sample_tasks import Runnable
-
 logger.TESTPLAN_LOGGER.setLevel(logger.DEBUG)
 
 

@@ -46,11 +46,6 @@ def pwd():
     return fix_home_prefix(os.getcwd())
 
 
-def workspace_root():
-    """Default workspace root is the current directory."""
-    return pwd()
-
-
 def default_runpath(entity):
     """
     Returns default runpath for an
@@ -225,14 +220,13 @@ def unique_name(name, names):
     return name
 
 
-def to_posix_path(from_path):
+def rebase_path(path, old_base, new_base):
     """
-    :param from_path: File path, in local OS format.
-    :type from_path: ``str``
-    :return: POSIX-formatted path.
-    :rtype: ``str``
+    Rebase path from old_base to new_base and convert to Linux form.
     """
-    return "/".join(from_path.split(os.sep))
+
+    rel_path = os.path.relpath(path, old_base).split(os.sep)
+    return "/".join([new_base] + rel_path)
 
 
 def is_subdir(child, parent):

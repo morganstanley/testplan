@@ -43,6 +43,7 @@ def dummy_testplan(request):
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         bufsize=0,
+        env={"PYTHONPATH": ":".join(sys.path)},
     )
 
     # Set up a thread to read from the process' stdout and write to a queue.

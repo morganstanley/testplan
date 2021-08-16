@@ -196,7 +196,7 @@ arguments need to support that as well.
 
 .. code-block:: python
 
-    from testplan.runners.pools import ProcessPool
+    from testplan.runners.pools.process import ProcessPool
 
     @test_plan(name='ProcessPoolPlan')
     def main(plan):
@@ -228,7 +228,7 @@ pools, based on their configuration.
 
 .. code-block:: python
 
-    from testplan.runners.pools import RemotePool
+    from testplan.runners.pools.remote import RemotePool
 
     @test_plan(name='RemotePoolPlan')
     def main(plan):
