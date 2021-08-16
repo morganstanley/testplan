@@ -32,6 +32,7 @@ import {
   faBook,
   faPrint,
   faFilter,
+  faTasks,
   faTags,
   faBars,
   faQuestionCircle,
@@ -47,6 +48,7 @@ library.add(
   faBook,
   faPrint,
   faFilter,
+  faTasks,
   faTags,
   faBars,
   faQuestionCircle,
@@ -62,7 +64,9 @@ class Toolbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      treeView: true,
+      treeView: false,
+      displayTime: false,
+      displayPath: false,
       filterOpen: false,
       infoModal: false,
       filter: "all",
@@ -74,6 +78,8 @@ class Toolbar extends Component {
     this.filterOnClick = this.filterOnClick.bind(this);
     this.toggleInfoOnClick = this.toggleInfoOnClick.bind(this);
     this.toggleTreeView = this.toggleTreeView.bind(this);
+    this.toggleTimeDisplay = this.toggleTimeDisplay.bind(this);
+    this.togglePathDisplay = this.togglePathDisplay.bind(this);
     this.toggleEmptyDisplay = this.toggleEmptyDisplay.bind(this);
     this.toggleTagsDisplay = this.toggleTagsDisplay.bind(this);
     this.toggleFilterOnClick = this.toggleFilterOnClick.bind(this);
@@ -85,6 +91,20 @@ class Toolbar extends Component {
     this.props.updateTreeViewFunc(!this.state.treeView);
     this.setState(prevState => ({
       treeView: !prevState.treeView
+    }));
+  }
+
+  togglePathDisplay() {
+    this.props.updatePathDisplayFunc(!this.state.displayPath);
+    this.setState((prevState) => ({
+      displayPath: !prevState.displayPath,
+    }));
+  }
+
+  toggleTimeDisplay() {
+    this.props.updateTimeDisplayFunc(!this.state.displayTime);
+    this.setState((prevState) => ({
+      displayTime: !prevState.displayTime,
     }));
   }
 
@@ -173,9 +193,6 @@ class Toolbar extends Component {
     );
   }
 
-  /**
-   * Return the tree view toggle button.
-   */
   treeViewButton() {
     return (
       <NavItem>
@@ -192,9 +209,47 @@ class Toolbar extends Component {
     );
   }
 
-  /**
-   * Return the info button which toggles the info modal.
-   */
+  detailsButton(toolbarStyle) {
+    return (
+      <UncontrolledDropdown nav inNavbar>
+        <div className={css(styles.buttonsBar)}>
+          <DropdownToggle nav className={toolbarStyle}>
+            <FontAwesomeIcon
+              key="toolbar-details"
+              icon="tasks"
+              title="Choose details"
+              className={css(styles.toolbarButton)}
+            />
+          </DropdownToggle>
+        </div>
+        <DropdownMenu className={css(styles.dropdown)}>
+          <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
+            <Label check className={css(styles.filterLabel)}>
+              <Input
+                type="checkbox"
+                name="filter"
+                value="time"
+                onChange={this.toggleTimeDisplay}
+              />{" "}
+              Time Information
+            </Label>
+          </DropdownItem>
+          <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
+            <Label check className={css(styles.filterLabel)}>
+              <Input
+                type="checkbox"
+                name="filter"
+                value="path"
+                onChange={this.togglePathDisplay}
+              />{" "}
+              File Path
+            </Label>
+          </DropdownItem>
+        </DropdownMenu>
+      </UncontrolledDropdown>
+    );
+  }
+
   infoButton() {
     return (
       <NavItem>
@@ -211,9 +266,6 @@ class Toolbar extends Component {
     );
   }
 
-  /**
-   * Return the filter button which opens a drop-down menu.
-   */
   filterButton(toolbarStyle) {
     return (
       <UncontrolledDropdown nav inNavbar>
@@ -227,7 +279,7 @@ class Toolbar extends Component {
             />
           </DropdownToggle>
         </div>
-        <DropdownMenu className={css(styles.filterDropdown)}>
+        <DropdownMenu className={css(styles.dropdown)}>
           <DropdownItem toggle={false} className={css(styles.dropdownItem)}>
             <Label check className={css(styles.filterLabel)}>
               <Input
@@ -281,9 +333,6 @@ class Toolbar extends Component {
     );
   }
 
-  /**
-   * Return the button which prints the current testplan.
-   */
   printButton() {
     return (
       <NavItem>
@@ -300,9 +349,6 @@ class Toolbar extends Component {
     );
   }
 
-  /**
-   * Return the button which toggles the display of tags.
-   */
   tagsButton() {
     const toolbarButtonStyle = this.state.displayTags
       ? getToggledButtonStyle(this.props.status)
@@ -324,9 +370,6 @@ class Toolbar extends Component {
     );
   }
 
-  /**
-   * Return the button which links to the documentation.
-   */
   documentationButton() {
     return (
       <NavItem>
@@ -367,9 +410,6 @@ class Toolbar extends Component {
     );
   }
 
-  /**
-   * Return the navbar including all buttons.
-   */
   navbar() {
     const toolbarStyle = getToolbarStyle(this.props.status);
 
@@ -381,6 +421,7 @@ class Toolbar extends Component {
             {this.treeViewButton()}
             {this.expandButton()}
             {this.props.extraButtons}
+            {this.detailsButton(toolbarStyle)}
             {this.infoButton()}
             {this.filterButton(toolbarStyle)}
             {this.printButton()}
@@ -392,9 +433,6 @@ class Toolbar extends Component {
     );
   }
 
-  /**
-   * Return the information modal.
-   */
   infoModal() {
     return (
       <Modal

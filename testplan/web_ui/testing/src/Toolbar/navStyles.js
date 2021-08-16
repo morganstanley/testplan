@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     backgroundColor: DARK_RED,
     color: 'white'
   },
-  filterDropdown: {
+  dropdown: {
     'margin-top': '-0.3em'
   },
   infoTable: {

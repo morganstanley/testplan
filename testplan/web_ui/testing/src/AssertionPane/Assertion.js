@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {Card, CardBody, Collapse} from 'reactstrap';
-import {css, StyleSheet} from 'aphrodite';
+import { Card, CardBody, Collapse } from 'reactstrap';
+import { css, StyleSheet } from 'aphrodite';
 
 import BasicAssertion from './AssertionTypes/BasicAssertion';
 import MarkdownAssertion from './AssertionTypes/MarkdownAssertion';
@@ -21,7 +21,7 @@ import FixMatchAssertion
 import NotImplementedAssertion from './AssertionTypes/NotImplementedAssertion';
 import AssertionHeader from './AssertionHeader';
 import AssertionGroup from './AssertionGroup';
-import {BASIC_ASSERTION_TYPES} from '../Common/defaults';
+import { BASIC_ASSERTION_TYPES } from '../Common/defaults';
 import XYGraphAssertion
   from './AssertionTypes/GraphAssertions/XYGraphAssertion';
 import DiscreteChartAssertion
@@ -41,7 +41,7 @@ class Assertion extends Component {
       if (arr1 === undefined && arr2 === undefined) {
         return true;
       } else if (arr1 !== undefined && arr2 !== undefined &&
-                 arr1.length === arr2.length) {
+        arr1.length === arr2.length) {
         return true;
       } else {
         return false;
@@ -110,6 +110,7 @@ class Assertion extends Component {
             entries={this.props.assertion.entries}
             filter={this.props.filter}
             reportUid={this.props.reportUid}
+            displayPath={this.props.displayPath}
           />
         );
         break;
@@ -141,8 +142,10 @@ class Assertion extends Component {
       <Card className={css(styles.card)}>
         <AssertionHeader
           assertion={this.props.assertion}
-          onClick={this.props.toggleExpand}
+          uid={this.props.uid}
+          toggleExpand={this.props.toggleExpand}
           index={this.props.index}
+          displayPath={this.props.displayPath}
         />
         <Collapse
           isOpen={this.props.expand === EXPAND_STATUS.EXPAND}
@@ -159,12 +162,20 @@ class Assertion extends Component {
             }
           >
             {this.props.expand === EXPAND_STATUS.EXPAND ? assertionType : null}
+            {getLineNumber(this.props)}
           </CardBody>
         </Collapse>
       </Card>
     );
   }
 }
+
+const getLineNumber = (props) => {
+  if (props.assertion.file_path && props.assertion.line_no) {
+    return props.assertion.file_path + ":" + props.assertion.line_no;
+  }
+  return null;
+};
 
 Assertion.propTypes = {
   /** Assertion to be rendered */

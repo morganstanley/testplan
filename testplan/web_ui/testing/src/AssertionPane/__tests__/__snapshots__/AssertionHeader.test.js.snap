@@ -2,17 +2,20 @@
 
 exports[`AssertionHeader shallow renders the correct HTML structure 1`] = `
 <CardHeader
-  className="cardHeader_1ggz856-o_O-cardHeaderColorPassed_1nxwz58"
-  onClick={[MockFunction]}
+  className="cardHeader_z4yav1-o_O-cardHeaderColorPassed_1nxwz58"
   tag="div"
 >
-  <span>
-    <strong />
-  </span>
-  <span>
-    (
-    Equal
-    )
+  <span
+    className="button_13xlah4"
+  >
+    <span>
+      <strong />
+    </span>
+    <span>
+      (
+      Equal
+      )
+    </span>
   </span>
   <span
     className="cardHeaderAlignRight_107ja4p"
