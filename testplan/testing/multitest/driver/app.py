@@ -204,20 +204,16 @@ class App(Driver):
         return self._etcpath
 
     @property
-    def log_matcher(self, path=None):
+    def log_matcher(self):
         """
-        Create if not exist and return the LogMatcher object that reads user
-        specified file path or the log / stdout of the driver.
+        Create if not exist and return the LogMatcher object that reads the
+        log / stdout of the driver.
 
-        :param path: path to the log file
-        :param path: ``str``
         :return: LogMatcher instance
         :rtype: ``LogMatcher``
         """
-        path = path or self.logpath
-
         if not self._log_matcher:
-            self._log_matcher = LogMatcher(path)
+            self._log_matcher = LogMatcher(self.logpath)
         return self._log_matcher
 
     def _prepare_binary(self, path):
