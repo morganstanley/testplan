@@ -6,6 +6,7 @@ import time
 import datetime
 import uuid
 import webbrowser
+import inspect
 from collections import OrderedDict
 
 import pytz
@@ -154,7 +155,9 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 "interactive_handler", default=TestRunnerIHandler
             ): object,
-            ConfigOption("extra_deps", default=[]): list,
+            ConfigOption("extra_deps", default=[]): [
+                Or(str, lambda x: inspect.ismodule(x))
+            ],
             ConfigOption("label", default=None): Or(None, str),
         }
 
