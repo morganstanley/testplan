@@ -116,13 +116,10 @@ class PyTest(testing.Test):
     def run_tests(self):
         """Run pytest and wait for it to terminate."""
         # Execute pytest with self as a plugin for hook support
-        sys_path = copy.copy(sys.path)
-        try:
-            return_code = pytest.main(
-                self._pytest_args, plugins=[self._pytest_plugin]
-            )
-        finally:
-            sys.path = sys_path
+
+        return_code = pytest.main(
+            self._pytest_args, plugins=[self._pytest_plugin]
+        )
 
         if return_code == 5:
             self.result.report.status_override = Status.UNSTABLE
@@ -134,14 +131,13 @@ class PyTest(testing.Test):
     def _collect_tests(self):
         """Collect test items but do not run any."""
 
-        sys_path = copy.copy(sys.path)
-        try:
-            return_code = pytest.main(
-                self._pytest_args + ["--collect-only"],
-                plugins=[self._collect_plugin],
-            )
-        finally:
-            sys.path = sys_path
+        # We shall restore sys.path after calling pytest.main
+        # as it might prepend test rootdir in sys.path
+        # but this has other problem (helper package)
+        return_code = pytest.main(
+            self._pytest_args + ["--collect-only"],
+            plugins=[self._collect_plugin],
+        )
 
         if return_code not in (0, 5):  # rc 5: no tests were run
             raise RuntimeError(
