@@ -86,6 +86,9 @@ class ChildLoop(object):
             self.logger.debug("Pool {} aborted.".format(self._pool))
 
     def _setup_logfiles(self):
+
+        from testplan.common.utils.logger import LOGFILE_FORMAT
+
         if not os.path.exists(self.runpath):
             os.makedirs(self.runpath)
 
@@ -111,7 +114,6 @@ class ChildLoop(object):
 
         sys.stderr = open(stderr_file, mode)
         fhandler = logging.FileHandler(log_file, encoding="utf-8")
-        from testplan.common.utils.logger import LOGFILE_FORMAT
 
         formatter = logging.Formatter(LOGFILE_FORMAT)
         fhandler.setFormatter(formatter)
@@ -137,7 +139,7 @@ class ChildLoop(object):
         # Process pool might be exiting after worker restarts and tries
         # to connect, at this time worker can gracefully exit.
         if response.cmd == message.Stop:
-            self.logger.debug("Stop message received, child exits.")
+            print("Stop message received, child exits.")
             os._exit(0)
 
         # Response.data: [cfg, cfg.parent, cfg.parent.parent, ...]
@@ -172,6 +174,7 @@ class ChildLoop(object):
         try:
             self._pre_loop_setup(message)
         except Exception:
+            print("_pre_loop_setup failed")
             self._transport.send_and_receive(
                 message.make(message.SetupFailed, data=traceback.format_exc()),
                 expect=message.Ack,
@@ -306,6 +309,12 @@ class RemoteChildLoop(ChildLoop):
 
 def child_logic(args):
     """Able to be imported child logic."""
+
+    import psutil
+    from testplan.runners.pools.base import Pool, Worker
+    from testplan.runners.pools.process import ProcessPool, ProcessWorker
+    from testplan.runners.pools.connection import ZMQClient
+
     if args.log_level:
         from testplan.common.utils.logger import (
             TESTPLAN_LOGGER,
@@ -314,8 +323,6 @@ def child_logic(args):
 
         TESTPLAN_LOGGER.setLevel(args.log_level)
         TESTPLAN_LOGGER.removeHandler(STDOUT_HANDLER)
-
-    import psutil
 
     print(
         "Starting child process worker on {}, {} with parent {}".format(
@@ -328,10 +335,6 @@ def child_logic(args):
     if args.runpath:
         print("Removing old runpath: {}".format(args.runpath))
         shutil.rmtree(args.runpath, ignore_errors=True)
-
-    from testplan.runners.pools.base import Pool, Worker
-    from testplan.runners.pools.process import ProcessPool, ProcessWorker
-    from testplan.runners.pools.connection import ZMQClient
 
     class NoRunpathPool(Pool):
         """
@@ -416,7 +419,18 @@ if __name__ == "__main__":
     if ARGS.sys_path_file:
         sys.path = parse_syspath_file(ARGS.sys_path_file)
 
-    import testplan  # dummy import to speed-up execution
+    # upfront import to speed-up execution
+    import testplan
+    import psutil
+    from testplan.runners.pools.communication import Message
+    from testplan.runners.pools.base import Pool, Worker
+    from testplan.runners.pools.process import ProcessPool, ProcessWorker
+    from testplan.runners.pools.connection import ZMQClient
+    from testplan.common.utils.logger import LOGFILE_FORMAT
+    from testplan.common.utils.logger import (
+        TESTPLAN_LOGGER,
+        STDOUT_HANDLER,
+    )
 
     child_logic(ARGS)
     print("child.py exiting")
