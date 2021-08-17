@@ -34,7 +34,6 @@ def test_runner_timeout():
             [sys.executable, testplan_script, "--json", output_json],
             stdout=subprocess.PIPE,
             universal_newlines=True,
-            env={"PYTHONPATH": ":".join(sys.path)},
         )
 
         # Set our own timeout so that we don't wait forever if the testplan
