@@ -86,7 +86,7 @@ def repo_root_path():
     for building paths to specific files/directories in the repo without
     relying on the current working directory or building a relative path from
     a different known filepath.
-    """   
+    """
     # This file is at tests/conftest.py. It should not be moved, since it
     # defines global pytest fixtures for all tests.
     return os.path.join(os.path.dirname(__file__), os.pardir)
@@ -105,22 +105,27 @@ def get_hook():
 
     def validation_wrapper(entry, result_obj):
         frame1, frame2, caller_frame, *_ = inspect.stack()
-        '''
+        """
             Usage of _bind_entry function should follow an established pattern where the first 3 entries in the
             stack trace are result.py, result.py and some_calling_test_file.py( generic test file name). 
             The code below aims to validate this established pattern. Here The first 3 entries in the stack trace will
             be a little different though. Expected entries are conftest.py, result.py and some_calling_test_file.py
-        '''
-        if not (Path(frame1.filename).name == Path(__file__).name and
-                Path(frame2.filename).name == Path(result_py.__file__).name and
-                Path(caller_frame.filename).name[:5] == 'test_'):
-            raise AssertionError('Location of _bind_entry function call breaks established pattern')
+        """
+        if not (
+            Path(frame1.filename).name == Path(__file__).name
+            and Path(frame2.filename).name == Path(result_py.__file__).name
+            and Path(caller_frame.filename).name[:5] == "test_"
+        ):
+            raise AssertionError(
+                "Location of _bind_entry function call breaks established pattern"
+            )
         return reference(entry, result_obj)
+
     return validation_wrapper
 
 
 def patch_bind_entry():
-    patcher = patch.object(result_py, '_bind_entry', get_hook())
+    patcher = patch.object(result_py, "_bind_entry", get_hook())
     patcher.start()
 
 
