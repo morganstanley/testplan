@@ -5,6 +5,10 @@ import os
 import requests
 import pytest
 
+pytestmark = pytest.mark.skip(
+    reason="It seems this test is mixing with test_reloader.py, skip for now"
+)
+
 from testplan.common.utils.timing import wait
 from testplan.common.utils.comparison import compare
 from testplan.common.utils.context import context

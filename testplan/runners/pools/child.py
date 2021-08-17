@@ -416,6 +416,8 @@ if __name__ == "__main__":
     if ARGS.sys_path_file:
         sys.path = parse_syspath_file(ARGS.sys_path_file)
 
+    import testplan  # dummy import to speed-up execution
+
     child_logic(ARGS)
     print("child.py exiting")
     os._exit(0)

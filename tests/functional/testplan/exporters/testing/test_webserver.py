@@ -37,13 +37,13 @@ def dummy_testplan(request):
     """
     cmd = [sys.executable] + request.param
     cwd = os.path.dirname(os.path.abspath(__file__))
+
     testplan_proc = subprocess.Popen(
         cmd,
         cwd=cwd,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         bufsize=0,
-        env={"PYTHONPATH": ":".join(sys.path)},
     )
 
     # Set up a thread to read from the process' stdout and write to a queue.
