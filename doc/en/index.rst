@@ -214,4 +214,7 @@ License information `here <https://github.com/morganstanley/testplan/blob/main/L
    :caption: More Info
    :maxdepth: 2
    :hidden:
+   
+   design
+   about
 
