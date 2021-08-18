@@ -2,7 +2,7 @@ import time
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan.runners.pools import ThreadPool
+from testplan.runners.pools.base import Pool as ThreadPool
 from testplan.runners.pools.tasks import Task
 
 from testplan.common.utils.testing import check_report

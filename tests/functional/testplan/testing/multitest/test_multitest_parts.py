@@ -3,7 +3,7 @@ import itertools
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import TestplanMock
-from testplan.runners.pools import ThreadPool
+from testplan.runners.pools.base import Pool as ThreadPool
 from testplan.runners.pools.tasks import Task
 from testplan.report import Status
 

@@ -520,31 +520,36 @@ class Entity(logger.Loggable):
             self._uid = uuid4()
         return self._uid
 
-    def generate_runpath(self):
+    def define_runpath(self):
         """
-        Returns runpath directory based on parent object and configuration.
+        Define entity's runpath directory based on parent object and configuration.
         """
         # local config has highest precedence
         runpath = self.cfg.get_local("runpath")
         if runpath:
-            return runpath(self) if callable(runpath) else runpath
+            self._runpath = runpath(self) if callable(runpath) else runpath
+
         # else get container's runpath and append uid
         elif self.parent and self.parent.runpath:
-            return os.path.join(self.parent.runpath, slugify(self.uid()))
+            self._runpath = os.path.join(
+                self.parent.runpath, slugify(self.uid())
+            )
 
         else:
-            return default_runpath(self)
+            self._runpath = default_runpath(self)
 
     def make_runpath_dirs(self):
         """
         Creates runpath related directories.
         """
-        self._runpath = self.generate_runpath()
-        self._scratch = os.path.join(self._runpath, "scratch")
-        if self.runpath is None:
+        self.define_runpath()
+        if self._runpath is None:
             raise RuntimeError(
                 "{} runpath cannot be None".format(self.__class__.__name__)
             )
+
+        self._scratch = os.path.join(self._runpath, "scratch")
+
         self.logger.debug(
             "%s has %s runpath and pid %d", self, self.runpath, os.getpid()
         )
@@ -1038,10 +1043,16 @@ class Resource(Entity):
         `Resource.starting <testplan.common.entity.base.Resource.starting>`
         method.
         """
+
         self.logger.debug("Starting %r", self)
         self.status.change(self.STATUS.STARTING)
+        self.pre_start()
         self.starting()
-        self.logger.debug("Started %r", self)
+
+        if not self.cfg.async_start:
+            self.wait(self.STATUS.STARTED)
+            self.logger.debug("Started %r", self)
+            self.post_start()
 
     def stop(self):
         """
@@ -1050,11 +1061,29 @@ class Resource(Entity):
         `Resource.stopping <testplan.common.entity.base.Resource.stopping>`
         method.
         """
+
         self.logger.debug("Stopping %r", self)
         self.status.change(self.STATUS.STOPPING)
+        self.pre_stop()
         if self.active:
             self.stopping()
-        self.logger.debug("Stopped %r", self)
+
+        if not self.cfg.async_start:
+            self.wait(self.STATUS.STOPPED)
+            self.logger.debug("Stopped %r", self)
+            self.post_stop()
+
+    def pre_start(self):
+        """Steps to be executed right before resource starts."""
+
+    def post_start(self):
+        """Steps to be executed right after resource is started."""
+
+    def pre_stop(self):
+        """Steps to be executed right before resource stops."""
+
+    def post_stop(self):
+        """Steps to be executed right after resource is stopped"""
 
     def _wait_started(self, timeout=None):
         self.status.change(self.STATUS.STARTED)

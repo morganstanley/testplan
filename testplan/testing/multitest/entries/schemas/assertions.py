@@ -175,7 +175,7 @@ class XMLCheckSchema(AssertionSchema):
 
     xml = custom_fields.XMLElementField(attribute="element")
 
-    namespaces = fields.Dict(fields.String())
+    namespaces = fields.Dict()
     data = fields.List(fields.List(custom_fields.NativeOrPretty()))
     message = fields.String()
 

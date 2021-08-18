@@ -1,7 +1,9 @@
 """PyTest test runner."""
 import collections
+import copy
 import inspect
 import os
+import sys
 import re
 import traceback
 
@@ -114,9 +116,11 @@ class PyTest(testing.Test):
     def run_tests(self):
         """Run pytest and wait for it to terminate."""
         # Execute pytest with self as a plugin for hook support
+
         return_code = pytest.main(
             self._pytest_args, plugins=[self._pytest_plugin]
         )
+
         if return_code == 5:
             self.result.report.status_override = Status.UNSTABLE
             self.logger.warning("No tests were run")
@@ -126,6 +130,10 @@ class PyTest(testing.Test):
 
     def _collect_tests(self):
         """Collect test items but do not run any."""
+
+        # We shall restore sys.path after calling pytest.main
+        # as it might prepend test rootdir in sys.path
+        # but this has other problem (helper package)
         return_code = pytest.main(
             self._pytest_args + ["--collect-only"],
             plugins=[self._collect_plugin],

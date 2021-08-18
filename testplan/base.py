@@ -18,7 +18,7 @@ from testplan.testing import ordering
 from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.parser import TestplanParser
-from testplan.runners import LocalRunner
+from testplan.runners.local import LocalRunner
 from testplan.environment import Environments
 
 
@@ -64,7 +64,7 @@ class TestplanResult(TestRunnerResult):
 
 
 class Testplan(entity.RunnableManager):
-    """
+    r"""
     A collection of tests and tests executors with the ability to
     selectively execute a subset or a shuffled set of those tests.
 

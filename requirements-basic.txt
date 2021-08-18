@@ -21,6 +21,7 @@ cheroot
 validators==0.14.0
 Pillow
 plotly
+rpyc
 
 # Documentation
 # ---------------

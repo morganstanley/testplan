@@ -4,7 +4,9 @@ import os
 import random
 import time
 import datetime
+import uuid
 import webbrowser
+import inspect
 from collections import OrderedDict
 
 import pytz
@@ -22,7 +24,7 @@ from testplan.common.exporters import BaseExporter, ExporterResult
 from testplan.common.report import MergeError
 from testplan.common.utils import logger
 from testplan.common.utils import strings
-from testplan.common.utils.path import default_runpath
+from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.exporters import testing as test_exporters
 from testplan.report import (
     TestReport,
@@ -153,7 +155,9 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption(
                 "interactive_handler", default=TestRunnerIHandler
             ): object,
-            ConfigOption("extra_deps", default=[]): list,
+            ConfigOption("extra_deps", default=[]): [
+                Or(str, lambda x: inspect.ismodule(x))
+            ],
             ConfigOption("label", default=None): Or(None, str),
         }
 
@@ -304,6 +308,9 @@ class TestRunner(Runnable):
         # uuid4 format as report uid instead of original one. Skip this step
         # when executing unit/functional tests or running in interactive mode.
         self._reset_report_uid = self.cfg.interactive_port is None
+        self.define_runpath()
+        self.remote_services = {}
+        self.runid_filename = uuid.uuid4().hex
 
     @property
     def report(self):
@@ -393,6 +400,30 @@ class TestRunner(Runnable):
         return self.resources.add(
             resource, uid=uid or getattr(resource, "uid", strings.uuid4)()
         )
+
+    def add_remote_service(self, remote_service):
+        """
+        Adds a remote service
+        :py:class:`~testplan.common.remote.remote_service.RemoteService`
+        object to test runner.
+        :param remote_service: RemoteService object
+        :param uid:
+        :return:
+        """
+        name = remote_service.cfg.name
+        if name in self.remote_services:
+            raise ValueError(f"Remove Service [{name}] already exists")
+
+        remote_service.parent = self
+        remote_service.cfg.parent = self.cfg
+        self.remote_services[name] = remote_service
+        remote_service.start()
+
+    def _stop_remote_services(self):
+
+        for name, rmt_svc in self.remote_services.items():
+            self.logger.debug(f"Stopping Remote Server {name}")
+            rmt_svc.stop()
 
     def schedule(self, task=None, resource=None, **options):
         """
@@ -535,12 +566,34 @@ class TestRunner(Runnable):
         self.report.timer.end("run")
 
     def make_runpath_dirs(self):
-        super(TestRunner, self).make_runpath_dirs()
-        self.logger.test_info("Testplan runpath: {}".format(self.runpath))
+        """
+        Creates runpath related directories.
+        """
+        if self._runpath is None:
+            raise RuntimeError(
+                "{} runpath cannot be None".format(self.__class__.__name__)
+            )
+
+        self.logger.test_info(
+            f"Testplan has runpath: {self._runpath} and pid {os.getpid()}"
+        )
+
+        self._scratch = os.path.join(self._runpath, "scratch")
+
+        if self.cfg.path_cleanup is False:
+            makedirs(self._runpath)
+            makedirs(self._scratch)
+        else:
+            makeemptydirs(self._runpath)
+            makeemptydirs(self._scratch)
+
+        with open(
+            os.path.join(self._runpath, self.runid_filename), "wb"
+        ) as fp:
+            pass
 
     def pre_resource_steps(self):
         """Steps to be executed before resources started."""
-        # self._add_step(self._runpath_initialization)
         self._add_step(self._record_start)
         self._add_step(self.make_runpath_dirs)
         self._add_step(self._configure_file_logger)
@@ -551,6 +604,7 @@ class TestRunner(Runnable):
 
     def post_resource_steps(self):
         """Steps to be executed after resources stopped."""
+        self._add_step(self._stop_remote_services)
         self._add_step(self._create_result)
         self._add_step(self._log_test_status)
         self._add_step(self._record_end)  # needs to happen before export

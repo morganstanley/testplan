@@ -19,8 +19,6 @@ def parse_cmdline():
     parser = argparse.ArgumentParser(description="Remote runner parser")
     parser.add_argument("--address", action="store")
     parser.add_argument("--index", action="store")
-    parser.add_argument("--testplan", action="store")
-    parser.add_argument("--testplan-deps", action="store", default=None)
     parser.add_argument("--wd", action="store")
     parser.add_argument("--runpath", action="store", default=None)
     parser.add_argument("--type", action="store")
@@ -88,6 +86,9 @@ class ChildLoop(object):
             self.logger.debug("Pool {} aborted.".format(self._pool))
 
     def _setup_logfiles(self):
+
+        from testplan.common.utils.logger import LOGFILE_FORMAT
+
         if not os.path.exists(self.runpath):
             os.makedirs(self.runpath)
 
@@ -113,7 +114,6 @@ class ChildLoop(object):
 
         sys.stderr = open(stderr_file, mode)
         fhandler = logging.FileHandler(log_file, encoding="utf-8")
-        from testplan.common.utils.logger import LOGFILE_FORMAT
 
         formatter = logging.Formatter(LOGFILE_FORMAT)
         fhandler.setFormatter(formatter)
@@ -139,7 +139,7 @@ class ChildLoop(object):
         # Process pool might be exiting after worker restarts and tries
         # to connect, at this time worker can gracefully exit.
         if response.cmd == message.Stop:
-            self.logger.debug("Stop message received, child exits.")
+            print("Stop message received, child exits.")
             os._exit(0)
 
         # Response.data: [cfg, cfg.parent, cfg.parent.parent, ...]
@@ -174,6 +174,7 @@ class ChildLoop(object):
         try:
             self._pre_loop_setup(message)
         except Exception:
+            print("_pre_loop_setup failed")
             self._transport.send_and_receive(
                 message.make(message.SetupFailed, data=traceback.format_exc()),
                 expect=message.Ack,
@@ -286,9 +287,6 @@ class RemoteChildLoop(ChildLoop):
             for key, value in self._setup_metadata.env.items():
                 os.environ[key] = value
 
-        if self._setup_metadata.push_dir:
-            os.environ["TESTPLAN_PUSH_DIR"] = self._setup_metadata.push_dir
-
         if self._setup_metadata.setup_script:
             if subprocess.call(
                 self._setup_metadata.setup_script,
@@ -305,22 +303,18 @@ class RemoteChildLoop(ChildLoop):
             for item in self._setup_metadata.push_files:
                 self.logger.test_info("Removing file: {}".format(item))
                 os.remove(item)
-            # Only delete the source workspace if it was transferred.
-            if self._setup_metadata.workspace_pushed is True:
-                self.logger.test_info(
-                    "Removing workspace: {}".format(
-                        self._setup_metadata.workspace_paths.remote
-                    )
-                )
-                shutil.rmtree(
-                    self._setup_metadata.workspace_paths.remote,
-                    ignore_errors=True,
-                )
+
         super(RemoteChildLoop, self).exit_loop()
 
 
 def child_logic(args):
     """Able to be imported child logic."""
+
+    import psutil
+    from testplan.runners.pools.base import Pool, Worker
+    from testplan.runners.pools.process import ProcessPool, ProcessWorker
+    from testplan.runners.pools.connection import ZMQClient
+
     if args.log_level:
         from testplan.common.utils.logger import (
             TESTPLAN_LOGGER,
@@ -329,8 +323,6 @@ def child_logic(args):
 
         TESTPLAN_LOGGER.setLevel(args.log_level)
         TESTPLAN_LOGGER.removeHandler(STDOUT_HANDLER)
-
-    import psutil
 
     print(
         "Starting child process worker on {}, {} with parent {}".format(
@@ -343,10 +335,6 @@ def child_logic(args):
     if args.runpath:
         print("Removing old runpath: {}".format(args.runpath))
         shutil.rmtree(args.runpath, ignore_errors=True)
-
-    from testplan.runners.pools.base import Pool, Worker
-    from testplan.runners.pools.process import ProcessPool, ProcessWorker
-    from testplan.runners.pools.connection import ZMQClient
 
     class NoRunpathPool(Pool):
         """
@@ -412,12 +400,10 @@ def child_logic(args):
 def parse_syspath_file(filename):
     """
     Read and parse the syspath file, which should contain each sys.path entry
-    on a separate line. Remove the file once we have read it.
+    on a separate line.
     """
     with open(filename) as f:
         new_syspath = f.read().split("\n")
-
-    os.remove(filename)
 
     return new_syspath
 
@@ -433,21 +419,18 @@ if __name__ == "__main__":
     if ARGS.sys_path_file:
         sys.path = parse_syspath_file(ARGS.sys_path_file)
 
-    if ARGS.testplan:
-        sys.path.append(ARGS.testplan)
-    if ARGS.testplan_deps:
-        sys.path.append(ARGS.testplan_deps)
-    try:
-        import dependencies
-
-        # This will also import dependencies from $TESTPLAN_DEPENDENCIES_PATH
-    except ImportError:
-        pass
-
+    # upfront import to speed-up execution
     import testplan
-
-    if ARGS.testplan_deps:
-        os.environ[testplan.TESTPLAN_DEPENDENCIES_PATH] = ARGS.testplan_deps
+    import psutil
+    from testplan.runners.pools.communication import Message
+    from testplan.runners.pools.base import Pool, Worker
+    from testplan.runners.pools.process import ProcessPool, ProcessWorker
+    from testplan.runners.pools.connection import ZMQClient
+    from testplan.common.utils.logger import LOGFILE_FORMAT
+    from testplan.common.utils.logger import (
+        TESTPLAN_LOGGER,
+        STDOUT_HANDLER,
+    )
 
     child_logic(ARGS)
     print("child.py exiting")

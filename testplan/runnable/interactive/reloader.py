@@ -109,9 +109,12 @@ class ModuleReloader(logger.Loggable):
         :return: Reload directories of extra dependencies
         :rtype: ``set[str]``
         """
-        self.logger.debug(
-            "Adding extra dependencies: %s", [dep.__name__ for dep in deps]
-        )
+        for dep in deps:
+            self.logger.debug(
+                "Adding extra dependent %s: %s",
+                "path" if isinstance(dep, str) else "module",
+                dep,
+            )
 
         reload_dirs = set()
 
@@ -297,7 +300,7 @@ class ModuleReloader(logger.Loggable):
 
 
 class _GraphModuleFinder(modulefinder.ModuleFinder, logger.Loggable):
-    """
+    r"""
     Variant of the standard library ModuleFinder that is able to produce a
     directed acyclic graph of dependencies. The root node corresponds to the
     main module passed as a script, its child nodes correspond to its

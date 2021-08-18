@@ -37,6 +37,7 @@ def dummy_testplan(request):
     """
     cmd = [sys.executable] + request.param
     cwd = os.path.dirname(os.path.abspath(__file__))
+
     testplan_proc = subprocess.Popen(
         cmd,
         cwd=cwd,

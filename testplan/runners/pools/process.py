@@ -67,37 +67,26 @@ class ProcessWorker(Worker):
             self.cfg.index,
             "--address",
             self.transport.address,
-            "--testplan",
-            os.path.join(os.path.dirname(testplan.__file__), ".."),
             "--type",
             "process_worker",
             "--log-level",
             TESTPLAN_LOGGER.getEffectiveLevel(),
             "--sys-path-file",
-            self._write_syspath(),
+            self._syspath_file,
         ]
-        if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
-            cmd.extend(
-                [
-                    "--testplan-deps",
-                    fix_home_prefix(
-                        os.environ[testplan.TESTPLAN_DEPENDENCIES_PATH]
-                    ),
-                ]
-            )
+
         return cmd
 
-    def _write_syspath(self):
+    def _write_syspath(self, sys_path=None):
         """Write out our current sys.path to a file and return the filename."""
+        sys_path = sys_path or sys.path
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
-            sys_path = self._get_syspath()
             f.write("\n".join(sys_path))
             self.logger.debug("Written sys.path to file: %s", f.name)
-            return f.name
+            self._syspath_file = f.name
 
-    def _get_syspath(self):
-        """provide a way for subclasses to generate modified sys path which is valid on target"""
-        return sys.path
+    def pre_start(self):
+        self._write_syspath()
 
     def starting(self):
         """Start a child process worker."""

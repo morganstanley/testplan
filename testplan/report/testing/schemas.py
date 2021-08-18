@@ -6,16 +6,20 @@ import json
 from boltons.iterutils import remap, is_scalar
 
 from marshmallow import Schema, fields, post_load
+from marshmallow.utils import EXCLUDE
 
 from testplan.common.serialization.schemas import load_tree_data
-from testplan.common.report.schemas import ReportSchema, ReportLogSchema
 from testplan.common.serialization import fields as custom_fields
+from testplan.common.report.schemas import ReportSchema, ReportLogSchema
 
 from testplan.common.utils import timing
 
 from .base import TestCaseReport, TestGroupReport, TestReport
 
+
 __all__ = ["TestCaseReportSchema", "TestGroupReportSchema", "TestReportSchema"]
+
+# pylint: disable=unused-argument, no-self-use
 
 
 class IntervalSchema(Schema):
@@ -25,7 +29,7 @@ class IntervalSchema(Schema):
     end = custom_fields.UTCDateTime(allow_none=True)
 
     @post_load
-    def make_interval(self, data):  # pylint: disable=no-self-use
+    def make_interval(self, data, **kwargs):
         """Create an Interal object."""
         return timing.Interval(**data)
 
@@ -33,13 +37,13 @@ class IntervalSchema(Schema):
 class TagField(fields.Field):
     """Field for serializing tag data, which is a ``dict`` of ``set``."""
 
-    def _serialize(self, value, attr, obj):
+    def _serialize(self, value, attr, obj, **kwargs):
         return {
             tag_name: list(tag_values)
             for tag_name, tag_values in value.items()
         }
 
-    def _deserialize(self, value, attr, data):
+    def _deserialize(self, value, attr, data, **kwargs):
         return {
             tag_name: set(tag_values) for tag_name, tag_values in value.items()
         }
@@ -51,18 +55,12 @@ class TimerField(fields.Field):
     of ``timer.Interval``.
     """
 
-    def _serialize(self, value, attr, obj):
-        return {
-            k: IntervalSchema(strict=True).dump(v).data
-            for k, v in value.items()
-        }
+    def _serialize(self, value, attr, obj, **kwargs):
+        return {k: IntervalSchema().dump(v) for k, v in value.items()}
 
-    def _deserialize(self, value, attr, data):
+    def _deserialize(self, value, attr, data, **kwargs):
         return timing.Timer(
-            {
-                k: IntervalSchema(strict=True).load(v).data
-                for k, v in value.items()
-            }
+            {k: IntervalSchema().load(v) for k, v in value.items()}
         )
 
 
@@ -80,7 +78,7 @@ class EntriesField(fields.Field):
         else:
             return True
 
-    def _serialize(self, value, attr, obj):
+    def _serialize(self, value, attr, obj, **kwargs):
         # we don't need a _deserialize() here as we don't (and can't)
         # convert str back to non-json-serializable.
         def visit(parent, key, _value):
@@ -117,7 +115,7 @@ class TestCaseReportSchema(ReportSchema):
     status_reason = fields.String(allow_none=True)
 
     @post_load
-    def make_report(self, data):
+    def make_report(self, data, **kwargs):
         """
         Create the report object, assign ``timer`` &
         ``status_override`` attributes explicitly
@@ -155,13 +153,13 @@ class TestGroupReportSchema(TestCaseReportSchema):
     entries = custom_fields.GenericNested(
         schema_context={
             TestCaseReport: TestCaseReportSchema,
-            TestGroupReport: "self",
+            TestGroupReport: lambda: TestGroupReportSchema(),
         },
         many=True,
     )
 
     @post_load
-    def make_report(self, data):
+    def make_report(self, data, **kwargs):
         """
         Propagate tag indices after deserialization
         """
@@ -172,6 +170,9 @@ class TestGroupReportSchema(TestCaseReportSchema):
 
 class TestReportSchema(Schema):
     """Schema for test report root, ``testing.TestReport``."""
+
+    class Meta:
+        unknown = EXCLUDE
 
     name = fields.String(required=True)
     description = fields.String(allow_none=True)
@@ -197,7 +198,7 @@ class TestReportSchema(Schema):
     )
 
     @post_load
-    def make_test_report(self, data):  # pylint: disable=no-self-use
+    def make_test_report(self, data, **kwargs):
         """Create report object & deserialize sub trees."""
         load_tree = functools.partial(
             load_tree_data,
@@ -223,11 +224,15 @@ class TestReportSchema(Schema):
         test_plan_report.timer = timer
         test_plan_report.timeout = timeout
         test_plan_report.logs = logs
+
         return test_plan_report
 
 
 class ShallowTestGroupReportSchema(Schema):
     """Schema for shallow serialization of ``TestGroupReport``."""
+
+    class Meta:
+        unknown = EXCLUDE
 
     name = fields.String(required=True)
     description = fields.String(allow_none=True)
@@ -244,15 +249,15 @@ class ShallowTestGroupReportSchema(Schema):
     suite_related = fields.Bool()
     tags = TagField()
 
-    entry_uids = fields.List(fields.Str(), dump_only=True)
-    parent_uids = fields.List(fields.Str())
+    entry_uids = fields.List(fields.String(), dump_only=True)
+    parent_uids = fields.List(fields.String())
     logs = fields.Nested(ReportLogSchema, many=True)
     hash = fields.Integer(dump_only=True)
     env_status = fields.String(allow_none=True)
     strict_order = fields.Bool()
 
     @post_load
-    def make_testgroup_report(self, data):
+    def make_testgroup_report(self, data, **kwargs):
         status_override = data.pop("status_override", None)
         timer = data.pop("timer")
         logs = data.pop("logs", [])
@@ -270,6 +275,9 @@ class ShallowTestGroupReportSchema(Schema):
 class ShallowTestReportSchema(Schema):
     """Schema for shallow serialization of ``TestReport``."""
 
+    class Meta:
+        unknown = EXCLUDE
+
     name = fields.String(required=True)
     description = fields.String(allow_none=True)
     uid = fields.String(required=True)
@@ -282,13 +290,13 @@ class ShallowTestReportSchema(Schema):
     status_override = fields.String(allow_none=True)
     counter = fields.Dict(dump_only=True)
     attachments = fields.Dict()
-    entry_uids = fields.List(fields.Str(), dump_only=True)
-    parent_uids = fields.List(fields.Str())
+    entry_uids = fields.List(fields.String(), dump_only=True)
+    parent_uids = fields.List(fields.String())
     logs = fields.Nested(ReportLogSchema, many=True)
     hash = fields.Integer(dump_only=True)
 
     @post_load
-    def make_test_report(self, data):
+    def make_test_report(self, data, **kwargs):
         status_override = data.pop("status_override", None)
         timer = data.pop("timer")
         logs = data.pop("logs", [])
