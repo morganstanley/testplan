@@ -7,6 +7,7 @@ import os
 import json
 
 from testplan import defaults
+from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait
 from testplan.common.utils import networking
 from testplan.common.config import ConfigOption
@@ -116,6 +117,12 @@ class WebServerExporter(Exporter):
             "View the JSON report in the browser:\n%s",
             networking.format_access_urls(host, port, "/testplan/local"),
         )
+
+    def wait_for_kb_interrupt(self):
+        try:
+            interruptible_join(self._web_server_thread)
+        except KeyboardInterrupt:
+            self._web_server_thread.stop()
 
     @property
     def _ui_installed(self):

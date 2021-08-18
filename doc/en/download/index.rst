@@ -20,8 +20,5 @@ Downloadable examples
     Remote
     Test Output
     Transports
-
-
-
-
-
+    JUnit
+    Interactive
