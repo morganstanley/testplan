@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 
 
 REQUIRED = [
-    "sphinx",
+    "sphinx<2",
     "sphinx_rtd_theme",
     "setuptools",
     "pytest",
