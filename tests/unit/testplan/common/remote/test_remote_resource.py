@@ -7,7 +7,8 @@ import pytest
 
 from testplan import TestplanMock
 from testplan.common.utils.path import rebase_path
-from testplan.common.utils.remote import filepath_exist_cmd
+from testplan.common.utils.process import execute_cmd
+from testplan.common.utils.remote import filepath_exist_cmd, link_cmd
 
 REMOTE_HOST = os.environ.get("TESTPLAN_REMOTE_HOST")
 pytestmark = pytest.mark.skipif(
@@ -63,6 +64,10 @@ def push_dir():
         path = os.path.join(push_dir, filename)
         with open(path, "w") as fobj:
             fobj.write(path)
+
+    import subprocess
+
+    subprocess.check_output(["ln", "-sfn", "file1", "file1_ln"], cwd=push_dir)
 
     yield push_dir
 
@@ -136,6 +141,7 @@ def test_prepare_remote(remote_resource, workspace, push_dir):
         remote_resource._remote_runid_file,
         "/".join([remote_resource._workspace_paths.remote, "tests", "unit"]),
         "/".join([push_dir, "file1"]),
+        "/".join([push_dir, "file1_ln"]),
         "/".join([remote_resource._working_dirs.remote, "file1"]),
         "/".join([workspace, "file2"]),
     ]:

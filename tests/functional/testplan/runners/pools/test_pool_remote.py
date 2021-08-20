@@ -69,6 +69,7 @@ def test_pool_basic(mockplan, remote_pool_type):
             workspace=workspace,
             pool_type=remote_pool_type,
             schedule_path=schedule_path,
+            restart_count=0,
         )
     finally:
         os.chdir(orig_dir)

@@ -323,7 +323,6 @@ class RemotePool(Pool):
             worker = self.cfg.worker_type(
                 index=instance["host"],
                 remote_host=instance["host"],
-                restart_count=self.cfg.restart_count,
                 workers=instance["number_of_workers"],
                 **self._options,
             )
