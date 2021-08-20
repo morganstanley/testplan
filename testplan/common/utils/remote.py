@@ -82,7 +82,8 @@ def copy_cmd(source, target, exclude=None, port=None, deref_links=False):
             )
 
     if binary:
-        full_cmd = [binary, "-r"]
+        full_cmd = [binary, "-r", "-L" if deref_links else "-l"]
+
         if exclude is not None:
             for item in exclude:
                 full_cmd.extend(["--exclude", item])
