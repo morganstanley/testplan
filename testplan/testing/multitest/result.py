@@ -113,6 +113,7 @@ def assertion(func):
         entry.file_path = os.path.abspath(caller_frame.filename)
         entry.line_no = caller_frame.lineno
         return entry
+
     return wrapper
 
 
