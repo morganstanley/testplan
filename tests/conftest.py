@@ -3,9 +3,6 @@
 import os
 import sys
 import tempfile
-from pathlib import Path
-import inspect
-from unittest.mock import patch
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))
 
@@ -13,8 +10,6 @@ import pytest
 
 from testplan import TestplanMock
 from testplan.common.utils.path import VAR_TMP
-
-import testplan.testing.multitest.result as result_py
 
 
 # Testplan and various drivers have a `runpath` attribute in their config
