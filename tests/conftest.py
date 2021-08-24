@@ -98,35 +98,3 @@ def root_directory(pytestconfig):
     Return the root directory of pyTest config as a string.
     """
     return str(pytestconfig.rootdir)
-
-
-def get_hook():
-    reference = result_py._bind_entry
-
-    def validation_wrapper(entry, result_obj):
-        frame1, frame2, caller_frame, *_ = inspect.stack()
-        """
-            Usage of _bind_entry function should follow an established pattern where the first 3 entries in the
-            stack trace are result.py, result.py and some_calling_test_file.py( generic test file name). 
-            The code below aims to validate this established pattern. Here The first 3 entries in the stack trace will
-            be a little different though. Expected entries are conftest.py, result.py and some_calling_test_file.py
-        """
-        if not (
-            Path(frame1.filename).name == Path(__file__).name
-            and Path(frame2.filename).name == Path(result_py.__file__).name
-            and Path(caller_frame.filename).name[:5] == "test_"
-        ):
-            raise AssertionError(
-                "Location of _bind_entry function call breaks established pattern"
-            )
-        return reference(entry, result_obj)
-
-    return validation_wrapper
-
-
-def patch_bind_entry():
-    patcher = patch.object(result_py, "_bind_entry", get_hook())
-    patcher.start()
-
-
-patch_bind_entry()

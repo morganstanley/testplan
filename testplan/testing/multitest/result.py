@@ -94,11 +94,6 @@ def _bind_entry(entry, result_obj):
     Appends return value of a assertion / log method to the ``Result`` object's
     ``entries`` list.
     """
-    # Second element is the caller
-    frame1, frame2, caller_frame, *_ = inspect.stack()
-
-    entry.file_path = os.path.abspath(caller_frame.filename)
-    entry.line_no = caller_frame.lineno
 
     result_obj.entries.append(entry)
 
@@ -108,6 +103,17 @@ def _bind_entry(entry, result_obj):
 
     if not entry and not result_obj.continue_on_failure:
         raise AssertionError(entry)
+
+
+def assertion(func):
+    def wrapper(*args, **kwargs):
+        entry = func(*args, **kwargs)
+        # Second element is the caller
+        caller_frame = inspect.stack()[1]
+        entry.file_path = os.path.abspath(caller_frame.filename)
+        entry.line_no = caller_frame.lineno
+        return entry
+    return wrapper
 
 
 class AssertionNamespace(object):
@@ -123,6 +129,7 @@ class AssertionNamespace(object):
 class RegexNamespace(AssertionNamespace):
     """Contains logic for regular expression assertions."""
 
+    @assertion
     def match(self, regexp, value, description=None, category=None, flags=0):
         """
         Checks if the given ``regexp`` matches the ``value``
@@ -156,6 +163,7 @@ class RegexNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def multiline_match(self, regexp, value, description=None, category=None):
         """
         Checks if the given ``regexp`` matches the ``value``
@@ -194,6 +202,7 @@ class RegexNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def not_match(
         self, regexp, value, description=None, category=None, flags=0
     ):
@@ -229,6 +238,7 @@ class RegexNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def multiline_not_match(
         self, regexp, value, description=None, category=None
     ):
@@ -269,6 +279,7 @@ class RegexNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def search(self, regexp, value, description=None, category=None, flags=0):
         """
         Checks if the given ``regexp`` exists in the ``value``
@@ -302,6 +313,7 @@ class RegexNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def search_empty(
         self, regexp, value, description=None, category=None, flags=0
     ):
@@ -337,6 +349,7 @@ class RegexNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def findall(
         self,
         regexp,
@@ -387,6 +400,7 @@ class RegexNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def matchline(
         self, regexp, value, description=None, category=None, flags=0
     ):
@@ -433,6 +447,7 @@ class RegexNamespace(AssertionNamespace):
 class TableNamespace(AssertionNamespace):
     """Contains logic for regular expression assertions."""
 
+    @assertion
     def column_contain(
         self,
         table,
@@ -493,6 +508,7 @@ class TableNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def match(
         self,
         actual,
@@ -581,6 +597,7 @@ class TableNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def diff(
         self,
         actual,
@@ -704,6 +721,7 @@ class TableNamespace(AssertionNamespace):
 class XMLNamespace(AssertionNamespace):
     """Contains logic for XML related assertions."""
 
+    @assertion
     def check(
         self,
         element,
@@ -777,6 +795,7 @@ class XMLNamespace(AssertionNamespace):
 class DictNamespace(AssertionNamespace):
     """Contains logic for Dictionary related assertions."""
 
+    @assertion
     def check(
         self,
         dictionary,
@@ -822,6 +841,7 @@ class DictNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def match(
         self,
         actual,
@@ -916,6 +936,7 @@ class DictNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def match_all(
         self,
         values,
@@ -1009,6 +1030,7 @@ class DictNamespace(AssertionNamespace):
 class FixNamespace(AssertionNamespace):
     """Contains assertion logic that operates on fix messages."""
 
+    @assertion
     def check(
         self,
         msg,
@@ -1058,6 +1080,7 @@ class FixNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def match(
         self,
         actual,
@@ -1135,6 +1158,7 @@ class FixNamespace(AssertionNamespace):
         _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def match_all(
         self,
         values,
@@ -1396,6 +1420,7 @@ class Result(object):
         """Entries stored passed status."""
         return all(getattr(entry, "passed", True) for entry in self.entries)
 
+    @assertion
     def log(self, message, description=None, flag=None):
         """
         Create a string message entry, can be used for providing additional
@@ -1420,6 +1445,7 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    @assertion
     def markdown(self, message, description=None, escape=True):
         """
         Create a markdown message entry, can be used for providing additional
@@ -1448,6 +1474,7 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    @assertion
     def log_html(self, code, description="Embedded HTML"):
         """
         Create a markdown message entry without escape, can be used for
@@ -1483,6 +1510,7 @@ class Result(object):
         _bind_entry(entry, self)
         return
 
+    @assertion
     def fail(self, description, category=None, flag=None):
         """
         Failure assertion, can be used for explicitly failing a testcase.
@@ -1562,6 +1590,7 @@ class Result(object):
         else:
             return self.fail(fail_description, flag=flag)
 
+    @assertion
     def true(self, value, description=None, category=None):
         """
         Boolean assertion, checks if ``value`` is truthy.
@@ -1585,6 +1614,7 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    @assertion
     def false(self, value, description=None, category=None):
         """
         Boolean assertion, checks if ``value`` is falsy.
@@ -1608,6 +1638,7 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    @assertion
     def equal(self, actual, expected, description=None, category=None):
         """
         Equality assertion, checks if ``actual == expected``.
@@ -1634,6 +1665,7 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    @assertion
     def not_equal(self, actual, expected, description=None, category=None):
         """
         Inequality assertion, checks if ``actual != expected``.
@@ -1660,6 +1692,7 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    @assertion
     def less(self, first, second, description=None, category=None):
         """
         Checks if ``first < second``.
@@ -1686,6 +1719,7 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    @assertion
     def greater(self, first, second, description=None, category=None):
         """
         Checks if ``first > second``.
@@ -1712,6 +1746,7 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    @assertion
     def less_equal(self, first, second, description=None, category=None):
         """
         Checks if ``first <= second``.
@@ -1772,6 +1807,7 @@ class Result(object):
     le = less_equal
     ge = greater_equal
 
+    @assertion
     def isclose(
         self,
         first,
@@ -1810,6 +1846,7 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    @assertion
     def contain(self, member, container, description=None, category=None):
         """
         Checks if ``member in container``.
@@ -1836,6 +1873,7 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    @assertion
     def not_contain(self, member, container, description=None, category=None):
         """
         Checks if ``member not in container``.
@@ -1862,6 +1900,7 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    @assertion
     def equal_slices(
         self, actual, expected, slices, description=None, category=None
     ):
@@ -1901,6 +1940,7 @@ class Result(object):
         _bind_entry(entry, self)
         return entry
 
+    @assertion
     def equal_exclude_slices(
         self, actual, expected, slices, description=None, category=None
     ):
@@ -2051,6 +2091,7 @@ class Result(object):
             pattern=pattern,
         )
 
+    @assertion
     def diff(
         self,
         first,
@@ -2182,6 +2223,7 @@ class Result(object):
         _bind_entry(attachment, self)
         return attachment
 
+    @assertion
     def matplot(self, pyplot, width=None, height=None, description=None):
         """
         Displays a Matplotlib plot in the report.
