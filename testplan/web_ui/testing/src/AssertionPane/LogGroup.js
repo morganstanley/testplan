@@ -2,13 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {StyleSheet, css} from "aphrodite";
 
+function colorChooser(logType) {
+    switch(logType) {
+        case 'ERROR':
+            return css(styles.logERROR);
+        case 'WARNING':
+            return css(styles.logWARNING;
+        default:
+            return css(styles.logDEFAULT);
+      }
+}
 
 const LogGroup = (props) => {
     if (props.logs && props.logs.length !== 0) {
         const logInfos = props.logs.map(element => {
             return (
                 <div key={element.uid}>
-                    <pre className={css(styles.logEntry)}>
+                    <pre className={colorChooser(element.levelname)}>
                         {element.message}
                     </pre>
                 </div>
@@ -31,8 +41,14 @@ LogGroup.propTypes = {
 
 
 const styles = StyleSheet.create({
-    logEntry: {
+    logERROR: {
         color: 'red',
+    },
+    logWARNING: {
+        color: 'yellow',
+    },
+    logDEFAULT: {
+        color: 'black',
     },
 });
     
