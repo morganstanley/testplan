@@ -4,13 +4,10 @@ import {StyleSheet, css} from "aphrodite";
 
 function colorChooser(logType) {
     switch(logType) {
-        case 'ERROR':
-            return css(styles.logERROR);
-        case 'WARNING':
-            return css(styles.logWARNING;
-        default:
-            return css(styles.logDEFAULT);
-      }
+        case 'ERROR': return css(styles.logERROR);
+        case 'WARNING': return css(styles.logWARNING);
+        default: return css(styles.logDEFAULT);
+    }
 }
 
 const LogGroup = (props) => {
@@ -45,7 +42,7 @@ const styles = StyleSheet.create({
         color: 'red',
     },
     logWARNING: {
-        color: 'yellow',
+        color: 'orange',
     },
     logDEFAULT: {
         color: 'black',
