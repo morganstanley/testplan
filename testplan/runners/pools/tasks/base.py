@@ -1,15 +1,15 @@
 """Tasks and task results base module."""
 
-import sys
 import inspect
+import threading
 import warnings
-import importlib
 from collections import OrderedDict
 
 import pickle
 import copy
 
 from testplan.common.utils import strings
+from testplan.common.utils.package import import_tmp_module
 
 
 class TaskMaterializationError(Exception):
@@ -53,7 +53,7 @@ class Task(object):
     :type target: ``str`` path or runnable ``object``
     :param module: Module name that contains the task target definition.
     :type module: ``str``
-    :param path: Path to module.
+    :param path: Path to module, default is current working directory.
     :type path: ``str``
     :param args: Args of target for task materialization.
     :type args: ``tuple``
@@ -86,7 +86,7 @@ class Task(object):
     ):
         self._target = target
         self._module = module
-        self._path = path
+        self._path = path or ""
         self._args = args or tuple()
         self._kwargs = kwargs or dict()
         self._uid = uid or strings.uuid4()
@@ -231,43 +231,29 @@ class Task(object):
 
     def _string_to_target(self):
         """Dynamically load an object from a module by target name."""
-        path_inserted = False
-        if isinstance(self._path, str):
-            sys.path.insert(0, self._path)
-            path_inserted = True
 
-        try:
-            if self._module is None:
-                ###################################################
-                # For backward compatibility, will be removed later
-                elements = self._target.split(".")
-                target_src = elements.pop(-1)
-                if len(elements):
-                    mod = importlib.import_module(".".join(elements))
-                    warnings.warn(
-                        "DEPRECATED: "
-                        "If a test target is scheduled in string format, the "
-                        "module from where it is imported should be specified"
-                    )
-                    return getattr(mod, target_src)
-                ####################################################
+        if self._module is None:
+            try:
+                module, target = self._target.rsplit(".", 1)
+            except ValueError:
                 raise TaskMaterializationError(
                     "Task parameters are not sufficient for"
                     " target {} materialization".format(self._target)
                 )
-            parent_target, target = importlib.import_module(self._module), None
-            for element in self._target.split("."):
-                target = getattr(parent_target, element, None)
-                if target is None:
+        else:
+            module = self._module
+            target = self._target
+
+        with import_tmp_module(module, self._path) as mod:
+            for element in target.split("."):
+                tgt = getattr(mod, element, None)
+                if tgt is None:
                     raise TaskMaterializationError(
                         'During materializing target "{}": {} has no attribute'
-                        ' "{}"'.format(self._target, parent_target, element)
+                        ' "{}"'.format(self._target, mod, element)
                     )
-                parent_target = target
-            return target
-        finally:
-            if path_inserted is True:
-                sys.path.remove(self._path)
+                mod = tgt
+            return tgt
 
     def dumps(self, check_loadable=False):
         """Serialize a task."""
@@ -388,3 +374,38 @@ class RunnableTaskAdaptor(object):
     def uid(self):
         """Provide mandatory .uid() task method."""
         return strings.uuid4()
+
+
+def task_target(
+    parameters=None,
+    **kwargs,
+):
+    """
+    Decorator to make task target discoverable by plan.schedule_all.
+
+    :param parameters: A collection of parameters to be used to create task
+      objects. ``list`` or ``tuple`` entry will be passed to target as positional
+      args and ``dict`` entry will be passed to target as keyword args.
+    :type parameters: ``list`` or ``tuple`` that contains ``list`` or ``tuple`` or ``dict``
+    :param kwargs: additional args to Task class, e.g rerun, weight etc
+    """
+
+    def inner(func):
+
+        set_task_target(func)
+        func.__target_params__ = parameters
+        func.__task_kwargs__ = kwargs
+
+        return func
+
+    return inner
+
+
+def set_task_target(func):
+    """mark the func as task target"""
+    func.__is_task_target__ = True
+
+
+def is_task_target(func):
+    """check if func is a task target"""
+    return getattr(func, "__is_task_target__", False)

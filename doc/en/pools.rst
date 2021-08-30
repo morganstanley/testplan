@@ -306,3 +306,70 @@ containing MultiTest part should be scheduled, with the parameter tuple (0, 3),
 once, or there will be error during merging reports.
 
 See a downloadable example of :ref:`MultiTest parts scheduling <example_multiTest_parts>`.
+
+.. _task_discover:
+
+Task discover
+-------------
+
+For some projects, user may find task target definition (e.g the make_multitest
+function) and ``plan.schedule`` call become rather repetitive. To reduce boilerplate
+code, :py:meth:`@task_target <testplan.runners.pools.tasks.base.task_target>` and
+:py:meth:`plan.schedule_all <testplan.runnable.base.schedule_all>` are introduced
+to do task discovery.
+
+.. code-block:: python
+
+    plan.schedule_all(
+        path=".",
+        name_pattern=r".*tasks\.py$",
+        resource="MyPool",
+    )
+
+In the code above, testplan will go look for @task_target decorated functions
+in modules that matches the name_pattern under current working directory.
+
+.. code-block:: python
+
+    @task_target()
+    def make_multitest1():
+        # a test target shall only return 1 runnable object
+        test = MultiTest(name="Proj2-Suite1", suites=[Suite1()])
+        return test
+
+Once found, task object will be created from the target, and scheduled to pool.
+It is also possible to create multiple task objects out of one target:
+
+.. code-block:: python
+
+    @task_target(
+        parameters=(
+            # positional args to be passed to target, as a tuple or list
+            ("Proj1-Suite2", None, [sub_proj1.suites.Suite2]),
+            # keyword args to be passed to target, as a dict
+            dict(
+                name="Proj1-Suite1",
+                part_tuple=(0, 2),
+                suites=[sub_proj1.suites.Suite1],
+            ),
+            dict(
+                name="Proj1-Suite1",
+                part_tuple=(1, 2),
+                suites=[sub_proj1.suites.Suite1],
+            ),
+        ),
+        # additional args of Task class
+        rerun=1,
+        weight=1,
+    )
+    def make_multitest(name, part_tuple=None, suites=None):
+        # a test target shall only return 1 runnable object
+        test = MultiTest(
+            name=name, suites=[cls() for cls in suites], part=part_tuple
+        )
+        return test
+
+The code above specifies a collections of parameters in @task_target, and each
+entry will be used create one task - thus 3 tasks will be created from the target.
+
+For a complete and downloadable example, see :ref:`here <example_discover>`.
