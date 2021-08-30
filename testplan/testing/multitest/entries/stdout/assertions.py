@@ -6,7 +6,7 @@ from terminaltables import AsciiTable
 
 import testplan.common.exporters.constants as constants
 from testplan.common.exporters.pdf import format_cell_data
-from testplan.common.utils.strings import Color
+from testplan.common.utils.strings import Color, map_to_str
 
 from .. import assertions
 from .base import BaseRenderer, registry
@@ -85,11 +85,13 @@ class ApproximateEqualityAssertionRenderer(AssertionRenderer):
 
 @registry.bind(assertions.RegexMatch, assertions.RegexSearch)
 class RegexMatchRenderer(AssertionRenderer):
+
     highlight_color = "green"
 
     def get_assertion_details(self, entry):
         """
         Return highlighted patterns within the string, if there is a match.
+        Note that pattern & string (despite the name) could be bytes
         """
 
         string = entry.string
@@ -101,7 +103,8 @@ class RegexMatchRenderer(AssertionRenderer):
 
             for begin, end in entry.match_indexes:
                 if begin > curr_idx:
-                    parts.append(string[curr_idx:begin])
+                    parts.append(map_to_str(string[curr_idx:begin]))
+
                 parts.append(
                     Color.colored(string[begin:end], self.highlight_color)
                 )
@@ -136,6 +139,7 @@ class RegexMatchLineRenderer(AssertionRenderer):
         """
         `RegexMatchLine` returns line indexes
         along with begin/end character indexes per matched line.
+        Note: pattern & string (despite the name) could be bytes
         """
         pattern = "Pattern: `{}`{}".format(entry.pattern, os.linesep)
         if entry.match_indexes:
@@ -145,7 +149,7 @@ class RegexMatchLineRenderer(AssertionRenderer):
                 for line_no, begin, end in entry.match_indexes
             }
 
-            for idx, line in enumerate(entry.string.splitlines()):
+            for idx, line in enumerate(entry.lines):
                 if idx in match_map:
                     begin, end = match_map[idx]
                     parts.append(

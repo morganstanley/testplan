@@ -18,6 +18,7 @@ import lxml
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
 from testplan.common.utils import comparison, difflib
+from testplan.common.utils.strings import map_to_str
 from testplan.common.utils.table import TableEntry
 
 from .base import BaseEntry
@@ -260,17 +261,18 @@ class RegexAssertion(Assertion):
     def __init__(
         self, regexp, string, flags=0, description=None, category=None
     ):
-        if isinstance(regexp, str):
-            self.pattern = regexp
-            self.regexp = re.compile(regexp, flags=flags)
-        else:
+        if isinstance(regexp, re.Pattern):
             if flags != 0:
                 raise ValueError(
                     "`flags` argument is redundant if"
-                    " `regexp` is of type `SRE.pattern`"
+                    " `regexp` is of type `re.Pattern`"
                 )
             self.pattern = regexp.pattern
             self.regexp = regexp
+
+        else:
+            self.pattern = regexp
+            self.regexp = re.compile(regexp, flags=flags)
 
         self.string = string
         self.match_indexes = []
@@ -278,6 +280,10 @@ class RegexAssertion(Assertion):
         super(RegexAssertion, self).__init__(
             description=description, category=category
         )
+
+        # after evaluate(), convert string & pattern to str if they are bytes
+        self.string = map_to_str(self.string)
+        self.pattern = map_to_str(self.pattern)
 
     def get_regex_result(self):
         raise NotImplementedError
@@ -344,9 +350,26 @@ class RegexMatchLine(RegexAssertion):
     assertions for this one: (line_no, begin, end)
     """
 
+    def __init__(
+        self, regexp, string, flags=0, description=None, category=None
+    ):
+        self.lines = None
+        super(RegexMatchLine, self).__init__(
+            regexp,
+            string,
+            flags=flags,
+            description=description,
+            category=category,
+        )
+        self.lines = map(map_to_str, self.lines)
+
     def evaluate(self):
-        lines = self.string.split(os.linesep)
-        for line_num, line in enumerate(lines):
+        if isinstance(self.string, bytes):
+            self.lines = self.string.split(os.linesep.encode())
+        else:
+            self.lines = self.string.split(os.linesep)
+
+        for line_num, line in enumerate(self.lines):
             match = self.regexp.match(line)
             if match:
                 self.match_indexes.append(
