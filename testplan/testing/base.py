@@ -606,9 +606,13 @@ class ProcessRunnerTest(Test):
         the given timeout log path.
         """
 
-        with self.result.report.logged_exceptions(), open(
+        with self.result.report.timer.record(
+            "run"
+        ), self.result.report.logged_exceptions(), open(
             self.stderr, "w"
-        ) as stderr, open(self.stdout, "w") as stdout:
+        ) as stderr, open(
+            self.stdout, "w"
+        ) as stdout:
 
             if not os.path.exists(self.cfg.binary):
                 raise IOError(

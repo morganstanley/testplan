@@ -58,6 +58,8 @@ def test_gtest(mockplan, binary_dir, expected_report, report_status):
     check_report(expected=expected_report, actual=mockplan.report)
 
     assert mockplan.report.status == report_status
+    gtest_report = mockplan.report.entries[0]
+    assert gtest_report.timer["run"].elapsed > 0
 
 
 @skip_on_windows(reason="GTest is skipped on Windows.")
