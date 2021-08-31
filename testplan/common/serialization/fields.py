@@ -362,6 +362,8 @@ class UTCDateTime(fields.DateTime):
     """
 
     def _serialize(self, value, attr, obj, **kwargs):
+        if self.allow_none and value is None:
+            return None
         dt = (
             value.replace(tzinfo=pytz.UTC)
             if value.tzinfo is None
@@ -370,6 +372,8 @@ class UTCDateTime(fields.DateTime):
         return dt.isoformat()
 
     def _deserialize(self, value, attr, data, **kwargs):
+        if self.allow_none and value is None:
+            return None
         dt = parser.parse(value)
         return (
             dt.replace(tzinfo=pytz.UTC)
