@@ -15,7 +15,7 @@ const LogGroup = (props) => {
         const logInfos = props.logs.map(element => {
             return (
                 <div key={element.uid}>
-                    <pre className={colorChooser(element.levelname)}>
+                    <pre className={getLogColor(element.levelname)}>
                         {element.message}
                     </pre>
                 </div>
