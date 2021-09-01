@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {StyleSheet, css} from "aphrodite";
 
-function colorChooser(logType) {
+function getLogColor(logType) {
     switch(logType) {
         case 'ERROR': return css(styles.logERROR);
         case 'WARNING': return css(styles.logWARNING);
