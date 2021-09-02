@@ -94,17 +94,21 @@ assertion_state = threading.local()
 
 def assertion(func):
     def wrapper(result_obj, *args, **kwargs):
-        entry = func(result_obj, *args, **kwargs)        
+        entry = func(result_obj, *args, **kwargs)
         # Second element is the caller
-        if not hasattr(assertion_state.in_progress) or not assertion_state.in_progress:
+        if (
+            not hasattr(assertion_state.in_progress)
+            or not assertion_state.in_progress
+        ):
             assertion_state.in_progress = True
 
             caller_frame = inspect.stack()[1]
             entry.file_path = os.path.abspath(caller_frame.filename)
             entry.line_no = caller_frame.lineno
 
-            assert isinstance(result_obj, AssertionNamespace) or isinstance(result_obj, Result),\
-                "Incorrect usage of assertion decorator"
+            assert isinstance(result_obj, AssertionNamespace) or isinstance(
+                result_obj, Result
+            ), "Incorrect usage of assertion decorator"
 
             if isinstance(result_obj, AssertionNamespace):
                 result_obj = result_obj.result
@@ -112,7 +116,7 @@ def assertion(func):
             result_obj.entries.append(entry)
             stdout_registry.log_entry(
                 entry=entry, stdout_style=result_obj.stdout_style
-                )
+            )
 
             if not entry and not result_obj.continue_on_failure:
                 raise AssertionError(entry)
@@ -166,7 +170,7 @@ class RegexNamespace(AssertionNamespace):
             flags=flags,
             description=description,
             category=category,
-        )        
+        )
         return entry
 
     @assertion
@@ -205,7 +209,7 @@ class RegexNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     @assertion
@@ -241,7 +245,7 @@ class RegexNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     @assertion
@@ -282,7 +286,7 @@ class RegexNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     @assertion
@@ -316,7 +320,7 @@ class RegexNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     @assertion
@@ -352,7 +356,7 @@ class RegexNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     @assertion
@@ -403,7 +407,7 @@ class RegexNamespace(AssertionNamespace):
             condition=condition,
             category=category,
         )
-        
+
         return entry
 
     @assertion
@@ -446,7 +450,7 @@ class RegexNamespace(AssertionNamespace):
             flags=flags,
             category=category,
         )
-        
+
         return entry
 
 
@@ -511,7 +515,7 @@ class TableNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     @assertion
@@ -600,7 +604,7 @@ class TableNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     @assertion
@@ -691,7 +695,7 @@ class TableNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     def log(self, table, display_index=False, description=None):
@@ -721,7 +725,6 @@ class TableNamespace(AssertionNamespace):
         entry = base.TableLog(
             table=table, display_index=display_index, description=description
         )
-        
 
 
 class XMLNamespace(AssertionNamespace):
@@ -794,7 +797,7 @@ class XMLNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
 
@@ -844,7 +847,7 @@ class DictNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     @assertion
@@ -939,7 +942,7 @@ class DictNamespace(AssertionNamespace):
             category=category,
             value_cmp_func=value_cmp_func,
         )
-        
+
         return entry
 
     @assertion
@@ -1003,7 +1006,7 @@ class DictNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     def log(self, dictionary, description=None):
@@ -1029,7 +1032,7 @@ class DictNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         entry = base.DictLog(dictionary=dictionary, description=description)
-        
+
         return entry
 
 
@@ -1083,7 +1086,7 @@ class FixNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     @assertion
@@ -1161,7 +1164,7 @@ class FixNamespace(AssertionNamespace):
             expected_description=expected_description,
             actual_description=actual_description,
         )
-        
+
         return entry
 
     @assertion
@@ -1228,7 +1231,7 @@ class FixNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     def log(self, msg, description=None):
@@ -1256,7 +1259,7 @@ class FixNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         entry = base.FixLog(msg=msg, description=description)
-        
+
         return entry
 
 
@@ -1448,7 +1451,7 @@ class Result(object):
         :rtype: ``bool``
         """
         entry = base.Log(message=message, description=description, flag=flag)
-        
+
         return entry
 
     @assertion
@@ -1477,7 +1480,7 @@ class Result(object):
         entry = base.Markdown(
             message=message, description=description, escape=escape
         )
-        
+
         return entry
 
     @assertion
@@ -1513,7 +1516,7 @@ class Result(object):
         entry = base.CodeLog(
             code=code, language=language, description=description
         )
-        
+
         return
 
     @assertion
@@ -1539,7 +1542,7 @@ class Result(object):
         :rtype: ``bool``
         """
         entry = assertions.Fail(description, category=category, flag=flag)
-        
+
         return entry
 
     def conditional_log(
@@ -1617,7 +1620,7 @@ class Result(object):
         entry = assertions.IsTrue(
             value, description=description, category=category
         )
-        
+
         return entry
 
     @assertion
@@ -1641,7 +1644,7 @@ class Result(object):
         entry = assertions.IsFalse(
             value, description=description, category=category
         )
-        
+
         return entry
 
     @assertion
@@ -1668,7 +1671,7 @@ class Result(object):
         entry = assertions.Equal(
             actual, expected, description=description, category=category
         )
-        # 
+        #
         return entry
 
     @assertion
@@ -1695,7 +1698,7 @@ class Result(object):
         entry = assertions.NotEqual(
             actual, expected, description=description, category=category
         )
-        
+
         return entry
 
     @assertion
@@ -1722,7 +1725,7 @@ class Result(object):
         entry = assertions.Less(
             first, second, description=description, category=category
         )
-        
+
         return entry
 
     @assertion
@@ -1749,7 +1752,7 @@ class Result(object):
         entry = assertions.Greater(
             first, second, description=description, category=category
         )
-        
+
         return entry
 
     @assertion
@@ -1776,7 +1779,7 @@ class Result(object):
         entry = assertions.LessEqual(
             first, second, description=description, category=category
         )
-        
+
         return entry
 
     def greater_equal(self, first, second, description=None, category=None):
@@ -1802,7 +1805,7 @@ class Result(object):
         entry = assertions.GreaterEqual(
             first, second, description=description, category=category
         )
-        
+
         return entry
 
     # Shortcut aliases for basic comparators
@@ -1849,7 +1852,7 @@ class Result(object):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     @assertion
@@ -1876,7 +1879,7 @@ class Result(object):
         entry = assertions.Contain(
             member, container, description=description, category=category
         )
-        
+
         return entry
 
     @assertion
@@ -1903,7 +1906,7 @@ class Result(object):
         entry = assertions.NotContain(
             member, container, description=description, category=category
         )
-        
+
         return entry
 
     @assertion
@@ -1943,7 +1946,7 @@ class Result(object):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     @assertion
@@ -1984,7 +1987,7 @@ class Result(object):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     def raises(
@@ -2153,7 +2156,7 @@ class Result(object):
             description=description,
             category=category,
         )
-        
+
         return entry
 
     def graph(
@@ -2207,7 +2210,7 @@ class Result(object):
             series_options=series_options,
             graph_options=graph_options,
         )
-        
+
         return entry
 
     @assertion
@@ -2256,7 +2259,7 @@ class Result(object):
             description=description,
         )
         self.attachments.append(matplot)
-        
+
         return matplot
 
     def plotly(self, fig, description=None, style=None):
@@ -2269,7 +2272,7 @@ class Result(object):
             description=description,
         )
         self.attachments.append(chart)
-        
+
         return chart
 
     @property
