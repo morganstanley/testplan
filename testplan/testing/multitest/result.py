@@ -82,27 +82,12 @@ class ExceptionCapture(object):
 
         # We cannot use `bind_entry` here as this block will
         # be run when an exception is raised
+        # bind_entry replaced with assertion decorator
         stdout_registry.log_entry(
             entry=exc_assertion, stdout_style=self.result.stdout_style
         )
         self.result.entries.append(exc_assertion)
         return True
-
-
-def _bind_entry(entry, result_obj):
-    """
-    Appends return value of a assertion / log method to the ``Result`` object's
-    ``entries`` list.
-    """
-
-    result_obj.entries.append(entry)
-
-    stdout_registry.log_entry(
-        entry=entry, stdout_style=result_obj.stdout_style
-    )
-
-    if not entry and not result_obj.continue_on_failure:
-        raise AssertionError(entry)
 
 
 def assertion(func):
@@ -113,7 +98,10 @@ def assertion(func):
         entry.file_path = os.path.abspath(caller_frame.filename)
         entry.line_no = caller_frame.lineno
 
-        if not isinstance(result_obj, Result):
+        assert isinstance(result_obj, AssertionNamespace) or isinstance(result_obj, Result),\
+            "Incorrect usage of assertion decorator"
+
+        if isinstance(result_obj, AssertionNamespace):
             result_obj = result_obj.result
 
         result_obj.entries.append(entry)
@@ -2215,6 +2203,7 @@ class Result(object):
         
         return entry
 
+    @assertion
     def attach(self, filepath, description=None):
         """
         Attaches a file to the report.
@@ -2231,7 +2220,6 @@ class Result(object):
             filepath, description, scratch_path=self._scratch
         )
         self.attachments.append(attachment)
-        _bind_entry(attachment, self)
         return attachment
 
     @assertion
