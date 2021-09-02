@@ -9,8 +9,7 @@ after testcases have finished running.
 import inspect
 import os
 import re
-import json
-from pathlib import Path
+import threading
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
@@ -90,27 +89,35 @@ class ExceptionCapture(object):
         return True
 
 
+assertion_state = threading.local()
+
+
 def assertion(func):
     def wrapper(result_obj, *args, **kwargs):
         entry = func(result_obj, *args, **kwargs)        
         # Second element is the caller
-        caller_frame = inspect.stack()[1]
-        entry.file_path = os.path.abspath(caller_frame.filename)
-        entry.line_no = caller_frame.lineno
+        if not hasattr(assertion_state.in_progress) or not assertion_state.in_progress:
+            assertion_state.in_progress = True
 
-        assert isinstance(result_obj, AssertionNamespace) or isinstance(result_obj, Result),\
-            "Incorrect usage of assertion decorator"
+            caller_frame = inspect.stack()[1]
+            entry.file_path = os.path.abspath(caller_frame.filename)
+            entry.line_no = caller_frame.lineno
 
-        if isinstance(result_obj, AssertionNamespace):
-            result_obj = result_obj.result
+            assert isinstance(result_obj, AssertionNamespace) or isinstance(result_obj, Result),\
+                "Incorrect usage of assertion decorator"
 
-        result_obj.entries.append(entry)
-        stdout_registry.log_entry(
-            entry=entry, stdout_style=result_obj.stdout_style
-            )
-        
-        if not entry and not result_obj.continue_on_failure:
-            raise AssertionError(entry)
+            if isinstance(result_obj, AssertionNamespace):
+                result_obj = result_obj.result
+
+            result_obj.entries.append(entry)
+            stdout_registry.log_entry(
+                entry=entry, stdout_style=result_obj.stdout_style
+                )
+
+            if not entry and not result_obj.continue_on_failure:
+                raise AssertionError(entry)
+
+            assertion_state.in_progress = False
         return entry
 
     return wrapper
