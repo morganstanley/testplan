@@ -37,7 +37,13 @@ const NavEntry = (props) => {
   return (
     <div
       className='d-flex justify-content-between align-items-center'
-      style={{ height: "1.5em" }}
+      style={{
+        height: "1.5em",
+        webkitUserSelect: "text",
+        MozUserSelect: "text",
+        MsUserSelect: "text",
+        UserSelect: "text",
+      }}
     >
       <Badge
         className={css(styles.entryIcon, styles[badgeStyle], styles.badge)}

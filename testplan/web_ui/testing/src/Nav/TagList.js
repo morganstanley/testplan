@@ -53,6 +53,7 @@ TagList.propTypes = {
 const styles = StyleSheet.create({
   tags: {
     'margin-right': '.4em',
+    'background-color': '#6a95c3'
   },
 });
 

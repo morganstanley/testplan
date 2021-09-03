@@ -4,15 +4,37 @@ import TreeView from '@material-ui/lab/TreeView';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import TreeItem from '@material-ui/lab/TreeItem';
+import { css, StyleSheet } from 'aphrodite';
 import Column from './Column';
 import NavEntry from './NavEntry';
 import { applyAllFilters } from './navUtils';
-import { STATUS } from "../Common/defaults";
+import { STATUS, MEDIUM_GREY } from "../Common/defaults";
 import { CATEGORIES } from "../Common/defaults";
 import { generatePath } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import TagList from './TagList';
+import { makeStyles } from '@material-ui/core/styles';
 
+const createTreeViewStyles = makeStyles({
+  treeItemLabel: {
+    padding: '5px 0px',
+    '&:hover': {
+      backgroundColor: MEDIUM_GREY
+    },
+    // WORKAROUND:
+    // if display: flex (default) then entry icons get cut off in case a long test case name
+    // if display: block then expand / collapse icons get rendered in a seperate row
+    width: '90%',
+  },
+
+  parentTreeItem: {
+    cursor: 'default'
+  },
+
+  iconContainer: {
+    cursor: 'pointer'
+  }
+});
 
 /**
  * Render a vertical list of all the currently selected entries children.
@@ -24,6 +46,7 @@ const TreeViewNav = (props) => {
         width={props.width}
         handleColumnResizing={props.handleColumnResizing}>
         <TreeView
+          className={css(styles.treeView)}
           disableSelection={true}
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}>
@@ -67,13 +90,6 @@ TreeViewNav.propTypes = {
 
 export default TreeViewNav;
 
-const LeafNodeStyle = {
-  webkitUserSelect: "text",
-  MozUserSelect: "text",
-  MsUserSelect: "text",
-  UserSelect: "text",
-  textDecoration: 'none'
-};
 
 const createTree = (props) => {
   let entries = applyAllFilters(props, props.entries);
@@ -98,13 +114,17 @@ const createLeafNode = (props, entry) => {
       ? <TagList entryName={entry.name} tags={entry.tags} />
       : null
   );
+  const treeViewClasses = createTreeViewStyles();
   return (
     <TreeItem
+      classes={{
+        label: treeViewClasses.treeItemLabel,
+      }}
       nodeId={entry.uid || entry.hash}
       key={entry.uid || entry.hash}
       label={
         <NavLink
-          style={LeafNodeStyle}
+          className={css(styles.leafNode)}
           key={entry.hash || entry.uid}
           to={linkTo}>
           {tags}
@@ -115,10 +135,19 @@ const createLeafNode = (props, entry) => {
 };
 
 const createNode = (props, entry) => {
+  const treeViewClasses = createTreeViewStyles();
   return (
     <TreeItem
+      classes={{
+        label: treeViewClasses.treeItemLabel,
+        content: treeViewClasses.parentTreeItem,
+        iconContainer: treeViewClasses.iconContainer
+      }}
       nodeId={entry.uid || entry.hash}
       key={entry.uid || entry.hash}
+      onLabelClick={event => {
+        event.preventDefault();
+      }}
       label={createNavEntry(props, entry)}>
       {Array.isArray(entry.entries) ?
         entry.entries.map((entry) => createTreeHelper(props, entry)) : null}
@@ -141,3 +170,16 @@ const createNavEntry = (props, entry) => {
       displayTime={props.displayTime} />
   );
 };
+
+const styles = StyleSheet.create({
+  treeView: {
+    'overflow-y': 'auto',
+    'overflow-x': 'hidden',
+    'height': '100%',
+  },
+
+  leafNode: {
+    textDecoration: 'none',
+    color: '#495057'
+  }
+});

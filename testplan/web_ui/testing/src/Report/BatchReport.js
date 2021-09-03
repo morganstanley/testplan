@@ -80,8 +80,8 @@ class BatchReport extends React.Component {
     const redirectPath = this.props.match.params.selection
       ? null
       : generateSelectionPath(this.props.match.path, [
-          filteredReport.report.uid,
-        ]);
+        filteredReport.report.uid,
+      ]);
 
     this.setState(
       {
@@ -134,7 +134,7 @@ class BatchReport extends React.Component {
                   if (!assertionsRes.data) {
                     alert(
                       "Failed to parse assertion datails!\n" +
-                        "Please report this issue to the Testplan team."
+                      "Please report this issue to the Testplan team."
                     );
                     console.error(assertionsRes);
                   }
@@ -249,7 +249,7 @@ class BatchReport extends React.Component {
    * @param {boolean} treeView.
    * @public
    */
-   updateTreeView(treeView) {
+  updateTreeView(treeView) {
     this.setState({ treeView: treeView });
   }
 
@@ -322,8 +322,8 @@ class BatchReport extends React.Component {
     if (selectedEntries.length) {
       window.document.title = `${_.last(selectedEntries).name} | \
                                ${selectedEntries.slice(0, -1)
-                                                .map(entry => entry.name)
-                                                .join(" > ")}`;
+          .map(entry => entry.name)
+          .join(" > ")}`;
     }
 
     const centerPane = GetCenterPane(
