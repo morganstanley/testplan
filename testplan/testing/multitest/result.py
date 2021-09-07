@@ -93,37 +93,39 @@ assertion_state = threading.local()
 
 
 def assertion(func):
-    def wrapper(result_obj, *args, **kwargs):
-        entry = func(result_obj, *args, **kwargs)
-        # Second element is the caller
-        if (
-            not hasattr(assertion_state.in_progress)
-            or not assertion_state.in_progress
-        ):
+    def wrapper(result, *args, **kwargs):
+        top_assertion = False
+        if not hasattr(assertion_state, 'in_progress') or not assertion_state.in_progress:
             assertion_state.in_progress = True
+            top_assertion = True
 
-            caller_frame = inspect.stack()[1]
-            entry.file_path = os.path.abspath(caller_frame.filename)
-            entry.line_no = caller_frame.lineno
+        try:
+            entry = func(result, *args, **kwargs)
+            if top_assertion:
+                # Second element is the caller
+                caller_frame = inspect.stack()[1]
+                entry.file_path = os.path.abspath(caller_frame.filename)
+                entry.line_no = caller_frame.lineno
 
-            assert isinstance(result_obj, AssertionNamespace) or isinstance(
-                result_obj, Result
-            ), "Incorrect usage of assertion decorator"
+                assert isinstance(result, AssertionNamespace) or isinstance(
+                    result, Result
+                ), "Incorrect usage of assertion decorator"
 
-            if isinstance(result_obj, AssertionNamespace):
-                result_obj = result_obj.result
+                if isinstance(result, AssertionNamespace):
+                    result = result.result
 
-            result_obj.entries.append(entry)
-            stdout_registry.log_entry(
-                entry=entry, stdout_style=result_obj.stdout_style
-            )
+                result.entries.append(entry)
+                stdout_registry.log_entry(
+                    entry=entry, stdout_style=result.stdout_style
+                )
 
-            if not entry and not result_obj.continue_on_failure:
-                raise AssertionError(entry)
+                if not entry and not result.continue_on_failure:
+                    raise AssertionError(entry)
 
-            assertion_state.in_progress = False
-        return entry
-
+            return entry
+        finally:
+            if top_assertion:
+                assertion_state.in_progress = False
     return wrapper
 
 
