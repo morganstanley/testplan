@@ -1,7 +1,7 @@
 """Tests runner module."""
-
 import os
 import random
+import re
 import time
 import datetime
 import uuid
@@ -24,6 +24,7 @@ from testplan.common.exporters import BaseExporter, ExporterResult
 from testplan.common.report import MergeError
 from testplan.common.utils import logger
 from testplan.common.utils import strings
+from testplan.common.utils.package import import_tmp_module
 from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.exporters import testing as test_exporters
 from testplan.report import (
@@ -36,6 +37,7 @@ from testplan.report.testing.styles import Style
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.base import Executor
 from testplan.runners.pools.tasks import Task, TaskResult
+from testplan.runners.pools.tasks.base import is_task_target
 from testplan.testing import listing, filtering, ordering, tagging
 from testplan.testing.base import TestResult
 
@@ -441,6 +443,76 @@ class TestRunner(Runnable):
         :rtype: ``str``
         """
         return self.add(task or Task(**options), resource=resource)
+
+    def schedule_all(self, path=".", name_pattern=r".*\.py$", resource=None):
+        """
+        Discover task targets under path in the modules that matches name pattern,
+        create task objects from them and schedule them to resource (usually pool)
+        for execution.
+
+        :param path: the root path to start a recursive walk and discover, default
+          is current directory.
+        :type path: ``str``
+        :param name_pattern: a regex pattern to match the file name
+        :type name_pattern: ``str``
+        :param resource: Target pool resource, default is None (local execution)
+        :type resource: :py:class:`~testplan.runners.pools.base.Pool`
+        """
+
+        self.logger.test_info(
+            "Discovering task target with file name pattern '%s' under '%s'",
+            name_pattern,
+            path,
+        )
+        regex = re.compile(name_pattern)
+
+        for root, dirs, files in os.walk(path or "."):
+            for filename in files:
+                if not regex.match(filename):
+                    continue
+
+                module = filename.split(".")[0]
+
+                with import_tmp_module(module, root) as mod:
+                    for name in dir(mod):
+                        attr = getattr(mod, name)
+                        if not is_task_target(attr):
+                            continue
+
+                        self.logger.test_info(
+                            "Discovered task target %s::%s",
+                            os.path.join(root, filename),
+                            name,
+                        )
+                        parameters = attr.__target_params__ or [{}]
+
+                        for param in parameters:
+                            if isinstance(param, dict):
+                                args = None
+                                kwargs = param
+                            elif isinstance(param, (tuple, list)):
+                                args = param
+                                kwargs = None
+                            else:
+                                raise TypeError(
+                                    f"task_target's parameters can only contain dict/tuple/list, received {param}"
+                                )
+
+                            task_args = dict(
+                                target=name,
+                                module=module,
+                                path=root,
+                                args=args,
+                                kwargs=kwargs,
+                                **attr.__task_kwargs__,
+                            )
+                            self.logger.debug(
+                                "Create task with param %s", task_args
+                            )
+
+                            task = Task(**task_args)
+
+                            self.add(task, resource=resource)
 
     def add(self, target, resource=None):
         """
