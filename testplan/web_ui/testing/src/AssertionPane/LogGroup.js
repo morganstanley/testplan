@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {StyleSheet, css} from "aphrodite";
-import {RED, ORANGE, BLACK, LOG_TYPE} from '../Common/defaults.js'
+import {RED, ORANGE, BLACK, LOG_TYPE} from '../Common/defaults.js';
 
 function getLogColor(logType) {
     switch(logType) {
