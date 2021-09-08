@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {StyleSheet, css} from "aphrodite";
+import {RED, ORANGE, BLACK, LOG_TYPE} from '../Common/defaults.js'
 
 function getLogColor(logType) {
     switch(logType) {
-        case 'ERROR': return css(styles.logERROR);
-        case 'WARNING': return css(styles.logWARNING);
+        case LOG_TYPE.error: return css(styles.logERROR);
+        case LOG_TYPE.warning: return css(styles.logWARNING);
         default: return css(styles.logDEFAULT);
     }
 }
@@ -39,14 +40,15 @@ LogGroup.propTypes = {
 
 const styles = StyleSheet.create({
     logERROR: {
-        color: 'red',
+        color: RED,
     },
     logWARNING: {
-        color: 'orange',
+        color: ORANGE,
     },
     logDEFAULT: {
-        color: 'black',
+        color: BLACK,
     },
 });
+
     
 export default LogGroup;
