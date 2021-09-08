@@ -95,7 +95,10 @@ assertion_state = threading.local()
 def assertion(func):
     def wrapper(result, *args, **kwargs):
         top_assertion = False
-        if not hasattr(assertion_state, 'in_progress') or not assertion_state.in_progress:
+        if (
+            not hasattr(assertion_state, "in_progress")
+            or not assertion_state.in_progress
+        ):
             assertion_state.in_progress = True
             top_assertion = True
 
@@ -126,6 +129,7 @@ def assertion(func):
         finally:
             if top_assertion:
                 assertion_state.in_progress = False
+
     return wrapper
 
 
