@@ -1792,6 +1792,7 @@ class Result(object):
 
         return entry
 
+    @assertion
     def greater_equal(self, first, second, description=None, category=None):
         """
         Checks if ``first >= second``.
