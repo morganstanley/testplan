@@ -43,14 +43,14 @@ export default function FixCellRenderer(props) {
         <FixTagTooltip names={tagInfo.names} descr={tagInfo.descr} />
       );
     } else if (tagInfo.enum_type) {
-      if (colField === "value") {
+      if (colField === "value" && props.data.value) {
         toolTipComp = (
           <FixTagValueTooltip
             num={tagInfo.num}
             value={props.data.value.value}
           />
         );
-      } else if (colField === "expected") {
+      } else if (colField === "expected" && props.data.expected) {
         toolTipComp = (
           <FixTagValueTooltip
             num={tagInfo.num}
