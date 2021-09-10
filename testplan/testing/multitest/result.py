@@ -704,6 +704,7 @@ class TableNamespace(AssertionNamespace):
 
         return entry
 
+    @assertion
     def log(self, table, display_index=False, description=None):
         """
         Logs a table to the report.
@@ -731,6 +732,7 @@ class TableNamespace(AssertionNamespace):
         entry = base.TableLog(
             table=table, display_index=display_index, description=description
         )
+        return entry
 
 
 class XMLNamespace(AssertionNamespace):
@@ -1015,6 +1017,7 @@ class DictNamespace(AssertionNamespace):
 
         return entry
 
+    @assertion
     def log(self, dictionary, description=None):
         """
         Logs a dictionary to the report.
@@ -1240,6 +1243,7 @@ class FixNamespace(AssertionNamespace):
 
         return entry
 
+    @assertion
     def log(self, msg, description=None):
         """
         Logs a fix message to the report.
@@ -2165,6 +2169,7 @@ class Result(object):
 
         return entry
 
+    @assertion
     def graph(
         self,
         graph_type,
@@ -2268,6 +2273,7 @@ class Result(object):
 
         return matplot
 
+    @assertion
     def plotly(self, fig, description=None, style=None):
         filename = "{0}.json".format(strings.uuid4())
         data_file_path = os.path.join(self._scratch, filename)
