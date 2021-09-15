@@ -89,7 +89,7 @@ def full_status(status):
     return ""
 
 
-def expand_values(rows, level=0, ignore_key=False, key_path=None):
+def expand_values(rows, level=0, ignore_key=False, key_path=None, match=""):
     """
     Recursively yield all rows of VAL items (key, match, VAL).
     """
@@ -103,7 +103,7 @@ def expand_values(rows, level=0, ignore_key=False, key_path=None):
         if key is not Absent:  # `None` or empty string can also be used as key
             key_path.append(key)
 
-        match = row[1] if len(row) == 3 else ""
+        match = row[1] if len(row) == 3 else match
         val = row[2] if len(row) == 3 else row[1]
 
         if isinstance(val, tuple):
@@ -111,17 +111,18 @@ def expand_values(rows, level=0, ignore_key=False, key_path=None):
                 yield (tuple(key_path), level, key, match, (val[1], val[2]))
             elif val[0] in (1, 2, 3):
                 yield (tuple(key_path), level, key, match, "")
-                for new_row in expand_values(
+                yield from expand_values(
                     val[1],
                     level=level + 1,
                     ignore_key=True if val[0] == 1 else False,
                     key_path=key_path,
-                ):
-                    yield new_row
+                    match=match,
+                )
         elif isinstance(val, list):
             yield (tuple(key_path), level, key, match, "")
-            for new_row in expand_values(val, level=level, key_path=key_path):
-                yield new_row
+            yield from expand_values(
+                val, level=level, key_path=key_path, match=match
+            )
 
         if key is not Absent:
             key_path.pop()
@@ -161,10 +162,9 @@ def flatten_formatted_object(formatted_obj):
             elif obj[0] in (1, 2):
                 yield (level, key, "")
                 for row in obj[1]:
-                    for new_row in flatten(
+                    yield from flatten(
                         row, level=level + 1, ignore_key=(obj[0] == 1)
-                    ):
-                        yield new_row
+                    )
             else:
                 raise ValueError("Invalid data found in formatted object")
         else:
