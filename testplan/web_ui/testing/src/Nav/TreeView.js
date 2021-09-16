@@ -18,13 +18,10 @@ import { makeStyles } from '@material-ui/core/styles';
 const createTreeViewStyles = makeStyles({
   treeItemLabel: {
     padding: '5px 0px',
+    overflow: 'hidden',
     '&:hover': {
       backgroundColor: MEDIUM_GREY
     },
-    // WORKAROUND:
-    // if display: flex (default) then entry icons get cut off in case a long test case name
-    // if display: block then expand / collapse icons get rendered in a seperate row
-    width: '90%',
   },
 
   parentTreeItem: {

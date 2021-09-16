@@ -5,11 +5,8 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
   className="d-flex justify-content-between align-items-center"
   style={
     Object {
-      "MozUserSelect": "text",
-      "MsUserSelect": "text",
-      "UserSelect": "text",
       "height": "1.5em",
-      "webkitUserSelect": "text",
+      "userSelect": "text",
     }
   }
 >
@@ -56,11 +53,8 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
   className="d-flex justify-content-between align-items-center"
   style={
     Object {
-      "MozUserSelect": "text",
-      "MsUserSelect": "text",
-      "UserSelect": "text",
       "height": "1.5em",
-      "webkitUserSelect": "text",
+      "userSelect": "text",
     }
   }
 >
@@ -107,11 +101,8 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
   className="d-flex justify-content-between align-items-center"
   style={
     Object {
-      "MozUserSelect": "text",
-      "MsUserSelect": "text",
-      "UserSelect": "text",
       "height": "1.5em",
-      "webkitUserSelect": "text",
+      "userSelect": "text",
     }
   }
 >
