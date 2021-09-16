@@ -11,6 +11,7 @@ const LIGHT_GREY = "#F3F3F3";
 const MEDIUM_GREY = "#D0D0D0";
 const DARK_GREY = "#ADADAD";
 const BLACK = "#404040";
+const NAV_DEFAULT_COLOR = "#6a95c3";
 
 export const BOTTOMMOST_ENTRY_CATEGORY = "testcase";
 const COLUMN_WIDTH = 22; // unit: em
@@ -241,6 +242,7 @@ export {
   MEDIUM_GREY,
   DARK_GREY,
   BLACK,
+  NAV_DEFAULT_COLOR,
   COLUMN_WIDTH,
   MIN_COLUMN_WIDTH,
   INTERACTIVE_COL_WIDTH,

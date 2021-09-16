@@ -1,7 +1,8 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {Badge} from 'reactstrap';
-import {StyleSheet, css} from 'aphrodite';
+import { Badge } from 'reactstrap';
+import { StyleSheet, css } from 'aphrodite';
+import { NAV_DEFAULT_COLOR } from '../Common/defaults';
 
 
 class TagList extends Component {
@@ -14,7 +15,7 @@ class TagList extends Component {
       for (let tag of tags.simple) {
         labels.push(
           <Badge
-            key={this.props.entryName+tag}
+            key={this.props.entryName + tag}
             className={css(styles.tags)}
             color='primary'>
             {tag}
@@ -28,7 +29,7 @@ class TagList extends Component {
       for (let tagValue of tags[tagKey]) {
         labels.push(
           <Badge
-            key={this.props.entryName+tagKey+tagValue}
+            key={this.props.entryName + tagKey + tagValue}
             className={css(styles.tags)}
             color='primary'>
             {tagKey}={tagValue}
@@ -53,7 +54,7 @@ TagList.propTypes = {
 const styles = StyleSheet.create({
   tags: {
     'margin-right': '.4em',
-    'background-color': '#6a95c3'
+    'background-color': NAV_DEFAULT_COLOR
   },
 });
 
