@@ -362,14 +362,19 @@ class UTCDateTime(fields.DateTime):
     """
 
     def _serialize(self, value, attr, obj, **kwargs):
-        dt = (
+        if value is None:
+            return None
+
+        return (
             value.replace(tzinfo=pytz.UTC)
             if value.tzinfo is None
             else value.astimezone(tz=pytz.UTC)
-        )
-        return dt.isoformat()
+        ).isoformat()
 
     def _deserialize(self, value, attr, data, **kwargs):
+        if value is None:
+            return None
+
         dt = parser.parse(value)
         return (
             dt.replace(tzinfo=pytz.UTC)
@@ -389,10 +394,10 @@ class LocalDateTime(fields.DateTime):
     """
 
     def _serialize(self, value, attr, obj, **kwargs):
-        return value.astimezone().isoformat()
+        return None if value is None else value.astimezone().isoformat()
 
     def _deserialize(self, value, attr, data, **kwargs):
-        return parser.parse(value).astimezone()
+        return None if value is None else parser.parse(value).astimezone()
 
 
 class ExceptionField(fields.Field):

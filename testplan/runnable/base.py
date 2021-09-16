@@ -665,17 +665,18 @@ class TestRunner(Runnable):
             pass
 
     def pre_resource_steps(self):
-        """Steps to be executed before resources started."""
+        """Runnable steps to be executed before resources started."""
+        super(TestRunner, self).pre_resource_steps()
         self._add_step(self._record_start)
         self._add_step(self.make_runpath_dirs)
         self._add_step(self._configure_file_logger)
 
     def main_batch_steps(self):
-        """Steps to be executed while resources are running."""
+        """Runnable steps to be executed while resources are running."""
         self._add_step(self._wait_ongoing)
 
     def post_resource_steps(self):
-        """Steps to be executed after resources stopped."""
+        """Runnable steps to be executed after resources stopped."""
         self._add_step(self._stop_remote_services)
         self._add_step(self._create_result)
         self._add_step(self._log_test_status)
@@ -683,6 +684,7 @@ class TestRunner(Runnable):
         self._add_step(self._invoke_exporters)
         self._add_step(self._post_exporters)
         self._add_step(self._close_file_logger)
+        super(TestRunner, self).post_resource_steps()
 
     def _wait_ongoing(self):
         # TODO: if a pool fails to initialize we could reschedule the tasks.
