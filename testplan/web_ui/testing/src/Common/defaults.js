@@ -222,6 +222,14 @@ const POLL_MS = 1000;
 // Fix specification
 let defaultFixSpec = {tags: {}};
 
+
+//log types
+const LOG_TYPE = {
+  error: "ERROR",
+  warning: "WARNING",
+};
+
+
 export {
   GREEN,
   DARK_GREEN,
@@ -254,4 +262,5 @@ export {
   EXPAND_STATUS,
   POLL_MS,
   defaultFixSpec,
+  LOG_TYPE,
 };
