@@ -141,7 +141,7 @@ function formatMilliseconds(durationInMilliseconds) {
 
   return [hoursDisplay, minutesDisplay, secondsDisplay, millisecondsDisplay]
     .filter(Boolean)
-    .join(" ");
+    .join(" ") || "0ms";
 }
 
 export {

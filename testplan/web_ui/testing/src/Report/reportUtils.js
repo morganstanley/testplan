@@ -280,7 +280,7 @@ const getAssertions = (selectedEntries, displayTime) => {
       }
       if (links.length > 0) {
         let duration = "Unknown";
-        if (selectedEntry.timer && selectedEntry.timer.run.end &&
+        if (selectedEntry.timer && selectedEntry.timer.run?.end &&
           links[links.length - 1].utc_time) {
           const nextEntryTime =
             (new Date(selectedEntry.timer.run.end)).getTime();

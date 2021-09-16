@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge } from 'reactstrap';
 import { StyleSheet, css } from 'aphrodite';
-import { formatSeconds } from './../Common/utils';
+import { formatMilliseconds } from './../Common/utils';
 import _ from 'lodash';
 
 import {
@@ -29,7 +29,7 @@ const NavEntry = (props) => {
     props.displayTime && _.isNumber(props.executionTime) ? (
       <i className={css(styles.entryIcon)} title='Execution time'>
         <span className={css(styles[STATUS_CATEGORY[props.status]])}>
-          {formatSeconds(props.executionTime)}
+          {formatMilliseconds(props.executionTime)}
         </span>
       </i>
     ) : null
