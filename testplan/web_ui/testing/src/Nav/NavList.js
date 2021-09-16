@@ -14,7 +14,7 @@ const NavList = (props) => {
     (entry) => {
       const executionTime = (entry.timer && entry.timer.run) ? (
         (new Date(entry.timer.run.end)).getTime() -
-        (new Date(entry.timer.run.start)).getTime()) / 1000 : null;
+        (new Date(entry.timer.run.start)).getTime()) : null;  // In millisecond
 
       return (
         <NavEntry
