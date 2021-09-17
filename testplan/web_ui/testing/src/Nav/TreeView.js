@@ -15,9 +15,6 @@ import { NavLink } from 'react-router-dom';
 import TagList from './TagList';
 import { makeStyles } from '@material-ui/core/styles';
 
-/**
- * Render a vertical list of all the currently selected entries children.
- */
 const TreeViewNav = (props) => {
   return (
     <>
@@ -25,6 +22,7 @@ const TreeViewNav = (props) => {
         width={props.width}
         handleColumnResizing={props.handleColumnResizing}>
         <TreeView
+          selected={props.selectedUid}
           className={css(styles.treeView)}
           disableSelection={true}
           defaultCollapseIcon={<ExpandMoreIcon />}
@@ -91,8 +89,12 @@ const createNode = (props, entry) => {
   return (
     <TreeItem
       classes={{
-        label: treeViewClasses.treeItemLabel,
-        iconContainer: treeViewClasses.iconContainer
+        root: treeViewClasses.root,
+        group: treeViewClasses.group,
+        content: treeViewClasses.content,
+        selected: treeViewClasses.selected,
+        iconContainer: treeViewClasses.iconContainer,
+        label: treeViewClasses.label
       }}
       nodeId={entry.uid || entry.hash}
       key={entry.uid || entry.hash}
@@ -136,24 +138,53 @@ const createNavEntry = (props, entry) => {
 };
 
 const createTreeViewStyles = makeStyles({
-  treeItemLabel: {
-    padding: '5px 0px',
-    overflow: 'hidden',
+  root: {
+    "&.Mui-selected > .MuiTreeItem-content": {
+      background: "transparent"
+    },
+    "&.Mui-selected > .MuiTreeItem-content > .MuiTreeItem-label": {
+      background: "transparent"
+    },
+    "&.Mui-selected > .MuiTreeItem-content:hover > .MuiTreeItem-label": {
+      background: "transparent"
+    },
+    "&.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label:hover, .MuiTreeItem-root.Mui-selected:focus > .MuiTreeItem-content .MuiTreeItem-label": {
+      background: "transparent"
+    }
+  },
+
+  group: {
+    marginLeft: '10px'
+  },
+
+  content: {
     '&:hover': {
       backgroundColor: MEDIUM_GREY
-    },
+    }
   },
 
   iconContainer: {
     cursor: 'pointer'
-  }
+  },
+
+  selected: {
+    '&:focus': {
+      backgroundColor: MEDIUM_GREY
+    },
+    backgroundColor: MEDIUM_GREY
+  },
+
+  label: {
+    padding: '5px 0px',
+    overflow: 'hidden'
+  },
 });
 
 const styles = StyleSheet.create({
   treeView: {
     'overflow-y': 'auto',
     'overflow-x': 'hidden',
-    'height': '100%',
+    'height': '100%'
   },
 
   leafNode: {
