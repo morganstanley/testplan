@@ -57,7 +57,7 @@ class BatchReport extends React.Component {
       loading: false,
       error: null,
       filter: null,
-      treeView: false,
+      treeView: true,
       displayTags: false,
       displayTime: false,
       displayEmpty: true,
