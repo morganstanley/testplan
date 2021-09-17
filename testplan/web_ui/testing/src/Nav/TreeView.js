@@ -15,24 +15,6 @@ import { NavLink } from 'react-router-dom';
 import TagList from './TagList';
 import { makeStyles } from '@material-ui/core/styles';
 
-const createTreeViewStyles = makeStyles({
-  treeItemLabel: {
-    padding: '5px 0px',
-    overflow: 'hidden',
-    '&:hover': {
-      backgroundColor: MEDIUM_GREY
-    },
-  },
-
-  parentTreeItem: {
-    cursor: 'default'
-  },
-
-  iconContainer: {
-    cursor: 'pointer'
-  }
-});
-
 /**
  * Render a vertical list of all the currently selected entries children.
  */
@@ -87,19 +69,13 @@ TreeViewNav.propTypes = {
 
 export default TreeViewNav;
 
-
 const createTree = (props) => {
   let entries = applyAllFilters(props, props.entries);
   return Array.isArray(entries) ?
-    entries.map((entry) => createTreeHelper(props, entry)) : null;
+    entries.map((entry) => createNode(props, entry)) : null;
 };
 
-const createTreeHelper = (props, entry) => {
-  return entry.category === CATEGORIES['testcase'] ?
-    createLeafNode(props, entry) : createNode(props, entry);
-};
-
-const createLeafNode = (props, entry) => {
+const createNode = (props, entry) => {
   let [reportuid, ...selectionuids] = entry.uids;
   const linkTo = generatePath(props.url,
     {
@@ -116,9 +92,13 @@ const createLeafNode = (props, entry) => {
     <TreeItem
       classes={{
         label: treeViewClasses.treeItemLabel,
+        iconContainer: treeViewClasses.iconContainer
       }}
       nodeId={entry.uid || entry.hash}
       key={entry.uid || entry.hash}
+      onLabelClick={event => {
+        event.preventDefault();
+      }}
       label={
         <NavLink
           className={css(styles.leafNode)}
@@ -127,30 +107,17 @@ const createLeafNode = (props, entry) => {
           {tags}
           {createNavEntry(props, entry)}
         </NavLink>
-      }></TreeItem>
-  );
-};
-
-const createNode = (props, entry) => {
-  const treeViewClasses = createTreeViewStyles();
-  return (
-    <TreeItem
-      classes={{
-        label: treeViewClasses.treeItemLabel,
-        content: treeViewClasses.parentTreeItem,
-        iconContainer: treeViewClasses.iconContainer
-      }}
-      nodeId={entry.uid || entry.hash}
-      key={entry.uid || entry.hash}
-      onLabelClick={event => {
-        event.preventDefault();
-      }}
-      label={createNavEntry(props, entry)}>
-      {Array.isArray(entry.entries) ?
-        entry.entries.map((entry) => createTreeHelper(props, entry)) : null}
+      }>
+      {entry.category === CATEGORIES['testcase'] ?
+        null : continueTreeBranch(props, entry)}
     </TreeItem>
   );
 };
+
+const continueTreeBranch = (props, entry) => {
+  return Array.isArray(entry.entries) ?
+    entry.entries.map((entry) => createNode(props, entry)) : null
+}
 
 const createNavEntry = (props, entry) => {
   return (
@@ -167,6 +134,20 @@ const createNavEntry = (props, entry) => {
       displayTime={props.displayTime} />
   );
 };
+
+const createTreeViewStyles = makeStyles({
+  treeItemLabel: {
+    padding: '5px 0px',
+    overflow: 'hidden',
+    '&:hover': {
+      backgroundColor: MEDIUM_GREY
+    },
+  },
+
+  iconContainer: {
+    cursor: 'pointer'
+  }
+});
 
 const styles = StyleSheet.create({
   treeView: {
