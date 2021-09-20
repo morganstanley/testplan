@@ -118,8 +118,8 @@ const createNode = (props, entry) => {
 
 const continueTreeBranch = (props, entry) => {
   return Array.isArray(entry.entries) ?
-    entry.entries.map((entry) => createNode(props, entry)) : null
-}
+    entry.entries.map((entry) => createNode(props, entry)) : null;
+};
 
 const createNavEntry = (props, entry) => {
   return (
@@ -148,13 +148,13 @@ const createTreeViewStyles = makeStyles({
     "&.Mui-selected > .MuiTreeItem-content:hover > .MuiTreeItem-label": {
       background: "transparent"
     },
-    "&.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label:hover, .MuiTreeItem-root.Mui-selected:focus > .MuiTreeItem-content .MuiTreeItem-label": {
+    "&.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label:hover, .MuiTreeItem-root.Mui-selected:focus > .MuiTreeItem-content .MuiTreeItem-label": { // eslint-disable-line max-len
       background: "transparent"
     }
   },
 
   group: {
-    marginLeft: '10px'
+    marginLeft: '0px'
   },
 
   content: {
