@@ -27,7 +27,14 @@ const TreeViewNav = (props) => {
           disableSelection={true}
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}>
-          {createTree(props)}
+          {<Tree
+            entries={props.entries}
+            displayEmpty={props.displayEmpty}
+            filter={props.filter}
+            url={props.url}
+            displayTags={props.displayTags}
+            displayTime={props.displayTime}
+          />}
         </TreeView>
       </Column >
     </>
@@ -67,22 +74,26 @@ TreeViewNav.propTypes = {
 
 export default TreeViewNav;
 
-const createTree = (props) => {
+const Tree = (props) => {
   let entries = applyAllFilters(props, props.entries);
   return Array.isArray(entries) ?
-    entries.map((entry) => createNode(props, entry)) : null;
+    entries.map((entry) =>
+      <CreateNode
+        props={props}
+        entry={entry}
+      />) : null;
 };
 
-const createNode = (props, entry) => {
-  let [reportuid, ...selectionuids] = entry.uids;
+const CreateNode = (props) => {
+  let [reportuid, ...selectionuids] = props.entry.uids;
   const linkTo = generatePath(props.url,
     {
       uid: reportuid,
       selection: selectionuids
     });
   const tags = (
-    (props.displayTags && entry.tags)
-      ? <TagList entryName={entry.name} tags={entry.tags} />
+    (props.displayTags && props.entry.tags)
+      ? <TagList entryName={props.entry.name} tags={props.entry.tags} />
       : null
   );
   const treeViewClasses = createTreeViewStyles();
@@ -96,29 +107,33 @@ const createNode = (props, entry) => {
         iconContainer: treeViewClasses.iconContainer,
         label: treeViewClasses.label
       }}
-      nodeId={entry.uid || entry.hash}
-      key={entry.uid || entry.hash}
+      nodeId={props.entry.uid || props.entry.hash}
+      key={props.entry.uid || props.entry.hash}
       onLabelClick={event => {
         event.preventDefault();
       }}
       label={
         <NavLink
           className={css(styles.leafNode)}
-          key={entry.hash || entry.uid}
+          key={props.entry.hash || props.entry.uid}
           to={linkTo}>
           {tags}
-          {createNavEntry(props, entry)}
+          {createNavEntry(props, props.entry)}
         </NavLink>
       }>
-      {entry.category === CATEGORIES['testcase'] ?
-        null : continueTreeBranch(props, entry)}
+      {props.entry.category === CATEGORIES['testcase'] ?
+        null : continueTreeBranch(props, props.entry)}
     </TreeItem>
   );
 };
 
 const continueTreeBranch = (props, entry) => {
   return Array.isArray(entry.entries) ?
-    entry.entries.map((entry) => createNode(props, entry)) : null;
+    entry.entries.map((entry) =>
+      <CreateNode
+        props={props}
+        entry={entry}
+      />) : null;
 };
 
 const createNavEntry = (props, entry) => {
