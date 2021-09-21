@@ -79,7 +79,12 @@ const Tree = (props) => {
   return Array.isArray(entries) ?
     entries.map((entry) =>
       <CreateNode
-        props={props}
+        displayEmpty
+        displayTags={props.displayTags}
+        displayTime={props.displayTime}
+        entries={props.entries}
+        filter={props.filter}
+        url={props.url}
         entry={entry}
       />) : null;
 };
@@ -131,7 +136,12 @@ const continueTreeBranch = (props, entry) => {
   return Array.isArray(entry.entries) ?
     entry.entries.map((entry) =>
       <CreateNode
-        props={props}
+        displayEmpty
+        displayTags={props.displayTags}
+        displayTime={props.displayTime}
+        entries={props.entries}
+        filter={props.filter}
+        url={props.url}
         entry={entry}
       />) : null;
 };
