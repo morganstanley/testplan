@@ -75,7 +75,7 @@ TreeViewNav.propTypes = {
 export default TreeViewNav;
 
 const Tree = (props) => {
-  let entries = applyAllFilters(props, props.entries);
+  let entries = filterEntries(props.filter, props.entries, props.displayEmpty);
   return Array.isArray(entries) ?
     entries.map((entry) =>
       <CreateNode
@@ -87,6 +87,20 @@ const Tree = (props) => {
         url={props.url}
         entry={entry}
       />) : null;
+};
+
+const filterEntries = (filter, entries, displayEmpty) => {
+  let filteredEntries = applyAllFilters(filter, entries, displayEmpty);
+  return filteredEntries.map(
+    (entry) => filterEntriesOfEntry(entry, filter, displayEmpty));
+};
+
+const filterEntriesOfEntry = (entry, filter, displayEmpty) => {
+  if (Array.isArray(entry.entries)) {
+    let tmp = { entries: filterEntries(filter, entry.entries, displayEmpty) };
+    return { ...entry, ...tmp };
+  }
+  return entry;
 };
 
 const CreateNode = (props) => {
