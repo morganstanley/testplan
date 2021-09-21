@@ -25,7 +25,7 @@ exports[`EmptyReport renders a custom error message 1`] = `
     displayTime={false}
     report={null}
     saveAssertions={[Function]}
-    treeView={false}
+    treeView={true}
   />
   <Message
     left="22em"
@@ -59,7 +59,7 @@ exports[`EmptyReport shallow renders and matches snapshot 1`] = `
     displayTime={false}
     report={null}
     saveAssertions={[Function]}
-    treeView={false}
+    treeView={true}
   />
   <Message
     left="22em"
