@@ -78,7 +78,7 @@ const Tree = (props) => {
   let entries = filterEntries(props.filter, props.entries, props.displayEmpty);
   return Array.isArray(entries) ?
     entries.map((entry) =>
-      <CreateNode
+      <Node
         displayEmpty
         displayTags={props.displayTags}
         displayTime={props.displayTime}
@@ -103,7 +103,7 @@ const filterEntriesOfEntry = (entry, filter, displayEmpty) => {
   return entry;
 };
 
-const CreateNode = (props) => {
+const Node = (props) => {
   let [reportuid, ...selectionuids] = props.entry.uids;
   const linkTo = generatePath(props.url,
     {
@@ -149,7 +149,7 @@ const CreateNode = (props) => {
 const continueTreeBranch = (props, entry) => {
   return Array.isArray(entry.entries) ?
     entry.entries.map((entry) =>
-      <CreateNode
+      <Node
         displayEmpty
         displayTags={props.displayTags}
         displayTime={props.displayTime}
