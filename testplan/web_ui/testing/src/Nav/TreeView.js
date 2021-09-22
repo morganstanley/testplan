@@ -115,7 +115,7 @@ const Node = (props) => {
       ? <TagList entryName={props.entry.name} tags={props.entry.tags} />
       : null
   );
-  const treeViewClasses = createTreeViewStyles();
+  const treeViewClasses = getTreeViewStyles();
   return (
     <TreeItem
       classes={{
@@ -176,7 +176,7 @@ const createNavEntry = (props, entry) => {
   );
 };
 
-const createTreeViewStyles = makeStyles({
+const getTreeViewStyles = makeStyles({
   root: {
     "&.Mui-selected > .MuiTreeItem-content": {
       background: "transparent"
