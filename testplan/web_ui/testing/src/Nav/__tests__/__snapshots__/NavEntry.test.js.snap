@@ -6,6 +6,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
   style={
     Object {
       "height": "1.5em",
+      "userSelect": "text",
     }
   }
 >
@@ -53,6 +54,7 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
   style={
     Object {
       "height": "1.5em",
+      "userSelect": "text",
     }
   }
 >
@@ -100,6 +102,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
   style={
     Object {
       "height": "1.5em",
+      "userSelect": "text",
     }
   }
 >

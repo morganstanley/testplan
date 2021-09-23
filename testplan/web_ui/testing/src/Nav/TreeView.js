@@ -4,19 +4,17 @@ import TreeView from '@material-ui/lab/TreeView';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import TreeItem from '@material-ui/lab/TreeItem';
+import { css, StyleSheet } from 'aphrodite';
 import Column from './Column';
 import NavEntry from './NavEntry';
 import { applyAllFilters } from './navUtils';
-import { STATUS } from "../Common/defaults";
+import { STATUS, MEDIUM_GREY } from "../Common/defaults";
 import { CATEGORIES } from "../Common/defaults";
 import { generatePath } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import TagList from './TagList';
+import { makeStyles } from '@material-ui/core/styles';
 
-
-/**
- * Render a vertical list of all the currently selected entries children.
- */
 const TreeViewNav = (props) => {
   return (
     <>
@@ -24,10 +22,19 @@ const TreeViewNav = (props) => {
         width={props.width}
         handleColumnResizing={props.handleColumnResizing}>
         <TreeView
+          selected={props.selectedUid}
+          className={css(styles.treeView)}
           disableSelection={true}
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}>
-          {createTree(props)}
+          {<Tree
+            entries={props.entries}
+            displayEmpty={props.displayEmpty}
+            filter={props.filter}
+            url={props.url}
+            displayTags={props.displayTags}
+            displayTime={props.displayTime}
+          />}
         </TreeView>
       </Column >
     </>
@@ -67,63 +74,90 @@ TreeViewNav.propTypes = {
 
 export default TreeViewNav;
 
-const LeafNodeStyle = {
-  webkitUserSelect: "text",
-  MozUserSelect: "text",
-  MsUserSelect: "text",
-  UserSelect: "text",
-  textDecoration: 'none'
-};
-
-const createTree = (props) => {
-  let entries = applyAllFilters(props, props.entries);
+const Tree = (props) => {
+  let entries = filterEntries(props.filter, props.entries, props.displayEmpty);
   return Array.isArray(entries) ?
-    entries.map((entry) => createTreeHelper(props, entry)) : null;
+    entries.map((entry) =>
+      <Node
+        displayEmpty
+        displayTags={props.displayTags}
+        displayTime={props.displayTime}
+        entries={props.entries}
+        filter={props.filter}
+        url={props.url}
+        entry={entry}
+      />) : null;
 };
 
-const createTreeHelper = (props, entry) => {
-  return entry.category === CATEGORIES['testcase'] ?
-    createLeafNode(props, entry) : createNode(props, entry);
+const filterEntries = (filter, entries, displayEmpty) => {
+  let filteredEntries = applyAllFilters(filter, entries, displayEmpty);
+  return filteredEntries.map(
+    (entry) => filterEntriesOfEntry(entry, filter, displayEmpty));
 };
 
-const createLeafNode = (props, entry) => {
-  let [reportuid, ...selectionuids] = entry.uids;
+const filterEntriesOfEntry = (entry, filter, displayEmpty) => {
+  if (Array.isArray(entry.entries)) {
+    let tmp = { entries: filterEntries(filter, entry.entries, displayEmpty) };
+    return { ...entry, ...tmp };
+  }
+  return entry;
+};
+
+const Node = (props) => {
+  let [reportuid, ...selectionuids] = props.entry.uids;
   const linkTo = generatePath(props.url,
     {
       uid: reportuid,
       selection: selectionuids
     });
   const tags = (
-    (props.displayTags && entry.tags)
-      ? <TagList entryName={entry.name} tags={entry.tags} />
+    (props.displayTags && props.entry.tags)
+      ? <TagList entryName={props.entry.name} tags={props.entry.tags} />
       : null
   );
+  const treeViewClasses = getTreeViewStyles();
   return (
     <TreeItem
-      nodeId={entry.uid || entry.hash}
-      key={entry.uid || entry.hash}
+      classes={{
+        root: treeViewClasses.root,
+        group: treeViewClasses.group,
+        content: treeViewClasses.content,
+        selected: treeViewClasses.selected,
+        iconContainer: treeViewClasses.iconContainer,
+        label: treeViewClasses.label
+      }}
+      nodeId={props.entry.uid || props.entry.hash}
+      key={props.entry.uid || props.entry.hash}
+      onLabelClick={event => {
+        event.preventDefault();
+      }}
       label={
         <NavLink
-          style={LeafNodeStyle}
-          key={entry.hash || entry.uid}
+          className={css(styles.leafNode)}
+          key={props.entry.hash || props.entry.uid}
           to={linkTo}>
           {tags}
-          {createNavEntry(props, entry)}
+          {createNavEntry(props, props.entry)}
         </NavLink>
-      }></TreeItem>
+      }>
+      {props.entry.category === CATEGORIES['testcase'] ?
+        null : continueTreeBranch(props, props.entry)}
+    </TreeItem>
   );
 };
 
-const createNode = (props, entry) => {
-  return (
-    <TreeItem
-      nodeId={entry.uid || entry.hash}
-      key={entry.uid || entry.hash}
-      label={createNavEntry(props, entry)}>
-      {Array.isArray(entry.entries) ?
-        entry.entries.map((entry) => createTreeHelper(props, entry)) : null}
-    </TreeItem>
-  );
+const continueTreeBranch = (props, entry) => {
+  return Array.isArray(entry.entries) ?
+    entry.entries.map((entry) =>
+      <Node
+        displayEmpty
+        displayTags={props.displayTags}
+        displayTime={props.displayTime}
+        entries={props.entries}
+        filter={props.filter}
+        url={props.url}
+        entry={entry}
+      />) : null;
 };
 
 const createNavEntry = (props, entry) => {
@@ -141,3 +175,59 @@ const createNavEntry = (props, entry) => {
       displayTime={props.displayTime} />
   );
 };
+
+const getTreeViewStyles = makeStyles({
+  root: {
+    "&.Mui-selected > .MuiTreeItem-content": {
+      background: "transparent"
+    },
+    "&.Mui-selected > .MuiTreeItem-content > .MuiTreeItem-label": {
+      background: "transparent"
+    },
+    "&.Mui-selected > .MuiTreeItem-content:hover > .MuiTreeItem-label": {
+      background: "transparent"
+    },
+    "&.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label:hover, .MuiTreeItem-root.Mui-selected:focus > .MuiTreeItem-content .MuiTreeItem-label": { // eslint-disable-line max-len
+      background: "transparent"
+    }
+  },
+
+  group: {
+    marginLeft: '0px'
+  },
+
+  content: {
+    '&:hover': {
+      backgroundColor: MEDIUM_GREY
+    }
+  },
+
+  iconContainer: {
+    cursor: 'pointer'
+  },
+
+  selected: {
+    '&:focus': {
+      backgroundColor: MEDIUM_GREY
+    },
+    backgroundColor: MEDIUM_GREY
+  },
+
+  label: {
+    padding: '5px 0px',
+    overflow: 'hidden'
+  },
+});
+
+const styles = StyleSheet.create({
+  treeView: {
+    'overflow-y': 'auto',
+    'overflow-x': 'hidden',
+    'height': '100%'
+  },
+
+  leafNode: {
+    textDecoration: 'none',
+    color: '#495057'
+  }
+});
