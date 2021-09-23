@@ -770,7 +770,9 @@ class Runnable(Entity):
         self.pre_resource_steps()
         self._add_step(self.resources.start)
 
+        self.pre_main_steps()
         self.main_batch_steps()
+        self.post_main_steps()
 
         self._add_step(self.resources.stop, reversed=True)
         self.post_resource_steps()
@@ -845,15 +847,23 @@ class Runnable(Entity):
             self.status.update_metadata(**{str(step): res})
 
     def pre_resource_steps(self):
-        """Steps to run before environment started."""
+        """Runnable steps to run before environment started."""
+        pass
+
+    def pre_main_steps(self):
+        """Runnable steps to run after environment started."""
         pass
 
     def main_batch_steps(self):
-        """Steps to run after environment started."""
+        """Runnable steps to be executed while environment is running."""
+        pass
+
+    def post_main_steps(self):
+        """Runnable steps to run before environment stopped."""
         pass
 
     def post_resource_steps(self):
-        """Steps to run after environment stopped."""
+        """Runnable steps to run after environment stopped."""
         pass
 
     def pausing(self):

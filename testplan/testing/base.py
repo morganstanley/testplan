@@ -322,6 +322,40 @@ class Test(Runnable):
         if len(self.report):
             self.report.propagate_tag_indices()
 
+    def _record_start(self):
+        self.report.timer.start("run")
+
+    def _record_end(self):
+        self.report.timer.end("run")
+
+    def _record_setup_start(self):
+        self.report.timer.start("setup")
+
+    def _record_setup_end(self):
+        self.report.timer.end("setup")
+
+    def _record_teardown_start(self):
+        self.report.timer.start("teardown")
+
+    def _record_teardown_end(self):
+        self.report.timer.end("teardown")
+
+    def pre_resource_steps(self):
+        """Runnable steps to be executed before environment starts."""
+        self._add_step(self._record_setup_start)
+
+    def pre_main_steps(self):
+        """Runnable steps to run after environment started."""
+        self._add_step(self._record_setup_end)
+
+    def post_main_steps(self):
+        """Runnable steps to run before environment stopped."""
+        self._add_step(self._record_teardown_start)
+
+    def post_resource_steps(self):
+        """Runnable steps to run after environment stopped."""
+        self._add_step(self._record_teardown_end)
+
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
         """
         For a Test to be run interactively, it must implement this method.
@@ -605,51 +639,49 @@ class ProcessRunnerTest(Test):
         Optionally enforce a timeout and log timeout related messages in
         the given timeout log path.
         """
+        with self.report.timer.record("run"):
+            with self.report.logged_exceptions(), open(
+                self.stderr, "w"
+            ) as stderr, open(self.stdout, "w") as stdout:
 
-        with self.result.report.logged_exceptions(), open(
-            self.stderr, "w"
-        ) as stderr, open(self.stdout, "w") as stdout:
-
-            if not os.path.exists(self.cfg.binary):
-                raise IOError(
-                    "No runnable found at {} for {}".format(
-                        self.cfg.binary, self
+                if not os.path.exists(self.cfg.binary):
+                    raise IOError(
+                        "No runnable found at {} for {}".format(
+                            self.cfg.binary, self
+                        )
                     )
+
+                test_cmd = self.test_command()
+                if not test_cmd:
+                    raise ValueError(
+                        "Invalid test command generated for: {}".format(self)
+                    )
+
+                self.report.logger.debug(
+                    "Running {} - Command: {}".format(self, test_cmd)
+                )
+                self._test_process = subprocess_popen(
+                    test_cmd,
+                    stderr=stderr,
+                    stdout=stdout,
+                    cwd=self.cfg.proc_cwd,
+                    env=self.get_proc_env(),
                 )
 
-            test_cmd = self.test_command()
-
-            self.result.report.logger.debug(
-                "Running {} - Command: {}".format(self, test_cmd)
-            )
-
-            if not test_cmd:
-                raise ValueError(
-                    "Invalid test command generated for: {}".format(self)
-                )
-
-            self._test_process = subprocess_popen(
-                test_cmd,
-                stderr=stderr,
-                stdout=stdout,
-                cwd=self.cfg.proc_cwd,
-                env=self.get_proc_env(),
-            )
-
-            if self.cfg.timeout:
-                with open(self.timeout_log, "w") as timeout_log:
-                    timeout_checker = enforce_timeout(
-                        process=self._test_process,
-                        timeout=self.cfg.timeout,
-                        output=timeout_log,
-                        callback=self.timeout_callback,
-                    )
+                if self.cfg.timeout:
+                    with open(self.timeout_log, "w") as timeout_log:
+                        timeout_checker = enforce_timeout(
+                            process=self._test_process,
+                            timeout=self.cfg.timeout,
+                            output=timeout_log,
+                            callback=self.timeout_callback,
+                        )
+                        self._test_process_retcode = self._test_process.wait()
+                        timeout_checker.join()
+                else:
                     self._test_process_retcode = self._test_process.wait()
-                    timeout_checker.join()
-            else:
-                self._test_process_retcode = self._test_process.wait()
 
-            self._test_has_run = True
+                self._test_has_run = True
 
     def read_test_data(self):
         """
@@ -766,17 +798,27 @@ class ProcessRunnerTest(Test):
 
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
+        super(ProcessRunnerTest, self).pre_resource_steps()
         self._add_step(self.make_runpath_dirs)
         if self.cfg.before_start:
             self._add_step(self.cfg.before_start)
 
-    def main_batch_steps(self):
+    def pre_main_steps(self):
+        """Runnable steps to be executed after environment starts."""
         if self.cfg.after_start:
             self._add_step(self.cfg.after_start)
+        super(ProcessRunnerTest, self).pre_main_steps()
+
+    def main_batch_steps(self):
+        """Runnable steps to be executed while environment is running."""
         self._add_step(self.run_tests)
         self._add_step(self.update_test_report)
         self._add_step(self.propagate_tag_indices)
         self._add_step(self.log_test_results, top_down=False)
+
+    def post_main_steps(self):
+        """Runnable steps to run before environment stopped."""
+        super(ProcessRunnerTest, self).post_main_steps()
         if self.cfg.before_stop:
             self._add_step(self.cfg.before_stop)
 
@@ -784,6 +826,7 @@ class ProcessRunnerTest(Test):
         """Runnable steps to be executed after environment stops."""
         if self.cfg.after_stop:
             self._add_step(self.cfg.after_stop)
+        super(ProcessRunnerTest, self).post_resource_steps()
 
     def aborting(self):
         if self._test_process is not None:

@@ -57,7 +57,8 @@ class PyUnit(testing.Test):
 
     def run_tests(self):
         """Run PyUnit and wait for it to terminate."""
-        self.result.report.extend(self._run_tests())
+        with self.report.timer.record("run"):
+            self.result.report.extend(self._run_tests())
 
     def get_test_context(self):
         """
