@@ -55,6 +55,8 @@ const useStyles = makeStyles({
     height: "32px",
     fontSize: "small",
     paddingLeft: "30px",
+    paddingTop: "5px",
+    paddingBottom: "5px",
     textDecoration: "none",
     textTransform: "none",
     borderRadius: 0,

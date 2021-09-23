@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Badge} from 'reactstrap';
-import {StyleSheet, css} from "aphrodite";
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import { Badge } from 'reactstrap';
+import { StyleSheet, css } from "aphrodite";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faPlay,
   faRedo,
@@ -57,7 +57,10 @@ const InteractiveNavEntry = (props) => {
   return (
     <div
       className='d-flex justify-content-between align-items-center'
-      style={{height: "1.5em"}}
+      style={{
+        height: "1.5em",
+        userSelect: "text"
+      }}
     >
       <Badge
         className={css(styles.entryIcon, styles[badgeStyle])}
@@ -209,64 +212,64 @@ const getStatusIcon = (
  */
 const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
   switch (envStatus) {
-      case 'STOPPED':
-        return (
-          <FontAwesomeIcon
-            className={
-              testInProgress(entryStatus)
-                ? css(styles.inactiveEntryButton)
-                : css(styles.entryButton)
-            }
-            icon={faToggleOff}
-            title='Start environment'
-            onClick={
-              testInProgress(entryStatus)
-                ? ignoreClickEvent
-                : (e) => envCtrlCallback(e, "start")
-            }
-          />
-        );
+    case 'STOPPED':
+      return (
+        <FontAwesomeIcon
+          className={
+            testInProgress(entryStatus)
+              ? css(styles.inactiveEntryButton)
+              : css(styles.entryButton)
+          }
+          icon={faToggleOff}
+          title='Start environment'
+          onClick={
+            testInProgress(entryStatus)
+              ? ignoreClickEvent
+              : (e) => envCtrlCallback(e, "start")
+          }
+        />
+      );
 
-      case 'STOPPING':
-        return (
-          <FontAwesomeIcon
-            className={css(styles.inactiveEntryButton)}
-            icon={faToggleOn}
-            title='Environment stopping...'
-            onClick={ignoreClickEvent}
-          />
-        );
+    case 'STOPPING':
+      return (
+        <FontAwesomeIcon
+          className={css(styles.inactiveEntryButton)}
+          icon={faToggleOn}
+          title='Environment stopping...'
+          onClick={ignoreClickEvent}
+        />
+      );
 
-      case 'STARTED':
-        return (
-          <FontAwesomeIcon
-            className={
-              testInProgress(entryStatus)
-                ? css(styles.inactiveEntryButton)
-                : css(styles.entryButton)
-            }
-            icon={faToggleOn}
-            title='Stop environment'
-            onClick={
-              testInProgress(entryStatus)
-                ? ignoreClickEvent
-                : (e) => envCtrlCallback(e, "stop")
-            }
-          />
-        );
+    case 'STARTED':
+      return (
+        <FontAwesomeIcon
+          className={
+            testInProgress(entryStatus)
+              ? css(styles.inactiveEntryButton)
+              : css(styles.entryButton)
+          }
+          icon={faToggleOn}
+          title='Stop environment'
+          onClick={
+            testInProgress(entryStatus)
+              ? ignoreClickEvent
+              : (e) => envCtrlCallback(e, "stop")
+          }
+        />
+      );
 
-      case 'STARTING':
-        return (
-          <FontAwesomeIcon
-            className={css(styles.inactiveEntryButton)}
-            icon={faToggleOff}
-            title='Environment starting...'
-            onClick={ignoreClickEvent}
-          />
-        );
+    case 'STARTING':
+      return (
+        <FontAwesomeIcon
+          className={css(styles.inactiveEntryButton)}
+          icon={faToggleOff}
+          title='Environment starting...'
+          onClick={ignoreClickEvent}
+        />
+      );
 
-      default:
-          return null;
+    default:
+      return null;
   }
 };
 
@@ -275,8 +278,7 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
  * instance. Returns null for suite entries and case entries.
  */
 const getResetReportIcon = (
-  entryStatus, envStatus, handleResetClick, entryType) =>
-{
+  entryStatus, envStatus, handleResetClick, entryType) => {
   if (
     entryType === 'multitest' || entryType === "unittest" ||
     entryType === "gtest" || entryType === "cppunit" ||
@@ -379,7 +381,7 @@ const styles = StyleSheet.create({
     padding: '0.7em 0em 0.7em 0em',
     transition: 'all 0.3s ease-out 0s',
     ':hover': {
-        color: LIGHT_GREY
+      color: LIGHT_GREY
     }
   },
   inactiveEntryButton: {

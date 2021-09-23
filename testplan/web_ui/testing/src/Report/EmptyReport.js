@@ -48,7 +48,7 @@ const EmptyReport = (props) => {
         report={null}
         saveAssertions={noop}
         filter={undefined}
-        treeView={false}
+        treeView={true}
         displayEmpty={true}
         displayTags={false}
         displayTime={false}
