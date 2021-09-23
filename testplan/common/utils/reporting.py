@@ -3,6 +3,7 @@ This module contains utilities that are mostly used
 to make assertion comparison data report friendly.
 """
 
+import re
 from collections.abc import Mapping, Iterable
 
 NATIVE_TYPES = (str, int, float, bool, memoryview, bytes, bytearray)
@@ -82,6 +83,8 @@ def fmt(obj):
             )
         elif issubclass(obj_t, Iterable):
             ret = (1, [render(value) for value in obj])
+        elif issubclass(obj_t, re.Pattern):
+            ret = (0, "REGEX", obj.pattern)
         else:
             ret = (0, obj_t.__name__, str(obj))
         if key:
