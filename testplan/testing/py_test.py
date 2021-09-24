@@ -116,17 +116,19 @@ class PyTest(testing.Test):
     def run_tests(self):
         """Run pytest and wait for it to terminate."""
         # Execute pytest with self as a plugin for hook support
+        with self.report.timer.record("run"):
+            return_code = pytest.main(
+                self._pytest_args, plugins=[self._pytest_plugin]
+            )
 
-        return_code = pytest.main(
-            self._pytest_args, plugins=[self._pytest_plugin]
-        )
-
-        if return_code == 5:
-            self.result.report.status_override = Status.UNSTABLE
-            self.logger.warning("No tests were run")
-        elif return_code != 0:
-            self.result.report.status_override = Status.FAILED
-            self.logger.error("pytest exited with return code %d", return_code)
+            if return_code == 5:
+                self.result.report.status_override = Status.UNSTABLE
+                self.logger.warning("No tests were run")
+            elif return_code != 0:
+                self.result.report.status_override = Status.FAILED
+                self.logger.error(
+                    "pytest exited with return code %d", return_code
+                )
 
     def _collect_tests(self):
         """Collect test items but do not run any."""

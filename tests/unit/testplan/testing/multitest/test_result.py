@@ -1,7 +1,9 @@
 """Unit tests for the testplan.testing.multitest.result module."""
 
-import collections
 import os
+import re
+import copy
+import collections
 from unittest import mock
 
 import pytest
@@ -238,6 +240,54 @@ class TestDictNamespace(object):
         dict_assert = dict_ns.result.entries.popleft()
         assert len(dict_assert.comparison) == 1
 
+    def test_flattened_comparison_result(self, dict_ns):
+        """Test the comparison result in flattened entries."""
+        expected = {
+            "foo": 1,
+            "bar": lambda val: val >= 1,
+            "baz": [
+                {
+                    "apple": 3,
+                    "pear": 4,
+                    "bat": [
+                        {"wine": "gin", "tea": re.compile(r"[a-z]{5}")},
+                        {"wine": "vodka", "tea": "green"},
+                    ],
+                }
+            ],
+        }
+        actual = copy.deepcopy(expected)
+        actual["bar"] = 2
+        actual["baz"][0]["pear"] = 5
+        actual["baz"][0]["bat"][0]["wine"] = "lime"
+        actual["baz"][0]["bat"][0]["tea"] = "oolong"
+        actual["baz"][0]["bat"][1]["wine"] = "brandy"
+        actual["baz"][0]["bat"][1]["tea"] = "black"
+        assert dict_ns.match(
+            actual,
+            expected,
+            description="complex dictionary comparison",
+            exclude_keys=["pear", "wine", "tea"],
+        )
+        assert len(dict_ns.result.entries) == 1
+
+        # Comparison result is a list of list items in below format:
+        # [indent, key, result, (act_type, act_value), (exp_type, exp_value)]
+        comp_result = dict_ns.result.entries[0].comparison
+        bar = [item for item in comp_result if item[1] == "bar"][0]
+        assert bar[0] == 0 and bar[4][0] == "func"
+        baz = [item for item in comp_result if item[1] == "baz"][0]
+        assert baz[0] == 0 and baz[2][0].lower() == comparison.Match.PASS
+        bat = [item for item in comp_result if item[1] == "bat"][0]
+        assert bat[0] == 1 and bat[2][0].lower() == comparison.Match.IGNORED
+        tea_1, tea_2 = [item for item in comp_result if item[1] == "tea"]
+        assert (
+            tea_1[0] == tea_2[0] == 2
+            and tea_1[2][0].lower() == comparison.Match.IGNORED
+            and tea_2[2][0].lower() == comparison.Match.IGNORED
+            and tea_1[4][0] == "REGEX"
+        )
+
 
 class TestFIXNamespace(object):
     """Unit testcases for the result.FixNamespace class."""
@@ -331,6 +381,69 @@ class TestFIXNamespace(object):
         assert len(fix_ns.result.entries) == 1
         dict_assert = fix_ns.result.entries.popleft()
         assert len(dict_assert.comparison) == 1
+
+    def test_flattened_comparison_result(self, fix_ns):
+        """Test the comparison result in flattened entries."""
+        expected = {
+            8: "FIX42",
+            9: re.compile(r"[A-Za-z]{2}"),
+            555: [
+                {
+                    600: "A",
+                    601: "B",
+                    687: [
+                        {688: "opq", 689: "rst"},
+                        {688: "uvw", 689: "xyz"},
+                    ],
+                }
+            ],
+        }
+        actual = expected.copy()
+        actual[9] = "AE"
+        actual[555] = [{600: "A", 601: "C", 700: "D"}]
+        assert not fix_ns.match(
+            actual,
+            expected,
+            description="complex fix message comparison",
+            include_tags=[9, 555, 600, 687],
+        )
+        assert len(fix_ns.result.entries) == 1
+
+        # Comparison result is a list of list items in below format:
+        # [indent, key, result, (act_type, act_value), (exp_type, exp_value)]
+        comp_result = fix_ns.result.entries[0].comparison
+        _8 = [item for item in comp_result if item[1] == 8][0]
+        assert _8[0] == 0 and _8[2][0].lower() == comparison.Match.IGNORED
+        _9 = [item for item in comp_result if item[1] == 9][0]
+        assert (
+            _9[0] == 0
+            and _9[2][0].lower() == comparison.Match.PASS
+            and _9[4][0] == "REGEX"
+        )
+        _555 = [item for item in comp_result if item[1] == 555][0]
+        assert _555[0] == 0 and _555[2][0].lower() == comparison.Match.FAIL
+        _600 = [item for item in comp_result if item[1] == 600][0]
+        assert _600[0] == 1 and _600[2][0].lower() == comparison.Match.PASS
+        _601 = [item for item in comp_result if item[1] == 601][0]
+        assert _601[0] == 1 and _601[2][0].lower() == comparison.Match.IGNORED
+        _687 = [item for item in comp_result if item[1] == 687][0]
+        assert (
+            _687[0] == 1
+            and _687[2][0].lower() == comparison.Match.FAIL
+            and _687[3] == (None, "ABSENT")  # key not found in actual data
+        )
+        _688_1, _688_2 = [item for item in comp_result if item[1] == 688]
+        assert _688_1[0] == 2 and _688_1[2][0].lower() == comparison.Match.FAIL
+        assert _688_2[0] == 2 and _688_2[2][0].lower() == comparison.Match.FAIL
+        _689_1, _689_2 = [item for item in comp_result if item[1] == 689]
+        assert _689_1[0] == 2 and _689_1[2][0].lower() == comparison.Match.FAIL
+        assert _689_2[0] == 2 and _689_2[2][0].lower() == comparison.Match.FAIL
+        _700 = [item for item in comp_result if item[1] == 700][0]
+        assert (
+            _700[0] == 1
+            and _700[2][0].lower() == comparison.Match.IGNORED
+            and _700[4] == (None, "ABSENT")  # key not found in expected data
+        )
 
 
 class TestResultBaseNamespace(object):

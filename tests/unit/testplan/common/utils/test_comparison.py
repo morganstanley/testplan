@@ -1,6 +1,13 @@
 import pytest
 from testplan.common.utils import comparison as cmp
 
+from testplan.common.utils.reporting import Absent
+import copy
+
+
+def test_absent():
+    assert id(Absent) == id(copy.deepcopy(Absent))
+
 
 @pytest.mark.parametrize(
     "callable_kls,reference,value,expected,description",

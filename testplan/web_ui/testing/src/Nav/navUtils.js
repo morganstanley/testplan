@@ -26,7 +26,8 @@ const CreateNavButtons = (
 ) => {
 
   // Apply all filters to the entries.
-  const filteredEntries = applyAllFilters(props);
+  const filteredEntries =
+    applyAllFilters(props.filter, props.entries, props.displayEmpty);
 
   // Create buttons for each of the filtered entries.
   const navButtons = filteredEntries.map((entry, entryIndex) => {
@@ -85,15 +86,15 @@ const CreateNavButtons = (
  *    entries).
  *  * Filter out empty testcases if required.
  */
-const applyAllFilters = (props) => {
-  if (props.displayEmpty) {
-    return applyNamedFilter(props.entries, props.filter);
+const applyAllFilters = (filter, entries, displayEmpty) => {
+  if (displayEmpty) {
+    return applyNamedFilter(entries, filter);
   } else {
-    return applyNamedFilter(props.entries, props.filter).filter((entry) => {
+    return applyNamedFilter(entries, filter).filter((entry) => {
       if (entry.category === 'testcase') {
         return (entry.entries !== null && entry.entries.length > 0);
       } else {
-        return (entry.counter.total > 0);
+        return (entry.counter && entry.counter.total > 0);
       }
     });
   }
@@ -109,12 +110,14 @@ const applyNamedFilter = (entries, filter) => {
   switch (filter) {
     case 'pass':
       return entries.filter(
-        (entry) => (entry.counter.passed | 0) > 0
+        (entry) =>
+          (entry.counter ? (entry.counter.passed | 0) : 0) > 0
       );
-
     case 'fail':
       return entries.filter(
-        (entry) => (entry.counter.failed | 0) + (entry.counter.error | 0) > 0
+        (entry) =>
+          (entry.counter ? (entry.counter.failed | 0) : 0) +
+          (entry.counter ? (entry.counter.error | 0) : 0) > 0
       );
 
     default:

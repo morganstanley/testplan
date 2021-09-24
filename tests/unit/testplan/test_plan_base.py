@@ -14,9 +14,9 @@ from testplan.common.entity import (
 from testplan.common.utils.exceptions import should_raise
 from testplan.common.utils.path import default_runpath
 from testplan.common.utils.testing import argv_overridden
-from testplan.report import TestGroupReport, ReportCategories
 from testplan.runnable import TestRunnerStatus, TestRunner
 from testplan.runners.local import LocalRunner
+from testplan.report import TestGroupReport, ReportCategories
 
 
 class DummyDriver(Resource):
