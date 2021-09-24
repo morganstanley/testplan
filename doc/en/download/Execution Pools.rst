@@ -91,7 +91,7 @@ test_plan.py
 .. literalinclude:: ../../../examples/ExecutionPools/Parts/test_plan.py
 
 tasks.py
-+++++++++
+++++++++
 .. literalinclude:: ../../../examples/ExecutionPools/Parts/tasks.py
 
 .. _example_discover:
