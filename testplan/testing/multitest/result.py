@@ -9,7 +9,7 @@ after testcases have finished running.
 import inspect
 import os
 import re
-import json
+import threading
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
@@ -81,6 +81,7 @@ class ExceptionCapture(object):
 
         # We cannot use `bind_entry` here as this block will
         # be run when an exception is raised
+        # bind_entry replaced with assertion decorator
         stdout_registry.log_entry(
             entry=exc_assertion, stdout_style=self.result.stdout_style
         )
@@ -88,24 +89,48 @@ class ExceptionCapture(object):
         return True
 
 
-def _bind_entry(entry, result_obj):
-    """
-    Appends return value of a assertion / log method to the ``Result`` object's
-    ``entries`` list.
-    """
-    # Second element is the caller
-    caller_frame = inspect.stack()[2]
-    entry.file_path = os.path.abspath(caller_frame[1])
-    entry.line_no = caller_frame[2]
+assertion_state = threading.local()
 
-    result_obj.entries.append(entry)
 
-    stdout_registry.log_entry(
-        entry=entry, stdout_style=result_obj.stdout_style
-    )
+def assertion(func):
+    def wrapper(result, *args, **kwargs):
+        top_assertion = False
+        if (
+            not hasattr(assertion_state, "in_progress")
+            or not assertion_state.in_progress
+        ):
+            assertion_state.in_progress = True
+            top_assertion = True
 
-    if not entry and not result_obj.continue_on_failure:
-        raise AssertionError(entry)
+        try:
+            entry = func(result, *args, **kwargs)
+            if top_assertion:
+                # Second element is the caller
+                caller_frame = inspect.stack()[1]
+                entry.file_path = os.path.abspath(caller_frame.filename)
+                entry.line_no = caller_frame.lineno
+
+                assert isinstance(result, AssertionNamespace) or isinstance(
+                    result, Result
+                ), "Incorrect usage of assertion decorator"
+
+                if isinstance(result, AssertionNamespace):
+                    result = result.result
+
+                result.entries.append(entry)
+                stdout_registry.log_entry(
+                    entry=entry, stdout_style=result.stdout_style
+                )
+
+                if not entry and not result.continue_on_failure:
+                    raise AssertionError(entry)
+
+            return entry
+        finally:
+            if top_assertion:
+                assertion_state.in_progress = False
+
+    return wrapper
 
 
 class AssertionNamespace(object):
@@ -121,6 +146,7 @@ class AssertionNamespace(object):
 class RegexNamespace(AssertionNamespace):
     """Contains logic for regular expression assertions."""
 
+    @assertion
     def match(self, regexp, value, description=None, category=None, flags=0):
         """
         Checks if the given ``regexp`` matches the ``value``
@@ -151,9 +177,9 @@ class RegexNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
         return entry
 
+    @assertion
     def multiline_match(self, regexp, value, description=None, category=None):
         """
         Checks if the given ``regexp`` matches the ``value``
@@ -189,9 +215,10 @@ class RegexNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def not_match(
         self, regexp, value, description=None, category=None, flags=0
     ):
@@ -224,9 +251,10 @@ class RegexNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def multiline_not_match(
         self, regexp, value, description=None, category=None
     ):
@@ -264,9 +292,10 @@ class RegexNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def search(self, regexp, value, description=None, category=None, flags=0):
         """
         Checks if the given ``regexp`` exists in the ``value``
@@ -297,9 +326,10 @@ class RegexNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def search_empty(
         self, regexp, value, description=None, category=None, flags=0
     ):
@@ -332,9 +362,10 @@ class RegexNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def findall(
         self,
         regexp,
@@ -382,9 +413,10 @@ class RegexNamespace(AssertionNamespace):
             condition=condition,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def matchline(
         self, regexp, value, description=None, category=None, flags=0
     ):
@@ -424,13 +456,14 @@ class RegexNamespace(AssertionNamespace):
             flags=flags,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
 
 class TableNamespace(AssertionNamespace):
     """Contains logic for regular expression assertions."""
 
+    @assertion
     def column_contain(
         self,
         table,
@@ -488,9 +521,10 @@ class TableNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def match(
         self,
         actual,
@@ -576,9 +610,10 @@ class TableNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def diff(
         self,
         actual,
@@ -666,9 +701,10 @@ class TableNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def log(self, table, display_index=False, description=None):
         """
         Logs a table to the report.
@@ -696,12 +732,13 @@ class TableNamespace(AssertionNamespace):
         entry = base.TableLog(
             table=table, display_index=display_index, description=description
         )
-        _bind_entry(entry, self.result)
+        return entry
 
 
 class XMLNamespace(AssertionNamespace):
     """Contains logic for XML related assertions."""
 
+    @assertion
     def check(
         self,
         element,
@@ -768,13 +805,14 @@ class XMLNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
 
 class DictNamespace(AssertionNamespace):
     """Contains logic for Dictionary related assertions."""
 
+    @assertion
     def check(
         self,
         dictionary,
@@ -817,9 +855,10 @@ class DictNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def match(
         self,
         actual,
@@ -911,9 +950,10 @@ class DictNamespace(AssertionNamespace):
             category=category,
             value_cmp_func=value_cmp_func,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def match_all(
         self,
         values,
@@ -974,9 +1014,10 @@ class DictNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def log(self, dictionary, description=None):
         """
         Logs a dictionary to the report.
@@ -1000,13 +1041,14 @@ class DictNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         entry = base.DictLog(dictionary=dictionary, description=description)
-        _bind_entry(entry, self.result)
+
         return entry
 
 
 class FixNamespace(AssertionNamespace):
     """Contains assertion logic that operates on fix messages."""
 
+    @assertion
     def check(
         self,
         msg,
@@ -1053,9 +1095,10 @@ class FixNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def match(
         self,
         actual,
@@ -1130,9 +1173,10 @@ class FixNamespace(AssertionNamespace):
             expected_description=expected_description,
             actual_description=actual_description,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def match_all(
         self,
         values,
@@ -1196,9 +1240,10 @@ class FixNamespace(AssertionNamespace):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self.result)
+
         return entry
 
+    @assertion
     def log(self, msg, description=None):
         """
         Logs a fix message to the report.
@@ -1224,7 +1269,7 @@ class FixNamespace(AssertionNamespace):
         :rtype: ``bool``
         """
         entry = base.FixLog(msg=msg, description=description)
-        _bind_entry(entry, self.result)
+
         return entry
 
 
@@ -1394,6 +1439,7 @@ class Result(object):
         """Entries stored passed status."""
         return all(getattr(entry, "passed", True) for entry in self.entries)
 
+    @assertion
     def log(self, message, description=None, flag=None):
         """
         Create a string message entry, can be used for providing additional
@@ -1415,9 +1461,10 @@ class Result(object):
         :rtype: ``bool``
         """
         entry = base.Log(message=message, description=description, flag=flag)
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def markdown(self, message, description=None, escape=True):
         """
         Create a markdown message entry, can be used for providing additional
@@ -1443,9 +1490,10 @@ class Result(object):
         entry = base.Markdown(
             message=message, description=description, escape=escape
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def log_html(self, code, description="Embedded HTML"):
         """
         Create a markdown message entry without escape, can be used for
@@ -1478,9 +1526,10 @@ class Result(object):
         entry = base.CodeLog(
             code=code, language=language, description=description
         )
-        _bind_entry(entry, self)
+
         return
 
+    @assertion
     def fail(self, description, category=None, flag=None):
         """
         Failure assertion, can be used for explicitly failing a testcase.
@@ -1503,7 +1552,7 @@ class Result(object):
         :rtype: ``bool``
         """
         entry = assertions.Fail(description, category=category, flag=flag)
-        _bind_entry(entry, self)
+
         return entry
 
     def conditional_log(
@@ -1560,6 +1609,7 @@ class Result(object):
         else:
             return self.fail(fail_description, flag=flag)
 
+    @assertion
     def true(self, value, description=None, category=None):
         """
         Boolean assertion, checks if ``value`` is truthy.
@@ -1580,9 +1630,10 @@ class Result(object):
         entry = assertions.IsTrue(
             value, description=description, category=category
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def false(self, value, description=None, category=None):
         """
         Boolean assertion, checks if ``value`` is falsy.
@@ -1603,9 +1654,10 @@ class Result(object):
         entry = assertions.IsFalse(
             value, description=description, category=category
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def equal(self, actual, expected, description=None, category=None):
         """
         Equality assertion, checks if ``actual == expected``.
@@ -1629,9 +1681,10 @@ class Result(object):
         entry = assertions.Equal(
             actual, expected, description=description, category=category
         )
-        _bind_entry(entry, self)
+        #
         return entry
 
+    @assertion
     def not_equal(self, actual, expected, description=None, category=None):
         """
         Inequality assertion, checks if ``actual != expected``.
@@ -1655,9 +1708,10 @@ class Result(object):
         entry = assertions.NotEqual(
             actual, expected, description=description, category=category
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def less(self, first, second, description=None, category=None):
         """
         Checks if ``first < second``.
@@ -1681,9 +1735,10 @@ class Result(object):
         entry = assertions.Less(
             first, second, description=description, category=category
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def greater(self, first, second, description=None, category=None):
         """
         Checks if ``first > second``.
@@ -1707,9 +1762,10 @@ class Result(object):
         entry = assertions.Greater(
             first, second, description=description, category=category
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def less_equal(self, first, second, description=None, category=None):
         """
         Checks if ``first <= second``.
@@ -1733,9 +1789,10 @@ class Result(object):
         entry = assertions.LessEqual(
             first, second, description=description, category=category
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def greater_equal(self, first, second, description=None, category=None):
         """
         Checks if ``first >= second``.
@@ -1759,7 +1816,7 @@ class Result(object):
         entry = assertions.GreaterEqual(
             first, second, description=description, category=category
         )
-        _bind_entry(entry, self)
+
         return entry
 
     # Shortcut aliases for basic comparators
@@ -1770,6 +1827,7 @@ class Result(object):
     le = less_equal
     ge = greater_equal
 
+    @assertion
     def isclose(
         self,
         first,
@@ -1805,9 +1863,10 @@ class Result(object):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def contain(self, member, container, description=None, category=None):
         """
         Checks if ``member in container``.
@@ -1831,9 +1890,10 @@ class Result(object):
         entry = assertions.Contain(
             member, container, description=description, category=category
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def not_contain(self, member, container, description=None, category=None):
         """
         Checks if ``member not in container``.
@@ -1857,9 +1917,10 @@ class Result(object):
         entry = assertions.NotContain(
             member, container, description=description, category=category
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def equal_slices(
         self, actual, expected, slices, description=None, category=None
     ):
@@ -1896,9 +1957,10 @@ class Result(object):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def equal_exclude_slices(
         self, actual, expected, slices, description=None, category=None
     ):
@@ -1936,7 +1998,7 @@ class Result(object):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self)
+
         return entry
 
     def raises(
@@ -2049,6 +2111,7 @@ class Result(object):
             pattern=pattern,
         )
 
+    @assertion
     def diff(
         self,
         first,
@@ -2104,9 +2167,10 @@ class Result(object):
             description=description,
             category=category,
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def graph(
         self,
         graph_type,
@@ -2158,9 +2222,10 @@ class Result(object):
             series_options=series_options,
             graph_options=graph_options,
         )
-        _bind_entry(entry, self)
+
         return entry
 
+    @assertion
     def attach(self, filepath, description=None):
         """
         Attaches a file to the report.
@@ -2177,9 +2242,9 @@ class Result(object):
             filepath, description, scratch_path=self._scratch
         )
         self.attachments.append(attachment)
-        _bind_entry(attachment, self)
         return attachment
 
+    @assertion
     def matplot(self, pyplot, width=None, height=None, description=None):
         """
         Displays a Matplotlib plot in the report.
@@ -2206,9 +2271,10 @@ class Result(object):
             description=description,
         )
         self.attachments.append(matplot)
-        _bind_entry(matplot, self)
+
         return matplot
 
+    @assertion
     def plotly(self, fig, description=None, style=None):
         filename = "{0}.json".format(strings.uuid4())
         data_file_path = os.path.join(self._scratch, filename)
@@ -2219,7 +2285,7 @@ class Result(object):
             description=description,
         )
         self.attachments.append(chart)
-        _bind_entry(chart, self)
+
         return chart
 
     @property

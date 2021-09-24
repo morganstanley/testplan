@@ -32,6 +32,7 @@ class BaseSchema(Schema):
     line_no = fields.Integer()
     category = fields.String()
     flag = fields.String()
+    file_path = fields.String()
 
     def load(self, *args, **kwargs):
         raise NotImplementedError("Only serialization is supported.")
