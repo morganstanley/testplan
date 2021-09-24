@@ -22,6 +22,18 @@ import matplotlib.pyplot as plot
 @testsuite
 class SampleSuite(object):
     @testcase
+    def test_tkerr(self, env, result):
+        result.log_html(
+            """
+<div style="font-size:80px;font-family:Arial;font-weight:bold;">
+    <i class="fa fa-check-square" style="color:green;padding-right:5px;"></i>
+    Testplan
+</div>
+        """,
+            description="HTML example",
+        )
+
+    @testcase
     def test_basic_assertions(self, env, result):
         # Basic assertions contain equality, comparison, membership checks:
         result.equal("foo", "foo")  # The most basic syntax
