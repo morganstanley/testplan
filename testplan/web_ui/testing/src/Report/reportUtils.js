@@ -216,6 +216,7 @@ const GetCenterPane = (
         left={state.navWidth}
         testcaseUid={selectiedEntry.uid}
         filter={state.filter}
+        displayPath={state.displayPath}
         reportUid={reportUid}
       />
     );

@@ -6,14 +6,6 @@ exports[`BatchReport loads a more complex report 1`] = `
 >
   <Toolbar
     expandStatus="default"
-    extraButtons={
-      Array [
-        <TimeButton
-          status="failed"
-          updateTimeDisplayCbk={[Function]}
-        />,
-      ]
-    }
     filterBoxWidth="22em"
     filterText={null}
     handleNavFilter={[Function]}
@@ -462,7 +454,9 @@ exports[`BatchReport loads a more complex report 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
   <Nav
@@ -1386,14 +1380,6 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
 >
   <Toolbar
     expandStatus="default"
-    extraButtons={
-      Array [
-        <TimeButton
-          status="failed"
-          updateTimeDisplayCbk={[Function]}
-        />,
-      ]
-    }
     filterBoxWidth="22em"
     filterText={null}
     handleNavFilter={[Function]}
@@ -1842,7 +1828,9 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
   <Nav
@@ -3061,14 +3049,6 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
 >
   <Toolbar
     expandStatus="default"
-    extraButtons={
-      Array [
-        <TimeButton
-          status="failed"
-          updateTimeDisplayCbk={[Function]}
-        />,
-      ]
-    }
     filterBoxWidth="22em"
     filterText={null}
     handleNavFilter={[Function]}
@@ -3518,7 +3498,9 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
   <Nav
@@ -4680,6 +4662,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
         ]
       }
       descriptionEntries={Array []}
+      displayPath={false}
       filter={null}
       key="f73bd6ea-d378-437b-a5db-00d9e427f36a"
       left="22em"
@@ -4697,14 +4680,6 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
 >
   <Toolbar
     expandStatus="default"
-    extraButtons={
-      Array [
-        <TimeButton
-          status="failed"
-          updateTimeDisplayCbk={[Function]}
-        />,
-      ]
-    }
     filterBoxWidth="22em"
     filterText={null}
     handleNavFilter={[Function]}
@@ -5153,7 +5128,9 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
   <Nav
@@ -6527,14 +6504,6 @@ exports[`BatchReport loads a simple report 1`] = `
 >
   <Toolbar
     expandStatus="default"
-    extraButtons={
-      Array [
-        <TimeButton
-          status="failed"
-          updateTimeDisplayCbk={[Function]}
-        />,
-      ]
-    }
     filterBoxWidth="22em"
     filterText={null}
     handleNavFilter={[Function]}
@@ -6810,7 +6779,9 @@ exports[`BatchReport loads a simple report 1`] = `
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
   <Nav
@@ -7388,14 +7359,6 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
 >
   <Toolbar
     expandStatus="default"
-    extraButtons={
-      Array [
-        <TimeButton
-          status="failed"
-          updateTimeDisplayCbk={[Function]}
-        />,
-      ]
-    }
     filterBoxWidth="22em"
     filterText={null}
     handleNavFilter={[Function]}
@@ -7844,7 +7807,9 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
     updateEmptyDisplayFunc={[Function]}
     updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
+    updatePathDisplayFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
   <Nav
@@ -8779,14 +8744,6 @@ exports[`BatchReport shallow renders the correct HTML structure when report with
   >
     <Toolbar
       expandStatus="default"
-      extraButtons={
-        Array [
-          <TimeButton
-            status="error"
-            updateTimeDisplayCbk={[Function]}
-          />,
-        ]
-      }
       filterBoxWidth="22em"
       filterText={null}
       handleNavFilter={[Function]}
@@ -8832,7 +8789,9 @@ ZeroDivisionError: integer division or modulo by zero
       updateEmptyDisplayFunc={[Function]}
       updateExpandStatusFunc={[Function]}
       updateFilterFunc={[Function]}
+      updatePathDisplayFunc={[Function]}
       updateTagsDisplayFunc={[Function]}
+      updateTimeDisplayFunc={[Function]}
       updateTreeViewFunc={[Function]}
     >
       <div>
@@ -9308,80 +9267,199 @@ ZeroDivisionError: integer division or modulo by zero
                           </div>
                         </li>
                       </NavItem>
-                      <TimeButton
-                        key="time-button"
-                        status="error"
-                        updateTimeDisplayCbk={[Function]}
+                      <UncontrolledDropdown
+                        inNavbar={true}
+                        nav={true}
                       >
-                        <NavItem
-                          tag="li"
+                        <Dropdown
+                          active={false}
+                          addonType={false}
+                          direction="down"
+                          inNavbar={true}
+                          isOpen={false}
+                          nav={true}
+                          setActiveFromChild={false}
+                          toggle={[Function]}
                         >
-                          <li
-                            className="nav-item"
-                          >
-                            <div
-                              className="buttonsBar_6zsntc"
+                          <Manager>
+                            <li
+                              className="dropdown nav-item"
+                              onKeyDown={[Function]}
                             >
-                              <FontAwesomeIcon
-                                border={false}
-                                className="toolbarButton_1ueb7gu"
-                                fixedWidth={false}
-                                flip={null}
-                                icon={
-                                  Object {
-                                    "icon": Array [
-                                      512,
-                                      512,
-                                      Array [],
-                                      "f017",
-                                      "M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm57.1 350.1L224.9 294c-3.1-2.3-4.9-5.9-4.9-9.7V116c0-6.6 5.4-12 12-12h48c6.6 0 12 5.4 12 12v137.7l63.5 46.2c5.4 3.9 6.5 11.4 2.6 16.8l-28.2 38.8c-3.9 5.3-11.4 6.5-16.8 2.6z",
-                                    ],
-                                    "iconName": "clock",
-                                    "prefix": "fas",
-                                  }
-                                }
-                                inverse={false}
-                                key="toolbar-time"
-                                listItem={false}
-                                mask={null}
-                                onClick={[Function]}
-                                pull={null}
-                                pulse={false}
-                                rotation={null}
-                                size={null}
-                                spin={false}
-                                symbol={false}
-                                title="Display time information"
-                                transform={null}
+                              <div
+                                className="buttonsBar_6zsntc"
                               >
-                                <svg
-                                  aria-labelledby="svg-inline--fa-title-28"
-                                  className="svg-inline--fa fa-clock fa-w-16 toolbarButton_1ueb7gu"
-                                  data-icon="clock"
-                                  data-prefix="fas"
-                                  onClick={[Function]}
-                                  role="img"
-                                  style={Object {}}
-                                  viewBox="0 0 512 512"
-                                  xmlns="http://www.w3.org/2000/svg"
+                                <DropdownToggle
+                                  aria-haspopup={true}
+                                  className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx"
+                                  color="secondary"
+                                  nav={true}
                                 >
-                                  <title
-                                    id="svg-inline--fa-title-28"
-                                    style={Object {}}
+                                  <a
+                                    aria-expanded={false}
+                                    aria-haspopup={true}
+                                    className="toolbar_l6n5rs-o_O-toolbarFailed_1v5i7tx nav-link"
+                                    href="#"
+                                    onClick={[Function]}
                                   >
-                                    Display time information
-                                  </title>
-                                  <path
-                                    d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm57.1 350.1L224.9 294c-3.1-2.3-4.9-5.9-4.9-9.7V116c0-6.6 5.4-12 12-12h48c6.6 0 12 5.4 12 12v137.7l63.5 46.2c5.4 3.9 6.5 11.4 2.6 16.8l-28.2 38.8c-3.9 5.3-11.4 6.5-16.8 2.6z"
-                                    fill="currentColor"
-                                    style={Object {}}
-                                  />
-                                </svg>
-                              </FontAwesomeIcon>
-                            </div>
-                          </li>
-                        </NavItem>
-                      </TimeButton>
+                                    <FontAwesomeIcon
+                                      border={false}
+                                      className="toolbarButton_1ueb7gu"
+                                      fixedWidth={false}
+                                      flip={null}
+                                      icon="tasks"
+                                      inverse={false}
+                                      key="toolbar-details"
+                                      listItem={false}
+                                      mask={null}
+                                      pull={null}
+                                      pulse={false}
+                                      rotation={null}
+                                      size={null}
+                                      spin={false}
+                                      symbol={false}
+                                      title="Choose details"
+                                      transform={null}
+                                    >
+                                      <svg
+                                        aria-labelledby="svg-inline--fa-title-28"
+                                        className="svg-inline--fa fa-tasks fa-w-16 toolbarButton_1ueb7gu"
+                                        data-icon="tasks"
+                                        data-prefix="fas"
+                                        role="img"
+                                        style={Object {}}
+                                        viewBox="0 0 512 512"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                      >
+                                        <title
+                                          id="svg-inline--fa-title-28"
+                                          style={Object {}}
+                                        >
+                                          Choose details
+                                        </title>
+                                        <path
+                                          d="M208 132h288c8.8 0 16-7.2 16-16V76c0-8.8-7.2-16-16-16H208c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16zm0 160h288c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H208c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16zm0 160h288c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H208c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16zM64 368c-26.5 0-48.6 21.5-48.6 48s22.1 48 48.6 48 48-21.5 48-48-21.5-48-48-48zm92.5-299l-72.2 72.2-15.6 15.6c-4.7 4.7-12.9 4.7-17.6 0L3.5 109.4c-4.7-4.7-4.7-12.3 0-17l15.7-15.7c4.7-4.7 12.3-4.7 17 0l22.7 22.1 63.7-63.3c4.7-4.7 12.3-4.7 17 0l17 16.5c4.6 4.7 4.6 12.3-.1 17zm0 159.6l-72.2 72.2-15.7 15.7c-4.7 4.7-12.9 4.7-17.6 0L3.5 269c-4.7-4.7-4.7-12.3 0-17l15.7-15.7c4.7-4.7 12.3-4.7 17 0l22.7 22.1 63.7-63.7c4.7-4.7 12.3-4.7 17 0l17 17c4.6 4.6 4.6 12.2-.1 16.9z"
+                                          fill="currentColor"
+                                          style={Object {}}
+                                        />
+                                      </svg>
+                                    </FontAwesomeIcon>
+                                  </a>
+                                </DropdownToggle>
+                              </div>
+                              <DropdownMenu
+                                className="dropdown_biw13d"
+                                flip={true}
+                                tag="div"
+                              >
+                                <div
+                                  aria-hidden={true}
+                                  className="dropdown_biw13d dropdown-menu"
+                                  role="menu"
+                                  tabIndex="-1"
+                                >
+                                  <DropdownItem
+                                    className="dropdownItem_1bl0z5g"
+                                    tag="button"
+                                    toggle={false}
+                                  >
+                                    <button
+                                      className="dropdownItem_1bl0z5g dropdown-item"
+                                      onClick={[Function]}
+                                      role="menuitem"
+                                      tabIndex="0"
+                                    >
+                                      <Label
+                                        check={true}
+                                        className="filterLabel_17zzvy"
+                                        tag="label"
+                                        widths={
+                                          Array [
+                                            "xs",
+                                            "sm",
+                                            "md",
+                                            "lg",
+                                            "xl",
+                                          ]
+                                        }
+                                      >
+                                        <label
+                                          className="filterLabel_17zzvy form-check-label"
+                                        >
+                                          <Input
+                                            name="filter"
+                                            onChange={[Function]}
+                                            type="checkbox"
+                                            value="time"
+                                          >
+                                            <input
+                                              className="form-check-input"
+                                              name="filter"
+                                              onChange={[Function]}
+                                              type="checkbox"
+                                              value="time"
+                                            />
+                                          </Input>
+                                           
+                                          Time Information
+                                        </label>
+                                      </Label>
+                                    </button>
+                                  </DropdownItem>
+                                  <DropdownItem
+                                    className="dropdownItem_1bl0z5g"
+                                    tag="button"
+                                    toggle={false}
+                                  >
+                                    <button
+                                      className="dropdownItem_1bl0z5g dropdown-item"
+                                      onClick={[Function]}
+                                      role="menuitem"
+                                      tabIndex="0"
+                                    >
+                                      <Label
+                                        check={true}
+                                        className="filterLabel_17zzvy"
+                                        tag="label"
+                                        widths={
+                                          Array [
+                                            "xs",
+                                            "sm",
+                                            "md",
+                                            "lg",
+                                            "xl",
+                                          ]
+                                        }
+                                      >
+                                        <label
+                                          className="filterLabel_17zzvy form-check-label"
+                                        >
+                                          <Input
+                                            name="filter"
+                                            onChange={[Function]}
+                                            type="checkbox"
+                                            value="path"
+                                          >
+                                            <input
+                                              className="form-check-input"
+                                              name="filter"
+                                              onChange={[Function]}
+                                              type="checkbox"
+                                              value="path"
+                                            />
+                                          </Input>
+                                           
+                                          File Path
+                                        </label>
+                                      </Label>
+                                    </button>
+                                  </DropdownItem>
+                                </div>
+                              </DropdownMenu>
+                            </li>
+                          </Manager>
+                        </Dropdown>
+                      </UncontrolledDropdown>
                       <NavItem
                         tag="li"
                       >
@@ -9519,13 +9597,13 @@ ZeroDivisionError: integer division or modulo by zero
                                 </DropdownToggle>
                               </div>
                               <DropdownMenu
-                                className="filterDropdown_biw13d"
+                                className="dropdown_biw13d"
                                 flip={true}
                                 tag="div"
                               >
                                 <div
                                   aria-hidden={true}
-                                  className="filterDropdown_biw13d dropdown-menu"
+                                  className="dropdown_biw13d dropdown-menu"
                                   role="menu"
                                   tabIndex="-1"
                                 >

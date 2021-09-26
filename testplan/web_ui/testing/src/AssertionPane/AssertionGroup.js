@@ -59,6 +59,7 @@ const AssertionGroup = (props) => {
           }}
           index={index}
           filter={props.filter}
+          displayPath={props.displayPath}
           reportUid={props.reportUid}
         />
       );

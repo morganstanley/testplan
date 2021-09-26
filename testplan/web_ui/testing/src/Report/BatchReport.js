@@ -6,7 +6,6 @@ import _ from 'lodash';
 
 import { parseToJson } from "../Common/utils";
 import Toolbar from "../Toolbar/Toolbar";
-import { TimeButton } from "../Toolbar/Buttons";
 import Nav from "../Nav/Nav";
 import {
   PropagateIndices,
@@ -41,6 +40,7 @@ class BatchReport extends React.Component {
     this.updateTreeView = this.updateTreeView.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
     this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
+    this.updatePathDisplay = this.updatePathDisplay.bind(this);
     this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
     this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
@@ -60,6 +60,7 @@ class BatchReport extends React.Component {
       treeView: true,
       displayTags: false,
       displayTime: false,
+      displayPath: false,
       displayEmpty: true,
       assertionStatus: defaultAssertionStatus,
     };
@@ -274,6 +275,16 @@ class BatchReport extends React.Component {
   }
 
   /**
+   * Update file path and line number display of each assertion.
+   *
+   * @param {boolean} displayPath.
+   * @public
+   */
+  updatePathDisplay(displayPath) {
+    this.setState({ displayPath: displayPath });
+  }
+
+  /**
    * Update execution time display of each navigation entry and each assertion.
    *
    * @param {boolean} displayTime.
@@ -347,13 +358,8 @@ class BatchReport extends React.Component {
           updateEmptyDisplayFunc={this.updateDisplayEmpty}
           updateTreeViewFunc={this.updateTreeView}
           updateTagsDisplayFunc={this.updateTagsDisplay}
-          extraButtons={[
-            <TimeButton
-              key="time-button"
-              status={reportStatus}
-              updateTimeDisplayCbk={this.updateTimeDisplay}
-            />,
-          ]}
+          updatePathDisplayFunc={this.updatePathDisplay}
+          updateTimeDisplayFunc={this.updateTimeDisplay}
         />
         <Nav
           navListWidth={this.state.navWidth}

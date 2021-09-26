@@ -77,6 +77,7 @@ class AssertionPane extends Component {
                 <AssertionGroup
                   entries={this.props.assertions}
                   filter={this.props.filter}
+                  displayPath={this.props.displayPath}
                   assertionGroupUid={this.props.testcaseUid}
                   reportUid={this.props.reportUid}
                 />

@@ -636,6 +636,7 @@ class InteractiveReport extends React.Component {
           updateEmptyDisplayFunc={noop}
           updateTreeViewFunc={noop}
           updateTagsDisplayFunc={noop}
+          updateTimeDisplayFunc={noop}
           extraButtons={[
             <ReloadButton
               reloading={this.state.reloading}
