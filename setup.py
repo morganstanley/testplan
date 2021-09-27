@@ -61,7 +61,8 @@ def get_version():
 
         def visit_Assign(self, node: ast.Assign):
             if node.targets[0].id == "__version__":
-                self.version = node.value.value
+                # python 3.7 node.value is str from 3.8 it seem it is ast.Constant
+                self.version = node.value.value if isinstance(node.value, ast.Constant) else node.value
 
     module = ast.parse(Path("testplan/version.py").read_text())
 
