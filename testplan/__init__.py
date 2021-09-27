@@ -2,6 +2,8 @@
 
 import sys
 
+from testplan.version import __version__
+
 sys.dont_write_bytecode = True
 
 from testplan.base import (
