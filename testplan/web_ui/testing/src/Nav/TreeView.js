@@ -79,6 +79,7 @@ const Tree = (props) => {
   return Array.isArray(entries) ?
     entries.map((entry) =>
       <Node
+        key={entry.uids? entry.uids.join('-'): entry.hash || entry.uid}
         displayEmpty
         displayTags={props.displayTags}
         displayTime={props.displayTime}
@@ -120,7 +121,6 @@ const Node = (props) => {
     <TreeItem
       classes={{
         root: treeViewClasses.root,
-        group: treeViewClasses.group,
         content: treeViewClasses.content,
         selected: treeViewClasses.selected,
         iconContainer: treeViewClasses.iconContainer,
@@ -150,6 +150,7 @@ const continueTreeBranch = (props, entry) => {
   return Array.isArray(entry.entries) ?
     entry.entries.map((entry) =>
       <Node
+        key={entry.uids? entry.uids.join('-'): entry.hash || entry.uid}
         displayEmpty
         displayTags={props.displayTags}
         displayTime={props.displayTime}
@@ -192,10 +193,6 @@ const getTreeViewStyles = makeStyles({
     }
   },
 
-  group: {
-    marginLeft: '0px'
-  },
-
   content: {
     '&:hover': {
       backgroundColor: MEDIUM_GREY
@@ -215,7 +212,10 @@ const getTreeViewStyles = makeStyles({
 
   label: {
     padding: '5px 0px',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    '&:hover': {
+      backgroundColor: MEDIUM_GREY
+    }
   },
 });
 

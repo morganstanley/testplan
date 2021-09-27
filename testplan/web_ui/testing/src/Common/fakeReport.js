@@ -450,7 +450,6 @@ var fakeReportAssertions = {
                                     "first": "foo",
                                     "machine_time": "2020-01-10T11:06:58.630129+00:00",
                                     "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
-                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
                                     "line_no": 25
                                 },
                                 {
@@ -467,7 +466,6 @@ var fakeReportAssertions = {
                                     "first": "This is a long thing with some extra at the end",
                                     "machine_time": "2020-01-10T11:06:58.630129+00:00",
                                     "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
-                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
                                     "line_no": 25
                                 },
                                 {
@@ -481,7 +479,6 @@ var fakeReportAssertions = {
                                     "passed": false,
                                     "first": 1,
                                     "machine_time": "2020-01-10T11:06:58.893477+00:00",
-                                    "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
                                     "file_path": "C:\\Users\\Name\\testplan\\testplan\\web_ui\\testing\\src\\Common\\fakeReport.js",
                                     "line_no": 28
                                 },
