@@ -5,7 +5,7 @@ import React from "react";
 import { css, StyleSheet } from "aphrodite";
 
 import {
-  createMuiTheme,
+  createTheme,
   ThemeProvider,
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import AttachmentAssertionCardHeader from "./AttachmentAssertionCardHeader";
 import { getAttachmentUrl } from "../../Common/utils";
 
 // TODO: move theme out to a common place
-const theme = createMuiTheme({
+const theme = createTheme({
   typography: {
     fontFamily: [
       "-apple-system",

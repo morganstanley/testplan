@@ -1350,7 +1350,7 @@ exports[`BatchReport loads a more complex report 1`] = `
         },
       ]
     }
-    treeView={true}
+    treeView={false}
     url="/testplan/:uid/:selection*"
   />
   <ContextProvider
@@ -3019,7 +3019,7 @@ exports[`BatchReport loads a report with selection at Multitest level 1`] = `
         },
       ]
     }
-    treeView={true}
+    treeView={false}
     url="/testplan/:uid/:selection*"
   />
   <ContextProvider
@@ -4626,7 +4626,7 @@ exports[`BatchReport loads a report with selection at Testcase level 1`] = `
         },
       ]
     }
-    treeView={true}
+    treeView={false}
     url="/testplan/:uid/:selection*"
   />
   <ContextProvider
@@ -6474,7 +6474,7 @@ exports[`BatchReport loads a report with selection at Testsuite level 1`] = `
         },
       ]
     }
-    treeView={true}
+    treeView={false}
     url="/testplan/:uid/:selection*"
   />
   <ContextProvider
@@ -7329,7 +7329,7 @@ exports[`BatchReport loads a simple report 1`] = `
         },
       ]
     }
-    treeView={true}
+    treeView={false}
     url="/testplan/:uid/:selection*"
   />
   <ContextProvider
@@ -8703,7 +8703,7 @@ exports[`BatchReport shallow renders the correct HTML structure when report load
         },
       ]
     }
-    treeView={true}
+    treeView={false}
     url="/testplan/:uid/:selection*"
   />
   <ContextProvider
@@ -10038,7 +10038,7 @@ ZeroDivisionError: integer division or modulo by zero
       navListWidth="22em"
       report={null}
       selected={Array []}
-      treeView={true}
+      treeView={false}
       url="/testplan/:uid/:selection*"
     >
       <NavBreadcrumbs
@@ -10053,7 +10053,7 @@ ZeroDivisionError: integer division or modulo by zero
           />
         </div>
       </NavBreadcrumbs>
-      <TreeViewNav
+      <NavList
         breadcrumbLength={0}
         displayEmpty={true}
         displayTags={false}
@@ -10061,7 +10061,6 @@ ZeroDivisionError: integer division or modulo by zero
         entries={Array []}
         filter={null}
         handleColumnResizing={[Function]}
-        selected={Array []}
         selectedUid={null}
         url="/testplan/:uid/:selection*"
         width="22em"
@@ -10073,41 +10072,25 @@ ZeroDivisionError: integer division or modulo by zero
           <div
             className="column_1e6n0oe-o_O-leftColumn_lzxz1z"
           >
-            <WithStyles(ForwardRef(TreeView))
-              className="treeView_sdm2vq"
-              defaultCollapseIcon={<UNDEFINED />}
-              defaultExpandIcon={<UNDEFINED />}
-              disableSelection={true}
-              selected={null}
+            <ListGroup
+              className="buttonList_mjw45f"
+              tag="ul"
             >
-              <ForwardRef(TreeView)
-                className="treeView_sdm2vq"
-                classes={
-                  Object {
-                    "root": "MuiTreeView-root",
-                  }
-                }
-                defaultCollapseIcon={<UNDEFINED />}
-                defaultExpandIcon={<UNDEFINED />}
-                disableSelection={true}
-                selected={null}
+              <ul
+                className="buttonList_mjw45f list-group"
               >
-                <ul
-                  aria-multiselectable={false}
-                  className="MuiTreeView-root treeView_sdm2vq"
-                  role="tree"
+                <ListGroupItem
+                  className="navButton_1x055n9"
+                  tag="li"
                 >
-                  <Tree
-                    displayEmpty={true}
-                    displayTags={false}
-                    displayTime={false}
-                    entries={Array []}
-                    filter={null}
-                    url="/testplan/:uid/:selection*"
-                  />
-                </ul>
-              </ForwardRef(TreeView)>
-            </WithStyles(ForwardRef(TreeView))>
+                  <li
+                    className="navButton_1x055n9 list-group-item"
+                  >
+                    No entries to display...
+                  </li>
+                </ListGroupItem>
+              </ul>
+            </ListGroup>
           </div>
           <div
             className="column_1e6n0oe-o_O-rightColumn_a8e8l5"
@@ -10118,7 +10101,7 @@ ZeroDivisionError: integer division or modulo by zero
             />
           </div>
         </Column>
-      </TreeViewNav>
+      </NavList>
     </Nav>
     <Message
       left="22em"
