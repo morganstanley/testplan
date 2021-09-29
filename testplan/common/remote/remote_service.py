@@ -177,6 +177,9 @@ class RemoteService(Resource, RemoteResource):
         """Before stopping the service"""
         self._fetch_results()
 
+    def post_stop(self):
+        self._clean_remote()
+
     def stopping(self):
         """Stop remote rpyc process"""
         remote_pid = self.rpyc_connection.modules.os.getpid()
