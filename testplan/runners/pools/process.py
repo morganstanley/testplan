@@ -80,7 +80,9 @@ class ProcessWorker(Worker):
     def _write_syspath(self, sys_path=None):
         """Write out our current sys.path to a file and return the filename."""
         sys_path = sys_path or sys.path
-        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", dir=self.parent.runpath, delete=False
+        ) as f:
             f.write("\n".join(sys_path))
             self.logger.debug("Written sys.path to file: %s", f.name)
             self._syspath_file = f.name

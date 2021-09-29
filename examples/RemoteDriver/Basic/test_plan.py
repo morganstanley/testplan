@@ -62,6 +62,7 @@ def main(plan):
     remote_service = RemoteService(
         "rmt_svc",
         REMOTE_HOST,
+        clean_remote=True,
     )
 
     # add the remote_service to plan so that it gets started,
