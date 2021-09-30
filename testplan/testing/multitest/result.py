@@ -2227,23 +2227,56 @@ class Result(object):
         return entry
 
     @assertion
-    def attach(self, filepath, description=None):
+    def attach(
+        self, path, description=None, ignore=None, only=None, recursive=False
+    ):
         """
         Attaches a file to the report.
 
-        :param filepath: Path to the file be to attached.
-        :type filepath: ``str``
+        :param path: Path to the file or directory be to attached.
+        :type path: ``str``
         :param description: Text description for the assertion.
         :type description: ``str``
+        :param ignore: List of patterns of file name to ignore when
+            attaching a directory.
+        :type ignore: ``list`` or ``NoneType``
+        :param only: List of patterns of file name to include when
+            attaching a directory.
+        :type only: ``list`` or ``NoneType``
+        :param recursive: Recursively traverse sub-directories and attach
+            all files, default is to only attach files in top directory.
+        :type recursive: ``bool``
         :return: Always returns True, this is not an assertion so it cannot
                  fail.
         :rtype: ``bool``
         """
-        attachment = base.Attachment(
-            filepath, description, scratch_path=self._scratch
-        )
-        self.attachments.append(attachment)
-        return attachment
+        if os.path.isfile(path):
+            attachment = base.Attachment(
+                path, description, scratch_path=self._scratch
+            )
+            self.attachments.append(attachment)
+            return attachment
+        elif os.path.isdir(path):
+            directory = base.Directory(
+                path,
+                description,
+                ignore=ignore,
+                only=only,
+                recursive=recursive,
+                scratch_path=self._scratch,
+            )
+            for file in directory.file_list:
+                self.attachments.append(
+                    base.Attachment(
+                        filepath=os.path.join(directory.source_path, file),
+                        description=None,
+                        dst_path=os.path.join(directory.dst_path, file),
+                        scratch_path=None,
+                    )
+                )
+            return directory
+        else:
+            raise FileNotFoundError(f"Path {path} not exist")
 
     @assertion
     def matplot(self, pyplot, width=None, height=None, description=None):

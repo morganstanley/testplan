@@ -98,10 +98,28 @@ class LogRenderer(BaseRenderer):
             return pprint.pformat(entry.message)
 
 
+@registry.bind(base.Attachment)
+class AttachmentRenderer(BaseRenderer):
+    def get_details(self, entry):
+        return "Attach file: {}".format(entry.source_path)
+
+
 @registry.bind(base.MatPlot)
 class MatPlotRenderer(BaseRenderer):
     def get_details(self, entry):
         return "MatPlot graph generated at: {}".format(entry.source_path)
+
+
+@registry.bind(base.Plotly)
+class PlotlyRenderer(BaseRenderer):
+    def get_details(self, entry):
+        return "Plotly graph generated at: {}".format(entry.source_path)
+
+
+@registry.bind(base.Directory)
+class DirectoryRenderer(BaseRenderer):
+    def get_details(self, entry):
+        return "Attach directory: {}".format(entry.source_path)
 
 
 @registry.bind(base.TableLog)
