@@ -31,6 +31,6 @@ class TestplanResultImporter(ResultImporter):
     def import_result(self) -> ImportedResult:
         with open(self.path) as fp:
             result_json = json.load(fp)
-            result = self.schema.load(result_json).data
+            result = self.schema.load(result_json)
 
             return TestplanImportedResult(result)
