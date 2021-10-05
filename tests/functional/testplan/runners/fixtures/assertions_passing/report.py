@@ -38,6 +38,33 @@ expected_report = TestReport(
                             ],
                         ),
                         TestCaseReport(
+                            name="test_log_code",
+                            entries=[
+                                {
+                                    "type": "CodeLog",
+                                    "code": """
+            #include<stdio.h>
+
+            int main()
+            {
+                return 0
+            }
+            """,
+                                    "language": "c",
+                                    "description": "C codelog example",
+                                },
+                                {
+                                    "type": "CodeLog",
+                                    "code": """
+            import os
+            print(os.uname())
+            """,
+                                    "language": "python",
+                                    "description": "Python codelog example",
+                                },
+                            ],
+                        ),
+                        TestCaseReport(
                             name="test_comparison",
                             entries=[
                                 {

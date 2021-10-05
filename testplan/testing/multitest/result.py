@@ -1508,6 +1508,7 @@ class Result(object):
         """
         return self.markdown(code, description=description, escape=False)
 
+    @assertion
     def log_code(self, code, language="python", description=None):
         """
         Create a codelog message entry which contains code snippet, can
@@ -1527,7 +1528,7 @@ class Result(object):
             code=code, language=language, description=description
         )
 
-        return
+        return entry
 
     @assertion
     def fail(self, description, category=None, flag=None):
