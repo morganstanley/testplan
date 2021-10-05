@@ -30,7 +30,7 @@ class MySuite(object):
             }
             """,
             language="c",
-            description="C codelog example"
+            description="C codelog example",
         )
 
         result.log_code(
@@ -39,7 +39,7 @@ class MySuite(object):
             print(os.uname())
             """,
             language="python",
-            description="Python codelog example"
+            description="Python codelog example",
         )
 
     @testcase
