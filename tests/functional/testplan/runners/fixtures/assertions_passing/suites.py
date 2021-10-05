@@ -19,6 +19,30 @@ class MySuite(object):
         result.log("hello python", description="log description")
 
     @testcase
+    def test_log_code(self, env, result):
+        result.log_code(
+            """
+            #include<stdio.h>
+
+            int main()
+            {
+                return 0
+            }
+            """,
+            language="c",
+            description="C codelog example",
+        )
+
+        result.log_code(
+            """
+            import os
+            print(os.uname())
+            """,
+            language="python",
+            description="Python codelog example",
+        )
+
+    @testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, "equality description")
         result.not_equal(1, 2)
