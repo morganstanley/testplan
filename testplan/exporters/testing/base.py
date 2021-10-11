@@ -168,7 +168,7 @@ class TagFilteredExporter(Exporter):
         )
 
 
-def save_attachments(report, directory):
+def save_attachments(report, directory, data=None):
     """
     Save the report attachments to the given directory.
     :param report: Testplan report.
@@ -182,3 +182,5 @@ def save_attachments(report, directory):
             dst_path = os.path.join(directory, dst)
             makedirs(os.path.dirname(dst_path))
             copyfile(src=src, dst=dst_path)
+            attachments[dst] = dst_path
+            data['attachments'] = attachments

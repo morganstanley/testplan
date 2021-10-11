@@ -16,6 +16,7 @@ from testplan.common.exporters import ExporterConfig
 
 from testplan.report import ReportCategories
 from testplan.report.testing.schemas import TestReportSchema
+from testplan.report.testing.base import TestReport
 
 from ..base import Exporter, save_attachments
 
@@ -71,7 +72,7 @@ class JSONExporter(Exporter):
     def __init__(self, name="JSON exporter", **options):
         super(JSONExporter, self).__init__(name=name, **options)
 
-    def export(self, source):
+    def export(self, source: TestReport):
 
         json_path = pathlib.Path(self.cfg.json_path).resolve()
 
@@ -80,7 +81,7 @@ class JSONExporter(Exporter):
 
             test_plan_schema = TestReportSchema()
             data = test_plan_schema.dump(source)
-            attachments_dir = json_path.parent / defaults.ATTACHMENTS
+            attachments_dir = json_path.parent / source.uid
 
             # Save the Testplan report.
             if self.cfg.split_json_report:
@@ -99,7 +100,7 @@ class JSONExporter(Exporter):
                 with open(assertions_filepath, "w") as json_file:
                     json.dump(assertions, json_file)
 
-                save_attachments(report=source, directory=attachments_dir)
+                save_attachments(report=source, directory=attachments_dir, data=meta)
                 meta["version"] = 2
                 # Modify dict ref may change the original `TestReport` object
                 meta["attachments"] = copy.deepcopy(meta["attachments"])
@@ -115,7 +116,7 @@ class JSONExporter(Exporter):
                 with open(json_path, "w") as json_file:
                     json.dump(meta, json_file)
             else:
-                save_attachments(report=source, directory=attachments_dir)
+                save_attachments(report=source, directory=attachments_dir, data=data)
                 data["version"] = 1
 
                 with open(json_path, "w") as json_file:
@@ -146,7 +147,7 @@ class JSONExporter(Exporter):
         meta["entries"] = []
         split_assertions(structure, assertions)
         return meta, structure, assertions
-
+  
     @staticmethod
     def merge_json_report(meta, structure, assertions, strict=True):
         """Merge parts of json report into a single one."""
