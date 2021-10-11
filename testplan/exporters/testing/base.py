@@ -183,4 +183,4 @@ def save_attachments(report, directory, data=None):
             makedirs(os.path.dirname(dst_path))
             copyfile(src=src, dst=dst_path)
             attachments[dst] = dst_path
-            data['attachments'] = attachments
+            data["attachments"] = attachments

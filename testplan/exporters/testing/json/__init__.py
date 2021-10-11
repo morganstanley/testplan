@@ -100,7 +100,9 @@ class JSONExporter(Exporter):
                 with open(assertions_filepath, "w") as json_file:
                     json.dump(assertions, json_file)
 
-                save_attachments(report=source, directory=attachments_dir, data=meta)
+                save_attachments(
+                    report=source, directory=attachments_dir, data=meta
+                )
                 meta["version"] = 2
                 # Modify dict ref may change the original `TestReport` object
                 meta["attachments"] = copy.deepcopy(meta["attachments"])
@@ -116,7 +118,9 @@ class JSONExporter(Exporter):
                 with open(json_path, "w") as json_file:
                     json.dump(meta, json_file)
             else:
-                save_attachments(report=source, directory=attachments_dir, data=data)
+                save_attachments(
+                    report=source, directory=attachments_dir, data=data
+                )
                 data["version"] = 1
 
                 with open(json_path, "w") as json_file:
@@ -147,7 +151,7 @@ class JSONExporter(Exporter):
         meta["entries"] = []
         split_assertions(structure, assertions)
         return meta, structure, assertions
-  
+
     @staticmethod
     def merge_json_report(meta, structure, assertions, strict=True):
         """Merge parts of json report into a single one."""
