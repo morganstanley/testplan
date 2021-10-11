@@ -247,7 +247,8 @@ def test_json_exporter(runpath):
         report = json.load(json_file)
 
     # Check that the expected text file is attached correctly.
-    attachments_dir = os.path.join(os.path.dirname(json_path), "_attachments")
+    # attachments_dir = os.path.join(os.path.dirname(json_path), "_attachments")
+    attachments_dir = os.path.join(os.path.dirname(json_path), 'plan')
     assert os.path.isdir(attachments_dir)
     assert len(report["attachments"]) == 1
 
@@ -288,7 +289,7 @@ def test_json_exporter_generating_split_report(runpath):
     assert report["version"] == 2
 
     # Check that the expected text file is attached correctly.
-    attachments_dir = os.path.join(os.path.dirname(json_path), "_attachments")
+    attachments_dir = os.path.join(os.path.dirname(json_path), "plan")
     assert os.path.isdir(attachments_dir)
     assert len(report["entries"]) == 0
     assert len(report["attachments"]) == 3
