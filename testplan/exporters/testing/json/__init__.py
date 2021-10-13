@@ -100,12 +100,11 @@ class JSONExporter(Exporter):
                 with open(assertions_filepath, "w") as json_file:
                     json.dump(assertions, json_file)
 
-                save_attachments(
-                    report=source, directory=attachments_dir, data=meta
+                meta["attachments"] = save_attachments(
+                    report=source, directory=attachments_dir
                 )
                 meta["version"] = 2
                 # Modify dict ref may change the original `TestReport` object
-                meta["attachments"] = copy.deepcopy(meta["attachments"])
                 meta["attachments"][structure_filename] = str(
                     structure_filepath
                 )
@@ -118,8 +117,8 @@ class JSONExporter(Exporter):
                 with open(json_path, "w") as json_file:
                     json.dump(meta, json_file)
             else:
-                save_attachments(
-                    report=source, directory=attachments_dir, data=data
+                data["attachments"] = save_attachments(
+                    report=source, directory=attachments_dir
                 )
                 data["version"] = 1
 
