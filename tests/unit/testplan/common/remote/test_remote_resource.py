@@ -106,6 +106,7 @@ def remote_resource(runpath_module, workspace, push_dir):
         pull_exclude=["file2"],
         env={"LOCAL_USER": getpass.getuser()},
         setup_script=["remote_setup.py"],
+        clean_remote=True,
     )
     remote_resource.parent = mockplan.runnable
     remote_resource.cfg.parent = mockplan.runnable.cfg

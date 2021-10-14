@@ -103,6 +103,7 @@ def main(plan):
         # explicit source and destination locations defined above.
         push=push_files,
         workspace=workspace,
+        clean_remote=True,
     )
 
     plan.add_resource(pool)

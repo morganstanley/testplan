@@ -71,6 +71,7 @@ class RemoteResourceConfig(EntityConfig):
             ConfigOption("remote_runpath", default=None): str,
             ConfigOption("testplan_path", default=None): str,
             ConfigOption("remote_workspace", default=None): str,
+            ConfigOption("clean_remote", default=False): bool,
             ConfigOption("push", default=[]): Or(list, None),
             ConfigOption("push_exclude", default=[]): Or(list, None),
             ConfigOption("delete_pushed", default=False): bool,
@@ -112,6 +113,8 @@ class RemoteResource(Entity):
     :param remote_workspace: The path of the workspace on remote host,
       default is fetched_workspace under remote_runpath
     :type remote_workspace: ``str``
+    :param clean_remote: Deleted root runpath on remote at exit.
+    :type clean_remote: ``bool``
 
     :param push: Files and directories to push to the remote.
     :type push: ``list`` that contains ``str`` or ``tuple``:
@@ -153,6 +156,7 @@ class RemoteResource(Entity):
         remote_runpath=None,
         testplan_path=None,
         remote_workspace=None,
+        clean_remote=False,
         push=None,
         push_exclude=None,
         delete_pushed=False,
@@ -523,6 +527,17 @@ class RemoteResource(Entity):
         except Exception as exc:
             self.logger.exception(
                 "While fetching result from worker [%s]: %s", self, exc
+            )
+
+    def _clean_remote(self):
+        if self.cfg.clean_remote:
+            self.logger.debug(
+                "Clean root runpath on remote host - %s", self.cfg.remote_host
+            )
+
+            self._execute_cmd_remote(
+                cmd=f"/bin/rm -rf {self._remote_plan_runpath}",
+                label="Clean remote root runpath",
             )
 
     def _pull_files(self):
