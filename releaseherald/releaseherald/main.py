@@ -1,17 +1,16 @@
 import datetime
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from io import StringIO
 from itertools import takewhile
 from pathlib import Path
-from typing import List, Iterable, Tuple, Pattern, Optional
+from typing import List, Tuple, Pattern, Optional
 
 import click
 import toml
 from boltons.iterutils import pairwise, get_path
 from git import Repo, Commit, TagReference
 from jinja2 import Environment, FileSystemLoader
-
-from releaseherald.configuration import Configuration
+from releaseherald.configuration import Configuration, SubmoduleConfig
 
 # TODO: Handle not yet committed change
 
@@ -22,7 +21,7 @@ PYPROJECT_TOML = "pyproject.toml"
 CONFIG_KEY_IN_PYPROJECT = ("tool", "releaseherald")
 
 
-def load_config(config_path: str, config_key: Iterable = ()) -> Configuration:
+def load_config(config_path: str, config_key: Tuple = ()) -> Configuration:
     config = get_path(toml.load(config_path), config_key, default={})
     config["config_path"] = config_path
     return Configuration.parse_obj(config)
@@ -54,9 +53,7 @@ def cli(ctx: click.Context, git_dir, config):
     if not config:
         config, config_key = get_config(repo.working_dir)
 
-    configuration = (
-        load_config(config, config_key) if config else Configuration()
-    )
+    configuration = load_config(config, config_key) if config else Configuration()
 
     ctx.default_map = configuration.as_default_options()
 
@@ -72,29 +69,35 @@ def get_tags(repo: Repo, version_tag_pattern: Pattern):
         if version_tag_pattern.match(tag.name)
         and repo.is_ancestor(tag.commit, repo.head)
     ]
+    tags.sort(key=lambda tag: tag.commit.committed_date, reverse=True)
     return tags
 
 
 @dataclass
 class News:
-
     file_name: str
     content: str
 
 
 @dataclass
-class VersionNews:
+class SubmoduleNews:
+    name: str
+    display_name: str
+    news: List[News] = field(default_factory=list)
 
+
+@dataclass
+class VersionNews:
     news: List[News]
     tag: str
     version: str
     date: datetime.datetime
+    submodule_news: List[SubmoduleNews]
 
 
 def get_news_between_commits(
     commit1: Commit, commit2: Commit, news_fragment_dir: str
 ) -> List[News]:
-
     diffs = commit1.diff(commit2)
     paths = [
         diff.a_path
@@ -131,9 +134,7 @@ class CommitInfo:
         )
 
 
-def get_commits(
-    repo: Repo, tags, include_head, include_root
-) -> List[CommitInfo]:
+def get_commits(repo: Repo, tags, include_head, include_root) -> List[CommitInfo]:
     commits = [CommitInfo(tag=tag, commit=tag.commit) for tag in tags]
     if include_head and (
         not commits or (commits and repo.head.commit != commits[0].commit)
@@ -155,15 +156,57 @@ def get_version(tag_name: str, version_tag_pattern: Pattern):
     return version
 
 
+def get_submodule_commit(commit: Commit, name: str) -> Commit:
+    repo = commit.repo
+    try:
+        submodule = repo.submodules[name]
+        sha = (commit.tree / submodule.path).hexsha
+    except KeyError as e:
+        # this case the submodule either not exist or not exist at that commit we are looking into
+        return None
+
+    srepo = submodule.module()
+    return srepo.commit(sha)
+
+
+def get_submodule_news(
+    commit_from: Commit, commit_to: Commit, submodules: List[SubmoduleConfig]
+) -> List[SubmoduleNews]:
+    news = []
+    for submodule in submodules:
+        submodule_from = get_submodule_commit(commit_from, submodule.name)
+        submodule_to = get_submodule_commit(commit_to, submodule.name)
+        srepo = submodule_from.repo
+        tag_commits = [
+            tag.commit
+            for tag in get_tags(srepo, submodule.version_tag_pattern)
+            if srepo.is_ancestor(submodule_from, tag.commit)
+            and srepo.is_ancestor(tag.commit, submodule_to)
+        ]
+
+        commits = [submodule_to, *tag_commits, submodule_from]
+
+        snews = SubmoduleNews(name=submodule.name, display_name=submodule.display_name)
+
+        for c_to, c_from in pairwise(commits):
+            snews.news.extend(
+                get_news_between_commits(
+                    c_from, c_to, submodule.news_fragments_directory
+                )
+            )
+        news.append(snews)
+    return news
+
+
 def collect_news_fragments(
     repo: Repo,
     include_unreleased: bool,
     version_tag_pattern: Pattern,
     news_fragment_dir: str,
     last_tag: str,
+    submodules: List[SubmoduleConfig],
 ) -> List[VersionNews]:
     tags = get_tags(repo, version_tag_pattern)
-    tags.sort(key=lambda tag: tag.commit.committed_date, reverse=True)
 
     # tear of things after last tag
     last_tag = repo.tags[last_tag] if last_tag in repo.tags else None
@@ -171,9 +214,7 @@ def collect_news_fragments(
         tags = list(takewhile(lambda tag: tag != last_tag, tags))
         tags.append(last_tag)
 
-    commits = get_commits(
-        repo, tags, include_unreleased, include_root=not last_tag
-    )
+    commits = get_commits(repo, tags, include_unreleased, include_root=not last_tag)
 
     result = [
         VersionNews(
@@ -183,6 +224,9 @@ def collect_news_fragments(
             tag=commit_to.name,
             version=get_version(commit_to.name, version_tag_pattern),
             date=commit_to.date,
+            submodule_news=get_submodule_news(
+                commit_from.commit, commit_to.commit, submodules
+            ),
         )
         for commit_to, commit_from in pairwise(commits)
     ]
@@ -226,22 +270,23 @@ def generate(
     latest: bool,
     target: str,
 ):
-
     context: Context = ctx.obj
 
-    news_file = context.config.news_file
+    config = context.config
+    news_file = config.news_file
 
     repo = context.repo
 
     news_fragments = collect_news_fragments(
         repo,
         include_unreleased=unreleased,
-        version_tag_pattern=context.config.version_tag_pattern,
-        news_fragment_dir=context.config.news_fragments_directory,
-        last_tag=context.config.last_tag,
+        version_tag_pattern=config.version_tag_pattern,
+        news_fragment_dir=config.news_fragments_directory,
+        last_tag=config.last_tag,
+        submodules=config.submodules,
     )
 
-    template_path = Path(context.config.template)
+    template_path = Path(config.template)
     jinja_env = Environment(
         loader=FileSystemLoader(template_path.parent),
         trim_blocks=True,
@@ -255,9 +300,7 @@ def generate(
     news_str = generate_news(news_fragments, template)
 
     if update:
-        result = update_news_file(
-            news_str, news_file, context.config.insert_marker
-        )
+        result = update_news_file(news_str, news_file, config.insert_marker)
     else:
         result = news_str
 
