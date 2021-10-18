@@ -20,8 +20,8 @@ class SubmoduleConfig(BaseModel):
     @root_validator
     def default_display_name(cls, values):
         values = values.copy()
-        display_name = values.get('display_name')
-        values['display_name'] = display_name or values['name']
+        display_name = values.get("display_name")
+        values["display_name"] = display_name or values["name"]
         return values
 
 
