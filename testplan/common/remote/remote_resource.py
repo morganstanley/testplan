@@ -210,7 +210,7 @@ class RemoteResource(Entity):
         """Define mandatory directories in remote host."""
 
         self._remote_plan_runpath = self.cfg.remote_runpath or (
-            f"/var/tmp/{getpass.getuser()}/testplan/{self._get_plan().name}"
+            f"/var/tmp/{getpass.getuser()}/testplan/{self._get_plan().cfg.name}"
             if IS_WIN
             else self._get_plan().runpath
         )
