@@ -81,6 +81,7 @@ class RemoteResourceConfig(EntityConfig):
             ConfigOption("pull_exclude", default=[]): Or(list, None),
             ConfigOption("env", default=None): Or(dict, None),
             ConfigOption("setup_script", default=None): Or(list, None),
+            ConfigOption("async_start", default=False): bool,
         }
 
 
@@ -167,6 +168,7 @@ class RemoteResource(Entity):
         env=None,
         setup_script=None,
         status_wait_timeout=60,
+        async_start=False,
         **options,
     ):
 
