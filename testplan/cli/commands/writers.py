@@ -2,7 +2,11 @@ import click
 
 from testplan.cli.utils.actions import ProcessResultAction
 from testplan.cli.utils.command_list import CommandList
-from testplan.exporters.testing import JSONExporter, WebServerExporter, PDFExporter
+from testplan.exporters.testing import (
+    JSONExporter,
+    WebServerExporter,
+    PDFExporter,
+)
 from testplan.report import TestReport
 from testplan.report.testing.styles import StyleArg
 
@@ -37,15 +41,17 @@ class ToPDFAction(ProcessResultAction):
         self.style = style
 
     def __call__(self, result: TestReport) -> TestReport:
-        exporter = PDFExporter(pdf_path=self.filename, pdf_style=self.style.value)
+        exporter = PDFExporter(
+            pdf_path=self.filename, pdf_style=self.style.value
+        )
         exporter.create_pdf(result)
         print(f"PDF written to {self.filename}")
         return result
 
 
 @writer_commands.command(name="topdf")
-@click.option('-f', '--filename', required=True, type=click.Path())
-@click.option('--detailed', default=False, type=bool)
+@click.option("-f", "--filename", required=True, type=click.Path())
+@click.option("--detailed", default=False, type=bool)
 def to_pdf(filename, detailed):
     """
     write a Testplan pdf result
