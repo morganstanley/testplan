@@ -9,6 +9,7 @@ from testplan.exporters.testing import (
 )
 from testplan.report import TestReport
 from testplan.report.testing.styles import StyleArg
+from testplan.common.utils import logger
 
 
 writer_commands = CommandList()
@@ -35,8 +36,9 @@ def to_json(output):
     return ToJsonAction(output=output)
 
 
-class ToPDFAction(ProcessResultAction):
+class ToPDFAction(ProcessResultAction, logger.Loggable):
     def __init__(self, filename: str, style: StyleArg):
+        logger.Loggable.__init__(self)  # Enable logging via self.logger
         self.filename = filename
         self.style = style
 
@@ -45,21 +47,28 @@ class ToPDFAction(ProcessResultAction):
             pdf_path=self.filename, pdf_style=self.style.value
         )
         exporter.create_pdf(result)
-        print(f"PDF written to {self.filename}")
+        self.logger.test_info(f"PDF written to {self.filename}")
         return result
 
 
 @writer_commands.command(name="topdf")
-@click.option("-f", "--filename", required=True, type=click.Path())
-@click.option("--detailed", default=False, type=bool)
-def to_pdf(filename, detailed):
+@click.argument("filename", required=True, type=click.Path())
+@click.option("--pdf-style",
+              default='summary',
+              type=click.Choice(['result', 'summary', 'extended', 'detailed'], case_sensitive=False)
+              )
+def to_pdf(filename, pdf_style):
     """
     write a Testplan pdf result
     """
-    if detailed:
+    if pdf_style == 'result':
+        return ToPDFAction(filename=filename, style=StyleArg.RESULT_ONLY)
+    elif pdf_style == 'summary':
+        return ToPDFAction(filename=filename, style=StyleArg.SUMMARY)
+    elif pdf_style == 'extended':
+        return ToPDFAction(filename=filename, style=StyleArg.EXTENDED_SUMMARY)
+    elif pdf_style == 'detailed':
         return ToPDFAction(filename=filename, style=StyleArg.DETAILED)
-
-    return ToPDFAction(filename=filename, style=StyleArg.SUMMARY)
 
 
 class DisplayAction(ProcessResultAction):

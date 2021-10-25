@@ -168,7 +168,7 @@ class TagFilteredExporter(Exporter):
         )
 
 
-def save_attachments(report, directory, data=None):
+def save_attachments(report, directory):
     """
     Save the report attachments to the given directory.
     :param report: Testplan report.
