@@ -53,21 +53,24 @@ class ToPDFAction(ProcessResultAction, logger.Loggable):
 
 @writer_commands.command(name="topdf")
 @click.argument("filename", required=True, type=click.Path())
-@click.option("--pdf-style",
-              default='summary',
-              type=click.Choice(['result', 'summary', 'extended', 'detailed'], case_sensitive=False)
-              )
+@click.option(
+    "--pdf-style",
+    default="summary",
+    type=click.Choice(
+        ["result", "summary", "extended", "detailed"], case_sensitive=False
+    ),
+)
 def to_pdf(filename, pdf_style):
     """
     write a Testplan pdf result
     """
-    if pdf_style == 'result':
+    if pdf_style == "result":
         return ToPDFAction(filename=filename, style=StyleArg.RESULT_ONLY)
-    elif pdf_style == 'summary':
+    elif pdf_style == "summary":
         return ToPDFAction(filename=filename, style=StyleArg.SUMMARY)
-    elif pdf_style == 'extended':
+    elif pdf_style == "extended":
         return ToPDFAction(filename=filename, style=StyleArg.EXTENDED_SUMMARY)
-    elif pdf_style == 'detailed':
+    elif pdf_style == "detailed":
         return ToPDFAction(filename=filename, style=StyleArg.DETAILED)
 
 
