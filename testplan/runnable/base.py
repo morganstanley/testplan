@@ -153,7 +153,8 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("timeout", default=defaults.TESTPLAN_TIMEOUT): Or(
                 None, And(int, lambda t: t >= 0)
             ),
-            ConfigOption("abort_wait_timeout", default=60): int,
+            # active_loop_sleep impacts cpu usage in interactive mode
+            ConfigOption("active_loop_sleep", default=0.05): float,
             ConfigOption(
                 "interactive_handler", default=TestRunnerIHandler
             ): object,
@@ -959,6 +960,14 @@ class TestRunner(Runnable):
                     "No reports opened, could not find "
                     "an exported result to browse"
                 )
+
+    def abort_dependencies(self):
+        """
+        Yield all dependencies to be aborted before self abort.
+        """
+        if self._ihandler is not None:
+            yield self._ihandler
+        yield from super(TestRunner, self).abort_dependencies()
 
     def aborting(self):
         """Stop the web server if it is running."""

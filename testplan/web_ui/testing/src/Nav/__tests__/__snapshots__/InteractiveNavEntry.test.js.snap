@@ -618,6 +618,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STARTED 1`
       inverse={false}
       listItem={false}
       mask={null}
+      onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}
@@ -899,6 +900,7 @@ exports[`InteractiveNavEntry renders an entry with environment status STOPPED 1`
       inverse={false}
       listItem={false}
       mask={null}
+      onClick={[Function]}
       pull={null}
       pulse={false}
       rotation={null}

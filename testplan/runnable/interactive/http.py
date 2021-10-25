@@ -101,8 +101,8 @@ def generate_interactive_api(ihandler):
     def execution_out_of_order(err):
         """Return a custom message and 200 status code."""
         return {
-            "errmsg": "{} Restart runtime environment"
-            " to reset test report if necessary.".format(err)
+            "errmsg": f"{err} Restart runtime environment"
+            " to reset test report if necessary."
         }, 200
 
     @api.errorhandler(werkzeug.exceptions.HTTPException)
@@ -250,12 +250,13 @@ def generate_interactive_api(ihandler):
                     )
                     if env_action is not None:
                         if current_test.runtime_status in (
-                            RuntimeStatus.RUNNING,
                             RuntimeStatus.RESETTING,
+                            RuntimeStatus.RUNNING,
                             RuntimeStatus.WAITING,
                         ):
                             raise werkzeug.exceptions.BadRequest(
-                                "Env status cannot change when test is running"
+                                "Env status cannot change when test"
+                                f" is {current_test.runtime_status}"
                             )
                         env_action(test_uid, await_results=False)
 
@@ -280,9 +281,8 @@ def generate_interactive_api(ihandler):
             )
             if allowed_transition is None or new_state != allowed_transition:
                 raise werkzeug.exceptions.BadRequest(
-                    "Cannot transition environment state from {} to {}".format(
-                        current_state, new_state
-                    )
+                    "Cannot transition environment state"
+                    f" from {current_state} to {new_state}"
                 )
 
             return allowed_transition, action
@@ -639,6 +639,21 @@ def generate_interactive_api(ihandler):
                 ihandler.reload_report()
             except Exception as ex:
                 ihandler.logger.error("Reload failed! %s ", str(ex))
+                return {"errmsg": f"Reload failed! {ex}"}, 200
+            return True
+
+    @api.route("/abort")
+    class AbortExecution(flask_restplus.Resource):
+        """
+        Abort Testplan execution and notify client.
+        """
+
+        def get(self):
+            try:
+                ihandler.abort()
+            except Exception as ex:
+                ihandler.logger.error("Failed to abort Testplan! %s ", str(ex))
+                return {"errmsg": f"Failed to abort Testplan! {ex}"}, 200
             return True
 
     return app, api
@@ -654,9 +669,7 @@ def _serialize_report_entry(report_entry):
     elif isinstance(report_entry, (TestGroupReport, TestReport)):
         return report_entry.shallow_serialize()
     else:
-        raise TypeError(
-            "Unexpected report entry type: {}".format(type(report_entry))
-        )
+        raise TypeError(f"Unexpected report entry type: {type(report_entry)}")
 
 
 def _deserialize_report_entry(serialized, curr_report_entry):
@@ -672,7 +685,9 @@ def _deserialize_report_entry(serialized, curr_report_entry):
             serialized, curr_report_entry
         )
     else:
-        raise TypeError("Unexpected report type %s", type(curr_report_entry))
+        raise TypeError(
+            f"Unexpected report entry type {type(curr_report_entry)}"
+        )
 
 
 def _check_uids_match(current_uid, new_uid):
@@ -683,9 +698,7 @@ def _check_uids_match(current_uid, new_uid):
     """
     if new_uid != current_uid:
         raise werkzeug.exceptions.BadRequest(
-            'Cannot update UID of entry from "{}" to "{}"'.format(
-                current_uid, new_uid
-            )
+            f'Cannot update UID of entry from "{current_uid}" to "{new_uid}"'
         )
 
 
@@ -696,8 +709,8 @@ def _check_env_status_match(current_status, new_status):
     """
     if current_status != new_status:
         raise werkzeug.exceptions.BadRequest(
-            "env status cannot change from {} to {} when test status"
-            " is changing.".format(current_status, new_status)
+            f'Env status cannot change from "{current_status}"'
+            f' to "{new_status}" when test status is changing'
         )
 
 
@@ -719,9 +732,9 @@ def _should_reset(uid, curr_status, new_status):
         else:
             raise werkzeug.exceptions.BadRequest(
                 "Cannot update runtime status of entry"
-                ' "{}" from {} to {}'.format(uid, curr_status, new_status)
+                f' "{uid}" from "{curr_status}" to "{new_status}"'
             )
-    return False  # `_should_run` is called after `_should_reset`
+    return False
 
 
 def _should_run(uid, curr_status, new_status):
@@ -736,17 +749,15 @@ def _should_run(uid, curr_status, new_status):
     """
     if new_status == curr_status:
         return False
-    elif new_status == RuntimeStatus.RUNNING and curr_status not in (
-        RuntimeStatus.RESETTING,
-        RuntimeStatus.WAITING,
-    ):
-        return True
-    else:
-        raise werkzeug.exceptions.BadRequest(
-            'Cannot update runtime status of entry "{}" from {} to {}'.format(
-                uid, curr_status, new_status
+    elif new_status == RuntimeStatus.RUNNING:
+        if curr_status not in (RuntimeStatus.RESETTING, RuntimeStatus.WAITING):
+            return True
+        else:
+            raise werkzeug.exceptions.BadRequest(
+                "Cannot update runtime status of entry"
+                f' "{uid}" from "{curr_status}" to "{new_status}"'
             )
-        )
+    return False
 
 
 def _check_execution_order(
@@ -804,31 +815,29 @@ def _check_execution_order(
                     )
                 ):
                     raise OutOfOrderError(
-                        'Should run testcase "{}" in parametrization group'
-                        ' "{}" in test suite "{}" sequentially.'.format(
-                            case_uid, param_uid, suite_report.uid
-                        )
+                        f'Should run testcase "{case_uid}"'
+                        f' in parametrization group "{param_uid}"'
+                        f' in test suite "{suite_report.uid}" sequentially.'
                     )
             else:
                 if not (
                     all(finished(rep) for rep in suite_report.entries[:idx])
                     and all(ready(rep) for rep in suite_report.entries[idx:])
                 ):
+                    report_type = (
+                        "testcase"
+                        if isinstance(suite_report, TestCaseReport)
+                        else "parametrization group"
+                    )
                     raise OutOfOrderError(
-                        "Should run"
-                        ' {} "{}" in test suite "{}" sequentially.'.format(
-                            "testcase"
-                            if isinstance(suite_report, TestCaseReport)
-                            else "parametrization group",
-                            case_uid,
-                            suite_report.uid,
-                        )
+                        f'Should run {report_type} "{case_uid}"'
+                        f' in test suite "{suite_report.uid}" sequentially.'
                     )
         else:
             if not all(ready(rep) for rep in suite_report):
                 raise OutOfOrderError(
-                    "Should run all testcases in test suite"
-                    ' "{}" sequentially.'.format(suite_report.uid)
+                    "Should run all testcases"
+                    f' in test suite "{suite_report.uid}" sequentially.'
                 )
 
 
@@ -879,7 +888,7 @@ class TestRunnerHTTPHandler(entity.Entity):
         :rtype: ``Optional[Tuple[str, int]]``
         """
         if self._server is None:
-            return None
+            return None, None
         else:
             return self._server.bind_addr
 
@@ -906,3 +915,11 @@ class TestRunnerHTTPHandler(entity.Entity):
             self._server.serve()
         finally:
             self._server = None
+
+    def aborting(self):
+        """Stopping http service."""
+        if self._server is not None:
+            try:
+                self._server.stop()
+            except Exception:
+                pass

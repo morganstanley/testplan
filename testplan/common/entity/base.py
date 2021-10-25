@@ -15,11 +15,11 @@ import psutil
 from schema import Or, And, Use
 
 from testplan.common.config import Config, ConfigOption
-from testplan.common.utils.thread import execute_as_thread
+from testplan.common.utils.thread import execute_as_thread, interruptible_join
 from testplan.common.utils.timing import wait
 from testplan.common.utils.path import makeemptydirs, makedirs, default_runpath
 from testplan.common.utils.strings import slugify, uuid4
-from testplan.common.utils.validation import is_subclass, has_method
+from testplan.common.utils.validation import is_subclass
 from testplan.common.utils import logger
 
 
@@ -359,7 +359,6 @@ class EntityConfig(Config):
             ConfigOption("path_cleanup", default=False): bool,
             ConfigOption("status_wait_timeout", default=600): int,
             ConfigOption("abort_wait_timeout", default=30): int,
-            # active_loop_sleep impacts cpu usage in interactive mode
             ConfigOption("active_loop_sleep", default=0.005): float,
         }
 
@@ -463,7 +462,8 @@ class Entity(logger.Loggable):
             return
         self._should_abort = True
         for dep in self.abort_dependencies():
-            self._abort_entity(dep)
+            if dep is not None:
+                self._abort_entity(dep)
         self.aborting()
         self._aborted = True
 
@@ -617,7 +617,7 @@ class RunnableConfig(EntityConfig):
     def get_options(cls):
         """Runnable specific config options."""
         return {
-            # IHandlers explicitly enable interactive mode of runnables.
+            # IHandler explicitly enables interactive mode of runnable
             ConfigOption("interactive_port", default=None): Or(None, int),
             ConfigOption(
                 "interactive_block",
@@ -901,21 +901,27 @@ class Runnable(Entity):
             if self.cfg.interactive_port is not None:
                 if self._ihandler is not None:
                     raise RuntimeError(
-                        "{} already has an active {}".format(
-                            self, self._ihandler
-                        )
+                        f"{self} already has an active {self._ihandler}"
                     )
+
                 self.logger.test_info("Starting %s in interactive mode", self)
                 self._ihandler = self.cfg.interactive_handler(
                     target=self, http_port=self.cfg.interactive_port
                 )
-                self._ihandler.parent = self
                 thread = threading.Thread(target=self._ihandler)
+                # Testplan should exit even if interactive handler thread stuck
+                thread.daemon = True
                 thread.start()
+
                 # Check if we are on interactive session.
                 if self.cfg.interactive_block:
                     while self._ihandler.active:
                         time.sleep(self.cfg.active_loop_sleep)
+                    else:
+                        interruptible_join(
+                            thread, timeout=self.cfg.abort_wait_timeout
+                        )
+                        self.abort()
                 return self._ihandler
             else:
                 self._run_batch_steps()
