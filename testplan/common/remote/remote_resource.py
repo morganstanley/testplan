@@ -81,6 +81,7 @@ class RemoteResourceConfig(EntityConfig):
             ConfigOption("pull_exclude", default=[]): Or(list, None),
             ConfigOption("env", default=None): Or(dict, None),
             ConfigOption("setup_script", default=None): Or(list, None),
+            ConfigOption("async_start", default=False): bool,
         }
 
 
@@ -167,6 +168,7 @@ class RemoteResource(Entity):
         env=None,
         setup_script=None,
         status_wait_timeout=60,
+        async_start=False,
         **options,
     ):
 
@@ -515,12 +517,18 @@ class RemoteResource(Entity):
 
     def _fetch_results(self):
         """Fetch back to local host the results generated remotely."""
+        if not self.cfg.fetch_runpath:
+            self.logger.debug(
+                "Skip fetch results stage - %s", self.cfg.remote_host
+            )
+            return
         self.logger.debug("Fetch results stage - %s", self.cfg.remote_host)
         try:
             self._transfer_data(
                 source=self._remote_resource_runpath,
                 remote_source=True,
                 target=self.parent.runpath,
+                exclude=self.cfg.fetch_runpath_exclude,
             )
             if self.cfg.pull:
                 self._pull_files()

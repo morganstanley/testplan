@@ -65,7 +65,6 @@ class RemoteService(Resource, RemoteResource):
     def __init__(self, name, remote_host, rpyc_bin=RPYC_BIN, **options):
 
         options.update(self.filter_locals(locals()))
-        options["async_start"] = False
         super(RemoteService, self).__init__(**options)
 
         self.proc = None
