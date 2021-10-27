@@ -8,11 +8,7 @@ import traceback
 import uuid
 import warnings
 import time
-
-try:
-    from urllib import pathname2url  # Python 2.x
-except:
-    from urllib.request import pathname2url  # Python 3.x
+from urllib.request import pathname2url
 
 from schema import Schema, Or
 
