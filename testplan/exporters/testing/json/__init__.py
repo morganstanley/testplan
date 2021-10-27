@@ -81,7 +81,7 @@ class JSONExporter(Exporter):
 
             test_plan_schema = TestReportSchema()
             data = test_plan_schema.dump(source)
-            attachments_dir = json_path.parent / source.uid
+            attachments_dir = json_path.parent / defaults.ATTACHMENTS
 
             # Save the Testplan report.
             if self.cfg.split_json_report:
@@ -104,7 +104,6 @@ class JSONExporter(Exporter):
                     report=source, directory=attachments_dir
                 )
                 meta["version"] = 2
-                # Modify dict ref may change the original `TestReport` object
                 meta["attachments"][structure_filename] = str(
                     structure_filepath
                 )
