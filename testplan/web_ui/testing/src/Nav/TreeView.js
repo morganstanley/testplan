@@ -172,7 +172,7 @@ const createNavEntry = (props, entry) => {
       caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
       executionTime={(entry.timer && entry.timer.run) ? (
         (new Date(entry.timer.run.end)).getTime() -
-        (new Date(entry.timer.run.start)).getTime()) / 1000 : null}
+        (new Date(entry.timer.run.start)).getTime()) : null}
       displayTime={props.displayTime} />
   );
 };

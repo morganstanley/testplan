@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
   entryIcons: {
     paddingLeft: '1em',
     display: "flex",
+    flexShrink: 0,
   },
   entryIcon: {
     fontSize: 'x-small',
