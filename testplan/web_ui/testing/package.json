@@ -32,7 +32,6 @@
     "plotly.js": "^1.58.4",
     "react": "16.13.1",
     "react-copy-html-to-clipboard": "6.0.4",
-    "react-custom-scrollbars": "4.2.1",
     "react-debounce-input": "^3.2.2",
     "react-dom": "16.13.1",
     "react-markdown": "^4.3.1",
