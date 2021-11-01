@@ -228,8 +228,6 @@ class BatchReport extends React.Component {
           time: new Date().getTime(),
         };
       });
-      console.log(prev);
-      console.log({ ...prev, assertionStatus });
       return { ...prev, assertionStatus };
     });
   }

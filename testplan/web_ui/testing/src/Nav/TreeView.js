@@ -20,27 +20,35 @@ const TreeViewNav = (props) => {
     <>
       <Column
         width={props.width}
-        handleColumnResizing={props.handleColumnResizing}>
+        handleColumnResizing={props.handleColumnResizing}
+      >
         <TreeView
-          selected={props.selectedUid}
+          selected={
+            props.selected
+              ? props.selected[props.selected.length - 1].uids.join("/")
+              : props.selectedUid
+          }
           className={css(styles.treeView)}
           disableSelection={true}
           defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpandIcon={<ChevronRightIcon />}>
-          {<Tree
-            entries={props.entries}
-            displayEmpty={props.displayEmpty}
-            filter={props.filter}
-            url={props.url}
-            displayTags={props.displayTags}
-            displayTime={props.displayTime}
-          />}
+          defaultExpandIcon={<ChevronRightIcon />}
+        >
+          {
+            <Tree
+              entries={props.entries}
+              displayEmpty={props.displayEmpty}
+              filter={props.filter}
+              url={props.url}
+              displayTags={props.displayTags}
+              displayTime={props.displayTime}
+            />
+          }
         </TreeView>
-      </Column >
+      </Column>
     </>
-
   );
 };
+
 
 TreeViewNav.propTypes = {
   /** Nav list entries to be displayed */
@@ -79,7 +87,7 @@ const Tree = (props) => {
   return Array.isArray(entries) ?
     entries.map((entry) =>
       <Node
-        key={entry.uids? entry.uids.join('-'): entry.hash || entry.uid}
+        key={entry.uids? entry.uids.join('/'): entry.hash || entry.uid}
         displayEmpty
         displayTags={props.displayTags}
         displayTime={props.displayTime}
@@ -122,12 +130,11 @@ const Node = (props) => {
       classes={{
         root: treeViewClasses.root,
         content: treeViewClasses.content,
-        selected: treeViewClasses.selected,
         iconContainer: treeViewClasses.iconContainer,
         label: treeViewClasses.label
       }}
-      nodeId={props.entry.uid || props.entry.hash}
-      key={props.entry.uid || props.entry.hash}
+      nodeId={ props.entry.uids ? props.entry.uids.join('/') : props.entry.uid}
+      key={props.entry.hash || props.entry.uid}
       onLabelClick={event => {
         event.preventDefault();
       }}
@@ -150,7 +157,7 @@ const continueTreeBranch = (props, entry) => {
   return Array.isArray(entry.entries) ?
     entry.entries.map((entry) =>
       <Node
-        key={entry.uids? entry.uids.join('-'): entry.hash || entry.uid}
+        key={entry.uids? entry.uids.join('/'): entry.hash || entry.uid}
         displayEmpty
         displayTags={props.displayTags}
         displayTime={props.displayTime}
@@ -179,18 +186,25 @@ const createNavEntry = (props, entry) => {
 
 const getTreeViewStyles = makeStyles({
   root: {
+    "& > .MuiTreeItem-content": {
+      paddingLeft: "5px",
+      paddingRight: "5px",
+    },
     "&.Mui-selected > .MuiTreeItem-content": {
-      background: "transparent"
+      backgroundColor: MEDIUM_GREY
     },
     "&.Mui-selected > .MuiTreeItem-content > .MuiTreeItem-label": {
-      background: "transparent"
+      backgroundColor: MEDIUM_GREY
     },
     "&.Mui-selected > .MuiTreeItem-content:hover > .MuiTreeItem-label": {
-      background: "transparent"
+      backgroundColor: MEDIUM_GREY
+    },
+    '&:focus > .MuiTreeItem-content .MuiTreeItem-label': {
+      backgroundColor: 'rgba(0,0,0,0)',
     },
     "&.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label:hover, .MuiTreeItem-root.Mui-selected:focus > .MuiTreeItem-content .MuiTreeItem-label": { // eslint-disable-line max-len
-      background: "transparent"
-    }
+      backgroundColor: MEDIUM_GREY
+    },
   },
 
   content: {
@@ -201,13 +215,6 @@ const getTreeViewStyles = makeStyles({
 
   iconContainer: {
     cursor: 'pointer'
-  },
-
-  selected: {
-    '&:focus': {
-      backgroundColor: MEDIUM_GREY
-    },
-    backgroundColor: MEDIUM_GREY
   },
 
   label: {
@@ -221,11 +228,21 @@ const getTreeViewStyles = makeStyles({
 
 const styles = StyleSheet.create({
   treeView: {
-    'overflow-y': 'auto',
-    'overflow-x': 'hidden',
-    'height': '100%'
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    height: '100%',
+    "::-webkit-scrollbar": {
+      width: "6px",
+    },
+    "::-webkit-scrollbar-thumb": {
+      backgroundColor: "rgba(0, 0, 0, 0.2)",
+      borderRadius: "3px",
+    },
+    "::-webkit-scrollbar-thumb:hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
+    }
   },
-
+  
   leafNode: {
     textDecoration: 'none',
     color: '#495057'

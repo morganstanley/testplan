@@ -14,7 +14,7 @@ exports[`Column shallow renders the correct HTML structure 1`] = `
     onMouseDown={[Function]}
   >
     <div
-      className="column_1e6n0oe-o_O-splitter_11em7wq"
+      className="splitter_11em7wq"
     />
   </div>
 </Fragment>

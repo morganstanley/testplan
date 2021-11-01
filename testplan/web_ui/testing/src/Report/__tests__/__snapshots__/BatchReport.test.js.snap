@@ -10097,7 +10097,7 @@ ZeroDivisionError: integer division or modulo by zero
             onMouseDown={[Function]}
           >
             <div
-              className="column_1e6n0oe-o_O-splitter_11em7wq"
+              className="splitter_11em7wq"
             />
           </div>
         </Column>

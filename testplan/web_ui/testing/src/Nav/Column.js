@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {StyleSheet, css} from 'aphrodite';
-
 import {LIGHT_GREY, MIN_COLUMN_WIDTH} from "../Common/defaults";
 
 /**
@@ -58,7 +57,7 @@ class Column extends Component {
           className={css(styles.column, columnStyles.rightColumn)}
           onMouseDown={this.mouseDown}
         >
-          <div className={css(styles.column, styles.splitter)} />
+          <div className={css(styles.splitter)} />
         </div>
       </>
     );
