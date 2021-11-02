@@ -725,7 +725,7 @@ class Pool(Executor):
                     "Worker {} failed to restart: {}".format(worker, exc)
                 )
         else:
-            worker.abort()
+            worker.stop()
 
         return False
 

@@ -147,9 +147,9 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             else:
                 break
         else:
-            raise RuntimeError(
-                "Not able to stop worker {} after {}s".format(self, timeout)
-            )
+            msg = f"Not able to stop worker {self} after {timeout}s"
+            self.logger.error(msg)
+            raise RuntimeError(msg)
 
     def aborting(self):
         """Abort child process worker."""
@@ -356,7 +356,8 @@ class RemotePool(Pool):
     def _start_thread_pool(self):
         size = len(self._instances)
         try:
-            if size > 2:
+            if size >= 2:
+                print("starting thread pool")
                 self.pool = ThreadPool(5 if size > 5 else size)
         except Exception as exc:
             if isinstance(exc, AttributeError):
