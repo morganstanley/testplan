@@ -1,0 +1,10 @@
+name: 'Restore pip cache'
+description: 'Restore pip cache for the project'
+runs:
+  using: "composite"
+  steps:
+    - name: Restore Pip Cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}

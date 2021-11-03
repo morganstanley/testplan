@@ -1,0 +1,56 @@
+name: Cut new version
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  cut-new-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+
+      - run: pip install --upgrade bumpver
+      - run: pip install ./releaseherald
+      
+      - name: git setup
+        run: |
+          git config user.name "Github Version Updater" 
+          git config user.email "<>"
+      - run: bumpver update
+      - run: bumpver show --env > new-version.txt
+      - run: releaseherald generate --latest --no-update -t news.rst
+      - uses: actions/upload-artifact@v2
+        with:
+          name: new-version
+          path: |
+            new-version.txt
+            news.rst
+
+  build:
+    runs-on: ubuntu-latest
+    needs: cut-new-version
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: git pull origin
+      - uses: actions/download-artifact@v2
+        with:
+          name: new-version
+      - name: Get Version
+        id: get_version
+        run: |
+          eval $(cat new-version.txt)
+          echo ::set-output name=new_version::${CURRENT_VERSION}
+      - uses: ./.github/actions/build-package
+      - uses: ./.github/actions/create-release
+        with:
+          tag_name: ${{ steps.get_version.outputs.new_version }}
+          package: dist/testplan-${{ steps.get_version.outputs.new_version }}-py3-none-any.whl
+          news: news.rst
