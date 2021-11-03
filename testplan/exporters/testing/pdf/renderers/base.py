@@ -57,9 +57,10 @@ class SlicedParagraph(object):
     def __next__(self):
         if self.para:
             paras = self.para.split(self.width, self.height)
+            # paras == [] for empty line
+            para = paras[0] if paras else ""
             self.para = paras[1] if len(paras) == 2 else None
-            return paras[0]
-
+            return para
         else:
             raise StopIteration
 

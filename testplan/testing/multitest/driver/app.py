@@ -151,16 +151,13 @@ class App(Driver):
     @property
     def env(self):
         """Environment variables."""
-
-        env = os.environ.copy()
-
         if isinstance(self.cfg.env, dict):
-            env.update(self.cfg.env)
-
-        return {
-            key: expand(val, self.context, str) if is_context(val) else val
-            for key, val in env.items()
-        }
+            return {
+                key: expand(val, self.context, str) if is_context(val) else val
+                for key, val in self.cfg.env.items()
+            }
+        else:
+            return None
 
     @property
     def logname(self):
