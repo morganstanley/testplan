@@ -1,0 +1,44 @@
+name: 'Create release'
+description: 'Create a github release'
+inputs:
+  tag_name:
+    description: 'git tag to create the release for'
+    required: true
+  package:
+    description: 'path to the package to attach to the release'
+    required: true
+  news:
+    description: 'path to the news file displayed on release page'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/github-script@v5
+      with:
+        script: |
+          const fs = require('fs')
+          const p = require('path')
+          let owner = context.repo.owner
+          let repo = context.repo.repo
+          let tag_name = "${{ inputs.tag_name }}"
+          const news = fs.readFileSync("${{ inputs.news }}", "utf8")
+          let resp = await github.rest.repos.createRelease({
+            owner,
+            repo,
+            tag_name,
+            body: news
+          })
+
+          const release_id = resp.data.id
+
+          const path = "${{ inputs.package }}"
+          const name = p.basename(path)
+          const data = fs.readFileSync(path)
+
+          await github.rest.repos.uploadReleaseAsset({
+            owner,
+            repo,
+            release_id,
+            name,
+            data
+          })

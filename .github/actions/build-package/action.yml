@@ -1,0 +1,22 @@
+name: 'Build package'
+description: 'Build testplan package'
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.7'
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - run: pip install --upgrade setuptools build
+      shell: bash
+    - run: |
+        cd testplan/web_ui/testing
+        yarn install
+        CI=false yarn build
+        cd -
+      shell: bash  
+    - run: python -m build -w
+      shell: bash

@@ -2,7 +2,7 @@
 """
 Setup testplan and dependencies.
 """
-
+import ast
 import sys
 from pathlib import Path, PurePosixPath
 
@@ -45,17 +45,39 @@ REQUIRED = [
 ]
 
 WEB_UI_PACKAGE_DIR = "testplan/web_ui/"
+VERSION_FILE = "testplan/version.py"
 
 ui_files = [
     str(PurePosixPath(p).relative_to(WEB_UI_PACKAGE_DIR))
     for p in Path(WEB_UI_PACKAGE_DIR).glob("testing/build/**/*")
 ]
 
-print(ui_files)
+
+def get_version():
+    # we use ast here to avoid import
+    class VersionFinder(ast.NodeVisitor):
+        def __init__(self):
+            self.version = None
+
+        def visit_Assign(self, node: ast.Assign):
+            if node.targets[0].id == "__version__":
+                # python 3.7 node.value is ast.Str from 3.8 it seem it is ast.Constant
+                self.version = (
+                    node.value.value
+                    if isinstance(node.value, ast.Constant)
+                    else node.value.s
+                )
+
+    module = ast.parse(Path("testplan/version.py").read_text())
+
+    version_visitor = VersionFinder()
+    version_visitor.visit(module)
+    return version_visitor.version
+
 
 setup(
     name="testplan",
-    version="1.0.0",
+    version=get_version(),
     description="Testplan testing framework",
     author="",
     author_email="eti-testplan@morganstanley.com",

@@ -216,5 +216,6 @@ License information `here <https://github.com/morganstanley/testplan/blob/main/L
    :hidden:
    
    design
+   news
    about
 

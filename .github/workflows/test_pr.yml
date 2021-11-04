@@ -3,23 +3,86 @@ name: PR Tests
 on: [pull_request]
 
 jobs:
+  is_source_changed:
+    name: Check if sources has changed
+    runs-on: ubuntu-latest
+    outputs:
+      is_source_changed: ${{steps.check_source_change.outputs.changed}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Check if any source changed
+        id: check_source_change
+        uses: ./.github/actions/files-changed
+        with:
+          paths: |
+            examples/*
+            testplan/*
+            tests/*
+            scripts/*
+            pytest.ini
+            pyproject.toml
+            setup.py
+            requirements.txt
+
+  success:
+    name: PR Tets Completed
+    needs: [is_source_changed, Test]
+    runs-on: ubuntu-latest
+    if: always() && needs.is_source_changed.result == 'success' && (needs.is_source_changed.outputs.is_source_changed == 'false' || needs.Test.result == 'success')
+    steps:
+      - run: echo ${{needs.is_source_changed.result}} ${{needs.is_source_changed.outputs.is_source_changed}} ${{needs.Test.result}}
+      - run: true
+
+  lint:
+    name: Run lint on code
+    needs: [ is_source_changed ]
+    runs-on: ubuntu-latest
+    if: needs.is_source_changed.outputs.is_source_changed == 'true'
+    env:
+      BLACK_VERSION: "20.8b1"
+      LINT_PYTHON_VERSION: "3.7"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Python ${{ env.LINT_PYTHON_VERSION }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.LINT_PYTHON_VERSION }}
+      - name: Restore pip cache
+        uses: ./.github/actions/pip-cache
+      - name: Setup
+        run: |
+          pip install -r requirements.txt -U
+          pip install black==$BLACK_VERSION pylint
+      - name: Lint
+        run: |
+          python3 -m black --check .
+          ./scripts/utils/crlf_check.sh
+          pylint --rcfile pylintrc testplan
+
   Test:
+    needs: [ lint]
     runs-on: ubuntu-latest
     env:
       REACT_APP_API_BASE_URL: "/fake/api/endpoint"
-      BLACK_VERSION: "20.8b1"
       CI: ""
     strategy:
       matrix:
         python-version: [3.7, 3.8]
 
     steps:
+      - run: echo "BUILD ${{ matrix.python-version }} ${{needs.is_source_changed.outputs.is_source_changed}}"
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Restore pip cache
+        uses: ./.github/actions/pip-cache
       - name: Set up Node
         uses: actions/setup-node@v1
         with:
@@ -34,15 +97,9 @@ jobs:
           sudo chown -R $USER:$USER /opt/kafka
           tar zxf kafka.tgz -C /opt/kafka --strip-components 1
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt -U
-          pip install black==$BLACK_VERSION
-          python install-testplan-ui --verbose --dev
-      - name: Lint
-        run: |
-          python3 -m black --check .
-          ./scripts/utils/crlf_check.sh
-          pylint --rcfile pylintrc testplan
+        run: pip install -r requirements.txt -U
+      - name: Build UI
+        run: python install-testplan-ui --verbose --dev
       - name: Test
         run: |
           pytest tests --verbose
