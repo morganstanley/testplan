@@ -59,6 +59,11 @@ class ToPDFAction(ProcessResultAction, logger.Loggable):
     type=click.Choice(
         ["result", "summary", "extended", "detailed"], case_sensitive=False
     ),
+    help="""result - only the result of the run will be shown\n
+            summary - test details will be shown\n
+            extended - passing tests will include testcase detail, while failing tests will include assertion detail\n
+            detailed - passing tests will include assertion detail, while failing tests will include assertion detail\n
+        """,
 )
 def to_pdf(filename, pdf_style):
     """
