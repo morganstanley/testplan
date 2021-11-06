@@ -16,14 +16,14 @@ ModuleInfo = collections.namedtuple(
 )
 
 TEST_SUITE_MODULES = [
-    # A module in the same directory as the main script
+    # A module in the same directory with the main script
     ModuleInfo(
         os.path.abspath(
             os.path.join(THIS_DIRECTORY, "basic_suite_template.txt")
         ),
         os.path.abspath(os.path.join(THIS_DIRECTORY, "basic_suite.py")),
-        "0",
-        "1",
+        {"VALUE": "0"},
+        {"VALUE": "1"},
         [
             {
                 "type": "Equal",
@@ -63,12 +63,15 @@ TEST_SUITE_MODULES = [
         os.path.abspath(
             os.path.join(THIS_DIRECTORY, "tasks", "inner_suite.py")
         ),
-        "",
-        (
-            "    @testcase\n"
-            "    def another_case(self, env, result):\n"
-            '        result.false(False, description="Fallacy Assertion")\n'
-        ),
+        {"IMPORT": "", "ANOTHER_CASE": ""},
+        {
+            "IMPORT": "from .mod import VAL",
+            "ANOTHER_CASE": (
+                "    @testcase\n"
+                "    def another_case(self, env, result):\n"
+                '        result.false(VAL, description="Fallacy Assertion")\n'
+            ),
+        },
         [
             {
                 "type": "IsTrue",
@@ -116,27 +119,53 @@ TEST_SUITE_MODULES = [
                 THIS_DIRECTORY, os.pardir, "extra_deps", "extra_suite.py"
             )
         ),
-        "fail",
-        "log",
+        {"ASSERTION": "fail", "RELATIVE_TOLERANCE": "0.01"},
+        {"ASSERTION": "log", "RELATIVE_TOLERANCE": "0.1"},
         [
             {
                 "type": "Fail",
                 "meta_type": "assertion",
                 "category": "DEFAULT",
-                "description": "Write a message into report",
+                "description": "Save a message into report",
                 "passed": False,
                 "flag": "DEFAULT",
-            }
+            },
+            {
+                "type": "IsClose",
+                "meta_type": "assertion",
+                "category": "DEFAULT",
+                "description": "Approximately Equal",
+                "label": "~=",
+                "passed": False,
+                "flag": "DEFAULT",
+                "first": 100,
+                "second": 95,
+                "rel_tol": 0.01,
+                "abs_tol": 0,
+            },
         ],
         [
             {
                 "type": "Log",
                 "meta_type": "entry",
                 "category": "DEFAULT",
-                "description": "Write a message into report",
-                "message": "Write a message into report",
+                "description": "Save a message into report",
+                "message": "Save a message into report",
                 "flag": "DEFAULT",
-            }
+            },
+            {
+                "type": "IsClose",
+                "meta_type": "assertion",
+                "category": "DEFAULT",
+                "description": "Approximately Equal",
+                "label": "~=",
+                "passed": True,
+                "flag": "DEFAULT",
+                "first": 100,
+                "second": 95,
+                "rel_tol": 0.1,
+                "abs_tol": 0,
+            },
         ],
     ),
 ]
@@ -163,7 +192,7 @@ def main():
         with open(module_info.template_path, "r") as fp_r, open(
             module_info.module_path, "w"
         ) as fp_w:
-            fp_w.write(fp_r.read().format(VALUE=module_info.original_value))
+            fp_w.write(fp_r.read().format(**module_info.original_value))
         # module files will be removed after testing
         atexit.register(os.remove, module_info.module_path)
 
@@ -188,7 +217,12 @@ def main():
     # Add 2 MultiTest instances and trigger run of interactive executioner
     plan.add(MultiTest(name="BasicTest", suites=[basic_suite.BasicSuite()]))
     plan.add(MultiTest(name="InnerTest", suites=[inner_suite.InnerSuite()]))
-    plan.add(MultiTest(name="ExtraTest", suites=[extra_suite.ExtraSuite()]))
+    plan.add(
+        MultiTest(
+            name="ExtraTest",
+            suites=[extra_suite.ExtraSuite(), extra_suite.AnotherSuite()],
+        )
+    )
     plan.run()
 
     # Run tests
@@ -204,7 +238,7 @@ def main():
                 plan.i.test_case_report(
                     test_uid="BasicTest",
                     suite_uid="BasicSuite",
-                    case_uid="basic_case",
+                    case_uid="case",
                     serialized=True,
                 )["entries"][0]["entries"][0]["entries"][0],
             ],
@@ -212,7 +246,7 @@ def main():
                 plan.i.test_case_report(
                     test_uid="InnerTest",
                     suite_uid="InnerSuite",
-                    case_uid="basic_case",
+                    case_uid="case",
                     serialized=True,
                 )["entries"][0]["entries"][0]["entries"][0],
             ],
@@ -220,7 +254,13 @@ def main():
                 plan.i.test_case_report(
                     test_uid="ExtraTest",
                     suite_uid="ExtraSuite",
-                    case_uid="basic_case",
+                    case_uid="case",
+                    serialized=True,
+                )["entries"][0]["entries"][0]["entries"][0],
+                plan.i.test_case_report(
+                    test_uid="ExtraTest",
+                    suite_uid="AnotherSuite",
+                    case_uid="case",
                     serialized=True,
                 )["entries"][0]["entries"][0]["entries"][0],
             ],
@@ -234,10 +274,10 @@ def main():
         with open(module_info.template_path, "r") as fp_r, open(
             module_info.module_path, "w"
         ) as fp_w:
-            fp_w.write(fp_r.read().format(VALUE=module_info.updated_value))
+            fp_w.write(fp_r.read().format(**module_info.updated_value))
 
-    # Reload code from changed files and uodate report
-    plan.i.reload()
+    # Reload code from changed files and update report
+    plan.i.reload(rebuild_dependencies=True)
     plan.i.reload_report()
 
     # Run tests again
@@ -253,7 +293,7 @@ def main():
                 plan.i.test_case_report(
                     test_uid="BasicTest",
                     suite_uid="BasicSuite",
-                    case_uid="basic_case",
+                    case_uid="case",
                     serialized=True,
                 )["entries"][0]["entries"][0]["entries"][0],
             ],
@@ -261,7 +301,7 @@ def main():
                 plan.i.test_case_report(
                     test_uid="InnerTest",
                     suite_uid="InnerSuite",
-                    case_uid="basic_case",
+                    case_uid="case",
                     serialized=True,
                 )["entries"][0]["entries"][0]["entries"][0],
                 plan.i.test_case_report(
@@ -275,7 +315,13 @@ def main():
                 plan.i.test_case_report(
                     test_uid="ExtraTest",
                     suite_uid="ExtraSuite",
-                    case_uid="basic_case",
+                    case_uid="case",
+                    serialized=True,
+                )["entries"][0]["entries"][0]["entries"][0],
+                plan.i.test_case_report(
+                    test_uid="ExtraTest",
+                    suite_uid="AnotherSuite",
+                    case_uid="case",
                     serialized=True,
                 )["entries"][0]["entries"][0]["entries"][0],
             ],

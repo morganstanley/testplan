@@ -1,8 +1,6 @@
 """Interactive mode tests."""
 
 import os
-import sys
-import subprocess
 
 import requests
 
@@ -389,11 +387,3 @@ def test_env_operate():
         assert response.ok
         test2_report = response.json()
         assert test2_report["env_status"] == entity.ResourceStatus.STOPPED
-
-
-def test_reload():
-    """Tests reload functionality."""
-    subprocess.check_call(
-        [sys.executable, "interactive_executable.py"],
-        cwd=os.path.dirname(os.path.abspath(__file__)),
-    )

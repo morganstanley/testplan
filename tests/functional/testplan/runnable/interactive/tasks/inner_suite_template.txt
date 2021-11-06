@@ -1,10 +1,11 @@
 from testplan.testing.multitest import testsuite, testcase
+{IMPORT}
 
 @testsuite
 class InnerSuite(object):
 
     @testcase
-    def basic_case(self, env, result):
+    def case(self, env, result):
         result.true(True, description="Truth Assertion")
 
-{VALUE}
+{ANOTHER_CASE}
