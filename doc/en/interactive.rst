@@ -33,25 +33,26 @@ interrupt processes started as part of the test environment.
 
 .. note::
 
-    The interactive mode is currently in a Beta stage and under active
-    development. Therefore, features may change in future releases and
-    there will likely be some bugs or not-implemented features right now,
-    for example the filter box does not yet work. Please bear with us while
-    we work through these, and feel free to raise an issue for any bugs
-    you find.
+    The interactive mode is under active development. Therefore, there will
+    likely be some bugs or not-implemented features right now, for example
+    no filter box is there for fastly selecting testcase. Please feel free
+    to raise an issue for any bugs you find.
 
 How code reloading works
 ------------------------
 By default interactive mode only reloads modules under the directory of the
-main testplan script being run. To be able to reload from other directory, use
-the ``extra_deps`` parameter of ``@test_plan`` decorator. The reload happens on
-reload API and only applies to modules that have either been modified or have
-had its dependencies reloaded.
+main testplan script being run. To be able to reload from other directory, set
+the ``extra_deps`` parameter of ``@test_plan`` decorator, it is a list made up
+of loaded modules or the path where the module is located. The reload happens
+on receiving an API request, and it only applies to modules that have either
+been modified or have had its dependencies reloaded.
 
 Please note the ``__main__`` module (i.e. test_plan.py) cannot be reloaded.
 Because of this, it is recommended that test suites are defined in seperate modules.
 Another known limitation is that we are not able to reload module that is under
-namespace package, and the workaround is to add dummy __init__.py file.
+namespace package, and the workaround is to add dummy __init__.py file. Also note
+that you should NOT write ``from sth import *``, reload is not always guaranteed
+to work, this syntax is not encouraged in Python, either.
 
 The steps of the reload process are described below:
 

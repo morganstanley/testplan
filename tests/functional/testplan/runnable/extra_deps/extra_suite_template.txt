@@ -1,8 +1,19 @@
 from testplan.testing.multitest import testsuite, testcase
+from . import mod
 
 @testsuite
 class ExtraSuite(object):
 
     @testcase
-    def basic_case(self, env, result):
-        result.{VALUE}("Write a message into report")
+    def case(self, env, result):
+        result.{ASSERTION}(f"Save a message into report")
+
+@testsuite
+class AnotherSuite(object):
+
+    @testcase
+    def case(self, env, result):
+        result.isclose(
+            100, 95, {RELATIVE_TOLERANCE}, 0.0,
+            description="Approximately Equal"
+        )

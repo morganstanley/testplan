@@ -65,9 +65,9 @@ class MockModule(object):
         return "MockModule[{}]".format(self.__name__)
 
 
-# Mock for sys.modules, which are searched to find the modules that need
-# reloading. PyTest will inspect sys.modules to do its magic so we extend
-# a copy of the real sys.modules rather than just creating a totally bogus
+# Mock for `sys.modules`, which are searched to find the modules that need
+# reloading. PyTest will inspect `sys.modules` to do its magic so we extend
+# a copy of the real `sys.modules` rather than just creating a totally bogus
 # new one.
 MOCK_SYSMODULES = sys.modules.copy()
 MOCK_SYSMODULES.update(
@@ -77,8 +77,8 @@ MOCK_SYSMODULES.update(
     }
 )
 
-# Mapping of module name to a modulefinder.Module object, which is used by
-# the modulefinder module to store metadata about a module - e.g. its name,
+# Mapping of module name to a `modulefinder.Module` object, which is used by
+# the `modulefinder` module to store metadata about a module - e.g. its name,
 # filepath and the names of its attributes.
 MOCK_MODULEFINDER_MODS = {
     name: modulefinder.Module(name, file=filepath)
@@ -88,7 +88,7 @@ MOCK_MODULEFINDER_MODS = {
 
 def _set_module_globals():
     """
-    Set the globalnames attribute on the mocked modulefinder modules, and
+    Set the `globalnames` attribute on the mocked `modulefinder` modules, and
     set the __module__ attribute on each attribute to match its owning module.
 
     WARNING: this function mutates MOCK_MODULEFINDER_MODS, it should only be
@@ -113,38 +113,29 @@ class MockModuleFinder(object):
     def __init__(self, path):
         del path  # Unused
         self.modules = {}
-        self._curr_module = None
+        self._curr_mod = None
 
     def run_script(self, script_filepath):
         """
         Don't actually run any script - just call the expected hooks to
         simulate the dependency structure we want.
         """
-        del script_filepath  # Unused
-
         self.modules = MOCK_MODULEFINDER_MODS
 
         self.import_hook("mod_a", self.modules["__main__"])
-        self.import_module()
         self.import_hook("mod_b", self.modules["__main__"])
-        self.import_module()
         self.import_hook("mod_b", self.modules["mod_a"])
-        self.import_module()
         self.import_hook("mod_c", self.modules["mod_a"])
-        self.import_module()
         self.import_hook("mod_d", self.modules["mod_a"])
-        self.import_module()
         self.import_hook("mod_d", self.modules["mod_b"])
+
+    def import_hook(self, name, caller=None, *args, **kwargs):
+        self._curr_mod = self.modules[name]
         self.import_module()
 
-    def import_hook(self, name, caller=None):
-        del caller  # unused
-        self._curr_module = self.modules[name]
-
-    def import_module(self, *args):
-        del args  # unused
-        curr_mod = self._curr_module
-        self._curr_module = None
+    def import_module(self, *args, **kwargs):
+        curr_mod = self._curr_mod
+        self._curr_mod = None
         return curr_mod
 
 
@@ -172,12 +163,11 @@ def mock_reload_env():
 
     mock_stat.modified_files = set()
 
-    reloader_patch = "testplan.runnable.interactive.reloader.reload"
-    with mock.patch("modulefinder.ModuleFinder", new=MockModuleFinder), (
-        mock.patch(reloader_patch, side_effect=lambda module: module)
-    ) as mock_reload, (mock.patch("os.stat", new=mock_stat)), (
-        mock.patch("sys.modules", new=MOCK_SYSMODULES)
-    ):
+    with mock.patch("os.stat", new=mock_stat), mock.patch(
+        "sys.modules", new=MOCK_SYSMODULES
+    ), mock.patch("modulefinder.ModuleFinder", new=MockModuleFinder), (
+        mock.patch("importlib.reload", side_effect=lambda module: module)
+    ) as mock_reload:
 
         # Despite mocking modulefinder.ModuleFinder above, we also need to
         # swap out the real ModuleFinder with our mock one in the list of
@@ -200,14 +190,14 @@ def test_dependency_reload(mock_reload_env):
                                    /    \
                                   /      \
                                  V       V
-                                 A ----> B
+                                 A -----> B
                                 / \        \
-                               /   ---     \
-                              V       |    V
-                              C        --> D
+                               /   ---      \
+                              V       |     V
+                             C        --->  D
 
-    We then test making modifications to each of A, B, C and D in turn to check
-    that the expected modules are reloaded in the correct order.
+    We then test making modifications to each of A, B, C and D in turn to
+    check that the expected modules are reloaded in the correct order.
     """
     reload_obj, mock_reload, mock_stat = mock_reload_env
 
