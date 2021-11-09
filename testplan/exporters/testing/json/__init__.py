@@ -16,6 +16,7 @@ from testplan.common.exporters import ExporterConfig
 
 from testplan.report import ReportCategories
 from testplan.report.testing.schemas import TestReportSchema
+from testplan.report.testing.base import TestReport
 
 from ..base import Exporter, save_attachments
 
@@ -71,7 +72,7 @@ class JSONExporter(Exporter):
     def __init__(self, name="JSON exporter", **options):
         super(JSONExporter, self).__init__(name=name, **options)
 
-    def export(self, source):
+    def export(self, source: TestReport):
 
         json_path = pathlib.Path(self.cfg.json_path).resolve()
 
@@ -99,10 +100,10 @@ class JSONExporter(Exporter):
                 with open(assertions_filepath, "w") as json_file:
                     json.dump(assertions, json_file)
 
-                save_attachments(report=source, directory=attachments_dir)
+                meta["attachments"] = save_attachments(
+                    report=source, directory=attachments_dir
+                )
                 meta["version"] = 2
-                # Modify dict ref may change the original `TestReport` object
-                meta["attachments"] = copy.deepcopy(meta["attachments"])
                 meta["attachments"][structure_filename] = str(
                     structure_filepath
                 )
@@ -115,7 +116,9 @@ class JSONExporter(Exporter):
                 with open(json_path, "w") as json_file:
                     json.dump(meta, json_file)
             else:
-                save_attachments(report=source, directory=attachments_dir)
+                data["attachments"] = save_attachments(
+                    report=source, directory=attachments_dir
+                )
                 data["version"] = 1
 
                 with open(json_path, "w") as json_file:
