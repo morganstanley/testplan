@@ -5,8 +5,8 @@ import re
 import time
 import datetime
 import uuid
-import webbrowser
 import inspect
+import webbrowser
 from collections import OrderedDict
 
 import pytz
