@@ -572,6 +572,7 @@ def _testcase_meta(
     @functools.wraps(_testcase)
     def wrapper(function):
         """Meta logic for test case goes here."""
+        global __TESTCASES__
         global __GENERATED_TESTCASES__
         global __PARAMETRIZATION_TEMPLATE__
 
@@ -580,6 +581,7 @@ def _testcase_meta(
 
         tag_dict = tagging.validate_tag_value(tags) if tags else {}
         function.__tags__ = copy.deepcopy(tag_dict)
+        function.__tags_index__ = copy.deepcopy(tag_dict)
 
         if parameters is not None:  # Empty tuple / dict checks happen later
             function.__parametrization_template__ = True
@@ -626,23 +628,35 @@ def _testcase_meta(
                 for wrapper_func in wrappers:
                     func = wrapper_func(func)
 
-                # so that CodeDetails gets the correct line number
-                func.wrapper_of = function
-
                 __GENERATED_TESTCASES__.append(func)
 
             return function
 
         else:
+
+            _validate_testcase(function)
+            _mark_function_as_testcase(function)
+
+            function.__seq_number__ = _number_of_testcases()
+            function.__skip__ = []
+
             function.summarize = summarize
             function.summarize_num_passing = num_passing
             function.summarize_num_failing = num_failing
             function.summarize_key_combs_limit = key_combs_limit
             function.execution_group = execution_group
             function.timeout = timeout
-            function.__tags_index__ = copy.deepcopy(tag_dict)
 
-            return _testcase(function)
+            wrappers = custom_wrappers or []
+
+            if not isinstance(wrappers, (list, tuple)):
+                wrappers = [wrappers]
+
+            for wrapper_func in wrappers:
+                function = wrapper_func(function)
+
+            __TESTCASES__.append(function.__name__)
+            return function
 
     return wrapper
 

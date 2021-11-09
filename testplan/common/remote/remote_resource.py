@@ -71,6 +71,7 @@ class RemoteResourceConfig(EntityConfig):
             ConfigOption("remote_runpath", default=None): str,
             ConfigOption("testplan_path", default=None): str,
             ConfigOption("remote_workspace", default=None): str,
+            ConfigOption("clean_remote", default=False): bool,
             ConfigOption("push", default=[]): Or(list, None),
             ConfigOption("push_exclude", default=[]): Or(list, None),
             ConfigOption("delete_pushed", default=False): bool,
@@ -80,6 +81,7 @@ class RemoteResourceConfig(EntityConfig):
             ConfigOption("pull_exclude", default=[]): Or(list, None),
             ConfigOption("env", default=None): Or(dict, None),
             ConfigOption("setup_script", default=None): Or(list, None),
+            ConfigOption("async_start", default=False): bool,
         }
 
 
@@ -112,6 +114,8 @@ class RemoteResource(Entity):
     :param remote_workspace: The path of the workspace on remote host,
       default is fetched_workspace under remote_runpath
     :type remote_workspace: ``str``
+    :param clean_remote: Deleted root runpath on remote at exit.
+    :type clean_remote: ``bool``
 
     :param push: Files and directories to push to the remote.
     :type push: ``list`` that contains ``str`` or ``tuple``:
@@ -153,6 +157,7 @@ class RemoteResource(Entity):
         remote_runpath=None,
         testplan_path=None,
         remote_workspace=None,
+        clean_remote=False,
         push=None,
         push_exclude=None,
         delete_pushed=False,
@@ -163,6 +168,7 @@ class RemoteResource(Entity):
         env=None,
         setup_script=None,
         status_wait_timeout=60,
+        async_start=False,
         **options,
     ):
 
@@ -206,7 +212,7 @@ class RemoteResource(Entity):
         """Define mandatory directories in remote host."""
 
         self._remote_plan_runpath = self.cfg.remote_runpath or (
-            f"/var/tmp/{getpass.getuser()}/testplan/{self._get_plan().name}"
+            f"/var/tmp/{getpass.getuser()}/testplan/{self._get_plan().cfg.name}"
             if IS_WIN
             else self._get_plan().runpath
         )
@@ -511,18 +517,35 @@ class RemoteResource(Entity):
 
     def _fetch_results(self):
         """Fetch back to local host the results generated remotely."""
+        if not self.cfg.fetch_runpath:
+            self.logger.debug(
+                "Skip fetch results stage - %s", self.cfg.remote_host
+            )
+            return
         self.logger.debug("Fetch results stage - %s", self.cfg.remote_host)
         try:
             self._transfer_data(
                 source=self._remote_resource_runpath,
                 remote_source=True,
                 target=self.parent.runpath,
+                exclude=self.cfg.fetch_runpath_exclude,
             )
             if self.cfg.pull:
                 self._pull_files()
         except Exception as exc:
             self.logger.exception(
                 "While fetching result from worker [%s]: %s", self, exc
+            )
+
+    def _clean_remote(self):
+        if self.cfg.clean_remote:
+            self.logger.debug(
+                "Clean root runpath on remote host - %s", self.cfg.remote_host
+            )
+
+            self._execute_cmd_remote(
+                cmd=f"/bin/rm -rf {self._remote_plan_runpath}",
+                label="Clean remote root runpath",
             )
 
     def _pull_files(self):

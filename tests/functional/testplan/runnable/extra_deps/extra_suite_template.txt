@@ -1,0 +1,8 @@
+from testplan.testing.multitest import testsuite, testcase
+
+@testsuite
+class ExtraSuite(object):
+
+    @testcase
+    def basic_case(self, env, result):
+        result.{VALUE}("Write a message into report")

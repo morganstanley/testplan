@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {css, StyleSheet} from 'aphrodite';
-import {Scrollbars} from 'react-custom-scrollbars';
 
 import DescriptionPane from './DescriptionPane';
 import AssertionGroup from "./AssertionGroup";
@@ -62,21 +61,13 @@ class AssertionPane extends Component {
       return (
         <div style={assertionPaneStyle}>
           <div className={css(styles.infiniteScrollDiv)}>
-            {/*
-            The key is passed to force InfiniteScroll to update when only the
-            props of AssertionPane are changed. Normally when just props change
-            and not state the child component is not updated. Giving the
-            InfiniteScroll component a key tells react to update it. Unsure if
-            it updates it or creates a new instance, need to check.
-            */}
-             <Scrollbars autoHide>
-             <div style={{paddingRight: '4rem'}}>
                 <DescriptionPane
                   descriptionEntries={this.props.descriptionEntries}
                 />
                 <AssertionGroup
                   entries={this.props.assertions}
                   filter={this.props.filter}
+                  displayPath={this.props.displayPath}
                   assertionGroupUid={this.props.testcaseUid}
                   reportUid={this.props.reportUid}
                 />
@@ -84,8 +75,6 @@ class AssertionPane extends Component {
                   logs={this.props.logs}
                 />
               </div>
-            </Scrollbars>
-          </div>
         </div>);
     } else {
       return null;
@@ -118,6 +107,18 @@ const styles = StyleSheet.create({
 
   infiniteScrollDiv: {
     height: 'calc(100% - 1.5em)',
+    overflow: "scroll",
+    paddingRight: '4rem',
+    "::-webkit-scrollbar": {
+      width: "6px",
+    },
+    "::-webkit-scrollbar-thumb": {
+      backgroundColor: "rgba(0, 0, 0, 0.2)",
+      borderRadius: "3px",
+    },
+    "::-webkit-scrollbar-thumb:hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
+    }
   },
 
   buttonsDiv: {

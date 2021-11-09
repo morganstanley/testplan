@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge } from 'reactstrap';
 import { StyleSheet, css } from 'aphrodite';
-import { formatSeconds } from './../Common/utils';
+import { formatMilliseconds } from './../Common/utils';
 import _ from 'lodash';
 
 import {
@@ -29,7 +29,7 @@ const NavEntry = (props) => {
     props.displayTime && _.isNumber(props.executionTime) ? (
       <i className={css(styles.entryIcon)} title='Execution time'>
         <span className={css(styles[STATUS_CATEGORY[props.status]])}>
-          {formatSeconds(props.executionTime)}
+          {formatMilliseconds(props.executionTime)}
         </span>
       </i>
     ) : null
@@ -37,7 +37,10 @@ const NavEntry = (props) => {
   return (
     <div
       className='d-flex justify-content-between align-items-center'
-      style={{ height: "1.5em" }}
+      style={{
+        height: "1.5em",
+        userSelect: "text"
+      }}
     >
       <Badge
         className={css(styles.entryIcon, styles[badgeStyle], styles.badge)}
@@ -96,6 +99,7 @@ const styles = StyleSheet.create({
   entryIcons: {
     paddingLeft: '1em',
     display: "flex",
+    flexShrink: 0,
   },
   entryIcon: {
     fontSize: 'x-small',

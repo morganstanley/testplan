@@ -5,18 +5,13 @@ exports[`EmptyReport renders a custom error message 1`] = `
   className="emptyReport_3hmsj"
 >
   <Toolbar
-    extraButtons={
-      Array [
-        <TimeButton
-          updateTimeDisplayCbk={[Function]}
-        />,
-      ]
-    }
+    extraButtons={Array []}
     filterBoxWidth="22em"
     handleNavFilter={[Function]}
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
   <Nav
@@ -25,7 +20,7 @@ exports[`EmptyReport renders a custom error message 1`] = `
     displayTime={false}
     report={null}
     saveAssertions={[Function]}
-    treeView={false}
+    treeView={true}
   />
   <Message
     left="22em"
@@ -39,18 +34,13 @@ exports[`EmptyReport shallow renders and matches snapshot 1`] = `
   className="emptyReport_3hmsj"
 >
   <Toolbar
-    extraButtons={
-      Array [
-        <TimeButton
-          updateTimeDisplayCbk={[Function]}
-        />,
-      ]
-    }
+    extraButtons={Array []}
     filterBoxWidth="22em"
     handleNavFilter={[Function]}
     updateEmptyDisplayFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
     updateTreeViewFunc={[Function]}
   />
   <Nav
@@ -59,7 +49,7 @@ exports[`EmptyReport shallow renders and matches snapshot 1`] = `
     displayTime={false}
     report={null}
     saveAssertions={[Function]}
-    treeView={false}
+    treeView={true}
   />
   <Message
     left="22em"

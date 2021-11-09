@@ -467,6 +467,7 @@ class MultiTest(testing_base.Test):
 
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
+        super(MultiTest, self).pre_resource_steps()
         self._add_step(self.make_runpath_dirs)
         if self.cfg.before_start:
             self._add_step(
@@ -475,18 +476,24 @@ class MultiTest(testing_base.Test):
                 )
             )
 
-    def main_batch_steps(self):
-        """Runnable steps to be executed while environment is running."""
+    def pre_main_steps(self):
+        """Runnable steps to be executed after environment starts."""
         if self.cfg.after_start:
             self._add_step(
                 self._wrap_run_step(
                     label="after_start", func=self.cfg.after_start
                 )
             )
+        super(MultiTest, self).pre_main_steps()
 
+    def main_batch_steps(self):
+        """Runnable steps to be executed while environment is running."""
         self._add_step(self.run_tests)
         self._add_step(self.propagate_tag_indices)
 
+    def post_main_steps(self):
+        """Runnable steps to run before environment stopped."""
+        super(MultiTest, self).post_main_steps()
         if self.cfg.before_stop:
             self._add_step(
                 self._wrap_run_step(
@@ -502,8 +509,8 @@ class MultiTest(testing_base.Test):
                     label="after_stop", func=self.cfg.after_stop
                 )
             )
-
         self._add_step(self.append_pre_post_step_report)
+        super(MultiTest, self).post_resource_steps()
 
     def should_run(self):
         """

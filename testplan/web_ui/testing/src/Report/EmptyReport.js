@@ -3,13 +3,12 @@
  * Used as the default option when no other report URL filter is matched.
  */
 import React from 'react';
-import {StyleSheet, css} from 'aphrodite';
+import { StyleSheet, css } from 'aphrodite';
 
 import Message from '../Common/Message';
 import Toolbar from '../Toolbar/Toolbar';
-import {TimeButton} from '../Toolbar/Buttons';
 import Nav from '../Nav/Nav';
-import {COLUMN_WIDTH} from "../Common/defaults";
+import { COLUMN_WIDTH } from "../Common/defaults";
 
 const EmptyReport = (props) => {
   let message;
@@ -38,17 +37,14 @@ const EmptyReport = (props) => {
         updateEmptyDisplayFunc={noop}
         updateTreeViewFunc={noop}
         updateTagsDisplayFunc={noop}
-        extraButtons={[<TimeButton
-            key="time-button"
-            status={undefined}
-            updateTimeDisplayCbk={noop}
-          />]}
+        updateTimeDisplayFunc={noop}
+        extraButtons={[]}
       />
       <Nav
         report={null}
         saveAssertions={noop}
         filter={undefined}
-        treeView={false}
+        treeView={true}
         displayEmpty={true}
         displayTags={false}
         displayTime={false}

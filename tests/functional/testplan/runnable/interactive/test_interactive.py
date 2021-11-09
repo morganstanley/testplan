@@ -1,28 +1,23 @@
 """Interactive mode tests."""
 
 import os
+import sys
+import subprocess
 
 import requests
-import pytest
 
-pytestmark = pytest.mark.skip(
-    reason="It seems this test is mixing with test_reloader.py, skip for now"
-)
-
+from testplan.common import entity
 from testplan.common.utils.timing import wait
 from testplan.common.utils.comparison import compare
 from testplan.common.utils.context import context
-from testplan.common.entity.base import Environment
+from testplan.common.utils.logger import TEST_INFO
 
 from testplan import TestplanMock
-from testplan.common import entity
-from testplan.common.utils.logger import TEST_INFO
-from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.environment import LocalEnvironment
+from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 from pytest_test_filters import skip_on_windows
-
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -162,6 +157,7 @@ def test_top_level_tests():
                     "timer",
                     "machine_time",
                     "utc_time",
+                    "file_path",
                     "line_no",
                 ],
             )[0]
@@ -204,6 +200,7 @@ def test_top_level_tests():
                     "timer",
                     "machine_time",
                     "utc_time",
+                    "file_path",
                     "line_no",
                 ],
             )[0]
@@ -256,7 +253,7 @@ def test_top_level_environment():
 
         for env_uid in ("env1", "env2"):
             env = plan.i.get_environment(env_uid)
-            assert isinstance(env, Environment)
+            assert isinstance(env, entity.Environment)
             resources = [res.uid() for res in env]
             assert resources == ["server", "client"]
             for resource in env:
@@ -394,25 +391,8 @@ def test_env_operate():
         assert test2_report["env_status"] == entity.ResourceStatus.STOPPED
 
 
-@pytest.mark.skip(reason="Interactive mode is undergoing changes")
 def test_reload():
     """Tests reload functionality."""
-    import sys
-    import inspect
-    import subprocess
-    import testplan
-
-    testplan_path = os.path.join(
-        os.path.dirname(inspect.getfile(testplan)), ".."
-    )
-
-    path_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "testplan_path.txt"
-    )
-
-    with open(path_file, "w") as fobj:
-        fobj.write(testplan_path)
-
     subprocess.check_call(
         [sys.executable, "interactive_executable.py"],
         cwd=os.path.dirname(os.path.abspath(__file__)),

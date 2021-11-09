@@ -11,21 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: '3.7'
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-
-    - run: pip install --upgrade setuptools build
-    - run: |
-        cd testplan/web_ui/testing
-        yarn install
-        CI=false yarn build
-        cd -
-    - run: python -m build -w
-    
+    - uses: ./.github/actions/build-package     
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"

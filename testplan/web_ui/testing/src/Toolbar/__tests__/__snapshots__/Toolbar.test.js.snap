@@ -171,6 +171,105 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             />
           </div>
         </NavItem>
+        <UncontrolledDropdown
+          inNavbar={true}
+          nav={true}
+        >
+          <div
+            className="buttonsBar_6zsntc"
+          >
+            <DropdownToggle
+              aria-haspopup={true}
+              className="toolbar_l6n5rs-o_O-toolbarPassed_1bjpgj2"
+              color="secondary"
+              nav={true}
+            >
+              <FontAwesomeIcon
+                border={false}
+                className="toolbarButton_1ueb7gu"
+                fixedWidth={false}
+                flip={null}
+                icon="tasks"
+                inverse={false}
+                key="toolbar-details"
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title="Choose details"
+                transform={null}
+              />
+            </DropdownToggle>
+          </div>
+          <DropdownMenu
+            className="dropdown_biw13d"
+            flip={true}
+            tag="div"
+          >
+            <DropdownItem
+              className="dropdownItem_1bl0z5g"
+              tag="button"
+              toggle={false}
+            >
+              <Label
+                check={true}
+                className="filterLabel_17zzvy"
+                tag="label"
+                widths={
+                  Array [
+                    "xs",
+                    "sm",
+                    "md",
+                    "lg",
+                    "xl",
+                  ]
+                }
+              >
+                <Input
+                  name="filter"
+                  onChange={[Function]}
+                  type="checkbox"
+                  value="time"
+                />
+                 
+                Time Information
+              </Label>
+            </DropdownItem>
+            <DropdownItem
+              className="dropdownItem_1bl0z5g"
+              tag="button"
+              toggle={false}
+            >
+              <Label
+                check={true}
+                className="filterLabel_17zzvy"
+                tag="label"
+                widths={
+                  Array [
+                    "xs",
+                    "sm",
+                    "md",
+                    "lg",
+                    "xl",
+                  ]
+                }
+              >
+                <Input
+                  name="filter"
+                  onChange={[Function]}
+                  type="checkbox"
+                  value="path"
+                />
+                 
+                File Path
+              </Label>
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
         <NavItem
           tag="li"
         >
@@ -234,7 +333,7 @@ exports[`Toolbar inserts extra buttons into the toolbar 1`] = `
             </DropdownToggle>
           </div>
           <DropdownMenu
-            className="filterDropdown_biw13d"
+            className="dropdown_biw13d"
             flip={true}
             tag="div"
           >
@@ -642,6 +741,105 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
             />
           </div>
         </NavItem>
+        <UncontrolledDropdown
+          inNavbar={true}
+          nav={true}
+        >
+          <div
+            className="buttonsBar_6zsntc"
+          >
+            <DropdownToggle
+              aria-haspopup={true}
+              className="toolbar_l6n5rs-o_O-toolbarPassed_1bjpgj2"
+              color="secondary"
+              nav={true}
+            >
+              <FontAwesomeIcon
+                border={false}
+                className="toolbarButton_1ueb7gu"
+                fixedWidth={false}
+                flip={null}
+                icon="tasks"
+                inverse={false}
+                key="toolbar-details"
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title="Choose details"
+                transform={null}
+              />
+            </DropdownToggle>
+          </div>
+          <DropdownMenu
+            className="dropdown_biw13d"
+            flip={true}
+            tag="div"
+          >
+            <DropdownItem
+              className="dropdownItem_1bl0z5g"
+              tag="button"
+              toggle={false}
+            >
+              <Label
+                check={true}
+                className="filterLabel_17zzvy"
+                tag="label"
+                widths={
+                  Array [
+                    "xs",
+                    "sm",
+                    "md",
+                    "lg",
+                    "xl",
+                  ]
+                }
+              >
+                <Input
+                  name="filter"
+                  onChange={[Function]}
+                  type="checkbox"
+                  value="time"
+                />
+                 
+                Time Information
+              </Label>
+            </DropdownItem>
+            <DropdownItem
+              className="dropdownItem_1bl0z5g"
+              tag="button"
+              toggle={false}
+            >
+              <Label
+                check={true}
+                className="filterLabel_17zzvy"
+                tag="label"
+                widths={
+                  Array [
+                    "xs",
+                    "sm",
+                    "md",
+                    "lg",
+                    "xl",
+                  ]
+                }
+              >
+                <Input
+                  name="filter"
+                  onChange={[Function]}
+                  type="checkbox"
+                  value="path"
+                />
+                 
+                File Path
+              </Label>
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
         <NavItem
           tag="li"
         >
@@ -705,7 +903,7 @@ exports[`Toolbar shallow renders the correct HTML structure for batch mode 1`] =
             </DropdownToggle>
           </div>
           <DropdownMenu
-            className="filterDropdown_biw13d"
+            className="dropdown_biw13d"
             flip={true}
             tag="div"
           >
@@ -1113,6 +1311,105 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
             />
           </div>
         </NavItem>
+        <UncontrolledDropdown
+          inNavbar={true}
+          nav={true}
+        >
+          <div
+            className="buttonsBar_6zsntc"
+          >
+            <DropdownToggle
+              aria-haspopup={true}
+              className="toolbar_l6n5rs-o_O-toolbarPassed_1bjpgj2"
+              color="secondary"
+              nav={true}
+            >
+              <FontAwesomeIcon
+                border={false}
+                className="toolbarButton_1ueb7gu"
+                fixedWidth={false}
+                flip={null}
+                icon="tasks"
+                inverse={false}
+                key="toolbar-details"
+                listItem={false}
+                mask={null}
+                pull={null}
+                pulse={false}
+                rotation={null}
+                size={null}
+                spin={false}
+                symbol={false}
+                title="Choose details"
+                transform={null}
+              />
+            </DropdownToggle>
+          </div>
+          <DropdownMenu
+            className="dropdown_biw13d"
+            flip={true}
+            tag="div"
+          >
+            <DropdownItem
+              className="dropdownItem_1bl0z5g"
+              tag="button"
+              toggle={false}
+            >
+              <Label
+                check={true}
+                className="filterLabel_17zzvy"
+                tag="label"
+                widths={
+                  Array [
+                    "xs",
+                    "sm",
+                    "md",
+                    "lg",
+                    "xl",
+                  ]
+                }
+              >
+                <Input
+                  name="filter"
+                  onChange={[Function]}
+                  type="checkbox"
+                  value="time"
+                />
+                 
+                Time Information
+              </Label>
+            </DropdownItem>
+            <DropdownItem
+              className="dropdownItem_1bl0z5g"
+              tag="button"
+              toggle={false}
+            >
+              <Label
+                check={true}
+                className="filterLabel_17zzvy"
+                tag="label"
+                widths={
+                  Array [
+                    "xs",
+                    "sm",
+                    "md",
+                    "lg",
+                    "xl",
+                  ]
+                }
+              >
+                <Input
+                  name="filter"
+                  onChange={[Function]}
+                  type="checkbox"
+                  value="path"
+                />
+                 
+                File Path
+              </Label>
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
         <NavItem
           tag="li"
         >
@@ -1176,7 +1473,7 @@ exports[`Toolbar shallow renders the correct HTML structure for interactive mode
             </DropdownToggle>
           </div>
           <DropdownMenu
-            className="filterDropdown_biw13d"
+            className="dropdown_biw13d"
             flip={true}
             tag="div"
           >

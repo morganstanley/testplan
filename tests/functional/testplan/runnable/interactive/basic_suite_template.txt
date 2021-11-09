@@ -1,7 +1,8 @@
-from testplan.testing.multitest import MultiTest, testsuite, testcase
+from testplan.testing.multitest import testsuite, testcase
 
 @testsuite
-class SuiteTemplate(object):
+class BasicSuite(object):
+
     @testcase
     def basic_case(self, env, result):
-        result.equal(1, {VALUE}, description='Assertion')
+        result.equal(1, {VALUE}, description="Equal Assertion")

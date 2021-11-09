@@ -1,4 +1,4 @@
-"""UTs for the App driver."""
+"""Units test for the App driver."""
 
 import os
 import re
@@ -66,8 +66,8 @@ def test_app_env(runpath):
 
 def test_app_os_environ(runpath):
     """Test that os.environ is passed down."""
-
     os.environ["KEY"] = "VALUE"
+
     app = App(
         name="App",
         binary="echo",
@@ -79,6 +79,8 @@ def test_app_os_environ(runpath):
         app.proc.wait()
     with open(app.std.out_path, "r") as fobj:
         assert fobj.read().startswith("VALUE")
+
+    del os.environ["KEY"]
 
 
 def test_app_fail_fast_with_log_regex(runpath):

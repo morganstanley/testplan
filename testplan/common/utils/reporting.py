@@ -3,19 +3,26 @@ This module contains utilities that are mostly used
 to make assertion comparison data report friendly.
 """
 
+import re
 from collections.abc import Mapping, Iterable
 
 NATIVE_TYPES = (str, int, float, bool, memoryview, bytes, bytearray)
 
 
-class AbsentType(object):
+class AbsentType:
     """
     A singleton to represent the lack of a value in a comparison.
     None is not used to avoid the situation where a key may be
     present and it's value is ``None``.
     """
 
+    __instance = None
     descr = "ABSENT"
+
+    def __new__(cls):
+        if not isinstance(cls.__instance, cls):
+            cls.__instance = object.__new__(cls)
+        return cls.__instance
 
     def __str__(self):
         return self.descr
@@ -82,6 +89,8 @@ def fmt(obj):
             )
         elif issubclass(obj_t, Iterable):
             ret = (1, [render(value) for value in obj])
+        elif issubclass(obj_t, re.Pattern):
+            ret = (0, "REGEX", obj.pattern)
         else:
             ret = (0, obj_t.__name__, str(obj))
         if key:

@@ -39,6 +39,7 @@ class SummaryBaseAssertion extends Component {
                   assertionGroupUid={this.props.assertionGroupUid}
                   entries={single_assertion_group.entries}
                   filter={this.props.filter}
+                  displayPath={this.props.displayPath}
                 />
               </Col>
             </Row>

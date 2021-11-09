@@ -136,6 +136,9 @@ class RemoteWorker(ProcessWorker, RemoteResource):
         """Stop child process worker."""
         self._fetch_results()
 
+    def post_stop(self):
+        self._clean_remote()
+
     def _wait_stopped(self, timeout=None):
         sleeper = get_sleeper(1, timeout)
         while next(sleeper):
@@ -234,6 +237,9 @@ class RemotePool(Pool):
     :param remote_workspace: The path of the workspace on remote host,
       default is fetched_workspace under remote_runpath
     :type remote_workspace: ``str``
+    :param clean_remote: Deleted root runpath on remote at exit.
+    :type clean_remote: ``bool``
+
     :param push: Files and directories to push to the remote.
     :type push: ``list`` that contains ``str`` or ``tuple``:
         - ``str``: Name of the file or directory
@@ -283,6 +289,7 @@ class RemotePool(Pool):
         remote_runpath=None,
         testplan_path=None,
         remote_workspace=None,
+        clean_remote=False,
         push=None,
         push_exclude=None,
         delete_pushed=False,

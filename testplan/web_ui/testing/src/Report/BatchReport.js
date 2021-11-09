@@ -6,7 +6,6 @@ import _ from 'lodash';
 
 import { parseToJson } from "../Common/utils";
 import Toolbar from "../Toolbar/Toolbar";
-import { TimeButton } from "../Toolbar/Buttons";
 import Nav from "../Nav/Nav";
 import {
   PropagateIndices,
@@ -41,6 +40,7 @@ class BatchReport extends React.Component {
     this.updateTreeView = this.updateTreeView.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
     this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
+    this.updatePathDisplay = this.updatePathDisplay.bind(this);
     this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
     this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
@@ -60,6 +60,7 @@ class BatchReport extends React.Component {
       treeView: false,
       displayTags: false,
       displayTime: false,
+      displayPath: false,
       displayEmpty: true,
       assertionStatus: defaultAssertionStatus,
     };
@@ -80,8 +81,8 @@ class BatchReport extends React.Component {
     const redirectPath = this.props.match.params.selection
       ? null
       : generateSelectionPath(this.props.match.path, [
-          filteredReport.report.uid,
-        ]);
+        filteredReport.report.uid,
+      ]);
 
     this.setState(
       {
@@ -134,7 +135,7 @@ class BatchReport extends React.Component {
                   if (!assertionsRes.data) {
                     alert(
                       "Failed to parse assertion datails!\n" +
-                        "Please report this issue to the Testplan team."
+                      "Please report this issue to the Testplan team."
                     );
                     console.error(assertionsRes);
                   }
@@ -227,8 +228,6 @@ class BatchReport extends React.Component {
           time: new Date().getTime(),
         };
       });
-      console.log(prev);
-      console.log({ ...prev, assertionStatus });
       return { ...prev, assertionStatus };
     });
   }
@@ -249,7 +248,7 @@ class BatchReport extends React.Component {
    * @param {boolean} treeView.
    * @public
    */
-   updateTreeView(treeView) {
+  updateTreeView(treeView) {
     this.setState({ treeView: treeView });
   }
 
@@ -271,6 +270,16 @@ class BatchReport extends React.Component {
    */
   updateDisplayEmpty(displayEmpty) {
     this.setState({ displayEmpty: displayEmpty });
+  }
+
+  /**
+   * Update file path and line number display of each assertion.
+   *
+   * @param {boolean} displayPath.
+   * @public
+   */
+  updatePathDisplay(displayPath) {
+    this.setState({ displayPath: displayPath });
   }
 
   /**
@@ -322,8 +331,8 @@ class BatchReport extends React.Component {
     if (selectedEntries.length) {
       window.document.title = `${_.last(selectedEntries).name} | \
                                ${selectedEntries.slice(0, -1)
-                                                .map(entry => entry.name)
-                                                .join(" > ")}`;
+          .map(entry => entry.name)
+          .join(" > ")}`;
     }
 
     const centerPane = GetCenterPane(
@@ -347,13 +356,8 @@ class BatchReport extends React.Component {
           updateEmptyDisplayFunc={this.updateDisplayEmpty}
           updateTreeViewFunc={this.updateTreeView}
           updateTagsDisplayFunc={this.updateTagsDisplay}
-          extraButtons={[
-            <TimeButton
-              key="time-button"
-              status={reportStatus}
-              updateTimeDisplayCbk={this.updateTimeDisplay}
-            />,
-          ]}
+          updatePathDisplayFunc={this.updatePathDisplay}
+          updateTimeDisplayFunc={this.updateTimeDisplay}
         />
         <Nav
           navListWidth={this.state.navWidth}

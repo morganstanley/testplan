@@ -503,8 +503,14 @@ def test_custom_wrapper():
         def adder_test(self, env, result, a, b, expected):
             result.equal(actual=a + b, expected=expected)
 
+        # custom_wrappers should work for non-parametrized case as well
+        @testcase(custom_wrappers=add_label("bar"))
+        def non_param_case(self, env, result):
+            result.equal(actual=1, expected=1)
+
     assert MySuite.adder_test__a_1__b_2__expected_3.label == "foo"
     assert MySuite.adder_test__a_3__b_3__expected_6.label == "foo"
+    assert MySuite.non_param_case.label == "bar"
 
 
 @pytest.mark.parametrize(
