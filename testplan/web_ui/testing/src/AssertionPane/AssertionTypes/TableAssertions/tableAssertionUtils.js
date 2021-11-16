@@ -3,6 +3,7 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import _ from "lodash";
+import {css, StyleSheet} from 'aphrodite';
 import {
   domToString,
   generateURLWithParameters
@@ -115,6 +116,18 @@ function tableLogCellType(cellValue) {
   return new DefaultCell(cellValue);
 }
 
+function baseTableCellStyle(params) {
+  const isValueRow = params.data.ev === 'Value';
+
+  let cellStyle = {};
+
+  if (isValueRow) {
+    cellStyle['borderBottomColor'] = '#827878';
+  }
+
+  return cellStyle;
+}
+
 /**
  * Function to add styling to table cells with conditions based on their values.
  *
@@ -123,19 +136,21 @@ function tableLogCellType(cellValue) {
  * @private
  */
 function tableCellStyle(params) {
-  const isValueRow = params.data.ev === 'Value';
+  let cellStyle = baseTableCellStyle(params);
   const isCellFailed = params.data.passed[params.colDef.field] === false;
-  let cellStyle = {};
-
-  if (isValueRow) {
-    cellStyle['borderBottomColor'] = '#827878';
-  }
 
   if (isCellFailed) {
     cellStyle['color'] = 'red';
     cellStyle['fontWeight'] = 'bold';
   }
 
+  return cellStyle;
+}
+
+function ignoredTableCellStyle(params) {
+  let cellStyle = baseTableCellStyle(params);
+  cellStyle['color'] = 'grey';
+  cellStyle['fontStyle'] ='italic';
   return cellStyle;
 }
 
@@ -227,6 +242,13 @@ export function prepareTableLogRowData(indexes, table, columns, display_index) {
   return rowData;
 }
 
+function isIgnoredColumn(column, included_columns, excluded_columns) {
+  return (
+    (excluded_columns && _.includes(excluded_columns, column)) ||
+    (included_columns && !_.includes(included_columns, column))
+  );
+}
+
 /**
  * Prepare the column definitions for TableMatch assertion.
  *
@@ -234,33 +256,45 @@ export function prepareTableLogRowData(indexes, table, columns, display_index) {
  * @returns {Array}
  * @private
  */
-export function prepareTableMatchColumnDefs(columns) {
-  let columnDefs = [{
-    headerName: 'ID',
-    field: 'id',
-    pinned: 'left',
-    resizable: true,
-    suppressSizeToFit: true,
-    width: 75,
-    filterParams: {excelMode: 'windows'},
-    cellStyle: tableCellStyle,
-  }, {
-    headerName: 'Expected/Value',
-    field: 'ev',
-    pinned: 'left',
-    resizable: true,
-    suppressSizeToFit: true,
-    width: 125,
-    filterParams: {excelMode: 'windows'},
-    cellStyle: tableCellStyle,
-  }];
+export function prepareTableMatchColumnDefs(
+  columns,
+  included_columns,
+  excluded_columns
+) {
+  let columnDefs = [
+    {
+      headerName: "ID",
+      field: "id",
+      pinned: "left",
+      resizable: true,
+      suppressSizeToFit: true,
+      width: 75,
+      filterParams: { excelMode: "windows" },
+      cellStyle: tableCellStyle,
+    },
+    {
+      headerName: "Expected/Value",
+      field: "ev",
+      pinned: "left",
+      resizable: true,
+      suppressSizeToFit: true,
+      width: 125,
+      filterParams: { excelMode: "windows" },
+      cellStyle: tableCellStyle,
+    },
+  ];
 
-  columns.forEach(column => {
+  columns.forEach((column) => {
     columnDefs.push({
       headerName: column,
       field: column,
-      filterParams: {excelMode: 'windows'},
-      cellStyle: tableCellStyle,
+      filterParams: { excelMode: "windows" },
+      cellStyle: isIgnoredColumn(column, included_columns, excluded_columns)
+        ? ignoredTableCellStyle
+        : tableCellStyle,
+      headerClass: isIgnoredColumn(column, included_columns, excluded_columns)
+        ? css(styles.ignored_column)
+        : null,
     });
   });
   return columnDefs;
@@ -458,3 +492,9 @@ export function gridToDOM(columnDefs, rowData) {
   });
   return domToString(table);
 }
+
+const styles = StyleSheet.create({
+  ignored_column: {
+    fontStyle: 'italic',
+  }
+});

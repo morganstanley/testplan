@@ -34,6 +34,7 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "filterParams": Object {
           "excelMode": "windows",
         },
+        "headerClass": null,
         "headerName": "name",
       },
       Object {
@@ -42,7 +43,17 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "filterParams": Object {
           "excelMode": "windows",
         },
+        "headerClass": null,
         "headerName": "age",
+      },
+      Object {
+        "cellStyle": [Function],
+        "field": "ignored",
+        "filterParams": Object {
+          "excelMode": "windows",
+        },
+        "headerClass": "ignored_column_cfc79j",
+        "headerName": "ignored",
       },
     ]
   }
@@ -52,9 +63,11 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "age": 32,
         "ev": "Expected",
         "id": 0,
+        "ignored": "same",
         "name": "Bob",
         "passed": Object {
           "age": true,
+          "ignored": true,
           "name": true,
         },
       },
@@ -62,9 +75,11 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "age": 32,
         "ev": "Value",
         "id": 0,
+        "ignored": "same",
         "name": "Bob",
         "passed": Object {
           "age": true,
+          "ignored": true,
           "name": true,
         },
       },
@@ -72,9 +87,11 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "age": 24,
         "ev": "Expected",
         "id": 1,
+        "ignored": "different",
         "name": "Susan",
         "passed": Object {
           "age": true,
+          "ignored": true,
           "name": true,
         },
       },
@@ -82,9 +99,11 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "age": 24,
         "ev": "Value",
         "id": 1,
+        "ignored": "same",
         "name": "Susan",
         "passed": Object {
           "age": true,
+          "ignored": true,
           "name": true,
         },
       },
@@ -92,9 +111,11 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "age": 67,
         "ev": "Expected",
         "id": 2,
+        "ignored": "same",
         "name": "Rick",
         "passed": Object {
           "age": true,
+          "ignored": true,
           "name": true,
         },
       },
@@ -102,9 +123,11 @@ exports[`FixMatchAssertion shallow renders the correct HTML structure 1`] = `
         "age": 67,
         "ev": "Value",
         "id": 2,
+        "ignored": "same",
         "name": "Rick",
         "passed": Object {
           "age": true,
+          "ignored": true,
           "name": true,
         },
       },

@@ -13,6 +13,7 @@ function defaultProps() {
       "comparison":[
         [0,"foo","Passed",["int","1"],["int","1"]],
         [0,"bar","Failed",["int","2"],["int","5"]],
+        [0,"baz","Ignored",["int","2"],["int","5"]],
         [0,"extra-key","Failed",[null,"ABSENT"],["int","10"]]
       ],
       "line_no":524,
@@ -21,7 +22,7 @@ function defaultProps() {
       "meta_type":"assertion",
       "include_keys":null,
       "passed":false,
-      "exclude_keys":null,
+      "exclude_keys":["baz"],
       "type":"DictMatch",
       "utc_time":"2019-02-12T17:41:43.295231+00:00"
     }
