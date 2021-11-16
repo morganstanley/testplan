@@ -1,15 +1,16 @@
 from testplan.testing.multitest import testsuite, testcase
-from . import mod
+
 
 @testsuite
-class ExtraSuite(object):
+class Suite1(object):
 
     @testcase
     def case(self, env, result):
         result.{ASSERTION}(f"Save a message into report")
 
+
 @testsuite
-class AnotherSuite(object):
+class Suite2(object):
 
     @testcase
     def case(self, env, result):

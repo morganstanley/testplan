@@ -1,7 +1,6 @@
 """Tasks and task results base module."""
 
 import inspect
-import threading
 import warnings
 from collections import OrderedDict
 
@@ -189,7 +188,7 @@ class Task(object):
 
     def materialize(self, target=None):
         """
-        Create the actual task target executable/runnable/callable object.
+        Create the actual task target executable/runnable object.
         """
         errmsg = "Cannot get a valid test object from target {}"
         target = target or copy.deepcopy(self._target)
@@ -216,9 +215,7 @@ class Task(object):
                 except:
                     name = target
                 raise RuntimeError(
-                    "Target {} must have both `run` and `uid` methods.".format(
-                        name
-                    )
+                    f"Target {name} must have both `run` and `uid` methods"
                 )
             else:
                 return target
@@ -238,21 +235,21 @@ class Task(object):
             except ValueError:
                 raise TaskMaterializationError(
                     "Task parameters are not sufficient for"
-                    " target {} materialization".format(self._target)
+                    f" target {self._target} materialization"
                 )
         else:
             module = self._module
             target = self._target
 
         with import_tmp_module(module, self._path) as mod:
+            tgt = mod
             for element in target.split("."):
-                tgt = getattr(mod, element, None)
+                tgt = getattr(tgt, element, None)
                 if tgt is None:
                     raise TaskMaterializationError(
-                        'During materializing target "{}": {} has no attribute'
-                        ' "{}"'.format(self._target, mod, element)
+                        f'During materializing target "{self._target}":'
+                        f' {tgt} has no attribute "{element}"'
                     )
-                mod = tgt
             return tgt
 
     def dumps(self, check_loadable=False):

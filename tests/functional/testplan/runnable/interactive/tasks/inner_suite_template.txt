@@ -1,11 +1,23 @@
+from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest import testsuite, testcase
 {IMPORT}
 
-@testsuite
-class InnerSuite(object):
 
+@testsuite
+class Suite(object):
     @testcase
     def case(self, env, result):
         result.true(True, description="Truth Assertion")
 
 {ANOTHER_CASE}
+
+
+@testsuite
+class AnotherSuite(object):
+    @testcase
+    def case(self, env, result):
+        result.false({VALUE}, description="Fallacy Assertion")
+
+
+def make_mtest():
+    return MultiTest(name="CallableTarget", suites=[AnotherSuite()])

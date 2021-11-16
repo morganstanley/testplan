@@ -1,10 +1,12 @@
 """Unit tests for the reloader module."""
 
-import modulefinder
+import sys
 import os
 import time
-import sys
+import io
+import modulefinder
 from unittest import mock
+from contextlib import contextmanager
 
 import pytest
 
@@ -115,7 +117,7 @@ class MockModuleFinder(object):
         self.modules = {}
         self._curr_mod = None
 
-    def run_script(self, script_filepath):
+    def load_module(self, fqname, fp, pathname, file_info):
         """
         Don't actually run any script - just call the expected hooks to
         simulate the dependency structure we want.
@@ -155,6 +157,10 @@ def mock_reload_env():
         0 if i != 8 else one_day_hence for i in range(10)
     )
 
+    @contextmanager
+    def mock_open(file, mode="r", **kwargs):
+        yield io.StringIO("")
+
     def mock_stat(filepath):
         if filepath in mock_stat.modified_files:
             return modified_stat_result
@@ -163,10 +169,12 @@ def mock_reload_env():
 
     mock_stat.modified_files = set()
 
-    with mock.patch("os.stat", new=mock_stat), mock.patch(
-        "sys.modules", new=MOCK_SYSMODULES
-    ), mock.patch("modulefinder.ModuleFinder", new=MockModuleFinder), (
-        mock.patch("importlib.reload", side_effect=lambda module: module)
+    with mock.patch("io.open", new=mock_open), mock.patch(
+        "os.stat", new=mock_stat
+    ), mock.patch("sys.modules", new=MOCK_SYSMODULES), mock.patch(
+        "modulefinder.ModuleFinder", new=MockModuleFinder
+    ), mock.patch(
+        "importlib.reload", side_effect=lambda module: module
     ) as mock_reload:
 
         # Despite mocking modulefinder.ModuleFinder above, we also need to

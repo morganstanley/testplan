@@ -1,17 +1,20 @@
 """Interactive code reloader module."""
 
-import os
 import sys
+import os
+import io
 import time
 import inspect
 import importlib
 import modulefinder
 import collections
 import functools
+import warnings
 
 from testplan.common.utils import path as path_utils
 from testplan.common.utils import logger
 from testplan.common.utils import strings
+from testplan.common.utils.package import import_tmp_module
 from testplan.testing.multitest import suite, MultiTest
 
 
@@ -23,17 +26,49 @@ class ModuleReloader(logger.Loggable):
         despite not being directly imported by __main__, or paths of these
         modules.
     :type extra_deps: ``Iterable[ModuleType]`` or ``Iterable[str]``
+    :param scheduled_modules: Name of module which has schedule tests, with
+        the module path registered as extra dependencies to reload.
+    :type scheduled_modules: ``Dict[str, str]``
     """
 
-    def __init__(self, extra_deps=None):
+    def __init__(self, extra_deps=None, scheduled_modules=None):
         super(ModuleReloader, self).__init__()
 
         self._extra_deps = extra_deps or []
+        self._scheduled_modules = scheduled_modules or {}
+
+        if isinstance(self._scheduled_modules, (tuple, list)):
+            counter = collections.Counter(
+                module_info[0] for module_info in self._scheduled_modules
+            )
+            duplicates = [mod for mod, cnt in counter.items() if cnt > 1]
+            for dup in duplicates:
+                paths = set(
+                    os.path.realpath(path)
+                    for mod, path in self._scheduled_modules
+                    if mod == dup
+                )
+                if len(paths) > 1:
+                    paths_to_print = os.linesep.join(
+                        f"  -- {path}" for path in paths
+                    )
+                    warnings.warn(
+                        f"Module `{dup}` imported from different places, it"
+                        " makes Testplan not able to reload tests properly:"
+                        f"{os.linesep}{paths_to_print}"
+                    )
+            self._scheduled_modules = dict(self._scheduled_modules)
+
+        # Import modules that have scheduled tests
+        for mod, path in self._scheduled_modules.items():
+            with import_tmp_module(mod, path, delete=False):
+                pass
+
         (
             self._reload_dirs,
             self._dep_graph,
             self._watched_modules,
-        ) = self._build_dependencies(self._extra_deps)
+        ) = self._build_dependencies()
 
         # Last recorded reload time for watched modules.
         self._last_reload_time = {}  # type: Dict[str, float]
@@ -56,7 +91,7 @@ class ModuleReloader(logger.Loggable):
                 self._reload_dirs,
                 self._dep_graph,
                 self._watched_modules,
-            ) = self._build_dependencies(self._extra_deps)
+            ) = self._build_dependencies()
 
         modified_modules = self._modified_modules
         if modified_modules:
@@ -71,15 +106,10 @@ class ModuleReloader(logger.Loggable):
         else:
             self.logger.debug("No watched files have been modified.")
 
-    def _build_dependencies(self, extra_deps):
+    def _build_dependencies(self):
         """
         Build a list of directories to reload code from and a tree of
         dependencies.
-
-        :param extra_deps: Modules to register as extra dependencies to reload,
-            despite not being directly imported by __main__, or paths of these
-            modules.
-        :type extra_deps: ``Iterable[ModuleType]`` or ``Iterable[str]``
         """
         main_module_file = sys.modules["__main__"].__file__
         if not main_module_file:
@@ -91,7 +121,11 @@ class ModuleReloader(logger.Loggable):
         reload_dirs = {os.path.abspath(os.path.dirname(main_module_file))}
 
         # Add extra reload source directories if required.
-        reload_dirs = reload_dirs.union(self._extra_reload_dirs(extra_deps))
+        reload_dirs = reload_dirs.union(
+            self._extra_reload_dirs(
+                self._extra_deps + list(set(self._scheduled_modules.values()))
+            )
+        )
 
         dep_graph, watched_modules = self._build_dep_graph(
             main_module_file, reload_dirs
@@ -109,13 +143,6 @@ class ModuleReloader(logger.Loggable):
         :return: Reload directories of extra dependencies
         :rtype: ``set[str]``
         """
-        for dep in deps:
-            self.logger.debug(
-                "Adding extra dependent %s: %s",
-                "path" if isinstance(dep, str) else "module",
-                dep,
-            )
-
         reload_dirs = set()
 
         for dep in deps:
@@ -124,6 +151,7 @@ class ModuleReloader(logger.Loggable):
                 # Add it to `sys.path` for reloading
                 if dirpath not in sys.path:
                     sys.path.append(dirpath)
+                self.logger.debug("Adding extra dependent path: %s", dirpath)
                 reload_dirs.add(dirpath)
             else:
                 filepath = _module_filepath(dep)
@@ -144,6 +172,11 @@ class ModuleReloader(logger.Loggable):
                     # needs to be added back so the module can be reloaded.
                     if dirpath not in sys.path:
                         sys.path.append(dirpath)
+                    self.logger.debug(
+                        "Adding extra dependent path for module %s: %s",
+                        dep.__name__,
+                        dirpath,
+                    )
                     reload_dirs.add(dirpath)
 
         return reload_dirs
@@ -161,12 +194,26 @@ class ModuleReloader(logger.Loggable):
         finder = _GraphModuleFinder(path=self._filtered_syspath(reload_dirs))
 
         try:
-            finder.run_script(main_module_file)
+            with io.open(main_module_file, "r") as fp:
+                text = fp.read()
         except OSError:
             raise RuntimeError(
                 "Could not run main module {} as a script.".format(
                     main_module_file
                 )
+            )
+        else:
+            imports = "".join(
+                f"import {module_name}{os.linesep}"
+                for module_name in sorted(self._scheduled_modules.keys())
+            )
+            finder.load_module(
+                "__main__",
+                io.StringIO(  # Instance of `TextIOBase` with a `read` method
+                    text + os.linesep * 2 + imports if imports else text
+                ),
+                main_module_file,
+                ("", "r", 1),  # In deprecated module `imp`: PY_SOURCE == 1
             )
 
         return finder.build_dep_graph()
@@ -290,7 +337,7 @@ class ModuleReloader(logger.Loggable):
         # Reload this module if there are file modifications or if any of its
         # dependencies have been reloaded.
         if mod_node in modified_modules or dep_reloaded:
-            self.logger.info("Reloading %s", mod_node.mod.__name__)
+            self.logger.info("Reloading %s", mod_node.name)
             mod_node.reload()
             if mod_node.name in suite_instances:
                 mod_node.update_suites(suite_instances)
@@ -391,8 +438,8 @@ class _GraphModuleFinder(modulefinder.ModuleFinder, logger.Loggable):
         mod = modulefinder.ModuleFinder.import_module(self, *args, **kwargs)
 
         if (
-            (caller is not None)
-            and (mod is not None)
+            caller is not None
+            and mod is not None
             and _has_file(mod)
             and mod not in self._module_deps[caller]
         ):
@@ -521,7 +568,7 @@ class _ModuleNode(object):
     def reload(self):
         """Reload this module from file."""
         try:
-            if not self._native_mod:
+            if self._native_mod is None:
                 self._native_mod = sys.modules[self.mod.__name__]
             self._native_mod = importlib.reload(self._native_mod)
         except (KeyError, ModuleNotFoundError):

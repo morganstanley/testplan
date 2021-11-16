@@ -2,6 +2,7 @@
 Interactive handler for TestRunner runnable class.
 """
 
+import os
 import re
 import numbers
 import threading
@@ -65,7 +66,10 @@ class TestRunnerIHandler(entity.Entity):
 
         try:
             self._reloader = reloader.ModuleReloader(
-                extra_deps=self.cfg.extra_deps
+                extra_deps=getattr(self.cfg, "extra_deps", None),
+                scheduled_modules=getattr(
+                    self.parent, "scheduled_modules", None
+                ),
             )
         except RuntimeError:
             self._reloader = None
@@ -95,10 +99,9 @@ class TestRunnerIHandler(entity.Entity):
 
     @property
     def exporters(self):
-        if hasattr(self.parent, "exporters"):
-            return self.parent.exporters
-        else:
-            return []
+        return (
+            self.parent.exporters if hasattr(self.parent, "exporters") else []
+        )
 
     @property
     def http_handler_info(self):
@@ -133,6 +136,10 @@ class TestRunnerIHandler(entity.Entity):
 
     def teardown(self):
         """Close the task pool."""
+        self.logger.test_info(
+            "Stopping {} for {}".format(self.__class__.__name__, self.target)
+        )
+
         if self._pool is None or self._http_handler is None:
             raise RuntimeError("setup() not run")
 

@@ -16,7 +16,7 @@ ModuleInfo = collections.namedtuple(
 )
 
 TEST_SUITE_MODULES = [
-    # A module in the same directory with the main script
+    # A module in the same directory with the main script.
     ModuleInfo(
         os.path.abspath(
             os.path.join(THIS_DIRECTORY, "basic_suite_template.txt")
@@ -55,7 +55,7 @@ TEST_SUITE_MODULES = [
             }
         ],
     ),
-    # A module in a package which is in the same directory as the main script
+    # A module in a package which is in the same directory as the main script.
     ModuleInfo(
         os.path.abspath(
             os.path.join(THIS_DIRECTORY, "tasks", "inner_suite_template.txt")
@@ -63,7 +63,7 @@ TEST_SUITE_MODULES = [
         os.path.abspath(
             os.path.join(THIS_DIRECTORY, "tasks", "inner_suite.py")
         ),
-        {"IMPORT": "", "ANOTHER_CASE": ""},
+        {"IMPORT": "", "ANOTHER_CASE": "", "VALUE": "True"},
         {
             "IMPORT": "from .mod import VAL",
             "ANOTHER_CASE": (
@@ -71,6 +71,7 @@ TEST_SUITE_MODULES = [
                 "    def another_case(self, env, result):\n"
                 '        result.false(VAL, description="Fallacy Assertion")\n'
             ),
+            "VALUE": "False",
         },
         [
             {
@@ -104,7 +105,7 @@ TEST_SUITE_MODULES = [
             },
         ],
     ),
-    # A module outside of the current directory that places the main script
+    # A module outside of the current directory where main script is placed.
     ModuleInfo(
         os.path.abspath(
             os.path.join(
@@ -168,6 +169,142 @@ TEST_SUITE_MODULES = [
             },
         ],
     ),
+    # A module which has a callable target and this target is defined in
+    # "inner_suite.py" (no `template_path` needed here) and it will be
+    # directly imported in main script
+    ModuleInfo(
+        "",
+        "",
+        {},
+        {},
+        [
+            {
+                "type": "IsFalse",
+                "meta_type": "assertion",
+                "category": "DEFAULT",
+                "description": "Fallacy Assertion",
+                "passed": False,
+                "flag": "DEFAULT",
+                "expr": True,
+            }
+        ],
+        [
+            {
+                "type": "IsFalse",
+                "meta_type": "assertion",
+                "category": "DEFAULT",
+                "description": "Fallacy Assertion",
+                "passed": True,
+                "flag": "DEFAULT",
+                "expr": False,
+            }
+        ],
+    ),
+    # A module which has a callable target and will be scheduled as string
+    # target. The module imports another module in another package.
+    ModuleInfo(
+        os.path.abspath(
+            os.path.join(
+                THIS_DIRECTORY, "tasks", "scheduled", "foo", "mod_template.txt"
+            )
+        ),
+        os.path.abspath(
+            os.path.join(THIS_DIRECTORY, "tasks", "scheduled", "foo", "mod.py")
+        ),
+        {"VALUE": "0"},
+        {"VALUE": "1"},
+        [
+            {
+                "type": "Equal",
+                "meta_type": "assertion",
+                "category": "DEFAULT",
+                "description": "Equal Assertion",
+                "label": "==",
+                "passed": False,
+                "flag": "DEFAULT",
+                "first": 1,
+                "second": 0,
+                "type_expected": "int",
+                "type_actual": "int",
+            }
+        ],
+        [
+            {
+                "type": "Equal",
+                "meta_type": "assertion",
+                "category": "DEFAULT",
+                "description": "Equal Assertion",
+                "label": "==",
+                "passed": True,
+                "flag": "DEFAULT",
+                "first": 1,
+                "second": 1,
+                "type_expected": "int",
+                "type_actual": "int",
+            }
+        ],
+    ),
+    # A module which has a callable target and will be scheduled as string
+    # target. The module imports another module in the parent package.
+    ModuleInfo(
+        os.path.abspath(
+            os.path.join(
+                THIS_DIRECTORY,
+                "tasks",
+                "scheduled",
+                "foo",
+                "bar",
+                "suite_template.txt",
+            )
+        ),
+        os.path.abspath(
+            os.path.join(
+                THIS_DIRECTORY, "tasks", "scheduled", "foo", "bar", "suite.py"
+            )
+        ),
+        {"ANOTHER_CASE": ""},
+        {
+            "ANOTHER_CASE": (
+                "    @testcase\n"
+                "    def another_case(self, env, result):\n"
+                '        result.log("Save a message into report")\n'
+            )
+        },
+        [
+            {
+                "type": "NotEqual",
+                "meta_type": "assertion",
+                "category": "DEFAULT",
+                "description": "Not Equal Assertion",
+                "label": "!=",
+                "passed": False,
+                "flag": "DEFAULT",
+                "first": 0,
+                "second": 0,
+            }
+        ],
+        [
+            {
+                "type": "NotEqual",
+                "meta_type": "assertion",
+                "category": "DEFAULT",
+                "description": "Not Equal Assertion",
+                "label": "!=",
+                "passed": True,
+                "flag": "DEFAULT",
+                "first": 0,
+                "second": 1,
+            },
+            {
+                "type": "Log",
+                "meta_type": "entry",
+                "category": "DEFAULT",
+                "description": "Save a message into report",
+                "message": "Save a message into report",
+                "flag": "DEFAULT",
+            },
+        ],
+    ),
 ]
 
 
@@ -186,15 +323,76 @@ def _compare_reports(expected_reports, actual_reports, ignore=None):
             )
 
 
+def _get_actual_reports(plan):
+    # Generate a list test reports from Testplan for comparing
+    return [
+        [
+            plan.i.test_case_report(
+                test_uid="BasicTest",
+                suite_uid="Suite",
+                case_uid="case",
+                serialized=True,
+            )["entries"][0]["entries"][0]["entries"][0],
+        ],
+        [
+            plan.i.test_case_report(
+                test_uid="InnerTest",
+                suite_uid="Suite",
+                case_uid="case",
+                serialized=True,
+            )["entries"][0]["entries"][0]["entries"][0],
+        ],
+        [
+            plan.i.test_case_report(
+                test_uid="ExtraTest",
+                suite_uid="Suite1",
+                case_uid="case",
+                serialized=True,
+            )["entries"][0]["entries"][0]["entries"][0],
+            plan.i.test_case_report(
+                test_uid="ExtraTest",
+                suite_uid="Suite2",
+                case_uid="case",
+                serialized=True,
+            )["entries"][0]["entries"][0]["entries"][0],
+        ],
+        [
+            plan.i.test_case_report(
+                test_uid="CallableTarget",
+                suite_uid="AnotherSuite",
+                case_uid="case",
+                serialized=True,
+            )["entries"][0]["entries"][0]["entries"][0],
+        ],
+        [
+            plan.i.test_case_report(
+                test_uid="ScheduledTest1",
+                suite_uid="Suite",
+                case_uid="case",
+                serialized=True,
+            )["entries"][0]["entries"][0]["entries"][0],
+        ],
+        [
+            plan.i.test_case_report(
+                test_uid="ScheduledTest2",
+                suite_uid="Suite",
+                case_uid="case",
+                serialized=True,
+            )["entries"][0]["entries"][0]["entries"][0],
+        ],
+    ]
+
+
 def main():
     # Create module files that contain test suite definition
     for module_info in TEST_SUITE_MODULES:
-        with open(module_info.template_path, "r") as fp_r, open(
-            module_info.module_path, "w"
-        ) as fp_w:
-            fp_w.write(fp_r.read().format(**module_info.original_value))
-        # module files will be removed after testing
-        atexit.register(os.remove, module_info.module_path)
+        if module_info.template_path and module_info.module_path:
+            with open(module_info.template_path, "r") as fp_r, open(
+                module_info.module_path, "w"
+            ) as fp_w:
+                fp_w.write(fp_r.read().format(**module_info.original_value))
+            # module files will be removed after testing
+            atexit.register(os.remove, module_info.module_path)
 
     # Import 3 test suites
     extra_path = os.path.abspath(os.path.join(THIS_DIRECTORY, os.pardir))
@@ -215,13 +413,25 @@ def main():
     )
 
     # Add 2 MultiTest instances and trigger run of interactive executioner
-    plan.add(MultiTest(name="BasicTest", suites=[basic_suite.BasicSuite()]))
-    plan.add(MultiTest(name="InnerTest", suites=[inner_suite.InnerSuite()]))
+    plan.add(MultiTest(name="BasicTest", suites=[basic_suite.Suite()]))
+    plan.add(MultiTest(name="InnerTest", suites=[inner_suite.Suite()]))
     plan.add(
         MultiTest(
             name="ExtraTest",
-            suites=[extra_suite.ExtraSuite(), extra_suite.AnotherSuite()],
+            suites=[extra_suite.Suite1(), extra_suite.Suite2()],
         )
+    )
+    plan.schedule(target=inner_suite.make_mtest)
+    plan.schedule(
+        target="TaskManager.make_mtest",
+        module="scheduled.suite",
+        path="tasks",
+        kwargs=dict(name="ScheduledTest1"),
+    )
+    plan.schedule(
+        target="scheduled.foo.bar.suite.make_mtest",
+        path="tasks",
+        kwargs=dict(name="ScheduledTest2"),
     )
     plan.run()
 
@@ -233,48 +443,18 @@ def main():
         expected_reports=[
             module_info.original_report for module_info in TEST_SUITE_MODULES
         ],
-        actual_reports=[
-            [
-                plan.i.test_case_report(
-                    test_uid="BasicTest",
-                    suite_uid="BasicSuite",
-                    case_uid="case",
-                    serialized=True,
-                )["entries"][0]["entries"][0]["entries"][0],
-            ],
-            [
-                plan.i.test_case_report(
-                    test_uid="InnerTest",
-                    suite_uid="InnerSuite",
-                    case_uid="case",
-                    serialized=True,
-                )["entries"][0]["entries"][0]["entries"][0],
-            ],
-            [
-                plan.i.test_case_report(
-                    test_uid="ExtraTest",
-                    suite_uid="ExtraSuite",
-                    case_uid="case",
-                    serialized=True,
-                )["entries"][0]["entries"][0]["entries"][0],
-                plan.i.test_case_report(
-                    test_uid="ExtraTest",
-                    suite_uid="AnotherSuite",
-                    case_uid="case",
-                    serialized=True,
-                )["entries"][0]["entries"][0]["entries"][0],
-            ],
-        ],
+        actual_reports=_get_actual_reports(plan),
         ignore=["file_path", "line_no", "machine_time", "utc_time"],
     )
     assert plan.i.report.passed is False
 
     # Apply code changes, two testcase changed and one newly added
     for module_info in TEST_SUITE_MODULES:
-        with open(module_info.template_path, "r") as fp_r, open(
-            module_info.module_path, "w"
-        ) as fp_w:
-            fp_w.write(fp_r.read().format(**module_info.updated_value))
+        if module_info.template_path and module_info.module_path:
+            with open(module_info.template_path, "r") as fp_r, open(
+                module_info.module_path, "w"
+            ) as fp_w:
+                fp_w.write(fp_r.read().format(**module_info.updated_value))
 
     # Reload code from changed files and update report
     plan.i.reload(rebuild_dependencies=True)
@@ -283,49 +463,31 @@ def main():
     # Run tests again
     plan.i.run_all_tests()
 
+    # 2 suites has new testcase added respectively
+    actual_reports = _get_actual_reports(plan)
+    actual_reports[1].append(
+        plan.i.test_case_report(
+            test_uid="InnerTest",
+            suite_uid="Suite",
+            case_uid="another_case",
+            serialized=True,
+        )["entries"][0]["entries"][0]["entries"][0]
+    )
+    actual_reports[5].append(
+        plan.i.test_case_report(
+            test_uid="ScheduledTest2",
+            suite_uid="Suite",
+            case_uid="another_case",
+            serialized=True,
+        )["entries"][0]["entries"][0]["entries"][0]
+    )
+
     # Check reports
     _compare_reports(
         expected_reports=[
             module_info.updated_report for module_info in TEST_SUITE_MODULES
         ],
-        actual_reports=[
-            [
-                plan.i.test_case_report(
-                    test_uid="BasicTest",
-                    suite_uid="BasicSuite",
-                    case_uid="case",
-                    serialized=True,
-                )["entries"][0]["entries"][0]["entries"][0],
-            ],
-            [
-                plan.i.test_case_report(
-                    test_uid="InnerTest",
-                    suite_uid="InnerSuite",
-                    case_uid="case",
-                    serialized=True,
-                )["entries"][0]["entries"][0]["entries"][0],
-                plan.i.test_case_report(
-                    test_uid="InnerTest",
-                    suite_uid="InnerSuite",
-                    case_uid="another_case",
-                    serialized=True,
-                )["entries"][0]["entries"][0]["entries"][0],
-            ],
-            [
-                plan.i.test_case_report(
-                    test_uid="ExtraTest",
-                    suite_uid="ExtraSuite",
-                    case_uid="case",
-                    serialized=True,
-                )["entries"][0]["entries"][0]["entries"][0],
-                plan.i.test_case_report(
-                    test_uid="ExtraTest",
-                    suite_uid="AnotherSuite",
-                    case_uid="case",
-                    serialized=True,
-                )["entries"][0]["entries"][0]["entries"][0],
-            ],
-        ],
+        actual_reports=actual_reports,
         ignore=["file_path", "line_no", "machine_time", "utc_time"],
     )
     assert plan.i.report.passed is True
