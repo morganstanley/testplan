@@ -26,7 +26,12 @@ class DictSuite:
         expected = {"foo": 1, "bar": 5, "baz_excluded": 5, "extra-key": 10}
 
         # `dict.match` (recursively) matches elements of the dictionaries
-        result.dict.match(actual, expected, description="Simple dict match", exclude_keys=["baz_excluded"])
+        result.dict.match(
+            actual,
+            expected,
+            description="Simple dict match",
+            exclude_keys=["baz_excluded"],
+        )
 
         # `dict.match` supports nested data as well
 

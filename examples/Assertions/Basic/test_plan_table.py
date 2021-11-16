@@ -263,7 +263,6 @@ class TableSuite:
             description="Table Diff: Ignored columns",
         )
 
-
         # While comparing tables with large number of columns
         # we can 'trim' some of the columns to get more readable output
 
