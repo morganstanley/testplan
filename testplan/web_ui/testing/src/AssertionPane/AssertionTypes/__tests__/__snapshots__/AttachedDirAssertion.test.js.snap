@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AttachedDirAssertion renders an attached directory 1`] = `
+<div>
+  <WithStyles(WithStyles(ForwardRef(Accordion)))>
+    <WithStyles(WithStyles(ForwardRef(AccordionSummary)))
+      aria-controls="panel-content"
+      expandIcon={<UNDEFINED />}
+      id="panel-header"
+    >
+      <WithStyles(ForwardRef(Typography))>
+        <span
+          className="title_1d861dv"
+        >
+          /tmp/testplan/basic-test/mtest/scratch/4ac48da114046bd1246631bc1feb04c4
+        </span>
+        <br />
+        <span
+          className="subHeader_14g86fh"
+        >
+          3 files
+        </span>
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(WithStyles(ForwardRef(AccordionSummary)))>
+    <WithStyles(WithStyles(ForwardRef(AccordionDetails)))>
+      <WithStyles(ForwardRef(Typography))>
+        <span
+          className="textContent_1cco5d4"
+          key="0"
+        >
+          <a
+            href="/api/v1/reports/123/attachments/4ac48da114046bd1246631bc1feb04c4/index.html"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            index.html
+          </a>
+          <br />
+        </span>
+        <span
+          className="textContent_1cco5d4"
+          key="1"
+        >
+          <a
+            download="__init__.py"
+            href="/api/v1/reports/123/attachments/4ac48da114046bd1246631bc1feb04c4/__init__.py"
+          >
+            __init__.py
+          </a>
+          <br />
+        </span>
+        <span
+          className="textContent_1cco5d4"
+          key="2"
+        >
+          <a
+            download="module.py"
+            href="/api/v1/reports/123/attachments/4ac48da114046bd1246631bc1feb04c4/subdir/module.py"
+          >
+            subdir/module.py
+          </a>
+          <br />
+        </span>
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(WithStyles(ForwardRef(AccordionDetails)))>
+  </WithStyles(WithStyles(ForwardRef(Accordion)))>
+</div>
+`;

@@ -29,6 +29,7 @@ import DiscreteChartAssertion
 import SummaryBaseAssertion from './AssertionSummary';
 import AttachmentAssertion from './AssertionTypes/AttachmentAssertions';
 import PlotlyAssertion from './AssertionTypes/PlotlyAssertion';
+import AttachedDirAssertion from './AssertionTypes/AttachedDirAssertion';
 import { EXPAND_STATUS } from "../Common/defaults";
 
 /**
@@ -89,6 +90,7 @@ class Assertion extends Component {
       Markdown: MarkdownAssertion,
       CodeLog: CodeLogAssertion,
       Plotly: PlotlyAssertion,
+      Directory: AttachedDirAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];
