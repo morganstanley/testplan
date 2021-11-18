@@ -629,7 +629,9 @@ class TestResultBaseNamespace(object):
                 directory_entry.source_path.encode("utf-8")
             ).hexdigest()
         )
-        assert sorted(directory_entry.file_list) == [
+        assert sorted(
+            [file.replace("\\", "/") for file in directory_entry.file_list]
+        ) == [
             "1.txt",
             "subdir/3.txt",
             "subdir/4.txt",
