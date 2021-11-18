@@ -10,6 +10,7 @@ import inspect
 import os
 import re
 import threading
+import platform
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
@@ -19,6 +20,8 @@ from testplan.common.utils import strings
 from .entries import assertions, base
 from .entries.schemas.base import registry as schema_registry
 from .entries.stdout.base import registry as stdout_registry
+
+IS_WIN = platform.system() == "Windows"
 
 
 class ExceptionCapture(object):
@@ -2266,11 +2269,15 @@ class Result(object):
                 scratch_path=self._scratch,
             )
             for file in directory.file_list:
+                filepath = os.path.join(directory.source_path, file)
+                dst_path = os.path.join(directory.dst_path, file)
+                if IS_WIN:
+                    dst_path = dst_path.replace("\\", "/")
                 self.attachments.append(
                     base.Attachment(
-                        filepath=os.path.join(directory.source_path, file),
+                        filepath=filepath,
                         description=None,
-                        dst_path=os.path.join(directory.dst_path, file),
+                        dst_path=dst_path,
                         scratch_path=None,
                     )
                 )
