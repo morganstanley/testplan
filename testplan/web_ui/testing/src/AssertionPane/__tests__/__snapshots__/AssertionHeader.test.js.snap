@@ -2,7 +2,7 @@
 
 exports[`AssertionHeader shallow renders the correct HTML structure 1`] = `
 <CardHeader
-  className="cardHeader_z4yav1-o_O-cardHeaderColorPassed_1nxwz58"
+  className="cardHeader_1ue4bhj-o_O-cardHeaderColorPassed_1nxwz58"
   tag="div"
 >
   <span

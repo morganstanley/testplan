@@ -89,6 +89,9 @@ class AssertionHeader extends Component {
         >
           {timeInfoArray[1]}
         </span>
+        <span className={css(styles.cardHeaderAlignRight)}>
+          &nbsp;&nbsp;
+        </span>
         <Tooltip
           placement='bottom'
           isOpen={this.state.isUTCTooltipOpen}
@@ -113,7 +116,7 @@ class AssertionHeader extends Component {
       <>
         <Button
           size="small"
-          className={css(styles.cardHeaderAlignRight)}
+          className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
           onClick={() => {
             navigator.clipboard.writeText(getPath(this.props.assertion));
           }}
@@ -195,6 +198,7 @@ const styles = StyleSheet.create({
   cardHeader: {
     padding: '.25rem .75rem',
     fontSize: 'small',
+    lineHeight: 1.75,
     backgroundColor: 'rgba(0,0,0,0)', // Move to defaults?
     borderBottom: '1px solid',
   },
@@ -223,7 +227,8 @@ const styles = StyleSheet.create({
   },
 
   timeInfo: {
-    padding: '4px 0px'
+    padding: '4px 0px',
+    fontFamily: 'Roboto, Helvetica, Arial, sans-serif'
   },
 
   cardHeaderPath: {

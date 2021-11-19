@@ -163,21 +163,13 @@ class Assertion extends Component {
               )
             }
           >
-            {this.props.expand === EXPAND_STATUS.EXPAND ? assertionType : null}
-            {getLineNumber(this.props)}
+            {this.props.expand === EXPAND_STATUS.EXPAND ? assertionType : null}            
           </CardBody>
         </Collapse>
       </Card>
     );
   }
 }
-
-const getLineNumber = (props) => {
-  if (props.assertion.file_path && props.assertion.line_no) {
-    return props.assertion.file_path + ":" + props.assertion.line_no;
-  }
-  return null;
-};
 
 Assertion.propTypes = {
   /** Assertion to be rendered */
