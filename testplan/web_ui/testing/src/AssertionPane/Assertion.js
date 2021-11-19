@@ -163,7 +163,9 @@ class Assertion extends Component {
               )
             }
           >
-            {this.props.expand === EXPAND_STATUS.EXPAND ? assertionType : null}            
+            {this.props.expand === EXPAND_STATUS.EXPAND
+                ? assertionType : null
+            }
           </CardBody>
         </Collapse>
       </Card>
