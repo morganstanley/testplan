@@ -450,10 +450,10 @@ class TestRunner(Runnable):
         create task objects from them and schedule them to resource (usually pool)
         for execution.
 
-        :param path: the root path to start a recursive walk and discover, default
-          is current directory.
+        :param path: the root path to start a recursive walk and discover,
+            default is current directory.
         :type path: ``str``
-        :param name_pattern: a regex pattern to match the file name
+        :param name_pattern: a regex pattern to match the file name.
         :type name_pattern: ``str``
         :param resource: Target pool resource, default is None (local execution)
         :type resource: :py:class:`~testplan.runners.pools.base.Pool`
@@ -465,6 +465,7 @@ class TestRunner(Runnable):
             path,
         )
         regex = re.compile(name_pattern)
+        created_tasks = []
 
         for root, dirs, files in os.walk(path or "."):
             for filename in files:
@@ -474,17 +475,17 @@ class TestRunner(Runnable):
                 module = filename.split(".")[0]
 
                 with import_tmp_module(module, root) as mod:
-                    for name in dir(mod):
-                        attr = getattr(mod, name)
-                        if not is_task_target(attr):
+                    for attr in dir(mod):
+                        target = getattr(mod, attr)
+                        if not is_task_target(target):
                             continue
 
                         self.logger.test_info(
                             "Discovered task target %s::%s",
                             os.path.join(root, filename),
-                            name,
+                            attr,
                         )
-                        parameters = attr.__target_params__ or [{}]
+                        parameters = target.__target_params__ or [{}]
 
                         for param in parameters:
                             if isinstance(param, dict):
@@ -495,24 +496,25 @@ class TestRunner(Runnable):
                                 kwargs = None
                             else:
                                 raise TypeError(
-                                    f"task_target's parameters can only contain dict/tuple/list, received {param}"
+                                    "task_target's parameters can only contain"
+                                    f" dict/tuple/list, but received: {param}"
                                 )
 
                             task_args = dict(
-                                target=name,
+                                target=attr,
                                 module=module,
                                 path=root,
                                 args=args,
                                 kwargs=kwargs,
-                                **attr.__task_kwargs__,
+                                **target.__task_kwargs__,
                             )
                             self.logger.debug(
                                 "Create task with param %s", task_args
                             )
+                            created_tasks.append((Task(**task_args), resource))
 
-                            task = Task(**task_args)
-
-                            self.add(task, resource=resource)
+        for task, resource in created_tasks:
+            self.add(task, resource=resource)
 
     def add(self, target, resource=None):
         """
