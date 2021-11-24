@@ -15,15 +15,15 @@ function defaultProps() {
       "fail_limit":0,
       "line_no":284,
       "data":[
-        [0,["Bob",32],{},{},{}],
-        [1,["Susan",24],{},{},{}],
-        [2,["Rick",67],{},{},{}]
+        [0,["Bob",32,"same"],{},{},{}],
+        [1,["Susan",24,"same"],{},{},{ignored:"different"}],
+        [2,["Rick",67,"same"],{},{},{}]
       ],
       "strict":false,
       "meta_type":"assertion",
-      "columns":["name","age"],
+      "columns":["name","age", "ignored"],
       "passed":true,
-      "include_columns":null,
+      "include_columns":["name","age"],
       "message":null,
       "type":"TableMatch",
       "utc_time":"2019-02-12T17:41:43.176916+00:00"
