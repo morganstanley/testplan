@@ -6,6 +6,8 @@ This example shows usage of table assertion namespaces.
 import re
 import sys
 import random
+from copy import deepcopy
+
 from testplan import test_plan
 from testplan.common.utils import comparison
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -233,13 +235,38 @@ class TableSuite:
             description="Table Diff: readable comparators",
         )
 
+        # The match and diff can be limitted to certain columns
+
+        table = self.create_table(3, 5)
+        mod_table = deepcopy(table)
+        mod_table[0]["column_0"] = 123
+        mod_table[1]["column_1"] = 123
+
+        result.table.match(
+            table,
+            mod_table,
+            include_columns=["column_1", "column_2"],
+            report_all=True,
+            description="Table Match: Ignored columns",
+        )
+
+        table = self.create_table(3, 5)
+        mod_table = deepcopy(table)
+        mod_table[0]["column_0"] = 123
+        mod_table[1]["column_1"] = 123
+
+        result.table.diff(
+            table,
+            mod_table,
+            include_columns=["column_1", "column_2"],
+            report_all=True,
+            description="Table Diff: Ignored columns",
+        )
+
         # While comparing tables with large number of columns
         # we can 'trim' some of the columns to get more readable output
 
-        table_with_many_columns = [
-            {"column_{}".format(idx): i * idx for idx in range(30)}
-            for i in range(10)
-        ]
+        table_with_many_columns = self.create_table(30, 10)
 
         # Only use 2 columns for comparison, trim the rest
         result.table.match(
@@ -320,6 +347,13 @@ class TableSuite:
             limit=20,  # Process 50 items at most
             report_fails_only=True,  # Only include failures in the result
         )
+
+    @staticmethod
+    def create_table(num_cols, num_rows):
+        return [
+            {"column_{}".format(idx): i * idx for idx in range(num_cols)}
+            for i in range(num_rows)
+        ]
 
 
 @test_plan(

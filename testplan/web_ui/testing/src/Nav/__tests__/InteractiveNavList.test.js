@@ -30,7 +30,7 @@ describe('InteractiveNavList', () => {
         displayEmpty={true}
         displayTags={false}
         displayTime={false}
-        handlePlayClick={(e) => undefined}
+        handleClick={(e, action) => undefined}
         envCtrlCallback={(e, action) => undefined}
       />
     );

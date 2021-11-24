@@ -335,7 +335,9 @@ describe('InteractiveReport', () => {
       stopPropagation: jest.fn(), 
       preventDefault: jest.fn(),
     };
-    interactiveReport.instance().handlePlayClick(mockEvent, clickedEntry);
+    interactiveReport.instance().handleClick(
+      mockEvent, clickedEntry, "running"
+    );
 
     moxios.wait(() => {
       const request = moxios.requests.mostRecent();
