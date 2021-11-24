@@ -737,16 +737,14 @@ class ProcessRunnerTest(Test):
 
         if stdout and os.path.isfile(stdout):
             stdout_attachment = Attachment(
-                filepath=os.path.abspath(stdout),
-                description="Process stdout",
+                filepath=os.path.abspath(stdout), description="Process stdout"
             )
             testcase_report.attachments.append(stdout_attachment)
             testcase_report.append(stdout_attachment.serialize())
 
         if stderr and os.path.isfile(stderr):
             stderr_attachment = Attachment(
-                filepath=os.path.abspath(stderr),
-                description="Process stderr",
+                filepath=os.path.abspath(stderr), description="Process stderr"
             )
             testcase_report.attachments.append(stderr_attachment)
             testcase_report.append(stderr_attachment.serialize())
