@@ -92,7 +92,7 @@ jobs:
           sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
       - name: Set up Kafka for tests
         run: |
-          wget https://downloads.apache.org/kafka/2.6.2/kafka_2.12-2.6.2.tgz -O kafka.tgz
+          wget https://downloads.apache.org/kafka/2.6.3/kafka_2.12-2.6.3.tgz -O kafka.tgz
           sudo mkdir /opt/kafka
           sudo chown -R $USER:$USER /opt/kafka
           tar zxf kafka.tgz -C /opt/kafka --strip-components 1
