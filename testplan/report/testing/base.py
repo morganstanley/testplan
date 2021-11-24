@@ -94,7 +94,7 @@ class RuntimeStatus(object):
         Note that the client can send RESETTING signal to reset the test report
         to its initial status, but client will not receive a temporary report
         containing RESETTING status, instead WAITING status is used and after
-        reset, the report goes to READY status.
+        reset the report goes to READY status.
 
         :param stats: List of statuses of which we want to get the precedent.
         :type stats: ``sequence``

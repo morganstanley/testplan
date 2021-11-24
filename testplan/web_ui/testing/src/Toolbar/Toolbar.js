@@ -156,7 +156,7 @@ class Toolbar extends Component {
     }
   }
 
-  expandButton() {
+  expandButtons() {
     return (
       <>
         <NavItem key="expand-icon-item">
@@ -333,22 +333,6 @@ class Toolbar extends Component {
     );
   }
 
-  printButton() {
-    return (
-      <NavItem>
-        <div className={css(styles.buttonsBar)}>
-          <FontAwesomeIcon
-            key="toolbar-print"
-            className={css(styles.toolbarButton)}
-            icon="print"
-            title="Print page"
-            onClick={window.print}
-          />
-        </div>
-      </NavItem>
-    );
-  }
-
   tagsButton() {
     const toolbarButtonStyle = this.state.displayTags
       ? getToggledButtonStyle(this.props.status)
@@ -364,6 +348,22 @@ class Toolbar extends Component {
             icon="tags"
             title={iconTooltip}
             onClick={this.toggleTagsDisplay}
+          />
+        </div>
+      </NavItem>
+    );
+  }
+
+  printButton() {
+    return (
+      <NavItem>
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key="toolbar-print"
+            className={css(styles.toolbarButton)}
+            icon="print"
+            title="Print page"
+            onClick={window.print}
           />
         </div>
       </NavItem>
@@ -419,13 +419,13 @@ class Toolbar extends Component {
         <Collapse isOpen={this.state.isOpen} navbar className={toolbarStyle}>
           <Nav navbar className="ml-auto">
             {this.treeViewButton()}
-            {this.expandButton()}
+            {this.expandButtons()}
             {this.props.extraButtons}
             {this.detailsButton(toolbarStyle)}
-            {this.infoButton()}
             {this.filterButton(toolbarStyle)}
-            {this.printButton()}
             {this.tagsButton()}
+            {this.infoButton()}
+            {this.printButton()}
             {this.documentationButton()}
           </Nav>
         </Collapse>
