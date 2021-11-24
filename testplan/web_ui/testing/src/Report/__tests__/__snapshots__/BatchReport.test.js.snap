@@ -9460,62 +9460,6 @@ ZeroDivisionError: integer division or modulo by zero
                           </Manager>
                         </Dropdown>
                       </UncontrolledDropdown>
-                      <NavItem
-                        tag="li"
-                      >
-                        <li
-                          className="nav-item"
-                        >
-                          <div
-                            className="buttonsBar_6zsntc"
-                          >
-                            <FontAwesomeIcon
-                              border={false}
-                              className="toolbarButton_1ueb7gu"
-                              fixedWidth={false}
-                              flip={null}
-                              icon="info"
-                              inverse={false}
-                              key="toolbar-info"
-                              listItem={false}
-                              mask={null}
-                              onClick={[Function]}
-                              pull={null}
-                              pulse={false}
-                              rotation={null}
-                              size={null}
-                              spin={false}
-                              symbol={false}
-                              title="Info"
-                              transform={null}
-                            >
-                              <svg
-                                aria-labelledby="svg-inline--fa-title-29"
-                                className="svg-inline--fa fa-info fa-w-6 toolbarButton_1ueb7gu"
-                                data-icon="info"
-                                data-prefix="fas"
-                                onClick={[Function]}
-                                role="img"
-                                style={Object {}}
-                                viewBox="0 0 192 512"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <title
-                                  id="svg-inline--fa-title-29"
-                                  style={Object {}}
-                                >
-                                  Info
-                                </title>
-                                <path
-                                  d="M20 424.229h20V279.771H20c-11.046 0-20-8.954-20-20V212c0-11.046 8.954-20 20-20h112c11.046 0 20 8.954 20 20v212.229h20c11.046 0 20 8.954 20 20V492c0 11.046-8.954 20-20 20H20c-11.046 0-20-8.954-20-20v-47.771c0-11.046 8.954-20 20-20zM96 0C56.235 0 24 32.235 24 72s32.235 72 72 72 72-32.235 72-72S135.764 0 96 0z"
-                                  fill="currentColor"
-                                  style={Object {}}
-                                />
-                              </svg>
-                            </FontAwesomeIcon>
-                          </div>
-                        </li>
-                      </NavItem>
                       <UncontrolledDropdown
                         inNavbar={true}
                         nav={true}
@@ -9571,7 +9515,7 @@ ZeroDivisionError: integer division or modulo by zero
                                       transform={null}
                                     >
                                       <svg
-                                        aria-labelledby="svg-inline--fa-title-30"
+                                        aria-labelledby="svg-inline--fa-title-29"
                                         className="svg-inline--fa fa-filter fa-w-16 toolbarButton_1ueb7gu"
                                         data-icon="filter"
                                         data-prefix="fas"
@@ -9581,7 +9525,7 @@ ZeroDivisionError: integer division or modulo by zero
                                         xmlns="http://www.w3.org/2000/svg"
                                       >
                                         <title
-                                          id="svg-inline--fa-title-30"
+                                          id="svg-inline--fa-title-29"
                                           style={Object {}}
                                         >
                                           Choose filter
@@ -9836,9 +9780,9 @@ ZeroDivisionError: integer division or modulo by zero
                               className="toolbarButton_1ueb7gu"
                               fixedWidth={false}
                               flip={null}
-                              icon="print"
+                              icon="tags"
                               inverse={false}
-                              key="toolbar-print"
+                              key="toolbar-tags"
                               listItem={false}
                               mask={null}
                               onClick={[Function]}
@@ -9848,28 +9792,28 @@ ZeroDivisionError: integer division or modulo by zero
                               size={null}
                               spin={false}
                               symbol={false}
-                              title="Print page"
+                              title="Display tags"
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-31"
-                                className="svg-inline--fa fa-print fa-w-16 toolbarButton_1ueb7gu"
-                                data-icon="print"
+                                aria-labelledby="svg-inline--fa-title-30"
+                                className="svg-inline--fa fa-tags fa-w-20 toolbarButton_1ueb7gu"
+                                data-icon="tags"
                                 data-prefix="fas"
                                 onClick={[Function]}
                                 role="img"
                                 style={Object {}}
-                                viewBox="0 0 512 512"
+                                viewBox="0 0 640 512"
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
-                                  id="svg-inline--fa-title-31"
+                                  id="svg-inline--fa-title-30"
                                   style={Object {}}
                                 >
-                                  Print page
+                                  Display tags
                                 </title>
                                 <path
-                                  d="M464 192h-16V81.941a24 24 0 0 0-7.029-16.97L383.029 7.029A24 24 0 0 0 366.059 0H88C74.745 0 64 10.745 64 24v168H48c-26.51 0-48 21.49-48 48v132c0 6.627 5.373 12 12 12h52v104c0 13.255 10.745 24 24 24h336c13.255 0 24-10.745 24-24V384h52c6.627 0 12-5.373 12-12V240c0-26.51-21.49-48-48-48zm-80 256H128v-96h256v96zM128 224V64h192v40c0 13.2 10.8 24 24 24h40v96H128zm304 72c-13.254 0-24-10.746-24-24s10.746-24 24-24 24 10.746 24 24-10.746 24-24 24z"
+                                  d="M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z"
                                   fill="currentColor"
                                   style={Object {}}
                                 />
@@ -9892,9 +9836,9 @@ ZeroDivisionError: integer division or modulo by zero
                               className="toolbarButton_1ueb7gu"
                               fixedWidth={false}
                               flip={null}
-                              icon="tags"
+                              icon="info"
                               inverse={false}
-                              key="toolbar-tags"
+                              key="toolbar-info"
                               listItem={false}
                               mask={null}
                               onClick={[Function]}
@@ -9904,28 +9848,84 @@ ZeroDivisionError: integer division or modulo by zero
                               size={null}
                               spin={false}
                               symbol={false}
-                              title="Display tags"
+                              title="Info"
                               transform={null}
                             >
                               <svg
-                                aria-labelledby="svg-inline--fa-title-32"
-                                className="svg-inline--fa fa-tags fa-w-20 toolbarButton_1ueb7gu"
-                                data-icon="tags"
+                                aria-labelledby="svg-inline--fa-title-31"
+                                className="svg-inline--fa fa-info fa-w-6 toolbarButton_1ueb7gu"
+                                data-icon="info"
                                 data-prefix="fas"
                                 onClick={[Function]}
                                 role="img"
                                 style={Object {}}
-                                viewBox="0 0 640 512"
+                                viewBox="0 0 192 512"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <title
+                                  id="svg-inline--fa-title-31"
+                                  style={Object {}}
+                                >
+                                  Info
+                                </title>
+                                <path
+                                  d="M20 424.229h20V279.771H20c-11.046 0-20-8.954-20-20V212c0-11.046 8.954-20 20-20h112c11.046 0 20 8.954 20 20v212.229h20c11.046 0 20 8.954 20 20V492c0 11.046-8.954 20-20 20H20c-11.046 0-20-8.954-20-20v-47.771c0-11.046 8.954-20 20-20zM96 0C56.235 0 24 32.235 24 72s32.235 72 72 72 72-32.235 72-72S135.764 0 96 0z"
+                                  fill="currentColor"
+                                  style={Object {}}
+                                />
+                              </svg>
+                            </FontAwesomeIcon>
+                          </div>
+                        </li>
+                      </NavItem>
+                      <NavItem
+                        tag="li"
+                      >
+                        <li
+                          className="nav-item"
+                        >
+                          <div
+                            className="buttonsBar_6zsntc"
+                          >
+                            <FontAwesomeIcon
+                              border={false}
+                              className="toolbarButton_1ueb7gu"
+                              fixedWidth={false}
+                              flip={null}
+                              icon="print"
+                              inverse={false}
+                              key="toolbar-print"
+                              listItem={false}
+                              mask={null}
+                              onClick={[Function]}
+                              pull={null}
+                              pulse={false}
+                              rotation={null}
+                              size={null}
+                              spin={false}
+                              symbol={false}
+                              title="Print page"
+                              transform={null}
+                            >
+                              <svg
+                                aria-labelledby="svg-inline--fa-title-32"
+                                className="svg-inline--fa fa-print fa-w-16 toolbarButton_1ueb7gu"
+                                data-icon="print"
+                                data-prefix="fas"
+                                onClick={[Function]}
+                                role="img"
+                                style={Object {}}
+                                viewBox="0 0 512 512"
                                 xmlns="http://www.w3.org/2000/svg"
                               >
                                 <title
                                   id="svg-inline--fa-title-32"
                                   style={Object {}}
                                 >
-                                  Display tags
+                                  Print page
                                 </title>
                                 <path
-                                  d="M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z"
+                                  d="M464 192h-16V81.941a24 24 0 0 0-7.029-16.97L383.029 7.029A24 24 0 0 0 366.059 0H88C74.745 0 64 10.745 64 24v168H48c-26.51 0-48 21.49-48 48v132c0 6.627 5.373 12 12 12h52v104c0 13.255 10.745 24 24 24h336c13.255 0 24-10.745 24-24V384h52c6.627 0 12-5.373 12-12V240c0-26.51-21.49-48-48-48zm-80 256H128v-96h256v96zM128 224V64h192v40c0 13.2 10.8 24 24 24h40v96H128zm304 72c-13.254 0-24-10.746-24-24s10.746-24 24-24 24 10.746 24 24-10.746 24-24 24z"
                                   fill="currentColor"
                                   style={Object {}}
                                 />

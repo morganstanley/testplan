@@ -3,6 +3,7 @@
 import os
 import re
 import copy
+import hashlib
 import collections
 from unittest import mock
 
@@ -487,22 +488,23 @@ class TestResultBaseNamespace(object):
             f.write("testplan\n" * 1000)
 
         result = result_mod.Result(_scratch=str(tmpdir))
-        assert result.attach(tmpfile, description="Attach a text file")
+        hash = path_utils.hash_file(tmpfile)
 
+        assert result.attach(tmpfile, description="Attach a text file")
         assert len(result.entries) == 1
         attachment_entry = result.entries[0]
 
         assert attachment_entry.source_path == os.path.join(
             os.path.dirname(tmpfile), attachment_entry.dst_path
         )
-        assert attachment_entry.hash == path_utils.hash_file(tmpfile)
+        assert hash in attachment_entry.dst_path
         assert attachment_entry.orig_filename == "attach_me.txt"
         assert attachment_entry.filesize == os.path.getsize(tmpfile)
 
         # The expected destination path depends on the exact hash and filesize
         # of the file we wrote.
         expected_dst_path = "attach_me-{hash}-{filesize}.txt".format(
-            hash=attachment_entry.hash, filesize=attachment_entry.filesize
+            hash=hash, filesize=attachment_entry.filesize
         )
         assert attachment_entry.dst_path == expected_dst_path
 
@@ -512,11 +514,12 @@ class TestResultBaseNamespace(object):
         with open(tmpfile, "w") as f:
             f.write("testplan\n" * 1000)
 
+        size = os.path.getsize(tmpfile)
         description = "Attach a text file at level: {}"
 
         result = result_mod.Result(_scratch=str(tmpdir))
-        assert result.attach(tmpfile, description=description.format(0))
 
+        assert result.attach(tmpfile, description=description.format(0))
         assert len(result.entries) == 1
 
         with result.group("subgroup") as subgroup:
@@ -534,14 +537,10 @@ class TestResultBaseNamespace(object):
         assert len(result.entries) == 2
         assert len(result.attachments) == 3
 
-        file_hash = path_utils.hash_file(tmpfile)
-        size = os.path.getsize(tmpfile)
-
         for idx, attachment in enumerate(result.attachments):
             assert attachment.source_path == os.path.join(
                 os.path.dirname(tmpfile), attachment.dst_path
             )
-            assert attachment.hash == file_hash
             assert attachment.orig_filename == "attach_me.txt"
             assert attachment.filesize == size
             assert attachment.description == description.format(idx)
@@ -574,7 +573,66 @@ class TestResultBaseNamespace(object):
             result.attachments[0].source_path
             != result.attachments[1].source_path
         )
-        assert result.attachments[0].hash != result.attachments[1].hash
         assert result.attachments[0].filesize > result.attachments[1].filesize
         assert result.attachments[0].source_path.startswith(result_dir)
         assert result.attachments[1].source_path.startswith(result_dir)
+
+    def test_attach_dir(self, tmpdir):
+        """UT for result.attach method."""
+        path_utils.makeemptydirs(str(tmpdir.join("subdir")))
+
+        tmpfile1 = str(tmpdir.join("1.txt"))
+        with open(tmpfile1, "w") as f:
+            f.write("testplan\n" * 10)
+
+        tmpfile2 = str(tmpdir.join("2.txt"))
+        with open(tmpfile2, "w") as f:
+            f.write("testplan\n")
+
+        tmpfile3 = str(tmpdir.join("subdir").join("3.txt"))
+        with open(tmpfile3, "w") as f:
+            f.write("testplan\n" * 100)
+
+        tmpfile4 = str(tmpdir.join("subdir").join("4.txt"))
+        with open(tmpfile4, "w") as f:
+            f.write("testplan\n" * 1000)
+
+        result = result_mod.Result()
+
+        assert result.attach(str(tmpdir), description="Attach a directory")
+        assert len(result.entries) == 1
+        directory_entry = result.entries[0]
+
+        assert directory_entry.source_path == str(tmpdir)
+        assert (
+            directory_entry.dst_path
+            == hashlib.md5(
+                directory_entry.source_path.encode("utf-8")
+            ).hexdigest()
+        )
+        assert sorted(directory_entry.file_list) == ["1.txt", "2.txt"]
+
+        assert result.attach(
+            str(tmpdir),
+            description="Attach a directory with filters",
+            ignore=["2.*"],
+            only=["*.txt"],
+            recursive=True,
+        )
+        assert len(result.entries) == 2
+        directory_entry = result.entries[1]
+
+        assert directory_entry.source_path == str(tmpdir)
+        assert (
+            directory_entry.dst_path
+            == hashlib.md5(
+                directory_entry.source_path.encode("utf-8")
+            ).hexdigest()
+        )
+        assert sorted(
+            [file.replace("\\", "/") for file in directory_entry.file_list]
+        ) == [
+            "1.txt",
+            "subdir/3.txt",
+            "subdir/4.txt",
+        ]

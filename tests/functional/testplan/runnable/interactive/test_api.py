@@ -82,7 +82,7 @@ def plan(tmpdir):
         )
         plan.run()
         timing.wait(
-            lambda: plan.interactive.http_handler_info is not None,
+            lambda: plan.interactive.http_handler_info[0] is not None,
             300,
             raise_on_timeout=True,
         )
@@ -132,7 +132,7 @@ def plan2(tmpdir):
         )
         plan.run()
         timing.wait(
-            lambda: plan.interactive.http_handler_info is not None,
+            lambda: plan.interactive.http_handler_info[0] is not None,
             300,
             raise_on_timeout=True,
         )
@@ -208,7 +208,7 @@ def plan3(tmpdir):
         )
         plan.run()
         timing.wait(
-            lambda: plan.interactive.http_handler_info is not None,
+            lambda: plan.interactive.http_handler_info[0] is not None,
             300,
             raise_on_timeout=True,
         )

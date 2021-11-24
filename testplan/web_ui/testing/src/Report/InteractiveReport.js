@@ -11,9 +11,10 @@ import { generatePath } from "react-router";
 import base64url from 'base64url';
 
 import Toolbar from '../Toolbar/Toolbar.js';
-import { 
-  ResetButton,
+import {
   ReloadButton,
+  ResetButton,
+  AbortButton,
   SaveButton
 } from '../Toolbar/InteractiveButtons';
 import InteractiveNav from '../Nav/InteractiveNav.js';
@@ -51,8 +52,8 @@ class InteractiveReport extends React.Component {
     this.setReport = this.setReport.bind(this);
     this.getReport = this.getReport.bind(this);
     this.resetReport = this.resetReport.bind(this);
-    this.handlePlayClick = this.handlePlayClick.bind(this);
-    this.handleResetClick = this.handleResetClick.bind(this);
+    this.abortTestplan = this.abortTestplan.bind(this);
+    this.handleClick = this.handleClick.bind(this);
     this.envCtrlCallback = this.envCtrlCallback.bind(this);
     this.reloadCode = this.reloadCode.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
@@ -70,6 +71,7 @@ class InteractiveReport extends React.Component {
       error: null,
       resetting: false,
       reloading: false,
+      aborting: false,
       assertionStatus: defaultAssertionStatus,
     };
   }
@@ -155,6 +157,10 @@ class InteractiveReport extends React.Component {
    * If running in dev mode we just display a fake report.
    */
   getReport() {
+    if (this.state.aborting) {
+      this.setError({message: "Server is aborting ..."});
+      return;
+    }
     if (this.props.match.params.uid === '_dev') {
       setTimeout(
         () => this.setReport(FakeInteractiveReport),
@@ -458,25 +464,13 @@ class InteractiveReport extends React.Component {
   }
 
   /**
-   * Handle the play button being clicked on a Nav entry.
+   * Handle the play/reset buttons being clicked on a Nav entry.
    */
-  handlePlayClick(e, reportEntry) {
+  handleClick(e, reportEntry, action) {
     e.preventDefault();
     e.stopPropagation();
     const updatedReportEntry = {
-      ...this.shallowReportEntry(reportEntry), runtime_status: "running"
-    };
-    this.putUpdatedReportEntry(updatedReportEntry);
-  }
-
-  /**
-   * Reset the report of a test instance to its initial state
-   */
-  handleResetClick(e, reportEntry) {
-    e.preventDefault();
-    e.stopPropagation();
-    const updatedReportEntry = {
-      ...this.shallowReportEntry(reportEntry), runtime_status: "resetting"
+      ...this.shallowReportEntry(reportEntry), runtime_status: action
     };
     this.putUpdatedReportEntry(updatedReportEntry);
   }
@@ -530,10 +524,10 @@ class InteractiveReport extends React.Component {
   }
 
   /**
-   * Reset the report state, by updating all testcases to have no entries.
+   * Reset the report state to "resetting" and request the change to server.
    */
   resetReport() {
-    if (this.state.resetting) {
+    if (this.state.resetting || this.state.aborting) {
       return;
     } else {
       const updatedReportEntry = {
@@ -545,13 +539,23 @@ class InteractiveReport extends React.Component {
     }
   }
 
+  /**
+   * Send request of reloading report to server.
+   */
   reloadCode() {
+    if (this.state.resetting || this.state.aborting) {
+      return;
+    }
     let currentTime = new Date();
     this.setState({reloading: true});
     this.resetAssertionStatus();
     return axios.get(
       `${api_prefix}/reload`
     ).then(response => {
+      if (response.data.errmsg) {
+        alert(response.data.errmsg);
+        console.error(response.data);
+      }
       let duration = new Date() - currentTime;
       if (duration < 1000) {
         setTimeout(()=> {
@@ -565,7 +569,37 @@ class InteractiveReport extends React.Component {
   }
 
   /**
-   * Recursievly dig down into the report tree and reset the state of any
+   * Send request of aborting Testing to server.
+   */
+  abortTestplan() {
+    if (this.state.aborting) {
+      return;
+    }
+    if (!window.confirm("Abort Testplan ?")) {
+      return;
+    }
+    this.setState({aborting: true});
+    return axios.get(
+      `${api_prefix}/abort`
+    ).then(response => {
+      if (response.data.errmsg) {
+        alert(response.data.errmsg);
+        console.error(response.data);
+        this.setState({aborting: false});
+      } else {
+        alert("Testplan aborted, please close this windows.");
+        this.setError({message: "Server aborted !!!"});
+        window.close();
+      }
+    }).catch(error => {
+      alert("Unknown error, please close this windows.");
+      this.setError({message: "Cannot connect to server !!!"});
+      window.close();
+    });
+  }
+
+  /**
+   * Recursively dig down into the report tree and reset the state of any
    * testcase entries. Other entries derive their state from the testcases
    * so their state updates will be provided to us by the backend.
    */
@@ -639,15 +673,21 @@ class InteractiveReport extends React.Component {
           updateTimeDisplayFunc={noop}
           extraButtons={[
             <ReloadButton
+              key="reload-button"
               reloading={this.state.reloading}
               reloadCbk={this.reloadCode}
             />,
-            <SaveButton key="save-button"/>,
             <ResetButton
               key="reset-button"
               resetting={this.state.resetting}
               resetStateCbk={this.resetReport}
-            />
+            />,
+            <AbortButton
+              key="abort-button"
+              aborting={this.state.aborting}
+              abortCbk={this.abortTestplan}
+            />,
+            <SaveButton key="save-button"/>
           ]}
         />
         <InteractiveNav
@@ -658,8 +698,7 @@ class InteractiveReport extends React.Component {
           displayEmpty={true}
           displayTags={false}
           displayTime={false}          
-          handlePlayClick={this.handlePlayClick}
-          handleResetClick={this.handleResetClick}
+          handleClick={this.handleClick}
           envCtrlCallback={this.envCtrlCallback}
           handleColumnResizing={this.handleColumnResizing}
           url={this.props.match.path}

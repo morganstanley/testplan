@@ -53,7 +53,7 @@ const getAttachmentContent = (assertion, reportUid) => {
   const fileType = assertion.orig_filename.split(".").pop();
   const filePath = assertion.dst_path;
   const description = assertion.description;
-  const getPath = getAttachmentUrl(filePath, reportUid);
+  const getPath = getAttachmentUrl(filePath, reportUid, null);
 
   switch (fileType) {
     case "txt":

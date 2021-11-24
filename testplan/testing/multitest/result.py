@@ -10,6 +10,7 @@ import inspect
 import os
 import re
 import threading
+import platform
 
 from testplan import defaults
 from testplan.defaults import STDOUT_STYLE
@@ -19,6 +20,8 @@ from testplan.common.utils import strings
 from .entries import assertions, base
 from .entries.schemas.base import registry as schema_registry
 from .entries.stdout.base import registry as stdout_registry
+
+IS_WIN = platform.system() == "Windows"
 
 
 class ExceptionCapture(object):
@@ -2227,23 +2230,60 @@ class Result(object):
         return entry
 
     @assertion
-    def attach(self, filepath, description=None):
+    def attach(
+        self, path, description=None, ignore=None, only=None, recursive=False
+    ):
         """
         Attaches a file to the report.
 
-        :param filepath: Path to the file be to attached.
-        :type filepath: ``str``
+        :param path: Path to the file or directory be to attached.
+        :type path: ``str``
         :param description: Text description for the assertion.
         :type description: ``str``
+        :param ignore: List of patterns of file name to ignore when
+            attaching a directory.
+        :type ignore: ``list`` or ``NoneType``
+        :param only: List of patterns of file name to include when
+            attaching a directory.
+        :type only: ``list`` or ``NoneType``
+        :param recursive: Recursively traverse sub-directories and attach
+            all files, default is to only attach files in top directory.
+        :type recursive: ``bool``
         :return: Always returns True, this is not an assertion so it cannot
                  fail.
         :rtype: ``bool``
         """
-        attachment = base.Attachment(
-            filepath, description, scratch_path=self._scratch
-        )
-        self.attachments.append(attachment)
-        return attachment
+        if os.path.isfile(path):
+            attachment = base.Attachment(
+                path, description, scratch_path=self._scratch
+            )
+            self.attachments.append(attachment)
+            return attachment
+        elif os.path.isdir(path):
+            directory = base.Directory(
+                path,
+                description,
+                ignore=ignore,
+                only=only,
+                recursive=recursive,
+                scratch_path=self._scratch,
+            )
+            for file in directory.file_list:
+                filepath = os.path.join(directory.source_path, file)
+                dst_path = os.path.join(directory.dst_path, file)
+                if IS_WIN:
+                    dst_path = dst_path.replace("\\", "/")
+                self.attachments.append(
+                    base.Attachment(
+                        filepath=filepath,
+                        description=None,
+                        dst_path=dst_path,
+                        scratch_path=None,
+                    )
+                )
+            return directory
+        else:
+            raise FileNotFoundError(f"Path {path} not exist")
 
     @assertion
     def matplot(self, pyplot, width=None, height=None, description=None):

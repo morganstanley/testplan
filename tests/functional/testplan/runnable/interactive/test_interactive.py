@@ -317,7 +317,7 @@ def test_env_operate():
 
         plan.run()
         wait(
-            lambda: plan.i.http_handler_info is not None,
+            lambda: plan.i.http_handler_info[0] is not None,
             5,
             raise_on_timeout=True,
         )

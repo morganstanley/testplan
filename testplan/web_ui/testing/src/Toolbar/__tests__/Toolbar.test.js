@@ -8,7 +8,7 @@ import {
   TOOLBAR_BUTTONS_BATCH,
   TOOLBAR_BUTTONS_INTERACTIVE
 } from "../../Common/defaults";
-import {ResetButton} from "../InteractiveButtons";
+import {ReloadButton, ResetButton, AbortButton} from "../InteractiveButtons";
 
 function defaultProps() {
   return {
@@ -75,9 +75,12 @@ describe('Toolbar', () => {
 
   it('inserts extra buttons into the toolbar', () => {
     const resetCbk = jest.fn()
-    props.extraButtons = [ResetButton(resetCbk, false)];
+    props.extraButtons = [
+      ReloadButton({reloading: false, reloadCbk: jest.fn()}),
+      ResetButton({resetting: false, resetStateCbk: jest.fn()}),
+      AbortButton({aborting: false, abortCbk: jest.fn()})
+    ];
     const toolbar = renderToolbar();
     expect(toolbar).toMatchSnapshot();
   });
-
 });

@@ -25,11 +25,8 @@ const InteractiveNavList = (props) => {
         type={entry.category}
         caseCountPassed={entry.counter.passed}
         caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
-        handlePlayClick={(e) => props.handlePlayClick(e, entry)}
-        handleResetClick={(e) => props.handleResetClick(e, entry)}
-        envCtrlCallback={
-          (e, action) => props.envCtrlCallback(e, entry, action)
-        }
+        handleClick={(e, action) => props.handleClick(e, entry, action)}
+        envCtrlCallback={(e, action) => props.envCtrlCallback(e, entry, action)}
         suiteRelated={entry.suite_related}
         action={entry.action}
       />

@@ -27,7 +27,7 @@ describe('InteractiveNav', () => {
         displayTags={false}
         displayTime={false}
         handleNavClick={jest.fn()}
-        handlePlayClick={jest.fn()}
+        handleClick={jest.fn()}
         envCtrlCallback={jest.fn()}
       />
     );
