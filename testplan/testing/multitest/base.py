@@ -689,16 +689,17 @@ class MultiTest(testing_base.Test):
         _check_testcases(testcases)
         testsuite_report = self._new_testsuite_report(testsuite)
 
-        grouped_param_testcases = {getattr(testcase, '_parametrization_template'): [] for testcase in testcases if hasattr(testcase, '_parametrization_template')}
-        for param_template in grouped_param_testcases.keys():
-            related_testcases = [testcase for testcase in testcases if getattr(testcase, '_parametrization_template', None) == param_template]
-            grouped_param_testcases[param_template].extend(related_testcases)
+        grouped_testcases = {}
+
+        for testcase in testcases:
+            param_template = getattr(testcase, "_parametrization_template", "non parametrized")
+            grouped_testcases.setdefault(param_template, []).append(testcase)
+
+        non_param_testcases = grouped_testcases["non parametrized"]
 
         parametrization_reports = self._parametrization_reports(
             testsuite, testcases
         )
-
-        non_parametrized_testcases = [testcase for testcase in testcases if not hasattr(testcase, '_parametrization_template')]
 
         with testsuite_report.timer.record("run"):
             setup_report = self._setup_testsuite(testsuite)
@@ -711,9 +712,9 @@ class MultiTest(testing_base.Test):
                     return testsuite_report
 
             serial_cases, parallel_cases = (
-                (non_parametrized_testcases, [])
+                (non_param_testcases, [])
                 if getattr(testsuite, "strict_order", False)
-                else _split_by_exec_group(non_parametrized_testcases)
+                else _split_by_exec_group(non_param_testcases)
             )
             testcase_reports = self._run_serial_testcases(
                 testsuite, serial_cases
@@ -734,10 +735,15 @@ class MultiTest(testing_base.Test):
                 )
                 testsuite_report.extend(testcase_reports)
 
-            if grouped_param_testcases:
-                for param_template, testcases in grouped_param_testcases.items():
+            for (
+                param_template,
+                testcases,
+            ) in grouped_testcases.items():
+                if param_template != "non parametrized":
                     group_report = parametrization_reports[param_template]
-                    testgroup_report = self._run_parametrized_testcases(testsuite, testcases, group_report)
+                    testgroup_report = self._run_parametrized_testcases(
+                        testsuite, testcases, group_report
+                    )
                     testsuite_report.append(testgroup_report)
 
             teardown_report = self._teardown_testsuite(testsuite)
@@ -842,7 +848,9 @@ class MultiTest(testing_base.Test):
 
         return testcase_reports
 
-    def _run_parametrized_testcases(self, testsuite, testcases, param_group_report):
+    def _run_parametrized_testcases(
+        self, testsuite, testcases, param_group_report
+    ):
         """Run a group of paramterized testcases serially and return its group report."""
 
         pre_testcase = getattr(testsuite, "pre_testcase", None)
