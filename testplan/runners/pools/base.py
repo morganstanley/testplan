@@ -12,6 +12,8 @@ from schema import Or, And, Use
 
 from testplan.common.config import ConfigOption, validate_func
 from testplan.common import entity
+from testplan.common.remote.remote_resource import RemoteResource
+from testplan.common.utils.path import rebase_path
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
 from testplan.common.utils import strings
@@ -534,6 +536,15 @@ class Pool(Executor):
             self.logger.test_info(
                 "De-assign {} from {}".format(task_result.task, worker)
             )
+
+            if isinstance(worker, RemoteResource):
+
+                for attachment in task_result.result.report.attachments:
+                    attachment.source_path = rebase_path(
+                        attachment.source_path,
+                        worker._remote_plan_runpath,
+                        worker._get_plan().runpath,
+                    )
 
             if task_should_rerun():
                 self.logger.test_info(

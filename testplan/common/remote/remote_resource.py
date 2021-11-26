@@ -376,6 +376,19 @@ class RemoteResource(Entity):
                 remote_target=True,
                 exclude=self.cfg.workspace_exclude,
             )
+            self._execute_cmd_remote(
+                cmd=mkdir_cmd(os.path.dirname(self._workspace_paths.local)),
+                label="imitate local workspace path on remote - mkdir",
+                check=False,    # just best effort
+            )
+            self._execute_cmd_remote(
+                cmd=link_cmd(
+                    path=self._workspace_paths.remote,
+                    link=self._workspace_paths.local,
+                ),
+                label="imitate local workspace path on remote - ln",
+                check=False,    # just best effort
+            )
 
     def _push_files(self):
         """Push files and directories to remote host."""
