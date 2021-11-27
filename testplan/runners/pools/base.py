@@ -538,7 +538,6 @@ class Pool(Executor):
             )
 
             if isinstance(worker, RemoteResource):
-
                 for attachment in task_result.result.report.attachments:
                     attachment.source_path = rebase_path(
                         attachment.source_path,
@@ -736,7 +735,7 @@ class Pool(Executor):
                     "Worker {} failed to restart: {}".format(worker, exc)
                 )
         else:
-            worker.stop()
+            worker.abort()
 
         return False
 

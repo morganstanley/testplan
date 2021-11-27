@@ -31,15 +31,16 @@ from testplan.common.utils.remote import (
 )
 
 
-class WorkerSetupMetadata(object):
+class WorkerSetupMetadata:
     """
     Metadata used on worker setup stage execution.
     Pushed dirs and files will be registered for deletion at exit.
     """
 
     def __init__(self):
-        self.push_dirs = None
-        self.push_files = None
+        self.delete_pushed = False
+        self.push_dirs = []
+        self.push_files = []
         self.setup_script = None
         self.env = None
 
@@ -203,6 +204,7 @@ class RemoteResource(Entity):
         if self.cfg.push:
             self._push_files()
 
+        self.setup_metadata.delete_pushed = self.cfg.delete_pushed
         self.setup_metadata.setup_script = self.cfg.setup_script
         self.setup_metadata.env = self.cfg.env
 
@@ -379,7 +381,7 @@ class RemoteResource(Entity):
             self._execute_cmd_remote(
                 cmd=mkdir_cmd(os.path.dirname(self._workspace_paths.local)),
                 label="imitate local workspace path on remote - mkdir",
-                check=False,    # just best effort
+                check=False,  # just best effort
             )
             self._execute_cmd_remote(
                 cmd=link_cmd(
@@ -387,7 +389,7 @@ class RemoteResource(Entity):
                     link=self._workspace_paths.local,
                 ),
                 label="imitate local workspace path on remote - ln",
-                check=False,    # just best effort
+                check=False,  # just best effort
             )
 
     def _push_files(self):

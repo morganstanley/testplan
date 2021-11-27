@@ -158,6 +158,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
         except Exception as exc:
             self.logger.error("Could not fetch results, {}".format(exc))
         super(RemoteWorker, self).aborting()
+        self.status.change(self.STATUS.STOPPED)
 
 
 class RemotePoolConfig(PoolConfig):
@@ -357,7 +358,6 @@ class RemotePool(Pool):
         size = len(self._instances)
         try:
             if size > 2:
-                print("starting thread pool")
                 self.pool = ThreadPool(5 if size > 5 else size)
         except Exception as exc:
             if isinstance(exc, AttributeError):

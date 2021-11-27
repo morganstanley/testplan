@@ -2,6 +2,8 @@
 
 import os
 import psutil
+import tempfile
+
 
 from testplan.report import Status
 from testplan.common.utils.path import fix_home_prefix
@@ -19,6 +21,16 @@ class MySuite(object):
         assert isinstance(env.parent.cfg, MultiTestConfig)
         assert os.path.exists(env.parent.runpath) is True
         assert env.parent.runpath.endswith(slugify(env.parent.cfg.name))
+
+    @testcase
+    def test_attach(self, env, result):
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".txt", delete=True
+        ) as tmpfile:
+            tmpfile.write("testplan\n")
+            result.attach(
+                tmpfile.name, description=os.path.basename(tmpfile.name)
+            )
 
 
 def get_mtest(name):
@@ -100,8 +112,8 @@ def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):
     assert res.success is True
     assert plan.report.passed is True
     assert plan.report.status == Status.PASSED
-    # 1 testcase * 9 iterations
-    assert plan.report.counter == {"passed": 9, "total": 9, "failed": 0}
+    # 2 testcase * 9 iterations
+    assert plan.report.counter == {"passed": 18, "total": 18, "failed": 0}
 
     names = sorted(["MTest{}".format(x) for x in range(1, 10)])
     assert sorted([entry.name for entry in plan.report.entries]) == names
@@ -111,6 +123,11 @@ def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):
     for idx in range(1, 10):
         name = "MTest{}".format(idx)
         assert plan.result.test_results[uids[idx - 1]].report.name == name
+
+    # check attachment exists in local
+    assert os.path.exists(
+        plan.report.entries[0].entries[0].entries[1].entries[0]["source_path"]
+    )
 
     # All tasks assigned once
     for uid in pool._task_retries_cnt:
