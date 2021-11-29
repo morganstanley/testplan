@@ -53,6 +53,19 @@ exports[`DictMatchAssertion shallow renders the correct HTML structure 1`] = `
               "1",
             ],
           ],
+          Array [
+            0,
+            "baz",
+            "Ignored",
+            Array [
+              "int",
+              "2",
+            ],
+            Array [
+              "int",
+              "5",
+            ],
+          ],
         ]
       }
       setRowData={[Function]}
@@ -143,7 +156,7 @@ exports[`DictMatchAssertion shallow renders the correct HTML structure 1`] = `
         "descriptor": Object {
           "indent": 0,
           "isEmptyLine": false,
-          "isListKey": undefined,
+          "isListKey": false,
           "lineNo": 524,
           "status": "Passed",
         },
@@ -158,6 +171,27 @@ exports[`DictMatchAssertion shallow renders the correct HTML structure 1`] = `
         "value": Object {
           "type": "int",
           "value": "1",
+        },
+      },
+      Object {
+        "descriptor": Object {
+          "indent": 0,
+          "isEmptyLine": false,
+          "isListKey": undefined,
+          "lineNo": 524,
+          "status": "Ignored",
+        },
+        "expected": Object {
+          "type": "int",
+          "value": "5",
+        },
+        "key": Object {
+          "type": "key",
+          "value": "baz",
+        },
+        "value": Object {
+          "type": "int",
+          "value": "2",
         },
       },
     ]

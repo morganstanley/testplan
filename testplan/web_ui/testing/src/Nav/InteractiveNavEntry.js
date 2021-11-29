@@ -40,7 +40,7 @@ const InteractiveNavEntry = (props) => {
   const statusIcon = getStatusIcon(
     props.runtime_status,
     props.envStatus,
-    props.handlePlayClick,
+    props.handleClick,
     props.suiteRelated,
     props.action,
   );
@@ -50,7 +50,7 @@ const InteractiveNavEntry = (props) => {
   const resetReportIcon = getResetReportIcon(
     props.runtime_status,
     props.envStatus,
-    props.handleResetClick,
+    props.handleClick,
     props.type,
   );
 
@@ -107,27 +107,24 @@ const InteractiveNavEntry = (props) => {
  *   required. So we do not render buttons to control them.
  */
 const getStatusIcon = (
-  entryStatus, envStatus, handlePlayClick, suiteRelated, action
+  entryStatus, envStatus, handleClick, suiteRelated, action
 ) => {
   if (suiteRelated) {
     return null;
   }
 
+  const disabled = envStatusChanging(envStatus) || action === 'prohibit';
   switch (entryStatus) {
     case 'ready':
       return (
         <FontAwesomeIcon
           className={
-            envStatusChanging(envStatus) || action === 'prohibit'
-              ? css(styles.inactiveEntryButton)
-              : css(styles.entryButton)
+            disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
           }
           icon={faPlay}
           title='Run tests'
           onClick={
-            envStatusChanging(envStatus) || action === 'prohibit'
-              ? ignoreClickEvent
-              : handlePlayClick
+            disabled ? ignoreClickEvent : (e) => handleClick(e, "running")
           }
         />
       );
@@ -138,17 +135,6 @@ const getStatusIcon = (
           className={css(styles.inactiveEntryButton)}
           icon={faHourglass}
           title='Waiting...'
-          spin
-          onClick={ignoreClickEvent}
-        />
-      );
-
-    case 'running':
-      return (
-        <FontAwesomeIcon
-          className={css(styles.inactiveEntryButton)}
-          icon={faRedo}
-          title='Running...'
           spin
           onClick={ignoreClickEvent}
         />
@@ -165,20 +151,27 @@ const getStatusIcon = (
         />
       );
 
+    case 'running':
+      return (
+        <FontAwesomeIcon
+          className={css(styles.inactiveEntryButton)}
+          icon={faRedo}
+          title='Running...'
+          spin
+          onClick={ignoreClickEvent}
+        />
+      );
+
     case 'finished':
       return (
         <FontAwesomeIcon
           className={
-            envStatusChanging(envStatus) || action === 'prohibit'
-              ? css(styles.inactiveEntryButton)
-              : css(styles.entryButton)
+            disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
           }
           icon={faRedo}
           title='Run tests'
           onClick={
-            envStatusChanging(envStatus) || action === 'prohibit'
-              ? ignoreClickEvent
-              : handlePlayClick
+            disabled ? ignoreClickEvent : (e) => handleClick(e, "running")
           }
         />
       );
@@ -187,16 +180,12 @@ const getStatusIcon = (
       return (
         <FontAwesomeIcon
           className={
-            envStatusChanging(envStatus) || action === 'prohibit'
-              ? css(styles.inactiveEntryButton)
-              : css(styles.entryButton)
+            disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
           }
           icon={faRedo}
           title='Run tests'
           onClick={
-            envStatusChanging(envStatus) || action === 'prohibit'
-              ? ignoreClickEvent
-              : handlePlayClick
+            disabled ? ignoreClickEvent : (e) => handleClick(e, "running")
           }
         />
       );
@@ -211,21 +200,18 @@ const getStatusIcon = (
  * environment. Returns null for entries that do not have an environment.
  */
 const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
+  const disabled = testInProgress(entryStatus);
   switch (envStatus) {
     case 'STOPPED':
       return (
         <FontAwesomeIcon
           className={
-            testInProgress(entryStatus)
-              ? css(styles.inactiveEntryButton)
-              : css(styles.entryButton)
+            disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
           }
           icon={faToggleOff}
           title='Start environment'
           onClick={
-            testInProgress(entryStatus)
-              ? ignoreClickEvent
-              : (e) => envCtrlCallback(e, "start")
+            disabled ? ignoreClickEvent : (e) => envCtrlCallback(e, "start")
           }
         />
       );
@@ -244,16 +230,12 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
       return (
         <FontAwesomeIcon
           className={
-            testInProgress(entryStatus)
-              ? css(styles.inactiveEntryButton)
-              : css(styles.entryButton)
+            disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
           }
           icon={faToggleOn}
           title='Stop environment'
           onClick={
-            testInProgress(entryStatus)
-              ? ignoreClickEvent
-              : (e) => envCtrlCallback(e, "stop")
+            disabled ? ignoreClickEvent : (e) => envCtrlCallback(e, "stop")
           }
         />
       );
@@ -278,33 +260,39 @@ const getEnvStatusIcon = (entryStatus, envStatus, envCtrlCallback) => {
  * instance. Returns null for suite entries and case entries.
  */
 const getResetReportIcon = (
-  entryStatus, envStatus, handleResetClick, entryType) => {
-  if (
-    entryType === 'multitest' || entryType === "unittest" ||
-    entryType === "gtest" || entryType === "cppunit" ||
-    entryType === "boost-test" || entryType === "hobbestest" ||
-    entryType === "pytest" || entryType === "pyunit" ||
-    entryType === "qunit" || entryType === "junit"
-  ) {
+  entryStatus, envStatus, handleClick, entryType) => {
+  if (isTestInstance(entryType)) {
+    const disabled = (
+      envStatusChanging(envStatus) || testInProgress(entryStatus)
+    );
     return (
       <FontAwesomeIcon
         className={
-          envStatusChanging(envStatus) || testInProgress(entryStatus)
-            ? css(styles.inactiveEntryButton)
-            : css(styles.entryButton)
+          disabled ? css(styles.inactiveEntryButton) : css(styles.entryButton)
         }
         icon={faFastBackward}
         title='Reset report'
         onClick={
-          envStatusChanging(envStatus) || testInProgress(entryStatus)
-            ? ignoreClickEvent
-            : handleResetClick
+          disabled ? ignoreClickEvent : (e) => handleClick(e, "resetting")
         }
       />
     );
   } else {
     return null;
   }
+};
+
+/**
+ * Is entry the same level as a Multitest entry.
+ */
+const isTestInstance = (entryType) => {
+  return (
+    entryType === 'multitest' || entryType === "unittest" ||
+    entryType === "gtest" || entryType === "cppunit" ||
+    entryType === "boost-test" || entryType === "hobbestest" ||
+    entryType === "pytest" || entryType === "pyunit" ||
+    entryType === "qunit" || entryType === "junit"
+  ) ? true : false;
 };
 
 /**
