@@ -159,8 +159,7 @@ class Environment(object):
                 msg = "While starting resource [{}]\n{}".format(
                     resource.cfg.name, traceback.format_exc()
                 )
-                if self.parent and hasattr(self.parent, "logger"):
-                    self.parent.logger.error(msg)
+                resource.logger.error(msg)
                 self.start_exceptions[resource] = msg
                 # Environment start failure. Won't start the rest.
                 break
@@ -173,6 +172,8 @@ class Environment(object):
                 continue
             else:
                 resource.wait(resource.STATUS.STARTED)
+                resource.logger.debug("Started %r", resource)
+                resource.post_start()
 
     def _log_exception(self, resource, func):
         def wrapper(*args, **kargs):
@@ -182,8 +183,7 @@ class Environment(object):
                 msg = "While executing {} of resource [{}]\n{}".format(
                     func.__name__, resource.cfg.name, traceback.format_exc()
                 )
-                if self.parent and hasattr(self.parent, "logger"):
-                    self.parent.logger.error(msg)
+                resource.logger.error(msg)
                 self.start_exceptions[resource] = msg
 
         return wrapper
@@ -192,7 +192,6 @@ class Environment(object):
         """
         Start all resources concurrently in thread pool.
         """
-
         for resource in self._resources.values():
             if not resource.cfg.async_start:
                 raise RuntimeError(
@@ -206,6 +205,8 @@ class Environment(object):
         # Wait resources status to be STARTED.
         for resource in self._resources.values():
             resource.wait(resource.STATUS.STARTED)
+            resource.logger.debug("Started %r", resource)
+            resource.post_start()
 
     def stop(self, reversed=False):
         """
@@ -228,6 +229,7 @@ class Environment(object):
                 msg = "While stopping resource [{}]\n{}".format(
                     resource.cfg.name, traceback.format_exc()
                 )
+                resource.logger.error(msg)
                 self.stop_exceptions[resource] = msg
 
         # Wait resources status to be STOPPED.
@@ -239,6 +241,8 @@ class Environment(object):
                 continue
             else:
                 resource.wait(resource.STATUS.STOPPED)
+                resource.logger.debug("Stopped %r", resource)
+                resource.post_stop()
 
     def stop_in_pool(self, pool, reversed=False):
         """
@@ -265,6 +269,8 @@ class Environment(object):
                 continue
             else:
                 resource.wait(resource.STATUS.STOPPED)
+                resource.logger.debug("Stopped %r", resource)
+                resource.post_stop()
 
     def __enter__(self):
         self.start()

@@ -296,7 +296,7 @@ class RemoteChildLoop(ChildLoop):
                 raise RuntimeError("Setup script exited with non 0 code.")
 
     def exit_loop(self):
-        if self._pool.cfg.delete_pushed:
+        if self._setup_metadata.delete_pushed:
             for item in self._setup_metadata.push_dirs:
                 self.logger.test_info("Removing directory: {}".format(item))
                 shutil.rmtree(item, ignore_errors=True)

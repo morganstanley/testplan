@@ -5,6 +5,8 @@ import pytest
 import shutil
 import tempfile
 
+from testplan.common.utils.process import execute_cmd
+from testplan.common.utils.remote import filepath_exist_cmd, ssh_cmd
 from testplan.runners.pools.remote import RemotePool
 
 from .func_pool_base_tasks import schedule_tests_to_pool
@@ -73,5 +75,10 @@ def test_pool_basic(mockplan, remote_pool_type):
             clean_remote=True,
         )
     finally:
+        assert 0 == execute_cmd(
+            ssh_cmd({"host": REMOTE_HOST}, f"test -L {workspace}"),
+            label="workspace imitated on remote",
+            check=False,
+        )
         os.chdir(orig_dir)
         shutil.rmtree(workspace)
