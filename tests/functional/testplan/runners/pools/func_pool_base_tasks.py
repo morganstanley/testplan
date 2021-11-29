@@ -25,12 +25,12 @@ class MySuite(object):
     @testcase
     def test_attach(self, env, result):
         with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".txt", delete=True
+            mode="w", suffix=".txt", delete=False
         ) as tmpfile:
             tmpfile.write("testplan\n")
-            result.attach(
-                tmpfile.name, description=os.path.basename(tmpfile.name)
-            )
+
+        result.attach(tmpfile.name, description=os.path.basename(tmpfile.name))
+        os.remove(tmpfile.name)
 
 
 def get_mtest(name):
