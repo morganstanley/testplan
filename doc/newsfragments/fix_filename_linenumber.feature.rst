@@ -1,1 +1,1 @@
-* Common styling for path and time of assertions
+* Common styling for path and time of assertions.
