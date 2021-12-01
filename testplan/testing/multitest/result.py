@@ -13,6 +13,7 @@ import threading
 import platform
 
 from testplan import defaults
+from testplan.common.utils.package import MOD_LOCK
 from testplan.defaults import STDOUT_STYLE
 from testplan.common.utils import comparison
 from testplan.common.utils import strings
@@ -78,7 +79,10 @@ class ExceptionCapture(object):
             description=self.description,
         )
 
-        caller_frame = inspect.stack()[1]
+        with MOD_LOCK:
+            # TODO: see https://github.com/python/cpython/commit/85cf1d514b84dc9a4bcb40e20a12e1d82ff19f20
+            caller_frame = inspect.stack()[1]
+
         exc_assertion.file_path = os.path.abspath(caller_frame[1])
         exc_assertion.line_no = caller_frame[2]
 
@@ -109,7 +113,9 @@ def assertion(func):
             entry = func(result, *args, **kwargs)
             if top_assertion:
                 # Second element is the caller
-                caller_frame = inspect.stack()[1]
+                with MOD_LOCK:
+                    # TODO: see https://github.com/python/cpython/commit/85cf1d514b84dc9a4bcb40e20a12e1d82ff19f20
+                    caller_frame = inspect.stack()[1]
                 entry.file_path = os.path.abspath(caller_frame.filename)
                 entry.line_no = caller_frame.lineno
 
