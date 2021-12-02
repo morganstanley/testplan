@@ -689,18 +689,6 @@ class MultiTest(testing_base.Test):
         _check_testcases(testcases)
         testsuite_report = self._new_testsuite_report(testsuite)
 
-        grouped_testcases = {}
-
-        for testcase in testcases:
-            param_template = getattr(testcase, "_parametrization_template", "non parametrized")
-            grouped_testcases.setdefault(param_template, []).append(testcase)
-
-        non_param_testcases = grouped_testcases["non parametrized"]
-
-        parametrization_reports = self._parametrization_reports(
-            testsuite, testcases
-        )
-
         with testsuite_report.timer.record("run"):
             setup_report = self._setup_testsuite(testsuite)
             if setup_report is not None:
@@ -712,9 +700,9 @@ class MultiTest(testing_base.Test):
                     return testsuite_report
 
             serial_cases, parallel_cases = (
-                (non_param_testcases, [])
+                (testcases, [])
                 if getattr(testsuite, "strict_order", False)
-                else _split_by_exec_group(non_param_testcases)
+                else _split_by_exec_group(testcases)
             )
             testcase_reports = self._run_serial_testcases(
                 testsuite, serial_cases
@@ -725,8 +713,8 @@ class MultiTest(testing_base.Test):
             # not continue to run the parallel testcases if configured to
             # stop on errrors.
             should_stop = (
-                testsuite_report.status == Status.ERROR
-                and self.cfg.stop_on_error
+                    testsuite_report.status == Status.ERROR
+                    and self.cfg.stop_on_error
             )
 
             if parallel_cases and not should_stop:
@@ -734,17 +722,6 @@ class MultiTest(testing_base.Test):
                     testsuite, parallel_cases
                 )
                 testsuite_report.extend(testcase_reports)
-
-            for (
-                param_template,
-                testcases,
-            ) in grouped_testcases.items():
-                if param_template != "non parametrized":
-                    group_report = parametrization_reports[param_template]
-                    testgroup_report = self._run_parametrized_testcases(
-                        testsuite, testcases, group_report
-                    )
-                    testsuite_report.append(testgroup_report)
 
             teardown_report = self._teardown_testsuite(testsuite)
             if teardown_report is not None:
@@ -761,6 +738,7 @@ class MultiTest(testing_base.Test):
     def _run_serial_testcases(self, testsuite, testcases):
         """Run testcases serially and return a list of test reports."""
         testcase_reports = []
+        parametrization_reports = {}
         pre_testcase = getattr(testsuite, "pre_testcase", None)
         post_testcase = getattr(testsuite, "post_testcase", None)
 
@@ -772,7 +750,20 @@ class MultiTest(testing_base.Test):
                 testcase, pre_testcase, post_testcase
             )
 
-            testcase_reports.append(testcase_report)
+            param_template = getattr(
+                testcase, "_parametrization_template", None
+            )
+            if param_template:
+                if param_template not in parametrization_reports:
+                    param_method = getattr(testsuite, param_template)
+                    param_report = self._new_parametrized_group_report(
+                        param_template, param_method
+                    )
+                    parametrization_reports[param_template] = param_report
+                    testcase_reports.append(param_report)
+                parametrization_reports[param_template].append(testcase_report)
+            else:
+                testcase_reports.append(testcase_report)
 
             if testcase_report.status == Status.ERROR:
                 if self.cfg.stop_on_error:
@@ -781,6 +772,21 @@ class MultiTest(testing_base.Test):
                         testsuite.name,
                     )
                     break
+
+        if parametrization_reports:
+            for param_report in parametrization_reports.values():
+                if param_report.entries:
+                    start_times = []
+                    end_times = []
+                    for testcase in param_report.entries:
+                        timer = getattr(testcase, 'timer')
+                        start_time = getattr(timer['run'], 'start')
+                        end_time = getattr(timer['run'], 'end')
+                        start_times.append(start_time)
+                        end_times.append(end_time)
+                    start_time = min(start_times)
+                    end_time = max(end_times)
+                    param_report.timer['run'] = timing.Interval(start_time, end_time)
 
         return testcase_reports
 
@@ -844,6 +850,17 @@ class MultiTest(testing_base.Test):
         # testcase reports, to be added to the suite report.
         for param_report in parametrization_reports.values():
             if param_report.entries:
+                start_times = []
+                end_times = []
+                for testcase in param_report.entries:
+                    timer = getattr(testcase, 'timer')
+                    start_time = getattr(timer['run'], 'start')
+                    end_time = getattr(timer['run'], 'end')
+                    start_times.append(start_time)
+                    end_times.append(end_time)
+                start_time = min(start_times)
+                end_time = max(end_times)
+                param_report.timer['run'] = timing.Interval(start_time, end_time)
                 testcase_reports.append(param_report)
 
         return testcase_reports
