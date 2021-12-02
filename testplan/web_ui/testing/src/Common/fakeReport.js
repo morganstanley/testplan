@@ -279,6 +279,14 @@ var fakeReportAssertions = {
         [
             "python_version",
             "3.7.1"
+        ],
+        [
+            "job_url",
+            "http://www.google.com"
+        ],
+        [
+            "hostname",
+            "ivapp1336972.devin3.ms.com"
         ]
     ],
     "counter": {
