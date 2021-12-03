@@ -238,7 +238,7 @@ const ModalRender = (
     <>
       <h5>
         Select exporters to use
-        <span style={{"font-size": "0.8em"}}>
+        <span style={{fontSize: "0.8em"}}>
           (check "Output" section in documentation
           for how-to set up more exporters)
         </span>

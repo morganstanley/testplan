@@ -295,6 +295,7 @@ class MultiTest(testing_base.Test):
             sorted_testcases = (
                 testcases
                 if getattr(suite, "strict_order", False)
+                or not hasattr(self.cfg, "test_sorter")
                 else self.cfg.test_sorter.sorted_testcases(suite, testcases)
             )
 

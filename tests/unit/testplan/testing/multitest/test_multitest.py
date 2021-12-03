@@ -2,7 +2,6 @@
 
 import os
 
-
 from testplan.common import entity
 from testplan.common.utils import path
 from testplan.common.utils import testing
@@ -13,8 +12,6 @@ from testplan.testing import ordering
 from testplan import defaults
 from testplan import report
 
-
-# TODO: shouldn't need to specify these...
 MTEST_DEFAULT_PARAMS = {
     "test_filter": filtering.Filter(),
     "test_sorter": ordering.NoopSorter(),
@@ -66,9 +63,7 @@ def test_multitest_runpath():
     assert mtest._runpath == os.path.join(global_runpath, "mtest")
 
     # runpath in global cfg and local - take local cfg
-    mtest = multitest.MultiTest(
-        name="Mtest", suites=[], runpath=local_runpath, **MTEST_DEFAULT_PARAMS
-    )
+    mtest = multitest.MultiTest(name="Mtest", suites=[], runpath=local_runpath)
     mtest.parent = par
     assert mtest.runpath is None
     assert mtest._runpath is None
@@ -207,7 +202,7 @@ def test_dry_run():
         name="MTest",
         description="Basic multitest.",
         suites=[Suite()],
-        **MTEST_DEFAULT_PARAMS
+        **MTEST_DEFAULT_PARAMS,
     )
     result = mtest.dry_run()
     report_skeleton = result.report
@@ -256,7 +251,7 @@ def test_run_tests_parallel():
         name="MTest",
         suites=[ParallelSuite()],
         thread_pool_size=3,
-        **MTEST_DEFAULT_PARAMS
+        **MTEST_DEFAULT_PARAMS,
     )
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
@@ -283,7 +278,7 @@ def test_run_testcases_iter():
         name="MTest",
         suites=[Suite()],
         thread_pool_size=3,
-        **MTEST_DEFAULT_PARAMS
+        **MTEST_DEFAULT_PARAMS,
     )
     mtest.dry_run()
 

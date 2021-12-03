@@ -2,23 +2,35 @@
 
 exports[`AssertionHeader shallow renders the correct HTML structure 1`] = `
 <CardHeader
-  className="cardHeader_1ue4bhj-o_O-cardHeaderColorPassed_1nxwz58"
+  className="cardHeader_1s246z6-o_O-cardHeaderColorPassed_1nxwz58"
   tag="div"
 >
-  <span
-    className="button_13xlah4"
+  <div
+    style={
+      Object {
+        "padding": ".125rem 0.75rem",
+      }
+    }
   >
-    <span>
-      <strong />
+    <span
+      className="button_13xlah4"
+    >
+      <span
+        style={
+          Object {
+            "fontWeight": "bold",
+          }
+        }
+      />
+      <span>
+        (
+        Equal
+        )
+      </span>
     </span>
-    <span>
-      (
-      Equal
-      )
-    </span>
-  </span>
-  <span
-    className="cardHeaderAlignRight_107ja4p"
-  />
+    <span
+      className="cardHeaderAlignRight_107ja4p"
+    />
+  </div>
 </CardHeader>
 `;

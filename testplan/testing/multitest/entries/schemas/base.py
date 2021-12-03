@@ -33,6 +33,7 @@ class BaseSchema(Schema):
     category = fields.String()
     flag = fields.String()
     file_path = fields.String()
+    custom_style = fields.Dict(keys=fields.String(), values=fields.String())
 
     def load(self, *args, **kwargs):
         raise NotImplementedError("Only serialization is supported.")

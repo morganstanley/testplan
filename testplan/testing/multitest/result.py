@@ -102,14 +102,12 @@ assertion_state = threading.local()
 def assertion(func):
     def wrapper(result, *args, **kwargs):
         top_assertion = False
-        if (
-            not hasattr(assertion_state, "in_progress")
-            or not assertion_state.in_progress
-        ):
+        if not getattr(assertion_state, "in_progress", False):
             assertion_state.in_progress = True
             top_assertion = True
 
         try:
+            custom_style = kwargs.pop("custom_style", None)
             entry = func(result, *args, **kwargs)
             if top_assertion:
                 # Second element is the caller
@@ -118,6 +116,13 @@ def assertion(func):
                     caller_frame = inspect.stack()[1]
                 entry.file_path = os.path.abspath(caller_frame.filename)
                 entry.line_no = caller_frame.lineno
+
+                if custom_style is not None:
+                    if not isinstance(custom_style, dict):
+                        raise TypeError(
+                            "Use `dict[str, str]` to specify custom CSS style"
+                        )
+                    entry.custom_style = custom_style
 
                 assert isinstance(result, AssertionNamespace) or isinstance(
                     result, Result
@@ -1691,7 +1696,7 @@ class Result(object):
         entry = assertions.Equal(
             actual, expected, description=description, category=category
         )
-        #
+
         return entry
 
     @assertion
