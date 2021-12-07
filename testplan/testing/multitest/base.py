@@ -848,38 +848,26 @@ class MultiTest(testing_base.Test):
 
         # Add all non-empty parametrization reports into the list of returned
         # testcase reports, to be added to the suite report.
+        # Calculate runtime of the parametrized group as well
         for param_report in parametrization_reports.values():
             if param_report.entries:
                 start_times = []
                 end_times = []
                 for testcase in param_report.entries:
                     timer = getattr(testcase, 'timer')
-                    start_time = getattr(timer['run'], 'start')
-                    end_time = getattr(timer['run'], 'end')
-                    start_times.append(start_time)
-                    end_times.append(end_time)
-                start_time = min(start_times)
-                end_time = max(end_times)
-                param_report.timer['run'] = timing.Interval(start_time, end_time)
+                    start_time = getattr(timer['run'], 'start', None)
+                    end_time = getattr(timer['run'], 'end', None)
+                    if start_time:
+                        start_times.append(start_time)
+                    if end_time:
+                        end_times.append(end_time)
+                if start_times and end_times:
+                    start_time = min(start_times)
+                    end_time = max(end_times)
+                    param_report.timer['run'] = timing.Interval(start_time, end_time)
                 testcase_reports.append(param_report)
 
         return testcase_reports
-
-    def _run_parametrized_testcases(
-        self, testsuite, testcases, param_group_report
-    ):
-        """Run a group of paramterized testcases serially and return its group report."""
-
-        pre_testcase = getattr(testsuite, "pre_testcase", None)
-        post_testcase = getattr(testsuite, "post_testcase", None)
-
-        with param_group_report.timer.record("run"):
-            for testcase in testcases:
-                testcase_report = self._run_testcase(
-                    testcase, pre_testcase, post_testcase
-                )
-                param_group_report.append(testcase_report)
-        return param_group_report
 
     def _parametrization_reports(self, testsuite, testcases):
         """
