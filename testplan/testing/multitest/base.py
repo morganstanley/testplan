@@ -713,8 +713,8 @@ class MultiTest(testing_base.Test):
             # not continue to run the parallel testcases if configured to
             # stop on errrors.
             should_stop = (
-                    testsuite_report.status == Status.ERROR
-                    and self.cfg.stop_on_error
+                testsuite_report.status == Status.ERROR
+                and self.cfg.stop_on_error
             )
 
             if parallel_cases and not should_stop:
@@ -779,14 +779,16 @@ class MultiTest(testing_base.Test):
                     start_times = []
                     end_times = []
                     for testcase in param_report.entries:
-                        timer = getattr(testcase, 'timer')
-                        start_time = getattr(timer['run'], 'start')
-                        end_time = getattr(timer['run'], 'end')
+                        timer = getattr(testcase, "timer")
+                        start_time = getattr(timer["run"], "start")
+                        end_time = getattr(timer["run"], "end")
                         start_times.append(start_time)
                         end_times.append(end_time)
                     start_time = min(start_times)
                     end_time = max(end_times)
-                    param_report.timer['run'] = timing.Interval(start_time, end_time)
+                    param_report.timer["run"] = timing.Interval(
+                        start_time, end_time
+                    )
 
         return testcase_reports
 
@@ -854,9 +856,9 @@ class MultiTest(testing_base.Test):
                 start_times = []
                 end_times = []
                 for testcase in param_report.entries:
-                    timer = getattr(testcase, 'timer')
-                    start_time = getattr(timer['run'], 'start', None)
-                    end_time = getattr(timer['run'], 'end', None)
+                    timer = getattr(testcase, "timer")
+                    start_time = getattr(timer["run"], "start", None)
+                    end_time = getattr(timer["run"], "end", None)
                     if start_time:
                         start_times.append(start_time)
                     if end_time:
@@ -864,7 +866,9 @@ class MultiTest(testing_base.Test):
                 if start_times and end_times:
                     start_time = min(start_times)
                     end_time = max(end_times)
-                    param_report.timer['run'] = timing.Interval(start_time, end_time)
+                    param_report.timer["run"] = timing.Interval(
+                        start_time, end_time
+                    )
                 testcase_reports.append(param_report)
 
         return testcase_reports
