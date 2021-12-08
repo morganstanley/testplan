@@ -447,7 +447,14 @@ class TestRunner(Runnable):
 
         return self.add(task or Task(**options), resource=resource)
 
-    def schedule_all(self, path=".", name_pattern=r".*\.py$", resource=None):
+    def schedule_all(
+        self,
+        path=".",
+        name_pattern=r".*\.py$",
+        args=None,
+        kwargs=None,
+        resource=None,
+    ):
         """
         Discover task targets under path in the modules that matches name pattern,
         create task objects from them and schedule them to resource (usually pool)
@@ -458,9 +465,19 @@ class TestRunner(Runnable):
         :type path: ``str``
         :param name_pattern: a regex pattern to match the file name.
         :type name_pattern: ``str``
+        :param args: ``args`` argument to initialize a
+            :py:class:`Task <testplan.runners.pools.tasks.base.Task>` object.
+        :type args: ``tuple`` or ``list``
+        :param kwargs: ``kwargs`` argument to initialize a
+            :py:class:`Task <testplan.runners.pools.tasks.base.Task>` object.
+        :type kwargs: ``dict``
         :param resource: Target pool resource, default is None (local execution)
         :type resource: :py:class:`~testplan.runners.pools.base.Pool`
         """
+
+        def create_task(task_kwargs, resource):
+            self.logger.debug("Task created with arguments: %s", task_kwargs)
+            self.add(Task(**task_kwargs), resource=resource)
 
         self.logger.test_info(
             "Discovering task target with file name pattern '%s' under '%s'",
@@ -468,13 +485,13 @@ class TestRunner(Runnable):
             path,
         )
         regex = re.compile(name_pattern)
-        created_tasks = []
 
         for root, dirs, files in os.walk(path or "."):
             for filename in files:
                 if not regex.match(filename):
                     continue
 
+                filepath = os.path.join(root, filename)
                 module = filename.split(".")[0]
 
                 with import_tmp_module(module, root) as mod:
@@ -483,41 +500,35 @@ class TestRunner(Runnable):
                         if not is_task_target(target):
                             continue
 
-                        self.logger.test_info(
-                            "Discovered task target %s::%s",
-                            os.path.join(root, filename),
-                            attr,
+                        self.logger.debug(
+                            "Discovered task target %s::%s", filepath, attr
                         )
-                        parameters = target.__target_params__ or [{}]
+                        task_arguments = dict(
+                            target=attr,
+                            module=module,
+                            path=root,
+                            **target.__task_kwargs__,
+                        )
 
-                        for param in parameters:
-                            if isinstance(param, dict):
-                                args = None
-                                kwargs = param
-                            elif isinstance(param, (tuple, list)):
-                                args = param
-                                kwargs = None
-                            else:
-                                raise TypeError(
-                                    "task_target's parameters can only contain"
-                                    f" dict/tuple/list, but received: {param}"
-                                )
-
-                            task_args = dict(
-                                target=attr,
-                                module=module,
-                                path=root,
-                                args=args,
-                                kwargs=kwargs,
-                                **target.__task_kwargs__,
+                        if target.__target_params__:
+                            for param in target.__target_params__:
+                                if isinstance(param, dict):
+                                    task_arguments["args"] = None
+                                    task_arguments["kwargs"] = param
+                                elif isinstance(param, (tuple, list)):
+                                    task_arguments["args"] = param
+                                    task_arguments["kwargs"] = None
+                                else:
+                                    raise TypeError(
+                                        "Unrecognizable parameter found in"
+                                        f" `task_target`: {param}"
+                                    )
+                                create_task(task_arguments, resource=resource)
+                        else:
+                            task_arguments.update(
+                                {"args": args, "kwargs": kwargs}
                             )
-                            self.logger.debug(
-                                "Create task with param %s", task_args
-                            )
-                            created_tasks.append((Task(**task_args), resource))
-
-        for task, resource in created_tasks:
-            self.add(task, resource=resource)
+                            create_task(task_arguments, resource=resource)
 
     def add(self, target, resource=None):
         """

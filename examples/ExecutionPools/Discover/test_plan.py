@@ -41,6 +41,7 @@ def main(plan):
     plan.schedule_all(
         path=".",
         name_pattern=r".*tasks\.py$",
+        kwargs={"stop_on_error": False},
         resource="MyPool",
     )
 

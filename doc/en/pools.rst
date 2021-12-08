@@ -331,31 +331,58 @@ in modules that matches the name_pattern under current working directory.
 
 .. code-block:: python
 
-    @task_target()
-    def make_multitest1():
-        # a test target shall only return 1 runnable object
-        test = MultiTest(name="Proj2-Suite1", suites=[Suite1()])
+    @task_target
+    def make_multitest():
+        # A test target shall only return 1 runnable object
+        test = MultiTest(name="MTest", suites=[Suite()])
         return test
 
 Once found, task object will be created from the target, and scheduled to pool.
-It is also possible to create multiple task objects out of one target:
+It is possible to create multiple task objects out of one target. Moreover,
+arguments for tasks can be specified in `schedule_all`, it is useful when
+many targets of the same kind share the same arguments.
+
+.. code-block:: python
+
+    plan.schedule_all(
+        path=".",
+        name_pattern=r".*tasks\.py$",
+        args=(2,),
+        kwargs={"stop_on_error": False},
+        resource="MyPool",
+    )
+
+.. code-block:: python
+
+    @task_target
+    def make_multitest(thread_pool_size, stop_on_error=True):
+        test = MultiTest(
+            name="MTest",
+            thread_pool_size=thread_pool_size,
+            stop_on_error=stop_on_error,
+            suites=[Suite()]
+        )
+        return test
+
+It is also possible to create multiple task objects out of one target with
+`parameters` specified:
 
 .. code-block:: python
 
     @task_target(
         parameters=(
             # positional args to be passed to target, as a tuple or list
-            ("Proj1-Suite2", None, [sub_proj1.suites.Suite2]),
+            ("MTest1", None, [SimpleSuite1, SimpleSuite2]),
             # keyword args to be passed to target, as a dict
             dict(
-                name="Proj1-Suite1",
+                name="MTest2-1",
                 part_tuple=(0, 2),
-                suites=[sub_proj1.suites.Suite1],
+                suites=[ComplicatedSuite],
             ),
             dict(
-                name="Proj1-Suite1",
+                name="MTest2-2",
                 part_tuple=(1, 2),
-                suites=[sub_proj1.suites.Suite1],
+                suites=[ComplicatedSuite],
             ),
         ),
         # additional args of Task class
@@ -363,13 +390,15 @@ It is also possible to create multiple task objects out of one target:
         weight=1,
     )
     def make_multitest(name, part_tuple=None, suites=None):
-        # a test target shall only return 1 runnable object
+        # By parameterizing this task target totally 3 runnable objects
+        # can be retrieved during discovering task targets.
         test = MultiTest(
             name=name, suites=[cls() for cls in suites], part=part_tuple
         )
         return test
 
-The code above specifies a collections of parameters in @task_target, and each
+The code above specifies a collections of parameters in `@task_target`, and each
 entry will be used create one task - thus 3 tasks will be created from the target.
+Note that arguments defined in this way have a higher priority.
 
 For a complete and downloadable example, see :ref:`here <example_discover>`.

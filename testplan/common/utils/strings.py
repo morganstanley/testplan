@@ -1,6 +1,5 @@
 """String manipulation utilities."""
 
-import sys
 import os
 import re
 import inspect

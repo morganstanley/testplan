@@ -381,14 +381,24 @@ def task_target(
     Decorator to make task target discoverable by plan.schedule_all.
 
     :param parameters: A collection of parameters to be used to create task
-      objects. ``list`` or ``tuple`` entry will be passed to target as positional
-      args and ``dict`` entry will be passed to target as keyword args.
-    :type parameters: ``list`` or ``tuple`` that contains ``list`` or ``tuple`` or ``dict``
-    :param kwargs: additional args to Task class, e.g rerun, weight etc
+        objects. ``list`` or ``tuple`` entry will be passed to target as
+        positional arguments and ``dict`` entry will be passed to target as
+        keyword arguments.
+    :type parameters: ``list`` or ``tuple`` that contains ``list`` or ``tuple``
+        or ``dict``
+    :param kwargs: additional args to Task class, e.g rerun, weight etc.
+    :type kwargs: ``dict``
     """
 
-    def inner(func):
+    # `task_target` is used without parentheses, then `parameters` is the
+    #  real callable object (task target) to be decorated.
+    if callable(parameters) and len(kwargs) == 0:
+        set_task_target(parameters)
+        parameters.__target_params__ = None
+        parameters.__task_kwargs__ = {}
+        return parameters
 
+    def inner(func):
         set_task_target(func)
         func.__target_params__ = parameters
         func.__task_kwargs__ = kwargs
@@ -399,10 +409,13 @@ def task_target(
 
 
 def set_task_target(func):
-    """mark the func as task target"""
+    """
+    Mark a callable object as a task target which can be packaged
+    in a :py:class:`~testplan.runners.pools.tasks.base.Task` object.
+    """
     func.__is_task_target__ = True
 
 
 def is_task_target(func):
-    """check if func is a task target"""
+    """Check if a callable object is a task target."""
     return getattr(func, "__is_task_target__", False)

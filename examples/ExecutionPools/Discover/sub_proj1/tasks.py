@@ -10,26 +10,31 @@ import sub_proj1.suites
 @task_target(
     parameters=(
         # positional args to be passed to target, as a tuple or list
-        ("Proj1-Suite2", None, [sub_proj1.suites.Suite2]),
+        ("Proj1-Suite2", None, [sub_proj1.suites.Suite2], True),
         # keyword args to be passed to target, as a dict
         dict(
             name="Proj1-Suite1",
             part_tuple=(0, 2),
             suites=[sub_proj1.suites.Suite1],
+            stop_on_error=False,
         ),
         dict(
             name="Proj1-Suite1",
             part_tuple=(1, 2),
             suites=[sub_proj1.suites.Suite1],
+            stop_on_error=False,
         ),
     ),
     # additional args of Task class
     rerun=1,
     weight=1,
 )
-def make_multitest(name, part_tuple=None, suites=None):
+def make_multitest(name, part_tuple=None, suites=None, stop_on_error=True):
     # a test target shall only return 1 runnable object
     test = MultiTest(
-        name=name, suites=[cls() for cls in suites], part=part_tuple
+        name=name,
+        suites=[cls() for cls in suites],
+        part=part_tuple,
+        stop_on_error=stop_on_error,
     )
     return test
