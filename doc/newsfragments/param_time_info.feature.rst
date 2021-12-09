@@ -1,1 +1,1 @@
-* :changed:`changed` Add time info for parametrized testcases at group level
+* Add time info for parametrized testcases at group level
