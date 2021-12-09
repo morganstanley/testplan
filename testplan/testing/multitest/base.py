@@ -1179,4 +1179,6 @@ def _add_runtime_info(param_report):
             group_start_time = start_time
         if end_time > group_end_time:
             group_end_time = end_time
-    param_report.timer["run"] = timing.Interval(group_start_time, group_end_time)
+    param_report.timer["run"] = timing.Interval(
+        group_start_time, group_end_time
+    )
