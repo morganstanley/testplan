@@ -19,6 +19,7 @@ import {
   UncontrolledDropdown,
   Table,
 } from "reactstrap";
+import linkifyUrls from 'linkify-urls';
 
 import FilterBox from "../Toolbar/FilterBox";
 import FilterBoxPlaceholder from "../Toolbar/FilterBoxPlaceholder";
@@ -503,23 +504,24 @@ const getToggledButtonStyle = (status) => {
  * Get the metadata from the report and render it as a table.
  */
 const getInfoTable = (report) => {
-
-  function validURL(str) {
-    var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-    return !!pattern.test(str);
-  }
   
 
   if (!report || !report.information) {
     return "No information to display.";
   }
   const infoList = report.information.map((item, i) => {
-    console.log(validURL(item[1]))
+    const linkifyIgnore = ['user', 'command_line_string', 'python_version', 'hostname', 'start', 'end']
+    if (!linkifyIgnore.includes(item[0])) {
+      return (
+        <tr key={i}>
+          <td className={css(styles.infoTableKey)}>{item[0]}</td>
+          <td className={css(styles.infoTableValue)}><div dangerouslySetInnerHTML={{__html:linkifyUrls(
+            item[1], {attributes:{target: "_blank"}}
+            )}} /></td>
+        </tr>
+      );
+    }
+
     return (
       <tr key={i}>
         <td className={css(styles.infoTableKey)}>{item[0]}</td>
