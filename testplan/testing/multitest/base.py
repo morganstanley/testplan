@@ -774,10 +774,9 @@ class MultiTest(testing_base.Test):
                     break
 
         if parametrization_reports:
-            for group_name, param_report in parametrization_reports.items():
+            for param_report in parametrization_reports.values():
                 if param_report.entries:
-                    param_report = _add_runtime_info(param_report)
-                    parametrization_reports[group_name] = param_report
+                    _add_runtime_info(param_report)
 
         return testcase_reports
 
@@ -842,7 +841,7 @@ class MultiTest(testing_base.Test):
         # Calculate runtime of the parametrized group as well
         for param_report in parametrization_reports.values():
             if param_report.entries:
-                param_report = _add_runtime_info(param_report)
+                _add_runtime_info(param_report)
                 testcase_reports.append(param_report)
 
         return testcase_reports
@@ -1170,16 +1169,14 @@ def _add_runtime_info(param_report):
     :param param_report: parametrized group report
     :return: the parametrized group report with its runtime information
     """
-    start_times = []
-    end_times = []
+    group_start_time = param_report.entries[0].timer["run"].start
+    group_end_time = param_report.entries[0].timer["run"].end
     for testcase in param_report.entries:
         timer = testcase.timer
         start_time = timer["run"].start
         end_time = timer["run"].end
-        start_times.append(start_time)
-        end_times.append(end_time)
-    if start_times and end_times:
-        start_time = min(start_times)
-        end_time = max(end_times)
-        param_report.timer["run"] = timing.Interval(start_time, end_time)
-    return param_report
+        if start_time < group_start_time:
+            group_start_time = start_time
+        if end_time > group_end_time:
+            group_end_time = end_time
+    param_report.timer["run"] = timing.Interval(group_start_time, group_end_time)
