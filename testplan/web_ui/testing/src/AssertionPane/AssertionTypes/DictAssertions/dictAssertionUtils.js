@@ -13,13 +13,20 @@ import {any, sorted, domToString} from './../../../Common/utils';
  */
 export function dictCellStyle(params) {
   const isValue = params.colDef.field !== 'key';
-  const isFailed = params.data.descriptor.status === 'Failed';
-  let cellStyle = {};
+  
+  let styles = new Map([
+    ["Failed", {
+      color: 'red',
+      fontWeight: 'bold'
+    }],
+    ["Ignored", {
+      color: 'grey',
+      fontStyle: 'italic'
+    }], 
 
-  if (isFailed) {
-    cellStyle.color = 'red';
-    cellStyle.fontWeight = 'bold';
-  }
+  ]);
+
+  let cellStyle = styles.get(params.data.descriptor.status) ?? {};
 
   if (isValue) {
     cellStyle.backgroundColor = '#BDC3C750';

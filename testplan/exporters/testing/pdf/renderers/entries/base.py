@@ -148,6 +148,28 @@ class LogRenderer(SerializedEntryRenderer):
         return header
 
 
+@registry.bind(base.Attachment)
+class AttachmentRenderer(SerializedEntryRenderer):
+    """Render an assertion of attaching file from a serialized entry."""
+
+    def get_row_data(self, source, depth, row_idx):
+        """Display path of attached file."""
+        header = self.get_header(source, depth, row_idx)
+        row_idx += 1
+
+        return header + RowData(
+            content=[source["source_path"], "", "", ""],
+            style=[
+                RowStyle(
+                    font=(constants.FONT, constants.FONT_SIZE_SMALL),
+                    left_padding=constants.INDENT * (depth + 1),
+                    text_color=colors.black,
+                )
+            ],
+            start=row_idx,
+        )
+
+
 @registry.bind(base.MatPlot)
 class MatPlotRenderer(SerializedEntryRenderer):
     """Render a Matplotlib assertion from a serialized entry."""
@@ -217,6 +239,44 @@ class PlotlyRenderer(SerializedEntryRenderer):
         #     start=header.end,
         #     style=styles,
         # )
+
+
+@registry.bind(base.Directory)
+class DirectoryRenderer(SerializedEntryRenderer):
+    """Render an assertion of attaching directory from a serialized entry."""
+
+    def get_row_data(self, source, depth, row_idx):
+        """Display path of attached directory."""
+        header = self.get_header(source, depth, row_idx)
+        row_idx += 1
+
+        header += RowData(
+            content=[source["source_path"], "", "", ""],
+            style=[
+                RowStyle(
+                    font=(constants.FONT, constants.FONT_SIZE_SMALL),
+                    left_padding=constants.INDENT * (depth + 1),
+                    text_color=colors.black,
+                )
+            ],
+            start=row_idx,
+        )
+        row_idx += 1
+
+        for idx, fpath in enumerate(source["file_list"]):
+            header += RowData(
+                content=[fpath, "", "", ""],
+                style=[
+                    RowStyle(
+                        font=(constants.FONT, constants.FONT_SIZE_SMALL),
+                        left_padding=constants.INDENT * (depth + 2),
+                        text_color=colors.black,
+                    )
+                ],
+                start=row_idx + idx,
+            )
+
+        return header
 
 
 @registry.bind(base.TableLog)

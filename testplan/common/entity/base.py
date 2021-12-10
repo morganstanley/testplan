@@ -15,11 +15,11 @@ import psutil
 from schema import Or, And, Use
 
 from testplan.common.config import Config, ConfigOption
-from testplan.common.utils.thread import execute_as_thread
+from testplan.common.utils.thread import execute_as_thread, interruptible_join
 from testplan.common.utils.timing import wait
 from testplan.common.utils.path import makeemptydirs, makedirs, default_runpath
 from testplan.common.utils.strings import slugify, uuid4
-from testplan.common.utils.validation import is_subclass, has_method
+from testplan.common.utils.validation import is_subclass
 from testplan.common.utils import logger
 
 
@@ -159,8 +159,7 @@ class Environment(object):
                 msg = "While starting resource [{}]\n{}".format(
                     resource.cfg.name, traceback.format_exc()
                 )
-                if self.parent and hasattr(self.parent, "logger"):
-                    self.parent.logger.error(msg)
+                resource.logger.error(msg)
                 self.start_exceptions[resource] = msg
                 # Environment start failure. Won't start the rest.
                 break
@@ -173,6 +172,8 @@ class Environment(object):
                 continue
             else:
                 resource.wait(resource.STATUS.STARTED)
+                resource.logger.debug("Started %r", resource)
+                resource.post_start()
 
     def _log_exception(self, resource, func):
         def wrapper(*args, **kargs):
@@ -182,8 +183,7 @@ class Environment(object):
                 msg = "While executing {} of resource [{}]\n{}".format(
                     func.__name__, resource.cfg.name, traceback.format_exc()
                 )
-                if self.parent and hasattr(self.parent, "logger"):
-                    self.parent.logger.error(msg)
+                resource.logger.error(msg)
                 self.start_exceptions[resource] = msg
 
         return wrapper
@@ -192,7 +192,6 @@ class Environment(object):
         """
         Start all resources concurrently in thread pool.
         """
-
         for resource in self._resources.values():
             if not resource.cfg.async_start:
                 raise RuntimeError(
@@ -206,6 +205,8 @@ class Environment(object):
         # Wait resources status to be STARTED.
         for resource in self._resources.values():
             resource.wait(resource.STATUS.STARTED)
+            resource.logger.debug("Started %r", resource)
+            resource.post_start()
 
     def stop(self, reversed=False):
         """
@@ -228,6 +229,7 @@ class Environment(object):
                 msg = "While stopping resource [{}]\n{}".format(
                     resource.cfg.name, traceback.format_exc()
                 )
+                resource.logger.error(msg)
                 self.stop_exceptions[resource] = msg
 
         # Wait resources status to be STOPPED.
@@ -239,6 +241,8 @@ class Environment(object):
                 continue
             else:
                 resource.wait(resource.STATUS.STOPPED)
+                resource.logger.debug("Stopped %r", resource)
+                resource.post_stop()
 
     def stop_in_pool(self, pool, reversed=False):
         """
@@ -265,6 +269,8 @@ class Environment(object):
                 continue
             else:
                 resource.wait(resource.STATUS.STOPPED)
+                resource.logger.debug("Stopped %r", resource)
+                resource.post_stop()
 
     def __enter__(self):
         self.start()
@@ -359,7 +365,6 @@ class EntityConfig(Config):
             ConfigOption("path_cleanup", default=False): bool,
             ConfigOption("status_wait_timeout", default=600): int,
             ConfigOption("abort_wait_timeout", default=30): int,
-            # active_loop_sleep impacts cpu usage in interactive mode
             ConfigOption("active_loop_sleep", default=0.005): float,
         }
 
@@ -463,7 +468,8 @@ class Entity(logger.Loggable):
             return
         self._should_abort = True
         for dep in self.abort_dependencies():
-            self._abort_entity(dep)
+            if dep is not None:
+                self._abort_entity(dep)
         self.aborting()
         self._aborted = True
 
@@ -617,7 +623,7 @@ class RunnableConfig(EntityConfig):
     def get_options(cls):
         """Runnable specific config options."""
         return {
-            # IHandlers explicitly enable interactive mode of runnables.
+            # IHandler explicitly enables interactive mode of runnable
             ConfigOption("interactive_port", default=None): Or(None, int),
             ConfigOption(
                 "interactive_block",
@@ -901,21 +907,27 @@ class Runnable(Entity):
             if self.cfg.interactive_port is not None:
                 if self._ihandler is not None:
                     raise RuntimeError(
-                        "{} already has an active {}".format(
-                            self, self._ihandler
-                        )
+                        f"{self} already has an active {self._ihandler}"
                     )
+
                 self.logger.test_info("Starting %s in interactive mode", self)
                 self._ihandler = self.cfg.interactive_handler(
                     target=self, http_port=self.cfg.interactive_port
                 )
-                self._ihandler.parent = self
                 thread = threading.Thread(target=self._ihandler)
+                # Testplan should exit even if interactive handler thread stuck
+                thread.daemon = True
                 thread.start()
+
                 # Check if we are on interactive session.
                 if self.cfg.interactive_block:
                     while self._ihandler.active:
                         time.sleep(self.cfg.active_loop_sleep)
+                    else:
+                        interruptible_join(
+                            thread, timeout=self.cfg.abort_wait_timeout
+                        )
+                        self.abort()
                 return self._ihandler
             else:
                 self._run_batch_steps()

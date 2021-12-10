@@ -183,7 +183,7 @@ exports[`InteractiveNav shallow renders and matches snapshot 1`] = `
     }
     envCtrlCallback={[MockFunction]}
     filter={null}
-    handlePlayClick={[MockFunction]}
+    handleClick={[MockFunction]}
     selectedUid="_dev"
   />
 </Fragment>

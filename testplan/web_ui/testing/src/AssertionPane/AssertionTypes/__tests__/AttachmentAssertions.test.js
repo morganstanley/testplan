@@ -3,20 +3,18 @@ import React from 'react';
 import {shallow} from 'enzyme';
 import {StyleSheetTestUtils} from "aphrodite";
 
-import {
-  AttachmentAssertion,  
-} from '../AttachmentAssertions.js';
+import { AttachmentAssertion } from '../AttachmentAssertions';
 
 import TextAttachment from '../TextAttachment'
 import AttachmentAssertionCardHeader from '../AttachmentAssertionCardHeader'
 
 const defaultAssertionProps = {
-"category": "DEFAULT",
-"machine_time": "2019-02-12T17:41:43.312797+00:00",
-"description": null,
-"line_no": 675,
-"meta_type": "entry",
-"utc_time": "2019-02-12T17:41:43.312789+00:00"
+  "category": "DEFAULT",
+  "machine_time": "2019-02-12T17:41:43.312797+00:00",
+  "description": null,
+  "line_no": 675,
+  "meta_type": "entry",
+  "utc_time": "2019-02-12T17:41:43.312789+00:00"
 }
 
 const defaultReportUid = "123";
@@ -44,7 +42,9 @@ describe('AttachmentAssertion', () => {
       />
     );
 
-    expect(shallowComponent.find(TextAttachment).first().props().src).toBe("/api/v1/reports/123/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt")
+    expect(shallowComponent.find(TextAttachment).first().props().src).toBe(
+      "/api/v1/reports/123/attachments/tmpthpcdtwn-cd4f4c6e94971896a71b4a1d47785a90b19f6565-900.txt"
+    )
     expect(shallowComponent).toMatchSnapshot();
   });
 
@@ -64,7 +64,11 @@ describe('AttachmentAssertion', () => {
         reportUid={defaultReportUid}
       />
     );
-    expect(shallowComponent.find(AttachmentAssertionCardHeader).first().props().src).toBe("/api/v1/reports/123/attachments/tmpthpcdtwo-ad4f4c6e94971896a71b4a1d47785a90b19f6565-990.png")
+    expect(
+      shallowComponent.find(AttachmentAssertionCardHeader).first().props().src
+    ).toBe(
+      "/api/v1/reports/123/attachments/tmpthpcdtwo-ad4f4c6e94971896a71b4a1d47785a90b19f6565-990.png"
+    )
     expect(shallowComponent).toMatchSnapshot();
   });
 
@@ -84,7 +88,11 @@ describe('AttachmentAssertion', () => {
         reportUid={defaultReportUid}
       />
     );
-    expect(shallowComponent.find(AttachmentAssertionCardHeader).first().props().src).toBe("/api/v1/reports/123/attachments/tmpthpcdtwy-bd4f4c6e94971896a71b4a1d47785a90b19f6565-200.xyz")
+    expect(
+      shallowComponent.find(AttachmentAssertionCardHeader).first().props().src
+    ).toBe(
+      "/api/v1/reports/123/attachments/tmpthpcdtwy-bd4f4c6e94971896a71b4a1d47785a90b19f6565-200.xyz"
+    );
     expect(shallowComponent).toMatchSnapshot();
   });
 

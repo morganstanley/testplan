@@ -3,6 +3,7 @@
 import os
 import errno
 import shutil
+import fnmatch
 import getpass
 import contextlib
 import tempfile
@@ -282,15 +283,29 @@ def archive(path, timestamp):
     return new_path
 
 
-def traverse_dir(directory, topdown=True, include_subdir=True):
+def traverse_dir(
+    directory,
+    topdown=True,
+    ignore=None,
+    only=None,
+    recursive=True,
+    include_subdir=True,
+):
     """
-    Recursively traverse all files in a directory and get a list of relative
-    file paths.
+    Recursively traverse all files and sub directories in a directory and
+    get a list of relative paths.
 
-    :param directory: Path to a directory that will be traversed
+    :param directory: Path to a directory that will be traversed.
     :type directory: ``str``
-    :param topdown: Browse the directory in a top-down approach.
+    :param topdown: Browse the directory in a top-down or bottom-up approach.
     :type topdown: ``bool``
+    :param ignore: List of patterns to ignore  by glob style filtering.
+    :type ignore: ``list``
+    :param only: List of patterns to include by glob style filtering.
+    :type only: ``list``
+    :param recursive: Traverse directories recursively, set to False to only
+        list items in top directory.
+    :type recursive: ``bool``
     :param include_subdir: Include all sub directories and files if True, or
         exclude directories in the result.
     :type include_subdir: ``bool``
@@ -298,22 +313,41 @@ def traverse_dir(directory, topdown=True, include_subdir=True):
     :rtype: ``list`` of ``str``
     """
     result = []
+    ignore = ignore or []
+    only = only or []
 
-    for dirpath, dirnames, filenames in os.walk(directory, topdown=topdown):
+    def should_ignore(filename):
+        """Decide if a file should be ignored by its name."""
+        for pattern in ignore:
+            if fnmatch.fnmatch(filename, pattern):
+                return True
+        if only:
+            for pattern in only:
+                if fnmatch.fnmatch(filename, pattern):
+                    return False
+            else:
+                return True
+        return False
 
+    for dirpath, dirnames, filenames in os.walk(
+        directory, topdown=topdown or recursive is False
+    ):
         if include_subdir:
             for dname in dirnames:
-                dpath = os.path.join(dirpath, dname)
-                _, _, relpath = dpath.partition(directory)
-                while relpath.startswith(os.sep):
-                    relpath = relpath[len(os.sep) :]
-                result.append(relpath)
+                if not should_ignore(dname):
+                    relpath = os.path.relpath(
+                        os.path.join(dirpath, dname), directory
+                    )
+                    result.append(relpath)
 
         for fname in filenames:
-            fpath = os.path.join(dirpath, fname)
-            _, _, relpath = fpath.partition(directory)
-            while relpath.startswith(os.sep):
-                relpath = relpath[len(os.sep) :]
-            result.append(relpath)
+            if not should_ignore(fname):
+                relpath = os.path.relpath(
+                    os.path.join(dirpath, fname), directory
+                )
+                result.append(relpath)
+
+        if recursive is False:
+            break
 
     return result

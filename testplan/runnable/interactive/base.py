@@ -55,8 +55,8 @@ class TestRunnerIHandler(entity.Entity):
         super(TestRunnerIHandler, self).__init__(
             target=target, startup_timeout=startup_timeout, http_port=http_port
         )
-        self._cfg.parent = self.target.cfg
-
+        self.cfg.parent = self.target.cfg
+        self.parent = self.target
         self.report = self._initial_report()
         self.report_mutex = threading.Lock()
         self._pool = None
@@ -84,13 +84,28 @@ class TestRunnerIHandler(entity.Entity):
             self.teardown()
 
     @property
+    def target(self):
+        """The test runner instance."""
+        return self.cfg.target
+
+    @property
     def exit_code(self):
         """Code to indicate success or failure."""
         return int(not self.report.passed)
 
     @property
     def exporters(self):
-        return self.parent.exporters
+        if hasattr(self.parent, "exporters"):
+            return self.parent.exporters
+        else:
+            return []
+
+    @property
+    def http_handler_info(self):
+        if self._http_handler is None:
+            return None, None
+        else:
+            return self._http_handler.bind_addr
 
     def setup(self):
         """Set up the task pool and HTTP handler."""
@@ -121,35 +136,13 @@ class TestRunnerIHandler(entity.Entity):
         if self._pool is None or self._http_handler is None:
             raise RuntimeError("setup() not run")
 
+        self.target._close_file_logger()
         self._pool = None
         self._http_handler = None
-        self.target._close_file_logger()
-
-    @property
-    def http_handler_info(self):
-        if self._http_handler is None:
-            return None
-        else:
-            return self._http_handler.bind_addr
-
-    @property
-    def target(self):
-        """
-        :return: the target test runner instance
-        """
-        return self._cfg.target
 
     def abort_dependencies(self):
-        """
-        We abort our test runner instance.
-        """
-        yield self.target
-
-    def aborting(self):
-        """
-        Do nothing when aborting.
-        """
-        pass
+        """Http service to be aborted at first."""
+        yield self._http_handler
 
     def test(self, test_uid):
         """
@@ -205,6 +198,7 @@ class TestRunnerIHandler(entity.Entity):
             )
         else:
             self.logger.debug('Reset test ["%s"]', test_uid)
+            # After reset the runtime_status will be 'READY'
             self._update_reports([(self.test(test_uid).dry_run().report, [])])
 
     def run_all_tests(self, await_results=True):
@@ -776,6 +770,10 @@ class TestRunnerIHandler(entity.Entity):
         API schema. In future we will log how to access the UI page.
         """
         host, port = self.http_handler_info
+        if host is None or port is None:
+            raise RuntimeError(
+                "Interactive Testplan web service is not available"
+            )
 
         self.logger.debug(
             "\nInteractive Testplan API is running. View the API schema:\n%s",

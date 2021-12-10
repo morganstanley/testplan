@@ -29,6 +29,7 @@ import DiscreteChartAssertion
 import SummaryBaseAssertion from './AssertionSummary';
 import AttachmentAssertion from './AssertionTypes/AttachmentAssertions';
 import PlotlyAssertion from './AssertionTypes/PlotlyAssertion';
+import AttachedDirAssertion from './AssertionTypes/AttachedDirAssertion';
 import { EXPAND_STATUS } from "../Common/defaults";
 
 /**
@@ -89,6 +90,7 @@ class Assertion extends Component {
       Markdown: MarkdownAssertion,
       CodeLog: CodeLogAssertion,
       Plotly: PlotlyAssertion,
+      Directory: AttachedDirAssertion,
     };
     if (assertionMap[assertionType]) {
       return assertionMap[assertionType];
@@ -161,21 +163,15 @@ class Assertion extends Component {
               )
             }
           >
-            {this.props.expand === EXPAND_STATUS.EXPAND ? assertionType : null}
-            {getLineNumber(this.props)}
+            {this.props.expand === EXPAND_STATUS.EXPAND
+                ? assertionType : null
+            }
           </CardBody>
         </Collapse>
       </Card>
     );
   }
 }
-
-const getLineNumber = (props) => {
-  if (props.assertion.file_path && props.assertion.line_no) {
-    return props.assertion.file_path + ":" + props.assertion.line_no;
-  }
-  return null;
-};
 
 Assertion.propTypes = {
   /** Assertion to be rendered */

@@ -1,12 +1,13 @@
 """
 Base classes go here.
 """
+import os
+import re
 import datetime
 import operator
 import pprint
-import re
-import os
 import shutil
+import hashlib
 import pathlib
 import plotly.io
 
@@ -15,7 +16,7 @@ from testplan.common.utils.timing import utcnow
 from testplan.common.utils.table import TableEntry
 from testplan.common.utils.reporting import fmt
 from testplan.common.utils.convert import flatten_formatted_object
-from testplan.common.utils.path import hash_file
+from testplan.common.utils.path import hash_file, traverse_dir, makedirs
 from testplan import defaults
 
 
@@ -332,19 +333,20 @@ class Attachment(BaseEntry):
     """Entry representing a file attached to the report."""
 
     def __init__(
-        self, filepath, description, dst_path=None, scratch_path=None
+        self, filepath, description=None, dst_path=None, scratch_path=None
     ):
 
         self.source_path = filepath
         self.orig_filename = os.path.basename(filepath)
-        self.hash = hash_file(filepath)
         self.filesize = os.path.getsize(filepath)
-        basename, ext = os.path.splitext(self.orig_filename)
 
-        # logic to avoid file name collision
-        self.dst_path = (
-            dst_path or f"{basename}-{self.hash}-{self.filesize}{ext}"
-        )
+        if dst_path is None:
+            basename, ext = os.path.splitext(self.orig_filename)
+            hash = hash_file(self.source_path)
+            # To avoid file name collision
+            self.dst_path = f"{basename}-{hash}-{self.filesize}{ext}"
+        else:
+            self.dst_path = dst_path
 
         if scratch_path:
             # will best effort make a copy of the file
@@ -394,6 +396,56 @@ class Plotly(Attachment):
             filepath=data_file_path, description=description
         )
         self.style = style
+
+
+class Directory(BaseEntry):
+    """
+    Entry representing a bunch of files under a directory which will be
+    attached to the report.
+    """
+
+    def __init__(
+        self,
+        dirpath,
+        description=None,
+        ignore=None,
+        only=None,
+        recursive=False,
+        dst_path=None,
+        scratch_path=None,
+    ):
+
+        self.source_path = dirpath
+        self.ignore = ignore
+        self.only = only
+        self.recursive = recursive
+        self.dst_path = (
+            dst_path
+            or hashlib.md5(self.source_path.encode("utf-8")).hexdigest()
+        )
+        self.file_list = traverse_dir(
+            self.source_path,
+            topdown=True,
+            ignore=ignore,
+            only=only,
+            recursive=recursive,
+            include_subdir=False,
+        )
+
+        if scratch_path:
+            # will best effort make a copy of the file
+            for fpath in self.file_list:
+                src_path = os.path.join(self.source_path, fpath)
+                dst_path = os.path.join(scratch_path, self.dst_path, fpath)
+                makedirs(os.path.dirname(dst_path))
+                try:
+                    shutil.copyfile(src_path, dst_path)
+                except Exception:
+                    break
+            else:
+                self.source_path = os.path.join(scratch_path, self.dst_path)
+
+        super(Directory, self).__init__(description=description)
 
 
 class CodeLog(BaseEntry):
