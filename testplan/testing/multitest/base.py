@@ -1169,16 +1169,14 @@ def _add_runtime_info(param_report):
     :param param_report: parametrized group report
     :return: the parametrized group report with its runtime information
     """
-    group_start_time = param_report.entries[0].timer["run"].start
-    group_end_time = param_report.entries[0].timer["run"].end
+    group_start_time = None
+    group_end_time = None
     for testcase in param_report.entries:
         timer = testcase.timer
         start_time = timer["run"].start
         end_time = timer["run"].end
-        if start_time < group_start_time:
-            group_start_time = start_time
-        if end_time > group_end_time:
-            group_end_time = end_time
+        group_start_time = start_time if group_start_time is None else min(group_start_time, start_time)
+        group_end_time = end_time if group_end_time is None else max(group_end_time, end_time)
     param_report.timer["run"] = timing.Interval(
         group_start_time, group_end_time
     )
