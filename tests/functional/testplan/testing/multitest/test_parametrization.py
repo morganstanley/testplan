@@ -19,6 +19,7 @@ from testplan.report import (
     ReportCategories,
 )
 from testplan.common.utils.testing import check_report, warnings_suppressed
+from testplan.common.utils.timing import Interval
 
 LOGGER = logging.getLogger()
 
@@ -679,3 +680,40 @@ def test_order_of_parametrization_report(mockplan):
     ]
 
     check_parametrization(mockplan, MySuite, report_entries)
+
+
+def test_timing_info_of_parametrized_group_report(mockplan):
+    @testsuite
+    class SampleTest(object):
+        @testcase(
+            parameters=(
+                (5, 5, 10),
+                (3, 2, 5),
+                (0, 0, 0),
+                ("foo", "bar", "foobar"),
+            )
+        )
+        def addition(self, env, result, a, b, expected):
+            result.equal(a + b, expected)
+
+        @testcase(parameters=(2, 4, 6, 8), execution_group="is even")
+        def is_even(self, env, result, value):
+            result.equal(value % 2, 0)
+
+    multitest = MultiTest(name="Primary", suites=[SampleTest()])
+
+    mockplan.add(multitest)
+    mockplan.run()
+
+    serial_group_report_timer = (
+        mockplan.report.entries[0].entries[0].entries[0].timer
+    )
+    parallel_group_report_timer = (
+        mockplan.report.entries[0].entries[0].entries[1].timer
+    )
+
+    assert "run" in serial_group_report_timer.keys()
+    assert "run" in parallel_group_report_timer.keys()
+
+    assert isinstance(serial_group_report_timer["run"], Interval)
+    assert isinstance(parallel_group_report_timer["run"], Interval)
