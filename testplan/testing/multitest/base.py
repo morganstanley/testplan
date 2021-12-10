@@ -1175,8 +1175,16 @@ def _add_runtime_info(param_report):
         timer = testcase.timer
         start_time = timer["run"].start
         end_time = timer["run"].end
-        group_start_time = start_time if group_start_time is None else min(group_start_time, start_time)
-        group_end_time = end_time if group_end_time is None else max(group_end_time, end_time)
+        group_start_time = (
+            start_time
+            if group_start_time is None
+            else min(group_start_time, start_time)
+        )
+        group_end_time = (
+            end_time
+            if group_end_time is None
+            else max(group_end_time, end_time)
+        )
     param_report.timer["run"] = timing.Interval(
         group_start_time, group_end_time
     )
