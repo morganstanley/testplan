@@ -94,7 +94,6 @@ class GraphSchema(BaseSchema):
 @registry.bind(base.Attachment, base.MatPlot)
 class AttachmentSchema(BaseSchema):
     source_path = fields.String()
-    hash = fields.String()
     orig_filename = fields.String()
     filesize = fields.Integer()
     dst_path = fields.String()
@@ -103,3 +102,13 @@ class AttachmentSchema(BaseSchema):
 @registry.bind(base.Plotly)
 class PlotlySchema(AttachmentSchema):
     style = fields.Dict(allow_none=True)
+
+
+@registry.bind(base.Directory)
+class DirectorySchema(BaseSchema):
+    source_path = fields.String()
+    dst_path = fields.String()
+    ignore = fields.List(fields.String(), allow_none=True)
+    only = fields.List(fields.String(), allow_none=True)
+    recursive = fields.Boolean()
+    file_list = fields.List(fields.String())

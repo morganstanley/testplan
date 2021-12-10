@@ -29,7 +29,7 @@ describe('InteractiveNavEntry', () => {
         type={'testcase'}
         caseCountPassed={0}
         caseCountFailed={0}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={null}
       />
     );
@@ -47,7 +47,7 @@ describe('InteractiveNavEntry', () => {
         type={'testcase'}
         caseCountPassed={0}
         caseCountFailed={0}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={null}
       />
     );
@@ -65,7 +65,7 @@ describe('InteractiveNavEntry', () => {
         type={'testcase'}
         caseCountPassed={0}
         caseCountFailed={0}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={null}
       />
     );
@@ -83,7 +83,7 @@ describe('InteractiveNavEntry', () => {
         type={'testcase'}
         caseCountPassed={0}
         caseCountFailed={0}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={null}
       />
     );
@@ -101,7 +101,7 @@ describe('InteractiveNavEntry', () => {
         type={'testcase'}
         caseCountPassed={9}
         caseCountFailed={0}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={null}
       />
     );
@@ -119,7 +119,7 @@ describe('InteractiveNavEntry', () => {
         type={'testcase'}
         caseCountPassed={8}
         caseCountFailed={1}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={null}
       />
     );
@@ -137,15 +137,15 @@ describe('InteractiveNavEntry', () => {
         type={'testcase'}
         caseCountPassed={0}
         caseCountFailed={0}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={null}
       />
     );
     expect(renderedEntry).toMatchSnapshot();
   });
 
-  it('calls handlePlayClick when the play button is clicked', () => {
-    const handlePlayClick = jest.fn();
+  it('calls handleClick when the play button is clicked', () => {
+    const handleClick = jest.fn();
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
@@ -156,17 +156,17 @@ describe('InteractiveNavEntry', () => {
         type={'testcase'}
         caseCountPassed={0}
         caseCountFailed={0}
-        handlePlayClick={handlePlayClick}
+        handleClick={handleClick}
         envCtrlCallback={null}
       />
     );
 
     renderedEntry.find(FontAwesomeIcon).simulate('click');
-    expect(handlePlayClick.mock.calls.length).toEqual(1);
+    expect(handleClick.mock.calls.length).toEqual(1);
   });
 
-  it('calls handlePlayClick when the replay button is clicked', () => {
-    const handlePlayClick = jest.fn();
+  it('calls handleClick when the replay button is clicked', () => {
+    const handleClick = jest.fn();
     const renderedEntry = shallow(
       <InteractiveNavEntry
         name={'FakeTestcase'}
@@ -177,13 +177,13 @@ describe('InteractiveNavEntry', () => {
         type={'testcase'}
         caseCountPassed={6}
         caseCountFailed={2}
-        handlePlayClick={handlePlayClick}
+        handleClick={handleClick}
         envCtrlCallback={null}
       />
     );
 
     renderedEntry.find(FontAwesomeIcon).simulate('click');
-    expect(handlePlayClick.mock.calls.length).toEqual(1);
+    expect(handleClick.mock.calls.length).toEqual(1);
   });
 
   it('renders an entry with environment status STARTED', () => {
@@ -197,7 +197,7 @@ describe('InteractiveNavEntry', () => {
         type={'multitest'}
         caseCountPassed={0}
         caseCountFailed={0}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={() => undefined}
       />
     );
@@ -215,7 +215,7 @@ describe('InteractiveNavEntry', () => {
         type={'multitest'}
         caseCountPassed={0}
         caseCountFailed={0}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={() => undefined}
       />
     );
@@ -233,7 +233,7 @@ describe('InteractiveNavEntry', () => {
         type={'multitest'}
         caseCountPassed={0}
         caseCountFailed={0}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={() => undefined}
       />
     );
@@ -251,7 +251,7 @@ describe('InteractiveNavEntry', () => {
         type={'multitest'}
         caseCountPassed={0}
         caseCountFailed={0}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={() => undefined}
       />
     );
@@ -270,7 +270,7 @@ describe('InteractiveNavEntry', () => {
         type={'multitest'}
         caseCountPassed={0}
         caseCountFailed={0}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={envCtrlCallback}
       />
     );
@@ -302,7 +302,7 @@ describe('InteractiveNavEntry', () => {
         type={'multitest'}
         caseCountPassed={0}
         caseCountFailed={0}
-        handlePlayClick={() => undefined}
+        handleClick={() => undefined}
         envCtrlCallback={envCtrlCallback}
       />
     );

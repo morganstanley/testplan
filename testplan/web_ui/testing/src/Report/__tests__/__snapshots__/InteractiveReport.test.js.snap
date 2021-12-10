@@ -12,11 +12,15 @@ exports[`InteractiveReport Handles environment being started 1`] = `
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -35,9 +39,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
-    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -494,11 +497,15 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -517,9 +524,8 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
-    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -812,11 +818,15 @@ exports[`InteractiveReport Updates testcase state 1`] = `
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -835,9 +845,8 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
-    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -1140,11 +1149,15 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -1163,9 +1176,8 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
-    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -1624,11 +1636,15 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -1647,9 +1663,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
-    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -2104,11 +2119,15 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -2127,9 +2146,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
-    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -2584,11 +2602,15 @@ exports[`InteractiveReport handles tests being run 1`] = `
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
@@ -2607,9 +2629,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
-    handleResetClick={[Function]}
     navListWidth="28em"
     report={
       Object {

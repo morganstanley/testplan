@@ -243,11 +243,16 @@ export const parseToJson = (data) => {
  * is slightly different. We know we are running in interactive mode if there
  * is no report UID.
  */
-export const getAttachmentUrl = (filePath, reportUid) => {
-  if (reportUid) {
-    return `/api/v1/reports/${reportUid}/attachments/${filePath}`;
+export const getAttachmentUrl = (filePath, reportUid, prefix) => {
+  if (_.isEmpty(prefix)) {
+    prefix = '';
   } else {
-    return `/api/v1/interactive/attachments/${filePath}`;
+    prefix += '/';
+  }
+  if (reportUid) {
+    return `/api/v1/reports/${reportUid}/attachments/${prefix}${filePath}`;
+  } else {
+    return `/api/v1/interactive/attachments/${prefix}${filePath}`;
   }
 };
 
