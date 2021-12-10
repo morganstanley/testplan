@@ -311,9 +311,10 @@ class TestRunner(Runnable):
         # uuid4 format as report uid instead of original one. Skip this step
         # when executing unit/functional tests or running in interactive mode.
         self._reset_report_uid = self.cfg.interactive_port is None
-        self.define_runpath()
+        self.scheduled_modules = []  # For interactive reload
         self.remote_services = {}
         self.runid_filename = uuid.uuid4().hex
+        self.define_runpath()
 
     @property
     def report(self):
@@ -443,6 +444,7 @@ class TestRunner(Runnable):
         :return uid: Assigned uid for task.
         :rtype: ``str``
         """
+
         return self.add(task or Task(**options), resource=resource)
 
     def schedule_all(self, path=".", name_pattern=r".*\.py$", resource=None):
@@ -602,6 +604,15 @@ class TestRunner(Runnable):
             runnable = target
         elif isinstance(target, Task):
             runnable = target.materialize()
+            if self.cfg.interactive_port is not None and isinstance(
+                target._target, str
+            ):
+                self.scheduled_modules.append(
+                    (
+                        target._module or target._target.rsplit(".", 1)[0],
+                        os.path.abspath(target._path),
+                    )
+                )
         elif callable(target):
             runnable = target()
         else:

@@ -1,0 +1,16 @@
+from testplan.testing.multitest import MultiTest
+from testplan.testing.multitest.suite import testsuite, testcase
+from .. import mod
+
+
+@testsuite
+class Suite(object):
+    @testcase
+    def case(self, env, result):
+        result.not_equal(0, mod.VALUE, description="Not Equal Assertion")
+
+{ANOTHER_CASE}
+
+
+def make_mtest(name):
+    return MultiTest(name=name, suites=[Suite()])
