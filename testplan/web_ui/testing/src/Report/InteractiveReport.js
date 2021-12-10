@@ -318,8 +318,8 @@ class InteractiveReport extends React.Component {
     return axios.put(apiUrl, updatedReportEntry).then(
       response => {
         if (response.data.errmsg) {
-          alert(response.data.errmsg);
           console.error(response.data);
+          alert(response.data.errmsg);
         } else {
           // Do not update report hash here.
           response.data.hash = updatedReportEntry.hash;
@@ -527,7 +527,7 @@ class InteractiveReport extends React.Component {
    * Reset the report state to "resetting" and request the change to server.
    */
   resetReport() {
-    if (this.state.resetting || this.state.aborting) {
+    if (this.state.resetting || this.state.reloading || this.state.aborting) {
       return;
     } else {
       const updatedReportEntry = {
@@ -543,7 +543,7 @@ class InteractiveReport extends React.Component {
    * Send request of reloading report to server.
    */
   reloadCode() {
-    if (this.state.resetting || this.state.aborting) {
+    if (this.state.resetting || this.state.reloading || this.state.aborting) {
       return;
     }
     let currentTime = new Date();
@@ -565,6 +565,11 @@ class InteractiveReport extends React.Component {
         this.setState({reloading: false});
       }
       return;
+    }).catch(error => {
+      alert("Cannot reload when there is test not finished.");
+      setTimeout(()=> {
+        this.setState({reloading: false});
+      }, 1000);
     });
   }
 
