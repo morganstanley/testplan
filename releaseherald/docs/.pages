@@ -1,0 +1,5 @@
+nav:
+  - index.md
+  - configuration.md
+  - command_line.md
+  - version_template.md

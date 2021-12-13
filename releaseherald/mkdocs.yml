@@ -1,4 +1,4 @@
-site_name: Releaseherald
+site_name: ReleaseHerald
 
 theme:
   name: material
@@ -9,11 +9,8 @@ theme:
 markdown_extensions:
   - def_list
   - mkdocs-click
+  - admonition
 
-nav:
-  - index.md
-  - configuration.md
-  - command_line.md
-  - version_template.md
-
-
+plugins:
+  - search
+  - awesome-pages
