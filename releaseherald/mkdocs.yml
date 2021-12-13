@@ -1,0 +1,19 @@
+site_name: Releaseherald
+
+theme:
+  name: material
+  palette:
+    scheme: default
+    primary: green
+
+markdown_extensions:
+  - def_list
+  - mkdocs-click
+
+nav:
+  - index.md
+  - configuration.md
+  - command_line.md
+  - version_template.md
+
+

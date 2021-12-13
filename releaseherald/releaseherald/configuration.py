@@ -56,7 +56,8 @@ class Configuration(BaseModel):
 
     @root_validator
     def resolve_paths(cls, values):
-        root = Path(values["config_path"]).parent
+        config_path = Path(values["config_path"])
+        root = config_path.parent if config_path.is_file() else config_path
         values = values.copy()
         for path_config in cls.__config__.paths_to_resolve:
             path = Path(values[path_config])
