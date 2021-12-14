@@ -1968,6 +1968,9 @@ The options for the entire graph
 
         e.g {'legend': True}
 
+
+.. _Custom_Comparators:
+
 Custom Comparators
 ==================
 Some assertion methods can make use of custom comparators, which are located at ``testplan.common.utils.comparison`` module.
@@ -1989,3 +1992,32 @@ These utilities are simple, composable and callable objects and produce more rea
 
       >>> str(custom_comparator)
       (<value> > 2 and <value> < 5)
+
+
+.. _Styling_Assertions:
+
+Styling Assertions on UI
+========================
+It is possible for user to define HTML styles (color, size, font, background, etc) for each
+assertion header on web UI, this can be used to make certain assertions stand out.
+
+Most assertion methods (except ``raises``, ``not_raises``, ``group``) can accept an argument
+``custom_style`` which complies with standard CSS 3 syntax, and the style will be applied to
+that assertion header. A typical usage is to change the background color of assertion headers
+or enlarge the font size so that concerned information can be easily found at a glance.
+
+    .. code-block:: python
+
+      @testcase
+      def sample_testcase(self, env, result):
+          result.equal(
+              'foo',
+              'foo',
+              description='Equality example',
+              custom_style={'background-color': '#FFDDDD'},
+          )
+
+Refer to the example :ref:`here <example_assertions_custom_style>` , as a result the web UI
+will look like this:
+
+    .. image:: ../images/output/browser/customized_assertion_headers.png

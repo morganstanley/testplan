@@ -61,7 +61,9 @@ class ModuleReloader(logger.Loggable):
 
         # Import modules that have scheduled tests
         for mod, path in self._scheduled_modules.items():
-            with import_tmp_module(mod, path, delete=False):
+            with import_tmp_module(
+                mod, path, delete=False, warn_if_exist=False
+            ):
                 pass
 
         (
