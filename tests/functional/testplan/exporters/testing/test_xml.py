@@ -128,7 +128,7 @@ def test_xml_exporter(tmpdir):
                             XC(
                                 tag="error",
                                 message=re.compile(
-                                    r"Traceback(.|\s)+Exception:\sfoo"
+                                    r"Traceback(.|\n)+Exception:(\s)+foo"
                                 ),
                             )
                         ],
