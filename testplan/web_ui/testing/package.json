@@ -1,6 +1,7 @@
 {
   "name": "testplan",
   "version": "0.2.0",
+  "type": "module",
   "private": true,
   "resolutions": {
     "@babel/core": "7.13.15",
@@ -27,7 +28,7 @@
     "eslint-plugin-react": "^7.14.3",
     "history": "~4.10.1",
     "json5": "^2.2.0",
-    "linkify-urls": "^4.0.0",
+    "linkify-urls": "^3.1.1",
     "lodash": "~4.17.15",
     "pegjs": "^0.11.0-master.b7b87ea",
     "plotly.js": "^1.58.5",

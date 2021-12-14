@@ -21,6 +21,7 @@ import {
 } from "reactstrap";
 import linkifyUrls from 'linkify-urls';
 
+
 import FilterBox from "../Toolbar/FilterBox";
 import FilterBoxPlaceholder from "../Toolbar/FilterBoxPlaceholder";
 import { STATUS, STATUS_CATEGORY, EXPAND_STATUS } from "../Common/defaults";
@@ -511,21 +512,14 @@ const getInfoTable = (report) => {
   }
   const infoList = report.information.map((item, i) => {
     const linkifyIgnore = ['user', 'command_line_string', 'python_version', 'hostname', 'start', 'end']
-    if (!linkifyIgnore.includes(item[0])) {
-      return (
-        <tr key={i}>
-          <td className={css(styles.infoTableKey)}>{item[0]}</td>
-          <td className={css(styles.infoTableValue)}><div dangerouslySetInnerHTML={{__html:linkifyUrls(
+    let columnData = !linkifyIgnore.includes(item[0]) ? <td className={css(styles.infoTableValue)}><div dangerouslySetInnerHTML={{__html:linkifyUrls(
             item[1], {attributes:{target: "_blank"}}
-            )}} /></td>
-        </tr>
-      );
-    }
+            )}} /></td> : <td className={css(styles.infoTableValue)}>{item[1]}</td>;
 
     return (
       <tr key={i}>
         <td className={css(styles.infoTableKey)}>{item[0]}</td>
-        <td className={css(styles.infoTableValue)}>{item[1]}</td>
+        {columnData}
       </tr>
     );
   });
