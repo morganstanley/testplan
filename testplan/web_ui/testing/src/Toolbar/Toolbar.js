@@ -511,10 +511,25 @@ const getInfoTable = (report) => {
     return "No information to display.";
   }
   const infoList = report.information.map((item, i) => {
-    const linkifyIgnore = ['user', 'command_line_string', 'python_version', 'hostname', 'start', 'end']
-    let columnData = !linkifyIgnore.includes(item[0]) ? <td className={css(styles.infoTableValue)}><div dangerouslySetInnerHTML={{__html:linkifyUrls(
-            item[1], {attributes:{target: "_blank"}}
-            )}} /></td> : <td className={css(styles.infoTableValue)}>{item[1]}</td>;
+    const linkifyIgnore = ['user', 'command_line_string', 'python_version', 'hostname', 'start', 'end'];
+
+
+    let columnData = !linkifyIgnore.includes(item[0]) ? < td className = {
+        css(styles.infoTableValue)
+    } > < div dangerouslySetInnerHTML = {
+        {
+            __html: linkifyUrls(item[1], {
+                attributes: {
+                    target: "_blank"
+                }
+            })
+        }
+    }
+    /></td >: < td className = {
+        css(styles.infoTableValue)
+    } > {
+        item[1]
+    } < /td>;
 
     return (
       <tr key={i}>
