@@ -511,7 +511,8 @@ const getInfoTable = (report) => {
     return "No information to display.";
   }
   const infoList = report.information.map((item, i) => {
-    const linkifyIgnore = ['user', 'command_line_string', 'python_version', 'hostname', 'start', 'end'];
+    const linkifyIgnore = ['user', 'command_line_string',
+    'python_version', 'hostname', 'start', 'end'];
 
 
     let columnData = !linkifyIgnore.includes(item[0]) ? < td className = {
