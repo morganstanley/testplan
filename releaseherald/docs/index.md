@@ -1,6 +1,6 @@
 # Introduction
 
-`releseherald` is a Testplan internal utility that can generate release notes for Testplan. The only help it needs from
+`releaseherald` is a Testplan internal utility that can generate release notes for Testplan. The only help it needs from
 developers is to collect meaningful news fragments in a directory, and apply consistent labels.
 
 > -- Wait a bit I have already heard this somewhere.  
