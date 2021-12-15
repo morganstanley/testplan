@@ -12,7 +12,7 @@ We very much agree [towncrier's philosophy](https://github.com/twisted/towncrier
 that release notes should be convenient to read. But still release notes should be easy to work with. And that is where
 `towncrier's` news fragments shines. Ideally every pull request should come with an update of the release notes, if this
 is a single file then one always run into merge conflicts, if each pr has its own news fragments, then this is easily
-avoidable. `towncrier` has a couple of opinions which work very good on github, but might not so great on other
+avoidable. `towncrier` has a couple of opinions which work very good on github, but might not work so great in other
 environments. `releaseherald` try to be less opinionated yet easy to extend. We try to have just three opinions:
 
 - your stuff is in a git repo
