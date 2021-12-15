@@ -515,27 +515,25 @@ const getInfoTable = (report) => {
     'python_version', 'hostname', 'start', 'end'];
 
 
-    let columnData = !linkifyIgnore.includes(item[0]) ? < td className = {
-        css(styles.infoTableValue)
-    } > < div dangerouslySetInnerHTML = {
-        {
-            __html: linkifyUrls(item[1], {
-                attributes: {
-                    target: "_blank"
-                }
-            })
-        }
+    let cell = undefined
+    if (!linkifyIgnore.includes(item[0])) {
+        cell = < div dangerouslySetInnerHTML = {
+            {
+                __html: linkifyUrls(item[1], {
+                    attributes: {
+                        target: "_blank"
+                    }
+                })
+            }
+        }/>;
+    } else {
+        cell = item[1];
     }
-    /></td >: < td className = {
-        css(styles.infoTableValue)
-    } > {
-        item[1]
-    } < /td>;
-
+    
     return (
       <tr key={i}>
         <td className={css(styles.infoTableKey)}>{item[0]}</td>
-        {columnData}
+        <td className={css(styles.infoTableValue)}>{cell}</td>
       </tr>
     );
   });
