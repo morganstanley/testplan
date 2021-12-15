@@ -1,6 +1,5 @@
 """String manipulation utilities."""
 
-import sys
 import os
 import re
 import inspect
@@ -48,7 +47,7 @@ def to_str(value, encoding="utf-8", errors="strict"):
     if isinstance(value, str):
         return value
     else:
-        raise TypeError("Unexpected type '%s'" % type(value))
+        raise TypeError(f"Unexpected type '{type(value)}'")
 
 
 def to_bytes(value, encoding="utf-8", errors="strict"):
@@ -69,7 +68,7 @@ def to_bytes(value, encoding="utf-8", errors="strict"):
     if isinstance(value, bytes):
         return value
     else:
-        raise TypeError("Unexpected type '%s'" % type(value))
+        raise TypeError(f"Unexpected type '{type(value)}'")
 
 
 def format_description(description):

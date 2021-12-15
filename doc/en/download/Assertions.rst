@@ -64,6 +64,15 @@ test_plan_xml.py
 ++++++++++++++++
 .. literalinclude:: ../../../examples/Assertions/Basic/test_plan_xml.py
 
+.. _example_assertions_custom_style:
+
+Required files:
+  - :download:`test_plan_custom_style.py <../../../examples/Assertions/Basic/test_plan_custom_style.py>`
+
+test_plan_custom_style.py
++++++++++++++++++++++++++
+.. literalinclude:: ../../../examples/Assertions/Basic/test_plan_custom_style.py
+
 
 Summarization
 -------------

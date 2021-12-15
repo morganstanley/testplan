@@ -133,11 +133,11 @@ class BatchReport extends React.Component {
               .then(
                 axios.spread((assertionsRes, structureRes, metadataRes) => {
                   if (!assertionsRes.data) {
+                    console.error(assertionsRes);
                     alert(
                       "Failed to parse assertion datails!\n" +
                       "Please report this issue to the Testplan team."
                     );
-                    console.error(assertionsRes);
                   }
                   const mergedReport = MergeSplittedReport(
                     rawReport,

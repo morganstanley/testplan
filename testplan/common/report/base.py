@@ -59,16 +59,13 @@ class Report(object):
         self.logs = []
         self.logger = create_logging_adapter(report=self)
 
-        # parent_uids are a list of the UIDs of all parents of this entry in
+        # `parent_uids` is a list of the UIDs of all parents of this entry in
         # the report tree. The UIDs are stored with the most distant parent
         # first and the immediate parent last. For example, an entry with
         # parent "A" and grand-parent "B" will have parent_uids = ["B", "A"].
         # This allows any entry to be quickly looked up and updated in the
         # report tree.
-        if parent_uids is None:
-            self.parent_uids = []
-        else:
-            self.parent_uids = parent_uids
+        self.parent_uids = parent_uids or []
 
     def __str__(self):
         return '{kls}(name="{name}", id="{uid}")'.format(

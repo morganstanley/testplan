@@ -295,6 +295,7 @@ class MultiTest(testing_base.Test):
             sorted_testcases = (
                 testcases
                 if getattr(suite, "strict_order", False)
+                or not hasattr(self.cfg, "test_sorter")
                 else self.cfg.test_sorter.sorted_testcases(suite, testcases)
             )
 
@@ -773,6 +774,11 @@ class MultiTest(testing_base.Test):
                     )
                     break
 
+        if parametrization_reports:
+            for param_report in parametrization_reports.values():
+                if param_report.entries:
+                    _add_runtime_info(param_report)
+
         return testcase_reports
 
     def _run_parallel_testcases(self, testsuite, execution_groups):
@@ -833,8 +839,10 @@ class MultiTest(testing_base.Test):
 
         # Add all non-empty parametrization reports into the list of returned
         # testcase reports, to be added to the suite report.
+        # Calculate runtime of the parametrized group as well
         for param_report in parametrization_reports.values():
             if param_report.entries:
+                _add_runtime_info(param_report)
                 testcase_reports.append(param_report)
 
         return testcase_reports
@@ -1154,3 +1162,30 @@ def _split_by_exec_group(testcases):
             serial_cases.append(testcase)
 
     return serial_cases, parallel_cases
+
+
+def _add_runtime_info(param_report):
+    """
+    Add runtime information to parametrized group report.
+    :param param_report: parametrized group report
+    :return: the parametrized group report with its runtime information
+    """
+    group_start_time = None
+    group_end_time = None
+    for testcase in param_report.entries:
+        timer = testcase.timer
+        start_time = timer["run"].start
+        end_time = timer["run"].end
+        group_start_time = (
+            start_time
+            if group_start_time is None
+            else min(group_start_time, start_time)
+        )
+        group_end_time = (
+            end_time
+            if group_end_time is None
+            else max(group_end_time, end_time)
+        )
+    param_report.timer["run"] = timing.Interval(
+        group_start_time, group_end_time
+    )
