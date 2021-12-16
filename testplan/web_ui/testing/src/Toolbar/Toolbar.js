@@ -515,7 +515,7 @@ const getInfoTable = (report) => {
     'python_version', 'hostname', 'start', 'end'];
 
 
-    let cell = undefined
+    let cell = undefined;
     if (!linkifyIgnore.includes(item[0])) {
         cell = < div dangerouslySetInnerHTML = {
             {
@@ -529,7 +529,7 @@ const getInfoTable = (report) => {
     } else {
         cell = item[1];
     }
-    
+
     return (
       <tr key={i}>
         <td className={css(styles.infoTableKey)}>{item[0]}</td>
