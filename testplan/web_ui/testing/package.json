@@ -1,7 +1,6 @@
 {
   "name": "testplan",
   "version": "0.2.0",
-  "type": "module",
   "private": true,
   "resolutions": {
     "@babel/core": "7.13.15",
