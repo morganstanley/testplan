@@ -149,10 +149,20 @@ class GTest(ProcessRunnerTest):
                 )
             )
 
+        if self.cfg.pre_args:
+            cmd = [*self.cfg.pre_args, *cmd]
+        if self.cfg.post_args:
+            cmd.extend(self.cfg.post_args)
+
         return cmd
 
     def list_command(self):
-        return self.base_command() + ["--gtest_list_tests"]
+        cmd = self.base_command() + ["--gtest_list_tests"]
+        if self.cfg.pre_args:
+            cmd = [*self.cfg.pre_args, *cmd]
+        if self.cfg.post_args:
+            cmd.extend(self.cfg.post_args)
+        return cmd
 
     def read_test_data(self):
         importer = GTestResultImporter(self.report_path)

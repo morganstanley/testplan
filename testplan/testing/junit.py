@@ -76,11 +76,16 @@ class JUnit(ProcessRunnerTest):
         self._results_dir = None
 
     def test_command(self):
-        return (
+        cmd = (
             [self.cfg.binary]
             + (self.cfg.junit_args or [])
             + (self.cfg.junit_filter or [])
         )
+        if self.cfg.pre_args:
+            cmd = [*self.cfg.pre_args, *cmd]
+        if self.cfg.post_args:
+            cmd.extend(self.cfg.post_args)
+        return cmd
 
     def list_command(self):
         """JUnit test does not support filtering."""

@@ -437,6 +437,8 @@ class ProcessRunnerTestConfig(TestConfig):
                 None, float, int, Use(parse_duration)
             ),
             ConfigOption("ignore_exit_codes", default=[]): [int],
+            ConfigOption("pre_args", default=[]): list,
+            ConfigOption("post_args", default=[]): list,
         }
 
 
@@ -488,11 +490,15 @@ class ProcessRunnerTest(Test):
     _VERIFICATION_TESTCASE_NAME = "ExitCodeCheck"
     _MAX_RETAINED_LOG_SIZE = 4096
 
-    def __init__(self, **options):
+    def __init__(self, pre_args=[], post_args=[], **options):
         proc_env = os.environ.copy()
         if options.get("proc_env"):
             proc_env.update(options["proc_env"])
         options["proc_env"] = proc_env
+        if pre_args:
+            options["pre_args"] = pre_args
+        if post_args:
+            options["post_args"] = post_args
         super(ProcessRunnerTest, self).__init__(**options)
 
         self._test_context = None
@@ -529,7 +535,13 @@ class ProcessRunnerTest(Test):
         :return: Command to run test process
         :rtype: ``list`` of ``str``
         """
-        return [self.cfg.binary]
+        if self.cfg.pre_args:
+            cmd = [*self.cfg.pre_args, self.cfg.binary]
+        else:
+            cmd = [self.cfg.binary]
+        if self.cfg.post_args:
+            cmd.extend(self.cfg.post_args)
+        return cmd
 
     def list_command(self):
         """
