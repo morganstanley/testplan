@@ -495,8 +495,14 @@ class ProcessRunnerTest(Test):
         if options.get("proc_env"):
             proc_env.update(options["proc_env"])
         options["proc_env"] = proc_env
-        options["pre_args"] = pre_args if pre_args else options["pre_args"] = []
-        options["post_args"] = post_args if post_args else options["post_args"] = []
+        if pre_args:
+            options["pre_args"] = pre_args
+        else:
+            options["pre_args"] = []
+        if post_args:
+            options["post_args"] = post_args
+        else:
+            options["post_args"] = []
         super(ProcessRunnerTest, self).__init__(**options)
 
         self._test_context = None
