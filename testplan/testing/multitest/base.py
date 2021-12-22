@@ -295,7 +295,6 @@ class MultiTest(testing_base.Test):
             sorted_testcases = (
                 testcases
                 if getattr(suite, "strict_order", False)
-                or not hasattr(self.cfg, "test_sorter")
                 else self.cfg.test_sorter.sorted_testcases(suite, testcases)
             )
 
@@ -516,7 +515,8 @@ class MultiTest(testing_base.Test):
     def should_run(self):
         """
         MultiTest filters are applied in `get_test_context`
-        so we just check if `test_context` is not empty."""
+        so we just check if `test_context` is not empty.
+        """
         return bool(self.test_context)
 
     def aborting(self):

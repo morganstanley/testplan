@@ -291,13 +291,25 @@ class Pattern(Filter):
         return patterns + ([self.ALL_MATCH] * (self.MAX_LEVEL - len(patterns)))
 
     def filter_test(self, test):
+        if test is None:
+            return True
+        elif isinstance(test, str):
+            return fnmatch.fnmatch(test, self.test_pattern)
         return fnmatch.fnmatch(test.name, self.test_pattern)
 
     def filter_suite(self, suite):
-        # For test suite uid is the same as name, just like that of Multitest
+        if suite is None:
+            return True
+        elif isinstance(suite, str):
+            return fnmatch.fnmatch(suite, self.suite_pattern)
         return fnmatch.fnmatch(suite.name, self.suite_pattern)
 
     def filter_case(self, case):
+        if case is None:
+            return True
+        elif isinstance(case, str):
+            return fnmatch.fnmatch(case, self.case_pattern)
+
         name_match = fnmatch.fnmatch(
             case.__name__ if self.match_definition else case.name,
             self.case_pattern,
@@ -309,10 +321,10 @@ class Pattern(Filter):
             case, "_parametrization_template", None
         )
         if parametrization_template:
-            param_match = fnmatch.fnmatch(
+            param_template_match = fnmatch.fnmatch(
                 parametrization_template, self.case_pattern
             )
-            return name_match or param_match
+            return name_match or param_template_match
 
         return name_match
 

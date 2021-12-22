@@ -80,21 +80,38 @@ class BaseSorter(object):
             return self.sort_testsuites(testsuites)
         return testsuites
 
-    def sorted_testcases(self, testsuite, testcases):
+    def sorted_testcases(self, testsuite, testcases, param_groups=None):
         if self.should_sort_testcases():
-            test_methods, param_groups = [], {}
+            test_methods = []
+            param_groups = param_groups or {}
+            case_to_template = {
+                val: key
+                for key, values in param_groups.items()
+                for val in values
+            }
+
             for testcase in testcases:
-                param_template = getattr(
-                    testcase, "_parametrization_template", None
-                )
-                if param_template:
-                    if param_template not in param_groups:
-                        test_methods.append(getattr(testsuite, param_template))
-                    param_groups.setdefault(param_template, []).append(
-                        testcase
-                    )
+                if isinstance(testcase, str):
+                    param_template = case_to_template.get(testcase)
+                    if param_template:
+                        if param_template not in test_methods:
+                            test_methods.append(param_template)
+                    else:
+                        test_methods.append(testcase)
                 else:
-                    test_methods.append(testcase)
+                    param_template = getattr(
+                        testcase, "_parametrization_template", None
+                    )
+                    if param_template:
+                        if param_template not in param_groups:
+                            test_methods.append(
+                                getattr(testsuite, param_template)
+                            )
+                        param_groups.setdefault(param_template, []).append(
+                            testcase
+                        )
+                    else:
+                        test_methods.append(testcase)
 
             result = self.sort_testcases(test_methods, param_groups)
             if isinstance(result, (tuple, list)):
@@ -106,6 +123,11 @@ class BaseSorter(object):
             for test_method in sorted_test_methods:
                 if getattr(test_method, "__parametrization_template__", False):
                     testcases.extend(soted_param_groups[test_method.__name__])
+                elif (
+                    isinstance(test_method, str)
+                    and test_method in soted_param_groups
+                ):
+                    testcases.extend(soted_param_groups[test_method])
                 else:
                     testcases.append(test_method)
 
@@ -186,13 +208,22 @@ class AlphanumericSorter(TypedSorter):
     """Sorter that uses basic alphanumeric ordering."""
 
     def sort_instances(self, instances):
+        if any(isinstance(instance, str) for instance in instances):
+            return sorted(instances)
         return sorted(instances, key=operator.attrgetter("name"))
 
     def sort_testsuites(self, testsuites):
+        if any(isinstance(testsuite, str) for testsuite in testsuites):
+            return sorted(testsuites)
         return sorted(testsuites, key=operator.attrgetter("name"))
 
     def sort_testcases(self, testcases, param_groups=None):
         param_groups = param_groups or {}
+        if any(isinstance(testcase, str) for testcase in testcases):
+            return sorted(testcases), {
+                param_template: sorted(testcases)
+                for param_template, testcases in param_groups.items()
+            }
         return sorted(testcases, key=operator.attrgetter("name")), {
             param_template: sorted(testcases, key=operator.attrgetter("name"))
             for param_template, testcases in param_groups.items()

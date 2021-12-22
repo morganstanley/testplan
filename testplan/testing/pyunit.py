@@ -3,6 +3,7 @@
 import unittest
 
 from testplan.testing import base as testing
+from testplan.testing import filtering
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries import schemas
 from testplan.testing.multitest.entries import base as entries_base
@@ -42,6 +43,12 @@ class PyUnit(testing.Test):
     CONFIG = PyUnitConfig
     _TESTCASE_NAME = "PyUnit test results"
 
+    # PyUnit allows filtering test suites
+    filter_levels = [
+        filtering.FilterLevel.TEST,
+        filtering.FilterLevel.TESTSUITE,
+    ]
+
     def __init__(self, name, testcases, description=None, **kwargs):
         super(PyUnit, self).__init__(
             name=name, testcases=testcases, description=description, **kwargs
@@ -63,21 +70,26 @@ class PyUnit(testing.Test):
     def get_test_context(self):
         """
         Currently we do not inspect individual PyUnit testcases - only allow
-        the whole suite to be run.
+        the whole suite to be run. So no need to sort or filter testases.
         """
         return [
-            (testcase, [testcase])
-            for testcase in self._pyunit_testcases.keys()
+            (suite_name, ["..."])  # for listing purpose
+            for suite_name in self.cfg.test_sorter.sorted_testsuites(
+                self._pyunit_testcases.keys()
+            )
+            if self.cfg.test_filter.filter(
+                test=self, suite=suite_name, case=None
+            )
         ]
 
     def dry_run(self):
         """Return an empty report tree."""
         self.result.report = self._new_test_report()
 
-        for pyunit_testcase in self.cfg.testcases:
+        for suite_name, _ in self.test_context:
             testsuite_report = TestGroupReport(
-                name=pyunit_testcase.__name__,
-                uid=pyunit_testcase.__name__,
+                name=suite_name,
+                uid=suite_name,
                 category=ReportCategories.TESTSUITE,
                 entries=[
                     TestCaseReport(
@@ -113,11 +125,13 @@ class PyUnit(testing.Test):
 
     def _run_tests(self):
         """Run tests and yield testsuite reports."""
-        for pyunit_testcase in self.cfg.testcases:
-            yield self._run_testsuite(pyunit_testcase)
+        for suite_name, _ in self.test_context:
+            yield self._run_testsuite(self._pyunit_testcases[suite_name])
 
     def _run_testsuite(self, pyunit_testcase):
-        """Run a single PyUnit Testcase as a suite and return a testsuite report."""
+        """
+        Run a single PyUnit Testcase as a suite and return a testsuite report.
+        """
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(
             pyunit_testcase
         )
