@@ -31,3 +31,51 @@ EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
         ),
     ],
 )
+
+EXPECTED_SORTED_REPORT = testplan.report.TestGroupReport(
+    name="My PyUnit",
+    description="PyUnit example test",
+    uid="My PyUnit",
+    category="pyunit",
+    entries=[
+        testplan.report.TestGroupReport(
+            name="Failing",
+            uid="Failing",
+            category="testsuite",
+            entries=[
+                testplan.report.TestCaseReport(
+                    name="PyUnit test results", uid="PyUnit test results"
+                )
+            ],
+        ),
+        testplan.report.TestGroupReport(
+            name="Passing",
+            uid="Passing",
+            category="testsuite",
+            entries=[
+                testplan.report.TestCaseReport(
+                    name="PyUnit test results", uid="PyUnit test results"
+                )
+            ],
+        ),
+    ],
+)
+
+EXPECTED_FILTERED_REPORT = testplan.report.TestGroupReport(
+    name="My PyUnit",
+    description="PyUnit example test",
+    uid="My PyUnit",
+    category="pyunit",
+    entries=[
+        testplan.report.TestGroupReport(
+            name="Passing",
+            uid="Passing",
+            category="testsuite",
+            entries=[
+                testplan.report.TestCaseReport(
+                    name="PyUnit test results", uid="PyUnit test results"
+                )
+            ],
+        ),
+    ],
+)

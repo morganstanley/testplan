@@ -224,8 +224,8 @@ class Test(Runnable):
     def should_run(self):
         return (
             self.cfg.test_filter.filter(
-                test=self,
                 # Instance level shallow filtering is applied by default
+                test=self,
                 suite=None,
                 case=None,
             )
