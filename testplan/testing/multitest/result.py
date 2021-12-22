@@ -2305,3 +2305,6 @@ class Result(object):
 
     def __len__(self):
         return len(self.entries)
+
+    def __bool__(self):
+        return True
