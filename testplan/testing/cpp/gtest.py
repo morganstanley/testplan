@@ -1,16 +1,6 @@
 from schema import Or
-from lxml import objectify
 
 from testplan.common.config import ConfigOption
-
-from testplan.report import (
-    TestGroupReport,
-    TestCaseReport,
-    ReportCategories,
-    RuntimeStatus,
-)
-from testplan.testing.multitest.entries.assertions import RawAssertion
-from testplan.testing.multitest.entries.schemas.base import registry
 
 from ..base import ProcessRunnerTest, ProcessRunnerTestConfig
 from ...importers.gtest import GTestResultImporter
@@ -60,7 +50,7 @@ class GTest(ProcessRunnerTest):
     https://github.com/google/googletest/blob/master/googletest/docs/AdvancedGuide.md
     https://github.com/google/googletest/blob/master/googletest/docs/FAQ.md
 
-    Most of the configuratin options of GTest are
+    Most of the configuration options of GTest are
     just simple wrappers for native arguments.
 
     :param name: Test instance name, often used as uid of test entity.

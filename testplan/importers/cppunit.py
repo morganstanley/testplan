@@ -6,7 +6,7 @@ from lxml import objectify, etree
 from lxml.builder import E
 from lxml.objectify import Element
 
-from testplan.importers import ResultImporter, ImportedResult
+from testplan.importers import ImportedResult
 from testplan.importers.base import ThreePhaseFileImporter, T
 from testplan.importers.suitesresults import SuitesResult
 
