@@ -4,8 +4,9 @@ import argparse
 import collections
 import operator
 import fnmatch
-from enum import Enum, unique
+from enum import Enum
 
+from testplan.common.utils.callable import dispatchmethod
 from testplan.testing import tagging
 
 
@@ -290,14 +291,27 @@ class Pattern(Filter):
 
         return patterns + ([self.ALL_MATCH] * (self.MAX_LEVEL - len(patterns)))
 
+    @dispatchmethod
     def filter_test(self, test):
-        return fnmatch.fnmatch(test.name, self.test_pattern)
+        return test is None or fnmatch.fnmatch(test.name, self.test_pattern)
 
+    @filter_test.register(str)
+    def _(self, test):
+        return test is None or fnmatch.fnmatch(test, self.test_pattern)
+
+    @dispatchmethod
     def filter_suite(self, suite):
-        # For test suite uid is the same as name, just like that of Multitest
-        return fnmatch.fnmatch(suite.name, self.suite_pattern)
+        return suite is None or fnmatch.fnmatch(suite.name, self.suite_pattern)
 
+    @filter_suite.register(str)
+    def _(self, suite):
+        return suite is None or fnmatch.fnmatch(suite, self.suite_pattern)
+
+    @dispatchmethod
     def filter_case(self, case):
+        if case is None:
+            return True
+
         name_match = fnmatch.fnmatch(
             case.__name__ if self.match_definition else case.name,
             self.case_pattern,
@@ -309,12 +323,16 @@ class Pattern(Filter):
             case, "_parametrization_template", None
         )
         if parametrization_template:
-            param_match = fnmatch.fnmatch(
+            param_template_match = fnmatch.fnmatch(
                 parametrization_template, self.case_pattern
             )
-            return name_match or param_match
+            return name_match or param_template_match
 
         return name_match
+
+    @filter_case.register(str)
+    def _(self, case):
+        return case is None or fnmatch.fnmatch(case, self.case_pattern)
 
     @classmethod
     def any(cls, *patterns):

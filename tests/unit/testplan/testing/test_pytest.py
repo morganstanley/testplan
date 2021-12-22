@@ -6,17 +6,26 @@ import pytest
 
 from testplan.report import TestCaseReport
 from testplan.testing import py_test as pytest_runner
+from testplan.testing import ordering
+from testplan.testing import filtering
 from testplan import defaults
 from testplan import report
 
 from tests.unit.testplan.testing import pytest_expected_data
+
+PYTEST_DEFAULT_PARAMS = {
+    "test_filter": filtering.Filter(),
+    "test_sorter": ordering.NoopSorter(),
+    "stdout_style": defaults.STDOUT_STYLE,
+}
+PYTEST_SOURCE_FILE = pytest_expected_data.PYTEST_SOURCE_FILE
 
 
 @pytest.fixture
 def pytest_test_inst(repo_root_path, root_directory):
     """Return a PyTest test instance, with the example tests as its target."""
     # For testing purposes, we want to run the pytest example at
-    # examples/PyTest/pytest_tests.py.
+    # [repo_path]/examples/PyTest/pytest_tests.py.
     example_path = os.path.join(
         repo_root_path, "examples", "PyTest", "pytest_tests.py"
     )
@@ -30,18 +39,15 @@ def pytest_test_inst(repo_root_path, root_directory):
         name="My PyTest",
         description="PyTest example test",
         target=example_path,
-        stdout_style=defaults.STDOUT_STYLE,
         extra_args=["--rootdir", rootdir],
+        **PYTEST_DEFAULT_PARAMS,
     )
 
 
 def test_dry_run(pytest_test_inst):
-    """
-    Test the dry_run() method returns the expected report skeleton.
-    """
+    """Test the dry_run() method returns the expected report skeleton."""
     result = pytest_test_inst.dry_run()
-    report = result.report
-    assert report == pytest_expected_data.EXPECTED_DRY_RUN_REPORT
+    assert result.report == pytest_expected_data.EXPECTED_DRY_RUN_REPORT
 
 
 def test_run_tests(pytest_test_inst):
@@ -51,9 +57,9 @@ def test_run_tests(pytest_test_inst):
 
     assert pytest_test_inst.report.status == report.Status.FAILED
     _check_attachements(
-        pytest_test_inst.result.report["pytest_tests.py::TestWithAttachments"][
-            "test_attachment"
-        ]
+        pytest_test_inst.result.report[
+            f"{PYTEST_SOURCE_FILE}::TestWithAttachments"
+        ]["test_attachment"]
     )
     _check_all_testcounts(pytest_test_inst.report.counter)
 
@@ -80,13 +86,16 @@ def test_run_testcases_iter_testsuite(pytest_test_inst):
     """Test running a single testsuite iteratively."""
     all_results = list(
         pytest_test_inst.run_testcases_iter(
-            testsuite_pattern="pytest_tests.py::TestPytestBasics"
+            testsuite_pattern=f"{PYTEST_SOURCE_FILE}::TestPytestBasics"
         )
     )
     assert len(all_results) == 6
 
     report_attributes, current_uids = all_results[0]
-    assert current_uids == ["My PyTest", "pytest_tests.py::TestPytestBasics"]
+    assert current_uids == [
+        "My PyTest",
+        f"{PYTEST_SOURCE_FILE}::TestPytestBasics",
+    ]
     assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
 
     counter = collections.Counter()
@@ -104,7 +113,7 @@ def test_run_testcases_iter_testcase(pytest_test_inst):
     """Test running a single testcase iteratively."""
     all_results = list(
         pytest_test_inst.run_testcases_iter(
-            testsuite_pattern="pytest_tests.py::TestPytestBasics",
+            testsuite_pattern=f"{PYTEST_SOURCE_FILE}::TestPytestBasics",
             testcase_pattern="test_success",
         )
     )
@@ -113,21 +122,24 @@ def test_run_testcases_iter_testcase(pytest_test_inst):
     report_attributes, current_uids = all_results[0]
     assert current_uids == [
         "My PyTest",
-        "pytest_tests.py::TestPytestBasics",
+        f"{PYTEST_SOURCE_FILE}::TestPytestBasics",
         "test_success",
     ]
     assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
 
     testcase_report, parent_uids = all_results[1]
     assert testcase_report.status == report.Status.PASSED
-    assert parent_uids == ["My PyTest", "pytest_tests.py::TestPytestBasics"]
+    assert parent_uids == [
+        "My PyTest",
+        f"{PYTEST_SOURCE_FILE}::TestPytestBasics",
+    ]
 
 
 def test_run_testcases_iter_param(pytest_test_inst):
     """Test running all parametrizations of a testcase iteratively."""
     all_results = list(
         pytest_test_inst.run_testcases_iter(
-            testsuite_pattern="pytest_tests.py::TestPytestBasics",
+            testsuite_pattern=f"{PYTEST_SOURCE_FILE}::TestPytestBasics",
             testcase_pattern="test_parametrization",
         )
     )
@@ -136,7 +148,7 @@ def test_run_testcases_iter_param(pytest_test_inst):
     report_attributes, current_uids = all_results[0]
     assert current_uids == [
         "My PyTest",
-        "pytest_tests.py::TestPytestBasics",
+        f"{PYTEST_SOURCE_FILE}::TestPytestBasics",
         "test_parametrization",
     ]
     assert report_attributes["runtime_status"] == report.RuntimeStatus.RUNNING
@@ -145,7 +157,7 @@ def test_run_testcases_iter_param(pytest_test_inst):
     for testcase_report, parent_uids in all_results[1:]:
         assert parent_uids == [
             "My PyTest",
-            "pytest_tests.py::TestPytestBasics",
+            f"{PYTEST_SOURCE_FILE}::TestPytestBasics",
             "test_parametrization",
         ]
         counter[testcase_report.status] += 1
@@ -157,16 +169,55 @@ def test_run_testcases_iter_param(pytest_test_inst):
     assert counter["skipped"] == 0
 
 
-def test_capture_stdout(pytest_test_inst):
+def test_capture_stdout(mockplan, pytest_test_inst):
     """Test running a single testcase iteratively."""
+    pytest_test_inst.cfg.parent = mockplan.cfg
     all_results = list(
         pytest_test_inst.run_testcases_iter(
-            testsuite_pattern="pytest_tests.py::TestPytestBasics",
+            testsuite_pattern=f"{PYTEST_SOURCE_FILE}::TestPytestBasics",
             testcase_pattern="test_failure",
         )
     )
     assert all_results[0][0]["runtime_status"] == report.RuntimeStatus.RUNNING
     assert all_results[1][0].entries[1]["message"] == "test output\n"
+
+
+def test_sorting(pytest_test_inst):
+    """Test sorting test suites, testcases (including parametrizations)."""
+    pytest_test_inst.cfg._options[
+        "test_sorter"
+    ] = ordering.AlphanumericSorter()
+    result = pytest_test_inst.dry_run()
+    assert result.report == pytest_expected_data.EXPECTED_SORTED_REPORT
+
+
+def test_filtering(pytest_test_inst):
+    """Test filtering test suites, testcases (including parametrizations)."""
+    pytest_test_inst.cfg._options["test_filter"] = filtering.Pattern(
+        "*::*TestPy*::*"
+    )
+    result = pytest_test_inst.dry_run()
+    assert result.report == pytest_expected_data.EXPECTED_FILTERED_REPORT_1
+
+    pytest_test_inst.cfg._options["test_filter"] = filtering.Pattern(
+        "*::*Marks::test_s*"
+    )
+    # Config of parent has changed so force to update test context
+    pytest_test_inst._test_context = pytest_test_inst.get_test_context()
+    result = pytest_test_inst.dry_run()
+    assert result.report == pytest_expected_data.EXPECTED_FILTERED_REPORT_2
+
+    # Apply test sorter as well as test filter
+    pytest_test_inst.cfg._options["test_filter"] = filtering.Pattern(
+        "*::*::test_p*"
+    )
+    pytest_test_inst.cfg._options[
+        "test_sorter"
+    ] = ordering.AlphanumericSorter()
+    # Config of parent has changed so force to update test context
+    pytest_test_inst._test_context = pytest_test_inst.get_test_context()
+    result = pytest_test_inst.dry_run()
+    assert result.report == pytest_expected_data.EXPECTED_FILTERED_REPORT_3
 
 
 def _check_attachements(report: TestCaseReport):

@@ -1,9 +1,7 @@
 """PyTest test runner."""
 import collections
-import copy
 import inspect
 import os
-import sys
 import re
 import traceback
 
@@ -13,6 +11,7 @@ from schema import Or
 from testplan.common.utils import validation
 from testplan.common.config import ConfigOption
 from testplan.testing import base as testing
+from testplan.testing import filtering
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest.result import Result as MultiTestResult
@@ -31,9 +30,14 @@ from testplan.report import (
 )
 
 # Regex for parsing suite and case name and case parameters
-_CASE_REGEX = re.compile(
-    r"^(?P<suite_name>.+)::"
+_SUITE_CASE_REGEX = re.compile(
+    r"^(?P<suite_name>.*)::"
     r"(?P<case_name>[^\[]+)(?:\[(?P<case_params>.+)\])?$",
+    re.DOTALL,
+)
+# Regex for parsing case name and case parameters
+_CASE_REGEX = re.compile(
+    r"^(?P<case_name>[^\[]+)(?:\[(?P<case_params>.+)\])?$",
     re.DOTALL,
 )
 
@@ -79,6 +83,13 @@ class PyTest(testing.Test):
 
     CONFIG = PyTestConfig
 
+    # PyTest allows deep filtering
+    filter_levels = [
+        filtering.FilterLevel.TEST,
+        filtering.FilterLevel.TESTSUITE,
+        filtering.FilterLevel.TESTCASE,
+    ]
+
     def __init__(
         self,
         name,
@@ -87,7 +98,7 @@ class PyTest(testing.Test):
         select="",
         extra_args=None,
         result=MultiTestResult,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(PyTest, self).__init__(**options)
@@ -116,9 +127,17 @@ class PyTest(testing.Test):
     def run_tests(self):
         """Run pytest and wait for it to terminate."""
         # Execute pytest with self as a plugin for hook support
+        pytest_args = []
+        for suite_name, testcases_to_run in self.test_context:
+            pytest_args.extend(
+                f"{suite_name}::{case_name}" for case_name in testcases_to_run
+            )
+        if pytest_args:
+            pytest_args.extend(self._build_extra_args())
+
         with self.report.timer.record("run"):
             return_code = pytest.main(
-                self._pytest_args, plugins=[self._pytest_plugin]
+                pytest_args or self._pytest_args, plugins=[self._pytest_plugin]
             )
 
             if return_code == 5:
@@ -143,7 +162,7 @@ class PyTest(testing.Test):
 
         if return_code not in (0, 5):  # rc 5: no tests were run
             raise RuntimeError(
-                "Collection failure, exit code = {}".format(return_code)
+                f"Collection failure, exit code = {return_code}"
             )
 
         return self._collect_plugin.collected
@@ -164,15 +183,48 @@ class PyTest(testing.Test):
             return []
 
         # The plugin will handle converting PyTest tests into suites and
-        # testcase names.
-        suites = collections.defaultdict(set)
+        # testcase names (with parameters).
+        suites = collections.defaultdict(list)
+        param_groups = collections.defaultdict(dict)
         for item in collected:
-            suite_name, case_name, _ = _case_parse(item.nodeid)
-            suites[suite_name].add(case_name)
+            suite_name, case_name, case_params = _case_parse(item)
+            if case_params:
+                case_full_name = f"{case_name}[{case_params}]"
+                suites[suite_name].append(case_full_name)
+                param_groups[suite_name].setdefault(case_name, []).append(
+                    case_full_name
+                )
+            else:
+                suites[suite_name].append(case_name)
 
-        return [
-            (suite, list(testcases)) for suite, testcases in suites.items()
-        ]
+        ctx = []
+        for suite_name in self.cfg.test_sorter.sorted_testsuites(
+            list(suites.keys())
+        ):
+            testcase_to_template = {
+                case_name: param_template
+                for param_template, cases in param_groups[suite_name].items()
+                for case_name in cases
+            }
+            testcases_to_run = [
+                case_name
+                for case_name in self.cfg.test_sorter.sorted_testcases(
+                    suite_name, suites[suite_name], param_groups[suite_name]
+                )
+                if self.cfg.test_filter.filter(
+                    test=self, suite=suite_name, case=case_name
+                )
+                or case_name in testcase_to_template
+                and self.cfg.test_filter.filter(
+                    test=self,
+                    suite=suite_name,
+                    case=testcase_to_template[case_name],
+                )
+            ]
+            if testcases_to_run:
+                ctx.append((suite_name, testcases_to_run))
+
+        return ctx
 
     def dry_run(self):
         """
@@ -185,8 +237,11 @@ class PyTest(testing.Test):
             "testcases": collections.defaultdict(dict),
         }
 
-        for item in self._collect_tests():
-            _add_empty_testcase_report(item, self.result.report, self._nodeids)
+        for suite, testcases in self.test_context:
+            for testcase in testcases:
+                _add_empty_testcase_report(
+                    suite, testcase, self.result.report, self._nodeids
+                )
 
         return self.result
 
@@ -236,9 +291,8 @@ class PyTest(testing.Test):
                         != ReportCategories.PARAMETRIZATION
                     ):
                         raise RuntimeError(
-                            "Unexpected report category: {}".format(
-                                child_report.category
-                            )
+                            "Unexpected report category:"
+                            f" {child_report.category}"
                         )
 
                     for testcase_report in child_report:
@@ -252,7 +306,7 @@ class PyTest(testing.Test):
                         )
                 else:
                     raise TypeError(
-                        "Unexpected report type: {}".format(type(child_report))
+                        f"Unexpected report type: {type(child_report)}"
                     )
 
     def _build_iter_pytest_args(self, testsuite_pattern, testcase_pattern):
@@ -276,13 +330,13 @@ class PyTest(testing.Test):
             pytest_args = [
                 self._nodeids["testcases"][testsuite_pattern][testcase_pattern]
             ]
-            suite_name, case_name, case_params = _case_parse(pytest_args[0])
+            suite_name, case_name, case_params = _split_nodeid(pytest_args[0])
             if case_params:
                 current_uids = [
                     self.uid(),
                     suite_name,
                     case_name,
-                    "{}[{}]".format(case_name, case_params),
+                    f"{case_name}[{case_params}]",
                 ]
             else:
                 current_uids = [self.uid(), suite_name, case_name]
@@ -294,7 +348,7 @@ class PyTest(testing.Test):
 
     def _build_pytest_args(self):
         """
-        :return: a list of the args to be passed to PyTest
+        :return: A list of the args to be passed to PyTest
         :rtype: List[str]
         """
         if isinstance(self.cfg.target, str):
@@ -302,13 +356,24 @@ class PyTest(testing.Test):
         else:
             pytest_args = self.cfg.target[:]
 
-        if self.cfg.select:
-            pytest_args.extend(["-k", self.cfg.select])
-
-        if self.cfg.extra_args:
-            pytest_args.extend(self.cfg.extra_args)
+        pytest_args.extend(self._build_extra_args())
 
         return pytest_args
+
+    def _build_extra_args(self):
+        """
+        :return: A list of additional args to be passed to PyTest
+        :rtype: List[str]
+        """
+        extra_args = []
+
+        if self.cfg.select:
+            extra_args.extend(["-k", self.cfg.select])
+
+        if self.cfg.extra_args:
+            extra_args.extend(self.cfg.extra_args)
+
+        return extra_args
 
 
 class _ReportPlugin:
@@ -402,7 +467,7 @@ class _ReportPlugin:
                 )
                 self._suite_reports[suite_name][case_name] = group_report
 
-            case_name = "{}[{}]".format(case_name, case_params)
+            case_name = f"{case_name}[{case_params}]"
             try:
                 report = group_report.get_by_uid(case_name)
             except:
@@ -418,7 +483,7 @@ class _ReportPlugin:
         :param item: the test item to set up (see pytest documentation)
         """
         # Extract suite name, case name and parameters
-        suite_name, case_name, case_params = _case_parse(item.nodeid)
+        suite_name, case_name, case_params = _case_parse(item)
         report = self.case_report(suite_name, case_name, case_params)
 
         try:
@@ -428,7 +493,7 @@ class _ReportPlugin:
 
         if func_doc is not None:
             report.description = os.linesep.join(
-                "    {}".format(line)
+                f"    {line}"
                 for line in inspect.getdoc(item.function).split(os.linesep)
             )
 
@@ -438,14 +503,33 @@ class _ReportPlugin:
             _scratch=self._parent.scratch,
         )
 
-    def pytest_runtest_teardown(self, item):
+    @pytest.hookimpl(hookwrapper=True, tryfirst=True)
+    def pytest_runtest_makereport(self, item, call):
         """
-        Hook called by pytest to tear down a test.
+        Hook called to create a TestReport for each of the setup, call
+        and teardown runtest phases of a test item.
 
         :param item: the test item to tear down (see pytest documentation)
+        :param call: the ``CallInfo`` for the phase (see pytest documentation)
         """
-        self._current_case_report = None
-        self._current_result_obj = None
+        outcome = yield
+        report = outcome.get_result()
+        # Update `report.nodeid` which contains relative path of test source
+        # as prefix, this information might be used later, e.g. for a skipped
+        # testcase, `pytest_runtest_setup` will not be called, therefore, we
+        # create testcase report in `pytest_runtest_logreport`. However, the
+        # report's `nodeid` may need to be modified here (called right before
+        # `pytest_runtest_logreport`) because the `nodeid` does not always
+        # have the correct path of test source, if:
+        #   1> multi "pytest.ini" is found in nested directories
+        #   2> test source file is out of pytest root directory
+        suite_name, case_name, case_params = _case_parse(item)
+        report.nodeid = "::".join(
+            [
+                suite_name,
+                f"{case_name}[{case_params}]" if case_params else case_name,
+            ]
+        )
 
     def pytest_runtest_logreport(self, report):
         """
@@ -454,10 +538,13 @@ class _ReportPlugin:
         :param report: the test report for the item just tested (see pytest
                        documentation)
         """
+        if isinstance(report, list):
+            report = report[0]
+
         if report.when == "setup":
             if report.skipped:
                 if self._current_case_report is None:
-                    suite_name, case_name, case_params = _case_parse(
+                    suite_name, case_name, case_params = _split_nodeid(
                         report.nodeid
                     )
                     testcase_report = self.case_report(
@@ -469,6 +556,7 @@ class _ReportPlugin:
                 # Status set to be SKIPPED if testcase is marked skip or xfail
                 # lower versioned PyTest does not support this feature
                 testcase_report.status_override = Status.SKIPPED
+                testcase_report.runtime_status = RuntimeStatus.FINISHED
 
         elif report.when == "call":
             if self._current_case_report is None:
@@ -505,6 +593,15 @@ class _ReportPlugin:
 
         elif report.when == "teardown":
             pass
+
+    def pytest_runtest_teardown(self, item):
+        """
+        Hook called by pytest to tear down a test.
+
+        :param item: the test item to tear down (see pytest documentation)
+        """
+        self._current_case_report = None
+        self._current_result_obj = None
 
     def pytest_exception_interact(self, node, call, report):
         """
@@ -546,14 +643,13 @@ class _ReportPlugin:
                     else "Exception raised"
                 )
                 if call.when == "call"
-                else "{} - Fail".format(call.when)
+                else f"{call.when} - Fail"
             )
             details = (
-                "File: {}\nLine: {}\n{}: {}".format(
-                    str(trace.path),
-                    trace.lineno + 1,
-                    call.excinfo.typename,
-                    message,
+                (
+                    f"File: {trace.path}\n"
+                    f"Line: {trace.lineno + 1}\n"
+                    f"{call.excinfo.typename}: {message}"
                 )
                 if call.excinfo.typename == "AssertionError"
                 else (
@@ -652,19 +748,30 @@ class _CollectPlugin:
         self.collected = session.items
 
 
-def _case_parse(nodeid):
+def _case_parse(item):
     """
-    Parse a nodeid into a shorterned URL-safe suite name, case name, and case
-    parameters.
+    Parse a nodeid of a pytest item into a shortened URL-safe suite name,
+    case name, and case parameters.
 
-    :param nodeid: the test nodeid
-    :type nodeid: ``str``
-    :raises ValueError: if nodeid is invalid
+    :param item: the pytest item
+    :type item: ``object``
+    :raises ValueError: if nodeid of pytest item is invalid
     :return: a tuple consisting of (suite name, case name, case parameters)
     :rtype: ``tuple``
     """
-    suite_name, case_name, case_params = _split_nodeid(nodeid)
-    return (_short_suite_name(suite_name), case_name, case_params)
+    suite_name, case_name, case_params = _split_nodeid(item.nodeid)
+    # `suite_name` could be one of the following values:
+    #   - "/path/to/test_source.py::TestSuite"
+    #   - "/path/to/test_source.py"
+    #   - "::TestSuite"
+    #   - ""
+    # the part before symbol :: (if any) or the whole `suite_name` will be
+    # replaced by relative path of the test source
+    return (
+        "::".join([os.path.relpath(item.path)] + suite_name.split("::")[1:]),
+        case_name,
+        case_params,
+    )
 
 
 def _split_nodeid(nodeid):
@@ -677,30 +784,19 @@ def _split_nodeid(nodeid):
     :return: a tuple consisting of (suite name, case name, case parameters)
     :rtype: ``tuple``
     """
-    match = _CASE_REGEX.match(nodeid.replace("::()::", "::"))
+    match = _SUITE_CASE_REGEX.match(nodeid.replace("::()::", "::"))
 
     if match is None:
-        raise ValueError("Invalid nodeid")
+        raise ValueError(f"Invalid nodeid: {nodeid}")
 
     suite_name, case_name, case_params = match.groups()
 
     return suite_name, case_name, case_params
 
 
-def _short_suite_name(suite_name):
-    """
-    Remove any path elements or .py extensions from the suite name.
-    E.g. "tests/my_test.py" -> "my_test"
-    Note that even on Windows, PyTest stores path elements separated by "/"
-    which is why we don't split on os.sep here.
-    """
-    return os.path.basename(suite_name)
-
-
-def _add_empty_testcase_report(item, test_report, nodeids):
+def _add_empty_testcase_report(suite_name, case_name, test_report, nodeids):
     """Add an empty testcase report to the test report."""
-    full_suite_name, case_name, case_params = _split_nodeid(item.nodeid)
-    suite_name = _short_suite_name(full_suite_name)
+    case_name, case_params = _CASE_REGEX.match(case_name).groups()
 
     try:
         suite_report = test_report[suite_name]
@@ -711,7 +807,7 @@ def _add_empty_testcase_report(item, test_report, nodeids):
             category=ReportCategories.TESTSUITE,
         )
         test_report.append(suite_report)
-        nodeids["testsuites"][suite_name] = full_suite_name
+        nodeids["testsuites"][suite_name] = suite_name
 
     if case_params:
         try:
@@ -723,15 +819,19 @@ def _add_empty_testcase_report(item, test_report, nodeids):
                 category=ReportCategories.PARAMETRIZATION,
             )
             suite_report.append(param_report)
-            nodeids["testcases"][suite_name][case_name] = "::".join(
-                (full_suite_name, case_name)
-            )
+            nodeids["testcases"][suite_name][
+                case_name
+            ] = f"{suite_name}::{case_name}"
 
-        param_case_name = "{}[{}]".format(case_name, case_params)
+        param_case_name = f"{case_name}[{case_params}]"
         param_report.append(
             TestCaseReport(name=param_case_name, uid=param_case_name)
         )
-        nodeids["testcases"][suite_name][param_case_name] = item.nodeid
+        nodeids["testcases"][suite_name][
+            param_case_name
+        ] = f"{suite_name}::{case_name}[{case_params}]"
     else:
         suite_report.append(TestCaseReport(name=case_name, uid=case_name))
-        nodeids["testcases"][suite_name][case_name] = item.nodeid
+        nodeids["testcases"][suite_name][
+            case_name
+        ] = f"{suite_name}::{case_name}"
