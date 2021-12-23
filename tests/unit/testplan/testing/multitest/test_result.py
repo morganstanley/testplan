@@ -578,3 +578,28 @@ class TestResultBaseNamespace(object):
         assert result.attachments[0].filesize > result.attachments[1].filesize
         assert result.attachments[0].source_path.startswith(result_dir)
         assert result.attachments[1].source_path.startswith(result_dir)
+
+    def test_bool(self):
+        result = result_mod.Result()
+        assert result
+        assert len(result) == 0
+        assert result.passed
+
+        first = result.subresult()
+        second = result.subresult()
+
+        first.true(True, "AssertionFirst")
+        second.true(True, "AssertionSecond")
+
+        result.append(first)
+        result.append(second)
+
+        assert len(result) == 2
+        assert result.passed
+
+        third = result.subresult()
+        third.true(False, "AssertionThird")
+        result.append(third)
+
+        assert len(result) == 3
+        assert not result.passed
