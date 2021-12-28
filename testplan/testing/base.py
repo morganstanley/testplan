@@ -555,7 +555,7 @@ class ProcessRunnerTest(Test):
         :return: Command to list tests
         :rtype: ``list`` of ``str`` or ``NoneType``
         """
-        return None
+        return []
 
     def get_test_context(self, list_cmd=None):
         """
@@ -568,7 +568,7 @@ class ProcessRunnerTest(Test):
         :rtype: ``list`` of ``list``
         """
         cmd = list_cmd or self.list_command()
-        if cmd is None:
+        if not cmd:
             return [(self._DEFAULT_SUITE_NAME, ())]
 
         proc = subprocess_popen(
