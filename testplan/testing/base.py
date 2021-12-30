@@ -496,19 +496,11 @@ class ProcessRunnerTest(Test):
     _VERIFICATION_TESTCASE_NAME = "ExitCodeCheck"
     _MAX_RETAINED_LOG_SIZE = 4096
 
-    def __init__(self, pre_args=None, post_args=None, **options):
+    def __init__(self, **options):
         proc_env = os.environ.copy()
         if options.get("proc_env"):
             proc_env.update(options["proc_env"])
         options["proc_env"] = proc_env
-        if pre_args:
-            options["pre_args"] = pre_args
-        else:
-            options["pre_args"] = []
-        if post_args:
-            options["post_args"] = post_args
-        else:
-            options["post_args"] = []
         super(ProcessRunnerTest, self).__init__(**options)
 
         self._test_context = None
