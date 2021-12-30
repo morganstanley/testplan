@@ -474,6 +474,12 @@ class ProcessRunnerTest(Test):
                     This can be disabled by providing a list of
                     numbers to ignore.
     :type ignore_exit_codes: ``list`` of ``int``
+    :param pre_args: List of arguments to be prepended before the
+        arguments of the test runnable.
+    :type pre_args: ``list``
+    :param post_args: List of arguments to be appended before the
+        arguments of the test runnable.
+    :type post_args: ``list``
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
