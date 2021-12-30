@@ -1,1 +1,1 @@
-* Make empty result object not to be false in bool context.
+* Make empty result object not to be false in bool context..
