@@ -13,7 +13,7 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.match import LogMatcher
-from testplan.common.utils.path import StdFiles, makedirs
+from testplan.common.utils.path import StdFiles, makedirs, archive
 from testplan.common.utils.context import is_context, expand
 from testplan.common.utils.process import subprocess_popen, kill_process
 from testplan.common.utils.timing import wait
@@ -350,17 +350,17 @@ class App(Driver):
         Stop the driver, archive the app_dir or rename std/log, and then restart
         the driver.
 
-        :param clean: set to False to not archive app_dir or rotate std/log.
+        :param clean: if set to ``True``, perform a 'clean' restart where
+            all persistence is deleted, else a normal restart.
         :type clean: ``bool``
 
         """
         self.stop()
         self.wait(self.status.STOPPED)
         if clean:
-            if self.cfg.app_dir_name:
-                self._move_app_path()
-            else:
-                self._rename_std_and_log()
+            self._move_app_path()
+        else:
+            self._move_std_and_log()
 
         # we don't want to cleanup runpath during restart
         path_cleanup = self.cfg.path_cleanup
@@ -380,7 +380,7 @@ class App(Driver):
         shutil.move(self.app_path, snapshot_path)
         os.makedirs(self.app_path)
 
-    def _rename_std_and_log(self):
+    def _move_std_and_log(self):
         """
         Rename std and log files
         """
@@ -388,7 +388,7 @@ class App(Driver):
 
         for file in (self.outpath, self.errpath, self.logpath):
             if os.path.isfile(file):
-                os.rename(file, file + timestamp)
+                archive(file, timestamp)
 
     def aborting(self):
         """Abort logic to force kill the child binary."""
