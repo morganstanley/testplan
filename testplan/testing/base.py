@@ -476,10 +476,10 @@ class ProcessRunnerTest(Test):
     :type ignore_exit_codes: ``list`` of ``int``
     :param pre_args: List of arguments to be prepended before the
         arguments of the test runnable.
-    :type pre_args: ``list``
+    :type pre_args: ``list`` of ``str``
     :param post_args: List of arguments to be appended before the
         arguments of the test runnable.
-    :type post_args: ``list``
+    :type post_args: ``list`` of ``str``
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -532,20 +532,40 @@ class ProcessRunnerTest(Test):
 
     def test_command(self):
         """
+        Add custom arguments before and after the executable if they are defined.
+        :return: List of commands to run before and after the test process, as well as the test executable itself.
+        :rtype:  ``list`` of ``str``
+        """
+        cmd = self._test_command()
+
+        if self.cfg.pre_args:
+            return self.cfg.pre_args + cmd
+        if self.cfg.post_args:
+            return cmd + self.cfg.post_args
+
+    def _test_command(self):
+        """
         Override this to add extra options to the test command.
 
         :return: Command to run test process
         :rtype: ``list`` of ``str``
         """
-        if self.cfg.pre_args:
-            cmd = [*self.cfg.pre_args, self.cfg.binary]
-        else:
-            cmd = [self.cfg.binary]
-        if self.cfg.post_args:
-            cmd.extend(self.cfg.post_args)
-        return cmd
+        return [self.cfg.binary]
 
     def list_command(self):
+        """
+        List custom arguments before and after the executable if they are defined.
+        :return: List of commands to run before and after the test process, as well as the test executable itself.
+        :rtype:  ``list`` of ``str`` or ``NoneType``
+        """
+        cmd = self._list_command()
+        if self.cfg.pre_args:
+            cmd = self.cfg.pre_args + cmd
+        if self.cfg.post_args:
+            cmd = cmd + self.cfg.post_args
+        return cmd
+
+    def _list_command(self):
         """
         Override this to generate the shell command that will cause the
         testing framework to list the tests available on stdout.

@@ -121,19 +121,17 @@ class GTest(ProcessRunnerTest):
             cmd.append("--gtest_filter={}".format(self.cfg.gtest_filter))
         return cmd
 
-    def test_command(self):
+    def _test_command(self):
         cmd = self.base_command() + [
             "--gtest_output=xml:{}".format(self.report_path),
             "--gtest_death_test_style={}".format(
                 self.cfg.gtest_death_test_style
             ),
         ]
-
         if self.cfg.gtest_also_run_disabled_tests:
             cmd.append("--gtest_also_run_disabled_tests")
         if self.cfg.gtest_repeat > 1:
             cmd.append("--gtest_repeat={}".format(self.cfg.gtest_repeat))
-
         # TODO: Add integration with ShuffleSorter
         if self.cfg.gtest_shuffle:
             cmd.append("--gtest_shuffle")
@@ -141,28 +139,16 @@ class GTest(ProcessRunnerTest):
                 cmd.append(
                     "--gtest_random_seed={}".format(self.cfg.gtest_random_seed)
                 )
-
         if self.cfg.gtest_stream_result_to:
             cmd.append(
                 "--gtest_stream_result_to={}".format(
                     self.cfg.gtest_stream_result_to
                 )
             )
-
-        if self.cfg.pre_args:
-            cmd = [*self.cfg.pre_args, *cmd]
-        if self.cfg.post_args:
-            cmd.extend(self.cfg.post_args)
-
         return cmd
 
-    def list_command(self):
-        cmd = self.base_command() + ["--gtest_list_tests"]
-        if self.cfg.pre_args:
-            cmd = [*self.cfg.pre_args, *cmd]
-        if self.cfg.post_args:
-            cmd.extend(self.cfg.post_args)
-        return cmd
+    def _list_command(self):
+        return self.base_command() + ["--gtest_list_tests"]
 
     def read_test_data(self):
         importer = GTestResultImporter(self.report_path)

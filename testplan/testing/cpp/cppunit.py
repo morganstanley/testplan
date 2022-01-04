@@ -107,28 +107,19 @@ class Cppunit(ProcessRunnerTest):
         else:
             return os.path.join(self._runpath, "report.xml")
 
-    def test_command(self):
+    def _test_command(self):
         cmd = [self.cfg.binary]
         if self.cfg.filtering_flag and self.cfg.cppunit_filter:
             cmd.extend([self.cfg.filtering_flag, self.cfg.cppunit_filter])
         if self.cfg.file_output_flag:
             cmd.extend([self.cfg.file_output_flag, self.report_path])
-        if self.cfg.pre_args:
-            cmd = [*self.cfg.pre_args, *cmd]
-        if self.cfg.post_args:
-            cmd.extend(self.cfg.post_args)
         return cmd
 
-    def list_command(self):
+    def _list_command(self):
         if self.cfg.listing_flag:
-            cmd = [self.cfg.binary, self.cfg.listing_flag]
+            return [self.cfg.binary, self.cfg.listing_flag]
         else:
-            cmd = super(Cppunit, self).list_command()
-        if self.cfg.pre_args:
-            cmd = [*self.cfg.pre_args, *cmd]
-        if self.cfg.post_args:
-            cmd.extend(self.cfg.post_args)
-        return cmd
+            return super(Cppunit, self)._list_command()
 
     def read_test_data(self):
 
