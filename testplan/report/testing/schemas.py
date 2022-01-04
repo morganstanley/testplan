@@ -101,6 +101,7 @@ class TestCaseReportSchema(ReportSchema):
     source_class = TestCaseReport
 
     status_override = fields.String(allow_none=True)
+    status_reason = fields.String(allow_none=True)
 
     entries = fields.List(EntriesField())
 
@@ -112,15 +113,12 @@ class TestCaseReportSchema(ReportSchema):
     timer = TimerField(required=True)
     tags = TagField()
 
-    status_reason = fields.String(allow_none=True)
-
     @post_load
     def make_report(self, data, **kwargs):
         """
         Create the report object, assign ``timer`` &
         ``status_override`` attributes explicitly
         """
-        status_override = data.pop("status_override", None)
         timer = data.pop("timer")
         status = data.pop("status")
         runtime_status = data.pop("runtime_status")
@@ -131,7 +129,6 @@ class TestCaseReportSchema(ReportSchema):
             data.pop("type")
 
         rep = super(TestCaseReportSchema, self).make_report(data)
-        rep.status_override = status_override
         rep.timer = timer
         rep.status = status
         rep.runtime_status = runtime_status
@@ -207,22 +204,18 @@ class TestReportSchema(Schema):
         )
 
         entry_data = data.pop("entries")
-        status_override = data.pop("status_override")
         status = data.pop("status")
         runtime_status = data.pop("runtime_status")
         timer = data.pop("timer")
-        timeout = data.pop("timeout", None)
         logs = data.pop("logs", [])
 
         test_plan_report = TestReport(**data)
         test_plan_report.entries = [load_tree(c_data) for c_data in entry_data]
         test_plan_report.propagate_tag_indices()
 
-        test_plan_report.status_override = status_override
         test_plan_report.status = status
         test_plan_report.runtime_status = runtime_status
         test_plan_report.timer = timer
-        test_plan_report.timeout = timeout
         test_plan_report.logs = logs
 
         return test_plan_report
@@ -258,14 +251,12 @@ class ShallowTestGroupReportSchema(Schema):
 
     @post_load
     def make_testgroup_report(self, data, **kwargs):
-        status_override = data.pop("status_override", None)
         timer = data.pop("timer")
         logs = data.pop("logs", [])
 
         group_report = TestGroupReport(**data)
         group_report.propagate_tag_indices()
 
-        group_report.status_override = status_override
         group_report.timer = timer
         group_report.logs = logs
 
@@ -297,14 +288,12 @@ class ShallowTestReportSchema(Schema):
 
     @post_load
     def make_test_report(self, data, **kwargs):
-        status_override = data.pop("status_override", None)
         timer = data.pop("timer")
         logs = data.pop("logs", [])
 
         test_plan_report = TestReport(**data)
         test_plan_report.propagate_tag_indices()
 
-        test_plan_report.status_override = status_override
         test_plan_report.timer = timer
         test_plan_report.logs = logs
 

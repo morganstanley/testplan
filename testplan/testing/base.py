@@ -6,12 +6,9 @@ import warnings
 
 from schema import Or, Use, And
 
+from testplan import defaults
 from testplan.common.remote.remote_driver import RemoteDriver
-from testplan.defaults import MAX_TEST_NAME_LENGTH
 from testplan.common.config import ConfigOption, validate_func
-
-from testplan.testing import filtering, ordering, tagging
-
 from testplan.common.entity import (
     Resource,
     ResourceStatus,
@@ -32,6 +29,7 @@ from testplan.report import (
     ReportCategories,
     RuntimeStatus,
 )
+from testplan.testing import filtering, ordering, tagging
 from testplan.testing.multitest.entries.assertions import RawAssertion
 from testplan.testing.multitest.entries.base import Attachment
 
@@ -52,7 +50,9 @@ class TestConfig(RunnableConfig):
         )
 
         return {
-            "name": And(str, lambda s: len(s) <= MAX_TEST_NAME_LENGTH),
+            "name": And(
+                str, lambda s: len(s) <= defaults.MAX_TEST_NAME_LENGTH
+            ),
             ConfigOption("description", default=None): Or(str, None),
             ConfigOption("environment", default=[]): [
                 Or(Resource, RemoteDriver)
@@ -737,16 +737,14 @@ class ProcessRunnerTest(Test):
 
         if stdout and os.path.isfile(stdout):
             stdout_attachment = Attachment(
-                filepath=os.path.abspath(stdout),
-                description="Process stdout",
+                filepath=os.path.abspath(stdout), description="Process stdout"
             )
             testcase_report.attachments.append(stdout_attachment)
             testcase_report.append(stdout_attachment.serialize())
 
         if stderr and os.path.isfile(stderr):
             stderr_attachment = Attachment(
-                filepath=os.path.abspath(stderr),
-                description="Process stderr",
+                filepath=os.path.abspath(stderr), description="Process stderr"
             )
             testcase_report.attachments.append(stderr_attachment)
             testcase_report.append(stderr_attachment.serialize())

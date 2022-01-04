@@ -634,13 +634,24 @@ def generate_interactive_api(ihandler):
         """
 
         def get(self):
-            try:
-                ihandler.reload(rebuild_dependencies=True)
-                ihandler.reload_report()
-            except Exception as ex:
-                ihandler.logger.error("Reload failed! %s ", str(ex))
-                return {"errmsg": f"Reload failed! {ex}"}, 200
-            return True
+            if ihandler.report.runtime_status in (
+                RuntimeStatus.RUNNING,
+                RuntimeStatus.RESETTING,
+                RuntimeStatus.WAITING,
+            ):
+                raise werkzeug.exceptions.BadRequest(
+                    "Cannot reload code when any test is in execution"
+                )
+
+            with ihandler.report_mutex:
+                # Occupy the mutex so that no other request will be handled
+                try:
+                    ihandler.reload(rebuild_dependencies=True)
+                    ihandler.reload_report()
+                except Exception as ex:
+                    ihandler.logger.error("Reload failed! %s ", str(ex))
+                    return {"errmsg": f"Reload failed! {ex}"}, 200
+                return True
 
     @api.route("/abort")
     class AbortExecution(flask_restplus.Resource):

@@ -33,8 +33,8 @@ def ConfigOption(key: str, default=ABSENT) -> Optional:
     are inherited from its parent). If a particular option is not defined or
     defined but only has an ABSENT value, we will recursively look in the
     entity's container until we find it. Typical containing relationships
-    are like TestRunner contains Pool, TestRunner contains Multitest,
-    Pool contains worker etc.
+    are like TestRunner contains Pool, TestRunner contains MultiTest,
+    Pool contains Worker etc.
 
     Thus a config option takes one of these values in descending precedence:
         user specified -> a non-ABSENT default -> container's value
