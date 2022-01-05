@@ -1,0 +1,1 @@
+* Logfile, stdout and stderr is rotated on restart.
