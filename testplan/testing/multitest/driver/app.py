@@ -360,7 +360,7 @@ class App(Driver):
         if clean:
             self._move_app_path()
         else:
-            self._move_std_and_log()
+            self._move_std_and_logs()
 
         # we don't want to cleanup runpath during restart
         path_cleanup = self.cfg.path_cleanup
@@ -380,7 +380,7 @@ class App(Driver):
         shutil.move(self.app_path, snapshot_path)
         os.makedirs(self.app_path)
 
-    def _move_std_and_log(self):
+    def _move_std_and_logs(self):
         """
         Rename std and log files
         """
