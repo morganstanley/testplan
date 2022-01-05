@@ -100,7 +100,7 @@ def test_kill_all_workers(mockplan):
     dirname = os.path.dirname(os.path.abspath(__file__))
 
     uid = mockplan.schedule(
-        target="multitest_kills_worker",
+        target="multitest_kill_workers",
         module="func_pool_base_tasks",
         path=dirname,
         args=(os.getpid(),),
@@ -146,7 +146,7 @@ def test_reassign_times_limit(mockplan):
     dirname = os.path.dirname(os.path.abspath(__file__))
 
     uid = mockplan.schedule(
-        target="multitest_kills_worker",
+        target="multitest_kill_workers",
         module="func_pool_base_tasks",
         path=dirname,
         args=(os.getpid(),),
@@ -304,7 +304,7 @@ def test_restart_worker(mockplan):
     dirname = os.path.dirname(os.path.abspath(__file__))
 
     mockplan.schedule(
-        target="multitest_kills_worker",
+        target="multitest_kill_workers",
         module="func_pool_base_tasks",
         path=dirname,
         args=(os.getpid(),),

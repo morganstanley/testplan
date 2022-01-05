@@ -151,15 +151,6 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             self.logger.error(msg)
             raise RuntimeError(msg)
 
-    def aborting(self):
-        """Abort child process worker."""
-        try:
-            self._fetch_results()
-        except Exception as exc:
-            self.logger.error("Could not fetch results, {}".format(exc))
-        super(RemoteWorker, self).aborting()
-        self.status.change(self.STATUS.STOPPED)
-
 
 class RemotePoolConfig(PoolConfig):
     """
