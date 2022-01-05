@@ -54,7 +54,7 @@ class AssertionHeader extends Component {
   }
 
   render() {
-    const cardHeaderStyle = this.props.assertion.passed === undefined
+    const cardHeaderColorStyle = this.props.assertion.passed === undefined
       ? styles.cardHeaderColorLog
       : this.props.assertion.passed
         ? styles.cardHeaderColorPassed
@@ -122,7 +122,7 @@ class AssertionHeader extends Component {
           }}
         >
           <span id={`tooltip_path_${this.props.uid}`}
-            className={css(cardHeaderStyle)}>
+            className={css(cardHeaderColorStyle)}>
             {renderPath(this.props.assertion)}
           </span>
         </Button>
@@ -136,28 +136,28 @@ class AssertionHeader extends Component {
       </> : <></>;
 
     return (
-      <CardHeader
-        className={css(styles.cardHeader, cardHeaderStyle)}
-      >
-        <span
-          className={css(styles.button)}
-          onClick={this.props.toggleExpand}>
-          <span>
-            <strong>
-              {this.props.assertion.description ? (
-                this.props.assertion.description + " ") : ""}
-            </strong>
+      <CardHeader className={css(styles.cardHeader, cardHeaderColorStyle)}>
+        <div style={
+          {padding: ".125rem 0.75rem", ...this.props.assertion.custom_style}
+        }>
+          <span
+            className={css(styles.button)}
+            onClick={this.props.toggleExpand}>
+            <span style={{fontWeight: "bold"}}>
+              {this.props.assertion.description ?
+              (this.props.assertion.description + " ") : ""}
+            </span>
+            <span>
+              ({this.props.assertion.type})
+            </span>
           </span>
-          <span>
-            ({this.props.assertion.type})
-          </span>
-        </span>
-        {component}
-        {pathButton}
-        {/*
-          TODO will be implemented when complete permalink feature
-          linkIcon
-        */}
+          {component}
+          {pathButton}
+          {/*
+            TODO will be implemented when complete permalink feature
+            linkIcon
+          */}
+        </div>
       </CardHeader>
     );
   }
@@ -196,7 +196,7 @@ const getPath = (assertion) => {
 
 const styles = StyleSheet.create({
   cardHeader: {
-    padding: '.25rem .75rem',
+    padding: '0',
     fontSize: 'small',
     lineHeight: 1.75,
     backgroundColor: 'rgba(0,0,0,0)', // Move to defaults?

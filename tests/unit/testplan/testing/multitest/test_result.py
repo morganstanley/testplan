@@ -13,12 +13,13 @@ import matplotlib
 matplotlib.use("agg")
 import matplotlib.pyplot as plot
 
-from testplan.testing.multitest import result as result_mod
-from testplan.testing.multitest.suite import testcase, testsuite
-from testplan.testing.multitest import MultiTest
 from testplan.common.utils import comparison
 from testplan.common.utils import testing
 from testplan.common.utils import path as path_utils
+
+from testplan.testing.multitest import result as result_mod
+from testplan.testing.multitest.suite import testcase, testsuite
+from testplan.testing.multitest import MultiTest
 
 
 @testsuite
@@ -45,8 +46,10 @@ class AssertionOrder(object):
         result.prepend(summary)
 
 
-def test_assertion_orders():
+def test_assertion_order(mockplan):
+    """Verify ordered assertion entries in test report."""
     mtest = MultiTest(name="AssertionsOrder", suites=[AssertionOrder()])
+    mtest.cfg.parent = mockplan.cfg
     mtest.run()
 
     expected = [
@@ -58,14 +61,56 @@ def test_assertion_orders():
         "Report passed so far.",
     ]
     # pylint: disable=invalid-sequence-index
-    assertions = (
+    assertions = [
         entry
         for entry in mtest.report.flatten()
         if isinstance(entry, dict) and entry["meta_type"] == "assertion"
-    )
+    ]
 
-    for idx, entry in enumerate(assertions):
-        assert entry["description"] == expected[idx]
+    for idx, desc in enumerate(expected):
+        assert desc == assertions[idx]["description"]
+
+
+@testsuite
+class AssertionExtraAttribute(object):
+    @testcase
+    def case(self, env, result):
+        first = result.subresult()
+        second = result.subresult()
+
+        second.false(False, custom_style=None)
+        second.false(False, custom_style={"border": 1, "margin": 2})
+
+        first.true(True, custom_style={"color": "red", "bgcolor": "white"})
+        first.true(True, custom_style={123: "foo", 456: "bar", 789: "baz"})
+
+        result.log("Report passed so far.", custom_style={})
+        result.prepend(first)
+        result.append(second)
+
+
+def test_assertion_extra_attribute(mockplan):
+    """Test that required extra attribute correctly recorded in report."""
+    mtest = MultiTest(
+        name="AssertionExtraAttribute", suites=[AssertionExtraAttribute()]
+    )
+    mtest.cfg.parent = mockplan.cfg
+    mtest.run()
+
+    expected = [
+        {"color": "red", "bgcolor": "white"},
+        {"123": "foo", "456": "bar", "789": "baz"},
+        {},
+        {"border": "1", "margin": "2"},
+    ]
+    assertions = [
+        entry
+        for entry in mtest.report.flatten()
+        if isinstance(entry, dict) and "custom_style" in entry
+    ]
+
+    for idx, custom_style in enumerate(expected):
+        assert custom_style == assertions[idx]["custom_style"]
 
 
 @pytest.fixture
@@ -636,3 +681,28 @@ class TestResultBaseNamespace(object):
             "subdir/3.txt",
             "subdir/4.txt",
         ]
+
+    def test_bool(self):
+        result = result_mod.Result()
+        assert result
+        assert len(result) == 0
+        assert result.passed
+
+        first = result.subresult()
+        second = result.subresult()
+
+        first.true(True, "AssertionFirst")
+        second.true(True, "AssertionSecond")
+
+        result.append(first)
+        result.append(second)
+
+        assert len(result) == 2
+        assert result.passed
+
+        third = result.subresult()
+        third.true(False, "AssertionThird")
+        result.append(third)
+
+        assert len(result) == 3
+        assert not result.passed
