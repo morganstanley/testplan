@@ -1,1 +1,1 @@
-* Rotate logs for ETSApp on restart.
+* Rotate logs for App on restart.
