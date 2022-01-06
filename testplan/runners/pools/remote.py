@@ -256,8 +256,7 @@ class RemotePool(Pool):
     :param setup_script: Script to be executed on remote as very first thing.
     :type setup_script: ``list`` of ``str``
 
-    Also inherits all
-    :py:class:`~testplan.runner.pools.base.Pool` options.
+    Also inherits all :py:class:`~testplan.runner.pools.base.Pool` options.
     """
 
     CONFIG = RemotePoolConfig

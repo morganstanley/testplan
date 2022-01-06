@@ -1,15 +1,19 @@
+import os
+import json
+import tempfile
+
 import click
 
+from testplan import defaults
+from testplan.common.utils import logger
+from testplan.common.utils.path import removeemptydir
 from testplan.cli.utils.actions import ProcessResultAction
 from testplan.cli.utils.command_list import CommandList
-from testplan.exporters.testing import (
-    JSONExporter,
-    WebServerExporter,
-    PDFExporter,
-)
+from testplan.exporters.testing import JSONExporter, PDFExporter
 from testplan.report import TestReport
+from testplan.report.testing.schemas import TestReportSchema
 from testplan.report.testing.styles import StyleArg
-from testplan.common.utils import logger
+from testplan.web_ui.server import WebUIServer
 
 
 writer_commands = CommandList()
@@ -84,10 +88,25 @@ class DisplayAction(ProcessResultAction):
         self.port = port
 
     def __call__(self, result: TestReport) -> TestReport:
+        # TPR script handles command with a pipeline, so these kind of commands:
+        #   - tpr convert fromjson $JSON_FILE display
+        #   - tpr convert fromdb $DOC_ID display
+        # will read data from input and transform it into `TestReport`, then
+        # tht output in pipeline becomes input of the next command (display).
+        # A `WebUIServer` is used to save the data into a temporary single JSON
+        # which will be displayed it in browser. If the original input file is
+        # a single JSON, this process might be optimized. But here, we stick to
+        # the pipeline concept to make implementation simple.
+        with tempfile.TemporaryDirectory() as tmpdir:
+            json_path = os.path.join(tmpdir, "report.json")
+            exporter = JSONExporter(
+                json_path=json_path, split_json_report=False
+            )
+            exporter.export(result)
 
-        exporter = WebServerExporter(ui_port=self.port)
-        exporter.export(result)
-        exporter.wait_for_kb_interrupt()
+            ui_server = WebUIServer(json_path=json_path, ui_port=self.port)
+            ui_server.display()
+            ui_server.wait_for_kb_interrupt()
 
         return result
 
