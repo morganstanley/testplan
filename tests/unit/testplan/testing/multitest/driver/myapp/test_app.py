@@ -314,13 +314,15 @@ def test_stdin(runpath):
 
 def test_restart():
     """Test restart of an App"""
-    app = App(name="Restarter", binary="echo", args=["Restarter app ran succesfully"],)
+    app = App(
+        name="Restarter", binary="echo", args=["Restarter app ran succesfully"]
+    )
 
     app.start()
     app.restart()
 
-    search_path, app_name = app.app_path.rsplit('/', 1)
-    new_app_path = app_name + '_'
+    search_path, app_name = app.app_path.rsplit("/", 1)
+    new_app_path = app_name + "_"
     does_exist_new_app_path = False
 
     for item in os.listdir(search_path):
