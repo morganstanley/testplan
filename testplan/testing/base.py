@@ -539,9 +539,10 @@ class ProcessRunnerTest(Test):
         cmd = self._test_command()
 
         if self.cfg.pre_args:
-            return self.cfg.pre_args + cmd
+            cmd = self.cfg.pre_args + cmd
         if self.cfg.post_args:
-            return cmd + self.cfg.post_args
+            cmd = cmd + self.cfg.post_args
+        return cmd
 
     def _test_command(self):
         """
