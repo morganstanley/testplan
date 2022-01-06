@@ -1084,11 +1084,21 @@ class Resource(Entity):
         method.
         """
 
+        if self._aborted:
+            self.logger.debug("%r already aborted, skip stopping", self)
+            return
+
+        if self.status.tag in (self.STATUS.STOPPING, self.STATUS.STOPPED):
+            self.logger.debug(
+                "stop() has been called on %r, skip stopping", self
+            )
+            return
+
         self.logger.debug("Stopping %r", self)
+
         self.status.change(self.STATUS.STOPPING)
         self.pre_stop()
-        if self.active:
-            self.stopping()
+        self.stopping()
 
         if not self.cfg.async_start:
             self.wait(self.STATUS.STOPPED)

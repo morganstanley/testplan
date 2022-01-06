@@ -150,7 +150,8 @@ class ProcessWorker(Worker):
 
     def stopping(self):
         """Stop child process worker."""
-        if self._handler:
+
+        if hasattr(self, "_handler") and self._handler:
             kill_process(self._handler)
             self._handler.wait()
         self.status.change(self.STATUS.STOPPED)
@@ -158,10 +159,7 @@ class ProcessWorker(Worker):
     def aborting(self):
         """Process worker abort logic."""
         self._transport.disconnect()
-        if hasattr(self, "_handler") and self._handler:
-            kill_process(self._handler)
-            self._handler.wait()
-            self._handler = None
+        self.stop()
 
 
 class ProcessPoolConfig(PoolConfig):
