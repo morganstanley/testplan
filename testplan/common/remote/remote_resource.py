@@ -532,10 +532,10 @@ class RemoteResource(Entity):
         """Fetch back to local host the results generated remotely."""
         if not self.cfg.fetch_runpath:
             self.logger.debug(
-                "Skip fetch results stage - %s", self.cfg.remote_host
+                "Skip fetch results stage - %s", self.ssh_cfg["host"]
             )
             return
-        self.logger.debug("Fetch results stage - %s", self.cfg.remote_host)
+        self.logger.debug("Fetch results stage - %s", self.ssh_cfg["host"])
         try:
             self._transfer_data(
                 source=self._remote_resource_runpath,
@@ -553,7 +553,7 @@ class RemoteResource(Entity):
     def _clean_remote(self):
         if self.cfg.clean_remote:
             self.logger.debug(
-                "Clean root runpath on remote host - %s", self.cfg.remote_host
+                "Clean root runpath on remote host - %s", self.ssh_cfg["host"]
             )
 
             self._execute_cmd_remote(
@@ -625,7 +625,7 @@ class RemoteResource(Entity):
         suitable for use in a copy command such as `scp`.
         """
         return "{user}@{host}:{path}".format(
-            user=self._user, host=self.cfg.remote_host, path=path
+            user=self._user, host=self.ssh_cfg["host"], path=path
         )
 
     def _transfer_data(
