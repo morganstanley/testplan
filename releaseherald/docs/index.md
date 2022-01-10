@@ -8,7 +8,7 @@ developers is to collect meaningful news fragments in a directory, and apply con
 
 ## Philosophy
 
-We very much agree [towncrier's philosophy](https://github.com/twisted/towncrier#Philosophy):
+We very much agree with [towncrier's philosophy](https://github.com/twisted/towncrier#Philosophy):
 that release notes should be convenient to read. But still release notes should be easy to work with. And that is where
 `towncrier's` news fragments shines. Ideally every pull request should come with an update of the release notes, if this
 is a single file then one always run into merge conflicts, if each pr has its own news fragments, then this is easily
@@ -23,7 +23,7 @@ environments. `releaseherald` try to be less opinionated yet easy to extend. We 
 
 `releaseherald` is a command line tool it needs python 3.7+ to run. It needs a config file in the root of the git repo
 it should be called `releaseherald.toml`. If it is used in a python project it can read it's configuration
-from `pyproject.toml` from `[tool.releaseherald]`. It is possible to start without any configuration, then one need to
+from `pyproject.toml` from `[tool.releaseherald]`. It is possible to start without any configuration, then one needs to
 create a `news_fragment` directory in the root of the git repo and a `news.rst` file which should contain a news file
 something like this:
 
@@ -54,6 +54,6 @@ Release Notes
 ```
 
 This tool try not to have many opinions, so all the above defaults can be tweaked through configuration or command line.
-New fragments not need to be removed between releases, no need to commit the generated release notes either,
+New fragments do not need to be removed between releases, no need to commit the generated release notes either,
 as `releaseherald`
 works that out from git history, though if that fits better to the workflow it can be done.
