@@ -27,7 +27,7 @@ will be used as the version number, if no souch group then the whole label will 
 
 ### `news_file`
 
-: Path of the base news file. This is the file that will be extended wit the news for versions that `releaseherald`
+: Path of the base news file. This is the file that will be extended with the news for versions that `releaseherald`
 generate. It must have an [`insert_marker`](#insert_marker) which is the point where the news will be inserted. The
 other parts of the file is not tuched, so it can have a proper header, or even some old frozen version news.  
 **_Default:_** `news.rst`
