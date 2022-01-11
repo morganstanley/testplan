@@ -142,7 +142,9 @@ class CommitInfo:
         )
 
 
-def get_commits(repo: Repo, tags, include_head, include_root) -> List[CommitInfo]:
+def get_commits(
+    repo: Repo, tags, include_head, include_root
+) -> List[CommitInfo]:
     commits = [CommitInfo(tag=tag, commit=tag.commit) for tag in tags]
     if include_head and (
         not commits or (commits and repo.head.commit != commits[0].commit)
@@ -194,7 +196,9 @@ def get_submodule_news(
 
         commits = [submodule_to, *tag_commits, submodule_from]
 
-        snews = SubmoduleNews(name=submodule.name, display_name=submodule.display_name)
+        snews = SubmoduleNews(
+            name=submodule.name, display_name=submodule.display_name
+        )
 
         for c_to, c_from in pairwise(commits):
             snews.news.extend(
@@ -222,7 +226,9 @@ def collect_news_fragments(
         tags = list(takewhile(lambda tag: tag != last_tag, tags))
         tags.append(last_tag)
 
-    commits = get_commits(repo, tags, include_unreleased, include_root=not last_tag)
+    commits = get_commits(
+        repo, tags, include_unreleased, include_root=not last_tag
+    )
 
     result = [
         VersionNews(
