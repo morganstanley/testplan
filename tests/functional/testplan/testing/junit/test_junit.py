@@ -132,3 +132,53 @@ def test_run_test(mockplan):
     assert len(mt_report.entries) == 3
 
     check_report(expect_report, mt_report)
+
+
+def test_custom_args():
+    pre_cmd = ["echo", '"Hi"']
+    post_cmd = ["echo", '"Bye"']
+    pre_cmds = pre_cmd + ["echo", "it's a pre arg"]
+    post_cmds = post_cmd + ["echo", "it's a post arg"]
+
+    default_runner = junit.JUnit(
+        name="My Junit", binary=JUNIT_FAKE_BIN, results_dir=REPORT_PATH
+    )
+
+    assert default_runner.test_command() == default_runner._test_command()
+    assert not default_runner.list_command()
+
+    basic_runner = junit.JUnit(
+        name="My Junit",
+        binary=JUNIT_FAKE_BIN,
+        results_dir=REPORT_PATH,
+        pre_args=pre_cmd,
+        post_args=post_cmd,
+    )
+
+    assert (
+        basic_runner.test_command()[0:2]
+        == basic_runner.cfg._options["pre_args"]
+    )
+    assert (
+        basic_runner.test_command()[-2:]
+        == basic_runner.cfg._options["post_args"]
+    )
+    assert not basic_runner.list_command()
+
+    extra_runner = junit.JUnit(
+        name="My Junit",
+        binary=JUNIT_FAKE_BIN,
+        results_dir=REPORT_PATH,
+        pre_args=pre_cmds,
+        post_args=post_cmds,
+    )
+
+    assert (
+        extra_runner.test_command()[0:4]
+        == extra_runner.cfg._options["pre_args"]
+    )
+    assert (
+        extra_runner.test_command()[-4:]
+        == extra_runner.cfg._options["post_args"]
+    )
+    assert not extra_runner.list_command()

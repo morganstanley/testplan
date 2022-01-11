@@ -560,10 +560,11 @@ class ProcessRunnerTest(Test):
         :rtype:  ``list`` of ``str`` or ``NoneType``
         """
         cmd = self._list_command()
-        if self.cfg.pre_args:
-            cmd = self.cfg.pre_args + cmd
-        if self.cfg.post_args:
-            cmd = cmd + self.cfg.post_args
+        if cmd:
+            if self.cfg.pre_args:
+                cmd = self.cfg.pre_args + cmd
+            if self.cfg.post_args:
+                cmd = cmd + self.cfg.post_args
         return cmd
 
     def _list_command(self):
