@@ -681,3 +681,28 @@ class TestResultBaseNamespace(object):
             "subdir/3.txt",
             "subdir/4.txt",
         ]
+
+    def test_bool(self):
+        result = result_mod.Result()
+        assert result
+        assert len(result) == 0
+        assert result.passed
+
+        first = result.subresult()
+        second = result.subresult()
+
+        first.true(True, "AssertionFirst")
+        second.true(True, "AssertionSecond")
+
+        result.append(first)
+        result.append(second)
+
+        assert len(result) == 2
+        assert result.passed
+
+        third = result.subresult()
+        third.true(False, "AssertionThird")
+        result.append(third)
+
+        assert len(result) == 3
+        assert not result.passed

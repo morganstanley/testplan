@@ -956,8 +956,9 @@ class TestRunner(Runnable):
                 report_urls.append(exporter.report_url)
             if getattr(exporter, "_web_server_thread", None):
                 # Give priority to open report from local server
-                webbrowser.open(exporter.report_url)
-                report_opened = True
+                if self.cfg.browse:
+                    webbrowser.open(exporter.report_url)
+                    report_opened = True
                 # Stuck here waiting for web server to terminate
                 self._web_server_thread = exporter._web_server_thread
                 self._web_server_thread.join()

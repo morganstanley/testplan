@@ -43,8 +43,12 @@ class Context:
 
 
 @click.group()
-@click.option("--git-dir", default="./")
-@click.option("--config", type=click.File())
+@click.option("--git-dir", default="./", help="Path to the git repo to use.")
+@click.option(
+    "--config",
+    type=click.File(),
+    help="Path to the config file, if not provided releaseherald.toml or pyproject.toml usde from git repo root.",
+)
 @click.pass_context
 def cli(ctx: click.Context, git_dir, config):
     repo = Repo(path=git_dir, search_parent_directories=True)
@@ -54,7 +58,9 @@ def cli(ctx: click.Context, git_dir, config):
         config, config_key = get_config(repo.working_dir)
 
     configuration = (
-        load_config(config, config_key) if config else Configuration()
+        load_config(config, config_key)
+        if config
+        else Configuration(config_path=repo.working_dir)
     )
 
     ctx.default_map = configuration.as_default_options()
@@ -136,9 +142,7 @@ class CommitInfo:
         )
 
 
-def get_commits(
-    repo: Repo, tags, include_head, include_root
-) -> List[CommitInfo]:
+def get_commits(repo: Repo, tags, include_head, include_root) -> List[CommitInfo]:
     commits = [CommitInfo(tag=tag, commit=tag.commit) for tag in tags]
     if include_head and (
         not commits or (commits and repo.head.commit != commits[0].commit)
@@ -190,9 +194,7 @@ def get_submodule_news(
 
         commits = [submodule_to, *tag_commits, submodule_from]
 
-        snews = SubmoduleNews(
-            name=submodule.name, display_name=submodule.display_name
-        )
+        snews = SubmoduleNews(name=submodule.name, display_name=submodule.display_name)
 
         for c_to, c_from in pairwise(commits):
             snews.news.extend(
@@ -220,9 +222,7 @@ def collect_news_fragments(
         tags = list(takewhile(lambda tag: tag != last_tag, tags))
         tags.append(last_tag)
 
-    commits = get_commits(
-        repo, tags, include_unreleased, include_root=not last_tag
-    )
+    commits = get_commits(repo, tags, include_unreleased, include_root=not last_tag)
 
     result = [
         VersionNews(
@@ -263,12 +263,25 @@ def update_news_file(news_str: str, news_file: str, insert_marker: Pattern):
 
 
 @cli.command()
-@click.option("--unreleased/--released", is_flag=True)
-@click.option("--update/--no-update", is_flag=True)
-@click.option("--latest/--all", is_flag=True)
+@click.option(
+    "--unreleased/--released",
+    is_flag=True,
+    help="Flag to set if the chsnges from the last version label should be included or not",
+)
+@click.option(
+    "--update/--no-update",
+    is_flag=True,
+    help="Flag to set if the nes should be renderd into the news file (--update), or just presented in it's own",
+)
+@click.option(
+    "--latest/--all",
+    is_flag=True,
+    help="Flag to set if all the versions need to be presented or just the lates",
+)
 @click.option(
     "--target",
     "-t",
+    help="Path of target file, if present the generated result is written to target, else to stdout",
 )
 @click.pass_context
 def generate(

@@ -76,12 +76,25 @@ class SimpleSuite(object):
         pass
 
 
-def multitest_kills_worker(parent_pid):
+def multitest_kill_workers(parent_pid):
     """To kill all child workers."""
     if os.getpid() != parent_pid:  # Main process should not be killed
         os.kill(os.getpid(), 9)
     else:
         return MultiTest(name="MTestKiller", suites=[SimpleSuite()])
+
+
+@testsuite
+class SuiteKillRemoteWorker:
+    @testcase
+    def kill_remote_worker(self, env, result):
+        os.kill(os.getpid(), 9)
+
+
+def multitest_kill_remote_workers():
+    return MultiTest(
+        name="MTestKillRemoteWorker", suites=[SuiteKillRemoteWorker()]
+    )
 
 
 def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):
