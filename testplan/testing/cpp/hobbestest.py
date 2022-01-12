@@ -75,7 +75,7 @@ class HobbesTest(ProcessRunnerTest):
         options["proc_cwd"] = os.path.dirname(options["binary"])
         super(HobbesTest, self).__init__(**options)
 
-    def test_command(self):
+    def _test_command(self):
         cmd = [self.cfg.binary] + ["--json", self.report_path]
         if self.cfg.tests:
             cmd.append("--tests")
@@ -83,7 +83,7 @@ class HobbesTest(ProcessRunnerTest):
         cmd += self.cfg.other_args
         return cmd
 
-    def list_command(self):
+    def _list_command(self):
         cmd = [self.cfg.binary, "--list"]
         return cmd
 

@@ -437,6 +437,8 @@ class ProcessRunnerTestConfig(TestConfig):
                 None, float, int, Use(parse_duration)
             ),
             ConfigOption("ignore_exit_codes", default=[]): [int],
+            ConfigOption("pre_args", default=[]): list,
+            ConfigOption("post_args", default=[]): list,
         }
 
 
@@ -472,6 +474,12 @@ class ProcessRunnerTest(Test):
                     This can be disabled by providing a list of
                     numbers to ignore.
     :type ignore_exit_codes: ``list`` of ``int``
+    :param pre_args: List of arguments to be prepended before the
+        arguments of the test runnable.
+    :type pre_args: ``list`` of ``str``
+    :param post_args: List of arguments to be appended before the
+        arguments of the test runnable.
+    :type post_args: ``list`` of ``str``
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -524,6 +532,20 @@ class ProcessRunnerTest(Test):
 
     def test_command(self):
         """
+        Add custom arguments before and after the executable if they are defined.
+        :return: List of commands to run before and after the test process, as well as the test executable itself.
+        :rtype:  ``list`` of ``str``
+        """
+        cmd = self._test_command()
+
+        if self.cfg.pre_args:
+            cmd = self.cfg.pre_args + cmd
+        if self.cfg.post_args:
+            cmd = cmd + self.cfg.post_args
+        return cmd
+
+    def _test_command(self):
+        """
         Override this to add extra options to the test command.
 
         :return: Command to run test process
@@ -533,13 +555,27 @@ class ProcessRunnerTest(Test):
 
     def list_command(self):
         """
+        List custom arguments before and after the executable if they are defined.
+        :return: List of commands to run before and after the test process, as well as the test executable itself.
+        :rtype:  ``list`` of ``str`` or ``NoneType``
+        """
+        cmd = self._list_command()
+        if cmd:
+            if self.cfg.pre_args:
+                cmd = self.cfg.pre_args + cmd
+            if self.cfg.post_args:
+                cmd = cmd + self.cfg.post_args
+        return cmd
+
+    def _list_command(self):
+        """
         Override this to generate the shell command that will cause the
         testing framework to list the tests available on stdout.
 
         :return: Command to list tests
         :rtype: ``list`` of ``str`` or ``NoneType``
         """
-        return None
+        return []
 
     def get_test_context(self, list_cmd=None):
         """
@@ -552,7 +588,7 @@ class ProcessRunnerTest(Test):
         :rtype: ``list`` of ``list``
         """
         cmd = list_cmd or self.list_command()
-        if cmd is None:
+        if not cmd:
             return [(self._DEFAULT_SUITE_NAME, ())]
 
         proc = subprocess_popen(

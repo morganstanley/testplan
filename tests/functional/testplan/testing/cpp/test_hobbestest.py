@@ -92,3 +92,81 @@ def test_hobbestest_listing(binary_dir, expected_output):
             print(log_capture.output)
             assert log_capture.output == expected_output
             assert len(result.test_report) == 0, "No tests should be run."
+
+
+def test_hobbestest_custom_args():
+    pre_cmd = ["echo", '"Hi"']
+    post_cmd = ["echo", '"Bye"']
+    pre_cmds = pre_cmd + ["echo", "it's a pre arg"]
+    post_cmds = post_cmd + ["echo", "it's a post arg"]
+
+    binary_path = os.path.join(
+        "..",
+        "..",
+        "..",
+        "..",
+        "..",
+        "examples",
+        "Cpp",
+        "HobbesTest",
+        "test",
+        "hobbes-test",
+    )
+
+    default_runner = HobbesTest(
+        name="Default HobbesTest test", binary=binary_path
+    )
+    default_runner.run()
+
+    assert default_runner.test_command() == default_runner._test_command()
+    assert default_runner.list_command() == default_runner._list_command()
+
+    basic_runner = HobbesTest(
+        name="HobbesTest test with one pre and one post arg",
+        binary=binary_path,
+        pre_args=pre_cmd,
+        post_args=post_cmd,
+    )
+    basic_runner.run()
+
+    assert (
+        basic_runner.test_command()[0:2]
+        == basic_runner.cfg._options["pre_args"]
+    )
+    assert (
+        basic_runner.test_command()[-2:]
+        == basic_runner.cfg._options["post_args"]
+    )
+    assert (
+        basic_runner.list_command()[0:2]
+        == basic_runner.cfg._options["pre_args"]
+    )
+    assert (
+        basic_runner.list_command()[-2:]
+        == basic_runner.cfg._options["post_args"]
+    )
+
+    extra_runner = HobbesTest(
+        name="HobbesTest test with pre args and post args",
+        binary=binary_path,
+        pre_args=pre_cmds,
+        post_args=post_cmds,
+    )
+    extra_runner.run()
+
+    assert (
+        extra_runner.test_command()[0:4]
+        == extra_runner.cfg._options["pre_args"]
+    )
+    assert (
+        extra_runner.test_command()[-4:]
+        == extra_runner.cfg._options["post_args"]
+    )
+    assert (
+        extra_runner.list_command()[0:4]
+        == extra_runner.cfg._options["pre_args"]
+    )
+    assert (
+        extra_runner.list_command()[-4:]
+        == extra_runner.cfg._options["post_args"]
+    )
