@@ -5,7 +5,6 @@ for `dict` serialization and JSON conversion.
 
 import os
 import json
-import copy
 import pathlib
 import hashlib
 

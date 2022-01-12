@@ -832,7 +832,10 @@ class TestCaseReport(Report):
         """
         Shortcut for checking if report status should be considered failed.
         """
-        return Status.STATUS_CATEGORY[self.status] == Status.FAILED
+        return Status.STATUS_CATEGORY[self.status] in (
+            Status.FAILED,
+            Status.ERROR,
+        )
 
     @property
     def unstable(self):

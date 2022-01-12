@@ -3,12 +3,11 @@ from typing import List
 from lxml import objectify
 from lxml.objectify import Element
 
-from testplan.importers import ImportedResult, ResultImporter
+from testplan.importers import ImportedResult
 from testplan.importers.base import T, ThreePhaseFileImporter
 from testplan.importers.suitesresults import SuitesResult
 from testplan.report import (
     TestGroupReport,
-    TestReport,
     ReportCategories,
     TestCaseReport,
     RuntimeStatus,

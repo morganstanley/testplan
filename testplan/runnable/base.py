@@ -325,7 +325,7 @@ class TestRunner(Runnable):
     def exporters(self):
         """
         Return a list of
-        :py:class:`Resources <testplan.exporters.testing.base.Exporter>`.
+        :py:class:`report exporters <testplan.exporters.testing.base.Exporter>`.
         """
         if self._exporters is None:
             self._exporters = self.get_default_exporters()
@@ -405,14 +405,26 @@ class TestRunner(Runnable):
             resource, uid=uid or getattr(resource, "uid", strings.uuid4)()
         )
 
+    def add_exporters(self, exporters):
+        """
+        Add a list of
+        :py:class:`report exporters <testplan.exporters.testing.base.Exporter>`
+        for outputting test report.
+
+        :param exporters: Test exporters to be added.
+        :type exporters: ``list`` of :py:class:`~testplan.runners.base.Executor`
+        """
+        self.cfg.exporters.extend(get_exporters(exporters))
+
     def add_remote_service(self, remote_service):
         """
         Adds a remote service
         :py:class:`~testplan.common.remote.remote_service.RemoteService`
         object to test runner.
+
         :param remote_service: RemoteService object
-        :param uid:
-        :return:
+        :param remote_service:
+            :py:class:`~testplan.common.remote.remote_service.RemoteService`
         """
         name = remote_service.cfg.name
         if name in self.remote_services:
