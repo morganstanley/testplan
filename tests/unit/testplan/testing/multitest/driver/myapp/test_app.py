@@ -312,10 +312,14 @@ def test_stdin(runpath):
     assert stdout == "Repeat me\n"
 
 
-def test_restart():
+def test_restart(runpath):
     """Test restart of an App"""
     app = App(
-        name="Restarter", binary="echo", args=["Restarter app ran succesfully"]
+        name="Restarter",
+        binary="echo",
+        args=["Restarter app ran succesfully"],
+        shell=True,
+        runpath=runpath,
     )
 
     app.start()
@@ -345,6 +349,7 @@ def test_restart():
 
         if does_exist_new_stdout and does_exist_new_stderr:
             break
+
     assert does_exist_new_stdout and does_exist_new_stderr
 
 
