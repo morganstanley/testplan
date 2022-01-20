@@ -133,7 +133,7 @@ function prepareNotEqualContent(assertion, defaultContent) {
   leftContent = _.isNil(assertion.second) ? "" : String(assertion.second);
   rightContent = _.isNil(assertion.first) ? "" : String(assertion.first);
 
-  const prefix = <span>&lt;not&gt; </span>
+  const prefix = <span>&lt;not&gt; </span>;
 
   return {
     ...defaultContent,
