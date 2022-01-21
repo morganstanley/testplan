@@ -6,6 +6,8 @@ import sys
 import json
 import platform
 import tempfile
+from pathlib import Path
+
 import pytest
 
 from testplan.common.utils.timing import wait
@@ -312,40 +314,30 @@ def test_stdin(runpath):
     assert stdout == "Repeat me\n"
 
 
-def test_restart():
+def test_restart(runpath):
     """Test restart of an App"""
     app = App(
-        name="Restarter", binary="echo", args=["Restarter app ran succesfully"]
+        name="Restarter",
+        binary="echo",
+        args=["Restarter app ran succesfully"],
+        shell=True,
+        runpath=runpath,
     )
 
-    app.start()
-    app.restart()
+    with app:
+        app.restart()
 
-    search_path, app_name = app.app_path.rsplit("/", 1)
-    new_app_path = app_name + "_"
-    does_exist_new_app_path = False
+        app_path = Path(app.app_path)
+        app_dir_name = app_path.name
 
-    for item in os.listdir(search_path):
-        if item.startswith(new_app_path):
-            does_exist_new_app_path = True
-            break
+        # we have the moved app_path
+        assert list(app_path.parent.glob(f"{app_dir_name}_*"))
 
-    assert does_exist_new_app_path
+        app.restart(clean=False)
 
-    app.restart(clean=False)
-
-    does_exist_new_stdout = False
-    does_exist_new_stderr = False
-
-    for item in os.listdir(app.app_path):
-        if item.startswith("stdout_"):
-            does_exist_new_stdout = True
-        elif item.startswith("stderr_"):
-            does_exist_new_stderr = True
-
-        if does_exist_new_stdout and does_exist_new_stderr:
-            break
-    assert does_exist_new_stdout and does_exist_new_stderr
+        # we have the moved files in app_path
+        assert list(app_path.glob("stdout_*"))
+        assert list(app_path.glob("stderr_*"))
 
 
 def run_app(cwd, runpath):

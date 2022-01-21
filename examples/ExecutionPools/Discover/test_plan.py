@@ -39,9 +39,7 @@ def main(plan):
     # to MyPool.
 
     plan.schedule_all(
-        path=".",
-        name_pattern=r".*tasks\.py$",
-        resource="MyPool",
+        path=".", name_pattern=r".*tasks\.py$", resource="MyPool"
     )
 
 
