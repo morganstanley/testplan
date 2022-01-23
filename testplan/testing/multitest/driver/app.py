@@ -45,6 +45,7 @@ class AppConfig(DriverConfig):
             ConfigOption("logname", default=None): Or(None, str),
             ConfigOption("app_dir_name", default=None): Or(None, str),
             ConfigOption("working_dir", default=None): Or(None, str),
+            ConfigOption("expected_retcode", default=None): int,
         }
 
 
@@ -78,6 +79,10 @@ class App(Driver):
     :type app_dir_name: ``str`` or ``NoneType``
     :param working_dir: Application working directory. Default: runpath
     :type working_dir: ``str`` or ``NoneType``
+    :param expected_retcode: the expected return code of the subprocess.
+        Default value is None meaning it won't be checked. Set it to 0 to
+        ennsure the driver is always gracefully shut down.
+    :type expected_retcode: ``Optional[int]``
 
     Also inherits all
     :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
@@ -97,6 +102,7 @@ class App(Driver):
         logname=None,
         app_dir_name=None,
         working_dir=None,
+        expected_retcode=None,
         **options,
     ):
         options.update(self.filter_locals(locals()))
@@ -333,6 +339,16 @@ class App(Driver):
         if self.std:
             self.std.close()
         self._log_matcher = None
+
+        if (self.cfg.expected_retcode is not None) and (
+            self.cfg.expected_retcode != self.retcode
+        ):
+            err_msg = (
+                f"App drier error: {self.name},"
+                f" expected return cde is {self.cfg.expected_retcode},"
+                f" but actual return code is {self.retcode}"
+            )
+            raise RuntimeError(err_msg)
 
     def _make_dirs(self):
         bin_dir = os.path.join(self.runpath, "bin")

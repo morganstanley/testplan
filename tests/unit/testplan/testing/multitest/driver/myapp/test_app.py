@@ -30,6 +30,19 @@ class ProcWaitApp(App):
         wait(lambda: self.proc is None, 10, raise_on_timeout=True)
 
 
+def test_app_unexpected_retcode(runpath):
+    app = App(
+        name="App",
+        binary="echo",
+        shell=True,
+        runpath=runpath,
+        expected_retcode=1,
+    )
+    with pytest.raises(RuntimeError):
+        with app:
+            pass
+
+
 def test_app_cmd(runpath):
     """Test the app command is constructed correctly."""
     app = App(name="App", binary="binary", runpath=runpath)
