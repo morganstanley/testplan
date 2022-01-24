@@ -162,6 +162,7 @@ class WebServer(Thread):
 
     def stop(self):
         self.server.stop()
+        self.server = None
 
 
 if __name__ == "__main__":

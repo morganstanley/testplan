@@ -12,7 +12,7 @@ import traceback
 from collections import deque, OrderedDict
 
 import psutil
-from schema import Or, And, Use
+from schema import Or
 
 from testplan.common.config import Config, ConfigOption
 from testplan.common.utils.thread import execute_as_thread, interruptible_join
