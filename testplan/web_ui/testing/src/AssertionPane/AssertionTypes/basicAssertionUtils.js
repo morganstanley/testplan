@@ -127,13 +127,18 @@ function prepareEqualContent(assertion, defaultContent) {
  * @private
  */
 function prepareNotEqualContent(assertion, defaultContent) {
-  const leftContent = <span>
-    &lt;not&gt; {_.isNil(assertion.second) ? "" : String(assertion.second)}
-  </span>;
+  let leftContent;
+  let rightContent;
+
+  leftContent = _.isNil(assertion.second) ? "" : String(assertion.second);
+  rightContent = _.isNil(assertion.first) ? "" : String(assertion.first);
+
+  const prefix = <span>&lt;not&gt; </span>;
 
   return {
     ...defaultContent,
-    leftContent: leftContent,
+    leftContent: <pre>{prefix}{leftContent}</pre>,
+    rightContent: <pre>{rightContent}</pre>,
   };
 }
 
