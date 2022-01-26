@@ -151,8 +151,8 @@ class BatchReport extends React.Component {
           } else {
             axios
               .get('/api/v1/metadata/fix-spec/tags')
-              .then((response) => {
-                defaultFixSpec.tags = response.data || {};
+              .then((resp) => {
+                defaultFixSpec.tags = resp.data || {};
                 this.setReport(this.updateReportUID(rawReport, uid));
               })
               .catch(this.setError);

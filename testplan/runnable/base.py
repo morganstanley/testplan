@@ -961,17 +961,22 @@ class TestRunner(Runnable):
         report_opened = False
 
         for result in self._result.exporter_results:
-            exporter = result.exporter
-            if getattr(exporter, "report_url", None) and self.cfg.browse:
-                report_urls.append(exporter.report_url)
-            if getattr(exporter, "_web_server_thread", None):
-                # Give priority to open report from local server
-                if self.cfg.browse:
-                    webbrowser.open(exporter.report_url)
-                    report_opened = True
-                # Stuck here waiting for web server to terminate
-                self._web_server_thread = exporter._web_server_thread
-                self._web_server_thread.join()
+            report_url = getattr(result.exporter, "report_url", None)
+            if report_url:
+                report_urls.append(report_url)
+                web_server_thread = getattr(
+                    result.exporter, "web_server_thread", None
+                )
+                if web_server_thread:
+                    # Keep an eye on this thread from `WebServerExporter`
+                    # which will be stopped on Testplan abort
+                    self._web_server_thread = web_server_thread
+                    # Give priority to open report from local server
+                    if self.cfg.browse and not report_opened:
+                        webbrowser.open(report_url)
+                        report_opened = True
+                    # Stuck here waiting for web server to terminate
+                    web_server_thread.join()
 
         if self.cfg.browse and not report_opened:
             if len(report_urls) > 0:

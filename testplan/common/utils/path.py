@@ -120,6 +120,21 @@ def makeemptydirs(path):
     makedirs(path)
 
 
+def removeemptydir(path):
+    """
+    Remove a directory if it does exist and is empty.
+
+    :param path: Path to be created.
+    :type path: ``str``
+    """
+    try:
+        os.rmdir(path)
+    except FileNotFoundError:
+        pass  # directory does not exist
+    except OSError:
+        pass  # not a directory or not empty
+
+
 class StdFiles(object):
     """
     stderr and stdout file creation and management
