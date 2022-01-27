@@ -33,14 +33,14 @@ class ProcWaitApp(App):
 def test_app_unexpected_retcode(runpath):
     app = App(
         name="App",
-        binary="echo",
-        shell=True,
-        runpath=runpath,
+        binary=sys.executable,
+        args=["-c", "import sys; sys.exit(0)"],
         expected_retcode=1,
+        runpath=runpath,
     )
     with pytest.raises(RuntimeError):
         with app:
-            pass
+            app.proc.wait()
 
 
 def test_app_cmd(runpath):
