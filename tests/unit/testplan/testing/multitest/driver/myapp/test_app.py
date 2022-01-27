@@ -30,12 +30,13 @@ class ProcWaitApp(App):
         wait(lambda: self.proc is None, 10, raise_on_timeout=True)
 
 
-def test_app_unexpected_retcode():
+def test_app_unexpected_retcode(runpath):
     app = App(
         name="App",
         binary=sys.executable,
         args=["-c", "import sys; sys.exit(0)"],
         expected_retcode=1,
+        runpath=runpath,
     )
     with pytest.raises(RuntimeError):
         with app:
