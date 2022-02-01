@@ -146,7 +146,7 @@ class Driver(Resource):
     ):
 
         options.update(self.filter_locals(locals()))
-        if timeout:
+        if timeout is None:
             options.setdefault("status_wait_timeout", timeout)
         super(Driver, self).__init__(**options)
         self.extracts = {}
@@ -186,9 +186,10 @@ class Driver(Resource):
 
     def started_check(self, timeout=None):
         """Driver started status condition check."""
+        timeout = timeout if timeout is not None else self.cfg.timeout
         wait(
             lambda: self.extract_values(),
-            timeout or self.cfg.timeout,
+            timeout,
             raise_on_timeout=True,
         )
 
