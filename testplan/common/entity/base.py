@@ -97,9 +97,7 @@ class Environment:
             return initial_context[name]
 
         raise AttributeError(
-            "'{}' object has no attribute '{}'".format(
-                self.__class__.__name__, name
-            )
+            f'"{self.__class__.__name__}" object has no attribute "{name}"'
         )
 
     def __setattr__(self, name, value):
@@ -107,11 +105,11 @@ class Environment:
             self.__dict__[name] = value
         elif name in self.__getattribute__("_resources"):
             raise RuntimeError(
-                'Cannot modify resource "{}" in environment.'.format(name)
+                f'Cannot modify resource "{name}" in environment.'
             )
         elif name in self.__getattribute__("_initial_context"):
             raise RuntimeError(
-                'Cannot modify attribute "{}" in initial context.'.format(name)
+                f'Cannot modify attribute "{name}" in initial context.'
             )
         else:
             super(Environment, self).__setattr__(name, value)
@@ -134,7 +132,7 @@ class Environment:
         initial = {key: val for key, val in self._initial_context.items()}
         res = {key: val for key, val in self._resources.items()}
         initial.update(res)
-        return "{}[{}]".format(self.__class__.__name__, initial)
+        return f"{self.__class__.__name__}[{initial}]"
 
     def __len__(self):
         return len(self._resources)
@@ -180,7 +178,7 @@ class Environment:
                 continue
             else:
                 resource.wait(resource.STATUS.STARTED)
-                resource.logger.debug("Started %r", resource)
+                resource.logger.debug(f"Started {resource}")
                 resource.post_start()
 
     def _log_exception(self, resource, func):
@@ -225,7 +223,7 @@ class Environment:
         # Wait resources status to be STARTED.
         for resource in self._resources.values():
             resource.wait(resource.STATUS.STARTED)
-            resource.logger.debug("Started %r", resource)
+            resource.logger.debug(f"Started {resource}")
             resource.post_start()
 
     def stop(self, is_reversed=False):
@@ -264,7 +262,7 @@ class Environment:
                 continue
             else:
                 resource.wait(resource.STATUS.STOPPED)
-                resource.logger.debug("Stopped %r", resource)
+                resource.logger.debug(f"Stopped {resource}")
                 resource.post_stop()
 
     def stop_in_pool(self, pool, is_reversed=False):
@@ -328,7 +326,9 @@ class EntityStatus:
     RESUMING = "RESUMING"
 
     def __init__(self):
-        """ """
+        """
+        TODO
+        """
         self._current = self.NONE
         self._metadata = OrderedDict()
         self._transitions = self.transitions()
@@ -342,7 +342,9 @@ class EntityStatus:
 
     @property
     def metadata(self):
-        """ """
+        """
+        TODO
+        """
         return self._metadata
 
     def change(self, new):
@@ -367,8 +369,8 @@ class EntityStatus:
         """
         Updates metadata.
 
-        :param metadata:
-        :type metadata:
+        :param metadata: additional metadata
+        :type metadata: ``OrderedDict``
         """
         self._metadata.update(metadata)
 
@@ -448,7 +450,7 @@ class Entity(logger.Loggable):
         self._aborted = False
 
     def __str__(self):
-        return "{}[{}]".format(self.__class__.__name__, self.uid())
+        return f"{self.__class__.__name__}[{self.uid()}]"
 
     @property
     def cfg(self):
@@ -508,14 +510,14 @@ class Entity(logger.Loggable):
 
     def pause(self):
         """
-        Pause entity execution.
+        Pauses entity execution.
         """
         self.status.change(self.STATUS.PAUSING)
         self.pausing()
 
     def resume(self):
         """
-        Resume entity execution.
+        Resumes entity execution.
         """
         self.status.change(self.STATUS.RESUMING)
         self.resuming()
@@ -535,7 +537,7 @@ class Entity(logger.Loggable):
 
     def abort_dependencies(self):
         """
-        Default empty generator.
+        Returns an empty generator.
         """
         return
         yield
@@ -544,10 +546,10 @@ class Entity(logger.Loggable):
         """
         Method to abort an entity and log exceptions.
 
-        :param entity:
-        :type entity:
-        :param wait_timeout:
-        :type wait_timeout:
+        :param entity: entity to abort
+        :type entity: :py:class:`Entity <testplan.common.entity.base.Entity>`
+        :param wait_timeout: timeout in seconds
+        :type wait_timeout: ``int`` or ``NoneType``
         """
         timeout = (
             wait_timeout
@@ -555,19 +557,15 @@ class Entity(logger.Loggable):
             else self.cfg.abort_wait_timeout
         )
         try:
-            self.logger.debug("Aborting {}".format(entity))
+            self.logger.debug(f"(Aborting {entity}")
             entity.abort()  # Here entity can be a function and will raise
-            self.logger.debug("Aborted {}".format(entity))
+            self.logger.debug(f"Aborted {entity}")
         except Exception as exc:
             self.logger.error(traceback.format_exc())
-            self.logger.error(
-                "Exception on aborting {} - {}".format(self, exc)
-            )
+            self.logger.error(f"Exception on aborting {self} - {exc}")
         else:
             if wait(lambda: entity.aborted is True, timeout) is False:
-                self.logger.error(
-                    "Timeout on waiting to abort {}.".format(self)
-                )
+                self.logger.error(f"Timeout on waiting to abort {self}.")
 
     def aborting(self):
         """
@@ -589,10 +587,10 @@ class Entity(logger.Loggable):
         """
         Wait until objects status becomes target status.
 
-        :param target_status:
-        :type target_status:
-        :param timeout:
-        :type timeout: ``
+        :param target_status: expected status
+        :type target_status: ``str``
+        :param timeout: timeout in seconds
+        :type timeout: ``int`` or ``NoneType``
         """
         timeout = (
             timeout if timeout is not None else self.cfg.status_wait_timeout
@@ -786,7 +784,6 @@ class Runnable(Entity):
 
     @property
     def interactive(self):
-        """ """
         return self._ihandler
 
     # Shortcut for interactive handler
@@ -810,7 +807,9 @@ class Runnable(Entity):
         return self.resources.add(resource, uid=uid or uuid4())
 
     def _add_step(self, step, *args, **kwargs):
-        """ """
+        """
+        Adds a step to the queue.
+        """
         self._steps.append((step, args, kwargs))
 
     def pre_step_call(self, step):
@@ -826,11 +825,15 @@ class Runnable(Entity):
         return False
 
     def post_step_call(self, step):
-        """Callable to be invoked before each step."""
+        """
+        Callable to be invoked before each step.
+        """
         pass
 
     def _run(self):
-        """ """
+        """
+        Runs the runnable object by executing a step.
+        """
         self.logger.debug(f"Running {self}")
         self.status.change(RunnableStatus.RUNNING)
         while self.active:
@@ -862,7 +865,9 @@ class Runnable(Entity):
             time.sleep(self.cfg.active_loop_sleep)
 
     def _run_batch_steps(self):
-        """ """
+        """
+        Runs the runnable object by executing a batch of steps.
+        """
         start_threads, start_procs = self._get_start_info()
 
         self._add_step(self.setup)
@@ -900,10 +905,10 @@ class Runnable(Entity):
         we have either gained or lost threads or processes during the run,
         which may indicate insufficient cleanup. Warnings will be logged.
 
-        :param start_threads:
-        :type start_threads:
-        :param start_procs:
-        :type start_procs:
+        :param start_threads: threads before run
+        :type start_threads: ``list`` of ``Thread``
+        :param start_procs: processes before run
+        :type start_procs: ``list`` of ``Process``
         """
         end_threads = threading.enumerate()
         if start_threads != end_threads:
@@ -935,7 +940,12 @@ class Runnable(Entity):
             )
 
     def _execute_step(self, step, *args, **kwargs):
-        """ """
+        """
+        Executes a particular step.
+
+        :param step: step to execute
+        :type step: ``Callable``
+        """
         try:
             res = step(*args, **kwargs)
         except Exception as exc:
@@ -984,13 +994,17 @@ class Runnable(Entity):
         pass
 
     def pausing(self):
-        """ """
+        """
+        Pauses the resource.
+        """
         for resource in self.resources:
             resource.pause()
         self.status.change(RunnableStatus.PAUSED)
 
     def resuming(self):
-        """ """
+        """
+        Resumes the resource.
+        """
         for resource in self.resources:
             resource.resume()
         self.status.change(RunnableStatus.RUNNING)
@@ -1262,19 +1276,19 @@ class Resource(Entity):
 
     def _wait_started(self, timeout=None):
         """
+        Changes status to STARTED, if possible.
 
-
-        :param timeout:
-        :type timeout:
+        :param timeout: timeout in seconds
+        :type timeout: ``int`` or ``NoneType``
         """
         self.status.change(self.STATUS.STARTED)
 
     def _wait_stopped(self, timeout=None):
         """
+        Changes status to STOPPED, if possible.
 
-
-        :param timeout:
-        :type timeout:
+        :param timeout: timeout in seconds
+        :type timeout: ``int`` or ``NoneType``
         """
         self.status.change(self.STATUS.STOPPED)
 
@@ -1406,14 +1420,13 @@ class RunnableManager(Entity):
 
     def _initialize_runnable(self, **options):
         """
+        Instantiates runnable object as per configuration options.
 
-
-        :param options:
-        :type options:
+        :param options: configuration to pass to constructor
+        :type options: ``Mapping``
         """
         runnable_class = self._cfg.runnable
-        runnable_config = dict(**options)
-        return runnable_class(**runnable_config)
+        return runnable_class(**options)
 
     def __getattr__(self, item):
         try:
