@@ -934,7 +934,7 @@ class TestRunnerIHandler(entity.Entity):
                     setattr(parent_entry, key, value)
 
     def _update_reports(self, items):
-        """"Merge test report or attributes of test reports from a test run."""
+        """ "Merge test report or attributes of test reports from a test run."""
         for item, parent_uids in items:
             if isinstance(item, Report):
                 self._merge_report(item, parent_uids)

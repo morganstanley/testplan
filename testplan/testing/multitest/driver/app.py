@@ -307,9 +307,7 @@ class App(Driver):
             raise
 
     def started_check(self, timeout=None):
-        """
-
-        """
+        """ """
         timeout = timeout if timeout is not None else self.cfg.timeout
 
         def ensure_app_running_while_extracting_values():
