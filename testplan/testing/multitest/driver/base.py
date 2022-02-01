@@ -146,7 +146,7 @@ class Driver(Resource):
     ):
 
         options.update(self.filter_locals(locals()))
-        if timeout is None:
+        if timeout is not None:
             options.setdefault("status_wait_timeout", timeout)
         super(Driver, self).__init__(**options)
         self.extracts = {}

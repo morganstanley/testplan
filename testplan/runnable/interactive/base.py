@@ -521,7 +521,7 @@ class TestRunnerIHandler(entity.Entity):
     def stop_environment(self, env_uid):
         """Stop the specified environment."""
         env = self.get_environment(env_uid)
-        env.stop(reversed=True)
+        env.stop(is_reversed=True)
         return {item.uid(): item.status.tag for item in env}
 
     def start_resource(self, resource):

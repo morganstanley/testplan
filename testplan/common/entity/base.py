@@ -235,7 +235,7 @@ class Environment:
         """
         resources = list(self._resources.values())
         if is_reversed is True:
-            resources = reversed(resources)
+            resources = resources[::-1]
 
         # Stop all resources
         for resource in resources:
@@ -276,7 +276,7 @@ class Environment:
         """
         resources = list(self._resources.values())
         if is_reversed is True:
-            resources = reversed(resources)
+            resources = resources[::-1]
 
         # Stop all resources
         for resource in resources:
