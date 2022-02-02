@@ -190,6 +190,7 @@ class ReportCategories(object):
     PYUNIT = "pyunit"
     UNITTEST = "unittest"
     QUNIT = "qunit"
+    JUNIT = "junit"
     ERROR = "error"
 
 
