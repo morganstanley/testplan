@@ -12,42 +12,49 @@ TESTPLAN_UI_DIR = os.path.abspath(
 )
 
 
-def yarn_installed():
-    """Check if npm has been installed."""
+def is_npm_available() -> bool:
+    """
+    Checks if NPM is available.
+    """
     with open(os.devnull, "w") as FNULL:
         try:
-            subprocess.check_call("yarn --version", shell=True, stdout=FNULL)
+            subprocess.check_call("npm --version", shell=True, stdout=FNULL)
         except subprocess.CalledProcessError:
             return False
         else:
             return True
 
 
-def tp_ui_installed():
-    """Check if the Testplan UI dependencies have been installed."""
+def tp_ui_installed() -> bool:
+    """
+    Checks if the Testplan UI dependencies are available.
+    """
     node_modules_dir = os.path.join(TESTPLAN_UI_DIR, "node_modules")
-    print(os.path.abspath(node_modules_dir))
     return os.path.exists(node_modules_dir)
 
 
 @pytest.mark.skipif(
-    not (yarn_installed() and tp_ui_installed()),
-    reason="requires npm & testplan UI to have been installed.",
+    not (is_npm_available() and tp_ui_installed()),
+    reason="Requires NPM & Testplan UI to be available.",
 )
 def test_testplan_ui():
-    """Run the Jest unit tests for the UI."""
+    """
+    Run the Jest unit tests for the UI.
+    """
     env = os.environ.copy()
     env["CI"] = "true"
     subprocess.check_call(
-        "yarn test", shell=True, cwd=TESTPLAN_UI_DIR, env=env
+        "npm run test", shell=True, cwd=TESTPLAN_UI_DIR, env=env
     )
 
 
 @skip_on_windows(reason="We run this on linux only")
 @pytest.mark.skipif(
-    not (yarn_installed() and tp_ui_installed()),
-    reason="requires yarn & testplan UI have been installed.",
+    not (is_npm_available() and tp_ui_installed()),
+    reason="Requires NPM & Testplan UI to be available.",
 )
 def test_eslint():
-    """Run eslint over the UI source code."""
-    subprocess.check_call("yarn lint", shell=True, cwd=TESTPLAN_UI_DIR)
+    """
+    Runs eslint over the UI source code.
+    """
+    subprocess.check_call("npm run lint", shell=True, cwd=TESTPLAN_UI_DIR)
