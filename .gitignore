@@ -35,6 +35,7 @@ Dockerfile
 /testplan/web_ui/testing/build
 !/testplan/web_ui/testing/package.json
 !/testplan/web_ui/testing/.eslintrc.json
+!/testplan/web_ui/testing/package-lock.json
 .DS_Store
 .env.local
 .env.development.local
