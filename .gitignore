@@ -44,7 +44,6 @@ testing/.env.production.local
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-yarn.lock
 Thumbs.db
 
 /doc/en/_build/
