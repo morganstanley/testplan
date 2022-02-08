@@ -14,8 +14,8 @@ runs:
       shell: bash
     - run: |
         cd testplan/web_ui/testing
-        yarn install
-        CI=false yarn build
+        npm install
+        CI=false npm run build
         cd -
       shell: bash  
     - run: python -m build -w
