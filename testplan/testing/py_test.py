@@ -1,10 +1,12 @@
-"""PyTest test runner."""
+"""
+PyTest test runner.
+"""
 import collections
 import copy
 import inspect
 import os
-import sys
 import re
+import sys
 import traceback
 
 import pytest
@@ -311,7 +313,7 @@ class PyTest(testing.Test):
         return pytest_args
 
 
-class _ReportPlugin(object):
+class _ReportPlugin:
     """
     Plugin object passed to PyTest. Contains hooks used to update the Testplan
     report with the status of testcases.
@@ -546,7 +548,7 @@ class _ReportPlugin(object):
             )
             details = (
                 "File: {}\nLine: {}\n{}: {}".format(
-                    trace.path.strpath,
+                    str(trace.path),
                     trace.lineno + 1,
                     call.excinfo.typename,
                     message,
@@ -621,7 +623,7 @@ class _ReportPlugin(object):
             self._report.append(suite_report)
 
 
-class _CollectPlugin(object):
+class _CollectPlugin:
     """
     PyTest plugin used when collecting tests. Provides access to the collected
     test suites and testcases via the `collected` property.
