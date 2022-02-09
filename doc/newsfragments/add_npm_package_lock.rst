@@ -1,0 +1,1 @@
+* Added NPM package-lock and updated dependencies of the UI.
