@@ -14,8 +14,9 @@ runs:
       shell: bash
     - run: |
         cd testplan/web_ui/testing
-        yarn install
-        CI=false yarn build
+        pnpm install
+        pnpm config set enable-pre-post-scripts true
+        CI=false pnpm build
         cd -
       shell: bash  
     - run: python -m build -w
