@@ -21,9 +21,7 @@ def is_manager_installed(command: str):
     with open(os.devnull, "w") as FNULL:
         try:
             subprocess.check_call(
-                f"{command} --version",
-                shell=True,
-                stdout=FNULL
+                f"{command} --version", shell=True, stdout=FNULL
             )
         except subprocess.CalledProcessError:
             return False
@@ -40,7 +38,7 @@ def tp_ui_installed():
 
 
 @pytest.mark.skipif(
-    not (is_manager_installed('pnpm') and tp_ui_installed()),
+    not (is_manager_installed("pnpm") and tp_ui_installed()),
     reason="requires PNPM & testplan UI to be installed.",
 )
 def test_testplan_ui():
@@ -56,7 +54,7 @@ def test_testplan_ui():
 
 @skip_on_windows(reason="We run this on linux only")
 @pytest.mark.skipif(
-    not (is_manager_installed('pnpm') and tp_ui_installed()),
+    not (is_manager_installed("pnpm") and tp_ui_installed()),
     reason="requires PNPM & testplan UI to be installed.",
 )
 def test_eslint():
