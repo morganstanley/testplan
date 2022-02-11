@@ -267,6 +267,8 @@ class RemoteResource(Entity):
     def _create_remote_dirs(self):
         """Create mandatory directories in remote host."""
 
+        symlink_only = self._check_workspace()
+
         if 0 != self._execute_cmd_remote(
             cmd=filepath_exist_cmd(self._remote_runid_file),
             label="runid file availability check",
@@ -288,7 +290,7 @@ class RemoteResource(Entity):
                 label="create remote runid file",
             )
 
-            self._copy_workspace()
+            self._prepare_workspace(symlink_only)
             self._copy_testplan_package()
 
         self._execute_cmd_remote(
@@ -339,11 +341,30 @@ class RemoteResource(Entity):
                 deref_links=True,
             )
 
-    def _copy_workspace(self):
-        """Make the local workspace available on remote host."""
+    def _check_workspace(self):
+        """
+        Check if workspace is available on remote host
+        :return: bool
+        """
 
         if self.cfg.remote_workspace:
             # User defined the remote workspace to be used
+            return True
+
+        if 0 == self._execute_cmd_remote(
+            cmd=filepath_exist_cmd(self._workspace_paths.local),
+            label="workspace availability check",
+            check=False,
+        ):
+            # local workspace accessible on remote
+            return True
+
+        return False
+
+    def _prepare_workspace(self, symlink_only):
+        """Make workspace available on remote host."""
+
+        if self.cfg.remote_workspace:
             # Make a soft link and return
             self._execute_cmd_remote(
                 cmd=link_cmd(
@@ -354,12 +375,7 @@ class RemoteResource(Entity):
             )
             return
 
-        if 0 == self._execute_cmd_remote(
-            cmd=filepath_exist_cmd(self._workspace_paths.local),
-            label="workspace availability check",
-            check=False,
-        ):
-            # exists on remote, make symlink
+        if symlink_only:
             self._execute_cmd_remote(
                 cmd=link_cmd(
                     path=self._workspace_paths.local,
