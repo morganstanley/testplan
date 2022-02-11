@@ -178,7 +178,7 @@ class Environment:
                 continue
             else:
                 resource.wait(resource.STATUS.STARTED)
-                resource.logger.debug(f"Started {resource}")
+                resource.logger.debug("Started %r", resource)
                 resource.post_start()
 
     def _log_exception(self, resource, func):
@@ -223,7 +223,7 @@ class Environment:
         # Wait resources status to be STARTED.
         for resource in self._resources.values():
             resource.wait(resource.STATUS.STARTED)
-            resource.logger.debug(f"Started {resource}")
+            resource.logger.debug("Started %r", resource)
             resource.post_start()
 
     def stop(self, is_reversed=False):
@@ -262,7 +262,7 @@ class Environment:
                 continue
             else:
                 resource.wait(resource.STATUS.STOPPED)
-                resource.logger.debug(f"Stopped {resource}")
+                resource.logger.debug("Stopped %r", resource)
                 resource.post_stop()
 
     def stop_in_pool(self, pool, is_reversed=False):
@@ -295,7 +295,7 @@ class Environment:
                 continue
             else:
                 resource.wait(resource.STATUS.STOPPED)
-                resource.logger.debug(f"Stopped {resource}")
+                resource.logger.debug("Stopped %r", resource)
                 resource.post_stop()
 
     def __enter__(self):
@@ -557,15 +557,15 @@ class Entity(logger.Loggable):
             else self.cfg.abort_wait_timeout
         )
         try:
-            self.logger.debug(f"(Aborting {entity}")
+            self.logger.debug("Aborting %r", entity)
             entity.abort()  # Here entity can be a function and will raise
-            self.logger.debug(f"Aborted {entity}")
+            self.logger.debug("Aborted %r", entity)
         except Exception as exc:
             self.logger.error(traceback.format_exc())
-            self.logger.error(f"Exception on aborting {self} - {exc}")
+            self.logger.error("Exception on aborting %s - %s", self, exc)
         else:
             if wait(lambda: entity.aborted is True, timeout) is False:
-                self.logger.error(f"Timeout on waiting to abort {self}.")
+                self.logger.error("Timeout on waiting to abort %s.", self)
 
     def aborting(self):
         """
@@ -637,7 +637,7 @@ class Entity(logger.Loggable):
         self._scratch = os.path.join(self._runpath, "scratch")
 
         self.logger.debug(
-            f"{self} has {self.runpath} runpath and pid {os.getpid()}"
+            "%s has %s runpath and pid %d", self, self.runpath, os.getpid()
         )
 
         if self.cfg.path_cleanup is False:
@@ -834,7 +834,7 @@ class Runnable(Entity):
         """
         Runs the runnable object by executing a step.
         """
-        self.logger.debug(f"Running {self}")
+        self.logger.debug("Running %s", self)
         self.status.change(RunnableStatus.RUNNING)
         while self.active:
             if self.status.tag == RunnableStatus.RUNNING:
@@ -843,20 +843,19 @@ class Runnable(Entity):
                     self.pre_step_call(func)
                     if self.skip_step(func) is False:
                         self.logger.debug(
-                            f"Executing step of {self} - {func.__name__}"
+                            "Executing step of %s - %s", self, func.__name__
                         )
                         start_time = time.time()
                         self._execute_step(func, *args, **kwargs)
                         self.logger.debug(
-                            "Finished step of {} - {}. Took {}".format(
-                                self,
-                                func.__name__,
-                                round(time.time() - start_time, 5),
-                            ),
+                            "Finished step of %s - %s. Took %ds",
+                            self,
+                            func.__name__,
+                            round(time.time() - start_time, 5),
                         )
                     else:
                         self.logger.debug(
-                            f"Skipping step of {self} - {func.__name__}"
+                            "Skipping step of %s - %s", self, func.__name__
                         )
                     self.post_step_call(func)
                 except IndexError:
@@ -916,13 +915,13 @@ class Runnable(Entity):
                 thr.name for thr in end_threads if thr not in start_threads
             ]
             self.logger.warning(
-                f"New threads are still alive after run: {new_threads}"
+                "New threads are still alive after run: %s", new_threads
             )
             dead_threads = [
                 thr.name for thr in start_threads if thr not in end_threads
             ]
             self.logger.warning(
-                f"Threads have died during run: {dead_threads}"
+                "Threads have died during run: %s", dead_threads
             )
 
         current_proc = psutil.Process()
@@ -930,13 +929,13 @@ class Runnable(Entity):
         if start_procs != end_procs:
             new_procs = [proc for proc in end_procs if proc not in start_procs]
             self.logger.warning(
-                f"New processes are still alive after run: {new_procs}"
+                "New processes are still alive after run: %s", new_procs
             )
             dead_procs = [
                 proc for proc in start_procs if proc not in end_procs
             ]
             self.logger.warning(
-                f"Child processes have died during run: {dead_procs}"
+                "Child processes have died during run: %s", dead_procs
             )
 
     def _execute_step(self, step, *args, **kwargs):
@@ -950,12 +949,11 @@ class Runnable(Entity):
             res = step(*args, **kwargs)
         except Exception as exc:
             self.logger.error(
-                "Exception on {}[{}], step {} - {}".format(
-                    self.__class__.__name__,
-                    self.uid(),
-                    step.__name__,
-                    str(exc),
-                )
+                "Exception on %s[%s], step %s - %s",
+                self.__class__.__name__,
+                self.uid(),
+                step.__name__,
+                str(exc),
             )
             self.logger.error(traceback.format_exc())
             res = exc
@@ -1211,14 +1209,14 @@ class Resource(Entity):
         method.
         """
 
-        self.logger.debug(f"Starting {self}")
+        self.logger.debug("Starting %r", self)
         self.status.change(self.STATUS.STARTING)
         self.pre_start()
         self.starting()
 
         if not self.cfg.async_start:
             self.wait(self.STATUS.STARTED)
-            self.logger.debug(f"Started {self}")
+            self.logger.debug("Started %r", self)
             self.post_start()
 
     def stop(self):
@@ -1230,16 +1228,16 @@ class Resource(Entity):
         """
 
         if self._aborted:
-            self.logger.debug(f"{self} already aborted, skip stopping")
+            self.logger.debug("%r already aborted, skip stopping", self)
             return
 
         if self.status.tag in (self.STATUS.STOPPING, self.STATUS.STOPPED):
             self.logger.debug(
-                f"stop() has been called on {self}, skip stopping"
+                "stop() has been called on %r, skip stopping", self
             )
             return
 
-        self.logger.debug("Stopping {self}")
+        self.logger.debug("Stopping %r", self)
 
         self.status.change(self.STATUS.STOPPING)
         self.pre_stop()
@@ -1247,7 +1245,7 @@ class Resource(Entity):
 
         if not self.cfg.async_start:
             self.wait(self.STATUS.STOPPED)
-            self.logger.debug(f"Stopped {self}")
+            self.logger.debug("Stopped %r", self)
             self.post_stop()
 
     def pre_start(self):
@@ -1504,10 +1502,9 @@ class RunnableManager(Entity):
         for sig in self._cfg.abort_signals:
             signal.signal(sig, signal.SIG_IGN)
         self.logger.debug(
-            "Signal handler called for signal {} from {}".format(
-                signum,
-                threading.current_thread(),
-            )
+            "Signal handler called for signal %d from %s",
+            signum,
+            threading.current_thread(),
         )
         self.abort()
 
