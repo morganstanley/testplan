@@ -108,3 +108,7 @@ jobs:
       - name: Test
         run: |
           pytest tests --verbose
+          cd testplan/web_ui/testing
+          CI=true pnpm lint
+          CI=true pnpm test
+          cd -
