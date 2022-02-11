@@ -267,6 +267,8 @@ class RemoteResource(Entity):
     def _create_remote_dirs(self):
         """Create mandatory directories in remote host."""
 
+        exist_on_remote = self._check_workspace()
+
         if 0 != self._execute_cmd_remote(
             cmd=filepath_exist_cmd(self._remote_runid_file),
             label="runid file availability check",
@@ -288,7 +290,7 @@ class RemoteResource(Entity):
                 label="create remote runid file",
             )
 
-            self._copy_workspace()
+            self._prepare_workspace(exist_on_remote)
             self._copy_testplan_package()
 
         self._execute_cmd_remote(
@@ -339,11 +341,38 @@ class RemoteResource(Entity):
                 deref_links=True,
             )
 
-    def _copy_workspace(self):
-        """Make the local workspace available on remote host."""
+    def _check_workspace(self):
+        """
+        Check if workspace is available on remote host
+        :return: True if exsit, false otherwise
+        """
 
         if self.cfg.remote_workspace:
             # User defined the remote workspace to be used
+            # will raise if check fail
+            if 0 == self._execute_cmd_remote(
+                cmd=filepath_exist_cmd(
+                    fix_home_prefix(self.cfg.remote_workspace)
+                ),
+                label="workspace availability check (1)",
+                check=True,
+            ):
+                return True
+
+        if 0 == self._execute_cmd_remote(
+            cmd=filepath_exist_cmd(self._workspace_paths.local),
+            label="workspace availability check (2)",
+            check=False,
+        ):
+            # local workspace accessible on remote
+            return True
+
+        return False
+
+    def _prepare_workspace(self, exist_on_remote):
+        """Make workspace available on remote host."""
+
+        if self.cfg.remote_workspace:
             # Make a soft link and return
             self._execute_cmd_remote(
                 cmd=link_cmd(
@@ -354,12 +383,7 @@ class RemoteResource(Entity):
             )
             return
 
-        if 0 == self._execute_cmd_remote(
-            cmd=filepath_exist_cmd(self._workspace_paths.local),
-            label="workspace availability check",
-            check=False,
-        ):
-            # exists on remote, make symlink
+        if exist_on_remote:
             self._execute_cmd_remote(
                 cmd=link_cmd(
                     path=self._workspace_paths.local,
