@@ -521,7 +521,7 @@ class TestRunnerIHandler(entity.Entity):
     def stop_environment(self, env_uid):
         """Stop the specified environment."""
         env = self.get_environment(env_uid)
-        env.stop(reversed=True)
+        env.stop(is_reversed=True)
         return {item.uid(): item.status.tag for item in env}
 
     def start_resource(self, resource):
@@ -934,7 +934,7 @@ class TestRunnerIHandler(entity.Entity):
                     setattr(parent_entry, key, value)
 
     def _update_reports(self, items):
-        """"Merge test report or attributes of test reports from a test run."""
+        """Merges test report or attributes of test reports from a test run."""
         for item, parent_uids in items:
             if isinstance(item, Report):
                 self._merge_report(item, parent_uids)
