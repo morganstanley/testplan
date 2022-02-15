@@ -224,14 +224,20 @@ export const joinURLComponent = (base, component) => {
 };
 
 /**
- * Parse JSON string to object by JSON5 https://json5.org/
+ * Parse JSON string to object.
  * @param {string} data - The json string
  * @returns {object}
  */
 export const parseToJson = (data) => {
   let result = data;
   if (typeof data === "string" && data.length) {
-    result = JSON5.parse(result);
+    try {
+      // Use cjson first to speed up the the process.
+      result = JSON.parse(result);
+    } catch {
+      // Try json5 if JSON string contains NaN type https://json5.org/ .
+      result = JSON5.parse(result);
+    }
   }
 
   return result;
