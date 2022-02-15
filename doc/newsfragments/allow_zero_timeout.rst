@@ -1,0 +1,1 @@
+* Allowed 0 as timeout value through non-boolean defaulting.

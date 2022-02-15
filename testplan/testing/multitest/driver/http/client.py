@@ -285,7 +285,8 @@ class HTTPClient(Driver):
         :return: A request response or ``None``
         :rtype: ``requests.models.Response`` or ``NoneType``
         """
-        timeout = time.time() + (timeout or self.timeout)
+        timeout = timeout if timeout is not None else self.timeout
+        timeout += time.time()
         response = None
 
         while time.time() < timeout:

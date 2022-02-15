@@ -546,7 +546,7 @@ class _ReportPlugin(object):
             )
             details = (
                 "File: {}\nLine: {}\n{}: {}".format(
-                    trace.path.strpath,
+                    str(trace.path),
                     trace.lineno + 1,
                     call.excinfo.typename,
                     message,
