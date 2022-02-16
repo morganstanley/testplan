@@ -56,15 +56,13 @@ class _LocationPaths:
         return iter((self.local, self.remote))
 
 
-class RemoteResourceConfig(EntityConfig):
+class UnboundRemoteResourceConfig(EntityConfig):
     @classmethod
     def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
         return {
-            "remote_host": str,
-            ConfigOption("ssh_port", default=22): int,
             ConfigOption("ssh_cmd", default=ssh_cmd): lambda x: callable(x),
             ConfigOption("copy_cmd", default=copy_cmd): lambda x: callable(x),
             ConfigOption("workspace", default=pwd()): str,
@@ -82,6 +80,17 @@ class RemoteResourceConfig(EntityConfig):
             ConfigOption("pull_exclude", default=[]): Or(list, None),
             ConfigOption("env", default=None): Or(dict, None),
             ConfigOption("setup_script", default=None): Or(list, None),
+        }
+
+class RemoteResourceConfig(UnboundRemoteResourceConfig):
+    @classmethod
+    def get_options(cls):
+        """
+        Schema for options validation and assignment of default values.
+        """
+        return {
+            "remote_host": str,
+            ConfigOption("ssh_port", default=22): int,
         }
 
 
@@ -570,7 +579,8 @@ class RemoteResource(Entity):
             if self.cfg.pull:
                 self._pull_files()
         except Exception as exc:
-            self.logger.exception(
+            # TODO: This is so confusing to the user I think it is enough on debug log
+            self.logger.debug(
                 "While fetching result from worker [%s]: %s", self, exc
             )
 

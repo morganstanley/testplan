@@ -11,7 +11,7 @@ from testplan.common.config import ConfigOption
 from testplan.common.remote.remote_resource import (
     RemoteResourceConfig,
     RemoteResource,
-)
+    UnboundRemoteResourceConfig)
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import (
     rebase_path,
@@ -24,7 +24,7 @@ from testplan.runners.pools.connection import ZMQServer
 from testplan.runners.pools.process import ProcessWorker, ProcessWorkerConfig
 
 
-class RemoteWorkerConfig(ProcessWorkerConfig, RemoteResourceConfig):
+class UnboundRemoteWorkerConfig(ProcessWorkerConfig, UnboundRemoteResourceConfig):
     """
     Configuration object for
     :py:class:`~testplan.runners.pools.remote.RemoteWorker` resource entity.
@@ -40,6 +40,10 @@ class RemoteWorkerConfig(ProcessWorkerConfig, RemoteResourceConfig):
         Schema for options validation and assignment of default values.
         """
         return {"workers": int, "pool_type": str}
+
+
+class RemoteWorkerConfig(UnboundRemoteWorkerConfig, RemoteResourceConfig):
+    pass
 
 
 class RemoteWorker(ProcessWorker, RemoteResource):
@@ -263,34 +267,34 @@ class RemotePool(Pool):
     CONN_MANAGER = ZMQServer
 
     def __init__(
-        self,
-        name,
-        hosts,
-        abort_signals=None,
-        worker_type=RemoteWorker,
-        pool_type="thread",
-        host=CONFIG.default_hostname,
-        port=0,
-        worker_heartbeat=30,
-        ssh_port=22,
-        ssh_cmd=ssh_cmd,
-        copy_cmd=copy_cmd,
-        workspace=None,
-        workspace_exclude=None,
-        remote_runpath=None,
-        testplan_path=None,
-        remote_workspace=None,
-        clean_remote=False,
-        push=None,
-        push_exclude=None,
-        delete_pushed=False,
-        fetch_runpath=True,
-        fetch_runpath_exclude=None,
-        pull=None,
-        pull_exclude=None,
-        env=None,
-        setup_script=None,
-        **options,
+            self,
+            name,
+            hosts,
+            abort_signals=None,
+            worker_type=RemoteWorker,
+            pool_type="thread",
+            host=CONFIG.default_hostname,
+            port=0,
+            worker_heartbeat=30,
+            ssh_port=22,
+            ssh_cmd=ssh_cmd,
+            copy_cmd=copy_cmd,
+            workspace=None,
+            workspace_exclude=None,
+            remote_runpath=None,
+            testplan_path=None,
+            remote_workspace=None,
+            clean_remote=False,
+            push=None,
+            push_exclude=None,
+            delete_pushed=False,
+            fetch_runpath=True,
+            fetch_runpath_exclude=None,
+            pull=None,
+            pull_exclude=None,
+            env=None,
+            setup_script=None,
+            **options,
     ):
         self.pool = None
         options.update(self.filter_locals(locals()))
