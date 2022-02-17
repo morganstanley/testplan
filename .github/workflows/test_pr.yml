@@ -85,9 +85,13 @@ jobs:
       - name: Restore pip cache
         uses: ./.github/actions/pip-cache
       - name: Set up Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: '14.x'
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v2.1.0
+        with:
+          version: 6.30.1
       - name: Set up Zookeeper for tests
         run: |
           sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
@@ -104,3 +108,7 @@ jobs:
       - name: Test
         run: |
           pytest tests --verbose
+          cd testplan/web_ui/testing
+          CI=true pnpm lint
+          CI=true pnpm test
+          cd -

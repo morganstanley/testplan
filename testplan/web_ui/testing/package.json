@@ -32,6 +32,7 @@
     "pegjs": "^0.11.0-master.b7b87ea",
     "plotly.js": "^1.58.5",
     "react": "16.13.1",
+    "react-app-polyfill": "1.0.6",
     "react-copy-html-to-clipboard": "6.0.4",
     "react-debounce-input": "^3.2.2",
     "react-dom": "16.13.1",
@@ -43,7 +44,7 @@
     "react-scripts": "^3.4.1",
     "react-spinners": "^0.6.0",
     "react-syntax-highlighter": "^11.0.2",
-    "react-test-renderer": "16.6.0",
+    "react-test-renderer": "16.13.1",
     "react-vis": "^1.11.7",
     "reactstrap": "8.0.0"
   },
