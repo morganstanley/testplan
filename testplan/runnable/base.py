@@ -726,7 +726,9 @@ class TestRunner(Runnable):
         ).total_seconds()
 
         while self.active:
-            if self.cfg.timeout and time.time() - _start_ts > self.cfg.timeout:
+            if (self.cfg.timeout is not None) and (
+                time.time() - _start_ts > self.cfg.timeout
+            ):
                 self.result.test_report.logger.error(
                     "Timeout: Aborting execution after {} seconds".format(
                         self.cfg.timeout

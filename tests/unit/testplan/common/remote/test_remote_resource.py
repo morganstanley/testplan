@@ -7,8 +7,7 @@ import pytest
 
 from testplan import TestplanMock
 from testplan.common.utils.path import rebase_path
-from testplan.common.utils.process import execute_cmd
-from testplan.common.utils.remote import filepath_exist_cmd, link_cmd
+from testplan.common.utils.remote import filepath_exist_cmd
 
 REMOTE_HOST = os.environ.get("TESTPLAN_REMOTE_HOST")
 pytestmark = pytest.mark.skipif(
@@ -19,7 +18,7 @@ pytestmark = pytest.mark.skipif(
 from testplan.common.remote.remote_resource import RemoteResource
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def workspace():
     """
     Sets up the workspace to use for testing the remote resource. We will copy the
@@ -74,7 +73,7 @@ def push_dir():
     shutil.rmtree(push_dir)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def remote_resource(runpath_module, workspace, push_dir):
 
     mockplan = TestplanMock("plan", runpath=runpath_module)
@@ -173,8 +172,13 @@ def test_prepare_remote(remote_resource, workspace, push_dir):
         "/".join([workspace, "file2"]),
     ]
 
+    remote_resource._clean_remote()
+
 
 def test_fetch_results(remote_resource, push_dir):
+    remote_resource.make_runpath_dirs()
+    remote_resource._prepare_remote()
+
     log_file = "/".join(
         [remote_resource._remote_resource_runpath, "remote.log"]
     )
@@ -207,4 +211,41 @@ def test_fetch_results(remote_resource, push_dir):
             os.path.basename(push_dir),
             "file2",
         )
+    )
+
+
+def test_runpath_in_ws(workspace):
+
+    mockplan = TestplanMock(
+        "plan", runpath=os.path.join(workspace, "runpath_in_ws")
+    )
+
+    remote_resource = RemoteResource(
+        REMOTE_HOST,
+        workspace=workspace,
+        workspace_exclude=[
+            "conftest.py",
+            "helpers",
+            "*unctiona*",
+            "__pycache__",
+            "*.pyc",
+        ],
+    )
+    remote_resource.parent = mockplan.runnable
+    remote_resource.cfg.parent = mockplan.runnable.cfg
+
+    remote_resource.make_runpath_dirs()
+    remote_resource._prepare_remote()
+
+    assert 0 != remote_resource._execute_cmd_remote(
+        cmd=filepath_exist_cmd(
+            "/".join(
+                [
+                    remote_resource._workspace_paths.remote,
+                    "tests",
+                    "functional",
+                ]
+            )
+        ),
+        check=False,
     )
