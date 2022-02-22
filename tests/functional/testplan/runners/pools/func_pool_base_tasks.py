@@ -146,3 +146,13 @@ def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):
     for uid in pool._task_retries_cnt:
         assert pool._task_retries_cnt[uid] == 0
         assert pool.added_item(uid).reassign_cnt == 0
+
+
+def target_raises_in_worker(parent_pid):
+    """
+    Task target that raises when being materialized in process/remote worker.
+    """
+    if os.getpid() != parent_pid:
+        raise RuntimeError("Materialization failed in worker")
+
+    return MultiTest(name="MTest", suites=[MySuite()])

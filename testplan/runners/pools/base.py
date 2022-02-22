@@ -537,7 +537,7 @@ class Pool(Executor):
                 "De-assign {} from {}".format(task_result.task, worker)
             )
 
-            if isinstance(worker, RemoteResource):
+            if task_result.result and isinstance(worker, RemoteResource):
                 for attachment in task_result.result.report.attachments:
                     attachment.source_path = rebase_path(
                         attachment.source_path,

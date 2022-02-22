@@ -7,6 +7,7 @@ import tempfile
 
 from testplan.common.utils.process import execute_cmd
 from testplan.common.utils.remote import filepath_exist_cmd, ssh_cmd
+from testplan.report import Status
 from testplan.runners.pools.remote import RemotePool
 
 from .func_pool_base_tasks import schedule_tests_to_pool
@@ -82,3 +83,31 @@ def test_pool_basic(mockplan, remote_pool_type):
         )
         os.chdir(orig_dir)
         shutil.rmtree(workspace)
+
+
+def test_materialization_fail(mockplan):
+    """Test task target will fail to materialize in worker"""
+    pool_name = RemotePool.__name__
+    pool = RemotePool(
+        name=pool_name,
+        hosts={REMOTE_HOST: 1},
+        workspace_exclude=["*"],  # effectively not copy anything
+    )
+    mockplan.add_resource(pool)
+
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    mockplan.schedule(
+        target="target_raises_in_worker",
+        module="func_pool_base_tasks",
+        path=dirname,
+        args=(os.getpid(),),
+        resource=pool_name,
+    )
+
+    res = mockplan.run()
+
+    assert res.run is False
+    assert res.success is False
+    assert mockplan.report.status == Status.ERROR
+    assert mockplan.report.entries[0].name == "Task[target_raises_in_worker]"
+    assert mockplan.report.entries[0].category == Status.ERROR
