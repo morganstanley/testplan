@@ -15,9 +15,11 @@ terminaltables
 pyparsing
 cycler
 requests>=2.4.3
-flask<2.0.0
-flask_restplus
+flask>2.0.0
+werkzeug>2.0.0
+flask_restx
 cheroot
+boltons
 validators==0.14.0
 Pillow
 plotly
