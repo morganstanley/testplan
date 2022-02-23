@@ -3,12 +3,13 @@
 Web application for Testplan & Monitor UIs,
 """
 import os
+import pathlib
 import argparse
 from threading import Thread
 
 import werkzeug.exceptions
 from flask import Flask, send_from_directory, redirect, jsonify
-from flask_restplus import Resource, Api
+from flask_restx import Resource, Api
 from cheroot.wsgi import Server as WSGIServer, PathInfoDispatcher
 
 from testplan import defaults
@@ -49,9 +50,7 @@ class Testplan(Resource):
         index_path = os.path.join(directory, INDEX_HTML)
 
         if os.path.exists(index_path):
-            return send_from_directory(
-                directory=directory, filename=INDEX_HTML
-            )
+            return send_from_directory(directory=directory, path=INDEX_HTML)
         else:
             raise werkzeug.exceptions.NotFound()
 
@@ -70,7 +69,7 @@ class TestplanReport(Resource):
         if os.path.exists(report_path):
             return send_from_directory(
                 directory=os.path.dirname(report_path),
-                filename=os.path.basename(report_path),
+                path=os.path.basename(report_path),
             )
         else:
             raise werkzeug.exceptions.NotFound()
@@ -94,19 +93,24 @@ class TestplanAssertions(Resource):
 class TestplanAttachment(Resource):
     def get(self, report_uid, attachment_path):
         """Get an attachment for a specific Testplan report given their uids."""
-        attachment_path = os.path.abspath(
-            os.path.join(
-                app.config["DATA_PATH"], defaults.ATTACHMENTS, attachment_path
-            )
-        )
+        base_path = (
+            pathlib.Path(app.config["DATA_PATH"]) / defaults.ATTACHMENTS
+        ).resolve()
 
-        if os.path.exists(attachment_path):
-            return send_from_directory(
-                directory=os.path.dirname(attachment_path),
-                filename=os.path.basename(attachment_path),
-            )
-        else:
+        # security check for argument from url
+        if not str((base_path / attachment_path).resolve()).startswith(
+            str(base_path)
+        ):
             raise werkzeug.exceptions.NotFound()
+
+        full_attachment_path = base_path / attachment_path
+        if not full_attachment_path.is_file():
+            raise werkzeug.exceptions.NotFound()
+
+        return send_from_directory(
+            directory=full_attachment_path.parent,
+            path=full_attachment_path.name,
+        )
 
 
 @_api.route("/api/v1/metadata/fix-spec/tags")

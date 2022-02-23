@@ -8,8 +8,8 @@ import functools
 import traceback
 
 import flask
-import flask_restplus
-import flask_restplus.fields
+import flask_restx
+import flask_restx.fields
 from flask import request
 from cheroot import wsgi
 import werkzeug.exceptions
@@ -54,15 +54,15 @@ def generate_interactive_api(ihandler):
 
     api_prefix = "/api/v1/interactive"
     api_blueprint = flask.Blueprint("api", "testplan")
-    api = flask_restplus.Api(api_blueprint)
+    api = flask_restx.Api(api_blueprint)
     app = flask.Flask("testplan", static_folder=static_dir)
     app.register_blueprint(api_blueprint, url_prefix=api_prefix)
 
     post_export_model = api.model(
         "Save report",
         {
-            "exporters": flask_restplus.fields.List(
-                flask_restplus.fields.String(example="PDFExporter")
+            "exporters": flask_restx.fields.List(
+                flask_restx.fields.String(example="PDFExporter")
             )
         },
     )
@@ -112,7 +112,7 @@ def generate_interactive_api(ihandler):
         return {"message": str(err)}, err.code
 
     @api.route("/report")
-    class Report(flask_restplus.Resource):
+    class Report(flask_restx.Resource):
         """
         Interactive report endpoint. There is a single root report object
         for interactive mode.
@@ -160,7 +160,7 @@ def generate_interactive_api(ihandler):
                 return _serialize_report_entry(ihandler.report)
 
     @api.route("/report/tests")
-    class AllTests(flask_restplus.Resource):
+    class AllTests(flask_restx.Resource):
         """
         Tests endpoint. Represents all Test objects in the report. Read-only.
         """
@@ -174,7 +174,7 @@ def generate_interactive_api(ihandler):
                 ]
 
     @api.route("/report/tests/<string:test_uid>")
-    class SingleTest(flask_restplus.Resource):
+    class SingleTest(flask_restx.Resource):
         """
         Test endpoint. Represents a single Test object in the testplan with
         corresponding UID.
@@ -288,7 +288,7 @@ def generate_interactive_api(ihandler):
             return allowed_transition, action
 
     @api.route("/report/tests/<string:test_uid>/suites")
-    class AllSuites(flask_restplus.Resource):
+    class AllSuites(flask_restx.Resource):
         """
         Suites endpoint. Represents all test suites within a Test object.
         """
@@ -306,7 +306,7 @@ def generate_interactive_api(ihandler):
                     raise werkzeug.exceptions.NotFound
 
     @api.route("/report/tests/<string:test_uid>/suites/<string:suite_uid>")
-    class SingleSuite(flask_restplus.Resource):
+    class SingleSuite(flask_restx.Resource):
         """
         Suite endpoint. Represents a single test suite within a Test object
         with the matching test and suite UIDs.
@@ -366,7 +366,7 @@ def generate_interactive_api(ihandler):
     @api.route(
         "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
     )
-    class AllTestcases(flask_restplus.Resource):
+    class AllTestcases(flask_restx.Resource):
         """
         Testcases endpoint. Represents all testcases within a test suite
         within a Test object, with the matching test and suite UIDs.
@@ -388,7 +388,7 @@ def generate_interactive_api(ihandler):
         "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
         "/<string:case_uid>"
     )
-    class SingleTestcase(flask_restplus.Resource):
+    class SingleTestcase(flask_restx.Resource):
         """
         Testcases endpoint. Represents a single testcase within a test
         suite, within a Test object, with the matching test, suite and
@@ -455,7 +455,7 @@ def generate_interactive_api(ihandler):
         "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
         "/<string:case_uid>/parametrizations"
     )
-    class AllParametrizations(flask_restplus.Resource):
+    class AllParametrizations(flask_restx.Resource):
         """
         Parametrizations endpoint. Represents all parametrizations of a single
         testcase.
@@ -479,7 +479,7 @@ def generate_interactive_api(ihandler):
         "/report/tests/<string:test_uid>/suites/<string:suite_uid>/testcases"
         "/<string:case_uid>/parametrizations/<string:param_uid>"
     )
-    class ParamatrizedTestCase(flask_restplus.Resource):
+    class ParamatrizedTestCase(flask_restx.Resource):
         """
         Paramatrized testcase endpoint. Represents a single testcase within
         a paramatrization group, with a unique combination of parameters.
@@ -549,7 +549,7 @@ def generate_interactive_api(ihandler):
                 return _serialize_report_entry(current_case)
 
     @api.route("/report/export")
-    class ExportReport(flask_restplus.Resource):
+    class ExportReport(flask_restx.Resource):
         """
         Interactive export endpoint. There is an API for exporting root
         report object.
@@ -587,7 +587,7 @@ def generate_interactive_api(ihandler):
             return {"history": export_history}
 
     @api.route("/report/export/<string:uid>")
-    class ExporterFile(flask_restplus.Resource):
+    class ExporterFile(flask_restx.Resource):
         """
         Interactive export download endpoint. There is an API for downloading
         report file.
@@ -600,7 +600,7 @@ def generate_interactive_api(ihandler):
             raise werkzeug.exceptions.NotFound
 
     @api.route("/attachments")
-    class AllAttachments(flask_restplus.Resource):
+    class AllAttachments(flask_restx.Resource):
         """
         Represents all files currently attached to the Testplan interactive
         report.
@@ -612,7 +612,7 @@ def generate_interactive_api(ihandler):
                 return list(ihandler.report.attachments.keys())
 
     @api.route("/attachments/<path:attachment_uid>")
-    class SingleAttachment(flask_restplus.Resource):
+    class SingleAttachment(flask_restx.Resource):
         """
         Represents a specific file attached to the Testplan interactive report.
         """
@@ -628,7 +628,7 @@ def generate_interactive_api(ihandler):
             return flask.send_file(filepath)
 
     @api.route("/reload")
-    class ReloadCode(flask_restplus.Resource):
+    class ReloadCode(flask_restx.Resource):
         """
         Reload source code.
         """
@@ -654,7 +654,7 @@ def generate_interactive_api(ihandler):
                 return True
 
     @api.route("/abort")
-    class AbortExecution(flask_restplus.Resource):
+    class AbortExecution(flask_restx.Resource):
         """
         Abort Testplan execution and notify client.
         """
