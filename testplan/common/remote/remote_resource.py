@@ -216,7 +216,6 @@ class RemoteResource(Entity):
             if IS_WIN
             else self._get_plan().runpath
         )
-
         self._workspace_paths.local = fix_home_prefix(
             os.path.abspath(self.cfg.workspace)
         )
@@ -235,7 +234,7 @@ class RemoteResource(Entity):
             self._get_plan().runpath,
             self._remote_plan_runpath,
         )
-
+        self.logger.debug("Remote runpath = %s", self._remote_resource_runpath)
         self._working_dirs.local = pwd()
         self._working_dirs.remote = self._remote_working_dir()
         self.logger.debug(
@@ -373,6 +372,10 @@ class RemoteResource(Entity):
         """Make workspace available on remote host."""
 
         if self.cfg.remote_workspace:
+            self.logger.test_info(
+                "User has specified workspace path on remote host, "
+                "pointing runpath/fetched_workspace to it"
+            )
             # Make a soft link and return
             self._execute_cmd_remote(
                 cmd=link_cmd(
@@ -381,9 +384,15 @@ class RemoteResource(Entity):
                 ),
                 label="linking to remote workspace (1).",
             )
+
             return
 
         if exist_on_remote:
+            self.logger.test_info(
+                "Local workspace path is accessible on %s, "
+                "pointing runpath/fetched_workspace to it",
+                self.ssh_cfg["host"],
+            )
             self._execute_cmd_remote(
                 cmd=link_cmd(
                     path=self._workspace_paths.local,
@@ -394,6 +403,11 @@ class RemoteResource(Entity):
 
         else:
             # copy to remote
+            self.logger.test_info(
+                "Local workspace path is inaccessible on %s, "
+                "Copying it to remote runpath/fetched_workspace",
+                self.ssh_cfg["host"],
+            )
             self._transfer_data(
                 # join with "" to add trailing "/" to source
                 # this will copy everything under local import path to to testplan_lib
@@ -401,6 +415,11 @@ class RemoteResource(Entity):
                 target=self._workspace_paths.remote,
                 remote_target=True,
                 exclude=self.cfg.workspace_exclude,
+            )
+            self.logger.test_info(
+                "Creating symlink to imitate local workspace path on %s, "
+                "pointing to runpath/fetched_workspace",
+                self.ssh_cfg["host"],
             )
             self._execute_cmd_remote(
                 cmd=mkdir_cmd(os.path.dirname(self._workspace_paths.local)),
