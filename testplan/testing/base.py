@@ -680,13 +680,6 @@ class ProcessRunnerTest(Test):
                 self.stderr, "w"
             ) as stderr, open(self.stdout, "w") as stdout:
 
-                if not os.path.exists(self.cfg.binary):
-                    raise IOError(
-                        "No runnable found at {} for {}".format(
-                            self.cfg.binary, self
-                        )
-                    )
-
                 test_cmd = self.test_command()
                 if not test_cmd:
                     raise ValueError(
