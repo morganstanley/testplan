@@ -10,6 +10,7 @@ import threading
 import time
 import traceback
 from collections import deque, OrderedDict
+from typing import Union
 
 import psutil
 from schema import Or
@@ -279,24 +280,22 @@ class Environment:
             resources = resources[::-1]
 
         # Stop all resources
+        resources_to_wait_for = []
         for resource in resources:
-            # Skip resources not even triggered to start.
-            if (resource.status.tag is None) or (
-                resource.status.tag == resource.STATUS.STOPPED
-            ):
+            # Skip resources not even triggered to start, or already aborted/stopped
+            if (resource.status == None) or (
+                resource.status == resource.STATUS.STOPPED
+            ) or resource.aborted:
                 continue
 
             pool.apply_async(self._log_exception(resource, resource.stop))
+            resources_to_wait_for.append(resource)
 
         # Wait resources status to be STOPPED.
-        for resource in resources:
-            # Skip resources not even triggered to start.
-            if resource.status.tag is None:
-                continue
-            else:
-                resource.wait(resource.STATUS.STOPPED)
-                resource.logger.debug("Stopped %r", resource)
-                resource.post_stop()
+        for resource in resources_to_wait_for:
+            resource.wait(resource.STATUS.STOPPED)
+            resource.logger.debug("Stopped %r", resource)
+            resource.post_stop()
 
     def __enter__(self):
         self.start()
@@ -329,7 +328,7 @@ class EntityStatus:
         """
         TODO
         """
-        self._current = self.NONE
+        self._current:str = self.NONE
         self._metadata = OrderedDict()
         self._transitions = self.transitions()
 
@@ -339,6 +338,12 @@ class EntityStatus:
         Current status value.
         """
         return self._current
+
+    def __eq__(self, other: Union[None, str, "EntityStatus"]) -> bool:
+        if other is None or isinstance(other, str):
+            return self._current == other
+
+        return self._current == other._current
 
     @property
     def metadata(self):
@@ -1498,7 +1503,7 @@ class RunnableManager(Entity):
             raise self._runnable.result
         return self._runnable.result
 
-    def _handle_abort(self, signum):
+    def _handle_abort(self, signum, frame):
         for sig in self._cfg.abort_signals:
             signal.signal(sig, signal.SIG_IGN)
         self.logger.debug(
