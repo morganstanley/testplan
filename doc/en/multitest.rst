@@ -1345,13 +1345,31 @@ If testcases are susceptible to hanging, or not expected to be time consuming, y
 
 .. code-block:: python
 
-    @testcase(timeout=10*60)  # 10 minute timeout, given in seconds.
+    @testcase(timeout=10*60)  # 10 minutes timeout, given in seconds.
     def test_hanging(self, env, result):
         ...
 
 If the testcase times out it will raise a :py:class:`TimeoutException <testplan.common.utils.timing.TimeoutException>`, causing its status to be "ERROR". The timeout will be noted on the report in the same way as any other unhandled Exception. The timeout parameter can be combined with other testcase parameters (e.g. used with parametrized testcases) in the way you would expect - each individual parametrized testcase will be subject to a seperate timeout.
 
 Also keep in mind that testplan will take a little bit of effort to monitor execution time of testcases with ``timeout`` attribute, so it is better to allocate a little more seconds than you have estimated how long a testcase would need.
+
+Similarly, ``setup`` and ``teardown`` methods in a test suite can be limited to run in specified time period, like this:
+
+.. code-block:: python
+
+    from testplan.testing.multitest.suite import timeout
+
+.. code-block:: python
+
+    @timeout(120)  # 2 minutes timeout, given in seconds.
+    def setup(self, env, result):
+        ...
+
+    @timeout(60)  # 1 minute timeout, given in seconds.
+    def teardown(self, env):
+        ...
+
+It's useful when ``setup`` has much initialization work that takes long, e.g. connects to a server but has no response and makes program hanging. Note that this ``@timeout`` decorator can also be used for ``pre_testcase`` and ``post_testcase``, but that is not suggested because pre/post testcase methods are called everytime before/after each testcase runs, they should be written as simple as possible.
 
 Xfail
 -----
