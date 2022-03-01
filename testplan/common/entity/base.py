@@ -283,9 +283,11 @@ class Environment:
         resources_to_wait_for = []
         for resource in resources:
             # Skip resources not even triggered to start, or already aborted/stopped
-            if (resource.status == None) or (
-                resource.status == resource.STATUS.STOPPED
-            ) or resource.aborted:
+            if (
+                (resource.status == None)
+                or (resource.status == resource.STATUS.STOPPED)
+                or resource.aborted
+            ):
                 continue
 
             pool.apply_async(self._log_exception(resource, resource.stop))
@@ -328,7 +330,7 @@ class EntityStatus:
         """
         TODO
         """
-        self._current:str = self.NONE
+        self._current: str = self.NONE
         self._metadata = OrderedDict()
         self._transitions = self.transitions()
 

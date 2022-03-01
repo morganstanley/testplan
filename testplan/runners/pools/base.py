@@ -64,6 +64,8 @@ class WorkerConfig(entity.ResourceConfig):
             ConfigOption("transport", default=QueueClient): object,
             ConfigOption("restart_count", default=3): int,
         }
+
+
 class WorkerBase(entity.Resource):
     """
     Worker resource that pulls tasks from the transport provided, executes them
@@ -132,6 +134,7 @@ class WorkerBase(entity.Resource):
 
     def __repr__(self):
         return "{}[{}]".format(self.__class__.__name__, self.cfg.index)
+
 
 class Worker(WorkerBase):
     """
@@ -224,6 +227,7 @@ class Worker(WorkerBase):
             task_result = TaskResult(task=task, result=result, status=True)
         return task_result
 
+
 class PoolConfig(ExecutorConfig):
     """
     Configuration object for
@@ -286,7 +290,7 @@ class Pool(Executor):
         restart_count=3,
         max_active_loop_sleep=5,
         allow_task_rerun=True,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(Pool, self).__init__(**options)

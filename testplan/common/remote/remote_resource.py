@@ -82,6 +82,7 @@ class UnboundRemoteResourceConfig(EntityConfig):
             ConfigOption("setup_script", default=None): Or(list, None),
         }
 
+
 class RemoteResourceConfig(UnboundRemoteResourceConfig):
     @classmethod
     def get_options(cls):
