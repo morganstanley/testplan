@@ -1,0 +1,1 @@
+* Added :py:meth:`mark <testplan.testing.multitest.result.mark>` decorator to mark filepath and line number.

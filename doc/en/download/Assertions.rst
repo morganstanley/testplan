@@ -98,3 +98,16 @@ Required files:
 test_plan.py
 ++++++++++++
 .. literalinclude:: ../../../examples/Assertions/Plotly/test_plan.py
+
+
+Marking
+-------
+
+.. _example_assertions_marking:
+
+Required files:
+  - :download:`test_plan.py <../../../examples/Assertions/Marking/test_plan.py>`
+
+test_plan.py
+++++++++++++
+.. literalinclude:: ../../../examples/Assertions/Marking/test_plan.py

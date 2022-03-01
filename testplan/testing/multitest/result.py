@@ -11,6 +11,8 @@ import os
 import re
 import threading
 import platform
+from functools import wraps
+from typing import Callable
 
 from testplan import defaults
 from testplan.common.utils.package import MOD_LOCK
@@ -25,7 +27,7 @@ from .entries.stdout.base import registry as stdout_registry
 IS_WIN = platform.system() == "Windows"
 
 
-class ExceptionCapture(object):
+class ExceptionCapture:
     """
     Exception capture scope, will be used by exception related assertions.
     An instance of this class will be used as a context manager by
@@ -99,7 +101,23 @@ class ExceptionCapture(object):
 assertion_state = threading.local()
 
 
-def assertion(func):
+def mark(func: Callable) -> Callable:
+    """
+    Sets the decorated function's filepath and line-range in assertion state.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        filepath = inspect.getfile(func)
+        lines, start = inspect.getsourcelines(func)
+        assertion_state.filepath = filepath
+        assertion_state.line_range = range(start, start + len(lines))
+        func(*args, **kwargs)
+
+    return wrapper
+
+
+def assertion(func: Callable) -> Callable:
     def wrapper(result, *args, **kwargs):
         top_assertion = False
         if not getattr(assertion_state, "in_progress", False):
@@ -110,12 +128,19 @@ def assertion(func):
             custom_style = kwargs.pop("custom_style", None)
             entry = func(result, *args, **kwargs)
             if top_assertion:
-                # Second element is the caller
                 with MOD_LOCK:
-                    # TODO: see https://github.com/python/cpython/commit/85cf1d514b84dc9a4bcb40e20a12e1d82ff19f20
-                    caller_frame = inspect.stack()[1]
-                entry.file_path = os.path.abspath(caller_frame.filename)
-                entry.line_no = caller_frame.lineno
+                    call_stack = inspect.stack()
+                    if getattr(assertion_state, "filepath", None) is None:
+                        frame = call_stack[1]
+                    else:
+                        for frame in call_stack:
+                            if (
+                                frame.filename == assertion_state.filepath
+                                and frame.lineno in assertion_state.line_range
+                            ):
+                                break
+                entry.file_path = os.path.abspath(frame.filename)
+                entry.line_no = frame.lineno
 
                 if custom_style is not None:
                     if not isinstance(custom_style, dict):
@@ -143,11 +168,13 @@ def assertion(func):
         finally:
             if top_assertion:
                 assertion_state.in_progress = False
+                assertion_state.filepath = None
+                assertion_state.line_range = None
 
     return wrapper
 
 
-class AssertionNamespace(object):
+class AssertionNamespace:
     """
     Base class for assertion namespaces.
     Users can inherit from this class to implement custom namespaces.
@@ -1287,7 +1314,7 @@ class FixNamespace(AssertionNamespace):
         return entry
 
 
-class Result(object):
+class Result:
     """
     Contains assertion methods and namespaces for generating test data.
     A new instance of ``Result`` object is passed to each testcase when a
