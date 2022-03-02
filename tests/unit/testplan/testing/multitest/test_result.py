@@ -1,10 +1,13 @@
-"""Unit tests for the testplan.testing.multitest.result module."""
+"""
+Unit tests for the testplan.testing.multitest.result module.
+"""
 
-import os
-import re
+import collections
 import copy
 import hashlib
-import collections
+import inspect
+import os
+import re
 from unittest import mock
 
 import pytest
@@ -18,12 +21,36 @@ from testplan.common.utils import testing
 from testplan.common.utils import path as path_utils
 
 from testplan.testing.multitest import result as result_mod
-from testplan.testing.multitest.suite import testcase, testsuite
 from testplan.testing.multitest import MultiTest
+from testplan.testing.multitest.suite import testcase, testsuite
+
+
+def test_group_marking():
+    def helper():
+        result.less(1, 2)
+
+    @result_mod.mark_group
+    def intermediary():
+        helper()
+
+    result = result_mod.Result()
+    result.equal(1, 1)
+    line = inspect.currentframe().f_lineno
+    assert result.entries.pop().line_no == line - 1
+
+    helper()
+    lines, start = inspect.getsourcelines(helper)
+    line = start + len(lines) - 1
+    assert result.entries.pop().line_no == line
+
+    intermediary()
+    lines, start = inspect.getsourcelines(intermediary)
+    line = start + len(lines) - 1
+    assert result.entries.pop().line_no == line
 
 
 @testsuite
-class AssertionOrder(object):
+class AssertionOrder:
     @testcase
     def case(self, env, result):
         summary = result.subresult()
@@ -72,7 +99,7 @@ def test_assertion_order(mockplan):
 
 
 @testsuite
-class AssertionExtraAttribute(object):
+class AssertionExtraAttribute:
     @testcase
     def case(self, env, result):
         first = result.subresult()
@@ -129,7 +156,7 @@ def fix_ns():
     return result_mod.FixNamespace(mock_result)
 
 
-class TestDictNamespace(object):
+class TestDictNamespace:
     """Unit testcases for the result.DictNamespace class."""
 
     def test_basic_match(self, dict_ns):
@@ -335,7 +362,7 @@ class TestDictNamespace(object):
         )
 
 
-class TestFIXNamespace(object):
+class TestFIXNamespace:
     """Unit testcases for the result.FixNamespace class."""
 
     def test_untyped_fixmatch(self, fix_ns):
@@ -492,7 +519,7 @@ class TestFIXNamespace(object):
         )
 
 
-class TestResultBaseNamespace(object):
+class TestResultBaseNamespace:
     """Test assertions and other methods in the base result.* namespace."""
 
     def test_graph_assertion(self):

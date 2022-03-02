@@ -1,58 +1,48 @@
 #!/usr/bin/env python
+# This plan contains tests that demonstrate failures as well.
 """
-This example demonstrates the usage of the mark decorator.
+This example demonstrates the usage of the mark decorator for linear cases.
 """
+import sys
+
 from testplan import test_plan
 from testplan.testing.multitest import testcase, testsuite, MultiTest
-from testplan.testing.multitest.result import mark
+from testplan.testing.multitest.result import mark_group
 
 
 def helper(result):
     result.fail(description="Failure in helper.")
 
 
-@mark
-def helper_marked(result):
-    result.fail(description="Failure in marked helper.")
-
-
-@mark
 def intermediary(result):
     helper(result)
 
 
-@mark
+@mark_group
 def intermediary_marked(result):
-    helper_marked(result)
+    helper(result)
 
 
-@testsuite(name="Example suite")
+@testsuite(name="Example suite for linear testcases")
 class Suite:
-    @testcase(name="Testcase")
+    @testcase(name="Testcase with no marking.")
     def test_unmarked(self, env, result):
         """
         Upon failure, points to assertion in helper.
         """
         helper(result)
 
-    @testcase(name="Testcase with marked helper")
-    def test_marked_helper(self, env, result):
-        """
-        Upon failure, points to assertion in helper_marked.
-        """
-        helper_marked(result)
-
     @testcase(name="Testcase with marked intermediary")
-    def test_marked_intermediary(self, env, result):
+    def test_intermediary(self, env, result):
         """
-        Upon failure, points to call of helper in intermediary.
+        Upon failure, points to assertion in helper.
         """
         intermediary(result)
 
     @testcase(name="Testcase with marked intermediary and helper")
-    def test_marked_intermediary_helper(self, env, result):
+    def test_marked_intermediary(self, env, result):
         """
-        Upon failure, points to assertion in helper_marked.
+        Upon failure, points to call of helper in intermediary_marked.
         """
         intermediary_marked(result)
 
@@ -64,4 +54,4 @@ def main(plan):
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(not main())

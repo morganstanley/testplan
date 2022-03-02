@@ -8,17 +8,17 @@ after testcases have finished running.
 """
 import inspect
 import os
+import platform
 import re
 import threading
-import platform
 from functools import wraps
 from typing import Callable
 
 from testplan import defaults
 from testplan.common.utils.package import MOD_LOCK
-from testplan.defaults import STDOUT_STYLE
 from testplan.common.utils import comparison
 from testplan.common.utils import strings
+from testplan.defaults import STDOUT_STYLE
 
 from .entries import assertions, base
 from .entries.schemas.base import registry as schema_registry
@@ -101,18 +101,29 @@ class ExceptionCapture:
 assertion_state = threading.local()
 
 
-def mark(func: Callable) -> Callable:
+def mark_group(func: Callable) -> Callable:
     """
     Sets the decorated function's filepath and line-range in assertion state.
     """
+    filepath = inspect.getfile(func)
+    lines, start = inspect.getsourcelines(func)
+    line_range = range(start, start + len(lines))
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        filepath = inspect.getfile(func)
-        lines, start = inspect.getsourcelines(func)
+        assertion_state.filepath = getattr(assertion_state, "filepath", None)
+        assertion_state.line_range = getattr(
+            assertion_state, "line_range", None
+        )
+        filepath_prev = assertion_state.filepath
+        line_range_prev = assertion_state.line_range
         assertion_state.filepath = filepath
-        assertion_state.line_range = range(start, start + len(lines))
-        func(*args, **kwargs)
+        assertion_state.line_range = line_range
+        try:
+            func(*args, **kwargs)
+        finally:
+            assertion_state.filepath = filepath_prev
+            assertion_state.line_range = line_range_prev
 
     return wrapper
 
@@ -168,8 +179,6 @@ def assertion(func: Callable) -> Callable:
         finally:
             if top_assertion:
                 assertion_state.in_progress = False
-                assertion_state.filepath = None
-                assertion_state.line_range = None
 
     return wrapper
 
