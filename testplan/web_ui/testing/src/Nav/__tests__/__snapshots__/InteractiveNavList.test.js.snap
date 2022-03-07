@@ -10,8 +10,8 @@ exports[`InteractiveNavList shallow renders and matches snapshot 1`] = `
   >
     <ListGroupItem
       action={true}
-      activeClassName="navButton_1x055n9-o_O-navButtonInteract_1ofjo98-o_O-unselectable_16maxrd-o_O-navButtonInteractFocus_7u3vsg"
-      className="navButton_1x055n9-o_O-navButtonInteract_1ofjo98-o_O-unselectable_16maxrd"
+      activeClassName="navButton_1x055n9-o_O-navButtonInteract_kaw7x9-o_O-unselectable_16maxrd-o_O-navButtonInteractFocus_ty7675"
+      className="navButton_1x055n9-o_O-navButtonInteract_kaw7x9-o_O-unselectable_16maxrd"
       key="bbb"
       tabIndex="1"
       tag={

@@ -820,7 +820,7 @@ def xfail(reason, strict=False):
     """
     Mark a testcase/testsuit as XFail(known to fail) when not possible to fix
     immediately. This decorator mandates a reason that explains why the test is
-    marked as passed. XFail testcases will be highlighted as amber on testplan
+    marked as passed. XFail testcases will be highlighted as orange on testplan
     report.
     By default, should the test pass while we expect it to fail, the report
     will mark it as failed.
