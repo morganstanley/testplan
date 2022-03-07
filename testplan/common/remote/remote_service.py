@@ -138,16 +138,15 @@ class RemoteService(Resource, RemoteResource):
             self.std.out_path,
             self.std.err_path,
         )
-        self.logger.debug(
-            f"{self} executes cmd: {cmd}\n"
-            f"\tRunpath: {self.runpath}\n"
-            f"\tPid: {self.proc.pid}\n"
-            f"\tOut file: {self.std.out_path}\n"
-            f"\tErr file: {self.std.err_path}\n"
-        )
 
     def _wait_started(self, timeout: float = None) -> None:
-        """TODO"""
+        """
+        Waits for RPyC server start, changes status to STARTED.
+
+        :param timeout: timeout in seconds
+        :type timeout: ``float``
+        :raises: RuntimeError if server startup fails
+        """
         sleeper = get_sleeper(
             interval=0.2,
             timeout=timeout,
