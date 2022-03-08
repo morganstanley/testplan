@@ -1,7 +1,12 @@
+"""
+Module implementing RemoteService class. Based on RPyC package.
+"""
 import os
 import re
 import signal
 import subprocess
+
+import rpyc
 
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Resource, ResourceConfig
@@ -11,13 +16,8 @@ from testplan.common.remote.remote_resource import (
 )
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.path import StdFiles
-from testplan.common.utils.process import (
-    subprocess_popen,
-    kill_process,
-)
+from testplan.common.utils.process import subprocess_popen, kill_process
 from testplan.common.utils.timing import get_sleeper
-
-import rpyc
 
 RPYC_BIN = os.path.join(
     os.path.dirname(rpyc.__file__),
@@ -69,28 +69,39 @@ class RemoteService(Resource, RemoteResource):
         super(RemoteService, self).__init__(**options)
 
         self.proc = None
+        # This mirrors the way default config is assigned, we only change
+        # snyc_request_timeout and pass it for the Connection object implicitly
+        self.rpyc_config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
+        self.rpyc_config["snyc_request_timeout"] = None
         self.rpyc_connection = None
         self.rpyc_port = None
         self.rpyc_pid = None
         self.std = None
 
-    def __repr__(self):
-        """String representation."""
-
+    def __repr__(self) -> str:
+        """
+        String representation.
+        """
         return f"{self.__class__.__name__} [{self.cfg.name}]"
 
-    def uid(self):
+    def uid(self) -> str:
+        """
+        Unique identifier.
+        """
         return self.cfg.name
 
-    def pre_start(self):
-        """Before service start"""
+    def pre_start(self) -> None:
+        """
+        Before service start.
+        """
         self.make_runpath_dirs()
         self.std = StdFiles(self.runpath)
         self._prepare_remote()
 
-    def starting(self):
-        """Starting the rpyc service on remote host"""
-
+    def starting(self) -> None:
+        """
+        Starting the rpyc service on remote host.
+        """
         cmd = self.cfg.ssh_cmd(
             self.ssh_cfg,
             " ".join(
@@ -115,15 +126,27 @@ class RemoteService(Resource, RemoteResource):
         )
 
         self.logger.debug(
-            f"{self} executes cmd: {cmd}\n"
-            f"\tRunpath: {self.runpath}\n"
-            f"\tPid: {self.proc.pid}\n"
-            f"\tOut file: {self.std.out_path}\n"
-            f"\tErr file: {self.std.err_path}\n"
+            "%s executes cmd: %s\n"
+            "\tRunpath: %s\n"
+            "\tPID: %s\n"
+            "\tOut file: %s\n"
+            "\tErr file: %s",
+            self,
+            cmd,
+            self.runpath,
+            self.proc.pid,
+            self.std.out_path,
+            self.std.err_path,
         )
 
-    def _wait_started(self, timeout=None):
+    def _wait_started(self, timeout: float = None) -> None:
+        """
+        Waits for RPyC server start, changes status to STARTED.
 
+        :param timeout: timeout in seconds
+        :type timeout: ``float``
+        :raises: RuntimeError if server startup fails
+        """
         sleeper = get_sleeper(
             interval=0.2,
             timeout=timeout,
@@ -150,14 +173,22 @@ class RemoteService(Resource, RemoteResource):
                     f"{self} process exited: {self.proc.returncode} (logfile = {self.std.err_path})"
                 )
 
-    def post_start(self):
-        """After service is started"""
+    def post_start(self) -> None:
+        """
+        After service is started.
+        """
         self._config_server()
 
-    def _config_server(self):
-
-        self.rpyc_connection = rpyc.classic.connect(
-            self.cfg.remote_host, self.rpyc_port, keepalive=True
+    def _config_server(self) -> None:
+        """
+        Configures rpyc connection.
+        """
+        self.rpyc_connection = rpyc.classic.factory.connect(
+            host=self.cfg.remote_host,
+            port=self.rpyc_port,
+            service=rpyc.core.service.SlaveService,
+            config=self.rpyc_config,
+            keepalive=True,
         )
 
         self.rpyc_pid = self.rpyc_connection.modules.os.getpid()
@@ -173,15 +204,22 @@ class RemoteService(Resource, RemoteResource):
         if "" not in self.rpyc_connection.modules.sys.path:
             self.rpyc_connection.modules.sys.path.insert(0, "")
 
-    def pre_stop(self):
-        """Before stopping the service"""
+    def pre_stop(self) -> None:
+        """
+        Before stopping the service.
+        """
         self._fetch_results()
 
-    def post_stop(self):
+    def post_stop(self) -> None:
+        """
+        After stopping the service.
+        """
         self._clean_remote()
 
-    def stopping(self):
-        """Stop remote rpyc process"""
+    def stopping(self) -> None:
+        """
+        Stops remote rpyc process.
+        """
         remote_pid = self.rpyc_connection.modules.os.getpid()
         try:
             self.rpyc_connection.modules.os.kill(remote_pid, signal.SIGTERM)
