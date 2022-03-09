@@ -64,18 +64,20 @@ jobs:
           ./scripts/utils/crlf_check.sh
           pylint --rcfile pylintrc testplan
 
-  Test:
-    needs: [ lint]
-    runs-on: ubuntu-latest
+  test:
+    name: Test
+    needs: [lint]
+    runs-on: ${{ matrix.os }}
     env:
       REACT_APP_API_BASE_URL: "/fake/api/endpoint"
       CI: ""
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest]
         python-version: [3.7, 3.8]
 
     steps:
-      - run: echo "BUILD ${{ matrix.python-version }} ${{needs.is_source_changed.outputs.is_source_changed}}"
+      - run: echo "BUILD ${{ matrix.os }} ${{ matrix.python-version }} ${{needs.is_source_changed.outputs.is_source_changed}}"
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -93,9 +95,10 @@ jobs:
         with:
           version: 6.30.1
       - name: Set up Zookeeper for tests
-        run: |
-          sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: sudo apt-get -y install zookeeper zookeeper-bin zookeeperd
       - name: Set up Kafka for tests
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           wget https://downloads.apache.org/kafka/2.8.1/kafka_2.12-2.8.1.tgz -O kafka.tgz
           sudo mkdir /opt/kafka
@@ -105,10 +108,18 @@ jobs:
         run: pip install -r requirements.txt -U
       - name: Build UI
         run: python install-testplan-ui --verbose --dev
-      - name: Test
+      - name: Test Python
+        run: pytest tests --verbose
+      - name: Test UI - Ubuntu
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          pytest tests --verbose
           cd testplan/web_ui/testing
           CI=true pnpm lint
           CI=true pnpm test
-          cd -
+      - name: Test UI - Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: cmd
+        run: |
+          cd testplan/web_ui/testing
+          set CI=true&&pnpm lint
+          set CI=true&&pnpm test

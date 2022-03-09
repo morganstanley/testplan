@@ -59,10 +59,10 @@
     "react-router-enzyme-context": "^1.2.0"
   },
   "scripts": {
-    "start": "react-scripts --max_old_space_size=4096 start",
-    "build": "react-scripts --max_old_space_size=4096 build",
+    "start": "react-scripts --max_old_space_size=8000 start",
+    "build": "react-scripts --max_old_space_size=8000 build",
     "prebuild": "pegjs --format es src/Parser/SearchFieldParser.pegjs",
-    "test": "react-scripts --max_old_space_size=4096 test",
+    "test": "react-scripts --max_old_space_size=8000 test",
     "lint": "eslint --ext .js --ext .jsx src",
     "lint:fix": "eslint --ext .js --ext .jsx src --fix",
     "eject": "react-scripts eject"
