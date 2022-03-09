@@ -96,6 +96,8 @@ const ENTRY_TYPES = [
   'testsuite',
   'parametrization',
   'testcase',
+  'pytest',
+  'pyunit',
 ];
 
 const STATUS = [
