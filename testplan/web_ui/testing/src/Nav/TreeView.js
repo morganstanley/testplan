@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import TreeView from '@material-ui/lab/TreeView';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -14,8 +15,34 @@ import { generatePath } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import TagList from './TagList';
 import { makeStyles } from '@material-ui/core/styles';
+import { generateURLWithParameters } from "../Common/utils";
 
 const TreeViewNav = (props) => {
+  const [expanded, setExpanded] = React.useState(null);
+
+  React.useEffect(() => {
+    // Allow multi expanded
+    if (expanded !== null || _.isEmpty(props.selected)) {
+      return;
+    }
+    let defaultExpanded = [];
+    for(const uid of props.selected[props.selected.length - 1].uids) {
+      if (_.isEmpty(defaultExpanded)) {
+        defaultExpanded.push(uid);
+      } else {
+        defaultExpanded.push(
+          `${defaultExpanded[defaultExpanded.length-1]}/${uid}`
+        );
+      }
+    }
+    setExpanded(defaultExpanded);
+  }, [props.selectedUid, props.selected, expanded]);
+
+
+  const handleToggle = (event, nodeIds) => {
+    setExpanded(nodeIds);
+  };
+
   return (
     <>
       <Column
@@ -23,15 +50,17 @@ const TreeViewNav = (props) => {
         handleColumnResizing={props.handleColumnResizing}
       >
         <TreeView
-          selected={
-            props.selected
-              ? props.selected[props.selected.length - 1].uids.join("/")
-              : props.selectedUid
-          }
+          selected={[
+            _.isEmpty(props.selected)
+            ? props.selectedUid
+            : props.selected[props.selected.length - 1].uids.join("/")
+          ]}
+          expanded={expanded}
           className={css(styles.treeView)}
           disableSelection={true}
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
+          onNodeToggle={handleToggle}
         >
           {
             <Tree
@@ -114,11 +143,16 @@ const filterEntriesOfEntry = (entry, filter, displayEmpty) => {
 
 const Node = (props) => {
   let [reportuid, ...selectionuids] = props.entry.uids;
-  const linkTo = generatePath(props.url,
-    {
-      uid: reportuid,
-      selection: selectionuids
-    });
+  const linkTo = generateURLWithParameters(
+    window.location,
+    generatePath(
+      props.url,
+      {
+        uid: reportuid,
+        selection: selectionuids
+      }
+    )
+  );
   const tags = (
     (props.displayTags && props.entry.tags)
       ? <TagList entryName={props.entry.name} tags={props.entry.tags} />
