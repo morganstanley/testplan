@@ -106,20 +106,13 @@ jobs:
           tar zxf kafka.tgz -C /opt/kafka --strip-components 1
       - name: Install dependencies
         run: pip install -r requirements.txt -U
-      - name: Build UI
-        run: python install-testplan-ui --verbose --dev
-      - name: Test Python
-        run: pytest tests --verbose
-      - name: Test UI - Ubuntu
+      - name: Build & Test UI
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
+        run: | 
+          python install-testplan-ui --verbose --dev
           cd testplan/web_ui/testing
           CI=true pnpm lint
           CI=true pnpm test
-      - name: Test UI - Windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        shell: cmd
-        run: |
-          cd testplan/web_ui/testing
-          set CI=true&&pnpm lint
-          set CI=true&&pnpm test
+          cd -
+      - name: Test Python
+        run: pytest tests --verbose
