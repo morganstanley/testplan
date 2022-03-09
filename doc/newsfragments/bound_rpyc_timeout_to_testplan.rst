@@ -1,0 +1,1 @@
+* Bound default timeout of RPyC connection to Testplan timeout in :py:class:`RemoteService <testplan.common.remote.remote_service.RemoteService>`.
