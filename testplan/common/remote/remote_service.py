@@ -186,7 +186,7 @@ class RemoteService(Resource, RemoteResource):
         self.rpyc_connection = rpyc.classic.factory.connect(
             host=self.cfg.remote_host,
             port=self.rpyc_port,
-            service=rpyc.core.service.SlaveService,
+            service=rpyc.classic.SlaveService,
             config=self.rpyc_config,
             keepalive=True,
         )
