@@ -8,7 +8,7 @@ import threading
 from testplan.common.utils.timing import wait
 
 
-class Server(object):
+class Server:
     """
     A server that can send and receive messages based on socket interface.
     Supports multiple connections.

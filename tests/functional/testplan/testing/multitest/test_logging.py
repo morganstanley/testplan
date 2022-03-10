@@ -92,7 +92,7 @@ def get_filtered_plan(suites):
     return _factory
 
 
-class LoggerSpy(object):
+class LoggerSpy:
     def __init__(self, name=None, logger_obj=None):
         self.logger = logger_obj or logging.getLogger(name)
         self.patcher = {}

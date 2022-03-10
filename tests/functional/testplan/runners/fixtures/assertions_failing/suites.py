@@ -23,7 +23,7 @@ def error_func(obj):
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_log(self, env, result):
         result.log("hello world")

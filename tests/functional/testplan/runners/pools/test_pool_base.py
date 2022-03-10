@@ -10,7 +10,7 @@ from testplan.common.utils.strings import slugify
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, "equality description")

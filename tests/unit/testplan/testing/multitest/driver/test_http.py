@@ -37,7 +37,7 @@ def http_client(http_server, runpath_module):
         yield client
 
 
-class TestHTTP(object):
+class TestHTTP:
     """Test the HTTP server and client drivers."""
 
     @pytest.mark.parametrize(

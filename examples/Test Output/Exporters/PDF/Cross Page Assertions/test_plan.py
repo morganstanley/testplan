@@ -14,7 +14,7 @@ from testplan.report.testing.styles import Style
 
 
 @testsuite
-class AlphaSuite(object):
+class AlphaSuite:
 
     msg = (
         "This is a super looooooooooog message with indents, extra spaces\n"

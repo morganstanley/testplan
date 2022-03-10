@@ -70,7 +70,7 @@ class ExclusiveResourceManager(driver.Driver):
             return self._refcounts[resource_name]
 
 
-class _AcquirableResource(object):
+class _AcquirableResource:
     """A resource which may be acquired via a `with` context."""
 
     def __init__(self, acquire_callback, release_callback, refcount_callback):

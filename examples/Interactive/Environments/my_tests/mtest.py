@@ -4,7 +4,7 @@ from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 
 @testsuite
-class TCPSuite(object):
+class TCPSuite:
     @testcase
     def send_and_receive_msg(self, env, result):
         """

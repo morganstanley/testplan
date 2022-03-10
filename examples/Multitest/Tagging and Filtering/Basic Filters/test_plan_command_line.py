@@ -17,7 +17,7 @@ from testplan.report.testing.styles import Style
 
 # A suite with no tags, will be filtered out if we apply any tag based filters
 @testsuite
-class Alpha(object):
+class Alpha:
     @testcase
     def test_1(self, env, result):
         pass
@@ -29,7 +29,7 @@ class Alpha(object):
 
 # A suite with testcase level tags only.
 @testsuite
-class Beta(object):
+class Beta:
 
     # A testcase tagged with a simple tag: `server`
     # This is a shortcut notation for {'simple': 'server'}
@@ -51,7 +51,7 @@ class Beta(object):
 # A suite with class level tags, these class level tags
 #  will be propagated to each test case as well.
 @testsuite(tags=("server", "client"))
-class Gamma(object):
+class Gamma:
     @testcase(tags={"color": "red"})
     def test_1(self, env, result):
         pass

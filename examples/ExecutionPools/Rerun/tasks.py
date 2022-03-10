@@ -7,7 +7,7 @@ from testplan.common.utils.path import makedirs
 
 
 @testsuite
-class Unstablesuite(object):
+class Unstablesuite:
     """
     A test suite which has an unstable testcase.
     The multitest containing this suite has to re-run twice

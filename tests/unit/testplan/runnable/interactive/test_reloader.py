@@ -16,7 +16,7 @@ from testplan.testing import multitest
 
 
 @multitest.testsuite
-class Suite(object):
+class Suite:
     """An example test suite to be reloaded."""
 
     @multitest.testsuite
@@ -54,7 +54,7 @@ MOCK_MODULES = {
 MODULE_ATTRS = {"mod_a": [Suite]}
 
 
-class MockModule(object):
+class MockModule:
     """Mock object to return in place of a real python module."""
 
     def __init__(self, name, filepath, attributes):
@@ -106,7 +106,7 @@ _set_module_globals()
 del _set_module_globals
 
 
-class MockModuleFinder(object):
+class MockModuleFinder:
     """
     Mock ModuleFinder object. Allows us to control the structure of discovered
     module dependencies.

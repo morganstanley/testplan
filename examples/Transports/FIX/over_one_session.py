@@ -47,7 +47,7 @@ def fixmsg(source):
 
 
 @testsuite
-class FIXTestsuite(object):
+class FIXTestsuite:
     @testcase
     def send_and_receive_msg(self, env, result):
         """

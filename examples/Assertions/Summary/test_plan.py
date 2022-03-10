@@ -102,7 +102,7 @@ def new_fix(reference=False):
 
 
 @testsuite
-class AssertionsSummary(object):
+class AssertionsSummary:
     @testcase(summarize=True)
     def mixed_assertions_summary(self, env, result):
         """

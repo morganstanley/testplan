@@ -14,7 +14,7 @@ def test_interval():
     assert interval.elapsed == 10
 
 
-class TestTimer(object):
+class TestTimer:
     def test_start(self):
         """`Timer.start` should create an `Interval` that has `start` attribute set."""
         timer = Timer()

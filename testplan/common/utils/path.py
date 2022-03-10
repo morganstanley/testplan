@@ -135,7 +135,7 @@ def removeemptydir(path):
         pass  # not a directory or not empty
 
 
-class StdFiles(object):
+class StdFiles:
     """
     stderr and stdout file creation and management
     """

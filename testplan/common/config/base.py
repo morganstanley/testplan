@@ -104,7 +104,7 @@ def update_options(target, source):
             target[key] = source[key]
 
 
-class Config(object):
+class Config:
     """
     Base class for creating a configuration object with a schema
     that can define default values and support inheritance.

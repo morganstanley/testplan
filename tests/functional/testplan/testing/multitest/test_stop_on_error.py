@@ -13,7 +13,7 @@ from testplan.report import (
 
 
 @testsuite
-class Suite1(object):
+class Suite1:
     def setup(self, env, result):
         pass
 
@@ -34,7 +34,7 @@ class Suite1(object):
 
 
 @testsuite
-class Suite2(object):
+class Suite2:
     def setup(self, env, result):
         pass
 
@@ -51,7 +51,7 @@ class Suite2(object):
 
 
 @testsuite
-class Suite3(object):
+class Suite3:
     def setup(self, env, result):
         pass
 

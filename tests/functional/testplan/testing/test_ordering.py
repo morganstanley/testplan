@@ -11,7 +11,7 @@ from testplan.testing import ordering
 
 
 @testsuite
-class Alpha(object):
+class Alpha:
     @testcase
     def test_ccc(self, env, result):
         pass
@@ -26,7 +26,7 @@ class Alpha(object):
 
 
 @testsuite
-class Beta(object):
+class Beta:
     @testcase
     def test_ccc(self, env, result):
         pass

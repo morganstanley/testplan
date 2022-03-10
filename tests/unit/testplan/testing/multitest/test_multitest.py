@@ -22,7 +22,7 @@ MTEST_DEFAULT_PARAMS = {
 def test_multitest_runpath():
     """Test setting of runpath."""
 
-    class Parent(object):
+    class Parent:
         def __init__(self, runpath):
             self.runpath = runpath
 
@@ -73,7 +73,7 @@ def test_multitest_runpath():
 
 
 @multitest.testsuite
-class Suite(object):
+class Suite:
     """Basic testsuite."""
 
     @multitest.testcase
@@ -95,7 +95,7 @@ class Suite(object):
 
 
 @multitest.testsuite
-class ParallelSuite(object):
+class ParallelSuite:
     """
     Suite with parallelisable testcases.
 
