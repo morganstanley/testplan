@@ -1,11 +1,10 @@
 """MultiTest test execution framework."""
 
-import os
 import collections
+import concurrent
 import functools
 import itertools
-
-import concurrent
+import os
 
 from schema import Or, And, Use
 
@@ -23,6 +22,7 @@ from testplan.testing import base as testing_base
 from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
+from testplan.testing.multitest.result import mark_group
 
 from testplan.report import (
     TestGroupReport,
@@ -145,6 +145,7 @@ class MultiTestConfig(testing_base.TestConfig):
             config.ConfigOption("fix_spec_path", default=None): Or(
                 None, And(str, os.path.exists)
             ),
+            config.ConfigOption("mark_testcase", default=True): bool,
         }
 
 
@@ -184,6 +185,9 @@ class MultiTest(testing_base.Test):
     :type result: :py:class:`~testplan.testing.multitest.result.result.Result`
     :param fix_spec_path: Path of fix specification file.
     :type fix_spec_path: ``NoneType`` or ``str``.
+    :param mark_testcase: Whether to mark testcases as assertions for filepath
+        and line number information
+    :type mark_testcase: ``bool``
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -217,6 +221,7 @@ class MultiTest(testing_base.Test):
         tags=None,
         result=result.Result,
         fix_spec_path=None,
+        mark_testcase=True,
         **options
     ):
         self._tags_index = None
@@ -319,6 +324,11 @@ class MultiTest(testing_base.Test):
                     testcase
                     for (idx, testcase) in enumerate(testcases_to_run)
                     if idx % self.cfg.part[1] == self.cfg.part[0]
+                ]
+
+            if self.cfg.mark_testcase:
+                testcases_to_run = [
+                    mark_group(testcase) for testcase in testcases_to_run
                 ]
 
             if testcases_to_run:
