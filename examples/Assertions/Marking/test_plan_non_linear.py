@@ -51,8 +51,9 @@ class Suite:
 
 @test_plan(name="Plan")
 def main(plan):
-    plan.add(MultiTest(name="MultiTest", suites=[Suite()]))
-    return plan
+    plan.add(
+        MultiTest(name="MultiTest", suites=[Suite()], mark_testcase=False)
+    )
 
 
 if __name__ == "__main__":
