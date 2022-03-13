@@ -1,6 +1,7 @@
 import re
+from collections import defaultdict
 from pathlib import Path
-from typing import Pattern, List
+from typing import Pattern, List, Callable, Dict, Any
 
 from pydantic import BaseModel, root_validator
 
@@ -25,13 +26,14 @@ class SubmoduleConfig(BaseModel):
         return values
 
 
+DefaultOptionsCallable = Callable[[Dict[str, Any]], None]
+
+
 class Configuration(BaseModel):
     config_path: Path
     version_tag_pattern: Pattern = DEFAULT_VERSION_TAG_PATTERN
     news_fragments_directory: Path = DEFAULT_FRAGMENTS_DIR
-    insert_marker: Pattern = re.compile(
-        r"^(\s)*\.\. releaseherald_insert(\s)*$"
-    )
+    insert_marker: Pattern = re.compile(r"^(\s)*\.\. releaseherald_insert(\s)*$")
     template: Path = str(Path(templates.__path__[0]) / "news.rst")
     unreleased: bool = False
     news_file: Path = "news.rst"
@@ -43,16 +45,21 @@ class Configuration(BaseModel):
 
     class Config:
         paths_to_resolve: List[str] = ["template", "news_file"]
+        default_options_callbacks: Dict[str, List[DefaultOptionsCallable]] = {
+            "generate": []
+        }
 
     def as_default_options(self):
-        return {
-            "generate": {
-                "unreleased": self.unreleased,
-                "update": self.update,
-                "latest": self.latest,
-                "target": self.target,
-            }
-        }
+        default_options_callbacks: Dict[
+            str, List[DefaultOptionsCallable]
+        ] = self.__config__.default_options_callbacks
+
+        result = defaultdict(dict)
+        for command, callbacks in default_options_callbacks.items():
+            for callback in callbacks:
+                callback(result[command])
+
+        return dict(result)
 
     @root_validator
     def resolve_paths(cls, values):
@@ -61,8 +68,6 @@ class Configuration(BaseModel):
         values = values.copy()
         for path_config in cls.__config__.paths_to_resolve:
             path = Path(values[path_config])
-            values[path_config] = str(
-                path if path.is_absolute() else root / path
-            )
+            values[path_config] = str(path if path.is_absolute() else root / path)
 
         return values
