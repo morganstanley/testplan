@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Union, Any, Optional
 
 import click
 import toml
 from boltons.iterutils import pairwise, get_path
-from git import Repo, Commit
+from git import Repo, Commit, Tag  # type: ignore
 from pluggy import PluginManager
 
 # TODO: Handle not yet committed change
@@ -32,20 +32,23 @@ def load_config(config_path: str, config_key: Tuple = ()) -> Configuration:
     return Configuration.parse_obj(config)
 
 
-def get_config(git_repo_dir: str) -> Tuple[str, Tuple]:
-    key = ()
-    path = Path(git_repo_dir) / CONFIG_FILE_NAME
+ConfigKeyPathType = Union[Tuple, Tuple[Any, ...]]
+
+
+def get_config(git_repo_dir: Path) -> Tuple[Optional[Path], ConfigKeyPathType]:
+    key: ConfigKeyPathType = ()
+    path = git_repo_dir / CONFIG_FILE_NAME
     if not path.exists():
-        path = Path(git_repo_dir) / PYPROJECT_TOML
+        path = git_repo_dir / PYPROJECT_TOML
         key = CONFIG_KEY_IN_PYPROJECT
-    return str(path) if path.exists() else None, key
+    return path if path.exists() else None, key
 
 
 @dataclass
 class Context:
-    repo: Repo = None
-    config: Configuration = None
-    pm: PluginManager = None
+    repo: Repo
+    config: Configuration
+    pm: PluginManager
 
 
 @click.group()
@@ -119,10 +122,10 @@ def collect_news_fragments(
     pm: PluginManager,
 ) -> List[VersionNews]:
 
-    tags = []
+    tags: List[Tag] = []
     pm.hook.process_tags(repo=repo, tags=tags)
 
-    commits = []
+    commits: List[Tag] = []
     pm.hook.process_commits(repo=repo, tags=tags, commits=commits)
 
     version_news = [
@@ -177,17 +180,18 @@ def generate(ctx: click.Context, **kwargs):
     help="Path to the config file, if not provided releaseherald.toml or pyproject.toml usde from git repo root.",
 )
 @click.pass_context
-def setup(ctx: click.Context, git_dir, config):
+def setup(ctx: click.Context, git_dir, config) -> Context:
     repo = Repo(path=git_dir, search_parent_directories=True)
 
-    config_key = ()
+    config_key: ConfigKeyPathType = ()
+    git_working_dir = Path(str(repo.working_dir))
     if not config:
-        config, config_key = get_config(repo.working_dir)
+        config, config_key = get_config(git_working_dir)
 
     configuration = (
         load_config(config, config_key)
         if config
-        else Configuration(config_path=repo.working_dir)
+        else Configuration(config_path=git_working_dir)
     )
 
     pm = get_pluginmanager(configuration)
@@ -203,13 +207,8 @@ def setup(ctx: click.Context, git_dir, config):
         )
 
     ctx.default_map = configuration.as_default_options()
-
-    ctx.ensure_object(Context)
-    ctx.obj.repo = repo
-    ctx.obj.config = configuration
-    ctx.obj.pm = pm
-
-    return ctx.obj
+    context = Context(repo=repo, config=configuration, pm=pm)
+    return context
 
 
 cli.params = setup.params

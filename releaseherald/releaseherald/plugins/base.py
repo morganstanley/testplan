@@ -2,11 +2,12 @@ import uuid
 from dataclasses import field, dataclass
 from io import StringIO
 from itertools import takewhile
+from os import PathLike
 from pathlib import Path
 from typing import List, Pattern, Dict, Any
 
 import click
-from git import Repo, Tag, Commit
+from git import Repo, Tag, Commit  # type: ignore
 from jinja2 import Environment, FileSystemLoader
 
 import releaseherald.plugins
@@ -83,8 +84,8 @@ class BasePlugin:
         all_tags = get_tags(repo, self.config.version_tag_pattern)
 
         # tear of things after last tag
-        last_tag = self.config.last_tag or ROOT_TAG
-        last_tag = repo.tags[last_tag] if last_tag in repo.tags else None
+        last_tag_name = self.config.last_tag or ROOT_TAG
+        last_tag = repo.tags[last_tag_name] if last_tag_name in repo.tags else None
         if last_tag:
             tags.extend(takewhile(lambda tag: tag != last_tag, all_tags))
             tags.append(last_tag)
@@ -163,7 +164,7 @@ class BasePlugin:
     @releaseherald.plugins.hookimpl
     def write_output(self, output: Output):
         if self.generate_command_params.update:
-            result = update_news_file(output.content, self.news_file, self.config.insert_marker)
+            result = update_news_file(output.content, self.config.news_file, self.config.insert_marker)
         else:
             result = output.content
 
@@ -180,7 +181,7 @@ def get_tags(repo: Repo, version_tag_pattern: Pattern):
         tag
         for tag in repo.tags
         if version_tag_pattern.match(tag.name)
-        and repo.is_ancestor(tag.commit, repo.head)
+        and repo.is_ancestor(tag.commit, repo.head.commit)
     ]
     tags.sort(key=lambda tag: tag.commit.committed_date, reverse=True)
     return tags
@@ -190,14 +191,14 @@ ROOT_TAG = "RELEASEHERALD_ROOT"
 
 
 def get_news_between_commits(
-    commit1: Commit, commit2: Commit, news_fragment_dir: str
+    commit1: Commit, commit2: Commit, news_fragment_dir: Path
 ) -> List[News]:
     diffs = commit1.diff(commit2)
     paths = [
         diff.a_path
         for diff in diffs
         if diff.change_type in ("A", "C", "R", "M")
-        and Path(news_fragment_dir) == Path(diff.a_path).parent
+        and news_fragment_dir == Path(diff.a_path).parent
     ]
     return [
         News(file_name=path, content=file_content_from_commit(commit2, path))
@@ -219,7 +220,7 @@ def get_version(tag_name: str, version_tag_pattern: Pattern):
     return version
 
 
-def update_news_file(news_str: str, news_file: str, insert_marker: Pattern):
+def update_news_file(news_str: str, news_file: Path, insert_marker: Pattern):
     changed_file = False
     output = StringIO()
     with open(news_file) as f:

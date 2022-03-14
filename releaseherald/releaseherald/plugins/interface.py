@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, List, Generic, TypeVar
 
 import click
-from git import TagReference, Commit
+from git import TagReference, Commit  # type: ignore
 
 from releaseherald.configuration import DefaultOptionsCallable
 
