@@ -2,7 +2,6 @@ import uuid
 from dataclasses import field, dataclass
 from io import StringIO
 from itertools import takewhile
-from os import PathLike
 from pathlib import Path
 from typing import List, Pattern, Dict, Any
 
@@ -20,6 +19,7 @@ from releaseherald.plugins.interface import (
     Output,
     GenerateCommandOptions,
 )
+
 
 @dataclass
 class GenerateParams:

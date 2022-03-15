@@ -9,10 +9,8 @@ from git import Repo, Commit, Tag  # type: ignore
 from pluggy import PluginManager
 
 # TODO: Handle not yet committed change
-from releaseherald.configuration import Configuration, SubmoduleConfig
-from releaseherald.plugins.base import get_tags, get_news_between_commits
+from releaseherald.configuration import Configuration
 from releaseherald.plugins.interface import (
-    SubmoduleNews,
     VersionNews,
     MutableProxy,
     News,
@@ -54,50 +52,6 @@ class Context:
 @click.group()
 def cli(**kwargs):
     pass
-
-
-def get_submodule_commit(commit: Commit, name: str) -> Commit:
-    repo = commit.repo
-    try:
-        submodule = repo.submodules[name]
-        sha = (commit.tree / submodule.path).hexsha
-    except KeyError as e:
-        # this case the submodule either not exist or not exist at that commit we are looking into
-        return None
-
-    srepo = submodule.module()
-    return srepo.commit(sha)
-
-
-# TODO: move submodule handling to plugin
-
-def get_submodule_news(
-    commit_from: Commit, commit_to: Commit, submodules: List[SubmoduleConfig]
-) -> List[SubmoduleNews]:
-    news = []
-    for submodule in submodules:
-        submodule_from = get_submodule_commit(commit_from, submodule.name)
-        submodule_to = get_submodule_commit(commit_to, submodule.name)
-        srepo = submodule_from.repo
-        tag_commits = [
-            tag.commit
-            for tag in get_tags(srepo, submodule.version_tag_pattern)
-            if srepo.is_ancestor(submodule_from, tag.commit)
-            and srepo.is_ancestor(tag.commit, submodule_to)
-        ]
-
-        commits = [submodule_to, *tag_commits, submodule_from]
-
-        snews = SubmoduleNews(name=submodule.name, display_name=submodule.display_name)
-
-        for c_to, c_from in pairwise(commits):
-            snews.news.extend(
-                get_news_between_commits(
-                    c_from, c_to, submodule.news_fragments_directory
-                )
-            )
-        news.append(snews)
-    return news
 
 
 def get_version_news(pm, repo, commit_from, commit_to):
