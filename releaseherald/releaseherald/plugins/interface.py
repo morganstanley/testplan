@@ -11,7 +11,7 @@ VT = TypeVar("VT")
 
 
 @dataclass
-class GenerateCommandOptions:
+class CommandOptions:
     options: List[click.Option]
     default_opts_callback: DefaultOptionsCallable
 

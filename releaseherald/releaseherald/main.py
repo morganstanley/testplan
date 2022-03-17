@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Tuple, Union, Any, Optional
+from typing import List, Tuple, Union, Any, Optional, Dict
 
 import click
 import toml
@@ -15,7 +15,7 @@ from releaseherald.plugins.interface import (
     MutableProxy,
     News,
     Output,
-    GenerateCommandOptions,
+    CommandOptions,
 )
 from releaseherald.plugins.manager import get_pluginmanager
 
@@ -104,10 +104,7 @@ def generate(ctx: click.Context, **kwargs):
     config = context.config
     repo = context.repo
 
-    context.pm.hook.process_generate_command_params(kwargs=kwargs)
-
-    news_file = config.news_file
-
+    context.pm.hook.on_start_command(command="generate", kwargs=kwargs)
     news_fragments = collect_news_fragments(
         repo,
         pm=context.pm,
@@ -134,7 +131,7 @@ def generate(ctx: click.Context, **kwargs):
     help="Path to the config file, if not provided releaseherald.toml or pyproject.toml usde from git repo root.",
 )
 @click.pass_context
-def setup(ctx: click.Context, git_dir, config) -> Context:
+def setup(ctx: click.Context, git_dir, config) -> Tuple[Dict[str,Any], Context]:
     repo = Repo(path=git_dir, search_parent_directories=True)
 
     config_key: ConfigKeyPathType = ()
@@ -150,9 +147,9 @@ def setup(ctx: click.Context, git_dir, config) -> Context:
 
     pm = get_pluginmanager(configuration)
 
-    generate_command_options: List[
-        GenerateCommandOptions
-    ] = pm.hook.get_generate_command_options()
+    generate_command_options: List[CommandOptions] = pm.hook.get_command_options(
+        command="generate"
+    )
 
     for option in generate_command_options:
         generate.params.extend(option.options)
@@ -160,14 +157,14 @@ def setup(ctx: click.Context, git_dir, config) -> Context:
             option.default_opts_callback
         )
 
-    ctx.default_map = configuration.as_default_options()
+    defaults = configuration.as_default_options()
     context = Context(repo=repo, config=configuration, pm=pm)
-    return context
+    return defaults, context
 
 
 cli.params = setup.params
 
 if __name__ == "__main__":
-    retval = setup.main(standalone_mode=False)
+    default_map, context_obj = setup.main(standalone_mode=False)
 
-    cli.main(obj=retval)
+    cli.main(default_map=default_map, obj=context_obj)

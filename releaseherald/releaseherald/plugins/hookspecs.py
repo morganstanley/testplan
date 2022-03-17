@@ -9,7 +9,7 @@ from releaseherald.plugins.interface import (
     VersionNews,
     News,
     Output,
-    GenerateCommandOptions,
+    CommandOptions,
 )
 
 hookspec = pluggy.HookspecMarker("releaseherald")
@@ -21,12 +21,12 @@ def process_config(config: Configuration):
 
 
 @hookspec
-def get_generate_command_options() -> GenerateCommandOptions:
+def get_command_options(command: str) -> CommandOptions:
     pass
 
 
 @hookspec
-def process_generate_command_params(kwargs: Dict[str, Any]):
+def on_start_command(command: str, kwargs: Dict[str, Any]):
     pass
 
 

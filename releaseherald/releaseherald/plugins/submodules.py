@@ -32,6 +32,7 @@ class SubmoduleConfig(BaseModel):
 
 class Submodules:
     def __init__(self):
+        self.__name__ = self.__class__.__name__
         self.config: Optional[Configuration] = None
         self.submodule_config: List[SubmoduleConfig] = []
 

@@ -3,11 +3,12 @@ from dataclasses import field, dataclass
 from io import StringIO
 from itertools import takewhile
 from pathlib import Path
-from typing import List, Pattern, Dict, Any
+from typing import List, Pattern, Dict, Any, Optional
 
 import click
 from git import Repo, Tag, Commit  # type: ignore
 from jinja2 import Environment, FileSystemLoader
+from pydantic import BaseModel
 
 import releaseherald.plugins
 from releaseherald.configuration import Configuration
@@ -17,20 +18,19 @@ from releaseherald.plugins.interface import (
     MutableProxy,
     News,
     Output,
-    GenerateCommandOptions,
+    CommandOptions,
 )
 
 
-@dataclass
-class GenerateParams:
-    latest: bool
+class GenerateParams(BaseModel):
     unreleased: bool
     update: bool
-    target: str
+    target: Optional[str]
 
 
 class BasePlugin:
     def __init__(self):
+        self.__name__ = self.__class__.__name__
         self.config: Configuration = None
         self.generate_command_params: GenerateParams = None
 
@@ -39,7 +39,12 @@ class BasePlugin:
         self.config = config
 
     @releaseherald.plugins.hookimpl
-    def get_generate_command_options(self) -> GenerateCommandOptions:
+    def get_command_options(self, command: str) -> Optional[CommandOptions]:
+
+        command_options = self._get_generate_options() if command == 'generate' else None
+        return command_options
+
+    def _get_generate_options(self) -> CommandOptions:
         options = [
             click.Option(
                 param_decls=["--unreleased/--released"],
@@ -52,11 +57,6 @@ class BasePlugin:
                 help="Flag to set if the news should be rendered into the news file (--update), or just presented in it's own",
             ),
             click.Option(
-                param_decls=["--latest/--all"],
-                is_flag=True,
-                help="Flag to set if all the versions need to be presented or just the latest",
-            ),
-            click.Option(
                 param_decls=["--target", "-t"],
                 help="Path of target file, if present the generated result is written to target, else to stdout",
             ),
@@ -67,15 +67,16 @@ class BasePlugin:
                 {
                     "unreleased": self.config.unreleased,
                     "update": self.config.update,
-                    "latest": self.config.latest,
                     "target": self.config.target,
                 }
             )
-        return GenerateCommandOptions(options,default_opts_callback)
+
+        return CommandOptions(options, default_opts_callback)
 
     @releaseherald.plugins.hookimpl
-    def process_generate_command_params(self, kwargs: Dict[str, Any]):
-        self.generate_command_params = GenerateParams(**kwargs)
+    def on_start_command(self, command: str, kwargs: Dict[str, Any]):
+        if command== 'generate':
+            self.generate_command_params = GenerateParams(**kwargs)
 
     @releaseherald.plugins.hookimpl(tryfirst=True)
     def process_tags(self, repo: Repo, tags: List[Tag]):
@@ -96,10 +97,12 @@ class BasePlugin:
     def process_commits(self, repo: Repo, tags: List[Tag], commits: List[CommitInfo]):
         commits.clear()
         commits.extend(CommitInfo(tag=tag, commit=tag.commit) for tag in tags)
-        if self.config.unreleased and (
+        if self.generate_command_params.unreleased and (
             not commits or (commits and repo.head.commit != commits[0].commit)
         ):
             commits.insert(0, CommitInfo(tag=None, commit=repo.head.commit))
+
+
 
     @releaseherald.plugins.hookimpl(tryfirst=True)
     def get_news_between_commits(
