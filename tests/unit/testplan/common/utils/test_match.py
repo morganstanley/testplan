@@ -37,7 +37,7 @@ def large_logfile():
     os.remove(filepath)
 
 
-class TestMatchRegexpsInFile(object):
+class TestMatchRegexpsInFile:
     """
     Test the match_regexps_in_file function
     """
@@ -76,7 +76,7 @@ class TestMatchRegexpsInFile(object):
         assert isinstance(values["second"], bytes)
 
 
-class TestLogMatcher(object):
+class TestLogMatcher:
     """
     Test the LogMatcher class.
     """

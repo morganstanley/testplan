@@ -17,7 +17,7 @@ def tagsoverride(msg, override):
     return msg
 
 
-class FixParser(object):
+class FixParser:
     """
     A barebones FIX parser
     """

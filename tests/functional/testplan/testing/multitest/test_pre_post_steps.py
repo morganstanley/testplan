@@ -13,7 +13,7 @@ CURRENT_FILE = os.path.abspath(__file__)
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_one(self, env, result):
         pass

@@ -13,7 +13,7 @@ from testplan.common.utils.strings import slugify
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, "equality description")
@@ -44,7 +44,7 @@ def get_mtest_imported(name):
 
 
 @testsuite
-class SuiteKillingWorker(object):
+class SuiteKillingWorker:
     def __init__(self, parent_pid, size):
         self._parent_pid = parent_pid
         self._size = size
@@ -70,7 +70,7 @@ def multitest_kill_one_worker(parent_pid, size):
 
 
 @testsuite
-class SimpleSuite(object):
+class SimpleSuite:
     @testcase
     def test_simple(self, env, result):
         pass

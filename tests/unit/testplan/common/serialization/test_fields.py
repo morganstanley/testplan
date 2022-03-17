@@ -11,7 +11,7 @@ def native_or_pretty():
     return fields.NativeOrPretty()
 
 
-class SerializeMe(object):
+class SerializeMe:
     """Custom type that returns a string as its "serialization"."""
 
     def __repr__(self):
@@ -30,7 +30,7 @@ class UnPickleableInt(int):
         )
 
 
-class SerializationTargets(object):
+class SerializationTargets:
     """
     An object that contains some different values to be serialized for
     testing.
@@ -50,7 +50,7 @@ def targets():
     return SerializationTargets()
 
 
-class TestNativeOrPretty(object):
+class TestNativeOrPretty:
     def test_basic(self, native_or_pretty, targets):
         """Test serialization of basic types: no change is required."""
         for attr in ("x", "y", "z"):

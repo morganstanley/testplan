@@ -23,7 +23,7 @@ from testplan.testing.multitest import MultiTest
 
 
 @testsuite
-class AssertionOrder(object):
+class AssertionOrder:
     @testcase
     def case(self, env, result):
         summary = result.subresult()
@@ -129,7 +129,7 @@ def fix_ns():
     return result_mod.FixNamespace(mock_result)
 
 
-class TestDictNamespace(object):
+class TestDictNamespace:
     """Unit testcases for the result.DictNamespace class."""
 
     def test_basic_match(self, dict_ns):
@@ -335,7 +335,7 @@ class TestDictNamespace(object):
         )
 
 
-class TestFIXNamespace(object):
+class TestFIXNamespace:
     """Unit testcases for the result.FixNamespace class."""
 
     def test_untyped_fixmatch(self, fix_ns):
@@ -492,7 +492,7 @@ class TestFIXNamespace(object):
         )
 
 
-class TestResultBaseNamespace(object):
+class TestResultBaseNamespace:
     """Test assertions and other methods in the base result.* namespace."""
 
     def test_graph_assertion(self):

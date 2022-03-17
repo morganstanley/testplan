@@ -23,7 +23,7 @@ For more information about Pillow see: https://pillow.readthedocs.io/en/stable/
 
 
 @multitest.testsuite
-class TestSuite(object):
+class TestSuite:
     """Example test suite."""
 
     def setup(self, env):

@@ -26,7 +26,7 @@ OUTPUT_STYLE = Style(StyleEnum.ASSERTION_DETAIL, StyleEnum.ASSERTION_DETAIL)
 
 
 @testsuite
-class ZookeeperTest(object):
+class ZookeeperTest:
     """Suite that contains testcases that perform zookeeper operation."""
 
     def setup(self, env, result):

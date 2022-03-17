@@ -1,15 +1,15 @@
 """Test the JSON exporter."""
-import os
-import json
 import copy
-import tempfile
+import json
+import os
 import pathlib
+import tempfile
 
 from testplan import TestplanMock
-from testplan.testing import multitest
 from testplan.common.utils.testing import argv_overridden
 from testplan.exporters.testing import JSONExporter
 from testplan.exporters.testing.json import gen_attached_report_names
+from testplan.testing import multitest
 
 
 full_report = {
@@ -178,7 +178,7 @@ assertions_part = {
 
 
 @multitest.testsuite
-class Alpha(object):
+class Alpha:
     @multitest.testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, "equality description")
@@ -197,7 +197,7 @@ class Alpha(object):
 
 
 @multitest.testsuite
-class Beta(object):
+class Beta:
     @multitest.testcase
     def test_failure(self, env, result):
         result.equal(1, 2, "failing assertion")
@@ -294,7 +294,7 @@ def test_json_exporter_generating_split_report(runpath):
     assert len(report["attachments"]) == 3
 
     structure_filename, assertions_filename = gen_attached_report_names(
-        json_path
+        pathlib.Path(json_path).resolve()
     )
     assert structure_filename in report["attachments"]
     assert assertions_filename in report["attachments"]

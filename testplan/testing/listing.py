@@ -14,7 +14,7 @@ INDENT = " "
 MAX_TESTCASES = 25
 
 
-class BaseLister(object):
+class BaseLister:
     """
     Base of all listers, implement the :py:meth:`get_output` give it a name in
     :py:attr:`NAME` and a description in :py:attr:`DESCRIPTION` or alternatively
@@ -146,7 +146,7 @@ class ExpandedPatternLister(ExpandedNameLister):
         return self.apply_tag_label(pattern, testcase)
 
 
-class TrimMixin(object):
+class TrimMixin:
     DESCRIPTION = "\tMax {} testcases per suite will be displayed".format(
         MAX_TESTCASES
     )
@@ -228,7 +228,7 @@ class ListingArgMixin(ArgMixin):
         return dict([(lister, lister.value.description()) for lister in cls])
 
 
-class ListingRegistry(object):
+class ListingRegistry:
     """
     A registry to store listers, add listers to the :py:data:`listing_registry`
     instance which is used to create the commandline parser.

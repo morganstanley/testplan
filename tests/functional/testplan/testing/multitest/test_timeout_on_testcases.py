@@ -16,7 +16,7 @@ from testplan.report import (
 
 
 @testsuite
-class Suite1(object):
+class Suite1:
     """A test suite with basic testcases."""
 
     @testcase(timeout=3)
@@ -30,7 +30,7 @@ class Suite1(object):
 
 
 @testsuite
-class Suite2(object):
+class Suite2:
     """A test suite with parameterized testcases in different exec groups."""
 
     @testcase(parameters=(1, 2, 3), execution_group="first", timeout=5)

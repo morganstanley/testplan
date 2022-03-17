@@ -1,7 +1,7 @@
 """Communication protocol for execution pools."""
 
 
-class Message(object):
+class Message:
     """Object to be used for pool-worker communication."""
 
     Ack = "Ack"

@@ -10,7 +10,7 @@ from testplan.common.utils.logger import LOGFILE_FORMAT, Loggable
 CAPTURED_LOG_DESCRIPTION = "Auto Captured Log"
 
 
-class CaptureLevel(object):
+class CaptureLevel:
     """Capture level Enum like object
 
     ROOT:
@@ -29,7 +29,7 @@ class CaptureLevel(object):
     ROOT = (TESTPLAN, OTHER)
 
 
-class LogCaptureConfig(object):
+class LogCaptureConfig:
     """
     Configuration for log capture
 

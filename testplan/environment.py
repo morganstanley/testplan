@@ -3,7 +3,7 @@
 from testplan.common.entity import Resource, Environment
 
 
-class EnvironmentCreator(object):
+class EnvironmentCreator:
     """
     Environment creator interface.
     """

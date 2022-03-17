@@ -20,7 +20,7 @@ def multiline(*strings, **kwargs):
     return line_sep.join(strings)
 
 
-class TestAssertion(object):
+class TestAssertion:
     @pytest.mark.parametrize(
         "value,expected",
         [
@@ -83,7 +83,7 @@ INEQUALITY_PARAMS = (
 def generate_function_assertion_test(
     assertion_kls, passing_params, failing_params
 ):
-    class AssertionTest(object):
+    class AssertionTest:
         def _test_evaluate(self, first, second, expected):
             assertion = assertion_kls(first, second)
             assert assertion.first is first
@@ -192,7 +192,7 @@ IS_NOT_CLOSE_PARAMS = [
 def generate_approximate_equality_assertion_test(
     assertion_kls, passing_params, failing_params
 ):
-    class ApproximateEqualityTest(object):
+    class ApproximateEqualityTest:
         def _test_evaluate(self, first, second, rel_tol, abs_tol, expected):
             assertion = assertion_kls(first, second, rel_tol, abs_tol)
             assert assertion.first is first
@@ -240,7 +240,7 @@ NOT_CONTAINS_PARAMS = [
 
 
 def generate_membership_test(assertion_kls, passing_params, failing_params):
-    class MembershipTest(object):
+    class MembershipTest:
         def _test_evaluate(self, member, container, expected):
             assertion = assertion_kls(member, container)
             assert assertion.member is member
@@ -274,7 +274,7 @@ TestNotContain = generate_membership_test(
 REGEX_PARAM_NAMES = "regexp,string,flags,expected_match_indexes"
 
 
-class BaseRegexTest(object):
+class BaseRegexTest:
 
     assertion_class = None
 
@@ -486,7 +486,7 @@ EQUAL_SLICES_PARAM_NAMES = "actual,expected,slices,expected_data"
 
 
 def generate_equal_slices_test(assertion_kls, passing_params, failing_params):
-    class EqualSlicesTest(object):
+    class EqualSlicesTest:
         def _test_evaluate(
             self, actual, expected, slices, expected_data, expected_result
         ):
@@ -741,7 +741,7 @@ EXCEPTION_RAISED_FAIL_PARAMS = [
 def generate_exception_raised_test(
     assertion_kls, passing_params, failing_params
 ):
-    class TestException(object):
+    class TestException:
         def _test_evaluate(
             self,
             raised_exception,
@@ -831,7 +831,7 @@ DIFFERENCE_PARAMS = [
 def generate_diff_assertion_test(
     assertion_kls, passing_params, failing_params
 ):
-    class DiffTest(object):
+    class DiffTest:
         def _test_evaluate(
             self,
             first,
@@ -989,7 +989,7 @@ def _to_list_of_dicts(table):
     return table
 
 
-class TestColumnContains(object):
+class TestColumnContains:
     def _test_evaluate(
         self,
         table,
@@ -1373,7 +1373,7 @@ TABLEMATCH_FAIL_PARAMS = [
 ]
 
 
-class TestTableMatch(object):
+class TestTableMatch:
     @pytest.mark.parametrize(
         GET_COMPARISON_COLUMNS_PARAM_NAMES, GET_COMPARISON_COLUMNS_PARAMS
     )
@@ -1551,7 +1551,7 @@ TABLEDIFF_PASS_PARAMS = TABLEMATCH_PASS_PARAMS
 TABLEDIFF_FAIL_PARAMS = TABLEMATCH_FAIL_PARAMS
 
 
-class TestTableDiff(object):
+class TestTableDiff:
     """
     Class `TableDiff` inherits class `TableMatch` and they work in
     a similar way, functions invoked by them are almost the same.
@@ -1701,7 +1701,7 @@ XML_TAG_MATCH_FAIL_PARAMS = [
 ]
 
 
-class TestXMLCheck(object):
+class TestXMLCheck:
     def _test_evaluate(
         self, element, xpath, tags, namespaces, expected_result
     ):

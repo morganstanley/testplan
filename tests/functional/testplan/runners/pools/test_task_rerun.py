@@ -59,7 +59,7 @@ class MockDriver(Driver):
         self._stop_done = True
 
 
-class UnstableSuiteBase(object):
+class UnstableSuiteBase:
     """
     In this test suite a temporary file is created
     to record how many times does it run.

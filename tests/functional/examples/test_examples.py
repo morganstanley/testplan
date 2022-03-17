@@ -62,6 +62,7 @@ SKIP_ON_WINDOWS = [
     os.path.join("JUnit", "test_plan.py"),
     os.path.join("ExecutionPools", "Remote", "test_plan.py"),
     os.path.join("RemoteDriver", "Basic", "test_plan.py"),
+    os.path.join("Multitest", "Logging", "test_plan_logging.py"),
 ]
 
 

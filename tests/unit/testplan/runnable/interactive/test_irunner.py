@@ -17,7 +17,7 @@ from testplan.runners.local import LocalRunner
 
 
 @multitest.testsuite
-class Suite(object):
+class Suite:
     """Test suite."""
 
     @multitest.testcase
@@ -34,7 +34,7 @@ class Suite(object):
 
 
 @multitest.testsuite(tags="foo")
-class TaggedSuite(object):
+class TaggedSuite:
     """Test suite."""
 
     @multitest.testcase(tags="bar")
