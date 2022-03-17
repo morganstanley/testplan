@@ -3,6 +3,7 @@ click
 GitPython
 Jinja2
 toml
+parse
 pydantic
 pluggy
 typing_extensions

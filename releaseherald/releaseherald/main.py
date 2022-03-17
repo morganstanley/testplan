@@ -110,10 +110,6 @@ def generate(ctx: click.Context, **kwargs):
         pm=context.pm,
     )
 
-    # TODO: do latest logic in plugin
-    # if latest:
-    #     news_fragments = news_fragments[0:1]
-
     output = MutableProxy[Output]()
     context.pm.hook.generate_output(version_news=news_fragments, output=output)
 

@@ -41,7 +41,9 @@ class BasePlugin:
     @releaseherald.plugins.hookimpl
     def get_command_options(self, command: str) -> Optional[CommandOptions]:
 
-        command_options = self._get_generate_options() if command == 'generate' else None
+        command_options = (
+            self._get_generate_options() if command == "generate" else None
+        )
         return command_options
 
     def _get_generate_options(self) -> CommandOptions:
@@ -75,7 +77,7 @@ class BasePlugin:
 
     @releaseherald.plugins.hookimpl
     def on_start_command(self, command: str, kwargs: Dict[str, Any]):
-        if command== 'generate':
+        if command == "generate":
             self.generate_command_params = GenerateParams(**kwargs)
 
     @releaseherald.plugins.hookimpl(tryfirst=True)
@@ -101,8 +103,6 @@ class BasePlugin:
             not commits or (commits and repo.head.commit != commits[0].commit)
         ):
             commits.insert(0, CommitInfo(tag=None, commit=repo.head.commit))
-
-
 
     @releaseherald.plugins.hookimpl(tryfirst=True)
     def get_news_between_commits(
@@ -167,7 +167,9 @@ class BasePlugin:
     @releaseherald.plugins.hookimpl
     def write_output(self, output: Output):
         if self.generate_command_params.update:
-            result = update_news_file(output.content, self.config.news_file, self.config.insert_marker)
+            result = update_news_file(
+                output.content, self.config.news_file, self.config.insert_marker
+            )
         else:
             result = output.content
 
