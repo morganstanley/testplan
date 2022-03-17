@@ -178,7 +178,7 @@ assertions_part = {
 
 
 @multitest.testsuite
-class Alpha(object):
+class Alpha:
     @multitest.testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, "equality description")
@@ -197,7 +197,7 @@ class Alpha(object):
 
 
 @multitest.testsuite
-class Beta(object):
+class Beta:
     @multitest.testcase
     def test_failure(self, env, result):
         result.equal(1, 2, "failing assertion")

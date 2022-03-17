@@ -15,7 +15,7 @@ def post_fn(self, env, result):
 
 
 @testsuite
-class SimpleTest(object):
+class SimpleTest:
     def setup(self, env, result):
         result.log("setup")
 

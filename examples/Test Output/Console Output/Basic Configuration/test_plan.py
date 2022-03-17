@@ -18,7 +18,7 @@ from testplan.report.testing.styles import Style, StyleEnum
 
 
 @testsuite
-class AlphaSuite(object):
+class AlphaSuite:
     @testcase
     def test_equality_passing(self, env, result):
         result.equal(1, 1, description="passing equality")
@@ -53,7 +53,7 @@ class AlphaSuite(object):
 
 
 @testsuite
-class BetaSuite(object):
+class BetaSuite:
     @testcase
     def passing_testcase_one(self, env, result):
         result.equal(1, 1, description="passing equality")

@@ -19,7 +19,7 @@ OUTPUT_STYLE = Style(StyleEnum.ASSERTION_DETAIL, StyleEnum.ASSERTION_DETAIL)
 
 
 @testsuite
-class DBQueries(object):
+class DBQueries:
     """Suite that contains testcases that perform db queries."""
 
     def setup(self, env, result):

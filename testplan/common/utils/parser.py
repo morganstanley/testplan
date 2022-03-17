@@ -4,7 +4,7 @@ import os
 import argparse
 
 
-class ArgMixin(object):
+class ArgMixin:
     """
     Utility mixin that can be used with Enums for cmdline arg parsing.
 

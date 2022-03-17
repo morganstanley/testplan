@@ -29,7 +29,7 @@ from testplan.testing.multitest import testsuite, testcase, MultiTest
 
 
 @testsuite
-class TCPTestsuite(object):
+class TCPTestsuite:
     """TCP tests for a server and a client."""
 
     def setup(self, env):

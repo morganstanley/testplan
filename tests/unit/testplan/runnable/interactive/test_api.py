@@ -145,7 +145,7 @@ def api_env(example_report):
             yield client, ihandler
 
 
-class TestReport(object):
+class TestReport:
     """Test the Report resource."""
 
     def test_get(self, api_env):
@@ -207,7 +207,7 @@ class TestReport(object):
         assert rsp.status_code == 400
 
 
-class TestAllTests(object):
+class TestAllTests:
     """Test the AllTests resource."""
 
     def test_get(self, api_env):
@@ -229,7 +229,7 @@ class TestAllTests(object):
         assert rsp.status_code == 405
 
 
-class TestSingleTest(object):
+class TestSingleTest:
     """Test the SingleTest resource."""
 
     def test_get(self, api_env):
@@ -344,7 +344,7 @@ class TestSingleTest(object):
         assert rsp.status_code == 400
 
 
-class TestAllSuites(object):
+class TestAllSuites:
     """Test the AllSuites resource."""
 
     def test_get(self, api_env):
@@ -368,7 +368,7 @@ class TestAllSuites(object):
         assert rsp.status_code == 405
 
 
-class TestSingleSuite(object):
+class TestSingleSuite:
     """Test the SingleSuite resource."""
 
     def test_get(self, api_env):
@@ -424,7 +424,7 @@ class TestSingleSuite(object):
         assert rsp.status_code == 400
 
 
-class TestAllTestcases(object):
+class TestAllTestcases:
     """Test the Testcases resource."""
 
     def test_get(self, api_env):
@@ -453,7 +453,7 @@ class TestAllTestcases(object):
         assert rsp.status_code == 405
 
 
-class TestSingleTestcase(object):
+class TestSingleTestcase:
     """Test the SingleTestcase resource."""
 
     @pytest.mark.parametrize("testcase_uid", ["MT1S1TC1", "MT1S1TC2"])
@@ -532,7 +532,7 @@ class TestSingleTestcase(object):
         assert rsp.status_code == 400
 
 
-class TestAllParametrizations(object):
+class TestAllParametrizations:
     """Test the AllParametrizations resource."""
 
     def test_get(self, api_env):
@@ -563,7 +563,7 @@ class TestAllParametrizations(object):
         assert rsp.status_code == 405
 
 
-class TestParametrizedTestCase(object):
+class TestParametrizedTestCase:
     """Test the ParametrizedTestCase resource."""
 
     def test_get(self, api_env):
@@ -634,7 +634,7 @@ class TestParametrizedTestCase(object):
         assert rsp.status_code == 400
 
 
-class TestAllAttachments(object):
+class TestAllAttachments:
     """Test the AllAttachments resource."""
 
     def test_get(self, api_env):
@@ -656,7 +656,7 @@ class TestAllAttachments(object):
         assert rsp.status_code == 405
 
 
-class TestSingleAttachment(object):
+class TestSingleAttachment:
     """Test the SingleAttachment resource."""
 
     @mock.patch("flask.send_file", return_value="texttexttext")

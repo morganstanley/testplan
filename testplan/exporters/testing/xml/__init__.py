@@ -27,7 +27,7 @@ from testplan.report import (
 from ..base import Exporter
 
 
-class BaseRenderer(object):
+class BaseRenderer:
     """
     Basic renderer, will render a test group report with the following
     structure:

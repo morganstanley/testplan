@@ -3,7 +3,7 @@
 import collections
 
 
-class TableEntry(object):
+class TableEntry:
     """
     Represents a table. Internally represented either
     as a ``list`` of ``list`` or a ``list`` of ``dict``.

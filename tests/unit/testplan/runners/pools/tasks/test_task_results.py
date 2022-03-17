@@ -1,7 +1,7 @@
 from testplan.runners.pools.tasks import Task, TaskResult
 
 
-class TestTaskResultInitialization(object):
+class TestTaskResultInitialization:
     """TODO."""
 
     def test_basic_init(self):

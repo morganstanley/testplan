@@ -15,7 +15,7 @@ from testplan.common.utils.timing import (
 from testplan.common.utils.sockets.fix.utils import utc_timestamp
 
 
-class ConnectionDetails(object):
+class ConnectionDetails:
     """
     Contains all information required for each connection to the server
     """
@@ -97,7 +97,7 @@ def _has_heartbeat_tag(msg):
     return msg.tag_exact(35, "0")
 
 
-class Server(object):
+class Server:
     """
     A server that can send and receive FIX messages over the FIX session protocol.
     Supports multiple connections.

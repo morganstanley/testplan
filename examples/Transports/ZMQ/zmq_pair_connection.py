@@ -11,7 +11,7 @@ from testplan.testing.multitest.driver.zmq import ZMQServer, ZMQClient
 
 
 @testsuite
-class ZMQTestsuite(object):
+class ZMQTestsuite:
     def setup(self, env):
         self.timeout = 5
 

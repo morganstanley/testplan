@@ -19,7 +19,7 @@ class MergeError(Exception):
     """Raised when a merge operation fails."""
 
 
-class ExceptionLogger(object):
+class ExceptionLogger:
     """
     A context manager used for suppressing & logging an exception.
     """
@@ -39,7 +39,7 @@ class ExceptionLogger(object):
             return True
 
 
-class Report(object):
+class Report:
     """
     Base report class, support exception suppression & logging via
     `report.logged_exceptions`. Stores arbitrary objects in `entries` attribute.

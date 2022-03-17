@@ -12,7 +12,7 @@ from . import constants
 RowData = functools.partial(RowData, num_columns=constants.NUM_COLUMNS)
 
 
-class SlicedParagraph(object):
+class SlicedParagraph:
     """
     Iterator which returns slices of ReportLab Paragraph to make sure each does
     not exceed max height (which will trigger ReportLab LayoutError).
@@ -80,7 +80,7 @@ def format_duration(seconds):
         return "{} seconds".format(fmt).format(secs)
 
 
-class BaseRowRenderer(object):
+class BaseRowRenderer:
     """Base class for row renderers."""
 
     always_display = False
@@ -115,7 +115,7 @@ class BaseRowRenderer(object):
         )
 
 
-class MetadataMixin(object):
+class MetadataMixin:
     """
     Utility mixin that has logic for getting
     metadata context for row renderers.

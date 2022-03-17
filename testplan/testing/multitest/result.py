@@ -25,7 +25,7 @@ from .entries.stdout.base import registry as stdout_registry
 IS_WIN = platform.system() == "Windows"
 
 
-class ExceptionCapture(object):
+class ExceptionCapture:
     """
     Exception capture scope, will be used by exception related assertions.
     An instance of this class will be used as a context manager by
@@ -147,7 +147,7 @@ def assertion(func):
     return wrapper
 
 
-class AssertionNamespace(object):
+class AssertionNamespace:
     """
     Base class for assertion namespaces.
     Users can inherit from this class to implement custom namespaces.
@@ -1287,7 +1287,7 @@ class FixNamespace(AssertionNamespace):
         return entry
 
 
-class Result(object):
+class Result:
     """
     Contains assertion methods and namespaces for generating test data.
     A new instance of ``Result`` object is passed to each testcase when a

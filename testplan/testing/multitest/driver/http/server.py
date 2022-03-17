@@ -313,7 +313,7 @@ class HTTPServer(Driver):
         self.logger.debug("Aborted HTTPServer.")
 
 
-class HTTPResponse(object):
+class HTTPResponse:
     """
     HTTPResponse containing the status code, headers and content.
 

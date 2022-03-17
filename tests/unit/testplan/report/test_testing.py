@@ -69,13 +69,13 @@ def test_report_exception_logger():
     assert rep.status_override is Status.ERROR
 
 
-class DummyStatusReport(object):
+class DummyStatusReport:
     def __init__(self, status, uid=None):
         self.uid = uid or 0
         self.status = status
 
 
-class TestBaseReportGroup(object):
+class TestBaseReportGroup:
     @pytest.mark.parametrize(
         "statuses,expected",
         (
@@ -209,7 +209,7 @@ class TestBaseReportGroup(object):
         assert parent.hash != orig_parent_hash
 
 
-class TestTestCaseReport(object):
+class TestTestCaseReport:
     @pytest.mark.parametrize(
         "entries,expected_status",
         (
@@ -435,7 +435,7 @@ def test_report_json_binary_serialization(
     assert comps[7][SECOND_INDEX][1] == str(b"binary\xB1")
 
 
-class TestReportTags(object):
+class TestReportTags:
     def get_reports(self):
         tc_report_1 = TestCaseReport(
             name="My Test Case", tags={"simple": {"baz"}}

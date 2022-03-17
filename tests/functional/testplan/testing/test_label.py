@@ -3,7 +3,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 
 @testsuite
-class AlphaSuite(object):
+class AlphaSuite:
     @testcase
     def test_pass(self, env, result):
         result.true(True)

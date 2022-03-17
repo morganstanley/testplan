@@ -36,7 +36,7 @@ class StyleEnum(ArgMixin, Enum):
     ASSERTION_DETAIL = 5
 
 
-class StyleFlag(object):
+class StyleFlag:
     """
     This class generates styling attributes using the given output level.
     It will use the incremental values of StyleEnum to set its
@@ -105,7 +105,7 @@ class StyleFlag(object):
         return self.level.value > other.level.value
 
 
-class Style(object):
+class Style:
     """
     Container for StyleFlag objects, we will make use of
     2 StyleFlag objects for passing / failing test result rendering.

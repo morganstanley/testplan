@@ -8,7 +8,7 @@ from testplan.testing import multitest
 
 
 @multitest.testsuite
-class TimeoutSuite(object):
+class TimeoutSuite:
     @multitest.testcase
     def blocks(self, env, result):
         result.log("Blocking...")

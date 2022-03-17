@@ -434,7 +434,7 @@ def format_table_style(table_styles):
     return table_style
 
 
-class RowStyle(object):
+class RowStyle:
     """
     Helper class for managing styles for table rows.
 
@@ -609,7 +609,7 @@ class RowStyle(object):
         )
 
 
-class RowData(object):
+class RowData:
     """
     Container object that represents one or more `Table` rows.
 

@@ -49,7 +49,7 @@ class SortType(Enum):
         return validate_single(value)
 
 
-class BaseSorter(object):
+class BaseSorter:
     """Base sorter class"""
 
     def should_sort_instances(self):

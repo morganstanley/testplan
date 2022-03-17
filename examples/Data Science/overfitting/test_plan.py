@@ -48,7 +48,7 @@ def interpolate_docstring(docstring, kwargs):
 
 
 @testsuite
-class ModelExamplesSuite(object):
+class ModelExamplesSuite:
     def setup(self, env, result):
         """
         Load the raw data from the CSV file.

@@ -5,7 +5,7 @@ from itertools import zip_longest
 from .callable import getargspec
 
 
-class MethodSignature(object):
+class MethodSignature:
     """
     Encapsulates a method signature
     """

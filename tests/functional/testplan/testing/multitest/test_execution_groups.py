@@ -8,7 +8,7 @@ EXECUTION_PERIOD = 0.001
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_case_0_0(self, env, result):
         time.sleep(EXECUTION_PERIOD)

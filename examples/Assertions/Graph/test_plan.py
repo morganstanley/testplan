@@ -12,7 +12,7 @@ from testplan.report.testing.styles import Style, StyleEnum
 
 
 @testsuite
-class SampleSuite(object):
+class SampleSuite:
 
     # Basic graphing for singe series graphing:
     @testcase

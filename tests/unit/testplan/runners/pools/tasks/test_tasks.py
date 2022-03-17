@@ -10,13 +10,13 @@ from testplan.runners.pools.tasks import (
 )
 
 
-class NonRunnableObject(object):
+class NonRunnableObject:
     """Non runnable."""
 
     pass
 
 
-class NonRunnableObjectRunAttr(object):
+class NonRunnableObjectRunAttr:
     """Non runnable."""
 
     def __init__(self):
@@ -24,7 +24,7 @@ class NonRunnableObjectRunAttr(object):
         self.run = None
 
 
-class RunnableThatRaises(object):
+class RunnableThatRaises:
     """Runnable that raises while running."""
 
     def run(self):
@@ -36,7 +36,7 @@ class RunnableThatRaises(object):
         return "RunnableThatRaises"
 
 
-class Runnable(object):
+class Runnable:
     """Runnable."""
 
     def run(self):
@@ -50,7 +50,7 @@ class Runnable(object):
         return "Runnable"
 
 
-class RunnableWithArg(object):
+class RunnableWithArg:
     """Runnable."""
 
     def __init__(self, number=None):
@@ -117,7 +117,7 @@ def materialized_task_result(task, expected, serialize=False):
 
 
 # pylint: disable=R0201
-class TestTaskInitAndMaterialization(object):
+class TestTaskInitAndMaterialization:
     """TODO."""
 
     def test_non_runnable_tgt(self):
@@ -319,7 +319,7 @@ class TestTaskInitAndMaterialization(object):
 
 
 # pylint: disable=R0201
-class TestTaskSerialization(object):
+class TestTaskSerialization:
     """TODO."""
 
     def test_serialize(self):

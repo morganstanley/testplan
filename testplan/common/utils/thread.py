@@ -84,7 +84,7 @@ def interruptible_join(thread, timeout=None):
         )
 
 
-class Barrier(object):
+class Barrier:
     """
     Implements a re-usable, two-phase barrier. Allows a fixed number of threads
     to wait for each other to reach a certain point.

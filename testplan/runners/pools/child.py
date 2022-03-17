@@ -30,7 +30,7 @@ def parse_cmdline():
     return parser.parse_args()
 
 
-class ChildLoop(object):
+class ChildLoop:
     """
     Child process loop that can be started in a process and starts a local
     thread pool to execute the tasks received.
