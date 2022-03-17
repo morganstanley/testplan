@@ -2,7 +2,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase, xfail
 
 
 @testsuite
-class StrictXfailedSuite(object):
+class StrictXfailedSuite:
     """A test suite with parameterized testcases."""
 
     @testcase(parameters=tuple(range(10)))
@@ -17,7 +17,7 @@ class StrictXfailedSuite(object):
 
 
 @testsuite
-class NoStrictXfailedSuite(object):
+class NoStrictXfailedSuite:
     """A test suite with parameterized testcases."""
 
     @testcase(parameters=tuple(range(10)))

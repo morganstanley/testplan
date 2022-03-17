@@ -17,7 +17,7 @@ import plotly.graph_objects as go
 
 
 @testsuite
-class SampleSuite(object):
+class SampleSuite:
     @testcase
     def line_tests(self, env, result):
         """

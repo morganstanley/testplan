@@ -100,7 +100,7 @@ def captured_logging(logger, level=logging.INFO):
     Useful for command line output testing.
     """
 
-    class LogWrapper(object):
+    class LogWrapper:
         def __init__(self):
             self.buffer = io.StringIO()
             self.stream_handler = logging.StreamHandler(self.buffer)
@@ -304,7 +304,7 @@ def check_report_context(report, ctx):
                     assert testcase_report.name == testcase_info
 
 
-class XMLComparison(object):
+class XMLComparison:
     r"""
     Testing utility for generated XML file contents.
 

@@ -127,7 +127,7 @@ def uuid4():
     return str(uuid.uuid4())
 
 
-class Color(object):
+class Color:
     """Utility class with shortcuts for colored console output."""
 
     @staticmethod

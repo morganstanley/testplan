@@ -11,7 +11,7 @@ from testplan.testing import filtering
 
 
 @testsuite(tags="foo")
-class Alpha(object):
+class Alpha:
     @testcase
     def test_one(self, env, result):
         pass
@@ -26,7 +26,7 @@ class Alpha(object):
 
 
 @testsuite(tags=("foo", "bar"))
-class Beta(object):
+class Beta:
     @testcase
     def test_one(self, env, result):
         pass
@@ -41,7 +41,7 @@ class Beta(object):
 
 
 @testsuite(tags=("foo", "baz"))
-class Gamma(object):
+class Gamma:
     @testcase
     def test_one(self, env, result):
         pass

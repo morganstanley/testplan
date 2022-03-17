@@ -17,7 +17,7 @@ def proc_pool():
     return process.ProcessPool(name="ProcPool", size=2, restart_count=0)
 
 
-class TestProcPool(object):
+class TestProcPool:
     """Tests for the ProcessPool class."""
 
     def test_run_task(self, proc_pool):

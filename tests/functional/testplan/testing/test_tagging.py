@@ -7,7 +7,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 
 @testsuite(tags={"color": ["red", "blue"]})
-class AlphaSuite(object):
+class AlphaSuite:
     @testcase
     def test_method_0(self, env, result):
         pass
@@ -22,7 +22,7 @@ class AlphaSuite(object):
 
 
 @testsuite(tags={"color": "yellow"})
-class BetaSuite(object):
+class BetaSuite:
     @testcase
     def test_method_0(self, env, result):
         pass
@@ -37,7 +37,7 @@ class BetaSuite(object):
 
 
 @testsuite
-class GammaSuite(object):
+class GammaSuite:
     @testcase
     def test_method_0(self, env, result):
         pass

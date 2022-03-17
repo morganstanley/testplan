@@ -12,7 +12,7 @@ from testplan.report.testing.styles import Style
 
 
 @testsuite
-class SimpleTest(object):
+class SimpleTest:
 
     # This will generate 4 new testcase methods, using a tuple for each one.
     @testcase(
@@ -90,7 +90,7 @@ def custom_error_name_func(func_name, kwargs):
 
 
 @testsuite
-class ErrorTest(object):
+class ErrorTest:
 
     # The lambda functions in the parameters below try to
     # execute invalid Python code that raises certain errors.
@@ -127,7 +127,7 @@ def named_tag_func(kwargs):
 
 
 @testsuite
-class ProductTest(object):
+class ProductTest:
     """Sample testsuite that demonstrates how `tag_func` works."""
 
     @testcase(
@@ -161,7 +161,7 @@ def interpolate_docstring(docstring, kwargs):
 
 
 @testsuite
-class DocStringTest(object):
+class DocStringTest:
     @testcase(
         parameters=((2, 3, 5), (5, 10, 15)), docstring_func=kwargs_to_string
     )

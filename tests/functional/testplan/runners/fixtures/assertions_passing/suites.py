@@ -12,7 +12,7 @@ def always_true(obj):
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_log(self, env, result):
         result.log("hello world")
@@ -363,7 +363,7 @@ class MySuite(object):
             value_cmp_func=cmp.COMPARE_FUNCTIONS["check_types"],
         )
 
-        class AlwaysComparesTrue(object):
+        class AlwaysComparesTrue:
             """Object that compares equal to any other object."""
 
             def __eq__(self, _):
@@ -378,7 +378,7 @@ class MySuite(object):
             description="comparison of different types",
         )
 
-        class HelloObj(object):
+        class HelloObj:
             """Object that returns 'hello' as its str() representation."""
 
             def __str__(self):

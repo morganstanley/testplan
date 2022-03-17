@@ -25,7 +25,7 @@ def case_name_func(func_name, kwargs):
 
 
 @testsuite(name="A Simple Suite")
-class SimpleSuite(object):
+class SimpleSuite:
     def pre_testcase(self, name, env, result, kwargs):
         result.log('Before testcase "{}" run'.format(name))
         result.log("Extra arguments: {}".format(kwargs))
@@ -61,7 +61,7 @@ class SimpleSuite(object):
 
 
 @testsuite(name=suite_name_func)
-class ComplicatedSuite(object):
+class ComplicatedSuite:
     def __init__(self, val):
         self.val = val
 

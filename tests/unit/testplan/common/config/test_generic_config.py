@@ -262,7 +262,7 @@ def test_filter_locals():
 
 
 class BaseConfig(Config):
-    class SimpleClass(object):
+    class SimpleClass:
         def __init__(self, val):
             self.val = val
 

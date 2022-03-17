@@ -63,7 +63,7 @@ from testplan.common.utils import timing
 from testplan.testing import tagging
 
 
-class RuntimeStatus(object):
+class RuntimeStatus:
     """
     Constants for test runtime status - for interactive mode
     """
@@ -104,7 +104,7 @@ class RuntimeStatus(object):
         return min(stats, key=lambda stat: rule.index(stat))
 
 
-class Status(object):
+class Status:
     """
     Constants for test result and utilities for propagating status upward.
     """
@@ -163,7 +163,7 @@ class Status(object):
         )
 
 
-class ReportCategories(object):
+class ReportCategories:
     """
     Enumeration of possible categories of report nodes.
 

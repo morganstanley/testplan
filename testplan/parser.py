@@ -42,7 +42,7 @@ class HelpParser(argparse.ArgumentParser):
         sys.exit(2)
 
 
-class TestplanParser(object):
+class TestplanParser:
     """
     Wrapper around `argparse.ArgumentParser`, adds extra step for processing
     arguments, esp. if they are dependent on each other.

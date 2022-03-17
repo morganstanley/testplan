@@ -44,7 +44,7 @@ def create_image_plot(title, img_data, rows, columns, index):
 
 
 @testsuite
-class ModelExamplesSuite(object):
+class ModelExamplesSuite:
     @testcase
     def basic_linear_regression(self, env, result):
         """

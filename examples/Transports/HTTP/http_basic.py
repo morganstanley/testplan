@@ -12,7 +12,7 @@ from testplan.testing.multitest.driver.http import (
 
 
 @testsuite
-class HTTPTestsuite(object):
+class HTTPTestsuite:
     """HTTP requests between a server and a client."""
 
     @testcase

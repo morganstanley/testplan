@@ -3,7 +3,7 @@ from testplan.testing.multitest import testsuite, testcase
 
 
 @testsuite
-class Suite1(object):
+class Suite1:
     """A test suite with several normal testcases."""
 
     @testcase
@@ -34,7 +34,7 @@ class Suite1(object):
 
 
 @testsuite
-class Suite2(object):
+class Suite2:
     """A test suite with parameterized testcases."""
 
     @testcase(parameters=tuple(range(6)))

@@ -188,7 +188,7 @@ def configure_file_logger(level, runpath):
         return file_handler
 
 
-class Loggable(object):
+class Loggable:
     """
     Base class that allows an object to log via self.logger. The advantage of
     objects having their own logger over using a single global logger is that

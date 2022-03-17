@@ -60,7 +60,7 @@ def check_dict_keys(data, has_keys=None, absent_keys=None):
     return existing_diff, absent_intersection
 
 
-class Callable(object):
+class Callable:
     """
     Some of our assertions can make use of callables that accept a
     single argument as comparator values. We also provide the helper
@@ -312,7 +312,7 @@ def compare_with_callable(callable_obj, value):
         return False, traceback.format_exc()
 
 
-class RegexAdapter(object):
+class RegexAdapter:
     """This is being used for internal compatibility."""
 
     @classmethod
@@ -335,7 +335,7 @@ class RegexAdapter(object):
         return Match.from_bool(lhs == rhs)
 
 
-class Category(object):
+class Category:
     """
     Internal enum. Categorises objects for comparison
     """
@@ -371,7 +371,7 @@ def _categorise(obj, _regex_adapter=RegexAdapter):
         return Category.VALUE
 
 
-class Match(object):
+class Match:
     """
     Internal enum. Represents the result of a match.
     """
@@ -940,7 +940,7 @@ def _to_error(cmpr_tuple, weights):
     return int(current_error * 10000.0 / worst_error + 0.5)
 
 
-class Expected(object):
+class Expected:
     """
     An object representing an expected message,
     along with additional comparison flags.
@@ -1190,7 +1190,7 @@ def tuplefy_comparisons(comparisons, table=False):
         ]
 
 
-class DictmatchAllResult(object):
+class DictmatchAllResult:
     """
     When cast to a ``bool``, evaluates to ``True`` when all values
     were matched without errors or ``False`` if one or more values mis-matched.
