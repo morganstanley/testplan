@@ -37,7 +37,7 @@ def helper(result, description=None):
     result.less(1, 2, description=description)
 
 
-@result_mod.mark_group
+@result_mod.report_target
 def intermediary(result, description=None):
     helper(result, description=description)
 

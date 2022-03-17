@@ -101,7 +101,7 @@ class ExceptionCapture:
 assertion_state = threading.local()
 
 
-def mark_group(func: Callable) -> Callable:
+def report_target(func: Callable) -> Callable:
     """
     Sets the decorated function's filepath and line-range in assertion state.
     """
@@ -111,12 +111,8 @@ def mark_group(func: Callable) -> Callable:
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        assertion_state.filepath = getattr(assertion_state, "filepath", None)
-        assertion_state.line_range = getattr(
-            assertion_state, "line_range", None
-        )
-        filepath_prev = assertion_state.filepath
-        line_range_prev = assertion_state.line_range
+        filepath_prev = getattr(assertion_state, "filepath", None)
+        line_range_prev = getattr(assertion_state, "line_range", None)
         assertion_state.filepath = filepath
         assertion_state.line_range = line_range
         try:

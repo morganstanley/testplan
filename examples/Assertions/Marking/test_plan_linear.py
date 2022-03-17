@@ -7,7 +7,7 @@ import sys
 
 from testplan import test_plan
 from testplan.testing.multitest import testcase, testsuite, MultiTest
-from testplan.testing.multitest.result import mark_group
+from testplan.testing.multitest.result import report_target
 
 
 def helper(result):
@@ -18,7 +18,7 @@ def intermediary(result):
     helper(result)
 
 
-@mark_group
+@report_target
 def intermediary_marked(result):
     helper(result)
 

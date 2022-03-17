@@ -7,14 +7,14 @@ import sys
 
 from testplan import test_plan
 from testplan.testing.multitest import testcase, testsuite, MultiTest
-from testplan.testing.multitest.result import mark_group
+from testplan.testing.multitest.result import report_target
 
 
 def helper(result):
     result.fail(description="Failure in helper.")
 
 
-@mark_group
+@report_target
 def helper_marked(result):
     result.fail(description="Failure in marked helper.")
 
@@ -23,7 +23,7 @@ def intermediary(result):
     helper(result)
 
 
-@mark_group
+@report_target
 def intermediary_marked(result, both):
     helper(result)
     if both:

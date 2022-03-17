@@ -22,7 +22,7 @@ from testplan.testing import base as testing_base
 from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
-from testplan.testing.multitest.result import mark_group
+from testplan.testing.multitest.result import report_target
 
 from testplan.report import (
     TestGroupReport,
@@ -328,7 +328,7 @@ class MultiTest(testing_base.Test):
 
             if self.cfg.mark_testcase:
                 testcases_to_run = [
-                    mark_group(testcase) for testcase in testcases_to_run
+                    report_target(testcase) for testcase in testcases_to_run
                 ]
 
             if testcases_to_run:
