@@ -517,7 +517,7 @@ class _GraphModuleFinder(modulefinder.ModuleFinder, logger.Loggable):
         return node
 
 
-class _ModuleNode(object):
+class _ModuleNode:
     """
     Node in the directed acyclic graph of dependencies produced by
     _GraphModuleFinder.

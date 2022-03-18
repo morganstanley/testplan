@@ -8,7 +8,7 @@ from custom_http_request_handler import CustomHTTPRequestHandler
 
 
 @testsuite
-class HTTPTestsuite(object):
+class HTTPTestsuite:
     """Sending requests to an HTTPServer with a custom HTTP request handler."""
 
     @testcase

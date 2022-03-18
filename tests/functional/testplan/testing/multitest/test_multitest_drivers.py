@@ -22,7 +22,7 @@ from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_drivers(self, env, result):
         assert isinstance(env, RuntimeEnvironment)
@@ -161,7 +161,7 @@ def test_multitest_drivers_in_testplan(runpath):
 
 
 @testsuite
-class EmptySuite(object):
+class EmptySuite:
     @testcase
     def test_empty(self, env, result):
         pass

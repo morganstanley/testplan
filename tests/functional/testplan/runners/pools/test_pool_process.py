@@ -249,7 +249,7 @@ def test_schedule_from_main(mockplan):
 
 
 @multitest.testsuite
-class SerializationSuite(object):
+class SerializationSuite:
     @multitest.testcase
     def test_serialize(self, env, result):
         """Test serialization of test results."""

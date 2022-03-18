@@ -24,7 +24,7 @@ from testplan.report import (
 
 
 @testsuite(name="Test Suite")
-class Suite1(object):
+class Suite1:
     def setup(self, env, result):
         result.equal(2, 2)
 
@@ -54,7 +54,7 @@ class Suite1(object):
 
 
 @testsuite(name=lambda cls_name, suite: "{}__{}".format(cls_name, suite.val))
-class Suite2(object):
+class Suite2:
     def __init__(self, val):
         self.val = val
 
@@ -94,7 +94,7 @@ class Suite2(object):
 
 @skip_if_testcase(lambda testsuite: True)
 @testsuite(name="Skipped Suite")  # No testcase runs in this suite
-class Suite3(object):
+class Suite3:
     @testcase
     def case1(self, env, result):
         result.equal(1, 2)
@@ -157,7 +157,7 @@ def test_unwanted_testsuite_name(mockplan, suite_name):
     with mock.patch("warnings.warn", return_value=None) as mock_warn:
 
         @testsuite(name=suite_name)
-        class MySuite(object):
+        class MySuite:
             @testcase
             def sample_test(self, env, result):
                 pass
@@ -174,7 +174,7 @@ def test_duplicate_testsuite_names(mockplan):
     with pytest.raises(SchemaError):
 
         @testsuite
-        class MySuite(object):
+        class MySuite:
             def __init__(self, val):
                 self.val = val
 
@@ -199,7 +199,7 @@ def test_invalid_name_attribute_in_suite_class(mockplan, deco, attr_name):
     """
     with pytest.raises(TypeError):
 
-        class MySuite(object):
+        class MySuite:
             name = attr_name
 
             @testcase
@@ -222,7 +222,7 @@ def test_unexpected_name_attribute_in_suite_object(mockplan):
     with pytest.raises(SchemaError):  # `AttributeError` caught by Schema
 
         @testsuite
-        class MySuite(object):
+        class MySuite:
             @testcase
             def sample_test(self, env, result):
                 pass
@@ -243,7 +243,7 @@ def test_testcase_related_with_inivalid_arguments_in_suite_object(mockplan):
     """
 
     @testsuite
-    class MySuite(object):
+    class MySuite:
         def pre_testcase(self, name, env, result, kwargs):  # valid
             result.dict.log(kwargs)
 
@@ -282,7 +282,7 @@ def test_pre_post_on_testcase(mockplan):
         result.log("post_fn")
 
     @testsuite
-    class SimpleTest(object):
+    class SimpleTest:
         def setup(self, env, result):
             result.log("setup")
 

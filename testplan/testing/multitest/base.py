@@ -60,7 +60,7 @@ def iterable_suites(obj):
     return suites
 
 
-class MultiTestRuntimeInfo(object):
+class MultiTestRuntimeInfo:
     """
     This class provides information about the state of the actual test run
     that is accessible from the testcase through the environment as:
@@ -70,14 +70,14 @@ class MultiTestRuntimeInfo(object):
     ``env.runtime_info.testcase.name``, more info to come.
     """
 
-    class TestcaseInfo(object):
+    class TestcaseInfo:
         name = None
 
     def __init__(self):
         self.testcase = self.TestcaseInfo()
 
 
-class RuntimeEnvironment(object):
+class RuntimeEnvironment:
     """
     A collection of resources accessible through either items or named
     attributes, representing a test environment instance with runtime

@@ -9,7 +9,7 @@ from testplan.report import Status
 
 
 @testsuite
-class Suite1(object):
+class Suite1:
     """A test suite with parameterized testcases."""
 
     @testcase(parameters=tuple(range(10)))
@@ -18,7 +18,7 @@ class Suite1(object):
 
 
 @testsuite
-class Suite2(object):
+class Suite2:
     """A test suite with parameterized testcases."""
 
     @testcase(parameters=(False, None, ""))
@@ -27,7 +27,7 @@ class Suite2(object):
 
 
 @testsuite
-class Suite3(object):
+class Suite3:
     """A test suite with parameterized testcases."""
 
     @testcase(parameters=(1, -1))

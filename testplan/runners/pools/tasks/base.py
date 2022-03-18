@@ -23,7 +23,7 @@ class TaskDeserializationError(Exception):
     """Error on de-serializing task."""
 
 
-class Task(object):
+class Task:
     """
     Container of a target or path to a target that can be materialized into
     a runnable item. The arguments of the Task need to be serializable.
@@ -276,7 +276,7 @@ class Task(object):
         return self
 
 
-class TaskResult(object):
+class TaskResult:
     """
     Contains result of the executed task target and status/errors/reason
     information that happened during task execution.
@@ -354,7 +354,7 @@ class TaskResult(object):
         return "TaskResult[{}, {}]".format(self.status, self.reason)
 
 
-class RunnableTaskAdaptor(object):
+class RunnableTaskAdaptor:
     """Minimal callable to runnable task adaptor."""
 
     __slots__ = ("_target", "_args", "_kwargs")

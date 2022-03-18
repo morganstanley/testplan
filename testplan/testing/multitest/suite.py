@@ -230,7 +230,7 @@ def _selective_call(decorator_func, meta_func, wrapper_func):
 
     .. code-block:: python
 
-      class Foo(object):
+      class Foo:
 
         @some_decorator
         def method_1(self):

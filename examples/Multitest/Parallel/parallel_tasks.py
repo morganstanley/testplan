@@ -9,7 +9,7 @@ import resource_manager
 
 
 @testsuite
-class SampleTest(object):
+class SampleTest:
     """
     Example test suite. The test cases are split into two different execution
     groups. Only tests from the same group will be executed in parallel with

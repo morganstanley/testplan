@@ -38,7 +38,7 @@ def _assert_http_response(
     }
 
 
-class InteractivePlan(object):
+class InteractivePlan:
     def __init__(self, **kwargs):
         self._kwargs = kwargs
 
@@ -51,14 +51,14 @@ class InteractivePlan(object):
 
 
 @testsuite
-class BasicSuite(object):
+class BasicSuite:
     @testcase(parameters=range(3))
     def basic_case(self, env, result, arg):
         result.equal(1, 1, description="Passing assertion")
 
 
 @testsuite(name=lambda cls_name, suite: "Custom_{}".format(suite.arg))
-class TCPSuite(object):
+class TCPSuite:
     def __init__(self, arg):
         self.arg = arg
 

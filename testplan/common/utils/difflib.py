@@ -55,7 +55,7 @@ def _calculate_ratio(matches, length):
     return 1.0
 
 
-class SequenceMatcher(object):
+class SequenceMatcher:
 
     """
     SequenceMatcher is a flexible class for comparing pairs of sequences of
@@ -888,7 +888,7 @@ class SpaceIgnoredString(FuzzyMatchingString):
             return str(self)
 
 
-class Differ(object):
+class Differ:
     r"""
     Differ is a class for comparing sequences of lines of text, and
     producing human-readable differences or deltas.  Differ uses

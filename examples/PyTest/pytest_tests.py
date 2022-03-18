@@ -7,7 +7,7 @@ import os
 import pytest
 
 
-class TestPytestBasics(object):
+class TestPytestBasics:
     """
     Demonstrate the basic usage of PyTest. PyTest testcases can be declared
     as either plain functions or methods on a class. Testcase functions or
@@ -40,7 +40,7 @@ class TestPytestBasics(object):
         assert a + b == c
 
 
-class TestWithDrivers(object):
+class TestWithDrivers:
     """
     MultiTest drivers are also available for PyTest.
     The testcase can access those drivers by parameter `env`,
@@ -62,7 +62,7 @@ class TestWithDrivers(object):
         )
 
 
-class TestPytestMarks(object):
+class TestPytestMarks:
     """
     Demonstrate the use of Pytest marks. These can be used to skip a testcase,
     or to run it but expect it to fail. Marking testcases in this way is a

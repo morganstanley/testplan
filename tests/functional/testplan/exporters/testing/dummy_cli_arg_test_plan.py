@@ -6,7 +6,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 
 @testsuite
-class Alpha(object):
+class Alpha:
     @testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, "equality description")

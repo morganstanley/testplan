@@ -13,7 +13,7 @@ from testplan.testing.filtering import Pattern
 
 
 @testsuite
-class Alpha(object):
+class Alpha:
     @testcase
     def test_1(self, env, result):
         pass
@@ -24,7 +24,7 @@ class Alpha(object):
 
 
 @testsuite
-class Beta(object):
+class Beta:
     @testcase
     def test_1(self, env, result):
         pass
@@ -39,7 +39,7 @@ class Beta(object):
 
 
 @testsuite
-class Gamma(object):
+class Gamma:
     @testcase
     def test_1(self, env, result):
         pass

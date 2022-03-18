@@ -1,7 +1,7 @@
 """Import classes on runtime."""
 
 
-class ResourceLoader(object):
+class ResourceLoader:
     """Load logic."""
 
     def load(self, name, kwargs):

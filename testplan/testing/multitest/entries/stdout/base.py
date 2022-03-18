@@ -54,7 +54,7 @@ registry = StdOutRegistry()
 
 
 @registry.bind_default()
-class BaseRenderer(object):
+class BaseRenderer:
     """Absolute fallback for all entries."""
 
     def get_default_header(self, entry):
@@ -73,7 +73,7 @@ class BaseRenderer(object):
 
 
 @registry.bind(base.Group)
-class GroupRenderer(object):
+class GroupRenderer:
     def get_header(self, entry):
         return entry.description or "Group"
 

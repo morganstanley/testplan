@@ -18,7 +18,7 @@ from tests.unit.testplan.runnable.interactive import test_api
 
 
 @multitest.testsuite
-class ExampleSuite(object):
+class ExampleSuite:
     """Example test suite."""
 
     def __init__(self, tmpfile):
@@ -141,7 +141,7 @@ def plan2(tmpdir):
 
 
 @multitest.testsuite(strict_order=True)
-class StrictOrderSuite(object):
+class StrictOrderSuite:
     """Example test suite."""
 
     def __init__(self, tmpfile):
