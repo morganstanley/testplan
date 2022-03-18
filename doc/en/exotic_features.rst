@@ -3,8 +3,8 @@
 Exotic features
 ***************
 
-Marking decorator
------------------
+Report target decorator
+-----------------------
 
 The result of a particular run stores associated filepath
 and line number information for each of the assertions,
@@ -50,15 +50,15 @@ rather than to where ``helper`` is called inside ``case``.
 Controlling the behavior at ``MultiTest`` level may be sufficient in most scenarios,
 but it is a binary decision.
 In case the pointer is best-placed elsewhere for some special cases, the underlying
-:py:meth:`mark <testplan.testing.multitest.result.mark_group>` decorator can be leveraged.
-Roughly speaking, :py:meth:`mark <testplan.testing.multitest.result.mark_group>`
+:py:meth:`report_target <testplan.testing.multitest.result.report_target>` decorator can be leveraged.
+Roughly speaking, :py:meth:`report_target <testplan.testing.multitest.result.report_target>`
 is applied to all the testcases by default, and it pulls the pointer to testcase level.
 Decorating functions further down the call chain makes each assertion
 point to the nearest decorated.
 Let us extend the snippet further.
 
 .. code-block:: python
-    @mark_group
+    @report_target
     def intermediary(result):
         helper(result)
     ...
@@ -72,7 +72,7 @@ Let us extend the snippet further.
 
 Independent of whether ``mark_testcases`` was passed as
 ``True`` or ``False`` to the ``MultiTest`` constructor, the ``result.equal`` assertion
-in ``case_b`` will point to the call of ``helper`` inside ``intermediary``, given
+in ``case_b`` will point to the call of ``helper`` inside ``intermediary``, since
 it is the nearest "marked" function.
 Note that behavior of assertions in ``case`` are not impacted
 as ``intermediary`` is not called there.

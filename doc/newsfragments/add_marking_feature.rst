@@ -1,2 +1,2 @@
-* Added :py:meth:`mark <testplan.testing.multitest.result.mark_group>` decorator to mark filepath and line number.
+* Added :py:meth:`report_target <testplan.testing.multitest.result.report_target>` decorator to mark filepath and line number.
 * Made assertions pointing to filepath and line number of testcases default. Behavior is controlled by new `mark_testcases` attribute of :py:class:`MultiTest <testplan.testing.multitest.base.MultiTest>`.

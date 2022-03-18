@@ -102,7 +102,7 @@ test_plan.py
 
 Marking
 -------
-These examples demonstrate the usage of the `mark_group` decorator
+These examples demonstrate the usage of the `report_target` decorator
 which allows modifying the default line number and filepath of assertions in the report.
 It does so by re-pointing both to line number and filepath information of the call stack
 that is marked and closest to the actual assertion in scope.
