@@ -66,7 +66,7 @@ class Toolbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      treeView: false,
+      treeView: true,
       displayTime: false,
       displayPath: false,
       filterOpen: false,
