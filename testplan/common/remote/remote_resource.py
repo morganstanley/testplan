@@ -382,7 +382,7 @@ class RemoteResource(Entity):
         """Make workspace available on remote host."""
 
         if self.cfg.remote_workspace:
-            self.logger.test_info(
+            self.logger.info(
                 "User has specified workspace path on remote host, "
                 "pointing runpath/fetched_workspace to it"
             )
@@ -398,7 +398,7 @@ class RemoteResource(Entity):
             return
 
         if exist_on_remote:
-            self.logger.test_info(
+            self.logger.info(
                 "Local workspace path is accessible on %s, "
                 "pointing runpath/fetched_workspace to it",
                 self.ssh_cfg["host"],
@@ -413,7 +413,7 @@ class RemoteResource(Entity):
 
         else:
             # copy to remote
-            self.logger.test_info(
+            self.logger.info(
                 "Local workspace path is inaccessible on %s, "
                 "Copying it to remote runpath/fetched_workspace",
                 self.ssh_cfg["host"],
@@ -426,7 +426,7 @@ class RemoteResource(Entity):
                 remote_target=True,
                 exclude=self.cfg.workspace_exclude,
             )
-            self.logger.test_info(
+            self.logger.info(
                 "Creating symlink to imitate local workspace path on %s, "
                 "pointing to runpath/fetched_workspace",
                 self.ssh_cfg["host"],
