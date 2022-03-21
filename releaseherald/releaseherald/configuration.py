@@ -26,6 +26,7 @@ class Configuration(BaseModel):
     last_tag: str = ""
     latest: bool = False
     update: bool = True
+    plugins: Optional[List[str]] = None
 
     class Config:
         paths_to_resolve: List[str] = ["template", "news_file"]

@@ -8,7 +8,6 @@ import releaseherald.plugins
 from releaseherald.configuration import Configuration
 from releaseherald.plugins.interface import CommandOptions, CommitInfo
 
-
 class LatestFilter:
     def __init__(self):
         self.__name__ = self.__class__.__name__

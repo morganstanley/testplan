@@ -3,10 +3,9 @@ from typing import Optional, Pattern, List
 
 from boltons.iterutils import pairwise
 from git import Commit, Repo  # type: ignore
-
-import releaseherald.plugins
 from pydantic import BaseModel, root_validator, parse_obj_as
 
+import releaseherald.plugins
 from releaseherald.configuration import (
     Configuration,
     DEFAULT_FRAGMENTS_DIR,
@@ -32,7 +31,6 @@ class SubmoduleConfig(BaseModel):
 
 class Submodules:
     def __init__(self):
-        self.__name__ = self.__class__.__name__
         self.config: Optional[Configuration] = None
         self.submodule_config: List[SubmoduleConfig] = []
 

@@ -1,14 +1,14 @@
 import re
-import parse
 from abc import ABC, abstractmethod
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Dict, Type
 
+import parse
 from pydantic import BaseModel
 
-from releaseherald.configuration import Configuration
 import releaseherald.plugins
+from releaseherald.configuration import Configuration
 from releaseherald.plugins.interface import VersionNews, News
 
 
@@ -69,7 +69,6 @@ MATCHER_FACTORY_MAP: Dict[ParserType, Type[Extractor]] = {
 
 class FilenameMetadataExtractor:
     def __init__(self):
-        self.__name__ = self.__class__.__name__
         self.config: Configuration = None
         self.target_attribute: str = ""
         self.extractor: Optional[Extractor] = None
@@ -81,9 +80,7 @@ class FilenameMetadataExtractor:
         plugin_config = getattr(self.config, CONFIG_ATTRIBUTE, None)
 
         if plugin_config:
-            extractor_config = FilenameMetadataExtractorConfig.parse_obj(
-                plugin_config
-            )
+            extractor_config = FilenameMetadataExtractorConfig.parse_obj(plugin_config)
             setattr(self.config, CONFIG_ATTRIBUTE, extractor_config)
             self.target_attribute = extractor_config.target_attribute
             self.extractor = MATCHER_FACTORY_MAP[extractor_config.type](
