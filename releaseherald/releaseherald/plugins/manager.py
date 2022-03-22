@@ -36,7 +36,7 @@ def get_pluginmanager(config: Configuration):
         if plugin_name in INTERNAL_PLUGINS:
             pm.register(INTERNAL_PLUGINS[plugin_name](), plugin_name)
         else:
-            pm.load_setuptools_entrypoints("releaseherald", plugin_name)
+            pm.load_setuptools_entrypoints("releaseherald_plugin", plugin_name)
 
     pm.hook.process_config(config=config)
 

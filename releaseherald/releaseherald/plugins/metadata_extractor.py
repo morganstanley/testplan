@@ -23,7 +23,7 @@ class FilenameMetadataExtractorConfig(BaseModel):
     target_attribute: Optional[str]
 
 
-CONFIG_ATTRIBUTE = "FilenameMetadataExtractor"
+CONFIG_ATTRIBUTE = "filename_metadata_extractor"
 
 
 class Extractor(ABC):
