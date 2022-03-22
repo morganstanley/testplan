@@ -5,16 +5,6 @@ import psutil
 import subprocess
 import sys
 import tempfile
-import threading
-
-
-def _timeout_cbk(proc):
-    """
-    Callback function called if the testplan subprocess doesn't terminate in a
-    reasonable length of time.
-    """
-    proc.kill()
-    raise RuntimeError("Timeout popped.")
 
 
 def test_runner_timeout():
@@ -37,13 +27,12 @@ def test_runner_timeout():
         )
 
         # Set our own timeout so that we don't wait forever if the testplan
-        # script fails to timeout. 10 minutes ought to be long enough.
-        # In Python 3 we could wait() with a timeout, but this is not
-        # available in Python 2 so we need to roll our own timeout mechanism.
-        timer = threading.Timer(300, _timeout_cbk, args=[proc])
-        timer.start()
-        stdout, _ = proc.communicate()
-        timer.cancel()
+        # script fails to timeout. 5 minutes ought to be long enough.
+        try:
+            proc.communicate(timeout=300)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.communicate()
 
         rc = proc.returncode
 
@@ -52,15 +41,16 @@ def test_runner_timeout():
 
         # Check that the testplan exited with an error status.
         assert rc == 1
+        assert len(report["entries"]) == 2
         assert report["status"] == "error"
         assert report["counter"]["error"] == 1
 
         # Check that the timeout is logged to stdout.
         if not re.search(
-            r"Timeout: Aborting execution after 5 seconds", stdout
+            r"Timeout: Aborting execution after 5 seconds",
+            report["logs"][0]["message"],
         ):
-            print(stdout)
-            raise RuntimeError("Timeout log not found in stdout")
+            raise RuntimeError("Timeout log not found")
 
         # Check that no extra child processes remain since before starting.
         assert current_proc.children() == start_procs

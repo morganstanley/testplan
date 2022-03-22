@@ -155,54 +155,31 @@ class Environment:
         Starts all resources sequentially and log errors.
         """
         # Trigger start all resources
+        resources_to_wait_for = []
         for resource in self._resources.values():
             if not resource.cfg.auto_start:
                 continue
             try:
                 resource.start()
-                if not resource.cfg.async_start:
-                    resource.wait(resource.STATUS.STARTED)
             except Exception:
+                resource.status.change(self.STATUS.STOPPING)
                 msg = "While starting resource [{}]\n{}".format(
                     resource.cfg.name, traceback.format_exc()
                 )
                 resource.logger.error(msg)
+                resource.status.change(self.STATUS.STOPPED)
                 self.start_exceptions[resource] = msg
                 # Environment start failure. Won't start the rest.
                 break
+            else:
+                if resource.cfg.async_start:
+                    resources_to_wait_for.append(resource)
 
         # Wait resources status to be STARTED.
-        for resource in self._resources.values():
-            if resource in self.start_exceptions:
-                break
-            if resource.cfg.async_start is False:
-                continue
-            else:
-                resource.wait(resource.STATUS.STARTED)
-                resource.logger.debug("Started %r", resource)
-                resource.post_start()
-
-    def _log_exception(self, resource, func):
-        """
-        Decorator for logging an exception at resource and environment level.
-
-        :param resource: resource to log the exception with
-        :type resource: :py:class:`~testplan.common.entity.base.Resource`
-        :param func: function to catch exception for
-        :type func: ``Callable``
-        """
-
-        def wrapper(*args, **kargs):
-            try:
-                func(*args, **kargs)
-            except Exception:
-                msg = "While executing {} of resource [{}]\n{}".format(
-                    func.__name__, resource.cfg.name, traceback.format_exc()
-                )
-                resource.logger.error(msg)
-                self.start_exceptions[resource] = msg
-
-        return wrapper
+        for resource in resources_to_wait_for:
+            resource.wait(resource.STATUS.STARTED)
+            resource.logger.debug("Started %r", resource)
+            resource.post_start()
 
     def start_in_pool(self, pool):
         """
@@ -214,18 +191,28 @@ class Environment:
         for resource in self._resources.values():
             if not resource.cfg.async_start:
                 raise RuntimeError(
-                    "Cannot start resource {} in thread pool, "
-                    "its async_start attr is set to False".format(resource)
+                    f"Cannot start resource {resource} in thread pool,"
+                    " its `async_start` attribute is set to False"
                 )
 
+        # Trigger start all resources
+        resources_to_wait_for = []
         for resource in self._resources.values():
-            pool.apply_async(self._log_exception(resource, resource.start))
+            if not resource.cfg.auto_start:
+                continue
+            pool.apply_async(
+                self._log_exception(
+                    resource, resource.start, self.start_exceptions
+                )
+            )
+            resources_to_wait_for.append(resource)
 
         # Wait resources status to be STARTED.
-        for resource in self._resources.values():
-            resource.wait(resource.STATUS.STARTED)
-            resource.logger.debug("Started %r", resource)
-            resource.post_start()
+        for resource in resources_to_wait_for:
+            if resource not in self.start_exceptions:
+                resource.wait(resource.STATUS.STARTED)
+                resource.logger.debug("Started %r", resource)
+                resource.post_start()
 
     def stop(self, is_reversed=False):
         """
@@ -239,32 +226,35 @@ class Environment:
             resources = resources[::-1]
 
         # Stop all resources
+        resources_to_wait_for = []
         for resource in resources:
-            if (resource.status.tag is None) or (
-                resource.status.tag == resource.STATUS.STOPPED
+            # Skip resources not even triggered to start, or already aborted/stopped
+            if (
+                (resource.status == resource.STATUS.NONE)
+                or (resource.status == resource.STATUS.STOPPED)
+                or resource.aborted
             ):
-                # Skip resources not even triggered to start.
                 continue
+
             try:
                 resource.stop()
             except Exception:
+                resource.status.change(self.STATUS.STOPPING)
                 msg = "While stopping resource [{}]\n{}".format(
                     resource.cfg.name, traceback.format_exc()
                 )
                 resource.logger.error(msg)
+                resource.status.change(self.STATUS.STOPPED)
                 self.stop_exceptions[resource] = msg
+            else:
+                if resource.cfg.async_start:
+                    resources_to_wait_for.append(resource)
 
         # Wait resources status to be STOPPED.
-        for resource in resources:
-            if resource in self.stop_exceptions:
-                continue
-            elif resource.status.tag is None:
-                # Skip resources not even triggered to start.
-                continue
-            else:
-                resource.wait(resource.STATUS.STOPPED)
-                resource.logger.debug("Stopped %r", resource)
-                resource.post_stop()
+        for resource in resources_to_wait_for:
+            resource.wait(resource.STATUS.STOPPED)
+            resource.logger.debug("Stopped %r", resource)
+            resource.post_stop()
 
     def stop_in_pool(self, pool, is_reversed=False):
         """
@@ -284,20 +274,51 @@ class Environment:
         for resource in resources:
             # Skip resources not even triggered to start, or already aborted/stopped
             if (
-                (resource.status == None)
+                (resource.status == resource.STATUS.NONE)
                 or (resource.status == resource.STATUS.STOPPED)
                 or resource.aborted
             ):
                 continue
 
-            pool.apply_async(self._log_exception(resource, resource.stop))
+            pool.apply_async(
+                self._log_exception(
+                    resource, resource.stop, self.stop_exceptions
+                )
+            )
             resources_to_wait_for.append(resource)
 
         # Wait resources status to be STOPPED.
         for resource in resources_to_wait_for:
-            resource.wait(resource.STATUS.STOPPED)
-            resource.logger.debug("Stopped %r", resource)
-            resource.post_stop()
+            if resource not in self.stop_exceptions:
+                resource.wait(resource.STATUS.STOPPED)
+                resource.logger.debug("Stopped %r", resource)
+                resource.post_stop()
+
+    def _log_exception(self, resource, func, exc_map):
+        """
+        Decorator for logging an exception at resource and environment level.
+
+        :param resource: resource to log the exception with
+        :type resource: :py:class:`~testplan.common.entity.base.Resource`
+        :param func: function to catch exception for
+        :type func: ``Callable``
+        :param exc_map: map of resource name to error message during start/stop
+        :type exc_map: ``dict``
+        """
+
+        def wrapper(*args, **kargs):
+            try:
+                func(*args, **kargs)
+            except Exception:
+                resource.status.change(self.STATUS.STOPPING)
+                msg = "While executing {} of resource [{}]\n{}".format(
+                    func.__name__, resource.cfg.name, traceback.format_exc()
+                )
+                resource.logger.error(msg)
+                resource.status.change(self.STATUS.STOPPED)
+                exc_map[resource] = msg
+
+        return wrapper
 
     def __enter__(self):
         self.start()
@@ -1207,6 +1228,16 @@ class Resource(Entity):
         Set the Resource context.
         """
         self._context = context
+
+    def abort(self):
+        """
+        Abort policy, will change resource status.
+        """
+        if not self.active:
+            return
+        self.status.change(self.STATUS.STOPPING)
+        super(Resource, self).abort()
+        self.status.change(self.STATUS.STOPPED)
 
     def start(self):
         """
