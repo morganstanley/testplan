@@ -118,12 +118,10 @@ class HTTPClient(Driver):
         Stop the HTTPClient.
         """
         super(HTTPClient, self).stopping()
-        self.logger.debug("Stopped HTTPClient.")
 
     def aborting(self):
         """Abort logic that stops the client."""
         super(HTTPClient, self).aborting()
-        self.logger.debug("Aborted HTTPClient.")
 
     def _send_request(self, method, api, drop_response, timeout, **kwargs):
         """

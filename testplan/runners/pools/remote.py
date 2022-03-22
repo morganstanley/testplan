@@ -149,7 +149,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
     def _wait_stopped(self, timeout=None):
         sleeper = get_sleeper(1, timeout)
         while next(sleeper):
-            if self.status.tag != self.status.STOPPED:
+            if self.status != self.status.STOPPED:
                 self.logger.info("Waiting for workers to stop")
             else:
                 break
@@ -368,7 +368,7 @@ class RemotePool(Pool):
 
     def stopping(self):
         for worker in self._workers:
-            if worker.status.tag == worker.status.STARTING:
+            if worker.status == worker.status.STARTING:
                 try:
                     worker.wait(worker.status.STARTED)
                 except Exception:

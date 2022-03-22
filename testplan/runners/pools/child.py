@@ -183,9 +183,10 @@ class ChildLoop:
 
         with self._child_pool():
             message = Message(**self.metadata)
-            next_possible_request = time.time()
-            next_heartbeat = time.time()
+            next_possible_request = 0
+            next_heartbeat = 0
             request_delay = self._pool_cfg.active_loop_sleep
+
             while True:
                 # TODO: SHALL CHECK CHILD POOL ALIVE HERE
                 now = time.time()

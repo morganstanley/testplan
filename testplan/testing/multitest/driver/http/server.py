@@ -304,13 +304,11 @@ class HTTPServer(Driver):
         """Stop the HTTPServer."""
         super(HTTPServer, self).stopping()
         self._stop()
-        self.logger.debug("Stopped HTTPServer.")
 
     def aborting(self):
         """Abort logic that stops the server."""
         super(HTTPServer, self).aborting()
         self._stop()
-        self.logger.debug("Aborted HTTPServer.")
 
 
 class HTTPResponse:

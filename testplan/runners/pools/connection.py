@@ -277,12 +277,11 @@ class Server(entity.Resource, metaclass=abc.ABCMeta):
 
     def starting(self):
         """Server starting logic."""
-        self.status.change(self.status.STARTED)
+        self.status.change(self.status.STARTED)  # Start is async
 
     def stopping(self):
         """Server stopping logic."""
-
-        self.status.change(self.status.STOPPED)
+        self.status.change(self.status.STOPPED)  # Stop is async
 
     def aborting(self):
         """Abort policy - no abort actions are required in the base class."""
@@ -295,10 +294,10 @@ class Server(entity.Resource, metaclass=abc.ABCMeta):
         connection manager is started and will be automatically unregistered
         when it is stopped.
         """
-        if self.status.tag != self.status.STARTED:
+        if self.status != self.status.STARTED:
             raise RuntimeError(
-                "Can only register workers when started. Current state is "
-                "{}".format(self.status.tag)
+                "Can only register workers when started."
+                f" Current state is {self.status.tag}."
             )
 
     @abc.abstractmethod
@@ -396,10 +395,12 @@ class ZMQServer(Server):
     def _close(self):
         """Closes TCP connections managed by this object.."""
         self.logger.debug("Closing TCP connections for %s", self.parent)
-        self._sock.close()
-        self._sock = None
-        self._zmq_context.destroy()
-        self._zmq_context = None
+        if self._sock is not None:
+            self._sock.close()
+            self._sock = None
+        if self._zmq_context is not None:
+            self._zmq_context.destroy()
+            self._zmq_context = None
         self._address = None
 
     def stopping(self):
