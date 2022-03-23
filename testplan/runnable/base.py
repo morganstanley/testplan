@@ -926,7 +926,6 @@ class TestRunner(Runnable):
             self.logger.warning(
                 "No tests were run - check your filter patterns."
             )
-            self._result.test_report.status_override = Status.FAILED
         else:
             self.logger.log_test_status(
                 self.cfg.name, self._result.test_report.status
