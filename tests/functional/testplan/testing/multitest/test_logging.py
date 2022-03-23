@@ -13,6 +13,7 @@ from testplan.testing.multitest.logging import (
     AutoLogCaptureMixin,
 )
 from testplan.common.utils.testing import log_propagation_disabled
+from testplan.common.utils.logger import LOGGER_NAME as TESTPLAN_LOGGER_NAME
 
 SIMPLE_LOG = "Simple log"
 LOGGER_LEVEL_PATTERN = r"([^ ]*) *([^ ]*) *{}$".format(SIMPLE_LOG)
@@ -124,7 +125,7 @@ def auto_suite_logger_spy():
 
 @pytest.fixture
 def testplan_logger_spy():
-    return LoggerSpy(name="testplan")
+    return LoggerSpy(name=TESTPLAN_LOGGER_NAME)
 
 
 @pytest.fixture
@@ -225,9 +226,9 @@ def test_plan_level(
         message = case_result.entries[0]["message"]
         assert message.count(SIMPLE_LOG) == 2
         result = re.findall(LOGGER_LEVEL_PATTERN, message, re.M)
-        assert result[0][0].startswith("testplan.LoggingSuite")
+        assert result[0][0].startswith(f"{TESTPLAN_LOGGER_NAME}.LoggingSuite")
         assert result[0][1] == "INFO"
-        assert result[1:] == [("testplan", "DEBUG")]
+        assert result[1:] == [(TESTPLAN_LOGGER_NAME, "DEBUG")]
 
 
 def test_root_level(
@@ -252,9 +253,12 @@ def test_root_level(
         message = case_result.entries[0]["message"]
         assert message.count(SIMPLE_LOG) == 3
         result = re.findall(LOGGER_LEVEL_PATTERN, message, re.M)
-        assert result[0][0].startswith("testplan.LoggingSuite")
+        assert result[0][0].startswith(f"{TESTPLAN_LOGGER_NAME}.LoggingSuite")
         assert result[0][1] == "INFO"
-        assert result[1:] == [("testplan", "DEBUG"), ("root", "WARNING")]
+        assert result[1:] == [
+            (TESTPLAN_LOGGER_NAME, "DEBUG"),
+            ("root", "WARNING"),
+        ]
 
 
 def test_attach_log(get_filtered_plan, suite_logger_spy):
@@ -314,4 +318,4 @@ def test_log_propagation_disabled(
         assert case_result.entries[0]["type"] == "Log"
         message = case_result.entries[0]["message"]
         result = re.findall(LOGGER_LEVEL_PATTERN, message, re.M)
-        assert result[0] == ("testplan", "DEBUG")
+        assert result[0] == (TESTPLAN_LOGGER_NAME, "DEBUG")

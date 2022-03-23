@@ -782,7 +782,7 @@ class TestRunnerIHandler(entity.Entity):
                 "Interactive Testplan web service is not available"
             )
 
-        self.logger.debug(
+        self.logger.info(
             "\nInteractive Testplan API is running. View the API schema:\n%s",
             networking.format_access_urls(host, port, "/api/v1/interactive/"),
         )
