@@ -11,6 +11,7 @@ from testplan.common.config import ConfigOption
 from testplan.common.remote.remote_resource import (
     RemoteResourceConfig,
     RemoteResource,
+    UnboundRemoteResourceConfig,
 )
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import (
@@ -24,7 +25,9 @@ from testplan.runners.pools.connection import ZMQServer
 from testplan.runners.pools.process import ProcessWorker, ProcessWorkerConfig
 
 
-class RemoteWorkerConfig(ProcessWorkerConfig, RemoteResourceConfig):
+class UnboundRemoteWorkerConfig(
+    ProcessWorkerConfig, UnboundRemoteResourceConfig
+):
     """
     Configuration object for
     :py:class:`~testplan.runners.pools.remote.RemoteWorker` resource entity.
@@ -40,6 +43,10 @@ class RemoteWorkerConfig(ProcessWorkerConfig, RemoteResourceConfig):
         Schema for options validation and assignment of default values.
         """
         return {"workers": int, "pool_type": str}
+
+
+class RemoteWorkerConfig(UnboundRemoteWorkerConfig, RemoteResourceConfig):
+    pass
 
 
 class RemoteWorker(ProcessWorker, RemoteResource):

@@ -56,15 +56,13 @@ class _LocationPaths:
         return iter((self.local, self.remote))
 
 
-class RemoteResourceConfig(EntityConfig):
+class UnboundRemoteResourceConfig(EntityConfig):
     @classmethod
     def get_options(cls):
         """
         Schema for options validation and assignment of default values.
         """
         return {
-            "remote_host": str,
-            ConfigOption("ssh_port", default=22): int,
             ConfigOption("ssh_cmd", default=ssh_cmd): lambda x: callable(x),
             ConfigOption("copy_cmd", default=copy_cmd): lambda x: callable(x),
             ConfigOption("workspace", default=pwd()): str,
@@ -82,6 +80,18 @@ class RemoteResourceConfig(EntityConfig):
             ConfigOption("pull_exclude", default=[]): Or(list, None),
             ConfigOption("env", default=None): Or(dict, None),
             ConfigOption("setup_script", default=None): Or(list, None),
+        }
+
+
+class RemoteResourceConfig(UnboundRemoteResourceConfig):
+    @classmethod
+    def get_options(cls):
+        """
+        Schema for options validation and assignment of default values.
+        """
+        return {
+            "remote_host": str,
+            ConfigOption("ssh_port", default=22): int,
         }
 
 
@@ -372,7 +382,7 @@ class RemoteResource(Entity):
         """Make workspace available on remote host."""
 
         if self.cfg.remote_workspace:
-            self.logger.test_info(
+            self.logger.info(
                 "User has specified workspace path on remote host, "
                 "pointing runpath/fetched_workspace to it"
             )
@@ -388,7 +398,7 @@ class RemoteResource(Entity):
             return
 
         if exist_on_remote:
-            self.logger.test_info(
+            self.logger.info(
                 "Local workspace path is accessible on %s, "
                 "pointing runpath/fetched_workspace to it",
                 self.ssh_cfg["host"],
@@ -403,7 +413,7 @@ class RemoteResource(Entity):
 
         else:
             # copy to remote
-            self.logger.test_info(
+            self.logger.info(
                 "Local workspace path is inaccessible on %s, "
                 "Copying it to remote runpath/fetched_workspace",
                 self.ssh_cfg["host"],
@@ -416,7 +426,7 @@ class RemoteResource(Entity):
                 remote_target=True,
                 exclude=self.cfg.workspace_exclude,
             )
-            self.logger.test_info(
+            self.logger.info(
                 "Creating symlink to imitate local workspace path on %s, "
                 "pointing to runpath/fetched_workspace",
                 self.ssh_cfg["host"],
@@ -589,7 +599,8 @@ class RemoteResource(Entity):
             if self.cfg.pull:
                 self._pull_files()
         except Exception as exc:
-            self.logger.exception(
+            # TODO: This is so confusing to the user I think it is enough on debug log
+            self.logger.debug(
                 "While fetching result from worker [%s]: %s", self, exc
             )
 
