@@ -40,7 +40,7 @@ Let us extend the previous snippet.
     multitest = Multitest(
         ...,
         suites=[Suite()],
-        mark_testcases=False,
+        testcase_report_target=False,
     )
 
 Running the multitest with above configuration makes the assertion in
@@ -70,7 +70,7 @@ Let us extend the snippet further.
         def case_b(self, env, result):
             intermediary(result)
 
-Independent of whether ``mark_testcases`` was passed as
+Independent of whether ``testcase_report_target`` was passed as
 ``True`` or ``False`` to the ``MultiTest`` constructor, the ``result.equal`` assertion
 in ``case_b`` will point to the call of ``helper`` inside ``intermediary``, since
 it is the nearest "marked" function.

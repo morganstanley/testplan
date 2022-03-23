@@ -52,7 +52,9 @@ class Suite:
 @test_plan(name="Plan")
 def main(plan):
     plan.add(
-        MultiTest(name="MultiTest", suites=[Suite()], mark_testcase=False)
+        MultiTest(
+            name="MultiTest", suites=[Suite()], testcase_report_target=False
+        )
     )
 
 

@@ -70,7 +70,9 @@ def test_group_marking_multitest(mockplan, flag):
     Tests, at MultiTest-level, if marking works as expected.
     """
     test = MultiTest(
-        name="GroupMarking", suites=[GroupMarking()], mark_testcase=flag
+        name="GroupMarking",
+        suites=[GroupMarking()],
+        testcase_report_target=flag,
     )
     test.cfg.parent = mockplan.cfg
     test.run()

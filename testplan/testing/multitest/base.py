@@ -145,7 +145,7 @@ class MultiTestConfig(testing_base.TestConfig):
             config.ConfigOption("fix_spec_path", default=None): Or(
                 None, And(str, os.path.exists)
             ),
-            config.ConfigOption("mark_testcase", default=True): bool,
+            config.ConfigOption("testcase_report_target", default=True): bool,
         }
 
 
@@ -185,9 +185,9 @@ class MultiTest(testing_base.Test):
     :type result: :py:class:`~testplan.testing.multitest.result.result.Result`
     :param fix_spec_path: Path of fix specification file.
     :type fix_spec_path: ``NoneType`` or ``str``.
-    :param mark_testcase: Whether to mark testcases as assertions for filepath
+    :param testcase_report_target: Whether to mark testcases as assertions for filepath
         and line number information
-    :type mark_testcase: ``bool``
+    :type testcase_report_target: ``bool``
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -221,7 +221,7 @@ class MultiTest(testing_base.Test):
         tags=None,
         result=result.Result,
         fix_spec_path=None,
-        mark_testcase=True,
+        testcase_report_target=True,
         **options
     ):
         self._tags_index = None
@@ -326,7 +326,7 @@ class MultiTest(testing_base.Test):
                     if idx % self.cfg.part[1] == self.cfg.part[0]
                 ]
 
-            if self.cfg.mark_testcase:
+            if self.cfg.testcase_report_target:
                 testcases_to_run = [
                     report_target(testcase) for testcase in testcases_to_run
                 ]
