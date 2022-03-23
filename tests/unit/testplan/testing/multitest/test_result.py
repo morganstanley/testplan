@@ -1,16 +1,17 @@
-"""Unit tests for the testplan.testing.multitest.result module."""
+"""
+Unit tests for the testplan.testing.multitest.result module.
+"""
 
-import os
-import re
+import collections
 import copy
 import hashlib
-import collections
+import inspect
+import os
+import re
 from unittest import mock
 
-import pytest
 import matplotlib
-
-matplotlib.use("agg")
+import pytest
 import matplotlib.pyplot as plot
 
 from testplan.common.utils import comparison
@@ -18,8 +19,77 @@ from testplan.common.utils import testing
 from testplan.common.utils import path as path_utils
 
 from testplan.testing.multitest import result as result_mod
-from testplan.testing.multitest.suite import testcase, testsuite
 from testplan.testing.multitest import MultiTest
+from testplan.testing.multitest.suite import testcase, testsuite
+
+matplotlib.use("agg")
+
+
+def get_line_no(obj, rel_pos):
+    """
+    Extracts absolute line number based on object and relative position.
+    """
+    _, start = inspect.getsourcelines(obj)
+    return start + rel_pos
+
+
+def helper(result, description=None):
+    result.less(1, 2, description=description)
+
+
+@result_mod.report_target
+def intermediary(result, description=None):
+    helper(result, description=description)
+
+
+def test_group_marking():
+    """
+    Tests, at result object level, if marking works as expected.
+    """
+    result = result_mod.Result()
+    result.equal(1, 1)
+    assert result.entries.pop().line_no == get_line_no(test_group_marking, 5)
+    helper(result)
+    assert result.entries.pop().line_no == get_line_no(helper, 1)
+    intermediary(result)
+    assert result.entries.pop().line_no == get_line_no(intermediary, 2)
+
+
+@testsuite
+class GroupMarking:
+    @testcase
+    def case(self, env, result):
+        result.equal(1, 1, description="A")
+        helper(result, description="B")
+        intermediary(result, description="C")
+
+
+@pytest.mark.parametrize("flag", [True, False])
+def test_group_marking_multitest(mockplan, flag):
+    """
+    Tests, at MultiTest-level, if marking works as expected.
+    """
+    test = MultiTest(
+        name="GroupMarking",
+        suites=[GroupMarking()],
+        testcase_report_target=flag,
+    )
+    test.cfg.parent = mockplan.cfg
+    test.run()
+    assertions = {
+        entry["description"]: entry
+        for entry in test.report.flatten()
+        if isinstance(entry, dict) and entry["meta_type"] == "assertion"
+    }
+    expected = {
+        "A": get_line_no(GroupMarking.case, 2),
+        "B": get_line_no(GroupMarking.case, 3)
+        if flag
+        else get_line_no(helper, 1),
+        "C": get_line_no(intermediary, 2),
+    }
+    for desc, line_no in expected.items():
+        assert assertions[desc]["line_no"] == line_no
 
 
 @testsuite
@@ -72,7 +142,7 @@ def test_assertion_order(mockplan):
 
 
 @testsuite
-class AssertionExtraAttribute(object):
+class AssertionExtraAttribute:
     @testcase
     def case(self, env, result):
         first = result.subresult()

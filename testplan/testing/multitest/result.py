@@ -8,15 +8,17 @@ after testcases have finished running.
 """
 import inspect
 import os
+import platform
 import re
 import threading
-import platform
+from functools import wraps
+from typing import Callable
 
 from testplan import defaults
 from testplan.common.utils.package import MOD_LOCK
-from testplan.defaults import STDOUT_STYLE
 from testplan.common.utils import comparison
 from testplan.common.utils import strings
+from testplan.defaults import STDOUT_STYLE
 
 from .entries import assertions, base
 from .entries.schemas.base import registry as schema_registry
@@ -99,7 +101,30 @@ class ExceptionCapture:
 assertion_state = threading.local()
 
 
-def assertion(func):
+def report_target(func: Callable) -> Callable:
+    """
+    Sets the decorated function's filepath and line-range in assertion state.
+    """
+    filepath = inspect.getfile(func)
+    lines, start = inspect.getsourcelines(func)
+    line_range = range(start, start + len(lines))
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        filepath_prev = getattr(assertion_state, "filepath", None)
+        line_range_prev = getattr(assertion_state, "line_range", None)
+        assertion_state.filepath = filepath
+        assertion_state.line_range = line_range
+        try:
+            func(*args, **kwargs)
+        finally:
+            assertion_state.filepath = filepath_prev
+            assertion_state.line_range = line_range_prev
+
+    return wrapper
+
+
+def assertion(func: Callable) -> Callable:
     def wrapper(result, *args, **kwargs):
         top_assertion = False
         if not getattr(assertion_state, "in_progress", False):
@@ -110,12 +135,19 @@ def assertion(func):
             custom_style = kwargs.pop("custom_style", None)
             entry = func(result, *args, **kwargs)
             if top_assertion:
-                # Second element is the caller
                 with MOD_LOCK:
-                    # TODO: see https://github.com/python/cpython/commit/85cf1d514b84dc9a4bcb40e20a12e1d82ff19f20
-                    caller_frame = inspect.stack()[1]
-                entry.file_path = os.path.abspath(caller_frame.filename)
-                entry.line_no = caller_frame.lineno
+                    call_stack = inspect.stack()
+                    if getattr(assertion_state, "filepath", None) is None:
+                        frame = call_stack[1]
+                    else:
+                        for frame in call_stack:
+                            if (
+                                frame.filename == assertion_state.filepath
+                                and frame.lineno in assertion_state.line_range
+                            ):
+                                break
+                entry.file_path = os.path.abspath(frame.filename)
+                entry.line_no = frame.lineno
 
                 if custom_style is not None:
                     if not isinstance(custom_style, dict):
