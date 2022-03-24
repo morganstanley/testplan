@@ -137,17 +137,23 @@ def assertion(func: Callable) -> Callable:
             if top_assertion:
                 with MOD_LOCK:
                     call_stack = inspect.stack()
-                    if getattr(assertion_state, "filepath", None) is None:
-                        frame = call_stack[1]
-                    else:
-                        for frame in call_stack:
-                            if (
-                                frame.filename == assertion_state.filepath
-                                and frame.lineno in assertion_state.line_range
-                            ):
-                                break
-                entry.file_path = os.path.abspath(frame.filename)
-                entry.line_no = frame.lineno
+                    try:
+                        if getattr(assertion_state, "filepath", None) is None:
+                            frame = call_stack[1]
+                        else:
+                            for frame in call_stack:
+                                if (
+                                    frame.filename == assertion_state.filepath
+                                    and frame.lineno
+                                    in assertion_state.line_range
+                                ):
+                                    break
+                        entry.file_path = os.path.abspath(frame.filename)
+                        entry.line_no = frame.lineno
+                    finally:
+                        # https://docs.python.org/3/library/inspect.html
+                        del frame
+                        del call_stack
 
                 if custom_style is not None:
                     if not isinstance(custom_style, dict):
