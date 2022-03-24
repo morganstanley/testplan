@@ -1,6 +1,6 @@
 """MultiTest test execution framework."""
 
-import collections
+import collections.abc
 import concurrent
 import functools
 import itertools
@@ -35,7 +35,7 @@ from testplan.report import (
 
 def iterable_suites(obj):
     """Create an iterable suites object."""
-    suites = [obj] if not isinstance(obj, collections.Iterable) else obj
+    suites = [obj] if not isinstance(obj, collections.abc.Iterable) else obj
 
     # If multiple objects from one test suite class are added into a Multitest,
     # it's better provide naming function to avoid duplicate test suite names.
