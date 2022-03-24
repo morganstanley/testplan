@@ -202,7 +202,7 @@ License information `here <https://github.com/morganstanley/testplan/blob/main/L
    interactive
    pools
    remote
-   exotic
+   exotic_features
 
 .. toctree::
    :caption: Tools

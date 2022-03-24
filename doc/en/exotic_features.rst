@@ -14,6 +14,7 @@ regardless of whether the assertion happens in another function.
 Consider, for example, the below snippet.
 
 .. code-block:: python
+
     ...
     def helper(result):
         result.equal(1, 1)
@@ -36,6 +37,7 @@ Testplan allows the user to turn off the marking at ``MultiTest`` level.
 Let us extend the previous snippet.
 
 .. code-block:: python
+
     ...
     multitest = Multitest(
         ...,
@@ -58,6 +60,7 @@ point to the nearest decorated.
 Let us extend the snippet further.
 
 .. code-block:: python
+
     @report_target
     def intermediary(result):
         helper(result)
