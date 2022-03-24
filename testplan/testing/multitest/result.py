@@ -148,6 +148,9 @@ def assertion(func: Callable) -> Callable:
                                 break
                 entry.file_path = os.path.abspath(frame.filename)
                 entry.line_no = frame.lineno
+                # https://docs.python.org/3/library/inspect.html reference-
+                # cycles
+                del call_stack
 
                 if custom_style is not None:
                     if not isinstance(custom_style, dict):
