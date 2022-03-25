@@ -193,7 +193,6 @@ def mock_reload_env():
             reloader._GraphModuleFinder.__bases__ = old_bases
 
 
-
 def test_dependency_reload(mock_reload_env):
     r"""
     Test reload of dependencies. We set up a module dependency structure
