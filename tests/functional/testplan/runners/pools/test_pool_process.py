@@ -1,6 +1,7 @@
 """Process worker pool functional tests."""
 
 import os
+from pathlib import Path
 
 import pytest
 
@@ -21,7 +22,7 @@ def test_pool_basic(mockplan):
     )
 
 
-def test_kill_one_worker(mockplan):
+def test_kill_one_worker(mockplan, tmp_path: Path):
     """Kill one worker but pass after reassigning task."""
     pool_name = ProcessPool.__name__
     pool_size = 4
@@ -37,11 +38,14 @@ def test_kill_one_worker(mockplan):
 
     dirname = os.path.dirname(os.path.abspath(__file__))
 
+    boobytrap = tmp_path / "boobytrap"
+    boobytrap.touch()
+
     kill_uid = mockplan.schedule(
         target="multitest_kill_one_worker",
         module="func_pool_base_tasks",
         path=dirname,
-        args=(os.getpid(), pool_size),  # kills 4th worker
+        args=(str(boobytrap),),
         resource=pool_name,
     )
 

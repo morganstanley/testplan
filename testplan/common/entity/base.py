@@ -952,6 +952,7 @@ class Runnable(Entity):
         :param step: step to execute
         :type step: ``Callable``
         """
+        res = None
         try:
             res = step(*args, **kwargs)
         except Exception as exc:
