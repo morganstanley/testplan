@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="test/binaries/FooTest" tests="1" failures="0" errors="0">
+    <testcase name="test/binaries/FooTest" status="run" duration="0" time="0"></testcase>
+      <system-out>
+Generated test.log (if the file is not UTF-8, then this may be unreadable):
+<![CDATA[exec ${PAGER:-/usr/bin/less} "$0" || exit 1
+Running FooTest ...
+
+OK]]>
+      </system-out>
+    </testsuite>
+</testsuites>

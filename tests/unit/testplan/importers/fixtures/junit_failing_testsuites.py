@@ -7,46 +7,50 @@ from . import ImporterTestFixture
 fixture = ImporterTestFixture(
     Path(__file__).with_suffix(".xml"),
     TestReport(
-        name="My GTest",
-        description="My GTest Import",
+        name="JUnit Result",
+        description="JUnit Import",
         entries=[
             TestGroupReport(
-                name="My GTest",
-                description="My GTest Import",
-                category="gtest",
+                name="JUnit Result",
+                category="junit",
+                description="JUnit Import",
                 entries=[
                     TestGroupReport(
-                        name="SquareRootTest",
+                        name="FooTestCase",
                         category="testsuite",
                         entries=[
                             TestCaseReport(
-                                name="PositiveNos",
+                                name="FooTestCase::One",
                                 entries=[
-                                    {"type": "RawAssertion", "passed": True},
+                                    {"type": "RawAssertion", "passed": True}
                                 ],
                             ),
                             TestCaseReport(
-                                name="NegativeNos",
+                                name="FooTestCase::Two",
                                 entries=[
-                                    {"type": "RawAssertion", "passed": True},
+                                    {"type": "RawAssertion", "passed": True}
                                 ],
                             ),
                         ],
                     ),
                     TestGroupReport(
-                        name="SquareRootTestNonFatal",
+                        name="BarTestCase",
                         category="testsuite",
                         entries=[
                             TestCaseReport(
-                                name="PositiveNos",
+                                name="BarTestCase::One",
                                 entries=[
-                                    {"type": "RawAssertion", "passed": True},
+                                    {"type": "RawAssertion", "passed": True}
                                 ],
                             ),
                             TestCaseReport(
-                                name="NegativeNos",
+                                name="BarTestCase::Two",
                                 entries=[
-                                    {"type": "RawAssertion", "passed": True},
+                                    {
+                                        "type": "RawAssertion",
+                                        "passed": False,
+                                        "content": "Bar.C:78\nExpected equality of these values:\n  10\n  (int)counter\n    Which is: 0",
+                                    }
                                 ],
                             ),
                         ],

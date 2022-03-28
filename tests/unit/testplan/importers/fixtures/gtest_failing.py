@@ -1,9 +1,8 @@
 from pathlib import Path
 
 from testplan.report import TestReport, TestGroupReport, TestCaseReport
-from tests.unit.testplan.importers.fixtures import (
-    ImporterTestFixture,
-)
+from . import ImporterTestFixture
+
 
 fixture = ImporterTestFixture(
     Path(__file__).with_suffix(".xml"),

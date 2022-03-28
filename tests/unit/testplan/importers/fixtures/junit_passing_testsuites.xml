@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="3" failures="0" disabled="0" errors="0" time="25.972" timestamp="2022-03-07T12:10:11.572" name="AllTests">
+  <testsuite name="FooTestCase" tests="2" failures="0" disabled="0" skipped="0" errors="0" time="0.012" timestamp="2022-03-07T12:10:37.524">
+    <testcase name="One" status="run" result="completed" time="0.007" timestamp="2022-03-07T12:10:37.524" classname="FooTestCase" />
+    <testcase name="Two" status="run" result="completed" time="0.005" timestamp="2022-03-07T12:10:37.531" classname="FooTestCase" />
+  </testsuite>
+  <testsuite name="BarTestCase" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="0" timestamp="2022-03-07T12:10:37.536">
+    <testcase name="One" status="run" result="completed" time="0" timestamp="2022-03-07T12:10:37.536" classname="BarTestCase" />
+  </testsuite>
+</testsuites>
