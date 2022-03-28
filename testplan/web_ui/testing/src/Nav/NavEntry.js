@@ -51,7 +51,7 @@ const NavEntry = (props) => {
       </Badge>
       <div
         className={css(styles.entryName, styles[STATUS_CATEGORY[props.status]])}
-        title={props.description || props.name}
+        title={`${props.description || props.name} - ${props.status}`}
       >
         {props.name}
       </div>

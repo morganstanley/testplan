@@ -7,7 +7,7 @@ import { StyleSheet, css } from 'aphrodite';
 
 import TagList from './TagList';
 import Column from './Column';
-import { LIGHT_GREY, DARK_GREY } from "../Common/defaults";
+import { LIGHT_GREY, MEDIUM_GREY } from "../Common/defaults";
 import CommonStyles from "../Common/Styles.js";
 import { NavLink } from 'react-router-dom';
 import { generatePath } from 'react-router';
@@ -135,11 +135,11 @@ export const styles = StyleSheet.create({
   },
   navButtonInteract: {
     ':hover': {
-      backgroundColor: DARK_GREY,
+      backgroundColor: MEDIUM_GREY,
     },
   },
   navButtonInteractFocus: {
-    backgroundColor: DARK_GREY,
+    backgroundColor: MEDIUM_GREY,
     outline: 'none',
   },
   buttonList: {
