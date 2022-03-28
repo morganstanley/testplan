@@ -137,6 +137,7 @@ class LogCaptureMixin(Loggable):
         :return: returns the suite level logger
         :rtype: logging.Logger
         """
+        info = None
         try:
             info = self._attach_handler(
                 result,
@@ -147,7 +148,8 @@ class LogCaptureMixin(Loggable):
 
             yield self.logger
         finally:
-            self._detach_handler(info)
+            if info:
+                self._detach_handler(info)
 
     def select_loggers(self, capture_level):
         if isinstance(capture_level, (tuple, list)):
