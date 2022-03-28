@@ -180,13 +180,17 @@ def mock_reload_env():
         # Despite mocking modulefinder.ModuleFinder above, we also need to
         # swap out the real ModuleFinder with our mock one in the list of
         # bases for the GraphModuleFinder.
-        reloader._GraphModuleFinder.__bases__ = (
-            MockModuleFinder,
-            logger.Loggable,
-        )
-        reload_obj = reloader.ModuleReloader()
+        old_bases = reloader._GraphModuleFinder.__bases__
+        try:
+            reloader._GraphModuleFinder.__bases__ = (
+                MockModuleFinder,
+                logger.Loggable,
+            )
+            reload_obj = reloader.ModuleReloader()
 
-        yield reload_obj, mock_reload, mock_stat
+            yield reload_obj, mock_reload, mock_stat
+        finally:
+            reloader._GraphModuleFinder.__bases__ = old_bases
 
 
 def test_dependency_reload(mock_reload_env):
