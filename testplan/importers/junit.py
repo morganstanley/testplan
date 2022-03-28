@@ -71,7 +71,8 @@ class JUnitResultImporter(ThreePhaseFileImporter):
                     # TODO: does it need to be "{case_name} execution"?
                     case_report_uid = f"{case_name} execution"
                     if case_name == suite_report.name:
-                        suite_report.name = case_name.rpartition(os.sep)[-1]
+                        # TODO: "/" is probably better as os.sep (impactful)
+                        suite_report.name = case_name.rpartition("/")[-1]
                         # TODO: does it need to be "Execution"?
                         case_report_name = "Execution"
                     else:

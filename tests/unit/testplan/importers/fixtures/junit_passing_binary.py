@@ -16,7 +16,7 @@ fixture = ImporterTestFixture(
                 description="JUnit Import",
                 entries=[
                     TestGroupReport(
-                        name="test/binaries/FooTest",
+                        name="FooTest",
                         category="testsuite",
                         entries=[
                             TestCaseReport(
