@@ -50,10 +50,8 @@ class JUnitResultImporter(ThreePhaseFileImporter):
 
         for suite in suites:
             suite_name = suite.attrib.get("name")
-            # TODO: what happens if the suite_name is None or ""?
             suite_report = TestGroupReport(
                 name=suite_name,
-                uid=suite_name,
                 category=ReportCategories.TESTSUITE,
             )
 
@@ -67,13 +65,11 @@ class JUnitResultImporter(ThreePhaseFileImporter):
                 case_name = element.attrib.get("name")
 
                 if case_class is None:
-                    # TODO: do we need UID to be different than name?
-                    # TODO: does it need to be "{case_name} execution"?
-                    case_report_uid = f"{case_name} execution"
                     if case_name == suite_report.name:
-                        # TODO: "/" is probably better as os.sep (impactful)
-                        suite_report.name = case_name.rpartition("/")[-1]
-                        # TODO: does it need to be "Execution"?
+                        path = os.path.normpath(case_name)
+                        suite_report.name = path.rpartition(os.sep)[-1]
+                        # We use the name "Execution" to avoid collision of
+                        # test suite and test case.
                         case_report_name = "Execution"
                     else:
                         case_report_name = case_name
@@ -81,14 +77,8 @@ class JUnitResultImporter(ThreePhaseFileImporter):
                     case_report_name = (
                         f"{case_class.split('.')[-1]}::{case_name}"
                     )
-                    case_report_uid = (
-                        f"{case_class.replace('.', '::')}::{case_name}"
-                    )
 
-                case_report = TestCaseReport(
-                    name=case_report_name,
-                    uid=case_report_uid,
-                )
+                case_report = TestCaseReport(name=case_report_name)
 
                 if not element.getchildren():
                     assertion = RawAssertion(
@@ -98,13 +88,26 @@ class JUnitResultImporter(ThreePhaseFileImporter):
                     )
                     case_report.append(registry.serialize(assertion))
                 else:
+                    # Upon a failure, there will be a single testcase which is
+                    # the first child.
+                    content, tag, desc = "", None, None
                     for child in element.getchildren():
-                        assertion = RawAssertion(
-                            description=child.tag,
-                            content=child.attrib.get("message"),
-                            passed=child.tag not in ("failure", "error"),
-                        )
-                        case_report.append(registry.serialize(assertion))
+                        tag = tag or child.tag
+                        msg = child.attrib.get("message") or child.text
+                        # Approach: if it is a failure/error child, then use
+                        # the message attribute directly.
+                        # Otherwise, for instance if it is a system-err/out,
+                        # then build up the content step by step from it.
+                        if not desc and child.tag in ("failure", "error"):
+                            desc = msg
+                        else:
+                            content += f"[{child.tag}]\n{msg}\n"
+                    assertion = RawAssertion(
+                        description=desc,
+                        content=content,
+                        passed=tag not in ("failure", "error"),
+                    )
+                    case_report.append(registry.serialize(assertion))
 
                 suite_report.runtime_status = RuntimeStatus.FINISHED
                 suite_report.append(case_report)

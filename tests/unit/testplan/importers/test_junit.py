@@ -3,20 +3,18 @@ import pytest
 from testplan.common.utils.testing import check_report
 from testplan.importers.junit import JUnitResultImporter
 from .fixtures import (
-    junit_failing_testsuites,
-    junit_passing_testsuites,
-    junit_passing_binary,
-    junit_failing_binary,
+    junit_binary,
+    junit_testsuite,
+    junit_testsuites,
 )
 
 
 @pytest.mark.parametrize(
     "params",
     (
-        junit_failing_testsuites.fixture,
-        junit_passing_testsuites.fixture,
-        junit_passing_binary.fixture,
-        junit_failing_binary.fixture,
+        junit_binary.fixture,
+        junit_testsuite.fixture,
+        junit_testsuites.fixture,
     ),
 )
 def test_import(params):

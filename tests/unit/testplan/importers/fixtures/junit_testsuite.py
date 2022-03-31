@@ -16,40 +16,36 @@ fixture = ImporterTestFixture(
                 description="JUnit Import",
                 entries=[
                     TestGroupReport(
-                        name="FooTestCase",
+                        name="FooCase",
                         category="testsuite",
                         entries=[
                             TestCaseReport(
-                                name="FooTestCase::One",
+                                name="FooCase::Foo",
                                 entries=[
-                                    {"type": "RawAssertion", "passed": True}
+                                    {
+                                        "type": "RawAssertion",
+                                        "passed": True,
+                                        "content": "Testcase Foo passed",
+                                    }
                                 ],
                             ),
                             TestCaseReport(
-                                name="FooTestCase::Two",
-                                entries=[
-                                    {"type": "RawAssertion", "passed": True}
-                                ],
-                            ),
-                        ],
-                    ),
-                    TestGroupReport(
-                        name="BarTestCase",
-                        category="testsuite",
-                        entries=[
-                            TestCaseReport(
-                                name="BarTestCase::One",
-                                entries=[
-                                    {"type": "RawAssertion", "passed": True}
-                                ],
-                            ),
-                            TestCaseReport(
-                                name="BarTestCase::Two",
+                                name="FooCase::Bar",
                                 entries=[
                                     {
                                         "type": "RawAssertion",
                                         "passed": False,
-                                        "content": "Bar.C:78\nExpected equality of these values:\n  10\n  (int)counter\n    Which is: 0",
+                                        "content": "[system-err]\nSystem error body content.\n",
+                                    }
+                                ],
+                            ),
+                            TestCaseReport(
+                                name="FooCase::Baz",
+                                entries=[
+                                    {
+                                        "type": "RawAssertion",
+                                        "passed": False,
+                                        "content": "",
                                     }
                                 ],
                             ),

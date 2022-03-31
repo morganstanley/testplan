@@ -132,7 +132,6 @@ class CPPUnitResultImporter(ThreePhaseFileImporter[Element]):
             suite_name = suite.attrib["name"]
             suite_report = TestGroupReport(
                 name=suite_name,
-                uid=suite_name,
                 category=ReportCategories.TESTSUITE,
             )
 
@@ -145,9 +144,6 @@ class CPPUnitResultImporter(ThreePhaseFileImporter[Element]):
                 testcase_prefix = testcase_classname.split(".")[-1]
                 testcase_report = TestCaseReport(
                     name="{}::{}".format(testcase_prefix, testcase_name),
-                    uid="{}::{}".format(
-                        testcase_classname.replace(".", "::"), testcase_name
-                    ),
                 )
 
                 if not testcase.getchildren():

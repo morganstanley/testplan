@@ -16,31 +16,43 @@ fixture = ImporterTestFixture(
                 description="JUnit Import",
                 entries=[
                     TestGroupReport(
-                        name="FooTestCase",
+                        name="FooCase",
                         category="testsuite",
                         entries=[
                             TestCaseReport(
-                                name="FooTestCase::One",
+                                name="FooCase::Foo",
                                 entries=[
-                                    {"type": "RawAssertion", "passed": True}
+                                    {
+                                        "type": "RawAssertion",
+                                        "passed": True,
+                                        "content": "Testcase Foo passed",
+                                    }
                                 ],
                             ),
                             TestCaseReport(
-                                name="FooTestCase::Two",
+                                name="FooCase::Bar",
                                 entries=[
-                                    {"type": "RawAssertion", "passed": True}
+                                    {
+                                        "type": "RawAssertion",
+                                        "passed": False,
+                                        "content": "[system-err]\nSystem error body content.\n",
+                                    }
                                 ],
                             ),
                         ],
                     ),
                     TestGroupReport(
-                        name="BarTestCase",
+                        name="BarCase",
                         category="testsuite",
                         entries=[
                             TestCaseReport(
-                                name="BarTestCase::One",
+                                name="BarCase::Foo",
                                 entries=[
-                                    {"type": "RawAssertion", "passed": True}
+                                    {
+                                        "type": "RawAssertion",
+                                        "passed": False,
+                                        "content": "[system-out]\nSystem out body content.\n",
+                                    }
                                 ],
                             ),
                         ],

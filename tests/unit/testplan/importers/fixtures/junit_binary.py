@@ -16,7 +16,7 @@ fixture = ImporterTestFixture(
                 description="JUnit Import",
                 entries=[
                     TestGroupReport(
-                        name="FooTest",
+                        name="foo",
                         category="testsuite",
                         entries=[
                             TestCaseReport(
@@ -25,7 +25,7 @@ fixture = ImporterTestFixture(
                                     {
                                         "type": "RawAssertion",
                                         "passed": False,
-                                        "content": "exited with error code 2",
+                                        "content": "",
                                     }
                                 ],
                             ),

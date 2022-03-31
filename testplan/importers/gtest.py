@@ -50,7 +50,6 @@ class GTestResultImporter(ThreePhaseFileImporter[Element]):
             suite_name = suite.attrib["name"]
             suite_report = TestGroupReport(
                 name=suite_name,
-                uid=suite_name,
                 category=ReportCategories.TESTSUITE,
             )
             suite_has_run = False
@@ -58,9 +57,7 @@ class GTestResultImporter(ThreePhaseFileImporter[Element]):
             for testcase in suite.getchildren():
 
                 testcase_name = testcase.attrib["name"]
-                testcase_report = TestCaseReport(
-                    name=testcase_name, uid=testcase_name
-                )
+                testcase_report = TestCaseReport(name=testcase_name)
 
                 if not testcase.getchildren():
                     assertion_obj = RawAssertion(

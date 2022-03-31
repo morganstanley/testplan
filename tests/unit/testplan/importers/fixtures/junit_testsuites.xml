@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+    <testsuite name="FooCase">
+        <testcase name="Foo" classname="FooCase"></testcase>
+        <testcase name="Bar" classname="FooCase">
+            <failure message="Message attribute.">Failure body content.</failure>
+            <system-err>System error body content.</system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="BarCase">
+        <testcase name="Foo" classname="BarCase">
+            <error message="Message attribute">Error body content.</error>
+            <system-out>System out body content.</system-out>
+        </testcase>
+    </testsuite>
+</testsuites>

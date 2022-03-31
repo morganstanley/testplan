@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, Union
 
 import click
 
@@ -17,7 +17,7 @@ def convert() -> None:
 
 @convert.resultcallback()
 def run_actions(
-    actions: Sequence[ParseSingleAction, ProcessResultAction]
+    actions: Sequence[Union[ParseSingleAction, ProcessResultAction]]
 ) -> None:
     """
     Result callback for `convert` command.
