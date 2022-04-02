@@ -127,7 +127,7 @@ def generate(ctx: click.Context, **kwargs):
     help="Path to the config file, if not provided releaseherald.toml or pyproject.toml usde from git repo root.",
 )
 @click.pass_context
-def setup(ctx: click.Context, git_dir, config) -> Tuple[Dict[str,Any], Context]:
+def setup(ctx: click.Context, git_dir, config) -> Tuple[Dict[str, Any], Context]:
     repo = Repo(path=git_dir, search_parent_directories=True)
 
     config_key: ConfigKeyPathType = ()
@@ -159,8 +159,10 @@ def setup(ctx: click.Context, git_dir, config) -> Tuple[Dict[str,Any], Context]:
 
 
 cli.params = setup.params
+default_map, context_obj = setup.main(standalone_mode=False)
+
+def main():
+    cli.main(default_map=default_map, obj=context_obj)
 
 if __name__ == "__main__":
-    default_map, context_obj = setup.main(standalone_mode=False)
-
-    cli.main(default_map=default_map, obj=context_obj)
+    main()

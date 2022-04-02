@@ -8,6 +8,10 @@ from releaseherald.configuration import Configuration
 
 
 class DemoPlugin:
+    """
+    A demo plugin for releaseherald that dump some data through the
+    progress of the run
+    """
 
     def __init__(self):
         self.config: Configuration = None
@@ -20,6 +24,3 @@ class DemoPlugin:
     @releaseherald.plugins.hookimpl
     def process_tags(self, repo: Repo, tags: List[Tag]):
         ic(tags)
-
-
-plugin = DemoPlugin()

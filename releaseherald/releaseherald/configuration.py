@@ -15,6 +15,10 @@ DefaultOptionsCallable = Callable[[Dict[str, Any]], None]
 
 
 class Configuration(BaseModel):
+    """
+    docs
+
+    """
     config_path: Path
     version_tag_pattern: Pattern = DEFAULT_VERSION_TAG_PATTERN
     news_fragments_directory: Path = DEFAULT_FRAGMENTS_DIR

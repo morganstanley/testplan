@@ -8,7 +8,7 @@ the place of the config files. If no config files exists it will run with defaul
 
 ## Config files
 
-`releaseherald` can read its config from either `releaseherald.tom`, or if that does not exist it check for a
+`releaseherald` can read its config from either `releaseherald.toml`, or if that does not exist it check for a
 `pyproject.toml` where it looks for the `[tool.releaseherald]` section. Of course the path to the config can be passed
 from the command line as `--config path/to/config.file`
 
@@ -72,3 +72,9 @@ repository.
 with [`latest`](#latest) one can generate a simple representation of the latest version, which is great for an
 announcement mail/post.  
 **_Default:_** `true`
+
+### `plugins`
+
+: The list of plugins enabled for this config. The base plugin that provide the basic behviour of releaseherald is 
+always included unless `-base` is added to the list. If not set then some of the stock plugins are autoloaded.  
+**_Default:_** `[base, filename_metadata_extractor, latest, submodules]`

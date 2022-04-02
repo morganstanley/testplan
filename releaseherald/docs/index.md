@@ -27,7 +27,7 @@ from `pyproject.toml` from `[tool.releaseherald]`. It is possible to start witho
 create a `news_fragment` directory in the root of the git repo and a `news.rst` file which should contain a news file
 something like this:
 
-```rst
+``` rst
 Release Notes
 =============
 
@@ -40,7 +40,7 @@ merged (preferably with a pull request). When releasing a label need to be creat
 following [semantic versioning](https://semver.org/) principles. Once there are some commits and news fragments release
 notes can be generated as `releaseherald generate`. This will result something like this:
 
-```rst
+``` rst
 Release Notes
 =============
 

@@ -1,0 +1,5 @@
+nav:
+    - basics.md
+    - examples.md
+    - hooks.md
+    - dataclasses.md

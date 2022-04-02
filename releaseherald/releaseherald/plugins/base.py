@@ -136,17 +136,7 @@ class BasePlugin:
             from_commit=commit_from,
             to_commit=commit_to,
             date=commit_to.date,
-            # submodule_news=get_submodule_news(
-            #     commit_from.commit, commit_to.commit, submodules
         )
-
-    @dataclass
-    class GeneratedNews:
-
-        source: str
-        type: List[str]
-        content: str
-        id: uuid.UUID = field(default_factory=uuid.uuid1)
 
     @releaseherald.plugins.hookimpl
     def generate_output(
