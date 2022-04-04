@@ -16,7 +16,7 @@ class ParserType(str, Enum):
     RE = "re"
     PARSE = "parse"
 
-
+# TODO: document configuration for the metadata extractor
 class FilenameMetadataExtractorConfig(BaseModel):
     type: ParserType
     pattern: str
