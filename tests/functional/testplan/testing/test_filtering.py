@@ -266,6 +266,11 @@ def test_programmatic_filtering(filter_obj, report_ctx):
                 ("YYY", (("Gamma", ["test_three"]),)),
             ],
         ),
+        # Case 7, pattern filtering for empty run
+        (
+            ("--patterns", "EmptyRun"),
+            [],
+        ),
     ),
 )
 def test_command_line_filtering(cmdline_args, report_ctx):
@@ -281,3 +286,6 @@ def test_command_line_filtering(cmdline_args, report_ctx):
 
     test_report = plan.report
     check_report_context(test_report, report_ctx)
+
+    if not test_report.entries:
+        assert plan.result.success
