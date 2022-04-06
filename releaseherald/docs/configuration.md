@@ -12,8 +12,9 @@ the place of the config files. If no config files exists it will run with defaul
 `pyproject.toml` where it looks for the `[tool.releaseherald]` section. Of course the path to the config can be passed
 from the command line as `--config path/to/config.file`
 
-## Configurable options
 
+
+## [`base`](plugins/stock.md#base) plugin configuration
 ### `version_tag_pattern`
 
 : The pattern is used to select the versions from the repository, it can have a group named `version` which, if present,
@@ -25,6 +26,20 @@ will be used as the version number, if no souch group then the whole label will 
 : The path to the news fragment directory, if relative, it is relative to the repository root.  
 **_Default:_** `news_fragment`
 
+### `unreleased`
+
+: If true a version named `Unreleassed` will be generated with the news fragments added since the last release toll the
+current state of the repo.  
+**_Default:_** `false`
+
+### `last_tag`
+
+: Last tag considered in the history. Only generate news for versions that happened after that version. It must
+match [`version_tag_pattern`](#version_tag_pattern).  
+**_Default_** `""`
+
+
+## [`base_output`](plugins/stock.md#base_output) plugin configuration
 ### `news_file`
 
 : Path of the base news file. This is the file that will be extended with the news for versions that `releaseherald`
@@ -43,28 +58,10 @@ leaving the line in the file.
 : Path to the version template file. This is file should use Jinja syntax, and render the news for a single version. See
 the details in [Version template](version_template.md)
 
-### `unreleased`
-
-: If true a version named `Unreleassed` will be generated with the news fragments added since the last release toll the
-current state of the repo.  
-**_Default:_** `false`
-
 ### `target`
 
 : Path to the target of the generated news file. If not provided the generated news will be dumped to stdout.  
 **_Default:_** `None`
-
-### `last_tag`
-
-: Last tag considered in the history. Only generate news for versions that happened after that version. It must
-match [`version_tag_pattern`](#version_tag_pattern).  
-**_Default_** `""`
-
-### `latest`
-
-: If true only render the latest version. Can be used if one always update the news file and commit that into git
-repository.  
-**_Default:_** `false`
 
 ### `update`
 
@@ -73,8 +70,33 @@ with [`latest`](#latest) one can generate a simple representation of the latest 
 announcement mail/post.  
 **_Default:_** `true`
 
+## [`latest`](plugins/stock.md#latest) plugin configuration
+
+### `latest`
+
+: If true only render the latest version. Can be used if one always update the news file and commit that into git
+repository.  
+**_Default:_** `false`
+
+## [`filename_metadata_extractor`](plugins/stock.md#filename_metadata_extractor) plugin configuration
+### `filename_metadata_extractor`
+
+: This setting configure the extraction of metadata from news file names. The extracted information made available 
+through the [News][releaseherald.plugins.interface.News] metadata to the template.
+::: releaseherald.plugins.metadata_extractor.FilenameMetadataExtractorConfig
+    rendering:
+        show_source: false 
+        show_bases: false
+        show_root_toc_entry: false
+        members_order: source
+        docstring_section_style: list 
+
+## [`submodules`](plugins/stock.md#submodules) plugin configuration
+
+## other configuration
 ### `plugins`
 
-: The list of plugins enabled for this config. The base plugin that provide the basic behviour of releaseherald is 
-always included unless `-base` is added to the list. If not set then some of the stock plugins are autoloaded.  
-**_Default:_** `[base, filename_metadata_extractor, latest, submodules]`
+: The list of plugins enabled for this config. The base and base_ouput plugin that provide the basic behvior of 
+releaseherald is always included unless `-base` and/or `-base-output` is added to the list. If not set then some of 
+the stock plugins are autoloaded.  
+**_Default:_** `[base, base_output, filename_metadata_extractor, latest, submodules]`

@@ -10,6 +10,7 @@ markdown_extensions:
   - def_list
   - mkdocs-click
   - admonition
+  - attr_list
   - pymdownx.snippets
   - pymdownx.highlight
   - pymdownx.superfences:
@@ -21,7 +22,8 @@ markdown_extensions:
 plugins:
   - search
   - awesome-pages
-  - mermaid2
+  - mermaid2:
+      version: 8.14.0
   - mkdocstrings:
       watch:
         - releaseherald/plugins

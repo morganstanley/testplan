@@ -12,12 +12,104 @@ We very much agree with [towncrier's philosophy](https://github.com/twisted/town
 that release notes should be convenient to read. But still release notes should be easy to work with. And that is where
 `towncrier's` news fragments shines. Ideally every pull request should come with an update of the release notes, if this
 is a single file then one always run into merge conflicts, if each pr has its own news fragments, then this is easily
-avoidable. `towncrier` has a couple of opinions which work very good on github, but might not work so great in other
+avoidable. `towncrier` has a couple of opinions which work very well on GitHub, but might not work so great in other
 environments. `releaseherald` try to be less opinionated yet easy to extend. We try to have just three opinions:
 
 - version control in git
 - the release notes for a version is fabricated from the news fragments created/modified between that two release
 - the releases number can be worked out from git labels
+
+## Concept
+
+The bellow diagramm try to explain the concept and show off the various data that flows into `releaseherald`.
+```mermaid
+flowchart LR
+    subgraph G[Git Repo]
+        subgraph L1[Change since LABEL 0.9.1]
+            direction LR
+
+            L1C3[Commit 3 LABEL: 1.0.0]
+            L1C2[Commit 2]
+            L1C1[Commit 1]
+
+            C3N2[news4.srt]
+            C3N1[news3.srt]
+            C2N1[news2.srt]
+            C1N1[news1.srt]
+
+            L1C3 --- C3N2
+            L1C3 --- C3N1            
+            L1C2 --- C2N1
+            L1C1 --- C1N1
+
+            
+        end
+
+        subgraph L2 [Change since LABEL 0.7.0]
+            direction LR
+            L2C3[Commit 3 LABEL: 0.9.1] 
+            L2C2[Commit 2] 
+            L2C1[Commit 1] 
+
+            L2C3N1[news3.srt]
+            L2C2N1[news2.srt]
+            L2C1N1[news1.srt]
+
+            L2C3 --- L2C3N1            
+            L2C2 --- L2C2N1
+            L2C1 --- L2C1N1
+        end
+        subgraph L3 [Earlier changes]
+            direction LR
+            L3C2[Commit N LABEL: 0.7.0 ...]             
+        end
+
+    end
+
+    subgraph S[Sourcetree]
+        RC[releaseherald.toml\nconfiguration]
+        RT["releasenote_template\n\nVersion {version_num}\n{list_of_news ...}"]
+        subgraph PRN[Previous releasenotes]
+            direction LR
+            PRNP[#Placeholder#]
+            PRN1[Version 0.7.0 ...]
+            PRN2[Version 0.6.3 ...]
+            PRN2[Version 0.6.0 ...]
+        end
+    end
+
+
+    RH[Releaseherald]
+    
+    L1 --> RH 
+    L2 --> RH
+
+    RC --> RH
+    RT ---> RH
+    PRN ---> RH
+
+    subgraph N[New releasenotes]
+        direction LR
+        NRNP[#Placeholder#]
+        NRN1[Version 1.0.0\nnews1\nnews2\nnews3\nnews4]        
+        NRN2[Version 0.9.1\nnews1\nnews2\nnews3]
+        NRN3[Version 0.7.0 ...]
+        NRN4[Version 0.6.3 ...]
+        NRN5[Version 0.6.0 ...]
+    end
+
+    RH --> N
+
+    N --> RE[Send in email]
+    N --> RU[Add to GitHub release]
+    N --> RS[Update in source and commit to git]
+
+    style L1 fill:#f003
+    style NRN1 fill:#f003    
+    style L2 fill:#0f03
+    style NRN2 fill:#0f03
+
+```
 
 ## Basics
 
