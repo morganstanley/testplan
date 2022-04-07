@@ -58,4 +58,22 @@ it assume that the news file has filenames like this `12_fix_the_bug.rst`.
 [/configuration/](../configuration.md#filename_metadata_extractor-plugin-configuration)
 
 ## submodules
+
+If there are submodules in the git repo, with this plugin it is possible to collect news fragments from the 
+submodules as well and integrate it into the main repos release notes. The plugin collect the news fragments between 
+the submodule commits, that is referenced from the main repo's commits representing a version. The plugin can 
+collect fragments from more than one repo.
+
+``` toml title="example configuration with two submodules"
+[[submodules]]
+name="herald_example_submodule"
+display_name="Example"
+
+[[submodules]]
+name="submodule2"
+display_name="The Secret sauce"
+news_fragments_directory="the_news"
+
+```
+
 [/configuration/](../configuration.md#submodules-plugin-configuration)

@@ -35,6 +35,7 @@ class MutableProxy(Generic[VT]):
     Attributes:
         value VT: the value the proxy holds
     """
+
     def __init__(self, value: Optional[VT] = None):
         self._value = value
 
@@ -58,6 +59,7 @@ class CommitInfo:
             The date when the tag was attached to the commit if the tag is annotated,
             else the commit date
     """
+
     tag: Optional[TagReference]
     commit: Commit
 
@@ -84,6 +86,7 @@ class News:
         content: the content of the news file
         metadata: a data store for plugins to attach extra data
     """
+
     file_name: str
     content: str
     metadata: Dict[str, Any] = field(default_factory=dict)
@@ -121,6 +124,7 @@ class VersionNews:
         submodule_news: news for every submodule for this release
         metadata: a data store for plugins to attach extra data
     """
+
     news: List[News]
     tag: str
     version: str
@@ -141,6 +145,7 @@ class Output:
          content: any plugin specific format
          metadata: a data store for plugins to attach extra data
     """
+
     format: str
     content: Any
     metadata: Dict[str, Any] = field(default_factory=dict)

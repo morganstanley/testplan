@@ -19,6 +19,7 @@ class Configuration(BaseModel):
     docs
 
     """
+
     config_path: Path
     version_tag_pattern: Pattern = DEFAULT_VERSION_TAG_PATTERN
     news_fragments_directory: Path = DEFAULT_FRAGMENTS_DIR
@@ -37,7 +38,7 @@ class Configuration(BaseModel):
         default_options_callbacks: Dict[str, List[DefaultOptionsCallable]] = {
             "generate": []
         }
-        extra = 'allow'
+        extra = "allow"
 
     def as_default_options(self):
         default_options_callbacks: Dict[

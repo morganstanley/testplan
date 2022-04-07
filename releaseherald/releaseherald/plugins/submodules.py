@@ -12,10 +12,24 @@ from releaseherald.configuration import (
     DEFAULT_VERSION_TAG_PATTERN,
 )
 from releaseherald.plugins.base import get_tags, get_news_between_commits
-from releaseherald.plugins.interface import SubmoduleNews, CommitInfo, News, MutableProxy, VersionNews
+from releaseherald.plugins.interface import (
+    SubmoduleNews,
+    CommitInfo,
+    News,
+    MutableProxy,
+    VersionNews,
+)
 
 
 class SubmoduleConfig(BaseModel):
+    """
+    Attributes:
+        name: The name of the submodule as referenced by git
+        display_name: This name is passed to the rendering to be used. **_Default:_** same as `name`
+        news_fragments_directory: the news fragment directory relative to submodule root. **_Default:_** `news_fragment`
+        version_tag_pattern: The version tag pattern in this submodule. **_Default:_** `"(?P<version>(\d*)\.(\d*)\.(\d*))"`
+    """
+
     name: str
     display_name: str = None  # type: ignore
     news_fragments_directory: Path = DEFAULT_FRAGMENTS_DIR

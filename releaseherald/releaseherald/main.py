@@ -118,7 +118,10 @@ def generate(ctx: click.Context, **kwargs):
 
 @click.command(
     add_help_option=False,
-    context_settings={"ignore_unknown_options": True, "allow_extra_args": True},
+    context_settings={
+        "ignore_unknown_options": True,
+        "allow_extra_args": True,
+    },
 )
 @click.option("--git-dir", default="./", help="Path to the git repo to use.")
 @click.option(
@@ -161,8 +164,10 @@ def setup(ctx: click.Context, git_dir, config) -> Tuple[Dict[str, Any], Context]
 cli.params = setup.params
 default_map, context_obj = setup.main(standalone_mode=False)
 
+
 def main():
     cli.main(default_map=default_map, obj=context_obj)
+
 
 if __name__ == "__main__":
     main()

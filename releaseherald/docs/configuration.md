@@ -93,6 +93,15 @@ through the [News][releaseherald.plugins.interface.News] metadata to the templat
 
 ## [`submodules`](plugins/stock.md#submodules) plugin configuration
 
+::: releaseherald.plugins.submodules.SubmoduleConfig
+    rendering:
+        show_source: false 
+        show_bases: false
+        show_root_toc_entry: false
+        members_order: source
+        docstring_section_style: list 
+
+
 ## other configuration
 ### `plugins`
 

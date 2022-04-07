@@ -16,14 +16,15 @@ class ParserType(str, Enum):
     RE = "re"
     PARSE = "parse"
 
-# TODO: document configuration for the metadata extractor
+
 class FilenameMetadataExtractorConfig(BaseModel):
     """
-        Attributes:
-            type: [re](https://github.com/r1chardj0n3s/parse#readme) or [parse](https://github.com/r1chardj0n3s/parse#readme)
-            pattern: the pattern for the corresponding type, Should contains groups/fields
-            target_attribute: if provided the resulting dictionary will be merged into that field of the metadata
+    Attributes:
+        type: [re](https://github.com/r1chardj0n3s/parse#readme) or [parse](https://github.com/r1chardj0n3s/parse#readme)
+        pattern: the pattern for the corresponding type, Should contains groups/fields
+        target_attribute: if provided the resulting dictionary will be merged into that field of the metadata
     """
+
     type: ParserType
     pattern: str
     target_attribute: Optional[str]

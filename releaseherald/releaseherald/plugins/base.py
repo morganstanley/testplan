@@ -183,7 +183,9 @@ class BaseOutputPlugin:
     def write_output(self, output: Output):
         if self.generate_command_params.update:
             result = update_news_file(
-                output.content, self.config.news_file, self.config.insert_marker
+                output.content,
+                self.config.news_file,
+                self.config.insert_marker,
             )
         else:
             result = output.content

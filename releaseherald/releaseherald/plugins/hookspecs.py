@@ -90,7 +90,10 @@ def process_commits(repo: Repo, tags: List[Tag], commits: List[CommitInfo]):
 
 @hookspec
 def get_news_between_commits(
-    repo: Repo, commit_from: CommitInfo, commit_to: CommitInfo, news: List[News]
+    repo: Repo,
+    commit_from: CommitInfo,
+    commit_to: CommitInfo,
+    news: List[News],
 ):
     """
     In this hook the plugin can alter the collected `news` between the two commits. It is
