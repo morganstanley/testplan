@@ -47,7 +47,9 @@ class LatestFilter:
             self.filter_latest = kwargs["latest"]
 
     @releaseherald.plugins.hookimpl(trylast=True)
-    def process_commits(self, repo: Repo, tags: List[Tag], commits: List[CommitInfo]):
+    def process_commits(
+        self, repo: Repo, tags: List[Tag], commits: List[CommitInfo]
+    ):
         if self.filter_latest and len(commits) > 2:
             trimmed_commits = commits[0:2]
             commits.clear()

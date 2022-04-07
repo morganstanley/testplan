@@ -54,7 +54,9 @@ class Submodules:
         submodules = getattr(config, "submodules", None)
 
         if submodules:
-            self.submodule_config = parse_obj_as(List[SubmoduleConfig], submodules)
+            self.submodule_config = parse_obj_as(
+                List[SubmoduleConfig], submodules
+            )
 
         setattr(config, "submodules", self.submodule_config)
 
@@ -107,7 +109,9 @@ def get_submodule_news(
 
         commits = [submodule_to, *tag_commits, submodule_from]
 
-        snews = SubmoduleNews(name=submodule.name, display_name=submodule.display_name)
+        snews = SubmoduleNews(
+            name=submodule.name, display_name=submodule.display_name
+        )
 
         for c_to, c_from in pairwise(commits):
             snews.news.extend(

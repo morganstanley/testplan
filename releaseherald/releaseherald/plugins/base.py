@@ -61,7 +61,9 @@ class BasePlugin:
 
         # tear of things after last tag
         last_tag_name = self.config.last_tag or ROOT_TAG
-        last_tag = repo.tags[last_tag_name] if last_tag_name in repo.tags else None
+        last_tag = (
+            repo.tags[last_tag_name] if last_tag_name in repo.tags else None
+        )
         if last_tag:
             tags.extend(takewhile(lambda tag: tag != last_tag, all_tags))
             tags.append(last_tag)
@@ -69,7 +71,9 @@ class BasePlugin:
             tags.extend(all_tags)
 
     @releaseherald.plugins.hookimpl(tryfirst=True)
-    def process_commits(self, repo: Repo, tags: List[Tag], commits: List[CommitInfo]):
+    def process_commits(
+        self, repo: Repo, tags: List[Tag], commits: List[CommitInfo]
+    ):
         commits.clear()
         commits.extend(CommitInfo(tag=tag, commit=tag.commit) for tag in tags)
         if self.config.unreleased and (
@@ -105,7 +109,9 @@ class BasePlugin:
         version_news.value = VersionNews(
             news=news,
             tag=commit_to.name,
-            version=get_version(commit_to.name, self.config.version_tag_pattern),
+            version=get_version(
+                commit_to.name, self.config.version_tag_pattern
+            ),
             from_commit=commit_from,
             to_commit=commit_to,
             date=commit_to.date,
@@ -177,7 +183,9 @@ class BaseOutputPlugin:
         template = jinja_env.get_template(template_path.name)
         news_str = template.render(news=version_news)
 
-        output.value = Output(format=template_path.suffix[1:], content=news_str)
+        output.value = Output(
+            format=template_path.suffix[1:], content=news_str
+        )
 
     @releaseherald.plugins.hookimpl
     def write_output(self, output: Output):

@@ -130,7 +130,9 @@ def generate(ctx: click.Context, **kwargs):
     help="Path to the config file, if not provided releaseherald.toml or pyproject.toml usde from git repo root.",
 )
 @click.pass_context
-def setup(ctx: click.Context, git_dir, config) -> Tuple[Dict[str, Any], Context]:
+def setup(
+    ctx: click.Context, git_dir, config
+) -> Tuple[Dict[str, Any], Context]:
     repo = Repo(path=git_dir, search_parent_directories=True)
 
     config_key: ConfigKeyPathType = ()
@@ -146,9 +148,9 @@ def setup(ctx: click.Context, git_dir, config) -> Tuple[Dict[str, Any], Context]
 
     pm = get_pluginmanager(configuration)
 
-    generate_command_options: List[CommandOptions] = pm.hook.get_command_options(
-        command="generate"
-    )
+    generate_command_options: List[
+        CommandOptions
+    ] = pm.hook.get_command_options(command="generate")
 
     for option in generate_command_options:
         generate.params.extend(option.options)

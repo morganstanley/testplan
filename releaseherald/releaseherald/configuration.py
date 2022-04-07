@@ -23,7 +23,9 @@ class Configuration(BaseModel):
     config_path: Path
     version_tag_pattern: Pattern = DEFAULT_VERSION_TAG_PATTERN
     news_fragments_directory: Path = DEFAULT_FRAGMENTS_DIR
-    insert_marker: Pattern = re.compile(r"^(\s)*\.\. releaseherald_insert(\s)*$")
+    insert_marker: Pattern = re.compile(
+        r"^(\s)*\.\. releaseherald_insert(\s)*$"
+    )
     template: Path = Path(templates.__path__[0]) / "news.rst"
     unreleased: bool = False
     news_file: Path = Path("news.rst")

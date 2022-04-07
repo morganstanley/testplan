@@ -87,7 +87,9 @@ class FilenameMetadataExtractor:
         plugin_config = getattr(self.config, CONFIG_ATTRIBUTE, None)
 
         if plugin_config:
-            extractor_config = FilenameMetadataExtractorConfig.parse_obj(plugin_config)
+            extractor_config = FilenameMetadataExtractorConfig.parse_obj(
+                plugin_config
+            )
             setattr(self.config, CONFIG_ATTRIBUTE, extractor_config)
             self.target_attribute = extractor_config.target_attribute
             self.extractor = MATCHER_FACTORY_MAP[extractor_config.type](
