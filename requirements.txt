@@ -8,3 +8,4 @@ plotly
 pandas
 numpy
 sphinx-click
+click <= 7.1.2

@@ -1,20 +1,25 @@
 import pytest
 
 from testplan.common.utils.testing import check_report
-from testplan.importers.cppunit import CPPUnitResultImporter
-from tests.unit.testplan.importers.fixtures import (
-    cppunit_failing,
-    cppunit_passing,
+from testplan.importers.junit import JUnitResultImporter
+from .fixtures import (
+    junit_binary,
+    junit_testsuite,
+    junit_testsuites,
 )
 
 
 @pytest.mark.parametrize(
     "params",
-    (cppunit_failing.fixture, cppunit_passing.fixture),
+    (
+        junit_binary.fixture,
+        junit_testsuite.fixture,
+        junit_testsuites.fixture,
+    ),
 )
 def test_import(params):
     input_path = params.input_path
-    importer = CPPUnitResultImporter(
+    importer = JUnitResultImporter(
         input_path,
         name=params.expected_report.name,
         description=params.expected_report.description,
