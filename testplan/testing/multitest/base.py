@@ -72,6 +72,7 @@ class MultiTestRuntimeInfo:
 
     class TestcaseInfo:
         name = None
+        report = None
 
     def __init__(self):
         self.testcase = self.TestcaseInfo()
@@ -962,6 +963,7 @@ class MultiTest(testing_base.Test):
 
         runtime_info = MultiTestRuntimeInfo()
         runtime_info.testcase.name = testcase.name
+        runtime_info.testcase.report = testcase_report
         resources = RuntimeEnvironment(self.resources, runtime_info)
 
         with testcase_report.timer.record("run"):

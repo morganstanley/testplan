@@ -8,7 +8,7 @@ import pprint
 import traceback
 import queue
 
-from schema import Or, And, Use
+from schema import Or, And
 
 from testplan.common.config import ConfigOption, validate_func
 from testplan.common import entity
@@ -23,7 +23,6 @@ from testplan.report import ReportCategories
 from .communication import Message
 from .connection import QueueClient, QueueServer
 from .tasks import Task, TaskResult
-from testplan.common.entity import ResourceStatus
 
 
 class TaskQueue:
@@ -839,6 +838,10 @@ class Pool(Executor):
         self._metadata = {"runpath": self.runpath}
 
         self._conn.start()
+
+        for worker in self._workers:
+            # reset worker (if any) status
+            worker.status.change(worker.status.STARTING)
 
         self._exit_loop = False
         super(Pool, self).starting()  # start the loop & monitor
