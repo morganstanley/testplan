@@ -18,7 +18,7 @@ class TimeoutException(Exception):
     pass
 
 
-class TimeoutExceptionInfo(object):
+class TimeoutExceptionInfo:
     """
     Holds timeout exception information.
     """
@@ -261,7 +261,7 @@ class Interval(_Interval):
         return None
 
 
-class TimerCtxManager(object):
+class TimerCtxManager:
     """
     Context manager for storing durations.
     Uses tz aware utc timestamps.

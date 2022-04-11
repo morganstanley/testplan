@@ -2,7 +2,7 @@ import pytest
 from testplan.common.utils.table import TableEntry
 
 
-class TestTableEntry(object):
+class TestTableEntry:
     @pytest.mark.parametrize(
         "value",
         (

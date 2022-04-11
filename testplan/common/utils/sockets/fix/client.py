@@ -8,7 +8,7 @@ from testplan.common.utils.sockets.fix.utils import utc_timestamp
 from .parser import tagsoverride, FixParser
 
 
-class Client(object):
+class Client:
     """
     A Basic FIX Client
     Connects to a FIX server via the FIX session protocol.

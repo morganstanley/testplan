@@ -1,7 +1,7 @@
 """Server/Client communication message."""
 
 
-class Message(object):
+class Message:
     """
     Message object with its codec to communicate data
     in a server/client connection.

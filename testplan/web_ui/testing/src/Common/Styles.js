@@ -28,6 +28,9 @@ export const statusStyles = {
   error: {
     color: RED,
   },
+  skipped: {
+    color: ORANGE,
+  },
   unstable: {
     color: ORANGE,
   },

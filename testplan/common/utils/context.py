@@ -47,7 +47,7 @@ def expand_env(orig, overrides, contextobj):
     }
 
 
-class ContextValue(object):
+class ContextValue:
     """
     A context value represents a combination of a driver name
     and a tempita template, to be resolved on driver start.

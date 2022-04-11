@@ -13,7 +13,7 @@ from testplan.common.utils.match import LogMatcher
 
 
 @testsuite
-class MyTestsuite(object):
+class MyTestsuite:
     """
     A testsuite that uses helper utilities in setup/teardown.
     """

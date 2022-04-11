@@ -1,5 +1,3 @@
-from builtins import isinstance
-
 from itertools import takewhile, dropwhile
 from typing import Union, List
 
@@ -17,9 +15,9 @@ from testplan.report import TestReport
 
 
 @click.group(name="merge", chain=True)
-def merge():
+def merge() -> None:
     """
-    Merge many reports files into a single Testplan.
+    Merges many report files into a single Testplan.
 
     Currently a simple combine strategy is available which put all tests from the sources next to each other in
     the merged report. The subcommands forms a pipeline, which should start with source commands (from*) defining
@@ -35,21 +33,22 @@ def merge():
 def run_parse_action(
     parse: Union[ParseSingleAction, ParseMultipleAction],
     results: List[TestReport],
-):
-
+) -> None:
+    """ """
     if isinstance(parse, ParseSingleAction):
         results.append(parse())
     elif isinstance(parse, ParseMultipleAction):
         results.extend(parse())
 
 
-def is_parse_action(action):
+def is_parse_action(action: object) -> bool:
+    """ """
     return isinstance(action, (ParseSingleAction, ParseMultipleAction))
 
 
 @merge.resultcallback()
-def run_actions(actions):
-
+def run_actions(actions) -> None:
+    """ """
     # phase1 read inputs
 
     results = []
@@ -58,7 +57,7 @@ def run_actions(actions):
     process_actions = list(dropwhile(is_parse_action, actions))
 
     if not parse_actions:
-        raise click.UsageError("no inputs specified")
+        raise click.UsageError("No inputs specified.")
 
     if not all(
         (isinstance(action, ProcessResultAction) for action in process_actions)

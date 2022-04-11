@@ -8,7 +8,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_matplot(self, env, result):
         x = range(0, 10)

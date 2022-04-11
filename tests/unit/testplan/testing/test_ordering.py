@@ -50,7 +50,7 @@ def test_shuffle_type_enum_validate_failure(value):
 expected_shuffled = [1, 2, 4, 3, 5]
 
 
-class TestShuffleSorter(object):
+class TestShuffleSorter:
     def test_shuffle(self):
         arr = [1, 2, 3, 4, 5, 6, 7, 8]
         shuffled = list(arr)

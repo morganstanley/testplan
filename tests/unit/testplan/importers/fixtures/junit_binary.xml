@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+    <testsuite name="binary/failing/foo">
+        <testcase name="binary/failing/foo">
+            <error message="Message attribute">Error body content.</error>
+        </testcase>
+        <system-out>System out body content.</system-out>
+    </testsuite>
+</testsuites>

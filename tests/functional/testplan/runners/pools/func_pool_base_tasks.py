@@ -1,6 +1,8 @@
 """Base Testplan Tasks shared by different functional tests."""
 
 import os
+from pathlib import Path
+
 import psutil
 import tempfile
 
@@ -13,7 +15,7 @@ from testplan.common.utils.strings import slugify
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, "equality description")
@@ -44,15 +46,14 @@ def get_mtest_imported(name):
 
 
 @testsuite
-class SuiteKillingWorker(object):
-    def __init__(self, parent_pid, size):
-        self._parent_pid = parent_pid
-        self._size = size
+class SuiteKillingWorker:
+    def __init__(self, boobytrap_path: str):
+        self._boobytrap_path = Path(boobytrap_path)
 
     @testcase
     def test_comparison(self, env, result):
-        parent = psutil.Process(self._parent_pid)
-        if len(parent.children(recursive=False)) == self._size:
+        if self._boobytrap_path.exists():
+            self._boobytrap_path.unlink()
             print("Killing worker {}".format(os.getpid()))
             os.kill(os.getpid(), 9)
         result.equal(1, 1, "equality description")
@@ -62,15 +63,15 @@ class SuiteKillingWorker(object):
         assert env.parent.runpath.endswith(slugify(env.parent.cfg.name))
 
 
-def multitest_kill_one_worker(parent_pid, size):
+def multitest_kill_one_worker(boobytrap: str):
     """Test that kills one worker."""
     return MultiTest(
-        name="MTestKiller", suites=[SuiteKillingWorker(parent_pid, size)]
+        name="MTestKiller", suites=[SuiteKillingWorker(boobytrap)]
     )
 
 
 @testsuite
-class SimpleSuite(object):
+class SimpleSuite:
     @testcase
     def test_simple(self, env, result):
         pass

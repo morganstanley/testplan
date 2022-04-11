@@ -18,7 +18,7 @@ def after_start(env):
 
 
 @testsuite
-class TCPTestsuite(object):
+class TCPTestsuite:
     """TCP communication tests."""
 
     def __init__(self):

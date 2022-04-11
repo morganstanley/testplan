@@ -18,7 +18,7 @@ INITIAL_CONTEXT = {"test_value": TEST_CONTEXT_VALUE}
 
 
 @testsuite
-class SimpleSuite(object):
+class SimpleSuite:
     @testcase
     def test_initial_context_access(self, env, result):
         """

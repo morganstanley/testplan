@@ -232,7 +232,7 @@ class ZMQClient(Client):
         return None
 
 
-class ZMQClientProxy(object):
+class ZMQClientProxy:
     """
     Representative of a process worker's transport in local worker object.
     """

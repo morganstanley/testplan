@@ -20,7 +20,7 @@ import matplotlib.pyplot as plot
 
 
 @testsuite
-class SampleSuite(object):
+class SampleSuite:
     @testcase
     def test_tkerr(self, env, result):
         result.log_html(

@@ -5,7 +5,7 @@ const GREEN = "#228F1D";
 const DARK_GREEN = "#1A721D";
 const RED = "#A2000C";
 const DARK_RED = "#840008";
-const ORANGE = "#FFA500";
+const ORANGE = "#D2691E";
 const DARK_ORANGE = "#DD8800";
 const LIGHT_GREY = "#F3F3F3";
 const MEDIUM_GREY = "#D0D0D0";
@@ -96,6 +96,8 @@ const ENTRY_TYPES = [
   'testsuite',
   'parametrization',
   'testcase',
+  'pytest',
+  'pyunit',
 ];
 
 const STATUS = [

@@ -21,7 +21,7 @@ def post_stop_fn(driver):
     driver.post_stop_fn_called = True
 
 
-class TestPrePostCallables(object):
+class TestPrePostCallables:
     """Test pre/post callables."""
 
     class MyDriver(base.Driver):

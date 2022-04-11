@@ -13,7 +13,7 @@ from testplan.testing import listing, filtering, ordering
 
 
 @testsuite
-class Alpha(object):
+class Alpha:
     @testcase
     def test_c(self, env, result):
         pass
@@ -28,7 +28,7 @@ class Alpha(object):
 
 
 @testsuite(tags={"color": "yellow"})
-class Beta(object):
+class Beta:
     @testcase
     def test_c(self, env, result):
         pass
@@ -43,7 +43,7 @@ class Beta(object):
 
 
 @testsuite
-class Gamma(object):
+class Gamma:
     @testcase
     def test_c(self, env, result):
         pass
@@ -226,7 +226,7 @@ NUM_TESTS = 100
 
 
 @testsuite
-class ParametrizedSuite(object):
+class ParametrizedSuite:
     @testcase(parameters=list(range(NUM_TESTS)))
     def test_method(self, env, result, val):
         pass

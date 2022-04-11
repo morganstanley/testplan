@@ -12,7 +12,7 @@ from testplan.testing import tagging
 
 
 @suite.testsuite
-class MySuite1(object):
+class MySuite1:
     def pre_testcase(self, name, env, result):
         pass
 
@@ -34,7 +34,7 @@ class MySuite1(object):
 
 
 @suite.testsuite(tags="A")
-class MySuite2(object):
+class MySuite2:
     @suite.testcase(tags="B")
     def case1(self, env, result):
         pass
@@ -50,14 +50,14 @@ class MySuite2(object):
 
 
 @suite.testsuite
-class MySuite3(object):
+class MySuite3:
     @suite.testcase(parameters=(1, 2, 3))
     def case(self, env, result, param):
         pass
 
 
 @suite.testsuite
-class MySuite4(object):
+class MySuite4:
     @suite.testcase(execution_group="group_0")
     def case1(self, env, result):
         pass
@@ -85,7 +85,7 @@ def skip_func(testsuite):  # pylint: disable=unused-argument
 
 @suite.skip_if_testcase(skip_func)
 @suite.testsuite(name="Skipped Suite")
-class MySuite5(object):
+class MySuite5:
     @suite.testcase
     def case1(self, env, result):
         result.equal(1, 2)
@@ -171,7 +171,7 @@ def test_skip_if_predicates():
 
 def incorrect_case_signature1():
     @suite.testsuite
-    class _(object):
+    class _:
         @suite.testcase
         def case1(self, envs, result):
             pass
@@ -179,7 +179,7 @@ def incorrect_case_signature1():
 
 def incorrect_case_signature2():
     @suite.testsuite
-    class _(object):
+    class _:
         @suite.testcase
         def case1(self, env, results):
             pass
@@ -208,7 +208,7 @@ def test_testcase_signature():
 
 def incorrent_skip_if_signature1():
     @suite.testsuite
-    class _(object):
+    class _:
         @suite.skip_if(lambda _: True)
         @suite.testcase
         def case1(self, env, result):

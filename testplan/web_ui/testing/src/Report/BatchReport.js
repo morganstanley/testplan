@@ -57,7 +57,7 @@ class BatchReport extends React.Component {
       loading: false,
       error: null,
       filter: null,
-      treeView: false,
+      treeView: true,
       displayTags: false,
       displayTime: false,
       displayPath: false,
@@ -110,6 +110,13 @@ class BatchReport extends React.Component {
     // Inspect the UID to determine the report to render. As a special case,
     // we will display a fake report for development purposes.
     const uid = this.props.match.params.uid;
+    axios.get('/api/v1/metadata/fix-spec/tags')
+      .then((metadataRes) => {
+        defaultFixSpec.tags = metadataRes.data || {};
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     if (uid === "_dev") {
       var fakeReport = this.updateReportUID(fakeReportAssertions, uid);
       setTimeout(() => this.setReport(fakeReport), 1500);
@@ -127,11 +134,10 @@ class BatchReport extends React.Component {
               `/api/v1/reports/${uid}/attachments/${rawReport.structure_file}`,
               { transformResponse: parseToJson }
             );
-            const metadataReq = axios.get('/api/v1/metadata/fix-spec/tags');
             axios
-              .all([assertionsReq, structureReq, metadataReq])
+              .all([assertionsReq, structureReq])
               .then(
-                axios.spread((assertionsRes, structureRes, metadataRes) => {
+                axios.spread((assertionsRes, structureRes) => {
                   if (!assertionsRes.data) {
                     console.error(assertionsRes);
                     alert(
@@ -144,18 +150,11 @@ class BatchReport extends React.Component {
                     assertionsRes.data,
                     structureRes.data
                   );
-                  defaultFixSpec.tags = metadataRes.data || {};
                   this.setReport(this.updateReportUID(mergedReport, uid));
                 })
               ).catch(this.setError);
           } else {
-            axios
-              .get('/api/v1/metadata/fix-spec/tags')
-              .then((resp) => {
-                defaultFixSpec.tags = resp.data || {};
-                this.setReport(this.updateReportUID(rawReport, uid));
-              })
-              .catch(this.setError);
+            this.setReport(this.updateReportUID(rawReport, uid));
           }
         })
         .catch(this.setError);

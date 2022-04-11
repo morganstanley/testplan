@@ -22,7 +22,7 @@ class FilterLevel(Enum):
     TESTCASE = "testcase"
 
 
-class BaseFilter(object):
+class BaseFilter:
     """
     Base class for filters, supports bitwise
     operators for composing multiple filters.

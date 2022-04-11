@@ -9,7 +9,7 @@ from testplan.testing import multitest
 
 
 @multitest.testsuite
-class Suite1(object):
+class Suite1:
     def __init__(self, attachments):
         self._attachments = attachments
 

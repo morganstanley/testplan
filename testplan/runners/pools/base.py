@@ -66,7 +66,7 @@ class WorkerConfig(entity.ResourceConfig):
         }
 
 
-class Worker(entity.Resource):
+class WorkerBase(entity.Resource):
     """
     Worker resource that pulls tasks from the transport provided, executes them
     and sends back task results.
@@ -85,23 +85,22 @@ class Worker(entity.Resource):
     CONFIG = WorkerConfig
 
     def __init__(self, **options):
-        super(Worker, self).__init__(**options)
+        super().__init__(**options)
         self._metadata = None
         self._transport = self.cfg.transport()
-        self._handler = None
         self.last_heartbeat = None
         self.assigned = set()
         self.requesting = 0
         self.restart_count = self.cfg.restart_count
 
     @property
-    def handler(self):
-        return self._handler
-
-    @property
     def transport(self):
         """Pool/Worker communication transport."""
         return self._transport
+
+    @transport.setter
+    def transport(self, transport):
+        self._transport = transport
 
     @property
     def metadata(self):
@@ -123,6 +122,32 @@ class Worker(entity.Resource):
     def uid(self):
         """Worker unique index."""
         return self.cfg.index
+
+    def respond(self, msg):
+        """
+        Method that the pool uses to respond with a message to the worker.
+
+        :param msg: Response message.
+        :type msg: :py:class:`~testplan.runners.pools.communication.Message`
+        """
+        self._transport.respond(msg)
+
+    def __repr__(self):
+        return "{}[{}]".format(self.__class__.__name__, self.cfg.index)
+
+
+class Worker(WorkerBase):
+    """
+    Worker that runs a thread and pull tasks from transport
+    """
+
+    def __init__(self, **options):
+        super().__init__(**options)
+        self._handler = None
+
+    @property
+    def handler(self):
+        return self._handler
 
     def starting(self):
         """Starts the daemonic worker loop."""
@@ -202,18 +227,6 @@ class Worker(entity.Resource):
             task_result = TaskResult(task=task, result=result, status=True)
         return task_result
 
-    def respond(self, msg):
-        """
-        Method that the pool uses to respond with a message to the worker.
-
-        :param msg: Response message.
-        :type msg: :py:class:`~testplan.runners.pools.communication.Message`
-        """
-        self._transport.respond(msg)
-
-    def __repr__(self):
-        return "{}[{}]".format(self.__class__.__name__, self.cfg.index)
-
 
 class PoolConfig(ExecutorConfig):
     """
@@ -277,7 +290,7 @@ class Pool(Executor):
         restart_count=3,
         max_active_loop_sleep=5,
         allow_task_rerun=True,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(Pool, self).__init__(**options)
@@ -569,9 +582,7 @@ class Pool(Executor):
         """Handle a Heartbeat message received from a worker."""
         worker.last_heartbeat = time.time()
         self.logger.debug(
-            "Received heartbeat from {} at {} after {}s.".format(
-                worker, request.data, time.time() - request.data
-            )
+            f"Received heartbeat from {worker} at {request.data} after {time.time() - request.data}s."
         )
         worker.respond(response.make(Message.Ack, data=worker.last_heartbeat))
 

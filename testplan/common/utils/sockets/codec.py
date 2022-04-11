@@ -1,7 +1,7 @@
 """Codec utils."""
 
 
-class Codec(object):
+class Codec:
     """Codec to serialize/deserialize a message."""
 
     def parse(self, buffer):

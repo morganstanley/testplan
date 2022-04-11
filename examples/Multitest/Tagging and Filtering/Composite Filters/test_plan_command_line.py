@@ -11,7 +11,7 @@ from testplan.report.testing.styles import Style
 
 
 @testsuite
-class Alpha(object):
+class Alpha:
     @testcase
     def test_1(self, env, result):
         pass
@@ -22,7 +22,7 @@ class Alpha(object):
 
 
 @testsuite
-class Beta(object):
+class Beta:
     @testcase(tags="server")
     def test_1(self, env, result):
         pass
@@ -37,7 +37,7 @@ class Beta(object):
 
 
 @testsuite(tags=("server", "client"))
-class Gamma(object):
+class Gamma:
     @testcase(tags={"color": "red"})
     def test_1(self, env, result):
         pass
@@ -52,7 +52,7 @@ class Gamma(object):
 
 
 @testsuite
-class Delta(object):
+class Delta:
     @testcase
     def test_1(self, env, result):
         pass

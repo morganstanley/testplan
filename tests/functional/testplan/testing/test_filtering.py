@@ -11,7 +11,7 @@ from testplan.testing import filtering
 
 
 @testsuite(tags="foo")
-class Alpha(object):
+class Alpha:
     @testcase
     def test_one(self, env, result):
         pass
@@ -26,7 +26,7 @@ class Alpha(object):
 
 
 @testsuite(tags=("foo", "bar"))
-class Beta(object):
+class Beta:
     @testcase
     def test_one(self, env, result):
         pass
@@ -41,7 +41,7 @@ class Beta(object):
 
 
 @testsuite(tags=("foo", "baz"))
-class Gamma(object):
+class Gamma:
     @testcase
     def test_one(self, env, result):
         pass
@@ -266,6 +266,11 @@ def test_programmatic_filtering(filter_obj, report_ctx):
                 ("YYY", (("Gamma", ["test_three"]),)),
             ],
         ),
+        # Case 7, pattern filtering for empty run
+        (
+            ("--patterns", "EmptyRun"),
+            [],
+        ),
     ),
 )
 def test_command_line_filtering(cmdline_args, report_ctx):
@@ -281,3 +286,6 @@ def test_command_line_filtering(cmdline_args, report_ctx):
 
     test_report = plan.report
     check_report_context(test_report, report_ctx)
+
+    if not test_report.entries:
+        assert plan.result.success

@@ -28,6 +28,7 @@ DRIVER_INFO = 27
 INFO = logging.INFO  # 20
 DEBUG = logging.DEBUG  # 10
 
+LOGGER_NAME = "TESTPLAN"
 LOGFILE_NAME = "testplan.log"
 LOGFILE_FORMAT = (
     "%(asctime)-24s %(processName)-12s %(threadName)-12s "
@@ -116,9 +117,10 @@ def _initial_setup():
     to stdout with default level TEST_INFO.
 
     :return: root logger object and stdout logging handler
+    :type: ``tuple``
     """
     logging.setLoggerClass(TestplanLogger)
-    root_logger = logging.getLogger("testplan")
+    root_logger = logging.getLogger(LOGGER_NAME)
 
     # Set the level of the root logger to DEBUG so that nothing is filtered out
     # by the logger itself - the handlers will perform filtering.
@@ -188,7 +190,7 @@ def configure_file_logger(level, runpath):
         return file_handler
 
 
-class Loggable(object):
+class Loggable:
     """
     Base class that allows an object to log via self.logger. The advantage of
     objects having their own logger over using a single global logger is that
@@ -223,10 +225,9 @@ class Loggable(object):
         if self._logger:
             return self._logger
 
-        logger_name = ".".join(
-            ["testplan", self.__class__.__name__, uuid4()[-8:]]
+        self._logger = logging.getLogger(
+            ".".join([LOGGER_NAME, self.__class__.__name__, uuid4()[-8:]])
         )
-        self._logger = logging.getLogger(logger_name)
         return self._logger
 
     @property

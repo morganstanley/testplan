@@ -32,7 +32,7 @@ OUTPUT_STYLE = Style(StyleEnum.ASSERTION_DETAIL, StyleEnum.ASSERTION_DETAIL)
 
 
 @testsuite
-class KafkaTest(object):
+class KafkaTest:
     """Suite that contains testcases that perform kafka operation."""
 
     @testcase

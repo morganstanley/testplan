@@ -35,7 +35,7 @@ def readable_name(class_name):
     return ENTRY_NAME_PATTERN.sub(" \\1", class_name).strip()
 
 
-class BaseEntry(object):
+class BaseEntry:
     """Base class for all entries, stores common context like time etc."""
 
     meta_type = "entry"
@@ -69,7 +69,7 @@ class BaseEntry(object):
         return registry.serialize(self)
 
 
-class Group(object):
+class Group:
 
     # we treat Groups as assertions so we can render them with pass/fail context
     meta_type = "assertion"

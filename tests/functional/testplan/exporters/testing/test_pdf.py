@@ -160,7 +160,7 @@ def test_implicit_exporter_initialization(tmpdir):
     pdf_path = pdf_dir.join("my_report.pdf").strpath
 
     @testsuite
-    class MySuite(object):
+    class MySuite:
         @testcase
         def test_comparison(self, env, result):
             result.equal(1, 1, "equality description")

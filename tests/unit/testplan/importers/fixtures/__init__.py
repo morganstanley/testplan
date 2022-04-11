@@ -6,5 +6,5 @@ from testplan.report import TestReport
 
 @dataclass
 class ImporterTestFixture:
-    input_pah: Path
+    input_path: Path
     expected_report: TestReport

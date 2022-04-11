@@ -7,7 +7,7 @@ from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 
 @testsuite
-class TCPTestsuite(object):
+class TCPTestsuite:
     """TCP tests for a server and a client."""
 
     def setup(self, env):

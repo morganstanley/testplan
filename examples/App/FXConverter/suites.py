@@ -28,7 +28,7 @@ def custom_docstring_func(_, kwargs):
 
 
 @testsuite
-class ConversionTests(object):
+class ConversionTests:
     """Sample currency conversion operations."""
 
     def __init__(self):
@@ -68,7 +68,7 @@ class ConversionTests(object):
 
 
 @testsuite
-class EdgeCases(object):
+class EdgeCases:
     """Suite containing edge case scenarios."""
 
     @testcase
@@ -132,7 +132,7 @@ class EdgeCases(object):
 
 
 @testsuite
-class RestartEvent(object):
+class RestartEvent:
     """Converter app restart and reconnect scenarios."""
 
     def _send_and_receive(self, env, result, request, rate, expect):
