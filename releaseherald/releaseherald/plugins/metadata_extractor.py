@@ -102,8 +102,13 @@ class FilenameMetadataExtractor:
             return
 
         for version in version_news:
-            for news in version.news:
-                self.extend_news(news)
+            self.process_news_list(version.news)
+            for submodule in version.submodule_news:
+                self.process_news_list(submodule.news)
+
+    def process_news_list(self, news_list: List[News]):
+        for news in news_list:
+            self.extend_news(news)
 
     def extend_news(self, news: News):
         if self.extractor is None:
