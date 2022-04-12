@@ -36,8 +36,8 @@ class MySuite:
         assert isinstance(env.client.context, Environment)
         assert env.server.context.client == env.client
         assert env.client.context.server == env.server
-        assert env.server.status.tag == ResourceStatus.STARTED
-        assert env.client.status.tag == ResourceStatus.STARTED
+        assert env.server.status == ResourceStatus.STARTED
+        assert env.client.status == ResourceStatus.STARTED
 
     @testcase
     def test_drivers_usage(self, env, result):
@@ -106,8 +106,8 @@ def test_multitest_drivers(runpath):
         )
 
         mtest = MultiTest(**opts)
-        assert server.status.tag == ResourceStatus.NONE
-        assert client.status.tag == ResourceStatus.NONE
+        assert server.status == ResourceStatus.NONE
+        assert client.status == ResourceStatus.NONE
         res = mtest.run()
         assert res.run is True
         assert res.report.passed
@@ -117,8 +117,8 @@ def test_multitest_drivers(runpath):
             assert mtest.runpath == default_runpath(mtest)
         assert server.runpath == os.path.join(mtest.runpath, server.uid())
         assert client.runpath == os.path.join(mtest.runpath, client.uid())
-        assert server.status.tag == ResourceStatus.STOPPED
-        assert client.status.tag == ResourceStatus.STOPPED
+        assert server.status == ResourceStatus.STOPPED
+        assert client.status == ResourceStatus.STOPPED
 
 
 def test_multitest_drivers_in_testplan(runpath):
@@ -141,8 +141,8 @@ def test_multitest_drivers_in_testplan(runpath):
         )
 
         plan.add(mtest)
-        assert server.status.tag == ResourceStatus.NONE
-        assert client.status.tag == ResourceStatus.NONE
+        assert server.status == ResourceStatus.NONE
+        assert client.status == ResourceStatus.NONE
 
         plan.run()
         res = plan.result
@@ -156,8 +156,8 @@ def test_multitest_drivers_in_testplan(runpath):
         )
         assert server.runpath == os.path.join(mtest.runpath, server.uid())
         assert client.runpath == os.path.join(mtest.runpath, client.uid())
-        assert server.status.tag == ResourceStatus.STOPPED
-        assert client.status.tag == ResourceStatus.STOPPED
+        assert server.status == ResourceStatus.STOPPED
+        assert client.status == ResourceStatus.STOPPED
 
 
 @testsuite
@@ -192,7 +192,7 @@ class VulnerableDriver1(BaseDriver):
 
     def starting(self):
         super(VulnerableDriver1, self).starting()
-        self.std.err.write("Error found{}".format(os.linesep))
+        self.std.err.write("Error found\n")
         self.std.err.flush()
         raise Exception("Startup error")
 
@@ -205,7 +205,7 @@ class VulnerableDriver2(BaseDriver):
         super(VulnerableDriver2, self).stopping()
         with open(self.logpath, "a") as log_handle:
             for idx in range(1000):
-                log_handle.write("This is line {}\n".format(idx))
+                log_handle.write(f"This is line {idx}\n")
         raise Exception("Shutdown error")
 
 

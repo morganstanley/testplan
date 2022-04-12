@@ -215,10 +215,8 @@ class FixServer(Driver):
         """Stops the FIX server."""
         super(FixServer, self).stopping()
         self._stop_logic()
-        self.logger.debug("Stopped FixServer.")
 
     def aborting(self):
         """Abort logic that stops the FIX server."""
         super(FixServer, self).aborting()
         self._stop_logic()
-        self.logger.debug("Aborted FixServer.")

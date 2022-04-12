@@ -298,10 +298,8 @@ class FixClient(Driver):
         """Stops the FIX client."""
         super(FixClient, self).stopping()
         self._stop_logic()
-        self.logger.debug("Stopped FixClient.")
 
     def aborting(self):
         """Abort logic that stops the FIX client."""
         super(FixClient, self).aborting()
         self._stop_logic()
-        self.logger.debug("Aborted FixClient.")

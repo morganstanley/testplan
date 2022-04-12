@@ -16,7 +16,7 @@ class DummyDriver(Resource):
         self.starting()
 
     def stop(self):
-        if self.status.tag is self.STATUS.STOPPED:
+        if self.status == self.STATUS.STOPPED:
             return
         self.status.change(self.STATUS.STOPPING)
         if self.active:

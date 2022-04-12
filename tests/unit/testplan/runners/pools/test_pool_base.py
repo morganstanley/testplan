@@ -117,13 +117,13 @@ class TestPoolIsolated:
         # work loop in a separate thread.
         with pool:
             assert pool.is_alive and pool.active
-            assert pool.status.tag == pool.status.STARTED
+            assert pool.status == pool.status.STARTED
 
             # Retrieve the only worker assigned to this pool.
             assert len(pool._workers) == 1
             worker = pool._workers["0"]
             assert worker.is_alive and worker.active
-            assert worker.status.tag == worker.status.STARTED
+            assert worker.status == worker.status.STARTED
 
             msg_factory = communication.Message(**worker.metadata)
 
@@ -160,7 +160,7 @@ class TestPoolIsolated:
 
         # The Pool and its work loop should be stopped on exiting the context
         # manager.
-        assert pool.status.tag == pool.status.STOPPED
+        assert pool.status == pool.status.STOPPED
 
     def test_restart_worker_inactive(self):
         pool = pools_base.Pool(

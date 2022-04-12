@@ -52,9 +52,9 @@ class LocalRunner(Executor):
     def _loop(self):
         """Execution loop implementation for local runner."""
         while self.active:
-            if self.status.tag == self.status.STARTING:
+            if self.status == self.status.STARTING:
                 self.status.change(self.status.STARTED)
-            elif self.status.tag == self.status.STARTED:
+            elif self.status == self.status.STARTED:
                 try:
                     next_uid = self.ongoing[0]
                 except IndexError:
@@ -77,7 +77,7 @@ class LocalRunner(Executor):
                     finally:
                         self.ongoing.pop(0)
 
-            elif self.status.tag == self.status.STOPPING:
+            elif self.status == self.status.STOPPING:
                 self.status.change(self.status.STOPPED)
                 return
             time.sleep(self.cfg.active_loop_sleep)
@@ -87,6 +87,12 @@ class LocalRunner(Executor):
         if self.parent:
             self._runpath = self.parent.runpath
         super(LocalRunner, self).starting()  # start the loop
+        self.status.change(self.status.STARTED)  # Start is async
+
+    def stopping(self):
+        """Stopping the local runner."""
+        super(LocalRunner, self).stopping()  # stop the loop
+        self.status.change(self.status.STOPPED)  # Stop is async
 
     def aborting(self):
         """Aborting logic."""

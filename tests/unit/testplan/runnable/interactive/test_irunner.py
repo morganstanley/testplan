@@ -224,9 +224,7 @@ def test_environment_control(irunner, sync):
         start_results.result()
 
     assert test.resources.all_status(entity.ResourceStatus.STARTED)
-    assert (
-        test.resources.mock_driver.status.tag == entity.ResourceStatus.STARTED
-    )
+    assert test.resources.mock_driver.status == entity.ResourceStatus.STARTED
     assert irunner.report["test_1"].env_status == entity.ResourceStatus.STARTED
 
     # Stop the environment and check it has the expected status.
@@ -237,9 +235,7 @@ def test_environment_control(irunner, sync):
         stop_results.result()
 
     assert test.resources.all_status(entity.ResourceStatus.STOPPED)
-    assert (
-        test.resources.mock_driver.status.tag == entity.ResourceStatus.STOPPED
-    )
+    assert test.resources.mock_driver.status == entity.ResourceStatus.STOPPED
     assert irunner.report["test_1"].env_status == entity.ResourceStatus.STOPPED
 
 
