@@ -24,7 +24,7 @@ PYPROJECT_TOML = "pyproject.toml"
 CONFIG_KEY_IN_PYPROJECT = ("tool", "releaseherald")
 
 
-def load_config(config_path: str, config_key: Tuple = ()) -> Configuration:
+def load_config(config_path: Path, config_key: Tuple = ()) -> Configuration:
     config = get_path(toml.load(config_path), config_key, default={})
     config["config_path"] = config_path
     return Configuration.parse_obj(config)
@@ -126,12 +126,12 @@ def generate(ctx: click.Context, **kwargs):
 @click.option("--git-dir", default="./", help="Path to the git repo to use.")
 @click.option(
     "--config",
-    type=click.File(),
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
     help="Path to the config file, if not provided releaseherald.toml or pyproject.toml usde from git repo root.",
 )
 @click.pass_context
 def setup(
-    ctx: click.Context, git_dir, config
+    ctx: click.Context, git_dir, config: Optional[Path]
 ) -> Tuple[Dict[str, Any], Context]:
     repo = Repo(path=git_dir, search_parent_directories=True)
 
