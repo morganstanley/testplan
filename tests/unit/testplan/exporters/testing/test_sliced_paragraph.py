@@ -8,7 +8,7 @@ from testplan.exporters.testing.pdf.renderers.base import SlicedParagraph
 def test_sliced_para():
 
     msg = (
-        "This is a super looooooooooog message with indents, extra spaces\n"
+        "This is a super looooooooooong message with indents, extra spaces\n"
         "    and <Test>special</Test> characters,\n"
         "    and    it    will    be    written    as-is    in    pdf.\n"
     )

@@ -1,9 +1,6 @@
-import os
-
 import pytest
 
-from testplan.common.utils.testing import check_report, check_iterable
-from testplan.importers.cppunit import CPPUnitResultImporter
+from testplan.common.utils.testing import check_report
 from testplan.importers.gtest import GTestResultImporter
 from tests.unit.testplan.importers.fixtures import gtest_failing, gtest_passing
 
@@ -13,7 +10,7 @@ from tests.unit.testplan.importers.fixtures import gtest_failing, gtest_passing
     (gtest_failing.fixture, gtest_passing.fixture),
 )
 def test_import(params):
-    input_path = params.input_pah
+    input_path = params.input_path
     importer = GTestResultImporter(
         input_path,
         name=params.expected_report.name,

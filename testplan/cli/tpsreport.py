@@ -1,3 +1,6 @@
+"""
+Entry point for TPS command line tool.
+"""
 import click
 
 from testplan.cli.converter import convert
@@ -6,11 +9,11 @@ from testplan.cli.merger import merge
 
 
 @click.group()
-def cli():
+def cli() -> None:
     """
     (T)est(P)lan (S)uper (REPORT)
 
-    A Testplan Tool for report manipulation
+    A Testplan tool for report manipulation.
     """
     pass
 
