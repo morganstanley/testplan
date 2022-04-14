@@ -352,8 +352,8 @@ class App(Driver):
             self.cfg.expected_retcode != self.retcode
         ):
             err_msg = (
-                f"App drier error: {self.name},"
-                f" expected return cde is {self.cfg.expected_retcode},"
+                f"App driver error: {self.name},"
+                f" expected return code is {self.cfg.expected_retcode},"
                 f" but actual return code is {self.retcode}"
             )
             raise RuntimeError(err_msg)
