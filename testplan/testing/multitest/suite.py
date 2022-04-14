@@ -840,3 +840,20 @@ def xfail(reason, strict=False):
         return test
 
     return _xfail_test
+
+
+def timeout(seconds):
+    """
+    Decorator for non-testcase method in a test suite, can be used for
+    setup, teardown, pre_testcase and post_testcase.
+    """
+
+    assert (
+        isinstance(seconds, int) and seconds > 0
+    ), "Invalid use of `suite.timeout`, argument must be a positive integer"
+
+    def inner(function):
+        function.timeout = seconds
+        return function
+
+    return inner
