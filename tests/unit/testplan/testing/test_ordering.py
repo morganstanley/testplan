@@ -1,6 +1,5 @@
 import pytest
 
-from testplan.common.utils.testing import py_version_data
 from testplan.testing import ordering
 
 
@@ -10,7 +9,7 @@ def test_noop_sorter():
     arr = [1, 2, 3, 4]
     assert arr == sorter.sorted_instances(arr)
     assert arr == sorter.sorted_testsuites(arr)
-    assert arr == sorter.sorted_testcases(arr)
+    assert arr == sorter.sorted_testcases(None, arr)
 
 
 @pytest.mark.parametrize(
@@ -48,10 +47,10 @@ def test_shuffle_type_enum_validate_failure(value):
         ordering.SortType.validate(value)
 
 
-expected_shuffled = py_version_data(py2=[1, 2, 5, 3, 4], py3=[1, 2, 4, 3, 5])
+expected_shuffled = [1, 2, 4, 3, 5]
 
 
-class TestShuffleSorter(object):
+class TestShuffleSorter:
     def test_shuffle(self):
         arr = [1, 2, 3, 4, 5, 6, 7, 8]
         shuffled = list(arr)
@@ -62,7 +61,7 @@ class TestShuffleSorter(object):
         assert shuffled != arr
         assert sorter.sorted_instances(arr) == shuffled
         assert sorter.sorted_testsuites(arr) == shuffled
-        assert sorter.sorted_testcases(arr) == shuffled
+        assert sorter.sorted_testcases(None, arr) == shuffled
 
     @pytest.mark.parametrize(
         "shuffle_types, expected",
@@ -107,4 +106,4 @@ class TestShuffleSorter(object):
     def test_sorted_testcases(self, shuffle_types, expected):
         sorter = ordering.ShuffleSorter(seed=5, shuffle_type=shuffle_types)
         arr = [1, 2, 3, 4, 5]
-        assert expected == sorter.sorted_testcases(arr)
+        assert expected == sorter.sorted_testcases(None, arr)

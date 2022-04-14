@@ -1,13 +1,11 @@
 """String manipulation utilities."""
 
-import sys
 import os
 import re
 import inspect
 import uuid
 import unicodedata
 import textwrap
-import six
 
 import colorama
 
@@ -18,6 +16,59 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 
 
 _DESCRIPTION_CUTOFF_REGEX = re.compile(r"^(\s|\t)+")
+
+
+def map_to_str(value):
+    """
+    Convert bytes to str byte-by-byte
+    """
+
+    if isinstance(value, bytes):
+        return "".join(map(chr, value))
+    else:
+        return value
+
+
+def to_str(value, encoding="utf-8", errors="strict"):
+    """
+    Coerce a string to ``str`` type.
+
+    :param value: A string to be converted
+    :type value: ``str`` or ``bytes``
+    :param encoding: Encoding method
+    :type encoding: ``str``
+    :param errors: Error handling scheme
+    :type errors: ``str``
+    :return: Converted unicode string.
+    :rtype: ``str``
+    """
+    if isinstance(value, bytes):
+        return value.decode(encoding, errors)
+    if isinstance(value, str):
+        return value
+    else:
+        raise TypeError(f"Unexpected type '{type(value)}'")
+
+
+def to_bytes(value, encoding="utf-8", errors="strict"):
+    """
+    Coerce a string to ``bytes`` type.
+
+    :param value: A string to be converted
+    :type value: ``str`` or ``bytes``
+    :param encoding: Encoding method
+    :type encoding: ``str``
+    :param errors: Error handling scheme
+    :type errors: ``str``
+    :return: Converted byte string.
+    :rtype: ``bytes``
+    """
+    if isinstance(value, str):
+        return value.encode(encoding, errors)
+    if isinstance(value, bytes):
+        return value
+    else:
+        raise TypeError(f"Unexpected type '{type(value)}'")
 
 
 def format_description(description):
@@ -61,16 +112,9 @@ def slugify(value):
     :return: slugified string value, suitable as a directory or filename
     :rtype: ``str``
     """
-    if sys.hexversion >= 0x30303F0:
-        value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore")
-        value = re.sub(br"[^\w\s-]", b"", value).strip().lower()
-        return re.sub(br"[-\s]+", b"-", value).decode("ascii")
-    else:
-        value = unicodedata.normalize("NFKD", six.text_type(value)).encode(
-            "ascii", "ignore"
-        )
-        value = six.text_type(re.sub(r"[^\w\s-]", "", value).strip().lower())
-        return str(re.sub(r"[-\s]+", "-", value))
+    value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore")
+    value = re.sub(br"[^\w\s-]", b"", value).strip().lower()
+    return re.sub(br"[-\s]+", b"-", value).decode("ascii")
 
 
 def uuid4():
@@ -83,7 +127,7 @@ def uuid4():
     return str(uuid.uuid4())
 
 
-class Color(object):
+class Color:
     """Utility class with shortcuts for colored console output."""
 
     @staticmethod

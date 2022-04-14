@@ -1,12 +1,8 @@
 import re
-import six
 import logging
-import pytest
+from unittest import mock
 
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
+import pytest
 
 import testplan
 from testplan.testing import multitest
@@ -16,6 +12,8 @@ from testplan.testing.multitest.logging import (
     CaptureLevel,
     AutoLogCaptureMixin,
 )
+from testplan.common.utils.testing import log_propagation_disabled
+from testplan.common.utils.logger import LOGGER_NAME as TESTPLAN_LOGGER_NAME
 
 SIMPLE_LOG = "Simple log"
 LOGGER_LEVEL_PATTERN = r"([^ ]*) *([^ ]*) *{}$".format(SIMPLE_LOG)
@@ -95,22 +93,22 @@ def get_filtered_plan(suites):
     return _factory
 
 
-class LoggerSpy(object):
+class LoggerSpy:
     def __init__(self, name=None, logger_obj=None):
-        logger = logger_obj or logging.getLogger(name)
+        self.logger = logger_obj or logging.getLogger(name)
         self.patcher = {}
         for method in ["info", "debug", "warning"]:
             self.patcher[method] = mock.patch.object(
-                logger, method, wraps=logger.__getattribute__(method)
+                self.logger, method, wraps=self.logger.__getattribute__(method)
             )
 
     def __enter__(self):
-        for method, patcher in six.iteritems(self.patcher):
+        for method, patcher in self.patcher.items():
             self.__setattr__(method, patcher.__enter__())
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        for method, patcher in six.iteritems(self.patcher):
+        for method, patcher in self.patcher.items():
             patcher.__exit__(exc_type, exc_val, exc_tb)
             self.__delattr__(method)
 
@@ -127,7 +125,7 @@ def auto_suite_logger_spy():
 
 @pytest.fixture
 def testplan_logger_spy():
-    return LoggerSpy(name="testplan")
+    return LoggerSpy(name=TESTPLAN_LOGGER_NAME)
 
 
 @pytest.fixture
@@ -228,9 +226,9 @@ def test_plan_level(
         message = case_result.entries[0]["message"]
         assert message.count(SIMPLE_LOG) == 2
         result = re.findall(LOGGER_LEVEL_PATTERN, message, re.M)
-        assert result[0][0].startswith("testplan.LoggingSuite")
+        assert result[0][0].startswith(f"{TESTPLAN_LOGGER_NAME}.LoggingSuite")
         assert result[0][1] == "INFO"
-        assert result[1:] == [("testplan", "DEBUG")]
+        assert result[1:] == [(TESTPLAN_LOGGER_NAME, "DEBUG")]
 
 
 def test_root_level(
@@ -255,9 +253,12 @@ def test_root_level(
         message = case_result.entries[0]["message"]
         assert message.count(SIMPLE_LOG) == 3
         result = re.findall(LOGGER_LEVEL_PATTERN, message, re.M)
-        assert result[0][0].startswith("testplan.LoggingSuite")
+        assert result[0][0].startswith(f"{TESTPLAN_LOGGER_NAME}.LoggingSuite")
         assert result[0][1] == "INFO"
-        assert result[1:] == [("testplan", "DEBUG"), ("root", "WARNING")]
+        assert result[1:] == [
+            (TESTPLAN_LOGGER_NAME, "DEBUG"),
+            ("root", "WARNING"),
+        ]
 
 
 def test_attach_log(get_filtered_plan, suite_logger_spy):
@@ -295,3 +296,26 @@ def test_auto_log_capture(get_filtered_plan, auto_suite_logger_spy):
         assert len(case_result.entries) == 1
         assert case_result.entries[0]["type"] == "Log"
         assert SIMPLE_LOG in case_result.entries[0]["message"]
+
+
+def test_log_propagation_disabled(
+    get_filtered_plan, suite_logger_spy, testplan_logger_spy
+):
+    # Given
+    plan = get_filtered_plan("*:*:testplan_level")
+    with suite_logger_spy as suite_spy, testplan_logger_spy as testplan_spy:
+        # When
+        with log_propagation_disabled(suite_spy.logger):
+            plan_result = plan.run()
+
+        # The the suite logger will not propagate to testplan logger
+        suite_spy.info.assert_called_once_with(SIMPLE_LOG)
+        testplan_spy.debug.assert_any_call(SIMPLE_LOG)
+
+        case_result = get_case_result(plan_result)
+
+        assert len(case_result.entries) == 1
+        assert case_result.entries[0]["type"] == "Log"
+        message = case_result.entries[0]["message"]
+        result = re.findall(LOGGER_LEVEL_PATTERN, message, re.M)
+        assert result[0] == (TESTPLAN_LOGGER_NAME, "DEBUG")

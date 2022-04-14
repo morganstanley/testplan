@@ -1,22 +1,12 @@
 """Unit tests for the reloader module."""
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import range
-from future import standard_library
 
-standard_library.install_aliases()
-import six
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
-
-import modulefinder
+import sys
 import os
 import time
-import sys
+import io
+import modulefinder
+from unittest import mock
+from contextlib import contextmanager
 
 import pytest
 
@@ -26,7 +16,7 @@ from testplan.testing import multitest
 
 
 @multitest.testsuite
-class Suite(object):
+class Suite:
     """An example test suite to be reloaded."""
 
     @multitest.testsuite
@@ -64,7 +54,7 @@ MOCK_MODULES = {
 MODULE_ATTRS = {"mod_a": [Suite]}
 
 
-class MockModule(object):
+class MockModule:
     """Mock object to return in place of a real python module."""
 
     def __init__(self, name, filepath, attributes):
@@ -77,9 +67,9 @@ class MockModule(object):
         return "MockModule[{}]".format(self.__name__)
 
 
-# Mock for sys.modules, which are searched to find the modules that need
-# reloading. PyTest will inspect sys.modules to do its magic so we extend
-# a copy of the real sys.modules rather than just creating a totally bogus
+# Mock for `sys.modules`, which are searched to find the modules that need
+# reloading. PyTest will inspect `sys.modules` to do its magic so we extend
+# a copy of the real `sys.modules` rather than just creating a totally bogus
 # new one.
 MOCK_SYSMODULES = sys.modules.copy()
 MOCK_SYSMODULES.update(
@@ -89,8 +79,8 @@ MOCK_SYSMODULES.update(
     }
 )
 
-# Mapping of module name to a modulefinder.Module object, which is used by
-# the modulefinder module to store metadata about a module - e.g. its name,
+# Mapping of module name to a `modulefinder.Module` object, which is used by
+# the `modulefinder` module to store metadata about a module - e.g. its name,
 # filepath and the names of its attributes.
 MOCK_MODULEFINDER_MODS = {
     name: modulefinder.Module(name, file=filepath)
@@ -100,7 +90,7 @@ MOCK_MODULEFINDER_MODS = {
 
 def _set_module_globals():
     """
-    Set the globalnames attribute on the mocked modulefinder modules, and
+    Set the `globalnames` attribute on the mocked `modulefinder` modules, and
     set the __module__ attribute on each attribute to match its owning module.
 
     WARNING: this function mutates MOCK_MODULEFINDER_MODS, it should only be
@@ -116,7 +106,7 @@ _set_module_globals()
 del _set_module_globals
 
 
-class MockModuleFinder(object):
+class MockModuleFinder:
     """
     Mock ModuleFinder object. Allows us to control the structure of discovered
     module dependencies.
@@ -125,38 +115,29 @@ class MockModuleFinder(object):
     def __init__(self, path):
         del path  # Unused
         self.modules = {}
-        self._curr_module = None
+        self._curr_mod = None
 
-    def run_script(self, script_filepath):
+    def load_module(self, fqname, fp, pathname, file_info):
         """
         Don't actually run any script - just call the expected hooks to
         simulate the dependency structure we want.
         """
-        del script_filepath  # Unused
-
         self.modules = MOCK_MODULEFINDER_MODS
 
         self.import_hook("mod_a", self.modules["__main__"])
-        self.import_module()
         self.import_hook("mod_b", self.modules["__main__"])
-        self.import_module()
         self.import_hook("mod_b", self.modules["mod_a"])
-        self.import_module()
         self.import_hook("mod_c", self.modules["mod_a"])
-        self.import_module()
         self.import_hook("mod_d", self.modules["mod_a"])
-        self.import_module()
         self.import_hook("mod_d", self.modules["mod_b"])
+
+    def import_hook(self, name, caller=None, *args, **kwargs):
+        self._curr_mod = self.modules[name]
         self.import_module()
 
-    def import_hook(self, name, caller=None):
-        del caller  # unused
-        self._curr_module = self.modules[name]
-
-    def import_module(self, *args):
-        del args  # unused
-        curr_mod = self._curr_module
-        self._curr_module = None
+    def import_module(self, *args, **kwargs):
+        curr_mod = self._curr_mod
+        self._curr_mod = None
         return curr_mod
 
 
@@ -176,6 +157,10 @@ def mock_reload_env():
         0 if i != 8 else one_day_hence for i in range(10)
     )
 
+    @contextmanager
+    def mock_open(file, mode="r", **kwargs):
+        yield io.StringIO("")
+
     def mock_stat(filepath):
         if filepath in mock_stat.modified_files:
             return modified_stat_result
@@ -184,23 +169,28 @@ def mock_reload_env():
 
     mock_stat.modified_files = set()
 
-    reloader_patch = "testplan.runnable.interactive.reloader.reload_module"
-    with mock.patch("modulefinder.ModuleFinder", new=MockModuleFinder), (
-        mock.patch(reloader_patch, side_effect=lambda module: module)
-    ) as mock_reload, (mock.patch("os.stat", new=mock_stat)), (
-        mock.patch("sys.modules", new=MOCK_SYSMODULES)
-    ):
+    with mock.patch("io.open", new=mock_open), mock.patch(
+        "os.stat", new=mock_stat
+    ), mock.patch("sys.modules", new=MOCK_SYSMODULES), mock.patch(
+        "modulefinder.ModuleFinder", new=MockModuleFinder
+    ), mock.patch(
+        "importlib.reload", side_effect=lambda module: module
+    ) as mock_reload:
 
         # Despite mocking modulefinder.ModuleFinder above, we also need to
         # swap out the real ModuleFinder with our mock one in the list of
         # bases for the GraphModuleFinder.
-        reloader._GraphModuleFinder.__bases__ = (
-            MockModuleFinder,
-            logger.Loggable,
-        )
-        reload_obj = reloader.ModuleReloader()
+        old_bases = reloader._GraphModuleFinder.__bases__
+        try:
+            reloader._GraphModuleFinder.__bases__ = (
+                MockModuleFinder,
+                logger.Loggable,
+            )
+            reload_obj = reloader.ModuleReloader()
 
-        yield reload_obj, mock_reload, mock_stat
+            yield reload_obj, mock_reload, mock_stat
+        finally:
+            reloader._GraphModuleFinder.__bases__ = old_bases
 
 
 def test_dependency_reload(mock_reload_env):
@@ -212,14 +202,14 @@ def test_dependency_reload(mock_reload_env):
                                    /    \
                                   /      \
                                  V       V
-                                 A ----> B
+                                 A -----> B
                                 / \        \
-                               /   ---     \
-                              V       |    V
-                              C        --> D
+                               /   ---      \
+                              V       |     V
+                             C        --->  D
 
-    We then test making modifications to each of A, B, C and D in turn to check
-    that the expected modules are reloaded in the correct order.
+    We then test making modifications to each of A, B, C and D in turn to
+    check that the expected modules are reloaded in the correct order.
     """
     reload_obj, mock_reload, mock_stat = mock_reload_env
 

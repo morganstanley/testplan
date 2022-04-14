@@ -57,7 +57,8 @@ class PyUnit(testing.Test):
 
     def run_tests(self):
         """Run PyUnit and wait for it to terminate."""
-        self.result.report.extend(self._run_tests())
+        with self.report.timer.record("run"):
+            self.result.report.extend(self._run_tests())
 
     def get_test_context(self):
         """
@@ -71,7 +72,7 @@ class PyUnit(testing.Test):
 
     def dry_run(self):
         """Return an empty report tree."""
-        test_report = self._new_test_report()
+        self.result.report = self._new_test_report()
 
         for pyunit_testcase in self.cfg.testcases:
             testsuite_report = TestGroupReport(
@@ -84,22 +85,24 @@ class PyUnit(testing.Test):
                     )
                 ],
             )
-            test_report.append(testsuite_report)
+            self.result.report.append(testsuite_report)
 
-        result = testing.TestResult()
-        result.report = test_report
-
-        return result
+        return self.result
 
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
         """Run testcases and yield testcase report and parent UIDs."""
         if testsuite_pattern == "*":
+            yield {"runtime_status": RuntimeStatus.RUNNING}, [self.uid()]
             for testsuite_report in self._run_tests():
                 yield testsuite_report[self._TESTCASE_NAME], [
                     self.uid(),
                     testsuite_report.uid,
                 ]
         else:
+            yield {"runtime_status": RuntimeStatus.RUNNING}, [
+                self.uid(),
+                testsuite_pattern,
+            ]
             testsuite_report = self._run_testsuite(
                 self._pyunit_testcases[testsuite_pattern]
             )

@@ -58,11 +58,11 @@ expected_report = TestReport(
                             entries=[
                                 {"type": "RawAssertion", "passed": False},
                                 {
-                                    "type": "Log",
+                                    "type": "Attachment",
                                     "description": "Process stdout",
                                 },
                                 {
-                                    "type": "Log",
+                                    "type": "Attachment",
                                     "description": "Process stderr",
                                 },
                             ],

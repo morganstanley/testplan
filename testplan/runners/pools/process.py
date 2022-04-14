@@ -67,32 +67,28 @@ class ProcessWorker(Worker):
             self.cfg.index,
             "--address",
             self.transport.address,
-            "--testplan",
-            os.path.join(os.path.dirname(testplan.__file__), ".."),
             "--type",
             "process_worker",
             "--log-level",
             TESTPLAN_LOGGER.getEffectiveLevel(),
             "--sys-path-file",
-            self._write_syspath(),
+            self._syspath_file,
         ]
-        if os.environ.get(testplan.TESTPLAN_DEPENDENCIES_PATH):
-            cmd.extend(
-                [
-                    "--testplan-deps",
-                    fix_home_prefix(
-                        os.environ[testplan.TESTPLAN_DEPENDENCIES_PATH]
-                    ),
-                ]
-            )
+
         return cmd
 
-    def _write_syspath(self):
+    def _write_syspath(self, sys_path=None):
         """Write out our current sys.path to a file and return the filename."""
-        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
-            f.write("\n".join(sys.path))
+        sys_path = sys_path or sys.path
+        with tempfile.NamedTemporaryFile(
+            mode="w", dir=self.parent.runpath, delete=False
+        ) as f:
+            f.write("\n".join(sys_path))
             self.logger.debug("Written sys.path to file: %s", f.name)
-            return f.name
+            self._syspath_file = f.name
+
+    def pre_start(self):
+        self._write_syspath()
 
     def starting(self):
         """Start a child process worker."""
@@ -154,18 +150,14 @@ class ProcessWorker(Worker):
 
     def stopping(self):
         """Stop child process worker."""
-        if self._handler:
+        if hasattr(self, "_handler") and self._handler:
             kill_process(self._handler)
-            self._handler.wait()
         self.status.change(self.STATUS.STOPPED)
 
     def aborting(self):
         """Process worker abort logic."""
         self._transport.disconnect()
-        if hasattr(self, "_handler") and self._handler:
-            kill_process(self._handler)
-            self._handler.wait()
-            self._handler = None
+        self.stop()
 
 
 class ProcessPoolConfig(PoolConfig):

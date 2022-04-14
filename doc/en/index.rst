@@ -171,22 +171,52 @@ A step by step guide on how to contribute to Testplan framework can be found
 License
 =======
 
-License information `here <https://github.com/Morgan-Stanley/testplan/blob/master/LICENSE.md>`_.
+License information `here <https://github.com/morganstanley/testplan/blob/main/LICENSE.md>`_.
 
 .. toctree::
+   :caption: Introduction
    :maxdepth: 2
    :hidden:
 
    introduction
    getting_started
+
+.. toctree::
+   :caption: Core
+   :maxdepth: 2
+   :hidden:
+
+   unittests
    multitest
    drivers
    assertions
    output
+   download/index
+   api
+
+.. toctree::
+   :caption: Advanced
+   :maxdepth: 2
+   :hidden:
+
    interactive
    pools
-   api
-   download/index
+   remote
+   exotic_features
+
+.. toctree::
+   :caption: Tools
+   :maxdepth: 2
+   :hidden:
+
+   tpsreport
+
+.. toctree::
+   :caption: More Info
+   :maxdepth: 2
+   :hidden:
+   
    design
+   news
    about
 

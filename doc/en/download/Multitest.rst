@@ -241,8 +241,22 @@ Logging
 Basic
 +++++
 
+Required files:
+  - :download:`test_plan_logging.py <../../../examples/Multitest/Logging/test_plan_logging.py>`
+
 test_plan_logging.py
 ````````````````````
-
 .. literalinclude:: ../../../examples/Multitest/Logging/test_plan_logging.py
 
+
+Hooks
+-----
+
+.. _example_hooks:
+
+Required files:
+  - :download:`test_plan.py <../../../examples/Multitest/Hooks/test_plan.py>`
+
+test_plan.py
+````````````
+.. literalinclude:: ../../../examples/Multitest/Hooks/test_plan.py

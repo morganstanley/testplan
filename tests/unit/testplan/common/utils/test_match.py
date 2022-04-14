@@ -37,7 +37,7 @@ def large_logfile():
     os.remove(filepath)
 
 
-class TestMatchRegexpsInFile(object):
+class TestMatchRegexpsInFile:
     """
     Test the match_regexps_in_file function
     """
@@ -48,7 +48,7 @@ class TestMatchRegexpsInFile(object):
             re.compile(r"(?P<second>second)"),
         ]
 
-        status, values = match_regexps_in_file(basic_logfile, log_extracts)
+        status, values, _ = match_regexps_in_file(basic_logfile, log_extracts)
         assert status is True
         assert isinstance(values["first"], str)
         assert isinstance(values["second"], str)
@@ -59,7 +59,7 @@ class TestMatchRegexpsInFile(object):
             re.compile(br"(?P<second>second)"),
         ]
 
-        status, values = match_regexps_in_file(basic_logfile, log_extracts)
+        status, values, _ = match_regexps_in_file(basic_logfile, log_extracts)
         assert status is True
         assert isinstance(values["first"], bytes)
         assert isinstance(values["second"], bytes)
@@ -70,13 +70,13 @@ class TestMatchRegexpsInFile(object):
             re.compile(br"(?P<second>second)"),
         ]
 
-        status, values = match_regexps_in_file(basic_logfile, log_extracts)
+        status, values, _ = match_regexps_in_file(basic_logfile, log_extracts)
         assert status is True
         assert isinstance(values["first"], bytes)
         assert isinstance(values["second"], bytes)
 
 
-class TestLogMatcher(object):
+class TestLogMatcher:
     """
     Test the LogMatcher class.
     """
@@ -151,6 +151,52 @@ class TestLogMatcher(object):
         assert len(matches) == 2
         assert matches[0].group(0) == "fourth"
         assert matches[1].group(0) == "fifth"
+
+    def test_match_between(self, basic_logfile):
+        """
+        Does the LogMatcher match between the given marks.
+        """
+        matcher = LogMatcher(log_path=basic_logfile)
+        matcher.match(regex=re.compile(r"second"), timeout=0.5)
+        matcher.mark("start")
+        matcher.match(regex=re.compile(r"fourth"), timeout=0.5)
+        matcher.mark("end")
+
+        match = matcher.match_between(r"third", "start", "end")
+        assert match.group(0) == "third"
+        match = matcher.match_between(r"fourth", "start", "end")
+        assert match.group(0) == "fourth"
+        assert matcher.match_between(r"second", "start", "end") is None
+        assert matcher.match_between(r"fifth", "start", "end") is None
+
+    def test_not_match_between(self, basic_logfile):
+        """
+        Does the LogMatcher return True when match is found
+        between the given marks.
+        """
+        matcher = LogMatcher(log_path=basic_logfile)
+        matcher.match(regex=re.compile(r"second"), timeout=0.5)
+        matcher.mark("start")
+        matcher.match(regex=re.compile(r"fourth"), timeout=0.5)
+        matcher.mark("end")
+        assert matcher.not_match_between(r"fifth", "start", "end")
+        assert not matcher.not_match_between(r"third", "start", "end")
+
+    def test_get_between(self, basic_logfile):
+        """Does the LogMatcher return the required content between marks."""
+        matcher = LogMatcher(log_path=basic_logfile)
+        matcher.match(regex=re.compile(r"second"), timeout=0.5)
+        matcher.mark("start")
+        matcher.match(regex=re.compile(r"fourth"), timeout=0.5)
+        matcher.mark("end")
+        content = matcher.get_between()
+        assert content == "first\nsecond\nthird\nfourth\nfifth\n"
+        content = matcher.get_between(None, "end")
+        assert content == "first\nsecond\nthird\nfourth\n"
+        content = matcher.get_between("start", None)
+        assert content == "third\nfourth\nfifth\n"
+        content = matcher.get_between("start", "end")
+        assert content == "third\nfourth\n"
 
     def test_match_large_file(self, large_logfile):
         """

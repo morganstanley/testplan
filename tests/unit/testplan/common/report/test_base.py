@@ -1,15 +1,9 @@
 import logging
 import functools
 import re
-import six
+from unittest import mock
 
 import pytest
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
-
 
 from testplan.common import report
 from testplan.common.report.log import LOGGER
@@ -53,7 +47,7 @@ def test_exception_logger_reraise():
             raise KeyError("bar")  # raised
 
 
-class TestReport(object):
+class TestReport:
     def test_equality(self):
         """Should return True if core attribs match."""
         kwargs = dict(
@@ -160,7 +154,7 @@ class TestReport(object):
         assert rep_copy_2.entries == [["bar", "baz"], {"hello": "world"}]
 
 
-class TestReportGroup(object):
+class TestReportGroup:
     def test_build_index(self):
         """
         Should set `_index` attribute with child

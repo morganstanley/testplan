@@ -7,11 +7,7 @@ import itertools
 import inspect
 import warnings
 
-import six
-
 from testplan import defaults
-from testplan.common.utils.logger import TESTPLAN_LOGGER
-from testplan.common.utils import callable as callable_utils
 from testplan.common.utils import interface
 from testplan.common.utils import strings
 from testplan.testing import tagging
@@ -22,7 +18,6 @@ from . import parametrization
 __TESTCASES__ = []
 __PARAMETRIZATION_TEMPLATE__ = []
 __GENERATED_TESTCASES__ = []
-__SKIP__ = collections.defaultdict(tuple)
 
 
 def _reset_globals():
@@ -30,12 +25,10 @@ def _reset_globals():
     global __TESTCASES__
     global __PARAMETRIZATION_TEMPLATE__
     global __GENERATED_TESTCASES__
-    global __SKIP__
 
     __TESTCASES__ = []
     __PARAMETRIZATION_TEMPLATE__ = []
     __GENERATED_TESTCASES__ = []
-    __SKIP__ = collections.defaultdict(tuple)
 
 
 def update_tag_index(obj, tag_dict):
@@ -124,25 +117,20 @@ def get_testsuite_name(suite):
     if "name" not in suite.__dict__:
         if suite.__class__.name is None:
             suite.name = suite.__class__.__name__
-        elif isinstance(suite.__class__.name, six.string_types):
+        elif isinstance(suite.__class__.name, str):
             suite.name = suite.__class__.name
         elif callable(suite.__class__.name):
-            # In Python2 unbound method cannot be called by class directly
-            suite.name = six.get_method_function(suite.name)(
-                suite.__class__.__name__, suite
-            )
+            suite.name = suite.name.__func__(suite.__class__.__name__, suite)
         else:  # Should not go here, argument already verified in `_testsuite`
             raise RuntimeError('Invalid argument "name" in "{}"'.format(suite))
 
-    if not isinstance(suite.name, six.string_types):
+    if not isinstance(suite.name, str):
         raise ValueError(
             'Test suite name "{name}" must be a string, it is of type:'
             " {type}".format(name=suite.name, type=type(suite.name))
         )
     elif not suite.name:
         raise ValueError("Test suite name cannot be an empty string")
-
-    suite.name = six.ensure_str(suite.name)
 
     if len(suite.name) > defaults.MAX_TEST_NAME_LENGTH:
         warnings.warn(
@@ -156,6 +144,9 @@ def get_testsuite_name(suite):
             "Test suite object contains colon in name: {}".format(suite.name)
         )
 
+    import types
+
+    suite.uid = types.MethodType(lambda self: self.name, suite)
     return suite.name
 
 
@@ -192,18 +183,17 @@ def set_testsuite_testcases(suite):
                 )
             )
 
-        name = getattr(suite, testcase).name
-        if name in testcase_names:
+        testcase_method = getattr(suite, testcase)
+        if testcase_method.name in testcase_names:
             raise ValueError(
                 "Duplicate testcase name {} found, please check."
-                ' Or use "name_func" argument to generate names'
-                " for parametrized testcases.".format(name)
+                ' Or use "name_func" argument to generate names for'
+                " parametrized testcases.".format(testcase_method.name)
             )
 
-        skip_funcs = suite.__skip__[testcase]
-        if not any(skip_func(suite) for skip_func in skip_funcs):
+        if not any(skip_func(suite) for skip_func in testcase_method.__skip__):
             testcases.append(testcase)
-            testcase_names.add(name)
+            testcase_names.add(testcase_method.name)
 
     setattr(suite, "__testcases__", testcases)
 
@@ -240,7 +230,7 @@ def _selective_call(decorator_func, meta_func, wrapper_func):
 
     .. code-block:: python
 
-      class Foo(object):
+      class Foo:
 
         @some_decorator
         def method_1(self):
@@ -316,7 +306,10 @@ def _ensure_unique_generated_testcase_names(names, functions):
             while True:
                 func.__name__ = "{}__{}".format(name, count)
                 dupe_counter[name] += 1
-                if func.__name__ not in valid_names:
+                if (
+                    func.__name__ not in dupe_names
+                    and func.__name__ not in valid_names
+                ):
                     valid_names.add(func.__name__)
                     break
         else:
@@ -344,7 +337,6 @@ def _testsuite(klass):
     )
 
     klass.__testcases__ = [None] * _number_of_testcases()
-    klass.__skip__ = __SKIP__
 
     for testcase_name in __TESTCASES__:
         klass.__testcases__[
@@ -357,8 +349,8 @@ def _testsuite(klass):
 
     assert all(testcase for testcase in klass.__testcases__)
 
-    # Attributes `name` and `__tags__` are added only when class is
-    # decorated by @testsuite(...) which has the following parentheses.
+    # Attributes `name` and `__tags__` and `strict_order` are added only when
+    # class is decorated by @testsuite(...) with following parentheses.
     if not hasattr(klass, "name"):
         klass.name = None
 
@@ -368,7 +360,7 @@ def _testsuite(klass):
         except interface.MethodSignatureMismatch as err:
             _reset_globals()
             raise err
-    elif not (klass.name is None or isinstance(klass.name, six.string_types)):
+    elif not (klass.name is None or isinstance(klass.name, str)):
         _reset_globals()
         raise TypeError('"name" should be a string or a callable or `None`')
 
@@ -376,8 +368,13 @@ def _testsuite(klass):
         klass.__tags__ = {}  # used for UI
         klass.__tags_index__ = {}  # used for actual filtering
 
+    if not hasattr(klass, "strict_order"):
+        klass.strict_order = False
+
+    for func_name in __PARAMETRIZATION_TEMPLATE__:
+        getattr(klass, func_name).strict_order = klass.strict_order
+
     klass.get_testcases = get_testcase_methods
-    testcase_methods = get_testcase_methods(klass)
 
     # propagate suite's native tags onto itself, which
     # will propagate them further to the suite's testcases
@@ -387,7 +384,7 @@ def _testsuite(klass):
     update_tag_index(
         obj=klass,
         tag_dict=tagging.merge_tag_dicts(
-            *[tc.__tags_index__ for tc in testcase_methods]
+            *[tc.__tags_index__ for tc in get_testcase_methods(klass)]
         ),
     )
 
@@ -397,7 +394,7 @@ def _testsuite(klass):
     return klass
 
 
-def _testsuite_meta(name=None, tags=None):
+def _testsuite_meta(name=None, tags=None, strict_order=False):
     """
     Wrapper function that allows us to call :py:func:`@testsuite <testsuite>`
     decorator with extra arguments.
@@ -414,6 +411,8 @@ def _testsuite_meta(name=None, tags=None):
         else:
             klass.__tags__ = {}
             klass.__tags_index__ = {}
+
+        klass.strict_order = strict_order
 
         return _testsuite(klass)
 
@@ -444,6 +443,9 @@ def testsuite(*args, **kwargs):
         tags, or named tags, or multi-named tags.
     :type tags: ``str`` or ``tuple(str)`` or ``dict( str: str)`` or
         ``dict( str: tuple(str))`` or ``NoneType``
+    :param strict_order: Force testcases to run sequentially as they were
+        defined in test suite.
+    :type strict_order: ``bool``
     """
     return _selective_call(
         decorator_func=_testsuite,
@@ -454,6 +456,14 @@ def testsuite(*args, **kwargs):
 
 def _validate_function_name(func):
     """Validate the function name is valid for a testcase."""
+    reserved_words = (
+        "name",
+        "get_testcases",
+        "setup",
+        "teardown",
+        "pre_testcase",
+        "post_testcase",
+    )
     errmsg = None
 
     if (
@@ -469,11 +479,11 @@ def _validate_function_name(func):
             func.__name__
         )
 
-    elif func.__name__ in ("name", "get_testcases"):
+    elif func.__name__ in reserved_words:
         errmsg = (
-            'Testcase cannot be defined as "name" or "get_testcases"'
-            " because they are reserved by Testplan"
-        )
+            "Testcase cannot be defined as any of the following"
+            " because they are reserved by Testplan: {}."
+        ).format(", ".join('"{}"'.format(word) for word in reserved_words))
 
     if errmsg is not None:
         _reset_globals()
@@ -490,7 +500,7 @@ def _validate_testcase(func):
     try:
         interface.check_signature(func, ["self", "env", "result"])
 
-        if not isinstance(func.name, six.string_types):
+        if not isinstance(func.name, str):
             raise ValueError(
                 'Testcase name "{name}" must be a string, it is of type:'
                 " {type}".format(name=func.name, type=type(func.name))
@@ -501,8 +511,6 @@ def _validate_testcase(func):
     except Exception as exc:
         _reset_globals()
         raise exc
-
-    func.name = six.ensure_str(func.name)
 
     if len(func.name) > defaults.MAX_TEST_NAME_LENGTH:
         warnings.warn(
@@ -534,6 +542,8 @@ def _testcase(function):
     _mark_function_as_testcase(function)
 
     function.__seq_number__ = _number_of_testcases()
+    function.__skip__ = []
+
     __TESTCASES__.append(function.__name__)
 
     return function
@@ -562,6 +572,7 @@ def _testcase_meta(
     @functools.wraps(_testcase)
     def wrapper(function):
         """Meta logic for test case goes here."""
+        global __TESTCASES__
         global __GENERATED_TESTCASES__
         global __PARAMETRIZATION_TEMPLATE__
 
@@ -570,6 +581,7 @@ def _testcase_meta(
 
         tag_dict = tagging.validate_tag_value(tags) if tags else {}
         function.__tags__ = copy.deepcopy(tag_dict)
+        function.__tags_index__ = copy.deepcopy(tag_dict)
 
         if parameters is not None:  # Empty tuple / dict checks happen later
             function.__parametrization_template__ = True
@@ -603,8 +615,11 @@ def _testcase_meta(
             for func in functions:
                 _validate_testcase(func)
                 # this has to be called before wrappers otherwise wrappers can
-                # fail if they rely on __testcase__
+                # fail if they rely on ``__testcase__``
                 _mark_function_as_testcase(func)
+
+                func.__seq_number__ = _number_of_testcases()
+                func.__skip__ = []
 
                 wrappers = custom_wrappers or []
                 if not isinstance(wrappers, (list, tuple)):
@@ -613,24 +628,35 @@ def _testcase_meta(
                 for wrapper_func in wrappers:
                     func = wrapper_func(func)
 
-                # so that CodeDetails gets the correct line number
-                func.wrapper_of = function
-
-                func.__seq_number__ = _number_of_testcases()
                 __GENERATED_TESTCASES__.append(func)
 
             return function
 
         else:
+
+            _validate_testcase(function)
+            _mark_function_as_testcase(function)
+
+            function.__seq_number__ = _number_of_testcases()
+            function.__skip__ = []
+
             function.summarize = summarize
             function.summarize_num_passing = num_passing
             function.summarize_num_failing = num_failing
             function.summarize_key_combs_limit = key_combs_limit
             function.execution_group = execution_group
             function.timeout = timeout
-            function.__tags_index__ = copy.deepcopy(tag_dict)
 
-            return _testcase(function)
+            wrappers = custom_wrappers or []
+
+            if not isinstance(wrappers, (list, tuple)):
+                wrappers = [wrappers]
+
+            for wrapper_func in wrappers:
+                function = wrapper_func(function)
+
+            __TESTCASES__.append(function.__name__)
+            return function
 
     return wrapper
 
@@ -733,8 +759,8 @@ def testcase(*args, **kwargs):
 
 def _validate_skip_if_predicates(predicates):
     """
-    Check for method signature, set / extend ``skip_funcs`` attribute of
-    the testcase method.
+    Check for signature of functions, which  are used to set / extend
+    ``skip_funcs`` attribute of the testcase method.
     """
     for predicate in predicates:
         try:
@@ -742,8 +768,6 @@ def _validate_skip_if_predicates(predicates):
         except interface.MethodSignatureMismatch as err:
             _reset_globals()
             raise err
-
-    return predicates
 
 
 def skip_if(*predicates):
@@ -763,109 +787,11 @@ def skip_if(*predicates):
         """
         Inner implementation of skip
         """
-        global __SKIP__
-        result = _validate_skip_if_predicates(predicates)
-        __SKIP__[testcase_method.__name__] += result
+        _validate_skip_if_predicates(predicates)
+        testcase_method.__skip__ += predicates
         return testcase_method
 
     return skipper
-
-
-def _get_kwargs(kwargs, testcase_method):
-    """Compatibility with parametrization"""
-    return dict(
-        kwargs, **getattr(testcase_method, "_parametrization_kwargs", {})
-    )
-
-
-def _gen_testcase_with_pre(testcase_method, preludes):
-    """
-    Attach prelude(s) to a testcase method
-
-    :param testcase_method: a testcase method
-    :param prelude: a callable with a compatible signature
-
-    :return: testcase with prelude attached
-    """
-
-    @callable_utils.wraps(testcase_method)
-    def testcase_with_pre(*args, **kwargs):
-        """
-        Testcase with prelude
-        """
-        for prelude in preludes:
-            prelude(
-                testcase_method.__name__,
-                *args,
-                **_get_kwargs(kwargs, testcase_method)
-            )
-        return testcase_method(*args, **kwargs)
-
-    return testcase_with_pre
-
-
-def _run_epilogues(epilogues, name, *args, **kwargs):
-    """
-    Run all of epilogues and return the exceptions collected
-    """
-    exceptions = []
-
-    for epilogue in epilogues:
-        try:
-            epilogue(name, *args, **kwargs)
-        except Exception as exc:
-            exceptions.append(exc)
-            TESTPLAN_LOGGER.error(
-                'Exception raised when running epilogue "{}" for "{}"'.format(
-                    epilogue.__name__, name
-                )
-            )
-            TESTPLAN_LOGGER.exception(exc)
-
-    return exceptions
-
-
-def _gen_testcase_with_post(testcase_method, epilogues):
-    """
-    Attach an epilogue to a testcase method
-
-    :param testcase_method: a testcase method
-    :param epilogue: a callable with a compatible signature
-
-    :return: testcase with epilogue attached
-    """
-
-    @callable_utils.wraps(testcase_method)
-    def testcase_with_post(*args, **kwargs):
-        """
-        Testcase with epilogue
-        """
-        try:
-            testcase_method(*args, **kwargs)
-        except Exception as exc:
-            # even testcase method raises an exception, post-testcase methods
-            # still need to be executed, if any of them raises, the exception
-            # should be caught and will not overwrite the original one.
-            _run_epilogues(
-                epilogues,
-                testcase_method.__name__,
-                *args,
-                **_get_kwargs(kwargs, testcase_method)
-            )
-            raise exc
-        else:
-            # during running each epilogue there might be exception caught, for
-            # simplicity, only the first one is raised and logged into report.
-            exceptions = _run_epilogues(
-                epilogues,
-                testcase_method.__name__,
-                *args,
-                **_get_kwargs(kwargs, testcase_method)
-            )
-            if len(exceptions) > 0:
-                raise exceptions[0]
-
-    return testcase_with_post
 
 
 def skip_if_testcase(*predicates):
@@ -884,59 +810,17 @@ def skip_if_testcase(*predicates):
     def _skip_if_testcase_inner(klass):
         _validate_skip_if_predicates(predicates)
         for testcase_method in get_testcase_methods(klass):
-            klass.__skip__[testcase_method.__name__] += predicates
+            testcase_method.__skip__ += predicates
         return klass
 
     return _skip_if_testcase_inner
-
-
-def pre_testcase(*functions):
-    """
-    Prepend callable(s) to trigger before every testcase in a testsuite
-
-    :param func: a callable to be executed immediately before each testcase
-
-    :return: testsuite with pre_testcase behaviour installed
-    """
-
-    def pre_testcase_inner(klass):
-        """
-        Inner part of class decorator
-        """
-        for testcase_method in get_testcase_methods(klass):
-            twp = _gen_testcase_with_pre(testcase_method, functions)
-            setattr(klass, testcase_method.__name__, twp)
-        return klass
-
-    return pre_testcase_inner
-
-
-def post_testcase(*functions):
-    """
-    Append callable(s) to trigger after every testcase in a testsuite
-
-    :param func: a callable to be executed immediately after each testcase
-
-    :return: testsuite with post_testcase behaviour installed
-    """
-
-    def post_testcase_inner(klass):
-        """
-        Inner part of class decorator
-        """
-        for testcase_method in get_testcase_methods(klass):
-            twp = _gen_testcase_with_post(testcase_method, functions)
-            setattr(klass, testcase_method.__name__, twp)
-        return klass
-
-    return post_testcase_inner
 
 
 def xfail(reason, strict=False):
     """
     Mark a testcase/testsuit as XFail(known to fail) when not possible to fix
     immediately. This decorator mandates a reason that explains why the test is
-    marked as passed. XFail testcases will be highlighted as amber on testplan
+    marked as passed. XFail testcases will be highlighted as orange on testplan
     report.
     By default, should the test pass while we expect it to fail, the report
     will mark it as failed.
@@ -956,3 +840,20 @@ def xfail(reason, strict=False):
         return test
 
     return _xfail_test
+
+
+def timeout(seconds):
+    """
+    Decorator for non-testcase method in a test suite, can be used for
+    setup, teardown, pre_testcase and post_testcase.
+    """
+
+    assert (
+        isinstance(seconds, int) and seconds > 0
+    ), "Invalid use of `suite.timeout`, argument must be a positive integer"
+
+    def inner(function):
+        function.timeout = seconds
+        return function
+
+    return inner

@@ -3,15 +3,13 @@ import itertools
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import TestplanMock
-from testplan.runners.pools import ThreadPool
+from testplan.runners.pools.base import Pool as ThreadPool
 from testplan.runners.pools.tasks import Task
 from testplan.report import Status
-from testplan.common.utils.testing import log_propagation_disabled
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 @testsuite
-class Suite1(object):
+class Suite1:
     """A test suite with parameterized testcases."""
 
     @testcase(parameters=tuple(range(10)))
@@ -20,7 +18,7 @@ class Suite1(object):
 
 
 @testsuite
-class Suite2(object):
+class Suite2:
     """A test suite with parameterized testcases."""
 
     @testcase(parameters=(False, None, ""))
@@ -29,7 +27,7 @@ class Suite2(object):
 
 
 @testsuite
-class Suite3(object):
+class Suite3:
     """A test suite with parameterized testcases."""
 
     @testcase(parameters=(1, -1))
@@ -76,8 +74,7 @@ def test_multi_parts_not_merged():
         task = Task(target=get_mtest(part_tuple=(idx, 3)))
         plan.schedule(task, resource="MyThreadPool")
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert plan.run().run is True
+    assert plan.run().run is True
 
     assert len(plan.report.entries) == 3
     assert plan.report.entries[0].name == "MTest - part(0/3)"
@@ -113,8 +110,7 @@ def test_multi_parts_merged():
         Task(target=get_mtest(part_tuple=(0, 3))), resource="MyThreadPool"
     )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert plan.run().run is True
+    assert plan.run().run is True
 
     assert len(plan.report.entries) == 1
     assert plan.report.entries[0].name == "MTest"
@@ -148,8 +144,7 @@ def test_multi_parts_incorrect_schedule():
 
     assert len(plan._tests) == 5
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert plan.run().run is False
+    assert plan.run().run is False
 
     assert len(plan.report.entries) == 6  # one placeholder report & 5 siblings
     assert len(plan.report.entries[0].entries) == 0  # already cleared
@@ -178,8 +173,7 @@ def test_multi_parts_duplicate_part():
 
     assert len(plan._tests) == 4
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert plan.run().run is False
+    assert plan.run().run is False
 
     assert len(plan.report.entries) == 5  # one placeholder report & 4 siblings
     assert len(plan.report.entries[0].entries) == 0  # already cleared
@@ -203,8 +197,7 @@ def test_multi_parts_missing_parts():
         task = Task(target=get_mtest(part_tuple=(idx, 3)))
         plan.schedule(task, resource="MyThreadPool")
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert plan.run().run is False
+    assert plan.run().run is False
 
     assert len(plan.report.entries) == 3  # one placeholder report & 2 siblings
     assert len(plan.report.entries[0].entries) == 0  # already cleared
@@ -224,8 +217,7 @@ def test_multi_parts_not_successfully_executed():
     plan.add(MockMultiTest(name="MTest", suites=[Suite1()], part=(0, 2)))
     plan.add(MockMultiTest(name="MTest", suites=[Suite1()], part=(1, 2)))
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert plan.run().run is False
+    assert plan.run().run is False
 
     assert len(plan.report.entries) == 3  # one placeholder report & 2 siblings
     assert len(plan.report.entries[0].entries) == 0  # already cleared

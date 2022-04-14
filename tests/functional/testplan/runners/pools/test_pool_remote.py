@@ -5,13 +5,20 @@ import pytest
 import shutil
 import tempfile
 
-from testplan.runners.pools import RemotePool
+from testplan.common.utils.process import execute_cmd
+from testplan.common.utils.remote import filepath_exist_cmd, ssh_cmd
+from testplan.report import Status
+from testplan.runners.pools.remote import RemotePool
 
 from .func_pool_base_tasks import schedule_tests_to_pool
 
+REMOTE_HOST = os.environ.get("TESTPLAN_REMOTE_HOST")
+pytestmark = pytest.mark.skipif(
+    not REMOTE_HOST,
+    reason="Remote host not specified, skip remote pool test",
+)
 # tests/helpers are on the pythonpath
 from pytest_test_filters import skip_on_windows
-from remote_utils import mock_ssh, strip_host, copytree
 
 
 def setup_workspace():
@@ -35,9 +42,7 @@ def setup_workspace():
             os.path.join(orig_tests_dir, os.pardir)
         )
 
-    tmp_tests_dir = os.path.join(workspace, "tests")
-
-    copytree("{}{}".format(orig_tests_dir, os.path.sep), tmp_tests_dir)
+    shutil.copytree(orig_tests_dir, os.path.join(workspace, "tests"))
 
     # We need to schedule tests from the directory of this script but within
     # the workspace.
@@ -63,14 +68,46 @@ def test_pool_basic(mockplan, remote_pool_type):
         schedule_tests_to_pool(
             mockplan,
             RemotePool,
-            hosts={"localhost": 2},
-            ssh_cmd=mock_ssh,
-            copy_cmd=strip_host,
+            hosts={REMOTE_HOST: 2},
             workspace=workspace,
-            copy_workspace_check=None,
             pool_type=remote_pool_type,
             schedule_path=schedule_path,
+            restart_count=0,
+            clean_remote=True,
         )
     finally:
+        assert 0 == execute_cmd(
+            ssh_cmd({"host": REMOTE_HOST}, f"test -L {workspace}"),
+            label="workspace imitated on remote",
+            check=False,
+        )
         os.chdir(orig_dir)
         shutil.rmtree(workspace)
+
+
+def test_materialization_fail(mockplan):
+    """Test task target will fail to materialize in worker"""
+    pool_name = RemotePool.__name__
+    pool = RemotePool(
+        name=pool_name,
+        hosts={REMOTE_HOST: 1},
+        workspace_exclude=["*"],  # effectively not copy anything
+    )
+    mockplan.add_resource(pool)
+
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    mockplan.schedule(
+        target="target_raises_in_worker",
+        module="func_pool_base_tasks",
+        path=dirname,
+        args=(os.getpid(),),
+        resource=pool_name,
+    )
+
+    res = mockplan.run()
+
+    assert res.run is False
+    assert res.success is False
+    assert mockplan.report.status == Status.ERROR
+    assert mockplan.report.entries[0].name == "Task[target_raises_in_worker]"
+    assert mockplan.report.entries[0].category == Status.ERROR

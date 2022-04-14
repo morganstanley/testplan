@@ -1,11 +1,13 @@
 """Base Testplan Tasks shared by different functional tests."""
 
 import os
-import psutil
+from pathlib import Path
 
-from testplan.common.utils.logger import TESTPLAN_LOGGER
+import psutil
+import tempfile
+
+
 from testplan.report import Status
-from testplan.common.utils.testing import log_propagation_disabled
 from testplan.common.utils.path import fix_home_prefix
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.base import MultiTestConfig
@@ -13,14 +15,24 @@ from testplan.common.utils.strings import slugify
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_comparison(self, env, result):
         result.equal(1, 1, "equality description")
-        result.log(env.runpath)
-        assert isinstance(env.cfg, MultiTestConfig)
-        assert os.path.exists(env.runpath) is True
-        assert env.runpath.endswith(slugify(env.cfg.name))
+        result.log(env.parent.runpath)
+        assert isinstance(env.parent.cfg, MultiTestConfig)
+        assert os.path.exists(env.parent.runpath) is True
+        assert env.parent.runpath.endswith(slugify(env.parent.cfg.name))
+
+    @testcase
+    def test_attach(self, env, result):
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".txt", delete=False
+        ) as tmpfile:
+            tmpfile.write("testplan\n")
+
+        result.attach(tmpfile.name, description=os.path.basename(tmpfile.name))
+        os.remove(tmpfile.name)
 
 
 def get_mtest(name):
@@ -34,39 +46,38 @@ def get_mtest_imported(name):
 
 
 @testsuite
-class SuiteKillingWorker(object):
-    def __init__(self, parent_pid, size):
-        self._parent_pid = parent_pid
-        self._size = size
+class SuiteKillingWorker:
+    def __init__(self, boobytrap_path: str):
+        self._boobytrap_path = Path(boobytrap_path)
 
     @testcase
     def test_comparison(self, env, result):
-        parent = psutil.Process(self._parent_pid)
-        if len(parent.children(recursive=False)) == self._size:
+        if self._boobytrap_path.exists():
+            self._boobytrap_path.unlink()
             print("Killing worker {}".format(os.getpid()))
             os.kill(os.getpid(), 9)
         result.equal(1, 1, "equality description")
-        result.log(env.runpath)
-        assert isinstance(env.cfg, MultiTestConfig)
-        assert os.path.exists(env.runpath) is True
-        assert env.runpath.endswith(slugify(env.cfg.name))
+        result.log(env.parent.runpath)
+        assert isinstance(env.parent.cfg, MultiTestConfig)
+        assert os.path.exists(env.parent.runpath) is True
+        assert env.parent.runpath.endswith(slugify(env.parent.cfg.name))
 
 
-def multitest_kill_one_worker(parent_pid, size):
+def multitest_kill_one_worker(boobytrap: str):
     """Test that kills one worker."""
     return MultiTest(
-        name="MTestKiller", suites=[SuiteKillingWorker(parent_pid, size)]
+        name="MTestKiller", suites=[SuiteKillingWorker(boobytrap)]
     )
 
 
 @testsuite
-class SimpleSuite(object):
+class SimpleSuite:
     @testcase
     def test_simple(self, env, result):
         pass
 
 
-def multitest_kills_worker(parent_pid):
+def multitest_kill_workers(parent_pid):
     """To kill all child workers."""
     if os.getpid() != parent_pid:  # Main process should not be killed
         os.kill(os.getpid(), 9)
@@ -74,13 +85,21 @@ def multitest_kills_worker(parent_pid):
         return MultiTest(name="MTestKiller", suites=[SimpleSuite()])
 
 
+@testsuite
+class SuiteKillRemoteWorker:
+    @testcase
+    def kill_remote_worker(self, env, result):
+        os.kill(os.getpid(), 9)
+
+
+def multitest_kill_remote_workers():
+    return MultiTest(
+        name="MTestKillRemoteWorker", suites=[SuiteKillRemoteWorker()]
+    )
+
+
 def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):
     pool_name = pool.__name__
-
-    # Enable debug:
-    # from testplan.common.utils.logger import DEBUG
-    # TESTPLAN_LOGGER.setLevel(DEBUG)
-
     pool = pool(name=pool_name, **pool_cfg)
     plan.add_resource(pool)
 
@@ -101,15 +120,14 @@ def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):
             )
         )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = plan.run()
+    res = plan.run()
 
     assert res.run is True
     assert res.success is True
     assert plan.report.passed is True
     assert plan.report.status == Status.PASSED
-    # 1 testcase * 9 iterations
-    assert plan.report.counter == {"passed": 9, "total": 9, "failed": 0}
+    # 2 testcase * 9 iterations
+    assert plan.report.counter == {"passed": 18, "total": 18, "failed": 0}
 
     names = sorted(["MTest{}".format(x) for x in range(1, 10)])
     assert sorted([entry.name for entry in plan.report.entries]) == names
@@ -120,7 +138,22 @@ def schedule_tests_to_pool(plan, pool, schedule_path=None, **pool_cfg):
         name = "MTest{}".format(idx)
         assert plan.result.test_results[uids[idx - 1]].report.name == name
 
+    # check attachment exists in local
+    assert os.path.exists(
+        plan.report.entries[0].entries[0].entries[1].entries[0]["source_path"]
+    )
+
     # All tasks assigned once
     for uid in pool._task_retries_cnt:
         assert pool._task_retries_cnt[uid] == 0
         assert pool.added_item(uid).reassign_cnt == 0
+
+
+def target_raises_in_worker(parent_pid):
+    """
+    Task target that raises when being materialized in process/remote worker.
+    """
+    if os.getpid() != parent_pid:
+        raise RuntimeError("Materialization failed in worker")
+
+    return MultiTest(name="MTest", suites=[MySuite()])

@@ -1,64 +1,65 @@
 /**
  * Constants used across the entire application.
  */
-const GREEN = '#228F1D';
-const DARK_GREEN = '#1A721D';
-const RED = '#A2000C';
-const DARK_RED = '#840008';
-const ORANGE = '#FFA500';
-const DARK_ORANGE = '#DD8800';
-const LIGHT_GREY = '#F3F3F3';
-const MEDIUM_GREY = '#D0D0D0';
-const DARK_GREY = '#ADADAD';
-const BLACK = '#404040';
+const GREEN = "#228F1D";
+const DARK_GREEN = "#1A721D";
+const RED = "#A2000C";
+const DARK_RED = "#840008";
+const ORANGE = "#D2691E";
+const DARK_ORANGE = "#DD8800";
+const LIGHT_GREY = "#F3F3F3";
+const MEDIUM_GREY = "#D0D0D0";
+const DARK_GREY = "#ADADAD";
+const BLACK = "#404040";
+const NAV_DEFAULT_COLOR = "#6a95c3";
 
-export const BOTTOMMOST_ENTRY_CATEGORY = 'testcase';
-const COLUMN_WIDTH = 22;  // unit: em
-const MIN_COLUMN_WIDTH = 180;  // unit: px
-const INTERACTIVE_COL_WIDTH = 28;  // wider to fit interactive buttons
+export const BOTTOMMOST_ENTRY_CATEGORY = "testcase";
+const COLUMN_WIDTH = 22; // unit: em
+const MIN_COLUMN_WIDTH = 180; // unit: px
+const INTERACTIVE_COL_WIDTH = 28; // wider to fit interactive buttons
 
 const INDENT_MULTIPLIER = 1.5;
 
 const TOOLBAR_BUTTONS_BATCH = [
-  {name: 'cl', type: 'clock'},
-  {name: 'pr', type: 'print'},
-  {name: 'if', type: 'info-circle'},
-  {name: 'qu', type: 'question-circle'},
-  {name: 'fi', type: 'filter'},
-  {name: 'ta', type: 'tags'},
-  {name: 'ci', type: 'circle'},
-  {name: 'jk', type: 'male'},
-  {name: 'me', type: 'table'},
-  {name: 'mo', type: 'chart-bar'}
+  { name: "cl", type: "clock" },
+  { name: "pr", type: "print" },
+  { name: "if", type: "info-circle" },
+  { name: "qu", type: "question-circle" },
+  { name: "fi", type: "filter" },
+  { name: "ta", type: "tags" },
+  { name: "ci", type: "circle" },
+  { name: "jk", type: "male" },
+  { name: "me", type: "table" },
+  { name: "mo", type: "chart-bar" },
 ];
 
 const TOOLBAR_BUTTONS_INTERACTIVE = [
-  {name: 'po', type: 'fa-power-off'},
-  {name: 'bg', type: 'fa-bug'},
-  {name: 'rf', type: 'fa-refresh'},
-  {name: 'pl', type: 'fa-play'},
-  {name: 'qu', type: 'fa-question-circle'},
-  {name: 'fp', type: 'fa-floppy-o'}
+  { name: "po", type: "fa-power-off" },
+  { name: "bg", type: "fa-bug" },
+  { name: "rf", type: "fa-refresh" },
+  { name: "pl", type: "fa-play" },
+  { name: "qu", type: "fa-question-circle" },
+  { name: "fp", type: "fa-floppy-o" },
 ];
 
 const CATEGORIES = {
-  'test': 'test',
-  'multitest': 'test',
-  'cppunit': 'test',
-  'gtest': 'test',
-  'boost-test': 'test',
-  'hobbestest': 'test',
-  'pytest': 'test',
-  'pyunit': 'test',
-  'unittest': 'test',
-  'qunit': 'test',
-  'testsuite': 'testsuite',
-  'cppunit-suite': 'testsuite',
-  'gtest-suite': 'testsuite',
-  'boost-test-suite': 'testsuite',
-  'hobbestest-suite': 'testsuite',
-  'parametrization': 'parametrization',
-  'testcase': 'testcase'
+  test: "test",
+  multitest: "test",
+  cppunit: "test",
+  gtest: "test",
+  "boost-test": "test",
+  hobbestest: "test",
+  pytest: "test",
+  pyunit: "test",
+  unittest: "test",
+  qunit: "test",
+  testsuite: "testsuite",
+  "cppunit-suite": "testsuite",
+  "gtest-suite": "testsuite",
+  "boost-test-suite": "testsuite",
+  "hobbestest-suite": "testsuite",
+  parametrization: "parametrization",
+  testcase: "testcase",
 };
 
 const CATEGORY_ICONS = {
@@ -72,6 +73,7 @@ const CATEGORY_ICONS = {
   'pytest': 'PT',
   'pyunit': 'PU',
   'unittest': 'UT',
+  'junit': 'JU',
   'qunit': 'QU',
   'testsuite': 'S',
   'cppunit-suite': 'CS',
@@ -85,91 +87,116 @@ const CATEGORY_ICONS = {
 const ENTRY_TYPES = [
   'testplan',
   'multitest',
+  'cppunit',
   'gtest',
   'boost_test',
-  'cppunit',
-  'qunit',
   'unittest',
+  'qunit',
+  'junit',
   'testsuite',
   'parametrization',
   'testcase',
+  'pytest',
+  'pyunit',
 ];
 
 const STATUS = [
-  'error',
-  'failed',
-  'passed',
-  'unstable',
-  'unknown',
-  'incomplete',
-  'skipped',
-  'xfail',
-  'xpass',
-  'xpass-strict',
-  'unstable',
-  'unknown',
+  "error",
+  "failed",
+  "passed",
+  "unstable",
+  "unknown",
+  "incomplete",
+  "skipped",
+  "xfail",
+  "xpass",
+  "xpass-strict",
+  "unstable",
+  "unknown",
 ];
 
 const STATUS_CATEGORY = {
-  'error': 'error',
-  'failed': 'failed',
-  'incomplete': 'failed',
-  'passed': 'passed',
-  'skipped': 'unstable',
-  'xfail': 'unstable',
-  'xpass': 'unstable',
-  'xpass-strict': 'unstable',
-  'unstable': 'unstable',
-  'unknown': 'unknown',
+  error: "error",
+  failed: "failed",
+  incomplete: "failed",
+  passed: "passed",
+  skipped: "unstable",
+  xfail: "unstable",
+  xpass: "unstable",
+  "xpass-strict": "unstable",
+  unstable: "unstable",
+  unknown: "unknown",
 };
 
 const RUNTIME_STATUS = [
-  'ready',
-  'running',
-  'finished',
+  "ready",
+  "waiting",
+  "running",
+  "resetting",
+  "finished",
+  "not_run",
 ];
 
+const NAV_ENTRY_ACTIONS = ["play", "open", "prohibit"];
 
 const NAV_ENTRY_DISPLAY_DATA = [
-  'name',
-  'uid',
-  'type',
-  'category',
-  'status',
-  'runtime_status',
-  'counter',
-  'tags',
-  'parent_uids',
-  'logs',
+  "name",
+  "uid",
+  "type",
+  "category",
+  "status",
+  "runtime_status",
+  "counter",
+  "tags",
+  "parent_uids",
+  "logs",
 ];
 
 const BASIC_ASSERTION_TYPES = [
-  'Log',
-  'Equal', 'NotEqual', 'Greater', 'GreaterEqual', 'Less', 'LessEqual',
-  'IsClose', 'IsTrue', 'IsFalse',
-  'Fail', 'Contain', 'NotContain', 'LineDiff',
-  'ExceptionRaised', 'ExceptionNotRaised',
-  'RegexMatch', 'RegexMatchNotExists', 'RegexSearch', 'RegexSearchNotExists',
-  'RegexFindIter', 'RegexMatchLine',
-  'XMLCheck',
-  'EqualSlices', 'EqualExcludeSlices',
-  'DictCheck', 'FixCheck',
-  'Attachment', 'MatPlot',
-  'RawAssertion',
+  "Log",
+  "Equal",
+  "NotEqual",
+  "Greater",
+  "GreaterEqual",
+  "Less",
+  "LessEqual",
+  "IsClose",
+  "IsTrue",
+  "IsFalse",
+  "Fail",
+  "Contain",
+  "NotContain",
+  "LineDiff",
+  "ExceptionRaised",
+  "ExceptionNotRaised",
+  "RegexMatch",
+  "RegexMatchNotExists",
+  "RegexSearch",
+  "RegexSearchNotExists",
+  "RegexFindIter",
+  "RegexMatchLine",
+  "XMLCheck",
+  "EqualSlices",
+  "EqualExcludeSlices",
+  "DictCheck",
+  "FixCheck",
+  "Attachment",
+  "MatPlot",
+  "RawAssertion",
 ];
 
 // identifier of radio button
 const SORT_TYPES = Object.freeze({
-  NONE: Symbol('NONE'),
-  ALPHABETICAL: Symbol('ALPHABETICAL'),
-  REVERSE_ALPHABETICAL: Symbol('REVERSE_ALPHABETICAL'),
-  BY_STATUS: Symbol('BY_STATUS'),
+  NONE: Symbol("NONE"),
+  ALPHABETICAL: Symbol("ALPHABETICAL"),
+  REVERSE_ALPHABETICAL: Symbol("REVERSE_ALPHABETICAL"),
+  BY_STATUS: Symbol("BY_STATUS"),
 });
 
 // identifier of checkbox
 const FILTER_OPTIONS = Object.freeze({
-  FAILURES_ONLY:  Symbol('FAILURES_ONLY'),
-  EXCLUDE_IGNORABLE: Symbol('EXCLUDE_IGNORABLE')
+  FAILURES_ONLY: Symbol("FAILURES_ONLY"),
+  EXCLUDE_IGNORABLE: Symbol("EXCLUDE_IGNORABLE"),
 });
 
 const DICT_GRID_STYLE = {
@@ -180,6 +207,13 @@ const DICT_GRID_STYLE = {
   BOTTOM_PADDING: 18, // 16 + 2(border 2px)
 };
 
+// identifier of expand status
+const EXPAND_STATUS = Object.freeze({
+  EXPAND: "true",
+  COLLAPSE: "false",
+  DEFAULT: "default",
+});
+
 // Interval to poll for report updates over. We may want to reduce this to make
 // the UI update more quickly.
 //
@@ -187,6 +221,17 @@ const DICT_GRID_STYLE = {
 // it might be better to use websockets or SSEs to allow the backend to notify
 // us when updates are available.
 const POLL_MS = 1000;
+
+// Fix specification
+let defaultFixSpec = {tags: {}};
+
+
+//log types
+const LOG_TYPE = {
+  error: "ERROR",
+  warning: "WARNING",
+};
+
 
 export {
   GREEN,
@@ -199,6 +244,7 @@ export {
   MEDIUM_GREY,
   DARK_GREY,
   BLACK,
+  NAV_DEFAULT_COLOR,
   COLUMN_WIDTH,
   MIN_COLUMN_WIDTH,
   INTERACTIVE_COL_WIDTH,
@@ -211,10 +257,14 @@ export {
   STATUS,
   STATUS_CATEGORY,
   RUNTIME_STATUS,
+  NAV_ENTRY_ACTIONS,
   NAV_ENTRY_DISPLAY_DATA,
   BASIC_ASSERTION_TYPES,
   SORT_TYPES,
   FILTER_OPTIONS,
   DICT_GRID_STYLE,
+  EXPAND_STATUS,
   POLL_MS,
+  defaultFixSpec,
+  LOG_TYPE,
 };

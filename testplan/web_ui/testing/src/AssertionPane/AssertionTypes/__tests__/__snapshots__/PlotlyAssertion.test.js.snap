@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PlotlyAssertion shallow renders the correct HTML structure 1`] = `
+<div>
+  <WithStyles(ForwardRef(CircularProgress))
+    className="makeStyles-circular-1"
+  />
+</div>
+`;

@@ -27,15 +27,13 @@ def load_tree_data(
 
         if obj_type == node_type:
             child_data = _data.pop(nodes_field)
-            res = node_schema(strict=True).load(_data)
-            obj = res.data
-
+            obj = node_schema().load(_data)
             nodes = [_load(c_data) for c_data in child_data]
             setattr(obj, nodes_attr_name, nodes)
             return obj
 
         elif obj_type == leaf_type:
-            return leaf_schema(strict=True).load(_data).data
+            return leaf_schema().load(_data)
         else:
             raise ValueError("Invalid object type: {}".format(obj_type))
 
@@ -66,4 +64,4 @@ class SchemaRegistry(Registry):
     """
 
     def serialize(self, obj):
-        return self[obj](strict=True).dump(obj).data
+        return self[obj]().dump(obj)

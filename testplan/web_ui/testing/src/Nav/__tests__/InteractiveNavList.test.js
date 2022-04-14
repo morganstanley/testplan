@@ -26,12 +26,11 @@ describe('InteractiveNavList', () => {
         breadcrumbLength={1}
         width={'28em'}
         handleNavClick={() => undefined}
-        autoSelect={() => undefined}
         filter={null}
         displayEmpty={true}
         displayTags={false}
         displayTime={false}
-        handlePlayClick={(e) => undefined}
+        handleClick={(e, action) => undefined}
         envCtrlCallback={(e, action) => undefined}
       />
     );

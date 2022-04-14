@@ -7,15 +7,11 @@ import os
 import pytest
 
 from testplan import TestplanMock, Task
-from testplan.runners.pools import ProcessPool
+from testplan.runners.pools.process import ProcessPool
 
-from testplan.common.utils.testing import (
-    check_report,
-    log_propagation_disabled,
-)
+from testplan.common.utils.testing import check_report
 
 from testplan.exporters.testing import PDFExporter
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 from ..fixtures import assertions_failing, assertions_passing
@@ -95,9 +91,7 @@ def test_local_pool_integration(
     plan.add(multitest_maker())
 
     assert not os.path.exists(pdf_path)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert plan.run().run is True
+    assert plan.run().run is True
 
     for log in plan.report.flattened_logs:
         if all(word in log["message"] for word in ["tkinter", "TclError"]):
@@ -169,9 +163,7 @@ def test_process_pool_integration(
     plan.schedule(task, resource="MyProcessPool")
 
     assert not os.path.exists(pdf_path)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        assert plan.run().run is True
+    assert plan.run().run is True
 
     for log in plan.report.flattened_logs:
         if all(word in log["message"] for word in ["tkinter", "TclError"]):

@@ -5,9 +5,9 @@ import functools
 import logging
 import pprint
 import os
+import io
 import warnings
 
-import six
 from lxml import objectify
 
 from contextlib import contextmanager
@@ -82,6 +82,17 @@ def disable_log_propagation(logger):
 
 
 @contextmanager
+def log_level_changed(logger, level):
+    """
+    Change log level for the given logger.
+    """
+    old_level = logger.level
+    logger.setLevel(level)
+    yield
+    logger.setLevel(old_level)
+
+
+@contextmanager
 def captured_logging(logger, level=logging.INFO):
     """
     Utility for capturing a logger object's output at a specific level, with a
@@ -89,9 +100,9 @@ def captured_logging(logger, level=logging.INFO):
     Useful for command line output testing.
     """
 
-    class LogWrapper(object):
+    class LogWrapper:
         def __init__(self):
-            self.buffer = six.StringIO()
+            self.buffer = io.StringIO()
             self.stream_handler = logging.StreamHandler(self.buffer)
             self._output = None
 
@@ -280,27 +291,20 @@ def check_report_context(report, ctx):
 
         for suite_report, (suite_name, testcases) in zip(mt_report, suite_ctx):
             assert suite_report.name == suite_name
-            assert len(suite_report) == len(testcases), "{}, {}".format(
-                suite_report.entries, testcases
-            )
+            assert len(suite_report) == len(testcases)
 
-            for testcase_report, testcase_name in zip(suite_report, testcases):
-                assert testcase_report.name == testcase_name
-
-
-def py_version_data(py2, py3):
-    """
-    Return the related data for the given python version.
-    This is mostly used for comparing randomly generated
-    values as random produces inconsistent results
-    between python 2 and 3.
-    """
-    if six.PY2:
-        return py2
-    return py3
+            for testcase_report, testcase_info in zip(suite_report, testcases):
+                if isinstance(testcase_info, tuple):
+                    param_group_name, param_testcases = testcase_info
+                    assert testcase_report.name == param_group_name
+                    assert [
+                        entry.name for entry in testcase_report.entries
+                    ] == param_testcases
+                else:
+                    assert testcase_report.name == testcase_info
 
 
-class XMLComparison(object):
+class XMLComparison:
     r"""
     Testing utility for generated XML file contents.
 

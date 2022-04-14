@@ -1,11 +1,11 @@
 """Validates methods signature."""
 
-from six.moves import zip_longest
+from itertools import zip_longest
 
 from .callable import getargspec
 
 
-class MethodSignature(object):
+class MethodSignature:
     """
     Encapsulates a method signature
     """
@@ -60,7 +60,7 @@ class MethodSignature(object):
         :type rhs: :py:class:`MethodSignature`
 
         :return: True if self and rhs are equivalent, False otherwise
-        :rtype: C{bool}
+        :rtype: ``bool``
         """
         return (
             (self.name == rhs.name)

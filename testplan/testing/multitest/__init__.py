@@ -1,4 +1,4 @@
 """Multitest main test execution framework."""
 
 from .base import MultiTest
-from .suite import testcase, testsuite, xfail
+from .suite import testcase, testsuite, xfail, timeout

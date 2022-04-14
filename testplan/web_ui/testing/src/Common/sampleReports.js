@@ -331,6 +331,28 @@ const SIMPLE_REPORT = {
           "type": "Equal",
           "utc_time": "2018-10-15T14:30:11.010094+00:00",
           "first": 1
+        }, {
+          "category": "DEFAULT",
+          "machine_time": "2018-10-15T15:30:11.020128+00:00",
+          "description": "log a fix message",
+          "line_no": 28,
+          "flag": "DEFAULT",
+          "meta_type": "entry",
+          "type": "FixLog",
+          "utc_time": "2018-10-15T14:30:11.020124+00:00",
+          "flattened_dict": [
+            [0, 36, ["int", "6"]],
+            [0, 22, ["int", "5"]],
+            [0, 55, ["int", "2"]],
+            [0, 38, ["int", "5"]],
+            [0, 555, ""],
+            [0, "", ""],
+            [1, 556, ["str", "USD"]],
+            [1, 624, ["int", "1"]],
+            [0, "", ""],
+            [1, 556, ["str", "EUR"]],
+            [1, 624, ["int", "2"]],
+          ]
         }],
       }],
     }],

@@ -9,7 +9,7 @@ try:
 except (KeyError, ImportError):
     raise RuntimeError(
         "Download pyfixmsg library from "
-        "https://github.com/Morgan-Stanley/pyfixmsg "
+        "https://github.com/morganstanley/pyfixmsg "
         "and set PYFIXMSG_PATH env var to the local path."
     )
 try:
@@ -47,7 +47,7 @@ def fixmsg(source):
 
 
 @testsuite
-class FIXTestsuite(object):
+class FIXTestsuite:
     @testcase
     def send_and_receive_msg(self, env, result):
         """

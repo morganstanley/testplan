@@ -1,16 +1,14 @@
 """Tasks and task results base module."""
 
-import sys
-import six
 import inspect
 import warnings
-import importlib
 from collections import OrderedDict
 
-from six.moves import cPickle
+import pickle
 import copy
 
 from testplan.common.utils import strings
+from testplan.common.utils.package import import_tmp_module
 
 
 class TaskMaterializationError(Exception):
@@ -25,7 +23,7 @@ class TaskDeserializationError(Exception):
     """Error on de-serializing task."""
 
 
-class Task(object):
+class Task:
     """
     Container of a target or path to a target that can be materialized into
     a runnable item. The arguments of the Task need to be serializable.
@@ -54,7 +52,7 @@ class Task(object):
     :type target: ``str`` path or runnable ``object``
     :param module: Module name that contains the task target definition.
     :type module: ``str``
-    :param path: Path to module.
+    :param path: Path to module, default is current working directory.
     :type path: ``str``
     :param args: Args of target for task materialization.
     :type args: ``tuple``
@@ -62,10 +60,14 @@ class Task(object):
     :type kwargs: ``kwargs``
     :param uid: Task uid.
     :type uid: ``str``
-    :param rerun: Rerun the task up to user specified times unless it passes,
-        by default 0 (no rerun). To enable task rerun feature, this value can
-        be at most 3.
+    :param rerun: Rerun the task up to user specified times until it passes,
+        by default 0 (no rerun). To enable task rerun feature, set to positive
+        value no greater than 3.
     :type rerun: ``int``
+    :param weight: Affects task scheduling - the larger the weight, the sooner
+        task will be assigned to a worker. Default weight is 0, tasks with the
+        same weight will be scheduled in the order they are added.
+    :type weight: ``int``
     """
 
     MAX_RERUN_LIMIT = 3
@@ -79,10 +81,11 @@ class Task(object):
         kwargs=None,
         uid=None,
         rerun=0,
+        weight=0,
     ):
         self._target = target
         self._module = module
-        self._path = path
+        self._path = path or ""
         self._args = args or tuple()
         self._kwargs = kwargs or dict()
         self._uid = uid or strings.uuid4()
@@ -94,6 +97,7 @@ class Task(object):
         )
         self._assign_for_rerun = 0
         self._executors = OrderedDict()
+        self.priority = -weight
 
         if self._max_rerun_limit < 0:
             raise ValueError("Value of `rerun` cannot be negative.")
@@ -119,7 +123,7 @@ class Task(object):
     @property
     def name(self):
         """Task name."""
-        if not isinstance(self._target, six.string_types):
+        if not isinstance(self._target, str):
             try:
                 name = self._target.__class__.__name__
             except AttributeError:
@@ -184,12 +188,12 @@ class Task(object):
 
     def materialize(self, target=None):
         """
-        Create the actual task target executable/runnable/callable object.
+        Create the actual task target executable/runnable object.
         """
         errmsg = "Cannot get a valid test object from target {}"
         target = target or copy.deepcopy(self._target)
 
-        if not isinstance(target, six.string_types):
+        if not isinstance(target, str):
             try:
                 run_method = getattr(target, "run")
                 if not inspect.ismethod(run_method):
@@ -211,9 +215,7 @@ class Task(object):
                 except:
                     name = target
                 raise RuntimeError(
-                    "Target {} must have both `run` and `uid` methods.".format(
-                        name
-                    )
+                    f"Target {name} must have both `run` and `uid` methods"
                 )
             else:
                 return target
@@ -226,29 +228,29 @@ class Task(object):
 
     def _string_to_target(self):
         """Dynamically load an object from a module by target name."""
-        path_inserted = False
-        if isinstance(self._path, six.string_types):
-            sys.path.insert(0, self._path)
-            path_inserted = True
 
-        try:
-            elements = self._target.split(".")
-            target_src = elements.pop(-1)
-            if len(elements):
-                mod = importlib.import_module(".".join(elements))
-                target = getattr(mod, target_src)
-            else:
-                if self._module is None:
+        if self._module is None:
+            try:
+                module, target = self._target.rsplit(".", 1)
+            except ValueError:
+                raise TaskMaterializationError(
+                    "Task parameters are not sufficient for"
+                    f" target {self._target} materialization"
+                )
+        else:
+            module = self._module
+            target = self._target
+
+        with import_tmp_module(module, self._path) as mod:
+            tgt = mod
+            for element in target.split("."):
+                tgt = getattr(tgt, element, None)
+                if tgt is None:
                     raise TaskMaterializationError(
-                        "Task parameters are not sufficient for"
-                        " target {} materialization".format(self._target)
+                        f'During materializing target "{self._target}":'
+                        f' {tgt} has no attribute "{element}"'
                     )
-                mod = importlib.import_module(self._module)
-                target = getattr(mod, self._target)
-        finally:
-            if path_inserted is True:
-                sys.path.remove(self._path)
-        return target
+            return tgt
 
     def dumps(self, check_loadable=False):
         """Serialize a task."""
@@ -256,9 +258,9 @@ class Task(object):
         for attr in self.all_attrs:
             data[attr] = getattr(self, attr)
         try:
-            serialized = cPickle.dumps(data)
+            serialized = pickle.dumps(data)
             if check_loadable is True:
-                cPickle.loads(serialized)
+                pickle.loads(serialized)
             return serialized
         except Exception as exc:
             raise TaskSerializationError(str(exc))
@@ -266,7 +268,7 @@ class Task(object):
     def loads(self, obj):
         """De-serialize a dumped task."""
         try:
-            data = cPickle.loads(obj)
+            data = pickle.loads(obj)
         except Exception as exc:
             raise TaskDeserializationError(str(exc))
         for attr, value in data.items():
@@ -274,7 +276,7 @@ class Task(object):
         return self
 
 
-class TaskResult(object):
+class TaskResult:
     """
     Contains result of the executed task target and status/errors/reason
     information that happened during task execution.
@@ -331,9 +333,9 @@ class TaskResult(object):
         for attr in self.all_attrs:
             data[attr] = getattr(self, attr)
         try:
-            serialized = cPickle.dumps(data)
+            serialized = pickle.dumps(data)
             if check_loadable is True:
-                cPickle.loads(serialized)
+                pickle.loads(serialized)
             return serialized
         except Exception as exc:
             raise TaskSerializationError(str(exc))
@@ -341,7 +343,7 @@ class TaskResult(object):
     def loads(self, obj):
         """De-serialize a dumped task result."""
         try:
-            data = cPickle.loads(obj)
+            data = pickle.loads(obj)
         except Exception as exc:
             raise TaskDeserializationError(str(exc))
         for attr, value in data.items():
@@ -352,7 +354,7 @@ class TaskResult(object):
         return "TaskResult[{}, {}]".format(self.status, self.reason)
 
 
-class RunnableTaskAdaptor(object):
+class RunnableTaskAdaptor:
     """Minimal callable to runnable task adaptor."""
 
     __slots__ = ("_target", "_args", "_kwargs")
@@ -369,3 +371,51 @@ class RunnableTaskAdaptor(object):
     def uid(self):
         """Provide mandatory .uid() task method."""
         return strings.uuid4()
+
+
+def task_target(
+    parameters=None,
+    **kwargs,
+):
+    """
+    Decorator to make task target discoverable by plan.schedule_all.
+
+    :param parameters: A collection of parameters to be used to create task
+        objects. ``list`` or ``tuple`` entry will be passed to target as
+        positional arguments and ``dict`` entry will be passed to target as
+        keyword arguments.
+    :type parameters: ``list`` or ``tuple`` that contains ``list`` or ``tuple``
+        or ``dict``
+    :param kwargs: additional args to Task class, e.g rerun, weight etc.
+    :type kwargs: ``dict``
+    """
+
+    # `task_target` is used without parentheses, then `parameters` is the
+    #  real callable object (task target) to be decorated.
+    if callable(parameters) and len(kwargs) == 0:
+        set_task_target(parameters)
+        parameters.__target_params__ = None
+        parameters.__task_kwargs__ = {}
+        return parameters
+
+    def inner(func):
+        set_task_target(func)
+        func.__target_params__ = parameters
+        func.__task_kwargs__ = kwargs
+
+        return func
+
+    return inner
+
+
+def set_task_target(func):
+    """
+    Mark a callable object as a task target which can be packaged
+    in a :py:class:`~testplan.runners.pools.tasks.base.Task` object.
+    """
+    func.__is_task_target__ = True
+
+
+def is_task_target(func):
+    """Check if a callable object is a task target."""
+    return getattr(func, "__is_task_target__", False)

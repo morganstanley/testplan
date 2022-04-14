@@ -12,7 +12,7 @@ function AttachmentAssertionCardHeader(props) {
     <CardHeader
       title={
         (ext_name === "htm" || ext_name === "html" || ext_name === "xml")
-        ? <a href={props.src} target="_blank" rel="noreferrer">
+        ? <a href={props.src} target="_blank" rel="noopener noreferrer">
             {props.file_name}
           </a>
         : props.file_name

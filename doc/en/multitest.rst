@@ -48,44 +48,78 @@ A MultiTest instance can be constructed from the following parameters:
       def a_testcase_method(self, env, result):
         ...
 
-   In addition suites can have setup() and teardown() methods. The setup method
-   will be executed on suite entry, prior to any testcase if present. The
-   teardown method will be executed on suite exit, after setup and all
-   ``@testcase``-decorated testcases have executed.
+  In addition suites can have ``setup`` and ``teardown`` methods. The ``setup``
+  method will be executed on suite entry, prior to any testcase if present.
+  The ``teardown`` method will be executed on suite exit, after setup and all
+  ``@testcase``-decorated testcases have executed.
 
-   Again, the signature of those methods is checked at import time, and must be
-   as follows:
+  Again, the signature of those methods is checked at import time, and must be
+  as follows:
 
-   .. code-block:: python
+  .. code-block:: python
 
-     def setup(self, env):
-         ...
+    def setup(self, env):
+        ...
 
-     def teardown(self, env):
-         ...
+    def teardown(self, env):
+        ...
 
-   The result object can be optionally used to perform logging and basic
-   assertions:
+  The result object can be optionally used to perform logging and basic
+  assertions:
 
-   .. code-block:: python
+  .. code-block:: python
 
-     def setup(self, env, result):
-         ...
+    def setup(self, env, result):
+        ...
 
-     def teardown(self, env, result):
-         ...
+    def teardown(self, env, result):
+        ...
 
-   To signal that either setup or teardown hasn't completed correctly, you must
-   raise an exception. Raising an exception in ``setup()`` will abort the
-   execution of the testsuite, raising one in ``teardown()`` will be logged in
-   the report but will not prevent the execution of the next testsuite.
+  To signal that either ``setup`` or ``teardown`` hasn't completed correctly,
+  you must raise an exception. Raising an exception in ``setup`` will abort
+  the execution of the testsuite, raising one in ``teardown`` will be logged
+  in the report but will not prevent the execution of the next testsuite.
 
-   The :py:func:`@testcase <testplan.testing.multitest.suite.testcase>` decorated
-   methods will execute in the order in which they are defined. If more than
-   one suite is passed, the suites will be executed in the order in which they
-   are placed in the list that is used to pass them to the constructor. To
-   change testsuite and testcase execution order, click
-   :ref:`here <ordering_tests>` .
+  Similarly suites can have ``pre_testcase`` and ``post_testcase`` methods.
+  The ``pre_testcase`` method is executed before each testcase runs, and the
+  ``post_testcase`` method is executed after each testcase finishes. Exceptions
+  raised in these methods will be logged in the report. Note that argument
+  ``name`` is populated with name of testcase.
+
+  .. code-block:: python
+
+    def pre_testcase(self, name, env, result):
+        pass
+
+    def post_testcase(self, name, env, result):
+        pass
+
+  :py:func:`@skip_if <testplan.testing.multitest.suite.skip_if>` decorator can
+  be used to annotate a testcase. It take one or more predicates, and if any of
+  them evaluated to True, then the testcase will be skipped by MultiTest instead
+  of being normally executed. The predicate's signature must name the argument
+  ``testsuite`` or a ``MethodSignatureMismatch`` exception will be raised.
+
+  .. code-block:: python
+
+    def skip_func(testsuite):
+        # It must accept an argument named "testsuite"
+        return True
+
+    @testsuite
+    class MySuite(object):
+
+        @skip_if(skip_func, lambda testsuite: False)
+        @suite.testcase
+        def case(self, env, result):
+            pass
+
+
+  The :py:func:`@testcase <testplan.testing.multitest.suite.testcase>` decorated
+  methods will execute in the order in which they are defined. If more than
+  one suite is passed, the suites will be executed in the order in which they
+  are placed in the list that is used to pass them to the constructor. To
+  change testsuite and testcase execution order, click :ref:`here <ordering_tests>`.
 
 * **Environment**: The environment is a list of
   :py:class:`drivers <testplan.testing.multitest.driver.base.Driver>`. Drivers are
@@ -95,8 +129,8 @@ A MultiTest instance can be constructed from the following parameters:
   required for interacting with it, such as network connections.
 
 * **Runtime Information**: The environment always contains a member called
-  ``multitest_runtime_info`` which contains information about the current state of
-  the run. See: :py:class:`MultiTestRuntimeInfo <testplan.testing.multitest.base.MultiTestRuntimeInfo>`
+  ``runtime_info`` which contains information about the current state of the
+  run. See: :py:class:`MultiTestRuntimeInfo <testplan.testing.multitest.base.MultiTestRuntimeInfo>`
 
 * **Initial Context**: The initial context is an optional way to pass
   information to be used by drivers and from within testcases. When drivers are
@@ -179,6 +213,23 @@ Example can be found :ref:`here <example_basic_name_customization>`.
 
 To customize names for parametrized testcases another argument ``name_func`` can be
 used, refer to the document of :ref:`name_func <parametrization_custom_name_func>`.
+
+Strict order
+------------
+
+In a test suite all testcases can be forced to run sequentially, which means, they will
+be executed strictly in the order as they were defined, even some :ref:`paralell feature <testcase_parallelization>`
+like "shuffling" and "execution group" will not take effect. Specify such a test suite
+like this:
+
+    * @testsuite(strict_order=True)
+
+When executed in interactive mode, UI can help user to run testcases one by one,
+that is, in a "strict ordered" test suite, only the first testcase can run, after
+it finishes its execution then the next testcase is able to run, and there is no
+idea to re-run the finished testcases unless the whole test report is reset.
+Similarly, you cannot run a test suite if some testcases in it already finish
+execution or are running, an error message will be displayed.
 
 Listing
 -------
@@ -980,15 +1031,23 @@ This is equivalent to declaring each method call explicitly:
 See the :ref:`addition_associativity <example_multitest_parametrization>` test
 in the downloadable example.
 
-If a :py:func:`pre_testcase <testplan.testing.multitest.suite.pre_testcase>`/
-:py:func:`post_testcase <testplan.testing.multitest.suite.post_testcase>` function is
-used along with parameterized testcases, then its arguments should contain
-``kwargs`` to access the parameters of the associated testcase.
+If a ``pre_testcase`` or ``post_testcase`` method is defined in test suite and
+used along with parameterized testcases, then it can have an extra argument
+named ``kwargs`` to access the parameters of the associated testcase, for non
+parameterized testcases an empty dictionary is passed for ``kwargs``.
 
 .. code-block:: python
 
-    # To be used in pre_testcase/post_testcase
-    def function(name, self, env, result, **kwargs):
+    @testcase(parameters=(("foo", "bar"), ("baz", "quz")))
+    def sample_test(self, env, result, x, y):
+        pass
+
+    def pre_testcase(name, self, env, result, kwargs):
+        result.log("Param 1 is {}".format(kwargs.get("x")))
+        result.log("Param 2 is {}".format(kwargs.get("y")))
+        ...
+
+    def post_testcase(name, self, env, result, kwargs):
         ...
 
 .. _parametrization_default_values:
@@ -1286,13 +1345,31 @@ If testcases are susceptible to hanging, or not expected to be time consuming, y
 
 .. code-block:: python
 
-    @testcase(timeout=10*60)  # 10 minute timeout, given in seconds.
+    @testcase(timeout=10*60)  # 10 minutes timeout, given in seconds.
     def test_hanging(self, env, result):
         ...
 
 If the testcase times out it will raise a :py:class:`TimeoutException <testplan.common.utils.timing.TimeoutException>`, causing its status to be "ERROR". The timeout will be noted on the report in the same way as any other unhandled Exception. The timeout parameter can be combined with other testcase parameters (e.g. used with parametrized testcases) in the way you would expect - each individual parametrized testcase will be subject to a seperate timeout.
 
 Also keep in mind that testplan will take a little bit of effort to monitor execution time of testcases with ``timeout`` attribute, so it is better to allocate a little more seconds than you have estimated how long a testcase would need.
+
+Similarly, ``setup`` and ``teardown`` methods in a test suite can be limited to run in specified time period, like this:
+
+.. code-block:: python
+
+    from testplan.testing.multitest.suite import timeout
+
+.. code-block:: python
+
+    @timeout(120)  # 2 minutes timeout, given in seconds.
+    def setup(self, env, result):
+        ...
+
+    @timeout(60)  # 1 minute timeout, given in seconds.
+    def teardown(self, env):
+        ...
+
+It's useful when ``setup`` has much initialization work that takes long, e.g. connects to a server but has no response and makes program hanging. Note that this ``@timeout`` decorator can also be used for ``pre_testcase`` and ``post_testcase``, but that is not suggested because pre/post testcase methods are called everytime before/after each testcase runs, they should be written as simple as possible.
 
 Xfail
 -----

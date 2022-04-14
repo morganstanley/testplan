@@ -399,6 +399,8 @@ Command line
       -v, --verbose         Enable verbose mode that will also set the stdout-style option to "detailed".
       -d, --debug           Enable debug mode.
       -b, --browser         Automatically open report in browser.
+      -u [UI_PORT], --ui [UI_PORT]
+                            Start the web server to view the Testplan UI. A port can be specified, otherwise defaults to None. A JSON report will be saved locally.
       --report-tags         Report filter, generates a separate report (PDF by default)
                             that match ANY of the given tags.
 
@@ -414,6 +416,8 @@ Command line
       --file-log-level      {exporter_info,test_info,driver_info,critical,error,warning,info,debug,none}
 
                             Specify log level for file logs. Set to None to disable file logging.
+
+      --label LABEL         Label the test report with the given name, useful to categorize or classify similar reports (aka "run-id").
 
 Highlighted features
 ====================

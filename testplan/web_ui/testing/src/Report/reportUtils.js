@@ -6,8 +6,9 @@ import format from 'date-fns/format';
 import _ from 'lodash';
 import AssertionPane from '../AssertionPane/AssertionPane';
 import Message from '../Common/Message';
+import { formatMilliseconds } from './../Common/utils';
 
-import {filterEntries} from './reportFilter';
+import { filterEntries } from './reportFilter';
 
 /**
  * Merge two tag objects into a single tag object.
@@ -56,7 +57,7 @@ const MergeSplittedReport = (mainReport, assertions, structure) => {
   const _mergeStructure = (_structure, _assertions) => {
     _structure.forEach(element => {
       if (element.category === 'testcase') {
-        element.entries = _assertions[element.uid];
+        element.entries = _assertions[element.uid] || [];
       } else {
         _mergeStructure(element.entries, _assertions);
       }
@@ -116,7 +117,7 @@ const propagateIndicesRecur = (entries, parentIndices) => {
       // Propagate indices to children.
       let descendantsIndices = propagateIndicesRecur(
         entry.entries,
-        { tags_index: tags, name_type_index: nameTypeIndex, uids}
+        { tags_index: tags, name_type_index: nameTypeIndex, uids }
       );
       tagsIndex = _mergeTags(tagsIndex, descendantsIndices.tags_index);
       nameTypeIndex = _.uniq([
@@ -203,17 +204,19 @@ const GetCenterPane = (
       />
     );
   } else if (
-      assertions.length > 0 || logs.length > 0
-      || selectedDescription.length > 0
-    ) {
+    assertions.length > 0 || logs.length > 0
+    || selectedDescription.length > 0
+  ) {
     return (
       <AssertionPane
+        key={selectiedEntry ? selectiedEntry.hash || selectiedEntry.uid : null}
         assertions={assertions}
         logs={logs}
         descriptionEntries={selectedDescription}
         left={state.navWidth}
-        testcaseUid={state.testcaseUid}
+        testcaseUid={selectiedEntry.uid}
         filter={state.filter}
+        displayPath={state.displayPath}
         reportUid={reportUid}
       />
     );
@@ -260,27 +263,35 @@ const getAssertions = (selectedEntries, displayTime) => {
         const idx = links[i].utc_time.lastIndexOf('+');
         links[i].timeInfoArray.push(links[i].utc_time ?
           (format(new Date(
-            idx === -1 ? links[i].utc_time : 
-                        links[i].utc_time.substring(0, idx)),
+            idx === -1 ? links[i].utc_time :
+              links[i].utc_time.substring(0, idx)),
             "hh:mm:ss.SSS")
           ) + " UTC" : "");
       }
       for (let i = 0; i < links.length - 1; ++i) {
-        links[i].timeInfoArray.push(
-          links[i].utc_time && links[i + 1].utc_time ?
-            "(" + (
-              (new Date(links[i + 1].utc_time)).getTime() -
-              (new Date(links[i].utc_time)).getTime()
-            ) + "ms)" : "(Unknown)");
+        let duration = "Unknown";
+        if (links[i].utc_time && links[i + 1].utc_time) {
+          const nextEntryTime = (new Date(links[i + 1].utc_time)).getTime();
+          const currentEntryTime = (new Date(links[i].utc_time)).getTime();
+          const durationMilliseconds = nextEntryTime - currentEntryTime;
+          duration = formatMilliseconds(durationMilliseconds);
+        }
+        duration = "(" + duration + ")";
+        links[i].timeInfoArray.push(duration);
       }
       if (links.length > 0) {
-        links[links.length - 1].timeInfoArray.push(
-          selectedEntry.timer && selectedEntry.timer.run.end &&
-            links[links.length - 1].utc_time ?
-            "(" + (
-              (new Date(selectedEntry.timer.run.end)).getTime() -
-              (new Date(links[links.length - 1].utc_time)).getTime()
-            ) + "ms)" : "(Unknown)");
+        let duration = "Unknown";
+        if (selectedEntry.timer && selectedEntry.timer.run?.end &&
+          links[links.length - 1].utc_time) {
+          const nextEntryTime =
+            (new Date(selectedEntry.timer.run.end)).getTime();
+          const currentEntryTime =
+            (new Date(links[links.length - 1].utc_time)).getTime();
+          const durationInMilliseconds = nextEntryTime - currentEntryTime;
+          duration = formatMilliseconds(durationInMilliseconds);
+        }
+        duration = "(" + duration + ")";
+        links[links.length - 1].timeInfoArray.push(duration);
       }
     }
     else {
@@ -340,19 +351,20 @@ const filterReport = (report, filter) => {
   };
 };
 
-const isValidSelection = (selection, entry) => {  
+const isValidSelection = (selection, entry) => {
   if (selection.length === 0) return true;
-  
-  const next_element = _.find(entry.entries, 
-                              entry => entry.uid === _.head(selection));
-  return next_element ? 
-         isValidSelection(_.tail(selection), next_element) : 
-         false;
+
+  const next_element = _.find(entry.entries,
+    entry => entry.uid === _.head(selection));
+  return next_element ?
+    isValidSelection(_.tail(selection), next_element) :
+    false;
 };
 
-const getSelectedUIDsFromPath = ({uid, selection}) =>    
-  [uid, ...(selection ? selection.split('/') : [])];
-
+const getSelectedUIDsFromPath = ({ uid, selection }, uidDecoder) => {
+  const uids = [uid, ...(selection ? selection.split('/') : [])];
+  return uidDecoder ? uids.map(uid => uid ? uidDecoder(uid) : uid) : uids;
+};
 
 
 export {
@@ -365,4 +377,3 @@ export {
   isValidSelection,
   getSelectedUIDsFromPath,
 };
-

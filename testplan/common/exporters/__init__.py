@@ -4,7 +4,7 @@ import traceback
 from testplan.common.config import Config, Configurable
 
 
-class ExporterResult(object):
+class ExporterResult:
     def __init__(self, exporter, type):
         self.exporter = exporter
         self.type = type

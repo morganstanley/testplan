@@ -4,11 +4,11 @@ from testplan.common.utils.registry import Registry
 def test_registry():
     reg = Registry()
 
-    class MyClass(object):
+    class MyClass:
         pass
 
     @reg.bind(MyClass)
-    class OtherClass(object):
+    class OtherClass:
         pass
 
     assert reg.data[MyClass] is OtherClass, "bind operation failed"

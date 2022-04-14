@@ -11,6 +11,7 @@ try:
 except ImportError:
     print("Cannot import kazoo!")
     exit()
+
 from testplan import test_plan
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.driver.zookeeper import (
@@ -25,7 +26,7 @@ OUTPUT_STYLE = Style(StyleEnum.ASSERTION_DETAIL, StyleEnum.ASSERTION_DETAIL)
 
 
 @testsuite
-class ZookeeperTest(object):
+class ZookeeperTest:
     """Suite that contains testcases that perform zookeeper operation."""
 
     def setup(self, env, result):

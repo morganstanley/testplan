@@ -1,6 +1,11 @@
 -e .
 pylint
 scikit-learn < 0.21.0
-black==19.10b0; python_version >= '3.0'
+black==19.10b0; python_version >= '3.6'
 kazoo
 confluent-kafka
+plotly
+pandas
+numpy
+sphinx-click
+click <= 7.1.2

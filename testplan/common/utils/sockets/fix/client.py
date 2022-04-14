@@ -5,13 +5,13 @@ import socket
 
 from testplan.common.utils.sockets.fix.utils import utc_timestamp
 
-from .parser import tagsoverride
+from .parser import tagsoverride, FixParser
 
 
-class Client(object):
+class Client:
     """
     A Basic FIX Client
-    Connects to a FIX server via the standard Session Protocol.
+    Connects to a FIX server via the FIX session protocol.
     """
 
     def __init__(
@@ -154,19 +154,15 @@ class Client(object):
         """
         self.socket.settimeout(float(timeout))
 
-        buffer = self.socket.recv(8)  # 7 + 1 delimiter + checksum tag
-        while 1:
-            data = self.socket.recv(1)
-            if not data:
-                break
-            buffer += data
-            if buffer.endswith(b"\x01"):
-                if buffer[-8:].startswith(
-                    b"\x0110="
-                ):  # If received checksum tag
-                    break
+        data = self.socket.recv(1)
+
+        parser = FixParser()
+        size = parser.consume(data)
+        while size:
+            size = parser.consume(self.socket.recv(size))
+
         self.in_seqno += 1
-        return self.msgclass.from_buffer(buffer, self.codec)
+        return self.msgclass.from_buffer(parser.buffer, self.codec)
 
     def sendlogoff(self, custom_tags=None):
         """

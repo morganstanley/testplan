@@ -63,22 +63,38 @@ from testplan.common.utils import timing
 from testplan.testing import tagging
 
 
-class RuntimeStatus(object):
+class RuntimeStatus:
     """
     Constants for test runtime status - for interactive mode
     """
 
     READY = "ready"
+    WAITING = "waiting"
     RUNNING = "running"
+    RESETTING = "resetting"
     FINISHED = "finished"
+    NOT_RUN = "not_run"
 
-    STATUS_PRECEDENCE = (READY, RUNNING, FINISHED, None)
+    STATUS_PRECEDENCE = (
+        RUNNING,
+        RESETTING,
+        WAITING,
+        READY,
+        NOT_RUN,
+        FINISHED,
+        None,
+    )
 
     @classmethod
     def precedent(cls, stats, rule=STATUS_PRECEDENCE):
         """
         Return the precedent status from a list of statuses, using the
         ordering of statuses in `rule`.
+
+        Note that the client can send RESETTING signal to reset the test report
+        to its initial status, but client will not receive a temporary report
+        containing RESETTING status, instead WAITING status is used and after
+        reset the report goes to READY status.
 
         :param stats: List of statuses of which we want to get the precedent.
         :type stats: ``sequence``
@@ -88,7 +104,7 @@ class RuntimeStatus(object):
         return min(stats, key=lambda stat: rule.index(stat))
 
 
-class Status(object):
+class Status:
     """
     Constants for test result and utilities for propagating status upward.
     """
@@ -147,7 +163,7 @@ class Status(object):
         )
 
 
-class ReportCategories(object):
+class ReportCategories:
     """
     Enumeration of possible categories of report nodes.
 
@@ -174,6 +190,7 @@ class ReportCategories(object):
     PYUNIT = "pyunit"
     UNITTEST = "unittest"
     QUNIT = "qunit"
+    JUNIT = "junit"
     ERROR = "error"
 
 
@@ -211,9 +228,11 @@ class BaseReportGroup(ReportGroup):
 
     def __init__(self, name, **kwargs):
         self.meta = kwargs.pop("meta", {})
+        self.status_override = kwargs.pop("status_override", None)
         self.status_reason = kwargs.pop("status_reason", None)
+
         super(BaseReportGroup, self).__init__(name=name, **kwargs)
-        self.status_override = None
+
         self.timer = timing.Timer()
 
         # Normally, a report group inherits its statuses from its child
@@ -281,17 +300,11 @@ class BaseReportGroup(ReportGroup):
         self._status = new_status
 
     @property
-    def running(self):
-        """
-        Shortcut for checking if report status is `Status.RUNNING`.
-        """
-        return self.runtime_status == RuntimeStatus.RUNNING
-
-    @property
     def runtime_status(self):
         """
-        The runtime status is used for interactive running, and reports whether
-        a particular entry is READY, RUNNING or FINISHED.
+        The runtime status is used for interactive running, and reports
+        whether a particular entry is READY, WAITING, RUNNING, RESETTING,
+        FINISHED or NOT_RUN.
 
         A test group inherits its runtime status from its child entries.
         """
@@ -450,10 +463,12 @@ class TestReport(BaseReportGroup):
         attachments=None,
         information=None,
         timeout=None,
+        label=None,
         **kwargs
     ):
         self._tags_index = None
         self.meta = meta or {}
+        self.label = label
         self.information = information or []
         try:
             user = getpass.getuser()
@@ -468,6 +483,8 @@ class TestReport(BaseReportGroup):
                 ("python_version", platform.python_version()),
             ]
         )
+        if self.label:
+            self.information.append(("label", label))
 
         # Report attachments: Dict[dst: str, src: str].
         # Maps from destination path (relative from attachments root dir)
@@ -544,7 +561,7 @@ class TestReport(BaseReportGroup):
         """
         from .schemas import TestReportSchema
 
-        return TestReportSchema(strict=True).dump(self).data
+        return TestReportSchema().dump(self)
 
     @classmethod
     def deserialize(cls, data):
@@ -554,13 +571,13 @@ class TestReport(BaseReportGroup):
         """
         from .schemas import TestReportSchema
 
-        return TestReportSchema(strict=True).load(data).data
+        return TestReportSchema().load(data)
 
     def shallow_serialize(self):
         """Shortcut for shallow-serializing test report data."""
         from .schemas import ShallowTestReportSchema
 
-        return ShallowTestReportSchema(strict=True).dump(self).data
+        return ShallowTestReportSchema().dump(self)
 
     @classmethod
     def shallow_deserialize(cls, data, old_report):
@@ -570,7 +587,7 @@ class TestReport(BaseReportGroup):
         """
         from .schemas import ShallowTestReportSchema
 
-        deserialized = ShallowTestReportSchema(strict=True).load(data).data
+        deserialized = ShallowTestReportSchema().load(data)
         deserialized.entries = old_report.entries
         deserialized._index = old_report._index
 
@@ -591,6 +608,7 @@ class TestGroupReport(BaseReportGroup):
         part=None,
         fix_spec_path=None,
         env_status=None,
+        strict_order=False,
         **kwargs
     ):
         super(TestGroupReport, self).__init__(name=name, **kwargs)
@@ -615,6 +633,9 @@ class TestGroupReport(BaseReportGroup):
 
         # Expected to be one of ResourceStatus, or None.
         self.env_status = env_status
+
+        # Can be True For group report in category "testsuite"
+        self.strict_order = strict_order
 
     def __str__(self):
         return (
@@ -654,14 +675,14 @@ class TestGroupReport(BaseReportGroup):
         if self.tags_index or item.tags_index:
             self.propagate_tag_indices()
 
-    def serialize(self, strict=True):
+    def serialize(self):
         """
         Shortcut for serializing TestGroupReport data to nested python
         dictionaries.
         """
         from .schemas import TestGroupReportSchema
 
-        return TestGroupReportSchema(strict=strict).dump(self).data
+        return TestGroupReportSchema().dump(self)
 
     @classmethod
     def deserialize(cls, data):
@@ -671,13 +692,13 @@ class TestGroupReport(BaseReportGroup):
         """
         from .schemas import TestGroupReportSchema
 
-        return TestGroupReportSchema(strict=True).load(data).data
+        return TestGroupReportSchema().load(data)
 
     def shallow_serialize(self):
         """Shortcut for shallow-serializing test report data."""
         from .schemas import ShallowTestGroupReportSchema
 
-        return ShallowTestGroupReportSchema(strict=True).dump(self).data
+        return ShallowTestGroupReportSchema().dump(self)
 
     @classmethod
     def shallow_deserialize(cls, data, old_report):
@@ -687,9 +708,7 @@ class TestGroupReport(BaseReportGroup):
         """
         from .schemas import ShallowTestGroupReportSchema
 
-        deserialized = (
-            ShallowTestGroupReportSchema(strict=True).load(data).data
-        )
+        deserialized = ShallowTestGroupReportSchema().load(data)
         deserialized.entries = old_report.entries
         deserialized._index = old_report._index
         return deserialized
@@ -759,6 +778,7 @@ class TestGroupReport(BaseReportGroup):
                 self.runtime_status,
                 self.env_status,
                 tuple(entry.hash for entry in self.entries),
+                tuple(entry["uid"] for entry in self.logs),
             )
         )
 
@@ -813,7 +833,10 @@ class TestCaseReport(Report):
         """
         Shortcut for checking if report status should be considered failed.
         """
-        return Status.STATUS_CATEGORY[self.status] == Status.FAILED
+        return Status.STATUS_CATEGORY[self.status] in (
+            Status.FAILED,
+            Status.ERROR,
+        )
 
     @property
     def unstable(self):
@@ -850,13 +873,6 @@ class TestCaseReport(Report):
         self._status = new_status
 
     @property
-    def running(self):
-        """
-        Shortcut for checking if report status is `Status.RUNNING`.
-        """
-        return self.runtime_status == RuntimeStatus.RUNNING
-
-    @property
     def runtime_status(self):
         """
         Used for interactive mode, the runtime status of a testcase may be one
@@ -871,15 +887,18 @@ class TestCaseReport(Report):
         we clear out the assertion entries from any previous run.
         """
         self._runtime_status = new_status
-        if new_status == RuntimeStatus.RUNNING and self.entries:
+        if self.entries and new_status in (
+            RuntimeStatus.RUNNING,
+            RuntimeStatus.RESETTING,
+        ):
             self.entries = []
             self._status = Status.UNKNOWN
-        if new_status == "finished":
-            self._status = Status.PASSED
+        if new_status == RuntimeStatus.FINISHED:
+            self._status = Status.PASSED  # passed if case report has no entry
 
     def _assertions_status(self):
         for entry in self:
-            if entry.get("passed") is False:
+            if entry.get(Status.PASSED) is False:
                 return Status.FAILED
         return Status.PASSED
 
@@ -923,7 +942,7 @@ class TestCaseReport(Report):
         """
         from .schemas import TestCaseReportSchema
 
-        return TestCaseReportSchema(strict=True).dump(self).data
+        return TestCaseReportSchema().dump(self)
 
     @classmethod
     def deserialize(cls, data):
@@ -933,7 +952,7 @@ class TestCaseReport(Report):
         """
         from .schemas import TestCaseReportSchema
 
-        return TestCaseReportSchema(strict=True).load(data).data
+        return TestCaseReportSchema().load(data)
 
     @property
     def hash(self):
@@ -954,6 +973,7 @@ class TestCaseReport(Report):
                 self.status,
                 self.runtime_status,
                 tuple(id(entry) for entry in self.entries),
+                tuple(entry["uid"] for entry in self.logs),
             )
         )
 
@@ -973,14 +993,10 @@ class TestCaseReport(Report):
     @property
     def counter(self):
         """
-        Return counts for each status, will recursively get aggregates from
-        children and so on.
+        Return counts for current status.
         """
-
         counter = Counter({Status.PASSED: 0, Status.FAILED: 0, "total": 0})
-
         counter.update({self.status: 1, "total": 1})
-
         return counter
 
     def pass_if_empty(self):

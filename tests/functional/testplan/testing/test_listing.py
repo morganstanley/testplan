@@ -5,7 +5,6 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan import TestplanMock
 from testplan.common.utils.testing import (
     captured_logging,
-    log_propagation_disabled,
     argv_overridden,
     to_stdout,
 )
@@ -14,7 +13,7 @@ from testplan.testing import listing, filtering, ordering
 
 
 @testsuite
-class Alpha(object):
+class Alpha:
     @testcase
     def test_c(self, env, result):
         pass
@@ -29,7 +28,7 @@ class Alpha(object):
 
 
 @testsuite(tags={"color": "yellow"})
-class Beta(object):
+class Beta:
     @testcase
     def test_c(self, env, result):
         pass
@@ -44,7 +43,7 @@ class Beta(object):
 
 
 @testsuite
-class Gamma(object):
+class Gamma:
     @testcase
     def test_c(self, env, result):
         pass
@@ -176,15 +175,14 @@ def test_programmatic_listing(
         runpath=runpath,
     )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        with captured_logging(TESTPLAN_LOGGER) as log_capture:
-            plan.add(multitest_x)
-            plan.add(multitest_y)
+    with captured_logging(TESTPLAN_LOGGER) as log_capture:
+        plan.add(multitest_x)
+        plan.add(multitest_y)
 
-            assert log_capture.output == expected_output
+        assert log_capture.output == expected_output
 
-            result = plan.run()
-            assert len(result.test_report) == 0, "No tests should be run."
+        result = plan.run()
+        assert len(result.test_report) == 0, "No tests should be run."
 
 
 @pytest.mark.parametrize(
@@ -214,22 +212,21 @@ def test_command_line_listing(runpath, cmdline_args, expected_output):
     with argv_overridden(*cmdline_args):
         plan = TestplanMock(name="plan", parse_cmdline=True, runpath=runpath)
 
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            with captured_logging(TESTPLAN_LOGGER) as log_capture:
-                plan.add(multitest_x)
-                plan.add(multitest_y)
+        with captured_logging(TESTPLAN_LOGGER) as log_capture:
+            plan.add(multitest_x)
+            plan.add(multitest_y)
 
-                result = plan.run()
+            result = plan.run()
 
-                assert log_capture.output == expected_output
-                assert len(result.test_report) == 0, "No tests should be run."
+            assert log_capture.output == expected_output
+            assert len(result.test_report) == 0, "No tests should be run."
 
 
 NUM_TESTS = 100
 
 
 @testsuite
-class ParametrizedSuite(object):
+class ParametrizedSuite:
     @testcase(parameters=list(range(NUM_TESTS)))
     def test_method(self, env, result, val):
         pass
@@ -289,11 +286,10 @@ def test_testcase_trimming(runpath, listing_obj, expected_output):
 
     plan = TestplanMock(name="plan", test_lister=listing_obj, runpath=runpath)
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        with captured_logging(TESTPLAN_LOGGER) as log_capture:
-            plan.add(multitest_x)
+    with captured_logging(TESTPLAN_LOGGER) as log_capture:
+        plan.add(multitest_x)
 
-            assert log_capture.output == expected_output
+        assert log_capture.output == expected_output
 
-            result = plan.run()
-            assert len(result.test_report) == 0, "No tests should be run."
+        result = plan.run()
+        assert len(result.test_report) == 0, "No tests should be run."

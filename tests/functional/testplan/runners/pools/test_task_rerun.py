@@ -11,11 +11,12 @@ import tempfile
 import getpass
 import uuid
 
-from testplan import Task
+from testplan import Task, TestplanMock
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.base import Driver, DriverConfig
-from testplan.runners.pools import ThreadPool, ProcessPool
-from testplan.common.config import ConfigOption as Optional
+from testplan.common.config import ConfigOption
+from testplan.runners.pools.base import Pool as ThreadPool
+from testplan.runners.pools.process import ProcessPool
 from testplan.common.utils.path import makedirs
 from testplan.report import ReportCategories
 
@@ -24,8 +25,8 @@ class MockDriverConfig(DriverConfig):
     @classmethod
     def get_options(cls):
         return {
-            Optional("start_raises", default=False): bool,
-            Optional("stop_raises", default=False): bool,
+            ConfigOption("start_raises", default=False): bool,
+            ConfigOption("stop_raises", default=False): bool,
         }
 
 
@@ -58,7 +59,7 @@ class MockDriver(Driver):
         self._stop_done = True
 
 
-class UnstableSuiteBase(object):
+class UnstableSuiteBase:
     """
     In this test suite a temporary file is created
     to record how many times does it run.
@@ -126,6 +127,21 @@ class UnstableSuite3(UnstableSuiteBase):
             result.fail("Testcase fails in this iteration")
 
 
+@testsuite
+class SuiteForParts:
+    @testcase
+    def case_0(self, env, result):
+        result.fail("this case fails")
+
+    @testcase
+    def case_1(self, env, result):
+        result.log("this case passes")
+
+    @testcase
+    def case_2(self, env, result):
+        result.log("this case passes")
+
+
 def make_multitest_1(tmp_file):
     return MultiTest(
         name="Unstable MTest1",
@@ -153,6 +169,14 @@ def make_multitest_3(tmp_file):
     )
 
 
+def make_multitest_parts(part_tuple):
+    return MultiTest(
+        name="MultiTestParts",
+        suites=[SuiteForParts()],
+        part=part_tuple,
+    )
+
+
 def _remove_existing_tmp_file(tmp_file):
     """Make sure the temporary file is removed."""
     if os.path.isfile(tmp_file):
@@ -170,13 +194,10 @@ def test_task_rerun_in_thread_pool(mockplan):
     pool = ThreadPool(name=pool_name, size=2)
     mockplan.add_resource(pool)
 
-    directory = os.path.dirname(os.path.abspath(__file__))
     tmp_file = os.path.join(
         tempfile.gettempdir(), getpass.getuser(), "{}.tmp".format(uuid.uuid4())
     )
-    task = Task(
-        target=make_multitest_1, path=directory, args=(tmp_file,), rerun=2
-    )
+    task = Task(target=make_multitest_1, args=(tmp_file,), rerun=3)
     uid = mockplan.schedule(task=task, resource=pool_name)
 
     assert mockplan.run().run is True
@@ -208,19 +229,14 @@ def test_task_rerun_in_process_pool(mockplan):
     pool = ProcessPool(name=pool_name, size=2)
     mockplan.add_resource(pool)
 
-    directory = os.path.dirname(os.path.abspath(__file__))
     tmp_file_1 = os.path.join(
         tempfile.gettempdir(), getpass.getuser(), "{}.tmp".format(uuid.uuid4())
     )
     tmp_file_2 = os.path.join(
         tempfile.gettempdir(), getpass.getuser(), "{}.tmp".format(uuid.uuid4())
     )
-    task1 = Task(
-        target=make_multitest_1, path=directory, args=(tmp_file_1,), rerun=2
-    )
-    task2 = Task(
-        target=make_multitest_2, path=directory, args=(tmp_file_2,), rerun=0
-    )
+    task1 = Task(target=make_multitest_1, args=(tmp_file_1,), rerun=2)
+    task2 = Task(target=make_multitest_2, args=(tmp_file_2,), rerun=0)
     uid1 = mockplan.schedule(task=task1, resource=pool_name)
     uid2 = mockplan.schedule(task=task2, resource=pool_name)
 
@@ -254,13 +270,10 @@ def test_task_rerun_with_more_times(mockplan):
     pool = ThreadPool(name=pool_name, size=1)
     mockplan.add_resource(pool)
 
-    directory = os.path.dirname(os.path.abspath(__file__))
     tmp_file = os.path.join(
         tempfile.gettempdir(), getpass.getuser(), "{}.tmp".format(uuid.uuid4())
     )
-    task = Task(
-        target=make_multitest_3, path=directory, args=(tmp_file,), rerun=2
-    )
+    task = Task(target=make_multitest_3, args=(tmp_file,), rerun=2)
     uid = mockplan.schedule(task=task, resource=pool_name)
 
     assert mockplan.run().run is True
@@ -286,13 +299,10 @@ def test_task_rerun_with_more_times_2(mockplan):
     pool = ThreadPool(name=pool_name, size=1)
     mockplan.add_resource(pool)
 
-    directory = os.path.dirname(os.path.abspath(__file__))
     tmp_file = os.path.join(
         tempfile.gettempdir(), getpass.getuser(), "{}.tmp".format(uuid.uuid4())
     )
-    task = Task(
-        target=make_multitest_3, path=directory, args=(tmp_file,), rerun=3
-    )
+    task = Task(target=make_multitest_3, args=(tmp_file,), rerun=3)
     uid = mockplan.schedule(task=task, resource=pool_name)
 
     assert mockplan.run().run is True
@@ -302,3 +312,41 @@ def test_task_rerun_with_more_times_2(mockplan):
 
     assert task.reassign_cnt == 3
     _remove_existing_tmp_file(tmp_file)
+
+
+def test_task_rerun_with_parts():
+
+    with tempfile.TemporaryDirectory() as runpath:
+        mockplan = TestplanMock(
+            "plan", runpath=runpath, merge_scheduled_parts=True
+        )
+
+        pool_name = ThreadPool.__name__
+        pool = ThreadPool(name=pool_name, size=1)
+        mockplan.add_resource(pool)
+
+        uids = []
+        for idx in range(3):
+            task = Task(
+                target=make_multitest_parts,
+                kwargs={"part_tuple": (idx, 3)},
+                rerun=1,
+            )
+            uids.append(mockplan.schedule(task=task, resource=pool_name))
+
+        assert mockplan.run().run is True
+        assert mockplan.report.passed is False
+        assert mockplan.report.counter == {
+            "passed": 2,
+            "total": 3,
+            "failed": 1,
+        }
+
+        # Run2 of part0 are merged with part1 and part2
+        assert mockplan.report.entries[0].name == "MultiTestParts"
+
+        # Run1 of part0 (task_rerun) are left unmerged
+        assert (
+            mockplan.report.entries[1].name
+            == "MultiTestParts - part(0/3) => Run 1"
+        )

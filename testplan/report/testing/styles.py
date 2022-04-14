@@ -11,8 +11,6 @@ level multitest pass/fail status for passing test groups.
 """
 
 import os
-import six
-
 from enum import Enum, unique
 
 from testplan.common.utils.parser import ArgMixin
@@ -38,7 +36,7 @@ class StyleEnum(ArgMixin, Enum):
     ASSERTION_DETAIL = 5
 
 
-class StyleFlag(object):
+class StyleFlag:
     """
     This class generates styling attributes using the given output level.
     It will use the incremental values of StyleEnum to set its
@@ -71,7 +69,7 @@ class StyleFlag(object):
 
     def __init__(self, level):
 
-        if isinstance(level, six.string_types):
+        if isinstance(level, str):
             self.label = level
         elif isinstance(level, Enum):
             self.label = StyleEnum.enum_to_str(level)
@@ -107,7 +105,7 @@ class StyleFlag(object):
         return self.level.value > other.level.value
 
 
-class Style(object):
+class Style:
     """
     Container for StyleFlag objects, we will make use of
     2 StyleFlag objects for passing / failing test result rendering.

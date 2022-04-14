@@ -1,12 +1,8 @@
 import re
 import functools
+from html import escape
 
-try:
-    from html import escape as _orig_escape
-
-    escape = functools.partial(_orig_escape, quote=False)
-except ImportError:
-    from cgi import escape
+html_escape = functools.partial(escape, quote=False)
 
 from reportlab.lib import colors
 from reportlab.platypus import Paragraph
@@ -16,6 +12,7 @@ from testplan.common.exporters.pdf import RowStyle, create_table
 from testplan.common.exporters.pdf import format_table_style, format_cell_data
 from testplan.common.utils.strings import wrap, split_line, split_text
 from testplan.common.utils.comparison import is_regex
+from testplan.exporters.testing.pdf.renderers.base import SlicedParagraph
 
 from testplan.report import Status
 
@@ -169,59 +166,63 @@ class RegexMatchRenderer(AssertionRenderer):
         """
         Return highlighted patterns within the string, if there is a match.
         """
+        left_padding = const.INDENT * (depth + 1)
+
         pattern_style = [
             RowStyle(
                 font=(const.FONT, const.FONT_SIZE_SMALL),
-                left_padding=const.INDENT * (depth + 1),
+                left_padding=left_padding,
                 text_color=colors.black,
                 span=tuple(),
+                background=None if source["passed"] else colors.whitesmoke,
             )
         ]
-
-        text_style = [
-            RowStyle(left_padding=const.INDENT * (depth + 1), span=tuple())
-        ]
-
-        if not source["passed"]:
-            pattern_style.append(RowStyle(background=colors.whitesmoke))
-            text_style.append(RowStyle(background=colors.whitesmoke))
 
         p = "Pattern: `{}`".format(source["pattern"])
         pattern = RowData(
             content=[p, "", "", ""], style=pattern_style, start=row_idx
         )
 
+        parts = []
         string = source["string"]
         if source["match_indexes"]:
             curr_idx = 0
-            parts = []
 
             for begin, end in source["match_indexes"]:
-                if begin > curr_idx:
-                    s = _format_text(
-                        string[curr_idx:begin], truncate_reverse=True
-                    ).replace("\n", "<br />\n")
-                    parts.append(s)
-                s = _format_text(string[begin:end]).replace("\n", "<br />\n")
-                parts.append(_format_text(s, self.highlight_color, self.bold))
+                parts.append((string[curr_idx:begin], "{}"))
+                parts.append(
+                    (
+                        string[begin:end],
+                        "<b><font color={color}>{{}}</font></b>".format(
+                            color=self.highlight_color
+                        ),
+                    )
+                )
                 curr_idx = end
-
             if curr_idx < len(string):
-                s = _format_text(string[curr_idx:]).replace("\n", "<br />\n")
-                parts.append(s)
-            text_paragraph = Paragraph(
-                text="".join(parts), style=const.PARAGRAPH_STYLE
-            )
+                parts.append((string[curr_idx:], "{}"))
         else:
-            text_paragraph = Paragraph(
-                text=_format_text(string), style=const.PARAGRAPH_STYLE
+            parts = (string, "{}")
+
+        for para in SlicedParagraph(
+            parts=parts,
+            width=const.PAGE_WIDTH - left_padding - 6,
+        ):
+            pattern = pattern + RowData(
+                content=[para, "", "", ""],
+                style=[
+                    RowStyle(
+                        left_padding=left_padding,
+                        span=tuple(),
+                        background=None
+                        if source["passed"]
+                        else colors.whitesmoke,
+                    )
+                ],
+                start=pattern.end,
             )
 
-        return pattern + RowData(
-            content=[text_paragraph, "", "", ""],
-            style=text_style,
-            start=pattern.end,
-        )
+        return pattern
 
 
 @registry.bind(assertions.RegexMatchNotExists, assertions.RegexSearchNotExists)
@@ -238,27 +239,26 @@ class RegexFindIterRenderer(RegexMatchRenderer):
 
     def get_detail(self, source, depth, row_idx):
         """Render `condition` attribute as well, if it exists"""
+        msg = super(RegexFindIterRenderer, self).get_detail(
+            source, depth, row_idx
+        )
+
         styles = [
             RowStyle(
                 font=(const.FONT, const.FONT_SIZE_SMALL),
                 left_padding=const.INDENT * (depth + 1),
                 top_padding=0,
                 text_color=colors.black,
+                background=None if source["passed"] else colors.whitesmoke,
                 span=tuple(),
             )
         ]
 
-        if not source["passed"]:
-            styles.append(RowStyle(background=colors.whitesmoke))
-
-        msg = super(RegexFindIterRenderer, self).get_detail(
-            source, depth, row_idx
-        )
         if source["condition_match"] is not None:
             colour = "green" if source["condition_match"] else "red"
             formatted = "Condition: {}".format(
                 _format_text(
-                    text=escape(source["condition"]),
+                    text=html_escape(source["condition"]),
                     colour=colour,
                     bold=not source["condition_match"],
                 )
@@ -279,22 +279,16 @@ class RegexMatchLineRenderer(AssertionRenderer):
         `RegexMatchLine` returns line indexes
         along with begin/end character indexes per matched line.
         """
+        left_padding = const.INDENT * (depth + 1)
         pattern_style = [
             RowStyle(
                 font=(const.FONT, const.FONT_SIZE_SMALL),
-                left_padding=const.INDENT * (depth + 1),
+                left_padding=left_padding,
                 text_color=colors.black,
+                background=None if source["passed"] else colors.whitesmoke,
                 span=tuple(),
             )
         ]
-
-        text_style = [
-            RowStyle(left_padding=const.INDENT * (depth + 1), span=tuple())
-        ]
-
-        if not source["passed"]:
-            pattern_style.append(RowStyle(background=colors.whitesmoke))
-            text_style.append(RowStyle(background=colors.whitesmoke))
 
         p = "Pattern: `{}`".format(source["pattern"])
         pattern = RowData(
@@ -311,30 +305,37 @@ class RegexMatchLineRenderer(AssertionRenderer):
             for idx, line in enumerate(source["string"].splitlines()):
                 if idx in match_map:
                     begin, end = match_map[idx]
-                    formatted = "{start}{middle}{end}".format(
-                        start=escape(_format_text(line[:begin])),
-                        middle=_format_text(
-                            text=escape(line[begin:end]),
-                            colour="green",
-                            bold=False,
-                        ),
-                        end=escape(_format_text(line[end:])),
+                    parts.append((line[:begin], "{}"))
+                    parts.append(
+                        (line[begin:end], "<b><font color=green>{}</font></b>")
                     )
-                    parts.append(formatted)
+                    parts.append((line[end:], "{}"))
                 else:
-                    parts.append(escape(line))
-            text = Paragraph(
-                text="<br />\n".join(parts), style=const.PARAGRAPH_STYLE
-            )
-        else:
-            formatted = escape(_format_text(source["string"])).replace(
-                "\n", "<br />\n"
-            )
-            text = Paragraph(text=formatted, style=const.PARAGRAPH_STYLE)
+                    parts.append((line, "{}"))
+                parts.append(("\n", "{}"))
 
-        return pattern + RowData(
-            content=[text, "", "", ""], style=text_style, start=pattern.end
-        )
+        else:
+            parts = (source["string"], "{}")
+
+        for para in SlicedParagraph(
+            parts=parts,
+            width=const.PAGE_WIDTH - left_padding - 6,
+        ):
+            pattern = pattern + RowData(
+                content=[para, "", "", ""],
+                style=[
+                    RowStyle(
+                        left_padding=left_padding,
+                        span=tuple(),
+                        background=None
+                        if source["passed"]
+                        else colors.whitesmoke,
+                    )
+                ],
+                start=pattern.end,
+            )
+
+        return pattern
 
 
 @registry.bind(assertions.Contain, assertions.NotContain)
@@ -384,9 +385,9 @@ def append_comparison_data(data, row, depth, start_idx):
         status_color = colors.grey
         font = const.FONT_ITALIC
 
-    if isinstance(left, tuple):
+    if isinstance(left, (tuple, list)):
         left = "<{}> {}".format(left[0], left[1])
-    if isinstance(right, tuple):
+    if isinstance(right, (tuple, list)):
         right = "<{}> {}".format(right[0], right[1])
 
     data.append(
@@ -557,18 +558,18 @@ class XMLCheckRenderer(AssertionRenderer):
         """
         msg = []
 
-        msg.append("xpath: {}".format(escape(source["xpath"])))
+        msg.append("xpath: {}".format(html_escape(source["xpath"])))
 
         if source["namespaces"]:
             msg.append(
-                "Namespaces: {}".format(escape(str(source["namespaces"])))
+                "Namespaces: {}".format(html_escape(str(source["namespaces"])))
             )
 
         if source["message"]:
             msg.append(
                 _format_text(
                     colour="black" if source["passed"] else "red",
-                    text=escape(source["message"]),
+                    text=html_escape(source["message"]),
                     bold=not source["passed"],
                 )
             )
@@ -599,11 +600,15 @@ class XMLCheckRenderer(AssertionRenderer):
             )
 
             if tag_comp.passed:
-                tags.append(escape(template.format(operator="==", **common)))
+                tags.append(
+                    html_escape(template.format(operator="==", **common))
+                )
             else:
                 tags.append(
                     _format_text(
-                        text=escape(template.format(operator="!=", **common)),
+                        text=html_escape(
+                            template.format(operator="!=", **common)
+                        ),
                         colour="red",
                         bold=True,
                     )
@@ -673,7 +678,7 @@ class TableMatchRenderer(AssertionRenderer):
         :rtype: ``list`` of ``dict`` and
                 ``list`` of ``testplan.common.exporters.pdf.RowStyle``
         """
-        result = {}
+        result = []
         colour_row = []
 
         for idx, column in enumerate(columns):
@@ -695,13 +700,13 @@ class TableMatchRenderer(AssertionRenderer):
             exclude_columns = exclude_columns or []
 
             if (column not in include_columns) or (column in exclude_columns):
-                result[column] = "{} .. {}".format(actual, other)
+                result.append("{} .. {}".format(actual, other))
                 colour_row.append("I")
             elif matched:
-                result[column] = "{} == {}".format(actual, other)
+                result.append("{} == {}".format(actual, other))
                 colour_row.append("P")
             else:
-                result[column] = "{} != {}".format(actual, other)
+                result.append("{} != {}".format(actual, other))
                 colour_row.append("F")
 
         return result, colour_row
@@ -781,10 +786,7 @@ class ColumnContainRenderer(AssertionRenderer):
         row_indices = []
         colour_matrix = []
         for comp_obj in source["data"]:
-            row = {
-                source["column"]: comp_obj[1],
-                "Passed": "Pass" if comp_obj[2] else "Fail",
-            }
+            row = [comp_obj[1], "Pass" if comp_obj[2] else "Fail"]
             raw_table.append(row)
             row_indices.append(comp_obj[0])
             colour_matrix.append(["I", "P" if comp_obj[2] else "F"])
@@ -832,7 +834,7 @@ class ExceptionRaisedRenderer(AssertionRenderer):
             msg = "Function: {}".format(
                 _format_text(
                     colour="black" if source["passed"] else "red",
-                    text=escape(source["func"]),
+                    text=html_escape(source["func"]),
                     bold=not source["passed"],
                 )
             )
@@ -852,7 +854,7 @@ class ExceptionRaisedRenderer(AssertionRenderer):
             msg = "Pattern: {}".format(
                 _format_text(
                     colour="black" if source["passed"] else "red",
-                    text=escape(source["pattern"]),
+                    text=html_escape(source["pattern"]),
                     bold=not source["passed"],
                 )
             )

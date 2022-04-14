@@ -1,0 +1,30 @@
+name: 'Files Changed'
+description: 'Get the list of changed files in the pr and a bool value'
+inputs:
+  paths:
+    description: 'list of paths to filter the changed list'
+    default: ''
+    required: true
+outputs:
+  files:
+    description: 'list of files that has been changed in the pr'
+    value: ${{steps.get_diff.outputs.files}}
+  changed:
+    description: 'boolean if anything changed that matches paths'
+    value: ${{steps.get_diff.outputs.changed}}
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        import subprocess
+        import json
+        paths = """
+        ${{ inputs.paths }}
+        """.strip().split("\n")
+        cmd = "git --no-pager diff --name-only ${{ github.sha }} refs/remotes/origin/${{ github.base_ref }} --".split()
+        files = subprocess.check_output([*cmd, *paths], text=True)
+        print(files)
+        print("::set-output name=files::{}".format(json.dumps(files.split('\n'))))
+        print("::set-output name=changed::{}".format("true" if files else "false"))
+      id: get_diff
+      shell: python

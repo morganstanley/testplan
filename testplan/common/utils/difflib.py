@@ -29,7 +29,6 @@ Class Differ:
 import os
 import re
 import heapq
-import six
 from collections import namedtuple as _namedtuple
 from functools import reduce
 from datetime import datetime
@@ -56,7 +55,7 @@ def _calculate_ratio(matches, length):
     return 1.0
 
 
-class SequenceMatcher(object):
+class SequenceMatcher:
 
     """
     SequenceMatcher is a flexible class for comparing pairs of sequences of
@@ -889,7 +888,7 @@ class SpaceIgnoredString(FuzzyMatchingString):
             return str(self)
 
 
-class Differ(object):
+class Differ:
     r"""
     Differ is a class for comparing sequences of lines of text, and
     producing human-readable differences or deltas.  Differ uses
@@ -1402,8 +1401,8 @@ def diff(
     - `context`: if True, output in context format, default False
     """
 
-    a = a.splitlines(True) if isinstance(a, six.string_types) else a
-    b = b.splitlines(True) if isinstance(b, six.string_types) else b
+    a = a.splitlines(True) if isinstance(a, str) else a
+    b = b.splitlines(True) if isinstance(b, str) else b
     assert isinstance(a, list) and isinstance(b, list)
 
     if unified:

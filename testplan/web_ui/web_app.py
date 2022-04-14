@@ -3,16 +3,18 @@
 Web application for Testplan & Monitor UIs,
 """
 import os
+import pathlib
 import argparse
 from threading import Thread
 
-from flask import Flask, send_from_directory, redirect
-from flask_restplus import Resource, Api
-from werkzeug import exceptions
+import werkzeug.exceptions
+from flask import Flask, send_from_directory, redirect, jsonify
+from flask_restx import Resource, Api
 from cheroot.wsgi import Server as WSGIServer, PathInfoDispatcher
 
 from testplan import defaults
 from testplan.common.utils.path import pwd
+from .fix_spec import FIX_SPEC
 
 TESTPLAN_UI_STATIC_DIR = os.path.abspath(os.path.dirname(__file__))
 INDEX_HTML = "index.html"
@@ -48,11 +50,9 @@ class Testplan(Resource):
         index_path = os.path.join(directory, INDEX_HTML)
 
         if os.path.exists(index_path):
-            return send_from_directory(
-                directory=directory, filename=INDEX_HTML
-            )
+            return send_from_directory(directory=directory, path=INDEX_HTML)
         else:
-            raise exceptions.NotFound()
+            raise werkzeug.exceptions.NotFound()
 
 
 @_api.route("/api/v1/reports/<string:report_uid>")
@@ -69,10 +69,10 @@ class TestplanReport(Resource):
         if os.path.exists(report_path):
             return send_from_directory(
                 directory=os.path.dirname(report_path),
-                filename=os.path.basename(report_path),
+                path=os.path.basename(report_path),
             )
         else:
-            raise exceptions.NotFound()
+            raise werkzeug.exceptions.NotFound()
 
 
 @_api.route(
@@ -84,7 +84,7 @@ class TestplanAssertions(Resource):
         Get an Assertion report (JSON) for a specific Testplan report given
         their uids.
         """
-        raise exceptions.NotImplemented()  # pylint: disable=notimplemented-raised
+        raise werkzeug.exceptions.NotImplemented()  # pylint: disable=notimplemented-raised
 
 
 @_api.route(
@@ -93,19 +93,38 @@ class TestplanAssertions(Resource):
 class TestplanAttachment(Resource):
     def get(self, report_uid, attachment_path):
         """Get an attachment for a specific Testplan report given their uids."""
-        attachment_path = os.path.abspath(
-            os.path.join(
-                app.config["DATA_PATH"], defaults.ATTACHMENTS, attachment_path
-            )
+        base_path = (
+            pathlib.Path(app.config["DATA_PATH"]) / defaults.ATTACHMENTS
+        ).resolve()
+
+        # security check for argument from url
+        if not str((base_path / attachment_path).resolve()).startswith(
+            str(base_path)
+        ):
+            raise werkzeug.exceptions.NotFound()
+
+        full_attachment_path = base_path / attachment_path
+        if not full_attachment_path.is_file():
+            raise werkzeug.exceptions.NotFound()
+
+        return send_from_directory(
+            directory=full_attachment_path.parent,
+            path=full_attachment_path.name,
         )
 
-        if os.path.exists(attachment_path):
-            return send_from_directory(
-                directory=os.path.dirname(attachment_path),
-                filename=os.path.basename(attachment_path),
-            )
-        else:
-            raise exceptions.NotFound()
+
+@_api.route("/api/v1/metadata/fix-spec/tags")
+class FixTags(Resource):
+    def get(self):
+        """Get meta data which is used to parse Testplan report."""
+        return jsonify(FIX_SPEC["tags"])
+
+
+@_api.route("/api/v1/metadata/fix-spec/tags/<int:num>/enum-vals")
+class FixTagValueChoices(Resource):
+    def get(self, num):
+        """Get meta data which is used to parse Testplan report."""
+        return jsonify(FIX_SPEC["enum_vals_by_tag"].get(num, []))
 
 
 class WebServer(Thread):
@@ -147,6 +166,7 @@ class WebServer(Thread):
 
     def stop(self):
         self.server.stop()
+        self.server = None
 
 
 if __name__ == "__main__":

@@ -1,4 +1,34 @@
-[tool.black]
-line-length = 79
-exclude = '''(/(vendor|node_modules)/)'''
+[build-system]
+    requires = [
+        "setuptools>=42",
+        "wheel"
+    ]
+    build-backend = "setuptools.build_meta"
 
+[tool.black]
+    line-length = 79
+    exclude = '''(/(vendor|node_modules)/)'''
+
+[tool.bumpver]
+    current_version = "21.9.29"
+    version_pattern = "YY.MM.INC0"
+    commit_message = "bump version {old_version} -> {new_version}"
+    commit = true
+    tag = true
+    push = true
+
+[tool.bumpver.file_patterns]
+    "pyproject.toml" = [
+        'current_version = "{version}"',
+    ]
+    "testplan/version.py" = [
+        '__version__ = "{version}"',
+    ]
+
+[tool.releaseherald]
+
+    news_fragments_directory = 'doc/newsfragments'
+    unreleased = true
+    news_file = 'doc/en/news_template.rst'
+    latest = false
+    update = true

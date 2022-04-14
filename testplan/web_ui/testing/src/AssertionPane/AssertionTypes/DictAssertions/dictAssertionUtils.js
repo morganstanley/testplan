@@ -13,13 +13,20 @@ import {any, sorted, domToString} from './../../../Common/utils';
  */
 export function dictCellStyle(params) {
   const isValue = params.colDef.field !== 'key';
-  const isFailed = params.data.descriptor.status === 'Failed';
-  let cellStyle = {};
+  
+  let styles = new Map([
+    ["Failed", {
+      color: 'red',
+      fontWeight: 'bold'
+    }],
+    ["Ignored", {
+      color: 'grey',
+      fontStyle: 'italic'
+    }], 
 
-  if (isFailed) {
-    cellStyle.color = 'red';
-    cellStyle.fontWeight = 'bold';
-  }
+  ]);
+
+  let cellStyle = styles.get(params.data.descriptor.status) ?? {};
 
   if (isValue) {
     cellStyle.backgroundColor = '#BDC3C750';
@@ -238,7 +245,9 @@ export function prepareDictRowData(data, lineNo) {
       [level, key, status, actualValue, expectedValue] = line;
     }
     actualValue = actualValue || [];
-    const isEmptyLine = key.length === 0 && actualValue.length === 0;
+    const isEmptyLine = (
+        key !== null && key.length === 0 && actualValue.length === 0
+    );
     const hasAcutalValue = Array.isArray(actualValue);
     const hasExpectedValue = Array.isArray(expectedValue);
 
@@ -247,7 +256,9 @@ export function prepareDictRowData(data, lineNo) {
         lineNo: lineNo,
         indent: level,
         isListKey:
-          originalArray[index + 1] && originalArray[index + 1][1] === '',
+          originalArray[index + 1] &&
+          originalArray[index + 1][1] === '' &&
+          originalArray[index + 1][0] === originalArray[index][0],
         isEmptyLine: isEmptyLine,
         status: status
       }
@@ -260,7 +271,10 @@ export function prepareDictRowData(data, lineNo) {
     } else {
       lineObject.key = { value: key, type: 'key' };
       if (hasAcutalValue) {
-        lineObject.value = { value: actualValue[1], type: actualValue[0] };
+        lineObject.value = {
+          value: actualValue[1],
+          type: actualValue[0]
+        };
       }
       if (hasExpectedValue) {
         lineObject.expected = {
@@ -273,44 +287,6 @@ export function prepareDictRowData(data, lineNo) {
     return lineObject;
   });
 }
-
-
-/**
- * Return the description of the FIX tag in the cell.
- *
- * @param {JSON} fixTagInfo - JSON object where keys are FIX tags and the values
- * are description
- * @param {string} cellValue - Value of the cell.
- * @param {string} keyValue - Value of the cell under the key column for the row
- * the cell is in.
- * @param {string} colField - The column the current cell is in.
- * @returns {{name: null, descr: null, value: null}}
- */
-export function getFixInformation(fixTagInfo, cellValue, keyValue, colField) {
-  let fixInfo = {name: null, descr: null, value: null};
-
-  // If keyValue is null the current row is empty. Empty rows are used to
-  // display breaks between list entries more clearly.
-  const validKey = (colField === 'key') && (keyValue !== null);
-  const validExpected = colField === 'expected';
-  const validValue = colField === 'value';
-
-  if (validKey) {
-    fixInfo.descr = fixTagInfo[keyValue] !== undefined
-      ? fixTagInfo[keyValue].descr
-      : 'Missing information';
-    fixInfo.name = fixTagInfo[keyValue] !== undefined
-      ? fixTagInfo[keyValue].names[0]
-      : null;
-  } else if (validExpected || validValue) {
-    fixInfo.value = fixTagInfo[keyValue] !== undefined
-      ? fixTagInfo[keyValue].values[cellValue]
-      : null;
-  }
-
-  return fixInfo;
-}
-
 
 /**
  * Convert flattened dict assertion data to HTML table string
@@ -418,7 +394,7 @@ export function flattenedDictToDOM(flattenedDict) {
       // If key and value are string and length is 0, the current row is empty.
       // Empty row will be ignored.
       actualValue = actualValue || "";
-      if (key.length === 0 && actualValue.length === 0) {
+      if (key !== null && key.length === 0 && actualValue.length === 0) {
         return;
       }
       let tr = document.createElement('tr');

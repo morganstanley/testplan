@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import base64url from 'base64url';
 
 import InteractiveNavEntry from './InteractiveNavEntry';
 import {CreateNavButtons, GetNavColumn} from './navUtils.js';
-import {STATUS, RUNTIME_STATUS} from "../Common/defaults";
+import {STATUS, RUNTIME_STATUS, NAV_ENTRY_ACTIONS} from "../Common/defaults";
 
 /**
  * Render a vertical list of all the currently selected entries children for
@@ -15,6 +16,7 @@ const InteractiveNavList = (props) => {
     props,
     (entry) => (
       <InteractiveNavEntry
+        key={entry.hash || entry.uid}
         name={_.isEmpty(entry.part) ? entry.name : entry.uid}
         description={entry.description}
         status={entry.status}
@@ -22,14 +24,14 @@ const InteractiveNavList = (props) => {
         envStatus={entry.env_status}
         type={entry.category}
         caseCountPassed={entry.counter.passed}
-        caseCountFailed={entry.counter.failed}
-        handlePlayClick={(e) => props.handlePlayClick(e, entry)}
-        envCtrlCallback={
-          (e, action) => props.envCtrlCallback(e, entry, action)
-        }
+        caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
+        handleClick={(e, action) => props.handleClick(e, entry, action)}
+        envCtrlCallback={(e, action) => props.envCtrlCallback(e, entry, action)}
         suiteRelated={entry.suite_related}
+        action={entry.action}
       />
     ),
+    base64url
   );
 
   // Make the column a little wider for the interactive mode, to account for
@@ -45,6 +47,7 @@ InteractiveNavList.propTypes = {
     description: PropTypes.string,
     status: PropTypes.oneOf(STATUS),
     runtime_status: PropTypes.oneOf(RUNTIME_STATUS),
+    action: PropTypes.oneOf(NAV_ENTRY_ACTIONS),
     counter: PropTypes.shape({
       passed: PropTypes.number,
       failed: PropTypes.number,
@@ -56,8 +59,6 @@ InteractiveNavList.propTypes = {
   handleNavClick: PropTypes.func,
   /** Function to handle Nav list resizing */
   handleColumnResizing: PropTypes.func,
-  /** Function to automatically select Nav entries */
-  autoSelect: PropTypes.func,
   /** Entity filter */
   filter: PropTypes.string,
   /** Flag to display empty testcase on navbar */

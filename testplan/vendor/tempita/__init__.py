@@ -26,24 +26,18 @@ method to make a substitution (or ``tmpl.substitute(a_dict)``).
 can use ``__name='tmpl.html'`` to set the name of the template.
 If there are syntax errors ``TemplateError`` will be raised.
 """
-from __future__ import absolute_import, division, print_function
 
 import re
 import sys
 import os
 import tokenize
 
-try:
-    from io import StringIO
-    from html import escape as html_escape
-except ImportError:
-    from cStringIO import StringIO
-    from cgi import escape as html_escape
-from six.moves.urllib.parse import quote as url_quote
+from io import StringIO
+from html import escape as html_escape
+from urllib.parse import quote as url_quote
 
 from ._looper import looper
-from .compat3 import (
-    PY3, bytes, basestring_, next, is_unicode, coerce_text, iteritems)
+from .compat3 import basestring_, coerce_text, iteritems
 
 
 __all__ = ['TemplateError', 'Template', 'sub', 'HTMLTemplate',
@@ -87,7 +81,7 @@ def get_file_template(name, from_template):
         get_template=from_template.get_template)
 
 
-class Template(object):
+class Template:
 
     default_namespace = {
         'start_braces': '{{',
@@ -116,7 +110,7 @@ class Template(object):
             self.default_namespace['end_braces'] = delimeters[1]
         self.delimeters = delimeters
 
-        self._unicode = is_unicode(content)
+        self._unicode = isinstance(content, str)
         if name is None and stacklevel is not None:
             try:
                 caller = sys._getframe(stacklevel)
@@ -153,7 +147,7 @@ class Template(object):
         f.close()
         if encoding:
             c = c.decode(encoding)
-        elif PY3:
+        else:
             c = c.decode('latin-1')
         return cls(content=c, name=filename, namespace=namespace,
                    default_inherit=default_inherit, get_template=get_template)
@@ -317,10 +311,7 @@ class Template(object):
             else:
                 arg0 = coerce_text(e)
             e.args = (self._add_line_info(arg0, pos),)
-            if PY3:
-                raise(e)
-            else:
-                raise (exc_info[1], e, exc_info[2])  # pylint: disable=raising-bad-type
+            raise(e)
 
     def _exec(self, code, ns, pos):
         # __traceback_hide__ = True
@@ -333,10 +324,7 @@ class Template(object):
                 e.args = (self._add_line_info(e.args[0], pos),)
             else:
                 e.args = (self._add_line_info(None, pos),)
-            if PY3:
-                raise(e)
-            else:
-                raise (exc_info[1], e, exc_info[2])  # pylint: disable=raising-bad-type
+            raise(e)
 
     def _repr(self, value, pos):
         # __traceback_hide__ = True
@@ -345,21 +333,18 @@ class Template(object):
                 return ''
             if self._unicode:
                 value = str(value)
-                if not is_unicode(value):
+                if not isinstance(value, str):
                     value = value.decode('utf-8')
             else:
                 if not isinstance(value, basestring_):
                     value = coerce_text(value)
-                if (is_unicode(value) and self.default_encoding):
+                if (isinstance(value, str) and self.default_encoding):
                     value = value.encode(self.default_encoding)
         except:
             exc_info = sys.exc_info()
             e = exc_info[1]
             e.args = (self._add_line_info(e.args[0], pos),)
-            if PY3:
-                raise(e)
-            else:
-                raise (exc_info[1], e, exc_info[2])  # pylint: disable=raising-bad-type
+            raise(e)
         else:
             if self._unicode and isinstance(value, bytes):
                 if not self.default_encoding:
@@ -375,7 +360,7 @@ class Template(object):
                         e.start,
                         e.end,
                         e.reason + ' in string %r' % value)
-            elif not self._unicode and is_unicode(value):
+            elif not self._unicode and isinstance(value, str):
                 if not self.default_encoding:
                     raise UnicodeEncodeError(
                         'Cannot encode unicode value %r into bytes '
@@ -439,7 +424,7 @@ class bunch(dict):
 ############################################################
 
 
-class html(object):
+class html:
 
     def __init__(self, value):
         self.value = value
@@ -462,20 +447,15 @@ def html_quote(value, force=True):
         return ''
     if not isinstance(value, basestring_):
         value = coerce_text(value)
-    if sys.version >= "3" and isinstance(value, bytes):
+    if isinstance(value, bytes):
         value = html_escape(value.decode('latin1'), 1)
         value = value.encode('latin1')
-    else:
-        value = html_escape(value, 1)
-    if sys.version < "3":
-        if is_unicode(value):
-            value = value.encode('ascii', 'xmlcharrefreplace')
     return value
 
 
 def url(v):
     v = coerce_text(v)
-    if is_unicode(v):
+    if isinstance(v, str):
         v = v.encode('utf8')
     return url_quote(v)
 
@@ -521,7 +501,7 @@ def sub_html(content, **kw):
     return tmpl.substitute(kw)
 
 
-class TemplateDef(object):
+class TemplateDef:
     def __init__(self, template, func_name, func_signature,
                  body, ns, pos, bound_self=None):
         self._template = template
@@ -598,7 +578,7 @@ class TemplateDef(object):
         return values
 
 
-class TemplateObject(object):
+class TemplateObject:
 
     def __init__(self, name):
         self.__name = name
@@ -608,7 +588,7 @@ class TemplateObject(object):
         return '<%s %s>' % (self.__class__.__name__, self.__name)
 
 
-class TemplateObjectGetter(object):
+class TemplateObjectGetter:
 
     def __init__(self, template_obj):
         self.__template_obj = template_obj
@@ -621,7 +601,7 @@ class TemplateObjectGetter(object):
             self.__class__.__name__, self.__template_obj)
 
 
-class _Empty(object):
+class _Empty:
     def __call__(self, *args, **kw):
         return self
 
@@ -632,7 +612,7 @@ class _Empty(object):
         return 'Empty'
 
     def __unicode__(self):
-        return '' if PY3 else u''
+        return ''
 
     def __iter__(self):
         return iter(())
@@ -640,8 +620,6 @@ class _Empty(object):
     def __bool__(self):
         return False
 
-    if sys.version < "3":
-        __nonzero__ = __bool__
 
 Empty = _Empty()
 del _Empty
@@ -710,24 +688,6 @@ Lex a string into chunks:
     Traceback (most recent call last):
         ...
     tempita.TemplateError: {{ inside expression at line 1 column 10
-""" if PY3 else """
-Lex a string into chunks:
-    >>> lex('hey')
-    ['hey']
-    >>> lex('hey {{you}}')
-    ['hey ', ('you', (1, 7))]
-    >>> lex('hey {{')
-    Traceback (most recent call last):
-        ...
-    TemplateError: No }} to finish last expression at line 1 column 7
-    >>> lex('hey }}')
-    Traceback (most recent call last):
-        ...
-    TemplateError: }} outside expression at line 1 column 7
-    >>> lex('hey {{ {{')
-    Traceback (most recent call last):
-        ...
-    TemplateError: {{ inside expression at line 1 column 10
 """
 
 statement_re = re.compile(r'^(?:if |elif |for |def |inherit |default |py:)')
@@ -785,14 +745,6 @@ def trim_lex(tokens):
     return tokens
 
 trim_lex.__doc__ = r"""
-    Takes a lexed set of tokens, and removes whitespace when there is
-    a directive on a line by itself:
-       >>> tokens = lex('{{if x}}\nx\n{{endif}}\ny', trim_whitespace=False)
-       >>> tokens
-       [('if x', (1, 3)), '\nx\n', ('endif', (3, 3)), '\ny']
-       >>> trim_lex(tokens)
-       [('if x', (1, 3)), 'x\n', ('endif', (3, 3)), 'y']
-    """ if PY3 else r"""
     Takes a lexed set of tokens, and removes whitespace when there is
     a directive on a line by itself:
        >>> tokens = lex('{{if x}}\nx\n{{endif}}\ny', trim_whitespace=False)
@@ -878,58 +830,6 @@ parse.__doc__ = r"""
         Traceback (most recent call last):
             ...
         tempita.TemplateError: Multi-line py blocks must start
-            with a newline at line 1 column 3
-    """ if PY3 else r"""
-    Parses a string into a kind of AST
-        >>> parse('{{x}}')
-        [('expr', (1, 3), 'x')]
-        >>> parse('foo')
-        ['foo']
-        >>> parse('{{if x}}test{{endif}}')
-        [('cond', (1, 3), ('if', (1, 3), 'x', ['test']))]
-        >>> parse(
-        ...    'series->{{for x in y}}x={{x}}{{endfor}}'
-        ... )  #doctest: +NORMALIZE_WHITESPACE
-        ['series->',
-            ('for', (1, 11), ('x',), 'y', ['x=', ('expr', (1, 27), 'x')])]
-        >>> parse('{{for x, y in z:}}{{continue}}{{endfor}}')
-        [('for', (1, 3), ('x', 'y'), 'z', [('continue', (1, 21))])]
-        >>> parse('{{py:x=1}}')
-        [('py', (1, 3), 'x=1')]
-        >>> parse(
-        ...    '{{if x}}a{{elif y}}b{{else}}c{{endif}}'
-        ... )  #doctest: +NORMALIZE_WHITESPACE
-        [('cond', (1, 3), ('if', (1, 3), 'x', ['a']),
-            ('elif', (1, 12), 'y', ['b']), ('else', (1, 23), None, ['c']))]
-    Some exceptions::
-        >>> parse('{{continue}}')
-        Traceback (most recent call last):
-            ...
-        TemplateError: continue outside of for loop at line 1 column 3
-        >>> parse('{{if x}}foo')
-        Traceback (most recent call last):
-            ...
-        TemplateError: No {{endif}} at line 1 column 3
-        >>> parse('{{else}}')
-        Traceback (most recent call last):
-            ...
-        TemplateError: else outside of an if block at line 1 column 3
-        >>> parse('{{if x}}{{for x in y}}{{endif}}{{endfor}}')
-        Traceback (most recent call last):
-            ...
-        TemplateError: Unexpected endif at line 1 column 25
-        >>> parse('{{if}}{{endif}}')
-        Traceback (most recent call last):
-            ...
-        TemplateError: if with no expression at line 1 column 3
-        >>> parse('{{for x y}}{{endfor}}')
-        Traceback (most recent call last):
-            ...
-        TemplateError: Bad for (no "in") in 'x y' at line 1 column 3
-        >>> parse('{{py:x=1\ny=2}}')  #doctest: +NORMALIZE_WHITESPACE
-        Traceback (most recent call last):
-            ...
-        TemplateError: Multi-line py blocks must start
             with a newline at line 1 column 3
     """
 

@@ -19,6 +19,14 @@ import {
   ChartLabel
 } from 'react-vis';
 
+const components = {
+  Line: LineSeries,
+  Hexbin: HexbinSeries,
+  Contour: ContourSeries,
+  Whisker: WhiskerSeries,
+  Bar: VerticalBarSeries,
+  Scatter: MarkSeries
+};
 
 /**
  * Component that are used to render a Graph (Data visualisations that require
@@ -29,7 +37,8 @@ class XYGraphAssertion extends Component {
     super(props);
 
     this.state = {
-      series_colour:{}
+      series_colour:{},
+      lastDrawLocation: null
     };
 
     let data = this.props.assertion.graph_data;
@@ -38,28 +47,12 @@ class XYGraphAssertion extends Component {
     this.state.series_colour = plot_colours;
   }
 
-
-  state = {
-    lastDrawLocation: null
-   };
-
-
-  components = {
-    Line: LineSeries,
-    Hexbin: HexbinSeries,
-    Contour: ContourSeries,
-    Whisker: WhiskerSeries,
-    Bar: VerticalBarSeries,
-    Scatter: MarkSeries
-  }
-
-
   render() {
     const data = this.props.assertion.graph_data;
     const graph_options = this.props.assertion.graph_options;
     const {lastDrawLocation} = this.state;
     const graph_type = this.props.assertion.graph_type;
-    const GraphComponent = this.components[graph_type];
+    const GraphComponent = components[graph_type];
 
     let legend = [];
     let plots = [];

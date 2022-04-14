@@ -3,7 +3,6 @@
 """
 import os
 from enum import Enum
-import six
 
 from testplan.common.utils.parser import ArgMixin
 from testplan.common.utils.logger import TESTPLAN_LOGGER
@@ -15,7 +14,7 @@ INDENT = " "
 MAX_TESTCASES = 25
 
 
-class BaseLister(object):
+class BaseLister:
     """
     Base of all listers, implement the :py:meth:`get_output` give it a name in
     :py:attr:`NAME` and a description in :py:attr:`DESCRIPTION` or alternatively
@@ -64,16 +63,10 @@ class ExpandedNameLister(BaseLister):
         return instance.name
 
     def format_suite(self, instance, suite):
-        if isinstance(suite, six.string_types):
-            return suite
-        else:
-            return suite.name
+        return suite if isinstance(suite, str) else suite.name
 
     def format_testcase(self, instance, suite, testcase):
-        if isinstance(testcase, six.string_types):
-            return testcase
-        else:
-            return testcase.name
+        return testcase if isinstance(testcase, str) else testcase.name
 
     def get_testcase_outputs(self, instance, suite, testcases):
         result = ""
@@ -153,7 +146,7 @@ class ExpandedPatternLister(ExpandedNameLister):
         return self.apply_tag_label(pattern, testcase)
 
 
-class TrimMixin(object):
+class TrimMixin:
     DESCRIPTION = "\tMax {} testcases per suite will be displayed".format(
         MAX_TESTCASES
     )
@@ -235,7 +228,7 @@ class ListingArgMixin(ArgMixin):
         return dict([(lister, lister.value.description()) for lister in cls])
 
 
-class ListingRegistry(object):
+class ListingRegistry:
     """
     A registry to store listers, add listers to the :py:data:`listing_registry`
     instance which is used to create the commandline parser.

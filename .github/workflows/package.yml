@@ -1,0 +1,22 @@
+name: "Build Package"
+
+on:
+  # Trigger the workflow on push only for the main branch
+  push:
+    branches:
+      - main
+
+jobs:
+  build-package:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./.github/actions/build-package     
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Development Build"
+        files: |
+          dist/testplan-*-py3-none-any.whl

@@ -1,13 +1,13 @@
 """Unit tests for TCP Server driver."""
 
 import os
+import tempfile
 
 import pytest
 
 from testplan.common.entity.base import Environment
 from testplan.common.utils.context import context
 from testplan.common.utils.sockets import Message, Codec
-from testplan.common.utils import path
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 
@@ -40,12 +40,12 @@ def tcp_client(tcp_server, runpath_module):
 
 def test_basic_runpath():
     """Test runpath of TCP client and server."""
-    with path.TemporaryDirectory() as svr_path:
+    with tempfile.TemporaryDirectory() as svr_path:
         # Server runpath
         server = TCPServer(name="server", runpath=svr_path)
         assert_obj_runpath(server, svr_path)
 
-        with path.TemporaryDirectory() as cli_path:
+        with tempfile.TemporaryDirectory() as cli_path:
             # Client runpath
             client = TCPClient(
                 name="client",

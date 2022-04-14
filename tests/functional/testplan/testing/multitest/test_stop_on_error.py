@@ -2,10 +2,7 @@ import time
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan.common.utils.testing import (
-    check_report,
-    log_propagation_disabled,
-)
+from testplan.common.utils.testing import check_report
 from testplan.report import (
     Status,
     TestReport,
@@ -13,11 +10,10 @@ from testplan.report import (
     TestCaseReport,
     ReportCategories,
 )
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 @testsuite
-class Suite1(object):
+class Suite1:
     def setup(self, env, result):
         pass
 
@@ -38,7 +34,7 @@ class Suite1(object):
 
 
 @testsuite
-class Suite2(object):
+class Suite2:
     def setup(self, env, result):
         pass
 
@@ -55,7 +51,7 @@ class Suite2(object):
 
 
 @testsuite
-class Suite3(object):
+class Suite3:
     def setup(self, env, result):
         pass
 
@@ -111,9 +107,7 @@ def test_execution_order(mockplan):
 
     mockplan.add(multitest_1)
     mockplan.add(multitest_2)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     expected_report = TestReport(
         name="plan",

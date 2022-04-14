@@ -2,9 +2,11 @@
 
 import os
 import re
+import time
+
 
 from testplan.testing.filtering import Filter
-from testplan.testing.multitest.base import EnvWithRuntimeInfo
+from testplan.testing.multitest.base import RuntimeEnvironment
 from testplan.testing.ordering import NoopSorter
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -13,19 +15,17 @@ from testplan import TestplanMock, defaults
 from testplan.common.entity.base import Environment, ResourceStatus
 from testplan.common.utils.context import context
 from testplan.common.utils.path import StdFiles, default_runpath
-from testplan.common.utils.testing import log_propagation_disabled
+from testplan.common.utils.strings import slugify
+from testplan.common.utils.timing import TimeoutException
 from testplan.testing.multitest.driver.base import Driver
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
-from testplan.common.utils.logger import TESTPLAN_LOGGER
-from testplan.common.utils.strings import slugify
-
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_drivers(self, env, result):
-        assert isinstance(env, EnvWithRuntimeInfo)
+        assert isinstance(env, RuntimeEnvironment)
         assert isinstance(env.server, TCPServer)
         assert env.server.cfg.name == "server"
         assert os.path.exists(env.server.runpath)
@@ -36,8 +36,8 @@ class MySuite(object):
         assert isinstance(env.client.context, Environment)
         assert env.server.context.client == env.client
         assert env.client.context.server == env.server
-        assert env.server.status.tag == ResourceStatus.STARTED
-        assert env.client.status.tag == ResourceStatus.STARTED
+        assert env.server.status == ResourceStatus.STARTED
+        assert env.client.status == ResourceStatus.STARTED
 
     @testcase
     def test_drivers_usage(self, env, result):
@@ -68,7 +68,7 @@ class MySuite(object):
         """
         Test context access from env and drivers.
         """
-        assert isinstance(env, EnvWithRuntimeInfo)
+        assert isinstance(env, RuntimeEnvironment)
         assert env.test_key == env["test_key"] == "test_value"
         assert env._environment is env.server.context
         assert env._environment is env.client.context
@@ -106,8 +106,8 @@ def test_multitest_drivers(runpath):
         )
 
         mtest = MultiTest(**opts)
-        assert server.status.tag == ResourceStatus.NONE
-        assert client.status.tag == ResourceStatus.NONE
+        assert server.status == ResourceStatus.NONE
+        assert client.status == ResourceStatus.NONE
         res = mtest.run()
         assert res.run is True
         assert res.report.passed
@@ -117,8 +117,8 @@ def test_multitest_drivers(runpath):
             assert mtest.runpath == default_runpath(mtest)
         assert server.runpath == os.path.join(mtest.runpath, server.uid())
         assert client.runpath == os.path.join(mtest.runpath, client.uid())
-        assert server.status.tag == ResourceStatus.STOPPED
-        assert client.status.tag == ResourceStatus.STOPPED
+        assert server.status == ResourceStatus.STOPPED
+        assert client.status == ResourceStatus.STOPPED
 
 
 def test_multitest_drivers_in_testplan(runpath):
@@ -141,13 +141,12 @@ def test_multitest_drivers_in_testplan(runpath):
         )
 
         plan.add(mtest)
-        assert server.status.tag == ResourceStatus.NONE
-        assert client.status.tag == ResourceStatus.NONE
+        assert server.status == ResourceStatus.NONE
+        assert client.status == ResourceStatus.NONE
 
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            plan.run()
-
+        plan.run()
         res = plan.result
+
         assert res.run is True
         assert res.report.passed
         if idx == 0:
@@ -157,12 +156,12 @@ def test_multitest_drivers_in_testplan(runpath):
         )
         assert server.runpath == os.path.join(mtest.runpath, server.uid())
         assert client.runpath == os.path.join(mtest.runpath, client.uid())
-        assert server.status.tag == ResourceStatus.STOPPED
-        assert client.status.tag == ResourceStatus.STOPPED
+        assert server.status == ResourceStatus.STOPPED
+        assert client.status == ResourceStatus.STOPPED
 
 
 @testsuite
-class EmptySuite(object):
+class EmptySuite:
     @testcase
     def test_empty(self, env, result):
         pass
@@ -193,7 +192,7 @@ class VulnerableDriver1(BaseDriver):
 
     def starting(self):
         super(VulnerableDriver1, self).starting()
-        self.std.err.write("Error found{}".format(os.linesep))
+        self.std.err.write("Error found\n")
         self.std.err.flush()
         raise Exception("Startup error")
 
@@ -206,8 +205,18 @@ class VulnerableDriver2(BaseDriver):
         super(VulnerableDriver2, self).stopping()
         with open(self.logpath, "a") as log_handle:
             for idx in range(1000):
-                log_handle.write("This is line {}\n".format(idx))
+                log_handle.write(f"This is line {idx}\n")
         raise Exception("Shutdown error")
+
+
+class GoodDriver(BaseDriver):
+    """This driver timeout during start."""
+
+    def starting(self):
+        super(GoodDriver, self).starting()
+        time.sleep(2)
+        self.std.out.write("GoodDriver started")
+        self.std.out.flush()
 
 
 def test_multitest_driver_startup_failure(mockplan):
@@ -223,8 +232,7 @@ def test_multitest_driver_startup_failure(mockplan):
             ],
         )
     )
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     res = mockplan.result
     assert res.run is True
@@ -255,8 +263,7 @@ def test_multitest_driver_fetch_error_log(mockplan):
             ],
         )
     )
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     res = mockplan.result
     assert res.run is True
@@ -268,3 +275,30 @@ def test_multitest_driver_fetch_error_log(mockplan):
     assert re.match(r".*Information from log file:.+stdout.*", text[0])
     for idx, line in enumerate(text[1:]):
         assert re.match(r".*This is line 99{}.*".format(idx), line)
+
+
+def test_multitest_driver_start_timeout():
+
+    driver1 = BaseDriver(
+        name="timeout_driver",
+        timeout=1,
+        stdout_regexps=[re.compile(r"Expression that won't match")],
+    )
+    assert driver1.cfg.status_wait_timeout == 1
+    assert driver1.cfg.timeout == 1
+
+    try:
+        with driver1:
+            # we will not reach here
+            assert False
+    except TimeoutException as exc:
+        assert "Timeout after 1 seconds" in str(exc)
+
+    driver2 = GoodDriver(
+        name="good_driver",
+        timeout=1,  # Note: this timeout does not include time spent in starting
+        stdout_regexps=[re.compile("GoodDriver started")],
+    )
+
+    with driver2:
+        assert True

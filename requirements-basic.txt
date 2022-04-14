@@ -1,35 +1,35 @@
 pytest
 py
 psutil
-six
-future
 setuptools
 schema
 pytz
 lxml
 python-dateutil
 reportlab
-marshmallow==3.0.0b2
-mock
+marshmallow==3.11.1
 termcolor
 colorama
-enum34; python_version < '3.4'
 pyzmq
 terminaltables
 pyparsing
 cycler
-functools32; python_version <= '2.7'
 requests>=2.4.3
-flask
-flask_restplus
+flask>2.0.0
+werkzeug>2.0.0
+flask_restx
 cheroot
+boltons
 validators==0.14.0
 Pillow
+plotly
+rpyc
 
 # Documentation
 # ---------------
 # sphinx
 # sphinx_rtd_theme
+# sphinx-click
 
 # matplot assertion
 # -----------------

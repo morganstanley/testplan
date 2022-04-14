@@ -4,17 +4,14 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import TestplanMock
 from testplan.common.utils.testing import (
-    log_propagation_disabled,
     argv_overridden,
     check_report_context,
-    py_version_data,
 )
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing import ordering
 
 
 @testsuite
-class Alpha(object):
+class Alpha:
     @testcase
     def test_ccc(self, env, result):
         pass
@@ -29,7 +26,7 @@ class Alpha(object):
 
 
 @testsuite
-class Beta(object):
+class Beta:
     @testcase
     def test_ccc(self, env, result):
         pass
@@ -38,8 +35,16 @@ class Beta(object):
     def test_xxx(self, env, result):
         pass
 
+    @testcase(parameters=[0, 1])
+    def test_bbb(self, env, result, val):
+        pass
+
     @testcase
     def test_aaa(self, env, result):
+        pass
+
+    @testcase(parameters=[3, 2, 1])
+    def test_yyy(self, env, result, val):
         pass
 
 
@@ -53,7 +58,26 @@ class Beta(object):
                 (
                     "Multitest",
                     [
-                        ("Beta", ["test_ccc", "test_xxx", "test_aaa"]),
+                        (
+                            "Beta",
+                            [
+                                "test_ccc",
+                                "test_xxx",
+                                (
+                                    "test_bbb",
+                                    ["test_bbb <val=0>", "test_bbb <val=1>"],
+                                ),
+                                "test_aaa",
+                                (
+                                    "test_yyy",
+                                    [
+                                        "test_yyy <val=3>",
+                                        "test_yyy <val=2>",
+                                        "test_yyy <val=1>",
+                                    ],
+                                ),
+                            ],
+                        ),
                         ("Alpha", ["test_ccc", "test_bbb", "test_aaa"]),
                     ],
                 )
@@ -67,7 +91,31 @@ class Beta(object):
                     "Multitest",
                     [
                         ("Alpha", ["test_aaa", "test_bbb", "test_ccc"]),
-                        ("Beta", ["test_aaa", "test_ccc", "test_xxx"]),
+                        (
+                            "Beta",
+                            [
+                                "test_aaa",
+                                (
+                                    (
+                                        "test_bbb",
+                                        [
+                                            "test_bbb <val=0>",
+                                            "test_bbb <val=1>",
+                                        ],
+                                    )
+                                ),
+                                "test_ccc",
+                                "test_xxx",
+                                (
+                                    "test_yyy",
+                                    [
+                                        "test_yyy <val=1>",
+                                        "test_yyy <val=2>",
+                                        "test_yyy <val=3>",
+                                    ],
+                                ),
+                            ],
+                        ),
                     ],
                 )
             ],
@@ -78,16 +126,29 @@ class Beta(object):
             [
                 (
                     "Multitest",
-                    py_version_data(
-                        py2=[
-                            ("Alpha", ["test_bbb", "test_aaa", "test_ccc"]),
-                            ("Beta", ["test_xxx", "test_aaa", "test_ccc"]),
-                        ],
-                        py3=[
-                            ("Beta", ["test_aaa", "test_ccc", "test_xxx"]),
-                            ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
-                        ],
-                    ),
+                    [
+                        (
+                            "Beta",
+                            [
+                                (
+                                    "test_yyy",
+                                    [
+                                        "test_yyy <val=1>",
+                                        "test_yyy <val=3>",
+                                        "test_yyy <val=2>",
+                                    ],
+                                ),
+                                "test_ccc",
+                                "test_aaa",
+                                "test_xxx",
+                                (
+                                    "test_bbb",
+                                    ["test_bbb <val=0>", "test_bbb <val=1>"],
+                                ),
+                            ],
+                        ),
+                        ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
+                    ],
                 )
             ],
         ),
@@ -97,16 +158,29 @@ class Beta(object):
             [
                 (
                     "Multitest",
-                    py_version_data(
-                        py2=[
-                            ("Alpha", ["test_ccc", "test_bbb", "test_aaa"]),
-                            ("Beta", ["test_ccc", "test_xxx", "test_aaa"]),
-                        ],
-                        py3=[
-                            ("Beta", ["test_ccc", "test_xxx", "test_aaa"]),
-                            ("Alpha", ["test_ccc", "test_bbb", "test_aaa"]),
-                        ],
-                    ),
+                    [
+                        (
+                            "Beta",
+                            [
+                                "test_ccc",
+                                "test_xxx",
+                                (
+                                    "test_bbb",
+                                    ["test_bbb <val=0>", "test_bbb <val=1>"],
+                                ),
+                                "test_aaa",
+                                (
+                                    "test_yyy",
+                                    [
+                                        "test_yyy <val=3>",
+                                        "test_yyy <val=2>",
+                                        "test_yyy <val=1>",
+                                    ],
+                                ),
+                            ],
+                        ),
+                        ("Alpha", ["test_ccc", "test_bbb", "test_aaa"]),
+                    ],
                 )
             ],
         ),
@@ -116,28 +190,39 @@ class Beta(object):
             [
                 (
                     "Multitest",
-                    py_version_data(
-                        py2=[
-                            ("Beta", ["test_xxx", "test_aaa", "test_ccc"]),
-                            ("Alpha", ["test_bbb", "test_aaa", "test_ccc"]),
-                        ],
-                        py3=[
-                            ("Beta", ["test_aaa", "test_ccc", "test_xxx"]),
-                            ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
-                        ],
-                    ),
+                    [
+                        (
+                            "Beta",
+                            [
+                                (
+                                    "test_yyy",
+                                    [
+                                        "test_yyy <val=1>",
+                                        "test_yyy <val=3>",
+                                        "test_yyy <val=2>",
+                                    ],
+                                ),
+                                "test_ccc",
+                                "test_aaa",
+                                "test_xxx",
+                                (
+                                    "test_bbb",
+                                    ["test_bbb <val=0>", "test_bbb <val=1>"],
+                                ),
+                            ],
+                        ),
+                        ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
+                    ],
                 )
             ],
         ),
     ),
 )
 def test_programmatic_ordering(sorter, report_ctx):
-    multitest_x = MultiTest(name="Multitest", suites=[Beta(), Alpha()])
+    multitest = MultiTest(name="Multitest", suites=[Beta(), Alpha()])
     plan = TestplanMock(name="plan", test_sorter=sorter)
-    plan.add(multitest_x)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        plan.run()
+    plan.add(multitest)
+    plan.run()
 
     test_report = plan.report
     check_report_context(test_report, report_ctx)
@@ -153,7 +238,26 @@ def test_programmatic_ordering(sorter, report_ctx):
                 (
                     "Multitest",
                     [
-                        ("Beta", ["test_ccc", "test_xxx", "test_aaa"]),
+                        (
+                            "Beta",
+                            [
+                                "test_ccc",
+                                "test_xxx",
+                                (
+                                    "test_bbb",
+                                    ["test_bbb <val=0>", "test_bbb <val=1>"],
+                                ),
+                                "test_aaa",
+                                (
+                                    "test_yyy",
+                                    [
+                                        "test_yyy <val=3>",
+                                        "test_yyy <val=2>",
+                                        "test_yyy <val=1>",
+                                    ],
+                                ),
+                            ],
+                        ),
                         ("Alpha", ["test_ccc", "test_bbb", "test_aaa"]),
                     ],
                 )
@@ -165,16 +269,29 @@ def test_programmatic_ordering(sorter, report_ctx):
             [
                 (
                     "Multitest",
-                    py_version_data(
-                        py2=[
-                            ("Alpha", ["test_bbb", "test_aaa", "test_ccc"]),
-                            ("Beta", ["test_xxx", "test_aaa", "test_ccc"]),
-                        ],
-                        py3=[
-                            ("Beta", ["test_aaa", "test_ccc", "test_xxx"]),
-                            ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
-                        ],
-                    ),
+                    [
+                        (
+                            "Beta",
+                            [
+                                (
+                                    "test_yyy",
+                                    [
+                                        "test_yyy <val=1>",
+                                        "test_yyy <val=3>",
+                                        "test_yyy <val=2>",
+                                    ],
+                                ),
+                                "test_ccc",
+                                "test_aaa",
+                                "test_xxx",
+                                (
+                                    "test_bbb",
+                                    ["test_bbb <val=0>", "test_bbb <val=1>"],
+                                ),
+                            ],
+                        ),
+                        ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
+                    ],
                 )
             ],
         ),
@@ -184,16 +301,29 @@ def test_programmatic_ordering(sorter, report_ctx):
             [
                 (
                     "Multitest",
-                    py_version_data(
-                        py2=[
-                            ("Alpha", ["test_bbb", "test_aaa", "test_ccc"]),
-                            ("Beta", ["test_xxx", "test_aaa", "test_ccc"]),
-                        ],
-                        py3=[
-                            ("Beta", ["test_aaa", "test_ccc", "test_xxx"]),
-                            ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
-                        ],
-                    ),
+                    [
+                        (
+                            "Beta",
+                            [
+                                (
+                                    "test_yyy",
+                                    [
+                                        "test_yyy <val=1>",
+                                        "test_yyy <val=3>",
+                                        "test_yyy <val=2>",
+                                    ],
+                                ),
+                                "test_ccc",
+                                "test_aaa",
+                                "test_xxx",
+                                (
+                                    "test_bbb",
+                                    ["test_bbb <val=0>", "test_bbb <val=1>"],
+                                ),
+                            ],
+                        ),
+                        ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
+                    ],
                 )
             ],
         ),
@@ -203,16 +333,29 @@ def test_programmatic_ordering(sorter, report_ctx):
             [
                 (
                     "Multitest",
-                    py_version_data(
-                        py2=[
-                            ("Alpha", ["test_ccc", "test_bbb", "test_aaa"]),
-                            ("Beta", ["test_ccc", "test_xxx", "test_aaa"]),
-                        ],
-                        py3=[
-                            ("Beta", ["test_ccc", "test_xxx", "test_aaa"]),
-                            ("Alpha", ["test_ccc", "test_bbb", "test_aaa"]),
-                        ],
-                    ),
+                    [
+                        (
+                            "Beta",
+                            [
+                                "test_ccc",
+                                "test_xxx",
+                                (
+                                    "test_bbb",
+                                    ["test_bbb <val=0>", "test_bbb <val=1>"],
+                                ),
+                                "test_aaa",
+                                (
+                                    "test_yyy",
+                                    [
+                                        "test_yyy <val=3>",
+                                        "test_yyy <val=2>",
+                                        "test_yyy <val=1>",
+                                    ],
+                                ),
+                            ],
+                        ),
+                        ("Alpha", ["test_ccc", "test_bbb", "test_aaa"]),
+                    ],
                 )
             ],
         ),
@@ -222,16 +365,29 @@ def test_programmatic_ordering(sorter, report_ctx):
             [
                 (
                     "Multitest",
-                    py_version_data(
-                        py2=[
-                            ("Beta", ["test_xxx", "test_aaa", "test_ccc"]),
-                            ("Alpha", ["test_bbb", "test_aaa", "test_ccc"]),
-                        ],
-                        py3=[
-                            ("Beta", ["test_aaa", "test_ccc", "test_xxx"]),
-                            ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
-                        ],
-                    ),
+                    [
+                        (
+                            "Beta",
+                            [
+                                (
+                                    "test_yyy",
+                                    [
+                                        "test_yyy <val=1>",
+                                        "test_yyy <val=3>",
+                                        "test_yyy <val=2>",
+                                    ],
+                                ),
+                                "test_ccc",
+                                "test_aaa",
+                                "test_xxx",
+                                (
+                                    "test_bbb",
+                                    ["test_bbb <val=0>", "test_bbb <val=1>"],
+                                ),
+                            ],
+                        ),
+                        ("Alpha", ["test_aaa", "test_ccc", "test_bbb"]),
+                    ],
                 )
             ],
         ),
@@ -239,14 +395,12 @@ def test_programmatic_ordering(sorter, report_ctx):
 )
 def test_command_line_ordering(cmdline_args, report_ctx):
 
-    multitest_x = MultiTest(name="Multitest", suites=[Beta(), Alpha()])
+    multitest = MultiTest(name="Multitest", suites=[Beta(), Alpha()])
 
     with argv_overridden(*cmdline_args):
         plan = TestplanMock(name="plan", parse_cmdline=True)
-        plan.add(multitest_x)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            plan.run()
+        plan.add(multitest)
+        plan.run()
 
     test_report = plan.report
     check_report_context(test_report, report_ctx)

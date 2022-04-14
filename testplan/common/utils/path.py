@@ -3,6 +3,7 @@
 import os
 import errno
 import shutil
+import fnmatch
 import getpass
 import contextlib
 import tempfile
@@ -22,7 +23,6 @@ def fix_home_prefix(path):
     directory.
     """
 
-    path = path.replace(" ", r"\ ")
     userhome = os.path.expanduser("~")
     realhome = os.path.realpath(userhome)
     if path.startswith(realhome):
@@ -47,27 +47,21 @@ def pwd():
     return fix_home_prefix(os.getcwd())
 
 
-def workspace_root():
-    """Default workspace root is the current directory."""
-    return pwd()
-
-
 def default_runpath(entity):
     """
     Returns default runpath for an
     :py:class:`Entity <testplan.common.entity.base.Entity>` object.
     """
-    # On POSIX systems, use /var/tmp in preference to /tmp for the runpath if it
-    # exists.
+    # On POSIX systems, use /var/tmp in preference to /tmp for the runpath if
+    # it exists.
     if os.name == "posix" and os.path.exists(VAR_TMP):
         runpath_prefix = VAR_TMP
     else:
         runpath_prefix = tempfile.gettempdir()
 
-    runpath = os.path.join(
+    return os.path.join(
         runpath_prefix, getpass.getuser(), "testplan", slugify(entity.uid())
     )
-    return runpath
 
 
 @contextlib.contextmanager
@@ -80,6 +74,7 @@ def change_directory(directory):
     :type directory: ``str``
     """
     old_directory = os.getcwd()
+    directory = fix_home_prefix(directory)
     os.chdir(directory)
     if "PWD" in os.environ:
         os.environ["PWD"] = directory
@@ -125,7 +120,22 @@ def makeemptydirs(path):
     makedirs(path)
 
 
-class StdFiles(object):
+def removeemptydir(path):
+    """
+    Remove a directory if it does exist and is empty.
+
+    :param path: Path to be created.
+    :type path: ``str``
+    """
+    try:
+        os.rmdir(path)
+    except FileNotFoundError:
+        pass  # directory does not exist
+    except OSError:
+        pass  # not a directory or not empty
+
+
+class StdFiles:
     """
     stderr and stdout file creation and management
     """
@@ -226,14 +236,13 @@ def unique_name(name, names):
     return name
 
 
-def to_posix_path(from_path):
+def rebase_path(path, old_base, new_base):
     """
-    :param from_path: File path, in local OS format.
-    :type from_path: ``str``
-    :return: POSIX-formatted path.
-    :rtype: ``str``
+    Rebase path from old_base to new_base and convert to Linux form.
     """
-    return "/".join(from_path.split(os.sep))
+
+    rel_path = os.path.relpath(path, old_base).split(os.sep)
+    return "/".join([new_base] + rel_path)
 
 
 def is_subdir(child, parent):
@@ -248,46 +257,6 @@ def is_subdir(child, parent):
     :rtype: ``bool``
     """
     return child.startswith(parent)
-
-
-class _TemporaryDirectory(object):
-    """
-    Context manager to create a temporary directory.
-    tempfile.TemporaryDirectory is only available on Python 3.2+, this is
-    a stripped-down backport of the basic functionality.
-
-    Parameters are passed through to ``tempfile.mkdtemp()``.
-    """
-
-    def __init__(self, suffix="", prefix="tmp", dir=None):
-        self.name = None
-        self._suffix = suffix
-        self._prefix = prefix
-        self._dir = dir
-
-    def __enter__(self):
-        """Create temporary dir, return its path."""
-        if self.name is not None:
-            raise RuntimeError(
-                "name already set to {} on enter".format(self.name)
-            )
-        self.name = tempfile.mkdtemp(self._suffix, self._prefix, self._dir)
-        return self.name
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Remove the temporary dir and all contents."""
-        if self.name is None:
-            raise RuntimeError("name was not set on exit")
-        shutil.rmtree(self.name, ignore_errors=True)
-        self.name = None
-
-
-# Use the standard library tempfile.TemporaryDirectory if it is available,
-# otherwise fall back to our backport.
-try:
-    TemporaryDirectory = tempfile.TemporaryDirectory
-except AttributeError:
-    TemporaryDirectory = _TemporaryDirectory
 
 
 def hash_file(filepath):
@@ -329,15 +298,29 @@ def archive(path, timestamp):
     return new_path
 
 
-def traverse_dir(directory, topdown=True, include_subdir=True):
+def traverse_dir(
+    directory,
+    topdown=True,
+    ignore=None,
+    only=None,
+    recursive=True,
+    include_subdir=True,
+):
     """
-    Recursively traverse all files in a directory and get a list of relative
-    file paths.
+    Recursively traverse all files and sub directories in a directory and
+    get a list of relative paths.
 
-    :param directory: Path to a directory that will be traversed
+    :param directory: Path to a directory that will be traversed.
     :type directory: ``str``
-    :param topdown: Browse the directory in a top-down approach.
+    :param topdown: Browse the directory in a top-down or bottom-up approach.
     :type topdown: ``bool``
+    :param ignore: List of patterns to ignore  by glob style filtering.
+    :type ignore: ``list``
+    :param only: List of patterns to include by glob style filtering.
+    :type only: ``list``
+    :param recursive: Traverse directories recursively, set to False to only
+        list items in top directory.
+    :type recursive: ``bool``
     :param include_subdir: Include all sub directories and files if True, or
         exclude directories in the result.
     :type include_subdir: ``bool``
@@ -345,22 +328,41 @@ def traverse_dir(directory, topdown=True, include_subdir=True):
     :rtype: ``list`` of ``str``
     """
     result = []
+    ignore = ignore or []
+    only = only or []
 
-    for dirpath, dirnames, filenames in os.walk(directory, topdown=topdown):
+    def should_ignore(filename):
+        """Decide if a file should be ignored by its name."""
+        for pattern in ignore:
+            if fnmatch.fnmatch(filename, pattern):
+                return True
+        if only:
+            for pattern in only:
+                if fnmatch.fnmatch(filename, pattern):
+                    return False
+            else:
+                return True
+        return False
 
+    for dirpath, dirnames, filenames in os.walk(
+        directory, topdown=topdown or recursive is False
+    ):
         if include_subdir:
             for dname in dirnames:
-                dpath = os.path.join(dirpath, dname)
-                _, _, relpath = dpath.partition(directory)
-                while relpath.startswith(os.sep):
-                    relpath = relpath[len(os.sep) :]
-                result.append(relpath)
+                if not should_ignore(dname):
+                    relpath = os.path.relpath(
+                        os.path.join(dirpath, dname), directory
+                    )
+                    result.append(relpath)
 
         for fname in filenames:
-            fpath = os.path.join(dirpath, fname)
-            _, _, relpath = fpath.partition(directory)
-            while relpath.startswith(os.sep):
-                relpath = relpath[len(os.sep) :]
-            result.append(relpath)
+            if not should_ignore(fname):
+                relpath = os.path.relpath(
+                    os.path.join(dirpath, fname), directory
+                )
+                result.append(relpath)
+
+        if recursive is False:
+            break
 
     return result

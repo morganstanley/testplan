@@ -26,7 +26,6 @@ class RawAssertionSchema(AssertionSchema):
 
 
 @registry.bind(
-    asr.Equal,
     asr.NotEqual,
     asr.Less,
     asr.LessEqual,
@@ -38,6 +37,13 @@ class FuncAssertionSchema(AssertionSchema):
     first = custom_fields.NativeOrPretty()
     second = custom_fields.NativeOrPretty()
     label = fields.String()
+
+
+@registry.bind(asr.Equal)
+class EqualSchema(FuncAssertionSchema):
+
+    type_actual = fields.String()
+    type_expected = fields.String()
 
 
 @registry.bind(asr.IsClose)
@@ -169,7 +175,7 @@ class XMLCheckSchema(AssertionSchema):
 
     xml = custom_fields.XMLElementField(attribute="element")
 
-    namespaces = fields.Dict(fields.String())
+    namespaces = fields.Dict()
     data = fields.List(fields.List(custom_fields.NativeOrPretty()))
     message = fields.String()
 

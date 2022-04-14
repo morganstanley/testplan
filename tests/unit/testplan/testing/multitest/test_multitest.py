@@ -2,7 +2,6 @@
 
 import os
 
-
 from testplan.common import entity
 from testplan.common.utils import path
 from testplan.common.utils import testing
@@ -13,8 +12,6 @@ from testplan.testing import ordering
 from testplan import defaults
 from testplan import report
 
-
-# TODO: shouldn't need to specify these...
 MTEST_DEFAULT_PARAMS = {
     "test_filter": filtering.Filter(),
     "test_sorter": ordering.NoopSorter(),
@@ -25,7 +22,7 @@ MTEST_DEFAULT_PARAMS = {
 def test_multitest_runpath():
     """Test setting of runpath."""
 
-    class Parent(object):
+    class Parent:
         def __init__(self, runpath):
             self.runpath = runpath
 
@@ -66,9 +63,7 @@ def test_multitest_runpath():
     assert mtest._runpath == os.path.join(global_runpath, "mtest")
 
     # runpath in global cfg and local - take local cfg
-    mtest = multitest.MultiTest(
-        name="Mtest", suites=[], runpath=local_runpath, **MTEST_DEFAULT_PARAMS
-    )
+    mtest = multitest.MultiTest(name="Mtest", suites=[], runpath=local_runpath)
     mtest.parent = par
     assert mtest.runpath is None
     assert mtest._runpath is None
@@ -78,7 +73,7 @@ def test_multitest_runpath():
 
 
 @multitest.testsuite
-class Suite(object):
+class Suite:
     """Basic testsuite."""
 
     @multitest.testcase
@@ -86,7 +81,7 @@ class Suite(object):
         """Basic testcase."""
         result.true(True)
         assert (
-            env.multitest_runtime_info.testcase.name == "case"
+            env.runtime_info.testcase.name == "case"
         )  # using pytest assert to check multitest runtime info
 
     @multitest.testcase(parameters=[1, 2, 3])
@@ -94,13 +89,13 @@ class Suite(object):
         """Parametrized testcase."""
         result.gt(val, 0)
         assert (
-            env.multitest_runtime_info.testcase.name
+            env.runtime_info.testcase.name
             == "parametrized <val={}>".format(val)
         )
 
 
 @multitest.testsuite
-class ParallelSuite(object):
+class ParallelSuite:
     """
     Suite with parallelisable testcases.
 
@@ -117,7 +112,7 @@ class ParallelSuite(object):
         """Testcase 1"""
         self._barrier.wait()
         result.eq(0, 0)
-        assert env.multitest_runtime_info.testcase.name == "case1"
+        assert env.runtime_info.testcase.name == "case1"
         self._barrier.wait()
 
     @multitest.testcase(execution_group="A")
@@ -125,7 +120,7 @@ class ParallelSuite(object):
         """Testcase 2"""
         self._barrier.wait()
         result.eq(1, 1)
-        assert env.multitest_runtime_info.testcase.name == "case2"
+        assert env.runtime_info.testcase.name == "case2"
         self._barrier.wait()
 
     @multitest.testcase(execution_group="A")
@@ -133,7 +128,7 @@ class ParallelSuite(object):
         """Testcase 3"""
         self._barrier.wait()
         result.eq(2, 2)
-        assert env.multitest_runtime_info.testcase.name == "case3"
+        assert env.runtime_info.testcase.name == "case3"
         self._barrier.wait()
 
     @multitest.testcase(execution_group="B", parameters=[1, 2, 3])
@@ -142,7 +137,7 @@ class ParallelSuite(object):
         self._barrier.wait()
         result.gt(val, 0)
         assert (
-            env.multitest_runtime_info.testcase.name
+            env.runtime_info.testcase.name
             == "parametrized <val={}>".format(val)
         )
         self._barrier.wait()
@@ -207,7 +202,7 @@ def test_dry_run():
         name="MTest",
         description="Basic multitest.",
         suites=[Suite()],
-        **MTEST_DEFAULT_PARAMS
+        **MTEST_DEFAULT_PARAMS,
     )
     result = mtest.dry_run()
     report_skeleton = result.report
@@ -256,7 +251,7 @@ def test_run_tests_parallel():
         name="MTest",
         suites=[ParallelSuite()],
         thread_pool_size=3,
-        **MTEST_DEFAULT_PARAMS
+        **MTEST_DEFAULT_PARAMS,
     )
     mtest_report = mtest.run_tests()
     assert mtest_report.passed
@@ -283,18 +278,34 @@ def test_run_testcases_iter():
         name="MTest",
         suites=[Suite()],
         thread_pool_size=3,
-        **MTEST_DEFAULT_PARAMS
+        **MTEST_DEFAULT_PARAMS,
     )
+    mtest.dry_run()
 
     results = list(mtest.run_testcases_iter())
-    assert len(results) == 4
+    assert len(results) == 8
 
-    testcase_report, parent_uids = results[0]
+    attributes, parent_uids = results[0]
+    assert parent_uids == ["MTest", "Suite", "case"]
+    assert attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+
+    testcase_report, parent_uids = results[1]
     assert parent_uids == ["MTest", "Suite"]
+    assert testcase_report.runtime_status == report.RuntimeStatus.FINISHED
     _check_testcase_report(testcase_report)
 
-    for i, (testcase_report, parent_uids) in enumerate(results[1:]):
+    for i, (attributes, parent_uids) in enumerate(results[2::2]):
+        assert parent_uids == [
+            "MTest",
+            "Suite",
+            "parametrized",
+            "parametrized__val_{}".format(i + 1),
+        ]
+        assert attributes["runtime_status"] == report.RuntimeStatus.RUNNING
+
+    for i, (testcase_report, parent_uids) in enumerate(results[3::2]):
         assert parent_uids == ["MTest", "Suite", "parametrized"]
+        assert testcase_report.runtime_status == report.RuntimeStatus.FINISHED
         _check_param_testcase_report(testcase_report, i)
 
 

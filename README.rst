@@ -3,7 +3,7 @@
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
 
-.. image:: https://github.com/Morgan-Stanley/testplan/blob/master/doc/images/logo/testplan.png
+.. image:: https://github.com/morganstanley/testplan/blob/main/doc/images/logo/testplan.png
 
 a multi-testing framework
 -------------------------
@@ -159,7 +159,7 @@ A persistent and human readable test evidence PDF report:
     [TCPConnections] -> Pass
     PDF generated at report.pdf
 
-.. image:: https://github.com/Morgan-Stanley/testplan/blob/master/doc/images/pdf/readme_server_client.png
+.. image:: https://github.com/morganstanley/testplan/blob/main/doc/images/pdf/readme_server_client.png
 
 
 Documentation
@@ -185,9 +185,9 @@ A step by step guide to contribute to Testplan framework can be found
 License
 =======
 
-License information `here <https://github.com/Morgan-Stanley/testplan/blob/master/LICENSE.md>`_.
+License information `here <https://github.com/morganstanley/testplan/blob/main/LICENSE.md>`_.
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/testplan/badge/?version=latest
 .. _ReadTheDocs: http://testplan.readthedocs.io/en/latest/
-.. |TravisCI| image:: https://api.travis-ci.com/MorganStanley/testplan.svg?branch=master
+.. |TravisCI| image:: https://api.travis-ci.com/MorganStanley/testplan.svg?branch=main
 .. _TravisCI: https://travis-ci.com/morganstanley/testplan

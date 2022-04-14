@@ -1,16 +1,10 @@
 import functools
 import json
 from collections import OrderedDict
+from unittest import mock
 
-import six
 import pytest
 from boltons.iterutils import get_path
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
-
 
 from testplan.common.utils.testing import disable_log_propagation
 
@@ -22,7 +16,7 @@ from testplan.report.testing.base import (
     TestReport,
     ReportCategories,
 )
-from testplan.report.testing.schemas import TestReportSchema, EntriesField
+from testplan.report.testing.schemas import TestReportSchema
 from testplan.common import report, entity
 from testplan.common.utils.testing import check_report
 from testplan.testing.multitest.result import Result
@@ -75,13 +69,13 @@ def test_report_exception_logger():
     assert rep.status_override is Status.ERROR
 
 
-class DummyStatusReport(object):
+class DummyStatusReport:
     def __init__(self, status, uid=None):
         self.uid = uid or 0
         self.status = status
 
 
-class TestBaseReportGroup(object):
+class TestBaseReportGroup:
     @pytest.mark.parametrize(
         "statuses,expected",
         (
@@ -215,7 +209,7 @@ class TestBaseReportGroup(object):
         assert parent.hash != orig_parent_hash
 
 
-class TestTestCaseReport(object):
+class TestTestCaseReport:
     @pytest.mark.parametrize(
         "entries,expected_status",
         (
@@ -399,9 +393,9 @@ def test_report_serialization(dummy_test_plan_report):
 
 def test_report_json_serialization(dummy_test_plan_report):
     """JSON Serialized & deserialized reports should be equal."""
-    test_plan_schema = TestReportSchema(strict=True)
-    data = test_plan_schema.dumps(dummy_test_plan_report).data
-    deserialized_report = test_plan_schema.loads(data).data
+    test_plan_schema = TestReportSchema()
+    data = test_plan_schema.dumps(dummy_test_plan_report)
+    deserialized_report = test_plan_schema.loads(data)
     check_report(actual=deserialized_report, expected=dummy_test_plan_report)
 
 
@@ -409,24 +403,21 @@ def test_report_json_binary_serialization(
     dummy_test_plan_report_with_binary_asserts,
 ):
     """JSON Serialized & deserialized reports should be equal."""
-    test_plan_schema = TestReportSchema(strict=True)
-    data = test_plan_schema.dumps(
-        dummy_test_plan_report_with_binary_asserts
-    ).data
+    test_plan_schema = TestReportSchema()
+    data = test_plan_schema.dumps(dummy_test_plan_report_with_binary_asserts)
 
     j = json.loads(data)
-    bkey = EntriesField._BYTES_KEY
 
     # passing assertion
-    hx_1_1 = get_path(j, "entries.1.entries.0.entries.1.first")[bkey]
-    hx_1_2 = get_path(j, "entries.1.entries.0.entries.1.second")[bkey]
-    assert ["0xF2"] == hx_1_1 == hx_1_2
+    hx_1_1 = get_path(j, "entries.1.entries.0.entries.1.first")
+    hx_1_2 = get_path(j, "entries.1.entries.0.entries.1.second")
+    assert str(b"\xF2") == hx_1_1 == hx_1_2
 
     # failing assertion
-    hx_2_1 = get_path(j, "entries.1.entries.0.entries.2.first")[bkey]
-    hx_2_2 = get_path(j, "entries.1.entries.0.entries.2.second")[bkey]
-    assert ["0x00", "0xB1", "0xC1"] == hx_2_1
-    assert ["0x00", "0xB2", "0xC2"] == hx_2_2
+    hx_2_1 = get_path(j, "entries.1.entries.0.entries.2.first")
+    hx_2_2 = get_path(j, "entries.1.entries.0.entries.2.second")
+    assert str(b"\x00\xb1\xC1") == hx_2_1
+    assert str(b"\x00\xB2\xC2") == hx_2_2
 
     # dict.match the schema for that producing list of tuples
 
@@ -435,36 +426,16 @@ def test_report_json_binary_serialization(
     SECOND_INDEX = 4
 
     comps = get_path(j, "entries.1.entries.0.entries.3.comparison")
-    assert comps[0][KEY_INDEX][bkey] == EntriesField._binary_to_hex_list(
-        b"binarykey\xB1"
-    )
-    assert comps[1][FIRST_INDEX][1][bkey] == EntriesField._binary_to_hex_list(
-        b"binary value\xB1"
-    )
-    assert comps[1][SECOND_INDEX][1][bkey] == EntriesField._binary_to_hex_list(
-        b"binary value\xB1"
-    )
-    assert comps[3][FIRST_INDEX][1][bkey] == EntriesField._binary_to_hex_list(
-        b"binary\xB1"
-    )
-    assert comps[3][SECOND_INDEX][1][bkey] == EntriesField._binary_to_hex_list(
-        b"binary\xB1"
-    )
-    assert comps[7][FIRST_INDEX][1][bkey] == EntriesField._binary_to_hex_list(
-        b"binary\xB1"
-    )
-    assert comps[7][SECOND_INDEX][1][bkey] == EntriesField._binary_to_hex_list(
-        b"binary\xB1"
-    )
-
-    deserialized_report = test_plan_schema.loads(data).data
-    check_report(
-        actual=deserialized_report,
-        expected=dummy_test_plan_report_with_binary_asserts,
-    )
+    assert comps[0][KEY_INDEX] == str(b"binarykey\xB1")
+    assert comps[1][FIRST_INDEX][1] == str(b"binary value\xB1")
+    assert comps[1][SECOND_INDEX][1] == str(b"binary value\xB1")
+    assert comps[3][FIRST_INDEX][1] == str(b"binary\xB1")
+    assert comps[3][SECOND_INDEX][1] == str(b"binary\xB1")
+    assert comps[7][FIRST_INDEX][1] == str(b"binary\xB1")
+    assert comps[7][SECOND_INDEX][1] == str(b"binary\xB1")
 
 
-class TestReportTags(object):
+class TestReportTags:
     def get_reports(self):
         tc_report_1 = TestCaseReport(
             name="My Test Case", tags={"simple": {"baz"}}

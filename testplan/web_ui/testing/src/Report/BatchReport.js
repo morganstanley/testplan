@@ -1,24 +1,27 @@
-import React from 'react';
-import {StyleSheet, css} from 'aphrodite';
-import axios from 'axios';
-import PropTypes from 'prop-types';
+import React from "react";
+import { StyleSheet, css } from "aphrodite";
+import axios from "axios";
+import PropTypes from "prop-types";
+import _ from 'lodash';
 
-import Toolbar from '../Toolbar/Toolbar';
-import {TimeButton} from '../Toolbar/Buttons';
-import Nav from '../Nav/Nav';
+import { parseToJson } from "../Common/utils";
+import Toolbar from "../Toolbar/Toolbar";
+import Nav from "../Nav/Nav";
 import {
-  PropagateIndices,  
+  PropagateIndices,
   GetReportState,
   GetCenterPane,
   GetSelectedEntries,
   MergeSplittedReport,
-  filterReport,  
+  filterReport,
   getSelectedUIDsFromPath,
 } from "./reportUtils";
-import { generateSelectionPath } from './path';
+import { generateSelectionPath } from "./path";
 
-import {COLUMN_WIDTH} from "../Common/defaults";
-import {fakeReportAssertions} from "../Common/fakeReport";
+import { COLUMN_WIDTH, defaultFixSpec } from "../Common/defaults";
+import { fakeReportAssertions } from "../Common/fakeReport";
+import { generateURLWithParameters } from "../Common/utils";
+import { AssertionContext, defaultAssertionStatus } from "../Common/context";
 
 /**
  * BatchReport component:
@@ -31,52 +34,63 @@ class BatchReport extends React.Component {
     super(props);
     this.setError = this.setError.bind(this);
     this.setReport = this.setReport.bind(this);
+    this.getReport = this.getReport.bind(this);
     this.handleNavFilter = this.handleNavFilter.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
+    this.updateTreeView = this.updateTreeView.bind(this);
     this.updateTagsDisplay = this.updateTagsDisplay.bind(this);
     this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
+    this.updatePathDisplay = this.updatePathDisplay.bind(this);
     this.updateDisplayEmpty = this.updateDisplayEmpty.bind(this);
     this.handleColumnResizing = this.handleColumnResizing.bind(this);
+    this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
+    this.updateAssertionStatus = this.updateAssertionStatus.bind(this);
+
+    defaultAssertionStatus.updateGlobalExpand = this.updateGlobalExpand;
+    defaultAssertionStatus.updateAssertionStatus = this.updateAssertionStatus;
 
     this.state = {
       navWidth: `${COLUMN_WIDTH}em`,
       report: null,
-      filteredReport: {filter: {text: null, filters: null}, report: null},
+      filteredReport: { filter: { text: null, filters: null }, report: null },
       testcaseUid: null,
       loading: false,
       error: null,
       filter: null,
+      treeView: true,
       displayTags: false,
       displayTime: false,
+      displayPath: false,
       displayEmpty: true,
+      assertionStatus: defaultAssertionStatus,
     };
   }
 
   setError(error) {
-    this.setState({
-      error: error,
-      loading: false,
-    });
+    console.log(error);
+    this.setState({ error: error, loading: false });
   }
 
   setReport(report) {
     const processedReport = PropagateIndices(report);
     const filteredReport = filterReport(
       processedReport,
-      this.state.filteredReport.filter);
-  
-      const redirectPath = this.props.match.params.selection ? 
-        null :
-        generateSelectionPath(
-          this.props.match.path, 
-          this.autoSelect(filteredReport.report)
-        );
-    
-    this.setState({
-      report: processedReport,
-      filteredReport,
-      loading: false,      
-    }, () => {
+      this.state.filteredReport.filter
+    );
+
+    const redirectPath = this.props.match.params.selection
+      ? null
+      : generateSelectionPath(this.props.match.path, [
+        filteredReport.report.uid,
+      ]);
+
+    this.setState(
+      {
+        report: processedReport,
+        filteredReport,
+        loading: false,
+      },
+      () => {
         if (redirectPath) {
           this.props.history.replace(redirectPath);
         }
@@ -96,56 +110,59 @@ class BatchReport extends React.Component {
     // Inspect the UID to determine the report to render. As a special case,
     // we will display a fake report for development purposes.
     const uid = this.props.match.params.uid;
+    axios.get('/api/v1/metadata/fix-spec/tags')
+      .then((metadataRes) => {
+        defaultFixSpec.tags = metadataRes.data || {};
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     if (uid === "_dev") {
       var fakeReport = this.updateReportUID(fakeReportAssertions, uid);
-      setTimeout(
-        () => this.setReport(fakeReport),
-        1500);
+      setTimeout(() => this.setReport(fakeReport), 1500);
     } else {
-      axios.get(`/api/v1/reports/${uid}`)
-        .then(response => {
+      axios
+        .get(`/api/v1/reports/${uid}`)
+        .then((response) => {
           const rawReport = response.data;
           if (rawReport.version === 2) {
             const assertionsReq = axios.get(
-              `/api/v1/reports/${uid}/attachments/${rawReport.assertions_file}`
+              `/api/v1/reports/${uid}/attachments/${rawReport.assertions_file}`,
+              { transformResponse: parseToJson }
             );
             const structureReq = axios.get(
-              `/api/v1/reports/${uid}/attachments/${rawReport.structure_file}`
+              `/api/v1/reports/${uid}/attachments/${rawReport.structure_file}`,
+              { transformResponse: parseToJson }
             );
-            axios.all([assertionsReq, structureReq]).then(
-              axios.spread((assertionsRes, structureRes) => {
-                const mergedReport = MergeSplittedReport(
-                  rawReport, assertionsRes.data, structureRes.data
-                );
-                this.setReport(this.updateReportUID(mergedReport, uid));
-            })).catch(this.setError);
+            axios
+              .all([assertionsReq, structureReq])
+              .then(
+                axios.spread((assertionsRes, structureRes) => {
+                  if (!assertionsRes.data) {
+                    console.error(assertionsRes);
+                    alert(
+                      "Failed to parse assertion datails!\n" +
+                      "Please report this issue to the Testplan team."
+                    );
+                  }
+                  const mergedReport = MergeSplittedReport(
+                    rawReport,
+                    assertionsRes.data,
+                    structureRes.data
+                  );
+                  this.setReport(this.updateReportUID(mergedReport, uid));
+                })
+              ).catch(this.setError);
           } else {
             this.setReport(this.updateReportUID(rawReport, uid));
           }
-        }).catch(this.setError);
+        })
+        .catch(this.setError);
     }
   }
 
-  updateReportUID( report, uid) {
+  updateReportUID(report, uid) {
     return { ...report, uid };
-  }
-
-  /**
-   * Auto-select an entry in the report when it is first loaded.
-   * @param {reportNode} reportEntry - the current report entry to select from.
-   * @return {Array[string]} List of UIDs of the currently selected entries.
-   */
-  autoSelect(reportEntry) {
-    const selection = [reportEntry.uid];
-
-    // If the current report entry has only one child entry and that entry is
-    // not a testcase, we automatically expand it.
-    if ((reportEntry.entries.length === 1) &&
-        (reportEntry.entries[0].category!== "testcase")) {
-      return selection.concat(this.autoSelect(reportEntry.entries[0]));
-    } else {
-      return selection;
-    }
   }
 
   /**
@@ -153,7 +170,7 @@ class BatchReport extends React.Component {
    * @public
    */
   componentDidMount() {
-    this.setState({loading: true}, this.getReport);
+    this.setState({ loading: true }, this.getReport);
   }
 
   /**
@@ -162,11 +179,55 @@ class BatchReport extends React.Component {
    * @param {Object} filter - the paresed filter expression
    * @public
    */
-  handleNavFilter(filter) { // eslint-disable-line no-unused-vars
+  handleNavFilter(filter) {
+    // eslint-disable-line no-unused-vars
     const filteredReport = filterReport(this.state.report, filter);
 
     this.setState({
       filteredReport,
+    });
+  }
+
+  /**
+   * Update the global expand status
+   *
+   * @param {String} status - the new global expand status
+   * @public
+   */
+  updateGlobalExpand(status) {
+    this.setState((prev) => {
+      const assertionStatus = prev.assertionStatus;
+      assertionStatus.globalExpand = {
+        status: status,
+        time: new Date().getTime(),
+      };
+      return { ...prev, assertionStatus };
+    });
+    const newUrl = generateURLWithParameters(
+      window.location,
+      window.location.pathname,
+      { expand: status }
+    );
+    this.props.history.push(newUrl);
+  }
+
+  /**
+   * Update the expand status of assertions
+   *
+   * @param {Array} uids - the array of assertion unique id
+   * @param {String} status - the new expand status of assertions
+   * @public
+   */
+  updateAssertionStatus(uids, status) {
+    this.setState((prev) => {
+      const assertionStatus = prev.assertionStatus;
+      uids.forEach((uid) => {
+        assertionStatus.assertions[uid] = {
+          status: status,
+          time: new Date().getTime(),
+        };
+      });
+      return { ...prev, assertionStatus };
     });
   }
 
@@ -177,7 +238,17 @@ class BatchReport extends React.Component {
    * @public
    */
   updateFilter(filter) {
-    this.setState({filter: filter});
+    this.setState({ filter: filter });
+  }
+
+  /**
+   * Update the flag for whether to use tree view navigation or the default one.
+   *
+   * @param {boolean} treeView.
+   * @public
+   */
+  updateTreeView(treeView) {
+    this.setState({ treeView: treeView });
   }
 
   /**
@@ -187,7 +258,7 @@ class BatchReport extends React.Component {
    * @public
    */
   updateTagsDisplay(displayTags) {
-    this.setState({displayTags: displayTags});
+    this.setState({ displayTags: displayTags });
   }
 
   /**
@@ -197,7 +268,17 @@ class BatchReport extends React.Component {
    * @public
    */
   updateDisplayEmpty(displayEmpty) {
-    this.setState({displayEmpty: displayEmpty});
+    this.setState({ displayEmpty: displayEmpty });
+  }
+
+  /**
+   * Update file path and line number display of each assertion.
+   *
+   * @param {boolean} displayPath.
+   * @public
+   */
+  updatePathDisplay(displayPath) {
+    this.setState({ displayPath: displayPath });
   }
 
   /**
@@ -207,80 +288,91 @@ class BatchReport extends React.Component {
    * @public
    */
   updateTimeDisplay(displayTime) {
-    this.setState({displayTime: displayTime});
+    this.setState({ displayTime: displayTime });
   }
 
   /**
    * Handle resizing event and update NavList & Center Pane.
    */
   handleColumnResizing(navWidth) {
-    this.setState({navWidth: navWidth});
+    this.setState({ navWidth: navWidth });
   }
 
   getSelectedUIDsFromPath() {
-    const {uid, selection} = this.props.match.params;
-    return [uid, ...(selection ? selection.split('/') : [])];
+    const { uid, selection } = this.props.match.params;
+    return [uid, ...(selection ? selection.split("/") : [])];
   }
 
   selectionMatchPath(entries_selection) {
-    let [uid, ...selection] = 
-      entries_selection[entries_selection.length - 1].uids;    
+    let [uid, ...selection] =
+      entries_selection[entries_selection.length - 1].uids;
 
     selection = selection.length ? selection.join("/") : undefined;
 
-    return uid === this.props.match.params.uid && 
-           selection=== this.props.match.params.selection;
+    return (
+      uid === this.props.match.params.uid &&
+      selection === this.props.match.params.selection
+    );
   }
 
   render() {
-
-    const {reportStatus, reportFetchMessage} = GetReportState(this.state);
+    const { reportStatus, reportFetchMessage } = GetReportState(this.state);
 
     if (this.state.report && this.state.report.name) {
       window.document.title = this.state.report.name;
     }
 
     const selectedEntries = GetSelectedEntries(
-      getSelectedUIDsFromPath(this.props.match.params), 
+      getSelectedUIDsFromPath(this.props.match.params),
       this.state.filteredReport.report
     );
+
+    if (selectedEntries.length) {
+      window.document.title = `${_.last(selectedEntries).name} | \
+                               ${selectedEntries.slice(0, -1)
+          .map(entry => entry.name)
+          .join(" > ")}`;
+    }
 
     const centerPane = GetCenterPane(
       this.state,
       reportFetchMessage,
       this.props.match.params.uid,
-      selectedEntries,
+      selectedEntries
     );
 
     return (
       <div className={css(styles.batchReport)}>
         <Toolbar
           filterBoxWidth={this.state.navWidth}
-          filterText = {this.state.filteredReport.filter.text}
+          filterText={this.state.filteredReport.filter.text}
           status={reportStatus}
           report={this.state.report}
+          expandStatus={this.state.assertionStatus.globalExpand.status}
+          updateExpandStatusFunc={this.updateGlobalExpand}
           handleNavFilter={this.handleNavFilter}
           updateFilterFunc={this.updateFilter}
           updateEmptyDisplayFunc={this.updateDisplayEmpty}
+          updateTreeViewFunc={this.updateTreeView}
           updateTagsDisplayFunc={this.updateTagsDisplay}
-          extraButtons={[<TimeButton
-            key="time-button"
-            status={reportStatus}
-            updateTimeDisplayCbk={this.updateTimeDisplay}
-          />]}
+          updatePathDisplayFunc={this.updatePathDisplay}
+          updateTimeDisplayFunc={this.updateTimeDisplay}
         />
         <Nav
           navListWidth={this.state.navWidth}
           report={this.state.filteredReport.report}
           selected={selectedEntries}
           filter={this.state.filter}
+          treeView={this.state.treeView}
           displayEmpty={this.state.displayEmpty}
           displayTags={this.state.displayTags}
           displayTime={this.state.displayTime}
           handleColumnResizing={this.handleColumnResizing}
           url={this.props.match.path}
         />
-        {centerPane}
+        <AssertionContext.Provider value={this.state.assertionStatus}>
+          {centerPane}
+        </AssertionContext.Provider>
       </div>
     );
   }
@@ -294,7 +386,7 @@ const styles = StyleSheet.create({
   batchReport: {
     /** overflow will hide dropdown div */
     // overflow: 'hidden'
-  }
+  },
 });
 
 export default BatchReport;

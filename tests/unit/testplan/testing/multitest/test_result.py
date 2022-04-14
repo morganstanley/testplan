@@ -1,32 +1,99 @@
-"""Unit tests for the testplan.testing.multitest.result module."""
+"""
+Unit tests for the testplan.testing.multitest.result module.
+"""
 
 import collections
-import six
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
-
+import copy
+import hashlib
+import inspect
 import os
-
-import pytest
+import re
+from unittest import mock
 
 import matplotlib
-
-matplotlib.use("agg")
+import pytest
 import matplotlib.pyplot as plot
 
-from testplan.testing.multitest import result as result_mod
-from testplan.testing.multitest.suite import testcase, testsuite
-from testplan.testing.multitest import MultiTest
 from testplan.common.utils import comparison
 from testplan.common.utils import testing
 from testplan.common.utils import path as path_utils
 
+from testplan.testing.multitest import result as result_mod
+from testplan.testing.multitest import MultiTest
+from testplan.testing.multitest.suite import testcase, testsuite
+
+matplotlib.use("agg")
+
+
+def get_line_no(obj, rel_pos):
+    """
+    Extracts absolute line number based on object and relative position.
+    """
+    _, start = inspect.getsourcelines(obj)
+    return start + rel_pos
+
+
+def helper(result, description=None):
+    result.less(1, 2, description=description)
+
+
+@result_mod.report_target
+def intermediary(result, description=None):
+    helper(result, description=description)
+
+
+def test_group_marking():
+    """
+    Tests, at result object level, if marking works as expected.
+    """
+    result = result_mod.Result()
+    result.equal(1, 1)
+    assert result.entries.pop().line_no == get_line_no(test_group_marking, 5)
+    helper(result)
+    assert result.entries.pop().line_no == get_line_no(helper, 1)
+    intermediary(result)
+    assert result.entries.pop().line_no == get_line_no(intermediary, 2)
+
 
 @testsuite
-class AssertionOrder(object):
+class GroupMarking:
+    @testcase
+    def case(self, env, result):
+        result.equal(1, 1, description="A")
+        helper(result, description="B")
+        intermediary(result, description="C")
+
+
+@pytest.mark.parametrize("flag", [True, False])
+def test_group_marking_multitest(mockplan, flag):
+    """
+    Tests, at MultiTest-level, if marking works as expected.
+    """
+    test = MultiTest(
+        name="GroupMarking",
+        suites=[GroupMarking()],
+        testcase_report_target=flag,
+    )
+    test.cfg.parent = mockplan.cfg
+    test.run()
+    assertions = {
+        entry["description"]: entry
+        for entry in test.report.flatten()
+        if isinstance(entry, dict) and entry["meta_type"] == "assertion"
+    }
+    expected = {
+        "A": get_line_no(GroupMarking.case, 2),
+        "B": get_line_no(GroupMarking.case, 3)
+        if flag
+        else get_line_no(helper, 1),
+        "C": get_line_no(intermediary, 2),
+    }
+    for desc, line_no in expected.items():
+        assert assertions[desc]["line_no"] == line_no
+
+
+@testsuite
+class AssertionOrder:
     @testcase
     def case(self, env, result):
         summary = result.subresult()
@@ -49,8 +116,10 @@ class AssertionOrder(object):
         result.prepend(summary)
 
 
-def test_assertion_orders():
+def test_assertion_order(mockplan):
+    """Verify ordered assertion entries in test report."""
     mtest = MultiTest(name="AssertionsOrder", suites=[AssertionOrder()])
+    mtest.cfg.parent = mockplan.cfg
     mtest.run()
 
     expected = [
@@ -62,14 +131,56 @@ def test_assertion_orders():
         "Report passed so far.",
     ]
     # pylint: disable=invalid-sequence-index
-    assertions = (
+    assertions = [
         entry
         for entry in mtest.report.flatten()
         if isinstance(entry, dict) and entry["meta_type"] == "assertion"
-    )
+    ]
 
-    for idx, entry in enumerate(assertions):
-        assert entry["description"] == expected[idx]
+    for idx, desc in enumerate(expected):
+        assert desc == assertions[idx]["description"]
+
+
+@testsuite
+class AssertionExtraAttribute:
+    @testcase
+    def case(self, env, result):
+        first = result.subresult()
+        second = result.subresult()
+
+        second.false(False, custom_style=None)
+        second.false(False, custom_style={"border": 1, "margin": 2})
+
+        first.true(True, custom_style={"color": "red", "bgcolor": "white"})
+        first.true(True, custom_style={123: "foo", 456: "bar", 789: "baz"})
+
+        result.log("Report passed so far.", custom_style={})
+        result.prepend(first)
+        result.append(second)
+
+
+def test_assertion_extra_attribute(mockplan):
+    """Test that required extra attribute correctly recorded in report."""
+    mtest = MultiTest(
+        name="AssertionExtraAttribute", suites=[AssertionExtraAttribute()]
+    )
+    mtest.cfg.parent = mockplan.cfg
+    mtest.run()
+
+    expected = [
+        {"color": "red", "bgcolor": "white"},
+        {"123": "foo", "456": "bar", "789": "baz"},
+        {},
+        {"border": "1", "margin": "2"},
+    ]
+    assertions = [
+        entry
+        for entry in mtest.report.flatten()
+        if isinstance(entry, dict) and "custom_style" in entry
+    ]
+
+    for idx, custom_style in enumerate(expected):
+        assert custom_style == assertions[idx]["custom_style"]
 
 
 @pytest.fixture
@@ -88,7 +199,7 @@ def fix_ns():
     return result_mod.FixNamespace(mock_result)
 
 
-class TestDictNamespace(object):
+class TestDictNamespace:
     """Unit testcases for the result.DictNamespace class."""
 
     def test_basic_match(self, dict_ns):
@@ -245,8 +356,56 @@ class TestDictNamespace(object):
         dict_assert = dict_ns.result.entries.popleft()
         assert len(dict_assert.comparison) == 1
 
+    def test_flattened_comparison_result(self, dict_ns):
+        """Test the comparison result in flattened entries."""
+        expected = {
+            "foo": 1,
+            "bar": lambda val: val >= 1,
+            "baz": [
+                {
+                    "apple": 3,
+                    "pear": 4,
+                    "bat": [
+                        {"wine": "gin", "tea": re.compile(r"[a-z]{5}")},
+                        {"wine": "vodka", "tea": "green"},
+                    ],
+                }
+            ],
+        }
+        actual = copy.deepcopy(expected)
+        actual["bar"] = 2
+        actual["baz"][0]["pear"] = 5
+        actual["baz"][0]["bat"][0]["wine"] = "lime"
+        actual["baz"][0]["bat"][0]["tea"] = "oolong"
+        actual["baz"][0]["bat"][1]["wine"] = "brandy"
+        actual["baz"][0]["bat"][1]["tea"] = "black"
+        assert dict_ns.match(
+            actual,
+            expected,
+            description="complex dictionary comparison",
+            exclude_keys=["pear", "wine", "tea"],
+        )
+        assert len(dict_ns.result.entries) == 1
 
-class TestFIXNamespace(object):
+        # Comparison result is a list of list items in below format:
+        # [indent, key, result, (act_type, act_value), (exp_type, exp_value)]
+        comp_result = dict_ns.result.entries[0].comparison
+        bar = [item for item in comp_result if item[1] == "bar"][0]
+        assert bar[0] == 0 and bar[4][0] == "func"
+        baz = [item for item in comp_result if item[1] == "baz"][0]
+        assert baz[0] == 0 and baz[2][0].lower() == comparison.Match.PASS
+        bat = [item for item in comp_result if item[1] == "bat"][0]
+        assert bat[0] == 1 and bat[2][0].lower() == comparison.Match.IGNORED
+        tea_1, tea_2 = [item for item in comp_result if item[1] == "tea"]
+        assert (
+            tea_1[0] == tea_2[0] == 2
+            and tea_1[2][0].lower() == comparison.Match.IGNORED
+            and tea_2[2][0].lower() == comparison.Match.IGNORED
+            and tea_1[4][0] == "REGEX"
+        )
+
+
+class TestFIXNamespace:
     """Unit testcases for the result.FixNamespace class."""
 
     def test_untyped_fixmatch(self, fix_ns):
@@ -339,8 +498,71 @@ class TestFIXNamespace(object):
         dict_assert = fix_ns.result.entries.popleft()
         assert len(dict_assert.comparison) == 1
 
+    def test_flattened_comparison_result(self, fix_ns):
+        """Test the comparison result in flattened entries."""
+        expected = {
+            8: "FIX42",
+            9: re.compile(r"[A-Za-z]{2}"),
+            555: [
+                {
+                    600: "A",
+                    601: "B",
+                    687: [
+                        {688: "opq", 689: "rst"},
+                        {688: "uvw", 689: "xyz"},
+                    ],
+                }
+            ],
+        }
+        actual = expected.copy()
+        actual[9] = "AE"
+        actual[555] = [{600: "A", 601: "C", 700: "D"}]
+        assert not fix_ns.match(
+            actual,
+            expected,
+            description="complex fix message comparison",
+            include_tags=[9, 555, 600, 687],
+        )
+        assert len(fix_ns.result.entries) == 1
 
-class TestResultBaseNamespace(object):
+        # Comparison result is a list of list items in below format:
+        # [indent, key, result, (act_type, act_value), (exp_type, exp_value)]
+        comp_result = fix_ns.result.entries[0].comparison
+        _8 = [item for item in comp_result if item[1] == 8][0]
+        assert _8[0] == 0 and _8[2][0].lower() == comparison.Match.IGNORED
+        _9 = [item for item in comp_result if item[1] == 9][0]
+        assert (
+            _9[0] == 0
+            and _9[2][0].lower() == comparison.Match.PASS
+            and _9[4][0] == "REGEX"
+        )
+        _555 = [item for item in comp_result if item[1] == 555][0]
+        assert _555[0] == 0 and _555[2][0].lower() == comparison.Match.FAIL
+        _600 = [item for item in comp_result if item[1] == 600][0]
+        assert _600[0] == 1 and _600[2][0].lower() == comparison.Match.PASS
+        _601 = [item for item in comp_result if item[1] == 601][0]
+        assert _601[0] == 1 and _601[2][0].lower() == comparison.Match.IGNORED
+        _687 = [item for item in comp_result if item[1] == 687][0]
+        assert (
+            _687[0] == 1
+            and _687[2][0].lower() == comparison.Match.FAIL
+            and _687[3] == (None, "ABSENT")  # key not found in actual data
+        )
+        _688_1, _688_2 = [item for item in comp_result if item[1] == 688]
+        assert _688_1[0] == 2 and _688_1[2][0].lower() == comparison.Match.FAIL
+        assert _688_2[0] == 2 and _688_2[2][0].lower() == comparison.Match.FAIL
+        _689_1, _689_2 = [item for item in comp_result if item[1] == 689]
+        assert _689_1[0] == 2 and _689_1[2][0].lower() == comparison.Match.FAIL
+        assert _689_2[0] == 2 and _689_2[2][0].lower() == comparison.Match.FAIL
+        _700 = [item for item in comp_result if item[1] == 700][0]
+        assert (
+            _700[0] == 1
+            and _700[2][0].lower() == comparison.Match.IGNORED
+            and _700[4] == (None, "ABSENT")  # key not found in expected data
+        )
+
+
+class TestResultBaseNamespace:
     """Test assertions and other methods in the base result.* namespace."""
 
     def test_graph_assertion(self):
@@ -381,20 +603,23 @@ class TestResultBaseNamespace(object):
             f.write("testplan\n" * 1000)
 
         result = result_mod.Result(_scratch=str(tmpdir))
-        assert result.attach(tmpfile, description="Attach a text file")
+        hash = path_utils.hash_file(tmpfile)
 
+        assert result.attach(tmpfile, description="Attach a text file")
         assert len(result.entries) == 1
         attachment_entry = result.entries[0]
 
-        assert attachment_entry.source_path == tmpfile
-        assert attachment_entry.hash == path_utils.hash_file(tmpfile)
+        assert attachment_entry.source_path == os.path.join(
+            os.path.dirname(tmpfile), attachment_entry.dst_path
+        )
+        assert hash in attachment_entry.dst_path
         assert attachment_entry.orig_filename == "attach_me.txt"
         assert attachment_entry.filesize == os.path.getsize(tmpfile)
 
         # The expected destination path depends on the exact hash and filesize
         # of the file we wrote.
         expected_dst_path = "attach_me-{hash}-{filesize}.txt".format(
-            hash=attachment_entry.hash, filesize=attachment_entry.filesize
+            hash=hash, filesize=attachment_entry.filesize
         )
         assert attachment_entry.dst_path == expected_dst_path
 
@@ -404,11 +629,12 @@ class TestResultBaseNamespace(object):
         with open(tmpfile, "w") as f:
             f.write("testplan\n" * 1000)
 
+        size = os.path.getsize(tmpfile)
         description = "Attach a text file at level: {}"
 
         result = result_mod.Result(_scratch=str(tmpdir))
-        assert result.attach(tmpfile, description=description.format(0))
 
+        assert result.attach(tmpfile, description=description.format(0))
         assert len(result.entries) == 1
 
         with result.group("subgroup") as subgroup:
@@ -426,12 +652,10 @@ class TestResultBaseNamespace(object):
         assert len(result.entries) == 2
         assert len(result.attachments) == 3
 
-        file_hash = path_utils.hash_file(tmpfile)
-        size = os.path.getsize(tmpfile)
-
         for idx, attachment in enumerate(result.attachments):
-            assert attachment.source_path == tmpfile
-            assert attachment.hash == file_hash
+            assert attachment.source_path == os.path.join(
+                os.path.dirname(tmpfile), attachment.dst_path
+            )
             assert attachment.orig_filename == "attach_me.txt"
             assert attachment.filesize == size
             assert attachment.description == description.format(idx)
@@ -464,7 +688,91 @@ class TestResultBaseNamespace(object):
             result.attachments[0].source_path
             != result.attachments[1].source_path
         )
-        assert result.attachments[0].hash != result.attachments[1].hash
         assert result.attachments[0].filesize > result.attachments[1].filesize
         assert result.attachments[0].source_path.startswith(result_dir)
         assert result.attachments[1].source_path.startswith(result_dir)
+
+    def test_attach_dir(self, tmpdir):
+        """UT for result.attach method."""
+        path_utils.makeemptydirs(str(tmpdir.join("subdir")))
+
+        tmpfile1 = str(tmpdir.join("1.txt"))
+        with open(tmpfile1, "w") as f:
+            f.write("testplan\n" * 10)
+
+        tmpfile2 = str(tmpdir.join("2.txt"))
+        with open(tmpfile2, "w") as f:
+            f.write("testplan\n")
+
+        tmpfile3 = str(tmpdir.join("subdir").join("3.txt"))
+        with open(tmpfile3, "w") as f:
+            f.write("testplan\n" * 100)
+
+        tmpfile4 = str(tmpdir.join("subdir").join("4.txt"))
+        with open(tmpfile4, "w") as f:
+            f.write("testplan\n" * 1000)
+
+        result = result_mod.Result()
+
+        assert result.attach(str(tmpdir), description="Attach a directory")
+        assert len(result.entries) == 1
+        directory_entry = result.entries[0]
+
+        assert directory_entry.source_path == str(tmpdir)
+        assert (
+            directory_entry.dst_path
+            == hashlib.md5(
+                directory_entry.source_path.encode("utf-8")
+            ).hexdigest()
+        )
+        assert sorted(directory_entry.file_list) == ["1.txt", "2.txt"]
+
+        assert result.attach(
+            str(tmpdir),
+            description="Attach a directory with filters",
+            ignore=["2.*"],
+            only=["*.txt"],
+            recursive=True,
+        )
+        assert len(result.entries) == 2
+        directory_entry = result.entries[1]
+
+        assert directory_entry.source_path == str(tmpdir)
+        assert (
+            directory_entry.dst_path
+            == hashlib.md5(
+                directory_entry.source_path.encode("utf-8")
+            ).hexdigest()
+        )
+        assert sorted(
+            [file.replace("\\", "/") for file in directory_entry.file_list]
+        ) == [
+            "1.txt",
+            "subdir/3.txt",
+            "subdir/4.txt",
+        ]
+
+    def test_bool(self):
+        result = result_mod.Result()
+        assert result
+        assert len(result) == 0
+        assert result.passed
+
+        first = result.subresult()
+        second = result.subresult()
+
+        first.true(True, "AssertionFirst")
+        second.true(True, "AssertionSecond")
+
+        result.append(first)
+        result.append(second)
+
+        assert len(result) == 2
+        assert result.passed
+
+        third = result.subresult()
+        third.true(False, "AssertionThird")
+        result.append(third)
+
+        assert len(result) == 3
+        assert not result.passed

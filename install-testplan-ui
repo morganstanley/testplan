@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 """
-Install & Build the Testplan UI code.
-  * "yarn install" - install the necessary dependencies under node_modules
-    directory.
-  * "yarn run build" - build the Testplan UI, place it under build directory.
+Installs & Builds the Testplan UI code.
 """
-import subprocess
 import argparse
 import logging
-import json
-import sys
 import os
+import subprocess
+import sys
 
 from testplan import web_ui
 
@@ -19,24 +15,26 @@ TESTPLAN_UI_DIR = os.path.join(os.path.dirname(web_ui.__file__), "testing")
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
 
 
-def parse_cli_args():
-    """Parse cli args."""
+def parse_cli_args() -> argparse.Namespace:
+    """
+    Parse CLI arguments.
+    """
     parser = argparse.ArgumentParser(
-        description="Run this script to install & " "build the Testplan UI."
+        description="Run this script to install & build the Testplan UI."
     )
     parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
         dest="verbose",
-        help="Display verbose logs (stdout from yarn commands).",
+        help="Displays verbose logs.",
     )
     parser.add_argument(
         "-d",
         "--dev",
         action="store_true",
         dest="dev",
-        help="Install dev dependencies, use if developing UI.",
+        help="Installs dev dependencies, use if developing the UI.",
     )
     parser.add_argument(
         "-p",
@@ -49,36 +47,48 @@ def parse_cli_args():
     return parser.parse_args()
 
 
-def yarn_installed():
-    """Check if yarn has been installed."""
+def is_manager_installed(command: str) -> bool:
+    """
+    Checks if package manager is installed.
+
+    :param command: command to invoke package manager (npm, yarn, pnpm, ...)
+    :type command: ``str``
+    """
     with open(os.devnull, "w") as FNULL:
         try:
-            subprocess.check_call("yarn --version", shell=True, stdout=FNULL)
+            subprocess.check_call(
+                f"{command} --version",
+                shell=True,
+                stdout=FNULL
+            )
         except subprocess.CalledProcessError:
             return False
         else:
             return True
 
 
-def install_and_build_ui(path=TESTPLAN_UI_DIR, dev=False, verbose=False):
+def install_and_build_ui(
+    path: str = TESTPLAN_UI_DIR,
+    dev: bool = False,
+    verbose: bool = False
+) -> None:
     """
-    Install dependencies & build JS code.
+    Installs dependencies & builds the UI code.
 
     :param path: Where to install dev dependencies.
     :type path: ``str``
-    :param dev: Whether to install dev dependencies, use if developing UI.
+    :param dev: Whether to install dev dependencies, use if developing the UI.
     :type dev: ``bool``
-    :param verbose: Display verbose logs (stdout and stderr from npm commands).
+    :param verbose: Whether to display verbose logs.
     :type verbose: ``bool``
     """
 
-    if not yarn_installed():
+    if not is_manager_installed('pnpm'):
         logging.warning("=" * 54)
-        logging.warning("YARN NOT INSTALLED.")
-        logging.warning("Testplan UI is built using yarn, please follow these")
+        logging.warning("PNPM IS NOT INSTALLED.")
         logging.warning(
-            "instructions to install https://www.yarnpkg.com"
-        )
+            "Testplan UI is built using PNPM, follow instructions at:")
+        logging.warning("https://pnpm.io/installation")
         logging.warning("=" * 54)
         sys.exit(1)
 
@@ -92,9 +102,18 @@ def install_and_build_ui(path=TESTPLAN_UI_DIR, dev=False, verbose=False):
             production_cmd = ""
 
         logging.info("Installing Testplan UI dependencies...")
-        logging.info("Installing to path: {}".format(os.path.abspath(path)))
+        logging.info(f"Installing to path: {os.path.abspath(path)}")
         subprocess.check_call(
-            "yarn install {}".format(production_cmd),
+            "pnpm install{}".format(production_cmd),
+            shell=True,
+            cwd=path,
+            stdout=output,
+            stderr=subprocess.STDOUT,
+        )
+
+        logging.info("Enabling pre and post scripts...")
+        subprocess.check_call(
+            "pnpm config set enable-pre-post-scripts true",
             shell=True,
             cwd=path,
             stdout=output,
@@ -103,7 +122,7 @@ def install_and_build_ui(path=TESTPLAN_UI_DIR, dev=False, verbose=False):
 
         logging.info("Building Testplan UI...")
         subprocess.check_call(
-            "yarn run build",
+            "pnpm build",
             shell=True,
             cwd=path,
             stdout=output,

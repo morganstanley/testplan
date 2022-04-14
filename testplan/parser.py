@@ -4,8 +4,6 @@ This module encodes the argument and option names, types and behaviours.
 """
 import argparse
 import copy
-import os
-import random
 import sys
 
 from testplan.common.utils import logger
@@ -44,7 +42,7 @@ class HelpParser(argparse.ArgumentParser):
         sys.exit(2)
 
 
-class TestplanParser(object):
+class TestplanParser:
     """
     Wrapper around `argparse.ArgumentParser`, adds extra step for processing
     arguments, esp. if they are dependent on each other.
@@ -312,6 +310,12 @@ that match ALL of the given tags.
             action=LogLevelAction,
             help="Specify log level for file logs. Set to None to disable "
             "file logging.",
+        )
+        report_group.add_argument(
+            "--label",
+            default=None,
+            help="Label the test report with the given name, "
+            'useful to categorize or classify similar reports (aka "run-id").',
         )
 
         self.add_arguments(parser)

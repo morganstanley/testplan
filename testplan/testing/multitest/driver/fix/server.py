@@ -1,10 +1,9 @@
 """FixServer driver classes."""
 
-import os
 import select
 import platform
+import queue
 
-from six.moves import queue
 from schema import Use
 
 from testplan.common.config import ConfigOption
@@ -120,6 +119,16 @@ class FixServer(Driver):
         self._host = self.cfg.host
         self._port = self._server.port
 
+        # use parent.logger here so that this goes to stdout
+        # self.logger is writing to file_logger
+        self.parent.logger.debug(
+            "%s[%s] listening on %s:%s",
+            type(self).__name__,
+            self.name,
+            self._host,
+            self._port,
+        )
+
     def active_connections(self):
         """
         Docstring from Server.active_connections
@@ -206,10 +215,8 @@ class FixServer(Driver):
         """Stops the FIX server."""
         super(FixServer, self).stopping()
         self._stop_logic()
-        self.logger.debug("Stopped FixServer.")
 
     def aborting(self):
         """Abort logic that stops the FIX server."""
         super(FixServer, self).aborting()
         self._stop_logic()
-        self.logger.debug("Aborted FixServer.")

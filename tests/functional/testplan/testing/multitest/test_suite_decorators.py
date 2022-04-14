@@ -1,14 +1,19 @@
 """TODO."""
 
+from unittest import mock
+
 import pytest
-import mock
 from schema import SchemaError
 
 from testplan.defaults import MAX_TEST_NAME_LENGTH
 from testplan.testing.multitest import MultiTest
-
-from testplan.common.utils.testing import log_propagation_disabled
-from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.testing.multitest.suite import (
+    testcase,
+    testsuite,
+    skip_if,
+    skip_if_testcase,
+)
+from testplan.common.utils.callable import pre, post
 from testplan.report import (
     TestReport,
     TestGroupReport,
@@ -16,43 +21,23 @@ from testplan.report import (
     ReportCategories,
     Status,
 )
-from testplan.testing.multitest.suite import (
-    testcase,
-    testsuite,
-    skip_if,
-    post_testcase,
-    pre_testcase,
-)
 
 
-def pre1(name, self, env, result):
-    result.equal(2, 2)
-    result.contain("case", name)
-
-
-def post1(name, self, env, result):
-    result.equal(2, 2)
-    result.contain("case", name)
-
-
-def pre2(name, self, env, result, a=None, b=None):
-    result.equal(2, 2)
-    result.contain("case", name)
-
-
-def post2(name, self, env, result, a=None, b=None):
-    result.equal(2, 2)
-    result.contain("case", name)
-    if name == "case5":
-        raise RuntimeError("raise for no reason")
-
-
-@pre_testcase(pre1)
-@post_testcase(post1)
 @testsuite(name="Test Suite")
-class Suite1(object):
+class Suite1:
     def setup(self, env, result):
         result.equal(2, 2)
+
+    def teardown(self, env):
+        pass
+
+    def pre_testcase(self, name, env, result):
+        result.equal(2, 2)
+        result.contain("case", name)
+
+    def post_testcase(self, name, env, result):
+        result.equal(2, 2)
+        result.contain("case", name)
 
     @testcase
     def case1(self, env, result):
@@ -67,19 +52,31 @@ class Suite1(object):
     def case3(self, env, result):
         result.equal(1, 1)
 
-    def teardown(self, env):
-        pass
 
-
-@pre_testcase(pre2)
-@post_testcase(post2)
 @testsuite(name=lambda cls_name, suite: "{}__{}".format(cls_name, suite.val))
-class Suite2(object):
+class Suite2:
     def __init__(self, val):
         self.val = val
 
     def setup(self, env):
         pass
+
+    def teardown(self, env, result):
+        result.equal(1, 2)
+
+    def pre_testcase(self, name, env, result, kwargs):
+        if kwargs.get("a"):
+            result.log("Param a: {}".format(kwargs["a"]))
+        if kwargs.get("b"):
+            result.log("Param b: {}".format(kwargs["b"]))
+        result.equal(2, 2)
+        result.contain("case", name)
+
+    def post_testcase(self, name, env, result):
+        result.equal(2, 2)
+        result.contain("case", name)
+        if name == "case5":
+            raise RuntimeError("raise for no reason")
 
     @testcase(parameters=(("aa", "bb"), ("aaa", "bbb")))
     def case4(self, env, result, a, b):
@@ -94,17 +91,27 @@ class Suite2(object):
     def case6(self, env, result):
         result.equal(1, 1)
 
-    def teardown(self, env, result):
+
+@skip_if_testcase(lambda testsuite: True)
+@testsuite(name="Skipped Suite")  # No testcase runs in this suite
+class Suite3:
+    @testcase
+    def case1(self, env, result):
         result.equal(1, 2)
+
+    @skip_if(lambda testsuite: False)
+    @testcase
+    def case2(self, env, result):
+        result.equal(1, 1)
 
 
 def test_basic_multitest(mockplan):
     """Basic test for suite decorator."""
-    mtest = MultiTest(name="MTest", suites=[Suite1(), Suite2(0), Suite2(1)])
+    mtest = MultiTest(
+        name="MTest", suites=[Suite1(), Suite2(0), Suite2(1), Suite3()]
+    )
     mockplan.add(mtest)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = mockplan.run()
+    res = mockplan.run()
 
     assert res.run is True
     assert isinstance(res.test_results["MTest"].report, TestGroupReport)
@@ -150,16 +157,14 @@ def test_unwanted_testsuite_name(mockplan, suite_name):
     with mock.patch("warnings.warn", return_value=None) as mock_warn:
 
         @testsuite(name=suite_name)
-        class MySuite(object):
+        class MySuite:
             @testcase
             def sample_test(self, env, result):
                 pass
 
         multitest = MultiTest(name="MTest", suites=[MySuite()])
         mockplan.add(multitest)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            mockplan.run()
+        mockplan.run()
 
     mock_warn.assert_called_once()
 
@@ -169,7 +174,7 @@ def test_duplicate_testsuite_names(mockplan):
     with pytest.raises(SchemaError):
 
         @testsuite
-        class MySuite(object):
+        class MySuite:
             def __init__(self, val):
                 self.val = val
 
@@ -179,9 +184,7 @@ def test_duplicate_testsuite_names(mockplan):
 
         multitest = MultiTest(name="MTest", suites=[MySuite(0), MySuite(1)])
         mockplan.add(multitest)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            mockplan.run()
+        mockplan.run()
 
         pytest.fail("Duplicate test suite name found in a Multitest.")
 
@@ -196,7 +199,7 @@ def test_invalid_name_attribute_in_suite_class(mockplan, deco, attr_name):
     """
     with pytest.raises(TypeError):
 
-        class MySuite(object):
+        class MySuite:
             name = attr_name
 
             @testcase
@@ -206,9 +209,7 @@ def test_invalid_name_attribute_in_suite_class(mockplan, deco, attr_name):
         MySuite = deco(MySuite)
         multitest = MultiTest(name="MyMultitest", suites=[MySuite()])
         mockplan.add(multitest)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            mockplan.run()
+        mockplan.run()
 
         pytest.fail("Attribute `name` defined in test suite class is invalid.")
 
@@ -221,7 +222,7 @@ def test_unexpected_name_attribute_in_suite_object(mockplan):
     with pytest.raises(SchemaError):  # `AttributeError` caught by Schema
 
         @testsuite
-        class MySuite(object):
+        class MySuite:
             @testcase
             def sample_test(self, env, result):
                 pass
@@ -230,8 +231,100 @@ def test_unexpected_name_attribute_in_suite_object(mockplan):
         suite.name = lambda cls_name, suite: cls_name
         multitest = MultiTest(name="MyMultitest", suites=[suite])
         mockplan.add(multitest)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            mockplan.run()
+        mockplan.run()
 
         pytest.fail("Attribute `name` of test suite object is invalid.")
+
+
+def test_testcase_related_with_inivalid_arguments_in_suite_object(mockplan):
+    """
+    ``pre_testcase`` and ``post_testcase`` methods should have argument
+    like [self, name, env, result] or [self, name, env, result, kwargs].
+    """
+
+    @testsuite
+    class MySuite:
+        def pre_testcase(self, name, env, result, kwargs):  # valid
+            result.dict.log(kwargs)
+
+        def post_testcase(self, name, env, result, my_arg):  # invalid
+            pass
+
+        @testcase
+        def sample_test(self, env, result):
+            pass
+
+        @testcase(parameters=(("foo", "bar"),))
+        def param_test(self, env, result, x, y):
+            pass
+
+    mockplan.add(
+        MultiTest(name="MyMultitest", suites=[MySuite()], stop_on_error=False)
+    )
+    mockplan.run()
+
+    multitest_report = mockplan.result.report["MyMultitest"]
+    case_report = multitest_report["MySuite"]["sample_test"]
+    param_case_report = multitest_report["MySuite"]["param_test"].entries[0]
+
+    assert multitest_report.status == Status.ERROR
+    assert "MethodSignatureMismatch" in case_report.logs[0]["message"]
+    assert len(case_report.entries[0]["flattened_dict"]) == 0
+    assert "MethodSignatureMismatch" in param_case_report.logs[0]["message"]
+    assert len(param_case_report.entries[0]["flattened_dict"]) == 2
+
+
+def test_pre_post_on_testcase(mockplan):
+    def pre_fn(self, env, result):
+        result.log("pre_fn")
+
+    def post_fn(self, env, result):
+        result.log("post_fn")
+
+    @testsuite
+    class SimpleTest:
+        def setup(self, env, result):
+            result.log("setup")
+
+        def teardown(self, env, result):
+            result.log("tear down")
+
+        def pre_testcase(self, name, env, result, kwargs):
+            result.log(f"name = {name}", description="pre_testcase")
+            if kwargs:
+                result.dict.log(kwargs, description="kwargs")
+
+        def post_testcase(self, name, env, result, kwargs):
+            result.log(f"name = {name}", description="post_testcase")
+            if kwargs:
+                result.dict.log(kwargs, description="kwargs")
+
+        @pre(pre_fn)
+        @post(post_fn)
+        @testcase
+        def add_simple(self, env, result):
+            result.equal(10 + 5, 15)
+
+        @testcase(
+            parameters=((3, 3, 6), (7, 8, 15)),
+            custom_wrappers=[pre(pre_fn), post(post_fn)],
+        )
+        def add_param(self, env, result, a, b, expect):
+            result.equal(a + b, expect)
+
+    mockplan.add(MultiTest(name="MyMultitest", suites=[SimpleTest()]))
+    mockplan.run()
+
+    multitest_report = mockplan.result.report["MyMultitest"]
+    case_report = multitest_report["SimpleTest"]["add_simple"]
+    param_case_report = multitest_report["SimpleTest"]["add_param"].entries[0]
+
+    assert multitest_report.status == Status.PASSED
+    assert case_report.entries[0]["message"] == "name = add_simple"
+    assert case_report.entries[1]["message"] == "pre_fn"
+
+    assert (
+        param_case_report.entries[0]["message"]
+        == "name = add_param <a=3, b=3, expect=6>"
+    )
+    assert param_case_report.entries[2]["message"] == "pre_fn"

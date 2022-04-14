@@ -29,7 +29,7 @@ def priority(value):
     return wrapper
 
 
-class BaseSuite(object):
+class BaseSuite:
     """Base suite class for suite level custom filtering demonstration."""
 
     pass
@@ -71,7 +71,7 @@ class Beta(BaseSuite):
 
 
 @testsuite
-class Gamma(object):
+class Gamma:
     @testcase
     def test_1(self, env, result):
         pass

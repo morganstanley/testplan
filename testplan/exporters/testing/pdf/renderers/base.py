@@ -1,13 +1,71 @@
 """Base classes for rendering """
 import collections
 import functools
+from html import escape
+
+from reportlab.platypus import Paragraph
 
 from testplan.common.exporters.pdf import RowData
-
 from . import constants
 
 
 RowData = functools.partial(RowData, num_columns=constants.NUM_COLUMNS)
+
+
+class SlicedParagraph:
+    """
+    Iterator which returns slices of ReportLab Paragraph to make sure each does
+    not exceed max height (which will trigger ReportLab LayoutError).
+
+    :param parts: list of (text, formatter) tuple
+    :type parts: [(``str``, ``str``), ...]
+    :param width: width allowed to layout each paragraph
+    :type width: ``int``
+    :param height: height allowed to layout each paragraph
+    :type height: ``int``
+    :param style: style object for paragraph
+    :type style: ReportLab ParagraphStyle
+
+    """
+
+    def __init__(
+        self,
+        parts,
+        width,
+        height=constants.MAX_CELL_HEIGHT,
+        style=constants.PARAGRAPH_STYLE,
+        **kwargs
+    ):
+        self.width = width
+        self.height = height
+
+        text_parts = []
+        if not isinstance(parts, list):
+            parts = [parts]
+
+        for part, formatter in parts:
+            # reserve indentation - report lab does not wrap at '\n' and removes space
+            part = (
+                escape(part, quote=False)
+                .replace("\n", "<br/>")
+                .replace(" ", "&nbsp;")
+            )
+            text_parts.append(formatter.format(part))
+
+        self.para = Paragraph(text="".join(text_parts), style=style, **kwargs)
+
+    def __next__(self):
+        if self.para:
+            paras = self.para.split(self.width, self.height)
+            # paras == [] for empty line
+            para = paras[0] if paras else ""
+            self.para = paras[1] if len(paras) == 2 else None
+            return para
+        else:
+            raise StopIteration
+
+    def __iter__(self):
+        return self
 
 
 def format_duration(seconds):
@@ -22,7 +80,7 @@ def format_duration(seconds):
         return "{} seconds".format(fmt).format(secs)
 
 
-class BaseRowRenderer(object):
+class BaseRowRenderer:
     """Base class for row renderers."""
 
     always_display = False
@@ -57,7 +115,7 @@ class BaseRowRenderer(object):
         )
 
 
-class MetadataMixin(object):
+class MetadataMixin:
     """
     Utility mixin that has logic for getting
     metadata context for row renderers.

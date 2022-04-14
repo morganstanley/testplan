@@ -2,7 +2,6 @@
 
 import os
 import logging
-from past.builtins import basestring
 
 from schema import Or
 
@@ -52,7 +51,7 @@ class DriverConfig(ResourceConfig):
         return {
             "name": str,
             ConfigOption("install_files", default=None): Or(None, list),
-            ConfigOption("timeout", default=60): int,
+            ConfigOption("timeout", default=300): int,
             ConfigOption("log_regexps", default=None): Or(None, list),
             ConfigOption("stdout_regexps", default=None): Or(None, list),
             ConfigOption("stderr_regexps", default=None): Or(None, list),
@@ -127,7 +126,28 @@ class Driver(Resource):
 
     CONFIG = DriverConfig
 
-    def __init__(self, **options):
+    def __init__(
+        self,
+        name,
+        install_files=None,
+        timeout=300,
+        log_regexps=None,
+        stdout_regexps=None,
+        stderr_regexps=None,
+        file_logger=None,
+        async_start=False,
+        report_errors_from_logs=False,
+        error_logs_max_lines=10,
+        pre_start=None,
+        post_start=None,
+        pre_stop=None,
+        post_stop=None,
+        **options,
+    ):
+
+        options.update(self.filter_locals(locals()))
+        if timeout is not None:
+            options.setdefault("status_wait_timeout", timeout)
         super(Driver, self).__init__(**options)
         self.extracts = {}
         self._file_log_handler = None
@@ -141,43 +161,35 @@ class Driver(Resource):
         """Driver uid."""
         return self.cfg.name
 
-    def start(self):
-        """Start the driver."""
-        self.status.change(self.STATUS.STARTING)
-        self.pre_start()
+    def pre_start(self):
+        """Steps to be executed right before resource starts."""
+        self.make_runpath_dirs()
         if self.cfg.pre_start:
             self.cfg.pre_start(self)
-        self.starting()
-
-    def stop(self):
-        """Stop the driver."""
-        self.status.change(self.STATUS.STOPPING)
-        if self.active:
-            self.pre_stop()
-            if self.cfg.pre_stop:
-                self.cfg.pre_stop(self)
-            self.stopping()
-
-    def pre_start(self):
-        """Steps to be executed right before driver starts."""
-        self.make_runpath_dirs()
 
     def post_start(self):
-        """Steps to be executed right after driver is started."""
+        """Steps to be executed right after resource is started."""
+        if self.cfg.post_start:
+            self.cfg.post_start(self)
+
+    def pre_stop(self):
+        """Steps to be executed right before resource stops."""
+        if self.cfg.pre_stop:
+            self.cfg.pre_stop(self)
+
+    def post_stop(self):
+        """Steps to be executed right after resource is stopped."""
+        if self.cfg.post_stop:
+            self.cfg.post_stop(self)
 
     def started_check(self, timeout=None):
         """Driver started status condition check."""
+        timeout = timeout if timeout is not None else self.cfg.timeout
         wait(
             lambda: self.extract_values(),
-            timeout or self.cfg.timeout,
+            timeout,
             raise_on_timeout=True,
         )
-
-    def pre_stop(self):
-        """Steps to be executed right before driver stops."""
-
-    def post_stop(self):
-        """Steps to be executed right after driver is stopped"""
 
     def stopped_check(self, timeout=None):
         """Driver stopped status condition check."""
@@ -193,16 +205,10 @@ class Driver(Resource):
     def _wait_started(self, timeout=None):
         self.started_check(timeout=timeout)
         self.status.change(self.STATUS.STARTED)
-        if self.cfg.post_start:
-            self.cfg.post_start(self)
-        self.post_start()
 
     def _wait_stopped(self, timeout=None):
         self.stopped_check(timeout=timeout)
         self.status.change(self.STATUS.STOPPED)
-        if self.cfg.post_stop:
-            self.cfg.post_stop(self)
-        self.post_stop()
 
     def aborting(self):
         """Trigger driver abort."""
@@ -250,12 +256,12 @@ class Driver(Resource):
 
         for outfile, regexps, unmatched in regex_sources:
             file_result, file_extracts, file_unmatched = match_regexps_in_file(
-                logpath=outfile, log_extracts=regexps, return_unmatched=True
+                logpath=outfile, log_extracts=regexps
             )
             unmatched.extend(file_unmatched)
             for k, v in file_extracts.items():
                 if isinstance(v, bytes):
-                    self.extracts[k] = v.decode("utf_8")
+                    self.extracts[k] = v.decode("utf-8")
                 else:
                     self.extracts[k] = v
             result = result and file_result
@@ -303,7 +309,7 @@ class Driver(Resource):
     def _install_files(self):
 
         for install_file in self.cfg.install_files:
-            if isinstance(install_file, basestring):
+            if isinstance(install_file, str):
                 if not os.path.isfile(install_file):
                     raise ValueError("{} is not a file".format(install_file))
                 instantiate(
@@ -411,3 +417,8 @@ class Driver(Resource):
                 content.extend(["  {}".format(line) for line in lines])
 
         return content
+
+    def __repr__(self):
+        """String representation."""
+
+        return f"{self.__class__.__name__} driver [{self.name}]"

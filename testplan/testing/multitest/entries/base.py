@@ -1,20 +1,22 @@
 """
 Base classes go here.
 """
+import os
+import re
 import datetime
 import operator
 import pprint
-import re
-import os
-
-from past.builtins import basestring
+import shutil
+import hashlib
+import pathlib
+import plotly.io
 
 from testplan.common.utils.convert import nested_groups
 from testplan.common.utils.timing import utcnow
 from testplan.common.utils.table import TableEntry
 from testplan.common.utils.reporting import fmt
 from testplan.common.utils.convert import flatten_formatted_object
-from testplan.common.utils.path import hash_file
+from testplan.common.utils.path import hash_file, traverse_dir, makedirs
 from testplan import defaults
 
 
@@ -33,25 +35,7 @@ def readable_name(class_name):
     return ENTRY_NAME_PATTERN.sub(" \\1", class_name).strip()
 
 
-def get_table(source, keep_column_order=True):
-    """
-    Return table formatted as a TableEntry.
-
-    :param source: Tabular data.
-    :type source: ``list`` of ``list`` or ``list`` of ``dict``
-    :param keep_column_order: Flag whether column order should be maintained.
-    :type keep_column_order: ``bool``
-    :return: Formatted table.
-    :rtype: ``list`` of ``dict``
-    """
-    if not source:
-        return []
-
-    table = source if isinstance(source, TableEntry) else TableEntry(source)
-    return table.as_list_of_dict(keep_column_order=keep_column_order)
-
-
-class BaseEntry(object):
+class BaseEntry:
     """Base class for all entries, stores common context like time etc."""
 
     meta_type = "entry"
@@ -78,8 +62,6 @@ class BaseEntry(object):
         """MyClass -> My Class"""
         return readable_name(self.__class__.__name__)
 
-    __nonzero__ = __bool__
-
     def serialize(self):
         """Shortcut method for serialization via schemas"""
         from .schemas.base import registry
@@ -87,7 +69,7 @@ class BaseEntry(object):
         return registry.serialize(self)
 
 
-class Group(object):
+class Group:
 
     # we treat Groups as assertions so we can render them with pass/fail context
     meta_type = "assertion"
@@ -98,8 +80,6 @@ class Group(object):
 
     def __bool__(self):
         return self.passed
-
-    __nonzero__ = __bool__
 
     def __repr__(self):
         return "{}(entries={}, description='{}')".format(
@@ -223,8 +203,10 @@ class Log(BaseEntry):
     """Log a str to the report."""
 
     def __init__(self, message, description=None, flag=None):
-        if isinstance(message, basestring):
+        if isinstance(message, str):
             self.message = message
+        elif isinstance(message, bytes):
+            self.message = message.decode()
         else:
             self.message = pprint.pformat(message)
 
@@ -240,10 +222,11 @@ class TableLog(BaseEntry):
     """Log a table to the report."""
 
     def __init__(self, table, display_index=False, description=None):
-        self.table = get_table(table)
+
+        as_list = TableEntry(table).as_list_of_list()
+        self.columns, self.table = as_list[0], as_list[1:]
         self.indices = range(len(self.table))
         self.display_index = display_index
-        self.columns = self.table[0].keys()
 
         super(TableLog, self).__init__(description=description)
 
@@ -349,21 +332,32 @@ class Graph(BaseEntry):
 class Attachment(BaseEntry):
     """Entry representing a file attached to the report."""
 
-    def __init__(self, filepath, description, dst_path=None):
+    def __init__(
+        self, filepath, description=None, dst_path=None, scratch_path=None
+    ):
+
         self.source_path = filepath
         self.orig_filename = os.path.basename(filepath)
-        self.hash = hash_file(filepath)
         self.filesize = os.path.getsize(filepath)
-        if dst_path:
-            self.dst_path = dst_path
-        else:
+
+        if dst_path is None:
             basename, ext = os.path.splitext(self.orig_filename)
-            self.dst_path = "{basename}-{hash}-{filesize}{ext}".format(
-                basename=basename,
-                hash=self.hash,
-                filesize=self.filesize,
-                ext=ext,
-            )
+            hash = hash_file(self.source_path)
+            # To avoid file name collision
+            self.dst_path = f"{basename}-{hash}-{self.filesize}{ext}"
+        else:
+            self.dst_path = dst_path
+
+        if scratch_path:
+            # will best effort make a copy of the file
+            try:
+                copy_of_file = os.path.join(scratch_path, self.dst_path)
+                shutil.copyfile(filepath, copy_of_file)
+            except Exception:
+                pass
+            else:
+                self.source_path = copy_of_file
+
         super(Attachment, self).__init__(description=description)
 
 
@@ -389,14 +383,81 @@ class MatPlot(Attachment):
         )
 
 
+class Plotly(Attachment):
+    def __init__(self, fig, data_file_path, style=None, description=None):
+        fig_json = plotly.io.to_json(fig)
+        pathlib.Path(data_file_path).resolve().parent.mkdir(
+            parents=True, exist_ok=True
+        )
+        with open(data_file_path, "w") as f:
+            f.write(fig_json)
+
+        super(Plotly, self).__init__(
+            filepath=data_file_path, description=description
+        )
+        self.style = style
+
+
+class Directory(BaseEntry):
+    """
+    Entry representing a bunch of files under a directory which will be
+    attached to the report.
+    """
+
+    def __init__(
+        self,
+        dirpath,
+        description=None,
+        ignore=None,
+        only=None,
+        recursive=False,
+        dst_path=None,
+        scratch_path=None,
+    ):
+
+        self.source_path = dirpath
+        self.ignore = ignore
+        self.only = only
+        self.recursive = recursive
+        self.dst_path = (
+            dst_path
+            or hashlib.md5(self.source_path.encode("utf-8")).hexdigest()
+        )
+        self.file_list = traverse_dir(
+            self.source_path,
+            topdown=True,
+            ignore=ignore,
+            only=only,
+            recursive=recursive,
+            include_subdir=False,
+        )
+
+        if scratch_path:
+            # will best effort make a copy of the file
+            for fpath in self.file_list:
+                src_path = os.path.join(self.source_path, fpath)
+                dst_path = os.path.join(scratch_path, self.dst_path, fpath)
+                makedirs(os.path.dirname(dst_path))
+                try:
+                    shutil.copyfile(src_path, dst_path)
+                except Exception:
+                    break
+            else:
+                self.source_path = os.path.join(scratch_path, self.dst_path)
+
+        super(Directory, self).__init__(description=description)
+
+
 class CodeLog(BaseEntry):
     """Save source code to the report."""
 
     def __init__(self, code, language="python", description=None):
-        if isinstance(code, basestring):
+        if isinstance(code, str):
             self.code = code
+        elif isinstance(code, bytes):
+            self.code = code.decode()
         else:
-            raise ValueError("Code must be a string")
+            raise TypeError("Code must be a string")
         self.language = language
         super(CodeLog, self).__init__(description=description)
 
@@ -405,8 +466,10 @@ class Markdown(BaseEntry):
     """Save markdown to the report."""
 
     def __init__(self, message, description=None, escape=True):
-        if isinstance(message, basestring):
+        if isinstance(message, str):
             self.message = message
+        elif isinstance(message, bytes):
+            self.message = message.decode()
         else:
             raise ValueError("Message must be a string")
         self.escape = escape

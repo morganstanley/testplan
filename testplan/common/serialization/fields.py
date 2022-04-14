@@ -1,42 +1,86 @@
 """
 Custom marshmallow fields.
 """
+import abc
 import pprint
-import six
-import warnings
 
-try:
-    from lxml import etree
-except Exception as exc:
-    warnings.warn("lxml need to be supported: {}".format(exc))
-from dateutil import parser
 import pytz
+from dateutil import parser
+from lxml import etree
 
 from marshmallow import fields
-from marshmallow.compat import text_type, binary_type
-from marshmallow.utils import missing as missing_
-from marshmallow.base import SchemaABC
 from marshmallow import class_registry
-from marshmallow.fields import _RECURSIVE_NESTED
-from marshmallow.exceptions import ValidationError
+from marshmallow.base import SchemaABC
+from marshmallow.utils import missing as missing_
 
 from testplan.common.utils import comparison
-
-# from testip.alpha import util
-
-
-# pylint: disable=unused-argument
-
 
 # We explicitly enumerate types that are known to be safe to serialize by
 # pickle. All other types will be converted to strings before pickling.
 # types.NoneType is gone in python3 so we inspect the type of None directly.
 COMPATIBLE_TYPES = (bool, float, type(None), str, bytes, int)
 
-# For Python 2 only, also consider unicode and long types to be pickle-safe.
-# These types are removed from Python 3.
-if six.PY2:
-    COMPATIBLE_TYPES += (unicode, long)  # pylint: disable=undefined-variable
+# pylint: disable=unused-argument, no-self-use
+
+
+class Serializable(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def serialize(self):
+        pass
+
+
+class LogLink(Serializable):
+    """
+    Save an HTML link in WebUI
+    """
+
+    def __init__(self, link, title=None, new_window=True, inner=False):
+        """
+        :param link: The URL of the page the link goes to.
+        :type link: ``str``
+        :param title: The name of the link.
+        :type title: ``str``
+        :param new_window: Open the link on new window or not. Default is True.
+        :type new_window: ``bool``
+        :param inner: Link to internal page (report uid as the prefix). Default is False.
+        :type new_window: ``bool``
+        """
+        self.link = link
+        self.title = title or link
+        self.new_window = new_window
+        self.inner = inner
+
+    def serialize(self):
+        return {
+            "link": self.link,
+            "title": self.title,
+            "new_window": self.new_window,
+            "inner": self.inner,
+            "type": "link",
+        }
+
+
+class FormattedValue(Serializable):
+    """
+    Save a formatted value in WebUI
+    """
+
+    def __init__(self, value, display):
+        """
+        :param value: The value of the data for sorting in the report.
+        :type value: ``Union[str, numbers.Real]``
+        :param display: Formatted value for display in the report.
+        :type display: ``str``
+        """
+        self.value = value
+        self.display = display
+
+    def serialize(self):
+        return {
+            "value": self.value,
+            "display": self.display,
+            "type": "formattedValue",
+        }
 
 
 def _repr_obj(obj):
@@ -92,14 +136,14 @@ class Unicode(fields.Field):
 
     codecs = ["utf-8", "latin-1"]  # Ideally we will let users override this
 
-    def _serialize(self, value, attr, obj):
-        if isinstance(value, text_type) or value is None:
+    def _serialize(self, value, attr, obj, **kwargs):
+        if isinstance(value, str) or value is None:
             return value
 
-        elif isinstance(value, binary_type):
+        elif isinstance(value, bytes):
             for codec in self.codecs:
                 try:
-                    return text_type(value, codec)
+                    return str(value, codec)
                 except UnicodeDecodeError:
                     pass
             raise ValueError(
@@ -109,7 +153,7 @@ class Unicode(fields.Field):
                 )
             )
         else:
-            return text_type(value)
+            return str(value)
 
 
 class NativeOrPretty(fields.Field):
@@ -118,8 +162,11 @@ class NativeOrPretty(fields.Field):
     or pretty formatted str representation.
     """
 
-    def _serialize(self, value, attr, obj):
-        return native_or_pformat(value)
+    def _serialize(self, value, attr, obj, **kwargs):
+        if isinstance(value, Serializable):
+            return value.serialize()
+        else:
+            return native_or_pformat(value)
 
 
 class NativeOrPrettyDict(fields.Field):
@@ -129,7 +176,7 @@ class NativeOrPrettyDict(fields.Field):
     should be used for flat dicts only.
     """
 
-    def _serialize(self, value, attr, obj):
+    def _serialize(self, value, attr, obj, **kwargs):
         if not isinstance(value, dict):
             raise TypeError(
                 "`value` ({value}) should be"
@@ -139,7 +186,7 @@ class NativeOrPrettyDict(fields.Field):
             )
 
         for k in value:
-            if not isinstance(k, six.string_types):
+            if not isinstance(k, str):
                 raise TypeError(
                     "`key` ({key}) should be of"
                     " `str` type, it was: {type}".format(key=k, type=type(k))
@@ -152,7 +199,7 @@ class NativeOrPrettyDict(fields.Field):
 class RowComparisonField(fields.Field):
     """Serialization logic for RowComparison"""
 
-    def _serialize(self, value, attr, obj):
+    def _serialize(self, value, attr, obj, **kwargs):
         idx, row, diff, errors, extra = value
         return (
             idx,
@@ -166,13 +213,9 @@ class RowComparisonField(fields.Field):
 class SliceComparisonField(fields.Field):
     """Serialization logic for SliceComparison"""
 
-    def _serialize(self, value, attr, obj):
+    def _serialize(self, value, attr, obj, **kwargs):
         def str_or_iterable(val):
-            return (
-                val
-                if isinstance(val, six.string_types)
-                else native_or_pformat_list(val)
-            )
+            return val if isinstance(val, str) else native_or_pformat_list(val)
 
         slice_obj, comp_indices, mismatch_indices, actual, expected = value
 
@@ -188,7 +231,7 @@ class SliceComparisonField(fields.Field):
 class ColumnContainComparisonField(fields.Field):
     """Serialization logic for ColumnContainComparison"""
 
-    def _serialize(self, value, attr, obj):
+    def _serialize(self, value, attr, obj, **kwargs):
 
         return (value.idx, native_or_pformat(value.value), value.passed)
 
@@ -196,7 +239,7 @@ class ColumnContainComparisonField(fields.Field):
 class XMLElementField(fields.Field):
     """Custom field for `lxml.etree.Element serialization`."""
 
-    def _serialize(self, value, attr, obj):
+    def _serialize(self, value, attr, obj, **kwargs):
         return etree.tostring(value, pretty_print=True).decode("utf-8")
 
 
@@ -208,12 +251,12 @@ class ClassName(fields.Field):
     class Meta:  # pylint: disable=bad-option-value,old-style-class,missing-docstring,no-init
         dump_only = True
 
-    def _serialize(self, value, attr, obj):
+    def _serialize(self, value, attr, obj, **kwargs):
         return obj.__class__.__name__
 
 
 class DictMatch(fields.Field):
-    def _serialize(self, value, attr, obj):
+    def _serialize(self, value, attr, obj, **kwargs):
         keys = ("value", "ignore", "only")
         return {key: getattr(value, key) for key in keys}
 
@@ -244,6 +287,9 @@ class GenericNested(fields.Field):
     def _get_schema_obj(self, schema_value):
         parent_ctx = getattr(self.parent, "context", {})
 
+        if callable(schema_value) and not isinstance(schema_value, type):
+            schema_value = schema_value()
+
         if isinstance(schema_value, SchemaABC):
             schema_value.context.update(parent_ctx)
             return schema_value
@@ -253,9 +299,8 @@ class GenericNested(fields.Field):
         ):
             return schema_value(many=self.many, context=parent_ctx)
 
-        elif isinstance(schema_value, six.string_types):
-
-            if schema_value == _RECURSIVE_NESTED:
+        elif isinstance(schema_value, str):
+            if schema_value == "self":
                 return self.parent.__class__(
                     many=self.many, context=parent_ctx
                 )
@@ -274,7 +319,7 @@ class GenericNested(fields.Field):
         """Return schema mapping in `<CLASS_NAME>: <SCHEMA_OBJECT>` format."""
         result = {}
         for object_type, schema_value in self.schema_context.items():
-            if isinstance(object_type, six.string_types):
+            if isinstance(object_type, str):
                 key = object_type
             elif isinstance(object_type, type):
                 key = object_type.__name__
@@ -287,7 +332,7 @@ class GenericNested(fields.Field):
             result[key] = self._get_schema_obj(schema_value)
         return result
 
-    def _serialize(self, nested_obj, attr, obj):
+    def _serialize(self, nested_obj, attr, obj, **kwargs):
 
         if nested_obj is None:
             return None
@@ -306,35 +351,53 @@ class GenericNested(fields.Field):
             )
 
         schema_obj = schemas[class_name]
-
-        ret, errors = schema_obj.dump(
-            nested_obj, many=False, update_fields=False
-        )
-
-        if errors:
-            raise ValidationError(errors, data=ret)
-        return ret
+        return schema_obj.dump(nested_obj, many=False)
 
 
 class UTCDateTime(fields.DateTime):
     """
-    While parsing timestamps, original `fields.Datetime` tries
-    to use ``dateutil`` if it's available.
-
-    Unfortunately, the way it does the check for ``dateutil``
-    availability is not compatible with our internal environment
-
-    If the ``dateutil`` is not available, it falls back to
-    ``datetime.datetime.strptime`` which leaves the
-    millisecond information out.
-
-    So we specify the deserialization logic explicitly to
-    make use of dateutil. In addition we use ``pytz``
-    timezones instead of ``dateutil.tz``.
+    A formatted datetime string that represents UTC time. Naive datetime
+    will be thought as in UTC timezone.
+    Example: 2014-12-22T03:12:58.019077+00:00  (always ends with '+00:00')
     """
 
-    def _deserialize(self, value, attr, data):
-        return parser.parse(value).replace(tzinfo=pytz.UTC)
+    def _serialize(self, value, attr, obj, **kwargs):
+        if value is None:
+            return None
+
+        return (
+            value.replace(tzinfo=pytz.UTC)
+            if value.tzinfo is None
+            else value.astimezone(tz=pytz.UTC)
+        ).isoformat()
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        if value is None:
+            return None
+
+        dt = parser.parse(value)
+        return (
+            dt.replace(tzinfo=pytz.UTC)
+            if dt.tzinfo is None
+            else dt.astimezone(tz=pytz.UTC)
+        )
+
+
+class LocalDateTime(fields.DateTime):
+    """
+    A formatted datetime string that represents machine time. Naive datetime
+    will be thought as in local timezone.
+    Example: 2014-12-22T11:12:58.019077+08:00
+
+    Note: Since Python 3.6 `datetime.datetime.astimezone` method can be called
+    on naive instances that are presumed to represent system local time.
+    """
+
+    def _serialize(self, value, attr, obj, **kwargs):
+        return None if value is None else value.astimezone().isoformat()
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        return None if value is None else parser.parse(value).astimezone()
 
 
 class ExceptionField(fields.Field):
@@ -342,5 +405,5 @@ class ExceptionField(fields.Field):
     Serialize exceptions type and message.
     """
 
-    def _serialize(self, value, attr, obj):
+    def _serialize(self, value, attr, obj, **kwargs):
         return (str(type(value)), str(value))

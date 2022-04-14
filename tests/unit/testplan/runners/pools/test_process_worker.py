@@ -3,23 +3,22 @@ import platform
 import psutil
 import pytest
 import time
-import threading
 
 from testplan.runners.pools import process
 from testplan.runners.pools import tasks
 from testplan.common.utils import logger
-
-from tests.unit.testplan.runners.pools.tasks.data.sample_tasks import Runnable
 
 logger.TESTPLAN_LOGGER.setLevel(logger.DEBUG)
 
 
 @pytest.fixture
 def proc_pool():
-    return process.ProcessPool(name="ProcPool", size=2, restart_count=0)
+    return process.ProcessPool(
+        name="ProcPool", size=2, restart_count=0, async_start=False
+    )
 
 
-class TestProcPool(object):
+class TestProcPool:
     """Tests for the ProcessPool class."""
 
     def test_run_task(self, proc_pool):
@@ -35,12 +34,12 @@ class TestProcPool(object):
         )
         proc_pool.add(example_task, example_task.uid())
         with proc_pool:
-            assert proc_pool.status.tag == proc_pool.status.STARTED
+            assert proc_pool.status == proc_pool.status.STARTED
             while proc_pool.pending_work():
                 assert proc_pool.is_alive
                 time.sleep(0.2)
 
-        assert proc_pool.status.tag == proc_pool.status.STOPPED
+        assert proc_pool.status == proc_pool.status.STOPPED
 
         # Check that the expected result is stored both on the worker and
         # on the pool's result.
@@ -65,13 +64,12 @@ class TestProcPool(object):
 
         current_proc = psutil.Process()
         start_children = current_proc.children()
-        start_thread_count = threading.active_count()
 
         # Iterate 5 times to increase the chance of hitting a race condition.
         for _ in range(5):
             with proc_pool:
-                assert proc_pool.status.tag == proc_pool.status.STARTED
+                assert proc_pool.status == proc_pool.status.STARTED
                 assert len(current_proc.children()) == len(start_children) + 2
 
-            assert proc_pool.status.tag == proc_pool.status.STOPPED
+            assert proc_pool.status == proc_pool.status.STOPPED
             assert len(current_proc.children()) == len(start_children)

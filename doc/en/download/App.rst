@@ -1,5 +1,30 @@
+App Driver
+**********
+
+Basic Usage
+===========
+
+.. _example_app_driver:
+
+Required files:
+  - :download:`test_plan.py <../../../examples/App/Basic/test_plan.py>`
+
+test_plan.py
+++++++++++++
+.. literalinclude:: ../../../examples/App/Basic/test_plan.py
+
+Start Drivers Manually
+======================
+
+Required files:
+  - :download:`test_plan.py <../../../examples/App/Autostart/test_plan.py>`
+
+test_plan.py
+++++++++++++
+.. literalinclude:: ../../../examples/App/Autostart/test_plan.py
+
 Custom Application
-******************
+==================
 
 .. _example_fxconverter:
 

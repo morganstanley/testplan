@@ -1,22 +1,21 @@
 """
-    JSON exporter for test reports, relies on `testplan.report.testing.schemas`
-    for `dict` serialization and JSON conversion.
+JSON exporter for test reports, relies on `testplan.report.testing.schemas`
+for `dict` serialization and JSON conversion.
 """
-from __future__ import absolute_import
 
 import os
 import json
-import copy
+import pathlib
 import hashlib
 
 from testplan import defaults
 
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import ExporterConfig
-from testplan.common.utils.path import makedirs
 
 from testplan.report import ReportCategories
 from testplan.report.testing.schemas import TestReportSchema
+from testplan.report.testing.base import TestReport
 
 from ..base import Exporter, save_attachments
 
@@ -27,7 +26,7 @@ def gen_attached_report_names(json_path):
     """
     basename, _ = os.path.splitext(os.path.basename(json_path))
     digest = hashlib.md5(
-        os.path.realpath(json_path).encode("utf-8")
+        os.path.normcase(os.path.realpath(json_path)).encode("utf-8")
     ).hexdigest()
 
     return (
@@ -70,18 +69,18 @@ class JSONExporter(Exporter):
     CONFIG = JSONExporterConfig
 
     def __init__(self, name="JSON exporter", **options):
-        super(JSONExporter, self).__init__(**options)
+        super(JSONExporter, self).__init__(name=name, **options)
 
-    def export(self, source):
+    def export(self, source: TestReport):
 
-        json_path = self.cfg.json_path
+        json_path = pathlib.Path(self.cfg.json_path).resolve()
 
         if len(source):
-            test_plan_schema = TestReportSchema(strict=True)
-            data = test_plan_schema.dump(source).data
-            attachments_dir = os.path.join(
-                os.path.dirname(json_path), defaults.ATTACHMENTS
-            )
+            json_path.parent.mkdir(parents=True, exist_ok=True)
+
+            test_plan_schema = TestReportSchema()
+            data = test_plan_schema.dump(source)
+            attachments_dir = json_path.parent / defaults.ATTACHMENTS
 
             # Save the Testplan report.
             if self.cfg.split_json_report:
@@ -89,41 +88,43 @@ class JSONExporter(Exporter):
                     structure_filename,
                     assertions_filename,
                 ) = gen_attached_report_names(json_path)
-                structure_filepath = os.path.join(
-                    attachments_dir, structure_filename
-                )
-                assertions_filepath = os.path.join(
-                    attachments_dir, assertions_filename
-                )
+                structure_filepath = attachments_dir / structure_filename
+                assertions_filepath = attachments_dir / assertions_filename
 
                 meta, structure, assertions = self.split_json_report(data)
-                makedirs(attachments_dir)
+                attachments_dir.mkdir(parents=True, exist_ok=True)
 
                 with open(structure_filepath, "w") as json_file:
                     json.dump(structure, json_file)
                 with open(assertions_filepath, "w") as json_file:
                     json.dump(assertions, json_file)
 
-                save_attachments(report=source, directory=attachments_dir)
+                meta["attachments"] = save_attachments(
+                    report=source, directory=attachments_dir
+                )
                 meta["version"] = 2
-                # Modify dict ref may change the original `TestReport` object
-                meta["attachments"] = copy.deepcopy(meta["attachments"])
-                meta["attachments"][structure_filename] = structure_filepath
-                meta["attachments"][assertions_filename] = assertions_filepath
+                meta["attachments"][structure_filename] = str(
+                    structure_filepath
+                )
+                meta["attachments"][assertions_filename] = str(
+                    assertions_filepath
+                )
                 meta["structure_file"] = structure_filename
                 meta["assertions_file"] = assertions_filename
 
                 with open(json_path, "w") as json_file:
                     json.dump(meta, json_file)
             else:
-                save_attachments(report=source, directory=attachments_dir)
+                data["attachments"] = save_attachments(
+                    report=source, directory=attachments_dir
+                )
                 data["version"] = 1
 
                 with open(json_path, "w") as json_file:
                     json.dump(data, json_file)
 
             self.logger.exporter_info("JSON generated at %s", json_path)
-            return json_path
+            return self.cfg.json_path
         else:
             self.logger.exporter_info(
                 "Skipping JSON creation for empty report: %s", source.name

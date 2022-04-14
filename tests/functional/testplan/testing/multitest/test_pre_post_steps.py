@@ -1,24 +1,19 @@
 import os
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 
-from testplan.common.utils.testing import (
-    check_report,
-    log_propagation_disabled,
-)
+from testplan.common.utils.testing import check_report
 from testplan.report import (
     TestReport,
     TestGroupReport,
     TestCaseReport,
     ReportCategories,
 )
-from testplan.common.utils.logger import TESTPLAN_LOGGER
-
 
 CURRENT_FILE = os.path.abspath(__file__)
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_one(self, env, result):
         pass
@@ -98,9 +93,7 @@ def test_pre_post_steps(mockplan):
     )
 
     mockplan.add(multitest)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     check_report(expected_report, mockplan.report)
     assert len(mockplan.report.attachments) == 2

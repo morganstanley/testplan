@@ -2,8 +2,10 @@
 *.pdf
 *.json
 *.xml
+!/tests/**/fixtures/*.xml
 
 .idea/
+.vscode/
 build/
 dist/
 *.egg-info/
@@ -33,16 +35,14 @@ Dockerfile
 /testplan/web_ui/testing/build
 !/testplan/web_ui/testing/package.json
 !/testplan/web_ui/testing/.eslintrc.json
+
 .DS_Store
 .env.local
 .env.development.local
 .env.test.local
 .eslintcache
 testing/.env.production.local
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-yarn.lock
+.pnpm-debug.log
 Thumbs.db
 
 /doc/en/_build/

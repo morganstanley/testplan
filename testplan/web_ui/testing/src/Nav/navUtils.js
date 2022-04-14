@@ -2,15 +2,16 @@
  * Navigation utility functions.
  */
 import React from 'react';
-import {ListGroup, ListGroupItem} from 'reactstrap';
-import {StyleSheet, css} from 'aphrodite';
+import { ListGroup, ListGroupItem } from 'reactstrap';
+import { StyleSheet, css } from 'aphrodite';
 
 import TagList from './TagList';
 import Column from './Column';
-import {LIGHT_GREY, DARK_GREY} from "../Common/defaults";
+import { LIGHT_GREY, MEDIUM_GREY } from "../Common/defaults";
 import CommonStyles from "../Common/Styles.js";
 import { NavLink } from 'react-router-dom';
 import { generatePath } from 'react-router';
+import { generateURLWithParameters } from "../Common/utils";
 
 /**
  * Create the list entry buttons or a single button stating nothing can be
@@ -20,40 +21,53 @@ import { generatePath } from 'react-router';
  */
 const CreateNavButtons = (
   props,
-  createEntryComponent,  
-  ) => {
+  createEntryComponent,
+  uidEncoder,
+) => {
 
   // Apply all filters to the entries.
-  const filteredEntries = applyAllFilters(props);
+  const filteredEntries =
+    applyAllFilters(props.filter, props.entries, props.displayEmpty);
 
   // Create buttons for each of the filtered entries.
   const navButtons = filteredEntries.map((entry, entryIndex) => {
     const tags = (
       (props.displayTags && entry.tags)
-      ? <TagList entryName={entry.name} tags={entry.tags}/>
-      : null
+        ? <TagList entryName={entry.name} tags={entry.tags} />
+        : null
     );
 
     const tabIndex = entryIndex + 1;
     const cssClass = [
       styles.navButton, styles.navButtonInteract, CommonStyles.unselectable
     ];
-    const cssActiveClass = [ ...cssClass, styles.navButtonInteractFocus ];
+    const cssActiveClass = [...cssClass, styles.navButtonInteractFocus];
 
-    let [reportuid, ...selectionuids] = entry.uids;    
-    const linkTo = generatePath(props.url, 
-                                {uid: reportuid, selection:selectionuids});
+    let [reportuid, ...selectionuids] = uidEncoder ?
+      entry.uids.map(uidEncoder) :
+      entry.uids;
+    const linkTo = generateURLWithParameters(
+      window.location,
+      generatePath(
+        props.url,
+        {
+          uid: reportuid,
+          selection: selectionuids
+        }
+      )
+    );
+    console.log(linkTo);
 
     return (
       <ListGroupItem
         tabIndex={tabIndex.toString()}
-        key={entry.uid}
+        key={entry.hash || entry.uid}
         className={css(cssClass)}
         activeClassName={css(cssActiveClass)}
         tag={NavLink} to={linkTo} action
-        >          
-          {tags}
-          {createEntryComponent(entry)}          
+      >
+        {tags}
+        {createEntryComponent(entry)}
       </ListGroupItem>
     );
   });
@@ -72,15 +86,15 @@ const CreateNavButtons = (
  *    entries).
  *  * Filter out empty testcases if required.
  */
-const applyAllFilters = (props) => {
-  if (props.displayEmpty) {
-    return applyNamedFilter(props.entries, props.filter);
+const applyAllFilters = (filter, entries, displayEmpty) => {
+  if (displayEmpty) {
+    return applyNamedFilter(entries, filter);
   } else {
-    return applyNamedFilter(props.entries, props.filter).filter((entry) => {
+    return applyNamedFilter(entries, filter).filter((entry) => {
       if (entry.category === 'testcase') {
         return (entry.entries !== null && entry.entries.length > 0);
       } else {
-        return (entry.counter.total > 0);
+        return (entry.counter && entry.counter.total > 0);
       }
     });
   }
@@ -96,12 +110,14 @@ const applyNamedFilter = (entries, filter) => {
   switch (filter) {
     case 'pass':
       return entries.filter(
-        (entry) => (entry.counter.passed|0) > 0
+        (entry) =>
+          (entry.counter ? (entry.counter.passed | 0) : 0) > 0
       );
-
     case 'fail':
       return entries.filter(
-        (entry) => (entry.counter.failed|0) + (entry.counter.error|0) > 0
+        (entry) =>
+          (entry.counter ? (entry.counter.failed | 0) : 0) +
+          (entry.counter ? (entry.counter.error | 0) : 0) > 0
       );
 
     default:
@@ -119,11 +135,11 @@ export const styles = StyleSheet.create({
   },
   navButtonInteract: {
     ':hover': {
-      backgroundColor: DARK_GREY,
+      backgroundColor: MEDIUM_GREY,
     },
   },
   navButtonInteractFocus: {
-    backgroundColor: DARK_GREY,
+    backgroundColor: MEDIUM_GREY,
     outline: 'none',
   },
   buttonList: {
@@ -178,6 +194,88 @@ const GetNavEntries = (selected) => {
 };
 
 /**
+ * Get the interavtive entries to present to a user in the navigation column.
+ * Will check attributes of these entries and make changes to them if necessary.
+ * For example, if several testcase entries belong to a testsuite which sets
+ * attribute "strict_order" enabled, then the testcase entry should be disabled
+ * unless all previous ones get execution results.
+ *
+ * @param {Array[ReportNode]} selected - Current selection hierarchy.
+ */
+const GetInteractiveNavEntries = (selected) => {
+  let selectedEntry = selected[selected.length - 1];
+
+  if (!selectedEntry) {
+    return [];
+  }
+
+  if (
+    selectedEntry.category === 'testcase'
+    || selectedEntry.category === 'parametrization'
+  ) {
+    selectedEntry = selected[selected.length - 2];  // move to testsuite entry
+  }
+
+  // If testsuite has `strict_order` attribute, UI will set enable/disable
+  // status of testcase items to force user to run testcase one by one.
+  if (selectedEntry.category === 'testsuite' && selectedEntry.strict_order) {
+    let testcaseEntries = [];  // contains all testcase entries in testsuite
+    selectedEntry.entries.forEach((childEntry) => {
+      if (childEntry.category === 'testcase' && !childEntry.suite_related) {
+        testcaseEntries.push(childEntry);
+      } else if (childEntry.category === 'parametrization') {
+        childEntry.entries.forEach((entry) => { testcaseEntries.push(entry); });
+      }
+    });
+
+    // To make all testcases run sequentially, in a test suite only the entry
+    // next to the recently finished testcase have "play" button enabled.
+    let idx = 0;
+    while (idx < testcaseEntries.length) {
+      if (testcaseEntries[idx].runtime_status !== 'finished') {
+        break;
+      }
+      ++idx;
+    }
+    if (idx > 0) {
+      // at least one testcase already finished
+      testcaseEntries.slice(0, idx).forEach((entry) => {
+        entry.action = 'prohibit';
+      });
+    }
+    if (idx < testcaseEntries.length) {
+      // at least one testcase is ready to run
+      testcaseEntries[idx].action = (
+        testcaseEntries[idx].runtime_status === 'running' ||
+          testcaseEntries[idx].runtime_status === 'resetting' ||
+          testcaseEntries[idx].runtime_status === 'waiting'
+          ? 'prohibit' : 'play'
+      );
+      testcaseEntries.slice(idx + 1).forEach((entry) => {
+        entry.action = 'prohibit';
+      });
+    }
+
+    // Enable/disable status of "play" button of each parametrization group
+    // entry depends on its child entries (the 1st child must be ready to run).
+    selectedEntry.entries.forEach((childEntry) => {
+      if (childEntry.category === 'parametrization') {
+        if (childEntry.entries.some(
+          (entry) => { return entry.action === 'play'; }
+        )) {
+          childEntry.action = 'play';
+        }
+        else {
+          childEntry.action = 'prohibit';
+        }
+      }
+    });
+  }
+
+  return GetNavEntries(selected);
+};
+
+/**
  * Get the entries to display in the navigation breadcrumbs bar. Generally
  * this is just the selection hierarchy. As a special case, when a testcase
  * is selected, we only display up to the suite level in the breadcrumb bar.
@@ -209,6 +307,8 @@ export {
   CreateNavButtons,
   GetSelectedUid,
   GetNavEntries,
+  GetInteractiveNavEntries,
   GetNavBreadcrumbs,
   GetNavColumn,
+  applyAllFilters
 };

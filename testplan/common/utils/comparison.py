@@ -1,14 +1,9 @@
 import operator
 import decimal
-
-try:
-    from collections.abc import Mapping, Iterable
-except ImportError:
-    from collections import Mapping, Iterable
-import traceback
-
 import enum
-import six
+import traceback
+from collections.abc import Mapping, Iterable
+from itertools import zip_longest
 
 from .reporting import Absent, fmt, NATIVE_TYPES, callable_name
 
@@ -27,7 +22,7 @@ def basic_compare(first, second, strict=False):
     """
     try:
         if is_regex(second):
-            if not isinstance(first, six.string_types) and not strict:
+            if not isinstance(first, str) and not strict:
                 first = str(first)
             result = bool(second.match(first))
         elif callable(second):
@@ -65,7 +60,7 @@ def check_dict_keys(data, has_keys=None, absent_keys=None):
     return existing_diff, absent_intersection
 
 
-class Callable(object):
+class Callable:
     """
     Some of our assertions can make use of callables that accept a
     single argument as comparator values. We also provide the helper
@@ -317,7 +312,7 @@ def compare_with_callable(callable_obj, value):
         return False, traceback.format_exc()
 
 
-class RegexAdapter(object):
+class RegexAdapter:
     """This is being used for internal compatibility."""
 
     @classmethod
@@ -340,7 +335,7 @@ class RegexAdapter(object):
         return Match.from_bool(lhs == rhs)
 
 
-class Category(object):
+class Category:
     """
     Internal enum. Categorises objects for comparison
     """
@@ -376,7 +371,7 @@ def _categorise(obj, _regex_adapter=RegexAdapter):
         return Category.VALUE
 
 
-class Match(object):
+class Match:
     """
     Internal enum. Represents the result of a match.
     """
@@ -636,7 +631,7 @@ def _rec_compare(
     if lhs_cat == rhs_cat == Category.ITERABLE:
         results = []
         match = Match.IGNORED
-        for lhs_item, rhs_item in six.moves.zip_longest(lhs, rhs):
+        for lhs_item, rhs_item in zip_longest(lhs, rhs):
             # iterate all elems in both iterable non-mapping objects
             result = _rec_compare(
                 lhs_item,
@@ -945,7 +940,7 @@ def _to_error(cmpr_tuple, weights):
     return int(current_error * 10000.0 / worst_error + 0.5)
 
 
-class Expected(object):
+class Expected:
     """
     An object representing an expected message,
     along with additional comparison flags.
@@ -1195,7 +1190,7 @@ def tuplefy_comparisons(comparisons, table=False):
         ]
 
 
-class DictmatchAllResult(object):
+class DictmatchAllResult:
     """
     When cast to a ``bool``, evaluates to ``True`` when all values
     were matched without errors or ``False`` if one or more values mis-matched.
@@ -1294,13 +1289,6 @@ class DictmatchAllResult(object):
         self.index_match_levels = index_match_levels
 
     def __bool__(self):  # python 3 bool()
-        """
-        :return: True if assertion passed, False otherwise
-        :rtype: ``bool``
-        """
-        return self.passed
-
-    def __nonzero__(self):  # python 2 bool()
         """
         :return: True if assertion passed, False otherwise
         :rtype: ``bool``

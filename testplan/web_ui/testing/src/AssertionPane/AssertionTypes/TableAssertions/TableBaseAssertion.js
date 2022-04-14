@@ -6,6 +6,7 @@ import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import {AgGridReact} from 'ag-grid-react';
 import 'ag-grid-enterprise';
 import {LicenseManager} from "ag-grid-enterprise";
+import {processCellForClipboard} from "./tableAssertionUtils";
 
 
 const REACT_APP_AG_GRID_LICENSE = process.env.REACT_APP_AG_GRID_LICENSE;
@@ -18,21 +19,23 @@ if (REACT_APP_AG_GRID_LICENSE) {
  */
 export default function TableBaseAssertion(props) {
 
-  const [gridApi, setGridApi] = useState(null);
-  const [, setGridColumnApi] = useState(null);
+  const [, setGridApi] = useState(null);
+  const [gridColumnApi, setGridColumnApi] = useState(null);
 
-  const sizeToFit = (api) => {
-    if (api) api.sizeColumnsToFit();
+  const autoSizeColumns = () => {
+    if (gridColumnApi) {
+      let allColumnIds = gridColumnApi.getAllColumns().map(c => c.colId);
+      gridColumnApi.autoSizeColumns(allColumnIds);
+    }
   };
 
   const onGridReady = (params) => {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
-    sizeToFit(params.api);
   };
 
   useLayoutEffect(() => {
-    sizeToFit(gridApi?.api);
+    autoSizeColumns();
   });
 
   // table header + margin + column height * columns
@@ -54,6 +57,7 @@ export default function TableBaseAssertion(props) {
           suppressColumnVirtualisation={true}
           columnDefs={props.columns}
           rowData={props.rows}
+          onFirstDataRendered={autoSizeColumns}
           defaultColDef={{
             sortable: true,
             filter: true,
@@ -63,6 +67,7 @@ export default function TableBaseAssertion(props) {
           }}
           groupMultiAutoColumn={true}
           enableRangeSelection={true}
+          processCellForClipboard={processCellForClipboard}
         />
       </div>
     </>

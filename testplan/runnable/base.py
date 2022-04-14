@@ -1,9 +1,11 @@
 """Tests runner module."""
-
 import os
 import random
+import re
 import time
 import datetime
+import uuid
+import inspect
 import webbrowser
 from collections import OrderedDict
 
@@ -22,7 +24,8 @@ from testplan.common.exporters import BaseExporter, ExporterResult
 from testplan.common.report import MergeError
 from testplan.common.utils import logger
 from testplan.common.utils import strings
-from testplan.common.utils.path import default_runpath
+from testplan.common.utils.package import import_tmp_module
+from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.exporters import testing as test_exporters
 from testplan.report import (
     TestReport,
@@ -34,6 +37,7 @@ from testplan.report.testing.styles import Style
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.base import Executor
 from testplan.runners.pools.tasks import Task, TaskResult
+from testplan.runners.pools.tasks.base import is_task_target
 from testplan.testing import listing, filtering, ordering, tagging
 from testplan.testing.base import TestResult
 
@@ -149,11 +153,15 @@ class TestRunnerConfig(RunnableConfig):
             ConfigOption("timeout", default=defaults.TESTPLAN_TIMEOUT): Or(
                 None, And(int, lambda t: t >= 0)
             ),
-            ConfigOption("abort_wait_timeout", default=60): int,
+            # active_loop_sleep impacts cpu usage in interactive mode
+            ConfigOption("active_loop_sleep", default=0.05): float,
             ConfigOption(
                 "interactive_handler", default=TestRunnerIHandler
             ): object,
-            ConfigOption("extra_deps", default=[]): list,
+            ConfigOption("extra_deps", default=[]): [
+                Or(str, lambda x: inspect.ismodule(x))
+            ],
+            ConfigOption("label", default=None): Or(None, str),
         }
 
 
@@ -268,8 +276,12 @@ class TestRunner(Runnable):
     :param interactive_handler: Handler for interactive mode execution.
     :type interactive_handler: Subclass of :py:class:
         `TestRunnerIHandler <testplan.runnable.interactive.TestRunnerIHandler>`
-    :param extra_deps: Extra module dependencies for interactive reload.
-    :type extra_deps: ``list`` of ``module``
+    :param extra_deps: Extra module dependencies for interactive reload, or
+        paths of these modules.
+    :type extra_deps: ``list`` of ``module`` or ``str``
+    :param label: Label the test report with the given name, useful to
+        categorize or classify similar reports .
+    :type label: ``str`` or ``NoneType``
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Runnable` options.
@@ -281,13 +293,15 @@ class TestRunner(Runnable):
 
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
-        self._tests = OrderedDict()  # uid to resource
+        self._tests = OrderedDict()  # uid to resource, in definition order
+
         self._part_instance_names = set()  # name of Multitest part
         self._result.test_report = TestReport(
             name=self.cfg.name,
             description=self.cfg.description,
             uid=self.cfg.name,
             timeout=self.cfg.timeout,
+            label=self.cfg.label,
         )
         self._exporters = None
         self._web_server_thread = None
@@ -297,6 +311,10 @@ class TestRunner(Runnable):
         # uuid4 format as report uid instead of original one. Skip this step
         # when executing unit/functional tests or running in interactive mode.
         self._reset_report_uid = self.cfg.interactive_port is None
+        self.scheduled_modules = []  # For interactive reload
+        self.remote_services = {}
+        self.runid_filename = uuid.uuid4().hex
+        self.define_runpath()
 
     @property
     def report(self):
@@ -307,7 +325,7 @@ class TestRunner(Runnable):
     def exporters(self):
         """
         Return a list of
-        :py:class:`Resources <testplan.exporters.testing.base.Exporter>`.
+        :py:class:`report exporters <testplan.exporters.testing.base.Exporter>`.
         """
         if self._exporters is None:
             self._exporters = self.get_default_exporters()
@@ -318,6 +336,10 @@ class TestRunner(Runnable):
                     exporter.cfg.parent = self.cfg
                 exporter.parent = self
         return self._exporters
+
+    def disable_reset_report_uid(self):
+        """Do not generate unique strings in uuid4 format as report uid"""
+        self._reset_report_uid = False
 
     def get_default_exporters(self):
         """
@@ -367,14 +389,13 @@ class TestRunner(Runnable):
 
     def add_resource(self, resource, uid=None):
         """
-        Adds a test
-        :py:class:`executor <testplan.runners.base.Executor>`
+        Adds a test :py:class:`executor <testplan.runners.base.Executor>`
         resource in the test runner environment.
 
         :param resource: Test executor to be added.
         :type resource: Subclass of :py:class:`~testplan.runners.base.Executor`
         :param uid: Optional input resource uid.
-        :type uid: ``str``
+        :type uid: ``str`` or ``NoneType``
         :return: Resource uid assigned.
         :rtype:  ``str``
         """
@@ -383,6 +404,42 @@ class TestRunner(Runnable):
         return self.resources.add(
             resource, uid=uid or getattr(resource, "uid", strings.uuid4)()
         )
+
+    def add_exporters(self, exporters):
+        """
+        Add a list of
+        :py:class:`report exporters <testplan.exporters.testing.base.Exporter>`
+        for outputting test report.
+
+        :param exporters: Test exporters to be added.
+        :type exporters: ``list`` of :py:class:`~testplan.runners.base.Executor`
+        """
+        self.cfg.exporters.extend(get_exporters(exporters))
+
+    def add_remote_service(self, remote_service):
+        """
+        Adds a remote service
+        :py:class:`~testplan.common.remote.remote_service.RemoteService`
+        object to test runner.
+
+        :param remote_service: RemoteService object
+        :param remote_service:
+            :py:class:`~testplan.common.remote.remote_service.RemoteService`
+        """
+        name = remote_service.cfg.name
+        if name in self.remote_services:
+            raise ValueError(f"Remove Service [{name}] already exists")
+
+        remote_service.parent = self
+        remote_service.cfg.parent = self.cfg
+        self.remote_services[name] = remote_service
+        remote_service.start()
+
+    def _stop_remote_services(self):
+
+        for name, rmt_svc in self.remote_services.items():
+            self.logger.debug(f"Stopping Remote Server {name}")
+            rmt_svc.stop()
 
     def schedule(self, task=None, resource=None, **options):
         """
@@ -399,7 +456,78 @@ class TestRunner(Runnable):
         :return uid: Assigned uid for task.
         :rtype: ``str``
         """
+
         return self.add(task or Task(**options), resource=resource)
+
+    def schedule_all(self, path=".", name_pattern=r".*\.py$", resource=None):
+        """
+        Discover task targets under path in the modules that matches name pattern,
+        create task objects from them and schedule them to resource (usually pool)
+        for execution.
+
+        :param path: the root path to start a recursive walk and discover,
+            default is current directory.
+        :type path: ``str``
+        :param name_pattern: a regex pattern to match the file name.
+        :type name_pattern: ``str``
+        :param resource: Target pool resource, default is None (local execution)
+        :type resource: :py:class:`~testplan.runners.pools.base.Pool`
+        """
+
+        def schedule_task(task_kwargs, resource):
+            self.logger.debug("Task created with arguments: %s", task_kwargs)
+            self.add(Task(**task_kwargs), resource=resource)
+
+        self.logger.test_info(
+            "Discovering task target with file name pattern '%s' under '%s'",
+            name_pattern,
+            path,
+        )
+        regex = re.compile(name_pattern)
+
+        for root, dirs, files in os.walk(path or "."):
+            for filename in files:
+                if not regex.match(filename):
+                    continue
+
+                filepath = os.path.join(root, filename)
+                module = filename.split(".")[0]
+
+                with import_tmp_module(module, root) as mod:
+                    for attr in dir(mod):
+                        target = getattr(mod, attr)
+                        if not is_task_target(target):
+                            continue
+
+                        self.logger.debug(
+                            "Discovered task target %s::%s", filepath, attr
+                        )
+                        task_arguments = dict(
+                            target=attr,
+                            module=module,
+                            path=root,
+                            **target.__task_kwargs__,
+                        )
+
+                        if target.__target_params__:
+                            for param in target.__target_params__:
+                                if isinstance(param, dict):
+                                    task_arguments["args"] = None
+                                    task_arguments["kwargs"] = param
+                                elif isinstance(param, (tuple, list)):
+                                    task_arguments["args"] = param
+                                    task_arguments["kwargs"] = None
+                                else:
+                                    raise TypeError(
+                                        "task_target's parameters can only"
+                                        " contain dict/tuple/list, but"
+                                        " received: {param}"
+                                    )
+                                schedule_task(
+                                    task_arguments, resource=resource
+                                )
+                        else:
+                            schedule_task(task_arguments, resource=resource)
 
     def add(self, target, resource=None):
         """
@@ -486,6 +614,15 @@ class TestRunner(Runnable):
             runnable = target
         elif isinstance(target, Task):
             runnable = target.materialize()
+            if self.cfg.interactive_port is not None and isinstance(
+                target._target, str
+            ):
+                self.scheduled_modules.append(
+                    (
+                        target._module or target._target.rsplit(".", 1)[0],
+                        os.path.abspath(target._path),
+                    )
+                )
         elif callable(target):
             runnable = target()
         else:
@@ -525,28 +662,53 @@ class TestRunner(Runnable):
         self.report.timer.end("run")
 
     def make_runpath_dirs(self):
-        super(TestRunner, self).make_runpath_dirs()
-        self.logger.info("{} runpath: {}".format(self, self.runpath))
+        """
+        Creates runpath related directories.
+        """
+        if self._runpath is None:
+            raise RuntimeError(
+                "{} runpath cannot be None".format(self.__class__.__name__)
+            )
+
+        self.logger.test_info(
+            f"Testplan has runpath: {self._runpath} and pid {os.getpid()}"
+        )
+
+        self._scratch = os.path.join(self._runpath, "scratch")
+
+        if self.cfg.path_cleanup is False:
+            makedirs(self._runpath)
+            makedirs(self._scratch)
+        else:
+            makeemptydirs(self._runpath)
+            makeemptydirs(self._scratch)
+
+        with open(
+            os.path.join(self._runpath, self.runid_filename), "wb"
+        ) as fp:
+            pass
 
     def pre_resource_steps(self):
-        """Steps to be executed before resources started."""
-        # self._add_step(self._runpath_initialization)
+        """Runnable steps to be executed before resources started."""
+        super(TestRunner, self).pre_resource_steps()
         self._add_step(self._record_start)
         self._add_step(self.make_runpath_dirs)
         self._add_step(self._configure_file_logger)
 
     def main_batch_steps(self):
-        """Steps to be executed while resources are running."""
+        """Runnable steps to be executed while resources are running."""
         self._add_step(self._wait_ongoing)
 
     def post_resource_steps(self):
-        """Steps to be executed after resources stopped."""
+        """Runnable steps to be executed after resources stopped."""
+        self._add_step(self._stop_remote_services)
         self._add_step(self._create_result)
         self._add_step(self._log_test_status)
         self._add_step(self._record_end)  # needs to happen before export
         self._add_step(self._invoke_exporters)
         self._add_step(self._post_exporters)
         self._add_step(self._close_file_logger)
+        super(TestRunner, self).post_resource_steps()
 
     def _wait_ongoing(self):
         # TODO: if a pool fails to initialize we could reschedule the tasks.
@@ -564,7 +726,9 @@ class TestRunner(Runnable):
         ).total_seconds()
 
         while self.active:
-            if self.cfg.timeout and time.time() - _start_ts > self.cfg.timeout:
+            if (self.cfg.timeout is not None) and (
+                time.time() - _start_ts > self.cfg.timeout
+            ):
                 self.result.test_report.logger.error(
                     "Timeout: Aborting execution after {} seconds".format(
                         self.cfg.timeout
@@ -625,7 +789,10 @@ class TestRunner(Runnable):
             run, report = test_results[uid].run, test_results[uid].report
 
             if report.part:
-                if self.cfg.merge_scheduled_parts:
+                if (
+                    report.category != "task_rerun"
+                    and self.cfg.merge_scheduled_parts
+                ):
                     report.uid = report.name
                     # Save the report temporarily and later will merge it
                     test_rep_lookup.setdefault(report.uid, []).append(
@@ -644,6 +811,7 @@ class TestRunner(Runnable):
                             runnable.cfg._options["part"] = None
                             runnable._test_context = None
                             report = runnable.dry_run().report
+
                         else:
                             report = report.__class__(
                                 report.name,
@@ -758,7 +926,6 @@ class TestRunner(Runnable):
             self.logger.warning(
                 "No tests were run - check your filter patterns."
             )
-            self._result.test_report.status_override = Status.FAILED
         else:
             self.logger.log_test_status(
                 self.cfg.name, self._result.test_report.status
@@ -795,16 +962,22 @@ class TestRunner(Runnable):
         report_opened = False
 
         for result in self._result.exporter_results:
-            exporter = result.exporter
-            if getattr(exporter, "report_url", None) and self.cfg.browse:
-                report_urls.append(exporter.report_url)
-            if getattr(exporter, "_web_server_thread", None):
-                # Give priority to open report from local server
-                webbrowser.open(exporter.report_url)
-                report_opened = True
-                # Stuck here waiting for web server to terminate
-                self._web_server_thread = exporter._web_server_thread
-                self._web_server_thread.join()
+            report_url = getattr(result.exporter, "report_url", None)
+            if report_url:
+                report_urls.append(report_url)
+                web_server_thread = getattr(
+                    result.exporter, "web_server_thread", None
+                )
+                if web_server_thread:
+                    # Keep an eye on this thread from `WebServerExporter`
+                    # which will be stopped on Testplan abort
+                    self._web_server_thread = web_server_thread
+                    # Give priority to open report from local server
+                    if self.cfg.browse and not report_opened:
+                        webbrowser.open(report_url)
+                        report_opened = True
+                    # Stuck here waiting for web server to terminate
+                    web_server_thread.join()
 
         if self.cfg.browse and not report_opened:
             if len(report_urls) > 0:
@@ -815,6 +988,14 @@ class TestRunner(Runnable):
                     "No reports opened, could not find "
                     "an exported result to browse"
                 )
+
+    def abort_dependencies(self):
+        """
+        Yield all dependencies to be aborted before self abort.
+        """
+        if self._ihandler is not None:
+            yield self._ihandler
+        yield from super(TestRunner, self).abort_dependencies()
 
     def aborting(self):
         """Stop the web server if it is running."""

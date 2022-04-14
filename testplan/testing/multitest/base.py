@@ -1,21 +1,10 @@
 """MultiTest test execution framework."""
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 
-from builtins import super
-from builtins import str
-from future import standard_library
-
-standard_library.install_aliases()
-
-import os
-import collections
+import collections.abc
+import concurrent
 import functools
 import itertools
-
-import concurrent
+import os
 
 from schema import Or, And, Use
 
@@ -33,6 +22,7 @@ from testplan.testing import base as testing_base
 from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
+from testplan.testing.multitest.result import report_target
 
 from testplan.report import (
     TestGroupReport,
@@ -45,7 +35,7 @@ from testplan.report import (
 
 def iterable_suites(obj):
     """Create an iterable suites object."""
-    suites = [obj] if not isinstance(obj, collections.Iterable) else obj
+    suites = [obj] if not isinstance(obj, collections.abc.Iterable) else obj
 
     # If multiple objects from one test suite class are added into a Multitest,
     # it's better provide naming function to avoid duplicate test suite names.
@@ -70,30 +60,48 @@ def iterable_suites(obj):
     return suites
 
 
-class MultiTestRuntimeInfo(object):
+class MultiTestRuntimeInfo:
     """
-    This class provide information about the state of the actual test run
-    that is accessible from the testcases through the environment as:
-    ``env.multitest_runtime_info``
+    This class provides information about the state of the actual test run
+    that is accessible from the testcase through the environment as:
+    ``env.runtime_info``
 
     Currently only the actual testcase name is accessible as:
-    ``env.multitest_runtime_info.testcase.name`` more info to come.
+    ``env.runtime_info.testcase.name``, more info to come.
     """
 
-    class TestcaseInfo(object):
+    class TestcaseInfo:
         name = None
 
     def __init__(self):
         self.testcase = self.TestcaseInfo()
 
 
-class EnvWithRuntimeInfo(object):
-    def __init__(self, environment, runtime_info):
-        self._environment = environment
-        self.multitest_runtime_info = runtime_info
+class RuntimeEnvironment:
+    """
+    A collection of resources accessible through either items or named
+    attributes, representing a test environment instance with runtime
+    information about the currently executing testcase.
+
+    This class is a tiny wrapper around the :py:class:`Environment` of
+    :py:class:`~testplan.testing.base.Test`, delegates all calls to it
+    but with a `runtime_info` which serves the runtime information of
+    the current thread of execution.
+    """
+
+    def __init__(
+        self,
+        environment: entity.Environment,
+        runtime_info: MultiTestRuntimeInfo,
+    ):
+        self.__dict__["_environment"] = environment
+        self.__dict__["runtime_info"] = runtime_info
 
     def __getattr__(self, attr):
         return getattr(self._environment, attr)
+
+    def __setattr__(self, name, value):
+        setattr(self._environment, name, value)
 
     def __getitem__(self, item):
         return self._environment[item]
@@ -137,6 +145,7 @@ class MultiTestConfig(testing_base.TestConfig):
             config.ConfigOption("fix_spec_path", default=None): Or(
                 None, And(str, os.path.exists)
             ),
+            config.ConfigOption("testcase_report_target", default=True): bool,
         }
 
 
@@ -176,6 +185,9 @@ class MultiTest(testing_base.Test):
     :type result: :py:class:`~testplan.testing.multitest.result.result.Result`
     :param fix_spec_path: Path of fix specification file.
     :type fix_spec_path: ``NoneType`` or ``str``.
+    :param testcase_report_target: Whether to mark testcases as assertions for filepath
+        and line number information
+    :type testcase_report_target: ``bool``
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -209,7 +221,8 @@ class MultiTest(testing_base.Test):
         tags=None,
         result=result.Result,
         fix_spec_path=None,
-        **options
+        testcase_report_target=True,
+        **options,
     ):
         self._tags_index = None
 
@@ -258,7 +271,7 @@ class MultiTest(testing_base.Test):
     def uid(self):
         """
         Instance name uid.
-        A Multitest part isntance should not have the same uid as its name.
+        A Multitest part instance should not have the same uid as its name.
         """
         if self.cfg.part:
             return (
@@ -271,7 +284,7 @@ class MultiTest(testing_base.Test):
         else:
             return self.cfg.name
 
-    def get_test_context(self, test_filter=None):
+    def get_test_context(self):
         """
         Return filtered & sorted list of suites & testcases
         via `cfg.test_filter` & `cfg.test_sorter`.
@@ -280,26 +293,42 @@ class MultiTest(testing_base.Test):
         :rtype: ``list`` of ``tuple``
         """
         ctx = []
-        test_filter = test_filter or self.cfg.test_filter
-        test_sorter = self.cfg.test_sorter
-        sorted_suites = test_sorter.sorted_testsuites(self.cfg.suites)
+        sorted_suites = self.cfg.test_sorter.sorted_testsuites(self.cfg.suites)
 
         for suite in sorted_suites:
-            sorted_testcases = test_sorter.sorted_testcases(
-                suite.get_testcases()
+            testcases = suite.get_testcases()
+            sorted_testcases = (
+                testcases
+                if getattr(suite, "strict_order", False)
+                or not hasattr(self.cfg, "test_sorter")
+                else self.cfg.test_sorter.sorted_testcases(suite, testcases)
             )
 
             testcases_to_run = [
                 case
                 for case in sorted_testcases
-                if test_filter.filter(test=self, suite=suite, case=case)
+                if self.cfg.test_filter.filter(
+                    test=self, suite=suite, case=case
+                )
             ]
+
+            # In batch mode if `strict_order` is specified, then either
+            # all of the testcases are filtered out, or left unchanged.
+            if getattr(suite, "strict_order", False) and 0 < len(
+                testcases_to_run
+            ) < len(sorted_testcases):
+                testcases_to_run = sorted_testcases
 
             if self.cfg.part and self.cfg.part[1] > 1:
                 testcases_to_run = [
                     testcase
                     for (idx, testcase) in enumerate(testcases_to_run)
                     if idx % self.cfg.part[1] == self.cfg.part[0]
+                ]
+
+            if self.cfg.testcase_report_target:
+                testcases_to_run = [
+                    report_target(testcase) for testcase in testcases_to_run
                 ]
 
             if testcases_to_run:
@@ -312,7 +341,7 @@ class MultiTest(testing_base.Test):
         A testing process that creates a full structured report without
         any assertion entry. Initial status of each entry can be set.
         """
-        suites_to_run = self.get_test_context()
+        suites_to_run = self.test_context
         self.result.report = self._new_test_report()
 
         for testsuite, testcases in suites_to_run:
@@ -339,7 +368,6 @@ class MultiTest(testing_base.Test):
         """Run all tests as a batch and return the results."""
         testsuites = self.test_context
         report = self.report
-        report.runtime_status = RuntimeStatus.RUNNING
 
         with report.timer.record("run"):
             if _need_threadpool(testsuites):
@@ -376,22 +404,27 @@ class MultiTest(testing_base.Test):
 
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
         """Run all testcases and yield testcase reports."""
-        pattern = filtering.Pattern(
+        test_filter = filtering.Pattern(
             pattern="*:{}:{}".format(testsuite_pattern, testcase_pattern),
             match_definition=True,
         )
-        testsuites = self.get_test_context(test_filter=pattern)
 
-        for testsuite, testcases in testsuites:
+        for testsuite, testcases in self.test_context:
             if not self.active:
                 break
 
-            # In python 3 we would use "yield from" but have to explicitly write
-            # out the loop for python 2 support...
-            for testcase_report, parent_uids in self._run_testsuite_iter(
-                testsuite, testcases
-            ):
-                yield testcase_report, parent_uids
+            # In interactive mode testcases are selected to run, thus
+            # an extra ``filtering.Pattern`` instance will be applied.
+            testcases = [
+                testcase
+                for testcase in testcases
+                if test_filter.filter(
+                    test=self, suite=testsuite, case=testcase
+                )
+            ]
+
+            if testcases:
+                yield from self._run_testsuite_iter(testsuite, testcases)
 
     def append_pre_post_step_report(self):
         """
@@ -445,6 +478,7 @@ class MultiTest(testing_base.Test):
 
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
+        super(MultiTest, self).pre_resource_steps()
         self._add_step(self.make_runpath_dirs)
         if self.cfg.before_start:
             self._add_step(
@@ -453,18 +487,24 @@ class MultiTest(testing_base.Test):
                 )
             )
 
-    def main_batch_steps(self):
-        """Runnable steps to be executed while environment is running."""
+    def pre_main_steps(self):
+        """Runnable steps to be executed after environment starts."""
         if self.cfg.after_start:
             self._add_step(
                 self._wrap_run_step(
                     label="after_start", func=self.cfg.after_start
                 )
             )
+        super(MultiTest, self).pre_main_steps()
 
+    def main_batch_steps(self):
+        """Runnable steps to be executed while environment is running."""
         self._add_step(self.run_tests)
         self._add_step(self.propagate_tag_indices)
 
+    def post_main_steps(self):
+        """Runnable steps to run before environment stopped."""
+        super(MultiTest, self).post_main_steps()
         if self.cfg.before_stop:
             self._add_step(
                 self._wrap_run_step(
@@ -480,8 +520,8 @@ class MultiTest(testing_base.Test):
                     label="after_stop", func=self.cfg.after_stop
                 )
             )
-
         self._add_step(self.append_pre_post_step_report)
+        super(MultiTest, self).post_resource_steps()
 
     def should_run(self):
         """
@@ -608,9 +648,10 @@ class MultiTest(testing_base.Test):
         return TestGroupReport(
             name=testsuite.name,
             description=strings.get_docstring(testsuite.__class__),
-            uid=testsuite.name,
+            uid=testsuite.uid(),
             category=ReportCategories.TESTSUITE,
             tags=testsuite.__tags__,
+            strict_order=testsuite.strict_order,
         )
 
     def _new_testcase_report(self, testcase):
@@ -633,9 +674,10 @@ class MultiTest(testing_base.Test):
         return TestGroupReport(
             name=param_method.name,
             description=strings.get_docstring(param_method),
-            category=ReportCategories.PARAMETRIZATION,
             uid=param_template,
+            category=ReportCategories.PARAMETRIZATION,
             tags=param_method.__tags__,
+            strict_order=param_method.strict_order,
         )
 
     def _execute_step(self, step, *args, **kwargs):
@@ -657,16 +699,22 @@ class MultiTest(testing_base.Test):
         """Runs a testsuite object and returns its report."""
         _check_testcases(testcases)
         testsuite_report = self._new_testsuite_report(testsuite)
-        testsuite_report.runtime_status = RuntimeStatus.RUNNING
 
         with testsuite_report.timer.record("run"):
             setup_report = self._setup_testsuite(testsuite)
             if setup_report is not None:
                 testsuite_report.append(setup_report)
                 if setup_report.failed:
+                    teardown_report = self._teardown_testsuite(testsuite)
+                    if teardown_report is not None:
+                        testsuite_report.append(teardown_report)
                     return testsuite_report
 
-            serial_cases, parallel_cases = _split_by_exec_group(testcases)
+            serial_cases, parallel_cases = (
+                (testcases, [])
+                if getattr(testsuite, "strict_order", False)
+                else _split_by_exec_group(testcases)
+            )
             testcase_reports = self._run_serial_testcases(
                 testsuite, serial_cases
             )
@@ -736,6 +784,11 @@ class MultiTest(testing_base.Test):
                     )
                     break
 
+        if parametrization_reports:
+            for param_report in parametrization_reports.values():
+                if param_report.entries:
+                    _add_runtime_info(param_report)
+
         return testcase_reports
 
     def _run_parallel_testcases(self, testsuite, execution_groups):
@@ -796,8 +849,10 @@ class MultiTest(testing_base.Test):
 
         # Add all non-empty parametrization reports into the list of returned
         # testcase reports, to be added to the suite report.
+        # Calculate runtime of the parametrized group as well
         for param_report in parametrization_reports.values():
             if param_report.entries:
+                _add_runtime_info(param_report)
                 testcase_reports.append(param_report)
 
         return testcase_reports
@@ -838,16 +893,16 @@ class MultiTest(testing_base.Test):
         """
         return self._run_suite_related(testsuite, "teardown")
 
-    def _run_suite_related(self, testsuite, method):
+    def _run_suite_related(self, testsuite, method_name):
         """Runs testsuite related special methods setup/teardown/etc."""
-        testsuite_method = getattr(testsuite, method, None)
+        testsuite_method = getattr(testsuite, method_name, None)
         if testsuite_method is None:
             return None
         elif not callable(testsuite_method):
-            raise TypeError("{} expected to be callable.".format(method))
+            raise TypeError("{} expected to be callable.".format(method_name))
 
         method_report = TestCaseReport(
-            name=method, uid=method, suite_related=True
+            name=method_name, uid=method_name, suite_related=True
         )
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self._scratch
@@ -864,7 +919,18 @@ class MultiTest(testing_base.Test):
 
         with method_report.timer.record("run"):
             with method_report.logged_exceptions():
-                testsuite_method(*method_args)
+                time_restriction = getattr(testsuite_method, "timeout", None)
+                if time_restriction:
+                    # pylint: disable=unbalanced-tuple-unpacking
+                    executed, execution_result = timing.timeout(
+                        time_restriction,
+                        f"`{method_name}` timeout after {{}} second(s)",
+                    )(testsuite_method)(*method_args)
+                    if not executed:
+                        method_report.logger.error(execution_result)
+                        method_report.status_override = Status.ERROR
+                else:
+                    testsuite_method(*method_args)
 
         method_report.extend(case_result.serialized_entries)
         method_report.attachments.extend(case_result.attachments)
@@ -874,8 +940,33 @@ class MultiTest(testing_base.Test):
         return method_report
 
     def _run_case_related(self, method, testcase, resources, case_result):
-        interface.check_signature(method, ["self", "name", "env", "result"])
-        method(testcase.name, resources, case_result)
+        try:
+            interface.check_signature(
+                method, ["self", "name", "env", "result"]
+            )
+            method_args = (testcase.name, resources, case_result)
+        except interface.MethodSignatureMismatch:
+            interface.check_signature(
+                method, ["self", "name", "env", "result", "kwargs"]
+            )
+            method_args = (
+                testcase.name,
+                resources,
+                case_result,
+                getattr(testcase, "_parametrization_kwargs", {}),
+            )
+
+        time_restriction = getattr(method, "timeout", None)
+        if time_restriction:
+            # pylint: disable=unbalanced-tuple-unpacking
+            executed, execution_result = timing.timeout(
+                time_restriction,
+                f"`{method.__name__}` timeout after {{}} second(s)",
+            )(method)(*method_args)
+            if not executed:
+                raise Exception(execution_result)
+        else:
+            method(*method_args)
 
     def _run_testcase(
         self, testcase, pre_testcase, post_testcase, testcase_report=None
@@ -884,7 +975,6 @@ class MultiTest(testing_base.Test):
         testcase_report = testcase_report or self._new_testcase_report(
             testcase
         )
-        testcase_report.runtime_status = RuntimeStatus.RUNNING
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self.scratch
         )
@@ -895,8 +985,7 @@ class MultiTest(testing_base.Test):
 
         runtime_info = MultiTestRuntimeInfo()
         runtime_info.testcase.name = testcase.name
-
-        resources = EnvWithRuntimeInfo(self.resources, runtime_info)
+        resources = RuntimeEnvironment(self.resources, runtime_info)
 
         with testcase_report.timer.record("run"):
             with testcase_report.logged_exceptions():
@@ -909,7 +998,8 @@ class MultiTest(testing_base.Test):
                 if time_restriction:
                     # pylint: disable=unbalanced-tuple-unpacking
                     executed, execution_result = timing.timeout(
-                        time_restriction, "Testcase timeout after {} second(s)"
+                        time_restriction,
+                        f"`{testcase.name}` timeout after {{}} second(s)",
                     )(testcase)(resources, case_result)
                     if not executed:
                         testcase_report.logger.error(execution_result)
@@ -1007,11 +1097,13 @@ class MultiTest(testing_base.Test):
         _check_testcases(testcases)
         setup_report = self._setup_testsuite(testsuite)
 
-        # Suite name is unique in a Multitest instance and it is used as UID
         if setup_report is not None:
-            yield setup_report, [self.uid(), testsuite.name]
+            yield setup_report, [self.uid(), testsuite.uid()]
 
             if setup_report.failed:
+                teardown_report = self._teardown_testsuite(testsuite)
+                if teardown_report is not None:
+                    yield teardown_report, [self.uid(), testsuite.uid()]
                 return
 
         for testcase_report, parent_uids in self._run_testcases_iter(
@@ -1021,7 +1113,7 @@ class MultiTest(testing_base.Test):
 
         teardown_report = self._teardown_testsuite(testsuite)
         if teardown_report is not None:
-            yield teardown_report, [self.uid(), testsuite.name]
+            yield teardown_report, [self.uid(), testsuite.uid()]
 
     def _run_testcases_iter(self, testsuite, testcases):
         """
@@ -1037,23 +1129,27 @@ class MultiTest(testing_base.Test):
             if not self.active:
                 break
 
-            testcase_report = self._run_testcase(
-                testcase, pre_testcase, post_testcase
-            )
             param_template = getattr(
                 testcase, "_parametrization_template", None
             )
-
-            # Suite name is unique in a Multitest instance and it is used as UID
             if param_template:
                 parent_uids = [
                     self.uid(),
-                    testsuite.name,
+                    testsuite.uid(),
                     testcase._parametrization_template,
                 ]
             else:
-                parent_uids = [self.uid(), testsuite.name]
+                parent_uids = [self.uid(), testsuite.uid()]
 
+            # set the runtime status of testcase report to RUNNING so that
+            # client UI can get the change and show testcase is running
+            yield {"runtime_status": RuntimeStatus.RUNNING}, parent_uids + [
+                testcase.__name__
+            ]
+
+            testcase_report = self._run_testcase(
+                testcase, pre_testcase, post_testcase
+            )
             yield testcase_report, parent_uids
 
 
@@ -1063,9 +1159,11 @@ def _need_threadpool(testsuites):
         and testcases.
     """
     return any(
-        getattr(testcase, "execution_group", None)
+        not getattr(pair[0], "strict_order", False)
+        and any(
+            getattr(testcase, "execution_group", None) for testcase in pair[1]
+        )
         for pair in testsuites
-        for testcase in pair[1]
     )
 
 
@@ -1097,3 +1195,30 @@ def _split_by_exec_group(testcases):
             serial_cases.append(testcase)
 
     return serial_cases, parallel_cases
+
+
+def _add_runtime_info(param_report):
+    """
+    Add runtime information to parametrized group report.
+    :param param_report: parametrized group report
+    :return: the parametrized group report with its runtime information
+    """
+    group_start_time = None
+    group_end_time = None
+    for testcase in param_report.entries:
+        timer = testcase.timer
+        start_time = timer["run"].start
+        end_time = timer["run"].end
+        group_start_time = (
+            start_time
+            if group_start_time is None
+            else min(group_start_time, start_time)
+        )
+        group_end_time = (
+            end_time
+            if group_end_time is None
+            else max(group_end_time, end_time)
+        )
+    param_report.timer["run"] = timing.Interval(
+        group_start_time, group_end_time
+    )

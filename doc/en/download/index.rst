@@ -7,16 +7,18 @@ Downloadable examples
     :glob:
     :maxdepth: 2
 
-    Multitest
-    Assertions
-    Graphs
-    Test Output
-    Interactive
     App
-    Transports
-    Execution Pools
+    Assertions
+    CPP
     Database
     Data Science
-    CPP
-    Python Unit Testing
-
+    Execution Pools
+    Graphs
+    JUnit
+    Multitest
+    Python
+    Remote
+    Test Output
+    Transports
+    JUnit
+    Interactive

@@ -1,4 +1,4 @@
-"""UTs for the App driver."""
+"""Units test for the App driver."""
 
 import os
 import re
@@ -6,10 +6,11 @@ import sys
 import json
 import platform
 import tempfile
+from pathlib import Path
+
 import pytest
 
 from testplan.common.utils.timing import wait
-from testplan.common.utils import path
 
 from testplan.testing.multitest.driver.app import App
 
@@ -27,6 +28,19 @@ class ProcWaitApp(App):
 
     def stopped_check(self, timeout=None):
         wait(lambda: self.proc is None, 10, raise_on_timeout=True)
+
+
+def test_app_unexpected_retcode(runpath):
+    app = App(
+        name="App",
+        binary=sys.executable,
+        args=["-c", "import sys; sys.exit(0)"],
+        expected_retcode=1,
+        runpath=runpath,
+    )
+    with pytest.raises(RuntimeError):
+        with app:
+            app.proc.wait()
 
 
 def test_app_cmd(runpath):
@@ -67,8 +81,8 @@ def test_app_env(runpath):
 
 def test_app_os_environ(runpath):
     """Test that os.environ is passed down."""
-
     os.environ["KEY"] = "VALUE"
+
     app = App(
         name="App",
         binary="echo",
@@ -80,6 +94,28 @@ def test_app_os_environ(runpath):
         app.proc.wait()
     with open(app.std.out_path, "r") as fobj:
         assert fobj.read().startswith("VALUE")
+
+    del os.environ["KEY"]
+
+
+def test_app_fail_fast_with_log_regex(runpath):
+    """Test that app fail fast instead of waiting for logs when app shutdown."""
+    app = App(
+        name="myapp",
+        binary="echo",
+        args=["yes"],
+        shell=True,
+        stderr_regexps=[re.compile(r".*no*")],
+        status_wait_timeout=2,
+        runpath=runpath,
+    )
+    with pytest.raises(
+        RuntimeError, match=r"App myapp has unexpectedly stopped with: 0"
+    ):
+        app.start()
+        app.wait(app.STATUS.STARTED)
+
+    app.stop()
 
 
 def test_app_cwd(runpath):
@@ -265,9 +301,9 @@ def test_echo_hello(runpath):
     )
     assert app.cmd == ["echo", "hello"]
     with app:
-        assert app.status.tag == app.status.STARTED
+        assert app.status == app.status.STARTED
         assert app.cfg.app_dir_name in os.listdir(app.runpath)
-    assert app.status.tag == app.status.STOPPED
+    assert app.status == app.status.STOPPED
     assert app.retcode == 0
 
     with open(app.std.out_path, "r") as fobj:
@@ -289,6 +325,32 @@ def test_stdin(runpath):
     with open(app.std.out_path) as f:
         stdout = f.read()
     assert stdout == "Repeat me\n"
+
+
+def test_restart(runpath):
+    """Test restart of an App"""
+    app = App(
+        name="Restarter",
+        binary="echo",
+        args=["Restarter app ran succesfully"],
+        shell=True,
+        runpath=runpath,
+    )
+
+    with app:
+        app.restart()
+
+        app_path = Path(app.app_path)
+        app_dir_name = app_path.name
+
+        # we have the moved app_path
+        assert list(app_path.parent.glob(f"{app_dir_name}_*"))
+
+        app.restart(clean=False)
+
+        # we have the moved files in app_path
+        assert list(app_path.glob("stdout_*"))
+        assert list(app_path.glob("stderr_*"))
 
 
 def run_app(cwd, runpath):

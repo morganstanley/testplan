@@ -13,7 +13,7 @@ from testplan.testing.ordering import NoopSorter, TypedSorter
 
 
 @testsuite
-class Alpha(object):
+class Alpha:
     @testcase
     def test_a(self, env, result):
         pass
@@ -24,7 +24,7 @@ class Alpha(object):
 
 
 @testsuite
-class Beta(object):
+class Beta:
     @testcase
     def test_a(self, env, result):
         pass
@@ -39,7 +39,7 @@ class Beta(object):
 
 
 @testsuite
-class Epsilon(object):
+class Epsilon:
     @testcase
     def test_a(self, env, result):
         pass

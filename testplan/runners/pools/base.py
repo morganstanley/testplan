@@ -6,11 +6,14 @@ import time
 import datetime
 import pprint
 import traceback
+import queue
 
 from schema import Or, And, Use
 
 from testplan.common.config import ConfigOption, validate_func
 from testplan.common import entity
+from testplan.common.remote.remote_resource import RemoteResource
+from testplan.common.utils.path import rebase_path
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
 from testplan.common.utils import strings
@@ -21,6 +24,28 @@ from .communication import Message
 from .connection import QueueClient, QueueServer
 from .tasks import Task, TaskResult
 from testplan.common.entity import ResourceStatus
+
+
+class TaskQueue:
+    """
+    A priority queue that returns items in the order of priority small -> large.
+    items with the same priority will be returned in the order they are added.
+    """
+
+    def __init__(self):
+        self.q = queue.PriorityQueue()
+        self.count = 0
+
+    def put(self, priority, item):
+        self.q.put((priority, self.count, item))
+        self.count += 1
+
+    def get(self):
+        entry = self.q.get_nowait()
+        return entry[0], entry[2]
+
+    def __getattr__(self, name):
+        return self.q.__getattribute__(name)
 
 
 class WorkerConfig(entity.ResourceConfig):
@@ -41,7 +66,7 @@ class WorkerConfig(entity.ResourceConfig):
         }
 
 
-class Worker(entity.Resource):
+class WorkerBase(entity.Resource):
     """
     Worker resource that pulls tasks from the transport provided, executes them
     and sends back task results.
@@ -60,23 +85,22 @@ class Worker(entity.Resource):
     CONFIG = WorkerConfig
 
     def __init__(self, **options):
-        super(Worker, self).__init__(**options)
+        super().__init__(**options)
         self._metadata = None
         self._transport = self.cfg.transport()
-        self._handler = None
         self.last_heartbeat = None
         self.assigned = set()
         self.requesting = 0
         self.restart_count = self.cfg.restart_count
 
     @property
-    def handler(self):
-        return self._handler
-
-    @property
     def transport(self):
         """Pool/Worker communication transport."""
         return self._transport
+
+    @transport.setter
+    def transport(self, transport):
+        self._transport = transport
 
     @property
     def metadata(self):
@@ -99,6 +123,32 @@ class Worker(entity.Resource):
         """Worker unique index."""
         return self.cfg.index
 
+    def respond(self, msg):
+        """
+        Method that the pool uses to respond with a message to the worker.
+
+        :param msg: Response message.
+        :type msg: :py:class:`~testplan.runners.pools.communication.Message`
+        """
+        self._transport.respond(msg)
+
+    def __repr__(self):
+        return "{}[{}]".format(self.__class__.__name__, self.cfg.index)
+
+
+class Worker(WorkerBase):
+    """
+    Worker that runs a thread and pull tasks from transport
+    """
+
+    def __init__(self, **options):
+        super().__init__(**options)
+        self._handler = None
+
+    @property
+    def handler(self):
+        return self._handler
+
     def starting(self):
         """Starts the daemonic worker loop."""
         self.make_runpath_dirs()
@@ -107,18 +157,21 @@ class Worker(entity.Resource):
         )
         self._handler.daemon = True
         self._handler.start()
-        self.status.change(self.STATUS.STARTED)
 
     def stopping(self):
         """Stops the worker."""
         if self._handler:
             interruptible_join(self._handler)
         self._handler = None
-        self.status.change(self.STATUS.STOPPED)
 
     def aborting(self):
         """Aborting logic, will not wait running tasks."""
         self._transport.disconnect()
+
+    def _wait_started(self, timeout=None):
+        """Ready to communicate with pool."""
+        self.last_heartbeat = time.time()
+        self.status.change(self.STATUS.STARTED)
 
     @property
     def is_alive(self):
@@ -177,51 +230,6 @@ class Worker(entity.Resource):
             task_result = TaskResult(task=task, result=result, status=True)
         return task_result
 
-    def respond(self, msg):
-        """
-        Method that the pool uses to respond with a message to the worker.
-
-        :param msg: Response message.
-        :type msg: :py:class:`~testplan.runners.pools.communication.Message`
-        """
-        self._transport.respond(msg)
-
-    def __repr__(self):
-        return "{}[{}]".format(self.__class__.__name__, self.cfg.index)
-
-
-def default_check_rerun(pool, task_result):
-    """
-    Determines if a task needs to be rerun based on the task result info.
-
-    :param task_result: Task execution result.
-    :type task_result:
-        :py:class:`~testplan.runners.pools.tasks.base.TaskResult`
-    :return: True if Task should be re-run else False.
-    :rtype: ``bool``
-    """
-    if task_result.task and task_result.task.rerun > 0:
-        result = task_result.result
-        if not task_result.status or (
-            result and not (result.run and result.report.passed)
-        ):
-            return True
-    return False
-
-
-def validate_custom_func(check_rerun):
-    """
-    Validate the callable which determines if a task should be rerun.
-    It must accept pool object (``pool``) and task result (``task_result``).
-
-    :param check_rerun: Custom callable for task rerun or reschedule.
-    :type check_rerun: ``callable``
-    """
-    if validate_func("pool", "task_result")(check_rerun):
-        return check_rerun
-    else:
-        raise ValueError("Not a valid function for checking rerun")
-
 
 class PoolConfig(ExecutorConfig):
     """
@@ -244,9 +252,7 @@ class PoolConfig(ExecutorConfig):
             ConfigOption("heartbeats_miss_limit", default=3): int,
             ConfigOption("restart_count", default=3): int,
             ConfigOption("max_active_loop_sleep", default=5): numbers.Number,
-            ConfigOption("should_rerun", default=default_check_rerun): Use(
-                validate_custom_func
-            ),
+            ConfigOption("allow_task_rerun", default=True): bool,
         }
 
 
@@ -268,9 +274,8 @@ class Pool(Executor):
     :type restart_count: ``int``
     :param max_active_loop_sleep: Maximum value for delay logic in active sleep.
     :type max_active_loop_sleep: ``int`` or ``float``
-    :param should_rerun: Determines if a task needs to be rerun based on the
-        task result fetched from worker.
-    :type should_rerun: ``callable``
+    :param allow_task_rerun: Whether allow task to rerun when executing in this pool
+    :type allow_task_rerun: ``bool``
 
     Also inherits all :py:class:`~testplan.runners.base.Executor` options.
     """
@@ -287,15 +292,15 @@ class Pool(Executor):
         heartbeats_miss_limit=3,
         restart_count=3,
         max_active_loop_sleep=5,
-        should_rerun=default_check_rerun,
-        **options
+        allow_task_rerun=True,
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         super(Pool, self).__init__(**options)
-        self.unassigned = []  # unassigned tasks
+        self.unassigned = TaskQueue()  # unassigned tasks
+        self._executed_tests = []
         self._task_retries_cnt = {}  # uid: times_reassigned_without_result
         self._task_retries_limit = 2
-        self._should_rerun = self.cfg.should_rerun
         self._workers = entity.Environment(parent=self)
         self._workers_last_result = {}
         self._conn = self.CONN_MANAGER()
@@ -334,20 +339,8 @@ class Pool(Executor):
                 "Task was expected, got {} instead.".format(type(task))
             )
         super(Pool, self).add(task, uid)
-        self.unassigned.append(uid)
+        self.unassigned.put(task.priority, uid)
         self._task_retries_cnt[uid] = 0
-
-    def set_rerun_check(self, check_rerun):
-        """
-        Sets callable with custom rules to determine if a task should be rerun.
-        It must accept the pool object and the task result, make a decision
-        based on these information (i.e report status is not "passed").
-
-        :param check_rerun: Custom callable for task rerun.
-        :type check_rerun: ``callable`` that takes 2 arguments: ``pool`` and
-            ``task_result``.
-        """
-        self._should_rerun = validate_custom_func(check_rerun)
 
     def _can_assign_task(self, task):
         """
@@ -427,10 +420,17 @@ class Pool(Executor):
 
         response = Message(**self._metadata)
 
-        if not self.active or self.status.tag == self.STATUS.STOPPING:
+        if not self.active or self.status == self.STATUS.STOPPING:
             worker.respond(response.make(Message.Stop))
         elif request.cmd in self._request_handlers:
-            self._request_handlers[request.cmd](worker, request, response)
+            try:
+                self._request_handlers[request.cmd](worker, request, response)
+            except Exception:
+                self.logger.error(traceback.format_exc())
+                self.logger.debug(
+                    "Not able to handle request from worker, sending Stop cmd"
+                )
+                worker.respond(response.make(Message.Stop))
         else:
             self.logger.error(
                 "Unknown request: {} {} {} {}".format(
@@ -454,14 +454,15 @@ class Pool(Executor):
         """Handle a TaskPullRequest from a worker."""
         tasks = []
 
-        if self.status.tag == self.status.STARTED:
+        if self.status == self.status.STARTED:
             for _ in range(request.data):
                 try:
-                    uid = self.unassigned.pop(0)
-                except IndexError:
+                    priority, uid = self.unassigned.get()
+                except queue.Empty:
                     break
 
                 task = self._input[uid]
+
                 if self._can_assign_task(task):
                     if self._task_retries_cnt[uid] > self._task_retries_limit:
                         self._discard_task(
@@ -486,11 +487,12 @@ class Pool(Executor):
                             tasks.append(task)
                             task.executors.setdefault(self.cfg.name, set())
                             task.executors[self.cfg.name].add(worker.uid())
+                            self.record_execution(uid)
                         else:
                             self.logger.test_info(
                                 "Cannot schedule {} to {}".format(task, worker)
                             )
-                            self.unassigned.append(uid)
+                            self.unassigned.put(task.priority, uid)
                             self._task_retries_cnt[uid] += 1
                 else:
                     # Later may create a default local pool as failover option
@@ -511,6 +513,37 @@ class Pool(Executor):
 
     def _handle_taskresults(self, worker, request, response):
         """Handle a TaskResults message from a worker."""
+
+        def task_should_rerun():
+            if not self.cfg.allow_task_rerun:
+                return False
+            if not task_result.task:
+                return False
+            if task_result.task.rerun == 0:
+                return False
+
+            result = task_result.result
+            if (
+                task_result.status
+                and result
+                and result.run
+                and result.report.passed
+            ):
+                return False
+
+            if task_result.task.reassign_cnt >= task_result.task.rerun:
+                self.logger.test_info(
+                    "Will not rerun %(input)s again as it already "
+                    "reached max rerun limit %(reruns)d",
+                    {
+                        "input": self._input[uid],
+                        "reruns": task_result.task.rerun,
+                    },
+                )
+                return False
+
+            return True
+
         worker.respond(response.make(Message.Ack))
         for task_result in request.data:
             uid = task_result.task.uid()
@@ -520,28 +553,29 @@ class Pool(Executor):
                 "De-assign {} from {}".format(task_result.task, worker)
             )
 
-            if self._should_rerun(self, task_result):
-                if task_result.task.reassign_cnt >= task_result.task.rerun:
-                    self.logger.test_info(
-                        "Will not rerun %(input)s again as it already"
-                        "reached max rerun limit %(retries)d",
-                        {
-                            "input": self._input[uid],
-                            "retries": task_result.task.rerun,
-                        },
+            if task_result.result and isinstance(worker, RemoteResource):
+                for attachment in task_result.result.report.attachments:
+                    attachment.source_path = rebase_path(
+                        attachment.source_path,
+                        worker._remote_plan_runpath,
+                        worker._get_plan().runpath,
                     )
-                else:
-                    self.logger.test_info(
-                        "Will rerun %(task)s due to `should_rerun` "
-                        "config option of %(pool)s",
-                        {"task": task_result.task, "pool": self},
-                    )
-                    self.unassigned.append(uid)
-                    self._task_retries_cnt[uid] = 0
-                    self._input[uid].reassign_cnt += 1
-                    # Will rerun task, but still need to retain the result
-                    self._append_temporary_task_result(task_result)
-                    continue
+
+            if task_should_rerun():
+                self.logger.test_info(
+                    "Will rerun %(task)s for max %(rerun)d more times",
+                    {
+                        "task": task_result.task,
+                        "rerun": task_result.task.rerun
+                        - task_result.task.reassign_cnt,
+                    },
+                )
+                self.unassigned.put(task_result.task.priority, uid)
+                self._task_retries_cnt[uid] = 0
+                self._input[uid].reassign_cnt += 1
+                # Will rerun task, but still need to retain the result
+                self._append_temporary_task_result(task_result)
+                continue
 
             self._print_test_result(task_result)
             self._results[uid] = task_result
@@ -551,9 +585,8 @@ class Pool(Executor):
         """Handle a Heartbeat message received from a worker."""
         worker.last_heartbeat = time.time()
         self.logger.debug(
-            "Received heartbeat from {} at {} after {}s.".format(
-                worker, request.data, time.time() - request.data
-            )
+            f"Received heartbeat from {worker} at {request.data}"
+            f" after {time.time() - request.data}s."
         )
         worker.respond(response.make(Message.Ack, data=worker.last_heartbeat))
 
@@ -576,12 +609,11 @@ class Pool(Executor):
             self.logger.critical("\tlogfile: {}".format(worker.outfile))
         while worker.assigned:
             uid = worker.assigned.pop()
+            task = self._input[uid]
             self.logger.test_info(
-                "Re-collect {} from {} to {}.".format(
-                    self._input[uid], worker, self
-                )
+                "Re-collect {} from {} to {}.".format(task, worker, self)
             )
-            self.unassigned.append(uid)
+            self.unassigned.put(task.priority, uid)
             self._task_retries_cnt[uid] += 1
 
     def _workers_monitoring(self):
@@ -592,8 +624,8 @@ class Pool(Executor):
         """
         previous_status = {"active": [], "inactive": [], "initializing": []}
         loop_interval = self.cfg.worker_heartbeat or 5  # seconds
-
         break_outer_loop = False
+
         while self.active:
             hosts_status = {"active": [], "inactive": [], "initializing": []}
 
@@ -655,28 +687,32 @@ class Pool(Executor):
             'active', and an optional reason string
         """
 
-        if not worker.active or worker.status.tag in (
-            worker.status.STOPPING,
-            worker.status.STOPPED,
+        if (
+            not worker.active
+            or worker.status == worker.status.STOPPING
+            or worker.status == worker.status.STOPPED
         ):
-            return "inactive", "Worker {} in stop/abort status"
+            return "inactive", f"Worker {worker} in stop/abort status"
 
-        if worker.status.tag in (worker.status.NONE, worker.status.STARTING):
+        if (
+            worker.status == worker.status.NONE
+            or worker.status == worker.status.STARTING
+        ):
             return "initializing", None
 
         # else: worker must be in state STARTED
-        if worker.status.tag != worker.status.STARTED:
+        if worker.status != worker.status.STARTED:
             raise RuntimeError(
-                "Worker in unexpected state {}".format(worker.status.tag)
+                f"Worker in unexpected state {worker.status.tag}"
             )
 
         if not worker.is_alive:  # handler based monitoring
             return (
                 "inactive",
-                "Decommission {}, handler no longer alive".format(worker),
+                f"Decommission {worker}, handler no longer alive",
             )
 
-        # If no heartbeart is configured, we treat the worker as "active"
+        # If no heartbeat is configured, we treat the worker as "active"
         # since it is in state STARTED and its handler is alive.
         if not self.cfg.worker_heartbeat:
             return "active", None
@@ -686,8 +722,7 @@ class Pool(Executor):
         if lag > self.cfg.worker_heartbeat * self.cfg.heartbeats_miss_limit:
             return (
                 "inactive",
-                "Has not been receiving heartbeat from {} for {} "
-                "sec".format(worker, lag),
+                f"Has not been receiving heartbeat from {worker} for {lag} sec",
             )
 
         return "active", None
@@ -703,7 +738,7 @@ class Pool(Executor):
         :return: True if worker restarted, else False
         :rtype: ``bool``
         """
-        if worker.status.tag != worker.status.STARTED:
+        if worker.status != worker.status.STARTED:
             return False
 
         self._decommission_worker(worker, reason)
@@ -715,7 +750,7 @@ class Pool(Executor):
                 return True
             except Exception as exc:
                 self.logger.critical(
-                    "Worker {} failed to restart: {}".format(worker, exc)
+                    "Worker %s failed to restart: %s", worker, exc
                 )
         else:
             worker.abort()
@@ -724,27 +759,24 @@ class Pool(Executor):
 
     def _discard_task(self, uid, reason):
         self.logger.critical(
-            "Discard task {} of {} - {}.".format(
-                self._input[uid], self, reason
-            )
+            "Discard task %s of %s - %s", self._input[uid], self, reason
         )
         self._results[uid] = TaskResult(
             task=self._input[uid],
             status=False,
-            reason="Task discarded by {} - {}.".format(self, reason),
+            reason=f"Task discarded by {self} - {reason}",
         )
         self.ongoing.remove(uid)
 
     def _discard_pending_tasks(self):
-        self.logger.critical("Discard pending tasks of {}.".format(self))
+        self.logger.critical("Discard pending tasks of %s", self)
         while self.ongoing:
             uid = self.ongoing[0]
+            target = self._input[uid]._target
             self._results[uid] = TaskResult(
                 task=self._input[uid],
                 status=False,
-                reason="Task [{}] discarding due to {} abort.".format(
-                    self._input[uid]._target, self
-                ),
+                reason=f"Task [{target}] discarding due to {self} abort",
             )
             self.ongoing.pop(0)
 
@@ -755,14 +787,15 @@ class Pool(Executor):
         if uid not in self._task_retries_cnt:
             return
 
-        postfix = " => Run {}".format(task_result.task.reassign_cnt)
-        test_report.name = "{}{}".format(test_report.name, postfix)
-        test_report.uid = "{}{}".format(test_report.uid, postfix)
+        postfix = f" => Run {task_result.task.reassign_cnt}"
+        test_report.name = f"{test_report.name}{postfix}"
+        test_report.uid = f"{test_report.uid}{postfix}"
         test_report.category = ReportCategories.TASK_RERUN
         test_report.status_override = "xfail"
         new_uuid = strings.uuid4()
         self._results[new_uuid] = task_result
         self.parent._tests[new_uuid] = self.cfg.name
+        self.record_execution(new_uuid)
 
     def _print_test_result(self, task_result):
         if (not isinstance(task_result.result, entity.RunnableResult)) or (
@@ -807,10 +840,6 @@ class Pool(Executor):
 
         self._conn.start()
 
-        for worker in self._workers:
-            # reset worker (if any) status
-            worker.status.change(ResourceStatus.STARTING)
-
         self._exit_loop = False
         super(Pool, self).starting()  # start the loop & monitor
 
@@ -822,12 +851,9 @@ class Pool(Executor):
             for msg in self._workers.start_exceptions.values():
                 self.logger.error(msg)
             self.abort()
-            raise RuntimeError(
-                "All workers of {} failed to start.".format(self)
-            )
+            raise RuntimeError(f"All workers of {self} failed to start")
 
-        self.status.change(self.status.STARTED)
-        self.logger.debug("%s started.", self.__class__.__name__)
+        self.status.change(self.status.STARTED)  # Start is async
 
     def workers_requests(self):
         """Count how many tasks workers are requesting."""
@@ -849,8 +875,7 @@ class Pool(Executor):
 
         self._conn.stop()
 
-        self.status.change(self.status.STOPPED)
-        self.logger.debug("Stopped %s", self.__class__.__name__)
+        self.status.change(self.status.STOPPED)  # Stop is async
 
     def abort_dependencies(self):
         """Empty generator to override parent implementation."""
@@ -859,8 +884,6 @@ class Pool(Executor):
 
     def aborting(self):
         """Aborting logic."""
-        self.logger.debug("Aborting pool {}".format(self))
-
         for worker in self._workers:
             worker.abort()
 
@@ -869,4 +892,5 @@ class Pool(Executor):
         self._conn.abort()
         self._discard_pending_tasks()
 
-        self.logger.debug("Aborted pool {}".format(self))
+    def record_execution(self, uid):
+        self._executed_tests.append(uid)

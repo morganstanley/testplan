@@ -19,7 +19,7 @@ class MergeError(Exception):
     """Raised when a merge operation fails."""
 
 
-class ExceptionLogger(object):
+class ExceptionLogger:
     """
     A context manager used for suppressing & logging an exception.
     """
@@ -39,7 +39,7 @@ class ExceptionLogger(object):
             return True
 
 
-class Report(object):
+class Report:
     """
     Base report class, support exception suppression & logging via
     `report.logged_exceptions`. Stores arbitrary objects in `entries` attribute.
@@ -59,16 +59,13 @@ class Report(object):
         self.logs = []
         self.logger = create_logging_adapter(report=self)
 
-        # parent_uids are a list of the UIDs of all parents of this entry in
+        # `parent_uids` is a list of the UIDs of all parents of this entry in
         # the report tree. The UIDs are stored with the most distant parent
         # first and the immediate parent last. For example, an entry with
         # parent "A" and grand-parent "B" will have parent_uids = ["B", "A"].
         # This allows any entry to be quickly looked up and updated in the
         # report tree.
-        if parent_uids is None:
-            self.parent_uids = []
-        else:
-            self.parent_uids = parent_uids
+        self.parent_uids = parent_uids or []
 
     def __str__(self):
         return '{kls}(name="{name}", id="{uid}")'.format(
@@ -255,6 +252,18 @@ class ReportGroup(Report):
             for child in self:
                 if isinstance(child, ReportGroup):
                     child.build_index(recursive=recursive)
+
+    def get_by_uids(self, uids):
+        """
+        Get child report via a series of `uid` lookup.
+
+        :param uids: A `uid` for the child report.
+        :type uids: ``list`` of ``hashable``
+        """
+        report = self
+        for uid in uids:
+            report = report.get_by_uid(uid)
+        return report
 
     def get_by_uid(self, uid):
         """

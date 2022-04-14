@@ -14,7 +14,7 @@ const NavList = (props) => {
     (entry) => {
       const executionTime = (entry.timer && entry.timer.run) ? (
         (new Date(entry.timer.run.end)).getTime() -
-        (new Date(entry.timer.run.start)).getTime()) / 1000 : null;
+        (new Date(entry.timer.run.start)).getTime()) : null;  // In millisecond
 
       return (
         <NavEntry
@@ -23,7 +23,7 @@ const NavList = (props) => {
           status={entry.status}
           type={entry.category}
           caseCountPassed={entry.counter.passed}
-          caseCountFailed={entry.counter.failed}
+          caseCountFailed={entry.counter.failed + (entry.counter.error || 0)}
           executionTime={executionTime}
           displayTime={props.displayTime}
         />

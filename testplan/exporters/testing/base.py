@@ -176,9 +176,13 @@ def save_attachments(report, directory):
     :param directory: Directory to save attachments in.
     :type directory: ``str``
     """
+    moved_attachments = {}
     attachments = getattr(report, "attachments", None)
     if attachments:
         for dst, src in attachments.items():
             dst_path = os.path.join(directory, dst)
             makedirs(os.path.dirname(dst_path))
             copyfile(src=src, dst=dst_path)
+            moved_attachments[dst] = dst_path
+
+    return moved_attachments

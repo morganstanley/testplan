@@ -33,33 +33,56 @@ interrupt processes started as part of the test environment.
 
 .. note::
 
-    The interactive mode is currently in a Beta stage and under active
-    development. Therefore, features may change in future releases and
-    there will likely be some bugs or not-implemented features right now,
-    for example the filter box does not yet work. Please bear with us while
-    we work through these, and feel free to raise an issue for any bugs
-    you find.
+    The interactive mode is currently in a beta stage and under active development.
+    There are still a few features yet to be implemented, for example the filter
+    box, tree view navigation and timing view, etc. Please bear with us while we
+    work through these, and feel free to raise an issue for any bugs you may find.
+
+.. _Interactive_Reload:
 
 How code reloading works
 ------------------------
-The interactive mode only reloads modules under the directory of the test_plan script being run.
-The reload happens on reload API and only applies to modules that have either
-been modified or have had its dependencies reloaded.
-
-Please note the ``__main__`` module (i.e. test_plan.py) cannot be reloaded.
-Because of this, it is recommended that test suites are defined in seperate modules that can be reloaded.
+Code-reloading is triggered by reload API request, there is a reload button on UI.
+Testplan will find modules to reload - those who have either been modified or have
+had their dependencies modified. For the sake of efficiency, Testplan only looks
+under the directory of the main script , as well as those directories where task
+targets are located. User can instruct testplan to look further by using
+``extra_deps`` parameter of ``@test_plan`` decorator.
 
 The steps of the reload process are described below:
 
-* When starting up the interactive mode, testplan builds a graph of dependencies used by the ``__main__`` module. Only dependencies that are within the same directory as the testplan script are included.
-  Dependencies are resolved using `modulefinder.ModuleFinder <https://docs.python.org/3/library/modulefinder.html#modulefinder.ModuleFinder>`_
+* When starting up the interactive mode, testplan builds a graph of dependencies
+  used by the ``__main__`` module. Only dependencies that are within the same
+  directory as the testplan script are included. Dependencies are resolved using
+  `modulefinder.ModuleFinder <https://docs.python.org/3/library/modulefinder.html#modulefinder.ModuleFinder>`_
 * Dependencies are checked and reloaded on reload API. When reloading modules testplan will:
 
   * Walk the graph of dependencies starting from ``__main__``.
-  * For each module, if any of its dependencies were reloaded or the file has been modified since last reloaded, then reload this module and update __class__ of all suites it defines.
+  * For each module, if any of its dependencies were reloaded or the file has
+    been modified since last reloaded, then reload this module and update
+    ``__class__`` of all suites it defines.
 
 * The interactive report is updated with any changed test cases.
 
+There are a few known limitations that reload doesn't always work under certain
+circumstances.
+
+* ``__main__`` module (i.e. test_plan.py) cannot be reloaded. Because of this,
+  it is recommended that test suites are defined in seperate modules. It is a
+  good idea to keep the main script simple.
+* Testplan is not able to reload module that is under *Namespace Package*, the
+  workaround is to add dummy __init__.py file.
+* Unlike testcases that can be added/removed/modified, adding/removing/renaming
+  testsuite class will not take effect after reloading.
+* Modules or objects imported using ``from some_module import *`` syntax are
+  not guaranteed to be properly reloaded. Such syntax is not encouraged in
+  Python anyway as it may bring naming conflicts.
+* In interactive mode, all modules containing test targets will be loaded at
+  the same time, if the modules from which tasks are scheduled have the same
+  name, they won't be reloaded properly.
+
+
+.. _Interactive_UI:
 
 Web UI
 ======
@@ -94,6 +117,8 @@ found only on top-level Test environments:
 .. image:: ../images/interactive/env_control.png
 
 
+.. _Interactive_Config:
+
 Configuration
 =============
 
@@ -122,6 +147,8 @@ number, including port 0 to use an ephemeral port.
     def main(plan):
         ...
 
+
+.. _Interactive_API:
 
 Interactive API
 ===============

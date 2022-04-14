@@ -1,17 +1,14 @@
 """
-  PDF Export logic for test reports via ReportLab.
+PDF Export logic for test reports via ReportLab.
 """
 
 import os
+import pathlib
 import traceback
 import uuid
 import warnings
 import time
-
-try:
-    from urllib import pathname2url  # Python 2.x
-except:
-    from urllib.request import pathname2url  # Python 3.x
+from urllib.request import pathname2url
 
 from schema import Schema, Or
 
@@ -197,7 +194,8 @@ class PDFExporter(Exporter):
                 reportlab_data.extend(row_data.content)
                 reportlab_styles.extend(row_data.style)
 
-        pdf_path = self.cfg.pdf_path
+        pdf_path = pathlib.Path(self.cfg.pdf_path).resolve()
+        pdf_path.parent.mkdir(parents=True, exist_ok=True)
         try:
             if self.cfg.interactive_port is None:
                 override = True
@@ -205,14 +203,15 @@ class PDFExporter(Exporter):
                 override = False
         except AttributeError:
             override = True
-        if not override and os.path.exists(pdf_path):
-            file_name, ext = os.path.splitext(pdf_path)
-            pdf_path = "{}_{}{}".format(file_name, int(time.time()), ext)
+        if not override and pdf_path.exists():
+            pdf_path = pdf_path.with_name(
+                f"{pdf_path.stem}_{int(time.time())}{pdf_path.suffix}"
+            )
             self.logger.exporter_info("File %s exists!", self.cfg.pdf_path)
 
         template = SimpleDocTemplate(
-            filename=pdf_path,
-            pageSize=const.PAGE_SIZE,
+            filename=str(pdf_path),
+            pagesize=const.PAGE_SIZE,
             topMargin=const.PAGE_MARGIN,
             bottomMargin=const.PAGE_MARGIN,
             leftMargin=const.PAGE_MARGIN,
@@ -227,14 +226,14 @@ class PDFExporter(Exporter):
         )
 
         template.build(tables)
-        return pdf_path
+        return str(pdf_path)
 
     def export(self, source):
         if len(source):
-            pdf_path = os.path.abspath(self.create_pdf(source))
+            pdf_path = self.create_pdf(source)
             self.logger.exporter_info("PDF generated at %s", pdf_path)
 
-            self.url = "file:{}".format(pathname2url(pdf_path))
+            self.url = f"file:{pathname2url(pdf_path)}"
             return pdf_path
         else:
             self.logger.exporter_info(

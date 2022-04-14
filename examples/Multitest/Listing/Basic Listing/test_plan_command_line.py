@@ -10,7 +10,7 @@ from testplan import test_plan
 
 
 @testsuite
-class Alpha(object):
+class Alpha:
     @testcase
     def test_a(self, env, result):
         pass
@@ -25,7 +25,7 @@ class Alpha(object):
 
 
 @testsuite(tags="server")
-class Beta(object):
+class Beta:
     @testcase(tags="client")
     def test_a(self, env, result):
         pass
@@ -40,7 +40,7 @@ class Beta(object):
 
 
 @testsuite(tags="client")
-class Gamma(object):
+class Gamma:
     @testcase
     def test_a(self, env, result):
         pass

@@ -9,7 +9,9 @@ exports[`XYGraphAssertion shallow renders the correct HTML structure 1`] = `
     className=""
     height={500}
     width={750}
+    xDomain={null}
     xType="ordinal"
+    yDomain={null}
   >
     <HorizontalGridLines
       attr="y"

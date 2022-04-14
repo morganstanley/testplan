@@ -7,7 +7,7 @@ from my_tests.dependency import VALUE
 
 
 @testsuite
-class TCPSuite(object):
+class TCPSuite:
     @testcase
     def send_and_receive_msg(self, env, result):
         """

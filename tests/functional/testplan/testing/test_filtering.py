@@ -4,16 +4,14 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 
 from testplan import TestplanMock
 from testplan.common.utils.testing import (
-    log_propagation_disabled,
     argv_overridden,
     check_report_context,
 )
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.testing import filtering
 
 
 @testsuite(tags="foo")
-class Alpha(object):
+class Alpha:
     @testcase
     def test_one(self, env, result):
         pass
@@ -28,7 +26,7 @@ class Alpha(object):
 
 
 @testsuite(tags=("foo", "bar"))
-class Beta(object):
+class Beta:
     @testcase
     def test_one(self, env, result):
         pass
@@ -43,7 +41,7 @@ class Beta(object):
 
 
 @testsuite(tags=("foo", "baz"))
-class Gamma(object):
+class Gamma:
     @testcase
     def test_one(self, env, result):
         pass
@@ -179,9 +177,7 @@ def test_programmatic_filtering(filter_obj, report_ctx):
     plan = TestplanMock(name="plan", test_filter=filter_obj)
     plan.add(multitest_x)
     plan.add(multitest_y)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        plan.run()
+    plan.run()
 
     test_report = plan.report
     check_report_context(test_report, report_ctx)
@@ -270,6 +266,11 @@ def test_programmatic_filtering(filter_obj, report_ctx):
                 ("YYY", (("Gamma", ["test_three"]),)),
             ],
         ),
+        # Case 7, pattern filtering for empty run
+        (
+            ("--patterns", "EmptyRun"),
+            [],
+        ),
     ),
 )
 def test_command_line_filtering(cmdline_args, report_ctx):
@@ -281,9 +282,10 @@ def test_command_line_filtering(cmdline_args, report_ctx):
         plan = TestplanMock(name="plan", parse_cmdline=True)
         plan.add(multitest_x)
         plan.add(multitest_y)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            plan.run()
+        plan.run()
 
     test_report = plan.report
     check_report_context(test_report, report_ctx)
+
+    if not test_report.entries:
+        assert plan.result.success

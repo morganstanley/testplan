@@ -18,7 +18,7 @@ class TimeoutException(Exception):
     pass
 
 
-class TimeoutExceptionInfo(object):
+class TimeoutExceptionInfo:
     """
     Holds timeout exception information.
     """
@@ -86,7 +86,7 @@ class KThread(threading.Thread):
 
 def timeout(seconds, err_msg="Timeout after {} seconds."):
     """
-    Decorator for a normal funtion to limit its execution time.
+    Decorator for a normal function to limit its execution time.
 
     :param seconds: Time limit for task execution.
     :type seconds: ``int``
@@ -97,7 +97,7 @@ def timeout(seconds, err_msg="Timeout after {} seconds."):
     """
 
     def timeout_decorator(func):
-        """"""
+        """The real decorator used for setup, teardown and testcase methods."""
 
         def _new_func(result, old_func, old_func_args, old_func_kwargs):
             try:
@@ -261,7 +261,7 @@ class Interval(_Interval):
         return None
 
 
-class TimerCtxManager(object):
+class TimerCtxManager:
     """
     Context manager for storing durations.
     Uses tz aware utc timestamps.

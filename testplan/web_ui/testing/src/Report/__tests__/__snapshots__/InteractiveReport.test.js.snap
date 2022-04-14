@@ -5,25 +5,33 @@ exports[`InteractiveReport Handles environment being started 1`] = `
   className=""
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <ReloadButton
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
     handleNavFilter={null}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -31,8 +39,8 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -454,10 +462,24 @@ exports[`InteractiveReport Handles environment being started 1`] = `
     }
     url="/interactive/:uid/:selection*"
   />
-  <Message
-    left="28em"
-    message="Please select an entry."
-  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <Message
+      left="28em"
+      message="Please select an entry."
+    />
+  </ContextProvider>
 </div>
 `;
 
@@ -468,25 +490,33 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
   className=""
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <ReloadButton
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
     handleNavFilter={null}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -494,8 +524,8 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -755,10 +785,24 @@ exports[`InteractiveReport Parially refreshes the report on update. 1`] = `
     }
     url="/interactive/:uid/:selection*"
   />
-  <Message
-    left="28em"
-    message="Please select an entry."
-  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <Message
+      left="28em"
+      message="Please select an entry."
+    />
+  </ContextProvider>
 </div>
 `;
 
@@ -767,25 +811,33 @@ exports[`InteractiveReport Updates testcase state 1`] = `
   className=""
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <ReloadButton
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
     handleNavFilter={null}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -793,8 +845,8 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -1064,10 +1116,24 @@ exports[`InteractiveReport Updates testcase state 1`] = `
     }
     url="/interactive/:uid/:selection*"
   />
-  <Message
-    left="28em"
-    message="Please select an entry."
-  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <Message
+      left="28em"
+      message="Please select an entry."
+    />
+  </ContextProvider>
 </div>
 `;
 
@@ -1076,25 +1142,33 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
   className=""
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <ReloadButton
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
     handleNavFilter={null}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -1102,8 +1176,8 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -1162,6 +1236,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
                         "counter": undefined,
                         "description": null,
                         "entries": Array [],
+                        "hash": undefined,
                         "logs": Array [],
                         "name": "ParametrizationName__val_1",
                         "name_type_index": Array [
@@ -1372,6 +1447,7 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
                           "counter": undefined,
                           "description": null,
                           "entries": Array [],
+                          "hash": undefined,
                           "logs": Array [],
                           "name": "ParametrizationName__val_1",
                           "name_type_index": Array [
@@ -1527,10 +1603,24 @@ exports[`InteractiveReport handles individual parametrizations being run 1`] = `
     }
     url="/interactive/:uid/:selection*"
   />
-  <Message
-    left="28em"
-    message="Please select an entry."
-  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <Message
+      left="28em"
+      message="Please select an entry."
+    />
+  </ContextProvider>
 </div>
 `;
 
@@ -1539,25 +1629,33 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
   className=""
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <ReloadButton
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
     handleNavFilter={null}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -1565,8 +1663,8 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -1988,10 +2086,24 @@ exports[`InteractiveReport handles individual test suites being run 1`] = `
     }
     url="/interactive/:uid/:selection*"
   />
-  <Message
-    left="28em"
-    message="Please select an entry."
-  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <Message
+      left="28em"
+      message="Please select an entry."
+    />
+  </ContextProvider>
 </div>
 `;
 
@@ -2000,25 +2112,33 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
   className=""
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <ReloadButton
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
     handleNavFilter={null}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -2026,8 +2146,8 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -2449,10 +2569,24 @@ exports[`InteractiveReport handles individual testcases being run 1`] = `
     }
     url="/interactive/:uid/:selection*"
   />
-  <Message
-    left="28em"
-    message="Please select an entry."
-  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <Message
+      left="28em"
+      message="Please select an entry."
+    />
+  </ContextProvider>
 </div>
 `;
 
@@ -2461,25 +2595,33 @@ exports[`InteractiveReport handles tests being run 1`] = `
   className=""
 >
   <Toolbar
+    expandStatus="default"
     extraButtons={
       Array [
         <ReloadButton
           reloadCbk={[Function]}
           reloading={false}
         />,
-        <SaveButton />,
         <ResetButton
           resetStateCbk={[Function]}
           resetting={false}
         />,
+        <AbortButton
+          abortCbk={[Function]}
+          aborting={false}
+        />,
+        <SaveButton />,
       ]
     }
     filterBoxWidth="28em"
     handleNavFilter={null}
     status="unknown"
     updateEmptyDisplayFunc={[Function]}
+    updateExpandStatusFunc={[Function]}
     updateFilterFunc={[Function]}
     updateTagsDisplayFunc={[Function]}
+    updateTimeDisplayFunc={[Function]}
+    updateTreeViewFunc={[Function]}
   />
   <InteractiveNav
     displayEmpty={true}
@@ -2487,8 +2629,8 @@ exports[`InteractiveReport handles tests being run 1`] = `
     displayTime={false}
     envCtrlCallback={[Function]}
     filter={null}
+    handleClick={[Function]}
     handleColumnResizing={[Function]}
-    handlePlayClick={[Function]}
     navListWidth="28em"
     report={
       Object {
@@ -2910,9 +3052,23 @@ exports[`InteractiveReport handles tests being run 1`] = `
     }
     url="/interactive/:uid/:selection*"
   />
-  <Message
-    left="28em"
-    message="Please select an entry."
-  />
+  <ContextProvider
+    value={
+      Object {
+        "assertions": Object {},
+        "globalExpand": Object {
+          "status": "default",
+          "time": 0,
+        },
+        "updateAssertionStatus": [Function],
+        "updateGlobalExpand": [Function],
+      }
+    }
+  >
+    <Message
+      left="28em"
+      message="Please select an entry."
+    />
+  </ContextProvider>
 </div>
 `;

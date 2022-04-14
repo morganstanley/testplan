@@ -1,10 +1,10 @@
 import sys
 import logging
 from contextlib import contextmanager
+from unittest import mock
+from imp import reload
 
 import pytest
-import mock
-from six.moves import reload_module
 
 from testplan.defaults import MAX_TEST_NAME_LENGTH
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -18,12 +18,8 @@ from testplan.report import (
     TestCaseReport,
     ReportCategories,
 )
-from testplan.common.utils.testing import (
-    check_report,
-    warnings_suppressed,
-    log_propagation_disabled,
-)
-from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.common.utils.testing import check_report, warnings_suppressed
+from testplan.common.utils.timing import Interval
 
 LOGGER = logging.getLogger()
 
@@ -38,7 +34,7 @@ def module_reloaded(mod):
     """
     yield
     if mod in sys.modules:
-        reload_module(sys.modules[mod])
+        reload(sys.modules[mod])
 
 
 def gen_testcase_report(group_report):
@@ -56,9 +52,7 @@ def check_parametrization(
     tag_dict = tag_dict or {}
     multitest = MultiTest(name="MyMultitest", suites=[suite_kls()])
     mockplan.add(multitest)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     if testcase_uids:
         suite_report = mockplan.report.entries[0].entries[0]
@@ -91,7 +85,7 @@ def check_parametrization(
 
 def test_basic_parametrization(mockplan):
     @testsuite
-    class MySuite(object):
+    class MySuite:
         @testcase(parameters=((1, 2, 3), -1, (5, -5), {"a": 3, "expected": 4}))
         def test_add(self, env, result, a, b=1, expected=0):
             """Simple docstring"""
@@ -139,7 +133,7 @@ def test_basic_parametrization(mockplan):
 
 def test_combinatorial_parametrization(mockplan):
     @testsuite
-    class MySuite(object):
+    class MySuite:
         @testcase(parameters={"a": [1, 2], "b": ("alpha", "beta")})
         def test_sample(self, env, result, a, b):
             result.true(True, "{} - {}".format(a, b))
@@ -225,7 +219,7 @@ def test_invalid_parametrization(val, msg):
     with pytest.raises(ParametrizationError):
 
         @testsuite
-        class MySuite(object):
+        class MySuite:
             @testcase(parameters=val)
             def sample_test(self, env, result, a, b, c=3):
                 pass
@@ -238,7 +232,7 @@ def test_duplicate_parametrization_template_definition():
     with pytest.raises(ValueError):
 
         @testsuite
-        class MySuite(object):
+        class MySuite:
             @testcase
             def sample_test(self, env, result):
                 pass
@@ -254,7 +248,7 @@ def test_auto_resolve_name_conflict(mockplan):
     """make sure no name conflict of parametrized testcases."""
 
     @testsuite
-    class MySuite(object):
+    class MySuite:
         @testcase(parameters=(0, 1))
         def sample__test(self, env, result, val):
             pass
@@ -331,7 +325,7 @@ def test_param_name_func_fallback(
     with warnings_suppressed():
 
         @testsuite
-        class MySuite(object):
+        class MySuite:
             @testcase(parameters=parameters)
             def sample_test(self, env, result, val):
                 pass
@@ -358,7 +352,7 @@ def test_custom_name(mockplan):
     """
 
     @testsuite
-    class MySuite(object):
+    class MySuite:
         @testcase(
             name="Sample Test", parameters=(("foo", "bar"), ("alpha", "beta"))
         )
@@ -398,7 +392,7 @@ def test_custom_name_func(mockplan, name_func, testcase_names):
     """`name_func` is used for generating display names of testcases."""
 
     @testsuite
-    class MySuite(object):
+    class MySuite:
         @testcase(
             parameters=(("foo", "bar"), ("alpha", "beta")),
             name="Sample Test",
@@ -462,7 +456,7 @@ def test_invalid_name_func(name_func, msg, err):
     with pytest.raises(err):
 
         @testsuite
-        class MySuite(object):
+        class MySuite:
             @testcase(parameters=(1, 2), name_func=name_func)
             def sample_test(self, env, result, val):
                 pass
@@ -477,7 +471,7 @@ def test_unwanted_testcase_name(mockplan):
         long_string = "c" * (MAX_TEST_NAME_LENGTH + 1)
 
         @testsuite
-        class MySuite(object):
+        class MySuite:
             @testcase(
                 parameters=(1,),
                 name_func=lambda func_name, kwargs: long_string,
@@ -487,9 +481,7 @@ def test_unwanted_testcase_name(mockplan):
 
         multitest = MultiTest(name="MyMultitest", suites=[MySuite()])
         mockplan.add(multitest)
-
-        with log_propagation_disabled(TESTPLAN_LOGGER):
-            mockplan.run()
+        mockplan.run()
 
     mock_warn.assert_called_once()
 
@@ -505,15 +497,21 @@ def test_custom_wrapper():
         return wrapper
 
     @testsuite
-    class MySuite(object):
+    class MySuite:
         @testcase(
             parameters=((1, 2, 3), (3, 3, 6)), custom_wrappers=add_label("foo")
         )
         def adder_test(self, env, result, a, b, expected):
             result.equal(actual=a + b, expected=expected)
 
+        # custom_wrappers should work for non-parametrized case as well
+        @testcase(custom_wrappers=add_label("bar"))
+        def non_param_case(self, env, result):
+            result.equal(actual=1, expected=1)
+
     assert MySuite.adder_test__a_1__b_2__expected_3.label == "foo"
     assert MySuite.adder_test__a_3__b_3__expected_6.label == "foo"
+    assert MySuite.non_param_case.label == "bar"
 
 
 @pytest.mark.parametrize(
@@ -533,7 +531,7 @@ def test_custom_wrapper():
 )
 def test_tag_func(tag_func, expected_tags, expected_tags_index):
     @testsuite
-    class MySuite(object):
+    class MySuite:
         @testcase(
             parameters=(dict(product="productA", category="dummyCategory"),),
             tags="foo",
@@ -568,7 +566,7 @@ def test_tag_func(tag_func, expected_tags, expected_tags_index):
 )
 def test_docstring_func(docstring_func, expected_docstring):
     @testsuite
-    class MySuite(object):
+    class MySuite:
         @testcase(parameters=(("foo", "bar"),), docstring_func=docstring_func)
         def adder_test(self, env, result, first, second):
             """Original docstring"""
@@ -586,7 +584,7 @@ def test_parametrization_tagging(mockplan):
     """
 
     @testsuite(tags="foo")
-    class MySuite(object):
+    class MySuite:
         @testcase(
             parameters=("red", "blue", "green"),
             tags="alpha",
@@ -628,7 +626,7 @@ def test_order_of_parametrization_report(mockplan):
     """
 
     @testsuite
-    class MySuite(object):
+    class MySuite:
         @testcase(parameters=("red", "blue", "green"))
         def dummy_test_1(self, env, result, color):
             pass
@@ -682,3 +680,40 @@ def test_order_of_parametrization_report(mockplan):
     ]
 
     check_parametrization(mockplan, MySuite, report_entries)
+
+
+def test_timing_info_of_parametrized_group_report(mockplan):
+    @testsuite
+    class SampleTest(object):
+        @testcase(
+            parameters=(
+                (5, 5, 10),
+                (3, 2, 5),
+                (0, 0, 0),
+                ("foo", "bar", "foobar"),
+            )
+        )
+        def addition(self, env, result, a, b, expected):
+            result.equal(a + b, expected)
+
+        @testcase(parameters=(2, 4, 6, 8), execution_group="is even")
+        def is_even(self, env, result, value):
+            result.equal(value % 2, 0)
+
+    multitest = MultiTest(name="Primary", suites=[SampleTest()])
+
+    mockplan.add(multitest)
+    mockplan.run()
+
+    serial_group_report_timer = (
+        mockplan.report.entries[0].entries[0].entries[0].timer
+    )
+    parallel_group_report_timer = (
+        mockplan.report.entries[0].entries[0].entries[1].timer
+    )
+
+    assert "run" in serial_group_report_timer.keys()
+    assert "run" in parallel_group_report_timer.keys()
+
+    assert isinstance(serial_group_report_timer["run"], Interval)
+    assert isinstance(parallel_group_report_timer["run"], Interval)

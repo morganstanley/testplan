@@ -25,12 +25,17 @@ def case_name_func(func_name, kwargs):
 
 
 @testsuite(name="A Simple Suite")
-class SimpleSuite(object):
+class SimpleSuite:
+    def pre_testcase(self, name, env, result, kwargs):
+        result.log('Before testcase "{}" run'.format(name))
+        result.log("Extra arguments: {}".format(kwargs))
+
+    def post_testcase(self, name, env, result, kwargs):
+        result.log('After testcase "{}" run'.format(name))
+
     @testcase(name="A simple testcase")
     def test_example(self, env, result):
-        result.equal(
-            env.multitest_runtime_info.testcase.name, "A simple testcase"
-        )
+        result.equal(env.runtime_info.testcase.name, "A simple testcase")
 
     @testcase(
         name="Parametrized testcases",
@@ -40,7 +45,7 @@ class SimpleSuite(object):
     def test_equal(self, env, result, a, b, expected):
         result.equal(a + b, expected, description="Equality test")
         result.equal(
-            env.multitest_runtime_info.testcase.name,
+            env.runtime_info.testcase.name,
             case_name_func(
                 "Parametrized testcases",
                 {"a": a, "b": b, "expected": expected},
@@ -56,9 +61,15 @@ class SimpleSuite(object):
 
 
 @testsuite(name=suite_name_func)
-class ComplicatedSuite(object):
+class ComplicatedSuite:
     def __init__(self, val):
         self.val = val
+
+    def pre_testcase(self, name, env, result):
+        pass
+
+    def post_testcase(self, name, env, result):
+        pass
 
     @testcase(name="A testcase with one assertion")
     def test_less_than(self, env, result):

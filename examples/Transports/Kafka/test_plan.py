@@ -14,7 +14,7 @@ try:
     from confluent_kafka import Producer, Consumer
 except ImportError:
     print("Cannot import confluent_kafka!")
-    exit()
+    sys.exit()
 
 from testplan.testing.multitest.driver.zookeeper import (
     ZookeeperStandalone,
@@ -32,7 +32,7 @@ OUTPUT_STYLE = Style(StyleEnum.ASSERTION_DETAIL, StyleEnum.ASSERTION_DETAIL)
 
 
 @testsuite
-class KafkaTest(object):
+class KafkaTest:
     """Suite that contains testcases that perform kafka operation."""
 
     @testcase
@@ -55,6 +55,7 @@ class KafkaTest(object):
         topic = "testplan"
         message = str(uuid.uuid4()).encode("utf-8")
         producer.produce(topic=topic, value=message)
+        producer.flush()
         consumer.subscribe([topic])
         msg = consumer.poll(10)
         result.equal(message, msg.value(), "Test producer and consumer")

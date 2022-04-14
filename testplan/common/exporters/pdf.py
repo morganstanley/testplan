@@ -3,7 +3,6 @@
 """
 
 import itertools
-import six
 
 from reportlab.platypus import Table
 from reportlab.lib import colors
@@ -30,8 +29,7 @@ def _partition_data(data, max_rows):
     :rtype: ``generator``
     """
     return (
-        data[row : row + max_rows]
-        for row in six.moves.range(0, len(data), max_rows)
+        data[row : row + max_rows] for row in range(0, len(data), max_rows)
     )
 
 
@@ -49,7 +47,7 @@ def _partition_style(style, num_rows, max_rows):
             applicable for each new partition
     :rtype: ``generator``
     """
-    for offset in six.moves.range(0, num_rows, max_rows):
+    for offset in range(0, num_rows, max_rows):
         end_row = min(offset + max_rows, num_rows) - 1
         partition = []
 
@@ -103,7 +101,7 @@ def create_base_tables(data, style, col_widths, max_rows=MAX_TABLE_ROWS):
     :return: a list of new tables
     :rtype: ``list`` of ``Table``
     """
-    zipped = six.moves.zip(
+    zipped = zip(
         _partition_data(data, max_rows=max_rows),
         _partition_style(style, len(data), max_rows=max_rows),
     )
@@ -268,8 +266,9 @@ def _create_sub_table(
         cell_styles = _create_cell_styles(
             colour_matrix=colour_matrix, display_index=bool(row_indices)
         )
-        style.extend(format_table_style(cell_styles))
-    table.setStyle(style)
+        table.setStyle(style + format_table_style(cell_styles))
+    else:
+        table.setStyle(style)
 
     return table
 
@@ -351,7 +350,7 @@ def create_table(
     # exceeded.
     rows = [
         _limit_cell_length(
-            iterable=[table[i][column] for column in columns],
+            iterable=table[i],
             limit=constants.CELL_STRING_LENGTH,
         )
         for i in range(num_rows)
@@ -435,7 +434,7 @@ def format_table_style(table_styles):
     return table_style
 
 
-class RowStyle(object):
+class RowStyle:
     """
     Helper class for managing styles for table rows.
 
@@ -606,10 +605,11 @@ class RowStyle(object):
             )
             + (val if isinstance(val, tuple) else (val,))
             for key, val in props
+            if val is not None
         )
 
 
-class RowData(object):
+class RowData:
     """
     Container object that represents one or more `Table` rows.
 
@@ -745,7 +745,7 @@ class RowData(object):
         :return: ``None``
         :rtype: ``NoneType``
         """
-        if isinstance(content, six.string_types):
+        if isinstance(content, str):
             content = [content] + [""] * (self.num_columns - 1)
 
         if not isinstance(content[0], (list, tuple)):

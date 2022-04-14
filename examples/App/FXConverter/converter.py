@@ -13,13 +13,13 @@ import sys
 import socket
 import logging
 
-from six.moves.configparser import ConfigParser
+from configparser import ConfigParser
 
 
 logging.basicConfig(stream=sys.stdout, format="%(message)s")
 
 
-class FXConverter(object):
+class FXConverter:
     """FXConverter class that accepts a config file."""
 
     def __init__(self, config_file):

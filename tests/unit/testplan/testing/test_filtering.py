@@ -1,13 +1,12 @@
 import pytest
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.testing.multitest import parametrization
 
 from testplan.testing import filtering
 
 
 @testsuite(tags="foo")
-class Alpha(object):
+class Alpha:
     @testcase
     def test_one(self, env, result):
         pass
@@ -25,7 +24,7 @@ class Alpha(object):
     tags="bar",
     name=lambda cls_name, suite: cls_name + " -- Custom",
 )
-class Beta(object):
+class Beta:
     @testcase
     def test_one(self, env, result):
         pass
@@ -40,7 +39,7 @@ class Beta(object):
 
 
 @testsuite(tags=("foo", "baz"))
-class Gamma(object):
+class Gamma:
     @testcase
     def test_one(self, env, result):
         pass
@@ -59,7 +58,7 @@ class Gamma(object):
 
 
 @testsuite
-class Delta(object):
+class Delta:
     @testcase(parameters=[1, 2, 3])
     def parametrized(self, env, result, val):
         pass
@@ -73,7 +72,7 @@ multitest_E = MultiTest(name="EEE", suites=[Beta(), Gamma()])
 multitest_F = MultiTest(name="FFF", suites=[Alpha(), Beta(), Gamma()])
 
 
-class TestTags(object):
+class TestTags:
     @pytest.mark.parametrize(
         "tags, multitest, expected",
         (
@@ -140,7 +139,7 @@ class TestTags(object):
         assert bool(filter_obj.filter_case(testcase_obj)) == expected
 
 
-class TestTagsAll(object):
+class TestTagsAll:
     @pytest.mark.parametrize(
         "tags, multitest, expected",
         (
@@ -208,7 +207,7 @@ class TestTagsAll(object):
         assert bool(filter_obj.filter_case(testcase_obj)) == expected
 
 
-class TestPattern(object):
+class TestPattern:
     @pytest.mark.parametrize(
         "pattern, multitest, expected",
         (
@@ -315,7 +314,7 @@ class GammaFilter(DummyFilter):
     pass
 
 
-class TestFilterCompositions(object):
+class TestFilterCompositions:
     def test_or(self):
         filter_1 = AlphaFilter() | BetaFilter()
         filter_2 = filtering.Or(AlphaFilter(), BetaFilter())

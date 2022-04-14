@@ -1,9 +1,9 @@
 """TODO."""
 
-from testplan.runners import RunnableTaskAdaptor
+from testplan.runners.pools.tasks import RunnableTaskAdaptor
 
 
-class Runnable(object):
+class Runnable:
     """TODO."""
 
     def __init__(self, number, multiplier=2):
@@ -26,7 +26,7 @@ def callable_to_runnable(number):
     return Runnable(number)
 
 
-class NonRunnable(object):
+class NonRunnable:
     """TODO."""
 
     def __init__(self, number):
@@ -71,6 +71,12 @@ class Multiplier(Runnable):
     """TODO."""
 
     pass
+
+
+class Wrapper:
+    """TODO."""
+
+    InnerMultiplier = Multiplier
 
 
 def callable_to_non_runnable(number):

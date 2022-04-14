@@ -1,9 +1,9 @@
 """Filtering logic for Multitest, Suites and testcase methods (of Suites)"""
+
 import argparse
 import collections
 import operator
 import fnmatch
-
 from enum import Enum, unique
 
 from testplan.testing import tagging
@@ -22,7 +22,7 @@ class FilterLevel(Enum):
     TESTCASE = "testcase"
 
 
-class BaseFilter(object):
+class BaseFilter:
     """
     Base class for filters, supports bitwise
     operators for composing multiple filters.
@@ -146,7 +146,9 @@ class MetaFilter(BaseFilter):
 
 
 class Or(MetaFilter):
-    """Meta filter that returns True if ANY of the child filters return True"""
+    """
+    Meta filter that returns True if ANY of the child filters return True.
+    """
 
     operator_str = "|"
 
@@ -161,7 +163,9 @@ class Or(MetaFilter):
 
 
 class And(MetaFilter):
-    """Meta filter that returns True if ALL of the child filters return True"""
+    """
+    Meta filter that returns True if ALL of the child filters return True.
+    """
 
     operator_str = "&"
 
@@ -290,12 +294,8 @@ class Pattern(Filter):
         return fnmatch.fnmatch(test.name, self.test_pattern)
 
     def filter_suite(self, suite):
-        return fnmatch.fnmatch(
-            # Now, Suite has the same name and uid, just like that of Multitest
-            # suite.__class__.__name__ if self.match_definition else suite.name,
-            suite.name,
-            self.suite_pattern,
-        )
+        # For test suite uid is the same as name, just like that of Multitest
+        return fnmatch.fnmatch(suite.name, self.suite_pattern)
 
     def filter_case(self, case):
         name_match = fnmatch.fnmatch(

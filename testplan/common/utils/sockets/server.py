@@ -8,9 +8,9 @@ import threading
 from testplan.common.utils.timing import wait
 
 
-class Server(object):
+class Server:
     """
-    A server that can send and receive messages over the session protocol.
+    A server that can send and receive messages based on socket interface.
     Supports multiple connections.
 
     :param host: The host address the server is bound to.
@@ -89,9 +89,16 @@ class Server(object):
         outputs = []
 
         while self._listening:
-            readable, writable, exceptional = select.select(
-                inputs, outputs, inputs
-            )
+            try:
+                readable, writable, exceptional = select.select(
+                    inputs, outputs, inputs
+                )
+            except ValueError:
+                for sock in inputs:
+                    # Remove the closed socks.
+                    if sock.fileno() == -1:
+                        inputs.remove(sock)
+                continue
 
             for sock in readable:
                 if sock is self._server:
@@ -140,6 +147,22 @@ class Server(object):
                 return -1
             time.sleep(accept_connection_sleep)
 
+    def close_connection(self, conn_idx):
+        """
+        Unregister, close and remove connection with given connection index
+
+        :param conn_idx: Connection index of connection to be removed
+        :type conn_idx: ``int``
+
+        :return: ``None``
+        :rtype: ``NoneType``
+        """
+        fdesc = self._fds[conn_idx]
+        self._connection_by_fd[fdesc].close()
+
+        del self._connection_by_fd[fdesc]
+        del self._fds[conn_idx]
+
     def receive(
         self, size=1024, conn_idx=None, timeout=30, wait_full_size=True
     ):
@@ -167,9 +190,9 @@ class Server(object):
         connection.settimeout(timeout)
 
         if wait_full_size is False:
-            connection.settimeout(timeout)
-            msg = connection.recv(size)
             connection.settimeout(0)
+            msg = connection.recv(size)
+            connection.settimeout(timeout)
         else:
             with self._lock:
                 msg = b""

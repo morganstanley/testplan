@@ -22,6 +22,26 @@ function propsEqual() {
   };
 }
 
+function propsHighlightEqual() {
+  return {
+    assertion: {
+      "category": "DEFAULT",
+      "machine_time": "2019-02-12T17:41:42.795536+00:00",
+      "description": "compare two string",
+      "line_no": 25,
+      "label": "==",
+      "second": "This is a short thing",
+      "meta_type": "assertion",
+      "passed": false,
+      "type": "Equal",
+      "utc_time": "2019-02-12T17:41:42.795530+00:00",
+      "first": "This is a long thing with some extra at the end",
+      "type_actual": "str",
+      "type_expected": "str"
+    }
+  };
+}
+
 function propsNotEqual() {
   return {
     assertion: {
@@ -549,6 +569,12 @@ describe('BasicAssertion', () => {
 
   it('shallow renders the Equal assertion', () => {
     props = propsEqual();
+    shallowComponent = shallow(<BasicAssertion {...props} />);
+    expect(shallowComponent).toMatchSnapshot();
+  });
+
+  it('shallow renders the highlight Equal assertion', () => {
+    props = propsHighlightEqual();
     shallowComponent = shallow(<BasicAssertion {...props} />);
     expect(shallowComponent).toMatchSnapshot();
   });

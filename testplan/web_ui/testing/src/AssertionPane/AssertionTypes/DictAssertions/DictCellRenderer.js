@@ -1,6 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import Popover from '@material-ui/core/Popover';
+import Typography from '@material-ui/core/Typography';
+import { makeStyles } from "@material-ui/core/styles";
 import { INDENT_MULTIPLIER } from './../../../Common/defaults';
+
+const useStyles = makeStyles((theme) => ({
+  popover: {
+    pointerEvents: 'none',
+  },
+  paper: {
+    padding: theme.spacing(1),
+    maxWidth: '25em',
+    overflowY: 'hidden',
+  },
+  typography: {
+    fontSize: "small",
+  },
+}));
 
 /**
  * Custom cell renderer component used by DictLog and DictMatch assertions.
@@ -15,6 +32,10 @@ import { INDENT_MULTIPLIER } from './../../../Common/defaults';
  *  - subText is the type of the value in subscript and
  */
 export default function DictCellRenderer(props) {
+  const classes = useStyles();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
   if (!props.value) {
     return null;
   }
@@ -22,6 +43,7 @@ export default function DictCellRenderer(props) {
   let mainText = props.value.value;
   let subText;
   let indentStyle = {};
+
   if (props.colDef.field === 'key') {
     if (props.data.descriptor.isListKey && mainText) {
       subText = 'list';
@@ -39,12 +61,39 @@ export default function DictCellRenderer(props) {
       <span
         style={{userSelect: 'all'}}
         id={props.id}
-        onMouseEnter={props.onMouseEnter}
-        onMouseLeave={props.onMouseLeave}
+        onMouseEnter={(event) => {
+          if (props.tooltip) {
+            setAnchorEl(event.currentTarget);
+          }
+        }}
+        onMouseLeave={() => {setAnchorEl(null);}}
       >
         {mainText}
       </span>
       <sub>{subText}</sub>
+      <Popover
+        id="mouse-over-popover"
+        className={classes.popover}
+        classes={{
+          paper: classes.paper,
+        }}
+        open={open}
+        anchorEl={anchorEl}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        onClose={() => {setAnchorEl(null);}}
+        disableRestoreFocus
+      >
+        <Typography className={classes.typography}>
+          <>{props.tooltip}</>
+        </Typography>
+      </Popover>
     </div>
   );
 }

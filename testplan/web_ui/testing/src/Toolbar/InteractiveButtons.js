@@ -15,10 +15,11 @@ import {
   FormGroup
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faFastBackward,
-  faSave,
+import {
   faSync,
+  faFastBackward,
+  faTimes,
+  faSave,
 } from '@fortawesome/free-solid-svg-icons';
 import { format as dateFormat } from 'date-fns';
 import { css } from 'aphrodite';
@@ -30,9 +31,47 @@ import styles from './navStyles';
 const saveReportUrl = `/api/v1/interactive/report/export`;
 
 /**
+ * Render a button to trigger the report state to be reloading.
+ *
+ * If the reload action is currently in progress, display a spinning icon
+ * instead.
+ */
+export const ReloadButton = (props) => {
+  if (props.reloading) {
+    return (
+      <NavItem key="reload-button">
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key='toolbar-reload'
+            className={css(styles.toolbarButton, styles.toolbarInactive)}
+            icon={faSync}
+            title='Reloading...'
+            spin
+            />
+        </div>
+      </NavItem>
+    );
+  } else {
+    return (
+      <NavItem key="reload-button">
+        <div className={css(styles.buttonsBar)}>
+          <FontAwesomeIcon
+            key='toolbar-reload'
+            className={css(styles.toolbarButton)}
+            icon={faSync}
+            title='Reload code'
+            onClick={props.reloadCbk}
+          />
+        </div>
+      </NavItem>
+    );
+  }
+};
+
+/**
  * Render a button to trigger the report state to be reset.
  *
- * If the reset action is currently in progress, display a spinning icon
+ * If the reset action is currently in progress, display an inactive icon
  * instead.
  */
 export const ResetButton = (props) => {
@@ -66,38 +105,42 @@ export const ResetButton = (props) => {
   }
 };
 
-export const ReloadButton = (props) => {
-  if (props.reloading) {
+/**
+ * Render a button to abort Testpan.
+ *
+ * If the abort action is currently in progress, display an inactive icon
+ * instead.
+ */
+export const AbortButton = (props) => {
+  if (props.aborting) {
     return (
-      <NavItem key="reload-button">
+      <NavItem key="abort-button">
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
-            key='toolbar-reload'
+            key='toolbar-abort'
             className={css(styles.toolbarButton, styles.toolbarInactive)}
-            icon={faSync}
-            title='Reloading...'
-            spin
-            />
+            icon={faTimes}
+            title='Aborting...'
+          />
         </div>
       </NavItem>
     );
   } else {
     return (
-      <NavItem key="reload-button">
+      <NavItem key="abort-button">
         <div className={css(styles.buttonsBar)}>
           <FontAwesomeIcon
-            key='toolbar-reload'
+            key='toolbar-abort'
             className={css(styles.toolbarButton)}
-            icon={faSync}
-            title='Reload code'
-            onClick={props.reloadCbk}
+            icon={faTimes}
+            title='Abort Testplan'
+            onClick={props.abortCbk}
           />
         </div>
       </NavItem>
     );
   }
 };
-
 
 const getHistoryTable = (historyExporters) => {
   if (Array.isArray(historyExporters) && historyExporters.length > 0) {
@@ -195,7 +238,7 @@ const ModalRender = (
     <>
       <h5>
         Select exporters to use
-        <span style={{"font-size": "0.8em"}}>
+        <span style={{fontSize: "0.8em"}}>
           (check "Output" section in documentation
           for how-to set up more exporters)
         </span>

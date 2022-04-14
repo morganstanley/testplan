@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Badge} from 'reactstrap';
-import {StyleSheet, css} from 'aphrodite';
+import { Badge } from 'reactstrap';
+import { StyleSheet, css } from 'aphrodite';
+import { formatMilliseconds } from './../Common/utils';
 import _ from 'lodash';
 
 import {
@@ -14,6 +15,7 @@ import {
   STATUS,
   STATUS_CATEGORY,
 } from "../Common/defaults";
+import { statusStyles } from "../Common/Styles";
 
 /**
  * Display NavEntry information:
@@ -24,10 +26,10 @@ import {
 const NavEntry = (props) => {
   const badgeStyle = `${STATUS_CATEGORY[props.status]}Badge`;
   const executionTime = (
-    props.displayTime && _.isNumber(props.executionTime)? (
+    props.displayTime && _.isNumber(props.executionTime) ? (
       <i className={css(styles.entryIcon)} title='Execution time'>
         <span className={css(styles[STATUS_CATEGORY[props.status]])}>
-          {props.executionTime}s
+          {formatMilliseconds(props.executionTime)}
         </span>
       </i>
     ) : null
@@ -35,11 +37,21 @@ const NavEntry = (props) => {
   return (
     <div
       className='d-flex justify-content-between align-items-center'
-      style={{height: "1.5em"}}
+      style={{
+        height: "1.5em",
+        userSelect: "text"
+      }}
     >
+      <Badge
+        className={css(styles.entryIcon, styles[badgeStyle], styles.badge)}
+        title={props.type}
+        pill
+      >
+        {CATEGORY_ICONS[props.type]}
+      </Badge>
       <div
         className={css(styles.entryName, styles[STATUS_CATEGORY[props.status]])}
-        title={props.description || props.name}
+        title={`${props.description || props.name} - ${props.status}`}
       >
         {props.name}
       </div>
@@ -50,12 +62,6 @@ const NavEntry = (props) => {
           /
           <span className={css(styles.failed)}>{props.caseCountFailed}</span>
         </i>
-        <Badge
-          className={css(styles.entryIcon, styles[badgeStyle], styles.badge)}
-          title={props.type}
-          pill>
-          {CATEGORY_ICONS[props.type]}
-        </Badge>
       </div>
     </div>
   );
@@ -87,10 +93,13 @@ const styles = StyleSheet.create({
     "white-space": "nowrap",
     fontSize: 'small',
     fontWeight: 500,
+    marginLeft: '3px',
+    flex: "auto",
   },
   entryIcons: {
     paddingLeft: '1em',
     display: "flex",
+    flexShrink: 0,
   },
   entryIcon: {
     fontSize: 'x-small',
@@ -114,21 +123,7 @@ const styles = StyleSheet.create({
   unknownBadge: {
     backgroundColor: BLACK,
   },
-  passed: {
-    color: GREEN,
-  },
-  failed: {
-    color: RED,
-  },
-  error: {
-    color: RED,
-  },
-  unstable: {
-    color: ORANGE,
-  },
-  unknown: {
-    color: BLACK,
-  },
+  ...statusStyles
 });
 
 export default NavEntry;

@@ -1,59 +1,26 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {css, StyleSheet} from 'aphrodite';
-import {Scrollbars} from 'react-custom-scrollbars';
-import {library} from '@fortawesome/fontawesome-svg-core';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {
-  faMinusCircle,
-  faPlusCircle,
-} from '@fortawesome/free-solid-svg-icons';
 
 import DescriptionPane from './DescriptionPane';
 import AssertionGroup from "./AssertionGroup";
 import LogGroup from './LogGroup';
+import { AssertionContext } from "../Common/context";
 
-library.add(
-  faPlusCircle,
-  faMinusCircle
-);
 
 /**
  * Render the assertions of the selected test case.
  */
 class AssertionPane extends Component {
+  // Context of assertion status
+  static contextType = AssertionContext;
+
   constructor(props) {
     super(props);
 
     this.state = {
-      globalIsOpen: undefined,
       testcaseUid: undefined,
     };
-
-    this.expandAllAssertions = this.expandAllAssertions.bind(this);
-    this.collapseAllAssertions = this.collapseAllAssertions.bind(this);
-    this.resetGlobalIsOpen = this.resetGlobalIsOpen.bind(this);
-  }
-
-  /**
-   * Set the globalIsOpen state to true.
-   */
-  expandAllAssertions() {
-    this.setState({globalIsOpen: true});
-  }
-
-  /**
-   * Set the globalIsOpen state to false.
-   */
-  collapseAllAssertions() {
-    this.setState({globalIsOpen: false});
-  }
-
-  /**
-   * Set the globalIsOpen state to undefined.
-   */
-  resetGlobalIsOpen() {
-    this.setState({globalIsOpen: undefined});
   }
 
   /**
@@ -94,49 +61,20 @@ class AssertionPane extends Component {
       return (
         <div style={assertionPaneStyle}>
           <div className={css(styles.infiniteScrollDiv)}>
-            {/*
-            The key is passed to force InfiniteScroll to update when only the
-            props of AssertionPane are changed. Normally when just props change
-            and not state the child component is not updated. Giving the
-            InfiniteScroll component a key tells react to update it. Unsure if
-            it updates it or creates a new instance, need to check.
-            */}
-             <Scrollbars autoHide>
-             <div style={{paddingRight: '4rem'}}>
                 <DescriptionPane
                   descriptionEntries={this.props.descriptionEntries}
                 />
-                <div className={css(styles.buttonsDiv)}>
-                  <FontAwesomeIcon
-                    size='1x'
-                    key='faPlusCircle'
-                    icon='plus-circle'
-                    title='Expand all'
-                    onClick={this.expandAllAssertions}
-                    className={css(styles.icon)}
-                  />
-                  <FontAwesomeIcon
-                    size='1x'
-                    key='faMinusCircle'
-                    icon='minus-circle'
-                    title='Collapse all'
-                    onClick={this.collapseAllAssertions}
-                    className={css(styles.icon)}
-                  />
-                </div>
                 <AssertionGroup
                   entries={this.props.assertions}
-                  globalIsOpen={this.state.globalIsOpen}
-                  resetGlobalIsOpen={this.resetGlobalIsOpen}
                   filter={this.props.filter}
+                  displayPath={this.props.displayPath}
+                  assertionGroupUid={this.props.testcaseUid}
                   reportUid={this.props.reportUid}
                 />
                 <LogGroup
                   logs={this.props.logs}
                 />
               </div>
-            </Scrollbars>
-          </div>
         </div>);
     } else {
       return null;
@@ -169,6 +107,18 @@ const styles = StyleSheet.create({
 
   infiniteScrollDiv: {
     height: 'calc(100% - 1.5em)',
+    overflow: "scroll",
+    paddingRight: '4rem',
+    "::-webkit-scrollbar": {
+      width: "6px",
+    },
+    "::-webkit-scrollbar-thumb": {
+      backgroundColor: "rgba(0, 0, 0, 0.2)",
+      borderRadius: "3px",
+    },
+    "::-webkit-scrollbar-thumb:hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
+    }
   },
 
   buttonsDiv: {

@@ -18,20 +18,22 @@ registry = AssertionSchemaRegistry()
 
 
 class GenericEntryList(fields.Field):
-    def _serialize(self, value, attr, obj):
+    def _serialize(self, value, attr, obj, **kwargs):
         return [registry.serialize(entry) for entry in value]
 
 
 @registry.bind_default()
 class BaseSchema(Schema):
-    utc_time = fields.LocalDateTime()
-    machine_time = custom_fields.UTCDateTime()
+    utc_time = custom_fields.UTCDateTime()
+    machine_time = custom_fields.LocalDateTime()
     type = custom_fields.ClassName()
     meta_type = fields.String()
     description = custom_fields.Unicode()
     line_no = fields.Integer()
     category = fields.String()
     flag = fields.String()
+    file_path = fields.String()
+    custom_style = fields.Dict(keys=fields.String(), values=fields.String())
 
     def load(self, *args, **kwargs):
         raise NotImplementedError("Only serialization is supported.")
@@ -65,7 +67,7 @@ class MarkdownSchema(BaseSchema):
 
 @registry.bind(base.TableLog)
 class TableLogSchema(BaseSchema):
-    table = fields.List(custom_fields.NativeOrPrettyDict())
+    table = fields.List(fields.List(custom_fields.NativeOrPretty()))
     indices = fields.List(fields.Integer(), allow_none=True)
     display_index = fields.Boolean()
     columns = fields.List(fields.String(), allow_none=False)
@@ -79,8 +81,12 @@ class DictLogSchema(BaseSchema):
 @registry.bind(base.Graph)
 class GraphSchema(BaseSchema):
     graph_type = fields.String()
-    graph_data = fields.Dict(fields.List(fields.Dict()))
-    series_options = fields.Dict(fields.Dict(), allow_none=True)
+    graph_data = fields.Dict(
+        keys=fields.String(), values=fields.List(fields.Dict())
+    )
+    series_options = fields.Dict(
+        keys=fields.String(), values=fields.Dict(), allow_none=True
+    )
     type = fields.String()
     graph_options = fields.Dict(allow_none=True)
     discrete_chart = fields.Bool()
@@ -89,7 +95,21 @@ class GraphSchema(BaseSchema):
 @registry.bind(base.Attachment, base.MatPlot)
 class AttachmentSchema(BaseSchema):
     source_path = fields.String()
-    hash = fields.String()
     orig_filename = fields.String()
     filesize = fields.Integer()
     dst_path = fields.String()
+
+
+@registry.bind(base.Plotly)
+class PlotlySchema(AttachmentSchema):
+    style = fields.Dict(allow_none=True)
+
+
+@registry.bind(base.Directory)
+class DirectorySchema(BaseSchema):
+    source_path = fields.String()
+    dst_path = fields.String()
+    ignore = fields.List(fields.String(), allow_none=True)
+    only = fields.List(fields.String(), allow_none=True)
+    recursive = fields.Boolean()
+    file_list = fields.List(fields.String())

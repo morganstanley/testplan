@@ -8,11 +8,13 @@ import { StyleSheet, css } from 'aphrodite';
 import axios from 'axios';
 import { Redirect } from "react-router-dom";
 import { generatePath } from "react-router";
+import base64url from 'base64url';
 
 import Toolbar from '../Toolbar/Toolbar.js';
-import { 
-  ResetButton,
+import {
   ReloadButton,
+  ResetButton,
+  AbortButton,
   SaveButton
 } from '../Toolbar/InteractiveButtons';
 import InteractiveNav from '../Nav/InteractiveNav.js';
@@ -25,9 +27,14 @@ import {
   GetSelectedEntries,
   getSelectedUIDsFromPath,
 } from './reportUtils.js';
-import {encodeURIComponent2} from '../Common/utils';
+import {
+  encodeURIComponent2,
+  parseToJson
+} from '../Common/utils';
 
-import {POLL_MS} from '../Common/defaults.js';
+import { POLL_MS } from '../Common/defaults.js';
+import { AssertionContext, defaultAssertionStatus } from "../Common/context";
+import { generateURLWithParameters } from "../Common/utils";
 
 const api_prefix = "/api/v1/interactive";
 
@@ -41,20 +48,32 @@ class InteractiveReport extends React.Component {
 
   constructor(props) {
     super(props);
+    this.setError = this.setError.bind(this);
+    this.setReport = this.setReport.bind(this);
+    this.getReport = this.getReport.bind(this);
+    this.resetReport = this.resetReport.bind(this);
+    this.abortTestplan = this.abortTestplan.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.envCtrlCallback = this.envCtrlCallback.bind(this);
+    this.reloadCode = this.reloadCode.bind(this);
+    this.handleColumnResizing = this.handleColumnResizing.bind(this);
+    this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
+    this.updateAssertionStatus = this.updateAssertionStatus.bind(this);
+    this.resetAssertionStatus = this.resetAssertionStatus.bind(this);
+
+    defaultAssertionStatus.updateGlobalExpand = this.updateGlobalExpand;
+    defaultAssertionStatus.updateAssertionStatus = this.updateAssertionStatus;
+
     this.state = {
       navWidth: `${INTERACTIVE_COL_WIDTH}em`,
-      report: null,      
+      report: null,
       loading: false,
       error: null,
       resetting: false,
       reloading: false,
+      aborting: false,
+      assertionStatus: defaultAssertionStatus,
     };
-    this.handlePlayClick = this.handlePlayClick.bind(this);
-    this.envCtrlCallback = this.envCtrlCallback.bind(this);
-    this.getReport = this.getReport.bind(this);
-    this.resetReport = this.resetReport.bind(this);
-    this.reloadCode = this.reloadCode.bind(this);
-    this.handleColumnResizing = this.handleColumnResizing.bind(this);
   }
 
   /**
@@ -63,6 +82,11 @@ class InteractiveReport extends React.Component {
    */
   componentDidMount() {
     this.setState({ loading: true }, this.getReport);
+  }
+
+  setError(error) {
+    console.log(error);
+    this.setState({error: error, loading: false});
   }
 
   setReport(report) {
@@ -76,34 +100,96 @@ class InteractiveReport extends React.Component {
   }
 
   /**
+   * Update the global expand status
+   *
+   * @param {String} status - the new global expand status
+   */
+  updateGlobalExpand(status) {
+    this.setState((prev) => {
+      const assertionStatus = prev.assertionStatus;
+      assertionStatus.globalExpand = {
+        status: status,
+        time: new Date().getTime(),
+      };
+      return { ...prev, assertionStatus };
+    });
+    const newUrl = generateURLWithParameters(
+      window.location,
+      window.location.pathname,
+      { expand: status }
+    );
+    this.props.history.push(newUrl);
+  }
+
+  /**
+   * Update the expand status of assertions
+   *
+   * @param {Array} uids - the array of assertion unique id
+   * @param {String} status - the new expand status of assertions
+   */
+  updateAssertionStatus(uids, status) {
+    this.setState((prev) => {
+      const assertionStatus = prev.assertionStatus;
+      uids.forEach((uid) => {
+        assertionStatus.assertions[uid] = {
+          status: status,
+          time: new Date().getTime(),
+        };
+      });
+      return { ...prev, assertionStatus };
+    });
+  }
+
+  /**
+   * reset the expand status of assertions
+   */
+  resetAssertionStatus() {
+    this.setState((prev) => {
+      const assertionStatus = prev.assertionStatus;
+      assertionStatus.assertions = {};
+      return { ...prev, assertionStatus };
+    });
+  }
+
+  /**
    * Fetch the Testplan interactive report and start polling for updates.
    *
    * If running in dev mode we just display a fake report.
    */
   getReport() {
+    if (this.state.aborting) {
+      this.setError({message: "Server is aborting ..."});
+      return;
+    }
     if (this.props.match.params.uid === '_dev') {
       setTimeout(
         () => this.setReport(FakeInteractiveReport),
         1500,
       );
     } else {
-      axios.get('/api/v1/interactive/report')
-        .then(response => {
-          if (!this.state.report ||
-            this.state.report.hash !== response.data.hash) {
-            this.getTests().then(tests => {
-              const rawReport = { ...response.data, entries: tests };
-              this.setReport(rawReport);
-            });
-          }
-        })
-        .catch(error => {
-          console.log(error);
-          this.setState({ error: error, loading: false });
-        });
-
-      // We poll for updates to the report every second.
-      setTimeout(this.getReport, this.props.poll_intervall || POLL_MS);      
+      axios.get(
+      '/api/v1/interactive/report', {transformResponse: parseToJson}
+      ).then(response => {
+        if (
+          response.data.runtime_status === "ready" ||
+          response.data.runtime_status === "finished" ||
+          response.data.runtime_status === "not_run"
+        ) {
+          this.setState({ resetting: false });
+        }
+        if (
+          !this.state.report ||
+          this.state.report.hash !== response.data.hash
+        ) {
+          this.getTests().then(tests => {
+            const rawReport = { ...response.data, entries: tests };
+            this.setReport(rawReport);
+          });
+        }
+      }).catch(this.setError).finally(() => {
+        // We poll for updates to the report every second.
+        setTimeout(this.getReport, this.props.poll_intervall || POLL_MS);
+      });
     }
   }
 
@@ -113,7 +199,8 @@ class InteractiveReport extends React.Component {
    */
   getTests() {
     return axios.get(
-      "/api/v1/interactive/report/tests"
+      "/api/v1/interactive/report/tests",
+      {transformResponse: parseToJson}
     ).then(response => {
       return Promise.all(response.data.map(
         newTest => {
@@ -142,7 +229,8 @@ class InteractiveReport extends React.Component {
   getSuites(newTest, existingTest) {
     const encoded_test_uid = encodeURIComponent2(newTest.uid);
     return axios.get(
-      `/api/v1/interactive/report/tests/${encoded_test_uid}/suites`
+      `/api/v1/interactive/report/tests/${encoded_test_uid}/suites`,
+      {transformResponse: parseToJson}
     ).then(response => {
       return Promise.all(response.data.map(
         newSuite => {
@@ -171,7 +259,8 @@ class InteractiveReport extends React.Component {
     const encoded_suite_uid = encodeURIComponent2(newSuite.uid);
     return axios.get(
       `/api/v1/interactive/report/tests/${encoded_test_uid}/suites/` +
-      `${encoded_suite_uid}/testcases`
+      `${encoded_suite_uid}/testcases`,
+      {transformResponse: parseToJson}
     ).then(response => {
       return Promise.all(response.data.map((newTestCase) => {
         switch (newTestCase.category) {
@@ -216,15 +305,9 @@ class InteractiveReport extends React.Component {
     const encoded_testcase_uid = encodeURIComponent2(testcase.uid);
     return axios.get(
       `/api/v1/interactive/report/tests/${encoded_test_uid}/suites/` +
-      `${encoded_suite_uid}/testcases/${encoded_testcase_uid}/parametrizations`
+      `${encoded_suite_uid}/testcases/${encoded_testcase_uid}/parametrizations`,
+      {transformResponse: parseToJson}
     ).then(response => response.data);
-  }
-
-  /**
-   * Auto-select an entry in the report when it is first loaded.
-   */
-  autoSelect(reportEntry) {
-    return [reportEntry.uid];
   }
 
   /**
@@ -233,7 +316,16 @@ class InteractiveReport extends React.Component {
   putUpdatedReportEntry(updatedReportEntry) {
     const apiUrl = this.getApiUrl(updatedReportEntry);
     return axios.put(apiUrl, updatedReportEntry).then(
-      response => this.setShallowReportEntry(response.data)
+      response => {
+        if (response.data.errmsg) {
+          console.error(response.data);
+          alert(response.data.errmsg);
+        } else {
+          // Do not update report hash here.
+          response.data.hash = updatedReportEntry.hash;
+          this.setShallowReportEntry(response.data);
+        }
+      }
     ).catch(
       error => this.setState({ error: error })
     );
@@ -371,12 +463,14 @@ class InteractiveReport extends React.Component {
     this.setState({navWidth: navWidth});
   }
 
-  /* Handle the play button being clicked on a Nav entry. */
-  handlePlayClick(e, reportEntry) {
+  /**
+   * Handle the play/reset buttons being clicked on a Nav entry.
+   */
+  handleClick(e, reportEntry, action) {
     e.preventDefault();
     e.stopPropagation();
     const updatedReportEntry = {
-      ...this.shallowReportEntry(reportEntry), runtime_status: "running"
+      ...this.shallowReportEntry(reportEntry), runtime_status: action
     };
     this.putUpdatedReportEntry(updatedReportEntry);
   }
@@ -430,39 +524,38 @@ class InteractiveReport extends React.Component {
   }
 
   /**
-   * Reset the report state, by updating all testcases to have no entries.
+   * Reset the report state to "resetting" and request the change to server.
    */
   resetReport() {
-    let needReset = false;
-    this.setState((state) => {
-      if (state.resetting) {
-        return null;
-      }
-
-      needReset = true;
-      return { resetting: true };
-    },
-      () => {
-        if (needReset) {
-          this.resetEnvironment().then(() => {
-            this.resetTestcasesRecur(this.state.report).then(
-              () => this.setState({ resetting: false })
-            );
-          }).catch(error => {
-            console.log(error);
-            this.setState({ resetting: false, error: error });
-          });
-        }
-      }
-    );
+    if (this.state.resetting || this.state.reloading || this.state.aborting) {
+      return;
+    } else {
+      const updatedReportEntry = {
+        ...this.shallowReportEntry(this.state.report),
+        runtime_status: "resetting"
+      };
+      this.putUpdatedReportEntry(updatedReportEntry);
+      this.setState({ resetting: true });
+    }
   }
 
+  /**
+   * Send request of reloading report to server.
+   */
   reloadCode() {
+    if (this.state.resetting || this.state.reloading || this.state.aborting) {
+      return;
+    }
     let currentTime = new Date();
     this.setState({reloading: true});
+    this.resetAssertionStatus();
     return axios.get(
       `${api_prefix}/reload`
     ).then(response => {
+      if (response.data.errmsg) {
+        alert(response.data.errmsg);
+        console.error(response.data);
+      }
       let duration = new Date() - currentTime;
       if (duration < 1000) {
         setTimeout(()=> {
@@ -472,11 +565,46 @@ class InteractiveReport extends React.Component {
         this.setState({reloading: false});
       }
       return;
+    }).catch(error => {
+      alert("Cannot reload when there is test not finished.");
+      setTimeout(()=> {
+        this.setState({reloading: false});
+      }, 1000);
     });
   }
 
   /**
-   * Recursievly dig down into the report tree and reset the state of any
+   * Send request of aborting Testing to server.
+   */
+  abortTestplan() {
+    if (this.state.aborting) {
+      return;
+    }
+    if (!window.confirm("Abort Testplan ?")) {
+      return;
+    }
+    this.setState({aborting: true});
+    return axios.get(
+      `${api_prefix}/abort`
+    ).then(response => {
+      if (response.data.errmsg) {
+        alert(response.data.errmsg);
+        console.error(response.data);
+        this.setState({aborting: false});
+      } else {
+        alert("Testplan aborted, please close this windows.");
+        this.setError({message: "Server aborted !!!"});
+        window.close();
+      }
+    }).catch(error => {
+      alert("Unknown error, please close this windows.");
+      this.setError({message: "Cannot connect to server !!!"});
+      window.close();
+    });
+  }
+
+  /**
+   * Recursively dig down into the report tree and reset the state of any
    * testcase entries. Other entries derive their state from the testcases
    * so their state updates will be provided to us by the backend.
    */
@@ -519,13 +647,14 @@ class InteractiveReport extends React.Component {
 
     if ( this.props.match.params.uid === undefined && this.state.report) {
       return <Redirect to={generatePath(this.props.match.path,
-        {uid: this.state.report.uid, selection:undefined})}/>;
+        {uid: base64url(this.state.report.uid), selection:undefined})}/>;
     }
 
     const noop = () => undefined;
     const { reportStatus, reportFetchMessage } = GetReportState(this.state);
     const selectedEntries = GetSelectedEntries(
-      getSelectedUIDsFromPath(this.props.match.params), this.state.report
+      getSelectedUIDsFromPath(this.props.match.params, base64url.decode), 
+      this.state.report
     );
     const centerPane = GetCenterPane(
       this.state,
@@ -539,21 +668,31 @@ class InteractiveReport extends React.Component {
         <Toolbar
           filterBoxWidth={this.state.navWidth}
           status={reportStatus}
+          expandStatus={this.state.assertionStatus.globalExpand.status}
+          updateExpandStatusFunc={this.updateGlobalExpand}
           handleNavFilter={null}
           updateFilterFunc={noop}
           updateEmptyDisplayFunc={noop}
+          updateTreeViewFunc={noop}
           updateTagsDisplayFunc={noop}
+          updateTimeDisplayFunc={noop}
           extraButtons={[
             <ReloadButton
+              key="reload-button"
               reloading={this.state.reloading}
               reloadCbk={this.reloadCode}
             />,
-            <SaveButton key="save-button"/>,
             <ResetButton
-            key="time-button"
-            resetStateCbk={this.resetReport}
-            resetting={false}
-          />
+              key="reset-button"
+              resetting={this.state.resetting}
+              resetStateCbk={this.resetReport}
+            />,
+            <AbortButton
+              key="abort-button"
+              aborting={this.state.aborting}
+              abortCbk={this.abortTestplan}
+            />,
+            <SaveButton key="save-button"/>
           ]}
         />
         <InteractiveNav
@@ -564,12 +703,14 @@ class InteractiveReport extends React.Component {
           displayEmpty={true}
           displayTags={false}
           displayTime={false}          
-          handlePlayClick={this.handlePlayClick}
+          handleClick={this.handleClick}
           envCtrlCallback={this.envCtrlCallback}
           handleColumnResizing={this.handleColumnResizing}
           url={this.props.match.path}
         />
-        {centerPane}
+        <AssertionContext.Provider value={this.state.assertionStatus}>
+          {centerPane}
+        </AssertionContext.Provider>
       </div>
     );
   }

@@ -13,14 +13,15 @@ import collections
 import numbers
 import decimal
 import cmath
-import six
+
 import lxml
-import copy
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
 from testplan.common.utils import comparison, difflib
+from testplan.common.utils.strings import map_to_str
+from testplan.common.utils.table import TableEntry
 
-from .base import BaseEntry, get_table
+from .base import BaseEntry
 
 
 __all__ = [
@@ -78,8 +79,6 @@ class Assertion(BaseEntry):
 
     def __bool__(self):
         return self.passed
-
-    __nonzero__ = __bool__
 
 
 class RawAssertion(Assertion):
@@ -154,6 +153,16 @@ class FuncAssertion(Assertion):
 class Equal(FuncAssertion):
     label = "=="
     func = operator.eq
+
+    def __init__(self, first, second, description=None, category=None):
+        self.type_actual = type(first).__name__
+        self.type_expected = type(second).__name__
+        super(Equal, self).__init__(
+            first=first,
+            second=second,
+            description=description,
+            category=category,
+        )
 
 
 class NotEqual(FuncAssertion):
@@ -252,17 +261,18 @@ class RegexAssertion(Assertion):
     def __init__(
         self, regexp, string, flags=0, description=None, category=None
     ):
-        if isinstance(regexp, six.string_types):
-            self.pattern = regexp
-            self.regexp = re.compile(regexp, flags=flags)
-        else:
+        if isinstance(regexp, re.Pattern):
             if flags != 0:
                 raise ValueError(
                     "`flags` argument is redundant if"
-                    " `regexp` is of type `SRE.pattern`"
+                    " `regexp` is of type `re.Pattern`"
                 )
             self.pattern = regexp.pattern
             self.regexp = regexp
+
+        else:
+            self.pattern = regexp
+            self.regexp = re.compile(regexp, flags=flags)
 
         self.string = string
         self.match_indexes = []
@@ -270,6 +280,10 @@ class RegexAssertion(Assertion):
         super(RegexAssertion, self).__init__(
             description=description, category=category
         )
+
+        # after evaluate(), convert string & pattern to str if they are bytes
+        self.string = map_to_str(self.string)
+        self.pattern = map_to_str(self.pattern)
 
     def get_regex_result(self):
         raise NotImplementedError
@@ -336,9 +350,26 @@ class RegexMatchLine(RegexAssertion):
     assertions for this one: (line_no, begin, end)
     """
 
+    def __init__(
+        self, regexp, string, flags=0, description=None, category=None
+    ):
+        self.lines = None
+        super(RegexMatchLine, self).__init__(
+            regexp,
+            string,
+            flags=flags,
+            description=description,
+            category=category,
+        )
+        self.lines = map(map_to_str, self.lines)
+
     def evaluate(self):
-        lines = self.string.split(os.linesep)
-        for line_num, line in enumerate(lines):
+        if isinstance(self.string, bytes):
+            self.lines = self.string.split(os.linesep.encode())
+        else:
+            self.lines = self.string.split(os.linesep)
+
+        for line_num, line in enumerate(self.lines):
             match = self.regexp.match(line)
             if match:
                 self.match_indexes.append(
@@ -369,7 +400,7 @@ class ExceptionRaised(Assertion):
             assert callable(func), "`func` must be a callable."
         if pattern:
             assert isinstance(
-                pattern, six.string_types
+                pattern, str
             ), "`pattern` must be of string type, it was: {}".format(
                 type(pattern)
             )
@@ -475,7 +506,7 @@ class EqualSlices(Assertion):
             i for idx, i in enumerate(iterable) if idx in comparison_indices
         ]
 
-        if isinstance(iterable, six.string_types):
+        if isinstance(iterable, str):
             return "".join(items)
         return type(iterable)(items)
 
@@ -587,8 +618,8 @@ class LineDiff(Assertion):
         description=None,
         category=None,
     ):
-        if (not isinstance(first, (six.string_types, list))) or (
-            not isinstance(second, (six.string_types, list))
+        if (not isinstance(first, (str, list))) or (
+            not isinstance(second, (str, list))
         ):
             raise ValueError("`first` and `second` must be string or list.")
         if isinstance(unified, int) and unified < 0:
@@ -597,14 +628,10 @@ class LineDiff(Assertion):
             raise ValueError("`context` cannot be negative integer.")
 
         self.first = (
-            first.splitlines(True)
-            if isinstance(first, six.string_types)
-            else first
+            first.splitlines(True) if isinstance(first, str) else first
         )
         self.second = (
-            second.splitlines(True)
-            if isinstance(second, six.string_types)
-            else second
+            second.splitlines(True) if isinstance(second, str) else second
         )
         self.ignore_space_change = ignore_space_change
         self.ignore_whitespaces = ignore_whitespaces
@@ -653,7 +680,7 @@ class ColumnContain(Assertion):
         description=None,
         category=None,
     ):
-        self.table = get_table(table)
+        self.table = TableEntry(table).as_list_of_dict()
         self.values = values
         self.column = column
         self.limit = limit
@@ -931,8 +958,8 @@ class TableMatch(Assertion):
         description=None,
         category=None,
     ):
-        self.table = get_table(table)
-        self.expected_table = get_table(expected_table)
+        self.table = TableEntry(table).as_list_of_dict()
+        self.expected_table = TableEntry(expected_table).as_list_of_dict()
         self.include_columns = include_columns
         self.exclude_columns = exclude_columns
         self.strict = strict
@@ -1043,7 +1070,7 @@ class XMLCheck(Assertion):
         self.xpath = xpath
         self.tags = tags
 
-        if isinstance(element, six.string_types):
+        if isinstance(element, str):
             element = lxml.etree.fromstring(element)
 
         # pylint: disable=protected-access
@@ -1096,7 +1123,7 @@ class XMLCheck(Assertion):
                         " although the path exists.",
                         extra=None,
                     )
-                elif isinstance(tag, six.string_types) and re.match(tag, text):
+                elif isinstance(tag, str) and re.match(tag, text):
                     extra = tag if tag != text else None
                     xml_comp = XMLTagComparison(
                         tag=text, diff=None, error=None, extra=extra

@@ -2,18 +2,13 @@
 import os
 import sys
 import subprocess
-import six
-import tempfile
 import warnings
 
-from lxml import objectify
 from schema import Or, Use, And
 
-from testplan.defaults import MAX_TEST_NAME_LENGTH
+from testplan import defaults
+from testplan.common.remote.remote_driver import RemoteDriver
 from testplan.common.config import ConfigOption, validate_func
-
-from testplan.testing import filtering, ordering, tagging
-
 from testplan.common.entity import (
     Resource,
     ResourceStatus,
@@ -34,8 +29,9 @@ from testplan.report import (
     ReportCategories,
     RuntimeStatus,
 )
+from testplan.testing import filtering, ordering, tagging
 from testplan.testing.multitest.entries.assertions import RawAssertion
-from testplan.testing.multitest.entries.base import Log
+from testplan.testing.multitest.entries.base import Attachment
 
 
 TEST_INST_INDENT = 2
@@ -54,9 +50,13 @@ class TestConfig(RunnableConfig):
         )
 
         return {
-            "name": And(str, lambda s: len(s) <= MAX_TEST_NAME_LENGTH),
+            "name": And(
+                str, lambda s: len(s) <= defaults.MAX_TEST_NAME_LENGTH
+            ),
             ConfigOption("description", default=None): Or(str, None),
-            ConfigOption("environment", default=[]): [Resource],
+            ConfigOption("environment", default=[]): [
+                Or(Resource, RemoteDriver)
+            ],
             ConfigOption("before_start", default=None): start_stop_signature,
             ConfigOption("after_start", default=None): start_stop_signature,
             ConfigOption("before_stop", default=None): start_stop_signature,
@@ -136,6 +136,7 @@ class Test(Runnable):
                 )
             )
 
+        self.resources._initial_context = self.cfg.initial_context
         for resource in self.cfg.environment:
             resource.parent = self
             resource.cfg.parent = self.cfg
@@ -154,6 +155,7 @@ class Test(Runnable):
             uid=self.uid(),
             category=self.__class__.__name__.lower(),
             tags=self.cfg.tags,
+            env_status=ResourceStatus.STOPPED,
         )
 
     def _init_test_report(self):
@@ -167,7 +169,7 @@ class Test(Runnable):
         However subclasses may build larger tag indices
         by collecting tags from their children for example.
         """
-        return self.cfg.tags
+        return self.cfg.tags or {}
 
     def get_filter_levels(self):
         if not self.filter_levels:
@@ -197,6 +199,13 @@ class Test(Runnable):
 
     @property
     def test_context(self):
+        if (
+            getattr(self, "parent", None)
+            and hasattr(self.parent, "cfg")
+            and self.parent.cfg.interactive_port is not None
+        ):
+            return self.get_test_context()
+
         if self._test_context is None:
             self._test_context = self.get_test_context()
         return self._test_context
@@ -313,6 +322,40 @@ class Test(Runnable):
         if len(self.report):
             self.report.propagate_tag_indices()
 
+    def _record_start(self):
+        self.report.timer.start("run")
+
+    def _record_end(self):
+        self.report.timer.end("run")
+
+    def _record_setup_start(self):
+        self.report.timer.start("setup")
+
+    def _record_setup_end(self):
+        self.report.timer.end("setup")
+
+    def _record_teardown_start(self):
+        self.report.timer.start("teardown")
+
+    def _record_teardown_end(self):
+        self.report.timer.end("teardown")
+
+    def pre_resource_steps(self):
+        """Runnable steps to be executed before environment starts."""
+        self._add_step(self._record_setup_start)
+
+    def pre_main_steps(self):
+        """Runnable steps to run after environment started."""
+        self._add_step(self._record_setup_end)
+
+    def post_main_steps(self):
+        """Runnable steps to run before environment stopped."""
+        self._add_step(self._record_teardown_start)
+
+    def post_resource_steps(self):
+        """Runnable steps to run after environment stopped."""
+        self._add_step(self._record_teardown_end)
+
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
         """
         For a Test to be run interactively, it must implement this method.
@@ -356,7 +399,7 @@ class Test(Runnable):
 
     def dry_run(self):
         """
-        Return an empty report skeleton for this Test including all
+        Return an empty report skeleton for this test including all
         testsuites, testcases etc. hierarchy. Does not run any tests.
         """
         suites_to_run = self.test_context
@@ -394,6 +437,8 @@ class ProcessRunnerTestConfig(TestConfig):
                 None, float, int, Use(parse_duration)
             ),
             ConfigOption("ignore_exit_codes", default=[]): [int],
+            ConfigOption("pre_args", default=[]): list,
+            ConfigOption("post_args", default=[]): list,
         }
 
 
@@ -429,6 +474,12 @@ class ProcessRunnerTest(Test):
                     This can be disabled by providing a list of
                     numbers to ignore.
     :type ignore_exit_codes: ``list`` of ``int``
+    :param pre_args: List of arguments to be prepended before the
+        arguments of the test runnable.
+    :type pre_args: ``list`` of ``str``
+    :param post_args: List of arguments to be appended before the
+        arguments of the test runnable.
+    :type post_args: ``list`` of ``str``
 
     Also inherits all
     :py:class:`~testplan.testing.base.Test` options.
@@ -443,8 +494,13 @@ class ProcessRunnerTest(Test):
     _DEFAULT_SUITE_NAME = "All Tests"
     _VERIFICATION_SUITE_NAME = "ProcessChecks"
     _VERIFICATION_TESTCASE_NAME = "ExitCodeCheck"
+    _MAX_RETAINED_LOG_SIZE = 4096
 
     def __init__(self, **options):
+        proc_env = os.environ.copy()
+        if options.get("proc_env"):
+            proc_env.update(options["proc_env"])
+        options["proc_env"] = proc_env
         super(ProcessRunnerTest, self).__init__(**options)
 
         self._test_context = None
@@ -452,6 +508,11 @@ class ProcessRunnerTest(Test):
         self._test_process_retcode = None  # will be set by `self.run_tests`
         self._test_process_killed = False
         self._test_has_run = False
+
+        # Need to use the binary's absolute path if `proc_cwd` is specified,
+        # otherwise won't be able to find the binary.
+        if self.cfg.proc_cwd:
+            self.cfg._options["binary"] = os.path.abspath(self.cfg.binary)
 
     @property
     def stderr(self):
@@ -469,13 +530,21 @@ class ProcessRunnerTest(Test):
     def report_path(self):
         return os.path.join(self._runpath, "report.xml")
 
-    @property
-    def test_context(self):
-        if self._test_context is None:
-            self._test_context = self.get_test_context()
-        return self._test_context
-
     def test_command(self):
+        """
+        Add custom arguments before and after the executable if they are defined.
+        :return: List of commands to run before and after the test process, as well as the test executable itself.
+        :rtype:  ``list`` of ``str``
+        """
+        cmd = self._test_command()
+
+        if self.cfg.pre_args:
+            cmd = self.cfg.pre_args + cmd
+        if self.cfg.post_args:
+            cmd = cmd + self.cfg.post_args
+        return cmd
+
+    def _test_command(self):
         """
         Override this to add extra options to the test command.
 
@@ -486,24 +555,40 @@ class ProcessRunnerTest(Test):
 
     def list_command(self):
         """
+        List custom arguments before and after the executable if they are defined.
+        :return: List of commands to run before and after the test process, as well as the test executable itself.
+        :rtype:  ``list`` of ``str`` or ``NoneType``
+        """
+        cmd = self._list_command()
+        if cmd:
+            if self.cfg.pre_args:
+                cmd = self.cfg.pre_args + cmd
+            if self.cfg.post_args:
+                cmd = cmd + self.cfg.post_args
+        return cmd
+
+    def _list_command(self):
+        """
         Override this to generate the shell command that will cause the
         testing framework to list the tests available on stdout.
 
         :return: Command to list tests
         :rtype: ``list`` of ``str`` or ``NoneType``
         """
-        return None
+        return []
 
-    def get_test_context(self):
+    def get_test_context(self, list_cmd=None):
         """
         Run the shell command generated by `list_command` in a subprocess,
         parse and return the stdout generated via `parse_test_context`.
 
+        :param list_cmd: Command to list all test suites and testcases
+        :type list_cmd: ``str``
         :return: Result returned by `parse_test_context`.
         :rtype: ``list`` of ``list``
         """
-        cmd = self.list_command()  # pylint: disable=assignment-from-none
-        if cmd is None:
+        cmd = list_cmd or self.list_command()
+        if not cmd:
             return [(self._DEFAULT_SUITE_NAME, ())]
 
         proc = subprocess_popen(
@@ -512,11 +597,10 @@ class ProcessRunnerTest(Test):
             env=self.cfg.proc_env,
             stdout=subprocess.PIPE,
         )
-
         test_list_output = proc.communicate()[0]
 
         # with python3, stdout is bytes so need to decode.
-        if not isinstance(test_list_output, six.string_types):
+        if not isinstance(test_list_output, str):
             test_list_output = test_list_output.decode(sys.stdout.encoding)
 
         return self.parse_test_context(test_list_output)
@@ -540,7 +624,7 @@ class ProcessRunnerTest(Test):
           ]
 
         :param test_list_output: stdout from the list command
-        :type test_list_output: bytes
+        :type test_list_output: ``bytes``
         :return: Parsed test context from command line
                  output of the 3rd party testing library.
         :rtype: ``list`` of ``list``
@@ -591,72 +675,52 @@ class ProcessRunnerTest(Test):
         Optionally enforce a timeout and log timeout related messages in
         the given timeout log path.
         """
+        with self.report.timer.record("run"):
+            with self.report.logged_exceptions(), open(
+                self.stderr, "w"
+            ) as stderr, open(self.stdout, "w") as stdout:
 
-        with self.result.report.logged_exceptions(), open(
-            self.stderr, "w"
-        ) as stderr, open(self.stdout, "w") as stdout:
-
-            if not os.path.exists(self.cfg.binary):
-                raise IOError(
-                    "No runnable found at {} for {}".format(
-                        self.cfg.binary, self
+                test_cmd = self.test_command()
+                if not test_cmd:
+                    raise ValueError(
+                        "Invalid test command generated for: {}".format(self)
                     )
+
+                self.report.logger.debug(
+                    "Running {} - Command: {}".format(self, test_cmd)
+                )
+                self._test_process = subprocess_popen(
+                    test_cmd,
+                    stderr=stderr,
+                    stdout=stdout,
+                    cwd=self.cfg.proc_cwd,
+                    env=self.get_proc_env(),
                 )
 
-            # Need to use the binary's absolute path if proc_cwd is specified,
-            # otherwise won't be able to find the binary.
-            if self.cfg.proc_cwd:
-                self.cfg._options["binary"] = os.path.abspath(self.cfg.binary)
-
-            test_cmd = self.test_command()
-
-            self.result.report.logger.debug(
-                "Running {} - Command: {}".format(self, test_cmd)
-            )
-
-            if not test_cmd:
-                raise ValueError(
-                    "Invalid test command generated for: {}".format(self)
-                )
-
-            self._test_process = subprocess_popen(
-                test_cmd,
-                stderr=stderr,
-                stdout=stdout,
-                cwd=self.cfg.proc_cwd,
-                env=self.get_proc_env(),
-            )
-
-            if self.cfg.timeout:
-                with open(self.timeout_log, "w") as timeout_log:
-                    timeout_checker = enforce_timeout(
-                        process=self._test_process,
-                        timeout=self.cfg.timeout,
-                        output=timeout_log,
-                        callback=self.timeout_callback,
-                    )
+                if self.cfg.timeout:
+                    with open(self.timeout_log, "w") as timeout_log:
+                        timeout_checker = enforce_timeout(
+                            process=self._test_process,
+                            timeout=self.cfg.timeout,
+                            output=timeout_log,
+                            callback=self.timeout_callback,
+                        )
+                        self._test_process_retcode = self._test_process.wait()
+                        timeout_checker.join()
+                else:
                     self._test_process_retcode = self._test_process.wait()
-                    timeout_checker.join()
-            else:
-                self._test_process_retcode = self._test_process.wait()
 
-            self._test_has_run = True
+                self._test_has_run = True
 
     def read_test_data(self):
         """
-        Parse `report.xml` generated by the 3rd party testing tool and return
-        the root node.
+        Parse output generated by the 3rd party testing tool, and then
+        the parsed content will be handled by ``process_test_data``.
 
-        You can override this if the test is generating a JSON file and you
-        need custom logic to parse its contents for example.
-\
-        :return: Root node of parsed raw test data
-        :rtype: ``xml.etree.Element``
+        You should override this function with custom logic to parse
+        the contents of generated file.
         """
-        with self.result.report.logged_exceptions(), open(
-            self.report_path
-        ) as report_file:
-            return objectify.parse(report_file).getroot()
+        raise NotImplementedError
 
     def process_test_data(self, test_data):
         """
@@ -676,6 +740,7 @@ class ProcessRunnerTest(Test):
         When running a process fails (e.g. binary crash, timeout etc)
         we can still generate dummy testsuite / testcase reports with
         a certain hierarchy compatible with exporters and XUnit conventions.
+        And logs of stdout & stderr can be saved as attachment.
         """
         assertion_content = "\n".join(
             [
@@ -695,15 +760,24 @@ class ProcessRunnerTest(Test):
                     description="Process exit code check",
                     content=assertion_content,
                     passed=passed,
-                ).serialize(),
-                Log(
-                    message=stdout.read(), description="Process stdout"
-                ).serialize(),
-                Log(
-                    message=stderr.read(), description="Process stderr"
-                ).serialize(),
+                ).serialize()
             ],
         )
+
+        if stdout and os.path.isfile(stdout):
+            stdout_attachment = Attachment(
+                filepath=os.path.abspath(stdout), description="Process stdout"
+            )
+            testcase_report.attachments.append(stdout_attachment)
+            testcase_report.append(stdout_attachment.serialize())
+
+        if stderr and os.path.isfile(stderr):
+            stderr_attachment = Attachment(
+                filepath=os.path.abspath(stderr), description="Process stderr"
+            )
+            testcase_report.attachments.append(stderr_attachment)
+            testcase_report.append(stderr_attachment.serialize())
+
         testcase_report.runtime_status = RuntimeStatus.FINISHED
 
         suite_report = TestGroupReport(
@@ -721,47 +795,57 @@ class ProcessRunnerTest(Test):
         raw test data. Skip report updates if the process was killed.
         """
         if self._test_process_killed or not self._test_has_run:
-            with open(self.stdout) as stdout, open(self.stderr) as stderr:
-                self.result.report.append(
-                    self.get_process_check_report(
-                        self._test_process_retcode, stdout, stderr
-                    )
+            # Return code is `None` if process was killed or test has not run
+            self.result.report.append(
+                self.get_process_check_report(
+                    self._test_process_retcode, self.stdout, self.stderr
                 )
+            )
             return
 
         if len(self.result.report):
             raise ValueError(
-                "Cannot update test report, "
-                "it already has children: {}".format(self.result.report)
+                "Cannot update test report,"
+                " it already has children: {}".format(self.result.report)
             )
 
-        self.result.report.entries.extend(
-            self.process_test_data(test_data=self.read_test_data())
-        )
+        with self.result.report.logged_exceptions():
+            self.result.report.extend(
+                self.process_test_data(self.read_test_data())
+            )
 
         # Check process exit code as last step, as we don't want to create
-        # an error log if the test report was populated
+        # an error log if the report was populated
         # (with possible failures) already
-        with open(self.stdout) as stdout, open(self.stderr) as stderr:
-            self.result.report.append(
-                self.get_process_check_report(
-                    self._test_process_retcode, stdout, stderr
-                )
+        self.result.report.append(
+            self.get_process_check_report(
+                self._test_process_retcode, self.stdout, self.stderr
             )
+        )
 
     def pre_resource_steps(self):
         """Runnable steps to be executed before environment starts."""
+        super(ProcessRunnerTest, self).pre_resource_steps()
         self._add_step(self.make_runpath_dirs)
         if self.cfg.before_start:
             self._add_step(self.cfg.before_start)
 
-    def main_batch_steps(self):
+    def pre_main_steps(self):
+        """Runnable steps to be executed after environment starts."""
         if self.cfg.after_start:
             self._add_step(self.cfg.after_start)
+        super(ProcessRunnerTest, self).pre_main_steps()
+
+    def main_batch_steps(self):
+        """Runnable steps to be executed while environment is running."""
         self._add_step(self.run_tests)
         self._add_step(self.update_test_report)
         self._add_step(self.propagate_tag_indices)
         self._add_step(self.log_test_results, top_down=False)
+
+    def post_main_steps(self):
+        """Runnable steps to run before environment stopped."""
+        super(ProcessRunnerTest, self).post_main_steps()
         if self.cfg.before_stop:
             self._add_step(self.cfg.before_stop)
 
@@ -769,6 +853,7 @@ class ProcessRunnerTest(Test):
         """Runnable steps to be executed after environment stops."""
         if self.cfg.after_stop:
             self._add_step(self.cfg.after_stop)
+        super(ProcessRunnerTest, self).post_resource_steps()
 
     def aborting(self):
         if self._test_process is not None:
@@ -821,6 +906,39 @@ class ProcessRunnerTest(Test):
             with the UID of this test.
         """
         self.make_runpath_dirs()
+
+        list_cmd = self.list_command_filter(
+            testsuite_pattern, testcase_pattern
+        )
+        self.logger.debug("list_cmd = %s", list_cmd)
+
+        suites_to_run = self.get_test_context(list_cmd)
+
+        for testsuite, testcases in suites_to_run:
+            if testcases:
+                for testcase in testcases:
+                    testcase_report = self.report[testsuite][testcase]
+                    yield {"runtime_status": RuntimeStatus.RUNNING}, [
+                        self.uid(),
+                        testsuite,
+                        testcase,
+                    ]
+            else:
+                # Unlike `MultiTest`, `ProcessRunnerTest` may have some suites
+                # without any testcase after initializing test report, but will
+                # get result of testcases after run. So we should not filter
+                # them out, e.g. Hobbes-test can run in unit of test suite.
+                yield {"runtime_status": RuntimeStatus.RUNNING}, [
+                    self.uid(),
+                    testsuite,
+                ]
+
+        yield {"runtime_status": RuntimeStatus.RUNNING}, [
+            self.uid(),
+            self._VERIFICATION_SUITE_NAME,
+            self._VERIFICATION_TESTCASE_NAME,
+        ]
+
         test_cmd = self.test_command_filter(
             testsuite_pattern, testcase_pattern
         )
@@ -837,24 +955,34 @@ class ProcessRunnerTest(Test):
                 env=self.get_proc_env(),
             )
 
-            stdout.seek(0)
-            stderr.seek(0)
-            check_report = self.get_process_check_report(
-                exit_code, stdout, stderr
-            )
-
-        yield (
-            check_report[self._VERIFICATION_TESTCASE_NAME],
-            [self.uid(), check_report.uid],
+        process_report = self.get_process_check_report(
+            exit_code, self.stdout, self.stderr
         )
+        exit_code_report = process_report[self._VERIFICATION_TESTCASE_NAME]
 
-        for suite_report in self.process_test_data(self.read_test_data()):
-            for testcase_report in suite_report:
-                yield testcase_report, [self.uid(), suite_report.uid]
+        try:
+            group_reports = self.process_test_data(self.read_test_data())
+        except Exception as exc:
+            exit_code_report.logger.exception(exc)
+            for testsuite, _ in suites_to_run:
+                self.report[testsuite].runtime_status = RuntimeStatus.NOT_RUN
+        else:
+            for suite_report in group_reports:
+                for testcase_report in suite_report:
+                    yield testcase_report, [self.uid(), suite_report.uid]
+
+        yield exit_code_report, [self.uid(), process_report.uid]
 
     def test_command_filter(self, testsuite_pattern, testcase_pattern):
         """
         Return the base test command with additional filtering to run a
+        specific set of testcases. To be implemented by concrete subclasses.
+        """
+        raise NotImplementedError
+
+    def list_command_filter(self, testsuite_pattern, testcase_pattern):
+        """
+        Return the base list command with additional filtering to list a
         specific set of testcases. To be implemented by concrete subclasses.
         """
         raise NotImplementedError

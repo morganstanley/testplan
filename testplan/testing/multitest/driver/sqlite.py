@@ -21,9 +21,10 @@ class Sqlite3Config(DriverConfig):
     def get_options(cls):
         """
         Schema for options validation and assignment of default values.
+
         """
         return {
-            "db_name": str,
+            "db_path": str,
             ConfigOption("connect_at_start", default=True): bool,
         }
 
@@ -50,8 +51,9 @@ class Sqlite3(Driver):
     Basic sqlite3 driver to add to a MultiTest environment, connect to
     a database and perform sql queries etc.
 
-    :param db_name: Database name to connect to.
-    :type db_name: ``str``
+    :param db_path: Path to the database file to connect to. In case a relative
+        path is provided it will be appended to the runpath.
+    :type db_path: ``str``
     :param connect_at_start: Connect to the database when driver starts.
       Default: True
     :type connect_at_start: ``bool``
@@ -59,7 +61,7 @@ class Sqlite3(Driver):
 
     CONFIG = Sqlite3Config
 
-    def __init__(self, name, db_name, connect_at_start=True, **options):
+    def __init__(self, name, db_path, connect_at_start=True, **options):
         options.update(self.filter_locals(locals()))
         super(Sqlite3, self).__init__(**options)
         self.db = None
@@ -68,7 +70,8 @@ class Sqlite3(Driver):
     @property
     def db_path(self):
         """Database file path."""
-        return os.path.join(self.runpath, self.cfg.db_name)
+        # if self.cfg.db_path is an absolute path it will return self.cfg.db_path
+        return os.path.join(self.runpath, self.cfg.db_path)
 
     def connect(self):
         """Connect to the database and set the internal db cursor."""

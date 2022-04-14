@@ -1,96 +1,11 @@
 import os
-import datetime
-import socket
 
-import six
 from schema import Or
-from lxml import etree, objectify
-from lxml.builder import E  # pylint: disable=no-name-in-module
 
 from testplan.common.config import ConfigOption
 
-from testplan.report import (
-    TestGroupReport,
-    TestCaseReport,
-    ReportCategories,
-    RuntimeStatus,
-)
-from testplan.testing.multitest.entries.assertions import RawAssertion
-from testplan.testing.multitest.entries.schemas.base import registry
-
 from ..base import ProcessRunnerTest, ProcessRunnerTestConfig
-
-CPPUNIT_TO_JUNIT_XSL = b"""<?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-    <xsl:output method="xml" indent="yes"/>
-    <xsl:template match="/">
-        <testsuites>
-            <xsl:attribute name="name">All Tests</xsl:attribute>
-            <testsuite>
-                <xsl:attribute name="errors">
-                    <xsl:value-of select="TestRun/Statistics/Errors"/>
-                </xsl:attribute>
-                <xsl:attribute name="failures">
-                    <xsl:value-of select="TestRun/Statistics/Failures"/>
-                </xsl:attribute>
-                <xsl:attribute name="tests">
-                    <xsl:value-of select="TestRun/Statistics/Tests"/>
-                </xsl:attribute>
-                <xsl:attribute name="name"></xsl:attribute>
-                <xsl:apply-templates/>
-            </testsuite>
-        </testsuites>
-    </xsl:template>
-    <xsl:template match="/TestRun/SuccessfulTests/Test">
-        <testcase>
-            <xsl:attribute name="classname" ><xsl:value-of select="substring-before(Name, '::')"/></xsl:attribute>
-            <xsl:attribute name="name"><xsl:value-of select="substring-after(Name, '::')"/></xsl:attribute>
-        </testcase>
-    </xsl:template>
-    <xsl:template match="/TestRun/FailedTests/FailedTest">
-        <testcase>
-            <xsl:attribute name="classname" ><xsl:value-of select="substring-before(Name, '::')"/></xsl:attribute>
-            <xsl:attribute name="name"><xsl:value-of select="substring-after(Name, '::')"/></xsl:attribute>
-            <error>
-                <xsl:attribute name="message">
-                    <xsl:value-of select=" normalize-space(Message)"/>
-                </xsl:attribute>
-                <xsl:attribute name="type">
-                    <xsl:value-of select="FailureType"/>
-                </xsl:attribute>
-                <xsl:value-of select="Message"/>
-File: <xsl:value-of select="Location/File"/>
-Line: <xsl:value-of select="Location/Line"/>
-            </error>
-        </testcase>
-    </xsl:template>
-    <xsl:template match="text()|@*"/>
-</xsl:stylesheet>
-"""
-
-
-def _set_node_classname(name, element):
-    """
-    Set classname attribute of tstsuite/testcase if missing or incomplete.
-
-    :param name: Name of Cppunit which will be used as package name.
-    :type name: ``str``
-    :param element: Xml element on which to set classname (recursively).
-    :type element: ``lxml.etree._Element``
-    """
-    if element.tag == "testcase":
-        for key, value in element.items():
-            if key == "classname":
-                if "." not in value:
-                    element.set(key, "{}.{}".format(name, value))
-                break
-        else:
-            element.set("classname", "{0}.{0}".format(name))
-    else:
-        if element.tag == "testsuite":
-            element.set("name", name)
-        for child in element.getchildren():
-            _set_node_classname(name, child)
+from ...importers.cppunit import CPPUnitResultImporter, CPPUnitImportedResult
 
 
 class CppunitConfig(ProcessRunnerTestConfig):
@@ -101,7 +16,7 @@ class CppunitConfig(ProcessRunnerTestConfig):
     @classmethod
     def get_options(cls):
         return {
-            ConfigOption("file_output_flag", default=None): Or(
+            ConfigOption("file_output_flag", default="-y"): Or(
                 None, lambda x: x.startswith("-")
             ),
             ConfigOption("output_path", default=""): str,
@@ -144,7 +59,7 @@ class Cppunit(ProcessRunnerTest):
     :param description: Description of test instance.
     :type description: ``str``
     :param file_output_flag: Customized command line flag for specifying path
-        of output file.
+        of output file, default to -y
     :type file_output_flag: ``NoneType`` or ``str``
     :param output_path: Where to save the test report, should work with
         `file_output_flag`, if not provided a default path can be generated.
@@ -174,7 +89,7 @@ class Cppunit(ProcessRunnerTest):
         name,
         binary,
         description=None,
-        file_output_flag=None,
+        file_output_flag="-y",
         output_path="",
         filtering_flag=None,
         cppunit_filter="",
@@ -192,7 +107,7 @@ class Cppunit(ProcessRunnerTest):
         else:
             return os.path.join(self._runpath, "report.xml")
 
-    def test_command(self):
+    def _test_command(self):
         cmd = [self.cfg.binary]
         if self.cfg.filtering_flag and self.cfg.cppunit_filter:
             cmd.extend([self.cfg.filtering_flag, self.cfg.cppunit_filter])
@@ -200,91 +115,26 @@ class Cppunit(ProcessRunnerTest):
             cmd.extend([self.cfg.file_output_flag, self.report_path])
         return cmd
 
-    def list_command(self):
+    def _list_command(self):
         if self.cfg.listing_flag:
             return [self.cfg.binary, self.cfg.listing_flag]
         else:
-            return super(Cppunit, self).list_command()
+            return super(Cppunit, self)._list_command()
 
     def read_test_data(self):
-        """
-        Parse `report.xml` generated by Cppunit test and return the root node.
-        XML report should be compatible with xUnit format.
 
-        :return: Root node of parsed raw test data
-        :rtype: ``xml.etree.Element``
-        """
-        if self.cfg.file_output_flag:
-            with self.result.report.logged_exceptions(), open(
-                self.report_path
-            ) as report_file:
-                return objectify.fromstring(
-                    self.cppunit_to_junit(
-                        report_file.read(), self._DEFAULT_SUITE_NAME
-                    )
-                )
-        else:
-            with open(self.stdout) as stdout:
-                return objectify.fromstring(
-                    self.cppunit_to_junit(
-                        stdout.read(), self._DEFAULT_SUITE_NAME
-                    )
-                )
+        importer = CPPUnitResultImporter(
+            self.report_path if self.cfg.file_output_flag else self.stdout
+        )
+        return importer.import_result()
 
-    def process_test_data(self, test_data):
+    def process_test_data(self, test_data: CPPUnitImportedResult):
         """
         XML output contains entries for skipped testcases
         as well, which are not included in the report.
         """
-        result = []
 
-        for suite in test_data.getchildren():
-            suite_name = suite.attrib["name"]
-            suite_report = TestGroupReport(
-                name=suite_name,
-                uid=suite_name,
-                category=ReportCategories.TESTSUITE,
-            )
-
-            for testcase in suite.getchildren():
-                if testcase.tag != "testcase":
-                    continue
-
-                testcase_classname = testcase.attrib["classname"]
-                testcase_name = testcase.attrib["name"]
-                testcase_prefix = testcase_classname.split(".")[-1]
-                testcase_report = TestCaseReport(
-                    name="{}::{}".format(testcase_prefix, testcase_name),
-                    uid="{}::{}".format(
-                        testcase_classname.replace(".", "::"), testcase_name
-                    ),
-                )
-
-                if not testcase.getchildren():
-                    assertion_obj = RawAssertion(
-                        description="Passed",
-                        content="Testcase {} passed".format(testcase_name),
-                        passed=True,
-                    )
-                    testcase_report.append(registry.serialize(assertion_obj))
-                else:
-                    for entry in testcase.getchildren():
-                        assertion_obj = RawAssertion(
-                            description=entry.tag,
-                            content=entry.text,
-                            passed=entry.tag not in ("failure", "error"),
-                        )
-                        testcase_report.append(
-                            registry.serialize(assertion_obj)
-                        )
-
-                testcase_report.runtime_status = RuntimeStatus.FINISHED
-                suite_report.append(testcase_report)
-
-            if len(suite_report) > 0:
-                result.append(suite_report)
-
-        return result
+        return test_data.results()
 
     def parse_test_context(self, test_list_output):
         """
@@ -295,16 +145,16 @@ class Cppunit(ProcessRunnerTest):
         """
         # Sample command line output:
         #
-        #     Comparison
-        #       testNotEqual
-        #       testGreater
-        #       testLess
-        #       testMisc
-        #     LogicalOp
-        #       testOr
-        #       testAnd
-        #       testNot
-        #       testXor
+        # Comparison.
+        #   testNotEqual
+        #   testGreater
+        #   testLess
+        #   testMisc
+        # LogicalOp.
+        #   testOr
+        #   testAnd
+        #   testNot
+        #   testXor
         #
         #
         # Sample Result:
@@ -317,12 +167,15 @@ class Cppunit(ProcessRunnerTest):
         if self.cfg.parse_test_context:
             return self.cfg.parse_test_context(test_list_output)
 
+        # Default implementation: suppose that the output of
+        # listing testcases is the same like that of GTest.
         result = []
         for line in test_list_output.splitlines():
-            if line.endswith("."):
-                result.append([line[:-1], []])
-            else:
-                result[-1][1].append(line.strip())
+            line = line.rstrip()
+            if line.endswith(".") and len(line.lstrip()) > 1:
+                result.append([line.lstrip()[:-1], []])
+            elif result and (line.startswith(" ") or line.startswith("\t")):
+                result[-1][1].append(line.lstrip())
         return result
 
     def update_test_report(self):
@@ -332,10 +185,13 @@ class Cppunit(ProcessRunnerTest):
         """
         super(Cppunit, self).update_test_report()
 
-        with open(
-            self.report_path if self.cfg.file_output_flag else self.stdout
-        ) as report_xml:
-            self.result.report.xml_string = report_xml.read()
+        try:
+            with open(
+                self.report_path if self.cfg.file_output_flag else self.stdout
+            ) as report_xml:
+                self.result.report.xml_string = report_xml.read()
+        except Exception:
+            self.result.report.xml_string = ""
 
     def test_command_filter(self, testsuite_pattern, testcase_pattern):
         """
@@ -347,52 +203,22 @@ class Cppunit(ProcessRunnerTest):
             self._DEFAULT_SUITE_NAME,
             self._VERIFICATION_SUITE_NAME,
         ):
-            raise RuntimeError("Cannot run individual test suite")
+            raise RuntimeError(
+                "Cannot run individual test suite {}".format(testsuite_pattern)
+            )
+
         if testcase_pattern not in ("*", self._VERIFICATION_TESTCASE_NAME):
             self.logger.debug(
                 'Should run testcases in pattern "%s", but cannot run'
-                " individual testcase thus will run the whole test suite",
+                " individual testcases thus will run the whole test suite",
                 testcase_pattern,
             )
+
         return self.test_command()
 
-    @staticmethod
-    def cppunit_to_junit(report, name):
+    def list_command_filter(self, testsuite_pattern, testcase_pattern):
         """
-        Transform cppunit xml into junit compatible xml.
-        TODO: can be moved to `testplan.common.util.xml module` if add more
-        similar functions that are needed by unit test binaries.
-
-        :param report: Cppunit test report in XML format.
-        :type report: ``str``
-        :param name: Name of Cppunit which is used to set classname on XML
-            element recursively.
-        :type name: ``str``
+        Return the base list command with additional filtering to list a
+        specific set of testcases.
         """
-        transform = etree.XSLT(etree.XML(CPPUNIT_TO_JUNIT_XSL))
-        cppunit_report = etree.XML(six.ensure_binary(report))
-        junit_report = transform(cppunit_report)
-        _set_node_classname(name, junit_report.getroot().getchildren()[0])
-
-        for testsuite in junit_report.xpath("//testsuite"):
-            if not testsuite.xpath("/properties"):
-                testsuite.insert(0, E.properties())
-            if not testsuite.xpath("/system-out"):
-                testsuite.append(etree.Element("system-out"))
-            if not testsuite.xpath("/system-err"):
-                testsuite.append(etree.Element("system-err"))
-            if testsuite.get("timestamp") is None:
-                testsuite.set(
-                    "timestamp",
-                    datetime.datetime.utcnow().isoformat().split(".")[0],
-                )
-            if testsuite.get("hostname") is None:
-                testsuite.set("hostname", socket.gethostname())
-            if testsuite.get("time") is None:
-                testsuite.set("time", "0")
-
-        for testcase in junit_report.xpath("//testsuite/testcase"):
-            if testcase.get("time") is None:
-                testcase.set("time", "0")
-
-        return etree.tostring(junit_report)
+        return None  # Cppunit does not support listing by filter

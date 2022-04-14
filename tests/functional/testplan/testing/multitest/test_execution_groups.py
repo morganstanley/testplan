@@ -2,16 +2,13 @@ import time
 from collections import OrderedDict
 
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-
-from testplan.common.utils.testing import log_propagation_disabled
 from testplan.report import TestGroupReport
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 EXECUTION_PERIOD = 0.001
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_case_0_0(self, env, result):
         time.sleep(EXECUTION_PERIOD)
@@ -87,11 +84,8 @@ def test_execution_order(mockplan):
     multitest = MultiTest(
         name="MyMultitest", suites=[MySuite()], thread_pool_size=2
     )
-
     mockplan.add(multitest)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     result = get_testcase_execution_time(mockplan.report)
 

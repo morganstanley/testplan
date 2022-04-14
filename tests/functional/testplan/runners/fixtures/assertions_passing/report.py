@@ -38,6 +38,33 @@ expected_report = TestReport(
                             ],
                         ),
                         TestCaseReport(
+                            name="test_log_code",
+                            entries=[
+                                {
+                                    "type": "CodeLog",
+                                    "code": """
+            #include<stdio.h>
+
+            int main()
+            {
+                return 0
+            }
+            """,
+                                    "language": "c",
+                                    "description": "C codelog example",
+                                },
+                                {
+                                    "type": "CodeLog",
+                                    "code": """
+            import os
+            print(os.uname())
+            """,
+                                    "language": "python",
+                                    "description": "Python codelog example",
+                                },
+                            ],
+                        ),
+                        TestCaseReport(
                             name="test_comparison",
                             entries=[
                                 {
@@ -604,10 +631,10 @@ expected_report = TestReport(
                                     "indices": [0, 1, 2, 3],
                                     "display_index": False,
                                     "table": [
-                                        {"name": "aaa", "value": 1},
-                                        {"name": "bbb", "value": 2},
-                                        {"name": "ccc", "value": 3},
-                                        {"name": "ddd", "value": 4},
+                                        ["aaa", 1],
+                                        ["bbb", 2],
+                                        ["ccc", 3],
+                                        ["ddd", 4],
                                     ],
                                 },
                                 {
@@ -616,10 +643,10 @@ expected_report = TestReport(
                                     "indices": [0, 1, 2, 3],
                                     "display_index": True,
                                     "table": [
-                                        {"name": "aaa", "value": 1},
-                                        {"name": "bbb", "value": 2},
-                                        {"name": "ccc", "value": 3},
-                                        {"name": "ddd", "value": 4},
+                                        ["aaa", 1],
+                                        ["bbb", 2],
+                                        ["ccc", 3],
+                                        ["ddd", 4],
                                     ],
                                 },
                             ],

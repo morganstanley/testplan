@@ -1,10 +1,15 @@
 /* Interactive navigation component. */
 import React from 'react';
 import PropTypes from 'prop-types';
+import base64url from 'base64url';
 
 import NavBreadcrumbs from "./NavBreadcrumbs";
 import InteractiveNavList from "./InteractiveNavList";
-import {GetSelectedUid, GetNavEntries, GetNavBreadcrumbs} from "./navUtils";
+import {
+  GetSelectedUid,
+  GetInteractiveNavEntries,
+  GetNavBreadcrumbs
+} from "./navUtils";
 
 /**
  * Interactive Nav component.
@@ -12,8 +17,6 @@ import {GetSelectedUid, GetNavEntries, GetNavBreadcrumbs} from "./navUtils";
  * Performs similar function as the batch report Nav component, but for
  * interactive mode. Key differences:
  *
- *   * Does not auto-select testcases. Only the root Testplan report is
- *     first selected.
  *   * Adds extra buttons for running testcases interactively and controlling
  *     environments.
  *
@@ -22,7 +25,7 @@ import {GetSelectedUid, GetNavEntries, GetNavBreadcrumbs} from "./navUtils";
  * with the main Nav component, which will need to be eliminated.
  */
 const InteractiveNav = (props) => {
-  const navEntries = GetNavEntries(props.selected);
+  const navEntries = GetInteractiveNavEntries(props.selected);
   const breadCrumbEntries = GetNavBreadcrumbs(props.selected);
 
   return (
@@ -30,19 +33,19 @@ const InteractiveNav = (props) => {
       <NavBreadcrumbs
         entries={breadCrumbEntries}        
         url={props.url}
+        uidEncoder = {base64url}
       />
       <InteractiveNavList
         width={props.navListWidth}
         entries={navEntries}
         breadcrumbLength={breadCrumbEntries.length}        
         handleColumnResizing={props.handleColumnResizing}
-        autoSelect={() => undefined}
         filter={null}
         displayEmpty={true}
         displayTags={false}
         displayTime={false}
         selectedUid={GetSelectedUid(props.selected)}
-        handlePlayClick={props.handlePlayClick}
+        handleClick={props.handleClick}
         envCtrlCallback={props.envCtrlCallback}
         url={props.url}
       />

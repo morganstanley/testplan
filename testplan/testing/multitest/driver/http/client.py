@@ -1,14 +1,13 @@
 """HTTPClient Driver."""
 
 import time
-import os
+import queue
 from threading import Thread, Event
 
 import requests
 from schema import Use, Or
-from six.moves import queue
 
-from testplan.common.config import ConfigOption as Optional
+from testplan.common.config import ConfigOption
 from testplan.common.utils.context import expand, is_context
 from testplan.common.utils.strings import slugify
 
@@ -29,18 +28,19 @@ class HTTPClientConfig(DriverConfig):
         """
         return {
             "host": Or(str, lambda x: is_context(x)),
-            Optional("port", default=None): Or(
+            ConfigOption("port", default=None): Or(
                 None, Use(int), lambda x: is_context(x)
             ),
-            Optional("protocol", default="http"): str,
-            Optional("timeout", default=5): Use(int),
-            Optional("interval", default=0.01): Use(float),
+            ConfigOption("protocol", default="http"): str,
+            ConfigOption("timeout", default=5): Use(int),
+            ConfigOption("interval", default=0.01): Use(float),
         }
 
 
 class HTTPClient(Driver):
     """
-    HTTPClient driver.
+    Driver for a client that can connect to a server and send/receive messages
+    using HTTP protocol.
 
     :param name: Name of HTTPClient.
     :type name: ``str``
@@ -55,6 +55,9 @@ class HTTPClient(Driver):
     :param interval: Number of seconds to sleep whilst trying to receive a
       message.
     :type interval: ``int``
+
+    Also inherits all
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = HTTPClientConfig
@@ -115,12 +118,10 @@ class HTTPClient(Driver):
         Stop the HTTPClient.
         """
         super(HTTPClient, self).stopping()
-        self.logger.debug("Stopped HTTPClient.")
 
     def aborting(self):
         """Abort logic that stops the client."""
         super(HTTPClient, self).aborting()
-        self.logger.debug("Aborted HTTPClient.")
 
     def _send_request(self, method, api, drop_response, timeout, **kwargs):
         """
@@ -282,7 +283,8 @@ class HTTPClient(Driver):
         :return: A request response or ``None``
         :rtype: ``requests.models.Response`` or ``NoneType``
         """
-        timeout = time.time() + (timeout or self.timeout)
+        timeout = timeout if timeout is not None else self.timeout
+        timeout += time.time()
         response = None
 
         while time.time() < timeout:

@@ -3,7 +3,7 @@
 from schema import Use, Or
 import zmq
 
-from testplan.common.config import ConfigOption as Optional
+from testplan.common.config import ConfigOption
 from testplan.common.utils.timing import retry_until_timeout
 
 from ..base import Driver, DriverConfig
@@ -21,9 +21,9 @@ class ZMQServerConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            Optional("host", default="localhost"): str,
-            Optional("port", default=0): Use(int),
-            Optional("message_pattern", default=zmq.PAIR): Or(
+            ConfigOption("host", default="localhost"): str,
+            ConfigOption("port", default=0): Use(int),
+            ConfigOption("message_pattern", default=zmq.PAIR): Or(
                 zmq.PAIR, zmq.REP, zmq.PUB, zmq.PUSH
             ),
         }

@@ -1,18 +1,18 @@
 """PyTest test runner."""
 import collections
+import copy
 import inspect
 import os
+import sys
 import re
 import traceback
 
 import pytest
-import six
 from schema import Or
 
 from testplan.common.utils import validation
 from testplan.common.config import ConfigOption
 from testplan.testing import base as testing
-from testplan.testing.base import TestResult
 from testplan.testing.multitest.entries import assertions
 from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest.result import Result as MultiTestResult
@@ -116,18 +116,26 @@ class PyTest(testing.Test):
     def run_tests(self):
         """Run pytest and wait for it to terminate."""
         # Execute pytest with self as a plugin for hook support
-        return_code = pytest.main(
-            self._pytest_args, plugins=[self._pytest_plugin]
-        )
-        if return_code == 5:
-            self.result.report.status_override = Status.UNSTABLE
-            self.logger.warning("No tests were run")
-        elif return_code != 0:
-            self.result.report.status_override = Status.FAILED
-            self.logger.error("pytest exited with return code %d", return_code)
+        with self.report.timer.record("run"):
+            return_code = pytest.main(
+                self._pytest_args, plugins=[self._pytest_plugin]
+            )
+
+            if return_code == 5:
+                self.result.report.status_override = Status.UNSTABLE
+                self.logger.warning("No tests were run")
+            elif return_code != 0:
+                self.result.report.status_override = Status.FAILED
+                self.logger.error(
+                    "pytest exited with return code %d", return_code
+                )
 
     def _collect_tests(self):
         """Collect test items but do not run any."""
+
+        # We shall restore sys.path after calling pytest.main
+        # as it might prepend test rootdir in sys.path
+        # but this has other problem (helper package)
         return_code = pytest.main(
             self._pytest_args + ["--collect-only"],
             plugins=[self._collect_plugin],
@@ -171,19 +179,16 @@ class PyTest(testing.Test):
         Collect tests and build a report tree skeleton, but do not run any
         tests.
         """
-        collected = self._collect_tests()
-        test_report = self._new_test_report()
+        self.result.report = self._new_test_report()
         self._nodeids = {
             "testsuites": {},
             "testcases": collections.defaultdict(dict),
         }
 
-        for item in collected:
-            _add_empty_testcase_report(item, test_report, self._nodeids)
+        for item in self._collect_tests():
+            _add_empty_testcase_report(item, self.result.report, self._nodeids)
 
-        result = TestResult()
-        result.report = test_report
-        return result
+        return self.result
 
     def run_testcases_iter(self, testsuite_pattern="*", testcase_pattern="*"):
         """
@@ -207,13 +212,16 @@ class PyTest(testing.Test):
         pytest_plugin = _ReportPlugin(self, test_report, quiet)
         pytest_plugin.setup()
 
-        pytest_args = self._build_iter_pytest_args(
+        pytest_args, current_uids = self._build_iter_pytest_args(
             testsuite_pattern, testcase_pattern
         )
+        # Will call `pytest.main` to run all testcases as a whole, accordingly,
+        # runtime status of all these testcases will be set at the same time.
+        yield {"runtime_status": RuntimeStatus.RUNNING}, current_uids
 
         self.logger.debug("Running PyTest with args: %r", pytest_args)
         return_code = pytest.main(pytest_args, plugins=[pytest_plugin])
-        self.logger.debug("Pytest exit code: %d", return_code)
+        self.logger.debug("PyTest exit code: %d", return_code)
 
         for suite_report in test_report:
             for child_report in suite_report:
@@ -256,28 +264,40 @@ class PyTest(testing.Test):
             raise RuntimeError("Need to call dry_run() first")
 
         if testsuite_pattern == "*" and testcase_pattern == "*":
-            if isinstance(self.cfg.target, six.string_types):
+            if isinstance(self.cfg.target, str):
                 pytest_args = [self.cfg.target]
             else:
                 pytest_args = self.cfg.target[:]
+            current_uids = [self.uid()]
         elif testcase_pattern == "*":
             pytest_args = [self._nodeids["testsuites"][testsuite_pattern]]
+            current_uids = [self.uid(), testsuite_pattern]
         else:
             pytest_args = [
                 self._nodeids["testcases"][testsuite_pattern][testcase_pattern]
             ]
+            suite_name, case_name, case_params = _case_parse(pytest_args[0])
+            if case_params:
+                current_uids = [
+                    self.uid(),
+                    suite_name,
+                    case_name,
+                    "{}[{}]".format(case_name, case_params),
+                ]
+            else:
+                current_uids = [self.uid(), suite_name, case_name]
 
         if self.cfg.extra_args:
             pytest_args.extend(self.cfg.extra_args)
 
-        return pytest_args
+        return pytest_args, current_uids
 
     def _build_pytest_args(self):
         """
         :return: a list of the args to be passed to PyTest
         :rtype: List[str]
         """
-        if isinstance(self.cfg.target, six.string_types):
+        if isinstance(self.cfg.target, str):
             pytest_args = [self.cfg.target]
         else:
             pytest_args = self.cfg.target[:]
@@ -291,7 +311,7 @@ class PyTest(testing.Test):
         return pytest_args
 
 
-class _ReportPlugin(object):
+class _ReportPlugin:
     """
     Plugin object passed to PyTest. Contains hooks used to update the Testplan
     report with the status of testcases.
@@ -302,7 +322,7 @@ class _ReportPlugin(object):
         self._report = report
         self._quiet = quiet
 
-        # Collection of suite reports - will be intialised by the setup()
+        # Collection of suite reports - will be initialised by the setup()
         # method.
         self._suite_reports = None
 
@@ -370,6 +390,7 @@ class _ReportPlugin(object):
                 report = TestCaseReport(case_name, uid=case_name)
                 self._suite_reports[suite_name][case_name] = report
             return report
+
         else:
             group_report = self._suite_reports[suite_name].get(case_name)
             if group_report is None:
@@ -476,8 +497,10 @@ class _ReportPlugin(object):
                 self._current_case_report.status_override = Status.FAILED
             else:
                 self._current_case_report.pass_if_empty()
-
             self._current_case_report.runtime_status = RuntimeStatus.FINISHED
+
+        elif report.when == "teardown":
+            pass
 
     def pytest_exception_interact(self, node, call, report):
         """
@@ -523,7 +546,7 @@ class _ReportPlugin(object):
             )
             details = (
                 "File: {}\nLine: {}\n{}: {}".format(
-                    trace.path.strpath,
+                    str(trace.path),
                     trace.lineno + 1,
                     call.excinfo.typename,
                     message,
@@ -598,7 +621,7 @@ class _ReportPlugin(object):
             self._report.append(suite_report)
 
 
-class _CollectPlugin(object):
+class _CollectPlugin:
     """
     PyTest plugin used when collecting tests. Provides access to the collected
     test suites and testcases via the `collected` property.

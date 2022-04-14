@@ -1,28 +1,23 @@
 """Test the interactive test runner."""
-import six
-
-if six.PY2:
-    import mock
-else:
-    from unittest import mock
+from unittest import mock
 
 import pytest
 
 from testplan import defaults
 from testplan import report
-from testplan import runners
 from testplan import runnable
 from testplan.common import entity
 from testplan.testing import filtering
 from testplan.testing import multitest
 from testplan.testing import ordering
-from testplan.runnable.interactive import base
 from testplan.testing.multitest import driver
+from testplan.runnable.interactive import base
 from testplan.common.utils.path import default_runpath
+from testplan.runners.local import LocalRunner
 
 
 @multitest.testsuite
-class Suite(object):
+class Suite:
     """Test suite."""
 
     @multitest.testcase
@@ -32,6 +27,28 @@ class Suite(object):
         result.true(True)
 
     @multitest.testcase(parameters=[1, 2, 3])
+    def parametrized(self, env, result, val):
+        """Parametrized testcase."""
+        del env  # unused
+        result.gt(val, 0)
+
+
+@multitest.testsuite(tags="foo")
+class TaggedSuite:
+    """Test suite."""
+
+    @multitest.testcase(tags="bar")
+    def case(self, env, result):
+        """Testcase."""
+        del env  # unused
+        result.true(True)
+
+    @multitest.testcase
+    def ignored(self, env, result):
+        """Testcase which will be filtered out."""
+        pass
+
+    @multitest.testcase(tags="baz", parameters=[1, 2, 3])
     def parametrized(self, env, result, val):
         """Parametrized testcase."""
         del env  # unused
@@ -70,7 +87,7 @@ def irunner():
     """Set up an irunner instance for testing."""
     target = runnable.TestRunner(name="TestRunner")
 
-    local_runner = runners.LocalRunner()
+    local_runner = LocalRunner()
     test_uids = ["test_1", "test_2", "test_3"]
     test_objs = [
         multitest.MultiTest(
@@ -159,8 +176,28 @@ def test_run_testcase(irunner, sync):
 @pytest.mark.parametrize("sync", [True, False])
 def test_run_parametrization(irunner, sync):
     """Test running a single parametrization of a testcase."""
+    ret = irunner.run_test_case_param(
+        "test_1",
+        "Suite",
+        "parametrized",
+        "parametrized__val_1",
+        await_results=sync,
+    )
+
+    if not sync:
+        assert ret.result() is None
+
+    # The test report should have been updated as a side effect.
+    assert irunner.report["test_1"]["Suite"]["parametrized"][
+        "parametrized__val_1"
+    ].passed
+
+
+@pytest.mark.parametrize("sync", [True, False])
+def test_run_parametrization_all(irunner, sync):
+    """Test running all the parametrization of a parametrization group."""
     ret = irunner.run_test_case(
-        "test_1", "Suite", "parametrized__val_1", await_results=sync
+        "test_1", "Suite", "parametrized", await_results=sync
     )
 
     if not sync:
@@ -182,14 +219,12 @@ def test_environment_control(irunner, sync):
     start_results = irunner.start_test_resources("test_1", await_results=sync)
 
     # If the environment was started asynchronously, wait for all of the
-    # operations to copmlete before continuing.
+    # operations to complete before continuing.
     if not sync:
         start_results.result()
 
     assert test.resources.all_status(entity.ResourceStatus.STARTED)
-    assert (
-        test.resources.mock_driver.status.tag == entity.ResourceStatus.STARTED
-    )
+    assert test.resources.mock_driver.status == entity.ResourceStatus.STARTED
     assert irunner.report["test_1"].env_status == entity.ResourceStatus.STARTED
 
     # Stop the environment and check it has the expected status.
@@ -200,10 +235,54 @@ def test_environment_control(irunner, sync):
         stop_results.result()
 
     assert test.resources.all_status(entity.ResourceStatus.STOPPED)
-    assert (
-        test.resources.mock_driver.status.tag == entity.ResourceStatus.STOPPED
-    )
+    assert test.resources.mock_driver.status == entity.ResourceStatus.STOPPED
     assert irunner.report["test_1"].env_status == entity.ResourceStatus.STOPPED
+
+
+@pytest.mark.parametrize(
+    "tags,num_of_suite_entries", ((("foo",), 3), (("bar", "baz"), 2))
+)
+def test_run_all_tagged_tests(tags, num_of_suite_entries):
+    """Test running all tests whose testcases are selected by tags."""
+    target = runnable.TestRunner(name="TestRunner")
+
+    local_runner = LocalRunner()
+    test_uids = ["test_1", "test_2", "test_3"]
+    test_objs = [
+        multitest.MultiTest(
+            name=uid,
+            suites=[TaggedSuite()],
+            test_filter=filtering.Tags({"simple": set(tags)}),
+            test_sorter=ordering.NoopSorter(),
+            stdout_style=defaults.STDOUT_STYLE,
+            environment=[driver.Driver(name="mock_driver")],
+        )
+        for uid in test_uids
+    ]
+
+    for test in test_objs:
+        local_runner.add(test, test.uid())
+
+    target.resources.add(local_runner)
+
+    with mock.patch("cheroot.wsgi.Server"), mock.patch(
+        "testplan.runnable.interactive.reloader.ModuleReloader"
+    ) as MockReloader:
+        MockReloader.return_value = None
+
+        irunner = base.TestRunnerIHandler(target)
+        irunner.setup()
+
+        irunner.run_all_tests(await_results=True)
+        assert irunner.report.passed
+        assert len(irunner.report.entries) == 3
+        for test_report in irunner.report:
+            assert test_report.passed
+            assert len(test_report.entries) == 1
+            assert len(test_report.entries[0].entries) == num_of_suite_entries
+            assert len(test_report.entries[0].entries[-1].entries) == 3
+
+        irunner.teardown()
 
 
 def _check_initial_report(initial_report):

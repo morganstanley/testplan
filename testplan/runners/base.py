@@ -78,6 +78,9 @@ class Executor(Resource):
         raise NotImplementedError()
 
     def _prepopulate_runnables(self):
+        # If we are to apply test_sorter, it would be here
+        # but it's not easy to implement a reasonable behavior
+        # as _input could be a mixture of runnable/task/callable
         self.ongoing = list(self._input.keys())
 
     def starting(self):
@@ -100,7 +103,10 @@ class Executor(Resource):
     @property
     def is_alive(self):
         """Poll the loop handler thread to check it is running as expected."""
-        return self._loop_handler.is_alive()
+        if self._loop_handler:
+            return self._loop_handler.is_alive()
+        else:
+            return False
 
     def pending_work(self):
         """Resource has pending work."""

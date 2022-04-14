@@ -12,11 +12,35 @@ def always_true(obj):
 
 
 @testsuite
-class MySuite(object):
+class MySuite:
     @testcase
     def test_log(self, env, result):
         result.log("hello world")
         result.log("hello python", description="log description")
+
+    @testcase
+    def test_log_code(self, env, result):
+        result.log_code(
+            """
+            #include<stdio.h>
+
+            int main()
+            {
+                return 0
+            }
+            """,
+            language="c",
+            description="C codelog example",
+        )
+
+        result.log_code(
+            """
+            import os
+            print(os.uname())
+            """,
+            language="python",
+            description="Python codelog example",
+        )
 
     @testcase
     def test_comparison(self, env, result):
@@ -339,7 +363,7 @@ class MySuite(object):
             value_cmp_func=cmp.COMPARE_FUNCTIONS["check_types"],
         )
 
-        class AlwaysComparesTrue(object):
+        class AlwaysComparesTrue:
             """Object that compares equal to any other object."""
 
             def __eq__(self, _):
@@ -354,7 +378,7 @@ class MySuite(object):
             description="comparison of different types",
         )
 
-        class HelloObj(object):
+        class HelloObj:
             """Object that returns 'hello' as its str() representation."""
 
             def __str__(self):

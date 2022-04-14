@@ -1,17 +1,13 @@
 import pytest
 
-from testplan.common.utils.testing import (
-    check_report,
-    log_propagation_disabled,
-)
+from testplan.common.utils.testing import check_report
 
 from testplan.report import TestReport, TestGroupReport, TestCaseReport
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.common.utils.logger import TESTPLAN_LOGGER
 
 
 @testsuite(tags={"color": ["red", "blue"]})
-class AlphaSuite(object):
+class AlphaSuite:
     @testcase
     def test_method_0(self, env, result):
         pass
@@ -26,7 +22,7 @@ class AlphaSuite(object):
 
 
 @testsuite(tags={"color": "yellow"})
-class BetaSuite(object):
+class BetaSuite:
     @testcase
     def test_method_0(self, env, result):
         pass
@@ -41,7 +37,7 @@ class BetaSuite(object):
 
 
 @testsuite
-class GammaSuite(object):
+class GammaSuite:
     @testcase
     def test_method_0(self, env, result):
         pass
@@ -203,11 +199,8 @@ def test_multitest_tagging(mockplan, multitest_tags, expected_report):
         suites=[AlphaSuite(), BetaSuite(), GammaSuite()],
         tags=multitest_tags,
     )
-
     mockplan.add(multitest)
-
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        mockplan.run()
+    mockplan.run()
 
     check_report(
         expected=TestReport(name="plan", entries=[expected_report]),

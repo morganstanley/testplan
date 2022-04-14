@@ -5,7 +5,7 @@ import React from "react";
 import { css, StyleSheet } from "aphrodite";
 
 import {
-  createMuiTheme,
+  createTheme,
   ThemeProvider,
   Card,
   CardContent,
@@ -14,9 +14,10 @@ import {
 
 import TextAttachment from "./TextAttachment";
 import AttachmentAssertionCardHeader from "./AttachmentAssertionCardHeader";
+import { getAttachmentUrl } from "../../Common/utils";
 
 // TODO: move theme out to a common place
-const theme = createMuiTheme({
+const theme = createTheme({
   typography: {
     fontFamily: [
       "-apple-system",
@@ -52,13 +53,15 @@ const getAttachmentContent = (assertion, reportUid) => {
   const fileType = assertion.orig_filename.split(".").pop();
   const filePath = assertion.dst_path;
   const description = assertion.description;
-  const getPath = getAttachmentUrl(filePath, reportUid);
+  const getPath = getAttachmentUrl(filePath, reportUid, null);
 
   switch (fileType) {
     case "txt":
     case "log":
     case "out":
     case "csv":
+    case "stdout":
+    case "stderr":
       return (
         <TextAttachment
           src={getPath}
@@ -104,20 +107,6 @@ const getAttachmentContent = (assertion, reportUid) => {
           />
         </Card>
       );
-  }
-};
-
-/**
- * Get the URL to retrieve the attachment from. Depending on whether we are
- * running in batch or interactive mode, the API for accessing attachments
- * is slightly different. We know we are running in interactive mode if there
- * is no report UID.
- */
-const getAttachmentUrl = (filePath, reportUid) => {
-  if (reportUid) {
-    return `/api/v1/reports/${reportUid}/attachments/${filePath}`;
-  } else {
-    return `/api/v1/interactive/attachments/${filePath}`;
   }
 };
 

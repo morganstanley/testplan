@@ -1,7 +1,132 @@
 /** @module tableAssertionUtils */
 
-import {domToString} from './../../../Common/utils';
+import React from "react";
+import { useParams, Link } from "react-router-dom";
+import _ from "lodash";
+import {css, StyleSheet} from 'aphrodite';
+import {
+  domToString,
+  generateURLWithParameters
+} from './../../../Common/utils';
 
+// Small component for rendering TableLogLinkCell.
+function LinkRender(props) {
+  const { uid } = useParams();
+  if (props.inner) {
+    const link = generateURLWithParameters(
+      window.location,
+      props.link.startsWith("/")
+        ? `/testplan/${uid}${props.link}`
+        : `/testplan/${uid}/${props.link}`
+    );
+    return <Link to={link}>{props.title || props.link}</Link>;
+  } else {
+    return (
+      <a
+        rel="noreferrer"
+        href={props.link}
+        target={props.new_window ? "_blank" : "_self"}
+      >
+        {props.title || props.link}
+      </a>
+    );
+  }
+}
+
+
+// The cell of link.
+class TableLogLinkCell {
+  constructor(cell) {
+    this.cell = cell;
+    this.value = cell.title || cell.link;
+  }
+
+  render() {
+    return <LinkRender {...this.cell}/>;
+  }
+
+  compare(linkB) {
+    if (linkB instanceof TableLogLinkCell) {
+      return this.value >= linkB.value ? 1 : -1;
+    } else {
+      return this.value >= String(linkB) ? 1 : -1;
+    }
+  }
+  getValue() {
+    return this.value;
+  }
+}
+
+// The cell of formattedValue.
+class FormattedValueCell {
+  constructor(cell) {
+    this.cell = cell;
+  }
+
+  render() {
+    return <>{this.cell.display}</>;
+  }
+  compare(valueB) {
+    if (valueB instanceof FormattedValueCell) {
+      return this.cell.value >= valueB.cell.value ? 1 : -1;
+    } else {
+      return this.cell.value >= String(valueB) ? 1 : -1;
+    }
+  }
+  getValue() {
+    return this.cell.display;
+  }
+}
+
+// The cell of default data type
+class DefaultCell {
+  constructor(cell) {
+    this.cell = cell;
+  }
+
+  render() {
+    return <>{this.cell}</>;
+  }
+  compare(cellB) {
+    return this.cell >= cellB.cell ? 1 : -1;
+  }
+  getValue() {
+    return this.cell;
+  }
+}
+
+/**
+ * Factory to create TableLog cell based on the values in ag-grid.
+ *
+ * @param {object} cellValue
+ * @returns {object}
+ * @private
+ */
+function tableLogCellType(cellValue) {
+  if (!_.isNil(cellValue) && typeof cellValue === "object") {
+    switch (cellValue.type) {
+      case "link":
+        return new TableLogLinkCell(cellValue);
+      case "formattedValue":
+        return new FormattedValueCell(cellValue);
+      default:
+        break;
+    }
+  }
+  return new DefaultCell(cellValue);
+}
+
+function baseTableCellStyle(params) {
+  const isValueRow = params.data.ev === 'Value';
+
+  let cellStyle = {};
+
+  if (isValueRow) {
+    cellStyle['borderBottomColor'] = '#827878';
+  }
+
+  return cellStyle;
+}
 
 /**
  * Function to add styling to table cells with conditions based on their values.
@@ -11,13 +136,8 @@ import {domToString} from './../../../Common/utils';
  * @private
  */
 function tableCellStyle(params) {
-  const isValueRow = params.data.ev === 'Value';
+  let cellStyle = baseTableCellStyle(params);
   const isCellFailed = params.data.passed[params.colDef.field] === false;
-  let cellStyle = {};
-
-  if (isValueRow) {
-    cellStyle['borderBottomColor'] = '#827878';
-  }
 
   if (isCellFailed) {
     cellStyle['color'] = 'red';
@@ -25,6 +145,30 @@ function tableCellStyle(params) {
   }
 
   return cellStyle;
+}
+
+function ignoredTableCellStyle(params) {
+  let cellStyle = baseTableCellStyle(params);
+  cellStyle['color'] = 'grey';
+  cellStyle['fontStyle'] ='italic';
+  return cellStyle;
+}
+
+function tableLogCellRender(cell) {
+  const tableCell = tableLogCellType(cell.value);
+  return tableCell.render();
+}
+
+function tableLogComparator(valueA, valueB, nodeA, nodeB, isInverted) {
+  const a = tableLogCellType(valueA);
+  const b = tableLogCellType(valueB);
+  return a.compare(b);
+}
+
+
+export function processCellForClipboard(param) {
+  const tableCell = tableLogCellType(param.value);
+  return tableCell.getValue();
 }
 
 /**
@@ -41,8 +185,8 @@ function tableCellStyle(params) {
  * @private
  */
 
-export function prepareTableLogColumnDefs(columns) {
-  let columnDefs = [{
+export function prepareTableLogColumnDefs(columns, display_index) {
+  let columnDefs = display_index? [{
     headerName: 'ID',
     field: 'id',
     pinned: 'left',
@@ -50,13 +194,15 @@ export function prepareTableLogColumnDefs(columns) {
     suppressSizeToFit: true,
     width: 75,
     filterParams: {excelMode: 'windows'}
-  }];
+  }] : [];
 
   columns.forEach(column => {
     columnDefs.push({
       headerName: column,
       field: column,
-      filterParams: {excelMode: 'windows'}
+      filterParams: {excelMode: 'windows'},
+      cellRendererFramework: tableLogCellRender,
+      comparator: tableLogComparator,
     });
   });
 
@@ -74,21 +220,33 @@ export function prepareTableLogColumnDefs(columns) {
  * @returns {Array}
  * @private
  */
-export function prepareTableLogRowData(indexes, table, columns) {
+export function prepareTableLogRowData(indexes, table, columns, display_index) {
   let rowData = [];
 
   indexes.forEach(index => {
-    let row = columns.reduce((accumulator, column) => {
-      accumulator[column] = table[index][column];
+    let row = columns.reduce((accumulator, column, idx) => {
+
+      if(Array.isArray(table[index]))
+        accumulator[column] = table[index][idx];
+      // TODO: remove this branch after 3 months 2021.06.01
+      else
+        accumulator[column] = table[index][column];
       return accumulator;
     }, {});
-
-    row['id'] = index;
+    if(display_index)
+      row['id'] = index;
 
     rowData.push(row);
   });
 
   return rowData;
+}
+
+function isIgnoredColumn(column, included_columns, excluded_columns) {
+  return (
+    (excluded_columns && _.includes(excluded_columns, column)) ||
+    (included_columns && !_.includes(included_columns, column))
+  );
 }
 
 /**
@@ -98,33 +256,45 @@ export function prepareTableLogRowData(indexes, table, columns) {
  * @returns {Array}
  * @private
  */
-export function prepareTableMatchColumnDefs(columns) {
-  let columnDefs = [{
-    headerName: 'ID',
-    field: 'id',
-    pinned: 'left',
-    resizable: true,
-    suppressSizeToFit: true,
-    width: 75,
-    filterParams: {excelMode: 'windows'},
-    cellStyle: tableCellStyle,
-  }, {
-    headerName: 'Expected/Value',
-    field: 'ev',
-    pinned: 'left',
-    resizable: true,
-    suppressSizeToFit: true,
-    width: 125,
-    filterParams: {excelMode: 'windows'},
-    cellStyle: tableCellStyle,
-  }];
+export function prepareTableMatchColumnDefs(
+  columns,
+  included_columns,
+  excluded_columns
+) {
+  let columnDefs = [
+    {
+      headerName: "ID",
+      field: "id",
+      pinned: "left",
+      resizable: true,
+      suppressSizeToFit: true,
+      width: 75,
+      filterParams: { excelMode: "windows" },
+      cellStyle: tableCellStyle,
+    },
+    {
+      headerName: "Expected/Value",
+      field: "ev",
+      pinned: "left",
+      resizable: true,
+      suppressSizeToFit: true,
+      width: 125,
+      filterParams: { excelMode: "windows" },
+      cellStyle: tableCellStyle,
+    },
+  ];
 
-  columns.forEach(column => {
+  columns.forEach((column) => {
     columnDefs.push({
       headerName: column,
       field: column,
-      filterParams: {excelMode: 'windows'},
-      cellStyle: tableCellStyle,
+      filterParams: { excelMode: "windows" },
+      cellStyle: isIgnoredColumn(column, included_columns, excluded_columns)
+        ? ignoredTableCellStyle
+        : tableCellStyle,
+      headerClass: isIgnoredColumn(column, included_columns, excluded_columns)
+        ? css(styles.ignored_column)
+        : null,
     });
   });
   return columnDefs;
@@ -322,3 +492,9 @@ export function gridToDOM(columnDefs, rowData) {
   });
   return domToString(table);
 }
+
+const styles = StyleSheet.create({
+  ignored_column: {
+    fontStyle: 'italic',
+  }
+});

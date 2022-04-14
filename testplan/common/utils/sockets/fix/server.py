@@ -4,8 +4,9 @@ import errno
 import socket
 import select
 import threading
-from six.moves import queue
+import queue
 
+from testplan.common.utils.sockets.fix.parser import FixParser
 from testplan.common.utils.timing import (
     TimeoutException,
     TimeoutExceptionInfo,
@@ -14,7 +15,7 @@ from testplan.common.utils.timing import (
 from testplan.common.utils.sockets.fix.utils import utc_timestamp
 
 
-class ConnectionDetails(object):
+class ConnectionDetails:
     """
     Contains all information required for each connection to the server
     """
@@ -96,9 +97,9 @@ def _has_heartbeat_tag(msg):
     return msg.tag_exact(35, "0")
 
 
-class Server(object):
+class Server:
     """
-    A server that can send and receive FIX messages over the session protocol.
+    A server that can send and receive FIX messages over the FIX session protocol.
     Supports multiple connections.
 
     The server stamps every outgoing message with the senderCompID and
@@ -118,7 +119,7 @@ class Server(object):
         Create a new FIX server.
 
         This constructor takes parameters that specify the address (host, port)
-        to connect to. The server stamps every outgoing message with the
+        to bind to. The server stamps every outgoing message with the
         senderCompID and targetCompID for the corresponding connection.
 
         :param msgclass: Type used to send and receive FIX messages.
@@ -304,7 +305,7 @@ class Server(object):
         connection = self._conndetails_by_fd[fdesc].connection
         if event == select.POLLIN:
             with self._lock:
-                data = connection.recv(4096)
+                data = connection.recv(1)
                 if not data:
                     self.log_callback(
                         "Closing connection {} since no data available".format(
@@ -313,8 +314,9 @@ class Server(object):
                     )
                     self._remove_connection(fdesc)
                 else:
-                    msg = self.msgclass.from_buffer(data, self.codec)
+                    msg = self._parse_data(data, connection)
                     self._process_message(fdesc, msg)
+
         elif event in [select.POLLNVAL, select.POLLHUP]:
             self.log_callback(
                 "Closing connection {} event received".format(connection.name)
@@ -324,6 +326,24 @@ class Server(object):
             raise Exception(
                 "unexpected event {0} on fdesc {1}".format(event, fdesc)
             )
+
+    def _parse_data(self, data, connection):
+        """
+        Parse FIX message received from connection
+
+        :param data: First part of data received from connection
+        :type data: ``str``
+        :param connection: Connection to read from
+        :type connection: ``socket._socketobject``
+
+        :return: Fix msg received
+        :rtype: ``ms.fix.FixMessage``
+        """
+        parser = FixParser()
+        size = parser.consume(data)
+        while size:
+            size = parser.consume(connection.recv(size))
+        return self.msgclass.from_buffer(parser.buffer, self.codec)
 
     def _process_message(self, fdesc, msg):
         """
@@ -578,15 +598,15 @@ class Server(object):
         if self.log_callback:
             self.log_callback("Flushed received message queues")
 
-    def _flush_queue(self, queue):
+    def _flush_queue(self, msg_queue):
         """
         Flush the given receive queue.
 
-        :param queue: Queue to flush.
-        :type queue: ``queue``
+        :param msg_queue: Queue to flush.
+        :type msg_queue: ``queue``
         """
         try:
             while True:
-                queue.get(False)
+                msg_queue.get(False)
         except queue.Empty:
             return

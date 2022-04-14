@@ -1,15 +1,13 @@
 """HTTPServer Driver."""
 
-import os
 import time
+import queue
+import http.server as http_server
 from threading import Thread
 
 from schema import Use
 
-import six.moves.BaseHTTPServer as http_server
-from six.moves import queue
-
-from testplan.common.config import ConfigOption as Optional
+from testplan.common.config import ConfigOption
 from testplan.common.utils.strings import slugify
 
 from ..base import Driver, DriverConfig
@@ -158,21 +156,21 @@ class HTTPServerConfig(DriverConfig):
         Schema for options validation and assignment of default values.
         """
         return {
-            Optional("host", default="localhost"): str,
-            Optional("port", default=0): Use(int),
-            Optional(
+            ConfigOption("host", default="localhost"): str,
+            ConfigOption("port", default=0): Use(int),
+            ConfigOption(
                 "request_handler", default=HTTPRequestHandler
             ): lambda v: issubclass(v, http_server.BaseHTTPRequestHandler),
-            Optional("handler_attributes", default={}): dict,
-            Optional("timeout", default=5): Use(int),
-            Optional("interval", default=0.01): Use(float),
+            ConfigOption("handler_attributes", default={}): dict,
+            ConfigOption("timeout", default=5): Use(int),
+            ConfigOption("interval", default=0.01): Use(float),
         }
 
 
 class HTTPServer(Driver):
     """
-    Driver for a server that can send and receive messages over the HTTP
-    protocol.
+    Driver for a server that can accept connection and send/receive messages
+    using HTTP protocol.
 
     :param name: Name of HTTPServer.
     :type name: ``str``
@@ -190,6 +188,9 @@ class HTTPServer(Driver):
     :type timeout: ``int``
     :param interval: Time to wait between each attempt to get a response.
     :type interval: ``int``
+
+    Also inherits all
+    :py:class:`~testplan.testing.multitest.driver.base.Driver` options.
     """
 
     CONFIG = HTTPServerConfig
@@ -303,16 +304,14 @@ class HTTPServer(Driver):
         """Stop the HTTPServer."""
         super(HTTPServer, self).stopping()
         self._stop()
-        self.logger.debug("Stopped HTTPServer.")
 
     def aborting(self):
         """Abort logic that stops the server."""
         super(HTTPServer, self).aborting()
         self._stop()
-        self.logger.debug("Aborted HTTPServer.")
 
 
-class HTTPResponse(object):
+class HTTPResponse:
     """
     HTTPResponse containing the status code, headers and content.
 

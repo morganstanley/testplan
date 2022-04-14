@@ -66,7 +66,7 @@ class HTTPExporter(Exporter):
         response = None
         errmsg = ""
 
-        if data and (data.get("entries") or data.get("attachments")):
+        if data:
             headers = {"Content-Type": "application/json"}
             try:
                 response = requests.post(
@@ -80,8 +80,8 @@ class HTTPExporter(Exporter):
                 errmsg = "Failed to export to {}: {}".format(url, str(exp))
         else:
             errmsg = (
-                "Skipping exporting test report via http "
-                "for empty report: {}".format(data["name"])
+                "Skipping exporting test report via http for"
+                " empty report: {}".format(data.get("name") or "[UNKNOWN]")
             )
 
         return response, errmsg
@@ -89,8 +89,8 @@ class HTTPExporter(Exporter):
     def export(self, source):
 
         http_url = self.cfg.http_url
-        test_plan_schema = TestReportSchema(strict=True)
-        data = test_plan_schema.dump(source).data
+        test_plan_schema = TestReportSchema()
+        data = test_plan_schema.dump(source)
         _, errmsg = self._upload_report(http_url, data)
 
         if errmsg:

@@ -1,13 +1,12 @@
 """Process worker pool functional tests."""
 
 import os
+from pathlib import Path
 
 import pytest
 
-from testplan.common.utils.testing import log_propagation_disabled
 from testplan.report import Status
-from testplan.runners.pools import ProcessPool
-from testplan.common.utils.logger import TESTPLAN_LOGGER
+from testplan.runners.pools.process import ProcessPool
 from testplan.testing import multitest
 
 from tests.functional.testplan.runners.pools.func_pool_base_tasks import (
@@ -23,7 +22,7 @@ def test_pool_basic(mockplan):
     )
 
 
-def test_kill_one_worker(mockplan):
+def test_kill_one_worker(mockplan, tmp_path: Path):
     """Kill one worker but pass after reassigning task."""
     pool_name = ProcessPool.__name__
     pool_size = 4
@@ -39,11 +38,14 @@ def test_kill_one_worker(mockplan):
 
     dirname = os.path.dirname(os.path.abspath(__file__))
 
+    boobytrap = tmp_path / "boobytrap"
+    boobytrap.touch()
+
     kill_uid = mockplan.schedule(
         target="multitest_kill_one_worker",
         module="func_pool_base_tasks",
         path=dirname,
-        args=(os.getpid(), pool_size),  # kills 4th worker
+        args=(str(boobytrap),),
         resource=pool_name,
     )
 
@@ -59,8 +61,7 @@ def test_kill_one_worker(mockplan):
             )
         )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = mockplan.run()
+    res = mockplan.run()
 
     # Check that the worker killed by test was aborted
     assert (
@@ -103,15 +104,14 @@ def test_kill_all_workers(mockplan):
     dirname = os.path.dirname(os.path.abspath(__file__))
 
     uid = mockplan.schedule(
-        target="multitest_kills_worker",
+        target="multitest_kill_workers",
         module="func_pool_base_tasks",
         path=dirname,
         args=(os.getpid(),),
         resource=pool_name,
     )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = mockplan.run()
+    res = mockplan.run()
 
     # Check that the worker killed by test was aborted
     assert (
@@ -150,15 +150,14 @@ def test_reassign_times_limit(mockplan):
     dirname = os.path.dirname(os.path.abspath(__file__))
 
     uid = mockplan.schedule(
-        target="multitest_kills_worker",
+        target="multitest_kill_workers",
         module="func_pool_base_tasks",
         path=dirname,
         args=(os.getpid(),),
         resource=pool_name,
     )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = mockplan.run()
+    res = mockplan.run()
 
     # Check that the worker killed by test was aborted
     assert (
@@ -178,16 +177,10 @@ def test_reassign_times_limit(mockplan):
     assert mockplan.report.counter["error"] == 1
 
 
-def test_custom_rerun_condition(mockplan):
-    """Force reschedule task X times to test logic."""
+def test_disable_rerun_in_pool(mockplan):
     pool_name = ProcessPool.__name__
     uid = "custom_task_uid"
     rerun_limit = 2
-
-    def custom_rerun(pool, task_result):
-        if task_result.task.reassign_cnt > task_result.task.rerun:
-            return False
-        return True
 
     pool_size = 4
     pool = ProcessPool(
@@ -197,8 +190,8 @@ def test_custom_rerun_condition(mockplan):
         heartbeats_miss_limit=2,
         max_active_loop_sleep=1,
         restart_count=0,
+        allow_task_rerun=False,
     )
-    pool.set_rerun_check(custom_rerun)
     pool_uid = mockplan.add_resource(pool)
 
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -213,8 +206,7 @@ def test_custom_rerun_condition(mockplan):
         rerun=rerun_limit,
     )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = mockplan.run()
+    res = mockplan.run()
 
     assert (
         len(
@@ -229,7 +221,7 @@ def test_custom_rerun_condition(mockplan):
 
     assert res.success is True
     assert mockplan.report.status == Status.PASSED
-    assert pool.added_item(uid).reassign_cnt == rerun_limit
+    assert pool.added_item(uid).reassign_cnt == 0
 
 
 @pytest.mark.skip("Target is materialized before scheduling")
@@ -261,7 +253,7 @@ def test_schedule_from_main(mockplan):
 
 
 @multitest.testsuite
-class SerializationSuite(object):
+class SerializationSuite:
     @multitest.testcase
     def test_serialize(self, env, result):
         """Test serialization of test results."""
@@ -316,7 +308,7 @@ def test_restart_worker(mockplan):
     dirname = os.path.dirname(os.path.abspath(__file__))
 
     mockplan.schedule(
-        target="multitest_kills_worker",
+        target="multitest_kill_workers",
         module="func_pool_base_tasks",
         path=dirname,
         args=(os.getpid(),),
@@ -332,8 +324,7 @@ def test_restart_worker(mockplan):
             resource=pool_name,
         )
 
-    with log_propagation_disabled(TESTPLAN_LOGGER):
-        res = mockplan.run()
+    res = mockplan.run()
 
     # Check that all workers are restarted
     assert (

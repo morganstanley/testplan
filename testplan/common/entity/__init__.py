@@ -3,8 +3,6 @@
 from .base import (
     Entity,
     EntityConfig,
-    RunnableManager,
-    RunnableManagerConfig,
     Resource,
     ResourceStatus,
     ResourceConfig,
@@ -13,6 +11,8 @@ from .base import (
     RunnableStatus,
     RunnableConfig,
     RunnableResult,
+    RunnableManager,
+    RunnableManagerConfig,
     FailedAction,
     DEFAULT_RUNNABLE_ABORT_SIGNALS,
 )

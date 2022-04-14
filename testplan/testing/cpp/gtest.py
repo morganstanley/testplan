@@ -2,16 +2,8 @@ from schema import Or
 
 from testplan.common.config import ConfigOption
 
-from testplan.report import (
-    TestGroupReport,
-    TestCaseReport,
-    ReportCategories,
-    RuntimeStatus,
-)
-from testplan.testing.multitest.entries.assertions import RawAssertion
-from testplan.testing.multitest.entries.schemas.base import registry
-
 from ..base import ProcessRunnerTest, ProcessRunnerTestConfig
+from ...importers.gtest import GTestResultImporter
 
 
 class GTestConfig(ProcessRunnerTestConfig):
@@ -58,7 +50,7 @@ class GTest(ProcessRunnerTest):
     https://github.com/google/googletest/blob/master/googletest/docs/AdvancedGuide.md
     https://github.com/google/googletest/blob/master/googletest/docs/FAQ.md
 
-    Most of the configuratin options of GTest are
+    Most of the configuration options of GTest are
     just simple wrappers for native arguments.
 
     :param name: Test instance name, often used as uid of test entity.
@@ -119,19 +111,17 @@ class GTest(ProcessRunnerTest):
             cmd.append("--gtest_filter={}".format(self.cfg.gtest_filter))
         return cmd
 
-    def test_command(self):
+    def _test_command(self):
         cmd = self.base_command() + [
             "--gtest_output=xml:{}".format(self.report_path),
             "--gtest_death_test_style={}".format(
                 self.cfg.gtest_death_test_style
             ),
         ]
-
         if self.cfg.gtest_also_run_disabled_tests:
             cmd.append("--gtest_also_run_disabled_tests")
         if self.cfg.gtest_repeat > 1:
             cmd.append("--gtest_repeat={}".format(self.cfg.gtest_repeat))
-
         # TODO: Add integration with ShuffleSorter
         if self.cfg.gtest_shuffle:
             cmd.append("--gtest_shuffle")
@@ -139,70 +129,23 @@ class GTest(ProcessRunnerTest):
                 cmd.append(
                     "--gtest_random_seed={}".format(self.cfg.gtest_random_seed)
                 )
-
         if self.cfg.gtest_stream_result_to:
             cmd.append(
                 "--gtest_stream_result_to={}".format(
                     self.cfg.gtest_stream_result_to
                 )
             )
-
         return cmd
 
-    def list_command(self):
+    def _list_command(self):
         return self.base_command() + ["--gtest_list_tests"]
 
+    def read_test_data(self):
+        importer = GTestResultImporter(self.report_path)
+        return importer.import_result()
+
     def process_test_data(self, test_data):
-        """
-        XML output contains entries for skipped testcases
-        as well, which are not included in the report.
-        """
-        result = []
-
-        for suite in test_data.getchildren():
-            suite_name = suite.attrib["name"]
-            suite_report = TestGroupReport(
-                name=suite_name,
-                uid=suite_name,
-                category=ReportCategories.TESTSUITE,
-            )
-            suite_has_run = False
-
-            for testcase in suite.getchildren():
-
-                testcase_name = testcase.attrib["name"]
-                testcase_report = TestCaseReport(
-                    name=testcase_name, uid=testcase_name
-                )
-
-                if not testcase.getchildren():
-                    assertion_obj = RawAssertion(
-                        description="Passed",
-                        content="Testcase {} passed".format(testcase_name),
-                        passed=True,
-                    )
-                    testcase_report.append(registry.serialize(assertion_obj))
-                else:
-                    for entry in testcase.getchildren():
-                        assertion_obj = RawAssertion(
-                            description=entry.tag,
-                            content=entry.text,
-                            passed=entry.tag != "failure",
-                        )
-                        testcase_report.append(
-                            registry.serialize(assertion_obj)
-                        )
-
-                testcase_report.runtime_status = RuntimeStatus.FINISHED
-
-                if testcase.attrib["status"] != "notrun":
-                    suite_report.append(testcase_report)
-                    suite_has_run = True
-
-            if suite_has_run:
-                result.append(suite_report)
-
-        return result
+        return test_data.results()
 
     def parse_test_context(self, test_list_output):
         """Parse GTest test listing from stdout"""
@@ -226,12 +169,12 @@ class GTest(ProcessRunnerTest):
         #
         # Sample command line output:
         #
-        #     SquareRootTest.
-        #       PositiveNos
-        #       NegativeNos
-        #     SquareRootTestNonFatal.
-        #       PositiveNos
-        #       NegativeNos
+        # SquareRootTest.
+        #   PositiveNos
+        #   NegativeNos
+        # SquareRootTestNonFatal.
+        #   PositiveNos
+        #   NegativeNos
         #
         #
         # Sample Result:
@@ -242,10 +185,11 @@ class GTest(ProcessRunnerTest):
         # ]
         result = []
         for line in test_list_output.splitlines():
-            if line.endswith("."):
-                result.append([line[:-1], []])
-            else:
-                result[-1][1].append(line.strip())
+            line = line.rstrip()
+            if line.endswith(".") and len(line.lstrip()) > 1:
+                result.append([line.lstrip()[:-1], []])
+            elif result and (line.startswith(" ") or line.startswith("\t")):
+                result[-1][1].append(line.lstrip())
         return result
 
     def update_test_report(self):
@@ -255,8 +199,11 @@ class GTest(ProcessRunnerTest):
         """
         super(GTest, self).update_test_report()
 
-        with open(self.report_path) as report_xml:
-            self.result.report.xml_string = report_xml.read()
+        try:
+            with open(self.report_path) as report_xml:
+                self.result.report.xml_string = report_xml.read()
+        except Exception:
+            self.result.report.xml_string = ""
 
     def test_command_filter(self, testsuite_pattern, testcase_pattern):
         """
@@ -264,6 +211,30 @@ class GTest(ProcessRunnerTest):
         specific set of testcases.
         """
         cmd = self.test_command()
+
+        if testsuite_pattern == self._VERIFICATION_SUITE_NAME:
+            testsuite_pattern = "*"
+            if testcase_pattern == self._VERIFICATION_TESTCASE_NAME:
+                testcase_pattern = "*"
+        if testsuite_pattern != "*" or testcase_pattern != "*":
+            cmd.append(
+                "--gtest_filter={}.{}".format(
+                    testsuite_pattern, testcase_pattern
+                )
+            )
+
+        return cmd
+
+    def list_command_filter(self, testsuite_pattern, testcase_pattern):
+        """
+        Return the base list command with additional filtering to list a
+        specific set of testcases.
+        """
+        cmd = self.list_command()
+        if testsuite_pattern == self._VERIFICATION_SUITE_NAME:
+            testsuite_pattern = "*"
+            if testcase_pattern == self._VERIFICATION_TESTCASE_NAME:
+                testcase_pattern = "*"
         if testsuite_pattern != "*" or testcase_pattern != "*":
             cmd.append(
                 "--gtest_filter={}.{}".format(

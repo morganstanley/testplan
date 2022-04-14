@@ -18,7 +18,7 @@ def after_start(env):
 
 
 @testsuite
-class TCPTestsuite(object):
+class TCPTestsuite:
     """TCP communication tests."""
 
     def __init__(self):
@@ -68,7 +68,6 @@ def make_multitest(index=0):
     Creates a new MultiTest that runs TCP connection tests.
     This will be created inside a process worker.
     """
-    print("Creating a MultiTest on process id {}.".format(os.getpid()))
     test = MultiTest(
         name="TCPMultiTest_{}".format(index),
         suites=[TCPTestsuite()],

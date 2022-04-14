@@ -1,13 +1,33 @@
 """TODO."""
 
 import os
+import random
 
 from testplan.common.utils.path import default_runpath
 from testplan.runners.pools import base as pools_base
 from testplan.runners.pools import communication
 from testplan import Task
+from testplan.runners.pools.base import TaskQueue
 
 from tests.unit.testplan.runners.pools.tasks.data.sample_tasks import Runnable
+
+
+def test_task_queue():
+    task_queue = TaskQueue()
+    uids = [
+        "abc",
+        "def",
+        "xyz",
+    ]
+    random.shuffle(uids)
+
+    for uid in uids:
+        for priority in [3, 2, 1]:
+            task_queue.put(priority, uid)
+
+    for priority in [1, 2, 3]:
+        for uid in uids:
+            assert task_queue.get() == (priority, uid)
 
 
 def test_pool_basic():
@@ -97,13 +117,13 @@ class TestPoolIsolated:
         # work loop in a separate thread.
         with pool:
             assert pool.is_alive and pool.active
-            assert pool.status.tag == pool.status.STARTED
+            assert pool.status == pool.status.STARTED
 
             # Retrieve the only worker assigned to this pool.
             assert len(pool._workers) == 1
             worker = pool._workers["0"]
             assert worker.is_alive and worker.active
-            assert worker.status.tag == worker.status.STARTED
+            assert worker.status == worker.status.STARTED
 
             msg_factory = communication.Message(**worker.metadata)
 
@@ -140,7 +160,7 @@ class TestPoolIsolated:
 
         # The Pool and its work loop should be stopped on exiting the context
         # manager.
-        assert pool.status.tag == pool.status.STOPPED
+        assert pool.status == pool.status.STOPPED
 
     def test_restart_worker_inactive(self):
         pool = pools_base.Pool(

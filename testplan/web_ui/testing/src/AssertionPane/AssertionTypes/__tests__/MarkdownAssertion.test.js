@@ -10,7 +10,7 @@ function defaultProps() {
       "category": "DEFAULT",
       "machine_time": "2019-02-12T17:41:43.302500+00:00",
       "description": null,
-      "message": "Markdown Test [Github](https://github.com/Morgan-Stanley/testplan)\n Test",
+      "message": "Markdown Test [Github](https://github.com/morganstanley/testplan)\n Test",
       "line_no": 123,
       "meta_type": "entry",
       "type": "Markdown",

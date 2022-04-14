@@ -14,12 +14,12 @@ class Registry(logger.Loggable):
 
     >>> registry = Registry()
 
-    >>> class ClassA(object):
+    >>> class ClassA:
         ... pass
 
     >>>  # instances of ClassA are now bound to ClassB for this registry
     >>> @registry.bind(ClassA)
-    >>> class ClassB(object):
+    >>> class ClassB:
         ... pass
 
 
