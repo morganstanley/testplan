@@ -380,6 +380,12 @@ class EntityStatus:
             msg = f"On status change from {current} to {new} - {exc}"
             raise StatusTransitionException(msg)
 
+    def reset(self):
+        """
+        Reset status as None.
+        """
+        self._current = self.NONE
+
     def update_metadata(self, **metadata):
         """
         Updates metadata.
