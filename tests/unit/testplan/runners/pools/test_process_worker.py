@@ -68,8 +68,18 @@ class TestProcPool:
         # Iterate 5 times to increase the chance of hitting a race condition.
         for _ in range(5):
             with proc_pool:
+                for worker in proc_pool._workers:
+                    # A ProcessWorker will wait till its process actually works
+                    assert worker.is_alive
+                    assert worker.status == worker.status.STARTED
+
                 assert proc_pool.status == proc_pool.status.STARTED
                 assert len(current_proc.children()) == len(start_children) + 2
 
+            for worker in proc_pool._workers:
+                assert not worker.is_alive  # Loop handler of worker was joined
+                assert worker.status == worker.status.STOPPED
+
+            assert not proc_pool.is_alive  # Loop handler of pool was joined
             assert proc_pool.status == proc_pool.status.STOPPED
             assert len(current_proc.children()) == len(start_children)

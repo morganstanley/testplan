@@ -92,6 +92,9 @@ def schedule_tests_to_pool(plan, pool, **pool_cfg):
     assert [plan.result.test_results[uid].report.name for uid in uids] == names
     assert list(pool._executed_tests) == uids[::-1]
 
+    assert not pool.is_alive
+    assert not any(worker.is_alive for worker in pool._workers)
+
 
 def test_pool_basic(mockplan):
     schedule_tests_to_pool(mockplan, Pool, size=2)

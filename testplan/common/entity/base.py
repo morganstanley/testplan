@@ -1311,7 +1311,7 @@ class Resource(Entity):
             or self.status == self.STATUS.STARTED
         ):
             self.logger.debug(
-                "start() has been called on %r, skip starting", self
+                "start() has been called on %s, skip starting", self
             )
             return
 
@@ -1337,7 +1337,7 @@ class Resource(Entity):
             self.logger.warning(f"Stop %s but it has already aborted", self)
 
         if self.status == self.STATUS.NONE:
-            self.logger.debug("%r not started, skip stopping", self)
+            self.logger.debug("%s not started, skip stopping", self)
             return
 
         if (
@@ -1345,7 +1345,7 @@ class Resource(Entity):
             or self.status == self.STATUS.STOPPED
         ):
             self.logger.debug(
-                "stop() has been called on %r, skip stopping", self
+                "stop() has been called on %s, skip stopping", self
             )
             return
 

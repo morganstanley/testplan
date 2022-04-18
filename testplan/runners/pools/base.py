@@ -15,7 +15,7 @@ from testplan.common import entity
 from testplan.common.remote.remote_resource import RemoteResource
 from testplan.common.utils.path import rebase_path
 from testplan.common.utils.thread import interruptible_join
-from testplan.common.utils.timing import wait_until_predicate
+from testplan.common.utils.timing import wait_until_predicate, get_sleeper
 from testplan.common.utils import strings
 from testplan.runners.base import Executor, ExecutorConfig
 from testplan.report import ReportCategories
@@ -180,17 +180,31 @@ class Worker(WorkerBase):
         self.last_heartbeat = time.time()
         super(Worker, self)._wait_started(timeout=timeout)
 
+    def _wait_stopped(self, timeout=None):
+        sleeper = get_sleeper(1, timeout)
+        while next(sleeper):
+            if self.is_alive:
+                self.logger.debug("Waiting for %s to stop", self)
+            else:
+                self.status.change(self.STATUS.STOPPED)
+                break
+        else:
+            msg = f"Not able to stop worker {self} after {timeout}(s)"
+            self.logger.error(msg)
+            raise RuntimeError(msg)
+
     @property
     def is_alive(self):
         """Poll the loop handler thread to check it is running as expected."""
-        return self._handler.is_alive()
+        return self._handler and self._handler.is_alive()
 
     def _loop(self, transport):
         message = Message(**self.metadata)
 
-        while self.active and self.status.tag not in (
-            self.status.STOPPING,
-            self.status.STOPPED,
+        while (
+            self.active
+            and self.status != self.status.STOPPING
+            and self.status != self.status.STOPPED
         ):
             received = transport.send_and_receive(
                 message.make(message.TaskPullRequest, data=1)
@@ -397,6 +411,10 @@ class Pool(Executor):
                     self.logger.error(traceback.format_exc())
 
             time.sleep(self.cfg.active_loop_sleep)
+
+    def workers_requests(self):
+        """Count how many tasks workers are requesting."""
+        return sum(worker.requesting for worker in self._workers)
 
     def handle_request(self, request):
         """
@@ -847,6 +865,11 @@ class Pool(Executor):
             self._conn.register(worker)
         self._workers.start()
 
+    def _stop_workers(self):
+        self._workers.stop()
+        for worker in self._workers:
+            worker.transport.disconnect()
+
     def _reset_workers(self):
         """
         Reset all workers in case that pool restarts but still use the existed
@@ -861,7 +884,14 @@ class Pool(Executor):
         self.make_runpath_dirs()
         if self.runpath is None:
             raise RuntimeError("runpath was not set correctly")
+
         self._metadata = {"runpath": self.runpath}
+
+        with self._pool_lock:
+            if not self._workers:
+                self._add_workers()
+            else:
+                self._reset_workers()
 
         self._conn.start()
         self._exit_loop = False
@@ -870,9 +900,8 @@ class Pool(Executor):
 
         super(Pool, self).starting()  # start the loop & monitor
 
-        if not self._workers:
-            self._add_workers()
-        self._start_workers()
+        with self._pool_lock:
+            self._start_workers()
 
         if self._workers.start_exceptions:
             for msg in self._workers.start_exceptions.values():
@@ -880,19 +909,12 @@ class Pool(Executor):
             self.abort()
             raise RuntimeError(f"All workers of {self} failed to start")
 
-    def workers_requests(self):
-        """Count how many tasks workers are requesting."""
-        return sum(worker.requesting for worker in self._workers)
-
-    def _stop_workers(self):
-        self._workers.stop()
+        self.status.change(self.status.STARTED)  # Start is async
 
     def stopping(self):
         """Stop connections and workers."""
         with self._pool_lock:
             self._stop_workers()
-            for worker in self._workers:
-                worker.transport.disconnect()
 
         self._exit_loop = True
         super(Pool, self).stopping()  # stop the loop (monitor will stop later)
@@ -906,8 +928,9 @@ class Pool(Executor):
 
     def aborting(self):
         """Aborting logic."""
-        for worker in self._workers:
-            worker.abort()
+        with self._pool_lock:
+            for worker in self._workers:
+                worker.abort()
 
         self._exit_loop = True
         super(Pool, self).stopping()  # stop the loop and the monitor

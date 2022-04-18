@@ -139,7 +139,7 @@ class ProcessWorker(Worker):
 
         # Check if the child process already terminated.
         if self._handler.poll() is not None:
-            self.logger.critical(
+            self.logger.info(
                 "Worker process exited with code %d", self._handler.returncode
             )
             self._handler = None
@@ -151,12 +151,11 @@ class ProcessWorker(Worker):
         """Stop child process worker."""
         if hasattr(self, "_handler") and self._handler:
             kill_process(self._handler)
-        self.status.change(self.STATUS.STOPPED)
 
     def aborting(self):
         """Process worker abort logic."""
         self._transport.disconnect()
-        self.stop()
+        self.stopping()
 
 
 class ProcessPoolConfig(PoolConfig):

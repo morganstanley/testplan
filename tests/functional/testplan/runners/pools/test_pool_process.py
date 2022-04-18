@@ -69,7 +69,7 @@ def test_kill_one_worker(mockplan, tmp_path: Path):
             [
                 worker
                 for worker in mockplan.resources[pool_uid]._workers
-                if worker._aborted is True
+                if worker.aborted
             ]
         )
         == 1
@@ -119,7 +119,7 @@ def test_kill_all_workers(mockplan):
             [
                 worker
                 for worker in mockplan.resources[pool_uid]._workers
-                if worker._aborted is True
+                if worker.aborted
             ]
         )
         == pool_size
@@ -165,7 +165,7 @@ def test_reassign_times_limit(mockplan):
             [
                 worker
                 for worker in mockplan.resources[pool_uid]._workers
-                if worker._aborted is True
+                if worker.aborted is True
             ]
         )
         == retries_limit + 1
@@ -213,7 +213,7 @@ def test_disable_rerun_in_pool(mockplan):
             [
                 worker
                 for worker in mockplan.resources[pool_uid]._workers
-                if worker._aborted is True
+                if worker.aborted is True
             ]
         )
         == 0
@@ -332,7 +332,7 @@ def test_restart_worker(mockplan):
             [
                 worker
                 for worker in mockplan.resources[pool_uid]._workers
-                if worker._aborted is True
+                if worker.aborted is True
             ]
         )
         == 0

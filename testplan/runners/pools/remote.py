@@ -18,7 +18,7 @@ from testplan.common.utils.path import (
     rebase_path,
 )
 from testplan.common.utils.remote import ssh_cmd, copy_cmd
-from testplan.common.utils.timing import get_sleeper, wait
+from testplan.common.utils.timing import wait
 from testplan.runners.pools.base import Pool, PoolConfig
 from testplan.runners.pools.communication import Message
 from testplan.runners.pools.connection import ZMQServer
@@ -148,24 +148,17 @@ class RemoteWorker(ProcessWorker, RemoteResource):
         self._write_syspath()
 
     def pre_stop(self):
-        """Stop child process worker."""
         self._fetch_results()
 
     def post_stop(self):
         self._clean_remote()
 
-    def _wait_stopped(self, timeout=None):
-        sleeper = get_sleeper(1, timeout)
-        while next(sleeper):
-            if self.status != self.status.STOPPED:
-                self.logger.info("Waiting for workers to stop")
-            else:
-                self.post_stop()
-                break
-        else:
-            msg = f"Not able to stop worker {self} after {timeout}s"
-            self.logger.error(msg)
-            raise RuntimeError(msg)
+    def aborting(self):
+        """Remote worker abort logic."""
+        self._transport.disconnect()
+        self.pre_stop()
+        self.stopping()
+        self.post_stop()
 
     def rebase_attachment(self, result):
         """Rebase the path of attachment from remote to local"""
@@ -367,6 +360,7 @@ class RemotePool(Pool):
         """Start all workers of the pool"""
         for worker in self._workers:
             self._conn.register(worker)
+
         if self.pool:
             self._workers.start_in_pool(self.pool)
         else:
@@ -377,6 +371,9 @@ class RemotePool(Pool):
             self._workers.stop_in_pool(self.pool)
         else:
             self._workers.stop()
+
+        for worker in self._workers:
+            worker.transport.disconnect()
 
     def _start_thread_pool(self):
         size = len(self._instances)
@@ -404,10 +401,10 @@ class RemotePool(Pool):
                     )
                 except Exception:
                     self.logger.error(
-                        "Timeout waiting for worker {} to quit starting "
-                        "while pool {} is stopping".format(
-                            worker, self.cfg.name
-                        )
+                        "Timeout waiting for worker %s to quit starting"
+                        " while pool %s is stopping",
+                        worker,
+                        self.cfg.name,
                     )
 
         super(RemotePool, self).stopping()
