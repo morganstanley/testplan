@@ -67,7 +67,7 @@ class BaseRenderer:
     def get_testcase_reports(
         self,
         testsuite_report: Report,
-    ) -> Generator[TestCaseReport]:
+    ) -> Generator[TestCaseReport, None, None]:
         """
         Generator function to yield testcases from a suite report recursively.
 
