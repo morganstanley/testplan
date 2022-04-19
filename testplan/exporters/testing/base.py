@@ -1,3 +1,4 @@
+""" TODO """
 """
 Implements base exporter objects.
 """
@@ -65,13 +66,13 @@ class TagFilteredExporter(Exporter):
 
     def get_exporter(self, **params) -> BaseExporter:
         """
-        Return a new instance of `exporter_class`,
-        initialized with given `params`.
+        Instantiates `exporter_class` with given `params`.
 
-        :param params: Keyword arguments that will be
-                       used for initializing `exporter_class`.
-        :return: Instance of `exporter_class`
+        :param params: keyword arguments used for initializing `exporter_class`
+        :return: instance of `exporter_class`
+        :raises AttributeError: if there is no exporter class set
         """
+        # TODO: shouldn't this be a TypeError for non-BaseExporter instance?
         if not self.exporter_class:
             raise AttributeError("`exporter_class` not set.")
 
@@ -94,6 +95,7 @@ class TagFilteredExporter(Exporter):
         :param source: Testplan report
         :param tag_dict: tag context for filtering
         :param filter_type: all / any
+        :return: filtered clone
         """
         tag_label = tagging.tag_label(tag_dict)
         result = source.filter_by_tags(
@@ -109,6 +111,8 @@ class TagFilteredExporter(Exporter):
         filter_type: str,
     ) -> str:
         """
+        Produces message logged if filtered clone is empty.
+
         :param source: cloned test report
         :param tag_dict: tag context for the current filtered test report
         :param filter_type: all / any
@@ -178,6 +182,7 @@ def save_attachments(report: TestReport, directory: str) -> Dict[str, str]:
 
     :param report: Testplan report.
     :param directory: directory to save attachments in
+    :return: dictionary of destination paths
     """
     moved_attachments = {}
     attachments = getattr(report, "attachments", None)

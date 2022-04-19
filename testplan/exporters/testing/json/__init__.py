@@ -3,20 +3,17 @@ JSON exporter for test reports, relies on `testplan.report.testing.schemas`
 for `dict` serialization and JSON conversion.
 """
 
-import os
-import json
-import pathlib
 import hashlib
+import json
+import os
+import pathlib
 
 from testplan import defaults
-
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import ExporterConfig
-
 from testplan.report import ReportCategories
-from testplan.report.testing.schemas import TestReportSchema
 from testplan.report.testing.base import TestReport
-
+from testplan.report.testing.schemas import TestReportSchema
 from ..base import Exporter, save_attachments
 
 

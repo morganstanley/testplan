@@ -1,5 +1,6 @@
-import re
+""" TODO """
 import functools
+import re
 from html import escape
 
 html_escape = functools.partial(escape, quote=False)
@@ -10,14 +11,11 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 
 from testplan.common.exporters.pdf import RowStyle, create_table
 from testplan.common.exporters.pdf import format_table_style, format_cell_data
-from testplan.common.utils.strings import wrap, split_line, split_text
+from testplan.common.utils.strings import split_line, split_text
 from testplan.common.utils.comparison import is_regex
 from testplan.exporters.testing.pdf.renderers.base import SlicedParagraph
-
 from testplan.report import Status
-
 from testplan.testing.multitest.entries import assertions
-
 from .base import SerializedEntryRenderer, registry
 from .. import constants as const
 from ..base import RowData
