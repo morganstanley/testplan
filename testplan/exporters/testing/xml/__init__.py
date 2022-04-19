@@ -4,33 +4,33 @@ XML Export logic for test reports.
 
 import os
 import pathlib
-import socket
 import shutil
+import socket
 from collections import Counter
+from typing import Generator, List, Dict, Union
 
 from lxml import etree
+from lxml.etree import Element
 from lxml.builder import E  # pylint: disable=no-name-in-module
-
-from testplan.common.utils.path import unique_name
-from testplan.common.utils.strings import slugify
 
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import ExporterConfig
-
+from testplan.common.utils.path import unique_name
+from testplan.common.utils.strings import slugify
 from testplan.report import (
+    TestReport,
     TestCaseReport,
     TestGroupReport,
     ReportCategories,
     Status,
 )
-
+from testplan.report.testing.base import Report
 from ..base import Exporter
 
 
 class BaseRenderer:
     """
-    Basic renderer, will render a test group report with the following
-    structure:
+    Base renderer, renders a test group report with the following structure:
 
     .. code-block:: python
 
@@ -42,10 +42,12 @@ class BaseRenderer:
               TestCaseReport(name=...) (passing)
     """
 
-    def render(self, source):
+    def render(self, source: TestGroupReport) -> Element:
         """
-        Top level rendering logic, renders each suite
-        separately & groups them within `testsuites` tag.
+        Renders each suite separately and groups them within `testsuites` tag.
+
+        :param source: Testplan report
+        :return: testsuites element
         """
         testsuites = []
         counter = Counter({})
@@ -62,12 +64,15 @@ class BaseRenderer:
             failures=str(counter["failed"])
         )
 
-    def get_testcase_reports(self, testsuite_report):
+    def get_testcase_reports(
+        self,
+        testsuite_report: Report,
+    ) -> Generator[TestCaseReport]:
         """
-        Get testcases from a suite report, normally this is more or less
-        equal to all children of the suite report, however certain test
-        runners (e.g. MultiTest) may have nested data that needs to be
-        flattened.
+        Generator function to yield testcases from a suite report recursively.
+
+        :param testsuite_report: Testplan report
+        :return: generator to produce all testcases
         """
         for child in testsuite_report:
             if isinstance(child, TestCaseReport):
@@ -79,10 +84,16 @@ class BaseRenderer:
             else:
                 raise TypeError("Unsupported report type: {}".format(child))
 
-    def render_testsuite(self, index, test_report, testsuite_report):
+    def render_testsuite(
+        self, index, test_report, testsuite_report
+    ) -> Element:
         """
-        Render a single testsuite with its testcases within a `testsuite`
-        tag.
+        Renders a single testsuite with its testcases within a `testsuite` tag.
+
+        :param index: index of the testsuite as item in Testplan report
+        :param test_report: Testplan report
+        :param testsuite_report: testsuite level report
+        :return: testsuite element
         """
         cases = [
             self.render_testcase(
@@ -102,10 +113,19 @@ class BaseRenderer:
             tests=str(testsuite_report.counter["total"])
         )
 
-    def render_testcase(self, test_report, testsuite_report, testcase_report):
+    def render_testcase(
+        self,
+        test_report: TestReport,
+        testsuite_report: TestGroupReport,
+        testcase_report: TestCaseReport,
+    ) -> Element:
         """
-        Render a testcase with errors & failures within a `testcase`
-        tag.
+        Renders a testcase with errors & failures within a `testcase` tag.
+
+        :param test_report: Testplan report
+        :param testsuite_report: testsuite level report
+        :param testcase_report: testcase level report
+        :return: testcase element
         """
         # the xsd for junit only allows errors OR failures not both
         if testcase_report.status == Status.ERROR:
@@ -126,10 +146,15 @@ class BaseRenderer:
             else "0"
         )
 
-    def render_testcase_errors(self, testcase_report):
+    def render_testcase_errors(
+        self,
+        testcase_report: TestCaseReport,
+    ) -> List[Element]:
         """
-        Create an `error` tag that holds error information via testcase
-        report's logs.
+        Creates an `error` tag holding information via testcase report logs.
+
+        :param testcase_report: testcase level report
+        :return: error element
         """
         return [
             E.error(message=log["message"])
@@ -137,13 +162,15 @@ class BaseRenderer:
             if log["levelname"] == "ERROR"
         ]
 
-    def render_testcase_failures(self, testcase_report):
+    def render_testcase_failures(
+        self,
+        testcase_report: TestCaseReport,
+    ) -> List[Element]:
         """
-        Entries of a testcase report are in dict form, which may
-        also be nested in case there are groups/summaries.
+        Iterates over failing assertions to create `failure` tags.
 
-        This method flattens the enty data and iterates over failing
-        assertions to create `failure` tags with element tree.
+        :param testcase_report: testcase level report
+        :return: failure element
         """
         # Depth does not matter, we just need entries in flat form
         flat_dicts = list(zip(*testcase_report.flattened_entries(depth=0)))[1]
@@ -191,10 +218,15 @@ class MultiTestRenderer(BaseRenderer):
     Final XML will have flattened testcase data from parametrization groups.
     """
 
-    def get_testcase_reports(self, testsuite_report):
+    def get_testcase_reports(
+        self, testsuite_report: Union[TestCaseReport, TestGroupReport]
+    ) -> List[TestCaseReport]:
         """
-        Multitest suites may have additional nested in case of
-        parametrization.
+        Collects all testcase level reports from a testsuite.
+
+        :param testsuite_report:
+        :raises TypeError:
+        :return:
         """
         testcase_reports = []
         for child in testsuite_report:
@@ -213,8 +245,7 @@ class MultiTestRenderer(BaseRenderer):
 class XMLExporterConfig(ExporterConfig):
     """
     Configuration object for
-    :py:class:`XMLExporter <testplan.exporters.testing.xml.XMLExporter>`
-    object.
+    :py:class:`<~testplan.exporters.testing.xml.XMLExporter>`.
     """
 
     @classmethod
@@ -224,27 +255,27 @@ class XMLExporterConfig(ExporterConfig):
 
 class XMLExporter(Exporter):
     """
-    XML Exporter. Produces one XML file per each child of
+    Exporter subclass for handling XML. Produces one XML file per each child of
     TestPlanReport (e.g. Multitest reports)
 
     :param xml_dir: Directory for saving xml reports.
-    :type xml_dir: ``str``
-
-    Also inherits all
-    :py:class:`~testplan.exporters.testing.base.Exporter` options.
     """
 
-    CONFIG = XMLExporterConfig
+    CONFIG: XMLExporterConfig = XMLExporterConfig
 
-    renderer_map = {ReportCategories.MULTITEST: MultiTestRenderer}
+    renderer_map: Dict[ReportCategories, BaseRenderer] = {
+        ReportCategories.MULTITEST: MultiTestRenderer
+    }
 
     def __init__(self, name="XML exporter", **options):
         super(XMLExporter, self).__init__(name=name, **options)
 
-    def export(self, source):
+    def export(self, source: TestReport) -> str:
         """
-        Create multiple XML files in the given directory for each top
-        level test group report.
+        Creates multiple XML files in the given directory for MultiTest.
+
+        :param source:
+        :return:
         """
         xml_dir = pathlib.Path(self.cfg.xml_dir).resolve()
 
@@ -261,6 +292,7 @@ class XMLExporter(Exporter):
             files.add(filename)
             file_path = xml_dir / filename
 
+            # TODO: "mostly" - is this just confidence or proven?
             # If a report has XML string attribute it was mostly
             # generated via parsing a JUnit compatible XML file
             # already, meaning we don't need to re-generate the XML
