@@ -280,9 +280,16 @@ class RemoteChildLoop(ChildLoop):
 
     def _pre_loop_setup(self, message):
         super(RemoteChildLoop, self)._pre_loop_setup(message)
-        self._setup_metadata = self._send_and_expect(
-            message, message.MetadataPull, message.Metadata
-        ).data
+
+        response = self._send_and_expect(
+            message, message.MetadataPull, [message.Metadata, message.Stop]
+        )
+
+        if response.cmd == message.Stop:
+            print("Stop message received, child exits.")
+            os._exit(0)
+
+        self._setup_metadata = response.data
 
         if self._setup_metadata.env:
             for key, value in self._setup_metadata.env.items():
