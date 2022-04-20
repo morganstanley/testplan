@@ -8,9 +8,9 @@ import pprint
 import traceback
 import queue
 
-from schema import Or, And, Use
+from schema import Or, And
 
-from testplan.common.config import ConfigOption, validate_func
+from testplan.common.config import ConfigOption
 from testplan.common import entity
 from testplan.common.remote.remote_resource import RemoteResource
 from testplan.common.utils.path import rebase_path
@@ -23,7 +23,6 @@ from testplan.report import ReportCategories
 from .communication import Message
 from .connection import QueueClient, QueueServer
 from .tasks import Task, TaskResult
-from testplan.common.entity import ResourceStatus
 
 
 class TaskQueue:
@@ -593,9 +592,7 @@ class Pool(Executor):
     def _handle_setupfailed(self, worker, request, response):
         """Handle a SetupFailed message received from a worker."""
         self.logger.test_info(
-            "Worker {} setup failed:{}{}".format(
-                worker, os.linesep, request.data
-            )
+            "Worker %s setup failed:%s%s", worker, os.linesep, request.data
         )
         worker.respond(response.make(Message.Ack))
         self._decommission_worker(worker, "Aborting {}, setup failed.")
@@ -604,14 +601,14 @@ class Pool(Executor):
         """
         Decommission a worker by move all assigned task back to pool
         """
-        self.logger.critical(message.format(worker))
+        self.logger.warning(message.format(worker))
         if os.path.exists(worker.outfile):
-            self.logger.critical("\tlogfile: {}".format(worker.outfile))
+            self.logger.test_info("\tlogfile: %s", worker.outfile)
         while worker.assigned:
             uid = worker.assigned.pop()
             task = self._input[uid]
             self.logger.test_info(
-                "Re-collect {} from {} to {}.".format(task, worker, self)
+                "Re-collect %s from %s to %s.", task, worker, self
             )
             self.unassigned.put(task.priority, uid)
             self._task_retries_cnt[uid] += 1
@@ -633,14 +630,17 @@ class Pool(Executor):
                 status, reason = self._query_worker_status(worker)
                 if status == "inactive":
                     with self._pool_lock:
-                        if self.active and self.status.tag not in (
-                            self.status.STOPPING,
-                            self.status.STOPPED,
+                        if (
+                            self.active
+                            and self.status != self.status.STOPPING
+                            and self.status != self.status.STOPPED
                         ):
                             if self._handle_inactive(worker, reason):
                                 status = "active"
                         else:
-                            # if pool is aborting/stopping, exit monitor
+                            self.logger.test_info(
+                                "%s is aborting/stopping, exit monitor.", self
+                            )
                             break_outer_loop = True
                             break
 
@@ -651,7 +651,7 @@ class Pool(Executor):
 
             if hosts_status != previous_status:
                 self.logger.info(
-                    "%s Hosts status update", datetime.datetime.now()
+                    "Hosts status update at %s", datetime.datetime.now()
                 )
                 self.logger.info(pprint.pformat(hosts_status))
                 previous_status = hosts_status
@@ -661,11 +661,12 @@ class Pool(Executor):
                 and not hosts_status["initializing"]
                 and hosts_status["inactive"]
             ):
-                self.logger.critical(
-                    "All workers of {} are inactive.".format(self)
-                )
-                self.abort()
-                break
+                if not self._exit_loop:
+                    self.logger.critical(
+                        "All workers are inactive, abort %s.", self
+                    )
+                    self.abort()  # TODO: abort pool in a monitor thread ?
+                    break
 
             try:
                 # For early finish of worker monitoring thread.
@@ -675,6 +676,7 @@ class Pool(Executor):
                     interval=0.05,
                 )
             except RuntimeError:
+                self.logger.test_info("%s is not alive, exit monitor.", self)
                 break
 
     def _query_worker_status(self, worker):
@@ -747,12 +749,14 @@ class Pool(Executor):
             worker.restart_count -= 1
             try:
                 worker.restart()
+                self.logger.info("Worker %s has restarted", worker)
                 return True
             except Exception as exc:
                 self.logger.critical(
                     "Worker %s failed to restart: %s", worker, exc
                 )
         else:
+            self.logger.warning("Worker %s is inactive and will abort", worker)
             worker.abort()
 
         return False
@@ -825,10 +829,18 @@ class Pool(Executor):
             )
 
     def _start_workers(self):
-        """Start all workers of the pool"""
+        """Start all workers of the pool."""
         for worker in self._workers:
             self._conn.register(worker)
         self._workers.start()
+
+    def _reset_workers(self):
+        """
+        Reset all workers in case that pool restarts but still use the existed
+        workers. A worker in STOPPED status can make monitor think it is dead.
+        """
+        for worker in self._workers:
+            worker.status.reset()
 
     def starting(self):
         """Starting the pool and workers."""
@@ -845,6 +857,8 @@ class Pool(Executor):
 
         if not self._workers:
             self._add_workers()
+        else:
+            self._reset_workers()
         self._start_workers()
 
         if self._workers.start_exceptions:
@@ -864,14 +878,13 @@ class Pool(Executor):
 
     def stopping(self):
         """Stop connections and workers."""
-
         with self._pool_lock:
             self._stop_workers()
             for worker in self._workers:
                 worker.transport.disconnect()
 
         self._exit_loop = True
-        super(Pool, self).stopping()  # stop the loop and the monitor
+        super(Pool, self).stopping()  # stop the loop (monitor will stop later)
 
         self._conn.stop()
 

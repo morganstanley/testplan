@@ -80,9 +80,10 @@ class Suite:
     def case(self, env, result):
         """Basic testcase."""
         result.true(True)
+        assert env.runtime_info.testcase.name == "case"
         assert (
-            env.runtime_info.testcase.name == "case"
-        )  # using pytest assert to check multitest runtime info
+            env.runtime_info.testcase.report.description == "Basic testcase."
+        )
 
     @multitest.testcase(parameters=[1, 2, 3])
     def parametrized(self, env, result, val):
@@ -91,6 +92,10 @@ class Suite:
         assert (
             env.runtime_info.testcase.name
             == "parametrized <val={}>".format(val)
+        )
+        assert (
+            env.runtime_info.testcase.report.description
+            == "Parametrized testcase."
         )
 
 
@@ -113,6 +118,7 @@ class ParallelSuite:
         self._barrier.wait()
         result.eq(0, 0)
         assert env.runtime_info.testcase.name == "case1"
+        assert env.runtime_info.testcase.report.description == "Testcase 1"
         self._barrier.wait()
 
     @multitest.testcase(execution_group="A")
@@ -121,6 +127,7 @@ class ParallelSuite:
         self._barrier.wait()
         result.eq(1, 1)
         assert env.runtime_info.testcase.name == "case2"
+        assert env.runtime_info.testcase.report.description == "Testcase 2"
         self._barrier.wait()
 
     @multitest.testcase(execution_group="A")
@@ -129,6 +136,7 @@ class ParallelSuite:
         self._barrier.wait()
         result.eq(2, 2)
         assert env.runtime_info.testcase.name == "case3"
+        assert env.runtime_info.testcase.report.description == "Testcase 3"
         self._barrier.wait()
 
     @multitest.testcase(execution_group="B", parameters=[1, 2, 3])
