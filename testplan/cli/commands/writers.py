@@ -9,7 +9,7 @@ import click
 from testplan.cli.utils.actions import ProcessResultAction
 from testplan.cli.utils.command_list import CommandList
 from testplan.common.utils import logger
-from testplan.exporters.testing import JSONExporter, PDFExporter
+from testplan.exporters.testing import JSONExporter, PDFExporter, XMLExporter
 from testplan.report import TestReport
 from testplan.report.testing.styles import StyleArg
 from testplan.web_ui.server import WebUIServer
@@ -31,7 +31,7 @@ class ToJsonAction(ProcessResultAction):
 
     def __call__(self, result: TestReport) -> TestReport:
         """
-        :param result: testplan result to export
+        :param result: Testplan report to export
         """
         exporter = JSONExporter(json_path=self.output)
         exporter.export(result)
@@ -65,6 +65,9 @@ class ToPDFAction(ProcessResultAction, logger.Loggable):
         self.style = style
 
     def __call__(self, result: TestReport) -> TestReport:
+        """
+        :param result: Testplan report to export
+        """
         exporter = PDFExporter(
             pdf_path=self.filename, pdf_style=self.style.value
         )
@@ -83,8 +86,10 @@ class ToPDFAction(ProcessResultAction, logger.Loggable):
     ),
     help="""result - only the result of the run will be shown\n
             summary - test details will be shown\n
-            extended - passing tests will include testcase detail, while failing tests will include assertion detail\n
-            detailed - passing tests will include assertion detail, while failing tests will include assertion detail\n
+            extended - passing tests will include testcase detail,\
+             while failing tests will include assertion detail\n
+            detailed - passing tests will include assertion detail,\
+             while failing tests will include assertion detail\n
         """,
 )
 def to_pdf(filename: click.Path, pdf_style: click.Choice) -> ToPDFAction:
@@ -102,6 +107,37 @@ def to_pdf(filename: click.Path, pdf_style: click.Choice) -> ToPDFAction:
         return ToPDFAction(filename=filename, style=StyleArg.EXTENDED_SUMMARY)
     elif pdf_style == "detailed":
         return ToPDFAction(filename=filename, style=StyleArg.DETAILED)
+
+
+class ToJUnitAction(ProcessResultAction, logger.Loggable):
+    """
+    Writer action for exporting JUnit XML format.
+    """
+
+    def __init__(self, dir_name: str) -> None:
+        """
+        :param dir_name: directory to write XML files to
+        """
+        logger.Loggable.__init__(self)
+        self.dir_name = dir_name
+
+    def __call__(self, result: TestReport) -> TestReport:
+        exporter = XMLExporter(xml_dir=self.dir_name)
+        exporter.export(result)
+        self.logger.test_info(f"XML files written to {self.dir_name}")
+        return result
+
+
+@writer_commands.command(name="tojunit")
+@click.argument("dir_name", required=True, type=click.Path())
+def to_junit(dir_name: click.Path) -> ToJUnitAction:
+    """
+    Writer command for exporting JUnit format.
+
+    :param dir_name: directory to write XML files to
+    :return: JUnit writer action to perform
+    """
+    return ToJUnitAction(dir_name=dir_name)
 
 
 class DisplayAction(ProcessResultAction):

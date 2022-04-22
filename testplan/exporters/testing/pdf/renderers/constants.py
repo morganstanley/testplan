@@ -1,3 +1,4 @@
+""" TODO """
 from reportlab.lib.pagesizes import A3
 from reportlab.lib.units import cm
 from reportlab.lib import colors
@@ -63,7 +64,6 @@ TABLE_STYLE = [
 ]
 
 # Displayed tables constants and style, used for table.log, table.match etc.
-# PAGE_WIDTH = constants.PAGE_WIDTH
 PAGE_WIDTH = PAGE_SIZE[0] - PAGE_MARGIN * 2
 
 NUM_DISPLAYED_ROWS = constants.NUM_DISPLAYED_ROWS

@@ -1,10 +1,11 @@
 import os
-import uuid
 import tempfile
-import numpy as np
-from reportlab.platypus import Image
-from reportlab.lib.units import inch
+import uuid
+
 import matplotlib
+import numpy as np
+from reportlab.lib.units import inch
+from reportlab.platypus import Image
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plot
