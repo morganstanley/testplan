@@ -42,7 +42,7 @@ class HTTPExporterConfig(ExporterConfig):
 
 class HTTPExporter(Exporter):
     """
-    JSON exporter.
+    HTTP exporter.
 
     :param http_url: Http url for posting data.
     :type http_url: ``str``
