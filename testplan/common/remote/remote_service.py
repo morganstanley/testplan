@@ -5,8 +5,10 @@ import os
 import re
 import signal
 import subprocess
+from typing import Optional
 
 import rpyc
+from rpyc import Connection
 
 from testplan.common.config import ConfigOption
 from testplan.common.entity import Resource, ResourceConfig
@@ -40,6 +42,7 @@ class RemoteServiceConfig(ResourceConfig, RemoteResourceConfig):
         return {
             "name": str,
             ConfigOption("rpyc_bin", default=RPYC_BIN): str,
+            ConfigOption("rpyc_port", default=0): int,
         }
 
 
@@ -54,6 +57,9 @@ class RemoteService(Resource, RemoteResource):
     :type remote_host: ``str``
     :param rpyc_bin: Location of rpyc_classic.py script
     :type rpyc_bin: ``str``
+    :param rpyc_port: Specific port for rpyc connection on the remote host. Defaults to 0
+        which start the rpyc server on a random port.
+    :type rpyc_port: ``int``
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Resource` and
@@ -62,21 +68,28 @@ class RemoteService(Resource, RemoteResource):
 
     CONFIG = RemoteServiceConfig
 
-    def __init__(self, name, remote_host, rpyc_bin=RPYC_BIN, **options):
+    def __init__(
+        self,
+        name: str,
+        remote_host: str,
+        rpyc_bin: str = RPYC_BIN,
+        rpyc_port: str = 0,
+        **options,
+    ):
 
         options.update(self.filter_locals(locals()))
         options["async_start"] = False
         super(RemoteService, self).__init__(**options)
 
-        self.proc = None
+        self.proc: Optional[subprocess.Popen] = None
         # This mirrors the way default config is assigned, we only change
         # snyc_request_timeout and pass it for the Connection object implicitly
         self.rpyc_config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         self.rpyc_config["snyc_request_timeout"] = None
-        self.rpyc_connection = None
-        self.rpyc_port = None
-        self.rpyc_pid = None
-        self.std = None
+        self.rpyc_connection: Connection = None
+        self.rpyc_port: Optional[int] = None
+        self.rpyc_pid: Optional[int] = None
+        self.std: StdFiles = None
 
     def __repr__(self) -> str:
         """
@@ -112,7 +125,7 @@ class RemoteService(Resource, RemoteResource):
                     "--host",
                     "0.0.0.0",
                     "-p",
-                    "0",
+                    str(self.cfg.rpyc_port),
                 ]
             ),
         )
@@ -132,7 +145,7 @@ class RemoteService(Resource, RemoteResource):
             "\tOut file: %s\n"
             "\tErr file: %s",
             self,
-            cmd,
+            " ".join(cmd),
             self.runpath,
             self.proc.pid,
             self.std.out_path,
