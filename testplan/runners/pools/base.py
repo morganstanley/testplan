@@ -850,16 +850,15 @@ class Pool(Executor):
             raise RuntimeError("runpath was not set correctly")
         self._metadata = {"runpath": self.runpath}
 
-        if not self._workers:
-            self._add_workers()
-        else:
+        self._conn.start()
+        self._exit_loop = False
+        if self._workers:
             self._reset_workers()
 
-        self._conn.start()
-
-        self._exit_loop = False
         super(Pool, self).starting()  # start the loop & monitor
 
+        if not self._workers:
+            self._add_workers()
         self._start_workers()
 
         if self._workers.start_exceptions:
