@@ -301,9 +301,9 @@ def test_echo_hello(runpath):
     )
     assert app.cmd == ["echo", "hello"]
     with app:
-        assert app.status.tag == app.status.STARTED
+        assert app.status == app.status.STARTED
         assert app.cfg.app_dir_name in os.listdir(app.runpath)
-    assert app.status.tag == app.status.STOPPED
+    assert app.status == app.status.STOPPED
     assert app.retcode == 0
 
     with open(app.std.out_path, "r") as fobj:

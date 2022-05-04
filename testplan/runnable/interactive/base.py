@@ -417,9 +417,6 @@ class TestRunnerIHandler(entity.Entity):
 
         exceptions = self.test(test_uid).resources.start_exceptions
         if exceptions:
-            for driver in exceptions.keys():
-                driver.status.change(driver.STATUS.STOPPING)
-                driver.status.change(driver.STATUS.STOPPED)
             self._log_env_errors(test_uid, exceptions.values())
             self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
             raise RuntimeError(
@@ -451,8 +448,6 @@ class TestRunnerIHandler(entity.Entity):
 
         exceptions = self.test(test_uid).resources.stop_exceptions
         if exceptions:
-            for driver in exceptions.keys():
-                driver.status.change(driver.STATUS.STOPPED)
             self._log_env_errors(test_uid, exceptions.values())
             self._set_env_status(test_uid, entity.ResourceStatus.STOPPED)
             raise RuntimeError(

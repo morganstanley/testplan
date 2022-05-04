@@ -72,6 +72,7 @@ class MultiTestRuntimeInfo:
 
     class TestcaseInfo:
         name = None
+        report = None
 
     def __init__(self):
         self.testcase = self.TestcaseInfo()
@@ -222,7 +223,7 @@ class MultiTest(testing_base.Test):
         result=result.Result,
         fix_spec_path=None,
         testcase_report_target=True,
-        **options
+        **options,
     ):
         self._tags_index = None
 
@@ -893,16 +894,16 @@ class MultiTest(testing_base.Test):
         """
         return self._run_suite_related(testsuite, "teardown")
 
-    def _run_suite_related(self, testsuite, method):
+    def _run_suite_related(self, testsuite, method_name):
         """Runs testsuite related special methods setup/teardown/etc."""
-        testsuite_method = getattr(testsuite, method, None)
+        testsuite_method = getattr(testsuite, method_name, None)
         if testsuite_method is None:
             return None
         elif not callable(testsuite_method):
-            raise TypeError("{} expected to be callable.".format(method))
+            raise TypeError("{} expected to be callable.".format(method_name))
 
         method_report = TestCaseReport(
-            name=method, uid=method, suite_related=True
+            name=method_name, uid=method_name, suite_related=True
         )
         case_result = self.cfg.result(
             stdout_style=self.stdout_style, _scratch=self._scratch
@@ -919,7 +920,18 @@ class MultiTest(testing_base.Test):
 
         with method_report.timer.record("run"):
             with method_report.logged_exceptions():
-                testsuite_method(*method_args)
+                time_restriction = getattr(testsuite_method, "timeout", None)
+                if time_restriction:
+                    # pylint: disable=unbalanced-tuple-unpacking
+                    executed, execution_result = timing.timeout(
+                        time_restriction,
+                        f"`{method_name}` timeout after {{}} second(s)",
+                    )(testsuite_method)(*method_args)
+                    if not executed:
+                        method_report.logger.error(execution_result)
+                        method_report.status_override = Status.ERROR
+                else:
+                    testsuite_method(*method_args)
 
         method_report.extend(case_result.serialized_entries)
         method_report.attachments.extend(case_result.attachments)
@@ -933,17 +945,29 @@ class MultiTest(testing_base.Test):
             interface.check_signature(
                 method, ["self", "name", "env", "result"]
             )
-            method(testcase.name, resources, case_result)
+            method_args = (testcase.name, resources, case_result)
         except interface.MethodSignatureMismatch:
             interface.check_signature(
                 method, ["self", "name", "env", "result", "kwargs"]
             )
-            method(
+            method_args = (
                 testcase.name,
                 resources,
                 case_result,
                 getattr(testcase, "_parametrization_kwargs", {}),
             )
+
+        time_restriction = getattr(method, "timeout", None)
+        if time_restriction:
+            # pylint: disable=unbalanced-tuple-unpacking
+            executed, execution_result = timing.timeout(
+                time_restriction,
+                f"`{method.__name__}` timeout after {{}} second(s)",
+            )(method)(*method_args)
+            if not executed:
+                raise Exception(execution_result)
+        else:
+            method(*method_args)
 
     def _run_testcase(
         self, testcase, pre_testcase, post_testcase, testcase_report=None
@@ -962,6 +986,7 @@ class MultiTest(testing_base.Test):
 
         runtime_info = MultiTestRuntimeInfo()
         runtime_info.testcase.name = testcase.name
+        runtime_info.testcase.report = testcase_report
         resources = RuntimeEnvironment(self.resources, runtime_info)
 
         with testcase_report.timer.record("run"):
@@ -975,7 +1000,8 @@ class MultiTest(testing_base.Test):
                 if time_restriction:
                     # pylint: disable=unbalanced-tuple-unpacking
                     executed, execution_result = timing.timeout(
-                        time_restriction, "Testcase timeout after {} second(s)"
+                        time_restriction,
+                        f"`{testcase.name}` timeout after {{}} second(s)",
                     )(testcase)(resources, case_result)
                     if not executed:
                         testcase_report.logger.error(execution_result)
@@ -983,7 +1009,6 @@ class MultiTest(testing_base.Test):
                 else:
                     testcase(resources, case_result)
 
-            with testcase_report.logged_exceptions():
                 if post_testcase and callable(post_testcase):
                     self._run_case_related(
                         post_testcase, testcase, resources, case_result

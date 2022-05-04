@@ -183,9 +183,10 @@ class ChildLoop:
 
         with self._child_pool():
             message = Message(**self.metadata)
-            next_possible_request = time.time()
-            next_heartbeat = time.time()
+            next_possible_request = 0
+            next_heartbeat = 0
             request_delay = self._pool_cfg.active_loop_sleep
+
             while True:
                 # TODO: SHALL CHECK CHILD POOL ALIVE HERE
                 now = time.time()
@@ -279,9 +280,16 @@ class RemoteChildLoop(ChildLoop):
 
     def _pre_loop_setup(self, message):
         super(RemoteChildLoop, self)._pre_loop_setup(message)
-        self._setup_metadata = self._send_and_expect(
-            message, message.MetadataPull, message.Metadata
-        ).data
+
+        response = self._send_and_expect(
+            message, message.MetadataPull, [message.Metadata, message.Stop]
+        )
+
+        if response.cmd == message.Stop:
+            print("Stop message received, child exits.")
+            os._exit(0)
+
+        self._setup_metadata = response.data
 
         if self._setup_metadata.env:
             for key, value in self._setup_metadata.env.items():

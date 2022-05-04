@@ -150,10 +150,8 @@ class ProcessWorker(Worker):
 
     def stopping(self):
         """Stop child process worker."""
-
         if hasattr(self, "_handler") and self._handler:
             kill_process(self._handler)
-            self._handler.wait()
         self.status.change(self.STATUS.STOPPED)
 
     def aborting(self):

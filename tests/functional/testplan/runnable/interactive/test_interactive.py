@@ -120,13 +120,13 @@ def test_top_level_tests():
         resources = [res.uid() for res in plan.i.test("Test2").resources]
         assert resources == ["server", "client"]
         for resource in plan.i.test("Test2").resources:
-            assert resource.status.tag is None
+            assert resource.status == resource.STATUS.NONE
         plan.i.start_test_resources("Test2")  # START
         for resource in plan.i.test("Test2").resources:
-            assert resource.status.tag is resource.STATUS.STARTED
+            assert resource.status == resource.STATUS.STARTED
         plan.i.stop_test_resources("Test2")  # STOP
         for resource in plan.i.test("Test2").resources:
-            assert resource.status.tag is resource.STATUS.STOPPED
+            assert resource.status == resource.STATUS.STOPPED
 
         # RESET REPORTS
         plan.i.reset_all_tests()
@@ -255,7 +255,7 @@ def test_top_level_environment():
             resources = [res.uid() for res in env]
             assert resources == ["server", "client"]
             for resource in env:
-                assert resource.status.tag is None
+                assert resource.status == resource.STATUS.NONE
             plan.i.start_environment(env_uid)  # START
 
             # INSPECT THE CONTEXT WHEN STARTED
@@ -289,10 +289,10 @@ def test_top_level_environment():
             assert received == "worlds"
 
             for resource in env:
-                assert resource.status.tag is resource.STATUS.STARTED
+                assert resource.status == resource.STATUS.STARTED
             plan.i.stop_environment(env_uid)  # STOP
             for resource in env:
-                assert resource.status.tag is resource.STATUS.STOPPED
+                assert resource.status == resource.STATUS.STOPPED
 
 
 def put_request(url, data):
@@ -328,7 +328,7 @@ def test_env_operate():
         assert len(current_report) == 2
 
         for resource in plan.i.test("Test2").resources:
-            assert resource.status.tag is None
+            assert resource.status == resource.STATUS.NONE
 
         test2_report = current_report[1].copy()
         assert test2_report["name"] == "Test2"
