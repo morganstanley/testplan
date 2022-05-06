@@ -4,13 +4,13 @@ PDF Export logic for test reports via ReportLab.
 
 import os
 import pathlib
+import time
 import traceback
 import uuid
 import warnings
-import time
 from urllib.request import pathname2url
 
-from schema import Schema, Or
+from schema import Or
 
 try:
     from reportlab.platypus import SimpleDocTemplate
@@ -23,15 +23,12 @@ except Exception as exc:
     warnings.warn("reportlab must be supported: {}".format(exc))
 
 
-from testplan.common.utils.strings import slugify
-from testplan.common.report import Report
-
 from testplan.common.config import ConfigOption
 from testplan.common.exporters import ExporterConfig
-
+from testplan.common.report import Report
+from testplan.common.utils.strings import slugify
 from testplan.report.testing.styles import Style
 from testplan.testing import tagging
-
 from ..base import Exporter, TagFilteredExporter, TagFilteredExporterConfig
 
 try:
