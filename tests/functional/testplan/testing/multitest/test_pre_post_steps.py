@@ -39,6 +39,8 @@ def check_func_4(env, result):
     result.attach(CURRENT_FILE, description="current file")
 
 
+
+
 expected_report = TestReport(
     name="plan",
     entries=[
@@ -46,16 +48,6 @@ expected_report = TestReport(
             name="MyMultitest",
             category=ReportCategories.MULTITEST,
             entries=[
-                TestGroupReport(
-                    name="MySuite",
-                    category=ReportCategories.TESTSUITE,
-                    entries=[
-                        TestCaseReport(name="test_one"),
-                        TestCaseReport(
-                            name="teardown", entries=[{"type": "Attachment"}]
-                        ),
-                    ],
-                ),
                 TestGroupReport(
                     name="Pre/Post Step Checks",
                     category=ReportCategories.TESTSUITE,
@@ -75,12 +67,20 @@ expected_report = TestReport(
                         ),
                     ],
                 ),
+                TestGroupReport(
+                    name="MySuite",
+                    category=ReportCategories.TESTSUITE,
+                    entries=[
+                        TestCaseReport(name="test_one"),
+                        TestCaseReport(
+                            name="teardown", entries=[{"type": "Attachment"}]
+                        ),
+                    ],
+                ),
             ],
         )
     ],
 )
-
-
 def test_pre_post_steps(mockplan):
 
     multitest = MultiTest(
