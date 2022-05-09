@@ -306,8 +306,8 @@ class Pool(Executor):
         self._conn.parent = self
         self._pool_lock = threading.Lock()
         self._metadata = None
-        # Set when Pool is started.
-        self._exit_loop = False
+        # Will set False when Pool is starting.
+        self._exit_loop = True
         self._start_monitor_thread = True
         # Methods for handling different Message types. These are expected to
         # take the worker, request and response objects as the only required
@@ -851,14 +851,14 @@ class Pool(Executor):
         self._metadata = {"runpath": self.runpath}
 
         self._conn.start()
-
         self._exit_loop = False
+        if self._workers:
+            self._reset_workers()
+
         super(Pool, self).starting()  # start the loop & monitor
 
         if not self._workers:
             self._add_workers()
-        else:
-            self._reset_workers()
         self._start_workers()
 
         if self._workers.start_exceptions:
