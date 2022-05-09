@@ -830,9 +830,8 @@ def xfail(reason, strict=False):
     :param reason: Explains why the test is marked as passed.
     :type reason: ``str``
     :param strict: Should the test pass while we expect it to fail, the report
-    will mark it as failed if strict is True,  default is True.
+    will mark it as failed if strict is True,  default is False.
     :type strict: ``bool``
-    :return:
     """
 
     def _xfail_test(test):
