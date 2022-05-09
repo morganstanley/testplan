@@ -494,6 +494,37 @@ class TestDictNamespace:
             and tea_1[4][0] == "REGEX"
         )
 
+    def test_exclude_key_on_nested_object(self, dict_ns):
+        """Test a dict match even the comparison key can be excluded."""
+        obj = [
+            {
+                "hello": "Hello",
+                "hi": [{"abc": "ABC", "xyz": {"x": "X", "y": "Y", "z": "Z"}}],
+            }
+        ]
+        assert dict_ns.match(
+            actual={"foo": obj, "bar": obj},
+            expected={"foo": obj, "bar": obj},
+            description="complex dictionary comparison for excluded keys",
+            exclude_keys=["bar"],
+        )
+        assert len(dict_ns.result.entries) == 1
+
+        # Comparison result can be divided into two parts, the former and the
+        # latter are almost same except that flag "Ignored" replaces "Passed".
+        comp_result = dict_ns.result.entries[0].comparison
+        size = int(len(comp_result) / 2)
+
+        # key "foo" in comp_result[0] and key "bar" in comp_result[size]
+        for i in range(1, size):
+            assert len(comp_result[i]) == len(comp_result[i + size])
+            for item_1, item_2 in zip(comp_result[i], comp_result[i + size]):
+                assert (
+                    item_1 == item_2
+                    or item_1.lower() == "passed"
+                    and item_2.lower() == "ignored"
+                )
+
 
 class TestFIXNamespace:
     """Unit testcases for the result.FixNamespace class."""
