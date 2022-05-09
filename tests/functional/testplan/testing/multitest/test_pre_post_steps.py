@@ -39,8 +39,6 @@ def check_func_4(env, result):
     result.attach(CURRENT_FILE, description="current file")
 
 
-
-
 expected_report = TestReport(
     name="plan",
     entries=[
@@ -78,9 +76,11 @@ expected_report = TestReport(
                     ],
                 ),
             ],
-        )
+        ),
     ],
 )
+
+
 def test_pre_post_steps(mockplan):
 
     multitest = MultiTest(
