@@ -487,6 +487,7 @@ class MultiTest(testing_base.Test):
                     label="before_start", func=self.cfg.before_start
                 )
             )
+        self._add_step(self.append_pre_post_step_report)
 
     def pre_main_steps(self):
         """Runnable steps to be executed after environment starts."""
@@ -521,7 +522,6 @@ class MultiTest(testing_base.Test):
                     label="after_stop", func=self.cfg.after_stop
                 )
             )
-        self._add_step(self.append_pre_post_step_report)
         super(MultiTest, self).post_resource_steps()
 
     def should_run(self):
