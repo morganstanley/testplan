@@ -1,25 +1,23 @@
 """Testplan base module."""
+import argparse
 import os
 import random
-import argparse
 import tempfile
 
 from schema import And
 
 from testplan import defaults
-from testplan.common.config import ConfigOption
 from testplan.common import entity
-from testplan.common.utils import logger
-from testplan.common.utils import path
+from testplan.common.config import ConfigOption
+from testplan.common.utils import logger, path
 from testplan.common.utils.callable import arity
 from testplan.common.utils.validation import is_subclass, has_method
-from testplan.testing import filtering
-from testplan.testing import ordering
+from testplan.environment import Environments
+from testplan.parser import TestplanParser
 from testplan.runnable import TestRunnerConfig, TestRunnerResult, TestRunner
 from testplan.runnable.interactive import TestRunnerIHandler
-from testplan.parser import TestplanParser
 from testplan.runners.local import LocalRunner
-from testplan.environment import Environments
+from testplan.testing import filtering, ordering
 
 
 class TestplanConfig(entity.RunnableManagerConfig, TestRunnerConfig):
@@ -47,12 +45,12 @@ class TestplanResult(TestRunnerResult):
     entity.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(TestplanResult, self).__init__()
         self.decorated_value = None
 
     @property
-    def exit_code(self):
+    def exit_code(self) -> int:
         """System exit code based on successful run."""
         return 0 if getattr(self, "run", False) and self.success else 1
 
