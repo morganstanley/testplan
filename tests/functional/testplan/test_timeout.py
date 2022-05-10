@@ -1,14 +1,17 @@
 import json
 import os
 import re
-import psutil
 import subprocess
 import sys
 import tempfile
 
+import psutil
+
 
 def test_runner_timeout():
-    """Test the globsl Testplan timeout feature."""
+    """
+    Tests the global Testplan timeout feature.
+    """
     testplan_script = os.path.join(
         os.path.dirname(__file__), "timeout_test_plan.py"
     )
@@ -27,7 +30,7 @@ def test_runner_timeout():
         )
 
         # Set our own timeout so that we don't wait forever if the testplan
-        # script fails to timeout. 10 minutes ought to be long enough.
+        # script fails to timeout. 5 minutes ought to be long enough.
         try:
             proc.communicate(timeout=300)
         except subprocess.TimeoutExpired:
