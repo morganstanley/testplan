@@ -52,6 +52,16 @@ EXPECTED_DRY_RUN_REPORT = testplan.report.TestGroupReport(
             ],
         ),
         testplan.report.TestGroupReport(
+            name="pytest_tests.py::TestWithAttachments",
+            uid="pytest_tests.py::TestWithAttachments",
+            category="testsuite",
+            entries=[
+                testplan.report.TestCaseReport(
+                    name="test_attachment", uid="test_attachment"
+                )
+            ],
+        ),
+        testplan.report.TestGroupReport(
             name="pytest_tests.py::TestPytestMarks",
             uid="pytest_tests.py::TestPytestMarks",
             category="testsuite",
