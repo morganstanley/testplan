@@ -50,7 +50,11 @@ def test_run_tests(pytest_test_inst):
     pytest_test_inst.run_tests()
 
     assert pytest_test_inst.report.status == report.Status.FAILED
-    _check_attachements(pytest_test_inst.result.report["pytest_tests.py::TestWithAttachments"]["test_attachment"])
+    _check_attachements(
+        pytest_test_inst.result.report["pytest_tests.py::TestWithAttachments"][
+            "test_attachment"
+        ]
+    )
     _check_all_testcounts(pytest_test_inst.report.counter)
 
 
@@ -70,7 +74,6 @@ def test_run_testcases_iter_all(pytest_test_inst):
 
     testcase_report, _ = all_results[7]
     _check_attachements(testcase_report)
-
 
 
 def test_run_testcases_iter_testsuite(pytest_test_inst):
@@ -165,9 +168,11 @@ def test_capture_stdout(pytest_test_inst):
     assert all_results[0][0]["runtime_status"] == report.RuntimeStatus.RUNNING
     assert all_results[1][0].entries[1]["message"] == "test output\n"
 
+
 def _check_attachements(report: TestCaseReport):
     assert len(report.attachments) == 1
     assert report.attachments[0].description == "example attachment"
+
 
 def _check_all_testcounts(counter):
     """Check the pass/fail/skip counts after running all tests."""

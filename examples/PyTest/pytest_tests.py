@@ -68,6 +68,7 @@ class TestWithAttachments:
     def test_attachment(self, result: Result):
         result.attach(__file__, "example attachment")
 
+
 class TestPytestMarks:
     """
     Demonstrate the use of Pytest marks. These can be used to skip a testcase,
