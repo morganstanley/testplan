@@ -47,16 +47,6 @@ expected_report = TestReport(
             category=ReportCategories.MULTITEST,
             entries=[
                 TestGroupReport(
-                    name="MySuite",
-                    category=ReportCategories.TESTSUITE,
-                    entries=[
-                        TestCaseReport(name="test_one"),
-                        TestCaseReport(
-                            name="teardown", entries=[{"type": "Attachment"}]
-                        ),
-                    ],
-                ),
-                TestGroupReport(
                     name="Pre/Post Step Checks",
                     category=ReportCategories.TESTSUITE,
                     entries=[
@@ -75,8 +65,18 @@ expected_report = TestReport(
                         ),
                     ],
                 ),
+                TestGroupReport(
+                    name="MySuite",
+                    category=ReportCategories.TESTSUITE,
+                    entries=[
+                        TestCaseReport(name="test_one"),
+                        TestCaseReport(
+                            name="teardown", entries=[{"type": "Attachment"}]
+                        ),
+                    ],
+                ),
             ],
-        )
+        ),
     ],
 )
 
