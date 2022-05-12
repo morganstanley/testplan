@@ -432,12 +432,12 @@ class MultiTest(testing_base.Test):
         Pre-resource step to append pre/post step report if any is configured.
         """
         if any(
-                [
-                    self.cfg.before_start,
-                    self.cfg.after_start,
-                    self.cfg.before_stop,
-                    self.cfg.after_stop
-                ],
+            [
+                self.cfg.before_start,
+                self.cfg.after_start,
+                self.cfg.before_stop,
+                self.cfg.after_stop,
+            ],
         ):
             self.report.append(self.pre_post_step_report)
 
