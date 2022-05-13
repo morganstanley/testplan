@@ -152,6 +152,7 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             if self.status != self.status.STOPPED:
                 self.logger.info("Waiting for workers to stop")
             else:
+                self.post_stop()
                 break
         else:
             msg = f"Not able to stop worker {self} after {timeout}s"

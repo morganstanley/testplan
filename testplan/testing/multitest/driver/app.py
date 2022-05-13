@@ -382,6 +382,7 @@ class App(Driver):
         self.stop()
         if self.async_start:
             self.wait(self.status.STOPPED)
+
         if clean:
             self._move_app_path()
         else:
@@ -390,9 +391,11 @@ class App(Driver):
         # we don't want to cleanup runpath during restart
         path_cleanup = self.cfg.path_cleanup
         self.cfg._options["path_cleanup"] = False
+
         self.start()
         if self.async_start:
             self.wait(self.status.STARTED)
+
         self.cfg._options["path_cleanup"] = path_cleanup
 
     def _move_app_path(self):

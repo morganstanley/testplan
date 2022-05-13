@@ -204,11 +204,11 @@ class Driver(Resource):
 
     def _wait_started(self, timeout=None):
         self.started_check(timeout=timeout)
-        self.status.change(self.STATUS.STARTED)
+        super(Driver, self)._wait_started(timeout=timeout)
 
     def _wait_stopped(self, timeout=None):
         self.stopped_check(timeout=timeout)
-        self.status.change(self.STATUS.STOPPED)
+        super(Driver, self)._wait_stopped(timeout=timeout)
 
     def aborting(self):
         """Trigger driver abort."""
