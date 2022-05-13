@@ -170,7 +170,7 @@ class Worker(WorkerBase):
     def _wait_started(self, timeout=None):
         """Ready to communicate with pool."""
         self.last_heartbeat = time.time()
-        self.status.change(self.STATUS.STARTED)
+        super(Worker, self)._wait_started(timeout=timeout)
 
     @property
     def is_alive(self):

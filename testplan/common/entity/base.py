@@ -177,7 +177,6 @@ class Environment:
         # Wait resources status to be STARTED.
         for resource in resources_to_wait_for:
             resource.wait(resource.STATUS.STARTED)
-            resource.post_start()
             resource.logger.debug("%s started", resource)
 
     def start_in_pool(self, pool):
@@ -211,7 +210,6 @@ class Environment:
         for resource in resources_to_wait_for:
             if resource not in self.start_exceptions:
                 resource.wait(resource.STATUS.STARTED)
-                resource.post_start()
                 resource.logger.debug("%s started", resource)
 
     def stop(self, is_reversed=False):
@@ -245,7 +243,6 @@ class Environment:
         # Wait resources status to be STOPPED.
         for resource in resources_to_wait_for:
             resource.wait(resource.STATUS.STOPPED)
-            resource.post_stop()
             resource.logger.debug("%s stopped", resource)
 
     def stop_in_pool(self, pool, is_reversed=False):
@@ -275,7 +272,6 @@ class Environment:
         for resource in resources_to_wait_for:
             if resource not in self.stop_exceptions:
                 resource.wait(resource.STATUS.STOPPED)
-                resource.post_stop()
                 resource.logger.debug("%s stopped", resource)
             else:
                 # Resource status should be STOPPED even it failed to stop
@@ -1267,7 +1263,6 @@ class Resource(Entity):
 
         if not self.async_start:
             self.wait(self.STATUS.STARTED)
-            self.post_start()
             self.logger.debug("%s started", self)
 
     def stop(self):
@@ -1300,7 +1295,6 @@ class Resource(Entity):
 
         if not self.async_start:
             self.wait(self.STATUS.STOPPED)
-            self.post_stop()
             self.logger.debug("%s stopped", self)
 
     def pre_start(self):
@@ -1335,6 +1329,7 @@ class Resource(Entity):
         :type timeout: ``int`` or ``NoneType``
         """
         self.status.change(self.STATUS.STARTED)
+        self.post_start()
 
     def _wait_stopped(self, timeout=None):
         """
@@ -1344,6 +1339,7 @@ class Resource(Entity):
         :type timeout: ``int`` or ``NoneType``
         """
         self.status.change(self.STATUS.STOPPED)
+        self.post_stop()
 
     def starting(self):
         """
@@ -1374,9 +1370,12 @@ class Resource(Entity):
         Stop and start the resource.
         """
         self.stop()
-        self.wait(self.STATUS.STOPPED)
+        if self.async_start:
+            self.wait(self.STATUS.STOPPED)
+
         self.start()
-        self.wait(self.STATUS.STARTED)
+        if self.async_start:
+            self.wait(self.STATUS.STARTED)
 
     def force_stopped(self):
         """
