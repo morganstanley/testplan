@@ -58,6 +58,7 @@ def test_kafka(kafka_server):
         {
             "bootstrap.servers": "localhost:{}".format(kafka_server.port),
             "max.in.flight": 1,
+            "broker.address.family": "v4",
         }
     )
     consumer = Consumer(
@@ -66,6 +67,7 @@ def test_kafka(kafka_server):
             "group.id": uuid.uuid4(),
             "default.topic.config": {"auto.offset.reset": "smallest"},
             "enable.auto.commit": True,
+            "broker.address.family": "v4",
         }
     )
 
