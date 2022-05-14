@@ -302,3 +302,156 @@ def test_multitest_driver_start_timeout():
 
     with driver2:
         assert True
+
+
+def pre_start_fn(driver):
+    assert driver.pre_start_cnt > 0
+    driver.pre_start_fn_cnt += 1
+
+
+def post_start_fn(driver):
+    assert driver.post_start_cnt > 0
+    driver.post_start_fn_cnt += 1
+
+
+def pre_stop_fn(driver):
+    assert driver.pre_stop_cnt > 0
+    driver.pre_stop_fn_cnt += 1
+
+
+def post_stop_fn(driver):
+    assert driver.post_stop_cnt > 0
+    driver.post_stop_fn_cnt += 1
+
+
+class CustomDriver(Driver):
+    """A driver which can count how many times its method is called."""
+
+    def __init__(self, **options):
+        super(CustomDriver, self).__init__(
+            pre_start=pre_start_fn,
+            post_start=post_start_fn,
+            pre_stop=pre_stop_fn,
+            post_stop=post_stop_fn,
+            **options,
+        )
+
+        self.pre_start_cnt = 0
+        self.post_start_cnt = 0
+        self.pre_stop_cnt = 0
+        self.post_stop_cnt = 0
+
+        self.pre_start_fn_cnt = 0
+        self.post_start_fn_cnt = 0
+        self.pre_stop_fn_cnt = 0
+        self.post_stop_fn_cnt = 0
+
+    def pre_start(self):
+        self.pre_start_cnt += 1
+        super(CustomDriver, self).pre_start()
+
+    def post_start(self):
+        self.post_start_cnt += 1
+        super(CustomDriver, self).post_start()
+
+    def pre_stop(self):
+        self.pre_stop_cnt += 1
+        super(CustomDriver, self).pre_stop()
+
+    def post_stop(self):
+        self.post_stop_cnt += 1
+        super(CustomDriver, self).post_stop()
+
+
+@testsuite
+class AnotherSuite:
+    @testcase
+    def test_driver_methods_called(self, env, result):
+        assert env.custom_driver_1.status == ResourceStatus.STARTED
+        assert env.custom_driver_2.status == ResourceStatus.STARTED
+
+        assert env.custom_driver_1.pre_start_cnt == 1
+        assert env.custom_driver_1.pre_start_fn_cnt == 1
+        assert env.custom_driver_1.post_start_cnt == 1
+        assert env.custom_driver_1.post_start_fn_cnt == 1
+        assert env.custom_driver_1.pre_stop_cnt == 0
+        assert env.custom_driver_1.pre_stop_fn_cnt == 0
+        assert env.custom_driver_1.post_stop_cnt == 0
+        assert env.custom_driver_1.post_stop_fn_cnt == 0
+
+        assert env.custom_driver_2.pre_start_cnt == 1
+        assert env.custom_driver_2.pre_start_fn_cnt == 1
+        assert env.custom_driver_2.post_start_cnt == 1
+        assert env.custom_driver_2.post_start_fn_cnt == 1
+        assert env.custom_driver_2.pre_stop_cnt == 0
+        assert env.custom_driver_2.pre_stop_fn_cnt == 0
+        assert env.custom_driver_2.post_stop_cnt == 0
+        assert env.custom_driver_2.post_stop_fn_cnt == 0
+
+    @testcase
+    def test_driver_restarted(self, env, result):
+        env.custom_driver_1.restart()
+        env.custom_driver_2.restart()
+        assert env.custom_driver_1.status == ResourceStatus.STARTED
+        assert env.custom_driver_2.status == ResourceStatus.STARTED
+
+        assert env.custom_driver_1.pre_start_cnt == 2
+        assert env.custom_driver_1.pre_start_fn_cnt == 2
+        assert env.custom_driver_1.post_start_cnt == 2
+        assert env.custom_driver_1.post_start_fn_cnt == 2
+        assert env.custom_driver_1.pre_stop_cnt == 1
+        assert env.custom_driver_1.pre_stop_fn_cnt == 1
+        assert env.custom_driver_1.post_stop_cnt == 1
+        assert env.custom_driver_1.post_stop_fn_cnt == 1
+
+        assert env.custom_driver_2.pre_start_cnt == 2
+        assert env.custom_driver_2.pre_start_fn_cnt == 2
+        assert env.custom_driver_2.post_start_cnt == 2
+        assert env.custom_driver_2.post_start_fn_cnt == 2
+        assert env.custom_driver_2.pre_stop_cnt == 1
+        assert env.custom_driver_2.pre_stop_fn_cnt == 1
+        assert env.custom_driver_2.post_stop_cnt == 1
+        assert env.custom_driver_2.post_stop_fn_cnt == 1
+
+
+def test_multitest_driver_startup_mode(mockplan):
+    """
+    Make sure all methods are called once whatever a driver starts
+    in async mode (default) or sequentially.
+    """
+    custom_driver_1 = CustomDriver(name="custom_driver_1")
+    custom_driver_2 = CustomDriver(name="custom_driver_2", async_start=True)
+
+    mockplan.add(
+        MultiTest(
+            name="Mtest",
+            suites=[AnotherSuite()],
+            environment=[custom_driver_1, custom_driver_2],
+        )
+    )
+    mockplan.run()
+
+    res = mockplan.result
+    assert res.run is True
+    assert res.report.passed is True
+
+    assert custom_driver_1.status == ResourceStatus.STOPPED
+    assert custom_driver_2.status == ResourceStatus.STOPPED
+
+    assert custom_driver_1.pre_start_cnt == 2
+    assert custom_driver_1.pre_start_fn_cnt == 2
+    assert custom_driver_1.post_start_cnt == 2
+    assert custom_driver_1.post_start_fn_cnt == 2
+    assert custom_driver_1.pre_stop_cnt == 2
+    assert custom_driver_1.pre_stop_fn_cnt == 2
+    assert custom_driver_1.post_stop_cnt == 2
+    assert custom_driver_1.post_stop_fn_cnt == 2
+
+    assert custom_driver_2.pre_start_cnt == 2
+    assert custom_driver_2.pre_start_fn_cnt == 2
+    assert custom_driver_2.post_start_cnt == 2
+    assert custom_driver_2.post_start_fn_cnt == 2
+    assert custom_driver_2.pre_stop_cnt == 2
+    assert custom_driver_2.pre_stop_fn_cnt == 2
+    assert custom_driver_2.post_stop_cnt == 2
+    assert custom_driver_2.post_stop_fn_cnt == 2

@@ -178,7 +178,7 @@ class RemoteService(Resource, RemoteResource):
                     self.cfg.remote_host,
                     self.rpyc_port,
                 )
-                self.status.change(self.STATUS.STARTED)
+                super(RemoteService, self)._wait_started(timeout=timeout)
                 return
 
             if self.proc and self.proc.poll() is not None:
