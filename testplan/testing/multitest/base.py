@@ -262,6 +262,7 @@ class MultiTest(testing_base.Test):
                 uid="Pre/Post Step Checks",
                 category=ReportCategories.TESTSUITE,
             )
+            self._pre_post_step_report.status = Status.PASSED
         return self._pre_post_step_report
 
     @property
@@ -427,13 +428,19 @@ class MultiTest(testing_base.Test):
             if testcases:
                 yield from self._run_testsuite_iter(testsuite, testcases)
 
-    def append_pre_post_step_report(self):
+    def append_pre_post_step_report(self) -> None:
         """
-        This will be called as a final step after multitest run is
-        complete, to group all step check results under a single report.
+        Pre-resource step to append pre/post step report if any is configured.
         """
-        if self._pre_post_step_report is not None:
-            self.report.append(self._pre_post_step_report)
+        if any(
+            [
+                self.cfg.before_start,
+                self.cfg.after_start,
+                self.cfg.before_stop,
+                self.cfg.after_stop,
+            ],
+        ):
+            self.report.append(self.pre_post_step_report)
 
     def get_tags_index(self):
         """
@@ -487,6 +494,7 @@ class MultiTest(testing_base.Test):
                     label="before_start", func=self.cfg.before_start
                 )
             )
+        self._add_step(self.append_pre_post_step_report)
 
     def pre_main_steps(self):
         """Runnable steps to be executed after environment starts."""
@@ -521,7 +529,6 @@ class MultiTest(testing_base.Test):
                     label="after_stop", func=self.cfg.after_stop
                 )
             )
-        self._add_step(self.append_pre_post_step_report)
         super(MultiTest, self).post_resource_steps()
 
     def should_run(self):
