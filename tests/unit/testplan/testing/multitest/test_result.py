@@ -494,28 +494,28 @@ class TestDictNamespace:
             and tea_1[4][0] == "REGEX"
         )
 
-    def test_exclude_key_on_nested_object(self, dict_ns):
+    def test_exclude_keys_on_nested_object(self, dict_ns):
         """Test a dict match even the comparison key can be excluded."""
-        obj = [
+        obj_1 = [
             {
                 "hello": "Hello",
                 "hi": [{"abc": "ABC", "xyz": {"x": "X", "y": "Y", "z": "Z"}}],
             }
         ]
+
         assert dict_ns.match(
-            actual={"foo": obj, "bar": obj},
-            expected={"foo": obj, "bar": obj},
+            actual={"foo": obj_1, "bar": obj_1},
+            expected={"foo": obj_1, "bar": obj_1},
             description="complex dictionary comparison for excluded keys",
             exclude_keys=["bar"],
         )
         assert len(dict_ns.result.entries) == 1
+        comp_result = dict_ns.result.entries[0].comparison
 
         # Comparison result can be divided into two parts, the former and the
         # latter are almost same except that flag "Ignored" replaces "Passed".
-        comp_result = dict_ns.result.entries[0].comparison
-        size = int(len(comp_result) / 2)
-
         # key "foo" in comp_result[0] and key "bar" in comp_result[size]
+        size = int(len(comp_result) / 2)
         for i in range(1, size):
             assert len(comp_result[i]) == len(comp_result[i + size])
             for item_1, item_2 in zip(comp_result[i], comp_result[i + size]):
@@ -524,6 +524,34 @@ class TestDictNamespace:
                     or item_1.lower() == "passed"
                     and item_2.lower() == "ignored"
                 )
+
+        obj_2 = [
+            {
+                "hello": {"baz": "BAZ", "qux": "QUX"},
+                "hey": [{"abc": "ABC", "xyz": {"x": "X", "y": "Y", "z": "Z"}}],
+            }
+        ]
+        obj_3 = copy.deepcopy(obj_2)
+        obj_3[0]["hello"]["baz"] = "BAR"
+        obj_4 = copy.deepcopy(obj_2)
+        obj_4[0]["hey"][0]["xyz"]["z"] = "U"
+
+        assert dict_ns.match(
+            actual={"foo": obj_2, "bar": obj_2},
+            expected={"foo": obj_3, "bar": obj_4},
+            description="complex dictionary comparison for excluded keys",
+            exclude_keys=["hello", "xyz"],
+        )
+        assert len(dict_ns.result.entries) == 2
+        comp_result = dict_ns.result.entries[1].comparison
+
+        # "hello" and "xyz" are exclued keys and all items under them should
+        # be marked as "ignored" no matter they are same or different.
+        for result in comp_result:
+            if result[1] in ("foo", "bar", "hey", "abc", ""):
+                assert result[2].lower() == "passed"
+            else:
+                assert result[2].lower() == "ignored"
 
 
 class TestFIXNamespace:
