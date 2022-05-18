@@ -119,8 +119,7 @@ class ProcessWorker(Worker):
             if match_regexps_in_file(
                 self.outfile, [re.compile("Starting child process worker on")]
             )[0]:
-                self.last_heartbeat = time.time()
-                self.status.change(self.STATUS.STARTED)
+                super(ProcessWorker, self)._wait_started(timeout=timeout)
                 return
 
             if self._handler and self._handler.poll() is not None:
