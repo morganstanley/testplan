@@ -493,6 +493,10 @@ class _ReportPlugin:
                     )
                     self._current_case_report.append(serialized_entry)
 
+                self._current_case_report.attachments.extend(
+                    self._current_result_obj.attachments
+                )
+
             if report.failed:
                 self._current_case_report.status_override = Status.FAILED
             else:
