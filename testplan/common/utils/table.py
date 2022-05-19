@@ -15,6 +15,24 @@ class TableEntry:
 
         self._validate_input()
 
+        if self._source and isinstance(self._source[0], (list, tuple)):
+            self._columns = self._source[0]
+
+    @property
+    def columns(self):
+        """Get column names."""
+        if not self._source:
+            return []
+        if isinstance(self._source[0], (list, tuple)):
+            return self._source[0]
+        elif isinstance(self._source[0], dict):
+            result = []
+            for row in self._source:
+                result.extend([key for key in row.keys() if key not in result])
+            return result
+        else:
+            raise ValueError("Not a valid table")
+
     def _validate_input(self):
         if isinstance(self._source, (list, tuple)) and (
             all(isinstance(row, dict) for row in self._source)
