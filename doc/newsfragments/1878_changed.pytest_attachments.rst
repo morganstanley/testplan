@@ -1,0 +1,1 @@
+:py:class:`PyTest <testplan.testing.py_test.PyTest>` will properly save attachments to the report.

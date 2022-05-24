@@ -176,8 +176,16 @@ class Environment:
 
         # Wait resources status to be STARTED.
         for resource in resources_to_wait_for:
-            resource.wait(resource.STATUS.STARTED)
-            resource.logger.debug("%s started", resource)
+            try:
+                resource.wait(resource.STATUS.STARTED)
+            except Exception:
+                msg = "While starting resource [{}]\n{}".format(
+                    resource.cfg.name, traceback.format_exc()
+                )
+                resource.logger.error(msg)
+                self.start_exceptions[resource] = msg
+            else:
+                resource.logger.debug("%s started", resource)
 
     def start_in_pool(self, pool):
         """
