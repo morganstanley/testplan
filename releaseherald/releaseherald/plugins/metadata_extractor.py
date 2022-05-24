@@ -76,21 +76,17 @@ MATCHER_FACTORY_MAP: Dict[ParserType, Type[Extractor]] = {
 
 class FilenameMetadataExtractor:
     def __init__(self):
-        self.config: Configuration = None
         self.target_attribute: str = ""
         self.extractor: Optional[Extractor] = None
 
     @releaseherald.plugins.hookimpl
-    def process_config(self, config):
-        self.config = config
+    def process_config(self, config: Configuration):
 
-        plugin_config = getattr(self.config, CONFIG_ATTRIBUTE, None)
+        extractor_config = config.parse_sub_config(
+            CONFIG_ATTRIBUTE, FilenameMetadataExtractorConfig
+        )
 
-        if plugin_config:
-            extractor_config = FilenameMetadataExtractorConfig.parse_obj(
-                plugin_config
-            )
-            setattr(self.config, CONFIG_ATTRIBUTE, extractor_config)
+        if extractor_config:
             self.target_attribute = extractor_config.target_attribute
             self.extractor = MATCHER_FACTORY_MAP[extractor_config.type](
                 extractor_config.pattern
