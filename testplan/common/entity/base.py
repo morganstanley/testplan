@@ -1400,6 +1400,12 @@ class Resource(Entity):
         """
         self.status.change(self.STATUS.STOPPED)
 
+    def force_started(self):
+        """
+        Change the status to STARTED (e.g. exception raised).
+        """
+        self.status.change(self.STATUS.STARTED)
+
     def __enter__(self):
         self.start()
         self.wait(self.STATUS.STARTED)
