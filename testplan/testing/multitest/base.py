@@ -258,8 +258,8 @@ class MultiTest(testing_base.Test):
     def pre_post_step_report(self):
         if self._pre_post_step_report is None:
             self._pre_post_step_report = TestGroupReport(
-                name="Pre/Post Step Checks",
-                uid="Pre/Post Step Checks",
+                name="Before/After Step Checks",
+                uid="Before/After Step Checks",
                 category=ReportCategories.TESTSUITE,
             )
             self._pre_post_step_report.status = Status.PASSED
