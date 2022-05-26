@@ -72,7 +72,7 @@ class PluginConfig(BaseModel):
                 command_options.options, default_opts_callback
             )
 
-    def update(self, command: str, **kwargs: Dict[str, Any]):
+    def update(self, command: str, kwargs: Dict[str, Any]):
         command_options: CommandOptionsInfo = (
             self._get_command_options_info().get(command)
         )
