@@ -143,6 +143,8 @@ class TestRunnerIHandler(entity.Entity):
         if self._pool is None or self._http_handler is None:
             raise RuntimeError("setup() not run")
 
+        for test_uid in self.all_tests():
+            self.test(test_uid).stop_test_resources()
         self.target._close_file_logger()
         self._pool = None
         self._http_handler = None
