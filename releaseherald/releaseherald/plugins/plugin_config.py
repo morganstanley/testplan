@@ -19,6 +19,7 @@ class FromCommandline:
         command: the command the option need to attached to
         option: the commandline option
     """
+
     command: str
     option: click.Option
 
