@@ -1,0 +1,1 @@
+releaseherald got helper functions and a base configuration class for plugins
