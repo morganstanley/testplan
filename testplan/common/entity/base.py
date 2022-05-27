@@ -176,8 +176,16 @@ class Environment:
 
         # Wait resources status to be STARTED.
         for resource in resources_to_wait_for:
-            resource.wait(resource.STATUS.STARTED)
-            resource.logger.debug("%s started", resource)
+            try:
+                resource.wait(resource.STATUS.STARTED)
+            except Exception:
+                msg = "While starting resource [{}]\n{}".format(
+                    resource.cfg.name, traceback.format_exc()
+                )
+                resource.logger.error(msg)
+                self.start_exceptions[resource] = msg
+            else:
+                resource.logger.debug("%s started", resource)
 
     def start_in_pool(self, pool):
         """
@@ -186,6 +194,7 @@ class Environment:
         :param pool: thread pool
         :type pool: ``ThreadPool``
         """
+
         for resource in self._resources.values():
             if not resource.async_start:
                 raise RuntimeError(
@@ -271,7 +280,14 @@ class Environment:
         # Wait resources status to be STOPPED.
         for resource in resources_to_wait_for:
             if resource not in self.stop_exceptions:
-                resource.wait(resource.STATUS.STOPPED)
+                if resource.async_start:
+                    resource.wait(resource.STATUS.STOPPED)
+                else:
+                    # avoid post_stop being called twice
+                    wait(
+                        lambda: resource.status == resource.STATUS.STOPPED,
+                        timeout=resource.cfg.status_wait_timeout,
+                    )
                 resource.logger.debug("%s stopped", resource)
             else:
                 # Resource status should be STOPPED even it failed to stop
@@ -1244,8 +1260,9 @@ class Resource(Entity):
         `Resource.starting <testplan.common.entity.base.Resource.starting>`
         method.
         """
-        if self.aborted:
-            self.logger.warning(f"start %s but it had already aborted", self)
+        if not self.active:
+            self.logger.warning(f"Start %s but it is aborting / aborted", self)
+            return
 
         if (
             self.status == self.STATUS.STARTING
@@ -1273,7 +1290,7 @@ class Resource(Entity):
         method.
         """
         if self.aborted:
-            self.logger.warning(f"stop %s but it had already aborted", self)
+            self.logger.warning(f"Stop %s but it has already aborted", self)
 
         if self.status == self.STATUS.NONE:
             self.logger.debug("%r not started, skip stopping", self)
@@ -1382,6 +1399,12 @@ class Resource(Entity):
         Change the status to STOPPED (e.g. exception raised).
         """
         self.status.change(self.STATUS.STOPPED)
+
+    def force_started(self):
+        """
+        Change the status to STARTED (e.g. exception raised).
+        """
+        self.status.change(self.STATUS.STARTED)
 
     def __enter__(self):
         self.start()

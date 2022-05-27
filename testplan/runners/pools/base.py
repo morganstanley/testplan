@@ -619,12 +619,22 @@ class Pool(Executor):
         1) handler status
         2) heartbeat if available
         """
-        previous_status = {"active": [], "inactive": [], "initializing": []}
+        previous_status = {
+            "active": [],
+            "inactive": [],
+            "initializing": [],
+            "abort": [],
+        }
         loop_interval = self.cfg.worker_heartbeat or 5  # seconds
         break_outer_loop = False
 
         while self.active:
-            hosts_status = {"active": [], "inactive": [], "initializing": []}
+            hosts_status = {
+                "active": [],
+                "inactive": [],
+                "initializing": [],
+                "abort": [],
+            }
 
             for worker in self._workers:
                 status, reason = self._query_worker_status(worker)
@@ -659,11 +669,13 @@ class Pool(Executor):
             if (
                 not hosts_status["active"]
                 and not hosts_status["initializing"]
-                and hosts_status["inactive"]
+                and not hosts_status["inactive"]
+                and hosts_status["abort"]
             ):
+                # all workers aborting / aborted
                 if not self._exit_loop:
                     self.logger.critical(
-                        "All workers are inactive, abort %s.", self
+                        "All workers are aborting / aborted, abort %s.", self
                     )
                     self.abort()  # TODO: abort pool in a monitor thread ?
                     break
@@ -688,13 +700,11 @@ class Pool(Executor):
         :return: worker status string - one of 'initializing', 'inactive' or
             'active', and an optional reason string
         """
+        if not worker.active:
+            return "abort", f"Worker {worker} aborting or aborted"
 
-        if (
-            not worker.active
-            or worker.status == worker.status.STOPPING
-            or worker.status == worker.status.STOPPED
-        ):
-            return "inactive", f"Worker {worker} in stop/abort status"
+        if worker.status in (worker.status.STOPPING, worker.status.STOPPED):
+            return "inactive", f"Worker {worker} stopping or stopped"
 
         if (
             worker.status == worker.status.NONE
@@ -751,13 +761,13 @@ class Pool(Executor):
                 worker.restart()
                 self.logger.info("Worker %s has restarted", worker)
                 return True
+
             except Exception as exc:
                 self.logger.critical(
                     "Worker %s failed to restart: %s", worker, exc
                 )
-        else:
-            self.logger.warning("Worker %s is inactive and will abort", worker)
-            worker.abort()
+        self.logger.warning("Worker %s is inactive and will abort", worker)
+        worker.abort()
 
         return False
 
@@ -867,8 +877,6 @@ class Pool(Executor):
             self.abort()
             raise RuntimeError(f"All workers of {self} failed to start")
 
-        self.status.change(self.status.STARTED)  # Start is async
-
     def workers_requests(self):
         """Count how many tasks workers are requesting."""
         return sum(worker.requesting for worker in self._workers)
@@ -887,8 +895,6 @@ class Pool(Executor):
         super(Pool, self).stopping()  # stop the loop (monitor will stop later)
 
         self._conn.stop()
-
-        self.status.change(self.status.STOPPED)  # Stop is async
 
     def abort_dependencies(self):
         """Empty generator to override parent implementation."""

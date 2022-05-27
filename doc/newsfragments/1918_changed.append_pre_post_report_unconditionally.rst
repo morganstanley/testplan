@@ -1,0 +1,1 @@
+Pre/post steps report is now appended before resource startup and built upon continuously.

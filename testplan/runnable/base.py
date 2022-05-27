@@ -715,9 +715,8 @@ class TestRunner(Runnable):
         if self.resources.start_exceptions:
             for resource, exception in self.resources.start_exceptions.items():
                 self.logger.critical(
-                    "Aborting {} due to start exception:".format(resource)
+                    "Aborting %s due to start exception", resource
                 )
-                self.logger.error(exception)
                 resource.abort()
 
         _start_ts = (
@@ -747,10 +746,8 @@ class TestRunner(Runnable):
                 # Poll the resource's health - if it has unexpectedly died
                 # then abort the entire test to avoid hanging.
                 if not resource.is_alive:
-                    self.result.test_report.logger.critical(
-                        "Aborting {} - {} unexpectedly died".format(
-                            self, resource
-                        )
+                    self.logger.critical(
+                        "Aborting %s - %s unexpectedly died", self, resource
                     )
                     self.abort()
                     self.result.test_report.status_override = Status.ERROR
