@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheetTestUtils} from "aphrodite";
 
-import {CreateNavButtons, GetSelectedUid} from '../navUtils';
+import {CreateNavButtons, GetSelectedUid, applyNamedFilter} from '../navUtils';
 import {TESTPLAN_REPORT} from '../../Common/sampleReports';
 import { PropagateIndices } from '../../Report/reportUtils';
 
@@ -47,6 +47,58 @@ describe('navUtils', () => {
       const selected = [TESTPLAN_REPORT];
       const uid = GetSelectedUid(selected);
       expect(uid).toBe(TESTPLAN_REPORT.uid);
+    });
+  });
+
+  describe('FilterFailedOrError', () => {
+    it('filters failed or error', () => {
+      const entries = [
+        {
+        "counter": {
+                "passed": 1,
+                "failed": 0,
+                "total": 1,
+        },
+        "status": "passed",
+        },
+        {
+        "counter": {
+            "passed": 0,
+            "failed": 1,
+            "total": 1,
+        },
+        "status": "failed",
+        },
+        {
+        "counter": {
+            "passed": 0,
+            "failed": 0,
+            "total": 1,
+            "error": 1
+        },
+        "status": "error",
+        }];
+
+      const filteredResult = applyNamedFilter(entries, 'fail');
+      const expectedfilteredResult = [
+        {
+        "counter": {
+            "passed": 0,
+            "failed": 1,
+            "total": 1,
+        },
+        "status": "failed",
+        },
+        {
+        "counter": {
+            "passed": 0,
+            "failed": 0,
+            "total": 1,
+            "error": 1
+        },
+        "status": "error",
+        }];
+      expect(filteredResult).toStrictEqual(expectedfilteredResult);
     });
   });
 

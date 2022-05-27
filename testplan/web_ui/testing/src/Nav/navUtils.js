@@ -116,6 +116,7 @@ const applyNamedFilter = (entries, filter) => {
     case 'fail':
       return entries.filter(
         (entry) =>
+          entry.status === "error" ||
           (entry.counter ? (entry.counter.failed | 0) : 0) +
           (entry.counter ? (entry.counter.error | 0) : 0) > 0
       );
@@ -310,5 +311,6 @@ export {
   GetInteractiveNavEntries,
   GetNavBreadcrumbs,
   GetNavColumn,
-  applyAllFilters
+  applyAllFilters,
+  applyNamedFilter
 };
