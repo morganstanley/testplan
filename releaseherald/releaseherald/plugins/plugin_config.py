@@ -11,6 +11,14 @@ from releaseherald.plugins.interface import CommandOptions
 
 @dataclass
 class FromCommandline:
+    """
+    This class can be used to annotate a PluginConfig attribute, it connect the annotated attribute to
+    the passed commandline
+
+    Attributes:
+        command: the command the option need to attached to
+        option: the commandline option
+    """
     command: str
     option: click.Option
 
@@ -28,6 +36,47 @@ class CommandOptionsInfo:
 
 
 class PluginConfig(BaseModel):
+    """
+    A helper base class for easier declarative plugin configuration.
+
+    - can be used with [Configuration.parse_sub_config][releaseherald.configuration.Configuration.parse_sub_config]
+      for easier parsing
+    - Attributes can be Annotated types, which can contain
+      [FromCommandline][releaseherald.plugins.plugin_config.FromCommandline] Annotation, that make the config setting
+      overridable from commandline
+
+    #Usage
+
+    ```python
+    class MyPluginConfig(PluginConfig):
+        non_overridable_value: str = "some default
+
+        # use type Annotation to connect the attribute wit the commandline Option
+        overridable_value: Annotated[str, FromCommandline(
+            "generate",
+            click.Option(
+                param_decls=["--override"],
+                help="override the overrideable value",
+            )
+        )] = "default for overrideable value"
+
+    class MyPlugin:
+        @releaseherald.plugins.hookimpl
+        def process_config(self, config: Configuration):
+            # parse the config with the helper
+            self.my_config = config.parse_sub_config("my_config", MyPluginConfig)
+
+        @releaseherald.plugins.hookimpl
+        def get_command_options(self, command: str) -> Optional[CommandOptions]:
+            # just use the helper to return the right thing
+            return self.my_config.get_command_options(command)
+
+        @releaseherald.plugins.hookimpl
+        def on_start_command(self, command: str, kwargs: Dict[str, Any]):
+            # use the helper to reflect commandline overrides in the config
+            self.my_config.update(command, kwargs)
+    ```
+    """
 
     @classmethod
     @cached(LRI())
@@ -55,7 +104,16 @@ class PluginConfig(BaseModel):
         return dict(command_options)
 
     def get_command_options(self, command: str) -> Optional[CommandOptions]:
+        """
+        Generate command options from Annotated fields which can be returned directly from
+        [get_command_options hook][releaseherald.plugins.hookspecs.get_command_options]
+        Args:
+            command: the command these command options are registered with
 
+        Returns:
+            The command options that the [get_command_options hook][releaseherald.plugins.hookspecs.get_command_options]
+             expects
+        """
         command_options: CommandOptionsInfo = (
             self._get_command_options_info().get(command)
         )
@@ -72,7 +130,14 @@ class PluginConfig(BaseModel):
                 command_options.options, default_opts_callback
             )
 
-    def update(self, command: str, kwargs: Dict[str, Any]):
+    def update(self, command: str, kwargs: Dict[str, Any]) -> None:
+        """
+        Update itself from commandline options, can be used in
+        [on_start_command hook][releaseherald.plugins.hookspecs.on_start_command]
+        Args:
+            command: the command
+            kwargs: the commandline args for the command
+        """
         command_options: CommandOptionsInfo = (
             self._get_command_options_info().get(command)
         )

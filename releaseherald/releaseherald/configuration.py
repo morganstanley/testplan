@@ -60,7 +60,7 @@ class Configuration(BaseModel):
         self, attribute_name: str, sub_config_model: Type[MODEL]
     ) -> MODEL:
         """
-        Helper for plugin developers to pars a section of the config with the passed model, and replace the
+        Helper for plugin developers to parse a section of the config with the passed model, and replace the
         dictionary with the model object
         Args:
             attribute_name: the attribute holding the plugin config
