@@ -387,3 +387,27 @@ def test_env_operate():
         assert response.ok
         test2_report = response.json()
         assert test2_report["env_status"] == entity.ResourceStatus.STOPPED
+
+
+def test_abort_plan():
+    with InteractivePlan(
+        name="InteractivePlan",
+        interactive_port=0,
+        interactive_block=False,
+        parse_cmdline=False,
+        logger_level=TEST_INFO,
+    ) as plan:
+        multitest = MultiTest(
+            name="MultiTest",
+            suites=[BasicSuite()],
+            environment=[TCPServer(name="server")],
+        )
+        plan.add(multitest)
+        plan.run()
+
+        plan.i.start_test_resources("MultiTest")
+        for resource in plan.i.test("MultiTest").resources:
+            assert resource.status == resource.STATUS.STARTED
+        plan.abort()
+        for resource in plan.i.test("MultiTest").resources:
+            assert resource.status == resource.STATUS.STOPPED
