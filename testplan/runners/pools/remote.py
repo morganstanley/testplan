@@ -18,7 +18,7 @@ from testplan.common.utils.path import (
     rebase_path,
 )
 from testplan.common.utils.remote import ssh_cmd, copy_cmd
-from testplan.common.utils.timing import get_sleeper
+from testplan.common.utils.timing import get_sleeper, wait
 from testplan.runners.pools.base import Pool, PoolConfig
 from testplan.runners.pools.communication import Message
 from testplan.runners.pools.connection import ZMQServer
@@ -371,7 +371,11 @@ class RemotePool(Pool):
         for worker in self._workers:
             if worker.status == worker.status.STARTING:
                 try:
-                    worker.wait(worker.status.STARTED)
+                    wait(
+                        lambda: worker.status
+                        in (worker.STATUS.STARTED, worker.STATUS.STOPPED),
+                        worker.cfg.status_wait_timeout,
+                    )
                 except Exception:
                     self.logger.error(
                         "Timeout waiting for worker {} to quit starting "
