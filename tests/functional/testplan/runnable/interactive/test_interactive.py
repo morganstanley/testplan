@@ -413,15 +413,13 @@ def test_abort_plan():
 
         plan.i.start_test_resources("MultiTest")
         for resource in plan.i.test("MultiTest").resources:
-            wait(
-                lambda: resource.status == resource.STATUS.STARTED,
-                5,
-                raise_on_timeout=True,
+            assert resource.status in (
+                resource.STATUS.STARTING,
+                resource.STATUS.STARTED,
             )
         plan.abort()
         for resource in plan.i.test("MultiTest").resources:
-            wait(
-                lambda: resource.status == resource.STATUS.STOPPED,
-                5,
-                raise_on_timeout=True,
+            assert resource.status in (
+                resource.STATUS.STOPPING,
+                resource.STATUS.STOPPED,
             )
