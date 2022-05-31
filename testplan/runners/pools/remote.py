@@ -389,3 +389,12 @@ class RemotePool(Pool):
         if self.pool:
             self.pool.terminate()
             self.pool = None
+
+    def aborting(self):
+        """Aborting logic."""
+
+        super(RemotePool, self).aborting()
+
+        if self.pool:
+            self.pool.terminate()
+            self.pool = None
