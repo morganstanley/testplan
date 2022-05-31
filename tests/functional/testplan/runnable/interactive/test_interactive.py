@@ -410,4 +410,8 @@ def test_abort_plan():
             assert resource.status == resource.STATUS.STARTED
         plan.abort()
         for resource in plan.i.test("MultiTest").resources:
-            assert resource.status == resource.STATUS.STOPPED
+            wait(
+                lambda: resource.status == resource.STATUS.STOPPED,
+                5,
+                raise_on_timeout=True,
+            )
