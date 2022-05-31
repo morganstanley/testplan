@@ -404,7 +404,7 @@ def test_abort_plan():
                 App(
                     name="app",
                     binary=sys.executable,
-                    args=["-c", "import sys; sys.exit(0)"],
+                    args=["-c", "input()"],
                 )
             ],
         )
