@@ -1,21 +1,21 @@
 """Interactive mode tests."""
 
 import os
+import sys
 
 import requests
+from pytest_test_filters import skip_on_windows
 
+from testplan import TestplanMock
 from testplan.common import entity
-from testplan.common.utils.timing import wait
 from testplan.common.utils.comparison import compare
 from testplan.common.utils.context import context
 from testplan.common.utils.logger import TEST_INFO
-
-from testplan import TestplanMock
+from testplan.common.utils.timing import wait
 from testplan.environment import LocalEnvironment
 from testplan.testing.multitest import MultiTest, testsuite, testcase
+from testplan.testing.multitest.driver.app import App
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
-
-from pytest_test_filters import skip_on_windows
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -400,14 +400,24 @@ def test_abort_plan():
         multitest = MultiTest(
             name="MultiTest",
             suites=[BasicSuite()],
-            environment=[TCPServer(name="server")],
+            environment=[
+                App(
+                    name="app",
+                    binary=sys.executable,
+                    args=["-c", "import sys; sys.exit(0)"],
+                )
+            ],
         )
         plan.add(multitest)
         plan.run()
 
         plan.i.start_test_resources("MultiTest")
         for resource in plan.i.test("MultiTest").resources:
-            assert resource.status == resource.STATUS.STARTED
+            wait(
+                lambda: resource.status == resource.STATUS.STARTED,
+                5,
+                raise_on_timeout=True,
+            )
         plan.abort()
         for resource in plan.i.test("MultiTest").resources:
             wait(
