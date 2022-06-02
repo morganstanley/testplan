@@ -523,7 +523,7 @@ THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
         ),
     ),
 )
-def atest_find_module(script_content, module_deps):
+def test_find_module(script_content, module_deps):
     """
     Check that `_GraphModuleFinder` utility can correctly build dependency
     graph between imported modules.
