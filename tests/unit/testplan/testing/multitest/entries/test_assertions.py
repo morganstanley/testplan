@@ -7,6 +7,7 @@ import traceback
 
 import pytest
 
+from testplan.common.utils.table import TableEntry
 from testplan.testing.multitest.entries import assertions
 
 
@@ -1146,8 +1147,8 @@ COMPARE_ROWS_PARAM_NAMES = (
 COMPARE_ROWS_PARAMS = [
     # Basic match, all columns same
     [
-        [{"foo": 1, "bar": 2}, {"foo": 3, "bar": 4}],
-        [{"foo": 1, "bar": 2}, {"foo": 3, "bar": 4}],
+        [{"foo": 1, "bar": 2}, {"foo": 3, "bar": 4}, {"foo": None, "bar": 5}],
+        [{"foo": 1, "bar": 2}, {"foo": 3, "bar": 4}, {"foo": None, "bar": 5}],
         ["foo", "bar"],
         ["foo", "bar"],
         True,
@@ -1158,13 +1159,14 @@ COMPARE_ROWS_PARAMS = [
             [
                 assertions.RowComparison(0, [1, 2], {}, {}, {}),
                 assertions.RowComparison(1, [3, 4], {}, {}, {}),
+                assertions.RowComparison(2, [None, 5], {}, {}, {}),
             ],
         ),
     ],
     # Basic failure, bar column mismatch
     [
-        [{"foo": 1, "bar": 2}, {"foo": 3, "bar": 4}],
-        [{"foo": 1, "bar": 2}, {"foo": 3, "bar": 5}],
+        [{"foo": 1, "bar": 2}, {"foo": 3, "bar": 4}, {"foo": None, "bar": 5}],
+        [{"foo": 1, "bar": 2}, {"foo": 3, "bar": 5}, {"foo": 6, "bar": None}],
         ["foo", "bar"],
         ["foo", "bar"],
         True,
@@ -1175,6 +1177,9 @@ COMPARE_ROWS_PARAMS = [
             [
                 assertions.RowComparison(0, [1, 2], {}, {}, {}),
                 assertions.RowComparison(1, [3, 4], {"bar": 5}, {}, {}),
+                assertions.RowComparison(
+                    2, [None, 5], {"foo": 6, "bar": None}, {}, {}
+                ),
             ],
         ),
     ],
@@ -1228,8 +1233,14 @@ COMPARE_ROWS_PARAMS = [
     # comparison_columns should be used for comparison
     # display_columns should be used for displaying row data
     [
-        [{"first": 1, "second": 2, "third": 3, "fourth": 4}],
-        [{"first": 1, "second": 2, "third": 333, "fourth": 444}],
+        [
+            {"first": 1, "second": 2, "third": 3, "fourth": 4},
+            {"first": 5, "second": 6, "third": 7, "fourth": 8},
+        ],
+        [
+            {"first": 1, "second": 2, "third": 333, "fourth": 444},
+            {"first": 5, "second": 6, "third": 7, "fourth": 8},
+        ],
         ["first", "second"],
         ["first", "second", "fourth"],
         True,
@@ -1244,7 +1255,14 @@ COMPARE_ROWS_PARAMS = [
                     diff={},
                     errors={},
                     extra={"fourth": 444},
-                )
+                ),
+                assertions.RowComparison(
+                    idx=1,
+                    data=[5, 6, 8],
+                    diff={},
+                    errors={},
+                    extra={"fourth": 8},
+                ),
             ],
         ),
     ],
@@ -1381,8 +1399,8 @@ class TestTableMatch:
         self, table_1, table_2, include_columns, exclude_columns, expected
     ):
         actual = assertions.get_comparison_columns(
-            table_1=table_1,
-            table_2=table_2,
+            columns_1=TableEntry(table_1).columns,
+            columns_2=TableEntry(table_2).columns,
             include_columns=include_columns,
             exclude_columns=exclude_columns,
         )
@@ -1398,8 +1416,8 @@ class TestTableMatch:
     ):
         with pytest.raises(ValueError):
             assertions.get_comparison_columns(
-                table_1=table_1,
-                table_2=table_2,
+                columns_1=TableEntry(table_1).columns,
+                columns_2=TableEntry(table_2).columns,
                 include_columns=include_columns,
                 exclude_columns=exclude_columns,
             )
