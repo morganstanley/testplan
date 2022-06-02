@@ -131,6 +131,14 @@ class WorkerBase(entity.Resource):
         """
         self._transport.respond(msg)
 
+    def rebase_attachment(self, result):
+        """Rebase the path of attachment from remote to local"""
+        pass
+
+    def rebase_task_path(self, task):
+        """Rebase the path of task from local to remote"""
+        pass
+
     def __repr__(self):
         return "{}[{}]".format(self.__class__.__name__, self.cfg.index)
 
@@ -461,6 +469,7 @@ class Pool(Executor):
                     break
 
                 task = self._input[uid]
+                worker.rebase_task_path(task)
 
                 if self._can_assign_task(task):
                     if self._task_retries_cnt[uid] > self._task_retries_limit:
@@ -552,13 +561,7 @@ class Pool(Executor):
                 "De-assign {} from {}".format(task_result.task, worker)
             )
 
-            if task_result.result and isinstance(worker, RemoteResource):
-                for attachment in task_result.result.report.attachments:
-                    attachment.source_path = rebase_path(
-                        attachment.source_path,
-                        worker._remote_plan_runpath,
-                        worker._get_plan().runpath,
-                    )
+            worker.rebase_attachment(task_result.result)
 
             if task_should_rerun():
                 self.logger.test_info(
