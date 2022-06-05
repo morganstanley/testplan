@@ -84,7 +84,7 @@ def repo_root_path():
     """
     # This file is at tests/conftest.py. It should not be moved, since it
     # defines global pytest fixtures for all tests.
-    return os.path.dirname(os.path.dirname(__file__))
+    return os.path.join(os.path.dirname(__file__), os.pardir)
 
 
 @pytest.fixture(scope="session")
