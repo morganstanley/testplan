@@ -11,7 +11,7 @@ from .base import Report, ReportGroup
 
 __all__ = ["ReportLogSchema", "ReportSchema", "ReportGroupSchema"]
 
-# pylint: disable=unused-argument, no-self-use
+# pylint: disable=unused-argument
 
 
 class ReportLogSchema(Schema):
