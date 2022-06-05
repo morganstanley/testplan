@@ -9,7 +9,6 @@ import random
 from enum import Enum
 
 from testplan.common.utils.convert import make_tuple
-from testplan.common.utils.callable import dispatchmethod
 
 
 class SortType(Enum):
@@ -68,7 +67,7 @@ class BaseSorter:
     def sort_testsuites(self, testsuites):
         raise NotImplementedError
 
-    def sort_testcases(self, testsuite, testcases, param_groups=None):
+    def sort_testcases(self, testcases, param_groups=None):
         raise NotImplementedError
 
     def sorted_instances(self, instances):
@@ -81,9 +80,35 @@ class BaseSorter:
             return self.sort_testsuites(testsuites)
         return testsuites
 
-    def sorted_testcases(self, testsuite, testcases, param_groups=None):
+    def sorted_testcases(self, testsuite, testcases):
         if self.should_sort_testcases():
-            return self.sort_testcases(testsuite, testcases, param_groups)
+            test_methods, param_groups = [], {}
+            for testcase in testcases:
+                param_template = getattr(
+                    testcase, "_parametrization_template", None
+                )
+                if param_template:
+                    if param_template not in param_groups:
+                        test_methods.append(getattr(testsuite, param_template))
+                    param_groups.setdefault(param_template, []).append(
+                        testcase
+                    )
+                else:
+                    test_methods.append(testcase)
+
+            result = self.sort_testcases(test_methods, param_groups)
+            if isinstance(result, (tuple, list)):
+                sorted_test_methods, soted_param_groups = result
+            else:
+                sorted_test_methods, soted_param_groups = result, {}
+
+            testcases = []
+            for test_method in sorted_test_methods:
+                if getattr(test_method, "__parametrization_template__", False):
+                    testcases.extend(soted_param_groups[test_method.__name__])
+                else:
+                    testcases.append(test_method)
+
         return testcases
 
 
@@ -149,150 +174,26 @@ class ShuffleSorter(TypedSorter):
     def sort_testsuites(self, testsuites):
         return self.shuffle(testsuites)
 
-    @dispatchmethod(in_list=True)
-    def sort_testcases(self, testsuite, testcases, param_groups=None):
-        testcases_to_sort = []
-        param_groups = {}
-
-        for testcase in testcases:
-            param_template = getattr(
-                testcase, "_parametrization_template", None
-            )
-            if param_template:
-                if param_template not in param_groups:
-                    testcases_to_sort.append(
-                        getattr(testsuite, param_template)
-                    )
-                param_groups.setdefault(param_template, []).append(testcase)
-            else:
-                testcases_to_sort.append(testcase)
-
-        sorted_testcases = []
-        sorted_param_groups = {
-            param_template: self.shuffle(testcases)
-            for param_template, testcases in param_groups.items()
-        }
-
-        for testcase in self.shuffle(testcases_to_sort):
-            if getattr(testcase, "__parametrization_template__", False):
-                sorted_testcases.extend(sorted_param_groups[testcase.__name__])
-            else:
-                sorted_testcases.append(testcase)
-
-        return sorted_testcases
-
-    @sort_testcases.register(str)
-    def _(self, testsuite, testcases, param_groups=None):
-        testcases_to_sort = []
+    def sort_testcases(self, testcases, param_groups=None):
         param_groups = param_groups or {}
-        testcase_to_template = {
-            testcase: param_template
-            for param_template, testcases in param_groups.items()
-            for testcase in testcases
-        }
-
-        for testcase in testcases:
-            param_template = testcase_to_template.get(testcase)
-            if param_template:
-                if param_template not in testcases_to_sort:
-                    testcases_to_sort.append(param_template)
-            else:
-                testcases_to_sort.append(testcase)
-
-        sorted_testcases = []
-        sorted_param_groups = {
+        return self.shuffle(testcases), {
             param_template: self.shuffle(testcases)
             for param_template, testcases in param_groups.items()
         }
-
-        for testcase in self.shuffle(testcases):
-            if testcase in sorted_param_groups:
-                sorted_testcases.extend(sorted_param_groups[testcase])
-            else:
-                sorted_testcases.append(testcase)
-
-        return sorted_testcases
 
 
 class AlphanumericSorter(TypedSorter):
     """Sorter that uses basic alphanumeric ordering."""
 
-    @dispatchmethod(in_list=True)
     def sort_instances(self, instances):
         return sorted(instances, key=operator.attrgetter("name"))
 
-    @sort_instances.register(str)
-    def _(self, instances):
-        return sorted(instances)
-
-    @dispatchmethod(in_list=True)
     def sort_testsuites(self, testsuites):
         return sorted(testsuites, key=operator.attrgetter("name"))
 
-    @sort_testsuites.register(str)
-    def _(self, testsuites):
-        return sorted(testsuites)
-
-    @dispatchmethod
-    def sort_testcases(self, testsuite, testcases, param_groups=None):
-        testcases_to_sort = []
-        param_groups = {}
-
-        for testcase in testcases:
-            param_template = getattr(
-                testcase, "_parametrization_template", None
-            )
-            if param_template:
-                if param_template not in param_groups:
-                    testcases_to_sort.append(
-                        getattr(testsuite, param_template)
-                    )
-                param_groups.setdefault(param_template, []).append(testcase)
-            else:
-                testcases_to_sort.append(testcase)
-
-        sorted_testcases = []
-        sorted_param_groups = {
+    def sort_testcases(self, testcases, param_groups=None):
+        param_groups = param_groups or {}
+        return sorted(testcases, key=operator.attrgetter("name")), {
             param_template: sorted(testcases, key=operator.attrgetter("name"))
             for param_template, testcases in param_groups.items()
         }
-
-        for testcase in sorted(testcases, key=operator.attrgetter("name")):
-            if getattr(testcase, "__parametrization_template__", False):
-                sorted_testcases.extend(sorted_param_groups[testcase.__name__])
-            else:
-                sorted_testcases.append(testcase)
-
-        return sorted_testcases
-
-    @sort_testcases.register(str)
-    def _(self, testsuite, testcases, param_groups=None):
-        testcases_to_sort = []
-        param_groups = param_groups or {}
-        testcase_to_template = {
-            testcase: param_template
-            for param_template, testcases in param_groups.items()
-            for testcase in testcases
-        }
-
-        for testcase in testcases:
-            param_template = testcase_to_template.get(testcase)
-            if param_template:
-                if param_template not in testcases_to_sort:
-                    testcases_to_sort.append(param_template)
-            else:
-                testcases_to_sort.append(testcase)
-
-        sorted_testcases = []
-        sorted_param_groups = {
-            param_template: sorted(testcases)
-            for param_template, testcases in param_groups.items()
-        }
-
-        for testcase in sorted(testcases):
-            if testcase in sorted_param_groups:
-                sorted_testcases.extend(sorted_param_groups[testcase])
-            else:
-                sorted_testcases.append(testcase)
-
-        return sorted_testcases

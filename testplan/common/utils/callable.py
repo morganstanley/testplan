@@ -3,7 +3,6 @@
 import inspect
 import functools
 from collections import namedtuple
-from collections.abc import Sequence
 
 WRAPPER_ASSIGNMENTS = functools.WRAPPER_ASSIGNMENTS + (
     "__tags__",
@@ -154,92 +153,3 @@ def post(*postfunctions):
         return inner
 
     return outer
-
-
-def functiondispatch(func, in_list=False):
-    """
-    Like `singledispatch` but dispatches by type of either the first
-    argument, or the first element of that argument which is a sequence.
-    """
-    registry = {}
-
-    def dispatch(*args):
-        if not args:
-            raise TypeError(
-                f"{getattr(func, '__name__', 'dispatch function')}"
-                " requires at least 1 positional argument"
-            )
-        if in_list and issubclass(args[0].__class__, Sequence) and args[0][0]:
-            cls = args[0][0].__class__
-        else:
-            cls = args[0].__class__
-        return registry[cls] if cls in registry else func
-
-    def register(cls):
-        def wrap(func):
-            if cls in registry:
-                raise ValueError(
-                    "There is already a handler registered"
-                    f" for {cls!r} in `@type_dispatch`"
-                )
-            registry[cls] = func
-            return func
-
-        return wrap
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        return dispatch(*args)(*args, **kwargs)
-
-    wrapper.register = register
-    wrapper.dispatch = dispatch
-    functools.update_wrapper(wrapper, func)
-    return wrapper
-
-
-def dispatchmethod(in_list=False):
-    """
-    Like `singledispatchmethod` but dispatches by type of either the first
-    argument, or the first element of that argument which is a sequence.
-
-    Supports wrapping existing descriptors and handles non-descriptor callables
-    as instance methods.
-    """
-
-    class DispatchMethod(object):
-        """`functiondispatch` generic method descriptor."""
-
-        def __init__(self, func):
-            if not callable(func) and not hasattr(func, "__get__"):
-                raise TypeError(f"{func!r} is not callable or a descriptor")
-
-            self.dispatcher = functiondispatch(func, in_list=in_list is True)
-            self.func = func
-
-        def register(self, cls):
-            """
-            Register a new implementation for the given `cls` on
-            a generic method.
-            """
-            return self.dispatcher.register(cls)
-
-        def __get__(self, obj, cls=None):
-            def _method(*args, **kwargs):
-                method = self.dispatcher.dispatch(*args)
-                return method.__get__(obj, cls)(*args, **kwargs)
-
-            _method.__isabstractmethod__ = self.__isabstractmethod__
-            _method.register = self.register
-            functools.update_wrapper(_method, self.func)
-            return _method
-
-        @property
-        def __isabstractmethod__(self):
-            return getattr(self.func, "__isabstractmethod__", False)
-
-    if callable(in_list):
-        # decorator is used without any argument
-        return DispatchMethod(in_list)
-    else:
-        # argument `in_seq` is explicitly specified
-        return DispatchMethod
