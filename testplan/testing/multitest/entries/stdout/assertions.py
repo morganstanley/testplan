@@ -203,6 +203,10 @@ class TableMatchRenderer(AssertionRenderer):
         display_index=False,
     ):
         """Return single row data to be printed"""
+
+        def fmt(val):
+            return val if val is not None else ""
+
         result = []
 
         for idx, column in enumerate(columns):
@@ -217,12 +221,16 @@ class TableMatchRenderer(AssertionRenderer):
             include_columns = include_columns or columns
             exclude_columns = exclude_columns or []
 
-            if (column not in include_columns) or (column in exclude_columns):
-                result.append("{} .. {}".format(actual, other))
+            if (
+                (column not in include_columns)
+                or (column in exclude_columns)
+                or matched is None
+            ):
+                result.append(f"{fmt(actual)} .. {fmt(other)}")
             elif matched:
-                result.append(Color.green("{} == {}".format(actual, other)))
+                result.append(Color.green(f"{fmt(actual)} == {fmt(other)}"))
             else:
-                result.append(Color.red("{} != {}".format(actual, other)))
+                result.append(Color.red(f"{fmt(actual)} != {fmt(other)}"))
 
         if display_index:
             result = [row_comparison.idx] + result
