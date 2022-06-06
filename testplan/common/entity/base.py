@@ -1605,10 +1605,11 @@ class RunnableManager(Entity):
         try:
             for sig in self._cfg.abort_signals:
                 signal.signal(sig, self._handle_abort)
-            if hasattr(signal, "SIGUSR1"):
-                signal.signal(signal.SIGUSR1, pdb_drop_handler)
-            if hasattr(signal, "SIGUSR2"):
-                signal.signal(signal.SIGUSR2, print_current_status)
+            # TODO: breaks test internally
+            # if hasattr(signal, "SIGUSR1"):
+            #     signal.signal(signal.SIGUSR1, pdb_drop_handler)
+            # if hasattr(signal, "SIGUSR2"):
+            #     signal.signal(signal.SIGUSR2, print_current_status)
         except ValueError:
             self.logger.warning(
                 "Not able to install signal handler -"
