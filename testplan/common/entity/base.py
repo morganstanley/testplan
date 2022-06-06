@@ -24,6 +24,44 @@ from testplan.common.utils.timing import wait
 from testplan.common.utils.validation import is_subclass
 
 
+def pdb_drop_handler(sig, frame):
+    """
+    Drop into pdb
+    """
+    print("Received SIGUSR1, dropping into pdb")
+    import pdb
+
+    pdb.set_trace()
+
+
+def print_current_status(sig, frame):
+    """
+    Print stack frames of all threads
+    """
+
+    print("Received SIGUSR2, printing current status")
+    id2name = dict([(th.ident, th.name) for th in threading.enumerate()])
+
+    msgs = ["Stack frames of all threads"]
+    for thread_id, stack in sorted(
+        sys._current_frames().items(), reverse=True
+    ):
+        msgs.append(
+            "{}# Thread: {}({})".format(
+                os.linesep, id2name.get(thread_id, ""), thread_id
+            )
+        )
+        for filename, lineno, name, line in traceback.extract_stack(stack):
+            msgs.append(
+                'File: "{}", line {}, in {}'.format(filename, lineno, name)
+            )
+            if line:
+                msgs.append("  {}".format(line.strip()))
+
+    msg = os.linesep.join(msgs)
+    print(msg)
+
+
 class Environment:
     """
     A collection of resources that can be started/stopped.
@@ -1488,6 +1526,10 @@ class RunnableManager(Entity):
         for resource in self._cfg.resources:
             self._runnable.add_resource(resource)
 
+    @property
+    def aborted(self):
+        return self._runnable.aborted
+
     def enrich_options(self, options):
         """
         Enrich the options using parsed command line arguments.
@@ -1563,6 +1605,10 @@ class RunnableManager(Entity):
         try:
             for sig in self._cfg.abort_signals:
                 signal.signal(sig, self._handle_abort)
+            if hasattr(signal, "SIGUSR1"):
+                signal.signal(signal.SIGUSR1, pdb_drop_handler)
+            if hasattr(signal, "SIGUSR2"):
+                signal.signal(signal.SIGUSR2, print_current_status)
         except ValueError:
             self.logger.warning(
                 "Not able to install signal handler -"
