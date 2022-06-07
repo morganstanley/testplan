@@ -676,6 +676,10 @@ class TableMatchRenderer(AssertionRenderer):
         :rtype: ``list`` of ``dict`` and
                 ``list`` of ``testplan.common.exporters.pdf.RowStyle``
         """
+
+        def fmt(val):
+            return val if val is not None else ""
+
         result = []
         colour_row = []
 
@@ -697,14 +701,18 @@ class TableMatchRenderer(AssertionRenderer):
             include_columns = include_columns or columns
             exclude_columns = exclude_columns or []
 
-            if (column not in include_columns) or (column in exclude_columns):
-                result.append("{} .. {}".format(actual, other))
+            if (
+                (column not in include_columns)
+                or (column in exclude_columns)
+                or matched is None
+            ):
+                result.append(f"{fmt(actual)} .. {fmt(other)}")
                 colour_row.append("I")
             elif matched:
-                result.append("{} == {}".format(actual, other))
+                result.append(f"{fmt(actual)} == {fmt(other)}")
                 colour_row.append("P")
             else:
-                result.append("{} != {}".format(actual, other))
+                result.append(f"{fmt(actual)} != {fmt(other)}")
                 colour_row.append("F")
 
         return result, colour_row

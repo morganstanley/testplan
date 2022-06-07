@@ -235,7 +235,35 @@ class TableSuite:
             description="Table Diff: readable comparators",
         )
 
-        # The match and diff can be limitted to certain columns
+        # By default `None` value means the cell is empty, it is
+        # used as a placeholder
+
+        table = [
+            ["Action", "Col1", "Col2", "Col3"],
+            ["Action1", "Value1", "Value2", None],
+            ["Action2", "Value1", None, "Value3"],
+            ["Action3", None, "Value2", "Value3"],
+        ]
+        expected_table = [
+            ["Action", "Col1", "Col2"],
+            ["Action1", "Value1", "Value2"],
+            ["Action2", "Value1", None],
+            ["Action3", None, "Value2"],
+        ]
+        result.table.match(
+            table,
+            expected_table,
+            description="Table Match: Empty cells",
+            include_columns=["Action", "Col1", "Col2"],
+        )
+        result.table.diff(
+            table,
+            expected_table,
+            description="Table Diff: Empty cells",
+            exclude_columns=["Col3"],
+        )
+
+        # The match and diff can be limited to certain columns
 
         table = self.create_table(3, 5)
         mod_table = deepcopy(table)
