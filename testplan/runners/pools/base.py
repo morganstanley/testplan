@@ -906,6 +906,7 @@ class Pool(Executor):
         for worker in self._workers:
             worker.abort()
 
+        self._exit_loop = True
         super(Pool, self).stopping()  # stop the loop and the monitor
 
         self._conn.abort()
