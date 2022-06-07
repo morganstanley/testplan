@@ -759,11 +759,13 @@ class RowComparison(_RowComparison):
         elif column in self.errors:
             return self.errors[column], False
         elif column in self.extra:
-            return self.extra[column], True
+            return self.extra[column], None
         return self.data[column_idx], True
 
 
-def get_comparison_columns(table_1, table_2, include_columns, exclude_columns):
+def get_comparison_columns(
+    columns_1, columns_2, include_columns, exclude_columns
+):
     """
     Given two tables and inclusion / exclusion rules, return a
     list of columns that will be used for comparison.
@@ -771,10 +773,10 @@ def get_comparison_columns(table_1, table_2, include_columns, exclude_columns):
     Inclusion/exclusion rules apply to both tables, the resulting sub-tables
     must have matching columns.
 
-    :param table_1: First table
-    :type table_1: ``list`` of ``dict``
-    :param table_2: Second table
-    :type table_2: ``list`` of ``dict``
+    :param columns_1: Columns of the first table
+    :type columns_1: ``list```
+    :param columns_2: Columns of the second table
+    :type columns_2: ``list``
     :param include_columns: Inclusion rules for columns.
     :type include_columns: ``list`` of ``str``
     :param exclude_columns: Exclusion rules for columns.
@@ -794,9 +796,6 @@ def get_comparison_columns(table_1, table_2, include_columns, exclude_columns):
                 include_columns, exclude_columns
             )
         )
-
-    columns_1 = table_1[0].keys() if table_1 else []
-    columns_2 = table_2[0].keys() if table_2 else []
 
     comparison_columns = columns_1
 
@@ -895,6 +894,17 @@ def compare_rows(
         diff, errors, extra = {}, {}, {}
 
         for column_name in comparison_columns:
+            if column_name not in row_1 and column_name not in row_2:
+                continue
+            elif (
+                column_name in row_1
+                and column_name not in row_2
+                or column_name not in row_1
+                and column_name in row_2
+            ):
+                diff[column_name] = row_2.get(column_name, None)
+                continue
+
             first, second = row_1[column_name], row_2[column_name]
 
             passed, error = comparison.basic_compare(
@@ -907,23 +917,16 @@ def compare_rows(
             elif not passed:
                 diff[column_name] = second
 
-            # Populate extra if values differ (we don't check for equality
-            # as that may have raised an error for incompatible types as well
+            # Populate extra if values differ (we don't check for equality as
+            # that may have raised an error for incompatible types as well)
             if first is not second and (error or passed):
                 extra[column_name] = second
 
-        row_data = [row_1[col] for col in display_columns]
+        row_data = [row_1.get(col, None) for col in display_columns]
 
-        # Need to populate extra with values from the
-        # second table, if they are not being used
-        # for comparison but have different values.
-        extra.update(
-            {
-                col: row_2[col]
-                for col in display_only
-                if col in row_2 and row_2[col] != row_1[col]
-            }
-        )
+        # Need to populate `extra` with values from the second table
+        # they are not being used for comparison but for display.
+        extra.update({col: row_2.get(col, None) for col in display_only})
 
         row_comparison = RowComparison(idx, row_data, diff, errors, extra)
 
@@ -958,8 +961,13 @@ class TableMatch(Assertion):
         description=None,
         category=None,
     ):
-        self.table = TableEntry(table).as_list_of_dict()
-        self.expected_table = TableEntry(expected_table).as_list_of_dict()
+        table_entry = TableEntry(table)
+        expected_table_entry = TableEntry(expected_table)
+
+        self.table = table_entry.as_list_of_dict()
+        self.table_columns = table_entry.columns
+        self.expected_table = expected_table_entry.as_list_of_dict()
+        self.expected_table_columns = expected_table_entry.columns
         self.include_columns = include_columns
         self.exclude_columns = exclude_columns
         self.strict = strict
@@ -993,8 +1001,8 @@ class TableMatch(Assertion):
 
         try:
             comparison_columns = get_comparison_columns(
-                table_1=self.table,
-                table_2=self.expected_table,
+                columns_1=self.table_columns,
+                columns_2=self.expected_table_columns,
                 include_columns=self.include_columns,
                 exclude_columns=self.exclude_columns,
             )
@@ -1003,7 +1011,7 @@ class TableMatch(Assertion):
             return False  # Fail on invalid tables
 
         self.display_columns = (
-            self.table[0].keys() if self.report_all else comparison_columns
+            self.table_columns if self.report_all else comparison_columns
         )
 
         passed, self.data = compare_rows(

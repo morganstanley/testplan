@@ -217,6 +217,26 @@ class MySuite:
             report_all=True,
         )
 
+        # All cells of column are set to `None`, which means value is missing
+        for row in table[1:]:
+            row[1] = None
+        for row in table_2[1:]:
+            row[1] = None
+
+        result.table.match(
+            actual=table_2,
+            expected=table,
+            include_columns=["name", "value"],
+            report_all=True,
+        )
+
+        result.table.match(
+            actual=table,
+            expected=table_2,
+            exclude_columns=["is_finished"],
+            report_all=True,
+        )
+
     @testcase
     def test_table_diff(self, env, result):
         table = [

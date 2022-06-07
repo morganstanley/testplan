@@ -19,7 +19,7 @@ from .base import TestCaseReport, TestGroupReport, TestReport
 
 __all__ = ["TestCaseReportSchema", "TestGroupReportSchema", "TestReportSchema"]
 
-# pylint: disable=unused-argument, no-self-use
+# pylint: disable=unused-argument
 
 
 class IntervalSchema(Schema):

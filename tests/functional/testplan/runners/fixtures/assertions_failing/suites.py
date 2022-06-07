@@ -260,6 +260,23 @@ class MySuite:
             fail_limit=2,
         )
 
+        # Some cells of column are set to `None`, which means value is missing
+        table[1][1] = table_2[3][1] = None
+
+        result.table.match(
+            actual=table_2,
+            expected=table,
+            include_columns=["name", "value"],
+            report_all=True,
+        )
+
+        result.table.match(
+            actual=table,
+            expected=table_2,
+            exclude_columns=["is_finished"],
+            report_all=True,
+        )
+
     @testcase
     def test_table_diff(self, env, result):
         table = [
