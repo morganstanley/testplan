@@ -4,3 +4,4 @@ nav:
     - examples.md
     - hooks.md
     - dataclasses.md
+    - helpers.md
