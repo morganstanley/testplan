@@ -6,6 +6,8 @@ import os
 
 import pytest
 
+from testplan.testing.multitest.result import Result
+
 
 class TestPytestBasics:
     """
@@ -60,6 +62,11 @@ class TestWithDrivers:
         result.equal(
             received.decode("utf-8"), message, description="Expect a message"
         )
+
+
+class TestWithAttachments:
+    def test_attachment(self, result: Result):
+        result.attach(__file__, "example attachment")
 
 
 class TestPytestMarks:

@@ -53,6 +53,11 @@ class BasePlugin:
 
         return CommandOptions(options, default_opts_callback)
 
+    @releaseherald.plugins.hookimpl
+    def on_start_command(self, command: str, kwargs: Dict[str, Any]):
+        if "unreleased" in kwargs:
+            self.config.unreleased = kwargs["unreleased"]
+
     @releaseherald.plugins.hookimpl(tryfirst=True)
     def process_tags(self, repo: Repo, tags: List[Tag]):
         tags.clear()

@@ -20,7 +20,7 @@ from testplan.common.utils import comparison
 # types.NoneType is gone in python3 so we inspect the type of None directly.
 COMPATIBLE_TYPES = (bool, float, type(None), str, bytes, int)
 
-# pylint: disable=unused-argument, no-self-use
+# pylint: disable=unused-argument
 
 
 class Serializable(metaclass=abc.ABCMeta):
