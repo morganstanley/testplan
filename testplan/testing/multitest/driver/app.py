@@ -17,6 +17,7 @@ from testplan.common.utils.path import StdFiles, makedirs, archive
 from testplan.common.utils.context import is_context, expand
 from testplan.common.utils.process import subprocess_popen, kill_process
 from testplan.common.utils.timing import wait
+from testplan.common.utils.documentation_helper import emphasized
 
 from .base import Driver, DriverConfig
 
@@ -52,6 +53,8 @@ class AppConfig(DriverConfig):
 class App(Driver):
     """
     Binary application driver.
+
+    {emphasized_members_docs}
 
     :param name: Driver name. Also uid.
     :type name: ``str``
@@ -115,6 +118,7 @@ class App(Driver):
         self._retcode = None
         self._log_matcher = None
 
+    @emphasized
     @property
     def pid(self):
         """
