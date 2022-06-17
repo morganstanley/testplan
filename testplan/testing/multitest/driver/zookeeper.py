@@ -106,9 +106,22 @@ class ZookeeperStandalone(Driver):
         start_cmd = [self.cfg.binary, "start", self.config]
         self.std = StdFiles(self.runpath)
 
+        execute_cmd(
+            start_cmd,
+            label=self.uid(),
+            check=True,
+            stdout=self.std.out,
+            stderr=self.std.err,
+            logger=self.logger,
+            env=self.env,
+        )
+
+    def stopping(self):
+        """Stops the Zookeeper instance."""
+        stop_cmd = [self.cfg.binary, "stop", self.config]
         try:
             execute_cmd(
-                start_cmd,
+                stop_cmd,
                 label=self.uid(),
                 check=True,
                 stdout=self.std.out,
@@ -117,10 +130,4 @@ class ZookeeperStandalone(Driver):
                 env=self.env,
             )
         finally:
-            self.std.err.close()
-            self.std.out.close()
-
-    def stopping(self):
-        """Stops the Zookeeper instance."""
-        stop_cmd = [self.cfg.binary, "stop", self.config]
-        execute_cmd(stop_cmd, check=True, logger=self.logger)
+            self.std.close()
