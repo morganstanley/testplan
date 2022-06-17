@@ -1,6 +1,7 @@
 """Tasks and task results base module."""
 
 import inspect
+import os
 import warnings
 from collections import OrderedDict
 
@@ -9,6 +10,7 @@ import copy
 
 from testplan.common.utils import strings
 from testplan.common.utils.package import import_tmp_module
+from testplan.common.utils.path import rebase_path
 
 
 class TaskMaterializationError(Exception):
@@ -86,6 +88,7 @@ class Task:
         self._target = target
         self._module = module
         self._path = path or ""
+        self._rebased_path = self._path
         self._args = args or tuple()
         self._kwargs = kwargs or dict()
         self._uid = uid or strings.uuid4()
@@ -114,7 +117,15 @@ class Task:
 
     @property
     def all_attrs(self):
-        return ("_target", "_path", "_args", "_kwargs", "_module", "_uid")
+        return (
+            "_target",
+            "_path",
+            "_rebased_path",
+            "_args",
+            "_kwargs",
+            "_module",
+            "_uid",
+        )
 
     def uid(self):
         """Task string uid."""
@@ -241,7 +252,7 @@ class Task:
             module = self._module
             target = self._target
 
-        with import_tmp_module(module, self._path) as mod:
+        with import_tmp_module(module, self._rebased_path) as mod:
             tgt = mod
             for element in target.split("."):
                 tgt = getattr(tgt, element, None)
@@ -274,6 +285,15 @@ class Task:
         for attr, value in data.items():
             setattr(self, attr, value)
         return self
+
+    def rebase_path(self, local, remote):
+        """adapt task's path for remote execution if necessary"""
+        if os.path.isabs(self._path):
+            self._rebased_path = rebase_path(
+                self._path,
+                local,
+                remote,
+            )
 
 
 class TaskResult:

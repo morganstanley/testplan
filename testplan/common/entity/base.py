@@ -1194,6 +1194,10 @@ class ResourceConfig(EntityConfig):
         return {
             ConfigOption("async_start", default=True): bool,
             ConfigOption("auto_start", default=True): bool,
+            ConfigOption("pre_start", default=None): Or(callable, None),
+            ConfigOption("post_start", default=None): Or(callable, None),
+            ConfigOption("pre_stop", default=None): Or(callable, None),
+            ConfigOption("post_stop", default=None): Or(callable, None),
         }
 
 
@@ -1314,6 +1318,8 @@ class Resource(Entity):
         self.logger.debug("Starting %s", self)
         self.status.change(self.STATUS.STARTING)
         self.pre_start()
+        if self.cfg.pre_start:
+            self.cfg.pre_start(self)
         self.starting()
 
         if not self.async_start:
@@ -1346,6 +1352,8 @@ class Resource(Entity):
         self.logger.debug("Stopping %s", self)
         self.status.change(self.STATUS.STOPPING)
         self.pre_stop()
+        if self.cfg.pre_stop:
+            self.cfg.pre_stop(self)
         self.stopping()
 
         if not self.async_start:
@@ -1385,6 +1393,8 @@ class Resource(Entity):
         """
         self.status.change(self.STATUS.STARTED)
         self.post_start()
+        if self.cfg.post_start:
+            self.cfg.post_start(self)
 
     def _wait_stopped(self, timeout=None):
         """
@@ -1395,6 +1405,8 @@ class Resource(Entity):
         """
         self.status.change(self.STATUS.STOPPED)
         self.post_stop()
+        if self.cfg.post_stop:
+            self.cfg.post_stop(self)
 
     def starting(self):
         """
