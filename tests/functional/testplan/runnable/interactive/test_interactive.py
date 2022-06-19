@@ -410,17 +410,18 @@ def test_abort_plan():
         )
         plan.add(multitest)
         plan.run()
+        # NOTE: wait until the HTTP handler is available
+        wait(lambda: bool(plan.i.http_handler_info), 5, raise_on_timeout=True)
 
         plan.i.start_test_resources("MultiTest")
-        wait(lambda: True is False, timeout=3, raise_on_timeout=False)
         for resource in plan.i.test("MultiTest").resources:
             wait(
                 lambda: resource.status == resource.STATUS.STARTED,
                 timeout=3,
                 raise_on_timeout=True,
             )
+        # NOTE: triggering abortion for the interactive mode as in the
         plan.i.abort()
-        wait(lambda: True is False, timeout=3, raise_on_timeout=False)
         for resource in plan.i.test("MultiTest").resources:
             wait(
                 lambda: resource.status == resource.STATUS.STOPPED,
