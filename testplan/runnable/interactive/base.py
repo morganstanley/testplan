@@ -134,6 +134,10 @@ class TestRunnerIHandler(entity.Entity):
             self._http_handler.run()
         self.status.change(entity.RunnableStatus.FINISHED)
 
+    def aborting(self):
+        for test_uid in self.all_tests():
+            self.test(test_uid).stop_test_resources()
+
     def teardown(self):
         """Close the task pool."""
         self.logger.test_info(
@@ -142,9 +146,6 @@ class TestRunnerIHandler(entity.Entity):
 
         if self._pool is None or self._http_handler is None:
             raise RuntimeError("setup() not run")
-
-        for test_uid in self.all_tests():
-            self.test(test_uid).stop_test_resources()
 
         self.target._close_file_logger()
         self._pool = None
