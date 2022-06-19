@@ -145,6 +145,7 @@ class TestRunnerIHandler(entity.Entity):
 
         for test_uid in self.all_tests():
             self.test(test_uid).stop_test_resources()
+
         self.target._close_file_logger()
         self._pool = None
         self._http_handler = None

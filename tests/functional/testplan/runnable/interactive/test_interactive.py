@@ -389,7 +389,7 @@ def test_env_operate():
         assert test2_report["env_status"] == entity.ResourceStatus.STOPPED
 
 
-def test_abort_plan():
+def test_abort_handler():
     with InteractivePlan(
         name="InteractivePlan",
         interactive_port=0,
@@ -417,14 +417,15 @@ def test_abort_plan():
         for resource in plan.i.test("MultiTest").resources:
             wait(
                 lambda: resource.status == resource.STATUS.STARTED,
-                timeout=3,
+                timeout=5,
                 raise_on_timeout=True,
             )
-        # NOTE: triggering abortion for the interactive mode as in the
+        # NOTE: triggering abortion for the interactive handler mocking API
         plan.i.abort()
         for resource in plan.i.test("MultiTest").resources:
+            print(resource, resource.status.tag)
             wait(
                 lambda: resource.status == resource.STATUS.STOPPED,
-                timeout=3,
+                timeout=5,
                 raise_on_timeout=True,
             )
