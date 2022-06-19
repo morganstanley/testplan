@@ -2,6 +2,7 @@
 
 import os
 import sys
+import threading
 
 import requests
 from pytest_test_filters import skip_on_windows
@@ -414,7 +415,7 @@ def test_abort_handler():
         wait(lambda: bool(plan.i.http_handler_info), 5, raise_on_timeout=True)
 
         plan.i.start_test_resources("MultiTest")
-        for resource in plan.i.test("MultiTest").resources:
+        for resource in multitest.resources:
             wait(
                 lambda: resource.status == resource.STATUS.STARTED,
                 timeout=5,
@@ -422,8 +423,7 @@ def test_abort_handler():
             )
         # NOTE: triggering abortion for the interactive handler mocking API
         plan.i.abort()
-        for resource in plan.i.test("MultiTest").resources:
-            print(resource, resource.status.tag)
+        for resource in multitest.resources:
             wait(
                 lambda: resource.status == resource.STATUS.STOPPED,
                 timeout=5,
