@@ -1,21 +1,22 @@
 """Interactive mode tests."""
 
 import os
+import sys
+import threading
 
 import requests
+from pytest_test_filters import skip_on_windows
 
+from testplan import TestplanMock
 from testplan.common import entity
-from testplan.common.utils.timing import wait
 from testplan.common.utils.comparison import compare
 from testplan.common.utils.context import context
 from testplan.common.utils.logger import TEST_INFO
-
-from testplan import TestplanMock
+from testplan.common.utils.timing import wait
 from testplan.environment import LocalEnvironment
 from testplan.testing.multitest import MultiTest, testsuite, testcase
+from testplan.testing.multitest.driver.app import App
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
-
-from pytest_test_filters import skip_on_windows
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -387,3 +388,44 @@ def test_env_operate():
         assert response.ok
         test2_report = response.json()
         assert test2_report["env_status"] == entity.ResourceStatus.STOPPED
+
+
+def test_abort_handler():
+    with InteractivePlan(
+        name="InteractivePlan",
+        interactive_port=0,
+        interactive_block=False,
+        parse_cmdline=False,
+        logger_level=TEST_INFO,
+    ) as plan:
+        multitest = MultiTest(
+            name="MultiTest",
+            suites=[BasicSuite()],
+            environment=[
+                App(
+                    name="app",
+                    binary=sys.executable,
+                    args=["-c", "input()"],
+                )
+            ],
+        )
+        plan.add(multitest)
+        plan.run()
+        # NOTE: wait until the HTTP handler is available
+        wait(lambda: bool(plan.i.http_handler_info), 5, raise_on_timeout=True)
+
+        plan.i.start_test_resources("MultiTest")
+        for resource in multitest.resources:
+            wait(
+                lambda: resource.status == resource.STATUS.STARTED,
+                timeout=5,
+                raise_on_timeout=True,
+            )
+        # NOTE: triggering abortion for the interactive handler mocking API
+        plan.i.abort()
+        for resource in multitest.resources:
+            wait(
+                lambda: resource.status == resource.STATUS.STOPPED,
+                timeout=5,
+                raise_on_timeout=True,
+            )
