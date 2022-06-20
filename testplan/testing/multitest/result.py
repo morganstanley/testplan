@@ -101,13 +101,30 @@ class ExceptionCapture:
 assertion_state = threading.local()
 
 
-def report_target(func: Callable) -> Callable:
+def report_target(func: Callable, ref_func: Callable = None) -> Callable:
     """
     Sets the decorated function's filepath and line-range in assertion state.
+    If the target function is a parametrized function, should refer to its
+    parametrized template to find information of the original function.
+
+    :param func: The target function about which the information of
+        source path and line range will be retrieved.
+    :param ref_func: The parametrized template if `func` is a generated
+        function, otherwise ``None``.
     """
-    filepath = inspect.getfile(func)
-    lines, start = inspect.getsourcelines(func)
-    line_range = range(start, start + len(lines))
+    module = inspect.getmodule(ref_func or func)
+    filepath = module.__file__ if module else None
+    if filepath is None:
+        try:
+            filepath = inspect.getsourcefile(ref_func or func)
+        except TypeError:
+            pass
+
+    try:
+        lines, start = inspect.getsourcelines(ref_func or func)
+        line_range = range(start, start + len(lines))
+    except OSError:
+        pass
 
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -148,6 +165,8 @@ def assertion(func: Callable) -> Callable:
                                     in assertion_state.line_range
                                 ):
                                     break
+                            else:
+                                frame = call_stack[1]
                         entry.file_path = os.path.abspath(frame.filename)
                         entry.line_no = frame.lineno
                     finally:

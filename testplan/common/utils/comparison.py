@@ -491,17 +491,44 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
             should_ignore = False
         return should_ignore
 
+    def process_ignored(val):
+        """
+        Whatever the result is, just mark all flags of comparison to be "i"
+        (which means ignored), because the upper level key is in ignore list.
+        """
+        if val[0] == 1:
+            return 1, [process_ignored(item) for item in val[1]]
+        elif val[0] == 2:
+            return 2, [
+                (item[0], Match.IGNORED, process_ignored(item[2]))
+                for item in val[1]
+            ]
+        elif val[0] == 3:
+            return 3, Match.IGNORED, process_ignored(val[2])
+        else:
+            return val
+
     results = []
     match = Match.IGNORED
+
     for iter_key, lhs_val, rhs_val in _idictzip_all(lhs, rhs):
         if should_ignore_key(iter_key):
             if report_mode == ReportOptions.ALL:
+                key, _, lhs, rhs = _rec_compare(
+                    lhs_val,
+                    rhs_val,
+                    ignore,
+                    only,
+                    iter_key,
+                    report_mode,
+                    value_cmp_func,
+                )
                 results.append(
-                    _build_res(
-                        key=iter_key,
-                        match=Match.IGNORED,
-                        lhs=fmt(lhs_val),
-                        rhs=fmt(rhs_val),
+                    (
+                        key,
+                        Match.IGNORED,
+                        process_ignored(lhs),
+                        process_ignored(rhs),
                     )
                 )
         else:
@@ -527,6 +554,7 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
             if keep_result:
                 results.append(result)
             match = Match.combine(match, result[1])
+
     return match, results
 
 
