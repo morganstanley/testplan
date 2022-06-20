@@ -134,7 +134,10 @@ class TestRunnerIHandler(entity.Entity):
             self._http_handler.run()
         self.status.change(entity.RunnableStatus.FINISHED)
 
-    def aborting(self):
+    def aborting(self) -> None:
+        """
+        Aborting step for the handler. Stops resources before thread is joined.
+        """
         for test_uid in self.all_tests():
             self.test(test_uid).stop_test_resources()
 
