@@ -2,7 +2,7 @@
 """
 Implements base exporter objects.
 """
-import os
+import pathlib
 from typing import Dict, List, Optional
 from shutil import copyfile
 
@@ -14,6 +14,7 @@ from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import makedirs
 from testplan.report.testing.base import TestReport
 from testplan.testing import tagging
+from testplan.defaults import ATTACHMENTS
 
 
 # TODO: what we mean here? This is just another dot on the inheritance graph.
@@ -188,9 +189,20 @@ def save_attachments(report: TestReport, directory: str) -> Dict[str, str]:
     attachments = getattr(report, "attachments", None)
     if attachments:
         for dst, src in attachments.items():
-            dst_path = os.path.join(directory, dst)
-            makedirs(os.path.dirname(dst_path))
+            src = pathlib.Path(src)
+            dst_path = pathlib.Path(directory) / dst
+            makedirs(dst_path.parent)
+            if not src.is_file():
+                dirname = src.parent
+                # Try retrieving the file from "_attachments" directory that is
+                # near to the test report, the downloaded report might be moved
+                src = pathlib.Path.cwd() / ATTACHMENTS / dst
+                if not src.is_file():
+                    raise FileNotFoundError(
+                        f'Attachment "{dst}" not found in either {dirname} or'
+                        f' the nearest "{ATTACHMENTS}" directory of test report'
+                    )
             copyfile(src=src, dst=dst_path)
-            moved_attachments[dst] = dst_path
+            moved_attachments[dst] = str(dst_path)
 
     return moved_attachments
