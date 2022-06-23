@@ -32,7 +32,7 @@ def parse_template(template: str) -> Union[TempitaTemplate, Template]:
 class ContextValue:
     """
     A context value represents a combination of a driver name
-    and a tempita template, to be resolved on driver start.
+    and a Jinja2 template, to be resolved on driver start.
     """
 
     def __init__(self, driver: str, value: str):
@@ -61,7 +61,7 @@ class ContextValue:
 def context(driver, value):
     """
     Create a context extractor from a driver name and a value
-    expression. Value expressions must be valid tempita templates,
+    expression. Value expressions must be valid Jinja2 templates,
     which will be resolved from the context.
     """
     return ContextValue(driver, value)
