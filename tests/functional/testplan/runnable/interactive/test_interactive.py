@@ -398,23 +398,13 @@ def test_abort_handler():
         parse_cmdline=False,
         logger_level=TEST_INFO,
     ) as plan:
-        multitest = MultiTest(
-            name="MultiTest",
-            suites=[BasicSuite()],
-            environment=[
-                App(
-                    name="app",
-                    binary=sys.executable,
-                    args=["-c", "input()"],
-                )
-            ],
-        )
+        multitest = make_multitest("1")
         plan.add(multitest)
         plan.run()
         # NOTE: wait until the HTTP handler is available
         wait(lambda: bool(plan.i.http_handler_info), 5, raise_on_timeout=True)
 
-        plan.i.start_test_resources("MultiTest")
+        plan.i.start_test_resources("Test1")
         for resource in multitest.resources:
             wait(
                 lambda: resource.status == resource.STATUS.STARTED,
