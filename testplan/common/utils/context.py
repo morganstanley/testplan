@@ -127,7 +127,16 @@ def expand_env(
     }
 
 
-def render(template: Union[Template, TempitaTemplate, str], context):
+def render(template: Union[Template, TempitaTemplate, str], context) -> str:
+    """
+    Renders the template with the given context, tthat used for expression resolution.
+
+    :param template: A template in str, Jinja2 or Tempita form that will be rendered with the context
+    :type template: Union[Template, TempitaTemplate, str]
+    :param context: The context object which is the base context of the template expansion
+    :return: The rendered template
+    :rtype: str
+    """
     if isinstance(template, str):
         template = parse_template(template)
 
