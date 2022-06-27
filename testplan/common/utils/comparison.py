@@ -475,6 +475,7 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
     """
     Compares dictionaries
     """
+
     def should_ignore_key(key):
         """
         Decide if a key should be ignored.
