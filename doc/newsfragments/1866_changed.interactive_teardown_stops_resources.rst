@@ -1,0 +1,1 @@
+Fixed issue with interactive mode not stopping test resources during abort.

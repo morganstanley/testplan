@@ -172,23 +172,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     def pre_start(self):
         """Steps to be executed right before resource starts."""
         self.make_runpath_dirs()
-        if self.cfg.pre_start:
-            self.cfg.pre_start(self)
-
-    def post_start(self):
-        """Steps to be executed right after resource is started."""
-        if self.cfg.post_start:
-            self.cfg.post_start(self)
-
-    def pre_stop(self):
-        """Steps to be executed right before resource stops."""
-        if self.cfg.pre_stop:
-            self.cfg.pre_stop(self)
-
-    def post_stop(self):
-        """Steps to be executed right after resource is stopped."""
-        if self.cfg.post_stop:
-            self.cfg.post_stop(self)
 
     def started_check(self, timeout=None):
         """Driver started status condition check."""

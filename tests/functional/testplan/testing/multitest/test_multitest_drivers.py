@@ -305,6 +305,7 @@ def test_multitest_driver_start_timeout():
 
 
 def pre_start_fn(driver):
+    # make sure def pre_start is called before cfg.pre_start
     assert driver.pre_start_cnt > 0
     driver.pre_start_fn_cnt += 1
 
@@ -347,20 +348,20 @@ class CustomDriver(Driver):
         self.post_stop_fn_cnt = 0
 
     def pre_start(self):
-        self.pre_start_cnt += 1
         super(CustomDriver, self).pre_start()
+        self.pre_start_cnt += 1
 
     def post_start(self):
-        self.post_start_cnt += 1
         super(CustomDriver, self).post_start()
+        self.post_start_cnt += 1
 
     def pre_stop(self):
-        self.pre_stop_cnt += 1
         super(CustomDriver, self).pre_stop()
+        self.pre_stop_cnt += 1
 
     def post_stop(self):
-        self.post_stop_cnt += 1
         super(CustomDriver, self).post_stop()
+        self.post_stop_cnt += 1
 
 
 @testsuite

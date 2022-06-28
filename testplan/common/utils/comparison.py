@@ -479,7 +479,6 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
     def should_ignore_key(key):
         """
         Decide if a key should be ignored.
-
         Decision is based on ``ignore`` and ``only``. If ``only`` is ``True``
         then keys that are not in ``lhs`` will be ignored.
         """
@@ -514,7 +513,6 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
                 report_mode,
                 value_cmp_func,
             )
-
             # Decide whether to keep or discard the result, depending on the
             # reporting mode.
             if report_mode in (ReportOptions.ALL, ReportOptions.NO_IGNORED):
@@ -523,10 +521,10 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
                 keep_result = not Match.to_bool(result[1])
             else:
                 raise ValueError("Invalid report mode {}".format(report_mode))
-
             if keep_result:
                 results.append(result)
             match = Match.combine(match, result[1])
+
     return match, results
 
 

@@ -16,6 +16,7 @@ import matplotlib.pyplot as plot
 
 from testplan.common.utils import comparison
 from testplan.common.utils import testing
+from testplan.common.utils import callable
 from testplan.common.utils import path as path_utils
 
 from testplan.testing.multitest import result as result_mod
@@ -64,6 +65,32 @@ class GroupMarking:
         intermediary(result, description="C")
 
 
+@testsuite
+class ParametrizedGroupMarking:
+    @testcase(parameters=(0, 1))
+    def case(self, env, result, val):
+        result.equal(val, 1, description=f"A{val}")
+        helper(result, description=f"B{val}")
+        intermediary(result, description=f"C{val}")
+
+
+def pre_fn(self, env, result):
+    result.equal(1, 1, description="Pre")
+
+
+def post_fn(self, env, result):
+    result.equal(1, 1, description="Post")
+
+
+@testsuite
+class PrePostTestcaseMarking:
+    @callable.pre(pre_fn)
+    @callable.post(post_fn)
+    @testcase
+    def case(self, env, result):
+        result.equal(1, 1, description="Case")
+
+
 @pytest.mark.parametrize("flag", [True, False])
 def test_group_marking_multitest(mockplan, flag):
     """
@@ -87,6 +114,69 @@ def test_group_marking_multitest(mockplan, flag):
         if flag
         else get_line_no(helper, 1),
         "C": get_line_no(intermediary, 2),
+    }
+    for desc, line_no in expected.items():
+        assert assertions[desc]["line_no"] == line_no
+
+
+@pytest.mark.parametrize("flag", [True, False])
+def test_parametrized_group_marking_multitest(mockplan, flag):
+    """
+    Tests, at MultiTest-level, if marking works as expected
+    for parametrized testcases.
+    """
+    test = MultiTest(
+        name="ParametrizedGroupMarking",
+        suites=[ParametrizedGroupMarking()],
+        testcase_report_target=flag,
+    )
+    test.cfg.parent = mockplan.cfg
+    test.run()
+    assertions = {
+        entry["description"]: entry
+        for entry in test.report.flatten()
+        if isinstance(entry, dict) and entry["meta_type"] == "assertion"
+    }
+    expected = {
+        "A0": get_line_no(ParametrizedGroupMarking.case, 2),
+        "B0": get_line_no(ParametrizedGroupMarking.case, 3)
+        if flag
+        else get_line_no(helper, 1),
+        "C0": get_line_no(intermediary, 2),
+    }
+    expected.update(
+        {
+            "A1": expected["A0"],
+            "B1": expected["B0"],
+            "C1": expected["C0"],
+        }
+    )
+    for desc, line_no in expected.items():
+        assert assertions[desc]["line_no"] == line_no
+
+
+@pytest.mark.parametrize("flag", [True, False])
+def test_parametrized_group_marking_multitest(mockplan, flag):
+    """
+    Tests, at MultiTest-level, if marking works as expected
+    for testcase which is decorated by other functions.
+    """
+    test = MultiTest(
+        name="PrePostTestcaseMarking",
+        suites=[PrePostTestcaseMarking()],
+        testcase_report_target=flag,
+    )
+    test.cfg.parent = mockplan.cfg
+    test.run()
+    assertions = {
+        entry["description"]: entry
+        for entry in test.report.flatten()
+        if isinstance(entry, dict) and entry["meta_type"] == "assertion"
+    }
+    expected = {
+        "Pre": get_line_no(pre_fn, 1),
+        "Case": get_line_no(PrePostTestcaseMarking.case, 4),
+        "Post": get_line_no(post_fn, 1),
     }
     for desc, line_no in expected.items():
         assert assertions[desc]["line_no"] == line_no
