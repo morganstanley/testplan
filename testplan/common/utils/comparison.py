@@ -496,11 +496,14 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
         if should_ignore_key(iter_key):
             if report_mode == ReportOptions.ALL:
                 results.append(
-                    _build_res(
-                        key=iter_key,
-                        match=Match.IGNORED,
-                        lhs=fmt(lhs_val),
-                        rhs=fmt(rhs_val),
+                    _rec_compare(
+                        lhs_val,
+                        rhs_val,
+                        ignore,
+                        only,
+                        iter_key,
+                        report_mode,
+                        value_cmp_func=None,
                     )
                 )
         else:
@@ -620,9 +623,9 @@ def _rec_compare(
 
     ## VALUES
     if lhs_cat == rhs_cat == Category.VALUE:
-        response = value_cmp_func(lhs, rhs)
-
-        match = Match.from_bool(response)
+        match = Match.from_bool(
+            value_cmp_func(lhs, rhs)
+        ) if value_cmp_func is not None else Match.IGNORED
         return _build_res(key=key, match=match, lhs=fmt(lhs), rhs=fmt(rhs))
 
     ## ITERABLE
