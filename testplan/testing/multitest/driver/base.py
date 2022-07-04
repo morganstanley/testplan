@@ -10,6 +10,10 @@ from testplan.common.entity import Resource, ResourceConfig, FailedAction
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.path import instantiate
 from testplan.common.utils.timing import wait
+from testplan.common.utils.documentation_helper import (
+    get_metaclass_for_documentation,
+)
+from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.config.base import validate_func
 
 
@@ -67,9 +71,11 @@ class DriverConfig(ResourceConfig):
         }
 
 
-class Driver(Resource):
+class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     """
     Driver base class providing common functionality.
+
+    {emphasized_members_docs}
 
     :param name: Driver name. Also uid.
     :type name: ``str``
@@ -152,11 +158,13 @@ class Driver(Resource):
         self.extracts = {}
         self._file_log_handler = None
 
+    @emphasized
     @property
     def name(self):
         """Driver name."""
         return self.cfg.name
 
+    @emphasized
     def uid(self):
         """Driver uid."""
         return self.cfg.name

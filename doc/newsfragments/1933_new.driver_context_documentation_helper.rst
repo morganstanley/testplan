@@ -1,0 +1,1 @@
+Driver properties that can be accessed via context mechanism can now be emphasised in documentation.
