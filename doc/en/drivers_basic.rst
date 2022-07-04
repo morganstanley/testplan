@@ -20,7 +20,11 @@ while remaining simple enough to understand and easily express.
 Dependent values can be created either through the
 :py:func:`context() <testplan.common.utils.context.context>` call, or using
 pairs of double curly brackets in configuration files (MultiTest is using the
-`Tempita <http://pythonpaste.org/tempita/>`_ templating library).
+`Jinja2 <https://jinja.palletsprojects.com/en/3.1.x/templates/>`_ templating library,
+so technically the configuration files should be valid Jinja2 templates).
+
+The expression in the templates are executed in the context of the driver, so any driver
+attributes and methods can be used inside the template.
 
 .. code-block:: python
 
@@ -56,7 +60,7 @@ communicate meaningfully.
 
 Any context value from any process can be accessed by the
 :py:func:`context() <testplan.common.utils.context.context>` call, taking a
-driver name and a tempita expression that must be valid on that driver name.
+driver name and a Jinja2 expression that must be valid on that driver name.
 This call effectively creates a late-bound value that drivers will resolve at
 startup, against the current context.
 
