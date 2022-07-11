@@ -556,14 +556,14 @@ def _rec_compare(
     ):
         return _build_res(
             key=key,
-            match=Match.PASS if lhs_cat == rhs_cat else Match.FAIL,
+            match=Match.IGNORED if value_cmp_func is None else Match.PASS if lhs_cat == rhs_cat else Match.FAIL,
             lhs=fmt(lhs),
             rhs=fmt(rhs),
         )
 
     ## CALLABLES
     if lhs_cat == rhs_cat == Category.CALLABLE:
-        match = Match.from_bool(lhs == rhs)
+        match = Match.IGNORED if value_cmp_func is None else Match.from_bool(lhs == rhs)
         return _build_res(
             key=key,
             match=match,
@@ -575,7 +575,7 @@ def _rec_compare(
         result, error = compare_with_callable(callable_obj=lhs, value=rhs)
         return _build_res(
             key=key,
-            match=Match.from_bool(result),
+            match=Match.IGNORED if value_cmp_func is None else Match.from_bool(result),
             lhs=(0, "func", callable_name(lhs)),
             rhs=fmt("Value: {}, Error: {}".format(rhs, error))
             if error
@@ -586,7 +586,7 @@ def _rec_compare(
         result, error = compare_with_callable(callable_obj=rhs, value=lhs)
         return _build_res(
             key=key,
-            match=Match.from_bool(result),
+            match=Match.IGNORED if value_cmp_func is None else Match.from_bool(result),
             lhs=fmt("Value: {}, Error: {}".format(lhs, error))
             if error
             else fmt(lhs),
@@ -595,7 +595,7 @@ def _rec_compare(
 
     ## REGEXES
     if lhs_cat == rhs_cat == Category.REGEX:
-        match = _regex_adapter.compare(lhs, rhs)
+        match = Match.IGNORED if value_cmp_func is None else _regex_adapter.compare(lhs, rhs)
         return _build_res(
             key=key,
             match=match,
@@ -604,7 +604,7 @@ def _rec_compare(
         )
 
     if lhs_cat == Category.REGEX:
-        match = _regex_adapter.match(regex=lhs, value=rhs)
+        match = Match.IGNORED if value_cmp_func is None else _regex_adapter.match(regex=lhs, value=rhs)
         return _build_res(
             key=key,
             match=match,
@@ -613,7 +613,7 @@ def _rec_compare(
         )
 
     if rhs_cat == Category.REGEX:
-        match = _regex_adapter.match(regex=rhs, value=lhs)
+        match = Match.IGNORED if value_cmp_func is None else _regex_adapter.match(regex=rhs, value=lhs)
         return _build_res(
             key=key,
             match=match,
