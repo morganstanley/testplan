@@ -4,7 +4,7 @@ import operator
 import traceback
 from collections.abc import Mapping, Iterable, Container
 from itertools import zip_longest
-from typing import List, Tuple, Dict, Hashable, Callable, Union
+from typing import List, Tuple, Dict, Hashable, Union
 
 from .reporting import Absent, fmt, NATIVE_TYPES, callable_name
 
@@ -477,8 +477,8 @@ def _partition(results):
 def _cmp_dicts(
     lhs: Dict,
     rhs: Dict,
-    ignore: Container[Hashable],
-    only: Container[Hashable],
+    ignore: Container,
+    only: Container,
     report_mode: int,
     value_cmp_func: Union[Callable, None],
 ) -> Tuple[str, List]:
