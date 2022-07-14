@@ -1464,7 +1464,8 @@ class Resource(Entity):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
-        self.wait(self.STATUS.STOPPED)
+        if self.async_start:
+            self.wait(self.STATUS.STOPPED)
 
     @property
     def is_alive(self):
