@@ -112,13 +112,13 @@ class TestRunnerIHandler(entity.Entity):
 
     def setup(self):
         """Set up the task pool and HTTP handler."""
+        self.target.make_runpath_dirs()
+        self.target._configure_file_logger()
         self.logger.test_info(
             "Starting {} for {}".format(self.__class__.__name__, self.target)
         )
         self._http_handler = self._setup_http_handler()
         self._pool = futures.ThreadPoolExecutor(max_workers=1)
-        self.target.make_runpath_dirs()
-        self.target._configure_file_logger()
 
     def run(self):
         """
