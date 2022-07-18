@@ -1,15 +1,18 @@
-import operator
 import decimal
 import enum
+import operator
 import traceback
-from collections.abc import Mapping, Iterable
+from collections.abc import Mapping, Iterable, Container
 from itertools import zip_longest
+from typing import List, Tuple, Dict, Hashable, Union
 
 from .reporting import Absent, fmt, NATIVE_TYPES, callable_name
 
 
 def is_regex(obj):
-    """Cannot do type check against SRE_Pattern, so we use duck typing."""
+    """
+    Cannot do type check against SRE_Pattern, so we use duck typing.
+    """
     return hasattr(obj, "match") and hasattr(obj, "pattern")
 
 
@@ -471,16 +474,32 @@ def _partition(results):
     return lhs_vals, rhs_vals
 
 
-def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
+def _cmp_dicts(
+    lhs: Dict,
+    rhs: Dict,
+    ignore: Container,
+    only: Container,
+    report_mode: int,
+    value_cmp_func: Union[Callable, None],
+) -> Tuple[str, List]:
     """
-    Compares dictionaries
+    Compares two dictionaries with optional restriction to keys,
+
+    :param lhs: dictionary to compare
+    :param rhs: dictionary to compare
+    :param ignore: collection of keys to ignore during comparison
+    :param only: collection of keys to restrict comparison to
+    :param report_mode: report option code
+    :param value_cmp_func: value comparison function
+    :return: pair of match result and comparison result
     """
 
-    def should_ignore_key(key):
+    def should_ignore_key(key: Hashable) -> bool:
         """
-        Decide if a key should be ignored.
-        Decision is based on ``ignore`` and ``only``. If ``only`` is ``True``
-        then keys that are not in ``lhs`` will be ignored.
+        Decide if a key should be ignored from comparison.
+
+        :param key: key to test
+        :return: boolean flag whether to ignore the key or not
         """
         if key in ignore:
             should_ignore = True
@@ -495,12 +514,17 @@ def _cmp_dicts(lhs, rhs, ignore, only, report_mode, value_cmp_func):
     for iter_key, lhs_val, rhs_val in _idictzip_all(lhs, rhs):
         if should_ignore_key(iter_key):
             if report_mode == ReportOptions.ALL:
+                # NOTE: the value comparison function is set to None to
+                #            enforce ignorance of match
                 results.append(
-                    _build_res(
-                        key=iter_key,
-                        match=Match.IGNORED,
-                        lhs=fmt(lhs_val),
-                        rhs=fmt(rhs_val),
+                    _rec_compare(
+                        lhs_val,
+                        rhs_val,
+                        ignore,
+                        only,
+                        iter_key,
+                        report_mode,
+                        value_cmp_func=None,
                     )
                 )
         else:
@@ -545,6 +569,9 @@ def _rec_compare(
     lhs_cat = _categorise(lhs)
     rhs_cat = _categorise(rhs)
 
+    # Flag if value comparison function is None so that match is ignored.
+    ignored = value_cmp_func is None
+
     ## NO VALS
     if (
         ((lhs_cat == Category.ABSENT) or (rhs_cat == Category.ABSENT))
@@ -553,14 +580,16 @@ def _rec_compare(
     ):
         return _build_res(
             key=key,
-            match=Match.PASS if lhs_cat == rhs_cat else Match.FAIL,
+            match=Match.IGNORED
+            if ignored
+            else (Match.PASS if lhs_cat == rhs_cat else Match.FAIL),
             lhs=fmt(lhs),
             rhs=fmt(rhs),
         )
 
     ## CALLABLES
     if lhs_cat == rhs_cat == Category.CALLABLE:
-        match = Match.from_bool(lhs == rhs)
+        match = Match.IGNORED if ignored else Match.from_bool(lhs == rhs)
         return _build_res(
             key=key,
             match=match,
@@ -572,7 +601,7 @@ def _rec_compare(
         result, error = compare_with_callable(callable_obj=lhs, value=rhs)
         return _build_res(
             key=key,
-            match=Match.from_bool(result),
+            match=Match.IGNORED if ignored else Match.from_bool(result),
             lhs=(0, "func", callable_name(lhs)),
             rhs=fmt("Value: {}, Error: {}".format(rhs, error))
             if error
@@ -583,7 +612,7 @@ def _rec_compare(
         result, error = compare_with_callable(callable_obj=rhs, value=lhs)
         return _build_res(
             key=key,
-            match=Match.from_bool(result),
+            match=Match.IGNORED if ignored else Match.from_bool(result),
             lhs=fmt("Value: {}, Error: {}".format(lhs, error))
             if error
             else fmt(lhs),
@@ -592,7 +621,7 @@ def _rec_compare(
 
     ## REGEXES
     if lhs_cat == rhs_cat == Category.REGEX:
-        match = _regex_adapter.compare(lhs, rhs)
+        match = Match.IGNORED if ignored else _regex_adapter.compare(lhs, rhs)
         return _build_res(
             key=key,
             match=match,
@@ -601,7 +630,11 @@ def _rec_compare(
         )
 
     if lhs_cat == Category.REGEX:
-        match = _regex_adapter.match(regex=lhs, value=rhs)
+        match = (
+            Match.IGNORED
+            if ignored
+            else _regex_adapter.match(regex=lhs, value=rhs)
+        )
         return _build_res(
             key=key,
             match=match,
@@ -610,7 +643,11 @@ def _rec_compare(
         )
 
     if rhs_cat == Category.REGEX:
-        match = _regex_adapter.match(regex=rhs, value=lhs)
+        match = (
+            Match.IGNORED
+            if ignored
+            else _regex_adapter.match(regex=rhs, value=lhs)
+        )
         return _build_res(
             key=key,
             match=match,
@@ -620,9 +657,11 @@ def _rec_compare(
 
     ## VALUES
     if lhs_cat == rhs_cat == Category.VALUE:
-        response = value_cmp_func(lhs, rhs)
-
-        match = Match.from_bool(response)
+        match = (
+            Match.IGNORED
+            if ignored
+            else Match.from_bool(value_cmp_func(lhs, rhs))
+        )
         return _build_res(key=key, match=match, lhs=fmt(lhs), rhs=fmt(rhs))
 
     ## ITERABLE
