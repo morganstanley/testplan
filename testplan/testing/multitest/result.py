@@ -13,6 +13,7 @@ import re
 import threading
 from functools import wraps
 from typing import Callable
+import functools
 
 from testplan import defaults
 from testplan.common.utils.package import MOD_LOCK
@@ -142,6 +143,8 @@ def report_target(func: Callable, ref_func: Callable = None) -> Callable:
 
 
 def assertion(func: Callable) -> Callable:
+
+    @functools.wraps(func)
     def wrapper(result, *args, **kwargs):
         top_assertion = False
         if not getattr(assertion_state, "in_progress", False):
