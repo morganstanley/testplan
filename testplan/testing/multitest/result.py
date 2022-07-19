@@ -143,7 +143,6 @@ def report_target(func: Callable, ref_func: Callable = None) -> Callable:
 
 
 def assertion(func: Callable) -> Callable:
-
     @functools.wraps(func)
     def wrapper(result, *args, **kwargs):
         top_assertion = False
