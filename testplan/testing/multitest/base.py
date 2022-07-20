@@ -1024,10 +1024,10 @@ class MultiTest(testing_base.Test):
                 else:
                     testcase(resources, case_result)
 
-                if post_testcase and callable(post_testcase):
-                    self._run_case_related(
-                        post_testcase, testcase, resources, case_result
-                    )
+            if post_testcase and callable(post_testcase):
+                self._run_case_related(
+                    post_testcase, testcase, resources, case_result
+                )
 
         # Apply testcase level summarization
         if getattr(testcase, "summarize", False):
