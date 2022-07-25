@@ -14,7 +14,6 @@ pyzmq
 terminaltables
 pyparsing
 cycler
-werkzeug==2.1.2
 requests>=2.4.3
 flask>2.0.0
 flask_restx
