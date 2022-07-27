@@ -30,7 +30,7 @@ REQUIRED = [
     "cycler",
     "requests>=2.4.3",
     "flask>2.0.0",
-    "werkzeug>2.0.0",
+    "werkzeug>2.0.0,<2.2.0",
     "flask_restx",
     "cheroot",
     "boltons",
