@@ -275,8 +275,7 @@ class Server:
 
         name = self._conndetails_by_fd[fdesc].name
         del self._conndetails_by_fd[fdesc]
-        if name in self._conndetails_by_name:
-            del self._conndetails_by_name[name]
+        self._conndetails_by_name.pop(name, None)
 
     def _remove_all_connections(self):
         """
@@ -289,7 +288,9 @@ class Server:
             )
             self._conndetails_by_fd[fdesc].connection.close()
 
-            del self._conndetails_by_name[self._conndetails_by_fd[fdesc].name]
+            self._conndetails_by_name.pop(
+                self._conndetails_by_fd[fdesc].name, None
+            )
         self._conndetails_by_fd = {}
 
     def _process_connection_event(self, fdesc, event):
