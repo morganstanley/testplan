@@ -10,7 +10,11 @@ from testplan.common.config import ConfigOption
 from testplan.common.utils.context import is_context, expand
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.sockets.fix.client import Client
-from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
+from testplan.common.utils.timing import (
+    TimeoutException,
+    TimeoutExceptionInfo,
+    get_sleeper,
+)
 
 from ..base import Driver, DriverConfig
 
@@ -35,6 +39,7 @@ class FixClientConfig(DriverConfig):
             ConfigOption("interface", default=None): tuple,
             ConfigOption("connect_at_start", default=True): bool,
             ConfigOption("logon_at_start", default=True): bool,
+            ConfigOption("logoff_at_stop", default=True): bool,
             ConfigOption("custom_logon_tags", default=None): object,
             ConfigOption("receive_timeout", default=30): Or(int, float),
             ConfigOption("logon_timeout", default=10): Or(int, float),
@@ -79,6 +84,8 @@ class FixClient(Driver):
     :type connect_at_start: ``bool``
     :param logon_at_start: Attempt FIX logon if connected at start.
     :type logon_at_start: ``bool``
+    :param logoff_at_stop: Attempt FIX logoff when stop.
+    :type logoff_at_stop: ``bool``
     :param custom_logon_tags: Custom logon tags to be merged into
       the ``35=A`` message.
     :type custom_logon_tags: ``FixMessage``
@@ -109,11 +116,12 @@ class FixClient(Driver):
         interface=None,
         connect_at_start=True,
         logon_at_start=True,
+        logoff_at_stop=True,
         custom_logon_tags=None,
         receive_timeout=30,
         logon_timeout=10,
         logoff_timeout=3,
-        **options
+        **options,
     ):
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
@@ -147,10 +155,22 @@ class FixClient(Driver):
         """Shortcut to be used inside testcases."""
         return self.cfg.sendersub
 
-    def starting(self):
-        """Start the FIX client and optionally connect to host/post."""
-        super(FixClient, self).starting()
-        self.reconnect()
+    def started_check(self, timeout=None):
+        """Driver started status condition check."""
+        sleeper = get_sleeper(
+            interval=(0.5, 2),
+            timeout=timeout,
+            raise_timeout_with_msg=f"FixClient {self} not able to connect in {timeout} seconds",
+        )
+        while next(sleeper):
+            try:
+                self.reconnect()
+            except Exception as exc:
+                self.logger.debug(
+                    "FixClient %s not able to connect - %s", self, exc
+                )
+            else:
+                break
 
     def connect(self):
         """
@@ -285,12 +305,13 @@ class FixClient(Driver):
 
     def _stop_logic(self):
         if self._client:
-            try:
-                self.logoff()
-            except socket.error as err:
-                if err.errno != errno.EPIPE:
-                    # Not a broken pipe
-                    raise
+            if self.cfg.logoff_at_stop:
+                try:
+                    self.logoff()
+                except socket.error as err:
+                    if err.errno != errno.EPIPE:
+                        # Not a broken pipe
+                        raise
             self._client.close()
             self._client = None
 
