@@ -664,6 +664,17 @@ Downloadable examples that use codelog assertion can be found
         )
 
 
+:py:meth:`result.skip <testplan.testing.multitest.result.Result.skip>`
+------------------------------------------------------------------------------
+Skip a testcase with the given reason.
+Downloadable examples that use skip assertion can be found
+:ref:`here <example_assertions>`.
+
+    .. code-block:: python
+
+        result.skip(reason="skip me")
+
+
 :py:meth:`result.matplot <testplan.testing.multitest.result.Result.matplot>`
 ----------------------------------------------------------------------------
 
