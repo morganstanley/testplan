@@ -1,5 +1,8 @@
 |ReadTheDocs|_ |TravisCI|_
 
+.. image:: https://badgen.net/badge/Lifecycle/Active/green
+    :alt: Lifecycle Active
+
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
 
