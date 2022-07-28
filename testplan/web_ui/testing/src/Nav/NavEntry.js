@@ -39,7 +39,7 @@ const NavEntry = (props) => {
       className='d-flex justify-content-between align-items-center'
       style={{
         height: "1.5em",
-        userSelect: "text"
+        userSelect: "none"
       }}
     >
       <Badge
@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     marginLeft: '3px',
     flex: "auto",
+    userSelect: 'text',
   },
   entryIcons: {
     paddingLeft: '1em',
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
     fontSize: 'x-small',
     margin: '0em 0.5em 0em 0.5em',
   },
-  badge: {
+  badge: {    
     opacity: 0.5,
   },
   passedBadge: {

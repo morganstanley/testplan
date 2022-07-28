@@ -176,7 +176,8 @@ const Node = (props) => {
         <NavLink
           className={css(styles.leafNode)}
           key={props.entry.hash || props.entry.uid}
-          to={linkTo}>
+          to={linkTo}
+          draggable={false}>            
           {tags}
           {createNavEntry(props, props.entry)}
         </NavLink>
