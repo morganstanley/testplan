@@ -6,7 +6,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
   style={
     Object {
       "height": "1.5em",
-      "userSelect": "text",
+      "userSelect": "none",
     }
   }
 >
@@ -20,7 +20,7 @@ exports[`NavEntry shallow renders the correct HTML structure 1`] = `
     TP
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-passed_1kh4m98"
+    className="entryName_1hsi3iu-o_O-passed_1kh4m98"
     title="entry description - passed"
   >
     entry name
@@ -54,7 +54,7 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
   style={
     Object {
       "height": "1.5em",
-      "userSelect": "text",
+      "userSelect": "none",
     }
   }
 >
@@ -68,7 +68,7 @@ exports[`NavEntry when prop status="failed" name div and Badge have correct styl
     TP
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-failed_11es5k7"
+    className="entryName_1hsi3iu-o_O-failed_11es5k7"
     title="entry description - failed"
   >
     entry name
@@ -102,7 +102,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
   style={
     Object {
       "height": "1.5em",
-      "userSelect": "text",
+      "userSelect": "none",
     }
   }
 >
@@ -116,7 +116,7 @@ exports[`NavEntry when prop status="xfail" name div and Badge have correct style
     TP
   </Badge>
   <div
-    className="entryName_1wxvk90-o_O-unstable_17i2uy2"
+    className="entryName_1hsi3iu-o_O-unstable_17i2uy2"
     title="entry description - xfail"
   >
     entry name
