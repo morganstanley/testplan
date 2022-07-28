@@ -1,0 +1,1 @@
+* Add new assertion :py:meth:`result.skip <testplan.testing.multitest.result.Result.skip>` which allow you to skip a testcase from the testcase itself.

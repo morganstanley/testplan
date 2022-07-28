@@ -12,13 +12,15 @@ import platform
 import re
 import threading
 from functools import wraps
-from typing import Callable
+from typing import Callable, Optional
+import functools
 
 from testplan import defaults
 from testplan.common.utils.package import MOD_LOCK
 from testplan.common.utils import comparison
 from testplan.common.utils import strings
 from testplan.defaults import STDOUT_STYLE
+from testplan.common.report.base import SkipTestcaseException
 
 from .entries import assertions, base
 from .entries.schemas.base import registry as schema_registry
@@ -142,6 +144,7 @@ def report_target(func: Callable, ref_func: Callable = None) -> Callable:
 
 
 def assertion(func: Callable) -> Callable:
+    @functools.wraps(func)
     def wrapper(result, *args, **kwargs):
         top_assertion = False
         if not getattr(assertion_state, "in_progress", False):
@@ -2404,6 +2407,18 @@ class Result:
         in related ``TestCaseReport``'s ``entries`` attribute.
         """
         return [schema_registry.serialize(entry) for entry in self]
+
+    def skip(self, reason: str, description: Optional[str] = None):
+        """
+        Skip a testcase with the given reason.
+
+        :param reason: The message to show the user as reason for the skip.
+        :type reason: ``str``
+        :param description:  Text description for the assertion.
+        :type description: ``str``
+        """
+        self.log(reason, description)
+        raise SkipTestcaseException(reason)
 
     def __repr__(self):
         return repr(self.entries)
