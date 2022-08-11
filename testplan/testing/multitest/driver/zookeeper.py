@@ -5,13 +5,13 @@ import os
 
 from schema import Or
 from testplan.common.config import ConfigOption
-from testplan.common.utils.process import execute_cmd
 from testplan.common.utils.path import (
     makeemptydirs,
     makedirs,
     instantiate,
     StdFiles,
 )
+from testplan.common.utils.process import execute_cmd
 from testplan.testing.multitest.driver.base import DriverConfig, Driver
 
 
@@ -37,6 +37,8 @@ class ZookeeperStandaloneConfig(DriverConfig):
 class ZookeeperStandalone(Driver):
     """
     Driver for starting a Zookeeper instance in standalone mode.
+
+    {emphasized_members_docs}
 
     :param template: Zookeeper config file template.
     :type template: ``str``

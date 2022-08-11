@@ -4,7 +4,6 @@ Driver for Kafka server
 import os
 import re
 
-from schema import Or
 from testplan.common.config import ConfigOption
 from testplan.common.utils.path import (
     makeemptydirs,
@@ -33,6 +32,8 @@ class KafkaStandaloneConfig(app.AppConfig):
 class KafkaStandalone(app.App):
     """
     Driver for starting a Kafka instance in standalone mode.
+
+    {emphasized_members_docs}
 
     :param cfg_template: Kafka config file template.
     :type cfg_template: ``str``

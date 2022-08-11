@@ -41,6 +41,14 @@ testplan.testing.multitest.driver.sqlite module
     :show-inheritance:
     :inherited-members:
 
+testplan.testing.multitest.driver.kafka module
+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.testing.multitest.driver.kafka
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 testplan.testing.multitest.driver.zookeeper module
 ++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -48,7 +56,6 @@ testplan.testing.multitest.driver.zookeeper module
     :members:
     :undoc-members:
     :show-inheritance:
-
 
 Module contents
 ---------------
