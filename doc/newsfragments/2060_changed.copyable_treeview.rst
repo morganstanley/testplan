@@ -1,0 +1,1 @@
+The test names can be highlighted and copied from the treeview.
