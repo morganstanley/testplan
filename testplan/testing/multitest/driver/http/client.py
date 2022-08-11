@@ -3,7 +3,8 @@
 import time
 import queue
 from threading import Thread, Event
-from typing import Union, Literal, Optional
+from typing import Union
+from typing_extensions import Literal
 
 import requests
 from schema import Use, Or

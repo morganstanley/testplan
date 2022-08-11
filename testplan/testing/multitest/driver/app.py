@@ -8,7 +8,8 @@ import subprocess
 import datetime
 import platform
 import socket
-from typing import List, Union, Dict, Literal, Optional
+from typing import List, Union, Dict, Optional
+from typing_extensions import Literal
 
 from schema import Or
 
