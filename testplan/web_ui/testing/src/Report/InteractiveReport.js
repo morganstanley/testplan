@@ -60,6 +60,8 @@ class InteractiveReport extends React.Component {
     this.updateGlobalExpand = this.updateGlobalExpand.bind(this);
     this.updateAssertionStatus = this.updateAssertionStatus.bind(this);
     this.resetAssertionStatus = this.resetAssertionStatus.bind(this);
+    this.updateTimeDisplay = this.updateTimeDisplay.bind(this);
+    this.updatePathDisplay = this.updatePathDisplay.bind(this);
 
     defaultAssertionStatus.updateGlobalExpand = this.updateGlobalExpand;
     defaultAssertionStatus.updateAssertionStatus = this.updateAssertionStatus;
@@ -72,6 +74,8 @@ class InteractiveReport extends React.Component {
       resetting: false,
       reloading: false,
       aborting: false,
+      displayTime: false,
+      displayPath: false,
       assertionStatus: defaultAssertionStatus,
     };
   }
@@ -150,6 +154,26 @@ class InteractiveReport extends React.Component {
       return { ...prev, assertionStatus };
     });
   }
+
+/**
+   * Update file path and line number display of each assertion.
+   *
+   * @param {boolean} displayPath.
+   * @public
+   */
+ updatePathDisplay(displayPath) {
+  this.setState({ displayPath: displayPath });
+}
+
+/**
+ * Update execution time display of each navigation entry and each assertion.
+ *
+ * @param {boolean} displayTime.
+ * @public
+ */
+updateTimeDisplay(displayTime) {
+  this.setState({ displayTime: displayTime });
+}
 
   /**
    * Fetch the Testplan interactive report and start polling for updates.
@@ -675,7 +699,8 @@ class InteractiveReport extends React.Component {
           updateEmptyDisplayFunc={noop}
           updateTreeViewFunc={noop}
           updateTagsDisplayFunc={noop}
-          updateTimeDisplayFunc={noop}
+          updatePathDisplayFunc={this.updatePathDisplay}
+          updateTimeDisplayFunc={this.updateTimeDisplay}
           extraButtons={[
             <ReloadButton
               key="reload-button"

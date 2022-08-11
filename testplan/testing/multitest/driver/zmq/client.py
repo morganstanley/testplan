@@ -1,6 +1,7 @@
 """ZMQClient Driver."""
+from typing import List
 
-from schema import Use, Or
+from schema import Or
 import zmq
 
 from testplan.common.config import ConfigOption
@@ -42,6 +43,8 @@ class ZMQClient(Driver):
       * zmq.SUB
       * zmq.PULL
 
+    {emphasized_members_docs}
+
     :param name: Name of ZMQClient.
     :type name: ``str``
     :param hosts: List of ZMQServer hostnames to connect to. These can be
@@ -50,7 +53,8 @@ class ZMQClient(Driver):
     :type hosts: ``list`` of ``str``
     :param ports: List of ZMQServer ports to connect to. These can be
         :py:class:`~testplan.common.utils.context.ContextValue` objects
-        and will be expanded on runtime.
+        and will be expanded on runtime. The port correspond to the host
+        at the same index.
     :type ports: ``list`` of ``int``
     :param message_pattern: Type of socket to create connection with. It can
       be zmq.PAIR (0), zmq.REQ (3), zmq.SUB (2) or zmq.PULL (7).
@@ -63,17 +67,17 @@ class ZMQClient(Driver):
 
     def __init__(
         self,
-        name,
+        name: str,
         hosts,
         ports,
         message_pattern=zmq.PAIR,
-        connect_at_start=True,
+        connect_at_start: bool = True,
         **options
     ):
         options.update(self.filter_locals(locals()))
         super(ZMQClient, self).__init__(**options)
-        self._hosts = []
-        self._ports = []
+        self._hosts: List[str] = []
+        self._ports: List[str] = []
         self._zmq_context = None
         self._socket = None
 
