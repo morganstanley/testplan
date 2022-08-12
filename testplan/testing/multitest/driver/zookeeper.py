@@ -4,7 +4,9 @@ Driver for Zookeeper server
 import os
 
 from schema import Or
+
 from testplan.common.config import ConfigOption
+from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.path import (
     makeemptydirs,
     makedirs,
@@ -69,7 +71,7 @@ class ZookeeperStandalone(Driver):
             env=env,
             **options
         )
-        self.port = port
+        self._port = port
         self.env = self.cfg.env.copy() if self.cfg.env else {}
         self.config = None
         self.zkdata_path = None
@@ -78,8 +80,16 @@ class ZookeeperStandalone(Driver):
         self.pid_file = None
         self.std = None
 
+    @emphasized
+    @property
+    def port(self):
+        """Port to listen on."""
+        return self._port
+
+    @emphasized
     @property
     def connection_str(self):
+        """Connection string."""
         return "{}:{}".format("localhost", self.port)
 
     def pre_start(self):
@@ -98,7 +108,7 @@ class ZookeeperStandalone(Driver):
             else:
                 makeemptydirs(directory)
         self.config = os.path.join(self.runpath, "etc", "zookeeper.cfg")
-        if self.port == 0:
+        if self._port == 0:
             raise RuntimeError("Zookeeper doesn't support random port")
         instantiate(self.cfg.cfg_template, self.context_input(), self.config)
 
