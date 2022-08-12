@@ -22,6 +22,8 @@ from testplan.common.utils import path as path_utils
 from testplan.testing.multitest import result as result_mod
 from testplan.testing.multitest import MultiTest
 from testplan.testing.multitest.suite import testcase, testsuite
+from testplan.report.testing import base as report_base
+
 
 matplotlib.use("agg")
 
@@ -271,6 +273,43 @@ def test_assertion_extra_attribute(mockplan):
 
     for idx, custom_style in enumerate(expected):
         assert custom_style == assertions[idx]["custom_style"]
+
+
+@testsuite
+class SkipSuite:
+    @testcase
+    def skip_me(self, env, result):
+        result.true(True)
+        result.skip("call skip assertion")
+        result.fail("skip me")
+
+    @testcase(parameters=tuple(range(10)))
+    def condition_skip(self, env, result, num):
+        if num % 2 == 0:
+            result.skip("This testcase is marked as skipped")
+            result.fail("skip me")
+        else:
+            result.log("This is a log message")
+
+
+def test_assertion_skip(mockplan):
+    mtest = MultiTest(name="SkipAssertion", suites=[SkipSuite()])
+    mtest.cfg.parent = mockplan.cfg
+    mtest.run()
+
+    skip_multitest = mtest.report.flatten()[0]
+    skip_suite = skip_multitest.entries[0]
+    skip_me_case = skip_suite.entries[0]
+    assert skip_me_case.status == report_base.Status.SKIPPED
+    assert skip_me_case.failed is False
+    assert len(skip_me_case.entries) == 2
+
+    for index, condition_skip_case in enumerate(skip_suite.entries[1]):
+        if index % 2 == 0:
+            assert condition_skip_case.status == report_base.Status.SKIPPED
+        else:
+            assert condition_skip_case.status == report_base.Status.PASSED
+        assert len(condition_skip_case.entries) == 1
 
 
 @pytest.fixture

@@ -10,7 +10,7 @@ import threading
 import time
 import traceback
 from collections import deque, OrderedDict
-from typing import Union
+from typing import Union, Optional
 
 import psutil
 from schema import Or
@@ -206,8 +206,13 @@ class Environment:
                 )
                 resource.logger.error(msg)
                 self.start_exceptions[resource] = msg
-                # Environment start failure. Won't start the rest.
-                break
+
+                failover = resource.failover()
+                if failover:
+                    self._resources[resource.uid()] = failover
+                else:
+                    # Environment start failure. Won't start the rest.
+                    break
             else:
                 if resource.async_start:
                     resources_to_wait_for.append(resource)
@@ -217,11 +222,18 @@ class Environment:
             try:
                 resource.wait(resource.STATUS.STARTED)
             except Exception:
-                msg = "While starting resource [{}]\n{}".format(
+                msg = "While waiting for resource [{}] to start\n{}".format(
                     resource.cfg.name, traceback.format_exc()
                 )
                 resource.logger.error(msg)
                 self.start_exceptions[resource] = msg
+
+                failover = resource.failover()
+                if failover:
+                    self._resources[resource.uid()] = failover
+                else:
+                    pass
+
             else:
                 resource.logger.debug("%s started", resource)
 
@@ -1258,6 +1270,7 @@ class Resource(Entity):
     def __init__(self, **options):
         super(Resource, self).__init__(**options)
         self._context = None
+        self._failovers = []  # failover resources if start fails
         self._wait_handlers.update(
             {
                 self.STATUS.STARTED: self._wait_started,
@@ -1458,12 +1471,14 @@ class Resource(Entity):
 
     def __enter__(self):
         self.start()
-        self.wait(self.STATUS.STARTED)
+        if self.async_start:
+            self.wait(self.STATUS.STARTED)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
-        self.wait(self.STATUS.STOPPED)
+        if self.async_start:
+            self.wait(self.STATUS.STOPPED)
 
     @property
     def is_alive(self):
@@ -1478,6 +1493,21 @@ class Resource(Entity):
         Resource has pending work.
         """
         return False
+
+    def register_failover(self, klass: Entity, params: dict) -> None:
+        """
+        Register a failover class to instantiate if resource start fails.
+
+        :param klass: failover class
+        :param params: parameters for failover class __init__ method
+        """
+        self._failovers.append({"klass": klass, "params": params})
+
+    def failover(self) -> None:
+        """
+        API to create the failover resource, to be implemented in derived class
+        """
+        return None
 
 
 DEFAULT_RUNNABLE_ABORT_SIGNALS = [signal.SIGINT, signal.SIGTERM]
