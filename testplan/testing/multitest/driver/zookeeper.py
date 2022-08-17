@@ -86,6 +86,10 @@ class ZookeeperStandalone(Driver):
         """Port to listen on."""
         return self._port
 
+    @port.setter
+    def port(self, port):
+        self._port = port
+
     @emphasized
     @property
     def connection_str(self):
