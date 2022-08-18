@@ -3,13 +3,17 @@
 import os
 import errno
 import socket
+from typing import Union, Tuple
 
 from schema import Use, Or
 
 from testplan.common.config import ConfigOption
-from testplan.common.utils.context import is_context, expand
+from testplan.common.utils.context import is_context, expand, ContextValue
+from testplan.common.utils.documentation_helper import emphasized
+from testplan.common.utils.sockets import Codec
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.sockets.fix.client import Client
+from testplan.common.utils.testing import FixMessage
 from testplan.common.utils.timing import (
     TimeoutException,
     TimeoutExceptionInfo,
@@ -55,6 +59,8 @@ class FixClient(Driver):
     :py:class:`testplan.common.utils.sockets.fix.client.Client` class, which
     provides equivalent functionality and may be used outside of MultiTest.
 
+    {emphasized_members_docs}
+
     :param name: Name of FixClient.
     :type name: ``str``
     :param msgclass: Type used to construct logon, logoff and received FIX
@@ -89,8 +95,8 @@ class FixClient(Driver):
     :param custom_logon_tags: Custom logon tags to be merged into
       the ``35=A`` message.
     :type custom_logon_tags: ``FixMessage``
-    :param logon_timeout: Timeout in seconds while receiving from socket.
-    :type logon_timeout: ``int`` or ``float``
+    :param receive_timeout: Timeout in seconds while receiving from socket.
+    :type receive_timeout: ``int`` or ``float``
     :param logon_timeout: Timeout in seconds to wait for logon response.
     :type logon_timeout: ``int`` or ``float``
     :param logoff_timeout: Timeout in seconds to wait for logoff response.
@@ -104,30 +110,30 @@ class FixClient(Driver):
 
     def __init__(
         self,
-        name,
-        msgclass,
-        codec,
-        host,
-        port,
-        sender,
-        target,
-        version="FIX.4.2",
-        sendersub=None,
-        interface=None,
-        connect_at_start=True,
-        logon_at_start=True,
-        logoff_at_stop=True,
-        custom_logon_tags=None,
-        receive_timeout=30,
-        logon_timeout=10,
-        logoff_timeout=3,
+        name: str,
+        msgclass: type,
+        codec: Codec,
+        host: Union[str, ContextValue],
+        port: Union[int, ContextValue],
+        sender: str,
+        target: str,
+        version: str = "FIX.4.2",
+        sendersub: str = None,
+        interface: Tuple[str, int] = None,
+        connect_at_start: bool = True,
+        logon_at_start: bool = True,
+        logoff_at_stop: bool = True,
+        custom_logon_tags: FixMessage = None,
+        receive_timeout: Union[int, float] = 30,
+        logon_timeout: Union[int, float] = 10,
+        logoff_timeout: Union[int, float] = 3,
         **options,
     ):
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
         super(FixClient, self).__init__(**options)
-        self._host = None
-        self._port = None
+        self._host: str = None
+        self._port: int = None
         self._client = None
 
     @property
@@ -140,19 +146,22 @@ class FixClient(Driver):
         """Client port number assigned."""
         return self._port
 
+    @emphasized
     @property
-    def sender(self):
-        """Shortcut to be used inside testcases."""
+    def sender(self) -> str:
+        """FIX SenderCompID."""
         return self.cfg.sender
 
+    @emphasized
     @property
-    def target(self):
-        """Shortcut to be used inside testcases."""
+    def target(self) -> str:
+        """FIX TargetCompID."""
         return self.cfg.target
 
+    @emphasized
     @property
-    def sendersub(self):
-        """Shortcut to be used inside testcases."""
+    def sendersub(self) -> str:
+        """FIX SenderSubID."""
         return self.cfg.sendersub
 
     def started_check(self, timeout=None):

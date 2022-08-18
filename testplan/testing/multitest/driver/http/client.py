@@ -3,12 +3,14 @@
 import time
 import queue
 from threading import Thread, Event
+from typing import Union
+from typing_extensions import Literal
 
 import requests
 from schema import Use, Or
 
 from testplan.common.config import ConfigOption
-from testplan.common.utils.context import expand, is_context
+from testplan.common.utils.context import expand, is_context, ContextValue
 from testplan.common.utils.strings import slugify
 
 from ..base import Driver, DriverConfig
@@ -42,6 +44,8 @@ class HTTPClient(Driver):
     Driver for a client that can connect to a server and send/receive messages
     using HTTP protocol.
 
+    {emphasized_members_docs}
+
     :param name: Name of HTTPClient.
     :type name: ``str``
     :param host: Hostname to connect to.
@@ -64,19 +68,19 @@ class HTTPClient(Driver):
 
     def __init__(
         self,
-        name,
-        host,
-        port=None,
-        protocol="http",
-        timeout=5,
-        interval=0.01,
+        name: str,
+        host: Union[str, ContextValue],
+        port: Union[int, ContextValue] = None,
+        protocol: str = "http",
+        timeout: int = 5,
+        interval: float = 0.01,
         **options
     ):
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
         super(HTTPClient, self).__init__(**options)
-        self._host = None
-        self._port = None
+        self._host: str = None
+        self._port: Union[int, Literal[""]] = None
         self.protocol = None
         self.timeout = None
         self.interval = None

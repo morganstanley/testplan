@@ -81,10 +81,12 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     :type name: ``str``
     :param install_files: list of files to be installed. This list may contain
         ``str`` or ``tuple``:
-          - ``str``: Name of the file to be copied to path returned by
-            ``_install_target`` method call
-          - ``tuple``: A (source, destination) pair; source file
-            will be copied to destination.
+
+            - ``str``: Name of the file to be copied to path returned by
+              ``_install_target`` method call
+            - ``tuple``: A (source, destination) pair; source file
+              will be copied to destination.
+
         Among other cases this is meant to be used with configuration files that
         may need to be templated and expanded using the runtime context, i.e:
 
