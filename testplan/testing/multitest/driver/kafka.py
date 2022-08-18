@@ -4,8 +4,8 @@ Driver for Kafka server
 import os
 import re
 
-from schema import Or
 from testplan.common.config import ConfigOption
+from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.path import (
     makeemptydirs,
     makedirs,
@@ -33,6 +33,8 @@ class KafkaStandaloneConfig(app.AppConfig):
 class KafkaStandalone(app.App):
     """
     Driver for starting a Kafka instance in standalone mode.
+
+    {emphasized_members_docs}
 
     :param cfg_template: Kafka config file template.
     :type cfg_template: ``str``
@@ -68,7 +70,13 @@ class KafkaStandalone(app.App):
         self.log_path = None
         self.etc_path = None
         self.config = None
-        self.port = port
+        self._port = port
+
+    @emphasized
+    @property
+    def port(self):
+        """Port to listen on."""
+        return self._port
 
     def pre_start(self):
         super(KafkaStandalone, self).pre_start()
@@ -90,4 +98,4 @@ class KafkaStandalone(app.App):
         """Driver started status condition check."""
 
         super(KafkaStandalone, self).started_check(timeout)
-        self.port = int(self.extracts["port"])
+        self._port = int(self.extracts["port"])
