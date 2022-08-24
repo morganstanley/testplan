@@ -28,27 +28,6 @@ def nested_groups(iterable, key_funcs):
 
     Key functions will be applied for sorting and group, beginning from the
     first function (top level).
-
-    The sample below will give us 2 top level groups and 4 sub groups:
-
-        * Numbers divisible by 10
-
-            - Numbers divisible by 10 and divisible by 3
-            - Numbers divisible by 10 and not divisible by 3
-
-        * Numbers not divisible by 10
-
-            - Numbers not divisible by 10 and divisible by 3
-            - Numbers not divisible by 10 and not divisible by 3
-
-    >>> nested_groups(
-    ...    range(1, 100),
-    ...    key_funcs=[
-    ...        lambda obj: obj % 10 == 0,
-    ...        lambda obj: obj % 3 == 0
-    ...    ]
-    ... )
-
     """
     first, rest = key_funcs[0], key_funcs[1:]
     grouping = sort_and_group(iterable, first)
@@ -109,7 +88,7 @@ def expand_values(rows, level=0, ignore_key=False, key_path=None, match=""):
         if isinstance(val, tuple):
             if val[0] == 0:  # value
                 yield (tuple(key_path), level, key, match, (val[1], val[2]))
-            elif val[0] in (1, 2, 3):
+            elif val[0] in (1, 2, 3):  # container
                 yield (tuple(key_path), level, key, match, "")
                 yield from expand_values(
                     val[1],
@@ -119,6 +98,7 @@ def expand_values(rows, level=0, ignore_key=False, key_path=None, match=""):
                     match=match,
                 )
         elif isinstance(val, list):
+            #if key is not Absent:  # if key is Absent and it is a list, then we bypass
             yield (tuple(key_path), level, key, match, "")
             yield from expand_values(
                 val, level=level, key_path=key_path, match=match
@@ -204,26 +184,6 @@ def flatten_formatted_object(formatted_obj):
 def flatten_dict_comparison(comparison):
     """
     Flatten the comparison object from dict/fix match into a list of rows.
-
-    Row elements: [level, key, status, left, right]
-
-    i.e:
-
-    .. code-block:: python
-
-      [
-          [0, 555, 'Passed', '', ''],
-          [0, '', 'Passed', '', ''],                       # Group result
-          [2, 600, 'Passed', ('str', 'A'), ('str', 'A')],
-          [2, 601, 'Passed', ('str', 'A'), ('str', 'A')],
-          [2, 683, 'Passed', '', ''],
-          [2, '', 'Passed', '', ''],                       # Group result
-          [4, 688, 'Passed', ('str', 'a'), ('str', 'a')],
-          [4, 689, 'Passed', ('str', 'a'), ('str', 'a')],
-          [2, '', 'Passed', '', ''],                       # Group result
-          [4, 688, 'Passed', ('str', 'b'), ('str', 'b')],
-          [4, 689, 'Passed', ('str', 'b'), ('str', 'b')]
-      ]
     """
     result_table = []  # level, key, left, right, result
 
@@ -233,7 +193,9 @@ def flatten_dict_comparison(comparison):
     while left or right:
         lpart, rpart = None, None
         if left and right:
-            if len(left[0][0]) > len(right[0][0]):
+            if left[0][2] is Absent and left[0][2] != right[0][2]:
+                lpart = left.pop(0)
+            elif len(left[0][0]) > len(right[0][0]):
                 lpart = left.pop(0)
             elif len(left[0][0]) < len(right[0][0]):
                 rpart = right.pop(0)
