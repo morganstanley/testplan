@@ -98,7 +98,6 @@ def expand_values(rows, level=0, ignore_key=False, key_path=None, match=""):
                     match=match,
                 )
         elif isinstance(val, list):
-            #if key is not Absent:  # if key is Absent and it is a list, then we bypass
             yield (tuple(key_path), level, key, match, "")
             yield from expand_values(
                 val, level=level, key_path=key_path, match=match
