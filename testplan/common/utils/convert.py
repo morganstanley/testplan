@@ -1,11 +1,24 @@
 """Conversion utilities."""
 import itertools
+from typing import Union, Tuple, Iterable, Callable, List, Sequence
 
 from .reporting import Absent
 
 
-def make_tuple(value, convert_none=False):
-    """Shortcut utility for converting a value to a tuple."""
+RecursiveListTuple = List[Union[Tuple, Tuple["RecursiveListTuple"]]]
+
+
+def make_tuple(
+    value: object,
+    convert_none: bool = False,
+) -> Union[Tuple, object]:
+    """
+    Converts a value into a tuple.
+
+    :param value: value to make the tuple out of
+    :param convert_none: whether to convert None
+    :return: the value or the value converted to a tuple
+    """
     if isinstance(value, list):
         return tuple(value)
     if not isinstance(value, tuple) and (convert_none or value is not None):
@@ -13,8 +26,14 @@ def make_tuple(value, convert_none=False):
     return value
 
 
-def sort_and_group(iterable, key):
-    """Sort an iterable and group the items by the given key func"""
+def sort_and_group(iterable: Iterable, key: Callable) -> List[Tuple]:
+    """
+    Sorts an iterable and groups the items by the given key function.
+
+    :param iterable: iterable of items
+    :param key: key function to sort by
+    :return: groups of items sorted by key
+    """
     groups = [
         (k, list(g))
         for k, g in itertools.groupby(sorted(iterable, key=key), key=key)
@@ -22,12 +41,16 @@ def sort_and_group(iterable, key):
     return groups
 
 
-def nested_groups(iterable, key_funcs):
+def nested_groups(
+    iterable: Iterable,
+    key_funcs: Sequence[Callable],
+) -> RecursiveListTuple:
     """
-    Create nested groups from the given ``iterable`` using ``key_funcs``
+    Creates nested groups from the given ``iterable`` using ``key_funcs``
 
-    Key functions will be applied for sorting and group, beginning from the
-    first function (top level).
+    :param iterable: iterable of items
+    :param key_funcs: key functions to sort by, applied in a waterfall
+    :return: recursively nested groups of items sorted by key functions
     """
     first, rest = key_funcs[0], key_funcs[1:]
     grouping = sort_and_group(iterable, first)
@@ -37,18 +60,15 @@ def nested_groups(iterable, key_funcs):
         return grouping
 
 
-def make_iterables(values):
+# Below function was designed to be used when defining types in the
+# configuration schema. For example make_iterables([str, ContextVale])
+# will return  [[str], (str,), [ContextValue], (ContextValue,)].
+def make_iterables(values: Iterable) -> List[Union[List, Tuple]]:
     """
-    Create a list of iterables (``list`` and ``tuple``) containing each of the
-    values passed as a parameter. It was designed to be used when defining types
-    in the configuration schema. For example make_iterables([str, ContextVale])
-    will return  [[str], (str,), [ContextValue], (ContextValue,)].
+    Create a list of lists and tuples for each of the values.
 
-    :param values: List of values to place in each iterable.
-    :type values: ``list``
-
-    :return: List of iterables containing one of each of the values.
-    :rtype: ``list`` of ``list`` and ``tuple``
+    :param values: an iterable of values
+    :return: list containing one list and tuple for each value
     """
     iterables = []
     for value in values:
@@ -57,8 +77,13 @@ def make_iterables(values):
     return iterables
 
 
-def full_status(status):
-    """Human readable status label."""
+def full_status(status: str) -> str:
+    """
+    Human readable status label.
+
+    :param status: status label
+    :return: human-readable status label
+    """
     if status == "p":
         return "Passed"
     elif status == "f":
@@ -68,9 +93,22 @@ def full_status(status):
     return ""
 
 
-def expand_values(rows, level=0, ignore_key=False, key_path=None, match=""):
+def expand_values(
+    rows: List[Tuple],
+    level: int = 0,
+    ignore_key: bool = False,
+    key_path: List = None,
+    match: str = "",
+):
     """
-    Recursively yield all rows of VAL items (key, match, VAL).
+    Recursively expands and yields all rows of items to display.
+
+    :param rows: comparison results
+    :param level: recursive parameter for level of nesting
+    :param ignore_key: recursive parameter for ignoring a key
+    :param key_path: recursive parameter to build the sequence of keys
+    :param match: recursive parameter for inheriting match result
+    :return: rows used in building comparison result table
     """
     if key_path is None:
         key_path = []
@@ -107,10 +145,17 @@ def expand_values(rows, level=0, ignore_key=False, key_path=None, match=""):
             key_path.pop()
 
 
-def extract_values(comparison, position):
+# TODO: position parameter is misleading and it allows extracting
+#             the key or match information as value
+#             "left" or "right" choices would be enough for clarity and
+#             would fail earlier upon any change to structure
+def extract_values(comparison: List[Tuple], position: int) -> List:
     """
-    Create list of (key, match, val) from
-    top level [(key, value, VAL, VAL)] structure.
+    Extracts one-side of a comparison result based on value position.
+
+    :param comparison: list of key, match, and value pair quadruples
+    :param position: index pointing to particular value
+    :return: list of key, match, and value triples
     """
     result = []
     for item in comparison:
@@ -180,9 +225,12 @@ def flatten_formatted_object(formatted_obj):
         return result_table[1:]
 
 
-def flatten_dict_comparison(comparison):
+def flatten_dict_comparison(comparison: List[Tuple]) -> List[List]:
     """
-    Flatten the comparison object from dict/fix match into a list of rows.
+    Flatten the comparison object from dictionary match into a tabular format.
+
+    :param comparison: list of comparison results
+    :return: result table to be used in display
     """
     result_table = []  # level, key, left, right, result
 
@@ -192,14 +240,26 @@ def flatten_dict_comparison(comparison):
     while left or right:
         lpart, rpart = None, None
         if left and right:
-            if left[0][2] is Absent and left[0][2] != right[0][2]:
+            # NOTE: if the left keypath is longer we entered a nested structure
+            #           on one side only
+            #           if the key is Absent only on left side, then we just insert an
+            #           empty row for visual separation
+            if (
+                len(left[0][0]) > len(right[0][0])
+                or left[0][2] is Absent
+                and left[0][2] != right[0][2]
+            ):
                 lpart = left.pop(0)
-            elif len(left[0][0]) > len(right[0][0]):
-                lpart = left.pop(0)
-            elif len(left[0][0]) < len(right[0][0]):
+            # NOTE: same as above but from right-hand side perspective
+            elif (
+                len(left[0][0]) < len(right[0][0])
+                or right[0][2] is Absent
+                and left[0][2] != right[0][2]
+            ):
                 rpart = right.pop(0)
             else:
                 lpart, rpart = left.pop(0), right.pop(0)
+        # NOTE: if any of the sides is exhausted we proceed with the other
         elif left:
             lpart = left.pop(0)
         elif right:
