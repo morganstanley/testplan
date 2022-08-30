@@ -423,6 +423,7 @@ if __name__ == "__main__":
     ARGS = parse_cmdline()
     if ARGS.wd:
         os.chdir(ARGS.wd)
+        os.environ["PWD"] = ARGS.wd
 
     if ARGS.sys_path_file:
         sys.path = parse_syspath_file(ARGS.sys_path_file)
