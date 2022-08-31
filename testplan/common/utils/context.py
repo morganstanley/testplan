@@ -40,7 +40,11 @@ class ContextValue:
         Create a new context value
         """
         self.driver = driver
+        self.value = (value,)
         self.template = parse_template(value)
+
+    def __str__(self):
+        return f"{self.driver} {self.value}"
 
     def __call__(self, ctx):
         """
