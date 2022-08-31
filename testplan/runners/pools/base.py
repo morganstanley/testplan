@@ -13,7 +13,12 @@ from schema import Or, And
 from testplan.common.config import ConfigOption
 from testplan.common import entity
 from testplan.common.remote.remote_resource import RemoteResource
-from testplan.common.utils.path import rebase_path
+from testplan.common.utils.path import (
+    rebase_path,
+    pwd,
+    is_subdir,
+    change_directory,
+)
 from testplan.common.utils.thread import interruptible_join
 from testplan.common.utils.timing import wait_until_predicate
 from testplan.common.utils import strings
@@ -219,13 +224,22 @@ class Worker(WorkerBase):
         :rtype: :py:class:`~testplan.runners.pools.tasks.base.TaskResult`
         """
         try:
+            task_path = getattr(task, "_rebased_path")
             runnable = task.materialize()
+
             if isinstance(runnable, entity.Runnable):
                 if not runnable.parent:
                     runnable.parent = self
                 if not runnable.cfg.parent:
                     runnable.cfg.parent = self.cfg
-            result = runnable.run()
+
+            # for task discovery used with a monorepo project
+            if task_path and not is_subdir(task_path, pwd()):
+                with change_directory(task_path):
+                    result = runnable.run()
+            else:
+                result = runnable.run()
+
         except BaseException:
             task_result = TaskResult(
                 task=task,
@@ -235,6 +249,7 @@ class Worker(WorkerBase):
             )
         else:
             task_result = TaskResult(task=task, result=result, status=True)
+
         return task_result
 
 

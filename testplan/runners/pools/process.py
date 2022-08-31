@@ -49,9 +49,6 @@ class ProcessWorker(Worker):
 
     CONFIG = ProcessWorkerConfig
 
-    def __init__(self, **options):
-        super(ProcessWorker, self).__init__(**options)
-
     def _child_path(self):
         dirname = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(dirname, "child.py")
