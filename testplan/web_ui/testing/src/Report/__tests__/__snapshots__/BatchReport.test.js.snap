@@ -10113,6 +10113,7 @@ ZeroDivisionError: integer division or modulo by zero
                     displayEmpty={true}
                     displayTags={false}
                     displayTime={false}
+                    doubleClickCallback={[Function]}
                     entries={Array []}
                     filter={null}
                     url="/testplan/:uid/:selection*"

@@ -746,11 +746,11 @@ class TestRunner(Runnable):
                 # Poll the resource's health - if it has unexpectedly died
                 # then abort the entire test to avoid hanging.
                 if not resource.is_alive:
+                    self.result.test_report.status_override = Status.ERROR
                     self.logger.critical(
                         "Aborting %s - %s unexpectedly died", self, resource
                     )
                     self.abort()
-                    self.result.test_report.status_override = Status.ERROR
 
             if pending_work is False:
                 break

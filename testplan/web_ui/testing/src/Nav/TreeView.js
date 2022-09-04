@@ -43,6 +43,16 @@ const TreeViewNav = (props) => {
     setExpanded(nodeIds);
   };
 
+  const handleDoubleClick = (nodeId) => {
+    if(expanded.includes(nodeId)) {
+      setExpanded(expanded.filter( id => id !== nodeId));
+    }
+    else
+    {
+      setExpanded([...expanded, nodeId]);
+    }
+  };
+
   return (
     <>
       <Column
@@ -70,6 +80,7 @@ const TreeViewNav = (props) => {
               url={props.url}
               displayTags={props.displayTags}
               displayTime={props.displayTime}
+              doubleClickCallback={handleDoubleClick}
             />
           }
         </TreeView>
@@ -124,6 +135,7 @@ const Tree = (props) => {
         filter={props.filter}
         url={props.url}
         entry={entry}
+        doubleClickCallback={props.doubleClickCallback}
       />) : null;
 };
 
@@ -159,6 +171,8 @@ const Node = (props) => {
       : null
   );
   const treeViewClasses = getTreeViewStyles();
+  const isTestcase = props.entry.category === CATEGORIES['testcase'];
+  const nodeId=props.entry.uids ? props.entry.uids.join('/') : props.entry.uid;
   return (
     <TreeItem
       classes={{
@@ -167,21 +181,27 @@ const Node = (props) => {
         iconContainer: treeViewClasses.iconContainer,
         label: treeViewClasses.label
       }}
-      nodeId={ props.entry.uids ? props.entry.uids.join('/') : props.entry.uid}
+      nodeId={nodeId}
       key={props.entry.hash || props.entry.uid}
       onLabelClick={event => {
         event.preventDefault();
       }}
+      onDoubleClick={event => {
+        event.stopPropagation();
+        if(!isTestcase) {
+          props.doubleClickCallback(nodeId);          
+        }}}
       label={
         <NavLink
           className={css(styles.leafNode)}
           key={props.entry.hash || props.entry.uid}
-          to={linkTo}>
+          to={linkTo}
+          draggable={false}>            
           {tags}
           {createNavEntry(props, props.entry)}
         </NavLink>
       }>
-      {props.entry.category === CATEGORIES['testcase'] ?
+      {isTestcase ?
         null : continueTreeBranch(props, props.entry)}
     </TreeItem>
   );
@@ -199,6 +219,7 @@ const continueTreeBranch = (props, entry) => {
         filter={props.filter}
         url={props.url}
         entry={entry}
+        doubleClickCallback={props.doubleClickCallback}
       />) : null;
 };
 

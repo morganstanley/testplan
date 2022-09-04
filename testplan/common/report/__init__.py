@@ -1,1 +1,7 @@
-from .base import Report, ReportGroup, ExceptionLogger, MergeError
+from .base import (
+    Report,
+    ReportGroup,
+    ExceptionLogger,
+    MergeError,
+    SkipTestcaseException,
+)

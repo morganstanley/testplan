@@ -252,6 +252,7 @@ const styles = StyleSheet.create({
     direction: 'rtl',
     overflow: "hidden",
     textOverflow: "ellipsis",
+    textTransform: "none",
   },
 
   collapseDiv: {

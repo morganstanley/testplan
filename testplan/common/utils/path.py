@@ -254,7 +254,10 @@ def is_subdir(child, parent):
     :return: True if child is a sub-directory of the parent.
     :rtype: ``bool``
     """
-    return child.startswith(parent)
+
+    return fix_home_prefix(os.path.abspath(child)).startswith(
+        fix_home_prefix(os.path.abspath(parent))
+    )
 
 
 def hash_file(filepath):

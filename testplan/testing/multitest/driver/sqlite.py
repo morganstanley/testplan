@@ -7,6 +7,7 @@ import functools
 from contextlib import contextmanager
 
 from testplan.common.config import ConfigOption
+from testplan.common.utils.documentation_helper import emphasized
 
 from .base import Driver, DriverConfig
 
@@ -51,6 +52,8 @@ class Sqlite3(Driver):
     Basic sqlite3 driver to add to a MultiTest environment, connect to
     a database and perform sql queries etc.
 
+    {emphasized_members_docs}
+
     :param db_path: Path to the database file to connect to. In case a relative
         path is provided it will be appended to the runpath.
     :type db_path: ``str``
@@ -61,12 +64,15 @@ class Sqlite3(Driver):
 
     CONFIG = Sqlite3Config
 
-    def __init__(self, name, db_path, connect_at_start=True, **options):
+    def __init__(
+        self, name: str, db_path: str, connect_at_start: bool = True, **options
+    ):
         options.update(self.filter_locals(locals()))
         super(Sqlite3, self).__init__(**options)
         self.db = None
         self.cursor = None
 
+    @emphasized
     @property
     def db_path(self):
         """Database file path."""

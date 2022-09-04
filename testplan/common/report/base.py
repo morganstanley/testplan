@@ -19,6 +19,10 @@ class MergeError(Exception):
     """Raised when a merge operation fails."""
 
 
+class SkipTestcaseException(Exception):
+    """Raised from an explicit call to result.skip."""
+
+
 class ExceptionLogger:
     """
     A context manager used for suppressing & logging an exception.

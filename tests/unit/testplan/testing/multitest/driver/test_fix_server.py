@@ -3,6 +3,8 @@
 import os
 import pytest
 
+from testplan.common.entity import Environment
+from testplan.common.utils.context import context
 from tests.helpers.pytest_test_filters import skip_on_windows
 
 pytestmark = skip_on_windows(
@@ -86,3 +88,35 @@ def test_successive_send(fix_client, fix_server):
 
         assert rcv1[35] == "D"
         assert rcv2[35] == "8"
+
+
+def test_async_client():
+    """Tests async startup of FixClient."""
+    env = Environment()
+
+    client = FixClient(
+        name="client",
+        host=context("server", "{{host}}"),
+        port=context("server", "{{port}}"),
+        sender="TW",
+        target="ISLD",
+        msgclass=FixMessage,
+        codec=CODEC,
+        async_start=True,
+        logon_at_start=False,
+        logoff_at_stop=False,
+    )
+    server = FixServer(
+        name="server",
+        msgclass=FixMessage,
+        codec=CODEC,
+    )
+
+    env.add(client)
+    env.add(server)
+
+    env.start()
+    assert server.active_connections() == []
+    client.logon()
+    assert server.active_connections() == [("ISLD", "TW")]
+    env.stop()

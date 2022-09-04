@@ -155,6 +155,9 @@ class Client:
         self.socket.settimeout(float(timeout))
 
         data = self.socket.recv(1)
+        if not data:
+            self.log_callback("Received empty data, peer closed?")
+            raise socket.error("Received empty data")
 
         parser = FixParser()
         size = parser.consume(data)
