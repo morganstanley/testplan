@@ -22,7 +22,7 @@ import matplotlib.pyplot as plot
 @testsuite
 class SampleSuite:
     @testcase
-    def test_tkerr(self, env, result):
+    def test_log_html(self, env, result):
         result.log_html(
             """
 <div style="font-size:80px;font-family:Arial;font-weight:bold;">
