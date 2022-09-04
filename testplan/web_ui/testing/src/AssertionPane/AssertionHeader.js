@@ -136,15 +136,16 @@ class AssertionHeader extends Component {
         </Tooltip>
       </> : <></>;
 
-    const description  = this.props.assertion.description ? (this.props.assertion.type === 'Log' ? < span dangerouslySetInnerHTML = {
-      {
-        __html: linkifyUrls(this.props.assertion.description + " ", {
-          attributes: {
-            target: "_blank"
-          }
-        })
-      }
-    }/> : this.props.assertion.description + " ") : "";
+    const description = this.props.assertion.description ?
+      (this.props.assertion.type === 'Log' ? < span dangerouslySetInnerHTML={
+        {
+          __html: linkifyUrls(this.props.assertion.description + " ", {
+            attributes: {
+              target: "_blank"
+            }
+          })
+        }
+      } /> : this.props.assertion.description + " ") : "";
 
     return (
       <CardHeader className={css(styles.cardHeader, cardHeaderColorStyle)}>
