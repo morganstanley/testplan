@@ -3439,7 +3439,13 @@ exports[`BasicAssertion shallow renders the Log assertion 1`] = `
       }
     >
       <pre>
-        This is a log message, it will be displayed along with other assertion details.
+        <div
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "This is a log message, it will be displayed along with other assertion details.",
+            }
+          }
+        />
       </pre>
     </Col>
   </Row>
