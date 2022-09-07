@@ -28,9 +28,9 @@ exports[`AssertionHeader shallow renders the correct HTML structure 1`] = `
         )
       </span>
     </span>
-    <span
-      className="cardHeaderAlignRight_107ja4p"
-    />
   </div>
+  <span
+    className="cardHeaderAlignRight_107ja4p"
+  />
 </CardHeader>
 `;

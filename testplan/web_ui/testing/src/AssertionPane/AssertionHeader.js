@@ -162,13 +162,13 @@ class AssertionHeader extends Component {
               ({this.props.assertion.type})
             </span>
           </span>
+        </div>
           {component}
           {pathButton}
           {/*
             TODO will be implemented when complete permalink feature
             linkIcon
-          */}
-        </div>
+          */}        
       </CardHeader>
     );
   }
