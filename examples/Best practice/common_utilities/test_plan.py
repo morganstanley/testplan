@@ -11,6 +11,7 @@ from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.testing.multitest.driver.app import App
 from testplan.common.utils import helper
 
+
 @testsuite
 class MyTestsuite:
     """

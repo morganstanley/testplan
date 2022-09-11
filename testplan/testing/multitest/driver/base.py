@@ -414,7 +414,9 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
         :return: driver metadata
         """
+        # pylint: disable=not-callable
         return self.metadata_extractor(self)
+        # pylint: enable=not-callable
 
     def __repr__(self):
         return f"{self.__class__.__name__} driver [{self.name}]"
