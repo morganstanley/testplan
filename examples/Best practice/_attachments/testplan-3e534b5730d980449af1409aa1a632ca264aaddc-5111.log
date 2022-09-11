@@ -1,0 +1,35 @@
+2022-08-10 08:36:41,280  MainProcess  Thread-1     TESTPLAN                       DEBUG           Enabled logging to file: /var/tmp/sziksmar/testplan/example-using-helper/testplan.log
+2022-08-10 08:36:41,280  MainProcess  Thread-1     TESTPLAN.TestRunner.e1d3d3de   DEBUG           Finished step of TestRunner[Example using helper] - _configure_file_logger. Took 0s
+2022-08-10 08:36:41,331  MainProcess  Thread-1     TESTPLAN.TestRunner.e1d3d3de   DEBUG           Executing step of TestRunner[Example using helper] - start
+2022-08-10 08:36:41,331  MainProcess  Thread-1     TESTPLAN.LocalRunner.460e444b  DEBUG           Starting LocalRunner[local_runner]
+2022-08-10 08:36:41,332  MainProcess  Thread-1     TESTPLAN.Environments.39d68304 DEBUG           Starting Environments[dc02a4b2-fafe-4a85-adcc-b9642f851d23]
+2022-08-10 08:36:41,332  MainProcess  Thread-1     TESTPLAN.LocalRunner.460e444b  DEBUG           LocalRunner[local_runner] started
+2022-08-10 08:36:41,333  MainProcess  Thread-1     TESTPLAN.Environments.39d68304 DEBUG           Environments[dc02a4b2-fafe-4a85-adcc-b9642f851d23] started
+2022-08-10 08:36:41,333  MainProcess  Thread-1     TESTPLAN.TestRunner.e1d3d3de   DEBUG           Finished step of TestRunner[Example using helper] - start. Took 0s
+2022-08-10 08:36:41,351  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Running MultiTest[HelperTest]
+2022-08-10 08:36:41,351  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Executing step of MultiTest[HelperTest] - setup
+2022-08-10 08:36:41,351  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Finished step of MultiTest[HelperTest] - setup. Took 0s
+2022-08-10 08:36:41,357  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Executing step of MultiTest[HelperTest] - _record_setup_start
+2022-08-10 08:36:41,357  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Finished step of MultiTest[HelperTest] - _record_setup_start. Took 0s
+2022-08-10 08:36:41,362  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Executing step of MultiTest[HelperTest] - make_runpath_dirs
+2022-08-10 08:36:41,362  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           MultiTest[HelperTest] has /var/tmp/sziksmar/testplan/example-using-helper/helpertest runpath and pid 543
+2022-08-10 08:36:41,362  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Finished step of MultiTest[HelperTest] - make_runpath_dirs. Took 0s
+2022-08-10 08:36:41,368  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Executing step of MultiTest[HelperTest] - append_pre_post_step_report
+2022-08-10 08:36:41,368  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Finished step of MultiTest[HelperTest] - append_pre_post_step_report. Took 0s
+2022-08-10 08:36:41,373  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Executing step of MultiTest[HelperTest] - start
+2022-08-10 08:36:41,373  MainProcess  Thread-2     TESTPLAN.App.c028cd4f          DEBUG           Starting App[echo]
+2022-08-10 08:36:41,374  MainProcess  Thread-2     TESTPLAN.App.c028cd4f          DEBUG           App[echo] has /var/tmp/sziksmar/testplan/example-using-helper/helpertest/echo runpath and pid 543
+2022-08-10 08:36:41,375  MainProcess  Thread-2     TESTPLAN.App.c028cd4f          DEBUG           echo driver command: ['/var/tmp/sziksmar/testplan/example-using-helper/helpertest/echo/bin/echo', 'testplan']
+	Runpath: /var/tmp/sziksmar/testplan/example-using-helper/helpertest/echo
+	Out file: /var/tmp/sziksmar/testplan/example-using-helper/helpertest/echo/stdout
+	Err file: /var/tmp/sziksmar/testplan/example-using-helper/helpertest/echo/stderr
+
+2022-08-10 08:36:41,382  MainProcess  Thread-2     TESTPLAN.App.c028cd4f          DEBUG           App[echo] started
+2022-08-10 08:36:41,383  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Finished step of MultiTest[HelperTest] - start. Took 0s
+2022-08-10 08:36:41,383  MainProcess  Thread-1     TESTPLAN.TestRunner.e1d3d3de   DEBUG           Executing step of TestRunner[Example using helper] - _wait_ongoing
+2022-08-10 08:36:41,388  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Executing step of MultiTest[HelperTest] - _record_setup_end
+2022-08-10 08:36:41,388  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Finished step of MultiTest[HelperTest] - _record_setup_end. Took 0s
+2022-08-10 08:36:41,393  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    DEBUG           Executing step of MultiTest[HelperTest] - run_tests
+2022-08-10 08:36:41,653  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    TEST_INFO             [environment] -> [32mPassed[0m
+2022-08-10 08:36:41,661  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    TEST_INFO             [path] -> [32mPassed[0m
+2022-08-10 08:36:42,672  MainProcess  Thread-2     TESTPLAN.MultiTest.4a39efbd    TEST_INFO             [hardware] -> [32mPassed[0m
