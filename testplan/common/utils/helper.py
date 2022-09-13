@@ -1,9 +1,23 @@
 """
 This module provides helper functions that will add common information of
-Testplan execution to test report. They could be used directly in testcases or
-provided to pre/pose_start/stop hooks. Also provided is a predefined testsuite
-that can be included in user's Multitest directly.
+ Testplan execution to test report.
+They could be used directly in testcases or provided to
+ pre/pose_start/stop hooks.
+Also provided is a predefined testsuite that can be included in user's
+ Multitest directly.
 """
+
+__all__ = [
+    "log_pwd",
+    "log_hardware",
+    "log_cmd",
+    "log_environment",
+    "attach_log",
+    "attach_driver_logs_if_failed",
+    "extract_metadata",
+    "clean_runpath_if_passed",
+    "TestplanExecutionInfo",
+]
 
 import logging
 import os
@@ -122,27 +136,6 @@ def attach_driver_logs_if_failed(
                     std.err_path,
                     description="Driver: {} stderr".format(driver.name),
                 )
-
-
-def attach_all_driver_logs_if_failed(
-    env: Environment,
-    result: Result,
-) -> None:
-    """
-    Attaches all std and log files to the report for each driver.
-
-    :param env: environment
-    :param result: testcase result
-    """
-    if not env.parent.report.passed:
-        for driver in env:
-            result.attach(
-                driver.runpath,
-                description=f"{driver.name} driver logs",
-                only=["stdout*", "stderr*", "*.log", "*.binlog"],
-                recursive=True,
-            )
-        attach_log(result)
 
 
 def clean_runpath_if_passed(env: Environment) -> None:
