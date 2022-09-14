@@ -138,11 +138,15 @@ def attach_driver_logs_if_failed(
                 )
 
 
-def clean_runpath_if_passed(env: Environment) -> None:
+def clean_runpath_if_passed(
+    env: Environment,
+    result: Result,
+) -> None:
     """
     Deletes multitest-level runpath if the multitest passed.
 
     :param env: environment
+    :param result: result object
     """
     multitest = env.parent
     if multitest.report.passed:

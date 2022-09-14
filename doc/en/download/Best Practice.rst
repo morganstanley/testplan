@@ -8,10 +8,12 @@ Best practice
 Helper Utilities
 ----------------
 
-Testplan provides helper functions and predefined testsuite that make easy for user to add common testplan execution infomation - such as env var, pwd, log file - to test report.
+Testplan provides helper functions and a predefined testsuite that make it
+easy for the user to add common testplan execution infomation - such as
+env var, pwd, log file, driver metadata - to the test report.
 
 Required files:
-    - :download:`test_plan.py <../../../examples/Best practice/common_utilities/test_plan.py>`
+    - :download:`test_plan.py <../../../examples/Best Practice/common_utilities/test_plan.py>`
 
 test_plan.py
 ++++++++++++
