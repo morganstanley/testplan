@@ -1,0 +1,2 @@
+Added a callable metadata extractor attribute to :py:class:`Driver <testplan.testing.multitest.driver.base.Driver>` objects that can be called individually or for the entire environment on-demand through :py:meth:`extract_metadata <testplan.common.utils.helper.extract_metadata>`
+Added new helper functions for reporting of generic testplan execution information under :py:module:`helper <testplan.common.utils.helper>`.
