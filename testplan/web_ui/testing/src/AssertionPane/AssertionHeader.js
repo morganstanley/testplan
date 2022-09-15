@@ -164,7 +164,10 @@ class AssertionHeader extends Component {
           <span
             className={css(styles.button)}
             onClick={this.props.toggleExpand}
-            style={{order: 1, flexGrow: 4, padding: ".125rem 0.75rem", ...this.props.assertion.custom_style}}>
+            style={{order: 1,
+              flexGrow: 4,
+              padding: ".125rem 0.75rem",
+              ...this.props.assertion.custom_style}}>
             <span style={{fontWeight: "bold"}}>
               {description}
             </span>
