@@ -4,6 +4,7 @@ Http handler for interactive mode.
 
 import os
 import time
+import copy
 import functools
 import traceback
 
@@ -577,7 +578,9 @@ def generate_interactive_api(ihandler):
                             "uid": strings.uuid4(),
                         }
                         try:
-                            export_path = exporter.export(ihandler.report)
+                            report = copy.deepcopy(ihandler.report)
+                            report.reset_uid()
+                            export_path = exporter.export(report)
                             export_result["success"] = True
                             export_result["message"] = export_path
                         except Exception:
