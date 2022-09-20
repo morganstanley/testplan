@@ -120,4 +120,4 @@ def main(plan):
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(not main())
