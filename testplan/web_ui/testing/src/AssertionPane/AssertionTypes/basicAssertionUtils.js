@@ -2,6 +2,7 @@ import React, {Fragment} from 'react';
 import {hashCode} from '../../Common/utils';
 import {GREEN, RED} from '../../Common/defaults';
 import _ from 'lodash';
+import linkifyUrls from 'linkify-urls';
 
 /** @module basicAssertionUtils */
 
@@ -44,6 +45,16 @@ function prepareLogContent(assertion, defaultContent) {
       decodedMsg = assertion.message;
     }
   }
+    
+  decodedMsg = < div dangerouslySetInnerHTML = {
+    {
+      __html: linkifyUrls(decodedMsg, {
+        attributes: {
+          target: "_blank"
+        }
+      })
+    }
+  }/>;
 
   const preContent = (
     <pre>
