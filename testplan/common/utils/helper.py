@@ -14,7 +14,7 @@ __all__ = [
     "log_environment",
     "attach_log",
     "attach_driver_logs_if_failed",
-    "extract_metadata",
+    "extract_driver_metadata",
     "clean_runpath_if_passed",
     "TestplanExecutionInfo",
 ]
@@ -87,18 +87,17 @@ def log_cmd(result: Result) -> None:
     )
 
 
-def extract_metadata(env: Environment, result: Result) -> None:
+def extract_driver_metadata(env: Environment, result: Result) -> None:
     """
     Saves metadata of each driver to the report.
 
     :param env: environment
     :param result: testcase result
     """
-    for resource in env:
-        result.dict.log(
-            resource.extract_metadata(),
-            description=f'Metadata of driver "{resource.name}"',
-        )
+    data = {
+        rss.name: rss.extract_driver_metadata().to_dict() for rss in env
+    }
+    result.dict.log(data, description="Environment metadata")
 
 
 def attach_log(result: Result) -> None:

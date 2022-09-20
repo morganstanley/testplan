@@ -2,6 +2,7 @@
 
 import logging
 import os
+from dataclasses import dataclass
 from typing import List, Pattern, Union, Tuple, Callable, Dict, Any
 
 from schema import Or
@@ -50,6 +51,23 @@ def format_regexp_matches(
         )
         return err
     return ""
+
+
+@dataclass
+class DriverMetadata:
+    """
+    Base class for holding Driver metadata. Requires name and klass fields.
+    """
+    name: str
+    klass: str
+
+    def to_dict(self) -> Dict:
+        """
+        Returns the dictionary of field-value pairs.
+
+        :return: dictionary of field-value pairs
+        """
+        return vars(self)
 
 
 class DriverConfig(ResourceConfig):
@@ -154,10 +172,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     def uid(self):
         """Driver uid."""
         return self.cfg.name
-
-    @property
-    def metadata_extractor(self) -> Callable:
-        return self._metadata_extractor
 
     def pre_start(self) -> None:
         """Steps to be executed right before resource starts."""
@@ -408,14 +422,20 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
         return content
 
-    def extract_metadata(self) -> Dict:
+    def extract_driver_metadata(self) -> DriverMetadata:
         """
         Extracts driver metadata as described in the extractor function.
 
         :return: driver metadata
         """
         # pylint: disable=not-callable
-        return self.metadata_extractor(self)
+        if self.cfg.metadata_extractor is None:
+            raise ValueError(
+                "To extract driver info, a valid `metadata_extractor` callable"
+                " needs to be passed to the constructor that returns a DriverInfo"
+                " instance."
+            )
+        return self.cfg.metadata_extractor(self)
         # pylint: enable=not-callable
 
     def __repr__(self):
