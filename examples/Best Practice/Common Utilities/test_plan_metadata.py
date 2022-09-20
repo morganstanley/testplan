@@ -62,6 +62,7 @@ class TCPClientMetadata(DriverMetadata):
     """
     DriverMetadata subclass to extend required fields with host and port.
     """
+
     host: str
     port: int
 
