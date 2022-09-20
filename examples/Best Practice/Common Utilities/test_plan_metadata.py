@@ -6,7 +6,7 @@ extraction.
 import sys
 from dataclasses import dataclass
 
-from testplan import test_plan
+from testplan_ms import test_plan
 from testplan.common.utils import helper
 from testplan.common.utils.context import context
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -52,8 +52,8 @@ def metadata_extractor_server(driver: TCPServer) -> TCPServerMetadata:
     return TCPServerMetadata(
         name=driver.name,
         klass=driver.__class__.__name__,
-        host=driver.host,
-        port=driver.port,
+        host=driver.cfg.host,
+        port=driver.cfg.port,
     )
 
 
@@ -62,7 +62,6 @@ class TCPClientMetadata(DriverMetadata):
     """
     DriverMetadata subclass to extend required fields with host and port.
     """
-
     host: str
     port: int
 
@@ -77,8 +76,8 @@ def metadata_extractor_client(driver: TCPClient) -> TCPClientMetadata:
     return TCPClientMetadata(
         name=driver.name,
         klass=driver.__class__.__name__,
-        host=driver.host,
-        port=driver.port,
+        host=driver.cfg.host,
+        port=driver.cfg.port,
     )
 
 
