@@ -58,6 +58,7 @@ class DriverMetadata:
     """
     Base class for holding Driver metadata. Requires name and klass fields.
     """
+
     name: str
     klass: str
 

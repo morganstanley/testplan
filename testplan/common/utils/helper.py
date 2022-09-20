@@ -94,9 +94,7 @@ def extract_driver_metadata(env: Environment, result: Result) -> None:
     :param env: environment
     :param result: testcase result
     """
-    data = {
-        rss.name: rss.extract_driver_metadata().to_dict() for rss in env
-    }
+    data = {rss.name: rss.extract_driver_metadata().to_dict() for rss in env}
     result.dict.log(data, description="Environment metadata")
 
 

@@ -37,6 +37,7 @@ class TCPServerMetadata(DriverMetadata):
     """
     DriverMetadata subclass to extend required fields with host and port.
     """
+
     host: str
     port: int
 
@@ -61,6 +62,7 @@ class TCPClientMetadata(DriverMetadata):
     """
     DriverMetadata subclass to extend required fields with host and port.
     """
+
     host: str
     port: int
 
@@ -82,7 +84,6 @@ def metadata_extractor_client(driver: TCPClient) -> TCPClientMetadata:
 
 @testsuite
 class TCPSuite:
-
     @testcase
     def test_send_msg(self, env, result):
         """
@@ -95,7 +96,6 @@ class TCPSuite:
         result.equal(msg_received, msg, "Message received on server side")
 
 
-
 @test_plan(name="Example of Driver metadata extraction")
 def main(plan):
     plan.add(
@@ -104,8 +104,7 @@ def main(plan):
             suites=[TCPSuite()],
             environment=[
                 TCPServer(
-                    name="server",
-                    metadata_extractor=metadata_extractor_server
+                    name="server", metadata_extractor=metadata_extractor_server
                 ),
                 TCPClient(
                     name="client",
@@ -115,7 +114,7 @@ def main(plan):
                 ),
             ],
             before_start=before_start,
-            after_start=after_start
+            after_start=after_start,
         )
     )
 

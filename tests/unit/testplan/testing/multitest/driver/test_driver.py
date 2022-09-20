@@ -172,7 +172,6 @@ class TestDriverMetadata:
     def metadata_extractor_invalid(mydriver):
         pass
 
-
     def test_to_dict(self):
         """
         Tests dictionary conversion of metadata objects.
@@ -187,7 +186,7 @@ class TestDriverMetadata:
             "name": "testdriver",
             "klass": "TestDriver",
             "test_mandatory_field": "baz",
-            "test_optional_field": False
+            "test_optional_field": False,
         }
         assert test == expected
 
