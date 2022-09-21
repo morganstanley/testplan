@@ -6,6 +6,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import Button from '@material-ui/core/Button';
+import linkifyUrls from 'linkify-urls';
 
 library.add(faLayerGroup);
 
@@ -77,19 +78,27 @@ class AssertionHeader extends Component {
         <span
           className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
           id={`tooltip_duration_${timeInfoArray[0]}`}
+          style={{order:6, display: 'inline-flex', alignItems: "center"}}
         >
           {timeInfoArray[2]}
         </span>
-        <span className={css(styles.cardHeaderAlignRight)}>
+        <span
+          className={css(styles.cardHeaderAlignRight)}
+          style={{order:3}}
+        >
           &nbsp;&nbsp;
         </span>
         <span
           className={css(styles.cardHeaderAlignRight, styles.timeInfo)}
           id={`tooltip_utc_${timeInfoArray[0]}`}
+          style={{order:4, display: 'inline-flex', alignItems: "center"}}
         >
           {timeInfoArray[1]}
         </span>
-        <span className={css(styles.cardHeaderAlignRight)}>
+        <span
+          className={css(styles.cardHeaderAlignRight)}
+          style={{order:5}}
+        >
           &nbsp;&nbsp;
         </span>
         <Tooltip
@@ -120,6 +129,7 @@ class AssertionHeader extends Component {
           onClick={() => {
             navigator.clipboard.writeText(getPath(this.props.assertion));
           }}
+          style={{order:2, marginLeft: "10px"}}
         >
           <span id={`tooltip_path_${this.props.uid}`}
             className={css(cardHeaderColorStyle)}>
@@ -135,22 +145,37 @@ class AssertionHeader extends Component {
         </Tooltip>
       </> : <></>;
 
+    const description = this.props.assertion.description ?
+      (this.props.assertion.type === 'Log' ? < span dangerouslySetInnerHTML={
+        {
+          __html: linkifyUrls(this.props.assertion.description + " ", {
+            attributes: {
+              target: "_blank"
+            }
+          })
+        }
+      } /> : this.props.assertion.description + " ") : "";
+
     return (
       <CardHeader className={css(styles.cardHeader, cardHeaderColorStyle)}>
         <div style={
-          {padding: ".125rem 0.75rem", ...this.props.assertion.custom_style}
+          {display: 'flex'}
         }>
           <span
             className={css(styles.button)}
-            onClick={this.props.toggleExpand}>
+            onClick={this.props.toggleExpand}
+            style={{order: 1,
+              flexGrow: 4,
+              padding: ".125rem 0.75rem",
+              ...this.props.assertion.custom_style}}>
             <span style={{fontWeight: "bold"}}>
-              {this.props.assertion.description ?
-              (this.props.assertion.description + " ") : ""}
+              {description}
             </span>
             <span>
               ({this.props.assertion.type})
             </span>
           </span>
+        
           {component}
           {pathButton}
           {/*

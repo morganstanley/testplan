@@ -31,6 +31,7 @@
     "lodash": "~4.17.15",
     "pegjs": "^0.11.0-master.b7b87ea",
     "plotly.js": "^1.58.5",
+    "prop-types": "^15.8.1",
     "react": "16.13.1",
     "react-app-polyfill": "1.0.6",
     "react-copy-html-to-clipboard": "6.0.4",
