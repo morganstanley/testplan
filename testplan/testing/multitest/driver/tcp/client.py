@@ -88,6 +88,10 @@ class TCPClient(Driver):
         """Client port number assigned."""
         return self._port
 
+    @property
+    def server_port(self):
+        return self._client.port if self._client is not None else None
+
     def connect(self):
         """
         Connect client.

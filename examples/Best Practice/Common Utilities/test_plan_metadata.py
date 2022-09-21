@@ -65,6 +65,7 @@ class TCPClientMetadata(DriverMetadata):
 
     host: str
     port: int
+    server_port: int
 
 
 def metadata_extractor_client(driver: TCPClient) -> TCPClientMetadata:
@@ -78,7 +79,8 @@ def metadata_extractor_client(driver: TCPClient) -> TCPClientMetadata:
         name=driver.name,
         klass=driver.__class__.__name__,
         host=driver.host or driver.cfg.host,
-        port=driver.cfg.port,
+        port=driver.port or driver.cfg.port,
+        server_port=driver.server_port,
     )
 
 
