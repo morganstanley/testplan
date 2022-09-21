@@ -23,7 +23,7 @@ def main(plan):
     plan.add(make_multitest(idx="1"))
     plan.schedule(
         target="make_multitest",
-        module="mytests.mtest",
+        module="my_tests.mtest",
         path=".",
         kwargs=dict(idx=2),
     )
