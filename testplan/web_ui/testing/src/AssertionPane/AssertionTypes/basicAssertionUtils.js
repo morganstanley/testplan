@@ -48,7 +48,7 @@ function prepareLogContent(assertion, defaultContent) {
     
   decodedMsg = < div dangerouslySetInnerHTML = {
     {
-      __html: linkifyUrls(decodedMsg, {
+      __html: linkifyUrls(_.escape(decodedMsg), {
         attributes: {
           target: "_blank"
         }
