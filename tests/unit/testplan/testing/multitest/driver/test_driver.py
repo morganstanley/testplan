@@ -155,41 +155,6 @@ class TestDriverMetadata:
     Tests related to metadata objects and extraction from a custom driver.
     """
 
-    @dataclass
-    class MyDriverMetadata(base.DriverMetadata):
-        test_mandatory_field: str
-        test_optional_field: bool = False
-
-    @staticmethod
-    def metadata_extractor_mydriver(driver):
-        return TestDriverMetadata.MyDriverMetadata(
-            name=driver.name,
-            klass=driver.__class__.__name__,
-            test_mandatory_field=driver.test_attribute,
-        )
-
-    @staticmethod
-    def metadata_extractor_invalid(mydriver):
-        pass
-
-    def test_to_dict(self):
-        """
-        Tests dictionary conversion of metadata objects.
-        """
-        metadata = TestDriverMetadata.MyDriverMetadata(
-            name="testdriver",
-            klass="TestDriver",
-            test_mandatory_field="baz",
-        )
-        test = metadata.to_dict()
-        expected = {
-            "name": "testdriver",
-            "klass": "TestDriver",
-            "test_mandatory_field": "baz",
-            "test_optional_field": False,
-        }
-        assert test == expected
-
     class MyDriver(base.Driver):
         def __init__(self, **options):
             super(TestDriverMetadata.MyDriver, self).__init__(**options)
@@ -206,6 +171,35 @@ class TestDriverMetadata:
         def stopping(self) -> None:
             self._test_attribute = "bar"
             super(TestDriverMetadata.MyDriver, self).stopping()
+
+    @staticmethod
+    def metadata_extractor_mydriver(driver: MyDriver):
+        return base.DriverMetadata(
+            name=driver.name,
+            driver_metadata={"test_attribute": driver.test_attribute},
+        )
+
+    @staticmethod
+    def metadata_extractor_invalid(mydriver):
+        pass
+
+    def test_to_dict(self):
+        """
+        Tests dictionary conversion of metadata objects.
+        """
+        metadata = base.DriverMetadata(
+            name="testdriver",
+            driver_metadata={
+                "foo": "bar",
+                "baz": "woo",
+            },
+        )
+        test = metadata.to_dict()
+        expected = {
+            "foo": "bar",
+            "baz": "woo",
+        }
+        assert test == expected
 
     def test_invalid_extractor_signature(self):
         """
@@ -226,20 +220,15 @@ class TestDriverMetadata:
             metadata_extractor=TestDriverMetadata.metadata_extractor_mydriver,
         )
         test = my_driver.extract_driver_metadata().to_dict()
-        expected = {
-            "name": "mydriver",
-            "klass": "MyDriver",
-            "test_mandatory_field": None,
-            "test_optional_field": False,
-        }
+        expected = {"test_attribute": my_driver.test_attribute}
         assert test == expected
 
         my_driver.start()
         test = my_driver.extract_driver_metadata().to_dict()
-        expected["test_mandatory_field"] = "foo"
+        expected["test_attribute"] = "foo"
         assert test == expected
 
         my_driver.stop()
         test = my_driver.extract_driver_metadata().to_dict()
-        expected["test_mandatory_field"] = "bar"
+        expected["test_attribute"] = "bar"
         assert test == expected

@@ -2,7 +2,7 @@
 
 import logging
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Pattern, Union, Tuple, Callable, Dict, Any
 
 from schema import Or
@@ -53,22 +53,41 @@ def format_regexp_matches(
     return ""
 
 
+# NOTE: visualization may require the below to be non-abstract base
+#             class so that the uniform logic of how to display a, say,
+#             connection graph is implemented here. For now we leave
+#             it in a limbo as a placeholder and typing-wise useful empty
+#             class
+class Connection:
+    """
+    Base class for connection information objects.
+
+    Such objects ideally hold data with respect to the participants in the
+     connection, the ports and hosts, or the protocol.
+    """
+
+    pass
+
+
 @dataclass
 class DriverMetadata:
     """
-    Base class for holding Driver metadata. Requires name and klass fields.
+    Base class for holding Driver metadata.
+
+    :param name:
+    :param driver_metadata:
+    :param conn_info: list of connection info objects
     """
 
     name: str
-    klass: str
+    driver_metadata: Dict
+    conn_info: List[Connection] = field(default_factory=list)
 
     def to_dict(self) -> Dict:
         """
-        Returns the dictionary of field-value pairs.
-
-        :return: dictionary of field-value pairs
+        Returns the metadata of the driver except for the connections.
         """
-        return vars(self)
+        return self.driver_metadata
 
 
 class DriverConfig(ResourceConfig):
@@ -429,13 +448,13 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
 
         :return: driver metadata
         """
-        # pylint: disable=not-callable
         if self.cfg.metadata_extractor is None:
             raise ValueError(
-                "To extract driver info, a valid `metadata_extractor` callable"
-                " needs to be passed to the constructor that returns a DriverInfo"
-                " instance."
+                "To extract driver metadata, a valid `metadata_extractor`"
+                " callable needs to be passed to the constructor that"
+                " returns a DriverMetadata instance."
             )
+        # pylint: disable=not-callable
         return self.cfg.metadata_extractor(self)
         # pylint: enable=not-callable
 

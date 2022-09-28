@@ -4,9 +4,8 @@ Example demonstrating the usage of on-demand Driver metadata
 extraction.
 """
 import sys
-from dataclasses import dataclass
 
-from testplan import test_plan
+from testplan_ms import test_plan
 from testplan.common.utils import helper
 from testplan.common.utils.context import context
 from testplan.testing.multitest import MultiTest, testsuite, testcase
@@ -30,57 +29,38 @@ def after_start(env, result):
     helper.extract_driver_metadata(env, result)
 
 
-# NOTE: to add new fields using dataclass syntax requires the decoration
-#            not just inheritance
-@dataclass
-class TCPServerMetadata(DriverMetadata):
-    """
-    DriverMetadata subclass to extend required fields with host and port.
-    """
-
-    host: str
-    port: int
-
-
-def metadata_extractor_server(driver: TCPServer) -> TCPServerMetadata:
+def metadata_extractor_server(driver: TCPServer) -> DriverMetadata:
     """
     TCPServer specific metadata extractor function.
 
     :param driver: TCPServer driver instance
     :return: driver name, driver class, host, and connecting port metadata
     """
-    return TCPServerMetadata(
+    return DriverMetadata(
         name=driver.name,
-        klass=driver.__class__.__name__,
-        host=driver.host or driver.cfg.host,
-        port=driver.port or driver.cfg.port,
+        driver_metadata={
+            "class": driver.__class__.__name__,
+            "host": driver.host or driver.cfg.host,
+            "port": driver.port or driver.cfg.port,
+        },
     )
 
 
-@dataclass
-class TCPClientMetadata(DriverMetadata):
-    """
-    DriverMetadata subclass to extend required fields with host and port.
-    """
-
-    host: str
-    port: int
-    server_port: int
-
-
-def metadata_extractor_client(driver: TCPClient) -> TCPClientMetadata:
+def metadata_extractor_client(driver: TCPClient) -> DriverMetadata:
     """
     TCPClient specific metadata extractor function.
 
     :param driver: TCPClient driver instance
     :return: driver name, driver class, host, and connecting port metadata
     """
-    return TCPClientMetadata(
+    return DriverMetadata(
         name=driver.name,
-        klass=driver.__class__.__name__,
-        host=driver.host or driver.cfg.host,
-        port=driver.port or driver.cfg.port,
-        server_port=driver.server_port,
+        driver_metadata={
+            "class": driver.__class__.__name__,
+            "host": driver.host or driver.cfg.host,
+            "port": driver.port or driver.cfg.port,
+            "server_port": driver.server_port,
+        },
     )
 
 
@@ -106,7 +86,8 @@ def main(plan):
             suites=[TCPSuite()],
             environment=[
                 TCPServer(
-                    name="server", metadata_extractor=metadata_extractor_server
+                    name="server",
+                    metadata_extractor=metadata_extractor_server,
                 ),
                 TCPClient(
                     name="client",
