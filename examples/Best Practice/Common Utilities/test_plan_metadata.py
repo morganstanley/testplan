@@ -5,7 +5,7 @@ extraction.
 """
 import sys
 
-from testplan_ms import test_plan
+from testplan import test_plan
 from testplan.common.utils import helper
 from testplan.common.utils.context import context
 from testplan.testing.multitest import MultiTest, testsuite, testcase
