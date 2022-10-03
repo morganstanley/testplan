@@ -77,6 +77,8 @@ class TCPClient(Driver):
         self._host: str = None
         self._port: int = None
         self._client = None
+        self._server_host = None
+        self._server_port = None
 
     @property
     def host(self):
@@ -87,6 +89,10 @@ class TCPClient(Driver):
     def port(self):
         """Client port number assigned."""
         return self._port
+
+    @property
+    def server_port(self):
+        return self._server_port
 
     def connect(self):
         """
@@ -160,9 +166,9 @@ class TCPClient(Driver):
     def starting(self):
         """Start the TCP client and optionally connect to host/post."""
         super(TCPClient, self).starting()
-        server_host = expand(self.cfg.host, self.context)
-        server_port = expand(self.cfg.port, self.context, int)
-        self._client = Client(host=server_host, port=server_port)
+        self._server_host = expand(self.cfg.host, self.context)
+        self._server_port = expand(self.cfg.port, self.context, int)
+        self._client = Client(host=self._server_host, port=self._server_port)
         if self.cfg.connect_at_start:
             self.connect()
 

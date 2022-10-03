@@ -6,6 +6,8 @@ to make assertion comparison data report friendly.
 import re
 from collections.abc import Mapping, Iterable
 
+from testplan.common.utils.context import ContextValue
+
 NATIVE_TYPES = (str, int, float, bool, memoryview, bytes, bytearray)
 
 
@@ -80,6 +82,8 @@ def fmt(obj):
             ret = (0, obj_t.__name__, str(obj))
         elif issubclass(obj_t, NATIVE_TYPES):
             ret = (0, obj_t.__name__, obj)
+        elif isinstance(obj, ContextValue):
+            ret = (0, "ContextValue", str(obj))
         elif callable(obj):
             ret = (0, "func", callable_name(obj))
         elif issubclass(obj_t, Mapping):

@@ -1,0 +1,1 @@
+Added new helper functions for reporting of generic testplan execution information, like hardware and environment variables, under :py:module:`helper <testplan.common.utils.helper>`.
