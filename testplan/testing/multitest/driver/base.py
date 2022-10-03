@@ -186,7 +186,6 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         super(Driver, self).__init__(**options)
         self.extracts = {}
         self._file_log_handler = None
-        self._metadata_extractor = metadata_extractor
 
     @emphasized
     @property
