@@ -9,7 +9,11 @@ from testplan import test_plan
 from testplan.common.utils import helper
 from testplan.common.utils.context import context
 from testplan.testing.multitest import MultiTest, testsuite, testcase
-from testplan.testing.multitest.driver.base import DriverMetadata
+from testplan.testing.multitest.driver.base import (
+    Direction,
+    Connection,
+    DriverMetadata,
+)
 from testplan.testing.multitest.driver.tcp import TCPServer, TCPClient
 
 
@@ -43,6 +47,14 @@ def metadata_extractor_server(driver: TCPServer) -> DriverMetadata:
             "host": driver.host or driver.cfg.host,
             "port": driver.port or driver.cfg.port,
         },
+        conn_info=[
+            Connection(
+                name="data_port",
+                protocol="TCP",
+                port=driver.port or driver.cfg.port,
+                direction=Direction.listening,
+            )
+        ],
     )
 
 
@@ -58,9 +70,16 @@ def metadata_extractor_client(driver: TCPClient) -> DriverMetadata:
         driver_metadata={
             "class": driver.__class__.__name__,
             "host": driver.host or driver.cfg.host,
-            "port": driver.port or driver.cfg.port,
-            "server_port": driver.server_port,
+            "port": driver.server_port or driver.cfg.port,
         },
+        conn_info=[
+            Connection(
+                name="to_server",
+                protocol="TCP",
+                port=driver.server_port or driver.cfg.port,
+                direction=Direction.connecting,
+            )
+        ],
     )
 
 

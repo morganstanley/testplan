@@ -44,7 +44,7 @@ class ContextValue:
         self.template = parse_template(value)
 
     def __str__(self):
-        return f"{self.driver}, {self.value}"
+        return f"context('{self.driver}', {{{{'{self.value}'}}}})"
 
     def __call__(self, ctx):
         """

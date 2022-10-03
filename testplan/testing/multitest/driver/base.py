@@ -3,6 +3,7 @@
 import logging
 import os
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import List, Pattern, Union, Tuple, Callable, Dict, Any
 
 from schema import Or
@@ -14,6 +15,7 @@ from testplan.common.entity import (
     ResourceConfig,
     FailedAction,
 )
+from testplan.common.utils.context import ContextValue
 from testplan.common.utils.documentation_helper import (
     get_metaclass_for_documentation,
 )
@@ -53,11 +55,12 @@ def format_regexp_matches(
     return ""
 
 
-# NOTE: visualization may require the below to be non-abstract base
-#             class so that the uniform logic of how to display a, say,
-#             connection graph is implemented here. For now we leave
-#             it in a limbo as a placeholder and typing-wise useful empty
-#             class
+class Direction(Enum):
+    connecting = "connecting"
+    listening = "listening"
+
+
+@dataclass
 class Connection:
     """
     Base class for connection information objects.
@@ -66,7 +69,10 @@ class Connection:
      connection, the ports and hosts, or the protocol.
     """
 
-    pass
+    name: str
+    protocol: str
+    port: Union[int, ContextValue]
+    direction: Direction
 
 
 @dataclass
@@ -449,10 +455,9 @@ class Driver(Resource, metaclass=get_metaclass_for_documentation()):
         :return: driver metadata
         """
         if self.cfg.metadata_extractor is None:
-            raise ValueError(
-                "To extract driver metadata, a valid `metadata_extractor`"
-                " callable needs to be passed to the constructor that"
-                " returns a DriverMetadata instance."
+            return DriverMetadata(
+                name=self.name,
+                driver_metadata={"class": self.__class__.__name__},
             )
         # pylint: disable=not-callable
         return self.cfg.metadata_extractor(self)
