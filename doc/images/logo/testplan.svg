@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="368.51297mm"
+   height="101.13038mm"
+   viewBox="0 0 368.51297 101.13038"
+   version="1.1"
+   id="svg1301"
+   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   sodipodi:docname="testplan-logo-tagline-plain.svg"
+   inkscape:export-filename="/Users/kevin/Downloads/testplan-logo-tagline.png"
+   inkscape:export-xdpi="282.34"
+   inkscape:export-ydpi="282.34">
+  <defs
+     id="defs1295" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.63998688"
+     inkscape:cx="718.87161"
+     inkscape:cy="354.32018"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1440"
+     inkscape:window-height="855"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata1298">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(305.22388,267.8147)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:70.55555725px;line-height:1.25;font-family:Arial;-inkscape-font-specification:'Arial Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-226.87891"
+       y="-206.95119"
+       id="text1440"><tspan
+         sodipodi:role="line"
+         id="tspan1438"
+         x="-226.87891"
+         y="-206.95119"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:70.55555725px;font-family:Arial;-inkscape-font-specification:'Arial Bold';fill:#3d3d3d;fill-opacity:1;stroke-width:0.26458332">Testplan</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20.23969269px;line-height:1.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#3d3d3d;fill-opacity:1;stroke:none;stroke-width:0.50599229"
+       x="-128.12006"
+       y="-172.02649"
+       id="text2006"><tspan
+         sodipodi:role="line"
+         id="tspan2004"
+         x="-128.12006"
+         y="-172.02649"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Arial;-inkscape-font-specification:'Arial Bold';fill:#3d3d3d;fill-opacity:1;stroke-width:0.50599229">Code. Test. Report.</tspan></text>
+    <path
+       inkscape:connector-curvature="0"
+       style="fill:#008000;stroke-width:0.04187843"
+       id="path431"
+       d="m -266.73766,-215.74778 25.71335,-25.71337 q 0.7957,-0.79569 0.7957,-1.88452 0,-1.08885 -0.7957,-1.88454 l -4.27159,-4.2716 q -0.79569,-0.79569 -1.88453,-0.79569 -1.08884,0 -1.88454,0.79569 l -19.55723,19.55723 -8.83634,-8.83634 q -0.79569,-0.7957 -1.88453,-0.7957 -1.08884,0 -1.88453,0.7957 l -4.2716,4.27159 q -0.79569,0.79569 -0.79569,1.88453 0,1.08884 0.79569,1.88453 l 14.99248,14.99249 q 0.79569,0.79568 1.88452,0.79568 1.08885,0 1.88454,-0.79568 z m 35.63855,-36.97867 v 40.2033 q 0,4.98353 -3.53872,8.52227 -3.53874,3.53872 -8.52227,3.53872 h -40.20329 q -4.98354,0 -8.52227,-3.53872 -3.53873,-3.53874 -3.53873,-8.52227 v -40.2033 q 0,-4.98353 3.53873,-8.52226 3.53873,-3.53873 8.52227,-3.53873 h 40.20329 q 4.98353,0 8.52227,3.53873 3.53872,3.53873 3.53872,8.52226 z" />
+  </g>
+</svg>
