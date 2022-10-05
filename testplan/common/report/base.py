@@ -19,6 +19,10 @@ class MergeError(Exception):
     """Raised when a merge operation fails."""
 
 
+class SkipTestcaseException(Exception):
+    """Raised from an explicit call to result.skip."""
+
+
 class ExceptionLogger:
     """
     A context manager used for suppressing & logging an exception.
@@ -93,7 +97,7 @@ class Report:
         # Omitting logger as it is not compatible with deep copy.
         return {k: v for k, v in self.__dict__.items() if k != "logger"}
 
-    def _get_comparison_attrs(self):  # pylint: disable=no-self-use
+    def _get_comparison_attrs(self):
         return ["name", "description", "uid", "entries", "logs"]
 
     def __eq__(self, other):

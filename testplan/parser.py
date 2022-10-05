@@ -1,29 +1,28 @@
 """
 Classes that parse command-line arguments used to control testplan behaviour.
-This module encodes the argument and option names, types and behaviours.
+This module encodes the argument and option names, types, and behaviours.
 """
 import argparse
 import copy
 import sys
+from typing import Dict
 
-from testplan.common.utils import logger
 from testplan import defaults
+from testplan.common.utils import logger
 from testplan.report.testing import styles, ReportTagsAction
 from testplan.testing import listing, filtering, ordering
 
 
 class HelpParser(argparse.ArgumentParser):
     """
-    HelpParser extends ``ArgumentParser`` in order to print the help message
-    when parsing fails.
+    Extends ``ArgumentParser`` in order to print the help message upon failure.
     """
 
-    def error(self, message):
+    def error(self, message: str) -> None:
         """
-        Override error method to print error and then display help message
+        Overrides `error` method to print error and display help message.
 
-        :param message: The parsing error message
-        :type message: ``str``
+        :param message: the parsing error message
         """
         error_header = "=" * 30 + " ERROR " + "=" * 30
         error_ctx = [
@@ -45,32 +44,29 @@ class HelpParser(argparse.ArgumentParser):
 class TestplanParser:
     """
     Wrapper around `argparse.ArgumentParser`, adds extra step for processing
-    arguments, esp. if they are dependent on each other.
+    arguments, useful when there are cross-dependencies between them.
     """
 
-    def __init__(self, name, default_options):
+    def __init__(self, name: str, default_options: Dict) -> None:
         self.cmd_line = copy.copy(sys.argv)
         self.name = name
         self._default_options = default_options
 
     def add_arguments(self, parser):
-        """Virtual method to be overridden by custom parsers."""
+        """
+        Virtual method to be overridden by custom parsers.
+
+        :param parser: parser instance
+        """
         pass
 
-    def generate_parser(self):
-        """Generate an argparse.Argument parser instance."""
+    def generate_parser(self) -> HelpParser:
+        """Generates an `argparse.ArgumentParser` instance."""
         epilog = ""
         parser = HelpParser(
             "Test Plan ({})".format(self.name),
             epilog,
             formatter_class=argparse.RawTextHelpFormatter,
-        )
-
-        parser.add_argument(
-            "--list",
-            action="store_true",
-            default=False,
-            help="Shortcut for `--info name`.",
         )
 
         parser.add_argument(
@@ -82,7 +78,15 @@ class TestplanParser:
             )
         )
 
+        parser.add_argument(
+            "--list",
+            action="store_true",
+            default=False,
+            help="Shortcut for `--info name`.",
+        )
+
         general_group = parser.add_argument_group("General")
+
         general_group.add_argument(
             "--runpath",
             type=str,
@@ -97,7 +101,7 @@ class TestplanParser:
             default=self._default_options["timeout"],
             type=int,
             help="Timeout value in seconds to kill Testplan and all child "
-            "processes, default to 14400s(4h), set to 0 to disable.",
+            "processes. Defaults to 14400s (4h). Set to 0 to disable.",
         )
 
         general_group.add_argument(
@@ -108,8 +112,8 @@ class TestplanParser:
             default=self._default_options["interactive_port"],
             const=defaults.WEB_SERVER_PORT,
             type=int,
-            help="Enable interactive mode. A port may be specified, otherwise "
-            "the port defaults to {}.".format(defaults.WEB_SERVER_PORT),
+            help="Enables interactive mode. A port may be specified, otherwise"
+            " the port defaults to {}.".format(defaults.WEB_SERVER_PORT),
         )
 
         filter_group = parser.add_argument_group("Filtering")
@@ -239,7 +243,7 @@ Test filter, runs tests that match ALL of the given tags.
             "--verbose",
             action="store_true",
             default=self._default_options["verbose"],
-            help="Enable verbose mode that will also set the stdout-style "
+            help="Enables verbose mode that will also set the stdout-style "
             'option to "detailed".',
         )
 
@@ -248,7 +252,7 @@ Test filter, runs tests that match ALL of the given tags.
             "--debug",
             action="store_true",
             default=self._default_options["debug"],
-            help="Enable debug mode.",
+            help="Enables debug mode.",
         )
 
         report_group.add_argument(
@@ -256,7 +260,7 @@ Test filter, runs tests that match ALL of the given tags.
             "--browse",
             action="store_true",
             default=self._default_options["browse"],
-            help="Automatically open report to browse. Must be specified "
+            help="Automatically opens report to browse. Must be specified "
             'with "--ui" to open it locally, or upload it to a web server '
             "with a customized exporter which has a `report_url`, or there "
             "will be nothing to open.",
@@ -270,7 +274,7 @@ Test filter, runs tests that match ALL of the given tags.
             default=self._default_options["ui_port"],
             const=defaults.WEB_SERVER_PORT,
             type=int,
-            help="Start the web server to view the Testplan UI. A port can be "
+            help="Starts the web server for the Testplan UI. A port can be "
             "specified, otherwise defaults to {}. A JSON report will be "
             "saved locally.".format(self._default_options["ui_port"]),
         )
@@ -308,13 +312,13 @@ that match ALL of the given tags.
             choices=LogLevelAction.LEVELS.keys(),
             default=self._default_options["file_log_level"],
             action=LogLevelAction,
-            help="Specify log level for file logs. Set to None to disable "
+            help="Specifies log level for file logs. Set to None to disable "
             "file logging.",
         )
         report_group.add_argument(
             "--label",
             default=None,
-            help="Label the test report with the given name, "
+            help="Labels the test report with the given name, "
             'useful to categorize or classify similar reports (aka "run-id").',
         )
 
@@ -323,18 +327,20 @@ that match ALL of the given tags.
 
     def parse_args(self):
         """
-        Generate the parser & return parsed command line args.
+        Generates the parser & return parsed command line args.
         """
         return self.generate_parser().parse_args()
 
-    def process_args(self, namespace):
+    def process_args(self, namespace: argparse.Namespace) -> Dict:
         """
-        Override this method to add extra argument processing logic.
+        Overrides this method to add extra argument processing logic.
 
         Can be used for interdependent argument processing.
 
-        Testplan will use the result dictionary
-        to initialize the configuration.
+        Testplan uses the result dictionary to initialize the configuration.
+
+        :param namespace: namespace of parsed arguments
+        :return: initial configuration
         """
         args = dict(**vars(namespace))
 

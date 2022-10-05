@@ -1,4 +1,8 @@
 """Unit tests for the driver base."""
+from dataclasses import dataclass
+
+import pytest
+from schema import SchemaError
 
 from testplan.testing.multitest.driver import base
 
@@ -144,3 +148,87 @@ class TestPrePostCallables:
         driver.stop()
         driver.wait(driver.STATUS.STOPPED)
         assert driver.status == driver.status.STOPPED
+
+
+class TestDriverMetadata:
+    """
+    Tests related to metadata objects and extraction from a custom driver.
+    """
+
+    class MyDriver(base.Driver):
+        def __init__(self, **options):
+            super(TestDriverMetadata.MyDriver, self).__init__(**options)
+            self._test_attribute = None
+
+        @property
+        def test_attribute(self):
+            return self._test_attribute
+
+        def starting(self) -> None:
+            self._test_attribute = "foo"
+            super(TestDriverMetadata.MyDriver, self).starting()
+
+        def stopping(self) -> None:
+            self._test_attribute = "bar"
+            super(TestDriverMetadata.MyDriver, self).stopping()
+
+    @staticmethod
+    def metadata_extractor_mydriver(driver: MyDriver):
+        return base.DriverMetadata(
+            name=driver.name,
+            driver_metadata={"test_attribute": driver.test_attribute},
+        )
+
+    @staticmethod
+    def metadata_extractor_invalid(mydriver):
+        pass
+
+    def test_to_dict(self):
+        """
+        Tests dictionary conversion of metadata objects.
+        """
+        metadata = base.DriverMetadata(
+            name="testdriver",
+            driver_metadata={
+                "foo": "bar",
+                "baz": "woo",
+            },
+        )
+        test = metadata.to_dict()
+        expected = {
+            "foo": "bar",
+            "baz": "woo",
+        }
+        assert test == expected
+
+    def test_invalid_extractor_signature(self):
+        """
+        Tests whether the invalid signature of the metadata extractor raises.
+        """
+        with pytest.raises(SchemaError):
+            TestDriverMetadata.MyDriver(
+                name="mydriver",
+                metadata_extractor=TestDriverMetadata.metadata_extractor_invalid,
+            )
+
+    def test_extract_mydriver_metadata(self):
+        """
+        Tests before and after start as well as after stop metadata.
+        """
+        my_driver = TestDriverMetadata.MyDriver(
+            name="mydriver",
+            metadata_extractor=TestDriverMetadata.metadata_extractor_mydriver,
+        )
+        test = my_driver.extract_driver_metadata().to_dict()
+        expected = {"test_attribute": my_driver.test_attribute}
+        assert test == expected
+
+        my_driver.start()
+        test = my_driver.extract_driver_metadata().to_dict()
+        expected["test_attribute"] = "foo"
+        assert test == expected
+
+        my_driver.stop()
+        test = my_driver.extract_driver_metadata().to_dict()
+        expected["test_attribute"] = "bar"
+        assert test == expected

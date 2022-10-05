@@ -4,10 +4,12 @@ import time
 import queue
 import http.server as http_server
 from threading import Thread
+from typing import Optional
 
 from schema import Use
 
 from testplan.common.config import ConfigOption
+from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.strings import slugify
 
 from ..base import Driver, DriverConfig
@@ -172,6 +174,8 @@ class HTTPServer(Driver):
     Driver for a server that can accept connection and send/receive messages
     using HTTP protocol.
 
+    {emphasized_members_docs}
+
     :param name: Name of HTTPServer.
     :type name: ``str``
     :param host: Hostname to connect to.
@@ -198,8 +202,8 @@ class HTTPServer(Driver):
     def __init__(
         self,
         name,
-        host="localhost",
-        port=0,
+        host: str = "localhost",
+        port: int = 0,
         request_handler=HTTPRequestHandler,
         handler_attributes=None,
         timeout=5,
@@ -209,8 +213,8 @@ class HTTPServer(Driver):
         options.update(self.filter_locals(locals()))
         options.setdefault("file_logger", "{}.log".format(slugify(name)))
         super(HTTPServer, self).__init__(**options)
-        self._host = None
-        self._port = None
+        self._host: str = None
+        self._port: int = None
         self.request_handler = None
         self.handler_attributes = None
         self.timeout = None
@@ -219,11 +223,13 @@ class HTTPServer(Driver):
         self.responses = None
         self._server_thread = None
 
+    @emphasized
     @property
     def host(self):
         """Host name."""
         return self._host
 
+    @emphasized
     @property
     def port(self):
         """Port number assigned."""

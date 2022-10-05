@@ -9,9 +9,8 @@ import contextlib
 import tempfile
 import hashlib
 
+from testplan.common.utils.context import render
 from .strings import slugify
-
-from testplan.vendor.tempita import Template
 
 VAR_TMP = os.path.join(os.sep, "var", "tmp")
 
@@ -189,8 +188,7 @@ def instantiate(template, values, destination):
     with open(destination, "w") as target:
         with open(template, "r") as source:
             try:
-                tmplt = Template(source.read())
-                target.write(tmplt.substitute(values))
+                target.write(render(source.read(), values))
             except UnicodeDecodeError:
                 shutil.copy(template, destination)
             except Exception as exc:
@@ -256,7 +254,10 @@ def is_subdir(child, parent):
     :return: True if child is a sub-directory of the parent.
     :rtype: ``bool``
     """
-    return child.startswith(parent)
+
+    return fix_home_prefix(os.path.abspath(child)).startswith(
+        fix_home_prefix(os.path.abspath(parent))
+    )
 
 
 def hash_file(filepath):

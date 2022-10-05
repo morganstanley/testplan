@@ -58,6 +58,7 @@ from testplan.common.report import (
     ExceptionLogger as ExceptionLoggerBase,
     Report,
     ReportGroup,
+    SkipTestcaseException,
 )
 from testplan.common.utils import timing
 from testplan.testing import tagging
@@ -206,18 +207,23 @@ class ExceptionLogger(ExceptionLoggerBase):
         super(ExceptionLogger, self).__init__(*exception_classes, **kwargs)
 
     def __exit__(self, exc_type, exc_value, tb):
-        if exc_type is not None and issubclass(
-            exc_type, self.exception_classes
-        ):
+        if exc_type is not None:
+            if exc_type is SkipTestcaseException:
+                self.report.logger.critical(
+                    'Skipping testcase "%s", reason: %s',
+                    self.report.name,
+                    str(exc_value),
+                )
+                self.report.status_override = Status.SKIPPED
+            elif issubclass(exc_type, self.exception_classes):
+                # Custom exception message with extra args
+                exc_msg = "".join(
+                    traceback.format_exception(exc_type, exc_value, tb)
+                )
+                self.report.logger.error(exc_msg)
 
-            # Custom exception message with extra args
-            exc_msg = "".join(
-                traceback.format_exception(exc_type, exc_value, tb)
-            )
-            self.report.logger.error(exc_msg)
-
-            if self.fail:
-                self.report.status_override = Status.ERROR
+                if self.fail:
+                    self.report.status_override = Status.ERROR
             return True
 
 

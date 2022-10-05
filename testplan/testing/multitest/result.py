@@ -12,13 +12,15 @@ import platform
 import re
 import threading
 from functools import wraps
-from typing import Callable
+from typing import Callable, Optional
+import functools
 
 from testplan import defaults
 from testplan.common.utils.package import MOD_LOCK
 from testplan.common.utils import comparison
 from testplan.common.utils import strings
 from testplan.defaults import STDOUT_STYLE
+from testplan.common.report.base import SkipTestcaseException
 
 from .entries import assertions, base
 from .entries.schemas.base import registry as schema_registry
@@ -101,13 +103,30 @@ class ExceptionCapture:
 assertion_state = threading.local()
 
 
-def report_target(func: Callable) -> Callable:
+def report_target(func: Callable, ref_func: Callable = None) -> Callable:
     """
     Sets the decorated function's filepath and line-range in assertion state.
+    If the target function is a parametrized function, should refer to its
+    parametrized template to find information of the original function.
+
+    :param func: The target function about which the information of
+        source path and line range will be retrieved.
+    :param ref_func: The parametrized template if `func` is a generated
+        function, otherwise ``None``.
     """
-    filepath = inspect.getfile(func)
-    lines, start = inspect.getsourcelines(func)
-    line_range = range(start, start + len(lines))
+    module = inspect.getmodule(ref_func or func)
+    filepath = module.__file__ if module else None
+    if filepath is None:
+        try:
+            filepath = inspect.getsourcefile(ref_func or func)
+        except TypeError:
+            pass
+
+    try:
+        lines, start = inspect.getsourcelines(ref_func or func)
+        line_range = range(start, start + len(lines))
+    except OSError:
+        pass
 
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -125,6 +144,7 @@ def report_target(func: Callable) -> Callable:
 
 
 def assertion(func: Callable) -> Callable:
+    @functools.wraps(func)
     def wrapper(result, *args, **kwargs):
         top_assertion = False
         if not getattr(assertion_state, "in_progress", False):
@@ -148,6 +168,8 @@ def assertion(func: Callable) -> Callable:
                                     in assertion_state.line_range
                                 ):
                                     break
+                            else:
+                                frame = call_stack[1]
                         entry.file_path = os.path.abspath(frame.filename)
                         entry.line_no = frame.lineno
                     finally:
@@ -2385,6 +2407,18 @@ class Result:
         in related ``TestCaseReport``'s ``entries`` attribute.
         """
         return [schema_registry.serialize(entry) for entry in self]
+
+    def skip(self, reason: str, description: Optional[str] = None):
+        """
+        Skip a testcase with the given reason.
+
+        :param reason: The message to show the user as reason for the skip.
+        :type reason: ``str``
+        :param description:  Text description for the assertion.
+        :type description: ``str``
+        """
+        self.log(reason, description)
+        raise SkipTestcaseException(reason)
 
     def __repr__(self):
         return repr(self.entries)

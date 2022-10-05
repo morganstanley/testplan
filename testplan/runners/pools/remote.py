@@ -18,7 +18,7 @@ from testplan.common.utils.path import (
     rebase_path,
 )
 from testplan.common.utils.remote import ssh_cmd, copy_cmd
-from testplan.common.utils.timing import get_sleeper
+from testplan.common.utils.timing import get_sleeper, wait
 from testplan.runners.pools.base import Pool, PoolConfig
 from testplan.runners.pools.communication import Message
 from testplan.runners.pools.connection import ZMQServer
@@ -54,10 +54,13 @@ class RemoteWorker(ProcessWorker, RemoteResource):
     Remote worker resource that pulls tasks from the transport provided,
     executes them in a local pool of workers and sends back task results.
 
-    :param workers: Number of remote workers of remote pool of child worker.
-    :type workers: ``int``
-    :param pool_type: Remote pool type that child worker will use.
+    :param pool_type: Child pool type that remote workers will use.
+    can be ``thread`` or ``process``, default to ``thread`` if
+    ``workers`` is 1 and otherwise ``process``.
     :type pool_type: ``str``
+    :param workers: Number of thread/process workers of the child
+    pool, default to 1.
+    :type workers: ``int``
 
     Also inherits all
     :py:class:`~testplan.runners.pools.process.ProcessWorkerConfig` and
@@ -66,6 +69,11 @@ class RemoteWorker(ProcessWorker, RemoteResource):
     """
 
     CONFIG = RemoteWorkerConfig
+
+    def __init__(self, **options):
+        if options["workers"] == 1:
+            options["pool_type"] = "thread"
+        super().__init__(**options)
 
     def _set_child_script(self):
         """Specify the remote worker executable file."""
@@ -152,11 +160,29 @@ class RemoteWorker(ProcessWorker, RemoteResource):
             if self.status != self.status.STOPPED:
                 self.logger.info("Waiting for workers to stop")
             else:
+                self.post_stop()
                 break
         else:
             msg = f"Not able to stop worker {self} after {timeout}s"
             self.logger.error(msg)
             raise RuntimeError(msg)
+
+    def rebase_attachment(self, result):
+        """Rebase the path of attachment from remote to local"""
+
+        if result:
+            for attachment in result.report.attachments:
+                attachment.source_path = rebase_path(
+                    attachment.source_path,
+                    self._remote_plan_runpath,
+                    self._get_plan().runpath,
+                )
+
+    def rebase_task_path(self, task):
+        """Rebase the path of task from local to remote"""
+        task.rebase_path(
+            self._workspace_paths.local, self._workspace_paths.remote
+        )
 
 
 class RemotePoolConfig(PoolConfig):
@@ -183,7 +209,7 @@ class RemotePoolConfig(PoolConfig):
                 "abort_signals", default=[signal.SIGINT, signal.SIGTERM]
             ): [int],
             ConfigOption("worker_type", default=RemoteWorker): object,
-            ConfigOption("pool_type", default="thread"): str,
+            ConfigOption("pool_type", default="process"): str,
             ConfigOption("host", default=cls.default_hostname): str,
             ConfigOption("port", default=0): int,
             ConfigOption("worker_heartbeat", default=30): Or(int, float, None),
@@ -197,15 +223,16 @@ class RemotePool(Pool):
 
     :param name: Pool name.
     :type name: ``str``
-    :param hosts: Map of host(ip): number of their local workers.
+    :param hosts: Map of host(ip): number of their local thread/process workers.
         i.e {'hostname1': 2, '10.147.XX.XX': 4}
     :type hosts: ``dict`` of ``str``:``int``
     :param abort_signals: Signals to trigger abort logic. Default: INT, TERM.
     :type abort_signals: ``list`` of ``int``
     :param worker_type: Type of worker to be initialized.
     :type worker_type: :py:class:`~testplan.runners.pools.remote.RemoteWorker`
-    :param pool_type: Local pool that will be initialized in remote workers.
-        i.e ``thread``, ``process``.
+    :param pool_type: Child pool type that remote workers will use.
+    can be ``thread`` or ``process``, default to ``thread`` if
+    ``workers`` is 1 and otherwise ``process``.
     :type pool_type: ``str``
     :param host: Host that pool binds and listens for requests. Defaults to
         local hostname.
@@ -275,7 +302,7 @@ class RemotePool(Pool):
         hosts,
         abort_signals=None,
         worker_type=RemoteWorker,
-        pool_type="thread",
+        pool_type="process",
         host=CONFIG.default_hostname,
         port=0,
         worker_heartbeat=30,
@@ -370,7 +397,11 @@ class RemotePool(Pool):
         for worker in self._workers:
             if worker.status == worker.status.STARTING:
                 try:
-                    worker.wait(worker.status.STARTED)
+                    wait(
+                        lambda: worker.status
+                        in (worker.STATUS.STARTED, worker.STATUS.STOPPED),
+                        worker.cfg.status_wait_timeout,
+                    )
                 except Exception:
                     self.logger.error(
                         "Timeout waiting for worker {} to quit starting "
@@ -380,6 +411,15 @@ class RemotePool(Pool):
                     )
 
         super(RemotePool, self).stopping()
+
+        if self.pool:
+            self.pool.terminate()
+            self.pool = None
+
+    def aborting(self):
+        """Aborting logic."""
+
+        super(RemotePool, self).aborting()
 
         if self.pool:
             self.pool.terminate()

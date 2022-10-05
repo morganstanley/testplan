@@ -7,6 +7,7 @@ from testplan.report import (
     TestGroupReport,
     TestCaseReport,
     ReportCategories,
+    Status,
 )
 
 CURRENT_FILE = os.path.abspath(__file__)
@@ -39,48 +40,6 @@ def check_func_4(env, result):
     result.attach(CURRENT_FILE, description="current file")
 
 
-expected_report = TestReport(
-    name="plan",
-    entries=[
-        TestGroupReport(
-            name="MyMultitest",
-            category=ReportCategories.MULTITEST,
-            entries=[
-                TestGroupReport(
-                    name="MySuite",
-                    category=ReportCategories.TESTSUITE,
-                    entries=[
-                        TestCaseReport(name="test_one"),
-                        TestCaseReport(
-                            name="teardown", entries=[{"type": "Attachment"}]
-                        ),
-                    ],
-                ),
-                TestGroupReport(
-                    name="Pre/Post Step Checks",
-                    category=ReportCategories.TESTSUITE,
-                    entries=[
-                        TestCaseReport(
-                            name="before_start - check_func_1",
-                            entries=[{"type": "Equal", "passed": True}],
-                        ),
-                        TestCaseReport(name="after_start - check_func_2"),
-                        TestCaseReport(name="before_stop - check_func_3"),
-                        TestCaseReport(
-                            name="after_stop - check_func_4",
-                            entries=[
-                                {"type": "Equal", "passed": False},
-                                {"type": "Attachment"},
-                            ],
-                        ),
-                    ],
-                ),
-            ],
-        )
-    ],
-)
-
-
 def test_pre_post_steps(mockplan):
 
     multitest = MultiTest(
@@ -91,9 +50,134 @@ def test_pre_post_steps(mockplan):
         before_stop=check_func_3,
         after_stop=check_func_4,
     )
-
     mockplan.add(multitest)
     mockplan.run()
 
+    expected_report = TestReport(
+        name="plan",
+        entries=[
+            TestGroupReport(
+                name="MyMultitest",
+                category=ReportCategories.MULTITEST,
+                entries=[
+                    TestGroupReport(
+                        name="Before/After Step Checks",
+                        category=ReportCategories.TESTSUITE,
+                        entries=[
+                            TestCaseReport(
+                                name="before_start - check_func_1",
+                                entries=[{"type": "Equal", "passed": True}],
+                            ),
+                            TestCaseReport(name="after_start - check_func_2"),
+                            TestCaseReport(name="before_stop - check_func_3"),
+                            TestCaseReport(
+                                name="after_stop - check_func_4",
+                                entries=[
+                                    {"type": "Equal", "passed": False},
+                                    {"type": "Attachment"},
+                                ],
+                            ),
+                        ],
+                    ),
+                    TestGroupReport(
+                        name="MySuite",
+                        category=ReportCategories.TESTSUITE,
+                        entries=[
+                            TestCaseReport(name="test_one"),
+                            TestCaseReport(
+                                name="teardown",
+                                entries=[{"type": "Attachment"}],
+                            ),
+                        ],
+                    ),
+                ],
+            )
+        ],
+    )
+
     check_report(expected_report, mockplan.report)
     assert len(mockplan.report.attachments) == 2
+
+
+def test_empty_pre_post_steps(mockplan):
+    """
+    Runs a MultiTest without an empty after_start, expects it present and passing.
+    """
+    multitest = MultiTest(
+        name="MyMultiTest",
+        suites=[MySuite()],
+        after_start=check_func_2,
+    )
+    mockplan.add(multitest)
+    mockplan.run()
+
+    expected_report = TestReport(
+        name="plan",
+        entries=[
+            TestGroupReport(
+                name="MyMultiTest",
+                category=ReportCategories.MULTITEST,
+                entries=[
+                    TestGroupReport(
+                        name="Before/After Step Checks",
+                        category=ReportCategories.TESTSUITE,
+                        entries=[
+                            TestCaseReport(name="after_start - check_func_2"),
+                        ],
+                    ),
+                    TestGroupReport(
+                        name="MySuite",
+                        category=ReportCategories.TESTSUITE,
+                        entries=[
+                            TestCaseReport(name="test_one"),
+                            TestCaseReport(
+                                name="teardown",
+                                entries=[{"type": "Attachment"}],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    assert mockplan.report["MyMultiTest"].status == Status.PASSED
+    assert mockplan.report.status == Status.PASSED
+    check_report(expected_report, mockplan.report)
+
+
+def test_no_pre_post_steps(mockplan):
+    """
+    Runs a MultiTest w/o pre/post steps, expects no pre/post step report.
+    """
+    multitest = MultiTest(
+        name="MyMultiTest",
+        suites=[MySuite()],
+    )
+    mockplan.add(multitest)
+    mockplan.run()
+
+    expected_report = TestReport(
+        name="plan",
+        entries=[
+            TestGroupReport(
+                name="MyMultiTest",
+                category=ReportCategories.MULTITEST,
+                entries=[
+                    TestGroupReport(
+                        name="MySuite",
+                        category=ReportCategories.TESTSUITE,
+                        entries=[
+                            TestCaseReport(name="test_one"),
+                            TestCaseReport(
+                                name="teardown",
+                                entries=[{"type": "Attachment"}],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    check_report(expected_report, mockplan.report)

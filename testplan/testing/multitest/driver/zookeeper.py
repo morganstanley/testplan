@@ -4,14 +4,16 @@ Driver for Zookeeper server
 import os
 
 from schema import Or
+
 from testplan.common.config import ConfigOption
-from testplan.common.utils.process import execute_cmd
+from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.path import (
     makeemptydirs,
     makedirs,
     instantiate,
     StdFiles,
 )
+from testplan.common.utils.process import execute_cmd
 from testplan.testing.multitest.driver.base import DriverConfig, Driver
 
 
@@ -37,6 +39,8 @@ class ZookeeperStandaloneConfig(DriverConfig):
 class ZookeeperStandalone(Driver):
     """
     Driver for starting a Zookeeper instance in standalone mode.
+
+    {emphasized_members_docs}
 
     :param template: Zookeeper config file template.
     :type template: ``str``
@@ -67,7 +71,7 @@ class ZookeeperStandalone(Driver):
             env=env,
             **options
         )
-        self.port = port
+        self._port = port
         self.env = self.cfg.env.copy() if self.cfg.env else {}
         self.config = None
         self.zkdata_path = None
@@ -76,8 +80,20 @@ class ZookeeperStandalone(Driver):
         self.pid_file = None
         self.std = None
 
+    @emphasized
+    @property
+    def port(self):
+        """Port to listen on."""
+        return self._port
+
+    @port.setter
+    def port(self, port):
+        self._port = port
+
+    @emphasized
     @property
     def connection_str(self):
+        """Connection string."""
         return "{}:{}".format("localhost", self.port)
 
     def pre_start(self):
@@ -96,7 +112,7 @@ class ZookeeperStandalone(Driver):
             else:
                 makeemptydirs(directory)
         self.config = os.path.join(self.runpath, "etc", "zookeeper.cfg")
-        if self.port == 0:
+        if self._port == 0:
             raise RuntimeError("Zookeeper doesn't support random port")
         instantiate(self.cfg.cfg_template, self.context_input(), self.config)
 
@@ -106,9 +122,22 @@ class ZookeeperStandalone(Driver):
         start_cmd = [self.cfg.binary, "start", self.config]
         self.std = StdFiles(self.runpath)
 
+        execute_cmd(
+            start_cmd,
+            label=self.uid(),
+            check=True,
+            stdout=self.std.out,
+            stderr=self.std.err,
+            logger=self.logger,
+            env=self.env,
+        )
+
+    def stopping(self):
+        """Stops the Zookeeper instance."""
+        stop_cmd = [self.cfg.binary, "stop", self.config]
         try:
             execute_cmd(
-                start_cmd,
+                stop_cmd,
                 label=self.uid(),
                 check=True,
                 stdout=self.std.out,
@@ -117,10 +146,4 @@ class ZookeeperStandalone(Driver):
                 env=self.env,
             )
         finally:
-            self.std.err.close()
-            self.std.out.close()
-
-    def stopping(self):
-        """Stops the Zookeeper instance."""
-        stop_cmd = [self.cfg.binary, "stop", self.config]
-        execute_cmd(stop_cmd, check=True, logger=self.logger)
+            self.std.close()

@@ -1,12 +1,13 @@
 """TCPClient driver classes."""
 
 import socket
+from typing import Union, Tuple, Optional
 
 from schema import Use, Or
 
 from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 from testplan.common.config import ConfigOption
-from testplan.common.utils.context import is_context, expand
+from testplan.common.utils.context import is_context, expand, ContextValue
 from testplan.common.utils.sockets import Client
 
 from ..base import Driver, DriverConfig
@@ -39,6 +40,8 @@ class TCPClient(Driver):
     :py:class:`testplan.common.utils.sockets.client.Client` class, which
     provides equivalent functionality and may be used outside of MultiTest.
 
+    {emphasized_members_docs}
+
     :param name: Name of TCPClient.
     :type name: ``str``
     :param host: Target host name. This can be a
@@ -62,18 +65,20 @@ class TCPClient(Driver):
 
     def __init__(
         self,
-        name,
-        host,
-        port,
-        interface=None,
-        connect_at_start=(True),
+        name: str,
+        host: Union[str, ContextValue],
+        port: Union[int, ContextValue],
+        interface: Optional[Union[str, Tuple[str, int]]] = None,
+        connect_at_start: bool = True,
         **options
     ):
         options.update(self.filter_locals(locals()))
         super(TCPClient, self).__init__(**options)
-        self._host = None
-        self._port = None
+        self._host: str = None
+        self._port: int = None
         self._client = None
+        self._server_host = None
+        self._server_port = None
 
     @property
     def host(self):
@@ -84,6 +89,10 @@ class TCPClient(Driver):
     def port(self):
         """Client port number assigned."""
         return self._port
+
+    @property
+    def server_port(self):
+        return self._server_port
 
     def connect(self):
         """
@@ -157,9 +166,9 @@ class TCPClient(Driver):
     def starting(self):
         """Start the TCP client and optionally connect to host/post."""
         super(TCPClient, self).starting()
-        server_host = expand(self.cfg.host, self.context)
-        server_port = expand(self.cfg.port, self.context, int)
-        self._client = Client(host=server_host, port=server_port)
+        self._server_host = expand(self.cfg.host, self.context)
+        self._server_port = expand(self.cfg.port, self.context, int)
+        self._client = Client(host=self._server_host, port=self._server_port)
         if self.cfg.connect_at_start:
             self.connect()
 

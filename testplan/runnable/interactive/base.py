@@ -112,13 +112,13 @@ class TestRunnerIHandler(entity.Entity):
 
     def setup(self):
         """Set up the task pool and HTTP handler."""
+        self.target.make_runpath_dirs()
+        self.target._configure_file_logger()
         self.logger.test_info(
             "Starting {} for {}".format(self.__class__.__name__, self.target)
         )
         self._http_handler = self._setup_http_handler()
         self._pool = futures.ThreadPoolExecutor(max_workers=1)
-        self.target.make_runpath_dirs()
-        self.target._configure_file_logger()
 
     def run(self):
         """
@@ -133,6 +133,13 @@ class TestRunnerIHandler(entity.Entity):
         with self._pool:
             self._http_handler.run()
         self.status.change(entity.RunnableStatus.FINISHED)
+
+    def aborting(self) -> None:
+        """
+        Aborting step for the handler. Stops resources before thread is joined.
+        """
+        for test_uid in self.all_tests():
+            self.test(test_uid).stop_test_resources()
 
     def teardown(self):
         """Close the task pool."""

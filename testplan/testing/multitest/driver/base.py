@@ -1,22 +1,40 @@
-"""Driver base classes module."""
+"""Driver base class module."""
 
-import os
 import logging
+import os
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import List, Pattern, Union, Tuple, Callable, Dict, Any
 
 from schema import Or
 
 from testplan.common.config import ConfigOption
-from testplan.common.entity import Resource, ResourceConfig, FailedAction
+from testplan.common.config.base import validate_func
+from testplan.common.entity import (
+    Resource,
+    ResourceConfig,
+    FailedAction,
+)
+from testplan.common.utils.context import ContextValue
+from testplan.common.utils.documentation_helper import (
+    get_metaclass_for_documentation,
+)
 from testplan.common.utils.match import match_regexps_in_file
 from testplan.common.utils.path import instantiate
 from testplan.common.utils.timing import wait
-from testplan.common.config.base import validate_func
+from testplan.common.utils.documentation_helper import emphasized
 
 
-def format_regexp_matches(name, regexps, unmatched):
+def format_regexp_matches(
+    name: str, regexps: List[Pattern], unmatched: List
+) -> str:
     """
-    Utility for formatting regexp match context,
-    so it can rendered via TimeoutException
+    Utility for formatting regexp match context for rendering.
+
+    :param name: name of regexp group
+    :param regexps: list of compiled regexps
+    :param unmatched: list of unmatched regexps
+    :return: message to be used in exception raised or empty string
     """
     if unmatched:
         err = "{newline} {name} matched: {matched}".format(
@@ -35,6 +53,47 @@ def format_regexp_matches(name, regexps, unmatched):
         )
         return err
     return ""
+
+
+class Direction(Enum):
+    connecting = "connecting"
+    listening = "listening"
+
+
+@dataclass
+class Connection:
+    """
+    Base class for connection information objects.
+
+    Such objects ideally hold data with respect to the participants in the
+     connection, the ports and hosts, or the protocol.
+    """
+
+    name: str
+    protocol: str
+    port: Union[int, ContextValue]
+    direction: Direction
+
+
+@dataclass
+class DriverMetadata:
+    """
+    Base class for holding Driver metadata.
+
+    :param name:
+    :param driver_metadata:
+    :param conn_info: list of connection info objects
+    """
+
+    name: str
+    driver_metadata: Dict
+    conn_info: List[Connection] = field(default_factory=list)
+
+    def to_dict(self) -> Dict:
+        """
+        Returns the metadata of the driver except for the connections.
+        """
+        return self.driver_metadata
 
 
 class DriverConfig(ResourceConfig):
@@ -64,61 +123,36 @@ class DriverConfig(ResourceConfig):
             ConfigOption("post_start", default=None): validate_func("driver"),
             ConfigOption("pre_stop", default=None): validate_func("driver"),
             ConfigOption("post_stop", default=None): validate_func("driver"),
+            ConfigOption("metadata_extractor", default=None): validate_func(
+                "driver"
+            ),
         }
 
 
-class Driver(Resource):
+class Driver(Resource, metaclass=get_metaclass_for_documentation()):
     """
     Driver base class providing common functionality.
 
-    :param name: Driver name. Also uid.
-    :type name: ``str``
-    :param install_files: list of files to be installed. This list may contain
-        ``str`` or ``tuple``:
-          - ``str``: Name of the file to be copied to path returned by
-            ``_install_target`` method call
-          - ``tuple``: A (source, destination) pair; source file
-            will be copied to destination.
-        Among other cases this is meant to be used with configuration files that
-        may need to be templated and expanded using the runtime context, i.e:
+    {emphasized_members_docs}
 
-        .. code-block:: xml
-
-            <address>localhost:{{context['server'].port}}</address>
-
-    :type install_files: ``List[Union[str, tuple]]``
-    :param timeout: Timeout duration for status condition check.
-    :type timeout: ``int``
-    :param log_regexps: A list of regular expressions, any named groups matched
-        in the logfile will be made available through ``extracts`` attribute.
-        These will be start-up conditions.
-    :type log_regexps: ``list`` of ``_sre.SRE_Pattern``
-    :param stdout_regexps: Same with log_regexps but matching stdout file.
-    :type stdout_regexps: ``list`` of ``_sre.SRE_Pattern``
-    :param stderr_regexps: Same with log_regexps but matching stderr file.
-    :type stderr_regexps: ``list`` of ``_sre.SRE_Pattern``
-    :param file_logger: Send driver's log to a user specified file under its
-        runpath. By default, logs go to console and top level "testplan.log".
-        It is helpful when driver records too much details.
-    :type file_logger: ``str`` or ``NoneType``
-    :param async_start: Enable driver asynchronous start within an environment.
-    :type async_start: ``bool``
-    :param report_errors_from_logs: On startup/stop exception, report log
-        lines from tail of stdout/stderr/logfile logs if enabled.
-    :type report_errors_from_logs: ``bool``
-    :param error_logs_max_lines: Number of lines to be reported if using
-        `report_errors_from_logs` option.
-    :type error_logs_max_lines: ``int``
-    :param path_cleanup: Remove previous runpath created dirs/files.
-    :type path_cleanup: ``bool``
-    :param pre_start: Callable to execute before starting the driver.
-    :type pre_start: ``callable`` taking a driver argument.
-    :param post_start: Callable to execute after the driver is started.
-    :type post_start: ``callable`` taking a driver argument.
-    :param pre_stop: Callable to execute before stopping the driver.
-    :type post_stop: ``callable`` taking a driver argument.
-    :param pre_stop: Callable to execute after the driver is stopped.
-    :type post_stop: ``callable`` taking a driver argument.
+    :param name: driver name also used as UID
+    :param install_files: list of files to be installed
+    :param timeout: status check timeout in seconds
+    :param log_regexps: regexps to be matched in logfile
+    :param stdout_regexps: regexps to be matched in stdout file
+    :param stderr_regexps: regexps to be matched in stderr file
+    :param file_logger: filepath for driver log, defaults to top level TP log
+    :param async_start: whether to allow async start in environment
+    :param report_errors_from_logs: whether to log the tail of
+        stdout/stderr/logfile logs upon start/stop exception
+    :param error_logs_max_lines: number of lines to be logged from the
+        tail of stdout/stderr/logfile logs if `report_errors_from_logs` is True
+    :param path_cleanup: whether to remove existing runpath elements
+    :param pre_start: callable to execute before starting the driver
+    :param post_start: callable to execute after the driver is started
+    :param pre_stop: callable to execute before stopping the driver
+    :param pre_stop: callable to execute after the driver is stopped
+    :param metadata_extractor: callable for driver metadata extraction
 
     Also inherits all
     :py:class:`~testplan.common.entity.base.Resource` options.
@@ -128,20 +162,21 @@ class Driver(Resource):
 
     def __init__(
         self,
-        name,
-        install_files=None,
-        timeout=300,
-        log_regexps=None,
-        stdout_regexps=None,
-        stderr_regexps=None,
-        file_logger=None,
-        async_start=False,
-        report_errors_from_logs=False,
-        error_logs_max_lines=10,
-        pre_start=None,
-        post_start=None,
-        pre_stop=None,
-        post_stop=None,
+        name: str,
+        install_files: List[Union[str, Tuple]] = None,
+        timeout: int = 300,
+        log_regexps: List[Pattern] = None,
+        stdout_regexps: List[Pattern] = None,
+        stderr_regexps: List[Pattern] = None,
+        file_logger: str = None,
+        async_start: bool = False,
+        report_errors_from_logs: bool = False,
+        error_logs_max_lines: int = 10,
+        pre_start: Callable = None,
+        post_start: Callable = None,
+        pre_stop: Callable = None,
+        post_stop: Callable = None,
+        metadata_extractor: Callable = None,
         **options,
     ):
 
@@ -152,38 +187,28 @@ class Driver(Resource):
         self.extracts = {}
         self._file_log_handler = None
 
+    @emphasized
     @property
     def name(self):
         """Driver name."""
         return self.cfg.name
 
+    @emphasized
     def uid(self):
         """Driver uid."""
         return self.cfg.name
 
-    def pre_start(self):
+    def pre_start(self) -> None:
         """Steps to be executed right before resource starts."""
         self.make_runpath_dirs()
-        if self.cfg.pre_start:
-            self.cfg.pre_start(self)
 
-    def post_start(self):
-        """Steps to be executed right after resource is started."""
-        if self.cfg.post_start:
-            self.cfg.post_start(self)
+    def started_check(self, timeout: float = None) -> None:
+        """
+        Checks if the driver has started.
 
-    def pre_stop(self):
-        """Steps to be executed right before resource stops."""
-        if self.cfg.pre_stop:
-            self.cfg.pre_stop(self)
-
-    def post_stop(self):
-        """Steps to be executed right after resource is stopped."""
-        if self.cfg.post_stop:
-            self.cfg.post_stop(self)
-
-    def started_check(self, timeout=None):
-        """Driver started status condition check."""
+        :param timeout: status check timeout in seconds
+        :raise: TimeoutException
+        """
         timeout = timeout if timeout is not None else self.cfg.timeout
         wait(
             lambda: self.extract_values(),
@@ -191,49 +216,54 @@ class Driver(Resource):
             raise_on_timeout=True,
         )
 
-    def stopped_check(self, timeout=None):
-        """Driver stopped status condition check."""
+    def stopped_check(self, timeout: float = None) -> None:
+        """
+        Checks if driver has stopped.
 
-    def starting(self):
-        """Trigger driver start."""
+        param timeout: status check timeout in seconds
+        """
+        pass
+
+    def starting(self) -> None:
+        """Triggers driver start."""
         self._setup_file_logger()
 
-    def stopping(self):
-        """Trigger driver stop."""
+    def stopping(self) -> None:
+        """Triggers driver stop."""
         self._close_file_logger()
 
-    def _wait_started(self, timeout=None):
+    def _wait_started(self, timeout: float = None) -> None:
         self.started_check(timeout=timeout)
-        self.status.change(self.STATUS.STARTED)
+        super(Driver, self)._wait_started(timeout=timeout)
 
-    def _wait_stopped(self, timeout=None):
+    def _wait_stopped(self, timeout: float = None) -> None:
         self.stopped_check(timeout=timeout)
-        self.status.change(self.STATUS.STOPPED)
+        super(Driver, self)._wait_stopped(timeout=timeout)
 
-    def aborting(self):
-        """Trigger driver abort."""
+    def aborting(self) -> None:
+        """Triggers driver abort."""
         self._close_file_logger()
 
-    def context_input(self):
+    def context_input(self) -> Dict[str, Any]:
         """Driver context information."""
         return {attr: getattr(self, attr) for attr in dir(self)}
 
     @property
     def logpath(self):
-        """Path for log regex matching."""
+        """Path for log regexp matching."""
         return self.outpath
 
     @property
     def outpath(self):
-        """Path for stdout file regex matching."""
+        """Path for stdout file regexp matching."""
         return None
 
     @property
     def errpath(self):
-        """Path for stderr file regex matching."""
+        """Path for stderr file regexp matching."""
         return None
 
-    def extract_values(self):
+    def extract_values(self) -> Union[bool, FailedAction]:
         """Extract matching values from input regex configuration options."""
         log_unmatched = []
         stdout_unmatched = []
@@ -306,7 +336,7 @@ class Driver(Resource):
     def _install_target(self):
         raise NotImplementedError()
 
-    def _install_files(self):
+    def _install_files(self) -> None:
 
         for install_file in self.cfg.install_files:
             if isinstance(install_file, str):
@@ -326,7 +356,7 @@ class Driver(Resource):
                     dst = os.path.join(self._install_target(), dst)
                 instantiate(src, self.context_input(), dst)
 
-    def _setup_file_logger(self):
+    def _setup_file_logger(self) -> None:
         """
         Set up a logger to write to a given path at self.cfg.file_logger under
         driver's runpath.
@@ -353,7 +383,7 @@ class Driver(Resource):
             self.logger.addHandler(self._file_log_handler)
             self.logger.propagate = False  # No console logs
 
-    def _close_file_logger(self):
+    def _close_file_logger(self) -> None:
         """
         Closes a handler previously opened by _setup_file_logger() and removes
         the file handler from self.logger. This should be called when the file
@@ -367,14 +397,13 @@ class Driver(Resource):
             self._file_log_handler = None
             self.logger.propagate = True
 
-    def fetch_error_log(self):
+    def fetch_error_log(self) -> List[str]:
         """
         Fetch error message from the log files of driver, at first we can
         try `self.errpath`, if it does not exist, try `self.logpath`.
         Typically, several lines from the tail of file will be selected.
 
-        :return: Text from log file.
-        :rtype: ``list`` of ``str``
+        :return: text from log file
         """
         content = []
 
@@ -418,7 +447,20 @@ class Driver(Resource):
 
         return content
 
-    def __repr__(self):
-        """String representation."""
+    def extract_driver_metadata(self) -> DriverMetadata:
+        """
+        Extracts driver metadata as described in the extractor function.
 
+        :return: driver metadata
+        """
+        if self.cfg.metadata_extractor is None:
+            return DriverMetadata(
+                name=self.name,
+                driver_metadata={"class": self.__class__.__name__},
+            )
+        # pylint: disable=not-callable
+        return self.cfg.metadata_extractor(self)
+        # pylint: enable=not-callable
+
+    def __repr__(self):
         return f"{self.__class__.__name__} driver [{self.name}]"

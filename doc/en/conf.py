@@ -9,7 +9,12 @@ sys.path.insert(
     ),
 )
 
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode", "sphinx_click"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.viewcode",
+    "sphinx_click",
+]
 
 project = "Testplan"
 copyright = "2018, Morgan Stanley"

@@ -1,0 +1,1 @@
+In interactive mode the assertion path and time information can now be displayed the same way as in Report review.

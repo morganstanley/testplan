@@ -8,15 +8,18 @@ import subprocess
 import datetime
 import platform
 import socket
+from typing import List, Union, Dict, Optional
+from typing_extensions import Literal
 
 from schema import Or
 
 from testplan.common.config import ConfigOption
 from testplan.common.utils.match import LogMatcher
 from testplan.common.utils.path import StdFiles, makedirs, archive
-from testplan.common.utils.context import is_context, expand
+from testplan.common.utils.context import is_context, expand, ContextValue
 from testplan.common.utils.process import subprocess_popen, kill_process
 from testplan.common.utils.timing import wait
+from testplan.common.utils.documentation_helper import emphasized
 
 from .base import Driver, DriverConfig
 
@@ -49,9 +52,14 @@ class AppConfig(DriverConfig):
         }
 
 
+ArgsType = Union[List[Union[str, ContextValue]], str, ContextValue]
+
+
 class App(Driver):
     """
     Binary application driver.
+
+    {emphasized_members_docs}
 
     :param name: Driver name. Also uid.
     :type name: ``str``
@@ -92,17 +100,17 @@ class App(Driver):
 
     def __init__(
         self,
-        name,
-        binary,
-        pre_args=None,
-        args=None,
-        shell=False,
-        env=None,
-        binary_strategy="link",
-        logname=None,
-        app_dir_name=None,
-        working_dir=None,
-        expected_retcode=None,
+        name: str,
+        binary: str,
+        pre_args: ArgsType = None,
+        args: ArgsType = None,
+        shell: bool = False,
+        env: Dict[str, str] = None,
+        binary_strategy: Literal["copy", "link", "noop"] = "link",
+        logname: str = None,
+        app_dir_name: str = None,
+        working_dir: str = None,
+        expected_retcode: int = None,
         **options,
     ):
         options.update(self.filter_locals(locals()))
@@ -110,13 +118,14 @@ class App(Driver):
         self.proc = None
         self.std = None
         self.binary = None
-        self._binpath = None
-        self._etcpath = None
+        self._binpath: str = None
+        self._etcpath: str = None
         self._retcode = None
         self._log_matcher = None
 
+    @emphasized
     @property
-    def pid(self):
+    def pid(self) -> Optional[int]:
         """
         Return pid of the child process if available, ``None`` otherwise.
 
@@ -139,8 +148,9 @@ class App(Driver):
                 self._retcode = self.proc.poll()
         return self._retcode
 
+    @emphasized
     @property
-    def cmd(self):
+    def cmd(self) -> str:
         """Command that starts the application."""
         args = self.cfg.args or []
         pre_args = self.cfg.pre_args or []
@@ -154,8 +164,9 @@ class App(Driver):
         ]
         return cmd
 
+    @emphasized
     @property
-    def env(self):
+    def env(self) -> Dict[str, str]:
         """Environment variables."""
         if isinstance(self.cfg.env, dict):
             return {
@@ -165,13 +176,15 @@ class App(Driver):
         else:
             return None
 
+    @emphasized
     @property
-    def logname(self):
+    def logname(self) -> str:
         """Configured logname."""
         return self.cfg.logname
 
+    @emphasized
     @property
-    def logpath(self):
+    def logpath(self) -> str:
         """Path for log regex matching."""
         return (
             os.path.join(self.app_path, self.logname)
@@ -179,30 +192,35 @@ class App(Driver):
             else self.outpath
         )
 
+    @emphasized
     @property
-    def outpath(self):
+    def outpath(self) -> str:
         """Path for stdout file regex matching."""
         return self.std.out_path
 
+    @emphasized
     @property
-    def errpath(self):
+    def errpath(self) -> str:
         """Path for stderr file regex matching."""
         return self.std.err_path
 
+    @emphasized
     @property
-    def app_path(self):
+    def app_path(self) -> str:
         """Application directory path."""
         if self.cfg.app_dir_name:
             return os.path.join(self.runpath, self.cfg.app_dir_name)
         return self.runpath
 
+    @emphasized
     @property
-    def binpath(self):
+    def binpath(self) -> str:
         """'bin' directory under runpath."""
         return self._binpath
 
+    @emphasized
     @property
-    def etcpath(self):
+    def etcpath(self) -> str:
         """'etc' directory under runpath."""
         return self._etcpath
 
@@ -382,6 +400,7 @@ class App(Driver):
         self.stop()
         if self.async_start:
             self.wait(self.status.STOPPED)
+
         if clean:
             self._move_app_path()
         else:
@@ -390,9 +409,11 @@ class App(Driver):
         # we don't want to cleanup runpath during restart
         path_cleanup = self.cfg.path_cleanup
         self.cfg._options["path_cleanup"] = False
+
         self.start()
         if self.async_start:
             self.wait(self.status.STARTED)
+
         self.cfg._options["path_cleanup"] = path_cleanup
 
     def _move_app_path(self):

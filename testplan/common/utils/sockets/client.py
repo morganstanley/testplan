@@ -43,6 +43,10 @@ class Client:
         """
         return self._client.getsockname()
 
+    @property
+    def port(self):
+        return self._input_port
+
     def connect(self):
         """
         Connect client to socket.

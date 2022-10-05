@@ -10,7 +10,7 @@ import threading
 import time
 import traceback
 from collections import deque, OrderedDict
-from typing import Union
+from typing import Union, Optional
 
 import psutil
 from schema import Or
@@ -22,6 +22,44 @@ from testplan.common.utils.strings import slugify, uuid4
 from testplan.common.utils.thread import execute_as_thread, interruptible_join
 from testplan.common.utils.timing import wait
 from testplan.common.utils.validation import is_subclass
+
+
+def pdb_drop_handler(sig, frame):
+    """
+    Drop into pdb
+    """
+    print("Received SIGUSR1, dropping into pdb")
+    import pdb
+
+    pdb.set_trace()
+
+
+def print_current_status(sig, frame):
+    """
+    Print stack frames of all threads
+    """
+
+    print("Received SIGUSR2, printing current status")
+    id2name = dict([(th.ident, th.name) for th in threading.enumerate()])
+
+    msgs = ["Stack frames of all threads"]
+    for thread_id, stack in sorted(
+        sys._current_frames().items(), reverse=True
+    ):
+        msgs.append(
+            "{}# Thread: {}({})".format(
+                os.linesep, id2name.get(thread_id, ""), thread_id
+            )
+        )
+        for filename, lineno, name, line in traceback.extract_stack(stack):
+            msgs.append(
+                'File: "{}", line {}, in {}'.format(filename, lineno, name)
+            )
+            if line:
+                msgs.append("  {}".format(line.strip()))
+
+    msg = os.linesep.join(msgs)
+    print(msg)
 
 
 class Environment:
@@ -168,17 +206,36 @@ class Environment:
                 )
                 resource.logger.error(msg)
                 self.start_exceptions[resource] = msg
-                # Environment start failure. Won't start the rest.
-                break
+
+                failover = resource.failover()
+                if failover:
+                    self._resources[resource.uid()] = failover
+                else:
+                    # Environment start failure. Won't start the rest.
+                    break
             else:
                 if resource.async_start:
                     resources_to_wait_for.append(resource)
 
         # Wait resources status to be STARTED.
         for resource in resources_to_wait_for:
-            resource.wait(resource.STATUS.STARTED)
-            resource.post_start()
-            resource.logger.debug("%s started", resource)
+            try:
+                resource.wait(resource.STATUS.STARTED)
+            except Exception:
+                msg = "While waiting for resource [{}] to start\n{}".format(
+                    resource.cfg.name, traceback.format_exc()
+                )
+                resource.logger.error(msg)
+                self.start_exceptions[resource] = msg
+
+                failover = resource.failover()
+                if failover:
+                    self._resources[resource.uid()] = failover
+                else:
+                    pass
+
+            else:
+                resource.logger.debug("%s started", resource)
 
     def start_in_pool(self, pool):
         """
@@ -187,6 +244,7 @@ class Environment:
         :param pool: thread pool
         :type pool: ``ThreadPool``
         """
+
         for resource in self._resources.values():
             if not resource.async_start:
                 raise RuntimeError(
@@ -211,7 +269,6 @@ class Environment:
         for resource in resources_to_wait_for:
             if resource not in self.start_exceptions:
                 resource.wait(resource.STATUS.STARTED)
-                resource.post_start()
                 resource.logger.debug("%s started", resource)
 
     def stop(self, is_reversed=False):
@@ -245,7 +302,6 @@ class Environment:
         # Wait resources status to be STOPPED.
         for resource in resources_to_wait_for:
             resource.wait(resource.STATUS.STOPPED)
-            resource.post_stop()
             resource.logger.debug("%s stopped", resource)
 
     def stop_in_pool(self, pool, is_reversed=False):
@@ -274,8 +330,14 @@ class Environment:
         # Wait resources status to be STOPPED.
         for resource in resources_to_wait_for:
             if resource not in self.stop_exceptions:
-                resource.wait(resource.STATUS.STOPPED)
-                resource.post_stop()
+                if resource.async_start:
+                    resource.wait(resource.STATUS.STOPPED)
+                else:
+                    # avoid post_stop being called twice
+                    wait(
+                        lambda: resource.status == resource.STATUS.STOPPED,
+                        timeout=resource.cfg.status_wait_timeout,
+                    )
                 resource.logger.debug("%s stopped", resource)
             else:
                 # Resource status should be STOPPED even it failed to stop
@@ -379,6 +441,12 @@ class EntityStatus:
         except KeyError as exc:
             msg = f"On status change from {current} to {new} - {exc}"
             raise StatusTransitionException(msg)
+
+    def reset(self):
+        """
+        Reset status as None.
+        """
+        self._current = self.NONE
 
     def update_metadata(self, **metadata):
         """
@@ -1138,6 +1206,10 @@ class ResourceConfig(EntityConfig):
         return {
             ConfigOption("async_start", default=True): bool,
             ConfigOption("auto_start", default=True): bool,
+            ConfigOption("pre_start", default=None): Or(callable, None),
+            ConfigOption("post_start", default=None): Or(callable, None),
+            ConfigOption("pre_stop", default=None): Or(callable, None),
+            ConfigOption("post_stop", default=None): Or(callable, None),
         }
 
 
@@ -1198,6 +1270,7 @@ class Resource(Entity):
     def __init__(self, **options):
         super(Resource, self).__init__(**options)
         self._context = None
+        self._failovers = []  # failover resources if start fails
         self._wait_handlers.update(
             {
                 self.STATUS.STARTED: self._wait_started,
@@ -1242,8 +1315,9 @@ class Resource(Entity):
         `Resource.starting <testplan.common.entity.base.Resource.starting>`
         method.
         """
-        if self.aborted:
-            self.logger.warning(f"start %s but it had already aborted", self)
+        if not self.active:
+            self.logger.warning(f"Start %s but it is aborting / aborted", self)
+            return
 
         if (
             self.status == self.STATUS.STARTING
@@ -1257,11 +1331,12 @@ class Resource(Entity):
         self.logger.debug("Starting %s", self)
         self.status.change(self.STATUS.STARTING)
         self.pre_start()
+        if self.cfg.pre_start:
+            self.cfg.pre_start(self)
         self.starting()
 
         if not self.async_start:
             self.wait(self.STATUS.STARTED)
-            self.post_start()
             self.logger.debug("%s started", self)
 
     def stop(self):
@@ -1272,7 +1347,7 @@ class Resource(Entity):
         method.
         """
         if self.aborted:
-            self.logger.warning(f"stop %s but it had already aborted", self)
+            self.logger.warning(f"Stop %s but it has already aborted", self)
 
         if self.status == self.STATUS.NONE:
             self.logger.debug("%r not started, skip stopping", self)
@@ -1290,11 +1365,12 @@ class Resource(Entity):
         self.logger.debug("Stopping %s", self)
         self.status.change(self.STATUS.STOPPING)
         self.pre_stop()
+        if self.cfg.pre_stop:
+            self.cfg.pre_stop(self)
         self.stopping()
 
         if not self.async_start:
             self.wait(self.STATUS.STOPPED)
-            self.post_stop()
             self.logger.debug("%s stopped", self)
 
     def pre_start(self):
@@ -1329,6 +1405,9 @@ class Resource(Entity):
         :type timeout: ``int`` or ``NoneType``
         """
         self.status.change(self.STATUS.STARTED)
+        self.post_start()
+        if self.cfg.post_start:
+            self.cfg.post_start(self)
 
     def _wait_stopped(self, timeout=None):
         """
@@ -1338,6 +1417,9 @@ class Resource(Entity):
         :type timeout: ``int`` or ``NoneType``
         """
         self.status.change(self.STATUS.STOPPED)
+        self.post_stop()
+        if self.cfg.post_stop:
+            self.cfg.post_stop(self)
 
     def starting(self):
         """
@@ -1368,9 +1450,12 @@ class Resource(Entity):
         Stop and start the resource.
         """
         self.stop()
-        self.wait(self.STATUS.STOPPED)
+        if self.async_start:
+            self.wait(self.STATUS.STOPPED)
+
         self.start()
-        self.wait(self.STATUS.STARTED)
+        if self.async_start:
+            self.wait(self.STATUS.STARTED)
 
     def force_stopped(self):
         """
@@ -1378,14 +1463,22 @@ class Resource(Entity):
         """
         self.status.change(self.STATUS.STOPPED)
 
+    def force_started(self):
+        """
+        Change the status to STARTED (e.g. exception raised).
+        """
+        self.status.change(self.STATUS.STARTED)
+
     def __enter__(self):
         self.start()
-        self.wait(self.STATUS.STARTED)
+        if self.async_start:
+            self.wait(self.STATUS.STARTED)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
-        self.wait(self.STATUS.STOPPED)
+        if self.async_start:
+            self.wait(self.STATUS.STOPPED)
 
     @property
     def is_alive(self):
@@ -1400,6 +1493,21 @@ class Resource(Entity):
         Resource has pending work.
         """
         return False
+
+    def register_failover(self, klass: Entity, params: dict) -> None:
+        """
+        Register a failover class to instantiate if resource start fails.
+
+        :param klass: failover class
+        :param params: parameters for failover class __init__ method
+        """
+        self._failovers.append({"klass": klass, "params": params})
+
+    def failover(self) -> None:
+        """
+        API to create the failover resource, to be implemented in derived class
+        """
+        return None
 
 
 DEFAULT_RUNNABLE_ABORT_SIGNALS = [signal.SIGINT, signal.SIGTERM]
@@ -1459,6 +1567,10 @@ class RunnableManager(Entity):
         self._runnable = self._initialize_runnable(**options)
         for resource in self._cfg.resources:
             self._runnable.add_resource(resource)
+
+    @property
+    def aborted(self):
+        return self._runnable.aborted
 
     def enrich_options(self, options):
         """
@@ -1535,6 +1647,11 @@ class RunnableManager(Entity):
         try:
             for sig in self._cfg.abort_signals:
                 signal.signal(sig, self._handle_abort)
+            # TODO: breaks test internally
+            # if hasattr(signal, "SIGUSR1"):
+            #     signal.signal(signal.SIGUSR1, pdb_drop_handler)
+            # if hasattr(signal, "SIGUSR2"):
+            #     signal.signal(signal.SIGUSR2, print_current_status)
         except ValueError:
             self.logger.warning(
                 "Not able to install signal handler -"

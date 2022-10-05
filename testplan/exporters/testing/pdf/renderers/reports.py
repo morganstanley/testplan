@@ -1,5 +1,6 @@
-"""PDF Renderer classes for test report objects"""
-import os
+"""
+PDF Renderer classes for test report objects.
+"""
 import logging
 
 from reportlab.lib import colors

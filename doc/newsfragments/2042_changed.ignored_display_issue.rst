@@ -1,0 +1,1 @@
+Fixed issue with :py:meth:`dict.match <testplan.testing.multitest.result.DictNamespace.match>` that resulted in incorrect key-value pairing in matches for ignored keys.

@@ -1,0 +1,1 @@
+Fixed an issue where report saved from interactive mode having problem with testcases having the same name.

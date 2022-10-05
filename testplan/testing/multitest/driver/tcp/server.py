@@ -3,10 +3,13 @@ TCPServer driver classes.
 """
 
 import socket
+from typing import Union, Optional
 
 from schema import Use
 
 from testplan.common.config import ConfigOption
+from testplan.common.utils.context import ContextValue
+from testplan.common.utils.documentation_helper import emphasized
 from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
 from testplan.common.utils.sockets import Server
 
@@ -39,6 +42,8 @@ class TCPServer(Driver):
     :py:class:`testplan.common.utils.sockets.server.Server` class, which
     provides equivalent functionality and may be used outside of MultiTest.
 
+    {emphasized_members_docs}
+
     :param name: Name of TCPServer.
     :type name: ``str``
     :param host: Host name to bind to. Default: 'localhost'
@@ -52,18 +57,26 @@ class TCPServer(Driver):
 
     CONFIG = TCPServerConfig
 
-    def __init__(self, name, host="localhost", port=0, **options):
+    def __init__(
+        self,
+        name: str,
+        host: Optional[Union[str, ContextValue]] = "localhost",
+        port: Optional[Union[int, ContextValue]] = 0,
+        **options
+    ):
         options.update(self.filter_locals(locals()))
         super(TCPServer, self).__init__(**options)
-        self._host = None
-        self._port = None
+        self._host: str = None
+        self._port: int = None
         self._server = None
 
+    @emphasized
     @property
     def host(self):
         """Target host name."""
         return self._host
 
+    @emphasized
     @property
     def port(self):
         """Port number assigned."""

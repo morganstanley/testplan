@@ -7,6 +7,8 @@ import queue
 from schema import Use
 
 from testplan.common.config import ConfigOption
+from testplan.common.utils.documentation_helper import emphasized
+from testplan.common.utils.sockets import Codec
 from testplan.common.utils.strings import slugify
 from testplan.common.utils.sockets.fix.server import Server
 from testplan.common.utils.timing import TimeoutException, TimeoutExceptionInfo
@@ -50,6 +52,8 @@ class FixServer(Driver):
     operating systems - typically it is available on POSIX systems but not
     on Windows.
 
+    {emphasized_members_docs}
+
     :param name: Name of FixServer.
     :type name: ``str``
     :param msgclass: Type used to send and receive FIX messages.
@@ -72,12 +76,12 @@ class FixServer(Driver):
 
     def __init__(
         self,
-        name,
-        msgclass,
-        codec,
-        host="localhost",
-        port=0,
-        version="FIX.4.2",
+        name: str,
+        msgclass: type,
+        codec: Codec,
+        host: str = "localhost",
+        port: int = 0,
+        version: str = "FIX.4.2",
         **options
     ):
         options.update(self.filter_locals(locals()))
@@ -90,15 +94,17 @@ class FixServer(Driver):
             )
 
         super(FixServer, self).__init__(**options)
-        self._host = None
-        self._port = None
+        self._host: str = None
+        self._port: int = None
         self._server = None
 
+    @emphasized
     @property
     def host(self):
         """Input host provided."""
         return self._host
 
+    @emphasized
     @property
     def port(self):
         """Port retrieved after binding."""

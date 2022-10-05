@@ -1,0 +1,1 @@
+When result.log function call is supplied with a Url, it will now be represented as a clickable link in the UI.
