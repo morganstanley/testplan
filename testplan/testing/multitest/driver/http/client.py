@@ -4,7 +4,11 @@ import time
 import queue
 from threading import Thread, Event
 from typing import Union
-from typing_extensions import Literal
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 import requests
 from schema import Use, Or
