@@ -78,7 +78,7 @@ def _product_of_param_dict(param_dict, args):
     ]
     """
     for val in param_dict.values():
-        if not isinstance(val, collections.Iterable) or isinstance(val, dict):
+        if not isinstance(val, collections.abc.Iterable) or isinstance(val, dict):
             msg = (
                 "Dictionary values must be tuple or list of items, {value} "
                 "is of type: {type}"
@@ -140,7 +140,7 @@ def _generate_kwarg_list(parameters, args, required_args, default_args):
         return _product_of_param_dict(parameters, args)
 
     # Normal parametrization
-    elif isinstance(parameters, collections.Iterable):
+    elif isinstance(parameters, collections.abc.Iterable):
         dicts = []
         for obj in parameters:
 
