@@ -92,7 +92,7 @@ def validate_tag_value(tag_value):
         """Make sure tag value is either a string or an iterable of strings."""
         if isinstance(value, str):
             return {_validate_tag_value_string(value)}
-        elif isinstance(value, collections.Iterable):
+        elif isinstance(value, collections.abc.Iterable):
             return {_validate_tag_value_string(tag) for tag in value}
         raise ValueError(
             (

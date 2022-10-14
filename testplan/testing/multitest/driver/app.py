@@ -9,7 +9,12 @@ import datetime
 import platform
 import socket
 from typing import List, Union, Dict, Optional
-from typing_extensions import Literal
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 
 from schema import Or
 
