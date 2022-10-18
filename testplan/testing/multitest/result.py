@@ -153,6 +153,7 @@ def assertion(func: Callable) -> Callable:
 
         try:
             custom_style = kwargs.pop("custom_style", None)
+            dryrun = kwargs.pop("dryrun", False)
             entry = func(result, *args, **kwargs)
             if top_assertion:
                 with MOD_LOCK:
@@ -191,7 +192,9 @@ def assertion(func: Callable) -> Callable:
                 if isinstance(result, AssertionNamespace):
                     result = result.result
 
-                result.entries.append(entry)
+                if not dryrun:
+                    result.entries.append(entry)
+
                 stdout_registry.log_entry(
                     entry=entry, stdout_style=result.stdout_style
                 )
