@@ -1,1 +1,0 @@
-* Added expected return code to :py:class:`App <testplan.testing.multitest.driver.app.py>`.

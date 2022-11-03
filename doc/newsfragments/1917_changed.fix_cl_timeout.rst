@@ -1,1 +1,0 @@
-Reverted recent change on 0 timeout allowance for command line, 0 will once again refer to no timeout.

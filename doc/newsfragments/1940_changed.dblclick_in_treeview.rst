@@ -1,1 +1,0 @@
-Treeview nodes now can be opened/closed with doubleclick on them.

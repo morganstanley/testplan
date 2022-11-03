@@ -1,1 +1,0 @@
-* Rotate logs for App on restart.

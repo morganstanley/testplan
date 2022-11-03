@@ -1,1 +1,0 @@
-* Migrated from Yarn to PNPM for package management.

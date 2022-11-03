@@ -1,1 +1,0 @@
-Reverted latest change to :py:meth:`dict.match <testplan.testing.multitest.result.DictNamespace.match>` introducing breaking changes.
