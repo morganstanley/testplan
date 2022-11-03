@@ -1,1 +1,0 @@
-result.log should display xml as a raw string. This functionality was temporarily broken and is now restored.

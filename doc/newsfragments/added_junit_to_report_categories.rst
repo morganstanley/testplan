@@ -1,1 +1,0 @@
-* Added JUnit to ReportCategories.
