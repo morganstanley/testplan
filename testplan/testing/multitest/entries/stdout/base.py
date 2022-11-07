@@ -125,6 +125,12 @@ class DirectoryRenderer(BaseRenderer):
 @registry.bind(base.TableLog)
 class TableLogRenderer(BaseRenderer):
     def get_details(self, entry):
+        # AsciiTable doesn't support cells with 'bytes' values so we need to convert them to 'str'
+        for j, row in enumerate(entry.table):
+            for i, cell in enumerate(row):
+                if isinstance(cell, bytes):
+                    entry.table[j][i] = str(cell)
+
         return AsciiTable([entry.columns] + entry.table).table
 
 
