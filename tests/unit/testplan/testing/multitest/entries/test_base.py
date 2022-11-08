@@ -1,4 +1,5 @@
 from testplan.testing.multitest.entries import base
+from testplan.testing.multitest.entries.stdout import base as stdout_base
 
 from testplan.testing.multitest.entries import assertions
 
@@ -116,3 +117,22 @@ def test_summary():
 
     assert len(alpha_category_less_passing.entries) == summary.num_passing
     assert len(alpha_category_less_failing.entries) == summary.num_failing
+
+
+def test_TableLogRenderer():
+    dict_of_types = {
+        "bytes": "@βcdé".encode("UTF-8"),
+        "int": 24,
+        "string": "something",
+    }
+    list_of_lists = [[k, v] for k, v in dict_of_types.items()]
+    list_of_lists.insert(0, ["type", "value"])
+
+    # TableLogRenderer requires a 'TableLog' as an input and gives back a 'string'
+    flattened_table = stdout_base.TableLogRenderer().get_details(
+        base.TableLog(table=list_of_lists)
+    )
+
+    assert isinstance(flattened_table, str)
+    for value in dict_of_types.values():
+        assert str(value) in flattened_table
