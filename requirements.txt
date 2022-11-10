@@ -1,7 +1,7 @@
 -e .
 pylint
 scikit-learn
-black==19.10b0; python_version >= '3.6'
+black
 kazoo
 confluent-kafka
 plotly

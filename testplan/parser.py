@@ -130,13 +130,13 @@ class TestplanParser:
         general_group.add_argument(
             "--output-impacted-tests",
             metavar="PATH",
-            default="tests_impacted",
+            default="-",
             type=str,
             dest="impacted_tests_output",
             help="Specify output file for impacted tests given changes to "
             "watch (see --watch-lines). Will be ignored if --watch-lines "
             "is not specified. Output is in test pattern format with one "
-            "pattern per line. Default to standard output."
+            "pattern per line. Default to standard output.",
         )
 
         filter_group = parser.add_argument_group("Filtering")

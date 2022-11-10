@@ -4,11 +4,12 @@ Implements base exporter objects.
 """
 import pathlib
 from typing import Dict, List, Optional
+from shutil import copyfile
+
 try:
     from typing import TypeAlias  # >= 3.10
 except ImportError:
     from typing_extensions import TypeAlias  # < 3.10
-from shutil import copyfile
 
 from schema import Use
 

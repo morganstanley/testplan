@@ -2,7 +2,6 @@
 import datetime
 import inspect
 import os
-import pathlib
 import random
 import re
 import time
@@ -31,6 +30,7 @@ from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.environment import EnvironmentCreator, Environments
 from testplan.exporters import testing as test_exporters
 from testplan.exporters.testing.base import Exporter
+from testplan.exporters.testing.coverage import ExportingCoverage
 from testplan.report import (
     ReportCategories,
     Status,
@@ -168,7 +168,9 @@ class TestRunnerConfig(RunnableConfig):
             ],
             ConfigOption("label", default=None): Or(None, str),
             ConfigOption("watching_lines", default=None): Or(dict, None),
-            ConfigOption("impacted_tests_output", default="tests_impacted"): str,
+            ConfigOption(
+                "impacted_tests_output", default="tests_impacted"
+            ): str,
         }
 
 
@@ -300,9 +302,8 @@ class TestRunner(Runnable):
 
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
-        self._tests: OrderedDict[str, str] = OrderedDict()  # uid to resource, in definition order
-
-        # NOTE: here we have changed lines at self._cfg.watching_lines
+        # uid to resource, in definition order
+        self._tests: OrderedDict[str, str] = OrderedDict()
 
         self._part_instance_names = set()  # name of Multitest part
         self._result.test_report = TestReport(
@@ -371,34 +372,16 @@ class TestRunner(Runnable):
             exporters.append(
                 test_exporters.WebServerExporter(ui_port=self.cfg.ui_port)
             )
-        if self.cfg.interactive_port is None and self.cfg.watching_lines is not None:
-            exporters.append(test_exporters.FileExporter(self._output_impacted_tests))
+        if (
+            self.cfg.interactive_port is None
+            and self.cfg.watching_lines is not None
+        ):
+            exporters.append(
+                test_exporters.CoverageExporter(
+                    coverage_export_type=ExportingCoverage.ExportTestsAsPattern
+                )
+            )
         return exporters
-
-    def _output_impacted_tests(self, report: TestReport):
-        file_path = pathlib.Path(self.cfg.impacted_tests_output).resolve()
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-
-        results = OrderedDict()
-        for mt_entry in report.entries:
-            if isinstance(mt_entry, TestGroupReport):
-                if mt_entry.impacted_by_change:
-                    results[(mt_entry.name,)] = None
-                    continue
-                for ts_entry in mt_entry.entries:
-                    if isinstance(ts_entry, TestGroupReport):
-                        if ts_entry.impacted_by_change:
-                            results[(mt_entry.name, ts_entry.name)] = None
-                            continue
-                        for tc_entry in ts_entry.entries:
-                            if isinstance(tc_entry, TestCaseReport):
-                                if tc_entry.impacted_by_change:
-                                    results[(mt_entry.name, ts_entry.name, tc_entry.name)] = None
-
-        self.logger.exporter_info(f"Impacted tests output to {file_path}")
-        with open(file_path, "w") as fp:
-            for k in results.keys():
-                fp.write(":".join(k) + "\n")
 
     def add_environment(
         self, env: EnvironmentCreator, resource: Optional[Environments] = None
@@ -617,7 +600,9 @@ class TestRunner(Runnable):
             return None
 
         uid = target_test.uid()
-        part = getattr(getattr(target_test, "cfg", {"part": None}), "part", None)
+        part = getattr(
+            getattr(target_test, "cfg", {"part": None}), "part", None
+        )
 
         # Uid of test entity MUST be unique, generally the uid of a test entity
         # is the same as its name. When a test entity is split into multi-parts
@@ -662,7 +647,9 @@ class TestRunner(Runnable):
         self.resources[resource].add(target, uid)
         return uid
 
-    def _verify_test_target(self, target: Union[Test, Task, Callable]) -> Optional[Test]:
+    def _verify_test_target(
+        self, target: Union[Test, Task, Callable]
+    ) -> Optional[Test]:
         """
         Determines if a test target should be added for execution.
         Returns the real test entity if it should run, otherwise None.
@@ -768,7 +755,6 @@ class TestRunner(Runnable):
         self._add_step(self._post_exporters)
         self._add_step(self._close_file_logger)
         super(TestRunner, self).post_resource_steps()
-
 
     def _wait_ongoing(self):
         # TODO: if a pool fails to initialize we could reschedule the tasks.

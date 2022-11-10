@@ -734,14 +734,12 @@ class MultiTest(testing_base.Test):
         testsuite_report = self._new_testsuite_report(testsuite)
 
         with testsuite_report.timer.record("run"):
-            with self.watcher.mark_impacted_if_related(testsuite_report):
+            with self.watcher.save_covered_lines_to(testsuite_report):
                 setup_report = self._setup_testsuite(testsuite)
             if setup_report is not None:
                 testsuite_report.append(setup_report)
                 if setup_report.failed:
-                    with self.watcher.mark_impacted_if_related(
-                        testsuite_report
-                    ):
+                    with self.watcher.save_covered_lines_to(testsuite_report):
                         teardown_report = self._teardown_testsuite(testsuite)
                     if teardown_report is not None:
                         testsuite_report.append(teardown_report)
@@ -771,7 +769,7 @@ class MultiTest(testing_base.Test):
                 )
                 testsuite_report.extend(testcase_reports)
 
-            with self.watcher.mark_impacted_if_related(testsuite_report):
+            with self.watcher.save_covered_lines_to(testsuite_report):
                 teardown_report = self._teardown_testsuite(testsuite)
             if teardown_report is not None:
                 testsuite_report.append(teardown_report)
@@ -1039,9 +1037,9 @@ class MultiTest(testing_base.Test):
         resources = RuntimeEnvironment(self.resources, runtime_info)
 
         with testcase_report.timer.record("run"):
-            with (
+            with compose_contexts(
                 testcase_report.logged_exceptions(),
-                self.watcher.mark_impacted_if_related(testcase_report),
+                self.watcher.save_covered_lines_to(testcase_report),
             ):
                 if pre_testcase and callable(pre_testcase):
                     self._run_case_related(
@@ -1061,7 +1059,10 @@ class MultiTest(testing_base.Test):
                 else:
                     testcase(resources, case_result)
 
-            with testcase_report.logged_exceptions():
+            with compose_contexts(
+                testcase_report.logged_exceptions(),
+                self.watcher.save_covered_lines_to(testcase_report),
+            ):
                 if post_testcase and callable(post_testcase):
                     self._run_case_related(
                         post_testcase, testcase, resources, case_result
@@ -1129,7 +1130,7 @@ class MultiTest(testing_base.Test):
             with compose_contexts(
                 testcase_report.timer.record("run"),
                 testcase_report.logged_exceptions(),
-                self.watcher.mark_impacted_if_related(self.report),
+                self.watcher.save_covered_lines_to(self.report),
             ):
                 func(*args)
 

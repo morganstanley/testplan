@@ -5,6 +5,7 @@ from contextlib import contextmanager
 
 # TODO: typing, tests
 
+
 @contextmanager
 def compose_contexts(*args):
     """

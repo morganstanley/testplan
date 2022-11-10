@@ -40,7 +40,6 @@ REQUIRED = [
     "rpyc",
     "matplotlib",
     "numpy",
-    "click",
     "coverage",
 ]
 
