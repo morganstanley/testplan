@@ -8,7 +8,17 @@ import time
 import uuid
 import webbrowser
 from collections import OrderedDict
-from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Mapping,
+    Optional,
+    Pattern,
+    Tuple,
+    Union,
+)
 
 import pytz
 from schema import And, Or, Use
@@ -37,7 +47,6 @@ from testplan.report import (
     TestGroupReport,
     TestReport,
 )
-from testplan.report.testing.base import TestCaseReport
 from testplan.report.testing.styles import Style
 from testplan.runnable.interactive import TestRunnerIHandler
 from testplan.runners.base import Executor
@@ -303,7 +312,7 @@ class TestRunner(Runnable):
     def __init__(self, **options):
         super(TestRunner, self).__init__(**options)
         # uid to resource, in definition order
-        self._tests: OrderedDict[str, str] = OrderedDict()
+        self._tests: Mapping[str, str] = OrderedDict()
 
         self._part_instance_names = set()  # name of Multitest part
         self._result.test_report = TestReport(
