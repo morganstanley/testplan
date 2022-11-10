@@ -4,6 +4,7 @@ import threading
 
 from collections import OrderedDict
 
+from testplan.common.config import ConfigOption
 from testplan.common.entity import Resource, ResourceConfig
 from testplan.common.utils.thread import interruptible_join
 

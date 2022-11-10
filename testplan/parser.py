@@ -4,13 +4,14 @@ This module encodes the argument and option names, types, and behaviours.
 """
 import argparse
 import copy
+import json
 import sys
 from typing import Dict
 
 from testplan import defaults
 from testplan.common.utils import logger
-from testplan.report.testing import styles, ReportTagsAction
-from testplan.testing import listing, filtering, ordering
+from testplan.report.testing import ReportTagsAction, styles
+from testplan.testing import filtering, listing, ordering
 
 
 class HelpParser(argparse.ArgumentParser):
@@ -114,6 +115,28 @@ class TestplanParser:
             type=int,
             help="Enables interactive mode. A port may be specified, otherwise"
             " the port defaults to {}.".format(defaults.WEB_SERVER_PORT),
+        )
+
+        general_group.add_argument(
+            "--watch-lines",
+            metavar="PATH",
+            type=_read_json_file,
+            dest="watching_lines",
+            help="Enables tracing tests impacted by some specific change. "
+            "A file containing file names and their line numbers to be watched"
+            " must be specified.",
+        )
+
+        general_group.add_argument(
+            "--output-impacted-tests",
+            metavar="PATH",
+            default="tests_impacted",
+            type=str,
+            dest="impacted_tests_output",
+            help="Specify output file for impacted tests given changes to "
+            "watch (see --watch-lines). Will be ignored if --watch-lines "
+            "is not specified. Output is in test pattern format with one "
+            "pattern per line. Default to standard output."
         )
 
         filter_group = parser.add_argument_group("Filtering")
@@ -392,3 +415,8 @@ class LogLevelAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         """Store the log level value corresponding to the level's name."""
         setattr(namespace, self.dest, self.LEVELS[values])
+
+
+def _read_json_file(file: str) -> dict:
+    with open(file, "r") as fp:
+        return json.load(fp)

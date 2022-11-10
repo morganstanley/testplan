@@ -4,3 +4,4 @@ from .xml import XMLExporter
 from .json import JSONExporter
 from .http import HTTPExporter
 from .webserver import WebServerExporter
+from .file import FileExporter

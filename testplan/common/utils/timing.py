@@ -1,15 +1,27 @@
 """Time related utilities."""
 
-import pytz
-import sys
+import collections
+import datetime
+import functools
 import os
 import re
-import collections
-import functools
-import time
-import datetime
+import sys
 import threading
+import time
 import traceback
+from typing import (
+    Any,
+    Callable,
+    Generator,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
+
+import pytz
 
 
 class TimeoutException(Exception):
@@ -84,7 +96,9 @@ class KThread(threading.Thread):
         self._will_kill = True
 
 
-def timeout(seconds, err_msg="Timeout after {} seconds."):
+def timeout(
+    seconds: int, err_msg: str = "Timeout after {} seconds."
+) -> Callable[[Callable], Callable]:
     """
     Decorator for a normal function to limit its execution time.
 
@@ -129,7 +143,12 @@ def timeout(seconds, err_msg="Timeout after {} seconds."):
     return timeout_decorator
 
 
-def wait(predicate, timeout, interval=0.05, raise_on_timeout=True):
+def wait(
+    predicate: Callable[[], bool],
+    timeout: int,
+    interval: float = 0.05,
+    raise_on_timeout: bool = True,
+) -> bool:
     """
     Wait until a predicate evaluates to True.
 
@@ -164,7 +183,9 @@ def wait(predicate, timeout, interval=0.05, raise_on_timeout=True):
                 return res
 
 
-def wait_until_predicate(predicate, timeout, interval=1.0):
+def wait_until_predicate(
+    predicate: Callable[[], bool], timeout: int, interval: float = 1.0
+):
     """
     Inverting wait() method behavior to raise if predicate() is True
     instead of raising on timeout.
@@ -177,7 +198,7 @@ def wait_until_predicate(predicate, timeout, interval=1.0):
     :type interval: ``float``
 
     :raises:
-      :exc:`RuntimeError` if the predicate is True.
+    :exc:`RuntimeError` if the predicate is True.
     """
     try:
         res = wait(predicate, timeout, interval, raise_on_timeout=True)
@@ -190,14 +211,14 @@ def wait_until_predicate(predicate, timeout, interval=1.0):
 
 
 def retry_until_timeout(
-    exception,
-    item,
-    timeout,
-    args=None,
-    kwargs=None,
-    interval=0.05,
-    raise_on_timeout=True,
-):
+    exception: Type[Exception],
+    item: Callable[..., Any],
+    timeout: int,
+    args: List[Any] = None,
+    kwargs: Mapping[str, Any] = None,
+    interval: float = 0.05,
+    raise_on_timeout: bool = True,
+) -> Any:
     """
     Retry calling an item until timeout duration while ignoring exceptions.
 
@@ -242,7 +263,7 @@ def retry_until_timeout(
             return res
 
 
-def utcnow():
+def utcnow() -> datetime.datetime:
     """Timezone aware UTC now."""
     return datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
 
@@ -334,7 +355,7 @@ DURATION_MSG = (
 )
 
 
-def parse_duration(duration):
+def parse_duration(duration: str) -> int:
     """
     Parse given duration string and return duration value in seconds.
 
@@ -367,7 +388,7 @@ def parse_duration(duration):
     return (hours * 3600) + (minutes * 60) + seconds
 
 
-def format_duration(duration):
+def format_duration(duration: int) -> str:
     """
     Format seconds in hours / minutes / seconds in readable format.
 
@@ -397,8 +418,11 @@ def format_duration(duration):
 
 
 def exponential_interval(
-    initial=0.1, multiplier=2, maximum=None, minimum=None
-):
+    initial: float = 0.1,
+    multiplier: float = 2,
+    maximum: float = None,
+    minimum: float = None,
+) -> Generator[float, None, None]:
     """
     Generator that returns exponentially increasing/decreasing values,
     can be used for generating values for `time.sleep` for periodic checks.
@@ -428,8 +452,11 @@ def exponential_interval(
 
 
 def get_sleeper(
-    interval, timeout=10, raise_timeout_with_msg=None, timeout_info=False
-):
+    interval: Union[float, Tuple[float, float]],
+    timeout: float = 10,
+    raise_timeout_with_msg: Optional[Union[str, Callable[[], str]]] = None,
+    timeout_info: bool = False,
+) -> Generator[bool, None, None]:
     """
     Generator that implements sleep steps for replacing
     *while True: do task; time.sleep()* code blocks. Depending on the interval

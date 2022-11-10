@@ -40,8 +40,8 @@ REQUIRED = [
     "rpyc",
     "matplotlib",
     "numpy",
-    "pandas",
-    "scipy",
+    "click",
+    "coverage",
 ]
 
 WEB_UI_PACKAGE_DIR = "testplan/web_ui/"

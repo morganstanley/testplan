@@ -4,6 +4,10 @@ Implements base exporter objects.
 """
 import pathlib
 from typing import Dict, List, Optional
+try:
+    from typing import TypeAlias  # >= 3.10
+except ImportError:
+    from typing_extensions import TypeAlias  # < 3.10
 from shutil import copyfile
 
 from schema import Use
@@ -17,11 +21,7 @@ from testplan.testing import tagging
 from testplan.defaults import ATTACHMENTS
 
 
-# TODO: what we mean here? This is just another dot on the inheritance graph.
-class Exporter(BaseExporter):
-    """TODO"""
-
-    pass
+Exporter: TypeAlias = BaseExporter
 
 
 class TagFilteredExporterConfig(ExporterConfig):
