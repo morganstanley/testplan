@@ -1,1 +1,0 @@
-* Make empty result object not to be false in bool context.

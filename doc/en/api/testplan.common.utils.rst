@@ -61,6 +61,14 @@ testplan.common.utils.exceptions module
     :undoc-members:
     :show-inheritance:
 
+testplan.common.utils.helper module
++++++++++++++++++++++++++++++++++++++++
+
+.. automodule:: testplan.common.utils.helper
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 testplan.common.utils.interface module
 ++++++++++++++++++++++++++++++++++++++
 

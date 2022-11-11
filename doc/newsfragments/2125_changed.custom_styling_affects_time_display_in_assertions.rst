@@ -1,1 +1,0 @@
-Custom styling will no longer affect the time display in assertions.

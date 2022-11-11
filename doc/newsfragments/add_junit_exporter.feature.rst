@@ -1,1 +1,0 @@
-* Added JUnit exporter command ``tojunit`` to TPS utility tool.

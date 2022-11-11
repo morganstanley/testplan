@@ -1,6 +1,6 @@
 .. _example_best_practice:
 
-Best practice
+Best Practice
 *************
 
 .. _example_common_utilities:
