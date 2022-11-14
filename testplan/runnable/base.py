@@ -177,9 +177,7 @@ class TestRunnerConfig(RunnableConfig):
             ],
             ConfigOption("label", default=None): Or(None, str),
             ConfigOption("watching_lines", default=None): Or(dict, None),
-            ConfigOption(
-                "impacted_tests_output", default="tests_impacted"
-            ): str,
+            ConfigOption("impacted_tests_output", default="-"): str,
         }
 
 

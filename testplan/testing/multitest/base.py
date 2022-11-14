@@ -11,12 +11,14 @@ from schema import Or, And, Use
 
 from testplan.common import config
 from testplan.common import entity
-from testplan.common.utils import compose_contexts, interface
+from testplan.common.report.base import SkipTestcaseException
+from testplan.common.utils import interface
 from testplan.common.utils import validation
 from testplan.common.utils import timing
 from testplan.common.utils import callable as callable_utils
 from testplan.common.utils import strings
 from testplan.common.utils import watcher
+from testplan.common.utils.composer import compose_contexts
 
 from testplan.testing import tagging
 from testplan.testing import filtering
@@ -297,8 +299,10 @@ class MultiTest(testing_base.Test):
         Here related resources haven't been set up while all necessary wires have been connected.
         """
 
+        # watch line features depends on configuration from the outside world
         if (
-            isinstance(self.cfg.watching_lines, dict)
+            self.cfg.parent is not None
+            and isinstance(self.cfg.watching_lines, dict)
             and self.cfg.interactive_port is None
         ):
             self.watcher.set_watching_lines(self.cfg.watching_lines)

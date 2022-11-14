@@ -3,9 +3,11 @@ Easy-to-use wrapper around Coverage.py for Python source code tracing
 """
 
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from coverage import Coverage, CoverageData
+
 from testplan.report.testing.base import TestCaseReport, TestGroupReport
 
 
@@ -16,7 +18,9 @@ class Watcher:
 
     def set_watching_lines(self, watching_lines: Dict[str, List[int]]):
         if watching_lines:
-            self._watching_lines = watching_lines
+            self._watching_lines = {
+                str(Path(k).resolve()): v for k, v in watching_lines.items()
+            }
             # we explicitly disable writing coverage data to file
             self._tracer = Coverage(
                 data_file=None, include=[*watching_lines.keys()]
@@ -26,7 +30,7 @@ class Watcher:
         r = {}
         for covered_file in data.measured_files():
             for f_name, f_lines in self._watching_lines.items():
-                if covered_file.endswith(f_name):
+                if covered_file == f_name:
                     common_lines = set(data.lines(covered_file)).intersection(
                         f_lines
                     )
@@ -38,6 +42,10 @@ class Watcher:
     def save_covered_lines_to(
         self, report: Union[TestCaseReport, TestGroupReport]
     ):
+        """
+        Context manager that enables source code tracing
+        and covered lines data saving to report at exit.
+        """
         if self._tracer is None:
             yield
         else:

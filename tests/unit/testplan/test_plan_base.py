@@ -8,8 +8,6 @@ from testplan import Testplan, TestplanMock, TestplanResult
 from testplan.common.entity import (
     Resource,
     ResourceStatus,
-    Runnable,
-    RunnableResult,
 )
 from testplan.common.utils.exceptions import should_raise
 from testplan.common.utils.path import default_runpath
@@ -17,6 +15,7 @@ from testplan.common.utils.testing import argv_overridden
 from testplan.runnable import TestRunnerStatus, TestRunner
 from testplan.runners.local import LocalRunner
 from testplan.report import TestGroupReport, ReportCategories
+from testplan.testing.base import Test, TestResult
 
 
 class DummyDriver(Resource):
@@ -30,7 +29,7 @@ class DummyDriver(Resource):
         pass
 
 
-class DummyTestResult(RunnableResult):
+class DummyTestResult(TestResult):
     """TODO."""
 
     def __init__(self):
@@ -41,12 +40,11 @@ class DummyTestResult(RunnableResult):
         )
 
 
-class DummyTest(Runnable):
+class DummyTest(Test):
     RESULT = DummyTestResult
 
-    def __init__(self, name=None):
-        super(DummyTest, self).__init__()
-        self.name = name
+    def __init__(self, name="dummyTest"):
+        super(DummyTest, self).__init__(name=name)
         self.resources.add(DummyDriver(), uid=self.name)
         self.resources.add(DummyDriver())
 
@@ -99,8 +97,6 @@ def test_testplan():
     assert isinstance(plan._runnable.status, TestRunnerStatus)
 
     assert "local_runner" in plan.resources
-    task_uid = plan.add(DummyTest())
-    assert isinstance(task_uid, str) and len(task_uid) == 36  # uuid.uuid4()
 
     assert plan.add(DummyTest(name="alice")) == "alice"
     assert plan.add(DummyTest(name="bob")) == "bob"
@@ -116,7 +112,7 @@ def test_testplan():
     with pytest.raises(ValueError):
         assert plan.add(task, resource="pool")  # duplicate target uid
 
-    assert len(plan.resources["local_runner"]._input) == 3
+    assert len(plan.resources["local_runner"]._input) == 2
     for key in ("alice", "bob"):
         assert key in plan.resources["local_runner"]._input
     assert len(plan.resources["pool"]._input) == 1
@@ -137,7 +133,6 @@ def test_testplan():
 
     results = plan.result.test_results.values()
     expected = [
-        "DummyTestResult[None]",
         "DummyTestResult[alice]",
         "DummyTestResult[tom]",
         "DummyTestResult[bob]",
