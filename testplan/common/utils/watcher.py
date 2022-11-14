@@ -3,6 +3,7 @@ Easy-to-use wrapper around Coverage.py for Python source code tracing
 """
 
 from contextlib import contextmanager
+from logging import Logger
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
@@ -13,6 +14,7 @@ from testplan.report.testing.base import TestCaseReport, TestGroupReport
 
 class Watcher:
     def __init__(self):
+        self._disabled: bool = False
         self._watching_lines: Optional[Dict[str, List[int]]] = None
         self._tracer: Optional[Coverage] = None
 
@@ -23,7 +25,7 @@ class Watcher:
             }
             # we explicitly disable writing coverage data to file
             self._tracer = Coverage(
-                data_file=None, include=[*watching_lines.keys()]
+                data_file=None, include=[*self._watching_lines.keys()]
             )
 
     def _get_common_lines(self, data: CoverageData) -> Dict[str, List[int]]:
@@ -39,6 +41,25 @@ class Watcher:
         return r
 
     @contextmanager
+    def disabled(
+        self, logger: Optional[Logger] = None, reason: Optional[str] = None
+    ):
+        """
+        Temporarily disable watcher due to the passed in reason,
+        or some unknown reason.
+        """
+        if self._tracer is None:
+            yield
+        else:
+            prev_disabled = self._disabled
+            self._disabled = True
+            logger.warning(reason)
+            try:
+                yield
+            finally:
+                self._disabled = prev_disabled
+
+    @contextmanager
     def save_covered_lines_to(
         self, report: Union[TestCaseReport, TestGroupReport]
     ):
@@ -46,7 +67,7 @@ class Watcher:
         Context manager that enables source code tracing
         and covered lines data saving to report at exit.
         """
-        if self._tracer is None:
+        if self._tracer is None or self._disabled:
             yield
         else:
             self._tracer.erase()

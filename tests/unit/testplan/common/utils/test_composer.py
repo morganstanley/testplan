@@ -152,13 +152,3 @@ def test_compose_contexts_body_fail_raised(capsys):
         + [f"leaving {n}" for n in ("d", "c", "b", "a")]
     )
     assert captured.out.strip().split("\n") == expected
-
-
-# a = _context_manager_gen("a", will_catch=True)
-# b = _context_manager_gen("b", will_catch=True)
-# c = _context_manager_gen("c")
-# d = _context_manager_gen("d")
-# with compose_contexts(a(), b(), c(), d()) as rs:
-#     assert rs == ("a", "b", "c", "d")
-#     sys.stdout.write("raised by body\n")
-#     raise RuntimeError("haha")

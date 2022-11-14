@@ -7,7 +7,7 @@ import pathlib
 import sys
 from contextlib import contextmanager
 from enum import IntEnum, auto
-from typing import Generator, OrderedDict, TextIO, Tuple
+from typing import Generator, List, Mapping, OrderedDict, TextIO, Tuple
 
 from testplan.common.exporters import ExporterConfig
 from testplan.exporters.testing.base import Exporter
@@ -51,29 +51,11 @@ class CoverageExporter(Exporter):
                 self.cfg.coverage_export_type
                 == ExportingCoverage.ExportTestsAsPattern
             ):
+                # here we use an OrderedDict as an ordered set
                 results = OrderedDict()
-                for mt_entry in report.entries:
-                    if isinstance(mt_entry, TestGroupReport):
-                        if mt_entry.covered_lines:
-                            results[(mt_entry.name,)] = None
-                            continue
-                        for ts_entry in mt_entry.entries:
-                            if isinstance(ts_entry, TestGroupReport):
-                                if ts_entry.covered_lines:
-                                    results[
-                                        (mt_entry.name, ts_entry.name)
-                                    ] = None
-                                    continue
-                                for tc_entry in ts_entry.entries:
-                                    if isinstance(tc_entry, TestCaseReport):
-                                        if tc_entry.covered_lines:
-                                            results[
-                                                (
-                                                    mt_entry.name,
-                                                    ts_entry.name,
-                                                    tc_entry.name,
-                                                )
-                                            ] = None
+                for entry in report.entries:
+                    if isinstance(entry, TestGroupReport):
+                        self._append_covered_group_n_case(entry, [], results)
                 if results:
                     with _custom_open(self.cfg.impacted_tests_output) as (
                         f,
@@ -85,8 +67,31 @@ class CoverageExporter(Exporter):
                         for k in results.keys():
                             f.write(":".join(k) + "\n")
                     return self.cfg.impacted_tests_output
-        self.logger.exporter_info("No impacted tests found.")
+                self.logger.exporter_info("No impacted tests found.")
+                return None
         return None
+
+    def _append_covered_group_n_case(
+        self,
+        report: TestGroupReport,
+        path: List[str],
+        result: Mapping[Tuple[str, ...], None],
+    ):
+        """
+        Recursively add test group or test case with covered_lines set to
+        the result ordered set.
+
+        Here we use an OrderedDict as an ordered set.
+        """
+        curr_path = path + [report.name]
+        if report.covered_lines:
+            result[tuple(curr_path)] = None
+        for entry in report.entries:
+            if isinstance(entry, TestGroupReport):
+                self._append_covered_group_n_case(entry, curr_path, result)
+            elif isinstance(entry, TestCaseReport):
+                if entry.covered_lines:
+                    result[tuple(curr_path + [entry.name])] = None
 
 
 @contextmanager

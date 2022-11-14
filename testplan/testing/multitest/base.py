@@ -768,10 +768,15 @@ class MultiTest(testing_base.Test):
             )
 
             if parallel_cases and not should_stop:
-                testcase_reports = self._run_parallel_testcases(
-                    testsuite, parallel_cases
-                )
-                testsuite_report.extend(testcase_reports)
+                with self.watcher.disabled(
+                    self.logger,
+                    "No coverage data will be collected for parallelly "
+                    "executed testcases.",
+                ):
+                    testcase_reports = self._run_parallel_testcases(
+                        testsuite, parallel_cases
+                    )
+                    testsuite_report.extend(testcase_reports)
 
             with self.watcher.save_covered_lines_to(testsuite_report):
                 teardown_report = self._teardown_testsuite(testsuite)
