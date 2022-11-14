@@ -42,6 +42,7 @@ REQUIRED = [
     "numpy",
     "pandas",
     "scipy",
+    "memoization",
 ]
 
 WEB_UI_PACKAGE_DIR = "testplan/web_ui/"
