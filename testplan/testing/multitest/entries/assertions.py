@@ -649,7 +649,7 @@ class LineDiff(Assertion):
         )
 
     def evaluate(self):
-        if sys.platform == "Windows":
+        if sys.platform == "win32":
             self.delta = list(self._diff_difflib())
         else:
             self.delta = self._diff_process().splitlines(True)
