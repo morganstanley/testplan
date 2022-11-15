@@ -631,8 +631,12 @@ class LineDiff(Assertion):
         if isinstance(context, int) and context < 0:
             raise ValueError("`context` cannot be negative integer.")
 
-        self.first = first
-        self.second = second
+        self.first = (
+            first.splitlines(True) if isinstance(first, str) else first
+        )
+        self.second = (
+            second.splitlines(True) if isinstance(second, str) else second
+        )
         self.ignore_space_change = ignore_space_change
         self.ignore_whitespaces = ignore_whitespaces
         self.ignore_blank_lines = ignore_blank_lines
@@ -652,16 +656,6 @@ class LineDiff(Assertion):
         return self.delta == []
 
     def _diff_difflib(self):
-        self.first = (
-            self.first.splitlines(True)
-            if isinstance(self.first, str)
-            else self.first
-        )
-        self.second = (
-            self.second.splitlines(True)
-            if isinstance(self.second, str)
-            else self.second
-        )
         out = difflib.diff(
             self.first,
             self.second,
@@ -674,22 +668,18 @@ class LineDiff(Assertion):
         return out
 
     def _diff_process(self):
-        self.first = (
-            self.first if isinstance(self.first, str) else "".join(self.first)
-        )
-        self.second = (
-            self.second if isinstance(self.second, str) else "".join(self.second)
-        )
+        first = "".join(self.first)
+        second = "".join(self.second)
         with tempfile.NamedTemporaryFile(
             delete=False,
             mode="w",
-        ) as first:
-            first.write(self.first)
+        ) as first_file:
+            first_file.write(first)
         with tempfile.NamedTemporaryFile(
             delete=False,
             mode="w",
-        ) as second:
-            second.write(self.second)
+        ) as second_file:
+            second_file.write(second)
 
         cmd = ["diff"]
         if self.ignore_space_change:
@@ -702,7 +692,7 @@ class LineDiff(Assertion):
             cmd.append("-u")
         if self.context:
             cmd.append("-c")
-        cmd.extend([first.name, second.name])
+        cmd.extend([first_file.name, second_file.name])
 
         handler = subprocess_popen(
             cmd,
@@ -712,8 +702,8 @@ class LineDiff(Assertion):
         )
         out, _ = handler.communicate()
 
-        os.unlink(first.name)
-        os.unlink(second.name)
+        os.unlink(first_file.name)
+        os.unlink(second_file.name)
 
         return out
 
