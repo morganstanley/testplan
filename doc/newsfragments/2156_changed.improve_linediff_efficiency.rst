@@ -1,0 +1,1 @@
+The `diff` assertion internals has changed to improve performance.
