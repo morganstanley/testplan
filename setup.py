@@ -40,6 +40,9 @@ REQUIRED = [
     "rpyc",
     "matplotlib",
     "numpy",
+    "pandas",
+    "scipy",
+    "memoization",
     "coverage",
 ]
 
