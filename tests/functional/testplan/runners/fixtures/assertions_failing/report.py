@@ -526,27 +526,28 @@ expected_report = TestReport(
                                     "context": False,
                                     "delta": [
                                         re.compile(
-                                            r"^--- a.text\t.+ UTC{}$".format(
+                                            r"^--- /tmp/tmp.+\t.+{}$".format(
                                                 os.linesep
                                             )
                                         ),
                                         re.compile(
-                                            r"^\+\+\+ b.text\t.+ UTC{}$".format(
+                                            r"^\+\+\+ /tmp/tmp.+\t.+{}$".format(
                                                 os.linesep
                                             )
                                         ),
-                                        "@@ -2,8 +2,8 @@{}".format(os.linesep),
-                                        " 1\r\n",
-                                        " 1\r\n",
-                                        "-abc\r\n",
-                                        "+ abc\n",
-                                        " uv w\r\n",
-                                        "-xyz\r\n",
-                                        "+xy z\n",
-                                        " 2\r\n",
-                                        " 2\r\n",
-                                        "-2\r\n",
-                                        "+3{}".format(os.linesep),
+                                        "@@ -1,9 +1,9 @@{}".format(os.linesep),
+                                        f" 1{os.linesep}",
+                                        f" 1{os.linesep}",
+                                        f" 1{os.linesep}",
+                                        f"-abc{os.linesep}",
+                                        f"+ abc{os.linesep}",
+                                        f" uv w{os.linesep}",
+                                        f"-xyz{os.linesep}",
+                                        f"-2{os.linesep}",
+                                        f"+xy z{os.linesep}",
+                                        f" 2{os.linesep}",
+                                        f" 2{os.linesep}",
+                                        f"+3{os.linesep}",
                                         r"\ No newline at end of file{}".format(
                                             os.linesep
                                         ),
