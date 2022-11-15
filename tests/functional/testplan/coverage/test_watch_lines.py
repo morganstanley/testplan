@@ -1,6 +1,6 @@
+import os
 import random
 import tempfile
-from pathlib import Path
 
 import pytest
 from subject_module import (
@@ -17,6 +17,22 @@ from subject_module import (
 # to avoid "testsuite" & "testcase" treated as tests by pytest
 import testplan.testing.multitest as mt
 from testplan import TestplanMock
+
+
+@pytest.fixture
+def temp_file_name():
+    tmp_d = tempfile.mkdtemp()
+    tmp_f = os.path.join(tmp_d, "tmp_file")
+    try:
+        yield tmp_f
+    finally:
+        os.remove(tmp_f)
+        os.rmdir(tmp_d)
+
+
+@pytest.fixture(scope="module")
+def subject_path():
+    yield os.path.join(os.path.dirname(__file__), "subject_module.py")
 
 
 @mt.testsuite
@@ -113,115 +129,111 @@ def multitest_after_stop(env):
     )
 
 
-@pytest.fixture(scope="module")
-def subject_path():
-    yield str(Path(__file__).parent.joinpath("subject_module.py").resolve())
+def test_watch_lines_basic(subject_path, temp_file_name):
+    mt_name = "BasicMultitest"
+    plan = TestplanMock(
+        name="watch_lines_basic_test",
+        watching_lines={subject_path: [26, 27, 28, 29]},  # to_lazy
+        impacted_tests_output=temp_file_name,
+    )
+    plan.add(mt.MultiTest(name=mt_name, suites=[BasicSuite()]))
+    plan.run()
 
-
-def test_watch_lines_basic(subject_path):
-    with tempfile.NamedTemporaryFile(mode="w+") as f:
-        plan = TestplanMock(
-            name="watch_lines_basic_test",
-            watching_lines={subject_path: [26, 27, 28, 29]},  # to_lazy
-            impacted_tests_output=f.name,
-        )
-        plan.add(mt.MultiTest(name="BasicMultitest", suites=[BasicSuite()]))
-        plan.run()
-
+    with open(temp_file_name, "r") as f:
         lines = [
             *filter(lambda x: bool(x), map(lambda x: x.strip(), f.readlines()))
         ]
-        assert len(lines) == 6
-        assert lines[0] == "BasicMultitest:BasicSuite:basic_case"
-        for i in range(1, 6):
-            assert lines[i].startswith(
-                "BasicMultitest:BasicSuite:parameterized_case:parameterized_case <li=["
-            )
+    assert len(lines) == 6
+    assert lines[0] == f"{mt_name}:BasicSuite:basic_case"
+    for i in range(1, 6):
+        assert lines[i].startswith(
+            f"{mt_name}:BasicSuite:parameterized_case:parameterized_case <li=["
+        )
 
 
-def test_watch_lines_ignore_parallel(subject_path):
+def test_watch_lines_ignore_parallel(subject_path, temp_file_name):
     mt_name = "ParallelMultitest"
-    with tempfile.NamedTemporaryFile(mode="w+") as f:
-        plan = TestplanMock(
-            name="watch_lines_ignore_parallel_test",
-            watching_lines={subject_path: [26, 27, 28, 29]},  # to_lazy
-            impacted_tests_output=f.name,
-        )
-        plan.add(mt.MultiTest(name=mt_name, suites=[ParallelSuite()]))
-        plan.run()
+    plan = TestplanMock(
+        name="watch_lines_ignore_parallel_test",
+        watching_lines={subject_path: [26, 27, 28, 29]},  # to_lazy
+        impacted_tests_output=temp_file_name,
+    )
+    plan.add(mt.MultiTest(name=mt_name, suites=[ParallelSuite()]))
+    plan.run()
 
+    with open(temp_file_name, "r") as f:
         lines = [
             *filter(lambda x: bool(x), map(lambda x: x.strip(), f.readlines()))
         ]
-        assert len(lines) == 1
-        assert lines[0] == f"{mt_name}:ParallelSuite:basic_case"
+    assert len(lines) == 1
+    assert lines[0] == f"{mt_name}:ParallelSuite:basic_case"
 
 
-def test_watch_lines_case_with_pre_post(subject_path):
+def test_watch_lines_case_with_pre_post(subject_path, temp_file_name):
     mt_name = "WithPrePostMultitest"
-    with tempfile.NamedTemporaryFile(mode="w+") as f:
-        plan = TestplanMock(
-            name="watch_lines_case_with_pre_post_test",
-            watching_lines={subject_path: [7, 8, 11, 12]},  # box & unbox
-            impacted_tests_output=f.name,
-        )
-        plan.add(mt.MultiTest(name=mt_name, suites=[WithPrePostSuite()]))
-        plan.run()
+    plan = TestplanMock(
+        name="watch_lines_case_with_pre_post_test",
+        watching_lines={subject_path: [7, 8, 11, 12]},  # box & unbox
+        impacted_tests_output=temp_file_name,
+    )
+    plan.add(mt.MultiTest(name=mt_name, suites=[WithPrePostSuite()]))
+    plan.run()
 
+    with open(temp_file_name, "r") as f:
         lines = [
             *filter(lambda x: bool(x), map(lambda x: x.strip(), f.readlines()))
         ]
-        assert len(lines) == 2
-        assert lines[0] == f"{mt_name}:WithPrePostSuite:relevant_case"
-        assert lines[1] == f"{mt_name}:WithPrePostSuite:irrelevant_case"
+    assert len(lines) == 2
+    assert lines[0] == f"{mt_name}:WithPrePostSuite:relevant_case"
+    assert lines[1] == f"{mt_name}:WithPrePostSuite:irrelevant_case"
 
 
-def test_watch_lines_suite_with_setup_teardown(subject_path):
+def test_watch_lines_suite_with_setup_teardown(subject_path, temp_file_name):
     mt_name = "WithSetupTeardownMultitest"
-    with tempfile.NamedTemporaryFile(mode="w+") as f:
-        plan = TestplanMock(
-            name="watch_lines_suite_with_setup_teardown_test",
-            watching_lines={subject_path: [7, 8, 11, 12]},  # box & unbox
-            impacted_tests_output=f.name,
-        )
-        plan.add(mt.MultiTest(name=mt_name, suites=[WithSetupTeardownSuite()]))
-        plan.run()
+    plan = TestplanMock(
+        name="watch_lines_suite_with_setup_teardown_test",
+        watching_lines={subject_path: [7, 8, 11, 12]},  # box & unbox
+        impacted_tests_output=temp_file_name,
+    )
+    plan.add(mt.MultiTest(name=mt_name, suites=[WithSetupTeardownSuite()]))
+    plan.run()
 
+    with open(temp_file_name, "r") as f:
         lines = [
             *filter(lambda x: bool(x), map(lambda x: x.strip(), f.readlines()))
         ]
-        assert len(lines) == 2
-        assert lines[0] == f"{mt_name}:WithSetupTeardownSuite"
-        assert lines[1] == f"{mt_name}:WithSetupTeardownSuite:basic_case"
+    assert len(lines) == 2
+    assert lines[0] == f"{mt_name}:WithSetupTeardownSuite"
+    assert lines[1] == f"{mt_name}:WithSetupTeardownSuite:basic_case"
 
 
-def test_watch_lines_multitest_with_hook(subject_path):
+def test_watch_lines_multitest_with_hook(subject_path, temp_file_name):
     mt_name = "WithHookMultitest"
-    with tempfile.NamedTemporaryFile(mode="w+") as f:
-        plan = TestplanMock(
-            name="watch_lines_multitest_with_hook_test",
-            watching_lines={subject_path: [57, 58, 59, 60]},  # lazy_apply
-            impacted_tests_output=f.name,
+    plan = TestplanMock(
+        name="watch_lines_multitest_with_hook_test",
+        watching_lines={subject_path: [57, 58, 59, 60]},  # lazy_apply
+        impacted_tests_output=temp_file_name,
+    )
+    plan.add(
+        mt.MultiTest(
+            name=f"{mt_name}_1",
+            suites=[ParallelSuite()],
+            before_start=multitest_before_start,
         )
-        plan.add(
-            mt.MultiTest(
-                name=f"{mt_name}_1",
-                suites=[ParallelSuite()],
-                before_start=multitest_before_start,
-            )
+    )
+    plan.add(
+        mt.MultiTest(
+            name=f"{mt_name}_2",
+            suites=[WithPrePostSuite()],
+            after_stop=multitest_after_stop,
         )
-        plan.add(
-            mt.MultiTest(
-                name=f"{mt_name}_2",
-                suites=[WithPrePostSuite()],
-                after_stop=multitest_after_stop,
-            )
-        )
-        plan.run()
+    )
+    plan.run()
 
+    with open(temp_file_name, "r") as f:
         lines = [
             *filter(lambda x: bool(x), map(lambda x: x.strip(), f.readlines()))
         ]
-        assert len(lines) == 2
-        assert lines[0] == f"{mt_name}_1:ParallelSuite:basic_case"
-        assert lines[1] == f"{mt_name}_2"
+    assert len(lines) == 2
+    assert lines[0] == f"{mt_name}_1:ParallelSuite:basic_case"
+    assert lines[1] == f"{mt_name}_2"
