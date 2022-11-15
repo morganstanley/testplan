@@ -10,11 +10,13 @@ import tempfile
 import hashlib
 
 from testplan.common.utils.context import render
+from memoization import cached
 from .strings import slugify
 
 VAR_TMP = os.path.join(os.sep, "var", "tmp")
 
 
+@cached
 def fix_home_prefix(path):
     """
     Try to replace a real path (/a/path/user) with a symlink

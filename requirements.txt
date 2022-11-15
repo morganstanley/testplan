@@ -9,3 +9,4 @@ pandas
 numpy
 sphinx-click
 click <= 7.1.2
+memoization
