@@ -6,7 +6,7 @@ assertion groups and assertion namespaces.
 """
 import sys
 
-from testplan_ms import test_plan
+from testplan import test_plan
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.report.testing.styles import Style, StyleEnum
 

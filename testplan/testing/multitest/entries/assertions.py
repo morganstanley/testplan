@@ -14,12 +14,13 @@ import operator
 import os
 import re
 import subprocess
+import sys
 import tempfile
 
 import lxml
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
-from testplan.common.utils import comparison
+from testplan.common.utils import comparison, difflib
 from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.strings import map_to_str
 from testplan.common.utils.table import TableEntry
@@ -644,6 +645,37 @@ class LineDiff(Assertion):
         )
 
     def evaluate(self):
+        if sys.platform == "Windows":
+            self.delta = list(self._diff_difflib())
+        else:
+            self.delta = self._diff_process().splitlines(
+                True
+            )  # matches the difflib output
+        return self.delta == []
+
+    def _diff_difflib(self):
+        first = (
+            self.first.splitlines(True)
+            if isinstance(self.first, str)
+            else self.first
+        )
+        second = (
+            self.second.splitlines(True)
+            if isinstance(self.second, str)
+            else self.second
+        )
+        out = difflib.diff(
+            first,
+            second,
+            ignore_space_change=self.ignore_space_change,
+            ignore_whitespaces=self.ignore_whitespaces,
+            ignore_blank_lines=self.ignore_blank_lines,
+            unified=self.unified,
+            context=self.context,
+        )
+        return out
+
+    def _diff_process(self):
         with tempfile.NamedTemporaryFile(
             delete=False,
             mode="w",
@@ -672,15 +704,14 @@ class LineDiff(Assertion):
             cmd,
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            universal_newlines=True  # otherwise we get a byte stream
+            universal_newlines=True,  # otherwise we get a byte stream
         )
         out, _ = handler.communicate()
 
         os.unlink(first.name)
         os.unlink(second.name)
 
-        self.delta = out.splitlines(True)  # matches the difflib output
-        return self.delta == []
+        return out
 
 
 ColumnContainComparison = collections.namedtuple(
