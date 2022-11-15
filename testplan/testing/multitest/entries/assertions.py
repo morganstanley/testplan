@@ -6,18 +6,21 @@ An assertion object will call ``evaluate`` on instantiation and will
 use the result of that call to set its ``passed`` attribute.
 """
 
+import cmath
+import collections
+import decimal
+import numbers
+import operator
 import os
 import re
-import operator
-import collections
-import numbers
-import decimal
-import cmath
+import subprocess
+import tempfile
 
 import lxml
 
 from testplan.common.utils.convert import make_tuple, flatten_dict_comparison
-from testplan.common.utils import comparison, difflib
+from testplan.common.utils import comparison
+from testplan.common.utils.process import subprocess_popen
 from testplan.common.utils.strings import map_to_str
 from testplan.common.utils.table import TableEntry
 
@@ -627,12 +630,8 @@ class LineDiff(Assertion):
         if isinstance(context, int) and context < 0:
             raise ValueError("`context` cannot be negative integer.")
 
-        self.first = (
-            first.splitlines(True) if isinstance(first, str) else first
-        )
-        self.second = (
-            second.splitlines(True) if isinstance(second, str) else second
-        )
+        self.first = first
+        self.second = second
         self.ignore_space_change = ignore_space_change
         self.ignore_whitespaces = ignore_whitespaces
         self.ignore_blank_lines = ignore_blank_lines
@@ -645,17 +644,42 @@ class LineDiff(Assertion):
         )
 
     def evaluate(self):
-        self.delta = list(
-            difflib.diff(
-                self.first,
-                self.second,
-                ignore_space_change=self.ignore_space_change,
-                ignore_whitespaces=self.ignore_whitespaces,
-                ignore_blank_lines=self.ignore_blank_lines,
-                unified=self.unified,
-                context=self.context,
-            )
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            mode="w",
+        ) as first:
+            first.write(self.first)
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            mode="w",
+        ) as second:
+            second.write(self.second)
+
+        cmd = ["diff"]
+        if self.ignore_space_change:
+            cmd.append("-b")
+        if self.ignore_whitespaces:
+            cmd.append("-w")
+        if self.ignore_blank_lines:
+            cmd.append("-B")
+        if self.unified:
+            cmd.append("-u")
+        if self.context:
+            cmd.append("-c")
+        cmd.extend([first.name, second.name])
+
+        handler = subprocess_popen(
+            cmd,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            universal_newlines=True  # otherwise we get a byte stream
         )
+        out, _ = handler.communicate()
+
+        os.unlink(first.name)
+        os.unlink(second.name)
+
+        self.delta = out.splitlines(True)  # matches the difflib output
         return self.delta == []
 
 
