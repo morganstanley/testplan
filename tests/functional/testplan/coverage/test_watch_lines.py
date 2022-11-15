@@ -140,9 +140,7 @@ def test_watch_lines_basic(subject_path, temp_file_name):
     plan.run()
 
     with open(temp_file_name, "r") as f:
-        lines = [
-            *filter(lambda x: bool(x), map(lambda x: x.strip(), f.readlines()))
-        ]
+        lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 6
     assert lines[0] == f"{mt_name}:BasicSuite:basic_case"
     for i in range(1, 6):
@@ -162,9 +160,7 @@ def test_watch_lines_ignore_parallel(subject_path, temp_file_name):
     plan.run()
 
     with open(temp_file_name, "r") as f:
-        lines = [
-            *filter(lambda x: bool(x), map(lambda x: x.strip(), f.readlines()))
-        ]
+        lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 1
     assert lines[0] == f"{mt_name}:ParallelSuite:basic_case"
 
@@ -180,9 +176,7 @@ def test_watch_lines_case_with_pre_post(subject_path, temp_file_name):
     plan.run()
 
     with open(temp_file_name, "r") as f:
-        lines = [
-            *filter(lambda x: bool(x), map(lambda x: x.strip(), f.readlines()))
-        ]
+        lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 2
     assert lines[0] == f"{mt_name}:WithPrePostSuite:relevant_case"
     assert lines[1] == f"{mt_name}:WithPrePostSuite:irrelevant_case"
@@ -199,9 +193,7 @@ def test_watch_lines_suite_with_setup_teardown(subject_path, temp_file_name):
     plan.run()
 
     with open(temp_file_name, "r") as f:
-        lines = [
-            *filter(lambda x: bool(x), map(lambda x: x.strip(), f.readlines()))
-        ]
+        lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 2
     assert lines[0] == f"{mt_name}:WithSetupTeardownSuite"
     assert lines[1] == f"{mt_name}:WithSetupTeardownSuite:basic_case"
@@ -231,9 +223,7 @@ def test_watch_lines_multitest_with_hook(subject_path, temp_file_name):
     plan.run()
 
     with open(temp_file_name, "r") as f:
-        lines = [
-            *filter(lambda x: bool(x), map(lambda x: x.strip(), f.readlines()))
-        ]
+        lines = [l.strip() for l in f.readlines() if l]
     assert len(lines) == 2
     assert lines[0] == f"{mt_name}_1:ParallelSuite:basic_case"
     assert lines[1] == f"{mt_name}_2"

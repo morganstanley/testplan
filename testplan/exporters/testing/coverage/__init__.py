@@ -7,7 +7,7 @@ import pathlib
 import sys
 from contextlib import contextmanager
 from enum import IntEnum, auto
-from typing import Generator, List, Mapping, OrderedDict, TextIO, Tuple
+from typing import Generator, Mapping, OrderedDict, TextIO, Tuple
 
 from testplan.common.exporters import ExporterConfig
 from testplan.exporters.testing.base import Exporter
@@ -74,7 +74,7 @@ class CoverageExporter(Exporter):
     def _append_covered_group_n_case(
         self,
         report: TestGroupReport,
-        path: List[str],
+        path: Tuple[str, ...],
         result: Mapping[Tuple[str, ...], None],
     ):
         """
@@ -83,15 +83,15 @@ class CoverageExporter(Exporter):
 
         Here we use an OrderedDict as an ordered set.
         """
-        curr_path = path + [report.name]
+        curr_path = (*path, report.name)
         if report.covered_lines:
-            result[tuple(curr_path)] = None
+            result[curr_path] = None
         for entry in report.entries:
             if isinstance(entry, TestGroupReport):
                 self._append_covered_group_n_case(entry, curr_path, result)
             elif isinstance(entry, TestCaseReport):
                 if entry.covered_lines:
-                    result[tuple(curr_path + [entry.name])] = None
+                    result[(*curr_path, entry.name)] = None
 
 
 @contextmanager
