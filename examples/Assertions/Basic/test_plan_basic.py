@@ -4,12 +4,9 @@
 This example shows usage of assertions,
 assertion groups and assertion namespaces.
 """
-import os
-import re
 import sys
-import random
 
-from testplan import test_plan
+from testplan_ms import test_plan
 from testplan.testing.multitest import MultiTest, testsuite, testcase
 from testplan.report.testing.styles import Style, StyleEnum
 
@@ -126,6 +123,7 @@ The second line shall not occur in description.
             ignore_space_change=True,
             unified=3,
         )
+        result.diff("abcde\nfghij\n", "bcdef\nghijk")
 
         # `result` has a `markdown` method that can be used for adding markdown
         # text in the report. Set escape=False to allow raw HTML code.
