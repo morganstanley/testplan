@@ -235,7 +235,7 @@ class Worker(WorkerBase):
 
             # for task discovery used with a monorepo project
             if task_path and not is_subdir(task_path, pwd()):
-                with change_directory(task_path):
+                with change_directory(os.path.abspath(task_path)):
                     result = runnable.run()
             else:
                 result = runnable.run()
