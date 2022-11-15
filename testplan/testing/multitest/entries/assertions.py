@@ -648,25 +648,23 @@ class LineDiff(Assertion):
         if sys.platform == "Windows":
             self.delta = list(self._diff_difflib())
         else:
-            self.delta = self._diff_process().splitlines(
-                True
-            )  # matches the difflib output
+            self.delta = self._diff_process().splitlines(True)
         return self.delta == []
 
     def _diff_difflib(self):
-        first = (
+        self.first = (
             self.first.splitlines(True)
             if isinstance(self.first, str)
             else self.first
         )
-        second = (
+        self.second = (
             self.second.splitlines(True)
             if isinstance(self.second, str)
             else self.second
         )
         out = difflib.diff(
-            first,
-            second,
+            self.first,
+            self.second,
             ignore_space_change=self.ignore_space_change,
             ignore_whitespaces=self.ignore_whitespaces,
             ignore_blank_lines=self.ignore_blank_lines,
@@ -676,6 +674,12 @@ class LineDiff(Assertion):
         return out
 
     def _diff_process(self):
+        self.first = (
+            self.first if isinstance(self.first, str) else "".join(self.first)
+        )
+        self.second = (
+            self.second if isinstance(self.second, str) else "".join(self.second)
+        )
         with tempfile.NamedTemporaryFile(
             delete=False,
             mode="w",
