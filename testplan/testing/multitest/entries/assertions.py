@@ -649,10 +649,10 @@ class LineDiff(Assertion):
         )
 
     def evaluate(self):
-        if sys.platform == "win32":
-            self.delta = list(self._diff_difflib())
-        else:
+        if sys.platform != "win32":
             self.delta = self._diff_process().splitlines(True)
+        else:
+            self.delta = list(self._diff_difflib())
         return self.delta == []
 
     def _diff_difflib(self):
@@ -700,7 +700,9 @@ class LineDiff(Assertion):
             stdout=subprocess.PIPE,
             universal_newlines=True,  # otherwise we get a byte stream
         )
-        out, _ = handler.communicate()
+        out, err = handler.communicate()
+        if handler.returncode == 2:
+            raise RuntimeError(err)
 
         os.unlink(first_file.name)
         os.unlink(second_file.name)

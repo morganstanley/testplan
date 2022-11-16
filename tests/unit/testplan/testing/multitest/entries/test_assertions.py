@@ -817,7 +817,7 @@ NO_DIFFERENCE_PARAMS = [
     ("abc\r\nxy z\r\n", "abc \nxy\t\tz\n", True, False, False, True, False),
     (" abc\r\nxyz\r\n", "abc \nx y\tz\n", False, True, False, False, True),
     ("abc\n\nxyz\n", "abc\nxyz\n\n", False, False, True, False, False),
-    ("abc\nxyz\n", "abc\r\n\r\nxyz", False, True, True, True, True),
+    ("abc\nxyz\n", "abc\r\n\r\nxyz", False, True, True, True, False),
 ]
 
 DIFFERENCE_PARAMS = [
@@ -825,7 +825,7 @@ DIFFERENCE_PARAMS = [
     ("abc\nxyz\n", " abc\nxyz\n", True, False, False, True, False),
     (" abc\nxyz\n", "abc\nxyz\n\n", False, True, False, False, True),
     ("abc\nxyz\n", "abc\nxyz\n \n", False, False, True, False, False),
-    (" abc\nxyz\n", "abc\nxy z\nuvw", True, False, True, True, True),
+    (" abc\nxyz\n", "abc\nxy z\nuvw\n", True, False, True, True, False),
 ]
 
 

@@ -1,6 +1,7 @@
 """Test Multitest - Test Suite - Result - Test Report - Exporter integration"""
 import os
 import re
+import sys
 
 from testplan.report import (
     TestReport,
@@ -548,6 +549,34 @@ expected_report = TestReport(
                                         f" 2{os.linesep}",
                                         f" 2{os.linesep}",
                                         f"+3{os.linesep}",
+                                        r"\ No newline at end of file{}".format(
+                                            os.linesep
+                                        ),
+                                    ]
+                                    if sys.platform != "win32"
+                                    else [
+                                        re.compile(
+                                            r"^--- a.text\t.+ UTC{}$".format(
+                                                os.linesep
+                                            )
+                                        ),
+                                        re.compile(
+                                            r"^\+\+\+ b.text\t.+ UTC{}$".format(
+                                                os.linesep
+                                            )
+                                        ),
+                                        "@@ -2,8 +2,8 @@{}".format(os.linesep),
+                                        " 1\r\n",
+                                        " 1\r\n",
+                                        "-abc\r\n",
+                                        "+ abc\n",
+                                        " uv w\r\n",
+                                        "-xyz\r\n",
+                                        "+xy z\n",
+                                        " 2\r\n",
+                                        " 2\r\n",
+                                        "-2\r\n",
+                                        "+3{}".format(os.linesep),
                                         r"\ No newline at end of file{}".format(
                                             os.linesep
                                         ),
