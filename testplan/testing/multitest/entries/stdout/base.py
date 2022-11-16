@@ -9,6 +9,7 @@ import os
 import re
 import pprint
 
+
 from terminaltables import AsciiTable
 
 from testplan.common.utils.registry import Registry
@@ -124,7 +125,19 @@ class DirectoryRenderer(BaseRenderer):
 
 @registry.bind(base.TableLog)
 class TableLogRenderer(BaseRenderer):
-    def get_details(self, entry):
+    def get_details(self, entry: base.TableLog) -> str:
+        """
+        This method converts the entire input table into a string using AsciiTable.
+
+        :param entry: the TableLog object we want to convert
+        :return: rows of the input table joined into a single string with newline characters
+        """
+        # AsciiTable doesn't support cells with 'bytes' values so first we need to convert them to 'str'
+        for j, row in enumerate(entry.table):
+            for i, cell in enumerate(row):
+                if isinstance(cell, bytes):
+                    entry.table[j][i] = str(cell)
+
         return AsciiTable([entry.columns] + entry.table).table
 
 
