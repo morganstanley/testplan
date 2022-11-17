@@ -8,6 +8,7 @@ Also provided is a predefined testsuite that can be included in user's
 """
 
 __all__ = [
+    "get_hardware_info",
     "log_pwd",
     "log_hardware",
     "log_cmd",
@@ -25,12 +26,37 @@ import psutil
 import shutil
 import socket
 import sys
+from typing import Dict
 
 from testplan.common.entity import Environment
 from testplan.common.utils.logger import TESTPLAN_LOGGER
 from testplan.common.utils.path import pwd
 from testplan.testing.multitest import testsuite, testcase
 from testplan.testing.multitest.result import Result
+
+
+def get_hardware_info() -> Dict:
+    """
+    Return a variety of host hardware information.
+
+    :return: dictionary of hardware information
+    """
+    return {
+        "CPU count": psutil.cpu_count(),
+        "CPU frequence": str(psutil.cpu_freq()),
+        "CPU percent": psutil.cpu_percent(interval=1, percpu=True),
+        "Average load": dict(
+            zip(
+                ["Over 1 min", "Over 5 min", "Over 15 min"],
+                os.getloadavg(),
+            )
+        ),
+        "Memory": str(psutil.virtual_memory()),
+        "Swap": str(psutil.swap_memory()),
+        "Disk usage": str(psutil.disk_usage(os.getcwd())),
+        "Net interface addresses": psutil.net_if_addrs(),
+        "PID": os.getpid(),
+    }
 
 
 def log_hardware(result: Result) -> None:
@@ -40,16 +66,7 @@ def log_hardware(result: Result) -> None:
     :param result: testcase result
     """
     result.log(socket.getfqdn(), description="Current Host")
-    hardware = {
-        "CPU count": psutil.cpu_count(),
-        "CPU frequence": str(psutil.cpu_freq()),
-        "CPU percent": psutil.cpu_percent(interval=1, percpu=True),
-        "Memory": str(psutil.virtual_memory()),
-        "Swap": str(psutil.swap_memory()),
-        "Disk usage": str(psutil.disk_usage(os.getcwd())),
-        "Net interface addresses": psutil.net_if_addrs(),
-        "PID": os.getpid(),
-    }
+    hardware = get_hardware_info()
     result.dict.log(hardware, description="Hardware info")
 
 
