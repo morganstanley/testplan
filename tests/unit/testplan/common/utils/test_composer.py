@@ -13,11 +13,13 @@ def _context_manager_gen(
             sys.stdout.write(f"entering {name}\n")
             if will_raise:
                 sys.stdout.write(f"raised by {name}\n")
-                raise RuntimeError("welp")
+                return 1 / 0
             return f"r{name}"
 
         def __exit__(self, exc_type, exc_value, traceback):
-            if exc_type is not None:
+            # we want to distinguish exceptions thrown by __enter__
+            # from exceptions thrown by the "with" body
+            if exc_type is not None and exc_type is not ZeroDivisionError:
                 if will_catch:
                     sys.stdout.write(f"caught by {name}\n")
                     sys.stdout.write(f"leaving {name}\n")
@@ -66,7 +68,7 @@ def test_compose_contexts_all_fail(capsys):
     our composer should immediately raise without going any further.
     """
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ZeroDivisionError):
         a = _context_manager_gen("a", will_raise=True)
         b = _context_manager_gen("b", will_raise=True)
         c = _context_manager_gen("c", will_raise=True)
@@ -84,7 +86,7 @@ def test_compose_contexts_inner_fail(capsys):
     our composer should bubble the error to the outside world.
     """
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ZeroDivisionError):
         a = _context_manager_gen("a", will_catch=True)
         b = _context_manager_gen("b")
         c = _context_manager_gen("c", will_raise=True)
@@ -93,7 +95,11 @@ def test_compose_contexts_inner_fail(capsys):
             assert rs == NotImplemented
             raise NotImplementedError("this will never be executed")
 
-    expected = [f"entering {n}" for n in ("a", "b", "c")] + ["raised by c"]
+    expected = (
+        [f"entering {n}" for n in ("a", "b", "c")]
+        + ["raised by c"]
+        + [f"leaving {n}" for n in ("b", "a")]
+    )
     captured = capsys.readouterr().out.strip().split("\n")
     assert captured == expected
 

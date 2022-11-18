@@ -40,7 +40,6 @@ from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.environment import EnvironmentCreator, Environments
 from testplan.exporters import testing as test_exporters
 from testplan.exporters.testing.base import Exporter
-from testplan.exporters.testing.coverage import ExportingCoverage
 from testplan.report import (
     ReportCategories,
     Status,
@@ -383,11 +382,7 @@ class TestRunner(Runnable):
             self.cfg.interactive_port is None
             and self.cfg.watching_lines is not None
         ):
-            exporters.append(
-                test_exporters.CoverageExporter(
-                    coverage_export_type=ExportingCoverage.ExportTestsAsPattern
-                )
-            )
+            exporters.append(test_exporters.CoverageExporter())
         return exporters
 
     def add_environment(

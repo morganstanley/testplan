@@ -420,8 +420,8 @@ def format_duration(duration: int) -> str:
 def exponential_interval(
     initial: float = 0.1,
     multiplier: float = 2,
-    maximum: float = None,
-    minimum: float = None,
+    maximum: Optional[float] = None,
+    minimum: Optional[float] = None,
 ) -> Generator[float, None, None]:
     """
     Generator that returns exponentially increasing/decreasing values,

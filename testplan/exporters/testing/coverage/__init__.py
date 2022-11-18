@@ -6,7 +6,6 @@ Coverage data related exporter.
 import pathlib
 import sys
 from contextlib import contextmanager
-from enum import IntEnum, auto
 from typing import Generator, Mapping, OrderedDict, TextIO, Tuple
 
 from testplan.common.exporters import ExporterConfig
@@ -18,57 +17,36 @@ from testplan.report.testing.base import (
 )
 
 
-class ExportingCoverage(IntEnum):
-    # more type might be added later
-    ExportTestsAsPattern = auto()
-
-
-class CoverageExporterConfig(ExporterConfig):
-    """
-    Configuration object for
-    :py:class: `CoverageExporter <testplan.exporters.testing.coverage.CoverageExporter>`
-    object.
-    """
-
-    @classmethod
-    def get_options(cls):
-        return {"coverage_export_type": ExportingCoverage}
-
-
 class CoverageExporter(Exporter):
     """
-    Exporter focusing on coverage data.
+    Exporting covered tests to somewhere on this planet.
     """
 
-    CONFIG = CoverageExporterConfig
+    CONFIG = ExporterConfig
 
-    def __init__(self, name: str = "Custom File Exporter", **options):
+    def __init__(self, name: str = "Coverage Exporter", **options):
         super(CoverageExporter, self).__init__(name=name, **options)
 
     def export(self, report: TestReport):
         if len(report):
-            if (
-                self.cfg.coverage_export_type
-                == ExportingCoverage.ExportTestsAsPattern
-            ):
-                # here we use an OrderedDict as an ordered set
-                results = OrderedDict()
-                for entry in report.entries:
-                    if isinstance(entry, TestGroupReport):
-                        self._append_covered_group_n_case(entry, [], results)
-                if results:
-                    with _custom_open(self.cfg.impacted_tests_output) as (
-                        f,
-                        fn,
-                    ):
-                        self.logger.exporter_info(
-                            f"Impacted tests output to {fn}."
-                        )
-                        for k in results.keys():
-                            f.write(":".join(k) + "\n")
-                    return self.cfg.impacted_tests_output
-                self.logger.exporter_info("No impacted tests found.")
-                return None
+            # here we use an OrderedDict as an ordered set
+            results = OrderedDict()
+            for entry in report.entries:
+                if isinstance(entry, TestGroupReport):
+                    self._append_covered_group_n_case(entry, [], results)
+            if results:
+                with _custom_open(self.cfg.impacted_tests_output) as (
+                    f,
+                    fn,
+                ):
+                    self.logger.exporter_info(
+                        f"Impacted tests output to {fn}."
+                    )
+                    for k in results.keys():
+                        f.write(":".join(k) + "\n")
+                return self.cfg.impacted_tests_output
+            self.logger.exporter_info("No impacted tests found.")
+            return None
         return None
 
     def _append_covered_group_n_case(

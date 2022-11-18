@@ -1,3 +1,4 @@
+import inspect
 import os
 import random
 import tempfile
@@ -17,6 +18,11 @@ from subject_module import (
 # to avoid "testsuite" & "testcase" treated as tests by pytest
 import testplan.testing.multitest as mt
 from testplan import TestplanMock
+
+
+def get_lines(symb):
+    t = inspect.getsourcelines(symb)
+    return list(range(t[1], len(t[0]) + t[1]))
 
 
 @pytest.fixture
@@ -133,7 +139,7 @@ def test_watch_lines_basic(subject_path, temp_file_name):
     mt_name = "BasicMultitest"
     plan = TestplanMock(
         name="watch_lines_basic_test",
-        watching_lines={subject_path: [26, 27, 28, 29]},  # to_lazy
+        watching_lines={subject_path: get_lines(to_lazy)},
         impacted_tests_output=temp_file_name,
     )
     plan.add(mt.MultiTest(name=mt_name, suites=[BasicSuite()]))
@@ -153,7 +159,7 @@ def test_watch_lines_ignore_parallel(subject_path, temp_file_name):
     mt_name = "ParallelMultitest"
     plan = TestplanMock(
         name="watch_lines_ignore_parallel_test",
-        watching_lines={subject_path: [26, 27, 28, 29]},  # to_lazy
+        watching_lines={subject_path: get_lines(to_lazy)},
         impacted_tests_output=temp_file_name,
     )
     plan.add(mt.MultiTest(name=mt_name, suites=[ParallelSuite()]))
@@ -169,7 +175,7 @@ def test_watch_lines_case_with_pre_post(subject_path, temp_file_name):
     mt_name = "WithPrePostMultitest"
     plan = TestplanMock(
         name="watch_lines_case_with_pre_post_test",
-        watching_lines={subject_path: [7, 8, 11, 12]},  # box & unbox
+        watching_lines={subject_path: get_lines(box) + get_lines(unbox)},
         impacted_tests_output=temp_file_name,
     )
     plan.add(mt.MultiTest(name=mt_name, suites=[WithPrePostSuite()]))
@@ -186,7 +192,7 @@ def test_watch_lines_suite_with_setup_teardown(subject_path, temp_file_name):
     mt_name = "WithSetupTeardownMultitest"
     plan = TestplanMock(
         name="watch_lines_suite_with_setup_teardown_test",
-        watching_lines={subject_path: [7, 8, 11, 12]},  # box & unbox
+        watching_lines={subject_path: get_lines(box) + get_lines(unbox)},
         impacted_tests_output=temp_file_name,
     )
     plan.add(mt.MultiTest(name=mt_name, suites=[WithSetupTeardownSuite()]))
@@ -203,7 +209,7 @@ def test_watch_lines_multitest_with_hook(subject_path, temp_file_name):
     mt_name = "WithHookMultitest"
     plan = TestplanMock(
         name="watch_lines_multitest_with_hook_test",
-        watching_lines={subject_path: [57, 58, 59, 60]},  # lazy_apply
+        watching_lines={subject_path: get_lines(lazy_apply)},
         impacted_tests_output=temp_file_name,
     )
     plan.add(
