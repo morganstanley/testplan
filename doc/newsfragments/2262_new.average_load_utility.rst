@@ -1,0 +1,1 @@
+Added :py:meth:`get_hardware_info <testplan.common.utils.helper.get_hardware_info>` for returning hardware information independent of reporting. :py:meth:`log_hardware <testplan.common.utils.helper.log_hardware>` now logs average load.
