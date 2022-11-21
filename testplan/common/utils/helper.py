@@ -48,7 +48,7 @@ def get_hardware_info() -> Dict:
         "Average load": dict(
             zip(
                 ["Over 1 min", "Over 5 min", "Over 15 min"],
-                os.getloadavg(),
+                psutil.getloadavg(),
             )
         ),
         "Memory": str(psutil.virtual_memory()),
