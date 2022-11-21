@@ -26,7 +26,7 @@ should be encoded in JSON format and stored in a readable file.
 Usage
 =====
 
-To use this feature, you may run your testplan with extra flag "--watch-lines"
+To use this feature, you may run your testplan with extra flag ``--watch-lines``
 following by the path to a JSON file containing changed files and lines:
 
 .. code-block:: bash
@@ -42,11 +42,11 @@ Or maybe you want to watch the whole file:
     $ python test_plan.py --watch-lines changed_lines.json
 
 By default this list of impacted tests will be printed to the standard output,
-but you can certainly specify the output file with "--output-impacted-tests":
+but you can certainly specify the output file with ``--output-impacted-tests``:
 
 .. code-block:: bash
 
-    $ # assuming we already got a valid "changed_lines.json"
+    $ # assuming we already have a valid "changed_lines.json"
     $ python test_plan.py \
     $   --watch-lines changed_lines.json \
     $   --output-impacted-tests tests_need_attention
