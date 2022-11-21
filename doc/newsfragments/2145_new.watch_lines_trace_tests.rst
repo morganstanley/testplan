@@ -1,0 +1,1 @@
+Introduced tracing impacted tests by change feature. Change should be represented by a JSON file containing added or modified Python files and lines, and Testplan will watch these lines when running tests, and finally output impacted tests in test pattern format to standard output or some specific file.

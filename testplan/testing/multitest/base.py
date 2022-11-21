@@ -7,34 +7,31 @@ import itertools
 import os
 from typing import Callable, Optional
 
-from schema import Or, And, Use
+from schema import And, Or, Use
 
-from testplan.common import config
-from testplan.common import entity
-from testplan.common.report.base import SkipTestcaseException
-from testplan.common.utils import interface
-from testplan.common.utils import validation
-from testplan.common.utils import timing
+from testplan.common import config, entity
 from testplan.common.utils import callable as callable_utils
-from testplan.common.utils import strings
-from testplan.common.utils import watcher
+from testplan.common.utils import (
+    interface,
+    strings,
+    timing,
+    validation,
+    watcher,
+)
 from testplan.common.utils.composer import compose_contexts
-
-from testplan.testing import tagging
-from testplan.testing import filtering
+from testplan.report import (
+    ReportCategories,
+    RuntimeStatus,
+    Status,
+    TestCaseReport,
+    TestGroupReport,
+)
 from testplan.testing import base as testing_base
-from testplan.testing.multitest.entries import base as entries_base
+from testplan.testing import filtering, tagging
 from testplan.testing.multitest import result
 from testplan.testing.multitest import suite as mtest_suite
+from testplan.testing.multitest.entries import base as entries_base
 from testplan.testing.multitest.result import report_target
-
-from testplan.report import (
-    TestGroupReport,
-    TestCaseReport,
-    Status,
-    RuntimeStatus,
-    ReportCategories,
-)
 
 
 def iterable_suites(obj):

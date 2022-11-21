@@ -330,11 +330,14 @@ Command line
                             "pattern" - List tests in `--patterns` / `--tags` compatible format. Max 25 testcases per suite will be displayed.
 
                             "name" - List tests in readable format. Max 25 testcases per suite will be displayed.
-      -i, --interactive     Enable interactive mode. A port may be specified, otherwise the port defaults to 0.
 
     General:
       --runpath             Path under which all temp files and logs will be created.
       --timeout             Expiry timeout on test execution.
+      -i, --interactive     Enable interactive mode. A port may be specified, otherwise the port defaults to 0.
+      --watch-lines         Enables tracing tests impacted by some specific change. A file containing file names and their line numbers to be watched must be specified.
+      --output-impacted-tests
+                            Specify output file for impacted tests given changes to watch (see --watch-lines). Will be ignored if --watch-lines is not specified. Output is in test pattern format with one pattern per line. Default to standard output.
 
     Filtering:
       --patterns            Test filter, supports glob notation & multiple arguments.

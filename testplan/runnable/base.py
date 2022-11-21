@@ -8,6 +8,7 @@ import time
 import uuid
 import webbrowser
 from collections import OrderedDict
+from pathlib import Path
 from typing import (
     Any,
     Callable,
@@ -101,6 +102,18 @@ def result_for_failed_task(original_result):
     return result
 
 
+def validate_lines(d: dict) -> bool:
+    for v in d.values():
+        if not (
+            isinstance(v, list) and all(map(lambda x: isinstance(x, int), v))
+        ) and not (isinstance(v, str) and v.strip() == "*"):
+            raise ValueError(
+                f'Unexpected value "{v}" of type {type(v)} for lines, '
+                'list of integer or string literal "*" expected.'
+            )
+    return True
+
+
 class TestRunnerConfig(RunnableConfig):
     """
     Configuration object for
@@ -175,7 +188,18 @@ class TestRunnerConfig(RunnableConfig):
                 Or(str, lambda x: inspect.ismodule(x))
             ],
             ConfigOption("label", default=None): Or(None, str),
-            ConfigOption("watching_lines", default=None): Or(dict, None),
+            ConfigOption("watching_lines", default=None): Or(
+                And(
+                    dict,
+                    Use(
+                        lambda d: {
+                            str(Path(k).resolve()): v for k, v in d.items()
+                        }
+                    ),
+                    validate_lines,
+                ),
+                None,
+            ),
             ConfigOption("impacted_tests_output", default="-"): str,
         }
 

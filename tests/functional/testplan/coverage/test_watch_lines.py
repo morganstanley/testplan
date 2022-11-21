@@ -1,9 +1,11 @@
 import inspect
 import os
 import random
+import re
 import tempfile
 
 import pytest
+import schema
 from subject_module import (
     box,
     lazy_apply,
@@ -135,10 +137,38 @@ def multitest_after_stop(env):
     )
 
 
-def test_watch_lines_basic(subject_path, temp_file_name):
+# mt_name = "InvalidInputMultitest"
+# plan = TestplanMock(
+#     name="_test",
+#     watching_lines={os.path.join(os.path.dirname(__file__), "subject_module.py"): ["i", "am", "invalid"]},
+# )
+# plan.add(mt.MultiTest(name=mt_name, suites=[BasicSuite()]))
+# plan.run()
+
+
+def test_watch_lines_invalid_input(subject_path):
+    mt_name = "InvalidInputMultitest"
+    with pytest.raises(
+        schema.SchemaError, match=r".*of type <class \\'list\\'>.*"
+    ):
+        _ = TestplanMock(
+            name=f"{inspect.currentframe().f_code.co_name}_test",
+            watching_lines={subject_path: ["i", "am", "invalid"]},
+        )
+
+    with pytest.raises(
+        schema.SchemaError, match=r".*value \"also invalid am i\".*"
+    ):
+        _ = TestplanMock(
+            name=f"{inspect.currentframe().f_code.co_name}_test",
+            watching_lines={subject_path: "also invalid am i"},
+        )
+
+
+def test_trace_tests_basic(subject_path, temp_file_name):
     mt_name = "BasicMultitest"
     plan = TestplanMock(
-        name="watch_lines_basic_test",
+        name=f"{inspect.currentframe().f_code.co_name}_test",
         watching_lines={subject_path: get_lines(to_lazy)},
         impacted_tests_output=temp_file_name,
     )
@@ -155,10 +185,28 @@ def test_watch_lines_basic(subject_path, temp_file_name):
         )
 
 
-def test_watch_lines_ignore_parallel(subject_path, temp_file_name):
+def test_trace_tests_all_lines(subject_path, temp_file_name):
+    mt_name = "AllLinesMultitest"
+    plan = TestplanMock(
+        name=f"{inspect.currentframe().f_code.co_name}_test",
+        watching_lines={subject_path: "*"},
+        impacted_tests_output=temp_file_name,
+    )
+    plan.add(mt.MultiTest(name=mt_name, suites=[BasicSuite()]))
+    plan.run()
+
+    with open(temp_file_name, "r") as f:
+        lines = [l.strip() for l in f.readlines() if l]
+    assert len(lines) == 7
+    assert lines[-1].startswith(
+        f"{mt_name}:BasicSuite:parameter_only_case:parameter_only_case <lli1="
+    )
+
+
+def test_trace_tests_ignore_parallel(subject_path, temp_file_name):
     mt_name = "ParallelMultitest"
     plan = TestplanMock(
-        name="watch_lines_ignore_parallel_test",
+        name=f"{inspect.currentframe().f_code.co_name}_test",
         watching_lines={subject_path: get_lines(to_lazy)},
         impacted_tests_output=temp_file_name,
     )
@@ -171,10 +219,10 @@ def test_watch_lines_ignore_parallel(subject_path, temp_file_name):
     assert lines[0] == f"{mt_name}:ParallelSuite:basic_case"
 
 
-def test_watch_lines_case_with_pre_post(subject_path, temp_file_name):
+def test_trace_tests_case_with_pre_post(subject_path, temp_file_name):
     mt_name = "WithPrePostMultitest"
     plan = TestplanMock(
-        name="watch_lines_case_with_pre_post_test",
+        name=f"{inspect.currentframe().f_code.co_name}_test",
         watching_lines={subject_path: get_lines(box) + get_lines(unbox)},
         impacted_tests_output=temp_file_name,
     )
@@ -188,10 +236,10 @@ def test_watch_lines_case_with_pre_post(subject_path, temp_file_name):
     assert lines[1] == f"{mt_name}:WithPrePostSuite:irrelevant_case"
 
 
-def test_watch_lines_suite_with_setup_teardown(subject_path, temp_file_name):
+def test_trace_tests_suite_with_setup_teardown(subject_path, temp_file_name):
     mt_name = "WithSetupTeardownMultitest"
     plan = TestplanMock(
-        name="watch_lines_suite_with_setup_teardown_test",
+        name=f"{inspect.currentframe().f_code.co_name}_test",
         watching_lines={subject_path: get_lines(box) + get_lines(unbox)},
         impacted_tests_output=temp_file_name,
     )
@@ -205,10 +253,10 @@ def test_watch_lines_suite_with_setup_teardown(subject_path, temp_file_name):
     assert lines[1] == f"{mt_name}:WithSetupTeardownSuite:basic_case"
 
 
-def test_watch_lines_multitest_with_hook(subject_path, temp_file_name):
+def test_trace_tests_multitest_with_hook(subject_path, temp_file_name):
     mt_name = "WithHookMultitest"
     plan = TestplanMock(
-        name="watch_lines_multitest_with_hook_test",
+        name=f"{inspect.currentframe().f_code.co_name}_test",
         watching_lines={subject_path: get_lines(lazy_apply)},
         impacted_tests_output=temp_file_name,
     )
