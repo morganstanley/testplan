@@ -41,22 +41,28 @@ def get_hardware_info() -> Dict:
 
     :return: dictionary of hardware information
     """
-    return {
+    data = {
         "CPU count": psutil.cpu_count(),
         "CPU frequence": str(psutil.cpu_freq()),
         "CPU percent": psutil.cpu_percent(interval=1, percpu=True),
-        "Average load": dict(
-            zip(
-                ["Over 1 min", "Over 5 min", "Over 15 min"],
-                psutil.getloadavg(),
-            )
-        ),
         "Memory": str(psutil.virtual_memory()),
         "Swap": str(psutil.swap_memory()),
         "Disk usage": str(psutil.disk_usage(os.getcwd())),
         "Net interface addresses": psutil.net_if_addrs(),
         "PID": os.getpid(),
     }
+
+    load_avg = ("N/A", "N/A", "N/A")
+    try:
+        load_avg = psutil.getloadavg()
+    except Exception as exc:
+        print(exc)
+
+    data["Average load"] = dict(
+        zip(["Over 1 min", "Over 5 min", "Over 15 min"], load_avg)
+    )
+
+    return data
 
 
 def log_hardware(result: Result) -> None:
