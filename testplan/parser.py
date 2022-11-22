@@ -118,25 +118,24 @@ class TestplanParser:
         )
 
         general_group.add_argument(
-            "--watch-lines",
+            "--trace-tests",
             metavar="PATH",
             type=_read_json_file,
-            dest="watching_lines",
-            help="Enables tracing tests impacted by some specific change. "
-            "A file containing file names and their line numbers to be watched"
-            " must be specified.",
+            dest="tracing_tests",
+            help="Enable the tracing tests feature. A JSON file containing "
+            "file names and line numbers to be watched by the tracer must be "
+            "specified.",
         )
 
         general_group.add_argument(
-            "--output-impacted-tests",
+            "--trace-tests-output",
             metavar="PATH",
             default="-",
             type=str,
-            dest="impacted_tests_output",
-            help="Specify output file for impacted tests given changes to "
-            "watch (see --watch-lines). Will be ignored if --watch-lines "
-            "is not specified. Output is in test pattern format with one "
-            "pattern per line. Default to standard output.",
+            dest="tracing_tests_output",
+            help="Specify output file for tests impacted by change in "
+            "Testplan pattern format (see --trace-tests). Will be ignored "
+            "if --trace-tests is not specified. Default to standard output.",
         )
 
         filter_group = parser.add_argument_group("Filtering")

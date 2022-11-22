@@ -188,7 +188,7 @@ class TestRunnerConfig(RunnableConfig):
                 Or(str, lambda x: inspect.ismodule(x))
             ],
             ConfigOption("label", default=None): Or(None, str),
-            ConfigOption("watching_lines", default=None): Or(
+            ConfigOption("tracing_tests", default=None): Or(
                 And(
                     dict,
                     Use(
@@ -200,7 +200,7 @@ class TestRunnerConfig(RunnableConfig):
                 ),
                 None,
             ),
-            ConfigOption("impacted_tests_output", default="-"): str,
+            ConfigOption("tracing_tests_output", default="-"): str,
         }
 
 
@@ -404,9 +404,9 @@ class TestRunner(Runnable):
             )
         if (
             self.cfg.interactive_port is None
-            and self.cfg.watching_lines is not None
+            and self.cfg.tracing_tests is not None
         ):
-            exporters.append(test_exporters.CoverageExporter())
+            exporters.append(test_exporters.CoveredTestsExporter())
         return exporters
 
     def add_environment(

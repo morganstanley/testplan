@@ -299,10 +299,10 @@ class MultiTest(testing_base.Test):
         # watch line features depends on configuration from the outside world
         if (
             self.cfg.parent is not None
-            and isinstance(self.cfg.watching_lines, dict)
+            and self.cfg.tracing_tests is not None
             and self.cfg.interactive_port is None
         ):
-            self.watcher.set_watching_lines(self.cfg.watching_lines)
+            self.watcher.set_watching_lines(self.cfg.tracing_tests)
 
     def get_test_context(self):
         """

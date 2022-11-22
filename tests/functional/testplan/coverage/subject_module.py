@@ -1,5 +1,5 @@
 """
-Python module as a test subject for the watching-lines feature.
+Python module as a test subject for the tracing tests feature.
 
 While its content doesn't really matter, this module contains a lazily-
 evaluated version of Python list together with its related operations.

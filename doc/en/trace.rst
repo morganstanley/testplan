@@ -6,49 +6,45 @@ Tracing Impacted Tests
 Introduction
 ============
 
-There are certain circumstances that one need to pay extra attentions to changes
-during software development process. Obviously such change could possibly affect
-some tests and make them fail inside the CI pipelines. It would be quite helpful
-for the developers to get a list of impacted tests given such change, to e.g.
-either suggests a list of tests that should be checked before going into production,
-or to help them quickly narrow down the range of tests that should be fixed. Here
-change refers to a set of file paths paired with a set of line numbers for Testplan
-to keep an eye on when executing the tests. This change, due to its possibly big size,
-should be encoded in JSON format and stored in a readable file.
+This feature needs to take in a JSON file containing Python file names and lines
+numbers, and will report a list of tests that executes through those lines during
+Testplan execution, in the format of Testplan filtering pattern. It would be useful
+if the developers want to get a set of tests impacted by some specific change.
 
 .. note::
 
-    Currently this tracing impacted tests feature only works on Testplan MultiTests.
+    Currently this tracing tests feature will only work on Testplan MultiTests.
     Due to certain implementation limit, this feature currently doesn't work well
     with testcase parallel execution, and no impact tests data will be collected
-    for parallel executed testcases.
+    for parallel executed testcases. This feature will be automatically switched
+    off when Testplan running in interactive mode as well.
 
 Usage
 =====
 
-To use this feature, you may run your testplan with extra flag ``--watch-lines``
+To use this feature, you may run your testplan with extra flag ``--trace-tests``
 following by the path to a JSON file containing changed files and lines:
 
 .. code-block:: bash
 
     $ echo { \"my_module.py\": [1, 2, 3, 4] } > changed_lines.json
-    $ python test_plan.py --watch-lines changed_lines.json
+    $ python test_plan.py --trace-tests changed_lines.json
 
-Or maybe you want to watch the whole file:
+Or maybe you want to trace the whole file:
 
 .. code-block:: bash
 
-    $ echo { \"my_module.py\": "*", \"my_other_module.py\": "*" } > changed_lines.json
-    $ python test_plan.py --watch-lines changed_lines.json
+    $ echo { \"my_module.py\": \"*\", \"my_other_module.py\": \"*\" } > changed_lines.json
+    $ python test_plan.py --trace-tests changed_lines.json
 
 By default this list of impacted tests will be printed to the standard output,
-but you can certainly specify the output file with ``--output-impacted-tests``:
+but you can certainly specify the output file with ``--trace-tests-output``:
 
 .. code-block:: bash
 
     $ # assuming we already have a valid "changed_lines.json"
     $ python test_plan.py \
-    $   --watch-lines changed_lines.json \
-    $   --output-impacted-tests tests_need_attention
+    $   --trace-tests changed_lines.json \
+    $   --trace-tests-output tests_need_attention
 
 The output tests will be in Testplan filtering pattern.
