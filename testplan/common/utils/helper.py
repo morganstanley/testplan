@@ -59,10 +59,7 @@ def get_hardware_info() -> Dict:
         print(exc)
 
     data["Average load"] = dict(
-        zip(
-            ["Over 1 min", "Over 5 min", "Over 15 min"],
-            load_avg
-        )
+        zip(["Over 1 min", "Over 5 min", "Over 15 min"], load_avg)
     )
 
     return data
