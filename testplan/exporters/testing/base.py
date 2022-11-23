@@ -6,6 +6,11 @@ import pathlib
 from typing import Dict, List, Optional
 from shutil import copyfile
 
+try:
+    from typing import TypeAlias  # >= 3.10
+except ImportError:
+    from typing_extensions import TypeAlias  # < 3.10
+
 from schema import Use
 
 from testplan.common.config import ConfigOption
@@ -17,11 +22,7 @@ from testplan.testing import tagging
 from testplan.defaults import ATTACHMENTS
 
 
-# TODO: what we mean here? This is just another dot on the inheritance graph.
-class Exporter(BaseExporter):
-    """TODO"""
-
-    pass
+Exporter: TypeAlias = BaseExporter
 
 
 class TagFilteredExporterConfig(ExporterConfig):

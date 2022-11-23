@@ -100,10 +100,10 @@ The three main components of a Testplan are:
             plan.add(test)
 
         if __name__ == '__main__':
-          res = main()
-          print(res)  # TestplanResult
-          print(res.report) # TestReport
-          sys.exit(not res)
+            res = main()
+            print(res)  # TestplanResult
+            print(res.report) # TestReport
+            sys.exit(not res)
 
 
 Program
@@ -203,7 +203,7 @@ The parts of this applications are:
         .. code-block:: python
 
             if __name__ == '__main__':
-              sys.exit(not main())
+                sys.exit(not main())
 
 Console output
 ++++++++++++++
@@ -330,11 +330,14 @@ Command line
                             "pattern" - List tests in `--patterns` / `--tags` compatible format. Max 25 testcases per suite will be displayed.
 
                             "name" - List tests in readable format. Max 25 testcases per suite will be displayed.
-      -i, --interactive     Enable interactive mode. A port may be specified, otherwise the port defaults to 0.
 
     General:
       --runpath             Path under which all temp files and logs will be created.
       --timeout             Expiry timeout on test execution.
+      -i, --interactive     Enable interactive mode. A port may be specified, otherwise the port defaults to 0.
+      --trace-tests         Enable the tracing tests feature. A JSON file containing file names and line numbers to be watched by the tracer must be specified.
+      --trace-tests-output
+                            Specify output file for tests impacted by change in Testplan pattern format (see --trace-tests). Will be ignored if --trace-tests is not specified. Default to standard output.
 
     Filtering:
       --patterns            Test filter, supports glob notation & multiple arguments.

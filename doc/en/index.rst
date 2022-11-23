@@ -200,6 +200,7 @@ License information `here <https://github.com/morganstanley/testplan/blob/main/L
    :hidden:
 
    interactive
+   trace
    pools
    remote
    exotic_features

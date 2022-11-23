@@ -9,15 +9,15 @@ import sys
 import threading
 import time
 import traceback
-from collections import deque, OrderedDict
-from typing import Union, Optional
+from collections import OrderedDict, deque
+from typing import Callable, Deque, Dict, List, Optional, Tuple, Union
 
 import psutil
 from schema import Or
 
 from testplan.common.config import Config, ConfigOption
 from testplan.common.utils import logger
-from testplan.common.utils.path import makeemptydirs, makedirs, default_runpath
+from testplan.common.utils.path import default_runpath, makedirs, makeemptydirs
 from testplan.common.utils.strings import slugify, uuid4
 from testplan.common.utils.thread import execute_as_thread, interruptible_join
 from testplan.common.utils.timing import wait
@@ -77,7 +77,7 @@ class Environment:
         self.__dict__["start_exceptions"] = OrderedDict()
         self.__dict__["stop_exceptions"] = OrderedDict()
 
-    def add(self, item, uid=None):
+    def add(self, item: "Resource", uid: Optional[str] = None) -> str:
         """
         Adds a :py:class:`Resource <testplan.common.entity.base.Resource>` to
         the Environment.
@@ -102,22 +102,22 @@ class Environment:
         self._resources[uid] = item
         return uid
 
-    def remove(self, uid):
+    def remove(self, uid: str):
         """
         Removes resource with the given uid from the environment.
 
         :param uid: Unique identifier.
-        :type uid: ``str`` or ``NoneType``
+        :type uid: ``str``
         """
         del self._resources[uid]
 
-    def first(self):
+    def first(self) -> str:
         """
         Returns the UID of the first resource of the environment.
         """
         return next(uid for uid in self._resources.keys())
 
-    def get(self, key, default=None):
+    def get(self, key: str, default=None) -> "Resource":
         # For compatibility reason, acts like a dictionary which has
         # a `get` method that returns `None` if no attribute found.
         try:
@@ -125,7 +125,7 @@ class Environment:
         except AttributeError:
             return default
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> "Resource":
         resources = self.__getattribute__("_resources")
         initial_context = self.__getattribute__("_initial_context")
 
@@ -845,9 +845,11 @@ class Runnable(Entity):
 
     def __init__(self, **options):
         super(Runnable, self).__init__(**options)
-        self._environment = self.__class__.ENVIRONMENT(parent=self)
-        self._result = self.__class__.RESULT()
-        self._steps = deque()
+        self._environment: Environment = self.__class__.ENVIRONMENT(
+            parent=self
+        )
+        self._result: RunnableResult = self.__class__.RESULT()
+        self._steps: Deque[Tuple[Callable, List, Dict]] = deque()
         self._ihandler = None
 
     @property
@@ -874,7 +876,7 @@ class Runnable(Entity):
     # Shortcut for interactive handler
     i = interactive
 
-    def add_resource(self, resource, uid=None):
+    def add_resource(self, resource: "Resource", uid: Optional[str] = None):
         """
         Adds a :py:class:`resource <testplan.common.entity.base.Resource>`
         in the runnable environment.
@@ -891,7 +893,7 @@ class Runnable(Entity):
         resource.cfg.parent = self.cfg
         return self.resources.add(resource, uid=uid or uuid4())
 
-    def _add_step(self, step, *args, **kwargs):
+    def _add_step(self, step: Callable, *args, **kwargs):
         """
         Adds a step to the queue.
         """
@@ -1564,7 +1566,7 @@ class RunnableManager(Entity):
         if self._cfg.parse_cmdline is True:
             options = self.enrich_options(self._default_options)
 
-        self._runnable = self._initialize_runnable(**options)
+        self._runnable: Runnable = self._initialize_runnable(**options)
         for resource in self._cfg.resources:
             self._runnable.add_resource(resource)
 
